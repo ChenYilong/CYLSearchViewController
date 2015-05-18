@@ -7,6 +7,7 @@
 //
 
 #import "AppDelegate.h"
+#import "CYLSearchMainViewController.h"
 
 @interface AppDelegate ()
 
@@ -16,7 +17,22 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+    //work in application:didFinishLaunchingWithOptions
+    if([UINavigationBar conformsToProtocol:@protocol(UIAppearanceContainer)]) {
+        [UINavigationBar appearance].tintColor = [UIColor whiteColor];
+        [[UINavigationBar appearance] setTitleTextAttributes:@{NSFontAttributeName : [UIFont boldSystemFontOfSize:18], NSForegroundColorAttributeName : [UIColor whiteColor]}];
+        [[UINavigationBar appearance] setBarTintColor:[UIColor colorWithRed:(51)/255.f green:(171)/255.f blue:(160)/255.f alpha:1.f]];
+        [[UINavigationBar appearance] setTranslucent:NO];
+    }
+    //later than iOS 7
+    self.window.tintColor = [UIColor whiteColor];
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    CYLSearchMainViewController *vc = [[CYLSearchMainViewController alloc] init];
+    self.navigationController = [[UINavigationController alloc] initWithRootViewController:vc];
+    [self.window addSubview:vc.view];
+    self.window.rootViewController = self.navigationController;
+    self.window.backgroundColor = [UIColor whiteColor];
+    [self.window makeKeyAndVisible];
     return YES;
 }
 

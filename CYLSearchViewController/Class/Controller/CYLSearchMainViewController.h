@@ -1,5 +1,5 @@
 //
-//  ViewController.h
+//  CYLSearchMainViewController.h
 //  CYLSearchViewController
 //
 //  Created by chenyilong on 15/4/29.
@@ -8,8 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
-
+@interface CYLSearchMainViewController : UIViewController
 
 @end
-
