@@ -1,9 +1,9 @@
 //
 //  QuestionSearchController.h
-//  PiFuKeYiSheng
+//  http://cnblogs.com/http://weibo.com/luohanchenyilong//
 //
-//  Created by 喻平 on 14-5-20.
-//  Copyright (c) 2014年 com.pifukeyisheng. All rights reserved.
+//  Created by https://github.com/http://weibo.com/luohanchenyilong/ on 14-5-20.
+//  Copyright (c) 2014年 com.http://cnblogs.com/http://weibo.com/luohanchenyilong//. All rights reserved.
 //
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>

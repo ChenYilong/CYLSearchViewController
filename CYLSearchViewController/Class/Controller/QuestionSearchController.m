@@ -1,12 +1,12 @@
 //
 //  QuestionSearchController.m
-//  PiFuKeYiSheng
+//  http://cnblogs.com/http://weibo.com/luohanchenyilong//
 //
-//  Created by 喻平 on 14-5-20.
-//  Copyright (c) 2014年 com.pifukeyisheng. All rights reserved.
+//  Created by https://github.com/http://weibo.com/luohanchenyilong/ on 14-5-20.
+//  Copyright (c) 2014年 com.http://cnblogs.com/http://weibo.com/luohanchenyilong//. All rights reserved.
 //
-
-#define kAppWordColor  [UIColor colorWithRed:0/255.f green:150/255.f blue:136/255.f alpha:.8f]
+#define kAppColor  [UIColor colorWithRed:0/255.f green:150/255.f blue:136/255.f alpha:0.8f]
+#define kAppWordColor  [UIColor colorWithRed:0/255.f green:150/255.f blue:136/255.f alpha:0.8f]
 #define BACKGROUND_COLOR [UIColor colorWithRed:229/255.f green:238/255.f blue:235/255.f alpha:1.f] // 浅绿色背景
 #define TABLE_LINE_COLOR [UIColor colorWithRed:200/255.f green:199/255.f blue:204/255.f alpha:1.f].CGColor // 列表分割线颜色
 
@@ -94,6 +94,7 @@ UITableViewDataSource
     }];
     _searchField.layer.borderWidth = 0.5f;
     _searchField.layer.borderColor = [UIColor colorWithRed:241/255.f green:241/255.f blue:241/255.f alpha:1.f].CGColor;
+    _searchField.tintColor = kAppColor;
     _searchField.layer.cornerRadius = 5;
     UIImageView *searchIcon = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 26, 44)];
     searchIcon.contentMode = UIViewContentModeCenter;

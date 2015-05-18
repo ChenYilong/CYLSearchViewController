@@ -1,9 +1,9 @@
 //
 //  CYLSearchHeaderView.m
-//  PiFuKeYiSheng
+//  http://cnblogs.com/http://weibo.com/luohanchenyilong//
 //
-//  Created by chenyilong on 15/4/6.
-//  Copyright (c) 2015年 com.pifukeyisheng. All rights reserved.
+//  Created by http://weibo.com/luohanchenyilong/ on 15/4/6.
+//  Copyright (c) 2015年 com.http://cnblogs.com/http://weibo.com/luohanchenyilong//. All rights reserved.
 //
 #import <Foundation/Foundation.h>
 #import "CYLSearchHeaderView.h"
