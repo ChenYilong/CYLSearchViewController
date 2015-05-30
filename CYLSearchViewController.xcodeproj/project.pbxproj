@@ -12,11 +12,12 @@
 		9A48B9E11AF10A1C00AFE857 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9A48B9E01AF10A1C00AFE857 /* Images.xcassets */; };
 		9A48B9E41AF10A1C00AFE857 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9A48B9E21AF10A1C00AFE857 /* LaunchScreen.xib */; };
 		9A48B9F01AF10A1C00AFE857 /* CYLSearchViewControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A48B9EF1AF10A1C00AFE857 /* CYLSearchViewControllerTests.m */; };
-		9A48BA001AF10B2100AFE857 /* CYLSearchHeaderView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A48B9FE1AF10B2100AFE857 /* CYLSearchHeaderView.m */; };
-		9A48BA011AF10B2100AFE857 /* CYLSearchHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9A48B9FF1AF10B2100AFE857 /* CYLSearchHeaderView.xib */; };
 		9A48BA0D1AF1309A00AFE857 /* CYLSearchMainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A48BA091AF1309A00AFE857 /* CYLSearchMainViewController.m */; };
-		9A48BA0E1AF1309A00AFE857 /* QuestionSearchController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A48BA0B1AF1309A00AFE857 /* QuestionSearchController.m */; };
-		9A48BA0F1AF1309A00AFE857 /* QuestionSearchController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9A48BA0C1AF1309A00AFE857 /* QuestionSearchController.xib */; };
+		9A48BA0E1AF1309A00AFE857 /* CYLSearchController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A48BA0B1AF1309A00AFE857 /* CYLSearchController.m */; };
+		9A48BA0F1AF1309A00AFE857 /* CYLSearchController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9A48BA0C1AF1309A00AFE857 /* CYLSearchController.xib */; };
+		9A4BBBD71B18335600BD56DC /* CYLSearchBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A4BBBD61B18335600BD56DC /* CYLSearchBar.m */; };
+		9A6AD5A21B170A6300CAC6F0 /* JBKenBurnsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AD5A11B170A6300CAC6F0 /* JBKenBurnsView.m */; };
+		9A6AD5A51B177CD800CAC6F0 /* UIView+General.m in Sources */ = {isa = PBXBuildFile; fileRef = 9A6AD5A41B177CD800CAC6F0 /* UIView+General.m */; };
 		9AB1E6751B09E0D800A8F009 /* CYLSearchResultViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9AB1E6731B09E0D800A8F009 /* CYLSearchResultViewController.m */; };
 		9AB1E6761B09E0D800A8F009 /* CYLSearchResultViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 9AB1E6741B09E0D800A8F009 /* CYLSearchResultViewController.xib */; };
 /* End PBXBuildFile section */
@@ -42,14 +43,17 @@
 		9A48B9E91AF10A1C00AFE857 /* CYLSearchViewControllerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CYLSearchViewControllerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A48B9EE1AF10A1C00AFE857 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9A48B9EF1AF10A1C00AFE857 /* CYLSearchViewControllerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CYLSearchViewControllerTests.m; sourceTree = "<group>"; };
-		9A48B9FD1AF10B2100AFE857 /* CYLSearchHeaderView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CYLSearchHeaderView.h; path = View/CYLSearchHeaderView.h; sourceTree = "<group>"; };
-		9A48B9FE1AF10B2100AFE857 /* CYLSearchHeaderView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CYLSearchHeaderView.m; path = View/CYLSearchHeaderView.m; sourceTree = "<group>"; };
-		9A48B9FF1AF10B2100AFE857 /* CYLSearchHeaderView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = CYLSearchHeaderView.xib; path = View/CYLSearchHeaderView.xib; sourceTree = "<group>"; };
 		9A48BA081AF1309A00AFE857 /* CYLSearchMainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CYLSearchMainViewController.h; path = Controller/CYLSearchMainViewController.h; sourceTree = "<group>"; };
 		9A48BA091AF1309A00AFE857 /* CYLSearchMainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CYLSearchMainViewController.m; path = Controller/CYLSearchMainViewController.m; sourceTree = "<group>"; };
-		9A48BA0A1AF1309A00AFE857 /* QuestionSearchController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = QuestionSearchController.h; path = Controller/QuestionSearchController.h; sourceTree = "<group>"; };
-		9A48BA0B1AF1309A00AFE857 /* QuestionSearchController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = QuestionSearchController.m; path = Controller/QuestionSearchController.m; sourceTree = "<group>"; };
-		9A48BA0C1AF1309A00AFE857 /* QuestionSearchController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = QuestionSearchController.xib; path = Controller/QuestionSearchController.xib; sourceTree = "<group>"; };
+		9A48BA0A1AF1309A00AFE857 /* CYLSearchController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CYLSearchController.h; path = Controller/CYLSearchController.h; sourceTree = "<group>"; };
+		9A48BA0B1AF1309A00AFE857 /* CYLSearchController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CYLSearchController.m; path = Controller/CYLSearchController.m; sourceTree = "<group>"; };
+		9A48BA0C1AF1309A00AFE857 /* CYLSearchController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = CYLSearchController.xib; path = Controller/CYLSearchController.xib; sourceTree = "<group>"; };
+		9A4BBBD51B18335600BD56DC /* CYLSearchBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CYLSearchBar.h; sourceTree = "<group>"; };
+		9A4BBBD61B18335600BD56DC /* CYLSearchBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CYLSearchBar.m; sourceTree = "<group>"; };
+		9A6AD5A01B170A6300CAC6F0 /* JBKenBurnsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JBKenBurnsView.h; sourceTree = "<group>"; };
+		9A6AD5A11B170A6300CAC6F0 /* JBKenBurnsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JBKenBurnsView.m; sourceTree = "<group>"; };
+		9A6AD5A31B177CD800CAC6F0 /* UIView+General.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+General.h"; sourceTree = "<group>"; };
+		9A6AD5A41B177CD800CAC6F0 /* UIView+General.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+General.m"; sourceTree = "<group>"; };
 		9AB1E6721B09E0D800A8F009 /* CYLSearchResultViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CYLSearchResultViewController.h; sourceTree = "<group>"; };
 		9AB1E6731B09E0D800A8F009 /* CYLSearchResultViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CYLSearchResultViewController.m; sourceTree = "<group>"; };
 		9AB1E6741B09E0D800A8F009 /* CYLSearchResultViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = CYLSearchResultViewController.xib; sourceTree = "<group>"; };
@@ -145,9 +149,9 @@
 			children = (
 				9A48BA081AF1309A00AFE857 /* CYLSearchMainViewController.h */,
 				9A48BA091AF1309A00AFE857 /* CYLSearchMainViewController.m */,
-				9A48BA0A1AF1309A00AFE857 /* QuestionSearchController.h */,
-				9A48BA0B1AF1309A00AFE857 /* QuestionSearchController.m */,
-				9A48BA0C1AF1309A00AFE857 /* QuestionSearchController.xib */,
+				9A48BA0A1AF1309A00AFE857 /* CYLSearchController.h */,
+				9A48BA0B1AF1309A00AFE857 /* CYLSearchController.m */,
+				9A48BA0C1AF1309A00AFE857 /* CYLSearchController.xib */,
 				9AB1E6721B09E0D800A8F009 /* CYLSearchResultViewController.h */,
 				9AB1E6731B09E0D800A8F009 /* CYLSearchResultViewController.m */,
 				9AB1E6741B09E0D800A8F009 /* CYLSearchResultViewController.xib */,
@@ -158,9 +162,8 @@
 		9A48B9FB1AF10AF000AFE857 /* View */ = {
 			isa = PBXGroup;
 			children = (
-				9A48B9FD1AF10B2100AFE857 /* CYLSearchHeaderView.h */,
-				9A48B9FE1AF10B2100AFE857 /* CYLSearchHeaderView.m */,
-				9A48B9FF1AF10B2100AFE857 /* CYLSearchHeaderView.xib */,
+				9A4BBBD51B18335600BD56DC /* CYLSearchBar.h */,
+				9A4BBBD61B18335600BD56DC /* CYLSearchBar.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -168,6 +171,10 @@
 		9A48B9FC1AF10AF600AFE857 /* Other */ = {
 			isa = PBXGroup;
 			children = (
+				9A6AD5A31B177CD800CAC6F0 /* UIView+General.h */,
+				9A6AD5A41B177CD800CAC6F0 /* UIView+General.m */,
+				9A6AD5A01B170A6300CAC6F0 /* JBKenBurnsView.h */,
+				9A6AD5A11B170A6300CAC6F0 /* JBKenBurnsView.m */,
 			);
 			name = Other;
 			sourceTree = "<group>";
@@ -255,8 +262,7 @@
 				9A48B9E41AF10A1C00AFE857 /* LaunchScreen.xib in Resources */,
 				9AB1E6761B09E0D800A8F009 /* CYLSearchResultViewController.xib in Resources */,
 				9A48B9E11AF10A1C00AFE857 /* Images.xcassets in Resources */,
-				9A48BA011AF10B2100AFE857 /* CYLSearchHeaderView.xib in Resources */,
-				9A48BA0F1AF1309A00AFE857 /* QuestionSearchController.xib in Resources */,
+				9A48BA0F1AF1309A00AFE857 /* CYLSearchController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -275,9 +281,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				9AB1E6751B09E0D800A8F009 /* CYLSearchResultViewController.m in Sources */,
-				9A48BA001AF10B2100AFE857 /* CYLSearchHeaderView.m in Sources */,
-				9A48BA0E1AF1309A00AFE857 /* QuestionSearchController.m in Sources */,
+				9A48BA0E1AF1309A00AFE857 /* CYLSearchController.m in Sources */,
+				9A6AD5A21B170A6300CAC6F0 /* JBKenBurnsView.m in Sources */,
+				9A4BBBD71B18335600BD56DC /* CYLSearchBar.m in Sources */,
 				9A48B9D91AF10A1C00AFE857 /* AppDelegate.m in Sources */,
+				9A6AD5A51B177CD800CAC6F0 /* UIView+General.m in Sources */,
 				9A48BA0D1AF1309A00AFE857 /* CYLSearchMainViewController.m in Sources */,
 				9A48B9D61AF10A1C00AFE857 /* main.m in Sources */,
 			);

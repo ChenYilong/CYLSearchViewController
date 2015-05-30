@@ -2,14 +2,15 @@
 //  AppDelegate.m
 //  CYLSearchViewController
 //
-//  Created by chenyilong on 15/4/29.
-//  Copyright (c) 2015年 chenyilong. All rights reserved.
+//  Created by http://weibo.com/luohanchenyilong/ on 15/4/29.
+//  Copyright (c) 2015年 http://weibo.com/luohanchenyilong/. All rights reserved.
 //
 
 #import "AppDelegate.h"
 #import "CYLSearchMainViewController.h"
+#import "JBKenBurnsView.h"
 
-@interface AppDelegate ()
+@interface AppDelegate () <KenBurnsViewDelegate>
 
 @end
 
@@ -21,17 +22,31 @@
     if([UINavigationBar conformsToProtocol:@protocol(UIAppearanceContainer)]) {
         [UINavigationBar appearance].tintColor = [UIColor whiteColor];
         [[UINavigationBar appearance] setTitleTextAttributes:@{NSFontAttributeName : [UIFont boldSystemFontOfSize:18], NSForegroundColorAttributeName : [UIColor whiteColor]}];
-        [[UINavigationBar appearance] setBarTintColor:[UIColor colorWithRed:(51)/255.f green:(171)/255.f blue:(160)/255.f alpha:1.f]];
+        [[UINavigationBar appearance] setBarTintColor:
+         [UIColor colorWithRed:22/255.0 green:59/255.0 blue:188/255.0 alpha:1]
+         ] ;
         [[UINavigationBar appearance] setTranslucent:NO];
     }
+    
+    KenBurnsView *kenView =[[KenBurnsView alloc] initWithFrame:CGRectMake(0, 0, 768, 768)];
+    kenView.layer.borderWidth = 1;
+    kenView.layer.borderColor = [UIColor blackColor].CGColor;
+    kenView.delegate = self;
+    NSArray *myImages = [NSArray arrayWithObjects:[UIImage imageNamed:@"image3.png"],nil];
+    [kenView animateWithImages:myImages
+                 transitionDuration:15
+                               loop:YES
+                        isLandscape:YES];
     //later than iOS 7
     self.window.tintColor = [UIColor whiteColor];
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    [self.window addSubview:kenView];
+
     CYLSearchMainViewController *vc = [[CYLSearchMainViewController alloc] init];
     self.navigationController = [[UINavigationController alloc] initWithRootViewController:vc];
-    [self.window addSubview:vc.view];
     self.window.rootViewController = self.navigationController;
-    self.window.backgroundColor = [UIColor whiteColor];
+    [self.window addSubview:vc.view];
+//    self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
     return YES;
 }

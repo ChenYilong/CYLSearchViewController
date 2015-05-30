@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>8EEDA0B4-E193-4EAE-A22F-FA335CB475BD</string>
+	<key>IDESourceControlProjectName</key>
+	<string>CYLSearchViewController</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>02E17C9B7F0E50E4E342047C9D21EEE2F0E0CCEC</key>
+		<string>https://github.com/ChenYilong/CYLSearchViewController.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>CYLSearchViewController.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>02E17C9B7F0E50E4E342047C9D21EEE2F0E0CCEC</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/ChenYilong/CYLSearchViewController.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>02E17C9B7F0E50E4E342047C9D21EEE2F0E0CCEC</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>02E17C9B7F0E50E4E342047C9D21EEE2F0E0CCEC</string>
+			<key>IDESourceControlWCCName</key>
+			<string>CYLSearchViewController</string>
+		</dict>
+	</array>
+</dict>
+</plist>

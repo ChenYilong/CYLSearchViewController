@@ -2,65 +2,84 @@
 //  CYLSearchMainViewController.m
 //  CYLSearchViewController
 //
-//  Created by chenyilong on 15/4/29.
-//  Copyright (c) 2015年 chenyilong. All rights reserved.
+//  Created by http://weibo.com/luohanchenyilong/ on 15/4/29.
+//  Copyright (c) 2015年 http://weibo.com/luohanchenyilong/. All rights reserved.
 //
 
 #import "CYLSearchMainViewController.h"
-#import "CYLSearchHeaderView.h"
-#import "QuestionSearchController.h"
+#import "CYLSearchController.h"
+#import "CYLSearchBar.h"
 
 @interface CYLSearchMainViewController ()
 <
-CYLSearchHeaderViewDelegate,
-QuestionSearchControllerDelegate
+CYLSearchControllerDelegate,
+UISearchBarDelegate,
+UISearchBarDelegate
 >
-@property (nonatomic, strong)  CYLSearchHeaderView *searchHeaderView;
+
 @property (nonatomic, strong) UINavigationController *searchController;
+@property (nonatomic, strong) CYLSearchBar *searchBar;
 
 @end
 
 @implementation CYLSearchMainViewController
 
+#pragma mark - 💤 LazyLoad Method
+
 /**
- *  懒加载_searchHeaderView
+ *  懒加载_searchBar
  *
- *  @return CYLSearchHeaderView
+ *  @return UISearchBar
  */
-- (CYLSearchHeaderView *)searchHeaderView
+- (CYLSearchBar *)searchBar
 {
-    if (_searchHeaderView == nil) {
-        _searchHeaderView = [[CYLSearchHeaderView alloc] initWithNibName:@"CYLSearchHeaderView" bundle:nil];
-        _searchHeaderView.delegate = self;
-        _searchHeaderView.view.frame =
-        CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 44);
-        [self.view addSubview:_searchHeaderView.view];
+    if (_searchBar == nil) {
+        _searchBar = [[CYLSearchBar alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 44)];
+        _searchBar.delegate = self;
     }
-    return _searchHeaderView;
+    return _searchBar;
 }
 
+#pragma mark - ♻️ LifeCycle Method
+
+-(void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    [self.searchBar resignFirstResponder];
+    
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.backgroundColor = [UIColor whiteColor];
-    self.searchHeaderView;
-    self.title = @"@iOS程序犭袁";
+    self.view.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:self.searchBar];
+    self.title = @"微博@iOS程序犭袁";
 }
 
-#pragma mark - CYLSearchHeaderViewDelegate
+#pragma mark - 🔌 CYLSearchHeaderViewDelegate Method
 
 - (void)searchHeaderViewClicked:(id)sender {
-    QuestionSearchController *controller = [[QuestionSearchController alloc] initWithNibName:@"QuestionSearchController" bundle:nil];
+    CYLSearchController *controller = [[CYLSearchController alloc] initWithNibName:@"CYLSearchController" bundle:nil];
     controller.delegate = self;
     self.searchController = [[UINavigationController alloc] initWithRootViewController:controller];
     [controller showInViewController:self];
 }
 
-#pragma mark - QuestionSearchControllerDelegate
+#pragma mark - 🔌 CYLSearchControllerDelegate Method
 
-- (void)questionSearchCancelButtonClicked:(QuestionSearchController *)controller
+- (void)questionSearchCancelButtonClicked:(CYLSearchController *)controller
 {
     [controller hide:^{
-        self.searchController = nil;
+        NSLog(@"questionSearchCancelButtonClicked");
     }];
 }
+
+#pragma mark - 🔌 UISearchBarDelegate Method
+
+/**
+ *  开始编辑
+ */
+- (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar
+{
+    [self searchHeaderViewClicked:nil];
+}
+
 @end

@@ -1,26 +1,35 @@
 //
-//  QuestionSearchController.h
+//  CYLSearchController.h
 //  http://cnblogs.com/http://weibo.com/luohanchenyilong//
 //
 //  Created by https://github.com/http://weibo.com/luohanchenyilong/ on 14-5-20.
 //  Copyright (c) 2014年 com.http://cnblogs.com/http://weibo.com/luohanchenyilong//. All rights reserved.
 //
+
 #import <Foundation/Foundation.h>
+
 #import <UIKit/UIKit.h>
-//#import "YPBaseTableViewController.h"
-@class QuestionSearchController;
-@protocol QuestionSearchControllerDelegate <NSObject>
-// 按下取消按钮
-- (void)questionSearchCancelButtonClicked:(QuestionSearchController *)controller;
+@class CYLSearchController;
+
+@protocol CYLSearchControllerDelegate <NSObject>
+
+/**
+ *  按下取消按钮
+ *
+ *  @param controller CYLSearchController
+ */
+- (void)questionSearchCancelButtonClicked:(CYLSearchController *)controller;
+
 @end
 
-@interface QuestionSearchController : UIViewController
-@property (nonatomic, assign) id<QuestionSearchControllerDelegate> delegate;
+@interface CYLSearchController : UIViewController
+
+@property (nonatomic, assign) id<CYLSearchControllerDelegate> delegate;
 
 - (void)showInViewController:(UIViewController *)controller;
 - (void)hide:(void(^)(void))completion;
-@end
 
+@end
 
 @implementation UIView (General)
 
