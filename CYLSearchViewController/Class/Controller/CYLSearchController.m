@@ -67,7 +67,7 @@ UISearchBarDelegate
         _searchBgView.frame = CGRectMake(_searchBgView.frame.origin.x, 44, _searchBgView.frame.size.width, _searchBgView.frame.size.height);
         _searchBgView.backgroundColor = [UIColor blackColor];
         _searchBgView.alpha = 0;
-        UITapGestureRecognizer *recognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hide:)];
+        UITapGestureRecognizer *recognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideSerchBarWhenTapBackground)];
         [_searchBgView addGestureRecognizer:recognizer];
     }
     return _searchBgView;
@@ -236,6 +236,10 @@ UISearchBarDelegate
         }];
     }];
     completion ? completion() : nil;
+}
+
+- (void)hideSerchBarWhenTapBackground {
+    [self hide:nil];
 }
 
 /**
