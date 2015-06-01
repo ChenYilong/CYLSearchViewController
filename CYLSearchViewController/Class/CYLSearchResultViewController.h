@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @interface CYLSearchResultViewController : UIViewController
+
 @property (weak, nonatomic) IBOutlet UIButton *searchResult;
 
 @end

@@ -13,7 +13,6 @@
 @interface CYLSearchMainViewController ()
 <
 CYLSearchControllerDelegate,
-UISearchBarDelegate,
 UISearchBarDelegate
 >
 
