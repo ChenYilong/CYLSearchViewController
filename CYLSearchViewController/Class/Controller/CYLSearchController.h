@@ -2,13 +2,13 @@
 //  CYLSearchController.h
 //  http://cnblogs.com/http://weibo.com/luohanchenyilong//
 //
-//  Created by https://github.com/http://weibo.com/luohanchenyilong/ on 14-5-20.
-//  Copyright (c) 2014年 com.http://cnblogs.com/http://weibo.com/luohanchenyilong//. All rights reserved.
+//  Created by http://weibo.com/luohanchenyilong/ on 14-5-20.
+//  Copyright (c) 2014年 https://github.com/ChenYilong/CYLSearchViewController . All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+@import Foundation;
 
-#import <UIKit/UIKit.h>
+@import UIKit;
 @class CYLSearchController;
 
 @protocol CYLSearchControllerDelegate <NSObject>

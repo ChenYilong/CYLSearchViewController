@@ -3,7 +3,7 @@
 //  CYLSearchViewController
 //
 //  Created by http://weibo.com/luohanchenyilong/ on 15/4/29.
-//  Copyright (c) 2015年 http://weibo.com/luohanchenyilong/. All rights reserved.
+//  Copyright (c) 2015年 https://github.com/ChenYilong/CYLSearchViewController . All rights reserved.
 //
 
 #import "AppDelegate.h"
@@ -18,6 +18,16 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    KenBurnsView *kenView =[[KenBurnsView alloc] initWithFrame:CGRectMake(0, 0, 768, 768)];
+    kenView.layer.borderWidth = 1;
+    kenView.layer.borderColor = [UIColor blackColor].CGColor;
+    kenView.delegate = self;
+    NSArray *myImages = [NSArray arrayWithObjects:[UIImage imageNamed:@"image3.png"],nil];
+    [kenView animateWithImages:myImages
+            transitionDuration:15
+                          loop:YES
+                   isLandscape:YES];
+    
     //work in application:didFinishLaunchingWithOptions
     if([UINavigationBar conformsToProtocol:@protocol(UIAppearanceContainer)]) {
         [UINavigationBar appearance].tintColor = [UIColor whiteColor];
@@ -27,16 +37,6 @@
          ] ;
         [[UINavigationBar appearance] setTranslucent:NO];
     }
-    
-    KenBurnsView *kenView =[[KenBurnsView alloc] initWithFrame:CGRectMake(0, 0, 768, 768)];
-    kenView.layer.borderWidth = 1;
-    kenView.layer.borderColor = [UIColor blackColor].CGColor;
-    kenView.delegate = self;
-    NSArray *myImages = [NSArray arrayWithObjects:[UIImage imageNamed:@"image3.png"],nil];
-    [kenView animateWithImages:myImages
-                 transitionDuration:15
-                               loop:YES
-                        isLandscape:YES];
     //later than iOS 7
     self.window.tintColor = [UIColor whiteColor];
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];

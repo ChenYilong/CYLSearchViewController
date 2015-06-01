@@ -2,26 +2,23 @@
 //  CYLSearchController.m
 //  http://cnblogs.com/http://weibo.com/luohanchenyilong//
 //
-//  Created by https://github.com/http://weibo.com/luohanchenyilong/ on 14-5-20.
-//  Copyright (c) 2014年 com.http://cnblogs.com/http://weibo.com/luohanchenyilong//. All rights reserved.
+//  Created by   http://weibo.com/luohanchenyilong/  on 14-5-20.
+//  Copyright (c) 2014年 https://github.com/ChenYilong/CYLSearchViewController . All rights reserved.
 //
-#import <Foundation/Foundation.h>
+@import Foundation;
 
-#define kAppColor  [UIColor colorWithRed:0/255.f green:150/255.f blue:136/255.f alpha:0.8f]
 #define kAppWordColor  [UIColor colorWithRed:0/255.f green:150/255.f blue:136/255.f alpha:0.8f]
 #define BACKGROUND_COLOR [UIColor colorWithRed:229/255.f green:238/255.f blue:235/255.f alpha:1.f] // 浅绿色背景
 #define TABLE_LINE_COLOR [UIColor colorWithRed:200/255.f green:199/255.f blue:204/255.f alpha:1.f].CGColor // 列表分割线颜色
 
 static NSString *const kSearchHistory = @"kSearchHistory";
 static float const kHeightForFooterInSection = 64;
+static float const kMinTableViewHeight = 0.01f;
+enum { kMostNumberOfSearchHistories = 15 };
 
-enum {
-    kMostNumberOfSearchHistories = 15
-};
+@import QuartzCore;
 
 #import "CYLSearchController.h"
-//#import "Constant.h"
-#import <QuartzCore/QuartzCore.h>
 #import "Util.h"
 #import "AppDelegate.h"
 #import "CYLSearchResultViewController.h"
@@ -42,7 +39,7 @@ UISearchBarDelegate
 
 @property (nonatomic, strong) NSMutableArray *searchHistories;
 @property (nonatomic, strong) NSMutableArray *questionDataSource;
-@property (nonatomic, strong) UILabel *titleLbl;
+@property (nonatomic, strong) UILabel *titleLabel;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (nonatomic, strong) CYLSearchBar *searchBar;
 @property (nonatomic, strong) UIView *searchBgView;
@@ -74,19 +71,19 @@ UISearchBarDelegate
 }
 
 /**
- *  懒加载_titleLbl
+ *  懒加载_titleLabel
  *
  *  @return UILabel
  */
-- (UILabel *)titleLbl
+- (UILabel *)titleLabel
 {
-    if (_titleLbl == nil) {
-        _titleLbl = [[UILabel alloc] init];
-        _titleLbl = [[UILabel alloc] initWithFrame:CGRectMake(12, 14, 200, 16)];
-        _titleLbl.textColor = kAppWordColor;
-        _titleLbl.font = [UIFont systemFontOfSize:14];
+    if (_titleLabel == nil) {
+        _titleLabel = [[UILabel alloc] init];
+        _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(12, 14, 200, 16)];
+        _titleLabel.textColor = kAppWordColor;
+        _titleLabel.font = [UIFont systemFontOfSize:14];
     }
-    return _titleLbl;
+    return _titleLabel;
 }
 
 /**
@@ -176,6 +173,7 @@ UISearchBarDelegate
 -(UIStatusBarStyle)preferredStatusBarStyle{
     return UIStatusBarStyleLightContent;
 }
+
 /**
  *  显示搜索界面
  */
@@ -323,7 +321,7 @@ UISearchBarDelegate
                        @"测试2❤️",
                        @"测试3❤️",
                        @"测试4❤️"
-                       ];
+    ];
     self.questionDataSource = [NSMutableArray arrayWithArray:array];
     _showQuestions = YES;
     [self.tableView reloadData];
@@ -357,7 +355,6 @@ UISearchBarDelegate
         }
         cell.textLabel.text = self.questionDataSource[indexPath.row];
         cell.textLabel.font = [UIFont systemFontOfSize:14];        // 传入数据
-        
         // 返回cell
         return cell;
     } else {
@@ -376,7 +373,6 @@ UISearchBarDelegate
         cell.textLabel.font = [UIFont systemFontOfSize:14];
         return cell;
     }
-    
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -393,7 +389,7 @@ UISearchBarDelegate
     if(_showQuestions){
         return 44;
     }
-    return 0.01;
+    return kMinTableViewHeight;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
@@ -401,7 +397,7 @@ UISearchBarDelegate
     if (!_showQuestions && _searchHistories.count > 0) {
         return kHeightForFooterInSection;
     }
-    return 0.01;
+    return kMinTableViewHeight;
 }
 
 #pragma mark - 🔌 UITableViewDelegatel Method
@@ -409,10 +405,10 @@ UISearchBarDelegate
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
 {
     if (!_showQuestions && _searchHistories.count>0) {
-        UIView *footerVw = [[UIView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, kHeightForFooterInSection)];
-        footerVw.backgroundColor = [UIColor whiteColor];
+        UIView *footerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, kHeightForFooterInSection)];
+        footerView.backgroundColor = [UIColor whiteColor];
         UIButton *btn = [[UIButton alloc] initWithFrame:CGRectMake(([UIScreen mainScreen].bounds.size.width - 160)/2, 18, 160, 30)];
-        [footerVw addSubview:btn];
+        [footerView addSubview:btn];
         [btn setBackgroundColor:[UIColor whiteColor]];
         btn.layer.borderWidth = 0.5;
         btn.layer.borderColor =[UIColor lightGrayColor].CGColor;
@@ -421,7 +417,7 @@ UISearchBarDelegate
         btn.titleLabel.font = [UIFont fontWithName:@"Superclarendon-Light" size:16];
         [btn setTitleColor:[UIColor lightGrayColor] forState:UIControlStateNormal];
         [btn addTarget:self action:@selector(clearHistoriesButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
-        return footerVw;
+        return footerView;
     }
     return nil;
 }
@@ -450,8 +446,8 @@ UISearchBarDelegate
     {
         header = [[UIView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 44)];
         header.backgroundColor = [UIColor whiteColor];
-        [header addSubview:self.titleLbl];
-        self.titleLbl.text = [NSString stringWithFormat:@"与%@有关的咨询", self.searchBar.text];
+        [header addSubview:self.titleLabel];
+        self.titleLabel.text = [NSString stringWithFormat:@"与%@有关的咨询", self.searchBar.text];
         
         UIView *cureLine = [[UIView alloc] initWithFrame:CGRectMake(12, 43.5, [UIScreen mainScreen].bounds.size.width - 12, 0.5)];
         cureLine.backgroundColor = [UIColor colorWithRed:224/255.f green:224/255.f blue:224/255.f alpha:1.f];
@@ -470,7 +466,6 @@ UISearchBarDelegate
     self.searchBar.text = @"";
     if (_showQuestions) {
         _showQuestions = NO;
-        //        self.tableView.infiniteScrollingView.enabled = NO;
         [self.tableView reloadData];
     }
 }

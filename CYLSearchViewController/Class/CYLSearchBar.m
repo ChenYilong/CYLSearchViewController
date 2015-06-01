@@ -2,8 +2,8 @@
 //  CYLSearchBar.m
 //  CYLSearchViewController
 //
-//  Created by chenyilong on 15/5/29.
-//  Copyright (c) 2015年 chenyilong. All rights reserved.
+//  Created by   http://weibo.com/luohanchenyilong/  on 15/5/29.
+//  Copyright (c) 2015年  https://github.com/ChenYilong/CYLSearchViewController . All rights reserved.
 //
 
 #import "CYLSearchBar.h"
@@ -18,6 +18,7 @@
     }
     return self;
 }
+
 - (id)initWithCoder: (NSCoder *)aDecoder {
     self = [super initWithCoder: aDecoder];
     if (self) {
@@ -25,8 +26,8 @@
     }
     return self;
 }
+
 - (id)sharedInit {
-    //        self.delegate = self;
     self.backgroundColor = TEXTFIELD_BACKGROUNDC0LOR;
     self.placeholder = @"输入问题关键字进行检索";
     self.keyboardType = UIKeyboardTypeDefault;
@@ -37,4 +38,5 @@
     [[UIBarButtonItem appearanceWhenContainedIn:[UISearchBar class], nil] setTitle:@"取消"];
     return self;
 }
+
 @end

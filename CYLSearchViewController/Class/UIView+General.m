@@ -2,8 +2,8 @@
 //  UIView+UIViewEXT.m
 //  CanXinTong
 //
-//  Created by  https://github.com/ChenYilong  on 13-2-28.
-//  Copyright (c) 2013年  https://github.com/ChenYilong . All rights reserved.
+//  Created by https://github.com/ChenYilong/CYLSearchViewController on 13-2-28.
+//  Copyright (c) 2013年 http://weibo.com/luohanchenyilong/ . All rights reserved.
 //
 
 #import "UIView+General.h"
