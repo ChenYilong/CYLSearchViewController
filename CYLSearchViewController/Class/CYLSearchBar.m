@@ -29,7 +29,7 @@
 
 - (id)sharedInit {
     self.backgroundColor = TEXTFIELD_BACKGROUNDC0LOR;
-    self.placeholder = @"输入问题关键字进行检索";
+    self.placeholder = @"搜索";
     self.keyboardType = UIKeyboardTypeDefault;
     self.showsCancelButton = NO;
     // 删除UISearchBar中的UISearchBarBackground

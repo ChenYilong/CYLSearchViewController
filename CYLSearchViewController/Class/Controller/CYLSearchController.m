@@ -7,7 +7,6 @@
 //
 @import Foundation;
 
-#define kAppWordColor  [UIColor colorWithRed:0/255.f green:150/255.f blue:136/255.f alpha:0.8f]
 #define BACKGROUND_COLOR [UIColor colorWithRed:229/255.f green:238/255.f blue:235/255.f alpha:1.f] // 浅绿色背景
 #define TABLE_LINE_COLOR [UIColor colorWithRed:200/255.f green:199/255.f blue:204/255.f alpha:1.f].CGColor // 列表分割线颜色
 
@@ -42,7 +41,7 @@ UISearchBarDelegate
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (nonatomic, strong) CYLSearchBar *searchBar;
-@property (nonatomic, strong) UIView *searchBgView;
+@property (nonatomic, strong) UIView *searchBackgroundView;
 
 @end
 
@@ -56,18 +55,18 @@ UISearchBarDelegate
  *
  *  @return UIView
  */
-- (UIView *)searchBgView
+- (UIView *)searchBackgroundView
 {
-    if (_searchBgView == nil) {
-        _searchBgView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
-        //仅修改_searchBgView的y,xwh值不变
-        _searchBgView.frame = CGRectMake(_searchBgView.frame.origin.x, 44, _searchBgView.frame.size.width, _searchBgView.frame.size.height);
-        _searchBgView.backgroundColor = [UIColor blackColor];
-        _searchBgView.alpha = 0;
-        UITapGestureRecognizer *recognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideSerchBarWhenTapBackground)];
-        [_searchBgView addGestureRecognizer:recognizer];
+    if (_searchBackgroundView == nil) {
+        _searchBackgroundView = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+        //仅修改_searchBackgroundView的y,xwh值不变
+        _searchBackgroundView.frame = CGRectMake(_searchBackgroundView.frame.origin.x, 44, _searchBackgroundView.frame.size.width, _searchBackgroundView.frame.size.height);
+        _searchBackgroundView.backgroundColor = [UIColor blackColor];
+        _searchBackgroundView.alpha = 0;
+        UITapGestureRecognizer *recognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hideSerchBarWhenTapBackground:)];
+        [_searchBackgroundView addGestureRecognizer:recognizer];
     }
-    return _searchBgView;
+    return _searchBackgroundView;
 }
 
 /**
@@ -80,7 +79,7 @@ UISearchBarDelegate
     if (_titleLabel == nil) {
         _titleLabel = [[UILabel alloc] init];
         _titleLabel = [[UILabel alloc] initWithFrame:CGRectMake(12, 14, 200, 16)];
-        _titleLabel.textColor = kAppWordColor;
+        _titleLabel.textColor = APP_TINT_COLOR;
         _titleLabel.font = [UIFont systemFontOfSize:14];
     }
     return _titleLabel;
@@ -180,7 +179,7 @@ UISearchBarDelegate
 - (void)showInViewController:(UIViewController *)controller
 {
     AppDelegate *delegate = ((AppDelegate *)[[UIApplication sharedApplication] delegate]);
-    [delegate.navigationController.view addSubview:self.searchBgView];
+    [delegate.navigationController.view addSubview:self.searchBackgroundView];
     [delegate.navigationController.view addSubview:self.navigationController.view];
     
     //仅修改self.navigationController.view的y,xwh值不变
@@ -197,12 +196,11 @@ UISearchBarDelegate
                                                           self.navigationController.view.frame.size.width,
                                                           self.navigationController.view.frame.size.height
                                                           );
-        self.searchBgView.alpha = 0.4f;
+        self.searchBackgroundView.alpha = 0.4f;
     } completion:^(BOOL finished) {
         NSArray *histories = [[NSUserDefaults standardUserDefaults] objectForKey:kSearchHistory];
         [_searchHistories addObjectsFromArray:histories];
         [self reloadViewLayouts];
-        [self.tableView reloadData];
         [self.searchBar becomeFirstResponder];
     }];
 }
@@ -223,10 +221,10 @@ UISearchBarDelegate
                                                           self.navigationController.view.frame.size.width,
                                                           self.navigationController.view.frame.size.height
                                                           );
-        self.searchBgView.alpha = 0;
+        self.searchBackgroundView.alpha = 0;
     } completion:^(BOOL finished) {
-        [self.searchBgView removeFromSuperview];
-        self.searchBgView = nil;
+        [self.searchBackgroundView removeFromSuperview];
+        self.searchBackgroundView = nil;
         [UIView animateWithDuration:0.2f animations:^{
             self.navigationController.view.alpha = 0;
         } completion:^(BOOL finished) {
@@ -236,12 +234,14 @@ UISearchBarDelegate
     completion ? completion() : nil;
 }
 
-- (void)hideSerchBarWhenTapBackground {
+- (void)hideSerchBarWhenTapBackground:(id)sender {
     [self hide:nil];
 }
 
 /**
- *  刷新界面控件
+ *  刷新界面控件，取代reloadData方法,作用在于在reloadData之前，先修改self.view、self.tableView、self.navigationController.view三者的高度
+ 只要需要reloadData的地方，都需要发送本方法
+ *  ⓵点击搜索框开始编辑时调⓶点击搜索后调⓷显示本搜索controller时⓸清除搜索历史后
  */
 - (void)reloadViewLayouts
 {
@@ -264,7 +264,6 @@ UISearchBarDelegate
                                                           self.navigationController.view.frame.origin.y,
                                                           self.navigationController.view.frame.size.width,
                                                           [UIScreen mainScreen].bounds.size.height);
-        
     } else {
         // 显示搜索记录
         //仅修改self.tableView的高度,xyw值不变
@@ -298,6 +297,7 @@ UISearchBarDelegate
                                                               [UIScreen mainScreen].bounds.size.height);
         }
     }
+    [self.tableView reloadData];
 }
 
 /**
@@ -308,7 +308,6 @@ UISearchBarDelegate
     [_searchHistories removeAllObjects];
     [[NSUserDefaults standardUserDefaults] setObject:_searchHistories forKey:kSearchHistory];
     [[NSUserDefaults standardUserDefaults] synchronize];
-    [self.tableView reloadData];
     [self reloadViewLayouts];
 }
 
@@ -317,14 +316,14 @@ UISearchBarDelegate
     [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
     //构造元素需要使用两个空格来进行缩进，右括号]或者}写在新的一行，并且与调用语法糖那行代码的第一个非空字符对齐：
     NSArray *array = @[
-                       @"测试1❤️",
-                       @"测试2❤️",
-                       @"测试3❤️",
-                       @"测试4❤️"
+                       @"@iOS程序犭袁 🆑测试1",
+                       @"@iOS程序犭袁 🆑测试2",
+                       @"@iOS程序犭袁 🆑测试3",
+                       @"@iOS程序犭袁 🆑测试4"
     ];
     self.questionDataSource = [NSMutableArray arrayWithArray:array];
     _showQuestions = YES;
-    [self.tableView reloadData];
+    [self reloadViewLayouts];
 }
 
 #pragma mark - 🔌 UITableViewDataSource Method
@@ -424,7 +423,6 @@ UISearchBarDelegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    [self reloadViewLayouts];
     if (_showQuestions) {
         // 点击问题，跳转到问题系那个情
         CYLSearchResultViewController *searchResultViewController =
@@ -447,7 +445,7 @@ UISearchBarDelegate
         header = [[UIView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 44)];
         header.backgroundColor = [UIColor whiteColor];
         [header addSubview:self.titleLabel];
-        self.titleLabel.text = [NSString stringWithFormat:@"与%@有关的咨询", self.searchBar.text];
+        self.titleLabel.text = [NSString stringWithFormat:@"与%@有关的搜索结果", self.searchBar.text];
         
         UIView *cureLine = [[UIView alloc] initWithFrame:CGRectMake(12, 43.5, [UIScreen mainScreen].bounds.size.width - 12, 0.5)];
         cureLine.backgroundColor = [UIColor colorWithRed:224/255.f green:224/255.f blue:224/255.f alpha:1.f];
@@ -466,7 +464,7 @@ UISearchBarDelegate
     self.searchBar.text = @"";
     if (_showQuestions) {
         _showQuestions = NO;
-        [self.tableView reloadData];
+        [self reloadViewLayouts];
     }
 }
 
@@ -484,11 +482,10 @@ UISearchBarDelegate
     }
     [[NSUserDefaults standardUserDefaults] setObject:_searchHistories forKey:kSearchHistory];
     [[NSUserDefaults standardUserDefaults] synchronize];
-    
-    [self reloadViewLayouts];
-    [self.tableView reloadData];
     // 开始搜索
     [self getQuestionList:nil];
+    [self reloadViewLayouts];
+
 }
 
 - (void)searchBarCancelButtonClicked:(UISearchBar *)searchBar {

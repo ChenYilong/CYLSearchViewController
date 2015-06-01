@@ -80,12 +80,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CYLSearchViewController/Class/Controller/CYLSearchController.m"
-            timestampString = "454650575.334104"
+            timestampString = "454841815.474518"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "64"
-            endingLineNumber = "64"
-            landmarkName = "-searchBgView"
+            startingLineNumber = "63"
+            endingLineNumber = "63"
+            landmarkName = "-searchBackgroundView"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -96,11 +96,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CYLSearchViewController/Class/Controller/CYLSearchController.m"
-            timestampString = "454650575.334104"
+            timestampString = "454841815.474518"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "141"
-            endingLineNumber = "141"
+            startingLineNumber = "140"
+            endingLineNumber = "140"
             landmarkName = "-viewWillAppear:"
             landmarkType = "5">
          </BreakpointContent>
@@ -112,11 +112,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CYLSearchViewController/Class/Controller/CYLSearchController.m"
-            timestampString = "454650575.334104"
+            timestampString = "454841815.474518"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "136"
-            endingLineNumber = "136"
+            startingLineNumber = "135"
+            endingLineNumber = "135"
             landmarkName = "-initWithNibName:bundle:"
             landmarkType = "5">
          </BreakpointContent>
@@ -128,12 +128,60 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "CYLSearchViewController/Class/Controller/CYLSearchController.m"
-            timestampString = "454650575.334104"
+            timestampString = "454841815.474518"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "147"
-            endingLineNumber = "147"
+            startingLineNumber = "146"
+            endingLineNumber = "146"
             landmarkName = "-viewWillDisappear:"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CYLSearchViewController/Class/Controller/CYLSearchController.m"
+            timestampString = "454841815.474518"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "238"
+            endingLineNumber = "238"
+            landmarkName = "-hideSerchBarWhenTapBackground:"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CYLSearchViewController/Class/Controller/CYLSearchController.m"
+            timestampString = "454841815.474518"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "248"
+            endingLineNumber = "248"
+            landmarkName = "-reloadViewLayouts"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "CYLSearchViewController/Class/Controller/CYLSearchController.m"
+            timestampString = "454841815.474518"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "249"
+            endingLineNumber = "249"
+            landmarkName = "-reloadViewLayouts"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
