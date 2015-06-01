@@ -7,7 +7,9 @@
 //
 
 #import "AppDelegate.h"
+//View Controllers
 #import "CYLSearchMainViewController.h"
+//Views
 #import "JBKenBurnsView.h"
 
 @interface AppDelegate () <KenBurnsViewDelegate>
@@ -15,7 +17,6 @@
 @end
 
 @implementation AppDelegate
-
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     KenBurnsView *kenView =[[KenBurnsView alloc] initWithFrame:CGRectMake(0, 0, 768, 768)];

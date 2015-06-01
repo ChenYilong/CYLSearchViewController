@@ -25,9 +25,6 @@ enum { kMostNumberOfSearchHistories = 15 };
 //Others
 #import "AppDelegate.h"
 
-
-
-
 @interface CYLSearchController ()
 <
 UITextFieldDelegate,
@@ -46,6 +43,7 @@ UISearchBarDelegate
  *  判断列表的显示内容是搜索记录，还是问题
  */
 @property (assign, getter=isShowQuestions) BOOL showQuestions;
+
 @end
 
 @implementation CYLSearchController
@@ -54,7 +52,6 @@ UISearchBarDelegate
 
 /**
  *  懒加载_searchBgVie
- w
  *
  *  @return UIView
  */
