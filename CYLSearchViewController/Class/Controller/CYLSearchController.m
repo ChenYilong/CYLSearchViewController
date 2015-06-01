@@ -326,6 +326,18 @@ UISearchBarDelegate
     [self reloadViewLayouts];
 }
 
+/**
+ * 删除某个历史搜索关键词
+ */
+- (void)rightBtnDidClicked:(UIButton *)rightBtn
+{
+    [self.searchHistories removeObject:self.searchHistories[rightBtn.tag]];
+    [[NSUserDefaults standardUserDefaults] setObject:self.searchHistories forKey:kSearchHistory];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    [self reloadViewLayouts];
+//    [MBProgressHUD showSuccess:@"已删除"];
+}
+
 #pragma mark - 🔌 UITableViewDataSource Method
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
@@ -340,8 +352,10 @@ UISearchBarDelegate
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
+
     if (_showQuestions) {
-        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"UITableViewCell"];
+        static NSString *searchResultTableView = @"searchResultTableView";
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"searchResultTableView"];
         if (cell == nil) {
             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"UITableViewCell"];
             [cell.contentView addSubLayerWithFrame:CGRectMake(0,
@@ -357,7 +371,8 @@ UISearchBarDelegate
         // 返回cell
         return cell;
     } else {
-        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"UITableViewCell"];
+        static NSString *searchHistoryTableView = @"searchHistoryTableView";
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:searchHistoryTableView];
         if (cell == nil) {
             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"UITableViewCell"];
             [cell.contentView addSubLayerWithFrame:CGRectMake(0,
@@ -368,8 +383,17 @@ UISearchBarDelegate
                                              color:TABLE_LINE_COLOR];
             cell.textLabel.backgroundColor = [UIColor whiteColor];
         }
+        cell.imageView.image = [UIImage imageNamed:@"SearchHistory"];
         cell.textLabel.text = _searchHistories[indexPath.row];
         cell.textLabel.font = [UIFont systemFontOfSize:14];
+        UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        rightBtn.frame = CGRectMake([UIScreen mainScreen].bounds.size.width - 44, 0, 44, 44);
+        // 监听点击删除按钮
+        [rightBtn addTarget:self action:@selector(rightBtnDidClicked:) forControlEvents:UIControlEventTouchUpInside];
+        [rightBtn setImage:[UIImage imageNamed:@"search_history_delete_icon_normal"] forState:UIControlStateNormal];
+        [rightBtn setImage:[UIImage imageNamed:@"SearchDeleteSelected"] forState:UIControlStateSelected];
+        rightBtn.tag = indexPath.row;
+        [cell.contentView addSubview:rightBtn];
         return cell;
     }
 }
