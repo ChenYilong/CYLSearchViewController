@@ -355,7 +355,7 @@ UISearchBarDelegate
 
     if (_showQuestions) {
         static NSString *searchResultTableView = @"searchResultTableView";
-        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"searchResultTableView"];
+        UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:searchResultTableView];
         if (cell == nil) {
             cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"UITableViewCell"];
             [cell.contentView addSubLayerWithFrame:CGRectMake(0,
