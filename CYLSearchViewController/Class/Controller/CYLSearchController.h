@@ -5,10 +5,10 @@
 //  Created by http://weibo.com/luohanchenyilong/ on 14-5-20.
 //  Copyright (c) 2014年 https://github.com/ChenYilong/CYLSearchViewController . All rights reserved.
 //
-
+//Frameworks
 @import Foundation;
-
 @import UIKit;
+//View Controllers
 @class CYLSearchController;
 
 @protocol CYLSearchControllerDelegate <NSObject>

@@ -6,8 +6,10 @@
 //  Copyright (c) 2015年 https://github.com/ChenYilong/CYLSearchViewController . All rights reserved.
 //
 
+//View Controllers
 #import "CYLSearchMainViewController.h"
 #import "CYLSearchController.h"
+//Views
 #import "CYLSearchBar.h"
 
 @interface CYLSearchMainViewController ()

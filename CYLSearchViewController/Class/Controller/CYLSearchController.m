@@ -15,13 +15,18 @@ static float const kHeightForFooterInSection = 64;
 static float const kMinTableViewHeight = 0.01f;
 enum { kMostNumberOfSearchHistories = 15 };
 
+//Frameworks
 @import QuartzCore;
-
+//View Controllers
 #import "CYLSearchController.h"
-#import "Util.h"
-#import "AppDelegate.h"
 #import "CYLSearchResultViewController.h"
+//Views
 #import "CYLSearchBar.h"
+//Others
+#import "AppDelegate.h"
+
+
+
 
 @interface CYLSearchController ()
 <
@@ -31,18 +36,16 @@ UITableViewDataSource,
 UISearchBarDelegate
 >
 
-{
-    BOOL _showQuestions; // 判断列表的显示内容是搜索记录，还是问题
-    UIViewController *_inController; // 此界面被显示在哪个View Controller
-}
-
 @property (nonatomic, strong) NSMutableArray *searchHistories;
 @property (nonatomic, strong) NSMutableArray *questionDataSource;
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (nonatomic, strong) CYLSearchBar *searchBar;
 @property (nonatomic, strong) UIView *searchBackgroundView;
-
+/**
+ *  判断列表的显示内容是搜索记录，还是问题
+ */
+@property (assign, getter=isShowQuestions) BOOL showQuestions;
 @end
 
 @implementation CYLSearchController
@@ -129,7 +132,7 @@ UISearchBarDelegate
                                           self.tableView.frame.size.width,
                                           0);
         self.searchHistories = [NSMutableArray array];
-        _showQuestions = NO;
+        self.showQuestions = NO;
     }
     return self;
 }
@@ -199,7 +202,7 @@ UISearchBarDelegate
         self.searchBackgroundView.alpha = 0.4f;
     } completion:^(BOOL finished) {
         NSArray *histories = [[NSUserDefaults standardUserDefaults] objectForKey:kSearchHistory];
-        [_searchHistories addObjectsFromArray:histories];
+        [self.searchHistories addObjectsFromArray:histories];
         [self reloadViewLayouts];
         [self.searchBar becomeFirstResponder];
     }];
@@ -245,7 +248,7 @@ UISearchBarDelegate
  */
 - (void)reloadViewLayouts
 {
-    if (_showQuestions) {
+    if (self.isShowQuestions) {
         // 用户点击搜索，搜索出问题时，显示问题列表
         //仅修改self.view的高度,xyw值不变
         self.view.frame = CGRectMake(self.view.frame.origin.x,
@@ -270,8 +273,8 @@ UISearchBarDelegate
         self.tableView.frame = CGRectMake(self.tableView.frame.origin.x,
                                           self.tableView.frame.origin.y,
                                           self.tableView.frame.size.width,
-                                          MIN(_searchHistories.count * 44 + (_searchHistories.count > 0 ? kHeightForFooterInSection : 0), [UIScreen mainScreen].bounds.size.height - 64));
-        if (_searchHistories.count == 0) {
+                                          MIN(self.searchHistories.count * 44 + (self.searchHistories.count > 0 ? kHeightForFooterInSection : 0), [UIScreen mainScreen].bounds.size.height - 64));
+        if (self.searchHistories.count == 0) {
             // 没有搜索记录
             //仅修改self.view的高度,xyw值不变
             self.view.frame = CGRectMake(self.view.frame.origin.x,
@@ -305,8 +308,8 @@ UISearchBarDelegate
  */
 - (void)clearHistoriesButtonClicked:(id)sender
 {
-    [_searchHistories removeAllObjects];
-    [[NSUserDefaults standardUserDefaults] setObject:_searchHistories forKey:kSearchHistory];
+    [self.searchHistories removeAllObjects];
+    [[NSUserDefaults standardUserDefaults] setObject:self.searchHistories forKey:kSearchHistory];
     [[NSUserDefaults standardUserDefaults] synchronize];
     [self reloadViewLayouts];
 }
@@ -322,7 +325,7 @@ UISearchBarDelegate
                        @"@iOS程序犭袁 🆑测试4"
     ];
     self.questionDataSource = [NSMutableArray arrayWithArray:array];
-    _showQuestions = YES;
+    self.showQuestions = YES;
     [self reloadViewLayouts];
 }
 
@@ -335,25 +338,24 @@ UISearchBarDelegate
     [[NSUserDefaults standardUserDefaults] setObject:self.searchHistories forKey:kSearchHistory];
     [[NSUserDefaults standardUserDefaults] synchronize];
     [self reloadViewLayouts];
-//    [MBProgressHUD showSuccess:@"已删除"];
 }
 
 #pragma mark - 🔌 UITableViewDataSource Method
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    if (_showQuestions) {
+    if (self.isShowQuestions) {
         self.navigationController.view.backgroundColor = BACKGROUND_COLOR;
         return self.questionDataSource.count;
     } else {
         self.navigationController.view.backgroundColor = [UIColor clearColor];
-        return _searchHistories.count;
+        return self.searchHistories.count;
     }
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
 
-    if (_showQuestions) {
+    if (self.isShowQuestions) {
         static NSString *searchResultTableView = @"searchResultTableView";
         UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:searchResultTableView];
         if (cell == nil) {
@@ -367,8 +369,7 @@ UISearchBarDelegate
             cell.textLabel.backgroundColor = [UIColor whiteColor];
         }
         cell.textLabel.text = self.questionDataSource[indexPath.row];
-        cell.textLabel.font = [UIFont systemFontOfSize:14];        // 传入数据
-        // 返回cell
+        cell.textLabel.font = [UIFont systemFontOfSize:14];
         return cell;
     } else {
         static NSString *searchHistoryTableView = @"searchHistoryTableView";
@@ -384,7 +385,7 @@ UISearchBarDelegate
             cell.textLabel.backgroundColor = [UIColor whiteColor];
         }
         cell.imageView.image = [UIImage imageNamed:@"SearchHistory"];
-        cell.textLabel.text = _searchHistories[indexPath.row];
+        cell.textLabel.text = self.searchHistories[indexPath.row];
         cell.textLabel.font = [UIFont systemFontOfSize:14];
         UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
         rightBtn.frame = CGRectMake([UIScreen mainScreen].bounds.size.width - 44, 0, 44, 44);
@@ -400,7 +401,7 @@ UISearchBarDelegate
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (_showQuestions) {
+    if (self.isShowQuestions) {
         return 44;
     } else {
         return 44;
@@ -409,7 +410,7 @@ UISearchBarDelegate
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
 {
-    if(_showQuestions){
+    if(self.isShowQuestions){
         return 44;
     }
     return kMinTableViewHeight;
@@ -417,7 +418,7 @@ UISearchBarDelegate
 
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section
 {
-    if (!_showQuestions && _searchHistories.count > 0) {
+    if (!self.isShowQuestions && self.searchHistories.count > 0) {
         return kHeightForFooterInSection;
     }
     return kMinTableViewHeight;
@@ -427,7 +428,7 @@ UISearchBarDelegate
 
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section
 {
-    if (!_showQuestions && _searchHistories.count>0) {
+    if (!self.isShowQuestions && self.searchHistories.count>0) {
         UIView *footerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, kHeightForFooterInSection)];
         footerView.backgroundColor = [UIColor whiteColor];
         UIButton *btn = [[UIButton alloc] initWithFrame:CGRectMake(([UIScreen mainScreen].bounds.size.width - 160)/2, 18, 160, 30)];
@@ -447,7 +448,7 @@ UISearchBarDelegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (_showQuestions) {
+    if (self.isShowQuestions) {
         // 点击问题，跳转到问题系那个情
         CYLSearchResultViewController *searchResultViewController =
         [[CYLSearchResultViewController alloc] initWithNibName:[[CYLSearchResultViewController class] description] bundle:nil];
@@ -456,7 +457,7 @@ UISearchBarDelegate
         [self.navigationController.navigationBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
         [tableView deselectRowAtIndexPath:indexPath animated:YES];
     } else {
-        self.searchBar.text = _searchHistories[indexPath.row];
+        self.searchBar.text = self.searchHistories[indexPath.row];
         [self getQuestionList:nil];
     }
 }
@@ -464,7 +465,7 @@ UISearchBarDelegate
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
     UIView *header;
-    if(_showQuestions)
+    if(self.isShowQuestions)
     {
         header = [[UIView alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, 44)];
         header.backgroundColor = [UIColor whiteColor];
@@ -486,8 +487,8 @@ UISearchBarDelegate
  */
 - (void)searchBarTextDidBeginEditing:(UISearchBar *)searchBar {
     self.searchBar.text = @"";
-    if (_showQuestions) {
-        _showQuestions = NO;
+    if (self.isShowQuestions) {
+        self.showQuestions = NO;
         [self reloadViewLayouts];
     }
 }
@@ -496,15 +497,15 @@ UISearchBarDelegate
     if (searchBar.text.length == 0) {
         return;
     }
-    if ([_searchHistories containsObject:searchBar.text]) {
-        [_searchHistories removeObject:searchBar.text];
+    if ([self.searchHistories containsObject:searchBar.text]) {
+        [self.searchHistories removeObject:searchBar.text];
     }
     // 保存搜索记录，最多10条
-    [_searchHistories insertObject:searchBar.text atIndex:0];
-    if (_searchHistories.count > kMostNumberOfSearchHistories) {
-        [_searchHistories removeLastObject];
+    [self.searchHistories insertObject:searchBar.text atIndex:0];
+    if (self.searchHistories.count > kMostNumberOfSearchHistories) {
+        [self.searchHistories removeLastObject];
     }
-    [[NSUserDefaults standardUserDefaults] setObject:_searchHistories forKey:kSearchHistory];
+    [[NSUserDefaults standardUserDefaults] setObject:self.searchHistories forKey:kSearchHistory];
     [[NSUserDefaults standardUserDefaults] synchronize];
     // 开始搜索
     [self getQuestionList:nil];
