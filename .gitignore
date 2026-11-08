@@ -1,0 +1,13 @@
+Pods/
+CYLSearchViewController.xcworkspace/
+CYLSearchExample.xcworkspace/
+.CYLSearchViewController-legacy.xcodeproj/
+.CYLSearchViewController-legacy.xcworkspace/
+.CYLSearchExample-previous-metadata/
+.CYLSearchExamplePods-previous/
+CYLSearchExample.Podfile.previous
+CYLSearchExample.Podfile.lock.previous
+xcuserdata/
+.DS_Store
+._*
+DerivedData/

@@ -1,0 +1,2 @@
+// Xcode 27 requires iOS 15 or newer, including during pod lint.
+IPHONEOS_DEPLOYMENT_TARGET = 15.0

@@ -1,0 +1,8 @@
+views:
+  - type: table
+    name: Controller files
+    filters:
+      and:
+        - file.inFolder("CYLSearchViewController/CYLSearchViewController/Class/Controller")
+    order:
+      - file.name

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="24765" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="CYL-launch-vc">
+    <device id="retina6_12" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="24743"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <scene sceneID="CYL-launch-scene">
+            <objects>
+                <viewController id="CYL-launch-vc" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="CYL-launch-view">
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" image="CYLTabBar" translatesAutoresizingMaskIntoConstraints="NO" id="CYL-launch-image">
+                                <rect key="frame" x="0.0" y="59" width="393" height="759"/>
+                            </imageView>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="CYL-launch-safe-area"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="CYL-launch-image" firstAttribute="top" secondItem="CYL-launch-safe-area" secondAttribute="top" id="CYL-launch-top"/>
+                            <constraint firstItem="CYL-launch-image" firstAttribute="bottom" secondItem="CYL-launch-safe-area" secondAttribute="bottom" id="CYL-launch-bottom"/>
+                            <constraint firstItem="CYL-launch-image" firstAttribute="leading" secondItem="CYL-launch-safe-area" secondAttribute="leading" id="CYL-launch-leading"/>
+                            <constraint firstItem="CYL-launch-image" firstAttribute="trailing" secondItem="CYL-launch-safe-area" secondAttribute="trailing" id="CYL-launch-trailing"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="CYL-launch-first-responder" sceneMemberID="firstResponder"/>
+            </objects>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="CYLTabBar" width="1177" height="472.5"/>
+    </resources>
+</document>

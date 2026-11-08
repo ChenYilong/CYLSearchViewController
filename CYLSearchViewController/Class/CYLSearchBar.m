@@ -35,7 +35,8 @@
     // 删除UISearchBar中的UISearchBarBackground
     [self setBackgroundImage:[[UIImage alloc] init]];
     self.tintColor = APP_TINT_COLOR;
-    [[UIBarButtonItem appearanceWhenContainedIn:[UISearchBar class], nil] setTitle:@"取消"];
+    [[UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UISearchBar class]]]
+        setTitle:@"取消"];
     return self;
 }
 

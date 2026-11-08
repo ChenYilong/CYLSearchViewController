@@ -6,35 +6,42 @@
 //  Copyright (c) 2015年 http://weibo.com/luohanchenyilong/. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
 #import <XCTest/XCTest.h>
+#import "CYLSearchMainViewController.h"
+
+@interface CYLSearchTestDataProvider : NSObject <CYLSearchDataProviding>
+@end
+
+@implementation CYLSearchTestDataProvider
+
+- (NSArray<NSString *> *)searchResultsForQuery:(NSString *)query
+{
+    return @[@"Test result"];
+}
+
+- (void)reloadSearchResultsWithCompletion:(CYLSearchReloadCompletion)completion
+{
+    completion(nil);
+}
+
+@end
 
 @interface CYLSearchViewControllerTests : XCTestCase
-
 @end
 
 @implementation CYLSearchViewControllerTests
 
-- (void)setUp {
-    [super setUp];
-    // Put setup code here. This method is called before the invocation of each test method in the class.
-}
+- (void)testSearchRefreshReproductionPinsSearchBarByDefault
+{
+    CYLSearchMainViewController *viewController =
+        [[CYLSearchMainViewController alloc] initWithDataProvider:[[CYLSearchTestDataProvider alloc] init]];
 
-- (void)tearDown {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-    [super tearDown];
-}
+    [viewController loadViewIfNeeded];
 
-- (void)testExample {
-    // This is an example of a functional test case.
-    XCTAssert(YES, @"Pass");
-}
-
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
-    }];
+    XCTAssertNotNil(viewController.navigationItem.searchController);
+    XCTAssertFalse(viewController.navigationItem.hidesSearchBarWhenScrolling);
+    XCTAssertNotNil(viewController.tableView.cyl_header);
+    XCTAssertEqual([viewController tableView:viewController.tableView numberOfRowsInSection:0], 1);
 }
 
 @end

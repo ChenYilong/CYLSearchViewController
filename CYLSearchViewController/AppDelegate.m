@@ -7,30 +7,19 @@
 //
 
 #import "AppDelegate.h"
-//View Controllers
-#import "CYLSearchMainViewController.h"
+#import "CYLSearchAppCoordinator.h"
+#import "CYLSceneDelegate.h"
 //Views
-#import "JBKenBurnsView.h"
+#import "CYLKenBurnsView.h"
 
-@interface AppDelegate () <KenBurnsViewDelegate>
+@interface AppDelegate () <CYLKenBurnsViewDelegate>
 
 @end
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    KenBurnsView *kenView =[[KenBurnsView alloc] initWithFrame:CGRectMake(0, 0, 768, 768)];
-    kenView.layer.borderWidth = 1;
-    kenView.layer.borderColor = [UIColor blackColor].CGColor;
-    kenView.delegate = self;
-    NSArray *myImages = [NSArray arrayWithObjects:[UIImage imageNamed:@"image3.png"],nil];
-    [kenView animateWithImages:myImages
-            transitionDuration:15
-                          loop:YES
-                   isLandscape:YES];
-    
-    //work in application:didFinishLaunchingWithOptions
-    if([UINavigationBar conformsToProtocol:@protocol(UIAppearanceContainer)]) {
+    if ([UINavigationBar conformsToProtocol:@protocol(UIAppearanceContainer)]) {
         [UINavigationBar appearance].tintColor = [UIColor whiteColor];
         [[UINavigationBar appearance] setTitleTextAttributes:@{NSFontAttributeName : [UIFont boldSystemFontOfSize:18], NSForegroundColorAttributeName : [UIColor whiteColor]}];
         [[UINavigationBar appearance] setBarTintColor:
@@ -38,18 +27,37 @@
          ] ;
         [[UINavigationBar appearance] setTranslucent:NO];
     }
-    //later than iOS 7
-    self.window.tintColor = [UIColor whiteColor];
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    [self.window addSubview:kenView];
 
-    CYLSearchMainViewController *vc = [[CYLSearchMainViewController alloc] init];
-    self.navigationController = [[UINavigationController alloc] initWithRootViewController:vc];
+    if (@available(iOS 13.0, *)) {
+        return YES;
+    }
+
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    self.window.tintColor = [UIColor whiteColor];
+    self.navigationController = [CYLSearchAppCoordinator rootNavigationController];
     self.window.rootViewController = self.navigationController;
-    [self.window addSubview:vc.view];
-//    self.window.backgroundColor = [UIColor whiteColor];
+
+    CYLKenBurnsView *kenView = [[CYLKenBurnsView alloc] initWithFrame:self.window.bounds];
+    kenView.layer.borderWidth = 1;
+    kenView.layer.borderColor = [UIColor blackColor].CGColor;
+    kenView.delegate = self;
+    NSArray *images = @[[UIImage imageNamed:@"image3.png"]];
+    [kenView animateWithImages:images transitionDuration:15 loop:YES isLandscape:YES];
+    [self.window insertSubview:kenView atIndex:0];
+
     [self.window makeKeyAndVisible];
     return YES;
+}
+
+- (UISceneConfiguration *)application:(UIApplication *)application
+configurationForConnectingSceneSession:(UISceneSession *)connectingSceneSession
+                               options:(UISceneConnectionOptions *)options API_AVAILABLE(ios(13.0))
+{
+    UISceneConfiguration *configuration =
+        [[UISceneConfiguration alloc] initWithName:@"Default Configuration"
+                                       sessionRole:connectingSceneSession.role];
+    configuration.delegateClass = [CYLSceneDelegate class];
+    return configuration;
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {

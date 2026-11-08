@@ -1,0 +1,21 @@
+PODS:
+  - CYLSearchViewController (0.1.0)
+  - CYLTableViewPlaceHolder (1.1.0)
+
+DEPENDENCIES:
+  - CYLSearchViewController (from `.`)
+  - CYLTableViewPlaceHolder (from `../CYLTableViewPlaceHolder`)
+
+EXTERNAL SOURCES:
+  CYLSearchViewController:
+    :path: "."
+  CYLTableViewPlaceHolder:
+    :path: "../CYLTableViewPlaceHolder"
+
+SPEC CHECKSUMS:
+  CYLSearchViewController: 9857dd05a30db475fdc30f086aaf076f7c3864cf
+  CYLTableViewPlaceHolder: 4a7601d01d8d07838190b39ac95043c0571a9da9
+
+PODFILE CHECKSUM: 2cf06ffa5f0e4c9e937d0e84e103c8147e8b83d9
+
+COCOAPODS: 1.17.0

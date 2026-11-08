@@ -25,8 +25,12 @@
 
 @interface CYLSearchController : UIViewController
 
-@property (nonatomic, assign) id<CYLSearchControllerDelegate> delegate;
+@property (nonatomic, weak) id<CYLSearchControllerDelegate> delegate;
 
+/**
+ Adds this controller's navigation view over the supplied host controller.
+ This controller must be embedded in its own navigation controller.
+ */
 - (void)showInViewController:(UIViewController *)controller;
 - (void)hide:(void(^)(void))completion;
 

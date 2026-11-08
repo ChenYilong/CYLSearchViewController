@@ -22,8 +22,6 @@ enum { kMostNumberOfSearchHistories = 15 };
 #import "CYLSearchResultViewController.h"
 //Views
 #import "CYLSearchBar.h"
-//Others
-#import "AppDelegate.h"
 
 @interface CYLSearchController ()
 <
@@ -39,6 +37,7 @@ UISearchBarDelegate
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (nonatomic, strong) CYLSearchBar *searchBar;
 @property (nonatomic, strong) UIView *searchBackgroundView;
+@property (nonatomic, weak) UINavigationController *hostNavigationController;
 /**
  *  判断列表的显示内容是搜索记录，还是问题
  */
@@ -172,9 +171,13 @@ UISearchBarDelegate
  */
 - (void)showInViewController:(UIViewController *)controller
 {
-    AppDelegate *delegate = ((AppDelegate *)[[UIApplication sharedApplication] delegate]);
-    [delegate.navigationController.view addSubview:self.searchBackgroundView];
-    [delegate.navigationController.view addSubview:self.navigationController.view];
+    NSParameterAssert(controller != nil);
+    NSParameterAssert(self.navigationController != nil);
+
+    self.hostNavigationController = controller.navigationController;
+    UIView *hostView = self.hostNavigationController.view ?: controller.view;
+    [hostView addSubview:self.searchBackgroundView];
+    [hostView addSubview:self.navigationController.view];
     
     //仅修改self.navigationController.view的y,xwh值不变
     self.navigationController.view.frame = CGRectMake(self.navigationController.view.frame.origin.x,
@@ -182,7 +185,7 @@ UISearchBarDelegate
                                                       self.navigationController.view.frame.size.width,
                                                       self.navigationController.view.frame.size.height
                                                       );
-    [delegate.navigationController setNavigationBarHidden:YES animated:YES];
+    [self.hostNavigationController setNavigationBarHidden:YES animated:YES];
     [UIView animateWithDuration:0.25f animations:^{
         //仅修改self.navigationController.view的y,xwh值不变
         self.navigationController.view.frame = CGRectMake(self.navigationController.view.frame.origin.x,
@@ -192,7 +195,7 @@ UISearchBarDelegate
                                                           );
         self.searchBackgroundView.alpha = 0.4f;
     } completion:^(BOOL finished) {
-        NSArray *histories = [[NSUserDefaults standardUserDefaults] objectForKey:kSearchHistory];
+        NSArray *histories = [[NSUserDefaults standardUserDefaults] objectForKey:kSearchHistory] ?: @[];
         [self.searchHistories addObjectsFromArray:histories];
         [self reloadViewLayouts];
         [self.searchBar becomeFirstResponder];
@@ -206,8 +209,7 @@ UISearchBarDelegate
  */
 - (void)hide:(void(^)(void))completion
 {
-    AppDelegate *delegate = ((AppDelegate *)[[UIApplication sharedApplication] delegate]);
-    [delegate.navigationController setNavigationBarHidden:NO animated:YES];
+    [self.hostNavigationController setNavigationBarHidden:NO animated:YES];
     [UIView animateWithDuration:0.25f animations:^{
         //仅修改self.navigationController.view的y,xwh值不变
         self.navigationController.view.frame = CGRectMake(self.navigationController.view.frame.origin.x,
@@ -307,7 +309,7 @@ UISearchBarDelegate
 
 - (void)getQuestionList:(NSNumber *)startQid
 {
-    [[[UIApplication sharedApplication] keyWindow] endEditing:YES];
+    [self.view.window endEditing:YES];
     //构造元素需要使用两个空格来进行缩进，右括号]或者}写在新的一行，并且与调用语法糖那行代码的第一个非空字符对齐：
     NSArray *array = @[
                        @"@iOS程序犭袁 🆑测试1",
@@ -522,5 +524,3 @@ UISearchBarDelegate
 }
 
 @end
-
-
