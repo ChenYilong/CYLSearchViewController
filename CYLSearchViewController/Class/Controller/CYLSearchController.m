@@ -155,12 +155,6 @@ UISearchBarDelegate
     [super viewDidLoad];
     self.title = @"返回";
     self.navigationItem.titleView = self.searchBar;
-    [self.navigationController.navigationBar setNeedsLayout];
-    //仅修改self.navigationController.view的高度,xyw值不变
-    self.navigationController.view.frame = CGRectMake(self.navigationController.view.frame.origin.x,
-                                                      self.navigationController.view.frame.origin.y,
-                                                      self.navigationController.view.frame.size.width,
-                                                      44);
 }
 
 -(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
@@ -528,6 +522,5 @@ UISearchBarDelegate
 }
 
 @end
-
 
 
