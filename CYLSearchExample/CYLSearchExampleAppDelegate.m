@@ -1,14 +1,12 @@
 #import "CYLSearchExampleAppDelegate.h"
-#import "CYLSearchExampleViewController.h"
+#import "CYLSearchDemoMenuViewController.h"
 
 @implementation CYLSearchExampleAppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     self.window = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
-    CYLSearchExampleDataSource *dataSource = [[CYLSearchExampleDataSource alloc] init];
-    CYLSearchExampleViewController *controller = [[CYLSearchExampleViewController alloc] initWithSearchDataSource:dataSource
-                                                                                                 refreshProvider:dataSource];
+    CYLSearchDemoMenuViewController *controller = [[CYLSearchDemoMenuViewController alloc] initWithStyle:UITableViewStyleGrouped];
     self.window.rootViewController = [[UINavigationController alloc] initWithRootViewController:controller];
     [self.window makeKeyAndVisible];
     return YES;

@@ -1,5 +1,7 @@
 #import "CYLSearchExampleViewController.h"
 #import <CYLSearchViewController/CYLSearchController.h>
+#import <CYLSearchViewController/CYLSearchResources.h>
+#import <CYLSearchViewController/CYLSearchPlaceholderView.h>
 #import <CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.h>
 
 @interface CYLSearchExampleDataSource ()
@@ -14,7 +16,7 @@
     if (self) {
         NSMutableArray<NSString *> *items = [NSMutableArray array];
         for (NSUInteger index = 1; index <= 40; index++) {
-            [items addObject:[NSString stringWithFormat:@"Sample result %lu", (unsigned long)index]];
+            [items addObject:[NSString stringWithFormat:[CYLSearchResources localizedStringForKey:@"sample.result"], (unsigned long)index]];
         }
         _items = [items copy];
     }
@@ -64,15 +66,15 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.title = @"Search";
-    self.searchController.searchBar.placeholder = @"Filter results";
+    self.title = [CYLSearchResources localizedStringForKey:@"search.title"];
+    self.searchController.searchBar.placeholder = [CYLSearchResources localizedStringForKey:@"search.placeholder"];
     self.tableView.tableFooterView = [UIView new];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Repro: OFF"
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:[CYLSearchResources localizedStringForKey:@"repro.off"]
                                                                             style:UIBarButtonItemStylePlain
                                                                            target:self
                                                                            action:@selector(cyl_toggleReproduction)];
     self.navigationItem.rightBarButtonItem.accessibilityIdentifier = @"CYLIssueReproductionToggle";
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Overlay"
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:[CYLSearchResources localizedStringForKey:@"action.overlay"]
                                                                            style:UIBarButtonItemStylePlain
                                                                           target:self
                                                                           action:@selector(cyl_showOverlay)];
@@ -87,10 +89,10 @@
                 if (!currentController) return;
                 [currentController.tableView.cyl_header endRefreshing];
                 if (error) {
-                    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Refresh Failed"
+                    UIAlertController *alert = [UIAlertController alertControllerWithTitle:[CYLSearchResources localizedStringForKey:@"refresh.error"]
                                                                                    message:error.localizedDescription
                                                                             preferredStyle:UIAlertControllerStyleAlert];
-                    [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+                    [alert addAction:[UIAlertAction actionWithTitle:[CYLSearchResources localizedStringForKey:@"action.ok"] style:UIAlertActionStyleDefault handler:nil]];
                     [currentController presentViewController:alert animated:YES completion:nil];
                 } else {
                     [currentController reloadSearchResults];
@@ -112,7 +114,7 @@
 {
     BOOL enabled = !self.navigationItem.hidesSearchBarWhenScrolling;
     self.navigationItem.hidesSearchBarWhenScrolling = enabled;
-    self.navigationItem.rightBarButtonItem.title = enabled ? @"Repro: ON" : @"Repro: OFF";
+    self.navigationItem.rightBarButtonItem.title = [CYLSearchResources localizedStringForKey:enabled ? @"repro.on" : @"repro.off"];
 }
 
 - (void)reloadResultsTableView
@@ -122,12 +124,9 @@
 
 - (UIView *)makePlaceHolderView
 {
-    UILabel *label = [[UILabel alloc] init];
-    label.text = @"No matching results";
-    label.textAlignment = NSTextAlignmentCenter;
-    label.textColor = UIColor.grayColor;
-    label.accessibilityIdentifier = @"CYLSearchEmptyState";
-    return label;
+    CYLSearchPlaceholderView *placeholder = [[CYLSearchPlaceholderView alloc] initWithKind:CYLSearchPlaceholderKindNoResults];
+    placeholder.accessibilityIdentifier = @"CYLSearchEmptyState";
+    return placeholder;
 }
 
 - (BOOL)enableScrollWhenPlaceHolderViewShowing

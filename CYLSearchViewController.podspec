@@ -12,4 +12,5 @@ Pod::Spec.new do |s|
   s.frameworks = 'UIKit'
   s.source_files = 'Sources/CYLSearchViewController/**/*.{h,m}'
   s.public_header_files = 'Sources/CYLSearchViewController/**/*.h'
+  s.resources = 'Resources/CYLSearchViewController.bundle'
 end

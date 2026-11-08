@@ -1,0 +1,8 @@
+views:
+  - type: table
+    name: Example tests
+    filters:
+      and:
+        - file.inFolder("CYLSearchViewController/CYLSearchExampleTests")
+    order:
+      - file.name

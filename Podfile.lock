@@ -13,8 +13,8 @@ EXTERNAL SOURCES:
     :path: "../CYLTableViewPlaceHolder"
 
 SPEC CHECKSUMS:
-  CYLSearchViewController: 9857dd05a30db475fdc30f086aaf076f7c3864cf
-  CYLTableViewPlaceHolder: 4a7601d01d8d07838190b39ac95043c0571a9da9
+  CYLSearchViewController: ba67d0fd3f9331a361deaf3d9ac2752a2d2ee5cf
+  CYLTableViewPlaceHolder: ef921457e1ea58cbc8268a07ed4f76e8001e11c8
 
 PODFILE CHECKSUM: 2cf06ffa5f0e4c9e937d0e84e103c8147e8b83d9
 

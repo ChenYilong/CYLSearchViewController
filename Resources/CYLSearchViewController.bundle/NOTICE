@@ -1,0 +1,15 @@
+CYLSearchNoResults@2x.png and CYLSearchError@2x.png are unmodified Material
+Design icons by Google, downloaded from:
+https://github.com/google/material-design-icons/tree/10ecc14790612ca8fd164e3f4ffe9c16fc50d5b7
+They are licensed under the Apache License, Version 2.0; see
+LICENSE.material-design-icons.
+
+The additional CYLSearch placeholder icons are unmodified Material Icons by
+Google from the same revision and license. Each was obtained from:
+https://github.com/google/material-design-icons/tree/10ecc14790612ca8fd164e3f4ffe9c16fc50d5b7/png
+The local-to-upstream filename mapping is documented in ICON-SOURCES.
+
+CYLSearchEmpty.png is the placeholder image from
+CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.bundle, originating from
+KLTableViewAndCollectionViewPlaceholder. Its MIT license and copyright notice
+are reproduced in LICENSE.placeholder-third-party.
