@@ -51,6 +51,8 @@ reproduction or fix without launching the sample on a simulator.
 
 ## Commit readiness
 
+- Before a Commitizen-style commit, follow the commit-message hook instructions
+  in `instructions.md`; inspect an existing hook before replacing it.
 - Before every commit, review the changed scope and its related issue,
   comparison, and implementation-status documentation.
 - Track each unfinished or unverified item from the commit under a `TODO`
