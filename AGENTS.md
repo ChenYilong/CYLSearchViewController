@@ -57,6 +57,9 @@ reproduction or fix without launching the sample on a simulator.
   touch .git/hooks/NO_AUTO_SYNC
   ```
 
+- **On any branch other than `master` or `main`, commit and push as soon as the work is written, without asking
+  for confirmation.** On `master` or `main`, ask first.
+
 - Before a Commitizen-style commit, follow the commit-message hook instructions
   in `instructions.md`; inspect an existing hook before replacing it.
 - Before every commit, review the changed scope and its related issue,

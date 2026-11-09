@@ -144,3 +144,8 @@ Before every Commitizen-style (`git cz`) commit, run this first in the repositor
 ```sh
 touch .git/hooks/NO_AUTO_SYNC
 ```
+
+## Committing on branches
+
+On any branch other than `master` or `main`, commit and push as soon as the work is written, without asking for
+confirmation. On `master` or `main`, ask first.
