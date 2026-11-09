@@ -74,3 +74,19 @@ Read this file and `AGENTS.md` before changing project files.
 - Run static analysis when supported. Report simulator behavior as unverified
   unless the app was actually launched and exercised.
 - Preserve the existing project's license and third-party notices.
+
+## Commit readiness
+
+- Before every commit, review the changed scope and related issue, comparison,
+  and implementation-status documents. Record every unfinished or unverified
+  item from the commit under a `TODO` heading in the most relevant existing
+  document under `docs/`.
+- A TODO must state the current status or score, remaining work, implementation
+  constraints, known defects or optimization opportunities, API design and
+  compatibility concerns, and verification required for completion. Reserved
+  keys, stubs, and compilation alone are not evidence of completion.
+- Use an English Conventional Commit subject compatible with Commitizen.
+  Summarize completed work in the subject and keep details and remaining work
+  in the body. If the detailed description exceeds 50 characters, create or
+  update a suitable document under `docs/` and link it from the commit body.
+  Reuse relevant documents and avoid duplicate trackers.

@@ -10,4 +10,5 @@ CYLSearchExample.Podfile.lock.previous
 xcuserdata/
 .DS_Store
 ._*
+*.base
 DerivedData/

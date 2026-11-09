@@ -48,3 +48,17 @@ controller strongly and must always stop the refresh control.
 Run `pod install`, validate the project with Xcodeproj/CocoaPods, build and
 analyze the shared scheme, and run tests when available. Do not claim a visual
 reproduction or fix without launching the sample on a simulator.
+
+## Commit readiness
+
+- Before every commit, review the changed scope and its related issue,
+  comparison, and implementation-status documentation.
+- Track each unfinished or unverified item from the commit under a `TODO`
+  heading in the most relevant existing `docs/` document. Include remaining
+  work, implementation constraints, known defects, verification steps, and API
+  design or compatibility risks. Reserved keys, stubs, and compilation alone
+  do not prove completion.
+- Use an English Conventional Commit subject compatible with Commitizen. Put
+  detailed completion and pending-work summaries in the body. If the detailed
+  description exceeds 50 characters, create or update a suitable `docs/` note
+  and link it from the commit body; reuse existing tracking documents.
