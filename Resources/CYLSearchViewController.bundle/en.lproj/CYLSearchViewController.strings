@@ -20,3 +20,4 @@
 "repro.off" = "Repro: OFF";
 "sample.result" = "Sample result %lu";
 "search.cancel" = "Cancel";
+"search.field" = "Search";

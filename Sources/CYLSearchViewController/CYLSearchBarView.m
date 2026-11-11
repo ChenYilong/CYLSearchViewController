@@ -50,6 +50,8 @@ static CGFloat const CYLSearchBarSpacing = 8;
     _textField.returnKeyType = UIReturnKeySearch;
     _textField.clearButtonMode = UITextFieldViewModeWhileEditing;
     _textField.adjustsFontForContentSizeCategory = YES;
+    // The placeholder is not a label: it disappears once there is text.
+    _textField.accessibilityLabel = [CYLSearchResources localizedStringForKey:@"search.field"];
     [_textField addTarget:self action:@selector(cyl_textChanged) forControlEvents:UIControlEventEditingChanged];
     [_fieldView addSubview:_textField];
     UIButtonConfiguration *configuration = [UIButtonConfiguration plainButtonConfiguration];
@@ -72,7 +74,16 @@ static CGFloat const CYLSearchBarSpacing = 8;
     [self cyl_applyStyle];
 }
 
-- (UIFont *)font { return _font ?: [UIFont preferredFontForTextStyle:UIFontTextStyleBody]; }
+- (UIFont *)font {
+    // A custom font grows with Dynamic Type like the default one.
+    return _font ? [[UIFontMetrics defaultMetrics] scaledFontForFont:_font compatibleWithTraitCollection:self.traitCollection]
+                 : [UIFont preferredFontForTextStyle:UIFontTextStyleBody compatibleWithTraitCollection:self.traitCollection];
+}
+
+/// `fieldHeight`, or taller when the scaled text needs it.
+- (CGFloat)cyl_effectiveFieldHeight {
+    return MAX(self.fieldHeight, ceil(self.font.lineHeight + 12));
+}
 - (void)setFont:(UIFont *)font { _font = font; [self cyl_applyStyle]; }
 - (UIColor *)textColor { return _textColor ?: [UIColor labelColor]; }
 - (void)setTextColor:(UIColor *)textColor { _textColor = textColor; [self cyl_applyStyle]; }
@@ -161,12 +172,15 @@ static CGFloat const CYLSearchBarSpacing = 8;
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
     [super traitCollectionDidChange:previousTraitCollection];
     [self cyl_applyStyle];
+    if (![previousTraitCollection.preferredContentSizeCategory isEqualToString:self.traitCollection.preferredContentSizeCategory]) {
+        [self invalidateIntrinsicContentSize];
+    }
 }
 
 #pragma mark Layout
 
 - (CGSize)intrinsicContentSize {
-    return CGSizeMake(UIViewNoIntrinsicMetric, self.fieldHeight + self.contentInsets.top + self.contentInsets.bottom);
+    return CGSizeMake(UIViewNoIntrinsicMetric, [self cyl_effectiveFieldHeight] + self.contentInsets.top + self.contentInsets.bottom);
 }
 
 - (CGSize)sizeThatFits:(CGSize)size {
@@ -185,7 +199,7 @@ static CGSize CYLSearchBarFittingSize(UIView *view, CGFloat height) {
     [super layoutSubviews];
     UIEdgeInsets insets = self.contentInsets;
     CGFloat height = CGRectGetHeight(self.bounds);
-    CGFloat fieldHeight = MIN(self.fieldHeight, MAX(0, height - insets.top - insets.bottom));
+    CGFloat fieldHeight = MIN([self cyl_effectiveFieldHeight], MAX(0, height - insets.top - insets.bottom));
     CGFloat y = floor((height - fieldHeight) / 2);
     CGFloat leading = insets.left;
     CGFloat trailing = CGRectGetWidth(self.bounds) - insets.right;

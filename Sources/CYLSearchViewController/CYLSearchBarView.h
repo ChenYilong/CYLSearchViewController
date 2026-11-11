@@ -34,13 +34,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, copy, nullable) NSString *text;
 @property (nonatomic, copy, nullable) NSString *placeholder;
+/// The text font, the body text style by default. A custom font is scaled with Dynamic Type (`UIFontMetrics`).
 @property (nonatomic, strong, null_resettable) UIFont *font;
 @property (nonatomic, strong, null_resettable) UIColor *textColor;
 /// nil uses the placeholder gray.
 @property (nonatomic, strong, nullable) UIColor *placeholderColor;
 
 #pragma mark Field
-/// Height of the field, 36 by default. The bar is this tall plus `contentInsets`.
+/// Height of the field, 36 by default; it grows when the scaled text needs more room (large Dynamic Type sizes).
+/// The bar is this tall plus `contentInsets`. VoiceOver reads the field as "Search" (`search.field`) unless
+/// `textField.accessibilityLabel` is set.
 @property (nonatomic, assign) CGFloat fieldHeight;
 /// Space around the field (and the Cancel button), {6, 12, 6, 12} by default.
 @property (nonatomic, assign) UIEdgeInsets contentInsets;

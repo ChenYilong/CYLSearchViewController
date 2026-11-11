@@ -332,4 +332,23 @@
     XCTAssertEqualObjects([CYLSearchResources localizedStringForKey:@"search.cancel" language:@"en"], @"Cancel");
 }
 
+- (void)testSearchBarViewSupportsVoiceOverAndDynamicType
+{
+    CYLSearchBarView *bar = [[CYLSearchBarView alloc] initWithFrame:CGRectMake(0, 0, 375, 48)];
+    // The field keeps a spoken name when the placeholder is gone; the magnifier is decorative.
+    XCTAssertEqualObjects(bar.textField.accessibilityLabel, [CYLSearchResources localizedStringForKey:@"search.field"]);
+    XCTAssertFalse(bar.searchIconView.isAccessibilityElement);
+    XCTAssertEqualObjects([CYLSearchResources localizedStringForKey:@"search.field" language:@"zh-Hant"], @"搜尋");
+    XCTAssertEqualObjects([CYLSearchResources localizedStringForKey:@"search.field" language:@"ja"], @"検索");
+
+    // A custom font is scaled, and the field grows instead of clipping the text.
+    bar.font = [UIFont systemFontOfSize:16];
+    UITraitCollection *large = [UITraitCollection traitCollectionWithPreferredContentSizeCategory:UIContentSizeCategoryAccessibilityExtraExtraExtraLarge];
+    UIFont *scaled = [[UIFontMetrics defaultMetrics] scaledFontForFont:[UIFont systemFontOfSize:16] compatibleWithTraitCollection:large];
+    XCTAssertGreaterThan(scaled.pointSize, 16);
+    XCTAssertEqual(bar.intrinsicContentSize.height, 48, @"36 pt is enough at the default size");
+    bar.fieldHeight = 10;
+    XCTAssertGreaterThanOrEqual(bar.intrinsicContentSize.height, ceil(bar.font.lineHeight + 12) + 12, @"never shorter than the text");
+}
+
 @end

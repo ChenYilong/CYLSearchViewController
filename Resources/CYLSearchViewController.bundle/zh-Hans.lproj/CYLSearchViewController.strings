@@ -20,3 +20,4 @@
 "repro.off" = "复现：关";
 "sample.result" = "示例结果 %lu";
 "search.cancel" = "取消";
+"search.field" = "搜索";
