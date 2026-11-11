@@ -71,3 +71,11 @@ button, and `currentTitle` is nil: read the plus child view controller's
   the plus page's navigation title follow the plus button's title.
 - The plus button and its page need an accessibility label (the title is
   enough when present).
+
+## Task log before every task
+
+Before any task, log it as `TODO` in the most suitable document in `docs/`
+(else `docs/task-log.md`): context, the user's requirements, the user's prompt
+(verbatim plus English translation) and a status line. Commit and push it,
+then start; mark it `DONE (YYYY-MM-DD)` with the result when the task ends.
+Full rule: `AGENTS.md`, "Task log before every task".

@@ -114,3 +114,24 @@ window.rootViewController = tabBarController ?: fallbackViewController;
    its search bar, and VoiceOver reads every tab and the plus button.
 4. Record anything not run on a simulator under `TODO` in
    `docs/CYLTabBarController-Integration.md`.
+
+## Search bar placement
+
+A search bar never covers the main view, the view controller's view
+(`self.view`), or any other view, at any time: a navigation-item
+`UISearchController`, a `CYLSearchBarView` and the overlay, in every state and
+at every Dynamic Type size. Full rule: `AGENTS.md`, "Search bar placement".
+
+- Inside a tab, a search page sits in a `UINavigationController`; its view
+  starts below the navigation bar and its search field, and the tab bar does
+  not change that.
+- The plus child view controller follows the same rule when it shows a
+  search bar.
+
+## Task log before every task
+
+Before any task, log it as `TODO` in the most suitable document in `docs/`
+(else `docs/task-log.md`): context, the user's requirements, the user's prompt
+(verbatim plus English translation) and a status line. Commit and push it,
+then start; mark it `DONE (YYYY-MM-DD)` with the result when the task ends.
+Full rule: `AGENTS.md`, "Task log before every task".

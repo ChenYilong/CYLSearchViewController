@@ -1,3 +1,4 @@
+# local-run-environment: macOS 27.3 (26C5035r), Xcode 27.2 (27B52)
 # iOS CI on GitHub-hosted macOS runners, modeled on CYLTabBarController's .github/workflows/ios.yml
 # (commit d574501, branch feat/cross-platform-components). See docs/CI-CD.md.
 # Runner: `macos-26` (Apple Silicon, stable image, default Xcode 26.x). To use another runner without editing this

@@ -1,21 +1,41 @@
 PODS:
   - CYLSearchViewController (0.1.0)
-  - CYLTableViewPlaceHolder (1.1.0)
+  - CYLTabBarController (1.100.0):
+    - CYLTabBarController/Core (= 1.100.0)
+  - CYLTabBarController/Core (1.100.0):
+    - CYLTabBarController/CYLBadgeView
+    - CYLTabBarController/CYLUtils
+  - CYLTabBarController/CYLBadgeView (1.100.0):
+    - CYLTabBarController/CYLUtils
+  - CYLTabBarController/CYLUtils (1.100.0)
+  - CYLTableViewPlaceHolder (1.1.0):
+    - CYLTableViewPlaceHolder/Core (= 1.1.0)
+  - CYLTableViewPlaceHolder/Core (1.1.0)
 
 DEPENDENCIES:
   - CYLSearchViewController (from `.`)
+  - CYLTabBarController (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `d36c7080157c49c552a3a352d72a9d00a2be11a9`)
   - CYLTableViewPlaceHolder (from `../CYLTableViewPlaceHolder`)
 
 EXTERNAL SOURCES:
   CYLSearchViewController:
     :path: "."
+  CYLTabBarController:
+    :commit: d36c7080157c49c552a3a352d72a9d00a2be11a9
+    :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
     :path: "../CYLTableViewPlaceHolder"
 
+CHECKOUT OPTIONS:
+  CYLTabBarController:
+    :commit: d36c7080157c49c552a3a352d72a9d00a2be11a9
+    :git: https://github.com/ChenYilong/CYLTabBarController.git
+
 SPEC CHECKSUMS:
   CYLSearchViewController: ba67d0fd3f9331a361deaf3d9ac2752a2d2ee5cf
-  CYLTableViewPlaceHolder: ef921457e1ea58cbc8268a07ed4f76e8001e11c8
+  CYLTabBarController: 99bfc43bcc42da04e2d953c23dfb60891a6f4e23
+  CYLTableViewPlaceHolder: a046bbc8b8a40833bc660c320211a4cddf3aa265
 
-PODFILE CHECKSUM: 2cf06ffa5f0e4c9e937d0e84e103c8147e8b83d9
+PODFILE CHECKSUM: 9d28dadd44fc648d6353809e8f9492e79c04cba5
 
 COCOAPODS: 1.17.0

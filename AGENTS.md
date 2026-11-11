@@ -106,6 +106,18 @@ from CYLTabBarController's `AGENTS.md`, "Comments on public API" (commit
   `CYLTabBarController/Example/Images.xcassets`.
 - Never commit `Pods/`, generated workspace state, or AppleDouble `._*` files.
 
+## Search bar placement
+
+- A search bar never covers any view, at any time: not a view controller's
+  view (`self.view`), not a sibling, a background view or a bar item; for a
+  navigation-item search controller, `CYLSearchBarView` and the overlay; in
+  every state and at every Dynamic Type size. Views of search screens do not
+  extend under the top bar (`edgesForExtendedLayout` without
+  `UIRectEdgeTop`); a `CYLSearchBarView` is laid out against the safe area,
+  beside the content, never on top of it, and a colored area behind it ends
+  where the bar begins. `testSearchBarsCoverNoView` checks every search bar
+  with `CYLViewsCoveredByView`; add each new one there.
+
 ## Issue #1317
 
 The reproduction uses `UISearchController` in `navigationItem.searchController`
@@ -119,7 +131,7 @@ controller strongly and must always stop the refresh control.
 This project integrates CYLTabBarController by default. Rules adapted from
 CYLTabBarController's `AGENTS.md` and `cyl-*` skills at its latest commit
 (`caf3c92`, branch `feat/cross-platform-components`, 2026-11-11); see
-`docs/CYLTabBarController-Integration.md` for the source and the TODO list.
+`docs/CYLTabBarController-Integration.md` for the source and the status.
 
 - **Default integration in the example layer.** Unless a task says otherwise,
   every `CYLTabBarController` in the example (`CYLSearchExample/`) is created
@@ -182,6 +194,34 @@ reproduction or fix without launching the sample on a simulator.
 - A script added under `scripts/` must pass `shellcheck`. A workflow change
   must pass `actionlint`.
 
+## Task log before every task
+
+Sessions can stop in the middle of a task (context limits, restarts, another
+session taking over the branch or the simulator). So that the next session can
+pick the task up, every task is written down in `docs/` before any work starts:
+
+1. **Find the most suitable document in `docs/`**: the feature's own document
+   (for example `docs/search-bar-view.md`, `docs/CI-CD.md`,
+   `docs/CYLTabBarController-Integration.md`). When none fits, use
+   `docs/task-log.md`.
+2. **Add the task there as `TODO`, before the first change**, under a heading
+   such as `## TODO (YYYY-MM-DD): <task>`, with:
+   - **Context**: the background, the branch, the related PRs, issues,
+     commits and files, and what is already known;
+   - **Requirements**: every requirement the user gave, as a list;
+   - **Prompt**: the user's prompt quoted verbatim in its original language,
+     followed by an English translation;
+   - **Status**: where the work stands; update it at each milestone (commit,
+     push, CI result).
+   Commit and push this entry before starting the work.
+3. **When the task ends, mark it done**: change `TODO` to `DONE (YYYY-MM-DD)`
+   and add the result and the evidence (commits, PRs, test results,
+   screenshots). An interrupted task keeps `TODO` with its current status.
+
+An open `TODO` of a task in progress is not a stale note: the "stale notes
+before every commit" search skips it, and the session that finishes the task
+marks it `DONE`.
+
 ## Commit readiness
 
 - **Before every Commitizen-style (`git cz`) commit**, run this first in the repository root, so the vault's auto sync does not commit or push in the middle of it:
@@ -192,6 +232,11 @@ reproduction or fix without launching the sample on a simulator.
 
 - **On any branch other than `master` or `main`, commit and push as soon as the work is written, without asking
   for confirmation.** On `master` or `main`, ask first.
+
+- **Every new branch gets a pull request right away, without asking.** As soon as a branch is created and first
+  pushed, open its pull request (`gh pr create`). The base (target) branch is the branch the new one was created from
+  (its source branch); use `master` or `main` only when that is the source, or when the source branch no longer exists
+  on the remote. Never ask for confirmation first. Name the base in the reply.
 
 - Every commit message carries the author line
   `By  @ChenYilong <luohanchenyilong@163.com>` (exactly as written, two spaces

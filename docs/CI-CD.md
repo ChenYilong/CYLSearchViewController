@@ -48,29 +48,35 @@ scripts/pod-lint.sh lib --verbose
 rm -rf build && scripts/ci-build-example.sh build
 scripts/ci-build-example.sh analyze
 scripts/unit-tests.sh "iPhone 17"
+scripts/local-run-environment.sh
 ```
 
-## TODO
+## Status
 
-- TODO (status: written and linted, never run on GitHub; score 5/10): the
-  macOS jobs have not run yet. Verified in this change: `shellcheck` and
-  `actionlint` pass; `scripts/check-public-api-comments.sh` passes on the
-  headers and fails on each forbidden form (`///`, one-line `/*! */`,
-  `///<`, `/**< */`, trailing `//`); `scripts/ci-checkout-dependencies.sh`
-  clones the sibling and keeps it on a second run. Not verified (Linux
-  session, no Xcode): `pod install`, `pod lib lint`, the build, the analyzer
-  and the tests. Check the first runs on GitHub Actions and fix what fails.
-- TODO (known risk): "Fail on warnings in Sources/" fails the job on the first
-  analyzer or compiler warning in the pod's sources. The current warning count
-  is unknown.
-- TODO (known risk): the sibling `CYLTableViewPlaceHolder` follows its default
-  branch, so a change there can break this CI. Pin `CYL_PLACEHOLDER_REF` in the
-  workflow if that happens.
-- TODO (not copied): upstream's `# local-run-environment: macOS …, Xcode …`
-  first line and `scripts/local-run-environment.sh` need a Mac. Add them when
-  the workflow is first run locally.
-- TODO (CYLTabBarController): once the Podfile depends on CYLTabBarController,
-  the "CYLTabBarController commit" step warns when the pin is not the newest
-  commit. It only warns; decide whether it should fail.
-- TODO (maintenance): when upstream `ios.yml` changes, compare it and update
-  this workflow and the commit recorded above.
+- First runs: `master` passed every job on 2026-11-11 (run 43007916007).
+  On `feat/search-bar-view` (run 43100220331, 2026-11-12) every job passed
+  except "Fail on warnings in Sources/", which found one analyzer warning:
+  `-[CYLSearchBarView resignFirstResponder]` did not call super
+  (`osx.cocoa.MissingSuperCall`). Fixed; a local analyze of the shared scheme
+  reports no warning in `Sources/`.
+- Warning count in `Sources/`: 0 (local analyze, Xcode 27.2). The pods have
+  analyzer issues of their own; the gate covers `Sources/` only.
+- `scripts/local-run-environment.sh` (copied from CYLTabBarController with
+  attribution) writes the first line of `ios.yml`:
+  `# local-run-environment: macOS 27.3 (26C5035r), Xcode 27.2 (27B52)`.
+  Run it before a local build.
+
+## Decisions
+
+- The sibling `CYLTableViewPlaceHolder` follows its default branch, so CI
+  finds a breaking change there early. If it breaks this repository, set
+  `CYL_PLACEHOLDER_REF` in the workflow to the last good commit.
+- The "CYLTabBarController commit" step only warns when the Podfile pin is not
+  the newest upstream commit. The newest commit moves several times a day
+  (`caf3c92` to `d36c708` on 2026-11-11 and 12), so failing would block
+  unrelated changes; the pin is refreshed with `scripts/latest-cyl-commit.sh`.
+
+## Maintenance
+
+- When upstream `ios.yml` changes, compare it and update this workflow and the
+  commit recorded above.

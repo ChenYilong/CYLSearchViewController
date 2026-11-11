@@ -1,12 +1,27 @@
 #import <XCTest/XCTest.h>
 #import "CYLSearchExampleViewController.h"
 #import "CYLSearchDemoMenuViewController.h"
+#import "CYLSearchBarDemoViewController.h"
+#import "CYLSearchExampleAppDelegate.h"
+#import <CYLTabBarController/CYLTabBarController.h>
 #import <CYLSearchViewController/CYLSearchController.h>
 #import <CYLSearchViewController/CYLSearchResources.h>
 #import <CYLSearchViewController/CYLSearchPlaceholderView.h>
+#import <CYLSearchViewController/CYLSearchBarView.h>
 #import <CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.h>
 
 @interface CYLSearchExampleTests : XCTestCase
+@end
+
+@interface CYLSearchBarRecorder : NSObject <CYLSearchBarViewDelegate>
+@property (nonatomic, strong) NSMutableArray<NSString *> *events;
+@end
+
+@implementation CYLSearchBarRecorder
+- (instancetype)init { if ((self = [super init])) { _events = [NSMutableArray array]; } return self; }
+- (void)searchBarView:(CYLSearchBarView *)searchBarView textDidChange:(NSString *)text { [self.events addObject:[@"text " stringByAppendingString:text]]; }
+- (void)searchBarViewSearchButtonClicked:(CYLSearchBarView *)searchBarView { [self.events addObject:@"search"]; }
+- (void)searchBarViewCancelButtonClicked:(CYLSearchBarView *)searchBarView { [self.events addObject:@"cancel"]; }
 @end
 
 @interface CYLSearchNumberDataSource : NSObject <CYLSearchResultsDataSource>
@@ -68,6 +83,76 @@
     [super pushViewController:viewController animated:NO];
 }
 @end
+
+/*!
+ * A window in the host app's scene: with the scene lifecycle, a window without a scene is never shown, and the
+ * search bars of its navigation items are never installed.
+ */
+static UIWindow *CYLTestWindow(CGRect frame)
+{
+    UIWindowScene *scene = nil;
+    for (UIScene *candidate in UIApplication.sharedApplication.connectedScenes) {
+        if ([candidate isKindOfClass:UIWindowScene.class]) { scene = (UIWindowScene *)candidate; break; }
+    }
+    UIWindow *window = scene ? [[UIWindow alloc] initWithWindowScene:scene] : [[UIWindow alloc] initWithFrame:frame];
+    window.frame = frame;
+    return window;
+}
+
+/*!
+ * What a navigation-item search controller shows: its search bar, or on iOS 26, where the navigation bar hosts the
+ * field without the bar, the search text field.
+ */
+static UIView *CYLVisibleSearchView(UISearchBar *searchBar)
+{
+    return searchBar.window ? searchBar : searchBar.searchTextField;
+}
+
+/*!
+ * Views that `view` covers: visible views under `root` (its window when nil) whose frames intersect `view`'s frame
+ * in window coordinates, after clipping by ancestors that clip their bounds. Not counted: `view`'s subviews, the
+ * views that contain it, system bar backgrounds, and plain leaf views that draw nothing. Counted: labels, images, controls, text, scroll views, view controllers'
+ * views, and leaf views with a background, contents or a border. Each entry is "<class> <frame> in <superview>".
+ */
+static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
+{
+    UIWindow *window = view.window;
+    if (!window) return @[@"not in a window"];
+    CGRect frame = CGRectInset([view convertRect:view.bounds toView:window], 0.5, 0.5);
+    NSMutableSet<NSValue *> *ancestors = [NSMutableSet set];
+    for (UIView *parent = view.superview; parent; parent = parent.superview) {
+        [ancestors addObject:[NSValue valueWithNonretainedObject:parent]];
+    }
+    NSMutableArray<NSString *> *covered = [NSMutableArray array];
+    __block void (^visit)(UIView *);
+    __block __weak void (^weakVisit)(UIView *);
+    weakVisit = visit = ^(UIView *candidate) {
+        if (candidate == view || candidate.hidden || candidate.alpha <= 0.01) return;
+        NSString *name = NSStringFromClass(candidate.class);
+        if ([name containsString:@"BarBackground"]) return;
+        BOOL content = [candidate isKindOfClass:UILabel.class] || [candidate isKindOfClass:UIControl.class]
+            || [candidate isKindOfClass:UITextView.class] || [candidate isKindOfClass:UIScrollView.class]
+            || [candidate.nextResponder isKindOfClass:UIViewController.class];
+        if ([candidate isKindOfClass:UIImageView.class]) content = ((UIImageView *)candidate).image != nil;
+        if (!content && candidate.subviews.count == 0 && ![name hasPrefix:@"_"]) {
+            content = CGColorGetAlpha(candidate.backgroundColor.CGColor) > 0.01 || candidate.layer.contents || candidate.layer.borderWidth > 0;
+        }
+        if (content && ![ancestors containsObject:[NSValue valueWithNonretainedObject:candidate]]) {
+            // Only the part left visible by ancestors that clip (a scroll view hides what lies outside it).
+            CGRect other = [candidate convertRect:candidate.bounds toView:window];
+            for (UIView *clip = candidate.superview; clip && clip != window; clip = clip.superview) {
+                if (clip.clipsToBounds) other = CGRectIntersection(other, [clip convertRect:clip.bounds toView:window]);
+            }
+            if (!CGRectIsNull(other) && CGRectGetWidth(other) > 0 && CGRectGetHeight(other) > 0 && CGRectIntersectsRect(frame, other)) {
+                [covered addObject:[NSString stringWithFormat:@"%@ %@ in %@", name, NSStringFromCGRect(other), NSStringFromClass(candidate.superview.class)]];
+            }
+        }
+        for (UIView *subview in candidate.subviews) weakVisit(subview);
+    };
+    for (UIView *subview in (root ?: window).subviews) visit(subview);
+    visit = nil;
+    return covered;
+}
 
 @implementation CYLSearchExampleTests
 
@@ -166,7 +251,7 @@
     CYLSearchTestNavigationController *navigation = [[CYLSearchTestNavigationController alloc] initWithRootViewController:menu];
     [menu loadViewIfNeeded];
     XCTAssertEqual(menu.navigationController, navigation);
-    XCTAssertEqual([menu tableView:menu.tableView numberOfRowsInSection:0], 2);
+    XCTAssertEqual([menu tableView:menu.tableView numberOfRowsInSection:0], 3);
     [menu tableView:menu.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
     UITableViewController *gallery = (UITableViewController *)navigation.lastPushedController;
     XCTAssertNotEqual(gallery, menu);
@@ -273,6 +358,267 @@
         [cancelled fulfill];
     }];
     [self waitForExpectationsWithTimeout:2 handler:nil];
+}
+
+- (void)testSearchBarViewLayoutStyleAndEvents
+{
+    CYLSearchBarView *bar = [[CYLSearchBarView alloc] initWithFrame:CGRectMake(0, 0, 375, 48)];
+    CYLSearchBarRecorder *recorder = [[CYLSearchBarRecorder alloc] init];
+    bar.delegate = recorder;
+    bar.placeholder = @"主播昵称/直播间ID/神曲名";
+    XCTAssertEqualObjects(bar.textField.placeholder, @"主播昵称/直播间ID/神曲名");
+    XCTAssertEqual(bar.intrinsicContentSize.height, 48);
+    XCTAssertTrue(bar.cancelButton.hidden);
+
+    bar.showsCancelButton = YES;
+    bar.cancelButtonTitle = @"取消";
+    UIButton *camera = [UIButton buttonWithType:UIButtonTypeSystem];
+    [camera setImage:[UIImage systemImageNamed:@"camera"] forState:UIControlStateNormal];
+    bar.trailingAccessoryViews = @[camera];
+    bar.fieldCornerRadius = 4;
+    [bar layoutIfNeeded];
+    XCTAssertFalse(bar.cancelButton.hidden);
+    XCTAssertEqualObjects(bar.cancelButton.configuration.attributedTitle.string, @"取消");
+    CGFloat titleWidth = [@"取消" sizeWithAttributes:@{NSFontAttributeName: bar.font}].width;
+    XCTAssertGreaterThanOrEqual(CGRectGetWidth(bar.cancelButton.frame), titleWidth, @"the whole title fits");
+    XCTAssertLessThanOrEqual(CGRectGetMaxX(bar.fieldView.frame), CGRectGetMinX(bar.cancelButton.frame));
+    XCTAssertTrue(camera.superview == bar.fieldView);
+    XCTAssertLessThanOrEqual(CGRectGetMaxX(bar.textField.frame), CGRectGetMinX(camera.frame));
+    XCTAssertEqual(bar.fieldView.layer.cornerRadius, 4);
+    bar.fieldCornerRadius = -1;
+    [bar layoutIfNeeded];
+    XCTAssertEqual(bar.fieldView.layer.cornerRadius, 18, @"a capsule");
+
+    bar.text = @"IDG";
+    XCTAssertEqualObjects(bar.textField.text, @"IDG");
+    [bar.textField sendActionsForControlEvents:UIControlEventEditingChanged];
+    [bar.textField.delegate textFieldShouldReturn:bar.textField];
+    [bar.cancelButton sendActionsForControlEvents:UIControlEventTouchUpInside];
+    NSArray *expected = @[@"text IDG", @"search", @"cancel"];
+    XCTAssertEqualObjects(recorder.events, expected);
+
+    UIButton *back = [UIButton buttonWithType:UIButtonTypeSystem];
+    bar.leadingView = back;
+    [bar layoutIfNeeded];
+    XCTAssertLessThanOrEqual(CGRectGetMaxX(back.frame), CGRectGetMinX(bar.fieldView.frame) + 0.5);
+    XCTAssertEqualObjects([CYLSearchResources localizedStringForKey:@"search.cancel" language:@"zh-Hans"], @"取消");
+    XCTAssertEqualObjects([CYLSearchResources localizedStringForKey:@"search.cancel" language:@"en"], @"Cancel");
+}
+
+- (void)testSearchBarViewSupportsVoiceOverAndDynamicType
+{
+    CYLSearchBarView *bar = [[CYLSearchBarView alloc] initWithFrame:CGRectMake(0, 0, 375, 48)];
+    // The field keeps a spoken name when the placeholder is gone; the magnifier is decorative.
+    XCTAssertEqualObjects(bar.textField.accessibilityLabel, [CYLSearchResources localizedStringForKey:@"search.field"]);
+    XCTAssertFalse(bar.searchIconView.isAccessibilityElement);
+    XCTAssertEqualObjects([CYLSearchResources localizedStringForKey:@"search.field" language:@"zh-Hant"], @"搜尋");
+    XCTAssertEqualObjects([CYLSearchResources localizedStringForKey:@"search.field" language:@"ja"], @"検索");
+
+    // A scaled font is used as given (not scaled twice), and the field grows instead of clipping the text.
+    UITraitCollection *large = [UITraitCollection traitCollectionWithPreferredContentSizeCategory:UIContentSizeCategoryAccessibilityExtraExtraExtraLarge];
+    XCTAssertEqual(bar.intrinsicContentSize.height, 48, @"36 pt is enough at the default size");
+    UIFont *scaled = [[UIFontMetrics defaultMetrics] scaledFontForFont:[UIFont systemFontOfSize:16] compatibleWithTraitCollection:large];
+    bar.font = scaled;
+    XCTAssertEqual(bar.font, scaled);
+    XCTAssertGreaterThan(bar.intrinsicContentSize.height, 48, @"the field grows with large text");
+    bar.fieldHeight = 10;
+    XCTAssertGreaterThanOrEqual(bar.intrinsicContentSize.height, ceil(bar.font.lineHeight + 12) + 12, @"never shorter than the text");
+
+    // At the largest size the text keeps 40% of the bar: Cancel and a large accessory are drawn smaller instead.
+    bar.fieldHeight = 36;
+    bar.showsCancelButton = YES;
+    bar.cancelButtonTitle = @"Cancel";
+    UIButton *camera = [UIButton buttonWithType:UIButtonTypeSystem];
+    [camera setImage:[UIImage systemImageNamed:@"camera" withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:64]] forState:UIControlStateNormal];
+    bar.trailingAccessoryViews = @[camera];
+    bar.frame = CGRectMake(0, 0, 390, bar.intrinsicContentSize.height);
+    [bar layoutIfNeeded];
+    CGFloat available = 390 - bar.contentInsets.left - bar.contentInsets.right;
+    XCTAssertGreaterThanOrEqual(CGRectGetWidth(bar.textField.frame), floor(available * 0.4) - 1);
+    XCTAssertLessThanOrEqual(CGRectGetWidth(bar.cancelButton.frame), floor(available * 0.3) + 0.5);
+    XCTAssertLessThan(camera.transform.a, 1, @"the camera is drawn smaller");
+    XCTAssertLessThanOrEqual(CGRectGetMaxX(bar.textField.frame), CGRectGetMinX(camera.frame) + 0.5);
+    XCTAssertLessThanOrEqual(CGRectGetMaxX(camera.frame), CGRectGetWidth(bar.fieldView.bounds));
+    XCTAssertEqualObjects(bar.cancelButton.accessibilityLabel, @"Cancel", @"VoiceOver reads the whole title");
+
+    // The placeholder keeps the text's size at large sizes (cut off with an ellipsis, never shrunk), hides while
+    // there is text, and stays on the text field for VoiceOver.
+    bar.placeholder = @"主播昵称/直播间ID/神曲名";
+    [bar layoutIfNeeded];
+    XCTAssertEqual(bar.placeholderLabel.font.pointSize, bar.font.pointSize);
+    XCTAssertFalse(bar.placeholderLabel.adjustsFontSizeToFitWidth);
+    XCTAssertEqual(bar.placeholderLabel.lineBreakMode, NSLineBreakByTruncatingTail);
+    XCTAssertEqualObjects(bar.placeholderLabel.text, @"主播昵称/直播间ID/神曲名");
+    XCTAssertEqualObjects(bar.textField.placeholder, @"主播昵称/直播间ID/神曲名", @"VoiceOver still gets the placeholder");
+    XCTAssertTrue(CGRectContainsRect(CGRectInset(bar.textField.frame, -0.5, -0.5), bar.placeholderLabel.frame));
+    XCTAssertFalse(bar.placeholderLabel.hidden);
+    bar.text = @"IDG";
+    XCTAssertTrue(bar.placeholderLabel.hidden);
+    bar.text = nil;
+    XCTAssertFalse(bar.placeholderLabel.hidden);
+}
+
+- (void)testSearchBarDemoRow
+{
+    CYLSearchDemoMenuViewController *menu = [[CYLSearchDemoMenuViewController alloc] initWithStyle:UITableViewStyleGrouped];
+    CYLSearchTestNavigationController *navigation = [[CYLSearchTestNavigationController alloc] initWithRootViewController:menu];
+    [menu loadViewIfNeeded];
+    NSIndexPath *row = [NSIndexPath indexPathForRow:2 inSection:0];
+    XCTAssertEqualObjects([menu tableView:menu.tableView cellForRowAtIndexPath:row].textLabel.text, [CYLSearchResources localizedStringForKey:@"demo.searchBar"]);
+    [menu tableView:menu.tableView didSelectRowAtIndexPath:row];
+    UIViewController *demo = navigation.lastPushedController;
+    demo.view.frame = CGRectMake(0, 0, 390, 844);
+    [demo.view layoutIfNeeded];
+    CYLSearchBarView *bar = (CYLSearchBarView *)[demo.view.subviews filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self isKindOfClass: %@", CYLSearchBarView.class]].firstObject;
+    UILabel *status = (UILabel *)[demo.view.subviews filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self isKindOfClass: %@", UILabel.class]].firstObject;
+    XCTAssertNotNil(bar);
+    XCTAssertEqualObjects(bar.placeholder, [CYLSearchResources localizedStringForKey:@"demo.searchBar.placeholder"]);
+    XCTAssertFalse(bar.cancelButton.hidden);
+    UIView *camera = bar.trailingAccessoryViews.firstObject;
+    XCTAssertEqualObjects(camera.accessibilityLabel, [CYLSearchResources localizedStringForKey:@"demo.searchBar.camera"]);
+    XCTAssertGreaterThan(CGRectGetWidth(bar.frame), 0);
+    XCTAssertGreaterThanOrEqual(CGRectGetMinY(status.frame), CGRectGetMaxY(bar.frame));
+
+    bar.text = @"IDG";
+    [bar.textField sendActionsForControlEvents:UIControlEventEditingChanged];
+    XCTAssertEqualObjects(status.text, ([NSString stringWithFormat:[CYLSearchResources localizedStringForKey:@"demo.searchBar.text"], @"IDG"]));
+    [bar.textField.delegate textFieldShouldReturn:bar.textField];
+    XCTAssertEqualObjects(status.text, ([NSString stringWithFormat:[CYLSearchResources localizedStringForKey:@"demo.searchBar.searched"], @"IDG"]));
+    [bar.cancelButton sendActionsForControlEvents:UIControlEventTouchUpInside];
+    XCTAssertEqualObjects(bar.text, @"");
+
+    NSDictionary<NSString *, NSString *> *titles = @{@"en": @"Search bar", @"zh-Hans": @"搜索栏", @"zh-Hant": @"搜尋列", @"ja": @"検索バー"};
+    for (NSString *language in titles) {
+        XCTAssertEqualObjects([CYLSearchResources localizedStringForKey:@"demo.searchBar" language:language], titles[language]);
+    }
+}
+
+- (void)testTabBarComesFromTheConfigurationFile
+{
+    UIViewController *root = [CYLSearchExampleAppDelegate rootViewController];
+    XCTAssertTrue([root isKindOfClass:CYLTabBarController.class], @"CYLTabBarConfiguration.json is read");
+    CYLTabBarController *tabBarController = (CYLTabBarController *)root;
+    [tabBarController loadViewIfNeeded];
+    XCTAssertTrue([tabBarController hasPlusButton]);
+    XCTAssertTrue([tabBarController hasPlusChildViewController], @"the plus page ID resolves to a child");
+    NSArray<UIViewController *> *pages = tabBarController.viewControllers;
+    XCTAssertEqual(pages.count, 3);
+    NSArray<Class> *roots = @[CYLSearchExampleViewController.class, CYLSearchBarDemoViewController.class, CYLSearchDemoMenuViewController.class];
+    for (Class rootClass in roots) {
+        NSUInteger index = [pages indexOfObjectPassingTest:^BOOL(UIViewController *page, NSUInteger idx, BOOL *stop) {
+            return [page isKindOfClass:UINavigationController.class]
+                && [((UINavigationController *)page).viewControllers.firstObject isKindOfClass:rootClass];
+        }];
+        XCTAssertNotEqual(index, NSNotFound, @"%@ sits in a navigation controller", rootClass);
+    }
+    // Loading a page does not rename its tab: the tab titles come from the file, page titles go to navigationItem.
+    NSArray<NSString *> *fileTitles = [pages valueForKeyPath:@"tabBarItem.title"];
+    for (UIViewController *page in pages) {
+        [((UINavigationController *)page).viewControllers.firstObject loadViewIfNeeded];
+    }
+    XCTAssertEqualObjects([pages valueForKeyPath:@"tabBarItem.title"], fileTitles);
+    // VoiceOver reads the plus button by its title from the file.
+    XCTAssertGreaterThan(CYLExternPlusButton.accessibilityLabel.length, 0);
+    XCTAssertTrue(CYLExternPlusButton.isAccessibilityElement || CYLExternPlusButton.accessibilityLabel.length > 0);
+    // The titles are keys translated from CYLSearchTabs.bundle.
+    NSString *language = [NSBundle.mainBundle.preferredLocalizations.firstObject hasPrefix:@"zh"] ? nil : @"en";
+    if (language) {
+        NSArray<NSString *> *titles = [pages valueForKeyPath:@"tabBarItem.title"];
+        XCTAssertTrue([titles containsObject:@"Search"], @"%@", titles);
+        XCTAssertTrue([titles containsObject:@"Examples"], @"%@", titles);
+        XCTAssertEqualObjects(CYLExternPlusButton.accessibilityLabel, @"Search bar");
+    }
+    for (NSString *code in @[@"en", @"zh-Hans", @"zh-Hant", @"ja"]) {
+        NSString *path = [NSBundle.mainBundle pathForResource:@"CYLSearchTabs" ofType:@"strings" inDirectory:[NSString stringWithFormat:@"CYLSearchTabs.bundle/%@.lproj", code]];
+        NSDictionary *table = path ? [NSDictionary dictionaryWithContentsOfFile:path] : nil;
+        XCTAssertEqual(table.count, 3, @"%@ has every key", code);
+    }
+}
+
+- (void)testSearchBarNeverCoversTheViewControllersView
+{
+    CYLSearchExampleDataSource *source = [CYLSearchExampleDataSource new];
+    CYLSearchExampleViewController *controller = [[CYLSearchExampleViewController alloc] initWithSearchDataSource:source refreshProvider:source];
+    UINavigationController *navigation = [[UINavigationController alloc] initWithRootViewController:controller];
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
+    window.rootViewController = navigation;
+    [window makeKeyAndVisible];
+    for (NSNumber *hides in @[@NO, @YES]) {
+        controller.navigationItem.hidesSearchBarWhenScrolling = hides.boolValue;
+        [navigation.view setNeedsLayout];
+        [navigation.view layoutIfNeeded];
+        UIView *searchBar = CYLVisibleSearchView(controller.searchController.searchBar);
+        CGRect searchBarFrame = [searchBar convertRect:searchBar.bounds toView:window];
+        CGRect viewFrame = [controller.view convertRect:controller.view.bounds toView:window];
+        XCTAssertGreaterThanOrEqual(CGRectGetMinY(viewFrame), CGRectGetMaxY(navigation.navigationBar.frame) - 0.5, @"hides %@", hides);
+        if (!hides.boolValue) XCTAssertNotNil(searchBar.window, @"the pinned search bar is shown");
+        if (!searchBar.hidden && searchBar.window && CGRectGetHeight(searchBarFrame) > 0) {
+            XCTAssertFalse(CGRectIntersectsRect(CGRectInset(searchBarFrame, 0, 0.5), viewFrame), @"hides %@: %@ / %@", hides, NSStringFromCGRect(searchBarFrame), NSStringFromCGRect(viewFrame));
+        }
+    }
+    window.hidden = YES;
+}
+
+- (void)testSearchBarsCoverNoView
+{
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
+    NSArray<UIContentSizeCategory> *sizes = @[UIContentSizeCategoryLarge, UIContentSizeCategoryAccessibilityExtraExtraExtraLarge];
+
+    // The navigation-item search bar of the results screen, with the bar pinned and hiding on scroll.
+    CYLSearchExampleDataSource *source = [CYLSearchExampleDataSource new];
+    CYLSearchExampleViewController *results = [[CYLSearchExampleViewController alloc] initWithSearchDataSource:source refreshProvider:source];
+    UINavigationController *navigation = [[UINavigationController alloc] initWithRootViewController:results];
+    window.rootViewController = navigation;
+    [window makeKeyAndVisible];
+    for (NSNumber *hides in @[@NO, @YES]) {
+        results.navigationItem.hidesSearchBarWhenScrolling = hides.boolValue;
+        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.3]];
+        [navigation.view setNeedsLayout];
+        [navigation.view layoutIfNeeded];
+        UIView *searchBar = CYLVisibleSearchView(results.searchController.searchBar);
+        if (!hides.boolValue) XCTAssertNotNil(searchBar.window, @"the pinned search bar is shown");
+        if (searchBar.window && !searchBar.hidden) {
+            NSArray *covered = CYLViewsCoveredByView(searchBar, nil);
+            XCTAssertEqual(covered.count, 0, @"results, hides %@: %@", hides, covered);
+        }
+    }
+
+    // CYLSearchBarView on the search bar demo page, at the default and the largest text size.
+    CYLSearchBarDemoViewController *demo = [CYLSearchBarDemoViewController new];
+    navigation = [[UINavigationController alloc] initWithRootViewController:demo];
+    window.rootViewController = navigation;
+    for (UIContentSizeCategory size in sizes) {
+        if (@available(iOS 17.0, *)) {
+            window.traitOverrides.preferredContentSizeCategory = size;
+        }
+        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.2]];
+        [navigation.view setNeedsLayout];
+        [navigation.view layoutIfNeeded];
+        CYLSearchBarView *bar = (CYLSearchBarView *)[demo.view.subviews filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self isKindOfClass: %@", CYLSearchBarView.class]].firstObject;
+        XCTAssertNotNil(bar.window);
+        NSArray *covered = CYLViewsCoveredByView(bar, nil);
+        XCTAssertEqual(covered.count, 0, @"demo at %@: %@", size, covered);
+    }
+    if (@available(iOS 17.0, *)) {
+        window.traitOverrides.preferredContentSizeCategory = UIContentSizeCategoryLarge;
+    }
+
+    // The overlay is a page of its own over its host: inside that page its search bar covers no view.
+    UIViewController *host = [UIViewController new];
+    window.rootViewController = [[UINavigationController alloc] initWithRootViewController:host];
+    [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.3]];
+    [window layoutIfNeeded];
+    CYLSearchController *overlay = [[CYLSearchController alloc] initWithSearchDataSource:source];
+    [overlay showInViewController:host];
+    [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.6]];
+    [overlay.navigationController.view layoutIfNeeded];
+    UIView *overlayBar = CYLVisibleSearchView(overlay.navigationItem.searchController.searchBar);
+    XCTAssertNotNil(overlayBar.window, @"the overlay's search bar is shown");
+    if (overlayBar.window && !overlayBar.hidden) {
+        NSArray *covered = CYLViewsCoveredByView(overlayBar, overlay.navigationController.view);
+        XCTAssertEqual(covered.count, 0, @"overlay: %@", covered);
+    }
+    window.hidden = YES;
 }
 
 @end

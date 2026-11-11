@@ -1,0 +1,22 @@
+{
+  "CYLTabBarControllerContext": "CYLSearchExample",
+  "CYLTabBarControllerLocalization": {
+    "CYLTabBarLocalizationTableName": "CYLSearchTabs",
+    "CYLTabBarLocalizationBundleName": "CYLSearchTabs.bundle"
+  },
+  "CYLTabBarControllerTitlePositionAdjustment": "{0, -2}",
+  "CYLTabBarControllerTabBarItemsAttributes": [
+    { "CYLTabBarItemTitle": "tab.search", "CYLTabBarItemImage": "system:magnifyingglass",
+      "CYLTabBarItemSelectedImage": "system:magnifyingglass", "CYLTabBarItemIdentifier": "search",
+      "CYLTabBarItemPageIdentifier": "search" },
+    { "CYLTabBarItemTitle": "tab.examples", "CYLTabBarItemImage": "system:list.bullet",
+      "CYLTabBarItemSelectedImage": "system:list.bullet", "CYLTabBarItemIdentifier": "examples",
+      "CYLTabBarItemPageIdentifier": "examples" }
+  ],
+  "CYLTabBarControllerPlusButton": {
+    "CYLTabBarItemTitle": "tab.searchBar",
+    "CYLTabBarItemImage": "system:plus.circle.fill",
+    "CYLTabBarItemIdentifier": "plus",
+    "CYLTabBarItemPageIdentifier": "plus"
+  }
+}

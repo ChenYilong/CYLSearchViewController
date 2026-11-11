@@ -83,6 +83,18 @@ Read this file and `AGENTS.md` before changing project files.
 - Keep sample behavior behind protocols or public configuration rather than
   coupling library code to this app, `AppDelegate`, or a concrete data source.
 
+## Search bar placement
+
+- A search bar never covers any view, at any time: not a view controller's
+  view (`self.view`), not a sibling, a background view or a bar item; for a
+  navigation-item search controller, `CYLSearchBarView` and the overlay; in
+  every state and at every Dynamic Type size. Views of search screens do not
+  extend under the top bar (`edgesForExtendedLayout` without
+  `UIRectEdgeTop`); a `CYLSearchBarView` is laid out against the safe area,
+  beside the content, never on top of it, and a colored area behind it ends
+  where the bar begins. `testSearchBarsCoverNoView` checks every search bar
+  with `CYLViewsCoveredByView`; add each new one there.
+
 ## Issue #1317 reproduction
 
 - The sample combines a navigation-item `UISearchController` with a
@@ -96,8 +108,8 @@ Read this file and `AGENTS.md` before changing project files.
 ## CYLTabBarController
 
 Adapted from CYLTabBarController's instruction files at its latest commit
-(`caf3c92`, branch `feat/cross-platform-components`). Details and the TODO
-list: `docs/CYLTabBarController-Integration.md`.
+(`caf3c92`, branch `feat/cross-platform-components`). Details and the status
+(the example integration is done): `docs/CYLTabBarController-Integration.md`.
 
 - This project integrates CYLTabBarController by default. Unless a task says
   otherwise, every `CYLTabBarController` in the example layer:
@@ -135,6 +147,17 @@ list: `docs/CYLTabBarController-Integration.md`.
   `scripts/ci-build-example.sh build|analyze` and `scripts/unit-tests.sh`.
 - Keep `scripts/*.sh` clean under `shellcheck` and workflows clean under
   `actionlint`.
+
+## Task log before every task
+
+Before starting any task, find the most suitable document in `docs/` (the
+feature's own document, else `docs/task-log.md`) and add the task there as
+`TODO`: the detailed context, every requirement the user gave, and the user's
+prompt quoted verbatim with an English translation, plus a status line. Commit
+and push it, then start. When the task ends, change `TODO` to
+`DONE (YYYY-MM-DD)` with the result and the evidence. The purpose: an
+interrupted task never loses its context. Full rule: `AGENTS.md`, "Task log
+before every task".
 
 ## Commit readiness
 
@@ -213,3 +236,10 @@ touch .git/hooks/NO_AUTO_SYNC
 
 On any branch other than `master` or `main`, commit and push as soon as the work is written, without asking for
 confirmation. On `master` or `main`, ask first.
+
+## Pull requests for new branches
+
+Every time a branch is created, open its pull request automatically as soon as the branch is first pushed
+(`gh pr create`), without asking. The base (target) branch is the branch it was created from (its source branch) by
+preference; use `master` or `main` only when that is the source, or when the source branch no longer exists on the
+remote. Name the base branch in the reply.

@@ -9,6 +9,7 @@ target 'CYLSearchExample' do
   use_frameworks!
   pod 'CYLSearchViewController', :path => '.'
   pod 'CYLTableViewPlaceHolder', :path => '../CYLTableViewPlaceHolder'
+  pod 'CYLTabBarController', :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => 'd36c7080157c49c552a3a352d72a9d00a2be11a9'
 
   target 'CYLSearchExampleTests' do
     inherit! :search_paths

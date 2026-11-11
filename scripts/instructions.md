@@ -8,3 +8,11 @@
 - `ci-checkout-dependencies.sh`, `ci-build-example.sh`, `unit-tests.sh` and
   `check-public-api-comments.sh` are what `.github/workflows/ios.yml` runs;
   keep them usable locally and clean under `shellcheck` (`docs/CI-CD.md`).
+
+## Task log before every task
+
+Before any task, log it as `TODO` in the most suitable document in `docs/`
+(else `docs/task-log.md`): context, the user's requirements, the user's prompt
+(verbatim plus English translation) and a status line. Commit and push it,
+then start; mark it `DONE (YYYY-MM-DD)` with the result when the task ends.
+Full rule: `AGENTS.md`, "Task log before every task".

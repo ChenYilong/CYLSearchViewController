@@ -19,3 +19,10 @@
 "repro.on" = "复现：开";
 "repro.off" = "复现：关";
 "sample.result" = "示例结果 %lu";
+"search.cancel" = "取消";
+"search.field" = "搜索";
+"demo.searchBar" = "搜索栏";
+"demo.searchBar.placeholder" = "主播昵称/直播间ID/神曲名";
+"demo.searchBar.text" = "文字：%@";
+"demo.searchBar.searched" = "已搜索：%@";
+"demo.searchBar.camera" = "相机";

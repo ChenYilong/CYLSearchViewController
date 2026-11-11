@@ -1,4 +1,5 @@
 #import "CYLSearchDemoMenuViewController.h"
+#import "CYLSearchBarDemoViewController.h"
 #import "CYLSearchExampleViewController.h"
 #import <CYLSearchViewController/CYLSearchPlaceholderView.h>
 #import <CYLSearchViewController/CYLSearchResources.h>
@@ -89,19 +90,34 @@ static NSString *CYLDemoText(NSString *key)
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.title = CYLDemoText(@"demo.title");
+    // The navigation title only: `title` would also rename the tab this menu sits in.
+    self.navigationItem.title = CYLDemoText(@"demo.title");
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    // `-CYLDemoRow 2` on launch opens that row, for screenshots.
+    static BOOL opened;
+    NSString *row = [NSUserDefaults.standardUserDefaults stringForKey:@"CYLDemoRow"];
+    if (opened || row.length == 0) return;
+    opened = YES;
+    NSInteger index = row.integerValue;
+    if (index < 0 || index >= [self tableView:self.tableView numberOfRowsInSection:0]) return;
+    [self tableView:self.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0]];
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 2;
+    return 3;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CYLDemoMenu"];
     if (!cell) cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"CYLDemoMenu"];
-    cell.textLabel.text = CYLDemoText(indexPath.row == 0 ? @"demo.reproduction" : @"demo.styles");
+    NSArray<NSString *> *rows = @[@"demo.reproduction", @"demo.styles", @"demo.searchBar"];
+    cell.textLabel.text = CYLDemoText(rows[indexPath.row]);
     cell.textLabel.numberOfLines = 0;
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     return cell;
@@ -113,8 +129,10 @@ static NSString *CYLDemoText(NSString *key)
     if (indexPath.row == 0) {
         CYLSearchExampleDataSource *source = [CYLSearchExampleDataSource new];
         controller = [[CYLSearchExampleViewController alloc] initWithSearchDataSource:source refreshProvider:source];
-    } else {
+    } else if (indexPath.row == 1) {
         controller = [[CYLSearchPlaceholderGalleryViewController alloc] initWithStyle:UITableViewStyleGrouped];
+    } else {
+        controller = [CYLSearchBarDemoViewController new];
     }
     [self.navigationController pushViewController:controller animated:YES];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];

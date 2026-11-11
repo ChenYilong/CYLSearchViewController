@@ -31,3 +31,11 @@ description: "Xcode project format, deployment target, CocoaPods workspace, and 
   the single `post_install` hook unchanged.
 - Deployment targets stay at iOS 15.0 (below 27); CI opens projects with
   Xcode 26, so keep project format 46.
+
+## Task log before every task
+
+Before any task, log it as `TODO` in the most suitable document in `docs/`
+(else `docs/task-log.md`): context, the user's requirements, the user's prompt
+(verbatim plus English translation) and a status line. Commit and push it,
+then start; mark it `DONE (YYYY-MM-DD)` with the result when the task ends.
+Full rule: `AGENTS.md`, "Task log before every task".

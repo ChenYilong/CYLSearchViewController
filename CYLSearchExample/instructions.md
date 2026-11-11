@@ -15,3 +15,20 @@
   unless a task says otherwise. Follow the `cyl-tabbar-integration` skill.
 - Register a page provider for every page ID before creating the controller,
   and keep search pages inside a `UINavigationController`.
+
+## Search bar placement
+
+- A search bar never covers the main view, that is, the view controller's
+  view (`self.view`), or any other view, at any time and at every Dynamic
+  Type size. Full rule: `instructions.md` and `AGENTS.md`, "Search bar
+  placement".
+- Lay out every `CYLSearchBarView` against the safe area, beside the
+  content; do not let search screens extend under the top bar.
+
+## Task log before every task
+
+Before any task, log it as `TODO` in the most suitable document in `docs/`
+(else `docs/task-log.md`): context, the user's requirements, the user's prompt
+(verbatim plus English translation) and a status line. Commit and push it,
+then start; mark it `DONE (YYYY-MM-DD)` with the result when the task ends.
+Full rule: `AGENTS.md`, "Task log before every task".

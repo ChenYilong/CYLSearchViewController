@@ -19,3 +19,10 @@
 "repro.on" = "再現：オン";
 "repro.off" = "再現：オフ";
 "sample.result" = "サンプル結果 %lu";
+"search.cancel" = "キャンセル";
+"search.field" = "検索";
+"demo.searchBar" = "検索バー";
+"demo.searchBar.placeholder" = "配信者・ルームID・曲名";
+"demo.searchBar.text" = "テキスト：%@";
+"demo.searchBar.searched" = "検索しました：%@";
+"demo.searchBar.camera" = "カメラ";
