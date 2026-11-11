@@ -306,6 +306,8 @@
     [bar layoutIfNeeded];
     XCTAssertFalse(bar.cancelButton.hidden);
     XCTAssertEqualObjects([bar.cancelButton titleForState:UIControlStateNormal], @"取消");
+    CGFloat titleWidth = [@"取消" sizeWithAttributes:@{NSFontAttributeName: bar.font}].width;
+    XCTAssertGreaterThanOrEqual(CGRectGetWidth(bar.cancelButton.frame), titleWidth, @"the whole title fits");
     XCTAssertLessThanOrEqual(CGRectGetMaxX(bar.fieldView.frame), CGRectGetMinX(bar.cancelButton.frame));
     XCTAssertTrue(camera.superview == bar.fieldView);
     XCTAssertLessThanOrEqual(CGRectGetMaxX(bar.textField.frame), CGRectGetMinX(camera.frame));

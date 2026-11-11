@@ -192,7 +192,9 @@ static CGSize CYLSearchBarFittingSize(UIView *view, CGFloat height) {
         leading += size.width - 8 + 2;
     }
     if (self.showsCancelButton) {
-        CGSize size = [self.cancelButton sizeThatFits:CGSizeMake(CGFLOAT_MAX, fieldHeight)];
+        // The title's own width: a button's fitting size can lag behind a title or font set in the same pass.
+        CGFloat titleWidth = ceil([self.cancelButtonTitle sizeWithAttributes:@{NSFontAttributeName: self.font}].width);
+        CGSize size = CGSizeMake(MAX(44, titleWidth + 8), fieldHeight);
         self.cancelButton.frame = CGRectMake(trailing - size.width, y, size.width, fieldHeight);
         trailing -= size.width + CYLSearchBarSpacing;
     }
