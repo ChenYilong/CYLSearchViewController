@@ -28,6 +28,11 @@ CollectionViewClassifyMenu's examples use it for every search box.
   bar) and trailing accessory views are scaled as a whole (down to a quarter)
   before the text field shrinks. VoiceOver and the large content viewer
   (long press at accessibility sizes) still read the whole Cancel title.
+- Placeholder at large sizes (2026-11-12): UITextField's own placeholder shrank
+  to a quarter of the font size (53 pt text, 14 pt placeholder) when it did not
+  fit. The bar now draws it in `placeholderLabel` at the text's font size, cut
+  off with an ellipsis; the text field keeps the placeholder in a clear color
+  for VoiceOver.
 - Demo row: "Search bar" (`demo.searchBar`, four languages) in
   `CYLSearchDemoMenuViewController` shows the bar with a camera accessory and
   Cancel, and prints the text and the Search key below it. Launch with
@@ -36,7 +41,7 @@ CollectionViewClassifyMenu's examples use it for every search box.
   (`scripts/check-public-api-comments.sh` passes).
 - Tests: `testSearchBarDemoRow` (row, localized title in four languages,
   events, camera label) and the large-text case in
-  `testSearchBarViewSupportsVoiceOverAndDynamicType`. All 12 example tests
+  `testSearchBarViewSupportsVoiceOverAndDynamicType`. All 15 example tests
   pass (Xcode 27.2, iPhone 17 Pro simulator, iOS 26.1).
 
 ## Screenshots
