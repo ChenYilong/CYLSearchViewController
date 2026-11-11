@@ -30,13 +30,21 @@ description: "Document public integration and reproducible steps for CYLSearchVi
 
 ## Comments on public API
 
-- A public API comment, single-line or multi-line, is one three-line block
-  right above the declaration (`/*!`, ` * Text.`, ` */` in Objective-C).
-  No one-line blocks (`/*! Text. */`) and no trailing `/**< */`, `/*!< */`,
-  `///<` or `//` after declarations or enum values.
+- Official documentation rules decide every comment format; the project rules
+  choose among officially allowed forms and give way where they conflict.
+- A public API comment, single-line or multi-line, is one block right above
+  the declaration. Where the block form is officially allowed it has three
+  lines (`/*!`, ` * Text.`, ` */` in Objective-C). No one-line blocks
+  (`/*! Text. */`). No trailing `/**< */`, `/*!< */`, `///<` or `//` after
+  declarations or enum values.
 - A file with public API uses one comment format for every comment.
-- All platforms and languages use their documentation tool's block form:
-  Objective-C `/*! */`; Swift, Kotlin, Java, TypeScript, JavaScript, Dart,
-  Rust `/** */`; C# `/** */` with XML tags; Go `/* */`; Python a
-  triple-quoted docstring on its own lines; otherwise the language's only
-  documentation form. Full rule: `AGENTS.md`, "Comments on public API".
+- Formats:
+  - Objective-C `/*! */`.
+  - Swift, Kotlin, Java, TypeScript, JavaScript `/** */`.
+  - Python: PEP 257 docstrings.
+  - Go `//`.
+  - C# `///` with XML tags.
+  - Rust `///`.
+  - Dart `///`.
+
+  Full rule and sources: `AGENTS.md`, "Comments on public API".

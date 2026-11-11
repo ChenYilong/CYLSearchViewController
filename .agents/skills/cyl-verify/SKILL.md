@@ -15,7 +15,8 @@ description: "Install, build, analyze, and test the search sample and its local 
    every comment on a public declaration in `Sources/**/*.h` is a three-line
    `/*!` / ` * …` / ` */` block above it, one-line comments included; none is
    written on one line; there is no trailing `/**< */`, `/*!< */`, `///<` or
-   `//`; and each public file uses one format. Quick check:
+   `//`; each public file uses one format; and the format is the official one
+   of its language (table in `AGENTS.md`). Quick check:
    `grep -nE '///|/\*[*!]<|/\*!.*\*/|;\s*//|,\s*//' Sources/CYLSearchViewController/*.h`
    must print nothing.
 5. Launch and exercise the sample before claiming that the UI reproduces the

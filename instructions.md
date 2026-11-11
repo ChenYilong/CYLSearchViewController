@@ -18,21 +18,29 @@ Read this file and `AGENTS.md` before changing project files.
 
 ## Comments on public API
 
+- All comment formats follow the official documentation rules of their
+  language. The rules below choose among the officially allowed forms; where
+  one contradicts an official rule, the official rule wins.
 - A multi-line comment on a public declaration is one documentation block,
   never stacked single-line comments, right above the declaration.
 - The format requirements above for multi-line public API comments also apply
-  to single-line public API comments. A one-line comment is written on three
-  lines above the declaration (`/*!`, ` * Text.`, ` */`). Never write it on
-  one line (`/*! Text. */`), and never add a trailing `/**< */`, `/*!< */`,
-  `///<` or `//` after a declaration or an enum value.
+  to single-line public API comments. Where the block form is officially
+  allowed, a one-line comment is written on three lines above the declaration
+  (`/*!`, ` * Text.`, ` */`). Never write it on one line (`/*! Text. */`), and
+  never add a trailing `/**< */`, `/*!< */`, `///<` or `//` after a
+  declaration or an enum value.
 - In a file that contains public API, keep the comment format uniform: one
   format for long and short comments.
-- This applies to all platforms and all languages, each with the block form
-  of its documentation tool: Objective-C `/*! */`; Swift, Kotlin, Java,
-  TypeScript, JavaScript, Dart and Rust `/** */`; C# `/** */` with XML tags;
-  Go `/* */`; Python a triple-quoted docstring on its own lines. A language
-  without a block form uses its only documentation comment form throughout
-  the file. Full rule and table: `AGENTS.md`, "Comments on public API".
+- This applies to all platforms and all languages:
+  - Objective-C `/*! */`.
+  - Swift, Kotlin, Java, TypeScript and JavaScript `/** */`.
+  - Python: PEP 257 docstrings.
+  - Go `//`, C# `///` with XML tags, Rust `///`, Dart `///`: these are the
+    official forms.
+
+  A language with no block form uses its only documentation comment form
+  throughout the file. Full rule and sources: `AGENTS.md`, "Comments on
+  public API".
 
 ## Xcode and dependencies
 
