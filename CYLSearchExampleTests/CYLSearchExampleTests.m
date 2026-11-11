@@ -599,4 +599,23 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     window.hidden = YES;
 }
 
+- (void)testZZProbePlaceholder
+{
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
+    UIViewController *c = [UIViewController new];
+    window.rootViewController = c; [window makeKeyAndVisible];
+    if (@available(iOS 17.0, *)) window.traitOverrides.preferredContentSizeCategory = UIContentSizeCategoryAccessibilityExtraExtraExtraLarge;
+    CYLSearchBarView *bar = [[CYLSearchBarView alloc] initWithFrame:CGRectZero];
+    bar.placeholder = @"主播昵称/直播间ID/神曲名";
+    bar.placeholderColor = UIColor.grayColor;
+    bar.showsCancelButton = YES; bar.cancelButtonTitle = @"取消";
+    [c.view addSubview:bar];
+    [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.3]];
+    bar.frame = CGRectMake(0, 100, 402, bar.intrinsicContentSize.height);
+    [bar layoutIfNeeded];
+    UILabel *ph = nil;
+    for (UIView *v in bar.textField.subviews) { if ([v isKindOfClass:UILabel.class]) ph = (UILabel *)v; for (UIView *w in v.subviews) if ([w isKindOfClass:UILabel.class]) ph = (UILabel *)w; }
+    NSLog(@"CYLPROBE field font %.1f adjusts %d min %.1f fieldW %.1f ph font %.1f adjusts %d scale %.2f phFrame %@ text %@", bar.textField.font.pointSize, bar.textField.adjustsFontSizeToFitWidth, bar.textField.minimumFontSize, bar.textField.frame.size.width, ph.font.pointSize, ph.adjustsFontSizeToFitWidth, ph.minimumScaleFactor, NSStringFromCGRect(ph.frame), ph.text);
+}
+
 @end
