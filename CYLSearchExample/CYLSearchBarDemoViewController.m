@@ -17,7 +17,8 @@ static NSString *CYLDemoText(NSString *key)
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.title = CYLDemoText(@"demo.searchBar");
+    // navigationItem.title: as the plus page, title would rename the plus button's tab item.
+    self.navigationItem.title = CYLDemoText(@"demo.searchBar");
     self.view.backgroundColor = UIColor.systemBackgroundColor;
 
     _searchBarView = [[CYLSearchBarView alloc] initWithFrame:CGRectZero];

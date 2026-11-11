@@ -66,7 +66,9 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    self.title = [CYLSearchResources localizedStringForKey:@"search.title"];
+    // navigationItem.title, not title: a view controller's title also renames its tab item, whose title comes from
+    // CYLTabBarConfiguration.json.
+    self.navigationItem.title = [CYLSearchResources localizedStringForKey:@"search.title"];
     self.searchController.searchBar.placeholder = [CYLSearchResources localizedStringForKey:@"search.placeholder"];
     self.tableView.tableFooterView = [UIView new];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:[CYLSearchResources localizedStringForKey:@"repro.off"]
