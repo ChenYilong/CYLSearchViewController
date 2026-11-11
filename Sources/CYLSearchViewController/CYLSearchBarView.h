@@ -34,7 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, copy, nullable) NSString *text;
 @property (nonatomic, copy, nullable) NSString *placeholder;
-/// The text font, the body text style by default. A custom font is scaled with Dynamic Type (`UIFontMetrics`).
+/// The text font, the body text style by default. Pass a font from `UIFontMetrics` (or a text style) so that a
+/// custom font follows Dynamic Type; it is not scaled again here.
 @property (nonatomic, strong, null_resettable) UIFont *font;
 @property (nonatomic, strong, null_resettable) UIColor *textColor;
 /// nil uses the placeholder gray.

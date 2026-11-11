@@ -75,9 +75,8 @@ static CGFloat const CYLSearchBarSpacing = 8;
 }
 
 - (UIFont *)font {
-    // A custom font grows with Dynamic Type like the default one.
-    return _font ? [[UIFontMetrics defaultMetrics] scaledFontForFont:_font compatibleWithTraitCollection:self.traitCollection]
-                 : [UIFont preferredFontForTextStyle:UIFontTextStyleBody compatibleWithTraitCollection:self.traitCollection];
+    // A custom font is used as given: UIKit refuses to scale a font from UIFontMetrics twice.
+    return _font ?: [UIFont preferredFontForTextStyle:UIFontTextStyleBody compatibleWithTraitCollection:self.traitCollection];
 }
 
 /// `fieldHeight`, or taller when the scaled text needs it.

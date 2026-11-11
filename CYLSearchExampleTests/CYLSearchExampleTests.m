@@ -341,12 +341,13 @@
     XCTAssertEqualObjects([CYLSearchResources localizedStringForKey:@"search.field" language:@"zh-Hant"], @"搜尋");
     XCTAssertEqualObjects([CYLSearchResources localizedStringForKey:@"search.field" language:@"ja"], @"検索");
 
-    // A custom font is scaled, and the field grows instead of clipping the text.
-    bar.font = [UIFont systemFontOfSize:16];
+    // A scaled font is used as given (not scaled twice), and the field grows instead of clipping the text.
     UITraitCollection *large = [UITraitCollection traitCollectionWithPreferredContentSizeCategory:UIContentSizeCategoryAccessibilityExtraExtraExtraLarge];
-    UIFont *scaled = [[UIFontMetrics defaultMetrics] scaledFontForFont:[UIFont systemFontOfSize:16] compatibleWithTraitCollection:large];
-    XCTAssertGreaterThan(scaled.pointSize, 16);
     XCTAssertEqual(bar.intrinsicContentSize.height, 48, @"36 pt is enough at the default size");
+    UIFont *scaled = [[UIFontMetrics defaultMetrics] scaledFontForFont:[UIFont systemFontOfSize:16] compatibleWithTraitCollection:large];
+    bar.font = scaled;
+    XCTAssertEqual(bar.font, scaled);
+    XCTAssertGreaterThan(bar.intrinsicContentSize.height, 48, @"the field grows with large text");
     bar.fieldHeight = 10;
     XCTAssertGreaterThanOrEqual(bar.intrinsicContentSize.height, ceil(bar.font.lineHeight + 12) + 12, @"never shorter than the text");
 }

@@ -19,7 +19,8 @@ CollectionViewClassifyMenu's examples use it for every search box.
 - `testSearchBarViewLayoutStyleAndEvents`: layout, style and events.
 - Accessibility: the field is read as "Search" (`search.field`, four
   languages) even after the placeholder disappears; the magnifier is
-  decorative; a custom `font` is scaled with `UIFontMetrics`; the field grows
+  decorative; the default font follows Dynamic Type (hosts pass a
+  `UIFontMetrics` font for a custom one); the field grows
   past `fieldHeight` when the scaled text needs it, and the bar remeasures when
   the text size changes. `testSearchBarViewSupportsVoiceOverAndDynamicType`.
 - All 11 example tests pass (Xcode 27.2, iPhone 17 Pro simulator, iOS 26.1).
