@@ -7,5 +7,7 @@ repository and vault instructions.
 - Preserve issue and comparison tracker structures when updating them.
 - Before commits, record unfinished work with a `TODO` heading in the most
   relevant existing document; do not create duplicate trackers.
+- Track CYLTabBarController integration rules and their TODOs in
+  `CYLTabBarController-Integration.md`.
 - Keep commit records factual and link them from the corresponding commit
   message when the detailed description exceeds 50 characters.

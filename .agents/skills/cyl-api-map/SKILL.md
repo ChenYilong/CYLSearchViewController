@@ -1,6 +1,6 @@
 ---
 name: cyl-api-map
-description: "Find the public CYLTableViewPlaceHolder APIs used by the search and refresh reproduction."
+description: "Find the public CYLTableViewPlaceHolder and CYLTabBarController APIs used by the search example."
 ---
 
 # Public API map
@@ -17,3 +17,21 @@ Use the dependency's public headers only:
 
 Keep the sample independent of the pod's private implementation. Put search
 data access behind a project-owned protocol if it grows beyond local demo data.
+
+## CYLTabBarController
+
+Umbrella header: `<CYLTabBarController/CYLTabBarController.h>`. Upstream docs
+at commit `caf3c92`
+(`https://github.com/ChenYilong/CYLTabBarController/blob/caf3c925966f71edfc87d1dd2ed9f03cbad6aba1/docs/<Name>.md`):
+
+| Need | Public API | Upstream doc |
+|:---|:---|:---|
+| Create from a local file (default) | `+tabBarControllerWithConfigurationFile:error:` | Configuration-File |
+| Edit the dictionary first (add an action) | `+configurationWithContentsOfFile:error:`, `-initWithConfiguration:` | Configuration-File |
+| Tabs | `CYLTabBarControllerTabBarItemsAttributes`, `CYLTabBarItemTitle` / `Image` / `SelectedImage` / `Identifier` | Configuration-File |
+| Plus button and its child page | `CYLTabBarControllerPlusButton` + `CYLTabBarItemPageIdentifier`; `CYLTabBarControllerPlusButtonAction` | Configuration-File, PlusButton |
+| Pages for page IDs | `CYLTabBarPageRegistry.sharedRegistry`, `-registerPageProvider:forPageIdentifier:`, `CYLTabBarControllerPageRegistry` | Tab-Page-Registry |
+| Plus button in code (only when asked) | `+[CYLPlusButton cyl_registerPlusButtonWithAttributes:action:context:]` | PlusButton |
+| Plus page navigation title | `CYL_NAVIGATION_TITLE_FOLLOWS_TAB_BAR_ITEM` | Update-Tab-Bar-Items-In-Place |
+| Badges on the plus button | `-cyl_showBadge`, `-cyl_showBadgeValue:…` | PlusButton-Badge |
+| Accessibility identifiers | tab accessibility API | Tab-Accessibility |

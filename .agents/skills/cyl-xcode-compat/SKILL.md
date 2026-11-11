@@ -21,3 +21,13 @@ description: "Xcode project format, deployment target, CocoaPods workspace, and 
   `CYLTabBarController/Example/Images.xcassets` and add it to the target.
 - Keep `PRODUCT_BUNDLE_IDENTIFIER` consistent with the app and test Info.plists.
 - Open the generated `.xcworkspace` after installing pods.
+
+## CYLTabBarController
+
+- Add the CYLTabBarController configuration file to the app target with an
+  explicit file reference and a Resources build phase entry; no folder sync.
+- The CYLTabBarController pod line uses `:git` and `:commit` from
+  `scripts/latest-cyl-commit.sh --podfile`, inside the existing target, with
+  the single `post_install` hook unchanged.
+- Deployment targets stay at iOS 15.0 (below 27); CI opens projects with
+  Xcode 26, so keep project format 46.
