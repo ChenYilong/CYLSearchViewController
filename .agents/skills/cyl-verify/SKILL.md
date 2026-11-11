@@ -70,3 +70,22 @@ shellcheck scripts/*.sh && actionlint
 Name the environment in every report: the GitHub runner (`macos-26` unless
 `MACOS_RUNNER` is set) or the local macOS and Xcode versions.
 
+## Search bar placement
+
+A search bar never covers the main view, the view controller's view
+(`self.view`), or any other view, at any time: a navigation-item
+`UISearchController`, a `CYLSearchBarView` and the overlay, in every state and
+at every Dynamic Type size. Full rule: `AGENTS.md`, "Search bar placement".
+
+- Check frames in a window, not in a detached view: `testSearchBarsCoverNoView`
+  (`CYLViewsCoveredByView`) runs every search bar with
+  `hidesSearchBarWhenScrolling` NO and YES and at the largest text size.
+- On the simulator, look at the first rows and the refresh header under the
+  search field: nothing may sit behind it.
+
+## Pull requests
+
+Every new branch gets a pull request as soon as it is first pushed, without
+asking (`gh pr create`). The base branch is the branch it was created from;
+use `master` or `main` only when that is the source or the source branch no
+longer exists on the remote. Full rule: `AGENTS.md`, "Commit readiness".

@@ -225,3 +225,10 @@ touch .git/hooks/NO_AUTO_SYNC
 
 On any branch other than `master` or `main`, commit and push as soon as the work is written, without asking for
 confirmation. On `master` or `main`, ask first.
+
+## Pull requests for new branches
+
+Every time a branch is created, open its pull request automatically as soon as the branch is first pushed
+(`gh pr create`), without asking. The base (target) branch is the branch it was created from (its source branch) by
+preference; use `master` or `main` only when that is the source, or when the source branch no longer exists on the
+remote. Name the base branch in the reply.

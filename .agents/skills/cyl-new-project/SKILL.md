@@ -33,3 +33,16 @@ Adapted from CYLTabBarController's `cyl-new-project` skill (commit `caf3c92`).
 - Do not set `UIViewControllerBasedStatusBarAppearance = NO`, and add no
   orientation limit in code; the target settings decide.
 - Plus button details: `cyl-plus-button`.
+
+## Search bar placement
+
+A search bar never covers the main view, the view controller's view
+(`self.view`), or any other view, at any time: a navigation-item
+`UISearchController`, a `CYLSearchBarView` and the overlay, in every state and
+at every Dynamic Type size. Full rule: `AGENTS.md`, "Search bar placement".
+
+- Search screens do not extend under the top bar (`edgesForExtendedLayout`
+  without `UIRectEdgeTop`).
+- Lay out a `CYLSearchBarView` against the safe area, beside the content,
+  never on top of it; a colored area behind it ends where the bar begins.
+- Add each new search bar to `testSearchBarsCoverNoView`.

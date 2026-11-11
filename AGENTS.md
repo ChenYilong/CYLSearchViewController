@@ -205,6 +205,11 @@ reproduction or fix without launching the sample on a simulator.
 - **On any branch other than `master` or `main`, commit and push as soon as the work is written, without asking
   for confirmation.** On `master` or `main`, ask first.
 
+- **Every new branch gets a pull request right away, without asking.** As soon as a branch is created and first
+  pushed, open its pull request (`gh pr create`). The base (target) branch is the branch the new one was created from
+  (its source branch); use `master` or `main` only when that is the source, or when the source branch no longer exists
+  on the remote. Never ask for confirmation first. Name the base in the reply.
+
 - Every commit message carries the author line
   `By  @ChenYilong <luohanchenyilong@163.com>` (exactly as written, two spaces
   after `By`) in its body, after the description and before trailers such as

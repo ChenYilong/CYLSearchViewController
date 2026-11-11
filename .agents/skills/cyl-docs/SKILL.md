@@ -48,3 +48,12 @@ description: "Document public integration and reproducible steps for CYLSearchVi
   - Dart `///`.
 
   Full rule and sources: `AGENTS.md`, "Comments on public API".
+
+## Branches and pull requests
+
+- Every time a branch is created, open its pull request automatically right
+  after the first push, without asking. Target the source branch (the branch
+  it was created from) first; use `master` or `main` only when that is the
+  source or the source branch no longer exists on the remote.
+- Screenshots in `docs/assets/` show search screens with nothing behind the
+  search bar (`AGENTS.md`, "Search bar placement").
