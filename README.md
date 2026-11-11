@@ -126,5 +126,8 @@ The example integrates CYLTabBarController by default: each tab bar controller
 is created from a local configuration file and has a plus button with a plus
 child view controller. The pod is pinned to the newest CYLTabBarController
 commit on any branch (`scripts/latest-cyl-commit.sh --podfile`). The rules are
-in `AGENTS.md` and the `cyl-tabbar-integration` skill; the example code is not
-written yet, see the TODO list in `docs/CYLTabBarController-Integration.md`.
+in `AGENTS.md` and the `cyl-tabbar-integration` skill. The example's root is a
+tab bar built from `CYLSearchExample/CYLTabBarConfiguration.json`: Search,
+Examples and a plus button that opens the search bar demo, with titles in
+English, Simplified and Traditional Chinese and Japanese. Details and
+screenshots: `docs/CYLTabBarController-Integration.md`.

@@ -27,6 +27,8 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    // The view starts below the navigation bar and its search bar: the search bar never covers this view.
+    self.edgesForExtendedLayout &= ~UIRectEdgeTop;
     self.navigationItem.searchController = self.searchController;
     self.navigationItem.hidesSearchBarWhenScrolling = NO;
     self.definesPresentationContext = YES;

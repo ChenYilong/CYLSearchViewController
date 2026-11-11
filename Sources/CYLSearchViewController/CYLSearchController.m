@@ -31,6 +31,8 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    // The view starts below the navigation bar and its search bar: the search bar never covers this view.
+    self.edgesForExtendedLayout &= ~UIRectEdgeTop;
     [self addChildViewController:self.resultsViewController];
     UIView *resultsView = self.resultsViewController.view;
     resultsView.frame = self.view.bounds;

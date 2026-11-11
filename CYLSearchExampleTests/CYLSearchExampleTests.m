@@ -425,18 +425,45 @@
         }];
         XCTAssertNotEqual(index, NSNotFound, @"%@ sits in a navigation controller", rootClass);
     }
+    // VoiceOver reads the plus button by its title from the file.
+    XCTAssertGreaterThan(CYLExternPlusButton.accessibilityLabel.length, 0);
+    XCTAssertTrue(CYLExternPlusButton.isAccessibilityElement || CYLExternPlusButton.accessibilityLabel.length > 0);
     // The titles are keys translated from CYLSearchTabs.bundle.
     NSString *language = [NSBundle.mainBundle.preferredLocalizations.firstObject hasPrefix:@"zh"] ? nil : @"en";
     if (language) {
         NSArray<NSString *> *titles = [pages valueForKeyPath:@"tabBarItem.title"];
         XCTAssertTrue([titles containsObject:@"Search"], @"%@", titles);
         XCTAssertTrue([titles containsObject:@"Examples"], @"%@", titles);
+        XCTAssertEqualObjects(CYLExternPlusButton.accessibilityLabel, @"Search bar");
     }
     for (NSString *code in @[@"en", @"zh-Hans", @"zh-Hant", @"ja"]) {
         NSString *path = [NSBundle.mainBundle pathForResource:@"CYLSearchTabs" ofType:@"strings" inDirectory:[NSString stringWithFormat:@"CYLSearchTabs.bundle/%@.lproj", code]];
         NSDictionary *table = path ? [NSDictionary dictionaryWithContentsOfFile:path] : nil;
         XCTAssertEqual(table.count, 3, @"%@ has every key", code);
     }
+}
+
+- (void)testSearchBarNeverCoversTheViewControllersView
+{
+    CYLSearchExampleDataSource *source = [CYLSearchExampleDataSource new];
+    CYLSearchExampleViewController *controller = [[CYLSearchExampleViewController alloc] initWithSearchDataSource:source refreshProvider:source];
+    UINavigationController *navigation = [[UINavigationController alloc] initWithRootViewController:controller];
+    UIWindow *window = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, 402, 874)];
+    window.rootViewController = navigation;
+    [window makeKeyAndVisible];
+    for (NSNumber *hides in @[@NO, @YES]) {
+        controller.navigationItem.hidesSearchBarWhenScrolling = hides.boolValue;
+        [navigation.view setNeedsLayout];
+        [navigation.view layoutIfNeeded];
+        UISearchBar *searchBar = controller.searchController.searchBar;
+        CGRect searchBarFrame = [searchBar convertRect:searchBar.bounds toView:window];
+        CGRect viewFrame = [controller.view convertRect:controller.view.bounds toView:window];
+        XCTAssertGreaterThanOrEqual(CGRectGetMinY(viewFrame), CGRectGetMaxY(navigation.navigationBar.frame) - 0.5, @"hides %@", hides);
+        if (!searchBar.hidden && searchBar.window && CGRectGetHeight(searchBarFrame) > 0) {
+            XCTAssertFalse(CGRectIntersectsRect(CGRectInset(searchBarFrame, 0, 0.5), viewFrame), @"hides %@: %@ / %@", hides, NSStringFromCGRect(searchBarFrame), NSStringFromCGRect(viewFrame));
+        }
+    }
+    window.hidden = YES;
 }
 
 @end

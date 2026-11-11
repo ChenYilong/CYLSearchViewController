@@ -318,7 +318,9 @@ static CGSize CYLSearchBarFittingSize(UIView *view, CGFloat height) {
 }
 
 - (BOOL)resignFirstResponder {
-    return [self.textField resignFirstResponder];
+    // The text field holds the keyboard; the bar itself also gives up first responder as UIKit expects.
+    BOOL resigned = [self.textField resignFirstResponder];
+    return [super resignFirstResponder] && resigned;
 }
 
 @end

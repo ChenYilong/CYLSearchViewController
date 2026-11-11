@@ -83,6 +83,15 @@ Read this file and `AGENTS.md` before changing project files.
 - Keep sample behavior behind protocols or public configuration rather than
   coupling library code to this app, `AppDelegate`, or a concrete data source.
 
+## Search bar placement
+
+- A search bar never covers a view controller's view (`self.view`), in any
+  state: a navigation-item search controller, `CYLSearchBarView`, the overlay
+  and every Dynamic Type size. Views of search screens do not extend under
+  the top bar (`edgesForExtendedLayout` without `UIRectEdgeTop`); a
+  `CYLSearchBarView` is laid out against the safe area, above or beside the
+  content, never on top of it. Test it with frames in a window.
+
 ## Issue #1317 reproduction
 
 - The sample combines a navigation-item `UISearchController` with a
@@ -96,8 +105,8 @@ Read this file and `AGENTS.md` before changing project files.
 ## CYLTabBarController
 
 Adapted from CYLTabBarController's instruction files at its latest commit
-(`caf3c92`, branch `feat/cross-platform-components`). Details and the TODO
-list: `docs/CYLTabBarController-Integration.md`.
+(`caf3c92`, branch `feat/cross-platform-components`). Details and the status
+(the example integration is done): `docs/CYLTabBarController-Integration.md`.
 
 - This project integrates CYLTabBarController by default. Unless a task says
   otherwise, every `CYLTabBarController` in the example layer:

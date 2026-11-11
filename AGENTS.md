@@ -106,6 +106,15 @@ from CYLTabBarController's `AGENTS.md`, "Comments on public API" (commit
   `CYLTabBarController/Example/Images.xcassets`.
 - Never commit `Pods/`, generated workspace state, or AppleDouble `._*` files.
 
+## Search bar placement
+
+- A search bar never covers a view controller's view (`self.view`), in any
+  state: a navigation-item search controller, `CYLSearchBarView`, the overlay
+  and every Dynamic Type size. Views of search screens do not extend under
+  the top bar (`edgesForExtendedLayout` without `UIRectEdgeTop`); a
+  `CYLSearchBarView` is laid out against the safe area, above or beside the
+  content, never on top of it. Test it with frames in a window.
+
 ## Issue #1317
 
 The reproduction uses `UISearchController` in `navigationItem.searchController`
@@ -119,7 +128,7 @@ controller strongly and must always stop the refresh control.
 This project integrates CYLTabBarController by default. Rules adapted from
 CYLTabBarController's `AGENTS.md` and `cyl-*` skills at its latest commit
 (`caf3c92`, branch `feat/cross-platform-components`, 2026-11-11); see
-`docs/CYLTabBarController-Integration.md` for the source and the TODO list.
+`docs/CYLTabBarController-Integration.md` for the source and the status.
 
 - **Default integration in the example layer.** Unless a task says otherwise,
   every `CYLTabBarController` in the example (`CYLSearchExample/`) is created
