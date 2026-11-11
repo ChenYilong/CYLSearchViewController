@@ -58,6 +58,14 @@ static CGFloat const CYLSearchBarMinimumAccessoryScale = 0.25;
     _textField.accessibilityLabel = [CYLSearchResources localizedStringForKey:@"search.field"];
     [_textField addTarget:self action:@selector(cyl_textChanged) forControlEvents:UIControlEventEditingChanged];
     [_fieldView addSubview:_textField];
+    // The placeholder is drawn by this label at the full font size and cut off with an ellipsis when it does not
+    // fit: UITextField's own placeholder shrinks to a quarter of the size at large Dynamic Type sizes. The text
+    // field keeps the placeholder (in a clear color) for VoiceOver.
+    _placeholderLabel = [[UILabel alloc] init];
+    _placeholderLabel.lineBreakMode = NSLineBreakByTruncatingTail;
+    _placeholderLabel.isAccessibilityElement = NO;
+    _placeholderLabel.userInteractionEnabled = NO;
+    [_fieldView addSubview:_placeholderLabel];
     UIButtonConfiguration *configuration = [UIButtonConfiguration plainButtonConfiguration];
     configuration.contentInsets = NSDirectionalEdgeInsetsMake(0, 4, 0, 4);
     _cancelButton = [UIButton buttonWithConfiguration:configuration primaryAction:nil];
@@ -72,11 +80,15 @@ static CGFloat const CYLSearchBarMinimumAccessoryScale = 0.25;
 #pragma mark Properties
 
 - (NSString *)text { return self.textField.text; }
-- (void)setText:(NSString *)text { self.textField.text = text; }
+- (void)setText:(NSString *)text {
+    self.textField.text = text;
+    [self cyl_updatePlaceholderVisibility];
+}
 
 - (NSString *)placeholder { return self.textField.placeholder; }
 - (void)setPlaceholder:(NSString *)placeholder {
     self.textField.placeholder = placeholder;
+    self.placeholderLabel.text = placeholder;
     [self cyl_applyStyle];
 }
 
@@ -153,11 +165,15 @@ static CGFloat const CYLSearchBarMinimumAccessoryScale = 0.25;
 - (void)cyl_applyStyle {
     self.textField.font = self.font;
     self.textField.textColor = self.textColor;
-    if (self.placeholderColor && self.textField.placeholder) {
-        self.textField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:self.textField.placeholder
-                                                                               attributes:@{NSForegroundColorAttributeName: self.placeholderColor,
+    NSString *placeholder = self.placeholderLabel.text;
+    if (placeholder.length > 0) {
+        self.textField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:placeholder
+                                                                               attributes:@{NSForegroundColorAttributeName: UIColor.clearColor,
                                                                                             NSFontAttributeName: self.font}];
     }
+    self.placeholderLabel.font = self.font;
+    self.placeholderLabel.textColor = self.placeholderColor ?: UIColor.placeholderTextColor;
+    [self cyl_updatePlaceholderVisibility];
     self.fieldView.backgroundColor = self.fieldBackgroundColor;
     self.fieldView.layer.borderColor = [self.fieldBorderColor resolvedColorWithTraitCollection:self.traitCollection].CGColor;
     self.fieldView.layer.borderWidth = self.fieldBorderColor ? self.fieldBorderWidth : 0;
@@ -275,11 +291,18 @@ static CGSize CYLSearchBarFittingSize(UIView *view, CGFloat height) {
         end -= width + CYLSearchBarSpacing * accessoryScale;
     }
     self.textField.frame = CGRectMake(x, 0, MAX(0, end - x), fieldHeight);
+    CGRect textRect = [self.textField textRectForBounds:self.textField.bounds];
+    self.placeholderLabel.frame = CGRectOffset(textRect, CGRectGetMinX(self.textField.frame), CGRectGetMinY(self.textField.frame));
 }
 
 #pragma mark Events
 
+- (void)cyl_updatePlaceholderVisibility {
+    self.placeholderLabel.hidden = self.textField.text.length > 0;
+}
+
 - (void)cyl_textChanged {
+    [self cyl_updatePlaceholderVisibility];
     if ([self.delegate respondsToSelector:@selector(searchBarView:textDidChange:)]) {
         [self.delegate searchBarView:self textDidChange:self.textField.text ?: @""];
     }

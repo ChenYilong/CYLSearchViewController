@@ -440,6 +440,22 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     XCTAssertLessThanOrEqual(CGRectGetMaxX(bar.textField.frame), CGRectGetMinX(camera.frame) + 0.5);
     XCTAssertLessThanOrEqual(CGRectGetMaxX(camera.frame), CGRectGetWidth(bar.fieldView.bounds));
     XCTAssertEqualObjects(bar.cancelButton.accessibilityLabel, @"Cancel", @"VoiceOver reads the whole title");
+
+    // The placeholder keeps the text's size at large sizes (cut off with an ellipsis, never shrunk), hides while
+    // there is text, and stays on the text field for VoiceOver.
+    bar.placeholder = @"主播昵称/直播间ID/神曲名";
+    [bar layoutIfNeeded];
+    XCTAssertEqual(bar.placeholderLabel.font.pointSize, bar.font.pointSize);
+    XCTAssertFalse(bar.placeholderLabel.adjustsFontSizeToFitWidth);
+    XCTAssertEqual(bar.placeholderLabel.lineBreakMode, NSLineBreakByTruncatingTail);
+    XCTAssertEqualObjects(bar.placeholderLabel.text, @"主播昵称/直播间ID/神曲名");
+    XCTAssertEqualObjects(bar.textField.placeholder, @"主播昵称/直播间ID/神曲名", @"VoiceOver still gets the placeholder");
+    XCTAssertTrue(CGRectContainsRect(CGRectInset(bar.textField.frame, -0.5, -0.5), bar.placeholderLabel.frame));
+    XCTAssertFalse(bar.placeholderLabel.hidden);
+    bar.text = @"IDG";
+    XCTAssertTrue(bar.placeholderLabel.hidden);
+    bar.text = nil;
+    XCTAssertFalse(bar.placeholderLabel.hidden);
 }
 
 - (void)testSearchBarDemoRow
@@ -597,25 +613,6 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
         XCTAssertEqual(covered.count, 0, @"overlay: %@", covered);
     }
     window.hidden = YES;
-}
-
-- (void)testZZProbePlaceholder
-{
-    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
-    UIViewController *c = [UIViewController new];
-    window.rootViewController = c; [window makeKeyAndVisible];
-    if (@available(iOS 17.0, *)) window.traitOverrides.preferredContentSizeCategory = UIContentSizeCategoryAccessibilityExtraExtraExtraLarge;
-    CYLSearchBarView *bar = [[CYLSearchBarView alloc] initWithFrame:CGRectZero];
-    bar.placeholder = @"主播昵称/直播间ID/神曲名";
-    bar.placeholderColor = UIColor.grayColor;
-    bar.showsCancelButton = YES; bar.cancelButtonTitle = @"取消";
-    [c.view addSubview:bar];
-    [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.3]];
-    bar.frame = CGRectMake(0, 100, 402, bar.intrinsicContentSize.height);
-    [bar layoutIfNeeded];
-    UILabel *ph = nil;
-    for (UIView *v in bar.textField.subviews) { if ([v isKindOfClass:UILabel.class]) ph = (UILabel *)v; for (UIView *w in v.subviews) if ([w isKindOfClass:UILabel.class]) ph = (UILabel *)w; }
-    NSLog(@"CYLPROBE field font %.1f adjusts %d min %.1f fieldW %.1f ph font %.1f adjusts %d scale %.2f phFrame %@ text %@", bar.textField.font.pointSize, bar.textField.adjustsFontSizeToFitWidth, bar.textField.minimumFontSize, bar.textField.frame.size.width, ph.font.pointSize, ph.adjustsFontSizeToFitWidth, ph.minimumScaleFactor, NSStringFromCGRect(ph.frame), ph.text);
 }
 
 @end

@@ -37,6 +37,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) UIView *fieldView;
 @property (nonatomic, strong, readonly) UIImageView *searchIconView;
 @property (nonatomic, strong, readonly) UIButton *cancelButton;
+/*!
+ * Draws the placeholder at the text's font size, cut off with an ellipsis when it does not fit (UITextField's own
+ * placeholder shrinks at large Dynamic Type sizes). Hidden while there is text. Read-only styling hook; set the
+ * text with `placeholder`.
+ */
+@property (nonatomic, strong, readonly) UILabel *placeholderLabel;
 
 @property (nonatomic, copy, nullable) NSString *text;
 @property (nonatomic, copy, nullable) NSString *placeholder;
