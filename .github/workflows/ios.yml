@@ -1,0 +1,198 @@
+# iOS CI on GitHub-hosted macOS runners, modeled on CYLTabBarController's .github/workflows/ios.yml
+# (commit d574501, branch feat/cross-platform-components). See docs/CI-CD.md.
+# Runner: `macos-26` (Apple Silicon, stable image, default Xcode 26.x). To use another runner without editing this
+# file, set the repository variable MACOS_RUNNER (Settings → Secrets and variables → Actions → Variables), e.g.
+# `xcode-27` for the Xcode 27 public preview.
+name: iOS
+
+on:
+  pull_request:
+  push:
+    branches: [ master, 'claude/**' ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Decides whether the macOS jobs need to build. A pull request that only changes docs (docs/, *.md, assets/)
+  # skips their steps; the jobs still run and report success, so required checks pass. Pushes and manual runs
+  # always build.
+  changes:
+    name: Changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: diff
+        name: Code changed?
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE: ${{ github.event.pull_request.base.sha }}
+        run: |
+          if [[ "$EVENT" != "pull_request" ]]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          CODE=$(git diff --name-only "$BASE"...HEAD | grep -vE '^(docs/|assets/)|\.md$' || true)
+          echo "Code files changed:"
+          echo "${CODE:-(none)}"
+          if [[ -n "$CODE" ]]; then echo "code=true"; else echo "code=false"; fi >> "$GITHUB_OUTPUT"
+
+  # The CI and release scripts. Separate from `changes`, whose failure would skip the macOS jobs.
+  shellcheck:
+    name: shellcheck
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: shellcheck scripts/*.sh
+
+  # AGENTS.md, "Comments on public API": three-line /*! ... */ blocks in the public headers.
+  comments:
+    name: Public API comments
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: scripts/check-public-api-comments.sh
+
+  # `pod lib lint` of the CYLSearchViewController pod.
+  lint:
+    name: pod lib lint
+    needs: changes
+    runs-on: ${{ vars.MACOS_RUNNER || 'macos-26' }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: CocoaPods cache
+        if: needs.changes.outputs.code == 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cocoapods/repos
+            ~/Library/Caches/CocoaPods
+          key: pods-${{ runner.os }}-lint-${{ hashFiles('CYLSearchViewController.podspec', 'Podfile', 'Podfile.lock') }}
+          restore-keys: pods-${{ runner.os }}-lint-
+      - name: Versions
+        if: needs.changes.outputs.code == 'true'
+        run: |
+          sw_vers
+          xcodebuild -version
+          xcodebuild -showsdks | grep -i iphone
+          pod --version || sudo gem install cocoapods
+      - name: pod lib lint
+        if: needs.changes.outputs.code == 'true'
+        run: scripts/pod-lint.sh lib --verbose
+
+  # The example app, then the static analyzer; a warning in the pod's own sources (Sources/) fails the job.
+  example:
+    name: Example build and analyze
+    needs: changes
+    runs-on: ${{ vars.MACOS_RUNNER || 'macos-26' }}
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sibling dependencies
+        if: needs.changes.outputs.code == 'true'
+        run: scripts/ci-checkout-dependencies.sh
+      # AGENTS.md, "Depend on the latest commit": once the Podfile depends on CYLTabBarController, report when its
+      # pinned commit is not the newest commit on any branch. A warning, not a failure: the pin changes in a commit.
+      - name: CYLTabBarController commit
+        if: needs.changes.outputs.code == 'true'
+        run: |
+          if ! grep -q "pod 'CYLTabBarController'" Podfile; then
+            echo "The Podfile does not depend on CYLTabBarController yet."
+            exit 0
+          fi
+          LATEST=$(scripts/latest-cyl-commit.sh)
+          echo "Latest CYLTabBarController commit: $LATEST"
+          if ! grep -q "${LATEST%% *}" Podfile; then
+            echo "::warning file=Podfile::CYLTabBarController is not pinned to the latest commit ($LATEST). Run scripts/latest-cyl-commit.sh --podfile."
+          fi
+      - name: CocoaPods
+        if: needs.changes.outputs.code == 'true'
+        run: pod --version || sudo gem install cocoapods
+      - name: CocoaPods cache
+        if: needs.changes.outputs.code == 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cocoapods/repos
+            ~/Library/Caches/CocoaPods
+          key: pods-${{ runner.os }}-example-${{ hashFiles('CYLSearchViewController.podspec', 'Podfile', 'Podfile.lock') }}
+          restore-keys: pods-${{ runner.os }}-example-
+      - name: Build CYLSearchExample
+        if: needs.changes.outputs.code == 'true'
+        run: scripts/ci-build-example.sh build
+      - name: Analyze CYLSearchExample
+        if: needs.changes.outputs.code == 'true'
+        run: scripts/ci-build-example.sh analyze
+      - name: Warnings summary
+        if: always() && needs.changes.outputs.code == 'true'
+        run: |
+          {
+            echo "### CYLSearchExample"
+            echo
+            echo "| Step | Scheme | Result | Warnings |"
+            echo "|:---|:---|:---:|---:|"
+            cat build/summary.md 2>/dev/null || echo "| - | \`CYLSearchExample\` | ❌ | - |"
+            echo
+            echo '```'
+            grep -h ': warning: ' build/build.log build/analyze.log 2>/dev/null | sed "s|$PWD/||" | sort -u | head -200 || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+      # Only the pod's own sources must be free of warnings; Pods/ and the example are reported above.
+      - name: Fail on warnings in Sources/
+        if: needs.changes.outputs.code == 'true'
+        run: |
+          COUNT=$( (grep -h '/Sources/CYLSearchViewController/[^:]*\.[mh]:[0-9]*:[0-9]*: warning: ' build/build.log build/analyze.log || true) | sort -u | wc -l | tr -d ' ')
+          echo "Source warnings: $COUNT"
+          if [[ "$COUNT" -gt 0 ]]; then
+            grep -h '/Sources/CYLSearchViewController/[^:]*\.[mh]:[0-9]*:[0-9]*: warning: ' build/build.log build/analyze.log | sort -u
+            exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        # A log that cannot be uploaded (GitHub's artifact service timing out) must not fail the job.
+        continue-on-error: true
+        if: always() && needs.changes.outputs.code == 'true'
+        with:
+          name: example-logs
+          path: |
+            build/*.log
+            build/analyzer
+          if-no-files-found: ignore
+
+  # The test action of the shared CYLSearchExample scheme (CYLSearchExampleTests) on an iOS simulator.
+  unit-tests:
+    name: Unit tests
+    needs: changes
+    runs-on: ${{ vars.MACOS_RUNNER || 'macos-26' }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sibling dependencies
+        if: needs.changes.outputs.code == 'true'
+        run: scripts/ci-checkout-dependencies.sh
+      - name: CocoaPods
+        if: needs.changes.outputs.code == 'true'
+        run: pod --version || sudo gem install cocoapods
+      - name: xcodebuild test
+        if: needs.changes.outputs.code == 'true'
+        run: scripts/unit-tests.sh
+      - uses: actions/upload-artifact@v4
+        # A log that cannot be uploaded (GitHub's artifact service timing out) must not fail the job.
+        continue-on-error: true
+        if: always() && needs.changes.outputs.code == 'true'
+        with:
+          name: unit-tests-log
+          path: build/unit-tests.log
+          if-no-files-found: ignore

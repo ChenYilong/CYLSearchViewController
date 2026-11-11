@@ -50,3 +50,23 @@ Adapted from CYLTabBarController's `cyl-verify` skill (commit `caf3c92`).
 | `pod install`: `Unicode Normalization not appropriate for ASCII-8BIT` | No UTF-8 locale | `LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 pod install` |
 | `-[UIApplication statusBarStyle] ... no-op` | `UIViewControllerBasedStatusBarAppearance = NO` | Remove the key |
 | Simulator taps do nothing | Simulator input stuck | Shut down, boot, retry |
+
+## CI/CD
+
+`.github/workflows/ios.yml` runs on pull requests, pushes to `master` and
+`claude/**`, and manual runs (details: `docs/CI-CD.md`). The same steps run
+locally:
+
+```sh
+scripts/ci-checkout-dependencies.sh        # sibling CYLTableViewPlaceHolder at ../
+scripts/check-public-api-comments.sh       # AGENTS.md, "Comments on public API"
+scripts/pod-lint.sh lib --verbose
+rm -rf build && scripts/ci-build-example.sh build
+scripts/ci-build-example.sh analyze        # warnings in Sources/ fail CI
+scripts/unit-tests.sh "iPhone 17"
+shellcheck scripts/*.sh && actionlint
+```
+
+Name the environment in every report: the GitHub runner (`macos-26` unless
+`MACOS_RUNNER` is set) or the local macOS and Xcode versions.
+

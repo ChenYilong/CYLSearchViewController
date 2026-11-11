@@ -129,6 +129,12 @@ list: `docs/CYLTabBarController-Integration.md`.
 - Run static analysis when supported. Report simulator behavior as unverified
   unless the app was actually launched and exercised.
 - Preserve the existing project's license and third-party notices.
+- CI runs `.github/workflows/ios.yml` (see `docs/CI-CD.md`). Before pushing,
+  run the same scripts locally: `scripts/ci-checkout-dependencies.sh`,
+  `scripts/check-public-api-comments.sh`, `scripts/pod-lint.sh lib`,
+  `scripts/ci-build-example.sh build|analyze` and `scripts/unit-tests.sh`.
+- Keep `scripts/*.sh` clean under `shellcheck` and workflows clean under
+  `actionlint`.
 
 ## Commit readiness
 
