@@ -30,10 +30,13 @@ description: "Document public integration and reproducible steps for CYLSearchVi
 
 ## Comments on public API
 
-- A multi-line comment on a public declaration is one documentation block,
-  never stacked `//` or `///` lines: Objective-C public headers `/*! … */`;
-  public API in Swift `/** … */` or `///`; Kotlin / Java `/** … */`;
-  TypeScript / JavaScript `/** … */`; Dart `///`.
-- The same format applies to single-line public API comments. In a file that
-  contains public API, keep the comment format uniform. This applies to all
-  platforms and all languages. Full rule: `AGENTS.md`, "Comments on public API".
+- A public API comment, single-line or multi-line, is one three-line block
+  right above the declaration (`/*!`, ` * Text.`, ` */` in Objective-C).
+  No one-line blocks (`/*! Text. */`) and no trailing `/**< */`, `/*!< */`,
+  `///<` or `//` after declarations or enum values.
+- A file with public API uses one comment format for every comment.
+- All platforms and languages use their documentation tool's block form:
+  Objective-C `/*! */`; Swift, Kotlin, Java, TypeScript, JavaScript, Dart,
+  Rust `/** */`; C# `/** */` with XML tags; Go `/* */`; Python a
+  triple-quoted docstring on its own lines; otherwise the language's only
+  documentation form. Full rule: `AGENTS.md`, "Comments on public API".

@@ -37,29 +37,49 @@ Every new integration rule updates, in the same change, `AGENTS.md`,
 
 ## Comments on public API
 
-Adapted from CYLTabBarController's `AGENTS.md`, "Comments on public API"
-(commit `63c0edc`, branch `feat/cross-platform-components`). Callers read a
-public API's comment through the IDE's documentation (Xcode Quick Help, the
-generated Swift interface, Android Studio, editor hovers), and only a
-documentation comment gets there whole.
+Callers read a public API's comment through the IDE's documentation (Xcode
+Quick Help, the generated Swift interface, Android Studio, editor hovers).
+Only a documentation block gets there whole. The multi-line rule is adapted
+from CYLTabBarController's `AGENTS.md`, "Comments on public API" (commit
+`63c0edc`). The single-line, one-format and all-language rules below are this
+project's own, and they win where upstream differs.
 
-- **Multi-line comments on public API are one documentation block, never
-  stacked single-line comments**, placed right before the declaration with
-  nothing in between:
-  - **iOS, Objective-C public headers**: `/*! … */`, one `*` per line
-    (` * …`).
-  - **iOS, public API written in Swift**: `/** … */` or `///` lines (Swift
-    Markup); Swift does not read `/*!` as documentation.
-  - **Android (Kotlin / Java)**: KDoc / Javadoc `/** … */`.
-  - **React Native (TypeScript / JavaScript)**: TSDoc / JSDoc `/** … */`.
-  - **Flutter (Dart)**: `///` lines, as Effective Dart requires.
-- **Single-line comments on public API follow the same format.** The format
-  rules above for multi-line public API comments also apply to single-line
-  public API comments: a one-line comment on an Objective-C public
-  declaration is `/*! … */`, not `//` or `///`, and so on for each language.
-  **In a file that contains public API, keep the comment format uniform**:
-  every documentation comment in that file uses the one format of its
-  language. This applies to all platforms and all languages.
+- **Multi-line comments on public API are one documentation block**, never
+  stacked single-line comments, right above the declaration with nothing in
+  between.
+- **Single-line comments use the block format too.** The format requirements
+  for multi-line public API comments also apply to single-line public API
+  comments. A one-line comment is still three lines above the declaration:
+
+  ```objc
+  /*!
+   * Text.
+   */
+  - (void)example;
+  ```
+
+  - Never put the block on one line (`/*! Text. */`).
+  - Never add a trailing comment after a declaration or an enum value:
+    no `/**< */`, `/*!< */`, `///<` or `//`.
+- **One comment format per public file.** In a file that contains public API,
+  every documentation comment uses the same format, long or short.
+- **All platforms and all languages.** Use the block form of each platform's
+  documentation tool, written in the same three-line layout:
+
+  | Language | Format |
+  |:---|:---|
+  | Objective-C, C, C++ headers | `/*!` … ` * ` … ` */` |
+  | Swift | `/**` … ` * ` … ` */` (Swift does not read `/*!` as documentation) |
+  | Kotlin, Java | `/**` … ` * ` … ` */` (KDoc / Javadoc) |
+  | TypeScript, JavaScript | `/**` … ` * ` … ` */` (TSDoc / JSDoc) |
+  | Dart | `/**` … ` * ` … ` */` (dartdoc reads it; turn off the `slash_for_doc_comments` lint) |
+  | Python | a triple-quoted docstring whose `"""` lines stand alone |
+  | Go | `/*` … `*/` |
+  | C# | `/**` … ` * ` … ` */` with XML tags (`<summary>`, `<param>`, `<returns>`) |
+  | Rust | `/**` … ` * ` … ` */` |
+
+  A language with no block documentation form uses its only documentation
+  comment form, the same way throughout the file.
 
 ## Xcode project
 

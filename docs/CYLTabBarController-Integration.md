@@ -45,10 +45,22 @@ Not copied: `cyl-theme`, `cyl-tab-animation`, and third-party vendored skills
 The rule in `AGENTS.md`, "Comments on public API" comes from upstream commit
 `63c0edc9abc57a22dc529ff1758629cd2d42c3a7` (2026-11-11 16:46:46 +1300,
 `feat/cross-platform-components`), which was the newest commit when the rule
-was copied. Upstream still allows a one-line `/// …` in Objective-C headers.
-This project goes further: single-line public API comments use the same
-format as multi-line ones, and a file with public API uses one comment format.
-This applies to every platform and language.
+was copied. Upstream still allows a one-line `/// …` in Objective-C headers, `///` in
+Swift and requires `///` in Dart. This project's rule is stricter and wins:
+
+- single-line public API comments use the same three-line block as
+  multi-line ones (`/*!`, ` * Text.`, ` */`), never a one-line block and never
+  a trailing `/**< */`, `/*!< */`, `///<` or `//`;
+- a file with public API uses one comment format;
+- every platform and language uses its documentation tool's block form
+  (Swift, Kotlin, Java, TypeScript, JavaScript, Dart, Rust `/** */`; C# `/** */`
+  with XML tags; Go `/* */`; Python a docstring on its own lines), or its only
+  documentation form when it has no block form.
+
+Status (2026-11-11): the four public headers in `Sources/CYLSearchViewController/`
+pass the check in the `cyl-verify` skill (the grep prints nothing). This
+repository has no Swift, Kotlin, Java, TypeScript, Dart, Python, Go, C# or Rust
+sources yet.
 
 ## TODO
 
@@ -64,7 +76,11 @@ This applies to every platform and language.
 - TODO (verification): build the shared scheme and confirm Xcode Quick Help
   and the generated Swift interface show the comments. Not run: this session
   had Linux only, without Xcode or the iOS SDK.
-- TODO (tooling): no checker exists here. Upstream
+- TODO (Dart risk): Effective Dart and its `slash_for_doc_comments` lint
+  prefer `///`. A Dart file added later must turn that lint off in
+  `analysis_options.yaml`, or the analyzer reports every `/** */` comment.
+- TODO (tooling): no checker script exists here; the `cyl-verify` grep covers
+  Objective-C headers only. Upstream
   `scripts/check-public-api-comments.py` targets CYLTabBarController paths and
   allows one-line `///`. A copy would need the `Sources/` path and a stricter
   rule for one-line comments.

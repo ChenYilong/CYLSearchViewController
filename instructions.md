@@ -19,16 +19,20 @@ Read this file and `AGENTS.md` before changing project files.
 ## Comments on public API
 
 - A multi-line comment on a public declaration is one documentation block,
-  never stacked single-line comments, right before the declaration:
-  Objective-C public headers `/*! … */` (one ` * ` per line); public API in
-  Swift `/** … */` or `///`; Kotlin / Java `/** … */` (KDoc / Javadoc);
-  TypeScript / JavaScript `/** … */` (TSDoc / JSDoc); Dart `///`.
+  never stacked single-line comments, right above the declaration.
 - The format requirements above for multi-line public API comments also apply
-  to single-line public API comments. In a file that contains public API, keep
-  the comment format uniform. This applies to all platforms and all languages.
-- Source: CYLTabBarController `AGENTS.md`, "Comments on public API"
-  (commit `63c0edc`); the single-line and uniform-format rule is this
-  project's addition.
+  to single-line public API comments. A one-line comment is written on three
+  lines above the declaration (`/*!`, ` * Text.`, ` */`). Never write it on
+  one line (`/*! Text. */`), and never add a trailing `/**< */`, `/*!< */`,
+  `///<` or `//` after a declaration or an enum value.
+- In a file that contains public API, keep the comment format uniform: one
+  format for long and short comments.
+- This applies to all platforms and all languages, each with the block form
+  of its documentation tool: Objective-C `/*! */`; Swift, Kotlin, Java,
+  TypeScript, JavaScript, Dart and Rust `/** */`; C# `/** */` with XML tags;
+  Go `/* */`; Python a triple-quoted docstring on its own lines. A language
+  without a block form uses its only documentation comment form throughout
+  the file. Full rule and table: `AGENTS.md`, "Comments on public API".
 
 ## Xcode and dependencies
 
