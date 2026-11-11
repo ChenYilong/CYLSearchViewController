@@ -11,6 +11,9 @@ description: "Install, build, analyze, and test the search sample and its local 
    tests use iOS 15.0, and the Podfile post-install hook sets all Pods targets
    to iOS 15.0.
 4. Run `xcodebuild analyze` and the test action when available.
+   Check that every comment on a public declaration in `Sources/**/*.h` is a
+   `/*! … */` block, one-line comments included, and that each public header
+   uses one comment format (`AGENTS.md`, "Comments on public API").
 5. Launch and exercise the sample before claiming that the UI reproduces the
    issue or verifies its workaround.
 

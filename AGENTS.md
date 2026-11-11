@@ -35,6 +35,32 @@ Every new integration rule updates, in the same change, `AGENTS.md`,
   dependencies on `AppDelegate`, global state, or concrete model types.
 - Keep all instructions and skill files in English.
 
+## Comments on public API
+
+Adapted from CYLTabBarController's `AGENTS.md`, "Comments on public API"
+(commit `63c0edc`, branch `feat/cross-platform-components`). Callers read a
+public API's comment through the IDE's documentation (Xcode Quick Help, the
+generated Swift interface, Android Studio, editor hovers), and only a
+documentation comment gets there whole.
+
+- **Multi-line comments on public API are one documentation block, never
+  stacked single-line comments**, placed right before the declaration with
+  nothing in between:
+  - **iOS, Objective-C public headers**: `/*! … */`, one `*` per line
+    (` * …`).
+  - **iOS, public API written in Swift**: `/** … */` or `///` lines (Swift
+    Markup); Swift does not read `/*!` as documentation.
+  - **Android (Kotlin / Java)**: KDoc / Javadoc `/** … */`.
+  - **React Native (TypeScript / JavaScript)**: TSDoc / JSDoc `/** … */`.
+  - **Flutter (Dart)**: `///` lines, as Effective Dart requires.
+- **Single-line comments on public API follow the same format.** The format
+  rules above for multi-line public API comments also apply to single-line
+  public API comments: a one-line comment on an Objective-C public
+  declaration is `/*! … */`, not `//` or `///`, and so on for each language.
+  **In a file that contains public API, keep the comment format uniform**:
+  every documentation comment in that file uses the one format of its
+  language. This applies to all platforms and all languages.
+
 ## Xcode project
 
 - Preserve Xcode project format 46, compatibility version Xcode 3.2, explicit

@@ -27,3 +27,13 @@ description: "Document public integration and reproducible steps for CYLSearchVi
 - Every commit message body carries
   `By  @ChenYilong <luohanchenyilong@163.com>` (two spaces after `By`),
   before trailers.
+
+## Comments on public API
+
+- A multi-line comment on a public declaration is one documentation block,
+  never stacked `//` or `///` lines: Objective-C public headers `/*! … */`;
+  public API in Swift `/** … */` or `///`; Kotlin / Java `/** … */`;
+  TypeScript / JavaScript `/** … */`; Dart `///`.
+- The same format applies to single-line public API comments. In a file that
+  contains public API, keep the comment format uniform. This applies to all
+  platforms and all languages. Full rule: `AGENTS.md`, "Comments on public API".

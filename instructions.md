@@ -16,6 +16,20 @@ Read this file and `AGENTS.md` before changing project files.
 - Do not rename existing project APIs or vendor code as part of unrelated
   changes.
 
+## Comments on public API
+
+- A multi-line comment on a public declaration is one documentation block,
+  never stacked single-line comments, right before the declaration:
+  Objective-C public headers `/*! … */` (one ` * ` per line); public API in
+  Swift `/** … */` or `///`; Kotlin / Java `/** … */` (KDoc / Javadoc);
+  TypeScript / JavaScript `/** … */` (TSDoc / JSDoc); Dart `///`.
+- The format requirements above for multi-line public API comments also apply
+  to single-line public API comments. In a file that contains public API, keep
+  the comment format uniform. This applies to all platforms and all languages.
+- Source: CYLTabBarController `AGENTS.md`, "Comments on public API"
+  (commit `63c0edc`); the single-line and uniform-format rule is this
+  project's addition.
+
 ## Xcode and dependencies
 
 - Keep `objectVersion = 46` and `compatibilityVersion = "Xcode 3.2"`.

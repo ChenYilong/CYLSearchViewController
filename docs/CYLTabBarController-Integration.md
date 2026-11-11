@@ -40,7 +40,31 @@ Recipe: `.agents/skills/cyl-tabbar-integration/SKILL.md`.
 Not copied: `cyl-theme`, `cyl-tab-animation`, and third-party vendored skills
 (`.agents/skills.json`), which are library-specific or carry their own licenses.
 
+## Comments on public API
+
+The rule in `AGENTS.md`, "Comments on public API" comes from upstream commit
+`63c0edc9abc57a22dc529ff1758629cd2d42c3a7` (2026-11-11 16:46:46 +1300,
+`feat/cross-platform-components`), which was the newest commit when the rule
+was copied. Upstream still allows a one-line `/// …` in Objective-C headers.
+This project goes further: single-line public API comments use the same
+format as multi-line ones, and a file with public API uses one comment format.
+This applies to every platform and language.
+
 ## TODO
+
+- TODO (status: rule written, code not migrated; score 3/10): the public
+  headers in `Sources/CYLSearchViewController/` still use `///`, and
+  `CYLSearchController.h` lines 13–14 stack two `///` lines on one
+  declaration. Convert every documentation comment in `CYLSearchController.h`,
+  `CYLSearchPlaceholderView.h` (including the enum member at line 54),
+  `CYLSearchResources.h` and `CYLSearchResultsViewController.h` to
+  `/*! … */`, keeping the text unchanged. Then run a clean build to confirm
+  Quick Help shows the comments. Not done in this change, which only adds the
+  rule. Risk: none for the API; comments only.
+- TODO (tooling): no checker exists here. Upstream
+  `scripts/check-public-api-comments.py` targets CYLTabBarController paths and
+  allows one-line `///`. A copy would need the `Sources/` path and a stricter
+  rule for one-line comments.
 
 - TODO (status: rules written, not implemented in code; score 2/10): the
   example does not yet integrate CYLTabBarController. Remaining work: add the
