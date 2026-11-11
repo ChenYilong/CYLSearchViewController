@@ -21,3 +21,8 @@
 "sample.result" = "Sample result %lu";
 "search.cancel" = "Cancel";
 "search.field" = "Search";
+"demo.searchBar" = "Search bar";
+"demo.searchBar.placeholder" = "Streamer, room ID or song";
+"demo.searchBar.text" = "Text: %@";
+"demo.searchBar.searched" = "Searched: %@";
+"demo.searchBar.camera" = "Camera";
