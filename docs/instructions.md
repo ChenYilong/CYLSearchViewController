@@ -11,3 +11,8 @@ repository and vault instructions.
   `CYLTabBarController-Integration.md`.
 - Keep commit records factual and link them from the corresponding commit
   message when the detailed description exceeds 50 characters.
+- Before any task, log it in the most suitable document here (else
+  `task-log.md`) as `TODO` with its context, the user's requirements and the
+  user's prompt (verbatim plus English translation); mark it
+  `DONE (YYYY-MM-DD)` with the result when it ends (`AGENTS.md`, "Task log
+  before every task").

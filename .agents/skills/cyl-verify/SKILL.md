@@ -89,3 +89,11 @@ Every new branch gets a pull request as soon as it is first pushed, without
 asking (`gh pr create`). The base branch is the branch it was created from;
 use `master` or `main` only when that is the source or the source branch no
 longer exists on the remote. Full rule: `AGENTS.md`, "Commit readiness".
+
+## Task log before every task
+
+Before any task, log it as `TODO` in the most suitable document in `docs/`
+(else `docs/task-log.md`): context, the user's requirements, the user's prompt
+(verbatim plus English translation) and a status line. Commit and push it,
+then start; mark it `DONE (YYYY-MM-DD)` with the result when the task ends.
+Full rule: `AGENTS.md`, "Task log before every task".

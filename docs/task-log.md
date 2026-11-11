@@ -5,7 +5,7 @@ Tasks that have no better home in `docs/` are logged here (`AGENTS.md`,
 that feature's document instead. Each entry starts as `TODO` before the work
 begins and becomes `DONE` when it ends.
 
-## TODO (2026-11-12): log every task in docs/ before starting it
+## DONE (2026-11-12): log every task in docs/ before starting it
 
 - Context: the user runs several Claude sessions on this repository at once,
   and a session can stop mid-task (context limits, restarts, another session
@@ -27,7 +27,13 @@ begins and becomes `DONE` when it ends.
   and my prompt, then start the task. The purpose is to avoid losing the
   context when a task is interrupted. When the task ends, mark the TODO as
   done."
-- Status: started; branch `feat/search-bar-view`.
+- Result: the rule is in `AGENTS.md` ("Task log before every task"),
+  `instructions.md`, `docs/instructions.md`, the folder `instructions.md`
+  files (`CYLSearchExample/`, `CYLSearchExampleTests/`,
+  `Sources/CYLSearchViewController/`, `scripts/`) and all seven `cyl-*`
+  skills; `cyl-docs` adds how to pick the document. This entry was logged
+  first (commit `eb0ce70`), as the rule requires. Branch
+  `feat/search-bar-view`.
 
 ## TODO (2026-11-12): merge PR #6, then PR #5, after CI
 

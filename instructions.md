@@ -148,6 +148,17 @@ Adapted from CYLTabBarController's instruction files at its latest commit
 - Keep `scripts/*.sh` clean under `shellcheck` and workflows clean under
   `actionlint`.
 
+## Task log before every task
+
+Before starting any task, find the most suitable document in `docs/` (the
+feature's own document, else `docs/task-log.md`) and add the task there as
+`TODO`: the detailed context, every requirement the user gave, and the user's
+prompt quoted verbatim with an English translation, plus a status line. Commit
+and push it, then start. When the task ends, change `TODO` to
+`DONE (YYYY-MM-DD)` with the result and the evidence. The purpose: an
+interrupted task never loses its context. Full rule: `AGENTS.md`, "Task log
+before every task".
+
 ## Commit readiness
 
 - Before every commit, review the changed scope and related issue, comparison,

@@ -57,3 +57,18 @@ description: "Document public integration and reproducible steps for CYLSearchVi
   source or the source branch no longer exists on the remote.
 - Screenshots in `docs/assets/` show search screens with nothing behind the
   search bar (`AGENTS.md`, "Search bar placement").
+
+## Task log before every task
+
+Before any task, log it as `TODO` in the most suitable document in `docs/`
+(else `docs/task-log.md`): context, the user's requirements, the user's prompt
+(verbatim plus English translation) and a status line. Commit and push it,
+then start; mark it `DONE (YYYY-MM-DD)` with the result when the task ends.
+Full rule: `AGENTS.md`, "Task log before every task".
+
+- Pick the document by subject: a feature's document first; `task-log.md`
+  only when no document fits. Never start a second tracker for the same task.
+- Keep the prompt verbatim even when it is not in English; everything else in
+  the entry is English.
+- The stale-notes search before a commit skips the open `TODO` of the task in
+  progress; every other `TODO` it finds is tested and resolved as before.

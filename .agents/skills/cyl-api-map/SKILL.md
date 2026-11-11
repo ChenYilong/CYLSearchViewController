@@ -35,3 +35,11 @@ at commit `caf3c92`
 | Plus page navigation title | `CYL_NAVIGATION_TITLE_FOLLOWS_TAB_BAR_ITEM` | Update-Tab-Bar-Items-In-Place |
 | Badges on the plus button | `-cyl_showBadge`, `-cyl_showBadgeValue:…` | PlusButton-Badge |
 | Accessibility identifiers | tab accessibility API | Tab-Accessibility |
+
+## Task log before every task
+
+Before any task, log it as `TODO` in the most suitable document in `docs/`
+(else `docs/task-log.md`): context, the user's requirements, the user's prompt
+(verbatim plus English translation) and a status line. Commit and push it,
+then start; mark it `DONE (YYYY-MM-DD)` with the result when the task ends.
+Full rule: `AGENTS.md`, "Task log before every task".
