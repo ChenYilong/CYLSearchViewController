@@ -16,6 +16,32 @@ Read this file and `AGENTS.md` before changing project files.
 - Do not rename existing project APIs or vendor code as part of unrelated
   changes.
 
+## Comments on public API
+
+- All comment formats follow the official documentation rules of their
+  language. The rules below choose among the officially allowed forms; where
+  one contradicts an official rule, the official rule wins.
+- A multi-line comment on a public declaration is one documentation block,
+  never stacked single-line comments, right above the declaration.
+- The format requirements above for multi-line public API comments also apply
+  to single-line public API comments. Where the block form is officially
+  allowed, a one-line comment is written on three lines above the declaration
+  (`/*!`, ` * Text.`, ` */`). Never write it on one line (`/*! Text. */`), and
+  never add a trailing `/**< */`, `/*!< */`, `///<` or `//` after a
+  declaration or an enum value.
+- In a file that contains public API, keep the comment format uniform: one
+  format for long and short comments.
+- This applies to all platforms and all languages:
+  - Objective-C `/*! */`.
+  - Swift, Kotlin, Java, TypeScript and JavaScript `/** */`.
+  - Python: PEP 257 docstrings.
+  - Go `//`, C# `///` with XML tags, Rust `///`, Dart `///`: these are the
+    official forms.
+
+  A language with no block form uses its only documentation comment form
+  throughout the file. Full rule and sources: `AGENTS.md`, "Comments on
+  public API".
+
 ## Xcode and dependencies
 
 - Keep `objectVersion = 46` and `compatibilityVersion = "Xcode 3.2"`.
@@ -67,6 +93,35 @@ Read this file and `AGENTS.md` before changing project files.
 - End refresh on every completion path and avoid strong captures of view
   controllers in refresh blocks.
 
+## CYLTabBarController
+
+Adapted from CYLTabBarController's instruction files at its latest commit
+(`caf3c92`, branch `feat/cross-platform-components`). Details and the TODO
+list: `docs/CYLTabBarController-Integration.md`.
+
+- This project integrates CYLTabBarController by default. Unless a task says
+  otherwise, every `CYLTabBarController` in the example layer:
+  1. is created from a local configuration file shipped in the app bundle,
+     with `+[CYLTabBarController tabBarControllerWithConfigurationFile:error:]`;
+  2. has a plus button declared in that file under
+     `CYLTabBarControllerPlusButton`, whose `CYLTabBarItemPageIdentifier`
+     resolves to the plus child view controller;
+  3. gets its pages from providers registered in `CYLTabBarPageRegistry` for
+     each `CYLTabBarItemPageIdentifier`, not from a hard-coded array.
+- Keep an even number of normal tabs so the plus button sits in the middle;
+  set `CYLPlusButtonIndexInTabBar` otherwise. The plus button is not counted
+  in the tab items.
+- Give the plus button a title when titles are aligned with the tab titles.
+- Depend on the newest CYLTabBarController commit on any branch:
+  `scripts/latest-cyl-commit.sh --podfile` prints the Podfile line
+  (`:git => …, :commit => '<sha>'`). Refresh it before every build; never use
+  a version number, branch or tag.
+- Import only `<CYLTabBarController/CYLTabBarController.h>`.
+- Put search pages inside a `UINavigationController` tab so the
+  navigation-item search controller and its Issue #1317 workaround still
+  apply.
+- Follow the `cyl-tabbar-integration` and `cyl-plus-button` skills.
+
 ## Verification
 
 - Validate the CocoaPods integration, parse the Xcode project, and build the
@@ -74,6 +129,12 @@ Read this file and `AGENTS.md` before changing project files.
 - Run static analysis when supported. Report simulator behavior as unverified
   unless the app was actually launched and exercised.
 - Preserve the existing project's license and third-party notices.
+- CI runs `.github/workflows/ios.yml` (see `docs/CI-CD.md`). Before pushing,
+  run the same scripts locally: `scripts/ci-checkout-dependencies.sh`,
+  `scripts/check-public-api-comments.sh`, `scripts/pod-lint.sh lib`,
+  `scripts/ci-build-example.sh build|analyze` and `scripts/unit-tests.sh`.
+- Keep `scripts/*.sh` clean under `shellcheck` and workflows clean under
+  `actionlint`.
 
 ## Commit readiness
 
@@ -85,6 +146,9 @@ Read this file and `AGENTS.md` before changing project files.
   constraints, known defects or optimization opportunities, API design and
   compatibility concerns, and verification required for completion. Reserved
   keys, stubs, and compilation alone are not evidence of completion.
+- Every commit message body carries the author line
+  `By  @ChenYilong <luohanchenyilong@163.com>` (two spaces after `By`), after
+  the description and before trailers.
 - Use an English Conventional Commit subject compatible with Commitizen.
   Summarize completed work in the subject and keep details and remaining work
   in the body. If the detailed description exceeds 50 characters, create or

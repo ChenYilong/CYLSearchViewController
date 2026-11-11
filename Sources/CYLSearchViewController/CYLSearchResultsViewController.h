@@ -30,10 +30,14 @@ NS_ASSUME_NONNULL_BEGIN
                          bundle:(nullable NSBundle *)nibBundleOrNil NS_UNAVAILABLE;
 - (instancetype)initWithCoder:(NSCoder *)coder NS_UNAVAILABLE;
 
-/// Requeries the data source using the current search text and reloads the table.
+/*!
+ * Requeries the data source using the current search text and reloads the table.
+ */
 - (void)reloadSearchResults;
 
-/// Override to integrate a custom table reload, such as an empty-state provider.
+/*!
+ * Override to integrate a custom table reload, such as an empty-state provider.
+ */
 - (void)reloadResultsTableView;
 
 @end

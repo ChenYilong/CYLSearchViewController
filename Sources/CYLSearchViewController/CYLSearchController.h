@@ -10,8 +10,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)searchControllerDidCancel:(CYLSearchController *)controller;
 @end
 
-/// An animated search overlay that uses the same injectable result source as
-/// CYLSearchResultsViewController. Keep the controller while it is presented.
+/*!
+ * An animated search overlay that uses the same injectable result source as
+ * CYLSearchResultsViewController. Keep the controller while it is presented.
+ */
 @interface CYLSearchController : UIViewController
 
 @property (nonatomic, weak, nullable) id<CYLSearchControllerDelegate> delegate;
@@ -23,9 +25,13 @@ NS_ASSUME_NONNULL_BEGIN
                          bundle:(nullable NSBundle *)nibBundleOrNil NS_UNAVAILABLE;
 - (instancetype)initWithCoder:(NSCoder *)coder NS_UNAVAILABLE;
 
-/// Adds a child navigation controller to the host and animates it into view.
+/*!
+ * Adds a child navigation controller to the host and animates it into view.
+ */
 - (void)showInViewController:(UIViewController *)controller;
-/// Completion is called after the overlay is removed, including when not presented.
+/*!
+ * Completion is called after the overlay is removed, including when not presented.
+ */
 - (void)hide:(nullable void (^)(void))completion;
 
 @end
