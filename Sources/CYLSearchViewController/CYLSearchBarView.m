@@ -52,9 +52,10 @@ static CGFloat const CYLSearchBarSpacing = 8;
     _textField.adjustsFontForContentSizeCategory = YES;
     [_textField addTarget:self action:@selector(cyl_textChanged) forControlEvents:UIControlEventEditingChanged];
     [_fieldView addSubview:_textField];
-    _cancelButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    UIButtonConfiguration *configuration = [UIButtonConfiguration plainButtonConfiguration];
+    configuration.contentInsets = NSDirectionalEdgeInsetsMake(0, 4, 0, 4);
+    _cancelButton = [UIButton buttonWithConfiguration:configuration primaryAction:nil];
     _cancelButton.hidden = YES;
-    _cancelButton.titleLabel.adjustsFontForContentSizeCategory = YES;
     [_cancelButton addTarget:self action:@selector(cyl_cancel) forControlEvents:UIControlEventTouchUpInside];
     [self addSubview:_cancelButton];
     [self cyl_applyStyle];
@@ -149,8 +150,11 @@ static CGFloat const CYLSearchBarSpacing = 8;
     self.fieldView.layer.shadowRadius = 6;
     self.fieldView.layer.shadowOffset = CGSizeMake(0, 2);
     self.searchIconView.tintColor = self.searchIconTintColor;
-    [self.cancelButton setTitle:self.cancelButtonTitle forState:UIControlStateNormal];
-    self.cancelButton.titleLabel.font = self.font;
+    // A configuration updates the title at once (a legacy button could keep drawing the previous one).
+    UIButtonConfiguration *configuration = self.cancelButton.configuration ?: [UIButtonConfiguration plainButtonConfiguration];
+    configuration.attributedTitle = [[NSAttributedString alloc] initWithString:self.cancelButtonTitle attributes:@{NSFontAttributeName: self.font}];
+    configuration.titleLineBreakMode = NSLineBreakByClipping;
+    self.cancelButton.configuration = configuration;
     [self setNeedsLayout];
 }
 
@@ -194,7 +198,7 @@ static CGSize CYLSearchBarFittingSize(UIView *view, CGFloat height) {
     if (self.showsCancelButton) {
         // The title's own width: a button's fitting size can lag behind a title or font set in the same pass.
         CGFloat titleWidth = ceil([self.cancelButtonTitle sizeWithAttributes:@{NSFontAttributeName: self.font}].width);
-        CGSize size = CGSizeMake(MAX(44, titleWidth + 8), fieldHeight);
+        CGSize size = CGSizeMake(MAX(44, titleWidth + 12), fieldHeight);
         self.cancelButton.frame = CGRectMake(trailing - size.width, y, size.width, fieldHeight);
         trailing -= size.width + CYLSearchBarSpacing;
     }
