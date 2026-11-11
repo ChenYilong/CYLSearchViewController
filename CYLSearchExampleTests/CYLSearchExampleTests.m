@@ -1,6 +1,9 @@
 #import <XCTest/XCTest.h>
 #import "CYLSearchExampleViewController.h"
 #import "CYLSearchDemoMenuViewController.h"
+#import "CYLSearchBarDemoViewController.h"
+#import "CYLSearchExampleAppDelegate.h"
+#import <CYLTabBarController/CYLTabBarController.h>
 #import <CYLSearchViewController/CYLSearchController.h>
 #import <CYLSearchViewController/CYLSearchResources.h>
 #import <CYLSearchViewController/CYLSearchPlaceholderView.h>
@@ -401,6 +404,38 @@
     NSDictionary<NSString *, NSString *> *titles = @{@"en": @"Search bar", @"zh-Hans": @"搜索栏", @"zh-Hant": @"搜尋列", @"ja": @"検索バー"};
     for (NSString *language in titles) {
         XCTAssertEqualObjects([CYLSearchResources localizedStringForKey:@"demo.searchBar" language:language], titles[language]);
+    }
+}
+
+- (void)testTabBarComesFromTheConfigurationFile
+{
+    UIViewController *root = [CYLSearchExampleAppDelegate rootViewController];
+    XCTAssertTrue([root isKindOfClass:CYLTabBarController.class], @"CYLTabBarConfiguration.json is read");
+    CYLTabBarController *tabBarController = (CYLTabBarController *)root;
+    [tabBarController loadViewIfNeeded];
+    XCTAssertTrue([tabBarController hasPlusButton]);
+    XCTAssertTrue([tabBarController hasPlusChildViewController], @"the plus page ID resolves to a child");
+    NSArray<UIViewController *> *pages = tabBarController.viewControllers;
+    XCTAssertEqual(pages.count, 3);
+    NSArray<Class> *roots = @[CYLSearchExampleViewController.class, CYLSearchBarDemoViewController.class, CYLSearchDemoMenuViewController.class];
+    for (Class rootClass in roots) {
+        NSUInteger index = [pages indexOfObjectPassingTest:^BOOL(UIViewController *page, NSUInteger idx, BOOL *stop) {
+            return [page isKindOfClass:UINavigationController.class]
+                && [((UINavigationController *)page).viewControllers.firstObject isKindOfClass:rootClass];
+        }];
+        XCTAssertNotEqual(index, NSNotFound, @"%@ sits in a navigation controller", rootClass);
+    }
+    // The titles are keys translated from CYLSearchTabs.bundle.
+    NSString *language = [NSBundle.mainBundle.preferredLocalizations.firstObject hasPrefix:@"zh"] ? nil : @"en";
+    if (language) {
+        NSArray<NSString *> *titles = [pages valueForKeyPath:@"tabBarItem.title"];
+        XCTAssertTrue([titles containsObject:@"Search"], @"%@", titles);
+        XCTAssertTrue([titles containsObject:@"Examples"], @"%@", titles);
+    }
+    for (NSString *code in @[@"en", @"zh-Hans", @"zh-Hant", @"ja"]) {
+        NSString *path = [NSBundle.mainBundle pathForResource:@"CYLSearchTabs" ofType:@"strings" inDirectory:[NSString stringWithFormat:@"CYLSearchTabs.bundle/%@.lproj", code]];
+        NSDictionary *table = path ? [NSDictionary dictionaryWithContentsOfFile:path] : nil;
+        XCTAssertEqual(table.count, 3, @"%@ has every key", code);
     }
 }
 
