@@ -19,3 +19,4 @@
 "repro.on" = "重現：開";
 "repro.off" = "重現：關";
 "sample.result" = "範例結果 %lu";
+"search.cancel" = "取消";

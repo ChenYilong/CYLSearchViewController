@@ -4,9 +4,21 @@
 #import <CYLSearchViewController/CYLSearchController.h>
 #import <CYLSearchViewController/CYLSearchResources.h>
 #import <CYLSearchViewController/CYLSearchPlaceholderView.h>
+#import <CYLSearchViewController/CYLSearchBarView.h>
 #import <CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.h>
 
 @interface CYLSearchExampleTests : XCTestCase
+@end
+
+@interface CYLSearchBarRecorder : NSObject <CYLSearchBarViewDelegate>
+@property (nonatomic, strong) NSMutableArray<NSString *> *events;
+@end
+
+@implementation CYLSearchBarRecorder
+- (instancetype)init { if ((self = [super init])) { _events = [NSMutableArray array]; } return self; }
+- (void)searchBarView:(CYLSearchBarView *)searchBarView textDidChange:(NSString *)text { [self.events addObject:[@"text " stringByAppendingString:text]]; }
+- (void)searchBarViewSearchButtonClicked:(CYLSearchBarView *)searchBarView { [self.events addObject:@"search"]; }
+- (void)searchBarViewCancelButtonClicked:(CYLSearchBarView *)searchBarView { [self.events addObject:@"cancel"]; }
 @end
 
 @interface CYLSearchNumberDataSource : NSObject <CYLSearchResultsDataSource>
@@ -273,6 +285,49 @@
         [cancelled fulfill];
     }];
     [self waitForExpectationsWithTimeout:2 handler:nil];
+}
+
+- (void)testSearchBarViewLayoutStyleAndEvents
+{
+    CYLSearchBarView *bar = [[CYLSearchBarView alloc] initWithFrame:CGRectMake(0, 0, 375, 48)];
+    CYLSearchBarRecorder *recorder = [[CYLSearchBarRecorder alloc] init];
+    bar.delegate = recorder;
+    bar.placeholder = @"主播昵称/直播间ID/神曲名";
+    XCTAssertEqualObjects(bar.textField.placeholder, @"主播昵称/直播间ID/神曲名");
+    XCTAssertEqual(bar.intrinsicContentSize.height, 48);
+    XCTAssertTrue(bar.cancelButton.hidden);
+
+    bar.showsCancelButton = YES;
+    bar.cancelButtonTitle = @"取消";
+    UIButton *camera = [UIButton buttonWithType:UIButtonTypeSystem];
+    [camera setImage:[UIImage systemImageNamed:@"camera"] forState:UIControlStateNormal];
+    bar.trailingAccessoryViews = @[camera];
+    bar.fieldCornerRadius = 4;
+    [bar layoutIfNeeded];
+    XCTAssertFalse(bar.cancelButton.hidden);
+    XCTAssertEqualObjects([bar.cancelButton titleForState:UIControlStateNormal], @"取消");
+    XCTAssertLessThanOrEqual(CGRectGetMaxX(bar.fieldView.frame), CGRectGetMinX(bar.cancelButton.frame));
+    XCTAssertTrue(camera.superview == bar.fieldView);
+    XCTAssertLessThanOrEqual(CGRectGetMaxX(bar.textField.frame), CGRectGetMinX(camera.frame));
+    XCTAssertEqual(bar.fieldView.layer.cornerRadius, 4);
+    bar.fieldCornerRadius = -1;
+    [bar layoutIfNeeded];
+    XCTAssertEqual(bar.fieldView.layer.cornerRadius, 18, @"a capsule");
+
+    bar.text = @"IDG";
+    XCTAssertEqualObjects(bar.textField.text, @"IDG");
+    [bar.textField sendActionsForControlEvents:UIControlEventEditingChanged];
+    [bar.textField.delegate textFieldShouldReturn:bar.textField];
+    [bar.cancelButton sendActionsForControlEvents:UIControlEventTouchUpInside];
+    NSArray *expected = @[@"text IDG", @"search", @"cancel"];
+    XCTAssertEqualObjects(recorder.events, expected);
+
+    UIButton *back = [UIButton buttonWithType:UIButtonTypeSystem];
+    bar.leadingView = back;
+    [bar layoutIfNeeded];
+    XCTAssertLessThanOrEqual(CGRectGetMaxX(back.frame), CGRectGetMinX(bar.fieldView.frame) + 0.5);
+    XCTAssertEqualObjects([CYLSearchResources localizedStringForKey:@"search.cancel" language:@"zh-Hans"], @"取消");
+    XCTAssertEqualObjects([CYLSearchResources localizedStringForKey:@"search.cancel" language:@"en"], @"Cancel");
 }
 
 @end

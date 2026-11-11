@@ -19,3 +19,4 @@
 "repro.on" = "再現：オン";
 "repro.off" = "再現：オフ";
 "sample.result" = "サンプル結果 %lu";
+"search.cancel" = "キャンセル";

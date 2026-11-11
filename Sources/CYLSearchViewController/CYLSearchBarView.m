@@ -1,0 +1,264 @@
+#import "CYLSearchBarView.h"
+#import "CYLSearchResources.h"
+
+static CGFloat const CYLSearchBarIconSize = 18;
+static CGFloat const CYLSearchBarSpacing = 8;
+
+@interface CYLSearchBarView () <UITextFieldDelegate>
+@end
+
+@implementation CYLSearchBarView
+
+@synthesize font = _font;
+@synthesize textColor = _textColor;
+@synthesize fieldBackgroundColor = _fieldBackgroundColor;
+@synthesize searchIconTintColor = _searchIconTintColor;
+@synthesize cancelButtonTitle = _cancelButtonTitle;
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        [self cyl_commonInit];
+    }
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)coder {
+    self = [super initWithCoder:coder];
+    if (self) {
+        [self cyl_commonInit];
+    }
+    return self;
+}
+
+- (void)cyl_commonInit {
+    _fieldHeight = 36;
+    _contentInsets = UIEdgeInsetsMake(6, 12, 6, 12);
+    _fieldCornerRadius = -1;
+    _cancelButtonEndsEditing = YES;
+    _trailingAccessoryViews = @[];
+    _searchIcon = [UIImage systemImageNamed:@"magnifyingglass"];
+
+    _fieldView = [[UIView alloc] init];
+    [self addSubview:_fieldView];
+    _searchIconView = [[UIImageView alloc] initWithImage:_searchIcon];
+    _searchIconView.contentMode = UIViewContentModeScaleAspectFit;
+    _searchIconView.isAccessibilityElement = NO;
+    [_fieldView addSubview:_searchIconView];
+    _textField = [[UITextField alloc] init];
+    _textField.delegate = self;
+    _textField.returnKeyType = UIReturnKeySearch;
+    _textField.clearButtonMode = UITextFieldViewModeWhileEditing;
+    _textField.adjustsFontForContentSizeCategory = YES;
+    [_textField addTarget:self action:@selector(cyl_textChanged) forControlEvents:UIControlEventEditingChanged];
+    [_fieldView addSubview:_textField];
+    _cancelButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    _cancelButton.hidden = YES;
+    _cancelButton.titleLabel.adjustsFontForContentSizeCategory = YES;
+    [_cancelButton addTarget:self action:@selector(cyl_cancel) forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:_cancelButton];
+    [self cyl_applyStyle];
+}
+
+#pragma mark Properties
+
+- (NSString *)text { return self.textField.text; }
+- (void)setText:(NSString *)text { self.textField.text = text; }
+
+- (NSString *)placeholder { return self.textField.placeholder; }
+- (void)setPlaceholder:(NSString *)placeholder {
+    self.textField.placeholder = placeholder;
+    [self cyl_applyStyle];
+}
+
+- (UIFont *)font { return _font ?: [UIFont preferredFontForTextStyle:UIFontTextStyleBody]; }
+- (void)setFont:(UIFont *)font { _font = font; [self cyl_applyStyle]; }
+- (UIColor *)textColor { return _textColor ?: [UIColor labelColor]; }
+- (void)setTextColor:(UIColor *)textColor { _textColor = textColor; [self cyl_applyStyle]; }
+- (void)setPlaceholderColor:(UIColor *)placeholderColor { _placeholderColor = placeholderColor; [self cyl_applyStyle]; }
+- (UIColor *)fieldBackgroundColor { return _fieldBackgroundColor ?: [UIColor tertiarySystemFillColor]; }
+- (void)setFieldBackgroundColor:(UIColor *)color { _fieldBackgroundColor = color; [self cyl_applyStyle]; }
+- (UIColor *)searchIconTintColor { return _searchIconTintColor ?: [UIColor secondaryLabelColor]; }
+- (void)setSearchIconTintColor:(UIColor *)color { _searchIconTintColor = color; [self cyl_applyStyle]; }
+- (void)setFieldBorderColor:(UIColor *)color { _fieldBorderColor = color; [self cyl_applyStyle]; }
+- (void)setFieldBorderWidth:(CGFloat)width { _fieldBorderWidth = MAX(0, width); [self cyl_applyStyle]; }
+- (void)setFieldShadowOpacity:(CGFloat)opacity { _fieldShadowOpacity = MIN(1, MAX(0, opacity)); [self cyl_applyStyle]; }
+- (void)setFieldCornerRadius:(CGFloat)radius { _fieldCornerRadius = radius; [self setNeedsLayout]; }
+- (void)setSearchIcon:(UIImage *)searchIcon { _searchIcon = searchIcon; self.searchIconView.image = searchIcon; [self setNeedsLayout]; }
+
+- (void)setFieldHeight:(CGFloat)fieldHeight {
+    _fieldHeight = MAX(0, fieldHeight);
+    [self invalidateIntrinsicContentSize];
+    [self setNeedsLayout];
+}
+
+- (void)setContentInsets:(UIEdgeInsets)contentInsets {
+    _contentInsets = contentInsets;
+    [self invalidateIntrinsicContentSize];
+    [self setNeedsLayout];
+}
+
+- (void)setTrailingAccessoryViews:(NSArray<UIView *> *)views {
+    for (UIView *view in _trailingAccessoryViews) {
+        [view removeFromSuperview];
+    }
+    _trailingAccessoryViews = [views copy] ?: @[];
+    for (UIView *view in _trailingAccessoryViews) {
+        [self.fieldView addSubview:view];
+    }
+    [self setNeedsLayout];
+}
+
+- (void)setLeadingView:(UIView *)leadingView {
+    [_leadingView removeFromSuperview];
+    _leadingView = leadingView;
+    if (leadingView) {
+        [self addSubview:leadingView];
+    }
+    [self setNeedsLayout];
+}
+
+- (void)setShowsCancelButton:(BOOL)showsCancelButton {
+    _showsCancelButton = showsCancelButton;
+    self.cancelButton.hidden = !showsCancelButton;
+    [self setNeedsLayout];
+}
+
+- (NSString *)cancelButtonTitle {
+    return _cancelButtonTitle ?: [CYLSearchResources localizedStringForKey:@"search.cancel"];
+}
+
+- (void)setCancelButtonTitle:(NSString *)title {
+    _cancelButtonTitle = [title copy];
+    [self cyl_applyStyle];
+}
+
+- (void)cyl_applyStyle {
+    self.textField.font = self.font;
+    self.textField.textColor = self.textColor;
+    if (self.placeholderColor && self.textField.placeholder) {
+        self.textField.attributedPlaceholder = [[NSAttributedString alloc] initWithString:self.textField.placeholder
+                                                                               attributes:@{NSForegroundColorAttributeName: self.placeholderColor,
+                                                                                            NSFontAttributeName: self.font}];
+    }
+    self.fieldView.backgroundColor = self.fieldBackgroundColor;
+    self.fieldView.layer.borderColor = [self.fieldBorderColor resolvedColorWithTraitCollection:self.traitCollection].CGColor;
+    self.fieldView.layer.borderWidth = self.fieldBorderColor ? self.fieldBorderWidth : 0;
+    self.fieldView.layer.shadowColor = [UIColor blackColor].CGColor;
+    self.fieldView.layer.shadowOpacity = self.fieldShadowOpacity;
+    self.fieldView.layer.shadowRadius = 6;
+    self.fieldView.layer.shadowOffset = CGSizeMake(0, 2);
+    self.searchIconView.tintColor = self.searchIconTintColor;
+    [self.cancelButton setTitle:self.cancelButtonTitle forState:UIControlStateNormal];
+    self.cancelButton.titleLabel.font = self.font;
+    [self setNeedsLayout];
+}
+
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
+    [super traitCollectionDidChange:previousTraitCollection];
+    [self cyl_applyStyle];
+}
+
+#pragma mark Layout
+
+- (CGSize)intrinsicContentSize {
+    return CGSizeMake(UIViewNoIntrinsicMetric, self.fieldHeight + self.contentInsets.top + self.contentInsets.bottom);
+}
+
+- (CGSize)sizeThatFits:(CGSize)size {
+    return CGSizeMake(size.width, self.intrinsicContentSize.height);
+}
+
+static CGSize CYLSearchBarFittingSize(UIView *view, CGFloat height) {
+    CGSize size = [view sizeThatFits:CGSizeMake(CGFLOAT_MAX, height)];
+    if (size.width <= 0 || size.height <= 0) {
+        size = view.intrinsicContentSize;
+    }
+    return CGSizeMake(MAX(0, size.width), MIN(height, MAX(0, size.height)));
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    UIEdgeInsets insets = self.contentInsets;
+    CGFloat height = CGRectGetHeight(self.bounds);
+    CGFloat fieldHeight = MIN(self.fieldHeight, MAX(0, height - insets.top - insets.bottom));
+    CGFloat y = floor((height - fieldHeight) / 2);
+    CGFloat leading = insets.left;
+    CGFloat trailing = CGRectGetWidth(self.bounds) - insets.right;
+    if (self.leadingView) {
+        CGSize size = CYLSearchBarFittingSize(self.leadingView, MAX(fieldHeight, 44));
+        size.width = MAX(size.width, 44);
+        self.leadingView.frame = CGRectMake(leading - 8, floor((height - size.height) / 2), size.width, size.height);
+        leading += size.width - 8 + 2;
+    }
+    if (self.showsCancelButton) {
+        CGSize size = [self.cancelButton sizeThatFits:CGSizeMake(CGFLOAT_MAX, fieldHeight)];
+        self.cancelButton.frame = CGRectMake(trailing - size.width, y, size.width, fieldHeight);
+        trailing -= size.width + CYLSearchBarSpacing;
+    }
+    CGRect field = CGRectMake(leading, y, MAX(0, trailing - leading), fieldHeight);
+    self.fieldView.frame = field;
+    self.fieldView.layer.cornerRadius = self.fieldCornerRadius < 0 ? fieldHeight / 2 : self.fieldCornerRadius;
+
+    CGFloat inner = MAX(10, MIN(14, fieldHeight / 3));
+    CGFloat x = inner;
+    if (self.searchIcon) {
+        self.searchIconView.frame = CGRectMake(x, floor((fieldHeight - CYLSearchBarIconSize) / 2), CYLSearchBarIconSize, CYLSearchBarIconSize);
+        x += CYLSearchBarIconSize + 6;
+    } else {
+        self.searchIconView.frame = CGRectZero;
+    }
+    CGFloat end = CGRectGetWidth(field) - inner;
+    for (UIView *view in self.trailingAccessoryViews.reverseObjectEnumerator) {
+        CGSize size = CYLSearchBarFittingSize(view, fieldHeight);
+        view.frame = CGRectMake(end - size.width, floor((fieldHeight - size.height) / 2), size.width, size.height);
+        end -= size.width + CYLSearchBarSpacing;
+    }
+    self.textField.frame = CGRectMake(x, 0, MAX(0, end - x), fieldHeight);
+}
+
+#pragma mark Events
+
+- (void)cyl_textChanged {
+    if ([self.delegate respondsToSelector:@selector(searchBarView:textDidChange:)]) {
+        [self.delegate searchBarView:self textDidChange:self.textField.text ?: @""];
+    }
+}
+
+- (void)cyl_cancel {
+    if (self.cancelButtonEndsEditing) {
+        [self.textField resignFirstResponder];
+    }
+    if ([self.delegate respondsToSelector:@selector(searchBarViewCancelButtonClicked:)]) {
+        [self.delegate searchBarViewCancelButtonClicked:self];
+    }
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    if ([self.delegate respondsToSelector:@selector(searchBarViewSearchButtonClicked:)]) {
+        [self.delegate searchBarViewSearchButtonClicked:self];
+    }
+    return YES;
+}
+
+- (void)textFieldDidBeginEditing:(UITextField *)textField {
+    if ([self.delegate respondsToSelector:@selector(searchBarViewDidBeginEditing:)]) {
+        [self.delegate searchBarViewDidBeginEditing:self];
+    }
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    if ([self.delegate respondsToSelector:@selector(searchBarViewDidEndEditing:)]) {
+        [self.delegate searchBarViewDidEndEditing:self];
+    }
+}
+
+- (BOOL)becomeFirstResponder {
+    return [self.textField becomeFirstResponder];
+}
+
+- (BOOL)resignFirstResponder {
+    return [self.textField resignFirstResponder];
+}
+
+@end
