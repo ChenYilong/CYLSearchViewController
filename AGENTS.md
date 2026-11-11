@@ -5,6 +5,23 @@ This repository is an Objective-C iOS search sample. It uses
 navigation-item search controller and pull-to-refresh. Read `instructions.md`
 and the applicable skill in `.agents/skills/` before making changes.
 
+## Skills
+
+`.agents/skills` holds the skills; `.claude/skills` only points there.
+
+| Skill | Use it when |
+|:---|:---|
+| `cyl-tabbar-integration` | Adding or changing a `CYLTabBarController` in the example (configuration file, plus child view controller, latest commit) |
+| `cyl-plus-button` | Writing or changing the plus button: configuration keys, title alignment, Liquid Glass limits |
+| `cyl-new-project` | Creating or extending an example project |
+| `cyl-api-map` | Finding the public API of `CYLTableViewPlaceHolder` and `CYLTabBarController` |
+| `cyl-xcode-compat` | Touching the `.xcodeproj`, Podfile or deployment targets |
+| `cyl-docs` | Editing `README.md` or `docs/` |
+| `cyl-verify` | Building, testing, running the simulator |
+
+Every new integration rule updates, in the same change, `AGENTS.md`,
+`instructions.md` and the affected skills.
+
 ## Project rules
 
 - New project-owned types and identifiers use the `CYL` prefix. New UIKit
@@ -17,6 +34,60 @@ and the applicable skill in `.agents/skills/` before making changes.
 - Keep the sample configurable through protocols or public properties. Avoid
   dependencies on `AppDelegate`, global state, or concrete model types.
 - Keep all instructions and skill files in English.
+
+## Comments on public API
+
+Callers read a public API's comment through the IDE's documentation (Xcode
+Quick Help, the generated Swift interface, Android Studio, editor hovers).
+Only a documentation comment gets there whole. The multi-line rule is adapted
+from CYLTabBarController's `AGENTS.md`, "Comments on public API" (commit
+`63c0edc`). The rules below are this project's own and win over upstream.
+
+- **The official rules decide.** Every comment format follows the official
+  documentation rules of its language. The rules below choose among the forms
+  an official rule allows. Where a rule below contradicts an official rule,
+  the official rule wins.
+- **Multi-line comments on public API are one documentation block**, never
+  stacked single-line comments, right above the declaration with nothing in
+  between.
+- **Single-line comments use the block format too.** The format requirements
+  for multi-line public API comments also apply to single-line public API
+  comments. In a language whose block form is officially allowed, a one-line
+  comment is still three lines above the declaration:
+
+  ```objc
+  /*!
+   * Text.
+   */
+  - (void)example;
+  ```
+
+  - Never put the block on one line (`/*! Text. */`).
+  - Never add a trailing comment after a declaration or an enum value:
+    no `/**< */`, `/*!< */`, `///<` or `//`.
+- **One comment format per public file.** In a file that contains public API,
+  every documentation comment uses the same format, long or short.
+- **All platforms and all languages.** Use the official documentation form of
+  each language:
+
+  | Language | Format | Official source |
+  |:---|:---|:---|
+  | Objective-C, C, C++ headers | `/*!` … ` * ` … ` */` | Xcode Quick Help / HeaderDoc (Apple) |
+  | Swift | `/**` … ` * ` … ` */` (Swift does not read `/*!`) | Swift Markup, DocC (allows `///` and `/** */`) |
+  | Kotlin | `/**` … ` * ` … ` */` | KDoc (kotlinlang.org) |
+  | Java | `/**` … ` * ` … ` */` | Javadoc (Oracle) |
+  | TypeScript | `/**` … ` * ` … ` */` | TSDoc |
+  | JavaScript | `/**` … ` * ` … ` */` | JSDoc |
+  | Python | Triple double-quoted docstring as PEP 257 says: a one-line docstring keeps its quotes on the same line; a multi-line docstring is a summary line, a blank line, then the closing `"""` on its own line | PEP 257 |
+  | Go | `//` line comments right above the declaration, no blank line | Effective Go, go.dev/doc/comment |
+  | C# | `///` lines with XML tags (`<summary>`, `<param>`, `<returns>`) | Microsoft Learn, XML documentation comments |
+  | Rust | `///` (outer) and `//!` (inner) doc comments | Rust Style Guide, rustdoc book |
+  | Dart | `///` lines | Effective Dart, "DO use `///` doc comments" |
+
+  A language with no block documentation form, or whose official guide
+  requires line doc comments (Go, C#, Rust, Dart above), uses that one form
+  throughout the file. A short comment is then a single doc-comment line, and
+  a long one is consecutive lines of the same form.
 
 ## Xcode project
 
@@ -43,11 +114,73 @@ and a `CYLRefreshNormalHeader`. Pinning the search bar with
 updates on affected iOS versions. Refresh callbacks must not retain their
 controller strongly and must always stop the refresh control.
 
+## CYLTabBarController
+
+This project integrates CYLTabBarController by default. Rules adapted from
+CYLTabBarController's `AGENTS.md` and `cyl-*` skills at its latest commit
+(`caf3c92`, branch `feat/cross-platform-components`, 2026-11-11); see
+`docs/CYLTabBarController-Integration.md` for the source and the TODO list.
+
+- **Default integration in the example layer.** Unless a task says otherwise,
+  every `CYLTabBarController` in the example (`CYLSearchExample/`) is created
+  from a **local configuration file** in the app bundle, and has a **plus
+  button with a plus child view controller**. Never write tabs, the plus
+  button or a `CYLPlusButton` subclass only in code for the default demo.
+  - The file (for example `CYLSearchExample/CYLTabBarConfiguration.json`) holds
+    `CYLTabBarControllerTabBarItemsAttributes` (an even number of tabs, each
+    with `CYLTabBarItemIdentifier` / `CYLTabBarItemPageIdentifier`) and
+    `CYLTabBarControllerPlusButton` with `CYLTabBarItemTitle`,
+    `CYLTabBarItemImage` and `CYLTabBarItemPageIdentifier`. The page found for
+    the plus button's page ID becomes the plus child view controller.
+  - Register a page provider for every page ID in
+    `CYLTabBarPageRegistry.sharedRegistry` (or a registry passed as
+    `CYLTabBarControllerPageRegistry`), then create the controller with
+    `+[CYLTabBarController tabBarControllerWithConfigurationFile:error:]`.
+    Handle the error: never leave the window without a root view controller.
+  - Plus button taps that need code use `CYLTabBarControllerPlusButtonAction`
+    (code only); read the configuration with
+    `+configurationWithContentsOfFile:error:` and add the action before
+    `-initWithConfiguration:`.
+  - Full recipe: the `cyl-tabbar-integration` skill. Plus button limits: the
+    `cyl-plus-button` skill.
+- **Depend on the latest commit, through CocoaPods.** Before every build, run
+  `scripts/latest-cyl-commit.sh --podfile`; it prints the newest commit on any
+  branch by commit timestamp. Put that line into the Podfile:
+  `pod 'CYLTabBarController', :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '<sha>'`.
+  Never a version number, branch or tag. Run `pod install`, then build. Name
+  the commit (sha, date, branch) in the report; if it cannot be fetched, say
+  so and keep the sha already in the Podfile.
+- **Imports.** The example imports only
+  `#import <CYLTabBarController/CYLTabBarController.h>`, like the other pods'
+  umbrella headers.
+- **Search inside tabs.** A tab page that shows search embeds its view
+  controller in a `UINavigationController`, so
+  `navigationItem.searchController` and the Issue #1317 workaround keep
+  working. Do not put the search bar on the tab bar controller itself.
+- **Reading CYLTabBarController docs.** Its `docs/` and comments are
+  bilingual: read the `[EN]` part and skip the `[CN]` part; in a
+  `中文 | English` table read the right column. Code wins over `docs/`, and
+  `docs/` over `README.md`.
+- **Accessibility.** Tabs, the plus button, badges and every control in the
+  example have meaningful accessibility labels; tests find elements by label
+  or identifier before coordinates.
+- **Clean builds.** Build into an empty derived data folder after a
+  dependency change, so the app does not run stale pod code.
+
 ## Verification
 
 Run `pod install`, validate the project with Xcodeproj/CocoaPods, build and
 analyze the shared scheme, and run tests when available. Do not claim a visual
 reproduction or fix without launching the sample on a simulator.
+
+- **CI/CD**: `.github/workflows/ios.yml`, modeled on CYLTabBarController's
+  `ios.yml`. It runs shellcheck, the public API comment check,
+  `pod lib lint`, the example build and analyzer (warnings in `Sources/` fail
+  it) and the unit tests. The default macOS runner is `macos-26`; the
+  `MACOS_RUNNER` variable changes it. Run the same scripts locally before
+  pushing; see `docs/CI-CD.md`.
+- A script added under `scripts/` must pass `shellcheck`. A workflow change
+  must pass `actionlint`.
 
 ## Commit readiness
 
@@ -60,6 +193,10 @@ reproduction or fix without launching the sample on a simulator.
 - **On any branch other than `master` or `main`, commit and push as soon as the work is written, without asking
   for confirmation.** On `master` or `main`, ask first.
 
+- Every commit message carries the author line
+  `By  @ChenYilong <luohanchenyilong@163.com>` (exactly as written, two spaces
+  after `By`) in its body, after the description and before trailers such as
+  `Claude-Session:`. Check it with `git log -1 --format=%B` before pushing.
 - Before a Commitizen-style commit, follow the commit-message hook instructions
   in `instructions.md`; inspect an existing hook before replacing it.
 - Before every commit, review the changed scope and its related issue,

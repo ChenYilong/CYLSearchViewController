@@ -119,3 +119,12 @@ strings using preferred languages, falling back to English. English, Simplified
 Chinese, Traditional Chinese and Japanese are included; callers can also
 request a specific language. Attribution and licenses for the bundled icons
 are included in the bundle's `NOTICE` and license files.
+
+## CYLTabBarController (default integration)
+
+The example integrates CYLTabBarController by default: each tab bar controller
+is created from a local configuration file and has a plus button with a plus
+child view controller. The pod is pinned to the newest CYLTabBarController
+commit on any branch (`scripts/latest-cyl-commit.sh --podfile`). The rules are
+in `AGENTS.md` and the `cyl-tabbar-integration` skill; the example code is not
+written yet, see the TODO list in `docs/CYLTabBarController-Integration.md`.
