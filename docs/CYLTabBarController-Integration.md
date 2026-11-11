@@ -52,15 +52,18 @@ This applies to every platform and language.
 
 ## TODO
 
-- TODO (status: rule written, code not migrated; score 3/10): the public
-  headers in `Sources/CYLSearchViewController/` still use `///`, and
-  `CYLSearchController.h` lines 13–14 stack two `///` lines on one
-  declaration. Convert every documentation comment in `CYLSearchController.h`,
-  `CYLSearchPlaceholderView.h` (including the enum member at line 54),
-  `CYLSearchResources.h` and `CYLSearchResultsViewController.h` to
-  `/*! … */`, keeping the text unchanged. Then run a clean build to confirm
-  Quick Help shows the comments. Not done in this change, which only adds the
-  rule. Risk: none for the API; comments only.
+- DONE (2026-11-11): every documentation comment in the four public headers
+  in `Sources/CYLSearchViewController/` (`CYLSearchController.h`,
+  `CYLSearchPlaceholderView.h`, `CYLSearchResources.h`,
+  `CYLSearchResultsViewController.h`) is now a `/*! … */` block, one-line
+  comments and the enum member comment included, with unchanged text. The
+  stacked `///` pair in `CYLSearchController.h` is one block. Evidence: no
+  `//` comments remain in those headers; every `/*!` has a matching `*/`;
+  `clang -E` output of each header (imports removed) is identical before and
+  after, so no code changed.
+- TODO (verification): build the shared scheme and confirm Xcode Quick Help
+  and the generated Swift interface show the comments. Not run: this session
+  had Linux only, without Xcode or the iOS SDK.
 - TODO (tooling): no checker exists here. Upstream
   `scripts/check-public-api-comments.py` targets CYLTabBarController paths and
   allows one-line `///`. A copy would need the `Sources/` path and a stricter
