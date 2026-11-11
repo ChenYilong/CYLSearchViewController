@@ -8,9 +8,8 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    self.window = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];
-    self.window.rootViewController = [CYLSearchExampleAppDelegate rootViewController];
-    [self.window makeKeyAndVisible];
+    // CYLSearchExampleSceneDelegate creates the window (Info.plist, UIApplicationSceneManifest): apps built with the
+    // iOS 27 SDK must adopt the scene life cycle.
     return YES;
 }
 

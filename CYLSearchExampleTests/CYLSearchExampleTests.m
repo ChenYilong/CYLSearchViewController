@@ -495,6 +495,12 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
         }];
         XCTAssertNotEqual(index, NSNotFound, @"%@ sits in a navigation controller", rootClass);
     }
+    // Loading a page does not rename its tab: the tab titles come from the file, page titles go to navigationItem.
+    NSArray<NSString *> *fileTitles = [pages valueForKeyPath:@"tabBarItem.title"];
+    for (UIViewController *page in pages) {
+        [((UINavigationController *)page).viewControllers.firstObject loadViewIfNeeded];
+    }
+    XCTAssertEqualObjects([pages valueForKeyPath:@"tabBarItem.title"], fileTitles);
     // VoiceOver reads the plus button by its title from the file.
     XCTAssertGreaterThan(CYLExternPlusButton.accessibilityLabel.length, 0);
     XCTAssertTrue(CYLExternPlusButton.isAccessibilityElement || CYLExternPlusButton.accessibilityLabel.length > 0);

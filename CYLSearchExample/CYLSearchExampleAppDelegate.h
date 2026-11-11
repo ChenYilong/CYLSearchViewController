@@ -2,8 +2,6 @@
 
 @interface CYLSearchExampleAppDelegate : UIResponder <UIApplicationDelegate>
 
-@property (nonatomic, strong) UIWindow *window;
-
 /*!
  * The tab bar built from CYLTabBarConfiguration.json (search, examples and the plus page), or the examples menu
  * when the file cannot be read.

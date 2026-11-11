@@ -127,6 +127,18 @@ sources yet.
     Both fail without the changes. On iOS 26 the navigation bar shows
     `searchBar.searchTextField` without the `UISearchBar`, so the tests check
     the view that is on screen.
+- Scene life cycle (2026-11-12, Xcode 27.2): apps built with the iOS 27 SDK
+  do not launch without it ("UIScene life cycle is required"), so the test
+  runner crashed before connecting; CI on Xcode 26.6 did not show it.
+  `CYLSearchExampleSceneDelegate` (Info.plist `UIApplicationSceneManifest`)
+  now creates the window with `+[CYLSearchExampleAppDelegate rootViewController]`.
+  Page titles use `navigationItem.title`, so loading a page no longer renames
+  its tab (checked in `testTabBarComesFromTheConfigurationFile`). 15/15 tests
+  on the iPhone 17 simulator (iOS 26.1); analyze: 0 warnings in `Sources/`.
+- Comment coverage: `scripts/public-api-doc-coverage.sh` counts, from clang's
+  symbol graph (`clang -extract-api`, what Quick Help and DocC read), the
+  public symbols of each header that carry a documentation comment; every
+  written block attaches to its declaration.
 
 ## Screenshots
 
