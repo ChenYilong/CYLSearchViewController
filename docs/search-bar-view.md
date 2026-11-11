@@ -23,21 +23,43 @@ CollectionViewClassifyMenu's examples use it for every search box.
   `UIFontMetrics` font for a custom one); the field grows
   past `fieldHeight` when the scaled text needs it, and the bar remeasures when
   the text size changes. `testSearchBarViewSupportsVoiceOverAndDynamicType`.
-- All 11 example tests pass (Xcode 27.2, iPhone 17 Pro simulator, iOS 26.1).
+- Large text: at the largest sizes the text keeps at least 40% of the bar.
+  The Cancel title is drawn smaller (down to half size, at most 30% of the
+  bar) and trailing accessory views are scaled as a whole (down to a quarter)
+  before the text field shrinks. VoiceOver and the large content viewer
+  (long press at accessibility sizes) still read the whole Cancel title.
+- Demo row: "Search bar" (`demo.searchBar`, four languages) in
+  `CYLSearchDemoMenuViewController` shows the bar with a camera accessory and
+  Cancel, and prints the text and the Search key below it. Launch with
+  `-CYLDemoRow 2` to open it directly (used for the screenshots).
+- Public header comments are three-line `/*!` blocks
+  (`scripts/check-public-api-comments.sh` passes).
+- Tests: `testSearchBarDemoRow` (row, localized title in four languages,
+  events, camera label) and the large-text case in
+  `testSearchBarViewSupportsVoiceOverAndDynamicType`. All 12 example tests
+  pass (Xcode 27.2, iPhone 17 Pro simulator, iOS 26.1).
 
-## TODO
+## Screenshots
 
-- Status: 92/100. Laid out and verified in unit tests and in the screenshots
-  of CollectionViewClassifyMenu's examples (including VoiceOver labels and
-  Dynamic Type); this repository's own example app does not show the bar yet.
-- Remaining work: a demo row in `CYLSearchDemoMenuViewController` with its
-  screenshot.
+iPhone 17 Pro simulator, 2026-11-12, top to bottom: the demo menu, the bar in
+English, in Simplified Chinese, and in English at the largest accessibility
+text size.
+
+<img src="assets/search-bar-demo-menu.png" width="300" alt="Demo menu with the Search bar row">
+
+<img src="assets/search-bar-demo-english.png" width="300" alt="Search bar in English">
+
+<img src="assets/search-bar-demo-chinese.png" width="300" alt="Search bar in Simplified Chinese">
+
+<img src="assets/search-bar-demo-large-text.png" width="300" alt="Search bar at the largest accessibility text size">
+
+## Verification
+
+- Status: 100/100 for the scope above: the bar is shown, localized and
+  tested in this repository's example and in CollectionViewClassifyMenu's.
 - Constraints: the bar does not manage a results controller; hosts connect
   `searchBarView:textDidChange:` to `CYLSearchResultsViewController` or their
-  own list.
-- API risk: unreleased, no compatibility promise yet; the names follow the
-  `CYL` prefix rules.
-- Verification for completion: launch the demo row on a simulator and run
-  Accessibility Inspector's audit on it, with VoiceOver on and at the largest
-  accessibility text size (unit tests cover the labels and the field height;
-  no on-device VoiceOver session has been run).
+  own list. It is unreleased, so the API has no compatibility promise yet.
+- Checked on the simulator by launching the app at the default and the
+  largest text size. VoiceOver labels are checked in unit tests; no session
+  with VoiceOver running on a device has been recorded.

@@ -6,6 +6,7 @@ static CGFloat const CYLSearchBarSpacing = 8;
 static CGFloat const CYLSearchBarMinimumTextShare = 0.4;
 static CGFloat const CYLSearchBarMaximumCancelShare = 0.3;
 static CGFloat const CYLSearchBarMinimumScale = 0.5;
+static CGFloat const CYLSearchBarMinimumAccessoryScale = 0.25;
 
 @interface CYLSearchBarView () <UITextFieldDelegate>
 @end
@@ -263,7 +264,7 @@ static CGSize CYLSearchBarFittingSize(UIView *view, CGFloat height) {
     }
     // Views that would squeeze the text are drawn smaller (scaled as a whole, so a symbol keeps its shape).
     CGFloat room = MAX(0, end - x - minimumTextWidth);
-    CGFloat accessoryScale = accessoriesWidth > room && accessoriesWidth > 0 ? MAX(CYLSearchBarMinimumScale, room / accessoriesWidth) : 1;
+    CGFloat accessoryScale = accessoriesWidth > room && accessoriesWidth > 0 ? MAX(CYLSearchBarMinimumAccessoryScale, room / accessoriesWidth) : 1;
     for (NSInteger index = (NSInteger)accessories.count - 1; index >= 0; index--) {
         UIView *view = accessories[index];
         CGSize size = sizes[index].CGSizeValue;

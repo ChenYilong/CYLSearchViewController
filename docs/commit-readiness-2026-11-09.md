@@ -15,8 +15,8 @@ Commitizen.
 - Required a linked `docs/` note when a detailed commit description exceeds
   50 characters.
 
-## TODO
+## Ongoing
 
-- TODO: Apply this review to every future commit. No code or issue status was
+- Apply this review to every future commit. No code or issue status was
   changed by this documentation-only commit; the existing Issue #1317
   reproduction and verification status remain unchanged.
