@@ -108,14 +108,25 @@ sources yet.
   translated titles, every table's keys and the plus button's VoiceOver label
   ("Search bar"). The screenshots below come from launching the app.
 
-- The search bar never covers the view controller's view (2026-11-12):
-  `CYLSearchResultsViewController` and `CYLSearchController` no longer extend
-  their views under the top bar (`edgesForExtendedLayout` without
-  `UIRectEdgeTop`), so the view starts below the navigation bar and its search
-  bar. Before, the table view extended under the search bar and the refresh
-  header's text showed through it. `testSearchBarNeverCoversTheViewControllersView`
-  checks it with `hidesSearchBarWhenScrolling` NO and YES; it fails without
-  the change.
+- A search bar never covers any view (2026-11-12):
+  - `CYLSearchResultsViewController` and `CYLSearchController` do not extend
+    their views under the top bar (`edgesForExtendedLayout` without
+    `UIRectEdgeTop`). Before, the table view extended under the search bar
+    and the refresh header's text showed through it.
+  - Both keep the search bar in the navigation bar, under the title
+    (`preferredSearchBarPlacement` stacked; on iOS 26
+    `searchBarPlacementAllowsToolbarIntegration = NO`). Without a tab bar,
+    iOS 26 on iPhone floated the field at the bottom of the screen, over the
+    last rows of the list.
+  - `testSearchBarsCoverNoView` checks the results screen (bar pinned and
+    hiding on scroll), the search bar demo at the default and the largest
+    text size, and the overlay, with `CYLViewsCoveredByView`: every visible
+    view of the window except the bar's own subviews and containers, system
+    bar backgrounds, views that draw nothing and parts clipped away.
+    `testSearchBarNeverCoversTheViewControllersView` checks the view's frame.
+    Both fail without the changes. On iOS 26 the navigation bar shows
+    `searchBar.searchTextField` without the `UISearchBar`, so the tests check
+    the view that is on screen.
 
 ## Screenshots
 

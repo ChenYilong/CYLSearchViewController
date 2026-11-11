@@ -42,6 +42,14 @@
     self.resultsViewController.navigationItem.searchController = nil;
     self.navigationItem.searchController = self.resultsViewController.searchController;
     self.navigationItem.hidesSearchBarWhenScrolling = NO;
+    // The search bar stays in the navigation bar, under the title. On iOS 26 an iPhone would otherwise float it at
+    // the bottom of the screen, over the list: a search bar never covers a view.
+    if (@available(iOS 16.0, *)) {
+        self.navigationItem.preferredSearchBarPlacement = UINavigationItemSearchBarPlacementStacked;
+    }
+    if (@available(iOS 26.0, *)) {
+        self.navigationItem.searchBarPlacementAllowsToolbarIntegration = NO;
+    }
     self.definesPresentationContext = YES;
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
                                                                                          target:self

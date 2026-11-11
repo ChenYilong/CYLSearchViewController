@@ -84,6 +84,76 @@
 }
 @end
 
+/*!
+ * A window in the host app's scene: with the scene lifecycle, a window without a scene is never shown, and the
+ * search bars of its navigation items are never installed.
+ */
+static UIWindow *CYLTestWindow(CGRect frame)
+{
+    UIWindowScene *scene = nil;
+    for (UIScene *candidate in UIApplication.sharedApplication.connectedScenes) {
+        if ([candidate isKindOfClass:UIWindowScene.class]) { scene = (UIWindowScene *)candidate; break; }
+    }
+    UIWindow *window = scene ? [[UIWindow alloc] initWithWindowScene:scene] : [[UIWindow alloc] initWithFrame:frame];
+    window.frame = frame;
+    return window;
+}
+
+/*!
+ * What a navigation-item search controller shows: its search bar, or on iOS 26, where the navigation bar hosts the
+ * field without the bar, the search text field.
+ */
+static UIView *CYLVisibleSearchView(UISearchBar *searchBar)
+{
+    return searchBar.window ? searchBar : searchBar.searchTextField;
+}
+
+/*!
+ * Views that `view` covers: visible views under `root` (its window when nil) whose frames intersect `view`'s frame
+ * in window coordinates, after clipping by ancestors that clip their bounds. Not counted: `view`'s subviews, the
+ * views that contain it, system bar backgrounds, and plain leaf views that draw nothing. Counted: labels, images, controls, text, scroll views, view controllers'
+ * views, and leaf views with a background, contents or a border. Each entry is "<class> <frame> in <superview>".
+ */
+static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
+{
+    UIWindow *window = view.window;
+    if (!window) return @[@"not in a window"];
+    CGRect frame = CGRectInset([view convertRect:view.bounds toView:window], 0.5, 0.5);
+    NSMutableSet<NSValue *> *ancestors = [NSMutableSet set];
+    for (UIView *parent = view.superview; parent; parent = parent.superview) {
+        [ancestors addObject:[NSValue valueWithNonretainedObject:parent]];
+    }
+    NSMutableArray<NSString *> *covered = [NSMutableArray array];
+    __block void (^visit)(UIView *);
+    __block __weak void (^weakVisit)(UIView *);
+    weakVisit = visit = ^(UIView *candidate) {
+        if (candidate == view || candidate.hidden || candidate.alpha <= 0.01) return;
+        NSString *name = NSStringFromClass(candidate.class);
+        if ([name containsString:@"BarBackground"]) return;
+        BOOL content = [candidate isKindOfClass:UILabel.class] || [candidate isKindOfClass:UIControl.class]
+            || [candidate isKindOfClass:UITextView.class] || [candidate isKindOfClass:UIScrollView.class]
+            || [candidate.nextResponder isKindOfClass:UIViewController.class];
+        if ([candidate isKindOfClass:UIImageView.class]) content = ((UIImageView *)candidate).image != nil;
+        if (!content && candidate.subviews.count == 0 && ![name hasPrefix:@"_"]) {
+            content = CGColorGetAlpha(candidate.backgroundColor.CGColor) > 0.01 || candidate.layer.contents || candidate.layer.borderWidth > 0;
+        }
+        if (content && ![ancestors containsObject:[NSValue valueWithNonretainedObject:candidate]]) {
+            // Only the part left visible by ancestors that clip (a scroll view hides what lies outside it).
+            CGRect other = [candidate convertRect:candidate.bounds toView:window];
+            for (UIView *clip = candidate.superview; clip && clip != window; clip = clip.superview) {
+                if (clip.clipsToBounds) other = CGRectIntersection(other, [clip convertRect:clip.bounds toView:window]);
+            }
+            if (!CGRectIsNull(other) && CGRectGetWidth(other) > 0 && CGRectGetHeight(other) > 0 && CGRectIntersectsRect(frame, other)) {
+                [covered addObject:[NSString stringWithFormat:@"%@ %@ in %@", name, NSStringFromCGRect(other), NSStringFromClass(candidate.superview.class)]];
+            }
+        }
+        for (UIView *subview in candidate.subviews) weakVisit(subview);
+    };
+    for (UIView *subview in (root ?: window).subviews) visit(subview);
+    visit = nil;
+    return covered;
+}
+
 @implementation CYLSearchExampleTests
 
 - (void)testLocalPodsConfigureSearchAndRefresh
@@ -448,20 +518,83 @@
     CYLSearchExampleDataSource *source = [CYLSearchExampleDataSource new];
     CYLSearchExampleViewController *controller = [[CYLSearchExampleViewController alloc] initWithSearchDataSource:source refreshProvider:source];
     UINavigationController *navigation = [[UINavigationController alloc] initWithRootViewController:controller];
-    UIWindow *window = [[UIWindow alloc] initWithFrame:CGRectMake(0, 0, 402, 874)];
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
     window.rootViewController = navigation;
     [window makeKeyAndVisible];
     for (NSNumber *hides in @[@NO, @YES]) {
         controller.navigationItem.hidesSearchBarWhenScrolling = hides.boolValue;
         [navigation.view setNeedsLayout];
         [navigation.view layoutIfNeeded];
-        UISearchBar *searchBar = controller.searchController.searchBar;
+        UIView *searchBar = CYLVisibleSearchView(controller.searchController.searchBar);
         CGRect searchBarFrame = [searchBar convertRect:searchBar.bounds toView:window];
         CGRect viewFrame = [controller.view convertRect:controller.view.bounds toView:window];
         XCTAssertGreaterThanOrEqual(CGRectGetMinY(viewFrame), CGRectGetMaxY(navigation.navigationBar.frame) - 0.5, @"hides %@", hides);
+        if (!hides.boolValue) XCTAssertNotNil(searchBar.window, @"the pinned search bar is shown");
         if (!searchBar.hidden && searchBar.window && CGRectGetHeight(searchBarFrame) > 0) {
             XCTAssertFalse(CGRectIntersectsRect(CGRectInset(searchBarFrame, 0, 0.5), viewFrame), @"hides %@: %@ / %@", hides, NSStringFromCGRect(searchBarFrame), NSStringFromCGRect(viewFrame));
         }
+    }
+    window.hidden = YES;
+}
+
+- (void)testSearchBarsCoverNoView
+{
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
+    NSArray<UIContentSizeCategory> *sizes = @[UIContentSizeCategoryLarge, UIContentSizeCategoryAccessibilityExtraExtraExtraLarge];
+
+    // The navigation-item search bar of the results screen, with the bar pinned and hiding on scroll.
+    CYLSearchExampleDataSource *source = [CYLSearchExampleDataSource new];
+    CYLSearchExampleViewController *results = [[CYLSearchExampleViewController alloc] initWithSearchDataSource:source refreshProvider:source];
+    UINavigationController *navigation = [[UINavigationController alloc] initWithRootViewController:results];
+    window.rootViewController = navigation;
+    [window makeKeyAndVisible];
+    for (NSNumber *hides in @[@NO, @YES]) {
+        results.navigationItem.hidesSearchBarWhenScrolling = hides.boolValue;
+        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.3]];
+        [navigation.view setNeedsLayout];
+        [navigation.view layoutIfNeeded];
+        UIView *searchBar = CYLVisibleSearchView(results.searchController.searchBar);
+        if (!hides.boolValue) XCTAssertNotNil(searchBar.window, @"the pinned search bar is shown");
+        if (searchBar.window && !searchBar.hidden) {
+            NSArray *covered = CYLViewsCoveredByView(searchBar, nil);
+            XCTAssertEqual(covered.count, 0, @"results, hides %@: %@", hides, covered);
+        }
+    }
+
+    // CYLSearchBarView on the search bar demo page, at the default and the largest text size.
+    CYLSearchBarDemoViewController *demo = [CYLSearchBarDemoViewController new];
+    navigation = [[UINavigationController alloc] initWithRootViewController:demo];
+    window.rootViewController = navigation;
+    for (UIContentSizeCategory size in sizes) {
+        if (@available(iOS 17.0, *)) {
+            window.traitOverrides.preferredContentSizeCategory = size;
+        }
+        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.2]];
+        [navigation.view setNeedsLayout];
+        [navigation.view layoutIfNeeded];
+        CYLSearchBarView *bar = (CYLSearchBarView *)[demo.view.subviews filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self isKindOfClass: %@", CYLSearchBarView.class]].firstObject;
+        XCTAssertNotNil(bar.window);
+        NSArray *covered = CYLViewsCoveredByView(bar, nil);
+        XCTAssertEqual(covered.count, 0, @"demo at %@: %@", size, covered);
+    }
+    if (@available(iOS 17.0, *)) {
+        window.traitOverrides.preferredContentSizeCategory = UIContentSizeCategoryLarge;
+    }
+
+    // The overlay is a page of its own over its host: inside that page its search bar covers no view.
+    UIViewController *host = [UIViewController new];
+    window.rootViewController = [[UINavigationController alloc] initWithRootViewController:host];
+    [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.3]];
+    [window layoutIfNeeded];
+    CYLSearchController *overlay = [[CYLSearchController alloc] initWithSearchDataSource:source];
+    [overlay showInViewController:host];
+    [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.6]];
+    [overlay.navigationController.view layoutIfNeeded];
+    UIView *overlayBar = CYLVisibleSearchView(overlay.navigationItem.searchController.searchBar);
+    XCTAssertNotNil(overlayBar.window, @"the overlay's search bar is shown");
+    if (overlayBar.window && !overlayBar.hidden) {
+        NSArray *covered = CYLViewsCoveredByView(overlayBar, overlay.navigationController.view);
+        XCTAssertEqual(covered.count, 0, @"overlay: %@", covered);
     }
     window.hidden = YES;
 }

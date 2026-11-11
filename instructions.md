@@ -85,12 +85,15 @@ Read this file and `AGENTS.md` before changing project files.
 
 ## Search bar placement
 
-- A search bar never covers a view controller's view (`self.view`), in any
-  state: a navigation-item search controller, `CYLSearchBarView`, the overlay
-  and every Dynamic Type size. Views of search screens do not extend under
-  the top bar (`edgesForExtendedLayout` without `UIRectEdgeTop`); a
-  `CYLSearchBarView` is laid out against the safe area, above or beside the
-  content, never on top of it. Test it with frames in a window.
+- A search bar never covers any view, at any time: not a view controller's
+  view (`self.view`), not a sibling, a background view or a bar item; for a
+  navigation-item search controller, `CYLSearchBarView` and the overlay; in
+  every state and at every Dynamic Type size. Views of search screens do not
+  extend under the top bar (`edgesForExtendedLayout` without
+  `UIRectEdgeTop`); a `CYLSearchBarView` is laid out against the safe area,
+  beside the content, never on top of it, and a colored area behind it ends
+  where the bar begins. `testSearchBarsCoverNoView` checks every search bar
+  with `CYLViewsCoveredByView`; add each new one there.
 
 ## Issue #1317 reproduction
 
