@@ -3,6 +3,9 @@
 
 static CGFloat const CYLSearchBarIconSize = 18;
 static CGFloat const CYLSearchBarSpacing = 8;
+static CGFloat const CYLSearchBarMinimumTextShare = 0.4;
+static CGFloat const CYLSearchBarMaximumCancelShare = 0.3;
+static CGFloat const CYLSearchBarMinimumScale = 0.5;
 
 @interface CYLSearchBarView () <UITextFieldDelegate>
 @end
@@ -59,7 +62,9 @@ static CGFloat const CYLSearchBarSpacing = 8;
     _cancelButton = [UIButton buttonWithConfiguration:configuration primaryAction:nil];
     _cancelButton.hidden = YES;
     [_cancelButton addTarget:self action:@selector(cyl_cancel) forControlEvents:UIControlEventTouchUpInside];
+    _cancelButton.showsLargeContentViewer = YES;
     [self addSubview:_cancelButton];
+    [self addInteraction:[[UILargeContentViewerInteraction alloc] init]];
     [self cyl_applyStyle];
 }
 
@@ -165,7 +170,20 @@ static CGFloat const CYLSearchBarSpacing = 8;
     configuration.attributedTitle = [[NSAttributedString alloc] initWithString:self.cancelButtonTitle attributes:@{NSFontAttributeName: self.font}];
     configuration.titleLineBreakMode = NSLineBreakByClipping;
     self.cancelButton.configuration = configuration;
+    // The title may be drawn smaller to fit; VoiceOver and the large content viewer still get the whole title.
+    self.cancelButton.accessibilityLabel = self.cancelButtonTitle;
+    self.cancelButton.largeContentTitle = self.cancelButtonTitle;
     [self setNeedsLayout];
+}
+
+- (void)cyl_setCancelTitleFont:(UIFont *)font {
+    UIButtonConfiguration *configuration = self.cancelButton.configuration;
+    UIFont *current = [configuration.attributedTitle attribute:NSFontAttributeName atIndex:0 effectiveRange:NULL];
+    if (!configuration || configuration.attributedTitle.length == 0 || [current isEqual:font]) {
+        return;
+    }
+    configuration.attributedTitle = [[NSAttributedString alloc] initWithString:self.cancelButtonTitle attributes:@{NSFontAttributeName: font}];
+    self.cancelButton.configuration = configuration;
 }
 
 - (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
@@ -208,12 +226,18 @@ static CGSize CYLSearchBarFittingSize(UIView *view, CGFloat height) {
         self.leadingView.frame = CGRectMake(leading - 8, floor((height - size.height) / 2), size.width, size.height);
         leading += size.width - 8 + 2;
     }
+    // At large text sizes the text keeps at least this share of the bar; Cancel and the accessory views shrink first.
+    CGFloat available = MAX(0, trailing - leading);
+    CGFloat minimumTextWidth = MAX(44, floor(available * CYLSearchBarMinimumTextShare));
     if (self.showsCancelButton) {
         // The title's own width: a button's fitting size can lag behind a title or font set in the same pass.
         CGFloat titleWidth = ceil([self.cancelButtonTitle sizeWithAttributes:@{NSFontAttributeName: self.font}].width);
-        CGSize size = CGSizeMake(MAX(44, titleWidth + 12), fieldHeight);
-        self.cancelButton.frame = CGRectMake(trailing - size.width, y, size.width, fieldHeight);
-        trailing -= size.width + CYLSearchBarSpacing;
+        CGFloat maximumWidth = MAX(44, floor(available * CYLSearchBarMaximumCancelShare));
+        CGFloat width = MIN(MAX(44, titleWidth + 12), maximumWidth);
+        CGFloat scale = titleWidth + 12 > width ? MAX(CYLSearchBarMinimumScale, (width - 12) / MAX(1, titleWidth)) : 1;
+        [self cyl_setCancelTitleFont:[self.font fontWithSize:self.font.pointSize * scale]];
+        self.cancelButton.frame = CGRectMake(trailing - width, y, width, fieldHeight);
+        trailing -= width + CYLSearchBarSpacing;
     }
     CGRect field = CGRectMake(leading, y, MAX(0, trailing - leading), fieldHeight);
     self.fieldView.frame = field;
@@ -228,10 +252,26 @@ static CGSize CYLSearchBarFittingSize(UIView *view, CGFloat height) {
         self.searchIconView.frame = CGRectZero;
     }
     CGFloat end = CGRectGetWidth(field) - inner;
-    for (UIView *view in self.trailingAccessoryViews.reverseObjectEnumerator) {
+    NSArray<UIView *> *accessories = self.trailingAccessoryViews;
+    NSMutableArray<NSValue *> *sizes = [NSMutableArray arrayWithCapacity:accessories.count];
+    CGFloat accessoriesWidth = 0;
+    for (UIView *view in accessories) {
+        view.transform = CGAffineTransformIdentity;
         CGSize size = CYLSearchBarFittingSize(view, fieldHeight);
-        view.frame = CGRectMake(end - size.width, floor((fieldHeight - size.height) / 2), size.width, size.height);
-        end -= size.width + CYLSearchBarSpacing;
+        [sizes addObject:[NSValue valueWithCGSize:size]];
+        accessoriesWidth += size.width + CYLSearchBarSpacing;
+    }
+    // Views that would squeeze the text are drawn smaller (scaled as a whole, so a symbol keeps its shape).
+    CGFloat room = MAX(0, end - x - minimumTextWidth);
+    CGFloat accessoryScale = accessoriesWidth > room && accessoriesWidth > 0 ? MAX(CYLSearchBarMinimumScale, room / accessoriesWidth) : 1;
+    for (NSInteger index = (NSInteger)accessories.count - 1; index >= 0; index--) {
+        UIView *view = accessories[index];
+        CGSize size = sizes[index].CGSizeValue;
+        CGFloat width = size.width * accessoryScale;
+        view.bounds = CGRectMake(0, 0, size.width, size.height);
+        view.center = CGPointMake(end - width / 2, fieldHeight / 2);
+        view.transform = accessoryScale < 1 ? CGAffineTransformMakeScale(accessoryScale, accessoryScale) : CGAffineTransformIdentity;
+        end -= width + CYLSearchBarSpacing * accessoryScale;
     }
     self.textField.frame = CGRectMake(x, 0, MAX(0, end - x), fieldHeight);
 }

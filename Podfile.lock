@@ -1,6 +1,8 @@
 PODS:
   - CYLSearchViewController (0.1.0)
-  - CYLTableViewPlaceHolder (1.1.0)
+  - CYLTableViewPlaceHolder (1.1.0):
+    - CYLTableViewPlaceHolder/Core (= 1.1.0)
+  - CYLTableViewPlaceHolder/Core (1.1.0)
 
 DEPENDENCIES:
   - CYLSearchViewController (from `.`)
@@ -14,7 +16,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   CYLSearchViewController: ba67d0fd3f9331a361deaf3d9ac2752a2d2ee5cf
-  CYLTableViewPlaceHolder: ef921457e1ea58cbc8268a07ed4f76e8001e11c8
+  CYLTableViewPlaceHolder: a046bbc8b8a40833bc660c320211a4cddf3aa265
 
 PODFILE CHECKSUM: 2cf06ffa5f0e4c9e937d0e84e103c8147e8b83d9
 

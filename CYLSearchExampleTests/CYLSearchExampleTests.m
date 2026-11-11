@@ -178,7 +178,7 @@
     CYLSearchTestNavigationController *navigation = [[CYLSearchTestNavigationController alloc] initWithRootViewController:menu];
     [menu loadViewIfNeeded];
     XCTAssertEqual(menu.navigationController, navigation);
-    XCTAssertEqual([menu tableView:menu.tableView numberOfRowsInSection:0], 2);
+    XCTAssertEqual([menu tableView:menu.tableView numberOfRowsInSection:0], 3);
     [menu tableView:menu.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
     UITableViewController *gallery = (UITableViewController *)navigation.lastPushedController;
     XCTAssertNotEqual(gallery, menu);
@@ -350,6 +350,58 @@
     XCTAssertGreaterThan(bar.intrinsicContentSize.height, 48, @"the field grows with large text");
     bar.fieldHeight = 10;
     XCTAssertGreaterThanOrEqual(bar.intrinsicContentSize.height, ceil(bar.font.lineHeight + 12) + 12, @"never shorter than the text");
+
+    // At the largest size the text keeps 40% of the bar: Cancel and a large accessory are drawn smaller instead.
+    bar.fieldHeight = 36;
+    bar.showsCancelButton = YES;
+    bar.cancelButtonTitle = @"Cancel";
+    UIButton *camera = [UIButton buttonWithType:UIButtonTypeSystem];
+    [camera setImage:[UIImage systemImageNamed:@"camera" withConfiguration:[UIImageSymbolConfiguration configurationWithPointSize:64]] forState:UIControlStateNormal];
+    bar.trailingAccessoryViews = @[camera];
+    bar.frame = CGRectMake(0, 0, 390, bar.intrinsicContentSize.height);
+    [bar layoutIfNeeded];
+    CGFloat available = 390 - bar.contentInsets.left - bar.contentInsets.right;
+    XCTAssertGreaterThanOrEqual(CGRectGetWidth(bar.textField.frame), floor(available * 0.4) - 1);
+    XCTAssertLessThanOrEqual(CGRectGetWidth(bar.cancelButton.frame), floor(available * 0.3) + 0.5);
+    XCTAssertLessThan(camera.transform.a, 1, @"the camera is drawn smaller");
+    XCTAssertLessThanOrEqual(CGRectGetMaxX(bar.textField.frame), CGRectGetMinX(camera.frame) + 0.5);
+    XCTAssertLessThanOrEqual(CGRectGetMaxX(camera.frame), CGRectGetWidth(bar.fieldView.bounds));
+    XCTAssertEqualObjects(bar.cancelButton.accessibilityLabel, @"Cancel", @"VoiceOver reads the whole title");
+}
+
+- (void)testSearchBarDemoRow
+{
+    CYLSearchDemoMenuViewController *menu = [[CYLSearchDemoMenuViewController alloc] initWithStyle:UITableViewStyleGrouped];
+    CYLSearchTestNavigationController *navigation = [[CYLSearchTestNavigationController alloc] initWithRootViewController:menu];
+    [menu loadViewIfNeeded];
+    NSIndexPath *row = [NSIndexPath indexPathForRow:2 inSection:0];
+    XCTAssertEqualObjects([menu tableView:menu.tableView cellForRowAtIndexPath:row].textLabel.text, [CYLSearchResources localizedStringForKey:@"demo.searchBar"]);
+    [menu tableView:menu.tableView didSelectRowAtIndexPath:row];
+    UIViewController *demo = navigation.lastPushedController;
+    demo.view.frame = CGRectMake(0, 0, 390, 844);
+    [demo.view layoutIfNeeded];
+    CYLSearchBarView *bar = (CYLSearchBarView *)[demo.view.subviews filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self isKindOfClass: %@", CYLSearchBarView.class]].firstObject;
+    UILabel *status = (UILabel *)[demo.view.subviews filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self isKindOfClass: %@", UILabel.class]].firstObject;
+    XCTAssertNotNil(bar);
+    XCTAssertEqualObjects(bar.placeholder, [CYLSearchResources localizedStringForKey:@"demo.searchBar.placeholder"]);
+    XCTAssertFalse(bar.cancelButton.hidden);
+    UIView *camera = bar.trailingAccessoryViews.firstObject;
+    XCTAssertEqualObjects(camera.accessibilityLabel, [CYLSearchResources localizedStringForKey:@"demo.searchBar.camera"]);
+    XCTAssertGreaterThan(CGRectGetWidth(bar.frame), 0);
+    XCTAssertGreaterThanOrEqual(CGRectGetMinY(status.frame), CGRectGetMaxY(bar.frame));
+
+    bar.text = @"IDG";
+    [bar.textField sendActionsForControlEvents:UIControlEventEditingChanged];
+    XCTAssertEqualObjects(status.text, ([NSString stringWithFormat:[CYLSearchResources localizedStringForKey:@"demo.searchBar.text"], @"IDG"]));
+    [bar.textField.delegate textFieldShouldReturn:bar.textField];
+    XCTAssertEqualObjects(status.text, ([NSString stringWithFormat:[CYLSearchResources localizedStringForKey:@"demo.searchBar.searched"], @"IDG"]));
+    [bar.cancelButton sendActionsForControlEvents:UIControlEventTouchUpInside];
+    XCTAssertEqualObjects(bar.text, @"");
+
+    NSDictionary<NSString *, NSString *> *titles = @{@"en": @"Search bar", @"zh-Hans": @"搜索栏", @"zh-Hant": @"搜尋列", @"ja": @"検索バー"};
+    for (NSString *language in titles) {
+        XCTAssertEqualObjects([CYLSearchResources localizedStringForKey:@"demo.searchBar" language:language], titles[language]);
+    }
 }
 
 @end

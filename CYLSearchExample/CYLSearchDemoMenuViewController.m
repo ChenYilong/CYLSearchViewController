@@ -162,6 +162,19 @@ static NSString *CYLDemoText(NSString *key)
     self.title = CYLDemoText(@"demo.title");
 }
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    // `-CYLDemoRow 2` on launch opens that row, for screenshots.
+    static BOOL opened;
+    NSString *row = [NSUserDefaults.standardUserDefaults stringForKey:@"CYLDemoRow"];
+    if (opened || row.length == 0) return;
+    opened = YES;
+    NSInteger index = row.integerValue;
+    if (index < 0 || index >= [self tableView:self.tableView numberOfRowsInSection:0]) return;
+    [self tableView:self.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:index inSection:0]];
+}
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
     return 3;
