@@ -142,6 +142,20 @@ Adapted from CYLTabBarController's instruction files at its latest commit
   apply.
 - Follow the `cyl-tabbar-integration` and `cyl-plus-button` skills.
 
+## Sub-repositories (CollectionViewClassifyMenu, CYLTableViewPlaceHolder)
+
+- A sibling project in the same local folder used by this library is a sub-repository. The requirements set for
+  CollectionViewClassifyMenu apply to all of them: iOS depends on its root podspec as a sub-dependency; other
+  platforms depend by commit (or build the commit from source); pin the newest commit on any branch; a local path
+  only while developing, never committed; add the feature to the core with an enum or a parameter (add missing
+  interfaces in the sub-repository, push them, then update the pin); the example shows every style and passes only
+  data, style parameters and click handling.
+- CollectionViewClassifyMenu: suggestions as tags (`docs/tag-view-suggestions.md`).
+- CYLTableViewPlaceHolder is integrated as a sub-repository under all the requirements above: when a search has no
+  results, show its empty-content placeholder style, on every platform (iOS, Android, React Native, Flutter,
+  HarmonyOS, mini programs). Status `TODO` in `docs/sub-repositories.md`. Full rule: `AGENTS.md`, same section;
+  skill `cyl-sub-repositories`.
+
 ## Verification
 
 - Validate the CocoaPods integration, parse the Xcode project, and build the

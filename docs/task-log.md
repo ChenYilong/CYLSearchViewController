@@ -109,3 +109,8 @@ begins and becomes `DONE` when it ends.
   `docs/instructions.md`, `android/README.md` and every `cyl-*` skill. Applying it to the five projects in `android/`
   (their translation is done: translate and merge their open PRs, then the issue tables and fixes) is a follow-up
   recorded in `docs/android-and-cross-platform.md`.
+
+## TODO (2026-11-12): CYLTableViewPlaceHolder as a sub-repository on every platform
+
+- Logged in [sub-repositories.md](sub-repositories.md) (context, requirements, prompt verbatim and in English).
+  The rules are written; the integration is open.

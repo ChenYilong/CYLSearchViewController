@@ -16,6 +16,7 @@ and the applicable skill in `.agents/skills/` before making changes.
 | `cyl-new-project` | Creating or extending an example project |
 | `cyl-api-map` | Finding the public API of `CYLTableViewPlaceHolder` and `CYLTabBarController` |
 | `cyl-xcode-compat` | Touching the `.xcodeproj`, Podfile or deployment targets |
+| `cyl-sub-repositories` | Adding or updating a sibling project as a sub-repository (CollectionViewClassifyMenu, CYLTableViewPlaceHolder): commit pin, core option, example, every platform |
 | `cyl-docs` | Editing `README.md` or `docs/` |
 | `cyl-verify` | Building, testing, running the simulator |
 | `swift-api-design-guidelines`, `swift-language`, `swift-concurrency`, `swift-testing`, `swift-architecture` | Writing or translating Swift (third-party, pinned in `.agents/skills.json`) |
@@ -189,6 +190,33 @@ CYLTabBarController's `AGENTS.md` and `cyl-*` skills at its latest commit
   or identifier before coordinates.
 - **Clean builds.** Build into an empty derived data folder after a
   dependency change, so the app does not run stale pod code.
+
+## Sub-repositories (CollectionViewClassifyMenu, CYLTableViewPlaceHolder)
+
+Sibling projects in the same local folder (`../<Name>`) that this library uses are sub-repositories. The rules were
+set for CollectionViewClassifyMenu (the tag-view suggestion style, `docs/tag-view-suggestions.md`) and apply to every
+sub-repository:
+
+- **Dependency.** iOS: through the sub-repository's root podspec, as a sub-dependency of this pod (podspec
+  `s.dependency`, Podfile `:git` + `:commit`). Android and the other platforms: through their package manager by
+  commit; when that is not possible, the build checks out that commit and builds the module from source
+  (`android/merged/settings.gradle.kts`, `pinnedCheckout`).
+- **Newest commit.** Pin the newest commit on any branch (`git fetch` then `git log --remotes -1`); it may not be on
+  `main` or `master`. A local path is allowed only while developing: remove it before committing and commit the
+  commit-based dependency.
+- **Core first.** Add the feature to this library's core with an enum or a parameter that chooses it. When the
+  sub-repository lacks an interface, add it there, commit and push it there, then update this repository's pinned
+  commit and continue.
+- **Example.** The example shows every style the option offers; it passes only data, style parameters and click
+  handling.
+
+CollectionViewClassifyMenu shows the suggestions under the search bar as tags instead of a list
+(`CYLSearchSuggestionStyle`; Android done, iOS `TODO` in `docs/tag-view-suggestions.md`).
+
+CYLTableViewPlaceHolder is integrated as a sub-repository under all the requirements above. Requirement: when a search
+has no results (the content is empty), show CYLTableViewPlaceHolder's empty-content placeholder style. This applies to
+every platform: iOS, Android, React Native, Flutter, HarmonyOS and mini programs. Status: `TODO`, tracked in
+`docs/sub-repositories.md`. Use the `cyl-sub-repositories` skill.
 
 ## Verification
 
