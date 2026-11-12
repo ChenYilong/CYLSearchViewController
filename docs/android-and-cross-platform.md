@@ -26,6 +26,15 @@ Native) for the CYLSearchViewController components.
   support, adapted for Android and the HarmonyOS NEXT system."
 - Status: logged, not started; waits for the search API parity task and the Swift migration.
 - Order of work: Android → HarmonyOS NEXT compatibility → Flutter (tests pass) → React Native.
+- Decisions (user, 2026-11-13):
+  - Flutter wraps the native core, like CYLTabBarController's `flutter_cyltabbar`: a plugin
+    (`CrossPlatform/flutter_cylsearch`) shows the iOS Swift core and the Android `cylsearch` views as platform views,
+    so the tag style, the empty results placeholder and every later core feature come with it. Dart is not a second
+    implementation.
+  - HarmonyOS NEXT waits: DevEco Studio 6.0.1 and its tools (`hvigorw`, `ohpm`, the bundled SDK) are installed, but
+    no emulator image exists (it needs DevEco's Device Manager with a Huawei account sign-in). Flutter goes first, as
+    the original prompt ordered; HarmonyOS is built and verified after an emulator is set up.
+- Progress: Android done (the `android/` task below). Flutter: in progress.
 
 ## DONE (2026-11-12): android/ folder: five Kotlin transcriptions, a merged library and example
 
