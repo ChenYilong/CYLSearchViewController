@@ -107,4 +107,22 @@ scripts/local-run-environment.sh
   the platform (iOS, Android, Flutter, React Native, HarmonyOS, mini program), the environment (OS version,
   simulator version, the platform's SDK version), this repository's version number or commit link, and the current
   time. Use clear original screenshots."
+- Additional requirements (second prompt, same day):
+  6. Take and publish screenshots at key milestones: when a `TODO` or `Linux` note can be removed, when a PR can be
+     merged, or when the result is judged as expected with no bug and no open issue.
+  7. README screenshots show the key details, cropped; not full screen unless needed. Combine several key details
+     into one stitched image.
+  8. Stitching layout, in order of preference: one image per row stacked top to bottom (easiest on a phone; the
+     prompt says "横向排布", read here as the vertical arrangement because the last choice is horizontal), then two
+     columns over several rows, and last a horizontal row of at most three images.
+  9. The rules go into the build / CI/CD sections of the instruction files and the skills (created when missing),
+     in English, with the requirements above.
+- Prompt 2 (verbatim): "追加截图细节，全英文：关键节点指的是比如可以删除todo关键词，或者Linux关键词，或者可以merge pr。或者你评估已经符合预期效果无bug 无issue。readme中展示的截取关键细节，如无必要不要全屏截取。最好是采用凭借格式展示多个关键细节。拼接截图，优先采用横向排布，方便手机端查看。其次是双列 多行拼接。最差是横向拼接。横向拼接一行最多三列。找到instructions相关文件，以及skills相关文件，找到构建build ci cd章节。如果没有就新建，确保写入成功，全英文写入如下内容：所有截图，包括CI CD截图以及本地构建截图，全部保存在docs文件夹相关文档中，如果无相关文档就新建文档，保存图片到git仓库。并在合适的时机，你认为效果符合预期就更新最新图片到readme，找到相关章节如果没有就新建，并标注运行平台iOS android flutter reactnative 鸿蒙 小程序。运行环境 操作系统版本，模拟器版本，对应平台版本sdk版本（iOS android flutter reactnative 鸿蒙 小程序）本仓库版本号或commit地址。当前时间。截图使用清晰原图。"
+- Prompt 2 (English): "Add screenshot details, all in English: key milestones are, for example, when the TODO
+  keyword or the Linux keyword can be deleted, when a PR can be merged, or when you judge the result as expected with
+  no bug and no issue. README shows cropped key details; do not capture the full screen unless necessary. Preferably
+  show several key details in a stitched format. Stitched screenshots: prefer the horizontal arrangement, easy to
+  view on a phone; next, two columns over several rows; worst, horizontal stitching, at most three columns in a row.
+  (Then the first prompt's rules again: build / CI/CD sections, screenshots in docs, README update with platform,
+  environment, version or commit, time, clear original images.)"
 - Status: logged; starts after the Swift migration (instruction order).
