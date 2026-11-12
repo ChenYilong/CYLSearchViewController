@@ -54,3 +54,25 @@ begins and becomes `DONE` when it ends.
   `feat/search-bar-view` (merge commit `51a0e39`). #5 passed CI on
   `ac03541` (6/6 jobs) and was merged into `master` (merge commit
   `55022ba`).
+
+## TODO (2026-11-12): retarget every open PR to the current branch, merge, keep only it
+
+- Context: current branch `feat/swift-core` (PR #8 → `feat/search-api-parity`). Open PRs: #7
+  (`feat/search-api-parity` → `master`), #8, and #2 from a fork (`master` → `master`, "Fix broken headings in
+  Markdown files"). Remote branches `claude/youthful-mendel-pn01ru`, `docs/todo-sweep`, `feat/search-api-parity`
+  and `feat/search-bar-view` have no commit that `feat/swift-core` lacks.
+- Requirements: point every open PR at `feat/swift-core`; merge them all into it, resolving conflicts; keep only
+  the current branch (delete the others; `master` stays as the default branch); then continue the unfinished tasks.
+- Prompt (verbatim): "将所有处于open状态的分支的target branch指向本分支，当前分支，全部合并仅仅保留当前分支，处理冲突后合并，继续以上未完成的任务。"
+- Prompt (English): "Point the target branch of every open branch at this branch, the current branch; merge them
+  all and keep only the current branch; merge after resolving conflicts; continue the unfinished tasks above."
+- Status: logged.
+
+## TODO (2026-11-12): pull request for the clean sibling checkout
+
+- Context: while building, the sibling `CYLTableViewPlaceHolder` had another session's uncommitted, half-finished
+  `CYLRefresh/Custom/Drawn/` folder, so this session built against a clean detached checkout of its last commit
+  (`18971fe`) in its own scratch folder. That checkout has no changes of this session.
+- Requirement: "then create a PR that merges into the current branch".
+- Prompt (verbatim): "found an uncommitted, half-finished Drawn/ folder in the sibling's working tree, so I'm building from a clean checkout of their last commit in my own folder instead. then create pr merge to current branch"
+- Status: logged; to check what can be put in a PR (this session changed nothing in the sibling).

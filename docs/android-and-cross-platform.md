@@ -26,3 +26,34 @@ Native) for the CYLSearchViewController components.
   support, adapted for Android and the HarmonyOS NEXT system."
 - Status: logged, not started; waits for the search API parity task and the Swift migration.
 - Order of work: Android → HarmonyOS NEXT compatibility → Flutter (tests pass) → React Native.
+
+## TODO (2026-11-12): android/ folder: five Kotlin transcriptions, a merged library and example
+
+- Context: refines the TODO above. Android only; iOS code is not changed. The five reference projects were read in
+  `docs/search-api-comparison.md`; three are Java or Kotlin libraries (MiguelCatalan Java, lapism and iammert
+  Kotlin), yechaoa/MaterialDesign is a showcase app and android-cjj/MaterialSearchView a sample app.
+  CYLTabBarController ships an Android tab bar library (`Example-Android` in the sibling folder).
+- Requirements:
+  1. Create `android/` with one folder per repository (lapism-search, MiguelCatalan-MaterialSearchView,
+     yechaoa-MaterialDesign, android-cjj-MaterialSearchView, iammert-MultiSearchView) and a `merged` folder.
+  2. Transcribe each project in its folder, all in Kotlin.
+  3. Merge the Kotlin code into one project in `merged`, keeping every API; merge the examples into one example
+     app that uses CYLTabBarController's Android tab bar, one tab per example; depend on CYLTabBarController's latest
+     commit through Gradle or Maven by commit (for example JitPack), else a local path.
+  4. In `docs/`, list every public iOS API with its counterpart in `merged` in a second column.
+  5. Add the missing APIs to `merged`; mark every row that is not aligned `TODO`; full alignment = 100; score after
+     every API added, until 100.
+  6. Translate all iOS examples into `merged` (do not change iOS code), using the Android APIs of the table;
+     screenshots in the docs and an Android section in README.
+- Prompt (verbatim): "将下面的任务，找一个合适的文档，标注关键词TODO：注意本任务仅仅修改android代码，不要改iOS代码。在本项目中新建文件夹命名为 android ，下面的代码 每一个仓库 创建一个文件夹，并创建第四个文件夹命名为merged     https://github.com/lapism/search https://github.com/MiguelCatalan/MaterialSearchView https://github.com/yechaoa/MaterialDesign https://github.com/android-cjj/MaterialSearchView https://github.com/iammert/MultiSearchView 第二步骤：分别将这几个项目在各自文件夹中做代码转录，全部翻译为kotlin语言。第三步骤：将以上几个文件夹里的kotlin代码合并为一个项目，保留所有api接口，并将example合并为一个。使用CYLTabBarController 的android端tabbar 作为展示的功能划分，采用gradle或者maven指向CYLTabBarController 最新提交，找到gradle或者maven使用commit引用的方式集成，如果不行就采用本地路径引用。一个example一个tabbaritem区分。第四步骤：在docs在合适的文档或创建文档，列出iOS端所有的公开api，第二列 ，列出找到的在该merged文件夹下所有的公开api的对应项。第五步，将缺失merged文件夹缺失的API对齐。在该表格未对齐的地方标注TODO如果iOS端和android能完全对齐所有api就是满分，merged文件夹每次新增一个api就在该文档中打分，一直达到满分。第六步骤：将iOS端的example全部移植到merged文件夹，注意是翻译，不要改iOS代码。使用上面提到的表格中android的api实现。并截图更新文档，readme 在android章节。"
+- Prompt (English): "Put the following task in a suitable document marked TODO. Only Android code changes; do not
+  change iOS code. Create an android folder in this project, one folder per repository below, and a fourth folder
+  named merged (the five links). Step 2: transcribe each project in its folder, all in Kotlin. Step 3: merge the
+  Kotlin code of these folders into one project, keeping all APIs, and merge the examples into one; use
+  CYLTabBarController's Android tab bar to divide the features, depend on CYLTabBarController's latest commit
+  through Gradle or Maven by commit, else a local path; one tab item per example. Step 4: in a suitable doc (or a
+  new one) list every public iOS API, and in the second column the counterpart found in merged. Step 5: add the
+  APIs merged lacks; mark unaligned rows TODO; full alignment of iOS and Android is full marks; score each time an
+  API is added to merged, until full marks. Step 6: port all iOS examples to merged (translate, do not change iOS
+  code) with the Android APIs of the table, take screenshots, update the docs and README's Android section."
+- Status: logged; order: after the PR merge task.

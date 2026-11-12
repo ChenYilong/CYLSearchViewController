@@ -162,3 +162,17 @@ plus page; the Examples tab at the largest accessibility text size.
   the Podfile pin, compare upstream `AGENTS.md` and the `cyl-*` skills, and
   update the commits recorded in this document and the skill links. CI warns
   when the pin is not the newest commit.
+
+## TODO (2026-11-12): raised plus button in example demos
+
+- Context: the example's plus button comes from `CYLSearchExample/CYLTabBarConfiguration.json`
+  (`CYLTabBarControllerPlusButton`), shown inside the tab bar like a tab.
+- Requirements: in the instruction files and the skills, find the CYLTabBarController example-layer integration
+  section (create it if missing) and add, in English: when the example demonstrates a plus button, prefer the
+  raised plus button, whose top edge rises above the tab bar.
+- Prompt (verbatim): "找到instructions相关文档以及skills相关文档。找到CYLTabBarController 相关example层集成章节，如果没有就新建，全英文追加一条规则集成PlusButton进行example演示时，总是优先使用plus button凸起效果。凸起的含义是plus button顶点超出tabbar范围。"
+- Prompt (English): "Find the instruction documents and skill documents, find the CYLTabBarController example-layer
+  integration section (create it if missing), and append a rule in English: when integrating a PlusButton for an
+  example demo, always prefer the raised plus button effect; raised means the top of the plus button goes beyond
+  the tab bar."
+- Status: logged.
