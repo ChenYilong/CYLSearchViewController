@@ -176,7 +176,11 @@ CollectionViewClassifyMenu).
 - Next: React Native and Flutter. Neither version of this library exists yet; they are built by the cross-platform
   TODO in [android-and-cross-platform.md](android-and-cross-platform.md) (Flutter first), and get the tag style and
   the Discover page there.
-- Status: `TODO` (iOS and Android done; React Native and Flutter open).
+- Flutter: DONE (2026-11-13, [`40f9765`](https://github.com/ChenYilong/CYLSearchViewController/commit/40f9765)). The
+  plugin's `CYLSearchView` takes `suggestionStyle: CYLSearchSuggestionStyle.tags`, and its new `CYLTagListView` widget
+  is CollectionViewClassifyMenu's native tag list; the example has a Tag style tab and a Discover tab built on it (same
+  data as iOS and Android). Details and screenshots: [android-and-cross-platform.md](android-and-cross-platform.md).
+- Status: `TODO` (iOS, Android and Flutter done; React Native open).
 
 ## DONE (2026-11-12): Android tag cells cut their text at the cell edge
 
