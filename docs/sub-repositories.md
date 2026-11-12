@@ -6,7 +6,7 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
 | Sub-repository | What it adds | Status |
 |:---|:---|:---|
 | CollectionViewClassifyMenu | Suggestions as tags (`CYLSearchSuggestionStyle`) | Android done (`eb3590e`); iOS `TODO` ([tag-view-suggestions.md](tag-view-suggestions.md)) |
-| CYLTableViewPlaceHolder | The empty-content placeholder when a search has no results | iOS done; other platforms `TODO` (below) |
+| CYLTableViewPlaceHolder | The empty-content placeholder when a search has no results | iOS and Android done; other platforms `TODO` (below) |
 
 ## TODO (2026-11-12): CYLTableViewPlaceHolder as a sub-repository, empty search results on every platform
 
@@ -78,8 +78,32 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
     | SDK | iOS SDK 27.2, deployment target iOS 15.0 |
     | Repository | [`5bb0b58`](https://github.com/ChenYilong/CYLSearchViewController/commit/5bb0b58) on `feat/swift-core`; CYLTableViewPlaceHolder `a049422` |
     | Taken | 2026-11-13 00:02 NZDT |
-- Next, Android: CYLTableViewPlaceHolder has no Android library yet (its `docs/Android-Port.md` TODO), so its
-  placeholder is added there first (the sub-repository rule), then pinned in `android/merged`, with the same
-  `showsEmptyResultsPlaceholder` / `emptyResultsScenario` on the Kotlin `CYLSearchView`. React Native, Flutter,
-  HarmonyOS and mini programs follow when those versions exist.
-- Status: `TODO` (iOS done; Android, React Native, Flutter, HarmonyOS, mini programs open).
+- Progress, Android: DONE (2026-11-13, [`062a1a3`](https://github.com/ChenYilong/CYLSearchViewController/commit/062a1a3)).
+  - CYLTableViewPlaceHolder had no Android code, so its first Android module was added there (sub-repository rule):
+    `android/placeholder` (Kotlin, `com.cyl.placeholder`) with `CYLPlaceholderScenario` and
+    `CYLPlaceholderStackView(context, scenario, actions)` for the empty category (NoContent, NoSearchResults,
+    EmptyCart, NoOrders, NoFavorites, NoMessages, NoNotifications), images and strings imported from its iOS bundle
+    in seven languages, 4 tests;
+    [ChenYilong/CYLTableViewPlaceHolder#27](https://github.com/ChenYilong/CYLTableViewPlaceHolder/pull/27), commit
+    `8e23581`. Animations and the other categories stay `TODO` in its `docs/Android-Port.md`.
+  - Pinned here (`cyl.placeholder.commit`), built from source like the other sub-repositories.
+  - `CYLSearchView.showsEmptyResultsPlaceholder` / `emptyResultsScenario` / `emptyResultsView` in Kotlin, the same
+    behavior as iOS; the MaterialSearchView samples and the List / Tag style tabs turn it on.
+  - Tests: 10/10 `cylsearch` (new empty-results test); the API table now has 302 rows, score 100.
+  - Screenshots (originals), top to bottom: List style tab and Tag style tab, "zzz" typed.
+
+    ![Android empty results, list style](assets/android-empty-search-results-list.png)
+
+    ![Android empty results, tag style](assets/android-empty-search-results-tags.png)
+
+    | Field | Value |
+    |:---|:---|
+    | Platform | Android (Kotlin, `android/merged`) |
+    | Host | macOS 27.3 (26C5035r), JDK 17.0.21, Gradle 9.3.1, AGP 8.7.3, Kotlin 2.0.21 |
+    | Emulator | `CYL_API35_arm64`, Android 15 (API 35), arm64-v8a |
+    | SDK | compileSdk / targetSdk 35, minSdk 23 |
+    | Repository | [`062a1a3`](https://github.com/ChenYilong/CYLSearchViewController/commit/062a1a3); CYLTableViewPlaceHolder `8e23581` |
+    | Taken | 2026-11-13 00:4x NZDT |
+- Next: React Native, Flutter, HarmonyOS and mini programs, when those versions of this library exist (the
+  cross-platform TODO in [android-and-cross-platform.md](android-and-cross-platform.md)).
+- Status: `TODO` (iOS and Android done; React Native, Flutter, HarmonyOS, mini programs open).

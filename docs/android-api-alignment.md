@@ -33,6 +33,7 @@ Score = (DONE + N/A) / rows × 100, recomputed by the script after each change.
 | 2026-11-12 | `CYLMultiSearchView` and its delegate | 91 |
 | 2026-11-12 | `CYLSearchResultsViewController`, `CYLSearchController` (fragments) and their protocols | 100 |
 | 2026-11-12 | iOS added `CYLSearchSuggestionStyle` and `suggestionsTagView` / `suggestionStyle` (299 rows); Android had them already | 100 |
+| 2026-11-13 | iOS and Android added `showsEmptyResultsPlaceholder`, `emptyResultsScenario`, `emptyResultsView` (302 rows) | 100 |
 
 The scores per step are replayed with `--only=<classes added so far>` on the final sources, so they include the
 `requestFocus` / `clearFocus` / `setBackgroundColor` overrides that were added last.
