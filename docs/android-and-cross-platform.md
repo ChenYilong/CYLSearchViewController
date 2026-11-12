@@ -56,4 +56,17 @@ Native) for the CYLSearchViewController components.
   APIs merged lacks; mark unaligned rows TODO; full alignment of iOS and Android is full marks; score each time an
   API is added to merged, until full marks. Step 6: port all iOS examples to merged (translate, do not change iOS
   code) with the Android APIs of the table, take screenshots, update the docs and README's Android section."
-- Status: logged; order: after the PR merge task.
+- Findings (2026-11-12, before any code):
+  - Licenses: lapism/search, MiguelCatalan/MaterialSearchView and yechaoa/MaterialDesign ship an Apache 2.0
+    `LICENSE`; iammert/MultiSearchView states Apache 2.0 in its README. Their code can be transcribed with the
+    license and attribution kept. android-cjj/MaterialSearchView has no license, so its code may not be copied or
+    translated; its folder would hold an independent Kotlin implementation of the same behavior (a floating button
+    that opens a search card with a circular reveal), credited but not derived from its code. Waiting for the user's
+    decision.
+  - CYLTabBarController's Android library (`Example-Android/cyltabbar`, namespace `com.cyl.tabbar`) is not on Maven
+    Central or JitPack, and Gradle source dependencies cannot pin a commit. Plan: `android/merged/settings.gradle.kts`
+    checks out CYLTabBarController at the commit pinned in `gradle.properties` (newest commit on any branch, from
+    `scripts/latest-cyl-commit.sh`) and includes its `Example-Android` build; a local path override for development.
+  - Toolchain: JDK 17 (`~/develop/jdk/jdk-17.0.21+9`), Android SDK (`~/Library/Android/sdk`), Gradle 9.3.1; build
+    outside the exFAT volume.
+- Status: PR merge task done; this task is next in order.
