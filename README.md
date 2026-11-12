@@ -4,6 +4,26 @@
 ##功能展示
 ![Example screenshot](https://github.com/ChenYilong/CYLSearchViewController/blob/master/CYLSearchViewController/it_is_effect_show__SearchBar.gif)
 
+## Screenshots
+
+Key details of the current example, stacked top to bottom: `CYLSearchBarView` with text, a camera accessory and
+Cancel (plus page); the Issue #1317 screen with its pinned search bar; `CYLSearchView` suggestions (the
+MaterialSearchView "Default" port); `CYLMultiSearchView` with two searches and its event log.
+
+![Key details of the iOS example](docs/assets/readme-ios-key-details.png)
+
+| Field | Value |
+|:---|:---|
+| Platform | iOS (the core is Swift; the example is Objective-C and Swift) |
+| Host | macOS 27.3 (26C5035r), Xcode 27.2 (27B52) |
+| Simulator | iPhone 17, iOS 26.1 |
+| SDK | iOS SDK 27.2, Swift 5 language mode, deployment target iOS 15.0 |
+| Repository | [`9735f79`](https://github.com/ChenYilong/CYLSearchViewController/commit/9735f79) on `feat/swift-core` |
+| Taken | 2026-11-12 16:14–16:17 NZDT |
+
+More screenshots, one state per row: `docs/search-api-comparison.md` (the Swift ports of five search libraries'
+examples) and `docs/CYLTabBarController-Integration.md`.
+
 
 
 

@@ -265,7 +265,10 @@ labels for every button and item, localized strings in four languages, and `-sea
 
 ## Screenshots of the Swift ports
 
-iPhone 17 simulator, iOS 26.1, English. One state per row, top to bottom.
+One state per row, top to bottom. Platform iOS; host macOS 27.3 (26C5035r), Xcode 27.2 (27B52); iPhone 17
+simulator, iOS 26.1, English; iOS SDK 27.2; repository
+[`63825b0`](https://github.com/ChenYilong/CYLSearchViewController/commit/63825b0) on `feat/search-api-parity`
+(Objective-C core); taken 2026-11-12 (NZDT; the exact time was not recorded).
 
 | State | Screenshot |
 |:---|:---|

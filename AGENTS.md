@@ -205,6 +205,30 @@ reproduction or fix without launching the sample on a simulator.
 - A script added under `scripts/` must pass `shellcheck`. A workflow change
   must pass `actionlint`.
 
+### Screenshots of builds and CI/CD
+
+- **Where they go.** Every screenshot, local build and run screenshots and CI/CD screenshots alike (a GitHub Actions
+  run, a job log, an artifact), is committed to this repository and shown in the related document in `docs/`, with
+  the image in `docs/assets/` and the shortest relative link. When no document fits, create one.
+- **Clear originals.** Use the original pixels (`xcrun simctl io <device> screenshot`, an emulator's own capture,
+  a full-resolution browser capture); crop to the detail, never scale below the original size.
+- **Labels.** Next to every screenshot (its caption or table row) write:
+  - the platform: iOS, Android, Flutter, React Native, HarmonyOS or mini program;
+  - the environment: the host OS version and build, the simulator or emulator (device and OS version), and the
+    platform SDK version (Xcode and iOS SDK; Android SDK and API level; Flutter SDK; React Native; HarmonyOS SDK and
+    API version; the mini program base library);
+  - this repository's version number or commit link;
+  - the date and time it was taken, with the time zone.
+- **Key milestones.** Take and publish screenshots at key milestones: when a `TODO` or `Linux` note can be removed,
+  when a pull request can be merged, or when the result works as expected with no known bug and no open issue.
+- **README.** At such a milestone, when the result is as expected, update the screenshot section of `README.md`
+  (create it if missing) with the latest images and the labels above. Show the key details, cropped; capture the
+  full screen only when it is needed. Combine several details into one stitched image
+  (`scripts/stitch-screenshots.swift`), laid out in this order of preference:
+  1. stacked top to bottom, one image per row (easiest to read on a phone);
+  2. two columns over several rows;
+  3. one horizontal row of at most three images.
+
 ## Task log before every task
 
 Sessions can stop in the middle of a task (context limits, restarts, another

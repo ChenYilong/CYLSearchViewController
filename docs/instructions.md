@@ -16,3 +16,6 @@ repository and vault instructions.
   user's prompt (verbatim plus English translation); mark it
   `DONE (YYYY-MM-DD)` with the result when it ends (`AGENTS.md`, "Task log
   before every task").
+- Screenshots (local builds and runs, CI/CD) live in `assets/` next to the document that shows them, as clear
+  originals, each labeled with platform, environment, repository version or commit, and date and time
+  (`AGENTS.md`, "Screenshots of builds and CI/CD").

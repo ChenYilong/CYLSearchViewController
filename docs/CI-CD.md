@@ -81,7 +81,7 @@ scripts/local-run-environment.sh
 - When upstream `ios.yml` changes, compare it and update this workflow and the
   commit recorded above.
 
-## TODO (2026-11-12): screenshot rules in the build and CI/CD sections
+## DONE (2026-11-12): screenshot rules in the build and CI/CD sections
 
 - Context: screenshots of this repository so far live in `docs/assets/` (for example the Swift ports in
   `docs/search-api-comparison.md`, taken on the iPhone 17 simulator, iOS 26.1). The rule is asked while the Swift
@@ -125,4 +125,12 @@ scripts/local-run-environment.sh
   view on a phone; next, two columns over several rows; worst, horizontal stitching, at most three columns in a row.
   (Then the first prompt's rules again: build / CI/CD sections, screenshots in docs, README update with platform,
   environment, version or commit, time, clear original images.)"
-- Status: started 2026-11-12 after the Swift migration was done (`9735f79`); the user chose to do this small task before the Android / cross-platform task so that work already follows the rules. Branch `feat/swift-core`.
+- Result: the rules are in `AGENTS.md` (Verification → "Screenshots of builds and CI/CD"), `instructions.md`
+  ("Screenshots of builds and CI/CD", next to Verification), `docs/instructions.md`, the `cyl-verify` skill (CI/CD →
+  "Screenshots"), the `cyl-docs` skill ("Screenshots in docs and README") and a pointer in every other `cyl-*`
+  skill. New tool: `scripts/stitch-screenshots.swift` (one column = top to bottom, two columns, or a row of three).
+  First use: `README.md` has a new "Screenshots" section with four cropped key details of the all-Swift build,
+  stacked top to bottom and labeled with platform, host, simulator, SDK, commit and time; the same image and labels
+  are in `docs/swift-migration.md`, and the port screenshots in `docs/search-api-comparison.md` got their labels.
+- Interpretation recorded: the first layout preference ("横向排布") is read as stacking top to bottom, because
+  the last preference is the horizontal row; to be confirmed by the user.

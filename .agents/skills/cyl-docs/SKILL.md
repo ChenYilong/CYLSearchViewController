@@ -58,6 +58,16 @@ description: "Document public integration and reproducible steps for CYLSearchVi
 - Screenshots in `docs/assets/` show search screens with nothing behind the
   search bar (`AGENTS.md`, "Search bar placement").
 
+## Screenshots in docs and README
+
+- Screenshots of local builds and of CI/CD go into the related `docs/` document (images in `docs/assets/`, create
+  a document when none fits), as clear originals with platform, environment (host OS, simulator or emulator, SDK
+  version), repository version or commit link, and date and time.
+- At a key milestone (a `TODO` or `Linux` note can be removed, a PR can be merged, the result works with no known
+  bug or open issue) update the screenshot section of `README.md` (create it if missing): cropped key details, not
+  full screens unless needed, stitched into one image with `scripts/stitch-screenshots.swift`; layout preference:
+  stacked top to bottom, then two columns, then one row of at most three.
+
 ## Task log before every task
 
 Before any task, log it as `TODO` in the most suitable document in `docs/`

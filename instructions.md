@@ -167,6 +167,18 @@ and push it, then start. When the task ends, change `TODO` to
 interrupted task never loses its context. Full rule: `AGENTS.md`, "Task log
 before every task".
 
+## Screenshots of builds and CI/CD
+
+- Commit every screenshot (local builds and runs, CI/CD runs) and show it in the related `docs/` document (images in
+  `docs/assets/`; create a document when none fits). Use clear original pixels, cropped to the detail.
+- Label each one with the platform (iOS, Android, Flutter, React Native, HarmonyOS, mini program), the environment
+  (host OS version, simulator or emulator and its OS version, platform SDK version), this repository's version or
+  commit link, and the date and time with the time zone.
+- At key milestones (a `TODO` or `Linux` note can be removed, a PR can be merged, the result works with no known
+  bug or open issue), update the screenshot section of `README.md` (create it if missing) with cropped key details
+  stitched into one image: stacked top to bottom first, then two columns, then one row of at most three.
+- Full rule: `AGENTS.md`, "Screenshots of builds and CI/CD".
+
 ## Commit readiness
 
 - Before every commit, review the changed scope and related issue, comparison,

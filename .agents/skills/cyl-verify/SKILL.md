@@ -70,6 +70,21 @@ shellcheck scripts/*.sh && actionlint
 Name the environment in every report: the GitHub runner (`macos-26` unless
 `MACOS_RUNNER` is set) or the local macOS and Xcode versions.
 
+### Screenshots
+
+Every local build or run screenshot and every CI/CD screenshot is committed and shown in the related `docs/`
+document (`docs/assets/`, create a document when none fits), as a clear original, labeled with:
+
+- the platform (iOS, Android, Flutter, React Native, HarmonyOS, mini program);
+- the environment: host OS version and build, simulator or emulator and its OS version, platform SDK version;
+- this repository's version or commit link;
+- the date and time, with the time zone.
+
+Take them at key milestones: a `TODO` or `Linux` note can be removed, a PR can be merged, or the result works with
+no known bug or open issue. Then update `README.md` (see `cyl-docs`). Stitch with
+`swift scripts/stitch-screenshots.swift --columns 1 --out <file> <images…>`. Full rule: `AGENTS.md`, "Screenshots
+of builds and CI/CD".
+
 ## Search bar placement
 
 A search bar never covers the main view, the view controller's view

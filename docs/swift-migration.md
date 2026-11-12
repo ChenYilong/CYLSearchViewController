@@ -65,3 +65,18 @@ Example changes that were necessary: `CYLSearchExampleViewController` (an Object
 `CYLSearchResultsViewController`) moved to Swift, because Objective-C cannot subclass a Swift class. It and its
 data source are `public` so the Objective-C app files and tests reach them through `CYLSearchExample-Swift.h`; the
 test target finds that header through `$(CONFIGURATION_TEMP_DIR)/CYLSearchExample.build/DerivedSources`.
+
+## Screenshots
+
+The all-Swift core in the example app, key details stacked top to bottom (the same image as `README.md`).
+
+![Key details of the iOS example](assets/readme-ios-key-details.png)
+
+| Field | Value |
+|:---|:---|
+| Platform | iOS |
+| Host | macOS 27.3 (26C5035r), Xcode 27.2 (27B52) |
+| Simulator | iPhone 17, iOS 26.1 |
+| SDK | iOS SDK 27.2, Swift 5 language mode, deployment target iOS 15.0 |
+| Repository | [`9735f79`](https://github.com/ChenYilong/CYLSearchViewController/commit/9735f79) on `feat/swift-core` |
+| Taken | 2026-11-12 16:14–16:17 NZDT |
