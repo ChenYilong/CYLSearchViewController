@@ -77,9 +77,52 @@ Native) for the CYLSearchViewController components.
     | SDK | iOS SDK 27.2 (deployment iOS 15.0); Android compileSdk 36 (Flutter), AGP 8.11.1, Kotlin 2.2.20 |
     | Repository | [`c6ed2b3`](https://github.com/ChenYilong/CYLSearchViewController/commit/c6ed2b3) on `feat/swift-core` |
     | Taken | 2026-11-13 03:12–04:52 NZDT |
-  - Still open for Flutter (`TODO`): the example with CYLTabBarController's Flutter tab bar (`flutter_cyltabbar`, the
-    default example integration: configuration file, raised plus button, one tab per demo); the Discover page of the
-    tag-style demos; Swift Package Manager support. Then React Native, then HarmonyOS NEXT (the emulator image is
+  - DONE (2026-11-13, [`626763e`](https://github.com/ChenYilong/CYLSearchViewController/commit/626763e)): the example
+    on CYLTabBarController's Flutter tab bar (`flutter_cyltabbar`, git dependency at its newest commit `74aa25e`).
+    - The tab bar comes from `assets/cyl_tabbar_configuration.json` (a Flutter asset loaded in Dart and passed as
+      `configuration`: `bundle:` routes do not reach Flutter's assets on iOS). One tab per demo: List style, Tag style,
+      No results, No content; the search bar demo is the raised plus button's own page
+      (`CYLTabBarItemPageIdentifier`). Icons rendered from SF Symbols as Flutter 1x / 2x / 3x variants
+      (`tool/render_tab_icons.swift`); a single 3x image showed at three times its size on iOS.
+    - `flutter_cyltabbar` did not build on Android at CYLTabBarController's newest commit (`50d9018`): ViewPager2 was
+      not declared. Fixed there (sub-repository rule):
+      [ChenYilong/CYLTabBarController#791](https://github.com/ChenYilong/CYLTabBarController/pull/791), commit
+      `74aa25e`, now pinned in the Flutter example, its Podfile, `android/merged` and the repository's Podfile.
+    - `flutter_cyltabbar` compiles CYLTabBarController's Kotlin with AGP 9's built-in Kotlin, so the composite build
+      uses AGP 9.1.0: the Flutter example and plugin use the template's AGP 9.1.0 / Kotlin 2.4.0; `android/merged`
+      uses AGP 9.1.0 with `android.builtInKotlin=false` and Kotlin 2.2.20 (its pinned sub-repositories still use
+      `kotlinOptions`, an error in Kotlin 2.4). `android/merged` builds and its tests pass.
+    - Android needs `MainActivity` to be a `FlutterFragmentActivity` for the tab bar.
+    - Verified on both platforms: tab switching, the plus page (typing reaches Dart: "Text: Rive"), the tag style,
+      "No results" (CYLTableViewPlaceHolder's "No matching results") and "No content" ("Nothing here yet"); the
+      native iOS app's 20 tests pass on the new CYLTabBarController pin.
+    - Finding, to verify (recorded in CYLTabBarController's `docs/Flutter-Component.md`): on iOS a UI-automation
+      accessibility tap did not switch tabs while a real touch did; check VoiceOver's double tap on the native tabs
+      inside Flutter.
+    - Screenshots (originals), top to bottom: Android tab bar (cropped: the plus button rises above the bar); Android
+      plus page; Android No content; iOS Tag style tab; iOS plus page; iOS No content.
+
+      ![Flutter Android tab bar](assets/flutter-android-tab-bar.png)
+
+      ![Flutter Android plus page](assets/flutter-android-plus-page.png)
+
+      ![Flutter Android No content](assets/flutter-android-no-content.png)
+
+      ![Flutter iOS Tag style tab](assets/flutter-ios-tab-bar.png)
+
+      ![Flutter iOS plus page](assets/flutter-ios-plus-page.png)
+
+      ![Flutter iOS No content](assets/flutter-ios-no-content.png)
+
+      | Field | Value |
+      |:---|:---|
+      | Platform | Flutter 3.47.9 (Dart 3.13.7) on iOS and Android, flutter_cyltabbar at `74aa25e` |
+      | Host | macOS 27.3 (26C5035r), Xcode 27.2 (27B5028f), JDK 17.0.21 |
+      | Simulator / emulator | iPhone 17, iOS 26.3; `CYL_API35_arm64`, Android 15 (API 35), system in dark mode |
+      | SDK | iOS SDK 27.2 (deployment iOS 15.0); AGP 9.1.0, Kotlin 2.4.0 (app), compileSdk 36 |
+      | Repository | [`626763e`](https://github.com/ChenYilong/CYLSearchViewController/commit/626763e) on `feat/swift-core` |
+      | Taken | 2026-11-13 06:58–07:50 NZDT |
+  - Still open for Flutter (`TODO`): the Discover page of the tag-style demos; Swift Package Manager support. Then React Native, then HarmonyOS NEXT (the emulator image is
     downloaded; a device still has to be created in DevEco's Device Manager).
 
 ## DONE (2026-11-12): android/ folder: five Kotlin transcriptions, a merged library and example
