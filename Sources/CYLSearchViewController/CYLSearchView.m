@@ -266,6 +266,19 @@ static NSString *const CYLSearchSuggestionCellIdentifier = @"CYLSearchSuggestion
     } completion:finish];
 }
 
+- (void)encodeRestorableStateWithCoder:(NSCoder *)coder {
+    [super encodeRestorableStateWithCoder:coder];
+    [coder encodeObject:self.query ?: @"" forKey:@"CYLSearchViewQuery"];
+    [coder encodeBool:self.searchOpen forKey:@"CYLSearchViewOpen"];
+}
+
+- (void)decodeRestorableStateWithCoder:(NSCoder *)coder {
+    [super decodeRestorableStateWithCoder:coder];
+    NSString *query = [coder decodeObjectOfClass:NSString.class forKey:@"CYLSearchViewQuery"];
+    if (query) [self setQuery:query submit:NO];
+    if ([coder decodeBoolForKey:@"CYLSearchViewOpen"]) [self showSearchAnimated:NO];
+}
+
 - (BOOL)accessibilityPerformEscape {
     [self closeSearch];
     return YES;

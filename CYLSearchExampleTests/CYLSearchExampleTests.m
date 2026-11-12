@@ -34,6 +34,7 @@
 @property (nonatomic, strong) NSMutableArray<NSString *> *events;
 @property (nonatomic, assign) BOOL refuseSubmit;
 @property (nonatomic, assign) BOOL handleSubmit;
+@property (nonatomic, assign) BOOL refuseEditing;
 @end
 
 @implementation CYLParityRecorder
@@ -41,6 +42,8 @@
 - (void)searchBarViewSearchButtonClicked:(CYLSearchBarView *)searchBarView { [self.events addObject:[@"search " stringByAppendingString:searchBarView.text ?: @""]]; }
 - (BOOL)searchBarView:(CYLSearchBarView *)searchBarView shouldSubmitText:(NSString *)text { return !self.refuseSubmit; }
 - (void)searchBarViewNavigationButtonClicked:(CYLSearchBarView *)searchBarView { [self.events addObject:@"navigation"]; }
+- (BOOL)searchBarViewShouldBeginEditing:(CYLSearchBarView *)searchBarView { return !self.refuseEditing; }
+- (void)searchBarViewDidTapWhileNotEditable:(CYLSearchBarView *)searchBarView { [self.events addObject:@"tapped"]; }
 - (void)searchBarViewVoiceButtonClicked:(CYLSearchBarView *)searchBarView { [self.events addObject:@"voice"]; }
 - (void)searchBarView:(CYLSearchBarView *)searchBarView didChangeIconified:(BOOL)iconified { [self.events addObject:iconified ? @"iconified" : @"expanded"]; }
 - (void)searchViewDidShow:(CYLSearchView *)searchView { [self.events addObject:@"shown"]; }
@@ -737,6 +740,15 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     unarchiver.requiresSecureCoding = NO;
     [restored decodeRestorableStateWithCoder:unarchiver];
     XCTAssertEqualObjects(restored.text, @"saved");
+
+    // Cursor color (setCursorDrawable) and a bar that opens another page instead of editing (setOnClickListener).
+    bar.cursorColor = UIColor.systemPinkColor;
+    XCTAssertEqualObjects(bar.textField.tintColor, UIColor.systemPinkColor);
+    CYLParityRecorder *button = [CYLParityRecorder new];
+    button.refuseEditing = YES;
+    bar.delegate = button;
+    XCTAssertFalse([bar.textField.delegate textFieldShouldBeginEditing:bar.textField]);
+    XCTAssertEqualObjects(button.events.lastObject, @"tapped");
 }
 
 - (void)testSearchViewSuggestionsOpenAndClose
@@ -801,7 +813,21 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     NSArray *covered = CYLViewsCoveredByView(searchView.searchBarView, searchView);
     XCTAssertEqual(covered.count, 0, @"%@", covered);
     XCTAssertTrue(searchView.accessibilityViewIsModal);
+    // State restoration (onSaveInstanceState): the query and the open state come back.
+    [searchView setQuery:@"kept" submit:NO];
+    NSKeyedArchiver *archiver = [[NSKeyedArchiver alloc] initRequiringSecureCoding:NO];
+    [searchView encodeRestorableStateWithCoder:archiver];
+    [archiver finishEncoding];
     [searchView closeSearchAnimated:NO];
+    CYLSearchView *restored = [[CYLSearchView alloc] initWithFrame:CGRectZero];
+    restored.animationDuration = 0;
+    [restored installInView:host.view];
+    NSKeyedUnarchiver *unarchiver = [[NSKeyedUnarchiver alloc] initForReadingFromData:archiver.encodedData error:NULL];
+    unarchiver.requiresSecureCoding = NO;
+    [restored decodeRestorableStateWithCoder:unarchiver];
+    XCTAssertEqualObjects(restored.query, @"kept");
+    XCTAssertTrue(restored.isSearchOpen);
+    [restored closeSearchAnimated:NO];
     window.hidden = YES;
 }
 

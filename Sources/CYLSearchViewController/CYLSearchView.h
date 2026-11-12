@@ -197,6 +197,18 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)dismissSuggestions;
 
+#pragma mark State restoration
+
+/*!
+ * Saves whether the search view is open and its query (`onSaveInstanceState`). UIKit calls it for a view with a
+ * `restorationIdentifier` inside a restored view controller.
+ */
+- (void)encodeRestorableStateWithCoder:(NSCoder *)coder;
+/*!
+ * Restores the query and reopens the search view when it was open (`onRestoreInstanceState`).
+ */
+- (void)decodeRestorableStateWithCoder:(NSCoder *)coder;
+
 @end
 
 NS_ASSUME_NONNULL_END

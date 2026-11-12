@@ -38,6 +38,15 @@ typedef NS_ENUM(NSInteger, CYLSearchBarExpansionAnimation) {
 
 @protocol CYLSearchBarViewDelegate <NSObject>
 @optional
+/*!
+ * Asks whether a tap may start editing. Return NO to use the bar as a button that opens another search page
+ * (lapism `MaterialSearchBar.setOnClickListener`); `-searchBarViewDidTapWhileNotEditable:` is called instead.
+ */
+- (BOOL)searchBarViewShouldBeginEditing:(CYLSearchBarView *)searchBarView;
+/*!
+ * The bar was tapped while `-searchBarViewShouldBeginEditing:` refused editing.
+ */
+- (void)searchBarViewDidTapWhileNotEditable:(CYLSearchBarView *)searchBarView;
 - (void)searchBarViewDidBeginEditing:(CYLSearchBarView *)searchBarView;
 - (void)searchBarViewDidEndEditing:(CYLSearchBarView *)searchBarView;
 - (void)searchBarView:(CYLSearchBarView *)searchBarView textDidChange:(NSString *)text;
@@ -106,6 +115,10 @@ typedef NS_ENUM(NSInteger, CYLSearchBarExpansionAnimation) {
  * nil uses the placeholder gray.
  */
 @property (nonatomic, strong, nullable) UIColor *placeholderColor;
+/*!
+ * The color of the text cursor (MaterialSearchView `setCursorDrawable`). The tint color by default.
+ */
+@property (nonatomic, strong, null_resettable) UIColor *cursorColor;
 
 #pragma mark Field
 /*!

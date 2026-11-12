@@ -23,6 +23,7 @@ static CGFloat const CYLSearchBarMinimumAccessoryScale = 0.25;
 @synthesize navigationAccessibilityLabel = _navigationAccessibilityLabel;
 @synthesize voiceImage = _voiceImage;
 @synthesize submitImage = _submitImage;
+@synthesize cursorColor = _cursorColor;
 
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
@@ -143,6 +144,9 @@ static CGFloat const CYLSearchBarMinimumAccessoryScale = 0.25;
     }
     return YES;
 }
+
+- (UIColor *)cursorColor { return _cursorColor ?: self.tintColor; }
+- (void)setCursorColor:(UIColor *)color { _cursorColor = color; self.textField.tintColor = color; }
 
 - (void)showKeyboard { [self.textField becomeFirstResponder]; }
 - (void)hideKeyboard { [self.textField resignFirstResponder]; }
@@ -596,6 +600,17 @@ static CGSize CYLSearchBarFittingSize(UIView *view, CGFloat height) {
     if ([self.delegate respondsToSelector:@selector(searchBarViewCancelButtonClicked:)]) {
         [self.delegate searchBarViewCancelButtonClicked:self];
     }
+}
+
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField {
+    if ([self.delegate respondsToSelector:@selector(searchBarViewShouldBeginEditing:)]
+        && ![self.delegate searchBarViewShouldBeginEditing:self]) {
+        if ([self.delegate respondsToSelector:@selector(searchBarViewDidTapWhileNotEditable:)]) {
+            [self.delegate searchBarViewDidTapWhileNotEditable:self];
+        }
+        return NO;
+    }
+    return YES;
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
