@@ -1,5 +1,5 @@
 #import "CYLMultiSearchView.h"
-#import "CYLSearchResources.h"
+#import <CYLSearchViewController/CYLSearchViewController-Swift.h>
 
 static CGFloat const CYLMultiSearchItemPadding = 12;
 static CGFloat const CYLMultiSearchRemoveSize = 28;

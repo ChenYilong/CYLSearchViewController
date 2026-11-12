@@ -1,5 +1,5 @@
 #import "CYLSearchPlaceholderView.h"
-#import "CYLSearchResources.h"
+#import <CYLSearchViewController/CYLSearchViewController-Swift.h>
 
 @implementation CYLSearchPlaceholderView
 

@@ -1,5 +1,5 @@
 #import "CYLSearchView.h"
-#import "CYLSearchResources.h"
+#import <CYLSearchViewController/CYLSearchViewController-Swift.h>
 
 static NSString *const CYLSearchSuggestionCellIdentifier = @"CYLSearchSuggestionCell";
 

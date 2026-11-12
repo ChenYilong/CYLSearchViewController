@@ -1,6 +1,6 @@
 #import "CYLSearchExampleViewController.h"
 #import <CYLSearchViewController/CYLSearchController.h>
-#import <CYLSearchViewController/CYLSearchResources.h>
+#import <CYLSearchViewController/CYLSearchViewController-Swift.h>
 #import <CYLSearchViewController/CYLSearchPlaceholderView.h>
 #import <CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.h>
 

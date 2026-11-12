@@ -5,7 +5,7 @@
 #import "CYLSearchExampleAppDelegate.h"
 #import <CYLTabBarController/CYLTabBarController.h>
 #import <CYLSearchViewController/CYLSearchController.h>
-#import <CYLSearchViewController/CYLSearchResources.h>
+#import <CYLSearchViewController/CYLSearchViewController-Swift.h>
 #import <CYLSearchViewController/CYLSearchPlaceholderView.h>
 #import <CYLSearchViewController/CYLSearchBarView.h>
 #import <CYLSearchViewController/CYLSearchView.h>

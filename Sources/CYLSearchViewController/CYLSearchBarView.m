@@ -1,5 +1,5 @@
 #import "CYLSearchBarView.h"
-#import "CYLSearchResources.h"
+#import <CYLSearchViewController/CYLSearchViewController-Swift.h>
 
 static CGFloat const CYLSearchBarIconSize = 18;
 static CGFloat const CYLSearchBarSpacing = 8;

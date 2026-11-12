@@ -10,7 +10,8 @@ Pod::Spec.new do |s|
   s.platform = :ios, '15.0'
   s.requires_arc = true
   s.frameworks = 'UIKit'
-  s.source_files = 'Sources/CYLSearchViewController/**/*.{h,m}'
+  s.source_files = 'Sources/CYLSearchViewController/**/*.{h,m,swift}'
+  s.swift_version = '5.0'
   s.public_header_files = 'Sources/CYLSearchViewController/**/*.h'
   s.resources = 'Resources/CYLSearchViewController.bundle'
 end
