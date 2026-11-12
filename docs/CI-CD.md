@@ -125,4 +125,4 @@ scripts/local-run-environment.sh
   view on a phone; next, two columns over several rows; worst, horizontal stitching, at most three columns in a row.
   (Then the first prompt's rules again: build / CI/CD sections, screenshots in docs, README update with platform,
   environment, version or commit, time, clear original images.)"
-- Status: logged; starts after the Swift migration (instruction order).
+- Status: started 2026-11-12 after the Swift migration was done (`9735f79`); the user chose to do this small task before the Android / cross-platform task so that work already follows the rules. Branch `feat/swift-core`.
