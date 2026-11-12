@@ -2,6 +2,7 @@ PODS:
   - CollectionViewClassifyMenu (0.1.0)
   - CYLSearchViewController (0.1.0):
     - CollectionViewClassifyMenu
+    - CYLTableViewPlaceHolder/Core
   - CYLTabBarController (1.100.0):
     - CYLTabBarController/Core (= 1.100.0)
   - CYLTabBarController/Core (1.100.0):
@@ -18,7 +19,7 @@ DEPENDENCIES:
   - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `f9724167235dee050a81432f3c16f6c4e15dc186`)
   - CYLSearchViewController (from `.`)
   - CYLTabBarController (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `d36c7080157c49c552a3a352d72a9d00a2be11a9`)
-  - CYLTableViewPlaceHolder (from `../CYLTableViewPlaceHolder`)
+  - CYLTableViewPlaceHolder (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `a049422bde3f2cd17109521e8f962c99752e6cf2`)
 
 EXTERNAL SOURCES:
   CollectionViewClassifyMenu:
@@ -30,7 +31,8 @@ EXTERNAL SOURCES:
     :commit: d36c7080157c49c552a3a352d72a9d00a2be11a9
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
-    :path: "../CYLTableViewPlaceHolder"
+    :commit: a049422bde3f2cd17109521e8f962c99752e6cf2
+    :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
 
 CHECKOUT OPTIONS:
   CollectionViewClassifyMenu:
@@ -39,13 +41,16 @@ CHECKOUT OPTIONS:
   CYLTabBarController:
     :commit: d36c7080157c49c552a3a352d72a9d00a2be11a9
     :git: https://github.com/ChenYilong/CYLTabBarController.git
+  CYLTableViewPlaceHolder:
+    :commit: a049422bde3f2cd17109521e8f962c99752e6cf2
+    :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
 
 SPEC CHECKSUMS:
   CollectionViewClassifyMenu: ebd3e85358cf219b3ad20b5e005c54719b2708f4
-  CYLSearchViewController: a2468f58c3a37f2305909b9787d67e3db127000a
+  CYLSearchViewController: aa8c56b9c033b8f126b990016d966970bb0c4977
   CYLTabBarController: 99bfc43bcc42da04e2d953c23dfb60891a6f4e23
-  CYLTableViewPlaceHolder: a046bbc8b8a40833bc660c320211a4cddf3aa265
+  CYLTableViewPlaceHolder: 2cf43940d6a518b80fd4941264ddb17cd3a400d8
 
-PODFILE CHECKSUM: 140d5bec33d5ccbf1b927f31ec9eb4b46ae7d90e
+PODFILE CHECKSUM: 393cea72df77cf652da2483b18fe8d2d68167c1a
 
 COCOAPODS: 1.17.0

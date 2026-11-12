@@ -319,10 +319,10 @@
 				"${PODS_ROOT}/Target Support Files/Pods-CYLSearchExample/Pods-CYLSearchExample-resources.sh",
 				"${PODS_ROOT}/../Resources/CYLSearchViewController.bundle",
 				"${PODS_ROOT}/CYLTabBarController/CYLTabBarController/Resources/CYLTabBarController.bundle",
-				"${PODS_ROOT}/../../CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.bundle",
-				"${PODS_ROOT}/../../CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/LICENSE.placeholder-third-party",
-				"${PODS_ROOT}/../../CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLRefresh/PrivacyInfo.xcprivacy",
-				"${PODS_ROOT}/../../CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLRefresh/LICENSE.third-party",
+				"${PODS_ROOT}/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.bundle",
+				"${PODS_ROOT}/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/LICENSE.placeholder-third-party",
+				"${PODS_ROOT}/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLRefresh/PrivacyInfo.xcprivacy",
+				"${PODS_ROOT}/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLRefresh/LICENSE.third-party",
 				"${PODS_CONFIGURATION_BUILD_DIR}/CollectionViewClassifyMenu/CYLClassifyMenuResources.bundle",
 			);
 			name = "[CP] Copy Pods Resources";

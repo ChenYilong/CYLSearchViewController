@@ -16,4 +16,7 @@ Pod::Spec.new do |s|
   # The tag suggestion style (CYLSearchSuggestionStyle.tags) shows suggestions in CollectionViewClassifyMenu's
   # CYLTagListView. Not on CocoaPods trunk: apps pin it by commit in their Podfile (AGENTS.md, "Sub-repositories").
   s.dependency 'CollectionViewClassifyMenu'
+  # The empty search results placeholder (CYLSearchView.emptyResultsScenario) is CYLTableViewPlaceHolder's
+  # CYLPlaceholderStackView. Also pinned by commit in the Podfile.
+  s.dependency 'CYLTableViewPlaceHolder/Core'
 end

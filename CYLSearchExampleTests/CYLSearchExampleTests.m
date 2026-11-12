@@ -973,4 +973,38 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     window.hidden = YES;
 }
 
+- (void)testEmptyResultsShowTheCYLTableViewPlaceHolderPlaceholder
+{
+    // docs/sub-repositories.md: a query that matches no suggestion shows CYLTableViewPlaceHolder's placeholder, in both
+    // suggestion styles, only when showsEmptyResultsPlaceholder is on.
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
+    UIViewController *host = [UIViewController new];
+    window.rootViewController = host;
+    [window makeKeyAndVisible];
+    CYLSearchView *searchView = [[CYLSearchView alloc] initWithFrame:CGRectZero];
+    searchView.suggestions = @[@"Android", @"Kotlin", @"Swift"];
+    [searchView installInView:host.view];
+    [searchView showSearchAnimated:NO];
+    [searchView setQuery:@"zzz" submit:NO];
+    XCTAssertNil(searchView.emptyResultsView, @"off by default");
+    searchView.showsEmptyResultsPlaceholder = YES;
+    for (NSNumber *style in @[@(CYLSearchSuggestionStyleList), @(CYLSearchSuggestionStyleTags)]) {
+        searchView.suggestionStyle = style.integerValue;
+        [searchView setQuery:@"zzz" submit:NO];
+        [searchView layoutIfNeeded];
+        XCTAssertNotNil(searchView.emptyResultsView, @"style %@", style);
+        XCTAssertFalse(searchView.emptyResultsView.hidden, @"no match shows the placeholder, style %@", style);
+        XCTAssertEqual(searchView.emptyResultsView.scenario, CYLPlaceholderScenarioNoSearchResults);
+        XCTAssertGreaterThan(CGRectGetHeight(searchView.emptyResultsView.frame), 0);
+        [searchView setQuery:@"swi" submit:NO];
+        XCTAssertTrue(searchView.emptyResultsView.hidden, @"a match hides it, style %@", style);
+        [searchView setQuery:@"" submit:NO];
+        XCTAssertTrue(searchView.emptyResultsView.hidden, @"an empty query hides it, style %@", style);
+    }
+    searchView.emptyResultsScenario = CYLPlaceholderScenarioNoContent;
+    [searchView setQuery:@"zzz" submit:NO];
+    XCTAssertEqual(searchView.emptyResultsView.scenario, CYLPlaceholderScenarioNoContent, @"the scenario is a parameter");
+    window.hidden = YES;
+}
+
 @end

@@ -1,4 +1,5 @@
 import CollectionViewClassifyMenu
+import CYLTableViewPlaceHolder
 import UIKit
 
 /**
@@ -114,6 +115,31 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
      */
     @objc public var suggestionStyle: CYLSearchSuggestionStyle = .list { didSet { updateSuggestionsVisibility() } }
 
+    /**
+     * Shows CYLTableViewPlaceHolder's placeholder for `emptyResultsScenario` under the search bar while a non-empty
+     * query matches no suggestion, in both suggestion styles. NO by default.
+     */
+    @objc public var showsEmptyResultsPlaceholder = false { didSet { refilter() } }
+
+    /**
+     * The CYLTableViewPlaceHolder scenario of that placeholder. `CYLPlaceholderScenarioNoSearchResults` (an icon, a
+     * title and a hint) by default; `CYLPlaceholderScenarioNoContent` shows the plain empty state.
+     */
+    @objc public var emptyResultsScenario: CYLPlaceholderScenario = .noSearchResults {
+        didSet {
+            emptyResultsView?.removeFromSuperview()
+            emptyResultsView = nil
+            refilter()
+        }
+    }
+
+    /**
+     * The placeholder shown for empty results (CYLTableViewPlaceHolder's `CYLPlaceholderStackView`), created the first
+     * time it is shown; nil before. Style it after it appears, or change `emptyResultsScenario`.
+     */
+    @objc public private(set) var emptyResultsView: CYLPlaceholderStackView?
+
+    private var emptyResultsVisible = false
     private let pageView = UIView()
     private let scrimView = UIControl()
     private var suggestionsVisible = false
@@ -329,7 +355,10 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         if scrimColor != nil, contentView == nil {
             suggestionsTableView.layoutIfNeeded()
             let tags = suggestionStyle == .tags
-            let listHeight = !suggestionsVisible ? 0
+            let emptyHeight = emptyResultsVisible ? (emptyResultsView?.systemLayoutSizeFitting(
+                CGSize(width: width - safe.left - safe.right, height: UIView.layoutFittingCompressedSize.height),
+                withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel).height ?? 0) : 0
+            let listHeight = emptyResultsVisible ? emptyHeight : !suggestionsVisible ? 0
                 : tags ? suggestionsTagView.heightThatFitsWidth(width - safe.left - safe.right) : suggestionsTableView.contentSize.height
             pageHeight = min(bottom, top + listHeight)
         }
@@ -343,6 +372,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         contentView?.frame = below
         suggestionsTableView.frame = below
         suggestionsTagView.frame = below
+        emptyResultsView?.frame = below
         var insets = suggestionsTableView.contentInset
         insets.bottom = max(keyboardOverlap - (bottom - pageHeight), safe.bottom)
         suggestionsTableView.contentInset = insets
@@ -539,6 +569,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
             return suggestion.range(of: trimmed, options: [.caseInsensitive, .diacriticInsensitive]) != nil
         }
         suggestionsVisible = !filteredSuggestions.isEmpty
+        emptyResultsVisible = showsEmptyResultsPlaceholder && !trimmed.isEmpty && filteredSuggestions.isEmpty
         updateSuggestionsVisibility()
     }
 
@@ -554,6 +585,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
      */
     @objc public func dismissSuggestions() {
         suggestionsVisible = false
+        emptyResultsVisible = false
         updateSuggestionsVisibility()
     }
 
@@ -564,6 +596,13 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         if tags {
             suggestionsTagView.setTags(withTitles: suggestionsVisible ? filteredSuggestions : [])
         }
+        if emptyResultsVisible, emptyResultsView == nil {
+            let placeholder = CYLPlaceholderStackView(scenario: emptyResultsScenario, actions: nil)
+            placeholder.accessibilityIdentifier = "CYLSearchEmptyResults"
+            pageView.insertSubview(placeholder, belowSubview: suggestionsTableView)
+            emptyResultsView = placeholder
+        }
+        emptyResultsView?.isHidden = !emptyResultsVisible
         suggestionsTableView.reloadData()
         setNeedsLayout()
     }

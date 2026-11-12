@@ -113,6 +113,8 @@ final class CYLMaterialSearchSampleViewController: UIViewController {
         searchView.suggestionLineBreakMode = sample == .standard || sample == .inputType ? .byTruncatingTail : .byWordWrapping
         searchView.suggestions = sample == .sticky ? [] : Self.suggestions
         searchView.suggestionStyle = suggestionStyle
+        // A query that matches nothing shows CYLTableViewPlaceHolder's "no search results" state (docs/sub-repositories.md).
+        searchView.showsEmptyResultsPlaceholder = true
         searchView.searchBarView.isSecureTextEntry = sample == .inputType
         if sample == .themed || sample == .voice {
             // The colored theme: white text on the primary color.
