@@ -89,4 +89,14 @@ void main() {
       expect(events, <String>['text a', 'submit a', 'cancel']);
     });
   });
+
+  test('CYLTagListView sends its tags and reports taps and its height', () {
+    String? tapped;
+    final widget = CYLTagListView(tags: const <String>['Swift', 'Kotlin'], onTagSelected: (index, title) => tapped = '$index $title');
+    expect(cylTagListViewParameters(widget, brightness: Brightness.dark),
+        <String, Object?>{'brightness': 'dark', 'tags': <String>['Swift', 'Kotlin']});
+    expect(cylTagListViewDispatch(widget, const MethodCall('didSelectTag', <String, Object?>{'index': 1, 'title': 'Kotlin'})), isNull);
+    expect(tapped, '1 Kotlin');
+    expect(cylTagListViewDispatch(widget, const MethodCall('didChangeHeight', <String, Object?>{'height': 88})), 88);
+  });
 }

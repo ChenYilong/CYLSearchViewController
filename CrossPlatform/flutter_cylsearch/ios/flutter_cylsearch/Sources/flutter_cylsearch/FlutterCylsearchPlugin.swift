@@ -1,11 +1,13 @@
+import CollectionViewClassifyMenu
 import CYLSearchViewController
 import CYLTableViewPlaceHolder
 import Flutter
 import UIKit
 
 /**
- * Registers the platform views of CYLSearchViewController for Flutter: `cyl_search/search_view` (`CYLSearchView`) and
- * `cyl_search/search_bar_view` (`CYLSearchBarView`). Each view talks to Dart on `cyl_search/view_<id>`.
+ * Registers the platform views of CYLSearchViewController for Flutter: `cyl_search/search_view` (`CYLSearchView`),
+ * `cyl_search/search_bar_view` (`CYLSearchBarView`) and `cyl_search/tag_list_view` (CollectionViewClassifyMenu's
+ * `CYLTagListView`, the tags of `CYLSearchView.suggestionsTagView`). Each view talks to Dart on `cyl_search/view_<id>`.
  */
 public final class FlutterCylsearchPlugin: NSObject, FlutterPlugin {
 
@@ -20,6 +22,9 @@ public final class FlutterCylsearchPlugin: NSObject, FlutterPlugin {
         registrar.register(CYLFlutterViewFactory(messenger: messenger) { frame, id, arguments, channel in
             CYLFlutterSearchBarView(frame: frame, arguments: arguments, channel: channel)
         }, withId: "cyl_search/search_bar_view")
+        registrar.register(CYLFlutterViewFactory(messenger: messenger) { frame, id, arguments, channel in
+            CYLFlutterTagListView(frame: frame, arguments: arguments, channel: channel)
+        }, withId: "cyl_search/tag_list_view")
     }
 }
 
@@ -150,5 +155,78 @@ final class CYLFlutterSearchBarView: NSObject, FlutterPlatformView, CYLSearchBar
 
     func searchBarViewCancelButtonClicked(_ searchBarView: CYLSearchBarView) {
         channel.invokeMethod("didCancel", arguments: nil)
+    }
+}
+
+/**
+ * CollectionViewClassifyMenu's `CYLTagListView` filling the platform view; it reports the height its tags need at the
+ * view's width (`didChangeHeight`), so Dart can size it.
+ */
+final class CYLFlutterTagListView: NSObject, FlutterPlatformView {
+    private let container: CYLFlutterTagListContainer
+    private let channel: FlutterMethodChannel
+
+    init(frame: CGRect, arguments: [String: Any], channel: FlutterMethodChannel) {
+        container = CYLFlutterTagListContainer(frame: frame)
+        self.channel = channel
+        super.init()
+        container.tagListView.tagClickHandler = { [weak channel] index, tag in
+            channel?.invokeMethod("didSelectTag", arguments: ["index": Int(index), "title": tag.title ?? ""])
+        }
+        container.heightChanged = { [weak channel] height in
+            channel?.invokeMethod("didChangeHeight", arguments: ["height": Double(height)])
+        }
+        apply(arguments)
+        channel.setMethodCallHandler { [weak self] call, result in
+            if call.method == "update", let arguments = call.arguments as? [String: Any] {
+                self?.apply(arguments)
+            }
+            result(nil)
+        }
+    }
+
+    func view() -> UIView {
+        container
+    }
+
+    private func apply(_ arguments: [String: Any]) {
+        container.overrideUserInterfaceStyle = (arguments["brightness"] as? String) == "dark" ? .dark : .light
+        container.tagListView.setTags(withTitles: arguments["tags"] as? [String] ?? [])
+        container.setNeedsLayout()
+    }
+}
+
+/**
+ * The tag list and the height it reported last.
+ */
+final class CYLFlutterTagListContainer: UIView {
+    let tagListView = CYLTagListView(foldControl: nil)
+    var heightChanged: ((CGFloat) -> Void)?
+    private var reportedHeight: CGFloat = -1
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        tagListView.showsSectionHeaders = false
+        // The Flutter page shows through, as around any other widget.
+        backgroundColor = .clear
+        let style = tagListView.style.copy() as! CYLMenuStyle
+        style.backgroundColor = .clear
+        tagListView.style = style
+        addSubview(tagListView)
+    }
+
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        tagListView.frame = bounds
+        guard bounds.width > 0 else { return }
+        let height = ceil(tagListView.heightThatFitsWidth(bounds.width))
+        if height != reportedHeight {
+            reportedHeight = height
+            heightChanged?(height)
+        }
     }
 }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.ContextThemeWrapper
 import android.view.View
 import android.widget.FrameLayout
+import com.cyl.classifymenu.CYLTagListView
 import com.cyl.placeholder.CYLPlaceholderScenario
 import com.cyl.search.CYLSearchBarView
 import com.cyl.search.CYLSearchBarViewDelegate
@@ -18,9 +19,10 @@ import io.flutter.plugin.platform.PlatformView
 import io.flutter.plugin.platform.PlatformViewFactory
 
 /**
- * Registers the platform views of CYLSearchViewController for Flutter: `cyl_search/search_view` (`CYLSearchView`) and
- * `cyl_search/search_bar_view` (`CYLSearchBarView`) of the `cylsearch` module. Each view talks to Dart on
- * `cyl_search/view_<id>`.
+ * Registers the platform views of CYLSearchViewController for Flutter: `cyl_search/search_view` (`CYLSearchView`),
+ * `cyl_search/search_bar_view` (`CYLSearchBarView`) of the `cylsearch` module and `cyl_search/tag_list_view`
+ * (CollectionViewClassifyMenu's `CYLTagListView`, the tags of `CYLSearchView.suggestionsTagView`). Each view talks to
+ * Dart on `cyl_search/view_<id>`.
  */
 class FlutterCylsearchPlugin : FlutterPlugin {
 
@@ -31,6 +33,9 @@ class FlutterCylsearchPlugin : FlutterPlugin {
         })
         binding.platformViewRegistry.registerViewFactory("cyl_search/search_bar_view", Factory(messenger) { context, args, channel ->
             CYLFlutterSearchBarView(context, args, channel)
+        })
+        binding.platformViewRegistry.registerViewFactory("cyl_search/tag_list_view", Factory(messenger) { context, args, channel ->
+            CYLFlutterTagListView(context, args, channel)
         })
     }
 
@@ -157,5 +162,57 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
 
     override fun searchBarViewCancelButtonClicked(searchBarView: CYLSearchBarView) {
         channel.invokeMethod("didCancel", null)
+    }
+}
+
+/**
+ * CollectionViewClassifyMenu's `CYLTagListView` filling the platform view; it reports the height its tags need at the
+ * view's width (`didChangeHeight`, in dp), so Dart can size it.
+ */
+internal class CYLFlutterTagListView(context: Context, arguments: Map<String, Any?>, private val channel: MethodChannel) :
+    PlatformView {
+
+    private var reportedHeight = -1f
+
+    private val tagListView = object : CYLTagListView(context) {
+        override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+            super.onSizeChanged(w, h, oldw, oldh)
+            reportHeight()
+        }
+    }
+
+    init {
+        tagListView.showsSectionHeaders = false
+        // The Flutter page shows through, as around any other widget.
+        tagListView.style = tagListView.style?.copy()?.apply { backgroundColor = android.graphics.Color.TRANSPARENT }
+        tagListView.tagClickHandler = { index, tag -> channel.invokeMethod("didSelectTag", mapOf("index" to index, "title" to tag.title)) }
+        apply(arguments)
+        channel.setMethodCallHandler { call, result ->
+            @Suppress("UNCHECKED_CAST")
+            if (call.method == "update") (call.arguments as? Map<String, Any?>)?.let { apply(it) }
+            result.success(null)
+        }
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    private fun apply(arguments: Map<String, Any?>) {
+        tagListView.setTagsWithTitles((arguments["tags"] as? List<String>) ?: emptyList())
+        reportHeight()
+    }
+
+    private fun reportHeight() {
+        val width = tagListView.width / tagListView.resources.displayMetrics.density
+        if (width <= 0f) return
+        val height = kotlin.math.ceil(tagListView.heightThatFitsWidth(width))
+        if (height != reportedHeight) {
+            reportedHeight = height
+            channel.invokeMethod("didChangeHeight", mapOf("height" to height.toDouble()))
+        }
+    }
+
+    override fun getView(): View = tagListView
+
+    override fun dispose() {
+        channel.setMethodCallHandler(null)
     }
 }

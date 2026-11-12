@@ -18,12 +18,14 @@ CYLSearchView(
 
 // The search bar, inline (give it a height of about 48).
 CYLSearchBarView(placeholder: 'Search', showsCancelButton: true, onTextChanged: (text) {});
+CYLTagListView(tags: const ['Swift', 'Kotlin'], onTagSelected: (index, title) {});
 ```
 
 | Widget | Native view | Parameters (iOS names) | Events |
 |:---|:---|:---|:---|
 | `CYLSearchView` | `CYLSearchView` | `suggestions`, `suggestionStyle`, `placeholder`, `query`, `showsSuggestionsForEmptyQuery`, `submitsOnSuggestionSelection`, `showsEmptyResultsPlaceholder`, `emptyResultsScenario` | `onTextChanged`, `onSubmitted`, `onSuggestionSelected`, `onClose` |
 | `CYLSearchBarView` | `CYLSearchBarView` | `placeholder`, `text`, `showsCancelButton`, `fieldShadowOpacity` | `onTextChanged`, `onSubmitted`, `onCancel` |
+| `CYLTagListView` | CollectionViewClassifyMenu's `CYLTagListView` (the tags of `suggestionsTagView`); takes the height its tags need | `tags` | `onTagSelected` |
 
 The native views use the app's theme brightness (`Theme.of(context)`), whatever the system setting is.
 

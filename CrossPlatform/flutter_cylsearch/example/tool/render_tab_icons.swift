@@ -5,7 +5,8 @@ import AppKit
 
 let icons: [(String, String, NSColor, CGFloat)] = [
     ("tab_list", "list.bullet", .black, 25), ("tab_tags", "tag", .black, 25),
-    ("tab_empty", "magnifyingglass", .black, 25), ("tab_no_content", "tray", .black, 25),
+    ("tab_empty", "magnifyingglass", .black, 25),
+    ("tab_discover", "sparkle.magnifyingglass", .black, 25),
     ("plus", "plus.circle.fill", NSColor(red: 0, green: 0.48, blue: 1, alpha: 1), 56),
 ]
 // plus.circle.fill has two layers: the "+" (white) and the circle (the color).

@@ -5,6 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_cyltabbar/flutter_cyltabbar.dart';
 import 'package:flutter_cylsearch/flutter_cylsearch.dart';
 
+import 'discover_page.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // The tab bar comes from a local configuration file (the default example integration of CYLTabBarController).
@@ -21,16 +23,13 @@ const List<String> cylSampleSuggestions = <String>[
   'IDE', 'Arduino', 'Xamarin', 'UI', 'Microsoft', 'Application', 'JUnit', 'SQL',
 ];
 
-/// One demo of a tab: how its search page is configured.
+/// One search page demo: how the native search page is configured.
 class CYLSearchDemo {
   /// Creates a demo.
-  const CYLSearchDemo(this.title, this.description, {this.style = CYLSearchSuggestionStyle.list, this.query, this.scenario});
+  const CYLSearchDemo(this.label, {this.style = CYLSearchSuggestionStyle.list, this.query, this.scenario});
 
-  /// The page title.
-  final String title;
-
-  /// What the demo shows.
-  final String description;
+  /// The label of the button that opens it.
+  final String label;
 
   /// The suggestion style.
   final CYLSearchSuggestionStyle style;
@@ -42,17 +41,35 @@ class CYLSearchDemo {
   final CYLPlaceholderScenario? scenario;
 }
 
-/// The demos of the four tabs, in the order of the configuration file.
-const List<CYLSearchDemo> cylDemos = <CYLSearchDemo>[
-  CYLSearchDemo('List style', 'Suggestions as a list, filtered as you type.'),
-  CYLSearchDemo('Tag style', 'The same suggestions as tags (CollectionViewClassifyMenu).', style: CYLSearchSuggestionStyle.tags),
-  CYLSearchDemo('No results', 'A query without a match shows CYLTableViewPlaceHolder\'s "No matching results".', query: 'zzz'),
-  CYLSearchDemo('No content', 'The same with the plain empty state (CYLPlaceholderScenario.noContent).',
-      query: 'zzz', scenario: CYLPlaceholderScenario.noContent),
+/// A tab of search page demos.
+class CYLSearchDemoTab {
+  /// Creates a tab.
+  const CYLSearchDemoTab(this.title, this.description, this.demos);
+
+  /// The page title.
+  final String title;
+
+  /// What the demos show.
+  final String description;
+
+  /// One button per demo.
+  final List<CYLSearchDemo> demos;
+}
+
+/// The first three tabs, in the order of the configuration file; the fourth tab is the discover page. iOS shows at most
+/// five items in a tab bar (more become "More"), so the two empty states share a tab.
+const List<CYLSearchDemoTab> cylDemoTabs = <CYLSearchDemoTab>[
+  CYLSearchDemoTab('List style', 'Suggestions as a list, filtered as you type.', <CYLSearchDemo>[CYLSearchDemo('Open search')]),
+  CYLSearchDemoTab('Tag style', 'The same suggestions as tags (CollectionViewClassifyMenu).',
+      <CYLSearchDemo>[CYLSearchDemo('Open search', style: CYLSearchSuggestionStyle.tags)]),
+  CYLSearchDemoTab('Empty results', 'A query without a match shows a CYLTableViewPlaceHolder placeholder.', <CYLSearchDemo>[
+    CYLSearchDemo('No matching results', query: 'zzz'),
+    CYLSearchDemo('No content', query: 'zzz', scenario: CYLPlaceholderScenario.noContent),
+  ]),
 ];
 
-/// The example app of flutter_cylsearch: CYLTabBarController's Flutter tab bar, one tab per demo, and the search bar
-/// demo on the raised plus button's page.
+/// The example app of flutter_cylsearch: CYLTabBarController's Flutter tab bar, a tab per kind of demo (the last one is
+/// the discover page), and the search bar demo on the raised plus button's page.
 class CYLSearchExampleApp extends StatelessWidget {
   /// Creates the app with the tab bar configuration read from assets.
   const CYLSearchExampleApp({super.key, required this.tabBarConfiguration});
@@ -88,7 +105,9 @@ class _CYLSearchTabsState extends State<CYLSearchTabs> {
   Widget build(BuildContext context) => Scaffold(
         body: _plusPageSelected
             ? const CYLSearchBarDemoPage()
-            : CYLSearchDemoPage(key: ValueKey<int>(_selectedIndex), demo: cylDemos[_selectedIndex]),
+            : _selectedIndex < cylDemoTabs.length
+                ? CYLSearchDemoPage(key: ValueKey<int>(_selectedIndex), tab: cylDemoTabs[_selectedIndex])
+                : const CYLSearchDiscoverPage(),
         bottomNavigationBar: CYLTabBar(
           configuration: widget.tabBarConfiguration,
           selectedIndex: _plusPageSelected ? null : _selectedIndex,
@@ -102,15 +121,15 @@ class _CYLSearchTabsState extends State<CYLSearchTabs> {
       );
 }
 
-/// A tab: its demo and a button that opens the native search page as a full screen route.
+/// A tab: its description and one button per demo, each opening the native search page as a full screen route.
 class CYLSearchDemoPage extends StatelessWidget {
-  /// Creates the page of `demo`.
-  const CYLSearchDemoPage({super.key, required this.demo});
+  /// Creates the page of `tab`.
+  const CYLSearchDemoPage({super.key, required this.tab});
 
-  /// The demo of the tab.
-  final CYLSearchDemo demo;
+  /// The demos of the tab.
+  final CYLSearchDemoTab tab;
 
-  void _openSearch(BuildContext context) {
+  void _openSearch(BuildContext context, CYLSearchDemo demo) {
     Navigator.of(context).push(MaterialPageRoute<void>(
       fullscreenDialog: true,
       builder: (routeContext) => Scaffold(
@@ -131,19 +150,21 @@ class CYLSearchDemoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text(demo.title)),
+        appBar: AppBar(title: Text(tab.title)),
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(demo.description, style: Theme.of(context).textTheme.bodyLarge),
-              const SizedBox(height: 16),
-              FilledButton.icon(
-                icon: const Icon(Icons.search),
-                label: const Text('Open search'),
-                onPressed: () => _openSearch(context),
-              ),
+              Text(tab.description, style: Theme.of(context).textTheme.bodyLarge),
+              for (final demo in tab.demos) ...<Widget>[
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  icon: const Icon(Icons.search),
+                  label: Text(demo.label),
+                  onPressed: () => _openSearch(context, demo),
+                ),
+              ],
             ],
           ),
         ),

@@ -65,6 +65,10 @@ flutter:
   # The tab bar configuration file and its icons (tool/render_tab_icons.swift).
   assets:
     - assets/
+    - assets/discover/en/
+    - assets/discover/ja/
+    - assets/discover/zh-Hans/
+    - assets/discover/zh-Hant/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

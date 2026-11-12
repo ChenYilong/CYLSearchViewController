@@ -34,6 +34,9 @@ class CYLSearchViewTypes {
   /// The native search bar (iOS and Android `CYLSearchBarView`).
   static const String searchBarView = 'cyl_search/search_bar_view';
 
+  /// The native tag list (CollectionViewClassifyMenu's `CYLTagListView`, the tags of `suggestionsTagView`).
+  static const String tagListView = 'cyl_search/tag_list_view';
+
   /// The channel of the platform view with `id`.
   static String channel(int id) => 'cyl_search/view_$id';
 }
@@ -315,4 +318,86 @@ void cylSearchBarViewDispatch(CYLSearchBarView widget, MethodCall call) {
     case 'didCancel':
       widget.onCancel?.call();
   }
+}
+
+/// CollectionViewClassifyMenu's tag list (iOS and Android `CYLTagListView`, the view of `CYLSearchView`'s tag style) as
+/// a widget: the tags wrap like words. It takes the height its tags need at its width, so put it in a scrolling or
+/// unbounded column.
+class CYLTagListView extends StatefulWidget {
+  /// Creates the tag list.
+  const CYLTagListView({super.key, this.tags = const <String>[], this.onTagSelected});
+
+  /// The titles of the tags (`setTagsWithTitles`).
+  final List<String> tags;
+
+  /// A tag was tapped (`tagClickHandler`), with its index and title.
+  final void Function(int index, String title)? onTagSelected;
+
+  @override
+  State<CYLTagListView> createState() => _CYLTagListViewState();
+}
+
+class _CYLTagListViewState extends State<CYLTagListView> {
+  MethodChannel? _channel;
+
+  /// Until the native view reports its height: about one row of tags.
+  double _height = 44;
+
+  Map<String, Object?> get _parameters => cylTagListViewParameters(widget, brightness: Theme.of(context).brightness);
+
+  void _created(int id) {
+    final channel = MethodChannel(CYLSearchViewTypes.channel(id));
+    channel.setMethodCallHandler(_handle);
+    setState(() => _channel = channel);
+  }
+
+  Future<Object?> _handle(MethodCall call) async {
+    final height = cylTagListViewDispatch(widget, call);
+    if (height != null && height != _height && mounted) setState(() => _height = height);
+    return null;
+  }
+
+  @override
+  void didUpdateWidget(CYLTagListView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!listEquals(oldWidget.tags, widget.tags)) _channel?.invokeMethod<void>('update', _parameters);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _channel?.invokeMethod<void>('update', _parameters);
+  }
+
+  @override
+  void dispose() {
+    _channel?.setMethodCallHandler(null);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => SizedBox(
+        height: _height,
+        child: _platformView(CYLSearchViewTypes.tagListView, _parameters, _created),
+      );
+}
+
+/// The parameters a [CYLTagListView] sends to its native view (`brightness`: see [cylSearchViewParameters]).
+@visibleForTesting
+Map<String, Object?> cylTagListViewParameters(CYLTagListView widget, {Brightness brightness = Brightness.light}) => <String, Object?>{
+      'brightness': brightness.name,
+      'tags': widget.tags,
+    };
+
+/// Calls the [CYLTagListView] callback of an event from its native view; returns the height it reported, if any.
+@visibleForTesting
+double? cylTagListViewDispatch(CYLTagListView widget, MethodCall call) {
+  final arguments = (call.arguments as Map<Object?, Object?>?) ?? const <Object?, Object?>{};
+  switch (call.method) {
+    case 'didSelectTag':
+      widget.onTagSelected?.call(arguments['index'] as int? ?? 0, arguments['title'] as String? ?? '');
+    case 'didChangeHeight':
+      return (arguments['height'] as num?)?.toDouble();
+  }
+  return null;
 }

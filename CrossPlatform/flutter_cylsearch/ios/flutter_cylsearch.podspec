@@ -15,6 +15,7 @@ Pod::Spec.new do |s|
   s.source_files     = 'flutter_cylsearch/Sources/flutter_cylsearch/**/*.swift'
   s.dependency 'Flutter'
   s.dependency 'CYLSearchViewController'
+  s.dependency 'CollectionViewClassifyMenu'
   s.dependency 'CYLTableViewPlaceHolder/Core'
   s.platform = :ios, '15.0'
   s.static_framework = true

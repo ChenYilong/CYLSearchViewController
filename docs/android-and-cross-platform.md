@@ -122,7 +122,43 @@ Native) for the CYLSearchViewController components.
       | SDK | iOS SDK 27.2 (deployment iOS 15.0); AGP 9.1.0, Kotlin 2.4.0 (app), compileSdk 36 |
       | Repository | [`626763e`](https://github.com/ChenYilong/CYLSearchViewController/commit/626763e) on `feat/swift-core` |
       | Taken | 2026-11-13 06:58–07:50 NZDT |
-  - Still open for Flutter (`TODO`): the Discover page of the tag-style demos; Swift Package Manager support. Then React Native, then HarmonyOS NEXT (the emulator image is
+  - DONE (2026-11-13): the Discover page of the tag-style demos, as on iOS and Android.
+    - The plugin gained `CYLTagListView`: CollectionViewClassifyMenu's native tag list (the view of the tag style) as a
+      widget. The native view reports the height its tags need at its width (`heightThatFitsWidth`), so the widget
+      takes that height in a Flutter column; its background is clear so the Flutter page shows through.
+    - The example's Discover tab (`lib/discover_page.dart`) uses the same data as the native examples
+      (CYLSearchDiscover.bundle copied to `assets/discover/<language>/`: search-discover.json, the strings, the
+      localized hot icon in 1x / 2x / 3x): the native search bar under the app bar, the recent searches as native
+      tags (tap: search, it moves to the front; trash: clear), the topics in two columns with the hot icon, refresh.
+    - iOS shows at most five tab bar items (a sixth becomes "More"), so "No results" and "No content" now share an
+      "Empty results" tab with one button each: four tabs and the raised plus button.
+    - Tests: plugin 7/7 (the tag list's parameters, taps and height), example 3/3 (language folder, .strings parsing,
+      the bundled data and refresh); `flutter analyze` clean in both.
+    - Screenshots (originals), top to bottom: Android Discover; Android after tapping the "Pomodoro technique" topic
+      (bar text, the recent searches reordered, "Searching: …"); Android Empty results tab; iOS Discover; iOS after
+      tapping the "Dark mode colors" tag (the tag list grew a row and the page followed).
+
+      ![Flutter Android Discover](assets/flutter-android-discover.png)
+
+      ![Flutter Android Discover after a topic tap](assets/flutter-android-discover-search.png)
+
+      ![Flutter Android Empty results tab](assets/flutter-android-empty-results-tab.png)
+
+      ![Flutter iOS Discover](assets/flutter-ios-discover.png)
+
+      ![Flutter iOS Discover after a tag tap](assets/flutter-ios-discover-search.png)
+
+      | Field | Value |
+      |:---|:---|
+      | Platform | Flutter 3.47.9 (Dart 3.13.7) on iOS and Android, flutter_cyltabbar at `74aa25e` |
+      | Host | macOS 27.3 (26C5035r), Xcode 27.2 (27B5028f), JDK 17.0.21 |
+      | Simulator / emulator | iPhone 17, iOS 26.3; `CYL_API35_arm64`, Android 15 (API 35) |
+      | SDK | iOS SDK 27.2 (deployment iOS 15.0); AGP 9.1.0, Kotlin 2.4.0 (app), compileSdk 36 |
+      | Repository | `feat/swift-core`, the commit that adds this entry |
+      | Taken | 2026-11-13 11:00–12:08 NZDT |
+    - Finding, not fixed: on iOS the "Searching: …" snack bar did not show in the screenshot taken 2 s after the tap
+      (it shows on Android); check whether the floating tab bar covers it.
+  - Still open for Flutter (`TODO`): Swift Package Manager support. Then React Native, then HarmonyOS NEXT (the emulator image is
     downloaded; a device still has to be created in DevEco's Device Manager).
 
 ## DONE (2026-11-12): android/ folder: five Kotlin transcriptions, a merged library and example
