@@ -27,3 +27,31 @@ CollectionViewClassifyMenu).
   this repository's commit dependency and continue. Show the styles in the example: find an empty tab item, name it
   tagview style, and show the existing examples' new suggestion presentation with different parameters."
 - Status: logged; order: after the Android task and the plus button rule.
+
+## TODO (2026-11-12): Android: the suggestion demo in two tabs, list style and tag style
+
+- Context: `android/merged` (see [android-and-cross-platform.md](android-and-cross-platform.md)) runs the
+  MaterialSearchView sample from its "Material" tab. Its suggestions are a list under the search bar (screenshot).
+  CollectionViewClassifyMenu has an Android port (`../CollectionViewClassifyMenu/android/merged`, modules `library`
+  and `example`) whose tag views give the tag style. This is the Android side of the iOS TODO above.
+- Requirements:
+  1. Copy the suggestion demo. Show it in two of CYLTabBarController's tab items in `android/merged/app`.
+  2. Tab "list style": the current list of suggestions (MaterialSearchView, unchanged).
+  3. Tab "tag style": the same suggestions shown as tags with CollectionViewClassifyMenu's Android library. Depend on
+     it by its newest commit, like CYLTabBarController (local path only while developing).
+  4. Prefer a style option in the library (`cylsearch` / MaterialSearchView) over code in the example; the example
+     passes only data, style parameters and click handling.
+  5. Screenshots of both tabs in this document, labeled per AGENTS.md, then mark this TODO DONE.
+- Screenshot of the current list style (the demo to copy). Android 15 emulator `CYL_API35_arm64` (API 35, arm64),
+  host macOS 27.3 (26C5035r), compileSdk 35, CYLSearchViewController commit `d459b91`, 2026-11-12 18:19 NZDT.
+  Left: typing "a" lists the suggestions; right: tapping "Android" fills the query.
+
+  ![MaterialSearchView suggestions in android/merged](assets/android-merged-materialsearchview-suggestions.png)
+
+  Full-size original of the left state: [android-merged-suggestions-list-original.png](assets/android-merged-suggestions-list-original.png).
+- Prompt (verbatim): "该演示，复制一份，使用cyltabbarcontroller不同items管理，演示搜索备选项内容，一个item使用现在的样式，一个item 使用使用新的新的collectionview 也就是tagview 也就是 CollectionViewClassifyMenu提供的样式展示。写入文档中 标注todo附带截图。continue"
+- Prompt (English): "Copy this demo and manage it with different CYLTabBarController items to show the search
+  suggestions: one item uses the current style, the other the new collection view, i.e. the tag view, the style
+  CollectionViewClassifyMenu provides. Write it into the docs marked TODO with screenshots. Continue."
+- Status: logged; order: after the Android steps 4 to 6 (same project), before the iOS tag-view TODO above is
+  revisited.
