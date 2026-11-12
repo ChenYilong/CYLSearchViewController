@@ -47,7 +47,7 @@ messages, localized strings (English, Simplified Chinese, a missing key) and the
 ## Table
 
 <!-- api-alignment:begin -->
-Rows: 299; DONE 266, N/A 33, TODO 0; score 100/100.
+Rows: 302; DONE 269, N/A 33, TODO 0; score 100/100.
 
 | iOS API | Upstream counterpart (named in the iOS doc comment) | Android (`cylsearch`) | Status |
 | :--- | :--- | :--- | :--- |
@@ -305,6 +305,9 @@ Rows: 299; DONE 266, N/A 33, TODO 0; score 100/100.
 | `CYLSearchView.suggestionsTableView` | — | `CYLSearchView.suggestionsTableView` | DONE |
 | `CYLSearchView.suggestionsTagView` | CollectionViewClassifyMenu's `CYLTagListView` | `CYLSearchView.suggestionsTagView` | DONE |
 | `CYLSearchView.suggestionStyle` | `CYLSearchSuggestionStyleList`, the default; `CYLSearchSuggestionStyleTags` | `CYLSearchView.suggestionStyle` | DONE |
+| `CYLSearchView.showsEmptyResultsPlaceholder` | — | `CYLSearchView.showsEmptyResultsPlaceholder` | DONE |
+| `CYLSearchView.emptyResultsScenario` | — | `CYLSearchView.emptyResultsScenario` | DONE |
+| `CYLSearchView.emptyResultsView` | CYLTableViewPlaceHolder's `CYLPlaceholderStackView` | `CYLSearchView.emptyResultsView` | DONE |
 | `CYLSearchView.dividerColor` | lapism `setDividerColor` | `CYLSearchView.dividerColor` | DONE |
 | `CYLSearchView.contentView` | lapism `addView` | `CYLSearchView.contentView` | DONE |
 | `CYLSearchView.scrimColor` | lapism `setScrimColor` | `CYLSearchView.scrimColor` | DONE |

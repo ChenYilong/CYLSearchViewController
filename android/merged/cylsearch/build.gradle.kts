@@ -42,6 +42,8 @@ dependencies {
     api(project(":search-multisearchview"))
     // The tag suggestion style (CYLSearchSuggestionStyle.Tags) uses CollectionViewClassifyMenu's CYLTagListView.
     api(project(":classifymenu"))
+    // The empty search results placeholder (CYLSearchView.emptyResultsScenario) is CYLTableViewPlaceHolder's.
+    api(project(":placeholder"))
     implementation(libs.androidx.appcompat)
     api(libs.androidx.fragment.ktx)
     api(libs.androidx.recyclerview)

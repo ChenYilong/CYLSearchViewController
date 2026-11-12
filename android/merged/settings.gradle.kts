@@ -16,7 +16,7 @@ dependencyResolutionManagement {
 }
 rootProject.name = "CYLSearchAndroid"
 
-// CYLTabBarController's Android library and CollectionViewClassifyMenu's are not on Maven, and Gradle cannot pin a git
+// CYLTabBarController's, CollectionViewClassifyMenu's and CYLTableViewPlaceHolder's Android libraries are not on Maven, and Gradle cannot pin a git
 // dependency to a commit. So the commits in gradle.properties (`cyl.tabbar.commit`, `cyl.classifymenu.commit`: the
 // newest commit on any branch of each repository) are checked out into .cyl-deps/ and their library modules are built
 // from source. `-Pcyl.tabbar.dir=<checkout>` / `-Pcyl.classifymenu.dir=<checkout>` (or CYL_TABBAR_DIR /
@@ -52,6 +52,12 @@ val cylClassifyMenuDir = pinnedCheckout("CollectionViewClassifyMenu", "https://g
     "cyl.classifymenu.commit", "cyl.classifymenu.dir", "CYL_CLASSIFYMENU_DIR")
 include(":classifymenu")
 project(":classifymenu").projectDir = File(cylClassifyMenuDir, "android/merged/library")
+
+// CYLTableViewPlaceHolder's Android placeholder module: the empty search results placeholder (CYLPlaceholderStackView).
+val cylPlaceholderDir = pinnedCheckout("CYLTableViewPlaceHolder", "https://github.com/ChenYilong/CYLTableViewPlaceHolder.git",
+    "cyl.placeholder.commit", "cyl.placeholder.dir", "CYL_PLACEHOLDER_DIR")
+include(":placeholder")
+project(":placeholder").projectDir = File(cylPlaceholderDir, "android/placeholder")
 
 // The five translated projects, as library modules (each keeps its own resources and package).
 include(":search-lapism", ":search-materialsearchview", ":search-multisearchview")

@@ -52,6 +52,7 @@ class CYLSuggestionStyleFragment : CYLExamplePage(), CYLSearchViewDelegate {
             suggestionStyle = style
             suggestions = CYLMaterialSearchSampleFragment.SUGGESTIONS
             suggestionLineBreakMode = CYLLineBreakMode.WordWrapping
+            showsEmptyResultsPlaceholder = true
             delegate = this@CYLSuggestionStyleFragment
         }
         searchView.installInView(page)

@@ -28,6 +28,8 @@ import androidx.core.widget.ImageViewCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cyl.classifymenu.CYLTagListView
+import com.cyl.placeholder.CYLPlaceholderScenario
+import com.cyl.placeholder.CYLPlaceholderStackView
 import java.text.Normalizer
 import java.util.Locale
 
@@ -226,6 +228,37 @@ class CYLSearchView @JvmOverloads constructor(
             field = value
             updateSuggestionsVisibility()
         }
+
+    /**
+     * Shows CYLTableViewPlaceHolder's placeholder for `emptyResultsScenario` under the search bar while a non-empty
+     * query matches no suggestion, in both suggestion styles. False by default.
+     */
+    var showsEmptyResultsPlaceholder: Boolean = false
+        set(value) {
+            field = value
+            refilter()
+        }
+
+    /**
+     * The CYLTableViewPlaceHolder scenario of that placeholder. `NoSearchResults` (an icon, a title and a hint) by
+     * default; `NoContent` shows the plain empty state.
+     */
+    var emptyResultsScenario: CYLPlaceholderScenario = CYLPlaceholderScenario.NoSearchResults
+        set(value) {
+            field = value
+            emptyResultsView?.let { bodyView.removeView(it) }
+            emptyResultsView = null
+            refilter()
+        }
+
+    /**
+     * The placeholder shown for empty results (CYLTableViewPlaceHolder's `CYLPlaceholderStackView`), created the first
+     * time it is shown; null before.
+     */
+    var emptyResultsView: CYLPlaceholderStackView? = null
+        private set
+
+    private var emptyResultsVisible = false
 
     /**
      * The color of `dividerView` (lapism `setDividerColor`). The theme's divider color when null; transparent hides
@@ -651,6 +684,7 @@ class CYLSearchView @JvmOverloads constructor(
             }
         }
         suggestionsVisible = filteredSuggestions.isNotEmpty()
+        emptyResultsVisible = showsEmptyResultsPlaceholder && trimmed.isNotEmpty() && filteredSuggestions.isEmpty()
         updateSuggestionsVisibility()
     }
 
@@ -664,6 +698,7 @@ class CYLSearchView @JvmOverloads constructor(
      */
     fun dismissSuggestions() {
         suggestionsVisible = false
+        emptyResultsVisible = false
         updateSuggestionsVisibility()
     }
 
@@ -674,6 +709,12 @@ class CYLSearchView @JvmOverloads constructor(
         if (tags) {
             suggestionsTagView.setTagsWithTitles(if (suggestionsVisible) filteredSuggestions else emptyList())
         }
+        if (emptyResultsVisible && emptyResultsView == null) {
+            emptyResultsView = CYLPlaceholderStackView(context, emptyResultsScenario).also {
+                bodyView.addView(it, 0, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+            }
+        }
+        emptyResultsView?.visibility = if (emptyResultsVisible) VISIBLE else GONE
         reloadSuggestions()
     }
 

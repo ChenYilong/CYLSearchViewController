@@ -192,4 +192,28 @@ class CYLSearchBehaviorTest {
             assertTrue(expected.message!!.startsWith("Unknown placeholder style"))
         }
     }
+
+    @Test
+    fun emptyResultsShowTheCYLTableViewPlaceHolderPlaceholder() {
+        val view = searchView()
+        view.suggestions = listOf("Android", "Kotlin", "Swift")
+        view.showSearch(false)
+        view.query = "zzz"
+        assertEquals("off by default", null, view.emptyResultsView)
+        view.showsEmptyResultsPlaceholder = true
+        for (style in CYLSearchSuggestionStyle.entries) {
+            view.suggestionStyle = style
+            view.query = "zzz"
+            assertEquals("no match shows it ($style)", android.view.View.VISIBLE, view.emptyResultsView?.visibility)
+            assertEquals(com.cyl.placeholder.CYLPlaceholderScenario.NoSearchResults, view.emptyResultsView?.scenario)
+            assertEquals("No matching results", view.emptyResultsView?.titleLabel?.text.toString())
+            view.query = "swi"
+            assertEquals("a match hides it ($style)", android.view.View.GONE, view.emptyResultsView?.visibility)
+            view.query = ""
+            assertEquals("an empty query hides it ($style)", android.view.View.GONE, view.emptyResultsView?.visibility)
+        }
+        view.emptyResultsScenario = com.cyl.placeholder.CYLPlaceholderScenario.NoContent
+        view.query = "zzz"
+        assertEquals(com.cyl.placeholder.CYLPlaceholderScenario.NoContent, view.emptyResultsView?.scenario)
+    }
 }

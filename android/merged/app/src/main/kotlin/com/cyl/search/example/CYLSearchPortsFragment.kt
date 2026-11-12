@@ -184,6 +184,8 @@ class CYLMaterialSearchSampleFragment : CYLExamplePage(), CYLSearchViewDelegate 
             }
             suggestions = if (sample == CYLMaterialSearchSample.Sticky) emptyList() else SUGGESTIONS
             searchBarView.isSecureTextEntry = sample == CYLMaterialSearchSample.InputType
+            // A query that matches nothing shows CYLTableViewPlaceHolder's "no search results" state (docs/sub-repositories.md).
+            showsEmptyResultsPlaceholder = true
             if (themed) {
                 // The colored theme: white text on the primary color.
                 setBackgroundColor(Color.rgb(88, 86, 214))
