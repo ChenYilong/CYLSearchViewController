@@ -197,7 +197,13 @@ class CYLMaterialSearchSampleFragment : CYLExamplePage(), CYLSearchViewDelegate 
             delegate = this@CYLMaterialSearchSampleFragment
         }
         searchView.installInView(page)
-        searchItem?.let { searchView.attachToMenuItem(it) }
+        // The whole search bar takes the toolbar's place (as MaterialSearchView opens over the toolbar): the toolbar
+        // hides first, so the search view, which fills the page, puts its bar where the toolbar was; nothing is covered.
+        searchItem?.setOnMenuItemClickListener {
+            toolbar.visibility = View.GONE
+            searchView.showSearch()
+            true
+        }
         return page
     }
 
@@ -241,6 +247,10 @@ class CYLMaterialSearchSampleFragment : CYLExamplePage(), CYLSearchViewDelegate 
     override fun searchViewDidSubmitText(searchView: CYLSearchView, text: String): Boolean {
         snackbar(requireContext().getString(SearchR.string.cyl_demo_port_query, text))
         return false
+    }
+
+    override fun searchViewDidClose(searchView: CYLSearchView) {
+        toolbar.visibility = View.VISIBLE
     }
 
     override fun searchViewVoiceButtonClicked(searchView: CYLSearchView) {

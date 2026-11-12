@@ -957,7 +957,17 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
         [sample loadViewIfNeeded];
         CYLSearchView *searchView = (CYLSearchView *)[sample.view.subviews filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self isKindOfClass: %@", CYLSearchView.class]].firstObject;
         XCTAssertNotNil(searchView, @"row %ld has a search view", (long)row);
-        XCTAssertEqual(sample.navigationItem.rightBarButtonItem.target, searchView, @"the search item opens it");
+        // The search item opens the search in place of the navigation bar (docs/search-api-comparison.md, "Default"):
+        // the navigation bar hides, the search bar takes its place, and the bar comes back when the search closes.
+        UIBarButtonItem *item = sample.navigationItem.rightBarButtonItem;
+        XCTAssertEqual(item.target, sample, @"the search item opens the search");
+        [UIApplication.sharedApplication sendAction:item.action to:item.target from:item forEvent:nil];
+        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+        XCTAssertTrue(searchView.isSearchOpen, @"row %ld opens the search", (long)row);
+        XCTAssertTrue(navigation.navigationBarHidden, @"row %ld: the search bar takes the navigation bar's place", (long)row);
+        [searchView closeSearchAnimated:NO];
+        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+        XCTAssertFalse(navigation.navigationBarHidden, @"row %ld: the navigation bar comes back", (long)row);
         [navigation popToRootViewControllerAnimated:NO];
     }
     window.hidden = YES;

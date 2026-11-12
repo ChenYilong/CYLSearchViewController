@@ -102,7 +102,7 @@ final class CYLMaterialSearchSampleViewController: UIViewController {
         navigationItem.title = sample.title
         view.backgroundColor = .systemBackground
         edgesForExtendedLayout = []
-        let searchItem = UIBarButtonItem(barButtonSystemItem: .search, target: nil, action: nil)
+        let searchItem = UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(openSearch))
         searchItem.accessibilityLabel = cylDemoText("demo.port.open")
         navigationItem.rightBarButtonItem = searchItem
         addContent()
@@ -127,7 +127,6 @@ final class CYLMaterialSearchSampleViewController: UIViewController {
         }
         searchView.delegate = self
         searchView.install(in: view)
-        searchView.attach(to: searchItem)
     }
 
     private func addContent() {
@@ -185,7 +184,35 @@ final class CYLMaterialSearchSampleViewController: UIViewController {
     }
 }
 
+extension CYLMaterialSearchSampleViewController {
+
+    /**
+     * The search item: the whole search bar takes the navigation bar's place (as MaterialSearchView opens over the
+     * toolbar). The navigation bar hides first, so the search view, which fills this view, puts its bar at the top of
+     * the safe area, where the navigation bar was; nothing is covered.
+     */
+    @objc func openSearch() {
+        navigationController?.setNavigationBarHidden(true, animated: true)
+        searchView.showSearch()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if searchView.searchOpen {
+            searchView.closeSearch(animated: false)
+        }
+        navigationController?.setNavigationBarHidden(false, animated: animated)
+    }
+}
+
 extension CYLMaterialSearchSampleViewController: CYLSearchViewDelegate {
+    /**
+     * The navigation bar comes back when the search closes.
+     */
+    func searchViewDidClose(_ searchView: CYLSearchView) {
+        navigationController?.setNavigationBarHidden(false, animated: true)
+    }
+
     func searchView(_ searchView: CYLSearchView, didSubmitText text: String) -> Bool {
         CYLSnackbar.show(String.localizedStringWithFormat(cylDemoText("demo.port.query"), text), in: view)
         return false
