@@ -130,7 +130,6 @@ static NSString *const CYLSearchSuggestionCellIdentifier = @"CYLSearchSuggestion
     [super layoutSubviews];
     CGRect bounds = self.bounds;
     UIEdgeInsets safe = self.safeAreaInsets;
-    self.scrimView.frame = bounds;
     CGFloat width = CGRectGetWidth(bounds);
     CGFloat barHeight = self.searchBarView.intrinsicContentSize.height;
     CGFloat dividerHeight = 1 / MAX(1, self.traitCollection.displayScale);
@@ -145,6 +144,9 @@ static NSString *const CYLSearchSuggestionCellIdentifier = @"CYLSearchSuggestion
         pageHeight = MIN(bottom, top + listHeight);
     }
     self.pageView.frame = CGRectMake(0, 0, width, pageHeight);
+    // The scrim lies only below the page, so nothing sits behind the search bar.
+    self.scrimView.frame = CGRectMake(0, pageHeight, width, MAX(0, bottom - pageHeight));
+    self.scrimView.hidden = !self.scrimColor || pageHeight >= bottom;
     self.searchBarView.frame = CGRectMake(safe.left, safe.top, width - safe.left - safe.right, barHeight);
     self.dividerView.frame = CGRectMake(0, safe.top + barHeight, width, dividerHeight);
     CGRect below = CGRectMake(safe.left, top, width - safe.left - safe.right, MAX(0, pageHeight - top));
