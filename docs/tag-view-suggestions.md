@@ -156,8 +156,7 @@ CollectionViewClassifyMenu).
     pinned to `e550a01` on Android too.
   - Library fix found here: `CYLSearchBarView` keeps an accessory view's own size (a 1 dp divider filled the field).
   - Verified on the emulator: Recent searches expand to every search, a tapped tag fills the query, More shows other
-    topics; no crash. Known difference: CollectionViewClassifyMenu's Android grid clips long titles without an
-    ellipsis (iOS shows "…"); that belongs to its Android tag layout.
+    topics; no crash. Not a difference to keep: long titles are cut by the cell's edge; see the bug TODO below.
   - Screenshots (originals), top to bottom: the Discover tab; Recent searches expanded; Discover after More (cropped).
 
     ![Android Discover tab](assets/android-discover-tab.png)
@@ -178,3 +177,24 @@ CollectionViewClassifyMenu).
   TODO in [android-and-cross-platform.md](android-and-cross-platform.md) (Flutter first), and get the tag style and
   the Discover page there.
 - Status: `TODO` (iOS and Android done; React Native and Flutter open).
+
+## TODO (2026-11-12): Android tag cells cut their text at the cell edge
+
+- Context: the Android Discover tab (`CYLSearchDiscoverFragment`, CollectionViewClassifyMenu's Android
+  `CYLTagListView` with `CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(2)`, pinned at `e550a01`). Long topic titles
+  ("Switching your cat's food", "Saving money on train tickets", "Designers' favorite palettes") run to the cell's edge
+  and are cut mid-letter. On iOS the same grid keeps a gap and ends a long title with "…". I first wrote this off as a
+  difference of the library; the user disagreed: it is a bug.
+- Requirements:
+  1. Keep a gap between the text and the cell's edge (the cell's content insets / margin, as on iOS).
+  2. A title that does not fit ends with an ellipsis ("…"), on one line.
+  3. Where the cut comes from CollectionViewClassifyMenu's Android tag layout (`CYLTagButton` / grid cell
+     measuring), fix it there, push it, then update `cyl.classifymenu.commit` here (AGENTS.md, "Sub-repositories");
+     check the other tag cells too (Recent searches, the Tag style tab).
+  4. Screenshots after the fix, labeled; mark this TODO done.
+- Screenshot (the user's):
+
+  ![Android Discover titles cut at the cell edge](assets/user-2026-11-12-android-discover-clipped-titles.png)
+
+- Prompt (verbatim): "No  I don't think so. Android tests pass (9/9). The alignment table has grown to 299 rows (the new iOS suggestionStyle API), all aligned. Regenerating it and writing the Android progress with screenshots: tag cell text are cut by boundary of cell , it should got gap between text and boundary of cell, if text is too long it should show text end with ... please mark this bug as TODO in docs files related."
+- Status: `TODO`.
