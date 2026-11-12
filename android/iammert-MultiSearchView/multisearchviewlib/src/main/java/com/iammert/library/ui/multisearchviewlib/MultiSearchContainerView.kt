@@ -17,7 +17,6 @@ import com.iammert.library.ui.multisearchviewlib.extensions.*
 import com.iammert.library.ui.multisearchviewlib.helper.KeyboardHelper
 import com.iammert.library.ui.multisearchviewlib.helper.KeyboardHelper.hideKeyboard
 import com.iammert.library.ui.multisearchviewlib.helper.SimpleTextWatcher
-import kotlinx.android.synthetic.main.view_item.view.*
 
 
 // Merged from upstream PR #15 (kojofosu): view binding fields instead of `root.<synthetic id>`.

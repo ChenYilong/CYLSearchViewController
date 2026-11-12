@@ -78,10 +78,30 @@ Native) for the CYLSearchViewController components.
     (`CYLRevealSearchActivity`). Each folder has `TRANSCRIPTION.md` (source commit, license). No Java file is left.
     Not compiled yet: the folders hold sources only; compilation is checked when they join the Gradle project in
     `merged` (step 3).
-  - Next: step 3, `android/merged` (Gradle, CYLTabBarController at a pinned commit, one example tab per project).
   - Added by the rule "Open pull requests and issues of projects we translate" (2026-11-12): the translations are
     done, so each upstream's open pull requests are to be translated and merged into its folder, and each upstream's
     open issues listed in a table below (link, description, status `TODO`) and fixed in our code, scored until 100.
+  - PRs and issues done: 22 open PRs merged or marked (table below); 166 open issues DONE or N/A with the reason,
+    score 100 ([android-upstream-issues.md](android-upstream-issues.md)).
+  - Step 3, first part done: `android/merged` is a Gradle project (Gradle 9.3.1, AGP 8.7.3, Kotlin 2.0.21,
+    compileSdk / targetSdk 35, minSdk 23).
+    - Modules: `search-lapism`, `search-materialsearchview`, `search-multisearchview` (the libraries, built from
+      the folders next to `merged`, sources not copied); `sample-materialsearchview`, `sample-multisearchview`,
+      `sample-yechaoa`, `sample-reveal` (the samples, unchanged); `cylsearch` (the CYL API, step 4); `app`.
+    - CYLTabBarController: not on Maven and Gradle cannot pin a git dependency to a commit, so
+      `settings.gradle.kts` checks out `cyl.tabbar.commit` (gradle.properties, from
+      `CYLTabBarController/scripts/latest-cyl-commit.sh`) into `.cyl-deps/` and builds its `cyltabbar` and
+      `tabpages` modules; `-Pcyl.tabbar.dir=<path>` or `CYL_TABBAR_DIR` uses a local checkout.
+    - The app: `CYLTabBarController` with five tabs (lapism, Material, Multi, Reveal, yechaoa). The lapism tab
+      hosts lapism's README usage; the others open the upstream sample activities.
+    - Compile fixes found by the first build: lapism `dispatchDraw(Canvas)` and iammert's animator listener
+      (non-null parameters of SDK 35); iammert's unused synthetic import; MiguelCatalan sample layouts moved to
+      AndroidX class names (they still named `android.support.*` and crashed); the app enables data binding
+      (iammert #10); the unused jcenter-only EasingInterpolator dependency dropped; samples keep their own theme
+      and opt out of Android 15's edge-to-edge (their toolbars were under the status bar).
+    - Verified on an Android 15 emulator (API 35, arm64): all nine sample activities and the lapism tab open with
+      no crash; MaterialSearchView filters, wraps long suggestions and fills the query on a tap.
+  - Next: step 4, the iOS-vs-Android API table and the `cylsearch` module.
 
 ## Open pull requests of the translated projects
 

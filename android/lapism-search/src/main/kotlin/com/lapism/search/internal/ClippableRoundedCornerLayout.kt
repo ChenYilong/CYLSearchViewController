@@ -24,17 +24,16 @@ class ClippableRoundedCornerLayout @JvmOverloads constructor(
     }
 
     // *********************************************************************************************
-    override fun dispatchDraw(canvas: Canvas?) {
-        canvas?.let {
-            val rect = RectF(0F, 0F, canvas.width.toFloat(), canvas.height.toFloat())
-            val path = Path()
-            path.addRoundRect(rect, radius, radius, Path.Direction.CW)
+    // The canvas is non-null from API 34's SDK on (compileSdk 35 in android/merged).
+    override fun dispatchDraw(canvas: Canvas) {
+        val rect = RectF(0F, 0F, canvas.width.toFloat(), canvas.height.toFloat())
+        val path = Path()
+        path.addRoundRect(rect, radius, radius, Path.Direction.CW)
 
-            val save = canvas.save()
-            canvas.clipPath(path)
-            super.dispatchDraw(canvas)
-            canvas.restoreToCount(save)
-        }
+        val save = canvas.save()
+        canvas.clipPath(path)
+        super.dispatchDraw(canvas)
+        canvas.restoreToCount(save)
     }
 
     fun setRadius(radius: Float) {

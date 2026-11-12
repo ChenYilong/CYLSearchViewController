@@ -28,7 +28,7 @@ http://www.materialdoc.com/search-filter/
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
@@ -183,7 +183,7 @@ It is a little bit tricky but can be achieved using this:
     android:layout_height="match_parent">
 
     <!— Irrelevant stuff —>
-    <android.support.v4.view.ViewPager
+    <androidx.viewpager.widget.ViewPager
         android:id="@+id/viewpager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -191,7 +191,7 @@ It is a little bit tricky but can be achieved using this:
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <!— Must be last for right layering display —>
-    <android.support.design.widget.AppBarLayout
+    <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appbarlayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -202,7 +202,7 @@ It is a little bit tricky but can be achieved using this:
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <android.support.v7.widget.Toolbar
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
@@ -215,7 +215,7 @@ It is a little bit tricky but can be achieved using this:
                 android:visibility="gone" />
         </FrameLayout>
 
-        <android.support.design.widget.TabLayout
+        <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -223,7 +223,7 @@ It is a little bit tricky but can be achieved using this:
             app:tabGravity="fill"
             app:tabMode="fixed" />
 
-    </android.support.design.widget.AppBarLayout>
+    </com.google.android.material.appbar.AppBarLayout>
 
 </RelativeLayout>
 ```  

@@ -12,6 +12,7 @@ Score = (`DONE` + `N/A`) / all issues × 100.
 |:---|---:|---:|---:|
 | 2026-11-12 (listed) | 0 | 166 | 0 |
 | 2026-11-12 (fixes in `android/`) | 164 (101 DONE, 63 N/A) | 166 | 98 |
+| 2026-11-12 (verified in `android/merged`) | 166 (103 DONE, 63 N/A) | 166 | 100 |
 
 
 ## MiguelCatalan/MaterialSearchView (146 open)
@@ -88,7 +89,7 @@ Score = (`DONE` + `N/A`) / all issues × 100.
 | [#162](https://github.com/MiguelCatalan/MaterialSearchView/issues/162) | onQueryTextSubmit not working correctly | N/A: returning true from `onQueryTextSubmit` keeps the search open (documented behavior) |
 | [#160](https://github.com/MiguelCatalan/MaterialSearchView/issues/160) | Suggestion list overrides my layout | N/A: a usage or layout question about the app, no defect in the library |
 | [#158](https://github.com/MiguelCatalan/MaterialSearchView/issues/158) | I hope to add a list of search record | DONE: recent searches can be listed for an empty query with `setSuggestionsWithDefault` |
-| [#157](https://github.com/MiguelCatalan/MaterialSearchView/issues/157) | Demo on TabActivity does not work | TODO: verify the TabActivity sample in `android/merged` |
+| [#157](https://github.com/MiguelCatalan/MaterialSearchView/issues/157) | Demo on TabActivity does not work | DONE: the TabActivity sample runs in `android/merged` (AndroidX layouts, verified on an Android 15 emulator) |
 | [#156](https://github.com/MiguelCatalan/MaterialSearchView/issues/156) | Sample not working when imported to android studio | N/A: importing the upstream sample; our Gradle project is `android/merged` |
 | [#155](https://github.com/MiguelCatalan/MaterialSearchView/issues/155) | Can I Filter More than 2 Adapters From Fragment ! | N/A: a usage or layout question about the app, no defect in the library |
 | [#154](https://github.com/MiguelCatalan/MaterialSearchView/issues/154) | CoordinatorLayout and Suggestions | DONE: the suggestion list has a fixed height instead of `wrap_content`, rows carry their own background (`search_view.xml`, `suggest_item.xml`) |
@@ -173,7 +174,7 @@ Score = (`DONE` + `N/A`) / all issues × 100.
 | [#18](https://github.com/iammert/MultiSearchView/issues/18) | Getter method for EditText | DONE: `getEditText()` |
 | [#14](https://github.com/iammert/MultiSearchView/issues/14) | How to add programatically search placeholders | DONE: `addSearch(text)` |
 | [#13](https://github.com/iammert/MultiSearchView/issues/13) | Search Icon Color | DONE: `setSearchIconColor` (merged PR #16) |
-| [#10](https://github.com/iammert/MultiSearchView/issues/10) | Inflating Error | TODO: verify inflation in `android/merged` |
+| [#10](https://github.com/iammert/MultiSearchView/issues/10) | Inflating Error | DONE: the app module must enable data binding so DataBinderMapperImpl exists (`android/merged/app/build.gradle.kts`); without it inflating fails with NoClassDefFoundError |
 | [#7](https://github.com/iammert/MultiSearchView/issues/7) | Random Error - parameter must be a descendant of this view | DONE: a removed tab clears its focus first |
 | [#6](https://github.com/iammert/MultiSearchView/issues/6) | how to set "search text" prorgrammatically in searchbar? | DONE: `setSearchText(text)` |
 | [#4](https://github.com/iammert/MultiSearchView/issues/4) | Change Cursor color and drawable color isn't working, | DONE: the text style's `android:textCursorDrawable` is applied |

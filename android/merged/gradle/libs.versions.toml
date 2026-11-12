@@ -1,0 +1,44 @@
+# Versions of the merged Android project. The aliases CYLTabBarController's library modules use (cyltabbar, tabpages)
+# are kept with the same names, so their build files work here unchanged.
+[versions]
+agp = "8.7.3"
+kotlin = "2.0.21"
+appcompat = "1.7.0"
+fragment = "1.8.5"
+material = "1.12.0"
+constraintlayout = "2.2.0"
+recyclerview = "1.3.2"
+cardview = "1.0.0"
+viewpager = "1.0.0"
+json = "20240303"
+robolectric = "4.14.1"
+junit = "4.13.2"
+lottie = "6.6.2"
+androidx-test-core = "1.6.1"
+viewpager2 = "1.0.0"
+core-ktx = "1.13.1"
+activity = "1.9.3"
+
+[libraries]
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragment" }
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
+androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activity" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
+androidx-recyclerview = { module = "androidx.recyclerview:recyclerview", version.ref = "recyclerview" }
+androidx-cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
+androidx-viewpager = { module = "androidx.viewpager:viewpager", version.ref = "viewpager" }
+androidx-viewpager2 = { module = "androidx.viewpager2:viewpager2", version.ref = "viewpager2" }
+material = { module = "com.google.android.material:material", version.ref = "material" }
+json = { module = "org.json:json", version.ref = "json" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+junit = { module = "junit:junit", version.ref = "junit" }
+lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
+androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test-core" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }

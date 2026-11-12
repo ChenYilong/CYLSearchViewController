@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Merged module manifest (the upstream manifest sets a package attribute, which AGP 8 rejects). -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity android:name="com.yechaoa.materialdesign.activity.SearchViewActivity" android:exported="false" android:theme="@style/CYLMergedSampleTheme" android:label="SearchView" />
+    </application>
+</manifest>
