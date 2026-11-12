@@ -101,7 +101,15 @@ Native) for the CYLSearchViewController components.
       and opt out of Android 15's edge-to-edge (their toolbars were under the status bar).
     - Verified on an Android 15 emulator (API 35, arm64): all nine sample activities and the lapism tab open with
       no crash; MaterialSearchView filters, wraps long suggestions and fills the query on a tap.
-  - Next: step 4, the iOS-vs-Android API table and the `cylsearch` module.
+  - Steps 4 and 5 done: [android-api-alignment.md](android-api-alignment.md) lists all 294 public iOS
+    declarations (types, enum cases, properties, methods, initializers, protocol requirements, UIKit overrides) with
+    the upstream API the iOS doc comment cites and the Kotlin counterpart in the `cylsearch` module, which ports the
+    seven iOS classes under the same names. Score 100 (261 DONE, 33 N/A), written by
+    `android/merged/scripts/api-alignment.py`; 9 Robolectric behavior tests pass.
+  - Next: step 6, the iOS examples in the Android example app (with the list-style / tag-style tabs from
+    [tag-view-suggestions.md](tag-view-suggestions.md)), screenshots, README Android section. The example layer
+    follows the CYLTabBarController rules of AGENTS.md: the tab bar from a configuration file in the app's assets,
+    a raised plus button, pages from `CYLTabBarPageRegistry`.
 
 ## Open pull requests of the translated projects
 

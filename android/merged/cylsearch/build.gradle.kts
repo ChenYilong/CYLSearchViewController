@@ -21,10 +21,17 @@ android {
         jvmTarget = "17"
     }
 
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
+
     sourceSets {
         getByName("main") {
             java.srcDirs("src/main/kotlin")
             res.srcDirs("src/main/res")
+        }
+        getByName("test") {
+            java.srcDirs("src/test/kotlin")
         }
     }
 }
@@ -34,6 +41,10 @@ dependencies {
     api(project(":search-materialsearchview"))
     api(project(":search-multisearchview"))
     implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.recyclerview)
+    api(libs.androidx.fragment.ktx)
+    api(libs.androidx.recyclerview)
     implementation(libs.androidx.core.ktx)
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
 }
