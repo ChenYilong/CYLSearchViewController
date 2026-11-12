@@ -16,6 +16,14 @@ Read this file and `AGENTS.md` before changing project files.
 - Do not rename existing project APIs or vendor code as part of unrelated
   changes.
 
+## Swift
+
+- Write Swift by `docs/swift-coding-standard.md` and the Swift skills in `.agents/skills` (pinned third-party
+  copies listed in `.agents/skills.json`; do not edit them).
+- The core is being translated to Swift; record each step and its score in `docs/swift-migration.md`.
+- Keep Objective-C class names and selectors with `@objc(...)`; change the example only where Objective-C cannot use
+  the Swift class directly (for example an Objective-C subclass of a core class).
+
 ## Comments on public API
 
 - All comment formats follow the official documentation rules of their

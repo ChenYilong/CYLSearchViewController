@@ -18,6 +18,8 @@ and the applicable skill in `.agents/skills/` before making changes.
 | `cyl-xcode-compat` | Touching the `.xcodeproj`, Podfile or deployment targets |
 | `cyl-docs` | Editing `README.md` or `docs/` |
 | `cyl-verify` | Building, testing, running the simulator |
+| `swift-api-design-guidelines`, `swift-language`, `swift-concurrency`, `swift-testing`, `swift-architecture` | Writing or translating Swift (third-party, pinned in `.agents/skills.json`) |
+| `uikit`, `uikit-layouting` | UIKit views, controllers and layout in Swift (third-party) |
 
 Every new integration rule updates, in the same change, `AGENTS.md`,
 `instructions.md` and the affected skills.
@@ -34,6 +36,15 @@ Every new integration rule updates, in the same change, `AGENTS.md`,
 - Keep the sample configurable through protocols or public properties. Avoid
   dependencies on `AppDelegate`, global state, or concrete model types.
 - Keep all instructions and skill files in English.
+
+## Swift
+
+The core moves from Objective-C to Swift (`docs/swift-migration.md`, scored after every commit). All Swift code
+follows `docs/swift-coding-standard.md` and the Swift skills in `.agents/skills` (`swift-api-design-guidelines`,
+`swift-language`, `swift-concurrency`, `swift-testing`, `swift-architecture`, `uikit`, `uikit-layouting`; third-party,
+pinned in `.agents/skills.json`, never edited by hand). Public Swift API keeps the Objective-C class names and
+selectors (`@objc(...)`), so Objective-C callers keep working; documentation comments are three-line `/** */`
+blocks.
 
 ## Comments on public API
 

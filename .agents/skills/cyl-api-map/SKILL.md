@@ -43,3 +43,9 @@ Before any task, log it as `TODO` in the most suitable document in `docs/`
 (verbatim plus English translation) and a status line. Commit and push it,
 then start; mark it `DONE (YYYY-MM-DD)` with the result when the task ends.
 Full rule: `AGENTS.md`, "Task log before every task".
+
+## Swift
+
+Swift code follows `docs/swift-coding-standard.md` and the third-party Swift skills in `.agents/skills`
+(`swift-api-design-guidelines`, `swift-language`, `swift-concurrency`, `swift-testing`, `swift-architecture`,
+`uikit`, `uikit-layouting`). The core's translation and its score: `docs/swift-migration.md`.
