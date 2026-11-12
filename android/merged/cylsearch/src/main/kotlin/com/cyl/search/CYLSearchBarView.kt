@@ -919,7 +919,9 @@ class CYLSearchBarView @JvmOverloads constructor(
         }
         views.forEach { view ->
             (view.parent as? ViewGroup)?.removeView(view)
-            accessoryContainer.addView(view, LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT).apply {
+            // A view keeps the size it was given (a 1 dp divider); otherwise it wraps its content.
+            val given = view.layoutParams
+            accessoryContainer.addView(view, LinearLayout.LayoutParams(given?.width ?: LayoutParams.WRAP_CONTENT, given?.height ?: LayoutParams.WRAP_CONTENT).apply {
                 marginStart = dp(SPACING)
             })
         }

@@ -46,6 +46,8 @@ class MainActivity : AppCompatActivity() {
         pages.registerPageProvider({ _, _ -> CYLSearchBarDemoFragment() }, "plus")
         pages.registerPageProvider({ _, _ -> CYLSuggestionStyleFragment.newInstance(CYLSearchSuggestionStyle.List) }, "listStyle")
         pages.registerPageProvider({ _, _ -> CYLSuggestionStyleFragment.newInstance(CYLSearchSuggestionStyle.Tags) }, "tagStyle")
+        // The discover page copied from CollectionViewClassifyMenu (docs/tag-view-suggestions.md), as on iOS.
+        pages.registerPageProvider({ _, _ -> CYLSearchDiscoverFragment() }, "discover")
     }
 
     companion object {

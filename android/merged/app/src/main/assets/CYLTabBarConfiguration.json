@@ -28,6 +28,12 @@
       "CYLTabBarItemImage": "cyl_tab_tag_style",
       "CYLTabBarItemIdentifier": "tagStyle",
       "CYLTabBarItemPageIdentifier": "tagStyle"
+    },
+    {
+      "CYLTabBarItemTitle": "tab.discover",
+      "CYLTabBarItemImage": "cyl_tab_discover",
+      "CYLTabBarItemIdentifier": "discover",
+      "CYLTabBarItemPageIdentifier": "discover"
     }
   ],
   "CYLTabBarControllerPlusButton": {
@@ -36,6 +42,7 @@
     "CYLTabBarItemIdentifier": "plus",
     "CYLTabBarItemPageIdentifier": "plus",
     "CYLPlusButtonSize": "{56, 56}",
-    "CYLPlusButtonCenterYMultiplier": 0.3
+    "CYLPlusButtonCenterYMultiplier": 0.3,
+    "CYLPlusButtonIndexInTabBar": 2
   }
 }

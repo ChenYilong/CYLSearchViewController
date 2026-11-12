@@ -6,4 +6,23 @@
     <string name="example_tag_style">候補をタグで表示</string>
     <string name="example_open_search">検索を開くと候補が表示されます</string>
     <string name="example_search_note">プルして更新、オーバーレイ、空の状態（iOS の再現スイッチに相当する機能は Android にありません）</string>
+    <!-- The discover demo, copied from CollectionViewClassifyMenu (same texts as iOS CYLSearchDiscover.bundle). -->
+    <string name="cyl_discover_recent">最近の検索</string>
+    <string name="cyl_discover_tapToSearch">ダブルタップで検索</string>
+    <string name="cyl_discover_title">発見</string>
+    <string name="cyl_discover_refresh">別の話題</string>
+    <string name="cyl_discover_back">戻る</string>
+    <string name="cyl_discover_search">検索</string>
+    <string name="cyl_discover_imageSearch">画像で検索</string>
+    <string name="cyl_discover_clear">最近の検索を消去</string>
+    <string name="cyl_discover_cleared">最近の検索を消去しました</string>
+    <string name="cyl_discover_askHint">長押しで質問、何でも答えます</string>
+    <string name="cyl_discover_ask">長押しで質問</string>
+    <string name="cyl_discover_askAccessibilityHint">長押しして質問を話し、離すと送信します</string>
+    <string name="cyl_discover_listening">聞いています…</string>
+    <string name="cyl_discover_searching">検索中：%1$s</string>
+    <string name="cyl_discover_imageSearchUnavailable">このデモでは画像検索は使えません。</string>
+    <string name="cyl_discover_ok">OK</string>
+    <string name="cyl_discover_holdMic">マイクボタンを長押しして質問を話してください</string>
+    <string name="cyl_discover_hot">人気</string>
 </resources>
