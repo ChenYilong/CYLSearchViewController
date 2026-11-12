@@ -69,7 +69,7 @@ extension CYLLapismSearchViewController: CYLSearchBarViewDelegate {
         false
     }
 
-    func searchBarViewDidTap(whileNotEditable searchBarView: CYLSearchBarView) {
+    func searchBarViewDidTapWhileNotEditable(_ searchBarView: CYLSearchBarView) {
         searchView.showSearch()
     }
 }

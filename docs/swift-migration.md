@@ -51,6 +51,7 @@ with a score after every commit.
 | CYLSearchPlaceholderView → Swift | 10 files, 2533 lines | 10/100 |
 | CYLSearchResultsViewController, CYLSearchController → Swift | 6 files, 2241 lines | 21/100 |
 | CYLMultiSearchView → Swift | 4 files, 1713 lines | 39/100 |
+| CYLSearchView → Swift (+ a 2-line umbrella header while CYLSearchBarView is Objective-C) | 3 files, 1043 lines | 63/100 |
 
 Score = Objective-C lines removed from `Sources/` / 2838 (the Objective-C lines when the migration started) × 100,
 rounded down. 100 = no `.h` or `.m` file left in `Sources/`.
