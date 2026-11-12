@@ -19,7 +19,7 @@ DEPENDENCIES:
   - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `f9724167235dee050a81432f3c16f6c4e15dc186`)
   - CYLSearchViewController (from `.`)
   - CYLTabBarController (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `d36c7080157c49c552a3a352d72a9d00a2be11a9`)
-  - CYLTableViewPlaceHolder (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `a049422bde3f2cd17109521e8f962c99752e6cf2`)
+  - CYLTableViewPlaceHolder (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `5e30638c09139e13da7c0763487537ac39c954e5`)
 
 EXTERNAL SOURCES:
   CollectionViewClassifyMenu:
@@ -31,7 +31,7 @@ EXTERNAL SOURCES:
     :commit: d36c7080157c49c552a3a352d72a9d00a2be11a9
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
-    :commit: a049422bde3f2cd17109521e8f962c99752e6cf2
+    :commit: 5e30638c09139e13da7c0763487537ac39c954e5
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
 
 CHECKOUT OPTIONS:
@@ -42,7 +42,7 @@ CHECKOUT OPTIONS:
     :commit: d36c7080157c49c552a3a352d72a9d00a2be11a9
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
-    :commit: a049422bde3f2cd17109521e8f962c99752e6cf2
+    :commit: 5e30638c09139e13da7c0763487537ac39c954e5
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
 
 SPEC CHECKSUMS:
@@ -51,6 +51,6 @@ SPEC CHECKSUMS:
   CYLTabBarController: 99bfc43bcc42da04e2d953c23dfb60891a6f4e23
   CYLTableViewPlaceHolder: 2cf43940d6a518b80fd4941264ddb17cd3a400d8
 
-PODFILE CHECKSUM: 393cea72df77cf652da2483b18fe8d2d68167c1a
+PODFILE CHECKSUM: 9343ca09eb76cbd0ed8bd6daf7d0811f13b7bbbb
 
 COCOAPODS: 1.17.0
