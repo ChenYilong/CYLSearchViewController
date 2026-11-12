@@ -178,7 +178,7 @@ CollectionViewClassifyMenu).
   the Discover page there.
 - Status: `TODO` (iOS and Android done; React Native and Flutter open).
 
-## TODO (2026-11-12): Android tag cells cut their text at the cell edge
+## DONE (2026-11-12): Android tag cells cut their text at the cell edge
 
 - Context: the Android Discover tab (`CYLSearchDiscoverFragment`, CollectionViewClassifyMenu's Android
   `CYLTagListView` with `CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(2)`, pinned at `e550a01`). Long topic titles
@@ -197,4 +197,17 @@ CollectionViewClassifyMenu).
   ![Android Discover titles cut at the cell edge](assets/user-2026-11-12-android-discover-clipped-titles.png)
 
 - Prompt (verbatim): "No  I don't think so. Android tests pass (9/9). The alignment table has grown to 299 rows (the new iOS suggestionStyle API), all aligned. Regenerating it and writing the Android progress with screenshots: tag cell text are cut by boundary of cell , it should got gap between text and boundary of cell, if text is too long it should show text end with ... please mark this bug as TODO in docs files related."
-- Status: `TODO`.
+- Status: DONE (2026-11-12, [`74b75a6`](https://github.com/ChenYilong/CYLSearchViewController/commit/74b75a6)).
+  - Cause, in CollectionViewClassifyMenu's Android `CYLTagButton`: its children were measured with an `UNSPECIFIED`
+    width, so the title `TextView` kept a text layout as wide as the whole title; the narrower frame then clipped it
+    and `ellipsize = END` never applied.
+  - Fix there (sub-repository rule): `place()` measures each child at its frame before laying it out; every tag cell
+    uses it. [ChenYilong/CollectionViewClassifyMenu#17](https://github.com/ChenYilong/CollectionViewClassifyMenu/pull/17),
+    commit `f972416`, with `CYLTagTitleEllipsisTest` (fails without the fix) and its 30 library tests passing.
+  - Pinned here to `f972416` on Android and iOS; Android builds from the pinned checkout, iOS 19/19, `pod lib lint`
+    passes.
+  - After (cropped, Android 15 emulator `CYL_API35_arm64`, API 35, host macOS 27.3, built from
+    [`74b75a6`](https://github.com/ChenYilong/CYLSearchViewController/commit/74b75a6)'s pin, 2026-11-12 23:5x NZDT): long titles
+    end with "…" inside the cell, with a gap before the next column.
+
+    ![Android Discover titles end with an ellipsis](assets/android-discover-titles-ellipsis.png)
