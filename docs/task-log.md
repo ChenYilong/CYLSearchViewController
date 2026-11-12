@@ -82,3 +82,27 @@ begins and becomes `DONE` when it ends.
 - Requirement: "then create a PR that merges into the current branch".
 - Prompt (verbatim): "found an uncommitted, half-finished Drawn/ folder in the sibling's working tree, so I'm building from a clean checkout of their last commit in my own folder instead. then create pr merge to current branch"
 - Status: logged; to check what can be put in a PR (this session changed nothing in the sibling).
+
+## TODO (2026-11-12): rule for open PRs and issues of projects we translate
+
+- Context: `android/` holds Kotlin transcriptions of five GitHub projects, made from their default branches without
+  their open pull requests and issues (`docs/android-and-cross-platform.md`).
+- Requirements: write a rule (English) into the instruction files and the skills: when a document of this project
+  links to another project's GitHub repository for translation or similar work, merge that project's open PRs
+  (before translating; or, when the translation is done, translate the open PRs and merge them in); list its open
+  issues in a `docs/` table (issue link, description, fix status, default `TODO`); find each issue's counterpart in
+  our code and fix it; score after each fix until 100. Translation may start once the issues reach 60. The same rule
+  applies on every platform.
+- Prompt (verbatim): "写入一条规则到。instructions相关文件和skills文件中，全英文写入以下规则：如果本项目文档中出现了 非本项目的 GitHub 链接，切该链接是用来 做代码翻译等任务的，那么在翻译过程前，或者翻译过程后，需要 访问该GitHub 的 pr 链接，将处于open状态的pr合并进来。并且为该项目的issues页面，中处于open状态的issues在docs文件夹下相关文档，如果没有就新建文档中制作表格，第一列为issue地址 第二列为issue描述，第三列为修复状态，默认填TODO。你需要找到这些issue在我们项目代码中的对应项，尝试修复。issues修复完为满分，每修复一个issue打一次分，一直到满分为止。 举例说明：比如：本项目的android文件夹内，存在多个其他项目翻译为kotlin的任务，这些任务均默认翻译master分支代码，忽略了pr与issues内容，如果翻译任务还未开启那么就先 merge 该项目处于open状态的pr，再尝试解决open issues，只要issues处理状态达到60分，就可以开始翻译工作，翻译完成后，再开始尝试解决剩余的issues到满分。如果翻译工作已经完成，那么就单独对open pr内容进行翻译后，再merge到我们的项目中。基于翻译过的代码还是要处理issues。一直到满分。其他平台同样规则执行。"
+- Prompt (English): "Write a rule into the instruction files and the skill files, all in English: if this project's
+  documents contain a GitHub link that is not this project's, and the link is used for code translation or similar
+  tasks, then before or after translating, visit that GitHub project's PRs and merge the open ones in. For the open
+  issues on its issues page, make a table in a related document in docs (create one if none): first column the issue
+  link, second the issue description, third the fix status, TODO by default. Find each issue's counterpart in our
+  code and try to fix it. All issues fixed is full marks; score after each fixed issue until full marks. Example: the
+  android folder has several projects translated to Kotlin, all from the master branch, ignoring PRs and issues. If a
+  translation has not started, first merge the project's open PRs, then try to solve the open issues; once the issue
+  status reaches 60 the translation may start, and after it, solve the remaining issues to full marks. If the
+  translation is already done, translate the open PRs' content separately and merge it into our project, and still
+  handle the issues on the translated code, until full marks. Other platforms follow the same rule."
+- Status: logged.
