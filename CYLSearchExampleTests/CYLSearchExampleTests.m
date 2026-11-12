@@ -535,7 +535,8 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     XCTAssertTrue([tabBarController hasPlusButton]);
     XCTAssertTrue([tabBarController hasPlusChildViewController], @"the plus page ID resolves to a child");
     NSArray<UIViewController *> *pages = tabBarController.viewControllers;
-    XCTAssertEqual(pages.count, 3);
+    // Search, Examples, the plus page, Tag style and Discover (docs/tag-view-suggestions.md).
+    XCTAssertEqual(pages.count, 5);
     NSArray<Class> *roots = @[CYLSearchExampleViewController.class, CYLSearchBarDemoViewController.class, CYLSearchDemoMenuViewController.class];
     for (Class rootClass in roots) {
         NSUInteger index = [pages indexOfObjectPassingTest:^BOOL(UIViewController *page, NSUInteger idx, BOOL *stop) {
@@ -559,12 +560,14 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
         NSArray<NSString *> *titles = [pages valueForKeyPath:@"tabBarItem.title"];
         XCTAssertTrue([titles containsObject:@"Search"], @"%@", titles);
         XCTAssertTrue([titles containsObject:@"Examples"], @"%@", titles);
+        XCTAssertTrue([titles containsObject:@"Tag style"], @"%@", titles);
+        XCTAssertTrue([titles containsObject:@"Discover"], @"%@", titles);
         XCTAssertEqualObjects(CYLExternPlusButton.accessibilityLabel, @"Search bar");
     }
     for (NSString *code in @[@"en", @"zh-Hans", @"zh-Hant", @"ja"]) {
         NSString *path = [NSBundle.mainBundle pathForResource:@"CYLSearchTabs" ofType:@"strings" inDirectory:[NSString stringWithFormat:@"CYLSearchTabs.bundle/%@.lproj", code]];
         NSDictionary *table = path ? [NSDictionary dictionaryWithContentsOfFile:path] : nil;
-        XCTAssertEqual(table.count, 3, @"%@ has every key", code);
+        XCTAssertEqual(table.count, 5, @"%@ has every key", code);
     }
 }
 
@@ -631,6 +634,24 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
         XCTAssertNotNil(bar.window);
         NSArray *covered = CYLViewsCoveredByView(bar, nil);
         XCTAssertEqual(covered.count, 0, @"demo at %@: %@", size, covered);
+    }
+
+    // CYLSearchBarView of the discover page (the "Discover" tab, copied from CollectionViewClassifyMenu), which draws
+    // it in place of the navigation bar.
+    UIViewController *discover = [CYLSuggestionDemoPages discoverViewController];
+    navigation = [[UINavigationController alloc] initWithRootViewController:discover];
+    window.rootViewController = navigation;
+    for (UIContentSizeCategory size in sizes) {
+        if (@available(iOS 17.0, *)) {
+            window.traitOverrides.preferredContentSizeCategory = size;
+        }
+        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.2]];
+        [navigation.view setNeedsLayout];
+        [navigation.view layoutIfNeeded];
+        CYLSearchBarView *bar = (CYLSearchBarView *)[discover.view.subviews filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self isKindOfClass: %@", CYLSearchBarView.class]].firstObject;
+        XCTAssertNotNil(bar.window);
+        NSArray *covered = CYLViewsCoveredByView(bar, nil);
+        XCTAssertEqual(covered.count, 0, @"discover at %@: %@", size, covered);
     }
     if (@available(iOS 17.0, *)) {
         window.traitOverrides.preferredContentSizeCategory = UIContentSizeCategoryLarge;

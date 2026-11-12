@@ -1,0 +1,19 @@
+/* The discover demo (CYLSearchDiscoverViewController), copied from CollectionViewClassifyMenu's CYLMenuExample. */
+"discover.recent" = "最近搜索";
+"discover.tapToSearch" = "轻点两下搜索";
+"discover.title" = "发现";
+"discover.refresh" = "换一批";
+"discover.back" = "返回";
+"discover.search" = "搜索";
+"discover.imageSearch" = "以图搜索";
+"discover.clear" = "清空最近搜索";
+"discover.cleared" = "已清空最近搜索";
+"discover.askHint" = "按住提问，有问必答";
+"discover.ask" = "按住提问";
+"discover.askAccessibilityHint" = "按住说出问题，松开发送";
+"discover.listening" = "正在聆听…";
+"discover.searching" = "正在搜索：%@";
+"discover.imageSearchUnavailable" = "演示中暂不支持以图搜索。";
+"discover.ok" = "好";
+"discover.holdMic" = "请按住麦克风按钮说出问题";
+"discover.hot" = "热门";

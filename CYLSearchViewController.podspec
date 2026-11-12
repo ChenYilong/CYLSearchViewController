@@ -13,4 +13,7 @@ Pod::Spec.new do |s|
   s.source_files = 'Sources/CYLSearchViewController/**/*.swift'
   s.swift_version = '5.0'
   s.resources = 'Resources/CYLSearchViewController.bundle'
+  # The tag suggestion style (CYLSearchSuggestionStyle.tags) shows suggestions in CollectionViewClassifyMenu's
+  # CYLTagListView. Not on CocoaPods trunk: apps pin it by commit in their Podfile (AGENTS.md, "Sub-repositories").
+  s.dependency 'CollectionViewClassifyMenu'
 end

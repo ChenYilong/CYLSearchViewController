@@ -6,9 +6,14 @@ project 'CYLSearchExample.xcodeproj'
 workspace 'CYLSearchExample.xcworkspace'
 
 target 'CYLSearchExample' do
-  use_frameworks!
+  # Static frameworks: CollectionViewClassifyMenu is a static framework (its podspec), and a dynamic framework (this
+  # pod) cannot depend on a static one.
+  use_frameworks! :linkage => :static
   pod 'CYLSearchViewController', :path => '.'
   pod 'CYLTableViewPlaceHolder', :path => '../CYLTableViewPlaceHolder'
+  # Sub-repository (AGENTS.md, "Sub-repositories"): the tag suggestion style of CYLSearchView. Pinned to its newest
+  # commit on any branch (`git log --remotes -1`); never a local path in a commit.
+  pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => 'e550a0181ea1bc98cf473e777cb1015c2bc564a6'
   pod 'CYLTabBarController', :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => 'd36c7080157c49c552a3a352d72a9d00a2be11a9'
 
   target 'CYLSearchExampleTests' do

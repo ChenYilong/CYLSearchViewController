@@ -1,4 +1,20 @@
+import CollectionViewClassifyMenu
 import UIKit
+
+/**
+ * How the suggestions are shown under the search bar (`CYLSearchView.suggestionStyle`).
+ */
+@objc(CYLSearchSuggestionStyle)
+public enum CYLSearchSuggestionStyle: Int {
+    /**
+     * One suggestion per row with its icon, in `suggestionsTableView`.
+     */
+    case list
+    /**
+     * Tags that wrap like words, in `suggestionsTagView` (CollectionViewClassifyMenu's `CYLTagListView`).
+     */
+    case tags
+}
 
 /**
  * Events of a `CYLSearchView`: opening and closing, the query, focus, suggestions and the voice button.
@@ -85,6 +101,18 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
      * The table that lists the suggestions.
      */
     @objc public let suggestionsTableView = UITableView(frame: .zero, style: .plain)
+
+    /**
+     * The tags that show the suggestions when `suggestionStyle` is `CYLSearchSuggestionStyleTags`
+     * (CollectionViewClassifyMenu's `CYLTagListView`). Style it directly: `style`, spacing, rows, colors.
+     */
+    @objc public let suggestionsTagView = CYLTagListView(foldControl: nil)
+
+    /**
+     * How the suggestions are shown: a list (`CYLSearchSuggestionStyleList`, the default) or tags
+     * (`CYLSearchSuggestionStyleTags`). A tapped tag works like a tapped row.
+     */
+    @objc public var suggestionStyle: CYLSearchSuggestionStyle = .list { didSet { updateSuggestionsVisibility() } }
 
     private let pageView = UIView()
     private let scrimView = UIControl()
@@ -267,6 +295,13 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         suggestionsTableView.isHidden = true
         suggestionsTableView.register(UITableViewCell.self, forCellReuseIdentifier: Self.cellIdentifier)
         pageView.addSubview(suggestionsTableView)
+        suggestionsTagView.isHidden = true
+        suggestionsTagView.showsSectionHeaders = false
+        suggestionsTagView.accessibilityLabel = CYLSearchResources.localizedString(forKey: "search.suggestions")
+        suggestionsTagView.tagClickHandler = { [weak self] index, _ in
+            self?.selectSuggestion(at: index)
+        }
+        pageView.addSubview(suggestionsTagView)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardChanged(_:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardHidden(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         applyStyle()
@@ -293,7 +328,9 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         var pageHeight = bottom
         if scrimColor != nil, contentView == nil {
             suggestionsTableView.layoutIfNeeded()
-            let listHeight = suggestionsVisible ? suggestionsTableView.contentSize.height : 0
+            let tags = suggestionStyle == .tags
+            let listHeight = !suggestionsVisible ? 0
+                : tags ? suggestionsTagView.heightThatFitsWidth(width - safe.left - safe.right) : suggestionsTableView.contentSize.height
             pageHeight = min(bottom, top + listHeight)
         }
         pageView.frame = CGRect(x: 0, y: 0, width: width, height: pageHeight)
@@ -305,6 +342,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         let below = CGRect(x: safe.left, y: top, width: width - safe.left - safe.right, height: max(0, pageHeight - top))
         contentView?.frame = below
         suggestionsTableView.frame = below
+        suggestionsTagView.frame = below
         var insets = suggestionsTableView.contentInset
         insets.bottom = max(keyboardOverlap - (bottom - pageHeight), safe.bottom)
         suggestionsTableView.contentInset = insets
@@ -520,7 +558,12 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
     }
 
     private func updateSuggestionsVisibility() {
-        suggestionsTableView.isHidden = !suggestionsVisible
+        let tags = suggestionStyle == .tags
+        suggestionsTableView.isHidden = !suggestionsVisible || tags
+        suggestionsTagView.isHidden = !suggestionsVisible || !tags
+        if tags {
+            suggestionsTagView.setTags(withTitles: suggestionsVisible ? filteredSuggestions : [])
+        }
         suggestionsTableView.reloadData()
         setNeedsLayout()
     }
@@ -627,12 +670,19 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
      */
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        guard filteredSuggestions.indices.contains(indexPath.row) else {
+        selectSuggestion(at: indexPath.row)
+    }
+
+    /**
+     * A tapped row or tag: fills the field, reports it, and submits it when `submitsOnSuggestionSelection` is YES.
+     */
+    private func selectSuggestion(at index: Int) {
+        guard filteredSuggestions.indices.contains(index) else {
             return
         }
-        let suggestion = filteredSuggestions[indexPath.row]
+        let suggestion = filteredSuggestions[index]
         searchBarView.text = suggestion
-        delegate?.searchView?(self, didSelectSuggestion: suggestion, at: UInt(indexPath.row))
+        delegate?.searchView?(self, didSelectSuggestion: suggestion, at: UInt(index))
         if submitsOnSuggestionSelection {
             searchBarView.submit()
         } else {

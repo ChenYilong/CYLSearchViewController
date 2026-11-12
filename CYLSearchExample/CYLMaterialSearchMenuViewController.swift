@@ -8,6 +8,11 @@ import CYLSearchViewController
 @objc(CYLMaterialSearchMenuViewController)
 final class CYLMaterialSearchMenuViewController: UITableViewController {
 
+    /**
+     * The suggestion style of every sample opened from this menu (the "Tag style" tab uses `.tags`).
+     */
+    var suggestionStyle: CYLSearchSuggestionStyle = .list
+
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.title = "MaterialSearchView"
@@ -23,13 +28,15 @@ final class CYLMaterialSearchMenuViewController: UITableViewController {
         content.text = CYLMaterialSearchSample.allCases[indexPath.row].title
         cell.contentConfiguration = content
         cell.accessoryType = .disclosureIndicator
+        // A row opens a sample: VoiceOver and UI tests see it as a button.
+        cell.accessibilityTraits.insert(.button)
         return cell
     }
 
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let sample = CYLMaterialSearchSample.allCases[indexPath.row]
-        navigationController?.pushViewController(CYLMaterialSearchSampleViewController(sample: sample), animated: true)
+        navigationController?.pushViewController(CYLMaterialSearchSampleViewController(sample: sample, suggestionStyle: suggestionStyle), animated: true)
     }
 }
 
@@ -74,16 +81,19 @@ final class CYLMaterialSearchSampleViewController: UIViewController {
     ]
 
     private let sample: CYLMaterialSearchSample
+    private let suggestionStyle: CYLSearchSuggestionStyle
     private let searchView = CYLSearchView(frame: .zero)
     private let speech = CYLSpeechRecognizer()
 
-    init(sample: CYLMaterialSearchSample) {
+    init(sample: CYLMaterialSearchSample, suggestionStyle: CYLSearchSuggestionStyle = .list) {
         self.sample = sample
+        self.suggestionStyle = suggestionStyle
         super.init(nibName: nil, bundle: nil)
     }
 
     required init?(coder: NSCoder) {
         sample = .standard
+        suggestionStyle = .list
         super.init(coder: coder)
     }
 
@@ -102,6 +112,7 @@ final class CYLMaterialSearchSampleViewController: UIViewController {
         searchView.searchBarView.cursorColor = sample == .themed || sample == .voice ? .white : .systemPink
         searchView.suggestionLineBreakMode = sample == .standard || sample == .inputType ? .byTruncatingTail : .byWordWrapping
         searchView.suggestions = sample == .sticky ? [] : Self.suggestions
+        searchView.suggestionStyle = suggestionStyle
         searchView.searchBarView.isSecureTextEntry = sample == .inputType
         if sample == .themed || sample == .voice {
             // The colored theme: white text on the primary color.
