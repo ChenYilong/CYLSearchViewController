@@ -11,5 +11,7 @@
         <attr name="android:textColor" />
         <attr name="android:textColorHint" />
         <attr name="android:inputType" />
+        <!-- Issue #41: the cursor drawable as an attribute. -->
+        <attr name="searchCursorDrawable" format="reference" />
     </declare-styleable>
 </resources>

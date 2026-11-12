@@ -5,6 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:visibility="invisible">
+    <!-- Issue fixes in this layout: #84 / #192 / #194 / #141 / #154 / #47 the suggestion list has a fixed height
+         (0dp, weight 1) instead of wrap_content, with white rows and a transparent list background; #119 / #98 / #252
+         start / end for right-to-left layouts; #14 / #34 the bottom line has an id so its color can be changed. -->
 
     <View
         android:id="@+id/transparent_view"
@@ -32,8 +35,9 @@
                 android:hint="@string/search_hint"
                 android:imeOptions="actionSearch"
                 android:inputType="textNoSuggestions"
-                android:paddingLeft="@dimen/search_view_text_padding"
-                android:paddingRight="@dimen/search_view_text_padding"
+                android:paddingStart="@dimen/search_view_text_padding"
+                android:paddingEnd="@dimen/search_view_text_padding"
+                android:textAlignment="viewStart"
                 android:singleLine="true"
                 android:textColor="#212121"
                 android:textColorHint="#727272"
@@ -42,6 +46,7 @@
             <ImageButton
                 android:id="@+id/action_up_btn"
                 style="@style/MSV_ImageButton"
+                android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:src="@drawable/ic_action_navigation_arrow_back"/>
 
@@ -61,6 +66,7 @@
                 android:visibility="gone"/>
 
             <View
+                android:id="@+id/search_divider"
                 android:layout_width="match_parent"
                 android:layout_height="1dip"
                 android:layout_alignParentBottom="true"
@@ -72,8 +78,9 @@
         <ListView
             android:id="@+id/suggestion_list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/white"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
             android:divider="@android:color/transparent"/>
     </LinearLayout>
 </FrameLayout>

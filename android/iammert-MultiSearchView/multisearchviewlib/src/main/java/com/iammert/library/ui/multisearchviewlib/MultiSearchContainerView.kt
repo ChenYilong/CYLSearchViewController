@@ -6,6 +6,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.databinding.DataBindingUtil
@@ -19,6 +20,9 @@ import com.iammert.library.ui.multisearchviewlib.helper.SimpleTextWatcher
 import kotlinx.android.synthetic.main.view_item.view.*
 
 
+// Merged from upstream PR #15 (kojofosu): view binding fields instead of `root.<synthetic id>`.
+// Open issues fixed here (docs/android-upstream-issues.md): #19 keyboard on Android 12+; #7 a removed tab gives up
+// its focus first; #18 getEditText; #14 addSearch; #6 setSearchText; #4 the text style's cursor drawable.
 class MultiSearchContainerView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -59,8 +63,8 @@ class MultiSearchContainerView @JvmOverloads constructor(
 
             endListener {
                 selectedTab?.let {
-                    it.root.editTextSearch.requestFocus()
-                    KeyboardHelper.showKeyboard(context)
+                    it.editTextSearch.requestFocus()
+                    KeyboardHelper.showKeyboard(it.editTextSearch)
                 }
             }
         }
@@ -85,8 +89,8 @@ class MultiSearchContainerView @JvmOverloads constructor(
         }
         endListener {
             selectedTab?.let {
-                it.root.editTextSearch.requestFocus()
-                KeyboardHelper.showKeyboard(context)
+                it.editTextSearch.requestFocus()
+                KeyboardHelper.showKeyboard(it.editTextSearch)
             }
         }
     }
@@ -168,19 +172,19 @@ class MultiSearchContainerView @JvmOverloads constructor(
         }
 
         selectedTab?.let {
-            it.root.editTextSearch.isFocusable = false
-            it.root.editTextSearch.isFocusableInTouchMode = false
-            it.root.editTextSearch.clearFocus()
+            it.editTextSearch.isFocusable = false
+            it.editTextSearch.isFocusableInTouchMode = false
+            it.editTextSearch.clearFocus()
         }
 
         selectedTab?.let {
             val startWidthValue = it.root.measuredWidth
-            val endWidthValue = it.root.editTextSearch.measuredWidth + sizeRemoveIcon + defaultPadding
+            val endWidthValue = it.editTextSearch.measuredWidth + sizeRemoveIcon + defaultPadding
             searchCompleteCollapseAnimator.setIntValues(startWidthValue, endWidthValue)
             searchCompleteCollapseAnimator.start()
             multiSearchViewListener?.onSearchComplete(
                 binding.layoutItemContainer.childCount - 1,
-                it.root.editTextSearch.text
+                it.editTextSearch.text
             )
         }
 
@@ -206,7 +210,7 @@ class MultiSearchContainerView @JvmOverloads constructor(
             }
         }
 
-        viewItem.root.editTextSearch.setOnClickListener {
+        viewItem.editTextSearch.setOnClickListener {
             if (viewItem != selectedTab) {
                 multiSearchViewListener?.onItemSelected(
                     binding.layoutItemContainer.indexOfChild(viewItem.root),
@@ -223,7 +227,7 @@ class MultiSearchContainerView @JvmOverloads constructor(
             }
         })
 
-        viewItem.root.imageViewRemove.setOnClickListener {
+        viewItem.imageViewRemove.setOnClickListener {
             selectedTab?.let { removeTab(it) }
         }
 
@@ -245,7 +249,40 @@ class MultiSearchContainerView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * The text field of the selected search, or null (issue #18).
+     */
+    fun getEditText(): EditText? = selectedTab?.editTextSearch
+
+    /**
+     * Sets the text of the search being typed (issue #6).
+     */
+    fun setSearchText(text: CharSequence) {
+        selectedTab?.editTextSearch?.let {
+            it.setText(text)
+            it.setSelection(it.length())
+        }
+    }
+
+    /**
+     * Adds a completed search without typing it, like "Popular" or "Newest" in the demo video (issue #14).
+     */
+    fun addSearch(text: CharSequence) {
+        if (isInSearchMode) completeSearch()
+        selectedTab?.let { deselectTab(it) }
+        val item = createNewSearchView()
+        item.editTextSearch.setText(text)
+        item.editTextSearch.isFocusable = false
+        item.editTextSearch.isFocusableInTouchMode = false
+        binding.layoutItemContainer.addView(item.root)
+        selectedTab = item
+        item.root.post { selectTab(item) }
+        multiSearchViewListener?.onSearchComplete(binding.layoutItemContainer.childCount - 1, text)
+    }
+
     private fun removeTab(viewItemBinding: ViewItemBinding) {
+        // #7: a focused view that leaves the scroll view crashes its next size change.
+        viewItemBinding.editTextSearch.clearFocus()
         val removeIndex = binding.layoutItemContainer.indexOfChild(viewItemBinding.root)
 
         val currentChildCount = binding.layoutItemContainer.childCount

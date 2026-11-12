@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Independent layout for the reveal search sample (see CYLRevealSearchActivity.kt). -->
+<!-- Independent layout for the reveal search sample (see CYLRevealSearchActivity.kt). Upstream issues #4 / #2: the
+     text and the hint have readable colors on the light card (upstream used light yellow text on a light card). -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -25,7 +26,8 @@
             android:inputType="text"
             android:paddingStart="12dp"
             android:paddingEnd="56dp"
-            android:textColor="#FFD46C" />
+            android:textColor="#212121"
+            android:textColorHint="#757575" />
 
         <ImageView
             android:id="@+id/cyl_search_magnifier"

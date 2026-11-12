@@ -63,10 +63,21 @@ object AnimationUtil {
 
     @JvmStatic
     fun reveal(view: View, listener: AnimationListener) {
-        val cx = view.width - TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, view.resources.displayMetrics).toInt()
+        reveal(view, -1, 0, listener)
+    }
+
+    /**
+     * Reveals `view` from `centerX` (its end when negative; issue #57) over `duration` milliseconds (the platform
+     * default when 0; issue #26).
+     */
+    @JvmStatic
+    fun reveal(view: View, centerX: Int, duration: Int, listener: AnimationListener) {
+        val end = view.width - TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, view.resources.displayMetrics).toInt()
+        val cx = if (centerX < 0) end else centerX
         val cy = view.height / 2
         val finalRadius = maxOf(view.width, view.height)
         val anim = ViewAnimationUtils.createCircularReveal(view, cx, cy, 0f, finalRadius.toFloat())
+        if (duration > 0) anim.duration = duration.toLong()
         view.visibility = View.VISIBLE
         anim.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationStart(animation: Animator) {

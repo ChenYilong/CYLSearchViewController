@@ -64,6 +64,21 @@ class MultiSearchView @JvmOverloads constructor(context: Context, attrs: Attribu
         binding.imageViewSearch.imageTintList = AppCompatResources.getColorStateList(context, color)
     }
 
+    /**
+     * The text field of the selected search, or null (issue #18).
+     */
+    fun getEditText(): android.widget.EditText? = binding.searchViewContainer.getEditText()
+
+    /**
+     * Sets the text of the search being typed (issue #6).
+     */
+    fun setSearchText(text: CharSequence) = binding.searchViewContainer.setSearchText(text)
+
+    /**
+     * Adds a completed search without typing it (issue #14).
+     */
+    fun addSearch(text: CharSequence) = binding.searchViewContainer.addSearch(text)
+
     fun setSearchViewListener(multiSearchViewListener: MultiSearchViewListener) {
         binding.searchViewContainer.setSearchViewListener(multiSearchViewListener)
     }

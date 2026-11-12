@@ -3,6 +3,8 @@
 // #153 SuggestionItem (sticky items, an icon per item), #176 checkWholeString ("contains" instead of "starts with"),
 // #127 is covered by #176's flag, #114 default suggestions for an empty query, #220 as a text color setting.
 // getItem() still returns the suggestion text, so existing callers keep working; getSuggestionItem() returns the item.
+// Open issues fixed here (docs/android-upstream-issues.md): #74 / #233 null suggestions are skipped; #75 an empty
+// result clears the list; #242 / #165 customFilter; #250 ignoreAccents; #187 rowMinHeight; #84 rowBackground.
 package com.miguelcatalan.materialsearchview
 
 import android.content.Context
@@ -16,6 +18,7 @@ import android.widget.Filter
 import android.widget.Filterable
 import android.widget.ImageView
 import android.widget.TextView
+import java.text.Normalizer
 
 /**
  * Suggestions Adapter: lists the suggestions that match the query.
@@ -36,6 +39,34 @@ class SearchAdapter(
     private var searchCovered = false
 
     /**
+     * Decides whether a suggestion matches the query; null uses "starts with" (or "contains" with checkWholeString).
+     */
+    var customFilter: ((suggestion: String, query: String) -> Boolean)? = null
+
+    /**
+     * Compares without accents ("José" matches "jose"); issue #250.
+     */
+    var ignoreAccents = false
+
+    /**
+     * The minimum row height in pixels; 0 keeps the layout's height (issue #187).
+     */
+    var rowMinHeight = 0
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+
+    /**
+     * The row background; null keeps the layout's white background.
+     */
+    var rowBackground: Drawable? = null
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
+
+    /**
      * The color of the suggestion text; null keeps the layout's color (PR #220 made it white).
      */
     var textColor: Int? = null
@@ -45,19 +76,19 @@ class SearchAdapter(
         }
 
     @JvmOverloads
-    constructor(context: Context, suggestions: Array<String>, suggestionIcon: Drawable? = null, ellipsize: Boolean = false) :
+    constructor(context: Context, suggestions: Array<out String?>, suggestionIcon: Drawable? = null, ellipsize: Boolean = false) :
         this(context, suggestions.toItems(), suggestionIcon, ellipsize, false)
 
     /**
      * PR #176: `checkWholeString` matches anywhere in the suggestion instead of at its start.
      */
-    constructor(context: Context, suggestions: Array<String>, suggestionIcon: Drawable?, ellipsize: Boolean, checkWholeString: Boolean) :
+    constructor(context: Context, suggestions: Array<out String?>, suggestionIcon: Drawable?, ellipsize: Boolean, checkWholeString: Boolean) :
         this(context, suggestions.toItems(), suggestionIcon, ellipsize, checkWholeString)
 
     /**
      * PR #114: `defaultSuggestions` are listed while the query is empty.
      */
-    constructor(context: Context, suggestions: Array<String>, defaultSuggestions: Array<String>?, suggestionIcon: Drawable?, ellipsize: Boolean) :
+    constructor(context: Context, suggestions: Array<out String?>, defaultSuggestions: Array<String>?, suggestionIcon: Drawable?, ellipsize: Boolean) :
         this(context, suggestions.toItems(), suggestionIcon, ellipsize, false) {
         this.defaultSuggestions = defaultSuggestions
     }
@@ -93,10 +124,15 @@ class SearchAdapter(
                 }
             } else {
                 // Retrieve the autocomplete results.
-                val query = constraint.toString().lowercase()
+                val query = fold(constraint.toString())
                 items.filterTo(searchData) { item ->
-                    val text = item.text.lowercase()
-                    item.isSticky || if (checkWholeString) text.contains(query) else text.startsWith(query)
+                    val filter = customFilter
+                    val text = fold(item.text)
+                    item.isSticky || when {
+                        filter != null -> filter(item.text, constraint.toString())
+                        checkWholeString -> text.contains(query)
+                        else -> text.startsWith(query)
+                    }
                 }
             }
             // Assign the data to the FilterResults (nothing for an empty query without sticky or default items).
@@ -109,11 +145,16 @@ class SearchAdapter(
 
         @Suppress("UNCHECKED_CAST")
         override fun publishResults(constraint: CharSequence?, results: FilterResults) {
-            if (results.values != null) {
-                data = results.values as List<SuggestionItem>
-                notifyDataSetChanged()
-            }
+            // #75: no result (an empty query) clears the list instead of keeping the last one.
+            data = (results.values as? List<SuggestionItem>) ?: emptyList()
+            notifyDataSetChanged()
         }
+    }
+
+    private fun fold(text: String): String {
+        val lower = text.lowercase()
+        if (!ignoreAccents) return lower
+        return Normalizer.normalize(lower, Normalizer.Form.NFD).replace("\\p{Mn}+".toRegex(), "")
     }
 
     override fun getCount(): Int = data.size
@@ -135,6 +176,8 @@ class SearchAdapter(
         val viewHolder = view.tag as SuggestionsViewHolder
         val item = data[position]
         viewHolder.textView.text = item.text
+        if (rowMinHeight > 0) view.minimumHeight = rowMinHeight
+        rowBackground?.let { view.background = it.constantState?.newDrawable()?.mutate() ?: it }
         textColor?.let { viewHolder.textView.setTextColor(it) }
         when {
             item.iconRes != 0 -> viewHolder.imageView.setImageResource(item.iconRes)
@@ -153,4 +196,4 @@ class SearchAdapter(
     }
 }
 
-private fun Array<String>.toItems(): Array<SuggestionItem> = Array(size) { SuggestionItem(false, 0, this[it]) }
+private fun Array<out String?>.toItems(): Array<SuggestionItem> = filterNotNull().map { SuggestionItem(false, 0, it) }.toTypedArray()

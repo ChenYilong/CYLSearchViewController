@@ -112,7 +112,7 @@ done, so each pull request's changes were translated to Kotlin and merged into t
 | [MiguelCatalan/MaterialSearchView#66](https://github.com/MiguelCatalan/MaterialSearchView/pull/66) | Merged | Same fix as #159. |
 | [iammert/MultiSearchView#17](https://github.com/iammert/MultiSearchView/pull/17) | Merged | `selectedTabStyle` (line or dot), the `selectedTabStyle` attribute and `viewIndicator2`. |
 | [iammert/MultiSearchView#16](https://github.com/iammert/MultiSearchView/pull/16) | Merged | `setSearchIconDrawable`, `setSearchIconColor`, the `searchIcon` and `searchIconColor` attributes. |
-| [iammert/MultiSearchView#15](https://github.com/iammert/MultiSearchView/pull/15) | Merged (equivalent) | Its code change (no `kotlinx.android.synthetic`) is already on master, which uses data binding; the Gradle and Kotlin versions are set by `android/merged`. |
+| [iammert/MultiSearchView#15](https://github.com/iammert/MultiSearchView/pull/15) | Merged | `MultiSearchContainerView` uses the binding fields (`it.editTextSearch`) instead of `root.<synthetic id>`, which master still had without the synthetic import; the Gradle and Kotlin versions are set by `android/merged`. |
 
 All 22 open pull requests are handled (19 merged, fully or adapted to keep the existing API; 3 change no code).
 Open issues: `docs/android-upstream-issues.md`.

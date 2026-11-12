@@ -90,6 +90,13 @@ fun EditText.setStyle(context: Context, @StyleRes resId: Int) {
     val typedArray = context.obtainStyledAttributes(resId, attributes)
 
     readStyle(typedArray, attributes)
+    // Issue #4: android:textCursorDrawable in the text style (TextView reads it only from its own XML).
+    val cursor = context.obtainStyledAttributes(resId, intArrayOf(android.R.attr.textCursorDrawable))
+    val cursorRes = cursor.getResourceId(0, 0)
+    cursor.recycle()
+    if (cursorRes != 0 && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+        setTextCursorDrawable(cursorRes)
+    }
 }
 
 private fun EditText.readStyle(typedArray: TypedArray, attributes: IntArray) {
