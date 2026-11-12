@@ -27,6 +27,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.ImageViewCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.cyl.classifymenu.CYLTagListView
 import java.text.Normalizer
 import java.util.Locale
 
@@ -63,6 +64,22 @@ enum class CYLLineBreakMode {
      * One line with an ellipsis in the middle.
      */
     TruncatingMiddle,
+}
+
+/**
+ * How the suggestions are shown under the search bar (`CYLSearchView.suggestionStyle`).
+ */
+enum class CYLSearchSuggestionStyle {
+    /**
+     * One suggestion per row with its icon (`suggestionsTableView`; iOS table view).
+     */
+    List,
+
+    /**
+     * Tags that wrap like words (`suggestionsTagView`, CollectionViewClassifyMenu's `CYLTagListView`; iOS collection
+     * view).
+     */
+    Tags,
 }
 
 /**
@@ -194,6 +211,21 @@ class CYLSearchView @JvmOverloads constructor(
      * The list of suggestions (iOS `suggestionsTableView`).
      */
     val suggestionsTableView: RecyclerView = RecyclerView(context)
+
+    /**
+     * The tags that show the suggestions when `suggestionStyle` is `Tags` (CollectionViewClassifyMenu's
+     * `CYLTagListView`). Style it directly: colors (`colorTheme`), spacing, rows, the tag style.
+     */
+    val suggestionsTagView: CYLTagListView = CYLTagListView(context)
+
+    /**
+     * How the suggestions are shown: a list (`List`, the default) or tags (`Tags`).
+     */
+    var suggestionStyle: CYLSearchSuggestionStyle = CYLSearchSuggestionStyle.List
+        set(value) {
+            field = value
+            updateSuggestionsVisibility()
+        }
 
     /**
      * The color of `dividerView` (lapism `setDividerColor`). The theme's divider color when null; transparent hides
@@ -400,6 +432,13 @@ class CYLSearchView @JvmOverloads constructor(
             }
         })
         bodyView.addView(suggestionsTableView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        suggestionsTagView.visibility = GONE
+        suggestionsTagView.showsSectionHeaders = false
+        suggestionsTagView.contentDescription = CYLSearchResources.localizedString(context, "search.suggestions")
+        suggestionsTagView.tagClickHandler = { index, _ -> select(index) }
+        val padding = (12 * density).toInt()
+        suggestionsTagView.setPadding(padding, padding, padding, padding)
+        bodyView.addView(suggestionsTagView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
         ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
             topInset = bars.top
@@ -629,7 +668,12 @@ class CYLSearchView @JvmOverloads constructor(
     }
 
     private fun updateSuggestionsVisibility() {
-        suggestionsTableView.visibility = if (suggestionsVisible) VISIBLE else GONE
+        val tags = suggestionStyle == CYLSearchSuggestionStyle.Tags
+        suggestionsTableView.visibility = if (suggestionsVisible && !tags) VISIBLE else GONE
+        suggestionsTagView.visibility = if (suggestionsVisible && tags) VISIBLE else GONE
+        if (tags) {
+            suggestionsTagView.setTagsWithTitles(if (suggestionsVisible) filteredSuggestions else emptyList())
+        }
         reloadSuggestions()
     }
 

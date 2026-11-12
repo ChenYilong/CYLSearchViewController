@@ -40,6 +40,8 @@ dependencies {
     api(project(":search-lapism"))
     api(project(":search-materialsearchview"))
     api(project(":search-multisearchview"))
+    // The tag suggestion style (CYLSearchSuggestionStyle.Tags) uses CollectionViewClassifyMenu's CYLTagListView.
+    api(project(":classifymenu"))
     implementation(libs.androidx.appcompat)
     api(libs.androidx.fragment.ktx)
     api(libs.androidx.recyclerview)

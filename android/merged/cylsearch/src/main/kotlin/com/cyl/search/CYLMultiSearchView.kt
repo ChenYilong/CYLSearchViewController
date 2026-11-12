@@ -66,6 +66,7 @@ class CYLMultiSearchView @JvmOverloads constructor(
         val removeButton = ImageButton(context)
         val indicator = View(context)
         var editing = false
+        var reportedText = ""
     }
 
     private val density = resources.displayMetrics.density
@@ -341,7 +342,9 @@ class CYLMultiSearchView @JvmOverloads constructor(
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
             override fun afterTextChanged(s: Editable?) {
                 val index = items.indexOf(item)
-                if (index >= 0 && item.editing) {
+                // Restyling the field (input type, filters) also runs the watcher: report only real edits, as iOS.
+                if (index >= 0 && item.editing && s.toString() != item.reportedText) {
+                    item.reportedText = s.toString()
                     delegate?.multiSearchViewTextDidChange(this@CYLMultiSearchView, s.toString(), index)
                 }
             }

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="example_originals">元のサンプル</string>
+    <string name="example_originals_subtitle">上流のサンプル（変更なし）</string>
+    <string name="example_list_style">候補をリストで表示</string>
+    <string name="example_tag_style">候補をタグで表示</string>
+    <string name="example_open_search">検索を開くと候補が表示されます</string>
+    <string name="example_search_note">プルして更新、オーバーレイ、空の状態（iOS の再現スイッチに相当する機能は Android にありません）</string>
+</resources>

@@ -1,4 +1,5 @@
-// The example app: CYLTabBarController's Android tab bar (pinned commit, settings.gradle.kts), one tab per example.
+// The example app: the iOS example ported to Android, with CYLTabBarController's tab bar from a configuration file
+// (pinned commit, settings.gradle.kts).
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -44,4 +45,6 @@ dependencies {
     implementation(libs.androidx.fragment.ktx)
     implementation(libs.androidx.recyclerview)
     implementation(libs.material)
+    implementation(libs.androidx.swiperefreshlayout)
+    implementation(libs.androidx.activity.ktx)
 }

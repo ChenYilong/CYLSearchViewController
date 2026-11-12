@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="example_originals">原始範例</string>
+    <string name="example_originals_subtitle">上游範例（未修改）</string>
+    <string name="example_list_style">候選項以列表顯示</string>
+    <string name="example_tag_style">候選項以標籤顯示</string>
+    <string name="example_open_search">打開搜尋查看候選項</string>
+    <string name="example_search_note">下拉更新、浮層與空狀態（iOS 的重現開關在 Android 上沒有對應項）</string>
+</resources>

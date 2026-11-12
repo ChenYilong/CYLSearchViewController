@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="example_originals">Original samples</string>
+    <string name="example_originals_subtitle">The upstream samples, unchanged</string>
+    <string name="example_list_style">Suggestions as a list</string>
+    <string name="example_tag_style">Suggestions as tags</string>
+    <string name="example_open_search">Open the search to see the suggestions</string>
+    <string name="example_search_note">Pull-to-refresh, the overlay and the empty state (the iOS repro toggle has no Android counterpart)</string>
+</resources>
