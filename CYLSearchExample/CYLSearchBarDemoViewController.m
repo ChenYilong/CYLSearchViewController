@@ -1,5 +1,5 @@
 #import "CYLSearchBarDemoViewController.h"
-#import <CYLSearchViewController/CYLSearchBarView.h>
+#import <CYLSearchViewController/CYLSearchViewController-Swift.h>
 #import <CYLSearchViewController/CYLSearchViewController-Swift.h>
 
 static NSString *CYLDemoText(NSString *key)

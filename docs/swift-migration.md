@@ -3,7 +3,7 @@
 This document tracks the translation of the core (`Sources/CYLSearchViewController/`) from Objective-C to Swift,
 with a score after every commit.
 
-## TODO (2026-11-12): translate the core to Swift, with a Swift coding standard
+## DONE (2026-11-12): translate the core to Swift, with a Swift coding standard
 
 - Context: the core of CYLSearchViewController is Objective-C (`Sources/CYLSearchViewController/*.h` and `*.m`:
   `CYLSearchBarView`, `CYLSearchController`, `CYLSearchPlaceholderView`, `CYLSearchResources`,
@@ -33,10 +33,14 @@ with a score after every commit.
   exists in the project; code that cannot be translated to Swift but is made Swift-compatible through macros or
   keywords also counts as translated. No Objective-C code = full marks. Score after every commit, check after
   every commit whether it is full marks, and continue until it is."
-- Status: started 2026-11-12 on branch `feat/swift-core` (from `feat/search-api-parity`, after the search API
-  parity task was done). Score: 0/100: all 7 core types are Objective-C (`CYLMultiSearchView`, `CYLSearchBarView`,
-  `CYLSearchController`, `CYLSearchPlaceholderView`, `CYLSearchResources`, `CYLSearchResultsViewController`,
-  `CYLSearchView`).
+- Result: 100/100. `Sources/CYLSearchViewController/` holds only Swift (7 files, one per type); the podspec builds
+  `*.swift` with `swift_version` 5.0. Every class, protocol, enum and selector keeps its Objective-C name through
+  `@objc(...)`, so the Objective-C example and the Objective-C tests compile unchanged except for imports
+  (`CYLSearchViewController-Swift.h`). Verified on Xcode 27.2 (macOS 27.3, iPhone 17 simulator, iOS 26.1): 19/19
+  tests, clean build with 0 warnings, `pod lib lint` passes, `scripts/check-public-api-comments.sh` (now also Swift)
+  passes, the app runs (search tab, the Swift `CYLSearchBarView` on the plus page reports typed text). CI's "Fail
+  on warnings in Sources/" step now also matches Swift files. Bug found and fixed on the way: the lapism port's
+  `searchBarViewDidTapWhileNotEditable:` did not match the protocol. Branch `feat/swift-core`, PR #8.
 - Plan: 1) `docs/swift-coding-standard.md`; 2) install ready-made Swift skills from GitHub (pinned commits, with
   their licenses) into `.agents/skills`; 3) update `AGENTS.md`, `instructions.md` and the `cyl-*` skills; 4)
   translate one type per commit, smallest first, keeping every Objective-C selector through `@objc(...)` so the
@@ -52,6 +56,7 @@ with a score after every commit.
 | CYLSearchResultsViewController, CYLSearchController → Swift | 6 files, 2241 lines | 21/100 |
 | CYLMultiSearchView → Swift | 4 files, 1713 lines | 39/100 |
 | CYLSearchView → Swift (+ a 2-line umbrella header while CYLSearchBarView is Objective-C) | 3 files, 1043 lines | 63/100 |
+| CYLSearchBarView → Swift; umbrella header removed | 0 files, 0 lines | **100/100** |
 
 Score = Objective-C lines removed from `Sources/` / 2838 (the Objective-C lines when the migration started) × 100,
 rounded down. 100 = no `.h` or `.m` file left in `Sources/`.
