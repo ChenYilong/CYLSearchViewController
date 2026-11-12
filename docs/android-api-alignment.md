@@ -32,6 +32,7 @@ Score = (DONE + N/A) / rows × 100, recomputed by the script after each change.
 | 2026-11-12 | `CYLSearchView`, its delegate, `CYLSearchSuggestionCell`, `CYLLineBreakMode` | 83 |
 | 2026-11-12 | `CYLMultiSearchView` and its delegate | 91 |
 | 2026-11-12 | `CYLSearchResultsViewController`, `CYLSearchController` (fragments) and their protocols | 100 |
+| 2026-11-12 | iOS added `CYLSearchSuggestionStyle` and `suggestionsTagView` / `suggestionStyle` (299 rows); Android had them already | 100 |
 
 The scores per step are replayed with `--only=<classes added so far>` on the final sources, so they include the
 `requestFocus` / `clearFocus` / `setBackgroundColor` overrides that were added last.
@@ -46,7 +47,7 @@ messages, localized strings (English, Simplified Chinese, a missing key) and the
 ## Table
 
 <!-- api-alignment:begin -->
-Rows: 294; DONE 261, N/A 33, TODO 0; score 100/100.
+Rows: 299; DONE 266, N/A 33, TODO 0; score 100/100.
 
 | iOS API | Upstream counterpart (named in the iOS doc comment) | Android (`cylsearch`) | Status |
 | :--- | :--- | :--- | :--- |
@@ -285,6 +286,9 @@ Rows: 294; DONE 261, N/A 33, TODO 0; score 100/100.
 | `CYLSearchResultsViewController.tableView(_:numberOfRowsInSection:)` | — | `CYLSearchResultsViewController.tableView` | DONE |
 | `CYLSearchResultsViewController.tableView(_:cellForRowAt:)` | — | `CYLSearchResultsViewController.tableView` | DONE |
 | `CYLSearchResultsViewController.tableView(_:didSelectRowAt:)` | — | `CYLSearchResultsViewController.tableView` | DONE |
+| **enum `CYLSearchSuggestionStyle`** | `CYLSearchView.suggestionStyle` | CYLSearchSuggestionStyle | DONE |
+| `CYLSearchSuggestionStyle.list` | — | `CYLSearchSuggestionStyle.List` | DONE |
+| `CYLSearchSuggestionStyle.tags` | CollectionViewClassifyMenu's `CYLTagListView` | `CYLSearchSuggestionStyle.Tags` | DONE |
 | **protocol `CYLSearchViewDelegate`** | — | CYLSearchViewDelegate | DONE |
 | `CYLSearchViewDelegate.-searchViewDidShow:` | MaterialSearchView `onSearchViewShown` | `CYLSearchViewDelegate.searchViewDidShow` | DONE |
 | `CYLSearchViewDelegate.-searchViewDidClose:` | MaterialSearchView `onSearchViewClosed` | `CYLSearchViewDelegate.searchViewDidClose` | DONE |
@@ -299,6 +303,8 @@ Rows: 294; DONE 261, N/A 33, TODO 0; score 100/100.
 | `CYLSearchView.searchBarView` | — | `CYLSearchView.searchBarView` | DONE |
 | `CYLSearchView.dividerView` | — | `CYLSearchView.dividerView` | DONE |
 | `CYLSearchView.suggestionsTableView` | — | `CYLSearchView.suggestionsTableView` | DONE |
+| `CYLSearchView.suggestionsTagView` | CollectionViewClassifyMenu's `CYLTagListView` | `CYLSearchView.suggestionsTagView` | DONE |
+| `CYLSearchView.suggestionStyle` | `CYLSearchSuggestionStyleList`, the default; `CYLSearchSuggestionStyleTags` | `CYLSearchView.suggestionStyle` | DONE |
 | `CYLSearchView.dividerColor` | lapism `setDividerColor` | `CYLSearchView.dividerColor` | DONE |
 | `CYLSearchView.contentView` | lapism `addView` | `CYLSearchView.contentView` | DONE |
 | `CYLSearchView.scrimColor` | lapism `setScrimColor` | `CYLSearchView.scrimColor` | DONE |

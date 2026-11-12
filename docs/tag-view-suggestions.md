@@ -148,7 +148,33 @@ CollectionViewClassifyMenu).
 | SDK | iOS SDK 27.2, Swift 5 language mode, deployment target iOS 15.0 |
 | Repository | [`e1a771a`](https://github.com/ChenYilong/CYLSearchViewController/commit/e1a771a) on `feat/swift-core`; CollectionViewClassifyMenu `e550a01` |
 | Taken | 2026-11-12 23:01–23:05 NZDT |
-- Next: Android (the Discover page ported to Kotlin with CollectionViewClassifyMenu's Android `CYLTagListView`; the
-  tag style already exists), then React Native and Flutter (not built yet: the cross-platform TODO in
-  [android-and-cross-platform.md](android-and-cross-platform.md)).
-- Status: `TODO` (iOS done; Android, React Native, Flutter open).
+- Progress, Android: DONE (2026-11-12, [`0c8e306`](https://github.com/ChenYilong/CYLSearchViewController/commit/0c8e306)).
+  - The tag style was already there (`CYLSearchView.suggestionStyle`, the List style / Tag style tabs).
+  - New Discover tab: `CYLSearchDiscoverFragment`, a Kotlin port of the iOS page with CollectionViewClassifyMenu's
+    Android `CYLTagListView` (inline fold chevron, two-column grid, More button, section accessory), the same data
+    and hot images (`assets/CYLSearchDiscover.bundle`) and texts in four languages. CollectionViewClassifyMenu is now
+    pinned to `e550a01` on Android too.
+  - Library fix found here: `CYLSearchBarView` keeps an accessory view's own size (a 1 dp divider filled the field).
+  - Verified on the emulator: Recent searches expand to every search, a tapped tag fills the query, More shows other
+    topics; no crash. Known difference: CollectionViewClassifyMenu's Android grid clips long titles without an
+    ellipsis (iOS shows "…"); that belongs to its Android tag layout.
+  - Screenshots (originals), top to bottom: the Discover tab; Recent searches expanded; Discover after More (cropped).
+
+    ![Android Discover tab](assets/android-discover-tab.png)
+
+    ![Recent searches expanded](assets/android-discover-expanded.png)
+
+    ![Discover after More](assets/android-discover-refreshed.png)
+
+| Field | Value |
+|:---|:---|
+| Platform | Android (Kotlin, `android/merged`) |
+| Host | macOS 27.3 (26C5035r), JDK 17.0.21, Gradle 9.3.1, AGP 8.7.3, Kotlin 2.0.21 |
+| Emulator | `CYL_API35_arm64`, Android 15 (API 35), arm64-v8a, 1080 × 2400 |
+| SDK | compileSdk / targetSdk 35, minSdk 23 |
+| Repository | [`0c8e306`](https://github.com/ChenYilong/CYLSearchViewController/commit/0c8e306) on `feat/swift-core`; CollectionViewClassifyMenu `e550a01` |
+| Taken | 2026-11-12 23:24–23:27 NZDT |
+- Next: React Native and Flutter. Neither version of this library exists yet; they are built by the cross-platform
+  TODO in [android-and-cross-platform.md](android-and-cross-platform.md) (Flutter first), and get the tag style and
+  the Discover page there.
+- Status: `TODO` (iOS and Android done; React Native and Flutter open).
