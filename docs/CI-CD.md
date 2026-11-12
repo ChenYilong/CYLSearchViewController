@@ -80,3 +80,31 @@ scripts/local-run-environment.sh
 
 - When upstream `ios.yml` changes, compare it and update this workflow and the
   commit recorded above.
+
+## TODO (2026-11-12): screenshot rules in the build and CI/CD sections
+
+- Context: screenshots of this repository so far live in `docs/assets/` (for example the Swift ports in
+  `docs/search-api-comparison.md`, taken on the iPhone 17 simulator, iOS 26.1). The rule is asked while the Swift
+  migration of the core (`docs/swift-migration.md`) is in progress on `feat/swift-core`; tasks run in the order
+  they were given, so this one follows it.
+- Requirements:
+  1. Find the build / CI/CD sections of the instruction files and the skills; create them where missing; make sure
+     the text is written. Everything in English.
+  2. Every screenshot, CI/CD screenshots and local build screenshots alike, is saved with the related document in
+     `docs/` (create a document when none fits) and committed to the git repository.
+  3. When the result looks as expected, update `README.md` with the latest screenshots (find the section, or create
+     it).
+  4. Label each screenshot with the platform (iOS, Android, Flutter, React Native, HarmonyOS, mini program), the
+     environment (OS version, simulator version, platform SDK version), the repository version or commit link, and
+     the time it was taken.
+  5. Use clear, original-resolution screenshots.
+- Prompt (verbatim): "continue in order. 找到instructions相关文件，以及skills相关文件，找到构建build ci cd章节。如果没有就新建，确保写入成功，全英文写入如下内容：所有截图，包括CI CD截图以及本地构建截图，全部保存在docs文件夹相关文档中，如果无相关文档就新建文档，保存图片到git仓库。并在合适的时机，你认为效果符合预期就更新最新图片到readme，找到相关章节如果没有就新建，并标注运行平台iOS android flutter reactnative 鸿蒙 小程序。运行环境 操作系统版本，模拟器版本，对应平台版本sdk版本（iOS android flutter reactnative 鸿蒙 小程序）本仓库版本号或commit地址。当前时间。截图使用清晰原图。"
+- Prompt (English): "Continue in order. Find the instruction files and the skill files, and their build / CI/CD
+  section; create it if missing, make sure it is written, and write the following, all in English: all screenshots,
+  including CI/CD screenshots and local build screenshots, are saved in the related document in the docs folder
+  (create one if there is none) and the images are saved to the git repository. At a suitable time, when you judge
+  the result as expected, update README with the latest images (find the related section or create it), and label
+  the platform (iOS, Android, Flutter, React Native, HarmonyOS, mini program), the environment (OS version,
+  simulator version, the platform's SDK version), this repository's version number or commit link, and the current
+  time. Use clear original screenshots."
+- Status: logged; starts after the Swift migration (instruction order).
