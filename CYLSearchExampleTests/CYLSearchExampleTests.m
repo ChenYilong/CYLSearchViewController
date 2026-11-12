@@ -725,6 +725,9 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     XCTAssertTrue(bar.cancelButton.hidden);
     XCTAssertEqualObjects(recorder.events.lastObject, @"iconified");
     XCTAssertEqualObjects(bar.iconButton.accessibilityLabel, [CYLSearchResources localizedStringForKey:@"search.field"]);
+    bar.iconPosition = CYLSearchBarIconPositionCenter;
+    [bar layoutIfNeeded];
+    XCTAssertEqualWithAccuracy(CGRectGetMidX(bar.iconButton.frame), CGRectGetMidX(bar.bounds), 1, @"centered like a floating button");
     [bar setIconified:NO animated:NO];
     XCTAssertFalse(bar.fieldView.hidden);
     XCTAssertTrue(bar.iconButton.hidden);

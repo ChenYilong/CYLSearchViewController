@@ -29,6 +29,7 @@ final class CYLLapismSearchViewController: UIViewController {
 
         // MaterialSearchBar: navigationIconCompat = SEARCH, setHint, setOnClickListener / setNavigationOnClickListener.
         searchBar.navigationIcon = .search
+        searchBar.searchIcon = nil
         searchBar.placeholder = cylDemoText("search.field")
         searchBar.fieldCornerRadius = -1
         searchBar.fieldShadowOpacity = 0.15
@@ -56,6 +57,7 @@ final class CYLLapismSearchViewController: UIViewController {
         resultsView.dataSource = self
         searchView.contentView = resultsView
         searchView.searchBarView.navigationIcon = .arrow
+        searchView.searchBarView.searchIcon = nil
         searchView.searchBarView.placeholder = cylDemoText("search.field")
         searchView.delegate = self
         searchView.install(in: view)

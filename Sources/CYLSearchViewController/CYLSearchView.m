@@ -16,6 +16,7 @@ static NSString *const CYLSearchSuggestionCellIdentifier = @"CYLSearchSuggestion
 
 @synthesize dividerColor = _dividerColor;
 @synthesize suggestionTextColor = _suggestionTextColor;
+@synthesize suggestionImageTintColor = _suggestionImageTintColor;
 
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
@@ -90,6 +91,8 @@ static NSString *const CYLSearchSuggestionCellIdentifier = @"CYLSearchSuggestion
 - (void)setDividerColor:(UIColor *)color { _dividerColor = color; [self cyl_applyStyle]; }
 - (UIColor *)suggestionTextColor { return _suggestionTextColor ?: UIColor.labelColor; }
 - (void)setSuggestionTextColor:(UIColor *)color { _suggestionTextColor = color; [self.suggestionsTableView reloadData]; }
+- (UIColor *)suggestionImageTintColor { return _suggestionImageTintColor ?: UIColor.secondaryLabelColor; }
+- (void)setSuggestionImageTintColor:(UIColor *)color { _suggestionImageTintColor = color; [self.suggestionsTableView reloadData]; }
 - (void)setSuggestionImage:(UIImage *)image { _suggestionImage = image; [self.suggestionsTableView reloadData]; }
 - (void)setSuggestionLineBreakMode:(NSLineBreakMode)mode { _suggestionLineBreakMode = mode; [self.suggestionsTableView reloadData]; }
 - (void)setSuggestionCellConfiguration:(void (^)(UITableViewCell *, NSString *, NSUInteger))configuration {
@@ -420,7 +423,7 @@ static NSString *const CYLSearchSuggestionCellIdentifier = @"CYLSearchSuggestion
     content.textProperties.lineBreakMode = self.suggestionLineBreakMode;
     content.textProperties.numberOfLines = self.suggestionLineBreakMode == NSLineBreakByWordWrapping || self.suggestionLineBreakMode == NSLineBreakByCharWrapping ? 0 : 1;
     content.image = self.suggestionImage;
-    content.imageProperties.tintColor = UIColor.secondaryLabelColor;
+    content.imageProperties.tintColor = self.suggestionImageTintColor;
     cell.contentConfiguration = content;
     UIBackgroundConfiguration *background = [UIBackgroundConfiguration listPlainCellConfiguration];
     background.backgroundColor = self.suggestionBackgroundColor ?: UIColor.clearColor;

@@ -40,6 +40,7 @@ final class CYLRevealSearchViewController: UIViewController {
         searchBar.iconButton.configuration?.baseBackgroundColor = .white
         searchBar.iconButton.configuration?.baseForegroundColor = .systemIndigo
         searchBar.iconButton.configuration?.image = UIImage(systemName: "magnifyingglass")
+        searchBar.iconPosition = .center
         searchBar.iconifiedByDefault = true
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(searchBar)

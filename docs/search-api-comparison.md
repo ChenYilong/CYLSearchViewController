@@ -4,7 +4,7 @@ This document compares the public API of CYLSearchViewController with five
 open-source search components (Android), one table per project, and tracks
 the work to reach full parity (100/100 for each project).
 
-## TODO (2026-11-12): match and exceed five search libraries, then port their examples
+## DONE (2026-11-12): match and exceed five search libraries, then port their examples
 
 - Context: CYLSearchViewController (Objective-C, UIKit) ships
   `CYLSearchResultsViewController`, `CYLSearchController` (overlay),
@@ -48,9 +48,17 @@ the work to reach full parity (100/100 for each project).
   tap handling."
 - Order: this task runs before the Swift migration (`docs/swift-migration.md`), which was asked later; the
   user's rule is to work through tasks in the order they were given.
-- Status: API parity reached, 100/100 for all five projects (tables below; tests
-  `testSearchBarViewParityOptions`, `testSearchViewSuggestionsOpenAndClose`, `testMultiSearchViewFlow`, 18/18).
-  Next: port each project's example to Swift in `CYLSearchExample/` (data, style parameters and taps only).
+- Result: 100/100 for all five projects (tables below). Core: `CYLSearchBarView` options, `CYLSearchView`,
+  `CYLMultiSearchView` (Objective-C, 0 warnings in `Sources/`). Example: Demos → "Other libraries' examples"
+  holds the Swift ports of the five projects' examples (screenshots below); they pass only data, style
+  parameters and taps to the core. Tests: `testSearchBarViewParityOptions`,
+  `testSearchViewSuggestionsOpenAndClose`, `testMultiSearchViewFlow`, `testSwiftPortsOfOtherLibrariesLoad`;
+  19/19 on Xcode 27.2, iPhone 17 simulator, iOS 26.1. Bugs found on the simulator and fixed: two magnifiers in the
+  lapism bar, the cjj button not centered (new `iconPosition`), gray suggestion icons on a colored theme (new
+  `suggestionImageTintColor`), and the yechaoa field losing focus when it opened. Branch
+  `feat/search-api-parity`, PR #7.
+- Not verified: speech recognition in the Voice sample needs a device or a simulator with a microphone; on the
+  simulator used here it shows "Speech recognition is not available." as designed.
 
 ## How to read the tables
 
@@ -138,7 +146,7 @@ Java; `MaterialSearchView`, `SearchAdapter`.
 | `setAdapter(ListAdapter)` | `suggestionCellConfiguration`, `suggestionFilter`, `suggestionsTableView` |
 | `setOnItemClickListener(listener)` | `-searchView:didSelectSuggestion:atIndex:` |
 | `setSubmitOnClick(submit)` | `submitsOnSuggestionSelection` |
-| `setSuggestionIcon(drawable)`, `searchSuggestionIcon` | `suggestionImage` |
+| `setSuggestionIcon(drawable)`, `searchSuggestionIcon` | `suggestionImage`, `suggestionImageTintColor` |
 | `setSuggestionBackground(drawable)`, `searchSuggestionBackground` | `suggestionBackgroundColor` |
 | `setEllipsize(ellipsize)` | `suggestionLineBreakMode` |
 | `setVoiceSearch(enabled)` / `showVoice(show)` | `searchBarView.showsVoiceButton` |
@@ -193,6 +201,7 @@ the end of the card, and a tap on it closes the card again.
 | android-cjj/MaterialSearchView (sample) | CYLSearchViewController |
 |:---|:---|
 | `FloatingActionButton` that opens the search | `CYLSearchBarView.iconButton` while `iconified` |
+| `layout_gravity="center"` of the button | `iconPosition = CYLSearchBarIconPositionCenter` |
 | `ViewAnimationUtils.createCircularReveal(card, …)` | `expansionAnimation = CYLSearchBarExpansionAnimationCircularReveal` |
 | `mAnimator.reverse()` (close the card) | `-setIconified:YES animated:YES` |
 | `setDuration(1000)` | `animationDuration` |
@@ -253,3 +262,23 @@ labels for every button and item, localized strings in four languages, and `-sea
 | yechaoa/MaterialDesign | 58 | 100 |
 | android-cjj/MaterialSearchView | 33 | 100 |
 | iammert/MultiSearchView | 0 | 100 |
+
+## Screenshots of the Swift ports
+
+iPhone 17 simulator, iOS 26.1, English. One state per row, top to bottom.
+
+| State | Screenshot |
+|:---|:---|
+| lapism/search: the bar over the list (magnifier navigation icon, hint) | ![lapism bar](assets/port-lapism-bar.png) |
+| lapism/search: the search view with the filtered list ("1") | ![lapism search](assets/port-lapism-search.png) |
+| MaterialSearchView Default: suggestions for "A", one line each | ![default](assets/port-materialsearchview-default.png) |
+| MaterialSearchView Default: "Query: A" after submitting | ![query](assets/port-materialsearchview-query.png) |
+| MaterialSearchView Themed: white text on the primary color | ![themed](assets/port-materialsearchview-themed.png) |
+| MaterialSearchView Voice: the microphone in the empty field | ![voice](assets/port-materialsearchview-voice.png) |
+| MaterialSearchView Tabs: three pages under tabs | ![tabs](assets/port-materialsearchview-tabs.png) |
+| MaterialSearchView Input type: password input | ![input type](assets/port-materialsearchview-inputtype.png) |
+| yechaoa SearchView: iconified in the toolbar | ![iconified](assets/port-yechaoa-iconified.png) |
+| yechaoa SearchView: open, submit button, snackbar and result | ![submitted](assets/port-yechaoa-submitted.png) |
+| android-cjj: the round button in the middle | ![button](assets/port-cjj-button.png) |
+| android-cjj: the card after the circular reveal | ![card](assets/port-cjj-card.png) |
+| iammert MultiSearchView: two searches and the event log | ![multi search](assets/port-multisearchview.png) |

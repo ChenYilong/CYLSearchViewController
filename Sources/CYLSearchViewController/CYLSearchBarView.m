@@ -238,6 +238,11 @@ static CGFloat const CYLSearchBarMinimumAccessoryScale = 0.25;
 
 #pragma mark Iconified
 
+- (void)setIconPosition:(CYLSearchBarIconPosition)position {
+    _iconPosition = position;
+    [self setNeedsLayout];
+}
+
 - (void)setIconified:(BOOL)iconified {
     [self setIconified:iconified animated:NO];
 }
@@ -513,7 +518,10 @@ static CGSize CYLSearchBarFittingSize(UIView *view, CGFloat height) {
     }
     // Iconified: only the search button, at the trailing end.
     CGFloat iconSide = MIN(MAX(44, fieldHeight), height);
-    self.iconButton.frame = CGRectMake(CGRectGetWidth(self.bounds) - insets.right - iconSide, floor((height - iconSide) / 2), iconSide, iconSide);
+    CGFloat iconX = CGRectGetWidth(self.bounds) - insets.right - iconSide;
+    if (self.iconPosition == CYLSearchBarIconPositionCenter) iconX = floor((CGRectGetWidth(self.bounds) - iconSide) / 2);
+    if (self.iconPosition == CYLSearchBarIconPositionLeading) iconX = insets.left;
+    self.iconButton.frame = CGRectMake(iconX, floor((height - iconSide) / 2), iconSide, iconSide);
     // At large text sizes the text keeps at least this share of the bar; Cancel and the accessory views shrink first.
     CGFloat available = MAX(0, trailing - leading);
     CGFloat minimumTextWidth = MAX(44, floor(available * CYLSearchBarMinimumTextShare));

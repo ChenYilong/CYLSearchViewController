@@ -23,6 +23,24 @@ typedef NS_ENUM(NSInteger, CYLSearchBarNavigationIcon) {
 };
 
 /*!
+ * Where the search button sits while the bar is iconified.
+ */
+typedef NS_ENUM(NSInteger, CYLSearchBarIconPosition) {
+    /*!
+     * At the trailing end, like an Android `SearchView` in a toolbar.
+     */
+    CYLSearchBarIconPositionTrailing,
+    /*!
+     * In the middle, like a floating action button that opens a search card.
+     */
+    CYLSearchBarIconPositionCenter,
+    /*!
+     * At the leading end.
+     */
+    CYLSearchBarIconPositionLeading,
+};
+
+/*!
  * How the field opens and closes when `iconified` changes with animation.
  */
 typedef NS_ENUM(NSInteger, CYLSearchBarExpansionAnimation) {
@@ -290,6 +308,11 @@ typedef NS_ENUM(NSInteger, CYLSearchBarExpansionAnimation) {
  * How the field opens and closes. `CYLSearchBarExpansionAnimationFade` by default.
  */
 @property (nonatomic, assign) CYLSearchBarExpansionAnimation expansionAnimation;
+/*!
+ * Where `iconButton` sits while iconified; the field opens from there. `CYLSearchBarIconPositionTrailing` by
+ * default.
+ */
+@property (nonatomic, assign) CYLSearchBarIconPosition iconPosition;
 /*!
  * The length of the opening and closing animations, in seconds. 0.3 by default.
  */

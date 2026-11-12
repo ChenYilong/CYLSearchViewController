@@ -111,6 +111,7 @@ final class CYLMaterialSearchSampleViewController: UIViewController {
             searchView.searchBarView.searchIconTintColor = .white
             searchView.searchBarView.navigationButton.tintColor = .white
             searchView.suggestionTextColor = .white
+            searchView.suggestionImageTintColor = UIColor(white: 1, alpha: 0.8)
             searchView.dividerColor = UIColor(white: 1, alpha: 0.3)
         }
         searchView.delegate = self

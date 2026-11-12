@@ -9,8 +9,9 @@ import CYLSearchViewController
 @objc(CYLYechaoaSearchViewController)
 final class CYLYechaoaSearchViewController: UIViewController {
 
-    private let searchBar = CYLSearchBarView(frame: CGRect(x: 0, y: 0, width: 280, height: 44))
+    private let searchBar = CYLSearchBarView(frame: CGRect(x: 0, y: 0, width: 44, height: 44))
     private let resultLabel = UILabel()
+    private lazy var searchBarWidth = searchBar.widthAnchor.constraint(equalToConstant: 44)
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,6 +30,8 @@ final class CYLYechaoaSearchViewController: UIViewController {
         searchBar.textColor = .label
         searchBar.delegate = self
         searchBar.setIconified(true, animated: false)
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([searchBarWidth, searchBar.heightAnchor.constraint(equalToConstant: 44)])
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: searchBar)
 
         // The pretend search result, hidden until a query is submitted.
@@ -58,8 +61,8 @@ extension CYLYechaoaSearchViewController: CYLSearchBarViewDelegate {
 
     func searchBarView(_ searchBarView: CYLSearchBarView, didChangeIconified iconified: Bool) {
         // The opened field takes the room of the title, like an expanded SearchView in the toolbar.
-        let width = iconified ? 44 : max(200, view.bounds.width - 120)
-        searchBarView.frame.size.width = width
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: searchBarView)
+        // Only the width changes: moving the bar to a new bar button item would end editing.
+        searchBarWidth.constant = iconified ? 44 : max(200, view.bounds.width - 120)
+        navigationController?.navigationBar.setNeedsLayout()
     }
 }

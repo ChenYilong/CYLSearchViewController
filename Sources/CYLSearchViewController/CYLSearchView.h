@@ -115,6 +115,10 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, strong, nullable) UIImage *suggestionImage;
 /*!
+ * The tint of `suggestionImage`. `secondaryLabelColor` by default.
+ */
+@property (nonatomic, strong, null_resettable) UIColor *suggestionImageTintColor;
+/*!
  * The background of the suggestion rows (`setSuggestionBackground`). Nil keeps the page background.
  */
 @property (nonatomic, strong, nullable) UIColor *suggestionBackgroundColor;
