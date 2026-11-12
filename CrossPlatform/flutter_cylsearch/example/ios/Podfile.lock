@@ -3,6 +3,14 @@ PODS:
   - CYLSearchViewController (0.1.0):
     - CollectionViewClassifyMenu
     - CYLTableViewPlaceHolder/Core
+  - CYLTabBarController (1.100.0):
+    - CYLTabBarController/Core (= 1.100.0)
+  - CYLTabBarController/Core (1.100.0):
+    - CYLTabBarController/CYLBadgeView
+    - CYLTabBarController/CYLUtils
+  - CYLTabBarController/CYLBadgeView (1.100.0):
+    - CYLTabBarController/CYLUtils
+  - CYLTabBarController/CYLUtils (1.100.0)
   - CYLTableViewPlaceHolder (1.1.0):
     - CYLTableViewPlaceHolder/Core (= 1.1.0)
   - CYLTableViewPlaceHolder/Core (1.1.0)
@@ -11,15 +19,20 @@ PODS:
     - CYLSearchViewController
     - CYLTableViewPlaceHolder/Core
     - Flutter
+  - flutter_cyltabbar (0.1.0):
+    - CYLTabBarController
+    - Flutter
   - integration_test (0.0.1):
     - Flutter
 
 DEPENDENCIES:
   - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `f9724167235dee050a81432f3c16f6c4e15dc186`)
   - CYLSearchViewController (from `../../../..`)
+  - CYLTabBarController (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `74aa25e55d169a15fe95a119ea1a377c5fc54217`)
   - CYLTableViewPlaceHolder (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `5e30638c09139e13da7c0763487537ac39c954e5`)
   - Flutter (from `Flutter`)
   - flutter_cylsearch (from `.symlinks/plugins/flutter_cylsearch/ios`)
+  - flutter_cyltabbar (from `.symlinks/plugins/flutter_cyltabbar/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
 
 EXTERNAL SOURCES:
@@ -28,6 +41,9 @@ EXTERNAL SOURCES:
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLSearchViewController:
     :path: "../../../.."
+  CYLTabBarController:
+    :commit: 74aa25e55d169a15fe95a119ea1a377c5fc54217
+    :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
     :commit: 5e30638c09139e13da7c0763487537ac39c954e5
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
@@ -35,6 +51,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_cylsearch:
     :path: ".symlinks/plugins/flutter_cylsearch/ios"
+  flutter_cyltabbar:
+    :path: ".symlinks/plugins/flutter_cyltabbar/ios"
   integration_test:
     :path: ".symlinks/plugins/integration_test/ios"
 
@@ -42,6 +60,9 @@ CHECKOUT OPTIONS:
   CollectionViewClassifyMenu:
     :commit: f9724167235dee050a81432f3c16f6c4e15dc186
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
+  CYLTabBarController:
+    :commit: 74aa25e55d169a15fe95a119ea1a377c5fc54217
+    :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
     :commit: 5e30638c09139e13da7c0763487537ac39c954e5
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
@@ -49,11 +70,13 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   CollectionViewClassifyMenu: ebd3e85358cf219b3ad20b5e005c54719b2708f4
   CYLSearchViewController: aa8c56b9c033b8f126b990016d966970bb0c4977
+  CYLTabBarController: 9e49f3142d6f7a671c3baa9aab8f91ebc2661889
   CYLTableViewPlaceHolder: 2cf43940d6a518b80fd4941264ddb17cd3a400d8
   Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
   flutter_cylsearch: 7dd24a024a32ae3d32c2a9108315e541300c0c40
+  flutter_cyltabbar: 21d7189f47947477d10f84e5232104daa2ec2e50
   integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
 
-PODFILE CHECKSUM: 6c59665d62d474273b9ba10a149e15596c1c9cf8
+PODFILE CHECKSUM: 17986ea5ef37b31574559779f0d21cdf5e3a975a
 
 COCOAPODS: 1.17.0

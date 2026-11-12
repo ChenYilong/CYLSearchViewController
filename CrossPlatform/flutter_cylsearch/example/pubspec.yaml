@@ -16,6 +16,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  # CYLTabBarController's Flutter tab bar (the default example integration), at its newest commit.
+  flutter_cyltabbar:
+    git:
+      url: https://github.com/ChenYilong/CYLTabBarController.git
+      ref: 74aa25e55d169a15fe95a119ea1a377c5fc54217
+      path: CrossPlatform/flutter_cyltabbar
 
   flutter_cylsearch:
     # When depending on this package from a real application you should use:
@@ -55,6 +61,10 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  # The tab bar configuration file and its icons (tool/render_tab_icons.swift).
+  assets:
+    - assets/
 
   # To add assets to your application, add an assets section, like this:
   # assets:

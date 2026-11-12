@@ -32,6 +32,8 @@ target 'Runner' do
   use_frameworks! :linkage => :static
 
   pod 'CYLSearchViewController', :path => '../../../..'
+  # flutter_cyltabbar's native tab bar, at the newest CYLTabBarController commit (as its git dependency in pubspec.yaml).
+  pod 'CYLTabBarController', :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '74aa25e55d169a15fe95a119ea1a377c5fc54217'
   pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => 'f9724167235dee050a81432f3c16f6c4e15dc186'
   pod 'CYLTableViewPlaceHolder', :git => 'https://github.com/ChenYilong/CYLTableViewPlaceHolder.git', :commit => '5e30638c09139e13da7c0763487537ac39c954e5'
 

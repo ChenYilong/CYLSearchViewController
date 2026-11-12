@@ -1,20 +1,20 @@
 // The Android side of flutter_cylsearch. It depends on the `cylsearch` module of android/merged by its coordinates
 // (com.cyl.search:cylsearch); the app's settings.gradle.kts includes android/merged as a composite build that
 // substitutes it (see example/android/settings.gradle.kts), so the core is built from source with its pinned
-// sub-repositories. A composite build allows one Android Gradle plugin version: AGP 8.11.1 (Flutter's minimum) and Kotlin 2.2.20 (Flutter's minimum), as in
-// android/merged.
+// sub-repositories. A composite build allows one Android Gradle plugin version: AGP 9.1.0 here and in android/merged (built-in
+// Kotlin here, as flutter_cyltabbar needs; android/merged turns it off for its Kotlin-plugin modules).
 group = "com.cyl.search.flutter_cylsearch"
 version = "0.1.0"
 
 buildscript {
-    val kotlinVersion = "2.2.20"
+    val kotlinVersion = "2.4.0"
     repositories {
         google()
         mavenCentral()
     }
 
     dependencies {
-        classpath("com.android.tools.build:gradle:8.11.1")
+        classpath("com.android.tools.build:gradle:9.1.0")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
     }
 }
@@ -28,7 +28,6 @@ allprojects {
 
 plugins {
     id("com.android.library")
-    id("kotlin-android")
 }
 
 android {
