@@ -229,6 +229,30 @@ reproduction or fix without launching the sample on a simulator.
   2. two columns over several rows;
   3. one horizontal row of at most three images.
 
+## Open pull requests and issues of projects we translate
+
+When a document of this project links to another project's GitHub repository (not this project) because its code
+is translated, ported or merged into ours (for example the Kotlin transcriptions in `android/`), the work covers
+that project's open pull requests and open issues, not only its default branch. The same rule applies on every
+platform (iOS, Android, Flutter, React Native, HarmonyOS, mini programs).
+
+1. **Open pull requests.**
+   - Translation not started yet: merge the project's open pull requests into the code you translate first.
+   - Translation already done: translate each open pull request's changes separately and merge them into our
+     translated code.
+2. **Open issues table.** In the related `docs/` document (create one when none fits), list every open issue of
+   that project in a table: first column the issue link, second column the issue description, third column the fix
+   status, `TODO` by default. Record the date the list was read.
+3. **Fix them in our code.** For each issue, find its counterpart in our code and try to fix it there; set the
+   status to `DONE` with the commit (or `N/A` with the reason when the issue does not apply to our code, for example
+   a feature we do not have).
+4. **Score.** Score = issues `DONE` or `N/A` / all listed issues × 100. Score again after every fixed issue and
+   continue until 100.
+5. **Order.** When the translation has not started: merge the open pull requests, then work on the open issues;
+   start translating once the issue score reaches 60; after translating, fix the remaining issues until 100. When
+   the translation is done: translate and merge the open pull requests, then fix the issues on the translated code
+   until 100.
+
 ## Task log before every task
 
 Sessions can stop in the middle of a task (context limits, restarts, another

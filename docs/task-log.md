@@ -83,7 +83,7 @@ begins and becomes `DONE` when it ends.
 - Prompt (verbatim): "found an uncommitted, half-finished Drawn/ folder in the sibling's working tree, so I'm building from a clean checkout of their last commit in my own folder instead. then create pr merge to current branch"
 - Status: logged; to check what can be put in a PR (this session changed nothing in the sibling).
 
-## TODO (2026-11-12): rule for open PRs and issues of projects we translate
+## DONE (2026-11-12): rule for open PRs and issues of projects we translate
 
 - Context: `android/` holds Kotlin transcriptions of five GitHub projects, made from their default branches without
   their open pull requests and issues (`docs/android-and-cross-platform.md`).
@@ -105,4 +105,7 @@ begins and becomes `DONE` when it ends.
   status reaches 60 the translation may start, and after it, solve the remaining issues to full marks. If the
   translation is already done, translate the open PRs' content separately and merge it into our project, and still
   handle the issues on the translated code, until full marks. Other platforms follow the same rule."
-- Status: logged.
+- Result: the rule is in `AGENTS.md` ("Open pull requests and issues of projects we translate"), `instructions.md`,
+  `docs/instructions.md`, `android/README.md` and every `cyl-*` skill. Applying it to the five projects in `android/`
+  (their translation is done: translate and merge their open PRs, then the issue tables and fixes) is a follow-up
+  recorded in `docs/android-and-cross-platform.md`.

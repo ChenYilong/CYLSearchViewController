@@ -12,3 +12,7 @@ Android work of CYLSearchViewController (`docs/android-and-cross-platform.md`):
 | `merged` | one Gradle project: a library with every API above plus the CYL API that matches iOS, and one example app |
 
 Each folder has a `TRANSCRIPTION.md` with the source commit and license.
+
+Before or after each transcription, the upstream project's open pull requests are merged (or translated and merged),
+and its open issues are tracked and fixed in our code with a score (`AGENTS.md`, "Open pull requests and issues of
+projects we translate"; tables in `docs/android-and-cross-platform.md`).

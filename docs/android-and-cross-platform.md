@@ -79,3 +79,6 @@ Native) for the CYLSearchViewController components.
     Not compiled yet: the folders hold sources only; compilation is checked when they join the Gradle project in
     `merged` (step 3).
   - Next: step 3, `android/merged` (Gradle, CYLTabBarController at a pinned commit, one example tab per project).
+  - Added by the rule "Open pull requests and issues of projects we translate" (2026-11-12): the translations are
+    done, so each upstream's open pull requests are to be translated and merged into its folder, and each upstream's
+    open issues listed in a table below (link, description, status `TODO`) and fixed in our code, scored until 100.

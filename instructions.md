@@ -179,6 +179,16 @@ before every task".
   stitched into one image: stacked top to bottom first, then two columns, then one row of at most three.
 - Full rule: `AGENTS.md`, "Screenshots of builds and CI/CD".
 
+## Open pull requests and issues of projects we translate
+
+- When a document links to another project's GitHub repository whose code we translate or port (for example
+  `android/`), also take its open pull requests: merge them before translating, or translate and merge them when
+  the translation is already done.
+- List that project's open issues in a `docs/` table (issue link, description, fix status `TODO`), fix each one in
+  our code (`DONE` with the commit, or `N/A` with the reason), and score after every fix until 100. A translation
+  that has not started begins once the issue score reaches 60. Every platform follows this rule.
+- Full rule: `AGENTS.md`, "Open pull requests and issues of projects we translate".
+
 ## Commit readiness
 
 - Before every commit, review the changed scope and related issue, comparison,
