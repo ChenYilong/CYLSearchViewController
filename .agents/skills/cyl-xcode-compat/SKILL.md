@@ -65,3 +65,8 @@ CollectionViewClassifyMenu and CYLTableViewPlaceHolder are sub-repositories: pin
 local path in a commit), used through an enum or parameter of the core, shown in the example, on every platform.
 CYLTableViewPlaceHolder shows its empty-content placeholder when a search has no results. Follow the
 `cyl-sub-repositories` skill.
+
+## Screenshot stitching order
+
+Stitched screenshots: stacked top to bottom first, then two columns over several rows, then one row of at most
+three. Correction (user, 2026-11-12): the original wording, "prefer the horizontal arrangement" and "worst is horizontal stitching", contradicted itself; the rule is to prefer the vertical arrangement, one image per row stacked top to bottom.

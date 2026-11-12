@@ -285,3 +285,25 @@ simulator, iOS 26.1, English; iOS SDK 27.2; repository
 | android-cjj: the round button in the middle | ![button](assets/port-cjj-button.png) |
 | android-cjj: the card after the circular reveal | ![card](assets/port-cjj-card.png) |
 | iammert MultiSearchView: two searches and the event log | ![multi search](assets/port-multisearchview.png) |
+
+## TODO (2026-11-12): the "Default" port: the whole search bar inside the navigation bar
+
+- Context: in the README key-details image (below; the user's copy), the third block is the iOS port of
+  MiguelCatalan/MaterialSearchView's "Default" sample (`CYLMaterialSearchSampleViewController`, sample
+  `.standard`): the navigation bar shows "Default" with back and search buttons, and the opened `CYLSearchView` puts
+  its search bar row under the navigation bar.
+- Requirement: this style fits better with the whole search bar component inside the navigation bar (in place of the
+  title and bar buttons while searching, like MaterialSearchView over the toolbar), not below it. The search bar
+  still never covers a view (AGENTS.md, "Search bar placement").
+- Screenshot (the user's):
+
+  ![README key details, "Default" in the third block](assets/user-2026-11-12-readme-key-details-default.png)
+
+- Prompt (verbatim): "找到截图中第二张截图所在example，执行以下修复：标题为default的example，该样式更适合将搜索框所在组件整体放在导航栏内部，而非放在导航栏底部。先在相关文档中标记为TODO。continue"
+- Prompt (English): "Find the example of the second screenshot and fix it: for the example titled Default, this style
+  fits better with the search bar's whole component inside the navigation bar instead of at the bottom of the
+  navigation bar. First mark it TODO in the related document. Continue."
+- Note: the user calls it the second screenshot; in the stitched image it is the third block (search bar, Issue
+  #1317 screen, Default, MultiSearchView), the second of the search screens after the plus page.
+- Status: `TODO`; order: after the tag-style demo task logged in the same message (that one is the older iOS
+  tag-view TODO and comes first).

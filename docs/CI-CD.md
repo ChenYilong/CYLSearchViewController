@@ -134,3 +134,4 @@ scripts/local-run-environment.sh
   are in `docs/swift-migration.md`, and the port screenshots in `docs/search-api-comparison.md` got their labels.
 - Interpretation recorded: the first layout preference ("横向排布") is read as stacking top to bottom, because
   the last preference is the horizontal row; to be confirmed by the user.
+- Confirmed and corrected by the user (2026-11-12): "更新instructions相关文件以及skills里关于截图的我的错误描述拼接顺序：全英文写入：原话里"优先横向排布"和"最差是横向拼接"互相矛盾。更正为优先竖向排布。" (English: in the instruction and skill files, correct my wrong description of the stitching order: "prefer horizontal" and "worst is horizontal" contradict each other; correct it to prefer the vertical arrangement.) Written into `AGENTS.md`, `instructions.md` and every `cyl-*` skill.

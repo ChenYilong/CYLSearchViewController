@@ -125,3 +125,8 @@ When we translate or port another GitHub project's code (for example `android/`)
 (before translating, or translate and merge them afterwards), list its open issues in a `docs/` table (issue link,
 description, fix status `TODO`), fix them in our code and score after every fix until 100; a translation that has not
 started begins at 60. Full rule: `AGENTS.md`, same section.
+
+## Screenshot stitching order
+
+Stitched screenshots: stacked top to bottom first, then two columns over several rows, then one row of at most
+three. Correction (user, 2026-11-12): the original wording, "prefer the horizontal arrangement" and "worst is horizontal stitching", contradicted itself; the rule is to prefer the vertical arrangement, one image per row stacked top to bottom.

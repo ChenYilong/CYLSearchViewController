@@ -259,6 +259,8 @@ reproduction or fix without launching the sample on a simulator.
   2. two columns over several rows;
   3. one horizontal row of at most three images.
 
+  Correction (user, 2026-11-12): the original wording, "prefer the horizontal arrangement" and "worst is horizontal stitching", contradicted itself; the rule is to prefer the vertical arrangement, one image per row stacked top to bottom.
+
 ## Open pull requests and issues of projects we translate
 
 When a document of this project links to another project's GitHub repository (not this project) because its code

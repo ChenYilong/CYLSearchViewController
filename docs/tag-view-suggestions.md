@@ -82,3 +82,35 @@ CollectionViewClassifyMenu).
 | Repository | [`ffac758`](https://github.com/ChenYilong/CYLSearchViewController/commit/ffac758) on `feat/swift-core`; CYLTabBarController `f410fa7`, CollectionViewClassifyMenu `eb3590e` |
 | Taken | 2026-11-12 21:30–21:40 NZDT |
   - The iOS side is the TODO above (still open, in order).
+
+## TODO (2026-11-12): tag-style suggestion demos copied from CollectionViewClassifyMenu, iOS first
+
+- Context: refines the iOS TODO at the top of this document. CollectionViewClassifyMenu already implements tag
+  pages (the user's screenshots below): a search page with "Recent searches" tags (a fold button at the end of the
+  second row, a trash button), a two-column "Discover" list with a "hot" badge, the camera and Search buttons in the
+  field, and a voice button at the bottom; and a tag editor with a search field and tag sections. Android has
+  `CYLSearchView.suggestionStyle` (List / Tags) and the List style / Tag style tabs.
+- Requirements:
+  1. Add demos that show the search suggestions as tags; copy what CollectionViewClassifyMenu already implements
+     (the screenshots show the effect).
+  2. Use the new style property (`suggestionStyle`) and the new dependency layout: CollectionViewClassifyMenu as a
+     sub-dependency (`docs/sub-repositories.md`).
+  3. In the example, the different demo pages are told apart by the empty tab items of CYLTabBarController (new tab
+     items with no content yet).
+  4. iOS first; then Android and the cross-platform versions (React Native, Flutter) with the same requirements.
+- Screenshots (the user's), top to bottom: the discover search page; its states in four languages; the tag editor.
+
+  ![Discover search page](assets/user-2026-11-12-classifymenu-discover-search.png)
+
+  ![Discover states](assets/user-2026-11-12-classifymenu-discover-states.jpg)
+
+  ![Tag editor](assets/user-2026-11-12-classifymenu-tag-editor.jpg)
+
+- Prompt (verbatim): "新增tag 形式展示备选搜索内容的样式demo，你可以直接从CollectionViewClassifyMenu文件夹  中复制已经实现的内容，具体代码效果见截图，使用我们的新建的样式属性，以及新组织的 依赖关系 使用 CollectionViewClassifyMenu作为子依赖。进行代码改造。使用example中cyltabbarcontroller中的 空的没有内容的tabbaritem进行区分上面的不同演示页面。先实现iOS端展示，然后再 按照相同要求执行其他平台比如android和跨端平台rn flutter。continue"
+- Prompt (English): "Add a style demo that shows the candidate search content as tags. You can copy what is already
+  implemented in the CollectionViewClassifyMenu folder (see the screenshots for the effect), use our new style
+  property and the newly organized dependency, with CollectionViewClassifyMenu as a sub-dependency, and rework the
+  code. Use the empty tab items of the example's CYLTabBarController to tell the demo pages apart. Implement iOS
+  first, then the other platforms, Android and the cross-platform React Native and Flutter, with the same
+  requirements. Continue."
+- Status: `TODO` (next task).

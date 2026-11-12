@@ -105,3 +105,8 @@ When an example demonstrates a plus button, always prefer the raised effect: the
 above the top edge of the tab bar (`CYLPlusButtonCenterYMultiplier` below 0.5 with a button taller than half the bar,
 or `CYLPlusButtonCenterYOffset`). Keep the whole button tappable and never let it cover the page content above the
 bar. Example: `android/merged/app/src/main/assets/CYLTabBarConfiguration.json` (56 dp, multiplier 0.3).
+
+## Screenshot stitching order
+
+Stitched screenshots: stacked top to bottom first, then two columns over several rows, then one row of at most
+three. Correction (user, 2026-11-12): the original wording, "prefer the horizontal arrangement" and "worst is horizontal stitching", contradicted itself; the rule is to prefer the vertical arrangement, one image per row stacked top to bottom.

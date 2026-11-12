@@ -67,6 +67,7 @@ description: "Document public integration and reproducible steps for CYLSearchVi
   bug or open issue) update the screenshot section of `README.md` (create it if missing): cropped key details, not
   full screens unless needed, stitched into one image with `scripts/stitch-screenshots.swift`; layout preference:
   stacked top to bottom, then two columns, then one row of at most three.
+- Correction (user, 2026-11-12): the original wording, "prefer the horizontal arrangement" and "worst is horizontal stitching", contradicted itself; the rule is to prefer the vertical arrangement, one image per row stacked top to bottom.
 
 ## Task log before every task
 

@@ -192,6 +192,7 @@ before every task".
 - At key milestones (a `TODO` or `Linux` note can be removed, a PR can be merged, the result works with no known
   bug or open issue), update the screenshot section of `README.md` (create it if missing) with cropped key details
   stitched into one image: stacked top to bottom first, then two columns, then one row of at most three.
+- Correction (user, 2026-11-12): the original wording, "prefer the horizontal arrangement" and "worst is horizontal stitching", contradicted itself; the rule is to prefer the vertical arrangement, one image per row stacked top to bottom.
 - Full rule: `AGENTS.md`, "Screenshots of builds and CI/CD".
 
 ## Open pull requests and issues of projects we translate
