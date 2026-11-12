@@ -286,7 +286,7 @@ simulator, iOS 26.1, English; iOS SDK 27.2; repository
 | android-cjj: the card after the circular reveal | ![card](assets/port-cjj-card.png) |
 | iammert MultiSearchView: two searches and the event log | ![multi search](assets/port-multisearchview.png) |
 
-## TODO (2026-11-12): the "Default" port: the whole search bar inside the navigation bar
+## DONE (2026-11-12): the "Default" port: the whole search bar inside the navigation bar
 
 - Context: in the README key-details image (below; the user's copy), the third block is the iOS port of
   MiguelCatalan/MaterialSearchView's "Default" sample (`CYLMaterialSearchSampleViewController`, sample
@@ -305,5 +305,29 @@ simulator, iOS 26.1, English; iOS SDK 27.2; repository
   navigation bar. First mark it TODO in the related document. Continue."
 - Note: the user calls it the second screenshot; in the stitched image it is the third block (search bar, Issue
   #1317 screen, Default, MultiSearchView), the second of the search screens after the plus page.
-- Status: `TODO`; order: after the tag-style demo task logged in the same message (that one is the older iOS
-  tag-view TODO and comes first).
+- Status: DONE (2026-11-12, [`e358ebd`](https://github.com/ChenYilong/CYLSearchViewController/commit/e358ebd)).
+  - iOS: the search item of `CYLMaterialSearchSampleViewController` hides the navigation bar and opens the search
+    view; the view then starts at the top of the safe area, so the search bar row sits where the navigation bar was
+    (in place of the title and the bar buttons). Closing the search (back arrow, submit, Cancel) or leaving the page
+    brings the navigation bar back. The five other MaterialSearchView samples share this layout and get the same.
+  - Android: the same with the sample's toolbar (`CYLMaterialSearchSampleFragment`).
+  - The search bar still covers no view: the navigation bar is hidden while it takes its place.
+  - Test: `testSwiftPortsOfOtherLibrariesLoad` opens the search from each sample's search item, checks the hidden
+    navigation bar and its return. 19/19 pass on iPhone 17.
+  - Screenshots (originals), top to bottom: iOS Default before searching; iOS with the search open (tag style tab,
+    "a" typed); Android with the search open.
+
+    ![iOS Default](assets/ios-default-closed.png)
+
+    ![iOS search in the navigation bar](assets/ios-default-search-in-navigation-bar.png)
+
+    ![Android search in the toolbar](assets/android-default-search-in-toolbar.png)
+
+    | Field | Value |
+    |:---|:---|
+    | Platforms | iOS; Android |
+    | Host | macOS 27.3 (26C5035r), Xcode 27.2 (27B5028f); JDK 17.0.21, Gradle 9.3.1, AGP 8.7.3 |
+    | Simulator / emulator | iPhone 17, iOS 26.3; `CYL_API35_arm64`, Android 15 (API 35) |
+    | SDK | iOS SDK 27.2 (deployment iOS 15.0); Android compileSdk 35 |
+    | Repository | [`e358ebd`](https://github.com/ChenYilong/CYLSearchViewController/commit/e358ebd) on `feat/swift-core` |
+    | Taken | 2026-11-12 23:29–23:33 NZDT |
