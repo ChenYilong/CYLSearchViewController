@@ -68,3 +68,17 @@ text size.
 - Checked on the simulator by launching the app at the default and the
   largest text size. VoiceOver labels are checked in unit tests; no session
   with VoiceOver running on a device has been recorded.
+
+## TODO (2026-11-12): the results screen's search bar overlaps its view on "iPhone Duo"
+
+- Found while verifying [tag-view-suggestions.md](tag-view-suggestions.md): `scripts/unit-tests.sh` without a device
+  name picked the first available iPhone simulator, "iPhone Duo" (`CC15DBDB-…`, new in this Xcode). There
+  `testSearchBarNeverCoversTheViewControllersView` and `testSearchBarsCoverNoView` fail for the Issue #1317 results
+  screen: the view starts at y = 112 while the navigation bar with the stacked search bar ends at 121.5 (search bar
+  frame `{{0, 68}, {402, 54}}`, view `{{0, 112}, {402, 762}}`), with `hidesSearchBarWhenScrolling` both NO and YES.
+  The same 19 tests pass on iPhone 17 (iOS 26.3).
+- Not yet known: whether this is the device's layout (a different navigation bar height) or a timing difference in
+  the test; the screen's code did not change.
+- Requirement (AGENTS.md, "Search bar placement"): a search bar never covers a view, on every device.
+- Also: `scripts/unit-tests.sh` should prefer a fixed device (as CI does) so local runs are comparable.
+- Status: `TODO`.

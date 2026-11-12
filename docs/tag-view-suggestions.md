@@ -3,7 +3,7 @@
 Suggestions under the search bar shown as a list (table view) or as tags (collection view, from
 CollectionViewClassifyMenu).
 
-## TODO (2026-11-12): CollectionViewClassifyMenu as a dependency and a tag-view suggestion style
+## DONE (2026-11-12): CollectionViewClassifyMenu as a dependency and a tag-view suggestion style
 
 - Context: CollectionViewClassifyMenu is a sibling project in the same vault folder
   (`../CollectionViewClassifyMenu`) with a podspec at its root. `CYLSearchView` lists suggestions in
@@ -26,7 +26,8 @@ CollectionViewClassifyMenu).
   view. Prefer changing the core; if needed, add interfaces to CollectionViewClassifyMenu, commit there, then update
   this repository's commit dependency and continue. Show the styles in the example: find an empty tab item, name it
   tagview style, and show the existing examples' new suggestion presentation with different parameters."
-- Status: logged; order: after the Android task and the plus button rule.
+- Status: DONE (2026-11-12, [`e1a771a`](https://github.com/ChenYilong/CYLSearchViewController/commit/e1a771a)); see
+  the iOS progress of the tag-style demos TODO below.
 
 ## DONE (2026-11-12): Android: the suggestion demo in two tabs, list style and tag style
 
@@ -113,4 +114,41 @@ CollectionViewClassifyMenu).
   code. Use the empty tab items of the example's CYLTabBarController to tell the demo pages apart. Implement iOS
   first, then the other platforms, Android and the cross-platform React Native and Flutter, with the same
   requirements. Continue."
-- Status: `TODO` (next task).
+- Progress, iOS: DONE (2026-11-12, [`e1a771a`](https://github.com/ChenYilong/CYLSearchViewController/commit/e1a771a)).
+  - Core: `CYLSearchView.suggestionStyle` (`CYLSearchSuggestionStyle.list` / `.tags`) and `suggestionsTagView`
+    (CollectionViewClassifyMenu's `CYLTagListView`), the same option as Android; a tapped tag fills the query and is
+    reported like a row.
+  - Sub-dependency: `s.dependency 'CollectionViewClassifyMenu'` in the podspec; the Podfile pins its newest commit
+    `e550a01` (`:git` + `:commit`). Its podspec makes it a static framework, so the app links pods as static
+    frameworks (`use_frameworks! :linkage => :static`); `scripts/pod-lint.sh` checks the pinned commit out into
+    `build/lint-specs/` and lints with `--include-podspecs` and `--use-static-frameworks` (it is not on trunk).
+    `pod lib lint` passes.
+  - Example: two new tab items in `CYLTabBarConfiguration.json`, titles in four languages: "Tag style"
+    (MaterialSearchView's six samples, the same suggestions and parameters as the list ports, shown as tags) and
+    "Discover" (`CYLSearchDiscoverViewController` and its data, copied from CollectionViewClassifyMenu's
+    `CYLMenuExample` at `e550a01`, its strings in an example-level `CYLSearchDiscover.bundle`; the back button shows
+    only when the page is pushed).
+  - Tests: 19/19 pass on iPhone 17 (tab bar with five pages and every tab key; the Discover search bar covers no
+    view at the default and the largest text size).
+  - Known: the "✨" after the Discover hint shows as a box on the freshly booted simulator (its emoji font); the
+    source is the same as CollectionViewClassifyMenu's.
+  - Screenshots (originals), top to bottom: the Tag style tab; its Default sample after typing "a"; the Discover tab.
+
+    ![Tag style tab](assets/ios-tag-style-menu.png)
+
+    ![Tag style, Default sample](assets/ios-tag-style-default.png)
+
+    ![Discover tab](assets/ios-discover-tab.png)
+
+| Field | Value |
+|:---|:---|
+| Platform | iOS (Swift core, Swift / Objective-C example) |
+| Host | macOS 27.3 (26C5035r), Xcode 27.2 (27B5028f) |
+| Simulator | iPhone 17, iOS 26.3 |
+| SDK | iOS SDK 27.2, Swift 5 language mode, deployment target iOS 15.0 |
+| Repository | [`e1a771a`](https://github.com/ChenYilong/CYLSearchViewController/commit/e1a771a) on `feat/swift-core`; CollectionViewClassifyMenu `e550a01` |
+| Taken | 2026-11-12 23:01–23:05 NZDT |
+- Next: Android (the Discover page ported to Kotlin with CollectionViewClassifyMenu's Android `CYLTagListView`; the
+  tag style already exists), then React Native and Flutter (not built yet: the cross-platform TODO in
+  [android-and-cross-platform.md](android-and-cross-platform.md)).
+- Status: `TODO` (iOS done; Android, React Native, Flutter open).
