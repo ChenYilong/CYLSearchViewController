@@ -1,6 +1,10 @@
 // Kotlin transcription of MiguelCatalan/MaterialSearchView (commit 53e163c), Apache License 2.0, see ../../../../../../LICENSE.
 // Original author: Miguel Catalan Bañuls. Changes: Java to Kotlin, android.support to AndroidX, setCursorDrawable uses
 // TextView.setTextCursorDrawable on API 29+ (the private field it set before is not accessible there).
+// Merged open pull requests (translated): #66 / #105 / #146 / #159 isVoiceAvailable() fixed; #81 about-to-show and
+// about-to-close callbacks; #106 closeSearch(animate); #114 default suggestions (not its "cover" behavior, which
+// would change what Back and the tint do); #130 getQuery(); #153 SuggestionItem; #176 checkWholeString; #209 the
+// layout stays hidden when suggestions are set before the search opens; #220 as setSuggestionTextColor.
 package com.miguelcatalan.materialsearchview
 
 import android.app.Activity
@@ -79,6 +83,7 @@ class MaterialSearchView @JvmOverloads constructor(
 
     private var allowVoiceSearch = false
     private var suggestionIcon: Drawable? = null
+    private var suggestionTextColor: Int? = null
 
     private val mOnClickListener = OnClickListener { v ->
         when (v) {
@@ -219,13 +224,14 @@ class MaterialSearchView @JvmOverloads constructor(
         }
     }
 
-    // Transcribed as is: upstream reports voice as available when NO activity handles speech recognition.
+    // PRs #66, #105, #146, #159: voice is available when an activity handles speech recognition (upstream checked
+    // for none).
     private fun isVoiceAvailable(): Boolean {
         if (isInEditMode) {
             return true
         }
         val activities = context.packageManager.queryIntentActivities(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0)
-        return activities.size == 0
+        return activities.size > 0
     }
 
     fun hideKeyboard(view: View) {
@@ -280,6 +286,19 @@ class MaterialSearchView @JvmOverloads constructor(
     fun setSuggestionIcon(drawable: Drawable?) {
         suggestionIcon = drawable
     }
+
+    /**
+     * The color of the suggestion text (PR #220 hard-coded white).
+     */
+    fun setSuggestionTextColor(color: Int) {
+        suggestionTextColor = color
+        (mAdapter as? SearchAdapter)?.textColor = color
+    }
+
+    /**
+     * Returns the query string currently in the text field (PR #130).
+     */
+    fun getQuery(): CharSequence? = mSearchSrcTextView.text
 
     fun setInputType(inputType: Int) {
         mSearchSrcTextView.inputType = inputType
@@ -339,6 +358,7 @@ class MaterialSearchView @JvmOverloads constructor(
      */
     fun setAdapter(adapter: ListAdapter?) {
         mAdapter = adapter
+        suggestionTextColor?.let { (adapter as? SearchAdapter)?.textColor = it }
         mSuggestionsListView.adapter = adapter
         startFilter(mSearchSrcTextView.text)
     }
@@ -347,14 +367,57 @@ class MaterialSearchView @JvmOverloads constructor(
      * Set Adapter for suggestions list with the given suggestion array
      */
     fun setSuggestions(suggestions: Array<String>?) {
+        setSuggestions(suggestions, false)
+    }
+
+    /**
+     * Suggestions that match anywhere in their text when `checkSuggestion` is true, else at their start (PR #176).
+     */
+    fun setSuggestions(suggestions: Array<String>?, checkSuggestion: Boolean) {
         if (!suggestions.isNullOrEmpty()) {
-            mTintView.visibility = VISIBLE
-            val adapter = SearchAdapter(mContext, suggestions, suggestionIcon, ellipsize)
-            setAdapter(adapter)
-            setOnItemClickListener { _, _, position, _ -> setQuery(adapter.getItem(position) as String, submit) }
+            useAdapter(SearchAdapter(mContext, suggestions, suggestionIcon, ellipsize, checkSuggestion))
         } else {
             mTintView.visibility = GONE
         }
+    }
+
+    /**
+     * Suggestions, plus `emptySuggestions` listed while the text is empty (PR #114).
+     */
+    fun setSuggestionsWithDefault(suggestions: Array<String>?, emptySuggestions: Array<String>?) {
+        if (!suggestions.isNullOrEmpty()) {
+            useAdapter(SearchAdapter(mContext, suggestions, emptySuggestions, suggestionIcon, ellipsize))
+        } else {
+            mTintView.visibility = GONE
+        }
+    }
+
+    /**
+     * Suggestions with their own icons; sticky ones are always listed (PR #153).
+     */
+    fun setSuggestions(suggestions: Array<SuggestionItem>?) {
+        if (!suggestions.isNullOrEmpty()) {
+            useAdapter(SearchAdapter(mContext, suggestions, ellipsize))
+        } else {
+            mTintView.visibility = GONE
+        }
+    }
+
+    /**
+     * Suggestions that share one icon resource (PR #153).
+     */
+    fun setSuggestions(suggestions: Array<String>, @androidx.annotation.DrawableRes suggestionIconRes: Int) {
+        setSuggestions(Array(suggestions.size) { SuggestionItem(false, suggestionIconRes, suggestions[it]) })
+    }
+
+    private fun useAdapter(adapter: SearchAdapter) {
+        mTintView.visibility = VISIBLE
+        // PR #209: suggestions set before the search opens must not show the search layout.
+        if (!mIsSearchOpen) {
+            mSearchLayout.visibility = GONE
+        }
+        setAdapter(adapter)
+        setOnItemClickListener { _, _, position, _ -> setQuery(adapter.getItem(position) as String, submit) }
     }
 
     /**
@@ -418,6 +481,8 @@ class MaterialSearchView @JvmOverloads constructor(
         if (isSearchOpen()) {
             return
         }
+        // PR #81
+        mSearchViewListener?.onSearchViewAboutToShow()
         // Request Focus
         mSearchSrcTextView.text = null
         mSearchSrcTextView.requestFocus()
@@ -446,17 +511,35 @@ class MaterialSearchView @JvmOverloads constructor(
     }
 
     /**
-     * Close search view.
+     * Close search view. If animate is true, animate the closing of the view (PR #106; without the argument it
+     * closes at once, as before).
      */
-    fun closeSearch() {
+    @JvmOverloads
+    fun closeSearch(animate: Boolean = false) {
         if (!isSearchOpen()) {
             return
         }
+        // PR #81
+        mSearchViewListener?.onSearchViewAboutToClose()
         mSearchSrcTextView.text = null
         dismissSuggestions()
         clearFocus()
-        mSearchLayout.visibility = GONE
-        mSearchViewListener?.onSearchViewClosed()
+        if (animate) {
+            AnimationUtil.disappear(mSearchTopBar, object : AnimationUtil.AnimationListener {
+                override fun onAnimationStart(view: View): Boolean = false
+
+                override fun onAnimationEnd(view: View): Boolean {
+                    mSearchLayout.visibility = GONE
+                    mSearchViewListener?.onSearchViewClosed()
+                    return false
+                }
+
+                override fun onAnimationCancel(view: View): Boolean = false
+            })
+        } else {
+            mSearchLayout.visibility = GONE
+            mSearchViewListener?.onSearchViewClosed()
+        }
         mIsSearchOpen = false
     }
 
@@ -567,5 +650,15 @@ class MaterialSearchView @JvmOverloads constructor(
         fun onSearchViewShown()
 
         fun onSearchViewClosed()
+
+        /**
+         * Called before the search view opens (PR #81). Optional.
+         */
+        fun onSearchViewAboutToShow() = Unit
+
+        /**
+         * Called before the search view closes (PR #81). Optional.
+         */
+        fun onSearchViewAboutToClose() = Unit
     }
 }

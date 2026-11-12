@@ -82,3 +82,37 @@ Native) for the CYLSearchViewController components.
   - Added by the rule "Open pull requests and issues of projects we translate" (2026-11-12): the translations are
     done, so each upstream's open pull requests are to be translated and merged into its folder, and each upstream's
     open issues listed in a table below (link, description, status `TODO`) and fixed in our code, scored until 100.
+
+## Open pull requests of the translated projects
+
+Read 2026-11-12 (`AGENTS.md`, "Open pull requests and issues of projects we translate"). lapism/search,
+yechaoa/MaterialDesign and android-cjj/MaterialSearchView have no open pull requests. The translations were already
+done, so each pull request's changes were translated to Kotlin and merged into the project's folder in `android/`.
+
+| Pull request | Status | What was merged |
+|:---|:---|:---|
+| [MiguelCatalan/MaterialSearchView#245](https://github.com/MiguelCatalan/MaterialSearchView/pull/245) | Merged (equivalent) | The translation already uses AndroidX. |
+| [MiguelCatalan/MaterialSearchView#228](https://github.com/MiguelCatalan/MaterialSearchView/pull/228) | Merged (equivalent) | The translation already uses AndroidX. |
+| [MiguelCatalan/MaterialSearchView#220](https://github.com/MiguelCatalan/MaterialSearchView/pull/220) | Merged (adapted) | White suggestion text became `setSuggestionTextColor(color)` / `SearchAdapter.textColor` instead of a hard-coded color. |
+| [MiguelCatalan/MaterialSearchView#209](https://github.com/MiguelCatalan/MaterialSearchView/pull/209) | Merged | `useAdapter`: the search layout stays hidden when suggestions are set before the search opens. |
+| [MiguelCatalan/MaterialSearchView#200](https://github.com/MiguelCatalan/MaterialSearchView/pull/200) | N/A | README wording only; our `TRANSCRIPTION.md` links the upstream README. |
+| [MiguelCatalan/MaterialSearchView#176](https://github.com/MiguelCatalan/MaterialSearchView/pull/176) | Merged | `setSuggestions(suggestions, checkSuggestion)`, `SearchAdapter(…, checkWholeString)`. |
+| [MiguelCatalan/MaterialSearchView#159](https://github.com/MiguelCatalan/MaterialSearchView/pull/159) | Merged | `isVoiceAvailable()` returns true when a speech recognizer exists. |
+| [MiguelCatalan/MaterialSearchView#153](https://github.com/MiguelCatalan/MaterialSearchView/pull/153) | Merged (adapted) | `SuggestionItem`, `setSuggestions(Array<SuggestionItem>)`, `setSuggestions(suggestions, iconRes)`; `getItem()` still returns the text and `getSuggestionItem()` the item, and `setSuggestionIcon` is kept, so existing callers compile. |
+| [MiguelCatalan/MaterialSearchView#146](https://github.com/MiguelCatalan/MaterialSearchView/pull/146) | Merged | Same fix as #159. |
+| [MiguelCatalan/MaterialSearchView#130](https://github.com/MiguelCatalan/MaterialSearchView/pull/130) | Merged | `getQuery()`. |
+| [MiguelCatalan/MaterialSearchView#127](https://github.com/MiguelCatalan/MaterialSearchView/pull/127) | Merged (via #176) | "Contains" matching is `checkWholeString = true`; the default stays "starts with" so existing behavior does not change. |
+| [MiguelCatalan/MaterialSearchView#117](https://github.com/MiguelCatalan/MaterialSearchView/pull/117) | Merged (equivalent) | `setInputType` and the `android:inputType` attribute were already on master and are in the translation. |
+| [MiguelCatalan/MaterialSearchView#114](https://github.com/MiguelCatalan/MaterialSearchView/pull/114) | Merged (partly) | `setSuggestionsWithDefault`, `SearchAdapter.setDefaultSuggestions` / `setSearchCovered`. Not merged: its "cover" behavior that makes Back and the tint keep the search open, which would change the existing close behavior. |
+| [MiguelCatalan/MaterialSearchView#106](https://github.com/MiguelCatalan/MaterialSearchView/pull/106) | Merged (adapted) | `closeSearch(animate)` and `AnimationUtil.disappear`; `closeSearch()` keeps closing at once, as before. |
+| [MiguelCatalan/MaterialSearchView#105](https://github.com/MiguelCatalan/MaterialSearchView/pull/105) | Merged | Same fix as #159. |
+| [MiguelCatalan/MaterialSearchView#97](https://github.com/MiguelCatalan/MaterialSearchView/pull/97) | N/A | README wording only. |
+| [MiguelCatalan/MaterialSearchView#92](https://github.com/MiguelCatalan/MaterialSearchView/pull/92) | N/A | No changes in the pull request. |
+| [MiguelCatalan/MaterialSearchView#81](https://github.com/MiguelCatalan/MaterialSearchView/pull/81) | Merged | `SearchViewListener.onSearchViewAboutToShow()` / `onSearchViewAboutToClose()`, default methods so existing listeners compile. |
+| [MiguelCatalan/MaterialSearchView#66](https://github.com/MiguelCatalan/MaterialSearchView/pull/66) | Merged | Same fix as #159. |
+| [iammert/MultiSearchView#17](https://github.com/iammert/MultiSearchView/pull/17) | Merged | `selectedTabStyle` (line or dot), the `selectedTabStyle` attribute and `viewIndicator2`. |
+| [iammert/MultiSearchView#16](https://github.com/iammert/MultiSearchView/pull/16) | Merged | `setSearchIconDrawable`, `setSearchIconColor`, the `searchIcon` and `searchIconColor` attributes. |
+| [iammert/MultiSearchView#15](https://github.com/iammert/MultiSearchView/pull/15) | Merged (equivalent) | Its code change (no `kotlinx.android.synthetic`) is already on master, which uses data binding; the Gradle and Kotlin versions are set by `android/merged`. |
+
+All 22 open pull requests are handled (19 merged, fully or adapted to keep the existing API; 3 change no code).
+Open issues: `docs/android-upstream-issues.md`.

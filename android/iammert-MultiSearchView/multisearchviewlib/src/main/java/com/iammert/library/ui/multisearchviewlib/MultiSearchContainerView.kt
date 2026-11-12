@@ -27,6 +27,12 @@ class MultiSearchContainerView @JvmOverloads constructor(
 
     var searchTextStyle = 0
 
+    // Merged from upstream PR #17 (kojofosu, "selected tab dot style feature"): 0 = line, 1 = dot.
+    var selectedTabStyle = 0
+
+    private val indicatorView: View
+        get() = if (selectedTabStyle == 1) binding.viewIndicator2 else binding.viewIndicator
+
     private var searchViewWidth: Float = 0f
 
     private var viewWidth: Float = 0f
@@ -89,7 +95,7 @@ class MultiSearchContainerView @JvmOverloads constructor(
         duration = DEFAULT_ANIM_DURATION
         interpolator = LinearOutSlowInInterpolator()
         addUpdateListener { valueAnimator ->
-            binding.viewIndicator.x = valueAnimator.animatedValue as Float
+            indicatorView.x = valueAnimator.animatedValue as Float
         }
     }
 
@@ -246,7 +252,7 @@ class MultiSearchContainerView @JvmOverloads constructor(
 
         when {
             currentChildCount == 1 -> {
-                binding.viewIndicator.visibility = View.INVISIBLE
+                indicatorView.visibility = View.INVISIBLE
                 binding.layoutItemContainer.removeView(viewItemBinding.root)
             }
             removeIndex == currentChildCount - 1 -> {
@@ -269,18 +275,18 @@ class MultiSearchContainerView @JvmOverloads constructor(
     }
 
     private fun selectTab(viewItemBinding: ViewItemBinding) {
-        val indicatorCurrentXPosition = binding.viewIndicator.x
+        val indicatorCurrentXPosition = indicatorView.x
         val indicatorTargetXPosition = viewItemBinding.root.x
         indicatorAnimator.setFloatValues(indicatorCurrentXPosition, indicatorTargetXPosition)
         indicatorAnimator.start()
 
-        binding.viewIndicator.visibility = View.VISIBLE
+        indicatorView.visibility = View.VISIBLE
         viewItemBinding.imageViewRemove.visibility = View.VISIBLE
         viewItemBinding.editTextSearch.alpha = 1f
     }
 
     private fun deselectTab(viewItemBinding: ViewItemBinding) {
-        binding.viewIndicator.visibility = View.INVISIBLE
+        indicatorView.visibility = View.INVISIBLE
         viewItemBinding.imageViewRemove.visibility = View.GONE
         viewItemBinding.editTextSearch.alpha = 0.5f
     }
