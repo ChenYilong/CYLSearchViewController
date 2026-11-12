@@ -6,7 +6,7 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
 | Sub-repository | What it adds | Status |
 |:---|:---|:---|
 | CollectionViewClassifyMenu | Suggestions as tags (`CYLSearchSuggestionStyle`) | Android done (`eb3590e`); iOS `TODO` ([tag-view-suggestions.md](tag-view-suggestions.md)) |
-| CYLTableViewPlaceHolder | The empty-content placeholder when a search has no results | `TODO` (below) |
+| CYLTableViewPlaceHolder | The empty-content placeholder when a search has no results | iOS done; other platforms `TODO` (below) |
 
 ## TODO (2026-11-12): CYLTableViewPlaceHolder as a sub-repository, empty search results on every platform
 
@@ -50,4 +50,36 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
     their whole body). Restored from their last intact versions (`db9991a`, `1416a3e`) with those sections appended.
   - Order: after the open tasks logged before it (the iOS tag-view TODO, the raised plus button rule, the
     HarmonyOS / Flutter / React Native TODO).
-- Status: `TODO`.
+- Progress, iOS: DONE (2026-11-13, [`5bb0b58`](https://github.com/ChenYilong/CYLSearchViewController/commit/5bb0b58)).
+  - Dependency: `s.dependency 'CYLTableViewPlaceHolder/Core'` in the podspec; the Podfile pins its newest commit
+    `a049422` (branch `feat/smartrefresh-parity`) by `:git` + `:commit`, no local path. `scripts/pod-lint.sh` checks
+    it out with CollectionViewClassifyMenu; `pod lib lint` passes.
+  - Core option: `CYLSearchView.showsEmptyResultsPlaceholder` (off by default, so existing apps keep their behavior)
+    and `emptyResultsScenario` (`CYLPlaceholderScenarioNoSearchResults` by default: icon, "No matching results", "Try
+    different keywords"; `CYLPlaceholderScenarioNoContent` gives the plain empty state). While a non-empty query
+    matches no suggestion, CYLTableViewPlaceHolder's `CYLPlaceholderStackView` for that scenario shows under the
+    search bar (`emptyResultsView`), in the list and the tag style; a match, an empty query or a submitted query hides
+    it. Choice recorded: "内容为空的样式" was read as the library's empty search results scenario; the scenario is a
+    parameter, so the plain "no content" state is one line away.
+  - The results screen (`CYLSearchExampleViewController`, Issue #1317) already shows its empty state through
+    CYLTableViewPlaceHolder (`cyl_reloadData`); it now comes from the pinned commit instead of the local path.
+  - Example: the MaterialSearchView samples (the list ports and the Tag style tab) turn it on.
+  - Test: `testEmptyResultsShowTheCYLTableViewPlaceHolderPlaceholder` (off by default; shown for no match in both
+    styles; hidden for a match and an empty query; the scenario parameter). 20/20 pass on iPhone 17.
+  - Screenshot (original): the Tag style tab's Default sample, "zzz" typed.
+
+    ![Empty search results placeholder](assets/ios-empty-search-results-placeholder.png)
+
+    | Field | Value |
+    |:---|:---|
+    | Platform | iOS |
+    | Host | macOS 27.3 (26C5035r), Xcode 27.2 (27B5028f) |
+    | Simulator | iPhone 17, iOS 26.3 |
+    | SDK | iOS SDK 27.2, deployment target iOS 15.0 |
+    | Repository | [`5bb0b58`](https://github.com/ChenYilong/CYLSearchViewController/commit/5bb0b58) on `feat/swift-core`; CYLTableViewPlaceHolder `a049422` |
+    | Taken | 2026-11-13 00:02 NZDT |
+- Next, Android: CYLTableViewPlaceHolder has no Android library yet (its `docs/Android-Port.md` TODO), so its
+  placeholder is added there first (the sub-repository rule), then pinned in `android/merged`, with the same
+  `showsEmptyResultsPlaceholder` / `emptyResultsScenario` on the Kotlin `CYLSearchView`. React Native, Flutter,
+  HarmonyOS and mini programs follow when those versions exist.
+- Status: `TODO` (iOS done; Android, React Native, Flutter, HarmonyOS, mini programs open).

@@ -202,7 +202,10 @@ CollectionViewClassifyMenu).
     width, so the title `TextView` kept a text layout as wide as the whole title; the narrower frame then clipped it
     and `ellipsize = END` never applied.
   - Fix there (sub-repository rule): `place()` measures each child at its frame before laying it out; every tag cell
-    uses it. [ChenYilong/CollectionViewClassifyMenu#17](https://github.com/ChenYilong/CollectionViewClassifyMenu/pull/17),
+    uses it.
+  - Core, not example: the user asked again (2026-11-12, "请在core层面修复该问题，不要在example修复！" — "fix it in the core, not
+    in the example"). The fix is in CollectionViewClassifyMenu's core library (`CYLTagButton`, used by every tag cell);
+    no example code changed for it (`CYLSearchDiscoverFragment` is untouched by `74b75a6` / `f972416`). [ChenYilong/CollectionViewClassifyMenu#17](https://github.com/ChenYilong/CollectionViewClassifyMenu/pull/17),
     commit `f972416`, with `CYLTagTitleEllipsisTest` (fails without the fix) and its 30 library tests passing.
   - Pinned here to `f972416` on Android and iOS; Android builds from the pinned checkout, iOS 19/19, `pod lib lint`
     passes.
