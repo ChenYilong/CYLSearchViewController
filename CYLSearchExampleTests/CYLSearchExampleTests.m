@@ -284,7 +284,7 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     CYLSearchTestNavigationController *navigation = [[CYLSearchTestNavigationController alloc] initWithRootViewController:menu];
     [menu loadViewIfNeeded];
     XCTAssertEqual(menu.navigationController, navigation);
-    XCTAssertEqual([menu tableView:menu.tableView numberOfRowsInSection:0], 3);
+    XCTAssertEqual([menu tableView:menu.tableView numberOfRowsInSection:0], 4, @"reproduction, styles, search bar, ports of other libraries");
     [menu tableView:menu.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
     UITableViewController *gallery = (UITableViewController *)navigation.lastPushedController;
     XCTAssertNotEqual(gallery, menu);
@@ -881,6 +881,62 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     multi.placeholder = @"Category";
     XCTAssertEqualObjects(field.attributedPlaceholder.string, @"Category");
     XCTAssertEqualObjects(multi.searchButton.accessibilityLabel, [CYLSearchResources localizedStringForKey:@"multisearch.add"]);
+}
+
+- (void)testSwiftPortsOfOtherLibrariesLoad
+{
+    // Each Swift port (docs/search-api-comparison.md) opens in a window, and no visible search bar covers a view.
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 390, 844));
+    window.hidden = NO;
+    NSArray<NSString *> *names = @[@"CYLSearchPortsViewController", @"CYLLapismSearchViewController",
+                                   @"CYLMaterialSearchMenuViewController", @"CYLYechaoaSearchViewController",
+                                   @"CYLRevealSearchViewController", @"CYLMultiSearchDemoViewController"];
+    for (NSString *name in names) {
+        Class class = NSClassFromString(name);
+        XCTAssertNotNil(class, @"%@ is compiled into the app", name);
+        UIViewController *controller = [class isSubclassOfClass:UITableViewController.class]
+            ? [(UITableViewController *)[class alloc] initWithStyle:UITableViewStyleInsetGrouped] : [class new];
+        UINavigationController *navigation = [[UINavigationController alloc] initWithRootViewController:controller];
+        window.rootViewController = navigation;
+        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.3]];
+        [navigation.view layoutIfNeeded];
+        XCTAssertNotNil(controller.view.window, @"%@ is shown", name);
+        NSMutableArray<UIView *> *bars = [NSMutableArray array];
+        NSMutableArray<UIView *> *queue = [NSMutableArray arrayWithObject:controller.view];
+        while (queue.count) {
+            UIView *view = queue.firstObject;
+            [queue removeObjectAtIndex:0];
+            if ([view isKindOfClass:CYLSearchBarView.class] || [view isKindOfClass:CYLMultiSearchView.class]) [bars addObject:view];
+            [queue addObjectsFromArray:view.subviews];
+        }
+        for (UIView *bar in bars) {
+            BOOL visible = bar.window && !bar.hidden && bar.alpha > 0.01;
+            for (UIView *parent = bar.superview; parent && visible; parent = parent.superview) visible = !parent.hidden;
+            if (!visible) continue;
+            NSArray *covered = CYLViewsCoveredByView(bar, controller.view);
+            XCTAssertEqual(covered.count, 0, @"%@: %@", name, covered);
+        }
+    }
+    // The MaterialSearchView samples, one by one.
+    Class menuClass = NSClassFromString(@"CYLMaterialSearchMenuViewController");
+    UITableViewController *menu = [(UITableViewController *)[menuClass alloc] initWithStyle:UITableViewStyleInsetGrouped];
+    UINavigationController *navigation = [[UINavigationController alloc] initWithRootViewController:menu];
+    window.rootViewController = navigation;
+    [menu loadViewIfNeeded];
+    NSInteger samples = [menu tableView:menu.tableView numberOfRowsInSection:0];
+    XCTAssertEqual(samples, 6, @"Default, Themed, Voice, Sticky, Tabs, Input type");
+    for (NSInteger row = 0; row < samples; row++) {
+        [menu tableView:menu.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:row inSection:0]];
+        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.4]];
+        UIViewController *sample = navigation.topViewController;
+        XCTAssertNotEqual(sample, menu, @"row %ld opens a sample", (long)row);
+        [sample loadViewIfNeeded];
+        CYLSearchView *searchView = (CYLSearchView *)[sample.view.subviews filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"self isKindOfClass: %@", CYLSearchView.class]].firstObject;
+        XCTAssertNotNil(searchView, @"row %ld has a search view", (long)row);
+        XCTAssertEqual(sample.navigationItem.rightBarButtonItem.target, searchView, @"the search item opens it");
+        [navigation popToRootViewControllerAnimated:NO];
+    }
+    window.hidden = YES;
 }
 
 @end

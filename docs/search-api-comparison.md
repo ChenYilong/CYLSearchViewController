@@ -150,7 +150,7 @@ Java; `MaterialSearchView`, `SearchAdapter`.
 | `setTextColor(color)`, `android:textColor` | `searchBarView.textColor` |
 | `setHintTextColor(color)`, `android:textColorHint` | `searchBarView.placeholderColor` |
 | `setHint(hint)`, `android:hint` | `searchBarView.placeholder` |
-| `setInputType(type)`, `android:inputType` | `searchBarView.keyboardType` and friends |
+| `setInputType(type)`, `android:inputType` (`textPassword` in the sample) | `searchBarView.keyboardType`, `autocapitalizationType`, `secureTextEntry` |
 | `setCursorDrawable(drawable)` | `searchBarView.cursorColor` |
 | `showKeyboard(view)` / `hideKeyboard(view)` | `searchBarView.showKeyboard` / `hideKeyboard` |
 | `requestFocus(...)` / `clearFocus()` | `-showSearch` / `-closeSearch` |

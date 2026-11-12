@@ -265,6 +265,10 @@ typedef NS_ENUM(NSInteger, CYLSearchBarExpansionAnimation) {
  * The longest text a person can type (Android `maxLength`); 0 means no limit. 0 by default.
  */
 @property (nonatomic, assign) NSUInteger maximumTextLength;
+/*!
+ * Hides the typed characters (Android `inputType="textPassword"`). NO by default.
+ */
+@property (nonatomic, assign, getter=isSecureTextEntry) BOOL secureTextEntry;
 
 #pragma mark Iconified
 

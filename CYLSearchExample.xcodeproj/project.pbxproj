@@ -22,6 +22,12 @@
 		A20000000000000000000014 /* CYLTabBarConfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000015 /* CYLTabBarConfiguration.json */; };
 		A20000000000000000000016 /* CYLSearchTabs.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000017 /* CYLSearchTabs.bundle */; };
 		A40000000000000000000003 /* CYLSearchExampleSceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000002 /* CYLSearchExampleSceneDelegate.m */; };
+		A60000000000000000000000 /* CYLSearchPortsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000000000000000000000 /* CYLSearchPortsViewController.swift */; };
+		A60000000000000000000001 /* CYLLapismSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000000000000000000001 /* CYLLapismSearchViewController.swift */; };
+		A60000000000000000000002 /* CYLMaterialSearchMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000000000000000000002 /* CYLMaterialSearchMenuViewController.swift */; };
+		A60000000000000000000003 /* CYLYechaoaSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000000000000000000003 /* CYLYechaoaSearchViewController.swift */; };
+		A60000000000000000000004 /* CYLRevealSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000000000000000000004 /* CYLRevealSearchViewController.swift */; };
+		A60000000000000000000005 /* CYLMultiSearchDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000000000000000000005 /* CYLMultiSearchDemoViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +67,12 @@
 		FA7A0B9D7510B24AAB4BC47A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		A40000000000000000000001 /* CYLSearchExampleSceneDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CYLSearchExampleSceneDelegate.h; sourceTree = "<group>"; };
 		A40000000000000000000002 /* CYLSearchExampleSceneDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CYLSearchExampleSceneDelegate.m; sourceTree = "<group>"; };
+		A50000000000000000000000 /* CYLSearchPortsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CYLSearchPortsViewController.swift; sourceTree = "<group>"; };
+		A50000000000000000000001 /* CYLLapismSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CYLLapismSearchViewController.swift; sourceTree = "<group>"; };
+		A50000000000000000000002 /* CYLMaterialSearchMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CYLMaterialSearchMenuViewController.swift; sourceTree = "<group>"; };
+		A50000000000000000000003 /* CYLYechaoaSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CYLYechaoaSearchViewController.swift; sourceTree = "<group>"; };
+		A50000000000000000000004 /* CYLRevealSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CYLRevealSearchViewController.swift; sourceTree = "<group>"; };
+		A50000000000000000000005 /* CYLMultiSearchDemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CYLMultiSearchDemoViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -118,6 +130,12 @@
 				34FE1E690725740C1C51847B /* main.m */,
 				2ECACD2FCF0F1BE4A83F798C /* CYLSearchExampleAppDelegate.h */,
 				E008B7937D631C1FDD620EA5 /* CYLSearchExampleAppDelegate.m */,
+				A50000000000000000000000 /* CYLSearchPortsViewController.swift */,
+				A50000000000000000000001 /* CYLLapismSearchViewController.swift */,
+				A50000000000000000000002 /* CYLMaterialSearchMenuViewController.swift */,
+				A50000000000000000000003 /* CYLYechaoaSearchViewController.swift */,
+				A50000000000000000000004 /* CYLRevealSearchViewController.swift */,
+				A50000000000000000000005 /* CYLMultiSearchDemoViewController.swift */,
 				A40000000000000000000001 /* CYLSearchExampleSceneDelegate.h */,
 				A40000000000000000000002 /* CYLSearchExampleSceneDelegate.m */,
 				DF5C54305D5A0EB5C6717D1E /* CYLSearchExampleViewController.h */,
@@ -359,6 +377,12 @@
 			files = (
 				E0196D8390297BD29A49C29F /* main.m in Sources */,
 				D787BCBE26892DD9A9415062 /* CYLSearchExampleAppDelegate.m in Sources */,
+				A60000000000000000000000 /* CYLSearchPortsViewController.swift in Sources */,
+				A60000000000000000000001 /* CYLLapismSearchViewController.swift in Sources */,
+				A60000000000000000000002 /* CYLMaterialSearchMenuViewController.swift in Sources */,
+				A60000000000000000000003 /* CYLYechaoaSearchViewController.swift in Sources */,
+				A60000000000000000000004 /* CYLRevealSearchViewController.swift in Sources */,
+				A60000000000000000000005 /* CYLMultiSearchDemoViewController.swift in Sources */,
 				A40000000000000000000003 /* CYLSearchExampleSceneDelegate.m in Sources */,
 				101C7EF837736C301E77C1BD /* CYLSearchExampleViewController.m in Sources */,
 				A20000000000000000000001 /* CYLSearchDemoMenuViewController.m in Sources */,

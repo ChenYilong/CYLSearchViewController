@@ -109,14 +109,14 @@ static NSString *CYLDemoText(NSString *key)
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 3;
+    return 4;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CYLDemoMenu"];
     if (!cell) cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"CYLDemoMenu"];
-    NSArray<NSString *> *rows = @[@"demo.reproduction", @"demo.styles", @"demo.searchBar"];
+    NSArray<NSString *> *rows = @[@"demo.reproduction", @"demo.styles", @"demo.searchBar", @"demo.ports"];
     cell.textLabel.text = CYLDemoText(rows[indexPath.row]);
     cell.textLabel.numberOfLines = 0;
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -131,8 +131,14 @@ static NSString *CYLDemoText(NSString *key)
         controller = [[CYLSearchExampleViewController alloc] initWithSearchDataSource:source refreshProvider:source];
     } else if (indexPath.row == 1) {
         controller = [[CYLSearchPlaceholderGalleryViewController alloc] initWithStyle:UITableViewStyleGrouped];
-    } else {
+    } else if (indexPath.row == 2) {
         controller = [CYLSearchBarDemoViewController new];
+    } else {
+        // The Swift ports of five other search libraries' examples (docs/search-api-comparison.md).
+        // The class is written in Swift (@objc(CYLSearchPortsViewController)); the app has no bridging header, so
+        // its generated header does not list internal Swift classes.
+        Class ports = NSClassFromString(@"CYLSearchPortsViewController");
+        controller = [(UITableViewController *)[ports alloc] initWithStyle:UITableViewStyleInsetGrouped];
     }
     [self.navigationController pushViewController:controller animated:YES];
     [tableView deselectRowAtIndexPath:indexPath animated:YES];

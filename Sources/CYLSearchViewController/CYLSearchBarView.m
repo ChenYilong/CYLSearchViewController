@@ -157,6 +157,8 @@ static CGFloat const CYLSearchBarMinimumAccessoryScale = 0.25;
 - (void)setReturnKeyType:(UIReturnKeyType)type { self.textField.returnKeyType = type; [self.textField reloadInputViews]; }
 - (UITextAutocapitalizationType)autocapitalizationType { return self.textField.autocapitalizationType; }
 - (void)setAutocapitalizationType:(UITextAutocapitalizationType)type { self.textField.autocapitalizationType = type; }
+- (BOOL)isSecureTextEntry { return self.textField.isSecureTextEntry; }
+- (void)setSecureTextEntry:(BOOL)secure { self.textField.secureTextEntry = secure; }
 - (UITextAutocorrectionType)autocorrectionType { return self.textField.autocorrectionType; }
 - (void)setAutocorrectionType:(UITextAutocorrectionType)type { self.textField.autocorrectionType = type; }
 
