@@ -26,3 +26,11 @@
 "demo.searchBar.text" = "文字：%@";
 "demo.searchBar.searched" = "已搜索：%@";
 "demo.searchBar.camera" = "相机";
+"search.back" = "返回";
+"search.voice" = "语音搜索";
+"search.submit" = "搜索";
+"search.clear" = "清除文本";
+"search.suggestions" = "搜索建议";
+"multisearch.add" = "新建搜索";
+"multisearch.remove" = "删除搜索";
+"multisearch.item" = "第 %1$lu 个搜索，共 %2$lu 个";

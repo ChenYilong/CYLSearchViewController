@@ -9,6 +9,8 @@ static CGFloat const CYLSearchBarMinimumScale = 0.5;
 static CGFloat const CYLSearchBarMinimumAccessoryScale = 0.25;
 
 @interface CYLSearchBarView () <UITextFieldDelegate>
+@property (nonatomic, strong) UIButton *clearButton;
+@property (nonatomic, assign) BOOL cyl_animatingExpansion;
 @end
 
 @implementation CYLSearchBarView
@@ -18,6 +20,9 @@ static CGFloat const CYLSearchBarMinimumAccessoryScale = 0.25;
 @synthesize fieldBackgroundColor = _fieldBackgroundColor;
 @synthesize searchIconTintColor = _searchIconTintColor;
 @synthesize cancelButtonTitle = _cancelButtonTitle;
+@synthesize navigationAccessibilityLabel = _navigationAccessibilityLabel;
+@synthesize voiceImage = _voiceImage;
+@synthesize submitImage = _submitImage;
 
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
@@ -73,8 +78,40 @@ static CGFloat const CYLSearchBarMinimumAccessoryScale = 0.25;
     [_cancelButton addTarget:self action:@selector(cyl_cancel) forControlEvents:UIControlEventTouchUpInside];
     _cancelButton.showsLargeContentViewer = YES;
     [self addSubview:_cancelButton];
+
+    _animationDuration = 0.3;
+    _navigationButton = [self cyl_iconButtonWithAction:@selector(cyl_navigationTapped)];
+    _navigationButton.hidden = YES;
+    [self addSubview:_navigationButton];
+    _voiceButton = [self cyl_iconButtonWithAction:@selector(cyl_voiceTapped)];
+    _voiceButton.hidden = YES;
+    _voiceButton.accessibilityLabel = [CYLSearchResources localizedStringForKey:@"search.voice"];
+    [_fieldView addSubview:_voiceButton];
+    _submitButton = [self cyl_iconButtonWithAction:@selector(cyl_submitTapped)];
+    _submitButton.hidden = YES;
+    _submitButton.accessibilityLabel = [CYLSearchResources localizedStringForKey:@"search.submit"];
+    [_fieldView addSubview:_submitButton];
+    _clearButton = [self cyl_iconButtonWithAction:@selector(cyl_clearTapped)];
+    _clearButton.accessibilityLabel = [CYLSearchResources localizedStringForKey:@"search.clear"];
+    _clearButton.frame = CGRectMake(0, 0, 30, 30);
+    _iconButton = [self cyl_iconButtonWithAction:@selector(cyl_iconTapped)];
+    _iconButton.hidden = YES;
+    _iconButton.accessibilityLabel = [CYLSearchResources localizedStringForKey:@"search.field"];
+    [_iconButton setImage:_searchIcon forState:UIControlStateNormal];
+    [self addSubview:_iconButton];
     [self addInteraction:[[UILargeContentViewerInteraction alloc] init]];
+    [self cyl_updateButtonImages];
     [self cyl_applyStyle];
+}
+
+- (UIButton *)cyl_iconButtonWithAction:(SEL)action {
+    UIButtonConfiguration *configuration = [UIButtonConfiguration plainButtonConfiguration];
+    configuration.contentInsets = NSDirectionalEdgeInsetsMake(4, 4, 4, 4);
+    UIButton *button = [UIButton buttonWithConfiguration:configuration primaryAction:nil];
+    [button addTarget:self action:action forControlEvents:UIControlEventTouchUpInside];
+    button.showsLargeContentViewer = YES;
+    button.pointerInteractionEnabled = YES;
+    return button;
 }
 
 #pragma mark Properties
@@ -82,8 +119,226 @@ static CGFloat const CYLSearchBarMinimumAccessoryScale = 0.25;
 - (NSString *)text { return self.textField.text; }
 - (void)setText:(NSString *)text {
     self.textField.text = text;
-    [self cyl_updatePlaceholderVisibility];
+    [self cyl_textStateChanged];
 }
+
+- (void)setText:(NSString *)text submit:(BOOL)submit {
+    self.text = text;
+    if (submit) {
+        [self submit];
+    }
+}
+
+- (BOOL)submit {
+    NSString *text = self.textField.text ?: @"";
+    if ([text stringByTrimmingCharactersInSet:NSCharacterSet.whitespaceAndNewlineCharacterSet].length == 0) {
+        return NO;
+    }
+    if ([self.delegate respondsToSelector:@selector(searchBarView:shouldSubmitText:)]
+        && ![self.delegate searchBarView:self shouldSubmitText:text]) {
+        return NO;
+    }
+    if ([self.delegate respondsToSelector:@selector(searchBarViewSearchButtonClicked:)]) {
+        [self.delegate searchBarViewSearchButtonClicked:self];
+    }
+    return YES;
+}
+
+- (void)showKeyboard { [self.textField becomeFirstResponder]; }
+- (void)hideKeyboard { [self.textField resignFirstResponder]; }
+
+- (UIKeyboardType)keyboardType { return self.textField.keyboardType; }
+- (void)setKeyboardType:(UIKeyboardType)type { self.textField.keyboardType = type; [self.textField reloadInputViews]; }
+- (UIReturnKeyType)returnKeyType { return self.textField.returnKeyType; }
+- (void)setReturnKeyType:(UIReturnKeyType)type { self.textField.returnKeyType = type; [self.textField reloadInputViews]; }
+- (UITextAutocapitalizationType)autocapitalizationType { return self.textField.autocapitalizationType; }
+- (void)setAutocapitalizationType:(UITextAutocapitalizationType)type { self.textField.autocapitalizationType = type; }
+- (UITextAutocorrectionType)autocorrectionType { return self.textField.autocorrectionType; }
+- (void)setAutocorrectionType:(UITextAutocorrectionType)type { self.textField.autocorrectionType = type; }
+
+- (void)setMaximumTextLength:(NSUInteger)length {
+    _maximumTextLength = length;
+    if (length > 0 && self.textField.text.length > length) {
+        self.text = [self.textField.text substringToIndex:length];
+    }
+}
+
+- (void)setNavigationIcon:(CYLSearchBarNavigationIcon)icon { _navigationIcon = icon; [self cyl_updateButtonImages]; }
+- (void)setNavigationImage:(UIImage *)image { _navigationImage = image; [self cyl_updateButtonImages]; }
+- (NSString *)navigationAccessibilityLabel {
+    if (_navigationAccessibilityLabel) return _navigationAccessibilityLabel;
+    return [CYLSearchResources localizedStringForKey:self.navigationIcon == CYLSearchBarNavigationIconSearch ? @"search.field" : @"search.back"];
+}
+- (void)setNavigationAccessibilityLabel:(NSString *)label { _navigationAccessibilityLabel = [label copy]; [self cyl_updateButtonImages]; }
+- (void)setNavigationBackgroundColor:(UIColor *)color { _navigationBackgroundColor = color; [self cyl_updateButtonImages]; }
+- (void)setNavigationShadowOpacity:(CGFloat)opacity { _navigationShadowOpacity = MIN(1, MAX(0, opacity)); [self cyl_updateButtonImages]; }
+- (void)setShowsVoiceButton:(BOOL)shows { _showsVoiceButton = shows; [self setNeedsLayout]; }
+- (void)setShowsSubmitButton:(BOOL)shows { _showsSubmitButton = shows; [self setNeedsLayout]; }
+- (UIImage *)voiceImage { return _voiceImage ?: [UIImage systemImageNamed:@"mic"]; }
+- (void)setVoiceImage:(UIImage *)image { _voiceImage = image; [self cyl_updateButtonImages]; }
+- (UIImage *)submitImage { return _submitImage ?: [UIImage systemImageNamed:@"arrow.forward.circle.fill"]; }
+- (void)setSubmitImage:(UIImage *)image { _submitImage = image; [self cyl_updateButtonImages]; }
+
+- (void)setClearImage:(UIImage *)image {
+    _clearImage = image;
+    if (image) {
+        self.textField.clearButtonMode = UITextFieldViewModeNever;
+        self.textField.rightView = self.clearButton;
+        self.textField.rightViewMode = UITextFieldViewModeWhileEditing;
+    } else {
+        self.textField.rightView = nil;
+        self.textField.clearButtonMode = UITextFieldViewModeWhileEditing;
+    }
+    [self cyl_updateButtonImages];
+    [self cyl_textStateChanged];
+}
+
+- (BOOL)cyl_showsNavigationButton {
+    return !self.leadingView && (self.navigationImage || self.navigationIcon != CYLSearchBarNavigationIconNone);
+}
+
+- (UIView *)cyl_effectiveLeadingView {
+    return self.leadingView ?: (self.cyl_showsNavigationButton ? self.navigationButton : nil);
+}
+
+- (NSArray<UIView *> *)cyl_effectiveAccessoryViews {
+    NSMutableArray<UIView *> *views = [self.trailingAccessoryViews mutableCopy];
+    BOOL hasText = self.textField.text.length > 0;
+    if (self.showsVoiceButton && !hasText) [views addObject:self.voiceButton];
+    if (self.showsSubmitButton && hasText) [views addObject:self.submitButton];
+    return views;
+}
+
+- (void)cyl_updateButtonImages {
+    UIImage *navigation = self.navigationImage;
+    if (!navigation && self.navigationIcon == CYLSearchBarNavigationIconArrow) navigation = [UIImage systemImageNamed:@"chevron.backward"];
+    if (!navigation && self.navigationIcon == CYLSearchBarNavigationIconSearch) navigation = [UIImage systemImageNamed:@"magnifyingglass"];
+    UIButtonConfiguration *configuration = self.navigationButton.configuration;
+    configuration.image = navigation;
+    configuration.background.backgroundColor = self.navigationBackgroundColor ?: UIColor.clearColor;
+    configuration.cornerStyle = UIButtonConfigurationCornerStyleCapsule;
+    self.navigationButton.configuration = configuration;
+    self.navigationButton.layer.shadowOpacity = self.navigationShadowOpacity;
+    self.navigationButton.layer.shadowRadius = 3;
+    self.navigationButton.layer.shadowOffset = CGSizeMake(0, 1);
+    self.navigationButton.accessibilityLabel = self.navigationAccessibilityLabel;
+    self.navigationButton.largeContentTitle = self.navigationAccessibilityLabel;
+    [self.voiceButton setImage:self.voiceImage forState:UIControlStateNormal];
+    [self.submitButton setImage:self.submitImage forState:UIControlStateNormal];
+    [self.clearButton setImage:self.clearImage forState:UIControlStateNormal];
+    [self.iconButton setImage:self.searchIcon forState:UIControlStateNormal];
+    [self setNeedsLayout];
+}
+
+#pragma mark Iconified
+
+- (void)setIconified:(BOOL)iconified {
+    [self setIconified:iconified animated:NO];
+}
+
+- (void)setIconifiedByDefault:(BOOL)iconifiedByDefault {
+    _iconifiedByDefault = iconifiedByDefault;
+    if (iconifiedByDefault && !self.textField.isFirstResponder && self.textField.text.length == 0) {
+        [self setIconified:YES animated:NO];
+    }
+}
+
+- (void)setIconified:(BOOL)iconified animated:(BOOL)animated {
+    if (_iconified == iconified) {
+        if (!iconified && animated) [self.textField becomeFirstResponder];
+        return;
+    }
+    _iconified = iconified;
+    if (iconified) [self.textField resignFirstResponder];
+    if (!animated || self.animationDuration <= 0 || !self.window) {
+        [self cyl_applyIconifiedVisibility];
+        [self setNeedsLayout];
+        [self layoutIfNeeded];
+        if (!iconified && animated) [self.textField becomeFirstResponder];
+        [self cyl_notifyIconified];
+        return;
+    }
+    [self layoutIfNeeded];
+    CGRect iconFrame = self.iconButton.frame;
+    self.cyl_animatingExpansion = YES;
+    self.fieldView.hidden = NO;
+    self.iconButton.hidden = NO;
+    [self setNeedsLayout];
+    [self layoutIfNeeded];
+    CGRect fieldFrame = self.fieldView.frame;
+    CGPoint center = [self convertPoint:CGPointMake(CGRectGetMidX(iconFrame), CGRectGetMidY(iconFrame)) toView:self.fieldView];
+    CGFloat radius = hypot(MAX(center.x, CGRectGetWidth(fieldFrame) - center.x), MAX(center.y, CGRectGetHeight(fieldFrame) - center.y));
+    CGFloat iconRadius = MAX(CGRectGetWidth(iconFrame), CGRectGetHeight(iconFrame)) / 2;
+    if (self.expansionAnimation == CYLSearchBarExpansionAnimationCircularReveal) {
+        CAShapeLayer *mask = [CAShapeLayer layer];
+        UIBezierPath *small = [UIBezierPath bezierPathWithArcCenter:center radius:iconRadius startAngle:0 endAngle:2 * M_PI clockwise:YES];
+        UIBezierPath *large = [UIBezierPath bezierPathWithArcCenter:center radius:radius startAngle:0 endAngle:2 * M_PI clockwise:YES];
+        mask.path = (iconified ? small : large).CGPath;
+        self.fieldView.layer.mask = mask;
+        CABasicAnimation *reveal = [CABasicAnimation animationWithKeyPath:@"path"];
+        reveal.fromValue = (__bridge id)(iconified ? large : small).CGPath;
+        reveal.toValue = (__bridge id)(iconified ? small : large).CGPath;
+        reveal.duration = self.animationDuration;
+        reveal.timingFunction = [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+        [mask addAnimation:reveal forKey:@"reveal"];
+    } else {
+        self.fieldView.frame = iconified ? fieldFrame : iconFrame;
+        self.fieldView.alpha = iconified ? 1 : 0;
+    }
+    self.iconButton.alpha = iconified ? 0 : 1;
+    [UIView animateWithDuration:self.animationDuration delay:0 options:UIViewAnimationOptionCurveEaseInOut animations:^{
+        if (self.expansionAnimation == CYLSearchBarExpansionAnimationFade) {
+            self.fieldView.frame = iconified ? iconFrame : fieldFrame;
+            self.fieldView.alpha = iconified ? 0 : 1;
+        }
+        self.iconButton.alpha = iconified ? 1 : 0;
+    } completion:^(BOOL finished) {
+        self.cyl_animatingExpansion = NO;
+        self.fieldView.layer.mask = nil;
+        self.fieldView.alpha = 1;
+        self.iconButton.alpha = 1;
+        [self cyl_applyIconifiedVisibility];
+        [self setNeedsLayout];
+        if (!iconified) [self.textField becomeFirstResponder];
+        [self cyl_notifyIconified];
+    }];
+}
+
+- (void)cyl_applyIconifiedVisibility {
+    self.fieldView.hidden = self.iconified;
+    self.iconButton.hidden = !self.iconified;
+    self.cancelButton.hidden = self.iconified || !self.showsCancelButton;
+    UIView *leading = [self cyl_effectiveLeadingView];
+    leading.hidden = self.iconified;
+    self.navigationButton.hidden = self.iconified || !self.cyl_showsNavigationButton;
+}
+
+- (void)cyl_notifyIconified {
+    UIAccessibilityPostNotification(UIAccessibilityLayoutChangedNotification, self.iconified ? self.iconButton : self.textField);
+    if ([self.delegate respondsToSelector:@selector(searchBarView:didChangeIconified:)]) {
+        [self.delegate searchBarView:self didChangeIconified:self.iconified];
+    }
+}
+
+#pragma mark State restoration
+
+- (void)encodeRestorableStateWithCoder:(NSCoder *)coder {
+    [super encodeRestorableStateWithCoder:coder];
+    [coder encodeObject:self.textField.text ?: @"" forKey:@"CYLSearchBarText"];
+    [coder encodeBool:self.textField.isFirstResponder forKey:@"CYLSearchBarEditing"];
+    [coder encodeBool:self.iconified forKey:@"CYLSearchBarIconified"];
+}
+
+- (void)decodeRestorableStateWithCoder:(NSCoder *)coder {
+    [super decodeRestorableStateWithCoder:coder];
+    NSString *text = [coder decodeObjectOfClass:NSString.class forKey:@"CYLSearchBarText"];
+    if (text) self.text = text;
+    if ([coder containsValueForKey:@"CYLSearchBarIconified"]) [self setIconified:[coder decodeBoolForKey:@"CYLSearchBarIconified"] animated:NO];
+    if ([coder decodeBoolForKey:@"CYLSearchBarEditing"]) {
+        dispatch_async(dispatch_get_main_queue(), ^{ [self.textField becomeFirstResponder]; });
+    }
+}
+
 
 - (NSString *)placeholder { return self.textField.placeholder; }
 - (void)setPlaceholder:(NSString *)placeholder {
@@ -113,7 +368,7 @@ static CGFloat const CYLSearchBarMinimumAccessoryScale = 0.25;
 - (void)setFieldBorderWidth:(CGFloat)width { _fieldBorderWidth = MAX(0, width); [self cyl_applyStyle]; }
 - (void)setFieldShadowOpacity:(CGFloat)opacity { _fieldShadowOpacity = MIN(1, MAX(0, opacity)); [self cyl_applyStyle]; }
 - (void)setFieldCornerRadius:(CGFloat)radius { _fieldCornerRadius = radius; [self setNeedsLayout]; }
-- (void)setSearchIcon:(UIImage *)searchIcon { _searchIcon = searchIcon; self.searchIconView.image = searchIcon; [self setNeedsLayout]; }
+- (void)setSearchIcon:(UIImage *)searchIcon { _searchIcon = searchIcon; self.searchIconView.image = searchIcon; [self cyl_updateButtonImages]; }
 
 - (void)setFieldHeight:(CGFloat)fieldHeight {
     _fieldHeight = MAX(0, fieldHeight);
@@ -144,12 +399,13 @@ static CGFloat const CYLSearchBarMinimumAccessoryScale = 0.25;
     if (leadingView) {
         [self addSubview:leadingView];
     }
+    [self cyl_applyIconifiedVisibility];
     [self setNeedsLayout];
 }
 
 - (void)setShowsCancelButton:(BOOL)showsCancelButton {
     _showsCancelButton = showsCancelButton;
-    self.cancelButton.hidden = !showsCancelButton;
+    self.cancelButton.hidden = !showsCancelButton || self.iconified;
     [self setNeedsLayout];
 }
 
@@ -182,6 +438,9 @@ static CGFloat const CYLSearchBarMinimumAccessoryScale = 0.25;
     self.fieldView.layer.shadowRadius = 6;
     self.fieldView.layer.shadowOffset = CGSizeMake(0, 2);
     self.searchIconView.tintColor = self.searchIconTintColor;
+    self.iconButton.tintColor = self.searchIconTintColor;
+    self.voiceButton.tintColor = self.searchIconTintColor;
+    self.clearButton.tintColor = self.searchIconTintColor;
     // A configuration updates the title at once (a legacy button could keep drawing the previous one).
     UIButtonConfiguration *configuration = self.cancelButton.configuration ?: [UIButtonConfiguration plainButtonConfiguration];
     configuration.attributedTitle = [[NSAttributedString alloc] initWithString:self.cancelButtonTitle attributes:@{NSFontAttributeName: self.font}];
@@ -237,16 +496,22 @@ static CGSize CYLSearchBarFittingSize(UIView *view, CGFloat height) {
     CGFloat y = floor((height - fieldHeight) / 2);
     CGFloat leading = insets.left;
     CGFloat trailing = CGRectGetWidth(self.bounds) - insets.right;
-    if (self.leadingView) {
-        CGSize size = CYLSearchBarFittingSize(self.leadingView, MAX(fieldHeight, 44));
+    self.navigationButton.hidden = self.iconified || !self.cyl_showsNavigationButton;
+    UIView *leadingView = [self cyl_effectiveLeadingView];
+    if (leadingView) {
+        CGSize size = CYLSearchBarFittingSize(leadingView, MAX(fieldHeight, 44));
         size.width = MAX(size.width, 44);
-        self.leadingView.frame = CGRectMake(leading - 8, floor((height - size.height) / 2), size.width, size.height);
+        size.height = MAX(size.height, MIN(44, height));
+        leadingView.frame = CGRectMake(leading - 8, floor((height - size.height) / 2), size.width, size.height);
         leading += size.width - 8 + 2;
     }
+    // Iconified: only the search button, at the trailing end.
+    CGFloat iconSide = MIN(MAX(44, fieldHeight), height);
+    self.iconButton.frame = CGRectMake(CGRectGetWidth(self.bounds) - insets.right - iconSide, floor((height - iconSide) / 2), iconSide, iconSide);
     // At large text sizes the text keeps at least this share of the bar; Cancel and the accessory views shrink first.
     CGFloat available = MAX(0, trailing - leading);
     CGFloat minimumTextWidth = MAX(44, floor(available * CYLSearchBarMinimumTextShare));
-    if (self.showsCancelButton) {
+    if (self.showsCancelButton && !self.iconified) {
         // The title's own width: a button's fitting size can lag behind a title or font set in the same pass.
         CGFloat titleWidth = ceil([self.cancelButtonTitle sizeWithAttributes:@{NSFontAttributeName: self.font}].width);
         CGFloat maximumWidth = MAX(44, floor(available * CYLSearchBarMaximumCancelShare));
@@ -257,7 +522,11 @@ static CGSize CYLSearchBarFittingSize(UIView *view, CGFloat height) {
         trailing -= width + CYLSearchBarSpacing;
     }
     CGRect field = CGRectMake(leading, y, MAX(0, trailing - leading), fieldHeight);
-    self.fieldView.frame = field;
+    if (!self.cyl_animatingExpansion || !self.fieldView.hidden) {
+        self.fieldView.frame = field;
+    }
+    field = self.fieldView.frame;
+    field.size = CGSizeMake(MAX(0, trailing - leading), fieldHeight);
     self.fieldView.layer.cornerRadius = self.fieldCornerRadius < 0 ? fieldHeight / 2 : self.fieldCornerRadius;
 
     CGFloat inner = MAX(10, MIN(14, fieldHeight / 3));
@@ -269,7 +538,9 @@ static CGSize CYLSearchBarFittingSize(UIView *view, CGFloat height) {
         self.searchIconView.frame = CGRectZero;
     }
     CGFloat end = CGRectGetWidth(field) - inner;
-    NSArray<UIView *> *accessories = self.trailingAccessoryViews;
+    NSArray<UIView *> *accessories = [self cyl_effectiveAccessoryViews];
+    self.voiceButton.hidden = ![accessories containsObject:self.voiceButton];
+    self.submitButton.hidden = ![accessories containsObject:self.submitButton];
     NSMutableArray<NSValue *> *sizes = [NSMutableArray arrayWithCapacity:accessories.count];
     CGFloat accessoriesWidth = 0;
     for (UIView *view in accessories) {
@@ -301,14 +572,24 @@ static CGSize CYLSearchBarFittingSize(UIView *view, CGFloat height) {
     self.placeholderLabel.hidden = self.textField.text.length > 0;
 }
 
-- (void)cyl_textChanged {
+- (void)cyl_textStateChanged {
     [self cyl_updatePlaceholderVisibility];
+    self.clearButton.hidden = self.textField.text.length == 0;
+    [self setNeedsLayout];
+}
+
+- (void)cyl_textChanged {
+    [self cyl_textStateChanged];
     if ([self.delegate respondsToSelector:@selector(searchBarView:textDidChange:)]) {
         [self.delegate searchBarView:self textDidChange:self.textField.text ?: @""];
     }
 }
 
 - (void)cyl_cancel {
+    if (self.clearsTextOnCancel && self.textField.text.length > 0) {
+        self.textField.text = @"";
+        [self cyl_textChanged];
+    }
     if (self.cancelButtonEndsEditing) {
         [self.textField resignFirstResponder];
     }
@@ -318,10 +599,40 @@ static CGSize CYLSearchBarFittingSize(UIView *view, CGFloat height) {
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
-    if ([self.delegate respondsToSelector:@selector(searchBarViewSearchButtonClicked:)]) {
-        [self.delegate searchBarViewSearchButtonClicked:self];
-    }
+    [self submit];
     return YES;
+}
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string {
+    if (self.maximumTextLength == 0) return YES;
+    NSUInteger length = textField.text.length - range.length + string.length;
+    return length <= self.maximumTextLength || string.length == 0;
+}
+
+- (void)cyl_navigationTapped {
+    if ([self.delegate respondsToSelector:@selector(searchBarViewNavigationButtonClicked:)]) {
+        [self.delegate searchBarViewNavigationButtonClicked:self];
+    }
+    if (self.navigationHandler) self.navigationHandler(self);
+}
+
+- (void)cyl_voiceTapped {
+    if ([self.delegate respondsToSelector:@selector(searchBarViewVoiceButtonClicked:)]) {
+        [self.delegate searchBarViewVoiceButtonClicked:self];
+    }
+}
+
+- (void)cyl_submitTapped {
+    [self submit];
+}
+
+- (void)cyl_clearTapped {
+    self.textField.text = @"";
+    [self cyl_textChanged];
+}
+
+- (void)cyl_iconTapped {
+    [self setIconified:NO animated:YES];
 }
 
 - (void)textFieldDidBeginEditing:(UITextField *)textField {
@@ -331,6 +642,13 @@ static CGSize CYLSearchBarFittingSize(UIView *view, CGFloat height) {
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField {
+    if (self.clearsTextOnEndEditing && textField.text.length > 0) {
+        textField.text = @"";
+        [self cyl_textChanged];
+    }
+    if (self.iconifiedByDefault && textField.text.length == 0 && !self.iconified) {
+        [self setIconified:YES animated:YES];
+    }
     if ([self.delegate respondsToSelector:@selector(searchBarViewDidEndEditing:)]) {
         [self.delegate searchBarViewDidEndEditing:self];
     }

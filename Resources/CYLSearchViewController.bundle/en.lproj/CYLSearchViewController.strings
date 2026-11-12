@@ -26,3 +26,11 @@
 "demo.searchBar.text" = "Text: %@";
 "demo.searchBar.searched" = "Searched: %@";
 "demo.searchBar.camera" = "Camera";
+"search.back" = "Back";
+"search.voice" = "Voice search";
+"search.submit" = "Search";
+"search.clear" = "Clear text";
+"search.suggestions" = "Suggestions";
+"multisearch.add" = "New search";
+"multisearch.remove" = "Remove search";
+"multisearch.item" = "Search %1$lu of %2$lu";

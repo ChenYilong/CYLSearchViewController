@@ -46,4 +46,11 @@ the work to reach full parity (100/100 for each project).
   example completely to Swift and add it to our example. Update the core
   first; the example only passes data and style parameters and implements
   tap handling."
-- Status: started; reading the five projects.
+- Order: this task runs before the Swift migration (`docs/swift-migration.md`), which was asked later; the
+  user's rule is to work through tasks in the order they were given.
+- Status: the five projects are read. Done in the core: `CYLSearchBarView` (navigation icon and button, voice,
+  submit and custom clear buttons, keyboard options, maximum length, clear on cancel / end editing,
+  `setText:submit:`, `submit`, show and hide keyboard, iconified state with fade or circular reveal, state
+  restoration) and the new `CYLSearchView` (open/close page with suggestions, content view, divider, scrim,
+  bar button item). Build clean. Next: `CYLMultiSearchView`, tests, the comparison tables, then the Swift
+  example ports.

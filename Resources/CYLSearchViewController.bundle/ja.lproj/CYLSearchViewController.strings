@@ -26,3 +26,11 @@
 "demo.searchBar.text" = "テキスト：%@";
 "demo.searchBar.searched" = "検索しました：%@";
 "demo.searchBar.camera" = "カメラ";
+"search.back" = "戻る";
+"search.voice" = "音声検索";
+"search.submit" = "検索";
+"search.clear" = "テキストを消去";
+"search.suggestions" = "候補";
+"multisearch.add" = "新しい検索";
+"multisearch.remove" = "検索を削除";
+"multisearch.item" = "検索 %1$lu / %2$lu";
