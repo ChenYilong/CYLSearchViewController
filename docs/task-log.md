@@ -55,7 +55,7 @@ begins and becomes `DONE` when it ends.
   `ac03541` (6/6 jobs) and was merged into `master` (merge commit
   `55022ba`).
 
-## TODO (2026-11-12): retarget every open PR to the current branch, merge, keep only it
+## DONE (2026-11-12): retarget every open PR to the current branch, merge, keep only it
 
 - Context: current branch `feat/swift-core` (PR #8 → `feat/search-api-parity`). Open PRs: #7
   (`feat/search-api-parity` → `master`), #8, and #2 from a fork (`master` → `master`, "Fix broken headings in
@@ -66,7 +66,13 @@ begins and becomes `DONE` when it ends.
 - Prompt (verbatim): "将所有处于open状态的分支的target branch指向本分支，当前分支，全部合并仅仅保留当前分支，处理冲突后合并，继续以上未完成的任务。"
 - Prompt (English): "Point the target branch of every open branch at this branch, the current branch; merge them
   all and keep only the current branch; merge after resolving conflicts; continue the unfinished tasks above."
-- Status: logged.
+- Result: #2 (fork, README heading fix) retargeted to `feat/swift-core` and merged (`e9ca91e`). #7 could not be
+  retargeted (GitHub: no new commits; all of `feat/search-api-parity` is in `feat/swift-core`), so it was closed
+  with a note. #8 (`feat/swift-core`) now targets `master`. Remote branches `claude/youthful-mendel-pn01ru`,
+  `docs/todo-sweep`, `feat/search-api-parity` and `feat/search-bar-view` (each with 0 commits missing from
+  `feat/swift-core`) were deleted; `feat/swift-core` and `master` (the default branch, which cannot be deleted)
+  remain. Local branches and worktrees of this session were removed. The shared working folder is still on the
+  local `feat/search-bar-view` of another session and was not touched.
 
 ## TODO (2026-11-12): pull request for the clean sibling checkout
 
