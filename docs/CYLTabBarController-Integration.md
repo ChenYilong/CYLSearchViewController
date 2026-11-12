@@ -163,7 +163,7 @@ plus page; the Examples tab at the largest accessibility text size.
   update the commits recorded in this document and the skill links. CI warns
   when the pin is not the newest commit.
 
-## TODO (2026-11-12): raised plus button in example demos
+## DONE (2026-11-12): raised plus button in example demos
 
 - Context: the example's plus button comes from `CYLSearchExample/CYLTabBarConfiguration.json`
   (`CYLTabBarControllerPlusButton`), shown inside the tab bar like a tab.
@@ -175,4 +175,9 @@ plus page; the Examples tab at the largest accessibility text size.
   integration section (create it if missing), and append a rule in English: when integrating a PlusButton for an
   example demo, always prefer the raised plus button effect; raised means the top of the plus button goes beyond
   the tab bar."
-- Status: logged.
+- Status: DONE (2026-11-12): the rule is in the CYLTabBarController section of `AGENTS.md` ("Raised plus button")
+  and `instructions.md`, and in the `cyl-plus-button` and `cyl-tabbar-integration` skills. The Android example
+  already follows it (56 dp, `CYLPlusButtonCenterYMultiplier` 0.3; screenshots in
+  [android-and-cross-platform.md](android-and-cross-platform.md)).
+- Follow-up `TODO`: the iOS example's plus button (`CYLSearchExample/CYLTabBarConfiguration.json`) is not raised
+  yet; give it the raised effect, build and screenshot it (iOS example layer).

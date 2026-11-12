@@ -154,3 +154,10 @@ When we translate or port another GitHub project's code (for example `android/`)
 (before translating, or translate and merge them afterwards), list its open issues in a `docs/` table (issue link,
 description, fix status `TODO`), fix them in our code and score after every fix until 100; a translation that has not
 started begins at 60. Full rule: `AGENTS.md`, same section.
+
+## Raised plus button in examples
+
+When an example demonstrates a plus button, always prefer the raised effect: the top of the plus button rises
+above the top edge of the tab bar (`CYLPlusButtonCenterYMultiplier` below 0.5 with a button taller than half the bar,
+or `CYLPlusButtonCenterYOffset`). Keep the whole button tappable and never let it cover the page content above the
+bar. Example: `android/merged/app/src/main/assets/CYLTabBarConfiguration.json` (56 dp, multiplier 0.3).

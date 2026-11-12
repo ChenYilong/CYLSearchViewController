@@ -140,6 +140,7 @@ Adapted from CYLTabBarController's instruction files at its latest commit
 - Put search pages inside a `UINavigationController` tab so the
   navigation-item search controller and its Issue #1317 workaround still
   apply.
+- Example layer, raised plus button: when an example demonstrates a plus button, always prefer the raised effect, where the top of the plus button rises above the top edge of the tab bar (for example `CYLPlusButtonCenterYMultiplier` below 0.5 with a button taller than half the bar, or `CYLPlusButtonCenterYOffset`); keep it fully tappable (`touchableRect`) and never let it cover the page content above the bar.
 - Follow the `cyl-tabbar-integration` and `cyl-plus-button` skills.
 
 ## Sub-repositories (CollectionViewClassifyMenu, CYLTableViewPlaceHolder)

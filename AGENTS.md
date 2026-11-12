@@ -191,6 +191,8 @@ CYLTabBarController's `AGENTS.md` and `cyl-*` skills at its latest commit
 - **Clean builds.** Build into an empty derived data folder after a
   dependency change, so the app does not run stale pod code.
 
+- **Raised plus button.** Example layer, raised plus button: when an example demonstrates a plus button, always prefer the raised effect, where the top of the plus button rises above the top edge of the tab bar (for example `CYLPlusButtonCenterYMultiplier` below 0.5 with a button taller than half the bar, or `CYLPlusButtonCenterYOffset`); keep it fully tappable (`touchableRect`) and never let it cover the page content above the bar.
+
 ## Sub-repositories (CollectionViewClassifyMenu, CYLTableViewPlaceHolder)
 
 Sibling projects in the same local folder (`../<Name>`) that this library uses are sub-repositories. The rules were
