@@ -69,4 +69,13 @@ Native) for the CYLSearchViewController components.
     `scripts/latest-cyl-commit.sh`) and includes its `Example-Android` build; a local path override for development.
   - Toolchain: JDK 17 (`~/develop/jdk/jdk-17.0.21+9`), Android SDK (`~/Library/Android/sdk`), Gradle 9.3.1; build
     outside the exFAT volume.
-- Status: PR merge task done; this task is next in order.
+- Decision (user, 2026-11-12): android-cjj gets an original reimplementation, credited but not derived from its code.
+- Progress:
+  - Step 1 done: `android/` with `lapism-search`, `MiguelCatalan-MaterialSearchView`, `yechaoa-MaterialDesign`,
+    `android-cjj-MaterialSearchView`, `iammert-MultiSearchView` and `merged` (next step); `android/README.md`.
+  - Step 2 written: lapism, iammert and yechaoa (search screen) copied (already Kotlin); MiguelCatalan's library and
+    sample translated from Java to Kotlin (AndroidX); android-cjj independently reimplemented
+    (`CYLRevealSearchActivity`). Each folder has `TRANSCRIPTION.md` (source commit, license). No Java file is left.
+    Not compiled yet: the folders hold sources only; compilation is checked when they join the Gradle project in
+    `merged` (step 3).
+  - Next: step 3, `android/merged` (Gradle, CYLTabBarController at a pinned commit, one example tab per project).
