@@ -34,7 +34,53 @@ Native) for the CYLSearchViewController components.
   - HarmonyOS NEXT waits: DevEco Studio 6.0.1 and its tools (`hvigorw`, `ohpm`, the bundled SDK) are installed, but
     no emulator image exists (it needs DevEco's Device Manager with a Huawei account sign-in). Flutter goes first, as
     the original prompt ordered; HarmonyOS is built and verified after an emulator is set up.
-- Progress: Android done (the `android/` task below). Flutter: in progress.
+- Progress: Android done (the `android/` task below).
+- Progress, Flutter (2026-11-13, [`c6ed2b3`](https://github.com/ChenYilong/CYLSearchViewController/commit/c6ed2b3)):
+  the plugin works on both platforms; open items below.
+  - `CrossPlatform/flutter_cylsearch` (Dart, Swift, Kotlin): `CYLSearchView` and `CYLSearchBarView` widgets show the
+    native views as platform views (`UiKitView`; Android hybrid composition) with the iOS parameter names and events
+    (`onTextChanged`, `onSubmitted`, `onSuggestionSelected`, `onClose`, `onCancel`). The native views use the Flutter
+    app's theme brightness: on a dark-mode system with a light app the first Android run showed a black page and
+    white text, now fixed (AppCompat Light / Dark theme on Android, `overrideUserInterfaceStyle` on iOS).
+  - Android: the plugin depends on `com.cyl.search:cylsearch`; the example includes `android/merged` as a composite
+    build. A composite build allows one Android Gradle plugin, and Flutter 3.47 needs AGP 8.11.1 and Kotlin 2.2.20,
+    so `android/merged` moved from AGP 8.7.3 / Kotlin 2.0.21 to those (it builds and its tests pass).
+  - iOS: CocoaPods with the local core pod and the sub-repositories pinned by commit, static frameworks. Swift
+    Package Manager is off in the example; Flutter warns that a plugin without SPM support will be an error in a
+    future version (`TODO`: a `Package.swift` once the core and its sub-repositories can be Swift packages).
+  - Tests: `flutter test` 6/6 (parameters with the iOS names and defaults, brightness, events, the platform view of
+    each platform); `flutter analyze` clean. Verified by hand on the iOS 26.3 simulator and the Android 15 emulator:
+    typing in the native bar reaches Dart ("Text: Rive"), the list and tag styles filter, "zzz" shows the empty
+    results placeholder, Back closes the page and pops the route.
+  - Screenshots (originals), top to bottom: iOS bar after typing; iOS list style; iOS tag style; iOS empty results;
+    Android bar after typing; Android tag style; Android empty results.
+
+    ![Flutter iOS search bar](assets/flutter-ios-search-bar.png)
+
+    ![Flutter iOS list style](assets/flutter-ios-search-list.png)
+
+    ![Flutter iOS tag style](assets/flutter-ios-search-tags.png)
+
+    ![Flutter iOS empty results](assets/flutter-ios-empty-results.png)
+
+    ![Flutter Android search bar](assets/flutter-android-search-bar.png)
+
+    ![Flutter Android tag style](assets/flutter-android-search-tags.png)
+
+    ![Flutter Android empty results](assets/flutter-android-empty-results.png)
+
+    | Field | Value |
+    |:---|:---|
+    | Platform | Flutter 3.47.9 (Dart 3.13.7) on iOS and Android |
+    | Host | macOS 27.3 (26C5035r), Xcode 27.2 (27B5028f), JDK 17.0.21 |
+    | Simulator / emulator | iPhone 17, iOS 26.3; `CYL_API35_arm64`, Android 15 (API 35), system in dark mode |
+    | SDK | iOS SDK 27.2 (deployment iOS 15.0); Android compileSdk 36 (Flutter), AGP 8.11.1, Kotlin 2.2.20 |
+    | Repository | [`c6ed2b3`](https://github.com/ChenYilong/CYLSearchViewController/commit/c6ed2b3) on `feat/swift-core` |
+    | Taken | 2026-11-13 03:12–04:52 NZDT |
+  - Still open for Flutter (`TODO`): the example with CYLTabBarController's Flutter tab bar (`flutter_cyltabbar`, the
+    default example integration: configuration file, raised plus button, one tab per demo); the Discover page of the
+    tag-style demos; Swift Package Manager support. Then React Native, then HarmonyOS NEXT (the emulator image is
+    downloaded; a device still has to be created in DevEco's Device Manager).
 
 ## DONE (2026-11-12): android/ folder: five Kotlin transcriptions, a merged library and example
 
