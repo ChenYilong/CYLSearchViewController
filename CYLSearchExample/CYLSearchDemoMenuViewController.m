@@ -1,6 +1,6 @@
 #import "CYLSearchDemoMenuViewController.h"
 #import "CYLSearchBarDemoViewController.h"
-#import "CYLSearchExampleViewController.h"
+#import "CYLSearchExample-Swift.h"
 #import <CYLSearchViewController/CYLSearchViewController-Swift.h>
 #import <CYLSearchViewController/CYLSearchViewController-Swift.h>
 

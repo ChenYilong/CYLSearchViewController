@@ -49,6 +49,12 @@ with a score after every commit.
 | `db9991a` (standard and skills) | 14 files, 2838 lines | 0/100 |
 | CYLSearchResources → Swift | 12 files, 2757 lines | 3/100 |
 | CYLSearchPlaceholderView → Swift | 10 files, 2533 lines | 10/100 |
+| CYLSearchResultsViewController, CYLSearchController → Swift | 6 files, 2241 lines | 21/100 |
 
 Score = Objective-C lines removed from `Sources/` / 2838 (the Objective-C lines when the migration started) × 100,
 rounded down. 100 = no `.h` or `.m` file left in `Sources/`.
+
+Example changes that were necessary: `CYLSearchExampleViewController` (an Objective-C subclass of
+`CYLSearchResultsViewController`) moved to Swift, because Objective-C cannot subclass a Swift class. It and its
+data source are `public` so the Objective-C app files and tests reach them through `CYLSearchExample-Swift.h`; the
+test target finds that header through `$(CONFIGURATION_TEMP_DIR)/CYLSearchExample.build/DerivedSources`.

@@ -1,10 +1,10 @@
 #import <XCTest/XCTest.h>
-#import "CYLSearchExampleViewController.h"
+#import "CYLSearchExample-Swift.h"
 #import "CYLSearchDemoMenuViewController.h"
 #import "CYLSearchBarDemoViewController.h"
 #import "CYLSearchExampleAppDelegate.h"
 #import <CYLTabBarController/CYLTabBarController.h>
-#import <CYLSearchViewController/CYLSearchController.h>
+#import <CYLSearchViewController/CYLSearchViewController-Swift.h>
 #import <CYLSearchViewController/CYLSearchViewController-Swift.h>
 #import <CYLSearchViewController/CYLSearchViewController-Swift.h>
 #import <CYLSearchViewController/CYLSearchBarView.h>

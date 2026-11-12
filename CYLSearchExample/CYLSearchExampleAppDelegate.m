@@ -1,7 +1,7 @@
 #import "CYLSearchExampleAppDelegate.h"
 #import "CYLSearchBarDemoViewController.h"
 #import "CYLSearchDemoMenuViewController.h"
-#import "CYLSearchExampleViewController.h"
+#import "CYLSearchExample-Swift.h"
 #import <CYLTabBarController/CYLTabBarController.h>
 
 @implementation CYLSearchExampleAppDelegate

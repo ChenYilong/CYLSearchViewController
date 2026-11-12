@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		101C7EF837736C301E77C1BD /* CYLSearchExampleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 72C6E95A0B238E136F099598 /* CYLSearchExampleViewController.m */; };
+		101C7EF837736C301E77C1BD /* CYLSearchExampleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72C6E95A0B238E136F099598 /* CYLSearchExampleViewController.swift */; };
 		1710B2C1CF4C5E46593609A0 /* CYLLaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F1CBD31BF12B1F79D35D8197 /* CYLLaunchScreen.storyboard */; };
 		1DEBF1CD858693B413D71149 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 30E6C2B3AB08D6F182050568 /* Images.xcassets */; };
 		4A8E12591D75157E8E50494E /* Pods_CYLSearchExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13A5CFF6BFF18FEBE3C40D70 /* Pods_CYLSearchExample.framework */; };
@@ -49,13 +49,12 @@
 		34FE1E690725740C1C51847B /* main.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		3CDCF00C5BC550CCB80F6F64 /* Pods-CYLSearchExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CYLSearchExample.release.xcconfig"; path = "Target Support Files/Pods-CYLSearchExample/Pods-CYLSearchExample.release.xcconfig"; sourceTree = "<group>"; };
 		6CB53AE2B9CBC786E92E575D /* Pods_CYLSearchExampleTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CYLSearchExampleTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		72C6E95A0B238E136F099598 /* CYLSearchExampleViewController.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = CYLSearchExampleViewController.m; sourceTree = "<group>"; };
+		72C6E95A0B238E136F099598 /* CYLSearchExampleViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleViewController.swift; sourceTree = "<group>"; };
 		78C4B4FFBF9FDF3873CCD8F4 /* Pods-CYLSearchExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CYLSearchExampleTests.release.xcconfig"; path = "Target Support Files/Pods-CYLSearchExampleTests/Pods-CYLSearchExampleTests.release.xcconfig"; sourceTree = "<group>"; };
 		7E3A630CFE564B95329C9A3B /* CYLSearchExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CYLSearchExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C72AC3EBD45BFF3AC9711025 /* CYLSearchExampleTests.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = CYLSearchExampleTests.m; sourceTree = "<group>"; };
 		CDA792B304CC7265A5781447 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D69AD592F007AA158CC66F16 /* Pods-CYLSearchExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CYLSearchExample.debug.xcconfig"; path = "Target Support Files/Pods-CYLSearchExample/Pods-CYLSearchExample.debug.xcconfig"; sourceTree = "<group>"; };
-		DF5C54305D5A0EB5C6717D1E /* CYLSearchExampleViewController.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CYLSearchExampleViewController.h; sourceTree = "<group>"; };
 		E008B7937D631C1FDD620EA5 /* CYLSearchExampleAppDelegate.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = CYLSearchExampleAppDelegate.m; sourceTree = "<group>"; };
 		F1CBD31BF12B1F79D35D8197 /* CYLLaunchScreen.storyboard */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = CYLLaunchScreen.storyboard; path = CYLSearchViewController/CYLLaunchScreen.storyboard; sourceTree = "<group>"; };
 		A20000000000000000000002 /* CYLSearchDemoMenuViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CYLSearchDemoMenuViewController.h; sourceTree = "<group>"; };
@@ -138,8 +137,7 @@
 				A50000000000000000000005 /* CYLMultiSearchDemoViewController.swift */,
 				A40000000000000000000001 /* CYLSearchExampleSceneDelegate.h */,
 				A40000000000000000000002 /* CYLSearchExampleSceneDelegate.m */,
-				DF5C54305D5A0EB5C6717D1E /* CYLSearchExampleViewController.h */,
-				72C6E95A0B238E136F099598 /* CYLSearchExampleViewController.m */,
+				72C6E95A0B238E136F099598 /* CYLSearchExampleViewController.swift */,
 				A20000000000000000000002 /* CYLSearchDemoMenuViewController.h */,
 				A20000000000000000000003 /* CYLSearchDemoMenuViewController.m */,
 				A20000000000000000000012 /* CYLSearchBarDemoViewController.h */,
@@ -384,7 +382,7 @@
 				A60000000000000000000004 /* CYLRevealSearchViewController.swift in Sources */,
 				A60000000000000000000005 /* CYLMultiSearchDemoViewController.swift in Sources */,
 				A40000000000000000000003 /* CYLSearchExampleSceneDelegate.m in Sources */,
-				101C7EF837736C301E77C1BD /* CYLSearchExampleViewController.m in Sources */,
+				101C7EF837736C301E77C1BD /* CYLSearchExampleViewController.swift in Sources */,
 				A20000000000000000000001 /* CYLSearchDemoMenuViewController.m in Sources */,
 				A20000000000000000000011 /* CYLSearchBarDemoViewController.m in Sources */,
 			);
@@ -433,7 +431,11 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				HEADER_SEARCH_PATHS = ("$(inherited)", "$(SRCROOT)/CYLSearchExample");
+				HEADER_SEARCH_PATHS = (
+					"$(CONFIGURATION_TEMP_DIR)/CYLSearchExample.build/DerivedSources",
+					"$(inherited)",
+					"$(SRCROOT)/CYLSearchExample",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.chenyilong.CYLSearchExampleTests;
 				SDKROOT = iphoneos;
@@ -520,7 +522,11 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				HEADER_SEARCH_PATHS = ("$(inherited)", "$(SRCROOT)/CYLSearchExample");
+				HEADER_SEARCH_PATHS = (
+					"$(CONFIGURATION_TEMP_DIR)/CYLSearchExample.build/DerivedSources",
+					"$(inherited)",
+					"$(SRCROOT)/CYLSearchExample",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.chenyilong.CYLSearchExampleTests;
 				SDKROOT = iphoneos;
