@@ -1,0 +1,59 @@
+PODS:
+  - CollectionViewClassifyMenu (0.1.0)
+  - CYLSearchViewController (0.1.0):
+    - CollectionViewClassifyMenu
+    - CYLTableViewPlaceHolder/Core
+  - CYLTableViewPlaceHolder (1.1.0):
+    - CYLTableViewPlaceHolder/Core (= 1.1.0)
+  - CYLTableViewPlaceHolder/Core (1.1.0)
+  - Flutter (1.0.0)
+  - flutter_cylsearch (0.1.0):
+    - CYLSearchViewController
+    - CYLTableViewPlaceHolder/Core
+    - Flutter
+  - integration_test (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `f9724167235dee050a81432f3c16f6c4e15dc186`)
+  - CYLSearchViewController (from `../../../..`)
+  - CYLTableViewPlaceHolder (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `5e30638c09139e13da7c0763487537ac39c954e5`)
+  - Flutter (from `Flutter`)
+  - flutter_cylsearch (from `.symlinks/plugins/flutter_cylsearch/ios`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+
+EXTERNAL SOURCES:
+  CollectionViewClassifyMenu:
+    :commit: f9724167235dee050a81432f3c16f6c4e15dc186
+    :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
+  CYLSearchViewController:
+    :path: "../../../.."
+  CYLTableViewPlaceHolder:
+    :commit: 5e30638c09139e13da7c0763487537ac39c954e5
+    :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
+  Flutter:
+    :path: Flutter
+  flutter_cylsearch:
+    :path: ".symlinks/plugins/flutter_cylsearch/ios"
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+
+CHECKOUT OPTIONS:
+  CollectionViewClassifyMenu:
+    :commit: f9724167235dee050a81432f3c16f6c4e15dc186
+    :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
+  CYLTableViewPlaceHolder:
+    :commit: 5e30638c09139e13da7c0763487537ac39c954e5
+    :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
+
+SPEC CHECKSUMS:
+  CollectionViewClassifyMenu: ebd3e85358cf219b3ad20b5e005c54719b2708f4
+  CYLSearchViewController: aa8c56b9c033b8f126b990016d966970bb0c4977
+  CYLTableViewPlaceHolder: 2cf43940d6a518b80fd4941264ddb17cd3a400d8
+  Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
+  flutter_cylsearch: 7dd24a024a32ae3d32c2a9108315e541300c0c40
+  integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
+
+PODFILE CHECKSUM: 6c59665d62d474273b9ba10a149e15596c1c9cf8
+
+COCOAPODS: 1.17.0
