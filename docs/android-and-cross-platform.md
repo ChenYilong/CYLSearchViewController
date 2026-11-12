@@ -27,7 +27,7 @@ Native) for the CYLSearchViewController components.
 - Status: logged, not started; waits for the search API parity task and the Swift migration.
 - Order of work: Android → HarmonyOS NEXT compatibility → Flutter (tests pass) → React Native.
 
-## TODO (2026-11-12): android/ folder: five Kotlin transcriptions, a merged library and example
+## DONE (2026-11-12): android/ folder: five Kotlin transcriptions, a merged library and example
 
 - Context: refines the TODO above. Android only; iOS code is not changed. The five reference projects were read in
   `docs/search-api-comparison.md`; three are Java or Kotlin libraries (MiguelCatalan Java, lapism and iammert
@@ -106,10 +106,41 @@ Native) for the CYLSearchViewController components.
     the upstream API the iOS doc comment cites and the Kotlin counterpart in the `cylsearch` module, which ports the
     seven iOS classes under the same names. Score 100 (261 DONE, 33 N/A), written by
     `android/merged/scripts/api-alignment.py`; 9 Robolectric behavior tests pass.
-  - Next: step 6, the iOS examples in the Android example app (with the list-style / tag-style tabs from
-    [tag-view-suggestions.md](tag-view-suggestions.md)), screenshots, README Android section. The example layer
-    follows the CYLTabBarController rules of AGENTS.md: the tab bar from a configuration file in the app's assets,
-    a raised plus button, pages from `CYLTabBarPageRegistry`.
+  - Step 6 done ([`ffac758`](https://github.com/ChenYilong/CYLSearchViewController/commit/ffac758)): the app ports
+    the iOS example. CYLTabBarController from `assets/CYLTabBarConfiguration.json` (titles localized from
+    `CYLSearchTabs.bundle`, as on iOS), a raised plus button (`CYLPlusButtonCenterYMultiplier` 0.3, 56 dp: its top
+    is above the tab bar) for the search bar page, pages from `CYLTabBarPageRegistry`. Tabs: Search (the search
+    example: results, pull to refresh, empty state, overlay), Examples (menu: search example, placeholder styles,
+    search bar, ports of the five libraries' examples, original samples), plus, List style, Tag style
+    ([tag-view-suggestions.md](tag-view-suggestions.md)). The iOS "Repro" button (a UIKit navigation-item setting
+    of Issue #1317) has no Android counterpart. README has an Android section.
+  - Verified on the emulator: all five tabs, every menu page, the five ports (MaterialSearchView's six samples)
+    and the nine original samples open with no crash; reveal, yechaoa and MultiSearchView were exercised.
+  - Screenshots (originals), top to bottom: search tab, examples menu, search bar page, placeholder styles,
+    reveal port open, yechaoa port after a search, MultiSearchView port with two searches.
+
+    ![Search tab](assets/android-example-search.png)
+
+    ![Examples menu](assets/android-example-menu.png)
+
+    ![Search bar page](assets/android-example-search-bar.png)
+
+    ![Placeholder styles](assets/android-example-placeholders.png)
+
+    ![Reveal port](assets/android-port-reveal.png)
+
+    ![yechaoa port](assets/android-port-yechaoa.png)
+
+    ![MultiSearchView port](assets/android-port-multisearch.png)
+
+| Field | Value |
+|:---|:---|
+| Platform | Android (Kotlin, `android/merged`) |
+| Host | macOS 27.3 (26C5035r), JDK 17.0.21, Gradle 9.3.1, AGP 8.7.3, Kotlin 2.0.21 |
+| Emulator | `CYL_API35_arm64`, Android 15 (API 35), arm64-v8a, 1080 × 2400 |
+| SDK | compileSdk / targetSdk 35, minSdk 23 |
+| Repository | [`ffac758`](https://github.com/ChenYilong/CYLSearchViewController/commit/ffac758) on `feat/swift-core`; CYLTabBarController `f410fa7`, CollectionViewClassifyMenu `eb3590e` |
+| Taken | 2026-11-12 21:30–21:40 NZDT |
 
 ## Open pull requests of the translated projects
 

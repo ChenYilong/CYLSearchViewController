@@ -24,6 +24,29 @@ MaterialSearchView "Default" port); `CYLMultiSearchView` with two searches and i
 More screenshots, one state per row: `docs/search-api-comparison.md` (the Swift ports of five search libraries'
 examples) and `docs/CYLTabBarController-Integration.md`.
 
+## Android
+
+`android/` holds the Kotlin translations of the five search libraries and `android/merged`, one Gradle project with
+all of them, the `cylsearch` module (the iOS API in Kotlin, under the same names) and an example app that ports the
+iOS example. The app uses CYLTabBarController's Android tab bar from a configuration file, with a raised plus
+button; CYLTabBarController and CollectionViewClassifyMenu are pinned by commit. Build:
+`cd android/merged && ./gradlew assembleDebug` (JDK 17). Details: `docs/android-and-cross-platform.md`, the API
+table `docs/android-api-alignment.md`.
+
+`CYLSearchView.suggestionStyle` shows suggestions as a list (top) or as tags from CollectionViewClassifyMenu
+(bottom); both tabs of the example filter the same suggestions for "a":
+
+![Android suggestion styles: list and tags](docs/assets/android-suggestion-styles-readme.png)
+
+| Field | Value |
+|:---|:---|
+| Platform | Android (Kotlin, `android/merged`) |
+| Host | macOS 27.3 (26C5035r), JDK 17.0.21, Gradle 9.3.1, AGP 8.7.3, Kotlin 2.0.21 |
+| Emulator | `CYL_API35_arm64`, Android 15 (API 35), arm64-v8a, 1080 × 2400 |
+| SDK | compileSdk / targetSdk 35, minSdk 23 |
+| Repository | [`ffac758`](https://github.com/ChenYilong/CYLSearchViewController/commit/ffac758) on `feat/swift-core`; CYLTabBarController `f410fa7`, CollectionViewClassifyMenu `eb3590e` |
+| Taken | 2026-11-12 21:30–21:40 NZDT |
+
 
 
 

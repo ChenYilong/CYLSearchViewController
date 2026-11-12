@@ -28,7 +28,7 @@ CollectionViewClassifyMenu).
   tagview style, and show the existing examples' new suggestion presentation with different parameters."
 - Status: logged; order: after the Android task and the plus button rule.
 
-## TODO (2026-11-12): Android: the suggestion demo in two tabs, list style and tag style
+## DONE (2026-11-12): Android: the suggestion demo in two tabs, list style and tag style
 
 - Context: `android/merged` (see [android-and-cross-platform.md](android-and-cross-platform.md)) runs the
   MaterialSearchView sample from its "Material" tab. Its suggestions are a list under the search bar (screenshot).
@@ -53,5 +53,32 @@ CollectionViewClassifyMenu).
 - Prompt (English): "Copy this demo and manage it with different CYLTabBarController items to show the search
   suggestions: one item uses the current style, the other the new collection view, i.e. the tag view, the style
   CollectionViewClassifyMenu provides. Write it into the docs marked TODO with screenshots. Continue."
-- Status: logged; order: after the Android steps 4 to 6 (same project), before the iOS tag-view TODO above is
-  revisited.
+- Status: DONE (2026-11-12, [`ffac758`](https://github.com/ChenYilong/CYLSearchViewController/commit/ffac758)).
+  - Library, not example: `CYLSearchView.suggestionStyle` (`CYLSearchSuggestionStyle.List` / `Tags`) in
+    `cylsearch`; `Tags` shows the filtered suggestions in `suggestionsTagView`, CollectionViewClassifyMenu's
+    `CYLTagListView`, and a tapped tag works like a tapped row (fills the query, `searchViewDidSelectSuggestion`,
+    submits when `submitsOnSuggestionSelection`).
+  - Dependency: CollectionViewClassifyMenu's Android library at its newest commit `eb3590e` (branch
+    `feat/android-kotlin`), checked out by `android/merged/settings.gradle.kts` (`cyl.classifymenu.commit`), like
+    CYLTabBarController; `-Pcyl.classifymenu.dir` only for local development.
+  - Example: the "List style" and "Tag style" tabs of the app (`CYLSuggestionStyleFragment`) pass only the
+    suggestions and the style; the toolbar's search action opens the search.
+  - Verified on the emulator: typing "a" lists 14 suggestions in both styles; tapping the "Android" tag sets the
+    query to "Android"; no crash.
+  - Screenshots (originals), from top to bottom: list style, tag style, tag style after tapping "Android".
+
+    ![List style](assets/android-suggestions-list-style.png)
+
+    ![Tag style](assets/android-suggestions-tag-style.png)
+
+    ![Tag tapped](assets/android-suggestions-tag-picked.png)
+
+| Field | Value |
+|:---|:---|
+| Platform | Android (Kotlin, `android/merged`) |
+| Host | macOS 27.3 (26C5035r), JDK 17.0.21, Gradle 9.3.1, AGP 8.7.3, Kotlin 2.0.21 |
+| Emulator | `CYL_API35_arm64`, Android 15 (API 35), arm64-v8a, 1080 × 2400 |
+| SDK | compileSdk / targetSdk 35, minSdk 23 |
+| Repository | [`ffac758`](https://github.com/ChenYilong/CYLSearchViewController/commit/ffac758) on `feat/swift-core`; CYLTabBarController `f410fa7`, CollectionViewClassifyMenu `eb3590e` |
+| Taken | 2026-11-12 21:30–21:40 NZDT |
+  - The iOS side is the TODO above (still open, in order).
