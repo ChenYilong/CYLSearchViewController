@@ -33,7 +33,14 @@ with a score after every commit.
   exists in the project; code that cannot be translated to Swift but is made Swift-compatible through macros or
   keywords also counts as translated. No Objective-C code = full marks. Score after every commit, check after
   every commit whether it is full marks, and continue until it is."
-- Status: logged, not started. Score: 0/100 (all 5 core types and their new parity types are Objective-C).
+- Status: started 2026-11-12 on branch `feat/swift-core` (from `feat/search-api-parity`, after the search API
+  parity task was done). Score: 0/100: all 7 core types are Objective-C (`CYLMultiSearchView`, `CYLSearchBarView`,
+  `CYLSearchController`, `CYLSearchPlaceholderView`, `CYLSearchResources`, `CYLSearchResultsViewController`,
+  `CYLSearchView`).
+- Plan: 1) `docs/swift-coding-standard.md`; 2) install ready-made Swift skills from GitHub (pinned commits, with
+  their licenses) into `.agents/skills`; 3) update `AGENTS.md`, `instructions.md` and the `cyl-*` skills; 4)
+  translate one type per commit, smallest first, keeping every Objective-C selector through `@objc(...)` so the
+  Objective-C example and tests keep compiling; 5) score after every commit.
 
 ## Progress
 
