@@ -158,7 +158,13 @@ Native) for the CYLSearchViewController components.
       | Taken | 2026-11-13 11:00–12:08 NZDT |
     - Finding, not fixed: on iOS the "Searching: …" snack bar did not show in the screenshot taken 2 s after the tap
       (it shows on Android); check whether the floating tab bar covers it.
-  - Still open for Flutter (`TODO`): Swift Package Manager support. Then React Native, then HarmonyOS NEXT (the emulator image is
+  - Deferred for Flutter (2026-11-13): Swift Package Manager support. The plugin's iOS side depends on
+    CYLSearchViewController, CollectionViewClassifyMenu and CYLTableViewPlaceHolder (with Lottie), none of which has a
+    `Package.swift` at its pinned commit; CollectionViewClassifyMenu's headers sit in two source roots and its
+    resources are a bundle of xibs, assets and localizations loaded by bundle name, so each repository needs its own
+    package (and SPM-aware resource loading) first. The plugin works through CocoaPods (the example sets
+    `enable-swift-package-manager: false`). Not requested by the maintainer; React Native, which was requested, goes
+    first. Then React Native, then HarmonyOS NEXT (the emulator image is
     downloaded; a device still has to be created in DevEco's Device Manager).
 
 ## DONE (2026-11-13): Flutter example on iOS: the plus button's title disappears once the plus page is selected
