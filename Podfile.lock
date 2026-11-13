@@ -2,7 +2,7 @@ PODS:
   - CollectionViewClassifyMenu (0.1.0)
   - CYLSearchViewController (0.1.0):
     - CollectionViewClassifyMenu
-    - CYLTableViewPlaceHolder/Core
+    - CYLTableViewPlaceHolder/Lottie
   - CYLTabBarController (1.100.0):
     - CYLTabBarController/Core (= 1.100.0)
   - CYLTabBarController/Core (1.100.0):
@@ -14,12 +14,25 @@ PODS:
   - CYLTableViewPlaceHolder (1.1.0):
     - CYLTableViewPlaceHolder/Core (= 1.1.0)
   - CYLTableViewPlaceHolder/Core (1.1.0)
+  - CYLTableViewPlaceHolder/CYLPlaceholderItemAnimation (1.1.0):
+    - CYLTableViewPlaceHolder/Core
+  - CYLTableViewPlaceHolder/Lottie (1.1.0):
+    - CYLTableViewPlaceHolder/LottieSwift
+  - CYLTableViewPlaceHolder/LottieSwift (1.1.0):
+    - CYLTableViewPlaceHolder/Core
+    - CYLTableViewPlaceHolder/CYLPlaceholderItemAnimation
+    - lottie-ios (>= 4.5.1)
+  - lottie-ios (4.6.1)
 
 DEPENDENCIES:
   - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `f9724167235dee050a81432f3c16f6c4e15dc186`)
   - CYLSearchViewController (from `.`)
   - CYLTabBarController (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `bc732203d79fd071522d2c13416f250184f214c9`)
-  - CYLTableViewPlaceHolder (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `5e30638c09139e13da7c0763487537ac39c954e5`)
+  - CYLTableViewPlaceHolder (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `9d49d16863d984e7d094f30ddf78330a5f2fe854`)
+
+SPEC REPOS:
+  trunk:
+    - lottie-ios
 
 EXTERNAL SOURCES:
   CollectionViewClassifyMenu:
@@ -31,7 +44,7 @@ EXTERNAL SOURCES:
     :commit: bc732203d79fd071522d2c13416f250184f214c9
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
-    :commit: 5e30638c09139e13da7c0763487537ac39c954e5
+    :commit: 9d49d16863d984e7d094f30ddf78330a5f2fe854
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
 
 CHECKOUT OPTIONS:
@@ -42,15 +55,16 @@ CHECKOUT OPTIONS:
     :commit: bc732203d79fd071522d2c13416f250184f214c9
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
-    :commit: 5e30638c09139e13da7c0763487537ac39c954e5
+    :commit: 9d49d16863d984e7d094f30ddf78330a5f2fe854
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
 
 SPEC CHECKSUMS:
   CollectionViewClassifyMenu: ebd3e85358cf219b3ad20b5e005c54719b2708f4
-  CYLSearchViewController: 6a5d0ad80ab7cf8b26de50b0868525aff3a14901
+  CYLSearchViewController: 4826e3fa2030073fe576ff501eea6143db865c3b
   CYLTabBarController: 9e49f3142d6f7a671c3baa9aab8f91ebc2661889
   CYLTableViewPlaceHolder: 2cf43940d6a518b80fd4941264ddb17cd3a400d8
+  lottie-ios: 6467ca7035120c5b0e0acee58bb679cf15875686
 
-PODFILE CHECKSUM: 7cf83c6f0835e8818f34bc96da350bce37abf316
+PODFILE CHECKSUM: 64eec48b1fe9c7c1e28c588672a86118d774149e
 
 COCOAPODS: 1.17.0

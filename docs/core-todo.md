@@ -100,9 +100,26 @@ packages). A test checks each rule.
 
     ![Android: cleared](assets/android-cache-cleared.png)
 
-  - Still open: the iOS screenshots; the animated placeholder (CYLTableViewPlaceHolder's animation subspec is on a
-    newer branch than the pinned commit; move the pin, then use it for `emptySuggestionsView`); React Native and
-    HarmonyOS with the cross-platform work.
+  - Animated placeholder, iOS (2026-11-13): CYLTableViewPlaceHolder is pinned at `9d49d16` (`feat/android-refresh-port`,
+    the newest code commit; the only newer commit, `92a8a00`, is the automatic `ci-screenshots` branch). There every
+    scenario's icon is a bundled animation with its still image as the fallback (`componentWithBundledAnimation:`,
+    `animationFileNames(for:)`), and it plays when an animation engine subspec is installed. The core podspec now
+    depends on `CYLTableViewPlaceHolder/Lottie` (bringing `lottie-ios` >= 4.5.1, 4.6.1 installed), so the empty
+    suggestions placeholder and the empty results placeholder animate by default; without the engine they fall back
+    to the still image. Pins moved in the `Podfile`, the Flutter example's `ios/Podfile` and
+    `android/merged/gradle.properties`. Note: a stale CocoaPods cache entry for that commit installed only CYLRefresh
+    (no placeholder headers); `pod cache clean CYLTableViewPlaceHolder --all` fixed it.
+    Verified (iPhone 17 simulator, iOS 26.3, 2026-11-13 21:01 NZDT): the Tag style sample opens with focus off and an
+    empty cache, and shows the animated cactus (`CYLPlaceholderNoDrafts.json`) with "Nothing here yet"; three frames
+    0.6 s apart differ (below: the page, then the three frames side by side). iOS tests 25/25.
+
+    ![iOS: animated empty-cache placeholder](assets/ios-empty-cache-animated-placeholder.png)
+
+    ![iOS: three frames of the animation](assets/ios-empty-cache-animation-frames.png)
+
+  - Still open: Android's placeholder module (CYLTableViewPlaceHolder `android/placeholder`, at `9d49d16`) has no
+    animation support yet (only still images), so Android shows the still image; adding animated icons there is a
+    CYLTableViewPlaceHolder task (sub-repository rule). React Native and HarmonyOS with the cross-platform work.
 - Prompt (verbatim): "找到docs中关于core功能TODO 相关描述。如果没有就新建一个，加入以下core核心代码，全英文写入：总结现在所有example以及core核心代码，为搜索备选列表加入缓存策略。每次搜索框光标处于聚焦状态，那么就开始显示搜索备选列表，备选列表默认从本地缓存中获取。每次输入新的内容点击搜索后，都更新本地缓存，下一次进入搜索备选列表可以看到原有数据加入了缓存中。点击搜索备选框右上角的删除图标可以全部清理缓存。具体缓存实现在总结现在所有example以及core核心代码，放入到core核心代码中。形成api接口。缓存策略可以是一个枚举。默认为本地缓存。也可能是本地数据 沙河中的数据。总结现在所有example以及core核心代码中缓存形式做的最好的，最好是数据库，其次才是其他形式缓存格式。以及缓存策略总结现在所有example以及core核心代码中缓存策略形式做的最好的，最好是多个缓存策略，如果没有我们自己新增，至少定义一个保证以后新增缓存策略。优先提取现在仓库中已经存在的代码。 第二个TODO是光标聚焦功能，该功能含义是进入搜索界面，后自动聚焦光标，目的是唤起键盘，以及显示搜索备选框。新增接口默认实现聚焦，同时允许用户自定义 不使用聚焦。只显示搜索备选框，搜索备选框为空的时候，也就是本地缓存或者数据库空的时候展示CYLPlaceholder提示。只有在用户点击搜索框才手动聚焦。该参数应该是一个bool值。这个参数决定键盘唤起的时间。优先在core层面实现上面功能，example层负责新增参数传入。CYLPlaceholder 优先使用动图效果，其次才是静态图片。"
 - Prompt (English): "Find the core feature TODO description in docs; if there is none, create one and add the following
   core work, written in English. Survey all examples and the core, and add a cache policy for the search suggestion

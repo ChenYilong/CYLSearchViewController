@@ -20,5 +20,7 @@ Pod::Spec.new do |s|
   s.dependency 'CollectionViewClassifyMenu'
   # The empty search results placeholder (CYLSearchView.emptyResultsScenario) is CYLTableViewPlaceHolder's
   # CYLPlaceholderStackView. Also pinned by commit in the Podfile.
-  s.dependency 'CYLTableViewPlaceHolder/Core'
+  # CYLTableViewPlaceHolder's placeholders prefer an animated icon (their bundled Lottie files) over the still image
+  # (docs/core-todo.md): the Lottie engine is part of the core, the still image stays the fallback.
+  s.dependency 'CYLTableViewPlaceHolder/Lottie'
 end
