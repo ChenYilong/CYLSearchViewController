@@ -161,6 +161,73 @@ Native) for the CYLSearchViewController components.
   - Still open for Flutter (`TODO`): Swift Package Manager support. Then React Native, then HarmonyOS NEXT (the emulator image is
     downloaded; a device still has to be created in DevEco's Device Manager).
 
+## TODO (2026-11-13): Flutter example on iOS: the plus button's title disappears once the plus page is selected
+
+- Context: the Flutter example (`CrossPlatform/flutter_cylsearch/example`) uses CYLTabBarController's Flutter tab bar
+  (`flutter_cyltabbar`, pinned at `74aa25e`), Liquid Glass on iOS 26. In the report below (top to bottom, left to
+  right): the Tag style tab selected, the plus button's title "Search bar" under the "+"; the tag search; the plus
+  button's own page selected: the Liquid Glass selection does not appear under the plus button and its title
+  "Search bar" is gone (List style, Tag style, "+", No results, No content); the No content search.
+
+  ![Report: the plus button's title disappears on its own page](assets/flutter-ios-plus-title-missing-report.png)
+
+- Requirements:
+  1. Record the bug here as a TODO (this entry).
+  2. First direction: the plus button. `-[CYLPlusButton cyl_updateLiquidGlassMask]` is a known source of plus button
+     bugs (CYLTabBarController AGENTS.md: on any plus button bug, set `CYL_PLUS_BUTTON_LENS_MASK_ENABLED` to 0 first
+     and test again). Compare with the switch off; if the mask cannot be shown to be harmless, keep it off.
+  3. Second direction: a CYLTabBarController commit fixed an icon that disappeared while a More tab existed (Home's
+     icon after More editing); read the docs around it for the context, since the same kind of "hidden on purpose,
+     never shown again" logic may hide the title.
+  4. Fix in CYLTabBarController (sub-repository rule: worktree, branch, pull request), then update the pins here.
+- Prompt (verbatim): "在跨端相关文件中记录 记录截图中的bug，标记TODO。CYLSearchViewController 的flutter example中，出现以下异常：flutter 的tabbar 实现iOS端异常。plus button title会在被选中后 液态玻璃遮罩消失，title异常消失。两个排查方向：第一个：plus button 问题，排查方向：cyl_updateLiquidGlassMask  实现导致plusbutton的 title 字体异常。	Switch: CYL_PLUS_BUTTON_LENS_MASK_ENABLED is now 1. Your rule still stands in AGENTS.md: on any plus button bug, set it to 0 first and retest. ，通过控制上面的key 禁用该实现查看差异。如无法保证不会引发异常，继续禁用cyl_updateLiquidGlassMask该方法实现。同时寻找CYLTabBarController ，，相关commit 里面有一个more按钮存在时 home button 相关icon消失的bug。搜索docs相关文档，查看上下文。continue  continue"
+- Prompt (English): "Record the bug in the screenshot in the cross-platform documents and mark it TODO. In
+  CYLSearchViewController's Flutter example, the Flutter tab bar misbehaves on iOS: once the plus button is
+  selected, the Liquid Glass selection disappears and the plus button's title disappears. Two directions: first, the
+  plus button: the `cyl_updateLiquidGlassMask` implementation has caused plus button title problems (switch:
+  `CYL_PLUS_BUTTON_LENS_MASK_ENABLED` is now 1; the AGENTS.md rule stands: on any plus button bug, set it to 0 first
+  and test again); toggle the switch to compare, and if it cannot be shown to be harmless, keep that method
+  disabled. Second, find the CYLTabBarController commit about a bug where the Home button's icon disappeared while a
+  More button existed; search the docs for the context."
+- Findings so far (2026-11-13):
+  - At the pinned commit `74aa25e`, `CYL_PLUS_BUTTON_LENS_MASK_ENABLED` is already 0 (`CYLPlusButton.m`; the
+    maintainer switched it off again on 2026-11-12), so the bug happens with the mask off: the mask is not its cause.
+    The switch stays 0.
+  - The More commit is CYLTabBarController `d90802e` ("Home's icon comes back after More editing → Done", 2026-11-11):
+    UIKit never calls `-[UITabBar endCustomizingAnimated:]`, so views hidden when editing began (Home's star) stayed
+    hidden; the fix polls `isCustomizing` and restores them. It is in the pin. Context:
+    CYLTabBarController `docs/Liquid-Glass-Robustness.md`.
+- Status: `TODO`.
+
+## TODO (2026-11-13): HarmonyOS: learn from FlexibleSearchBar, and a HarmonyOS API table scored to 100
+
+- Context: HarmonyOS NEXT comes after Flutter and React Native (first TODO of this document); DevEco Studio 6.0.1 and
+  the API 21 SDK are installed, an emulator device still has to be created. Android was aligned with a table
+  ([android-api-alignment.md](android-api-alignment.md)).
+- Rules:
+  1. Before building the HarmonyOS search bar, study
+     [Applib-HarmonyOS/FlexibleSearchBar](https://github.com/Applib-HarmonyOS/FlexibleSearchBar), an existing search
+     bar for HarmonyOS: read how it is built (components, layout, input handling, animation) and reuse what fits
+     this project's implementation; record what was taken and why in this document.
+  2. Implement the HarmonyOS API completely, matched to the public API of the iOS side (the tab bar and its Liquid
+     Glass API belong to CYLTabBarController and are aligned in that repository the same way).
+  3. Make a table for HarmonyOS as for Android:
+     [harmonyos-api-alignment.md](harmonyos-api-alignment.md). First column: the iOS public API; second column: its
+     doc comment; third column: the HarmonyOS counterpart, `TODO` by default.
+  4. A full match scores 100. After each API is implemented, replace that row's `TODO` with the HarmonyOS API and
+     score again (`python3 scripts/harmonyos-api-alignment.py`); repeat until the score is 100.
+- Prompt (verbatim): "找到docs文档中 跨端相关的文档，找到鸿蒙相关 描述，全英文写入以下规则：参考以下搜索框在鸿蒙上的实现，学习 https://github.com/Applib-HarmonyOS/FlexibleSearchBar  因为这个项目就是searchbar  借鉴一下searchbbar 的实现细节看下能不能用在本项目实现上：  ，然后对标iOS端接口完整实现tabbar 液态API。学习android 实现时候制作的表格。为鸿蒙也制作表格，第一列是iOS端 公开api接口，第二列是接口注释，第三列为鸿蒙对应接口。第三列默认填TODO。完全匹配视为满分，没实现一个接口，就更新第三列的一行把TODO换成对应ApI。打一次分，如此循环往复，一直到满分💯为止。"
+- Prompt (English): "Find the cross-platform document in docs, find its HarmonyOS part, and write these rules in
+  English: refer to this search bar implementation on HarmonyOS and study
+  https://github.com/Applib-HarmonyOS/FlexibleSearchBar; since that project is a search bar, borrow its search bar
+  implementation details and see whether they can be used in this project. Then implement the API completely,
+  matched to the iOS interfaces (the tab bar Liquid Glass API). Learn from the table made for the Android
+  implementation and make one for HarmonyOS too: first column the iOS public API, second column the API's comment,
+  third column the HarmonyOS counterpart, `TODO` by default. A full match is a full score; each time an API is
+  implemented, update that row's third column, replacing `TODO` with the API, and score once; repeat until the score
+  is 100."
+- Status: `TODO` (rules and table written; score 0 until the HarmonyOS module exists).
+
 ## DONE (2026-11-12): android/ folder: five Kotlin transcriptions, a merged library and example
 
 - Context: refines the TODO above. Android only; iOS code is not changed. The five reference projects were read in
