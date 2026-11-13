@@ -218,3 +218,34 @@ CollectionViewClassifyMenu).
     end with "…" inside the cell, with a gap before the next column.
 
     ![Android Discover titles end with an ellipsis](assets/android-discover-titles-ellipsis.png)
+
+## BUG TODO (2026-11-13): the tag list lost its fold button on later platforms
+
+- Context: the first implementations, the iOS Discover page (`CYLSearchDiscoverViewController`:
+  `CYLTagListView(foldControl: CYLMenuFoldControl(position: .inline, content: .icon))`) and its Android port
+  (`CYLSearchDiscoverFragment`: an inline icon fold control, `defaultVisibleRows = 2`), end the recent-search tags with a
+  fold button (a chevron as the last tag: two rows folded, all rows unfolded). Later work dropped it: the core's tag
+  suggestion style creates `suggestionsTagView` with `CYLTagListView(foldControl: nil)` (iOS) and without one (Android),
+  and the Flutter `CYLTagListView` widget and the Flutter Discover page have no fold button (first screenshot below:
+  Flutter Discover, all ten recent searches shown; second: the Android reference, folded with the chevron, then
+  unfolded with the up chevron).
+
+  ![Flutter Discover without the fold button](assets/fold-missing-flutter-discover.png)
+
+  ![Android Discover with the fold button (reference)](assets/fold-reference-android-discover.png)
+
+- Requirements:
+  1. The core supports the fold button through parameters an app can customize: on `CYLSearchView` (the tag
+     suggestion style) the fold control (position, content) and the number of rows shown while folded, on iOS and
+     Android; the Flutter `CYLTagListView` widget and `CYLSearchView` widget pass the same parameters.
+  2. Check every example page in the screenshots that shows a tag list and set the parameters, so the last item of the
+     tag list is the fold button, as in the iOS example.
+  3. Reference: this project's iOS example (`CYLSearchDiscoverViewController`).
+- Prompt (verbatim): "你在不同平台实现搜索备选项列表样式为collectionView的时候，在某一节点，忘记了这个有一个折叠功能。只有你在前期实现的时候，加了这个功能。请确保core核心代码 使用参数支持该样式的外部自定义，再排查所有example的截图中的页面，更新该参数。预期效果是tag list的最后一项是 折叠交互按钮。参考本项目iOS example的实现。记录到文档中，标记BUG TODO"
+- Prompt (English): "When you implemented the suggestion list in the collection view (tag) style on the different
+  platforms, at some point you forgot that it has a fold feature; only your early implementation added it. Make sure
+  the core supports customizing this style from outside through parameters, then check the pages in all the examples'
+  screenshots and set the parameter. Expected: the last item of the tag list is the fold button. Refer to this
+  project's iOS example. Record it in the docs and mark it BUG TODO."
+- Status: `BUG TODO`.
+
