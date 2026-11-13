@@ -104,9 +104,10 @@ function Screens() {
           </View>
         ) : null}
       </View>
-      <View style={styles.tabs} accessibilityRole="tablist">
+      {/* Each tab is its own accessibility element (a "tablist" container hid them from iOS accessibility). */}
+      <View style={styles.tabs}>
         {[...TABS.map((item) => ({ key: item.key, title: item.title })), { key: 'bar', title: 'Search bar' }, { key: 'discover', title: 'Discover' }].map((item) => (
-          <Pressable key={item.key} accessibilityRole="tab" accessibilityState={{ selected: tab === item.key }} style={styles.tab} onPress={() => setTab(item.key)}>
+          <Pressable key={item.key} accessible accessibilityRole="tab" accessibilityLabel={item.title} accessibilityState={{ selected: tab === item.key }} style={styles.tab} onPress={() => setTab(item.key)}>
             <Text style={[styles.tabText, tab === item.key && styles.tabSelected]}>{item.title}</Text>
           </Pressable>
         ))}
