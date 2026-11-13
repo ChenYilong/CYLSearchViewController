@@ -1,0 +1,50 @@
+# Resolve react_native_pods.rb with node to allow for hoisting
+require Pod::Executable.execute_command('node', ['-p',
+  'require.resolve(
+    "react-native/scripts/react_native_pods.rb",
+    {paths: [process.argv[1]]},
+  )', __dir__]).strip
+
+platform :ios, min_ios_version_supported
+
+ENV['SWIFT_VERSION'] = '5'
+
+project 'CylsearchExample.xcodeproj'
+prepare_react_native_project!
+
+# The native core and its sub-repositories are static frameworks (CYLSearchViewController is Swift).
+linkage = ENV['USE_FRAMEWORKS'] || 'static'
+if linkage != nil
+  Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
+  use_frameworks! :linkage => linkage.to_sym
+end
+
+target 'CylsearchExample' do
+  config = use_native_modules!
+
+  # The native core from this repository, and its sub-repositories at their pinned commits (docs/sub-repositories.md).
+  pod 'CYLSearchViewController', :path => '../../../..'
+  pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => 'f9724167235dee050a81432f3c16f6c4e15dc186'
+  pod 'CYLTableViewPlaceHolder', :git => 'https://github.com/ChenYilong/CYLTableViewPlaceHolder.git', :commit => 'a96e9d27d41c32db0418d737f052d4bd57aae08f'
+
+  use_react_native!(
+    :path => config[:reactNativePath],
+    # An absolute path to your application root.
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
+  )
+
+  post_install do |installer|
+    react_native_post_install(
+      installer,
+      config[:reactNativePath],
+      :mac_catalyst_enabled => false,
+      # :ccache_enabled => true
+    )
+    # Every pod (lottie-ios's privacy bundle declares 13.0) at a target Xcode supports, as the native example.
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings["IPHONEOS_DEPLOYMENT_TARGET"] = "15.1"
+      end
+    end
+  end
+end

@@ -167,6 +167,57 @@ Native) for the CYLSearchViewController components.
     first. Then React Native, then HarmonyOS NEXT (the emulator image is
     downloaded; a device still has to be created in DevEco's Device Manager).
 
+## TODO (2026-11-13): React Native: `react-native-cylsearch`, wrapping the native core
+
+- Context: the third cross-platform step after Android and Flutter (first TODO of this document), with the same
+  requirements as Flutter: the tag style, the Discover page and the empty placeholders, by wrapping the native core.
+  Swift Package Manager for the Flutter plugin was deferred so React Native goes first.
+- Progress (2026-11-13/14):
+  - `CrossPlatform/react-native-cylsearch`, made with `create-react-native-library` (Fabric view, Kotlin and
+    Objective-C++, a React Native 0.88 Community CLI example), laid out as CYLTabBarController's
+    `react-native-cyltabbar`. Three Fabric components wrap the native core: `CylsearchView` (the search page:
+    suggestions, list or tag style, cache policy and name, `focusesSearchFieldOnShow`, the fold control, the empty
+    placeholders; events `onTextChange`, `onSubmit`, `onSuggestionSelect`, `onClose`), `CylsearchBarView` and
+    `CylsearchTagListView` (sized by its `onHeightChange`, again after folding). JavaScript wrappers
+    `CYLSearchView`, `CYLSearchBarView`, `CYLTagListView` pass the color scheme.
+  - iOS: the podspec depends on CYLSearchViewController (static frameworks); the `.mm` views import
+    CYLTableViewPlaceHolder's header before the generated Swift header (it uses `CYLPlaceholderScenario`).
+  - Android: the module depends on `com.cyl.search:cylsearch:0.1.0`; the example substitutes it with `android/merged`
+    (`includeBuild`, as the Flutter example), which needed one AGP version: `android/merged` and the Flutter example
+    moved to React Native 0.88's AGP 9.2.1 and Gradle 9.4.1 (`06865a5`). `CYLSearchBarView` is final, so the
+    component wraps it in a `FrameLayout`.
+  - Found and fixed on the way, in CYLTableViewPlaceHolder (sub-repository rule): its privacy manifest was copied to
+    the app's root and clashed with the React Native app's own ("Multiple commands produce …/PrivacyInfo.xcprivacy");
+    it is now in a resource bundle,
+    [ChenYilong/CYLTableViewPlaceHolder#29](https://github.com/ChenYilong/CYLTableViewPlaceHolder/pull/29), `a96e9d2`,
+    pinned in the React Native example.
+  - The example: List style, Tag style (focus off), Empty results (two scenarios), Search bar and Discover (the native
+    search bar, the recent searches as native tags folded behind the chevron, topics, refresh and clear), colors that
+    follow the color scheme, `react-native-safe-area-context`.
+  - Verified on Android (release build, the `CYL_API35_arm64` emulator, Android 15, 2026-11-14 07:1x NZDT), top to
+    bottom: typing in the list style search; the tag style opens with the keyboard down and the empty-cache
+    placeholder; "No content"; the search bar demo ("Text: Rive"); Discover folded, then unfolded. The host was very
+    loaded (load average about 970): the emulator showed "isn't responding" dialogs at launch, and the debug build
+    crashed once inside React Native's dev-tools inspector connection (`CxxInspectorPackagerConnection`, not this
+    library), so the screenshots use the release build.
+
+    ![React Native Android: list search](assets/rn-android-list-typed.png)
+
+    ![React Native Android: tag style, keyboard down](assets/rn-android-tags-history.png)
+
+    ![React Native Android: no content](assets/rn-android-nocontent.png)
+
+    ![React Native Android: search bar](assets/rn-android-bar.png)
+
+    ![React Native Android: Discover folded](assets/rn-android-discover.png)
+
+    ![React Native Android: Discover unfolded](assets/rn-android-unfolded.png)
+
+  - Still open: the iOS run (the build succeeds; the simulator was unresponsive under the load), CYLTabBarController's
+    React Native tab bar in the example (it lives inside CYLTabBarController's repository, which is not a yarn
+    workspace, so it cannot be pinned as a git dependency yet), the other platforms' pins of `a96e9d2`.
+- Status: `TODO`.
+
 ## DONE (2026-11-13): Flutter example on iOS: the plus button's title disappears once the plus page is selected
 
 - Context: the Flutter example (`CrossPlatform/flutter_cylsearch/example`) uses CYLTabBarController's Flutter tab bar
