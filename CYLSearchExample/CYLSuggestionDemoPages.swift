@@ -15,6 +15,8 @@ public final class CYLSuggestionDemoPages: NSObject {
     @objc public static func tagStyleViewController() -> UIViewController {
         let menu = CYLMaterialSearchMenuViewController(style: .insetGrouped)
         menu.suggestionStyle = .tags
+        // The keyboard stays down until the field is tapped: the cached queries (or the empty placeholder) show first.
+        menu.focusesSearchFieldOnShow = false
         return menu
     }
 

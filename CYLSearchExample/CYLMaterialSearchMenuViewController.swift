@@ -13,6 +13,12 @@ final class CYLMaterialSearchMenuViewController: UITableViewController {
      */
     var suggestionStyle: CYLSearchSuggestionStyle = .list
 
+    /**
+     * Passed to every sample's `CYLSearchView.focusesSearchFieldOnShow` (the "Tag style" tab opens with the keyboard
+     * down, showing the cached queries or the empty placeholder).
+     */
+    var focusesSearchFieldOnShow = true
+
     override func viewDidLoad() {
         super.viewDidLoad()
         navigationItem.title = "MaterialSearchView"
@@ -36,7 +42,8 @@ final class CYLMaterialSearchMenuViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let sample = CYLMaterialSearchSample.allCases[indexPath.row]
-        navigationController?.pushViewController(CYLMaterialSearchSampleViewController(sample: sample, suggestionStyle: suggestionStyle), animated: true)
+        navigationController?.pushViewController(CYLMaterialSearchSampleViewController(sample: sample, suggestionStyle: suggestionStyle,
+                                                                                         focusesSearchFieldOnShow: focusesSearchFieldOnShow), animated: true)
     }
 }
 
@@ -82,18 +89,21 @@ final class CYLMaterialSearchSampleViewController: UIViewController {
 
     private let sample: CYLMaterialSearchSample
     private let suggestionStyle: CYLSearchSuggestionStyle
+    private let focusesSearchFieldOnShow: Bool
     private let searchView = CYLSearchView(frame: .zero)
     private let speech = CYLSpeechRecognizer()
 
-    init(sample: CYLMaterialSearchSample, suggestionStyle: CYLSearchSuggestionStyle = .list) {
+    init(sample: CYLMaterialSearchSample, suggestionStyle: CYLSearchSuggestionStyle = .list, focusesSearchFieldOnShow: Bool = true) {
         self.sample = sample
         self.suggestionStyle = suggestionStyle
+        self.focusesSearchFieldOnShow = focusesSearchFieldOnShow
         super.init(nibName: nil, bundle: nil)
     }
 
     required init?(coder: NSCoder) {
         sample = .standard
         suggestionStyle = .list
+        focusesSearchFieldOnShow = true
         super.init(coder: coder)
     }
 
@@ -115,6 +125,11 @@ final class CYLMaterialSearchSampleViewController: UIViewController {
         searchView.suggestionStyle = suggestionStyle
         // A query that matches nothing shows CYLTableViewPlaceHolder's "no search results" state (docs/sub-repositories.md).
         searchView.showsEmptyResultsPlaceholder = true
+        // Submitted queries are cached in the core's local database (docs/core-todo.md), one cache for these samples;
+        // an empty query lists them under a header with a delete-all button.
+        searchView.suggestionCachePolicy = .database
+        searchView.suggestionCacheName = "MaterialSearchView"
+        searchView.focusesSearchFieldOnShow = focusesSearchFieldOnShow
         searchView.searchBarView.isSecureTextEntry = sample == .inputType
         if sample == .themed || sample == .voice {
             // The colored theme: white text on the primary color.

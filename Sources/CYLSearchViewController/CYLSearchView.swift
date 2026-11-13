@@ -248,6 +248,74 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
      */
     @objc public var suggestionCellConfiguration: ((UITableViewCell, String, UInt) -> Void)? { didSet { suggestionsTableView.reloadData() } }
 
+    // MARK: - Suggestion cache
+
+    /**
+     * Where submitted queries are cached for the suggestion list (`CYLSearchSuggestionCachePolicyDatabase`, a local
+     * SQLite database, by default). While the query is empty, the list shows the cached queries, newest first, under a
+     * header whose delete button clears them; while typing, matching cached queries come before matching
+     * `suggestions`. `CYLSearchSuggestionCachePolicyNone` turns the cache off.
+     */
+    @objc public var suggestionCachePolicy: CYLSearchSuggestionCachePolicy = .database { didSet { rebuildSuggestionCache() } }
+
+    /**
+     * Separates the caches of different search screens. "CYLSearchView" by default.
+     */
+    @objc public var suggestionCacheName = "CYLSearchView" { didSet { rebuildSuggestionCache() } }
+
+    /**
+     * The cache in use: the built-in store of `suggestionCachePolicy`, or a store of yours (set it after the policy).
+     * Nil when the policy is `CYLSearchSuggestionCachePolicyNone`.
+     */
+    @objc public var suggestionCache: CYLSearchSuggestionCache? { didSet { refilter() } }
+
+    /**
+     * The header above the cached queries: a title and, at its trailing edge, `clearSuggestionCacheButton`.
+     */
+    @objc public let suggestionCacheHeaderView = UIView()
+
+    /**
+     * The title of `suggestionCacheHeaderView` ("Recent searches").
+     */
+    @objc public let suggestionCacheTitleLabel = UILabel()
+
+    /**
+     * Clears the whole cache (a trash icon at the top right of the suggestion list).
+     */
+    @objc public let clearSuggestionCacheButton = UIButton(type: .system)
+
+    /**
+     * Shows CYLTableViewPlaceHolder's placeholder for `emptySuggestionsScenario` while the query is empty and the cache
+     * holds nothing, so an open search is never a blank page. YES by default.
+     */
+    @objc public var showsEmptySuggestionsPlaceholder = true { didSet { refilter() } }
+
+    /**
+     * The scenario of that placeholder. `CYLPlaceholderScenarioNoContent` by default.
+     */
+    @objc public var emptySuggestionsScenario: CYLPlaceholderScenario = .noContent {
+        didSet {
+            emptySuggestionsView?.removeFromSuperview()
+            emptySuggestionsView = nil
+            refilter()
+        }
+    }
+
+    /**
+     * The placeholder shown for an empty cache, created the first time it is shown; nil before.
+     */
+    @objc public private(set) var emptySuggestionsView: CYLPlaceholderStackView?
+
+    /**
+     * Focuses the search field when the search opens, which raises the keyboard. YES by default. NO opens the search
+     * with the suggestion list (or the empty placeholder) and the keyboard down; the field is focused when the person
+     * taps it.
+     */
+    @objc public var focusesSearchFieldOnShow = true
+
+    private var showsCachedQueries = false
+    private var emptySuggestionsVisible = false
+
     // MARK: - Opening and closing
 
     /**
@@ -328,6 +396,21 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
             self?.selectSuggestion(at: index)
         }
         pageView.addSubview(suggestionsTagView)
+        suggestionCacheTitleLabel.text = CYLSearchResources.localizedString(forKey: "search.recent")
+        suggestionCacheTitleLabel.font = .preferredFont(forTextStyle: .subheadline)
+        suggestionCacheTitleLabel.adjustsFontForContentSizeCategory = true
+        suggestionCacheTitleLabel.textColor = .secondaryLabel
+        suggestionCacheTitleLabel.accessibilityTraits = .header
+        suggestionCacheHeaderView.addSubview(suggestionCacheTitleLabel)
+        clearSuggestionCacheButton.setImage(UIImage(systemName: "trash"), for: .normal)
+        clearSuggestionCacheButton.tintColor = .secondaryLabel
+        clearSuggestionCacheButton.accessibilityLabel = CYLSearchResources.localizedString(forKey: "search.clearRecent")
+        clearSuggestionCacheButton.accessibilityIdentifier = "CYLSearchClearSuggestionCache"
+        clearSuggestionCacheButton.addTarget(self, action: #selector(clearSuggestionCache), for: .touchUpInside)
+        suggestionCacheHeaderView.addSubview(clearSuggestionCacheButton)
+        suggestionCacheHeaderView.isHidden = true
+        pageView.addSubview(suggestionCacheHeaderView)
+        rebuildSuggestionCache()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardChanged(_:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardHidden(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         applyStyle()
@@ -358,8 +441,12 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
             let emptyHeight = emptyResultsVisible ? (emptyResultsView?.systemLayoutSizeFitting(
                 CGSize(width: width - safe.left - safe.right, height: UIView.layoutFittingCompressedSize.height),
                 withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel).height ?? 0) : 0
-            let listHeight = emptyResultsVisible ? emptyHeight : !suggestionsVisible ? 0
-                : tags ? suggestionsTagView.heightThatFitsWidth(width - safe.left - safe.right) : suggestionsTableView.contentSize.height
+            let headerHeight: CGFloat = showsCachedQueries ? max(44, ceil(suggestionCacheTitleLabel.font.lineHeight) + 16) : 0
+            let emptySuggestionsHeight = emptySuggestionsVisible ? (emptySuggestionsView?.systemLayoutSizeFitting(
+                CGSize(width: width - safe.left - safe.right, height: UIView.layoutFittingCompressedSize.height),
+                withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel).height ?? 0) : 0
+            let listHeight = emptyResultsVisible ? emptyHeight : emptySuggestionsVisible ? emptySuggestionsHeight : !suggestionsVisible ? 0
+                : headerHeight + (tags ? suggestionsTagView.heightThatFitsWidth(width - safe.left - safe.right) : suggestionsTableView.contentSize.height)
             pageHeight = min(bottom, top + listHeight)
         }
         pageView.frame = CGRect(x: 0, y: 0, width: width, height: pageHeight)
@@ -370,9 +457,16 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         dividerView.frame = CGRect(x: 0, y: safe.top + barHeight, width: width, height: dividerHeight)
         let below = CGRect(x: safe.left, y: top, width: width - safe.left - safe.right, height: max(0, pageHeight - top))
         contentView?.frame = below
-        suggestionsTableView.frame = below
-        suggestionsTagView.frame = below
+        // The cached queries' header takes the top of the list area; the list starts under it.
+        let headerHeight: CGFloat = showsCachedQueries ? max(44, ceil(suggestionCacheTitleLabel.font.lineHeight) + 16) : 0
+        suggestionCacheHeaderView.frame = CGRect(x: below.minX, y: below.minY, width: below.width, height: headerHeight)
+        clearSuggestionCacheButton.frame = CGRect(x: below.width - 44 - 4, y: 0, width: 44, height: headerHeight)
+        suggestionCacheTitleLabel.frame = CGRect(x: 16, y: 0, width: max(0, below.width - 16 - 52), height: headerHeight)
+        let list = below.inset(by: UIEdgeInsets(top: headerHeight, left: 0, bottom: 0, right: 0))
+        suggestionsTableView.frame = list
+        suggestionsTagView.frame = list
         emptyResultsView?.frame = below
+        emptySuggestionsView?.frame = below
         var insets = suggestionsTableView.contentInset
         insets.bottom = max(keyboardOverlap - (bottom - pageHeight), safe.bottom)
         suggestionsTableView.contentInset = insets
@@ -443,7 +537,9 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         }
         superview?.bringSubviewToFront(self)
         if searchOpen {
-            searchBarView.showKeyboard()
+            if focusesSearchFieldOnShow {
+                searchBarView.showKeyboard()
+            }
             return
         }
         searchOpen = true
@@ -452,7 +548,10 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         refilter()
         setNeedsLayout()
         layoutIfNeeded()
-        searchBarView.showKeyboard()
+        // `focusesSearchFieldOnShow` decides when the keyboard appears: now, or when the person taps the field.
+        if focusesSearchFieldOnShow {
+            searchBarView.showKeyboard()
+        }
         let finish: (Bool) -> Void = { _ in
             UIAccessibility.post(notification: .screenChanged, argument: self.searchBarView.textField)
             self.delegate?.searchViewDidShow?(self)
@@ -559,7 +658,14 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
     private func refilter() {
         let query = searchBarView.text ?? ""
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        filteredSuggestions = suggestions.filter { suggestion in
+        let cached = suggestionCache?.cachedQueries() ?? []
+        // An empty query lists the cached queries, newest first, under the header that clears them.
+        showsCachedQueries = trimmed.isEmpty && !cached.isEmpty
+        let candidates = cached + suggestions.filter { !cached.contains($0) }
+        filteredSuggestions = (showsCachedQueries ? cached : candidates).filter { suggestion in
+            if showsCachedQueries {
+                return true
+            }
             if trimmed.isEmpty {
                 return showsSuggestionsForEmptyQuery
             }
@@ -570,6 +676,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         }
         suggestionsVisible = !filteredSuggestions.isEmpty
         emptyResultsVisible = showsEmptyResultsPlaceholder && !trimmed.isEmpty && filteredSuggestions.isEmpty
+        emptySuggestionsVisible = showsEmptySuggestionsPlaceholder && suggestionCache != nil && trimmed.isEmpty && filteredSuggestions.isEmpty
         updateSuggestionsVisibility()
     }
 
@@ -586,6 +693,8 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
     @objc public func dismissSuggestions() {
         suggestionsVisible = false
         emptyResultsVisible = false
+        emptySuggestionsVisible = false
+        showsCachedQueries = false
         updateSuggestionsVisibility()
     }
 
@@ -603,8 +712,29 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
             emptyResultsView = placeholder
         }
         emptyResultsView?.isHidden = !emptyResultsVisible
+        if emptySuggestionsVisible, emptySuggestionsView == nil {
+            let placeholder = CYLPlaceholderStackView(scenario: emptySuggestionsScenario, actions: nil)
+            placeholder.accessibilityIdentifier = "CYLSearchEmptySuggestions"
+            pageView.insertSubview(placeholder, belowSubview: suggestionsTableView)
+            emptySuggestionsView = placeholder
+        }
+        emptySuggestionsView?.isHidden = !emptySuggestionsVisible
+        suggestionCacheHeaderView.isHidden = !(suggestionsVisible && showsCachedQueries)
         suggestionsTableView.reloadData()
         setNeedsLayout()
+    }
+
+    private func rebuildSuggestionCache() {
+        suggestionCache = CYLSearchSuggestionStore.cache(policy: suggestionCachePolicy, name: suggestionCacheName)
+    }
+
+    /**
+     * Removes every cached query (the delete button of `suggestionCacheHeaderView`) and shows the list again.
+     */
+    @objc public func clearSuggestionCache() {
+        suggestionCache?.removeAllQueries()
+        refilter()
+        UIAccessibility.post(notification: .announcement, argument: CYLSearchResources.localizedString(forKey: "search.recentCleared"))
     }
 
     private func queryChanged(_ text: String) {
@@ -626,6 +756,8 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
      */
     public func searchBarViewSearchButtonClicked(_ searchBarView: CYLSearchBarView) {
         let text = searchBarView.text ?? ""
+        // Every submitted query is cached, so the list shows it the next time.
+        suggestionCache?.addQuery(text)
         let handled = delegate?.searchView?(self, didSubmitText: text) ?? false
         if !handled && closesOnSubmit {
             closeSearch()

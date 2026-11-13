@@ -34,6 +34,7 @@ Score = (DONE + N/A) / rows × 100, recomputed by the script after each change.
 | 2026-11-12 | `CYLSearchResultsViewController`, `CYLSearchController` (fragments) and their protocols | 100 |
 | 2026-11-12 | iOS added `CYLSearchSuggestionStyle` and `suggestionsTagView` / `suggestionStyle` (299 rows); Android had them already | 100 |
 | 2026-11-13 | iOS and Android added `showsEmptyResultsPlaceholder`, `emptyResultsScenario`, `emptyResultsView` (302 rows) | 100 |
+| 2026-11-13 | iOS and Android added the suggestion cache (`CYLSearchSuggestionCachePolicy`, `CYLSearchSuggestionCache`, `CYLSearchSuggestionStore`, the cache properties of `CYLSearchView`) and `focusesSearchFieldOnShow` (323 rows; docs/core-todo.md) | 100 |
 
 The scores per step are replayed with `--only=<classes added so far>` on the final sources, so they include the
 `requestFocus` / `clearFocus` / `setBackgroundColor` overrides that were added last.
@@ -48,7 +49,7 @@ messages, localized strings (English, Simplified Chinese, a missing key) and the
 ## Table
 
 <!-- api-alignment:begin -->
-Rows: 302; DONE 269, N/A 33, TODO 0; score 100/100.
+Rows: 323; DONE 290, N/A 33, TODO 0; score 100/100.
 
 | iOS API | Upstream counterpart (named in the iOS doc comment) | Android (`cylsearch`) | Status |
 | :--- | :--- | :--- | :--- |
@@ -287,6 +288,16 @@ Rows: 302; DONE 269, N/A 33, TODO 0; score 100/100.
 | `CYLSearchResultsViewController.tableView(_:numberOfRowsInSection:)` | — | `CYLSearchResultsViewController.tableView` | DONE |
 | `CYLSearchResultsViewController.tableView(_:cellForRowAt:)` | — | `CYLSearchResultsViewController.tableView` | DONE |
 | `CYLSearchResultsViewController.tableView(_:didSelectRowAt:)` | — | `CYLSearchResultsViewController.tableView` | DONE |
+| **class `CYLSearchSuggestionStore`** | — | CYLSearchSuggestionStore | DONE |
+| `CYLSearchSuggestionStore.policy` | — | `CYLSearchSuggestionStore.policy` | DONE |
+| `CYLSearchSuggestionStore.name` | — | `CYLSearchSuggestionStore.name` | DONE |
+| `CYLSearchSuggestionStore.maximumCount` | — | `CYLSearchSuggestionStore.maximumCount` | DONE |
+| `CYLSearchSuggestionStore.cache(policy:name:)` | — | `CYLSearchSuggestionStore.cacheWithPolicy` | DONE |
+| `CYLSearchSuggestionStore.init(policy:name:)` | not `none` | constructor(context, policy, name) | DONE |
+| `CYLSearchSuggestionStore.cachedQueries()` | — | `CYLSearchSuggestionStore.cachedQueries` | DONE |
+| `CYLSearchSuggestionStore.addQuery(_:)` | — | `CYLSearchSuggestionStore.addQuery` | DONE |
+| `CYLSearchSuggestionStore.removeQuery(_:)` | — | `CYLSearchSuggestionStore.removeQuery` | DONE |
+| `CYLSearchSuggestionStore.removeAllQueries()` | — | `CYLSearchSuggestionStore.removeAllQueries` | DONE |
 | **enum `CYLSearchSuggestionStyle`** | `CYLSearchView.suggestionStyle` | CYLSearchSuggestionStyle | DONE |
 | `CYLSearchSuggestionStyle.list` | — | `CYLSearchSuggestionStyle.List` | DONE |
 | `CYLSearchSuggestionStyle.tags` | CollectionViewClassifyMenu's `CYLTagListView` | `CYLSearchSuggestionStyle.Tags` | DONE |
@@ -323,6 +334,16 @@ Rows: 302; DONE 269, N/A 33, TODO 0; score 100/100.
 | `CYLSearchView.suggestionLineBreakMode` | MaterialSearchView `setEllipsize` | `CYLSearchView.suggestionLineBreakMode` | DONE |
 | `CYLSearchView.submitsOnSuggestionSelection` | `setSubmitOnClick` | `CYLSearchView.submitsOnSuggestionSelection` | DONE |
 | `CYLSearchView.suggestionCellConfiguration` | — | `CYLSearchView.suggestionCellConfiguration` | DONE |
+| `CYLSearchView.suggestionCachePolicy` | `CYLSearchSuggestionCachePolicyDatabase`, a local SQLite database, by default | `CYLSearchView.suggestionCachePolicy` | DONE |
+| `CYLSearchView.suggestionCacheName` | — | `CYLSearchView.suggestionCacheName` | DONE |
+| `CYLSearchView.suggestionCache` | — | `CYLSearchView.suggestionCache` | DONE |
+| `CYLSearchView.suggestionCacheHeaderView` | — | `CYLSearchView.suggestionCacheHeaderView` | DONE |
+| `CYLSearchView.suggestionCacheTitleLabel` | — | `CYLSearchView.suggestionCacheTitleLabel` | DONE |
+| `CYLSearchView.clearSuggestionCacheButton` | — | `CYLSearchView.clearSuggestionCacheButton` | DONE |
+| `CYLSearchView.showsEmptySuggestionsPlaceholder` | — | `CYLSearchView.showsEmptySuggestionsPlaceholder` | DONE |
+| `CYLSearchView.emptySuggestionsScenario` | — | `CYLSearchView.emptySuggestionsScenario` | DONE |
+| `CYLSearchView.emptySuggestionsView` | — | `CYLSearchView.emptySuggestionsView` | DONE |
+| `CYLSearchView.focusesSearchFieldOnShow` | — | `CYLSearchView.focusesSearchFieldOnShow` | DONE |
 | `CYLSearchView.searchOpen` | MaterialSearchView `isSearchOpen` | `CYLSearchView.isSearchOpen` | DONE |
 | `CYLSearchView.animationDuration` | `setAnimationDuration` | `CYLSearchView.animationDuration` | DONE |
 | `CYLSearchView.closesOnSubmit` | — | `CYLSearchView.closesOnSubmit` | DONE |
@@ -344,6 +365,7 @@ Rows: 302; DONE 269, N/A 33, TODO 0; score 100/100.
 | `CYLSearchView.setQuery(_:submit:)` | `setQuery`, `setTextQuery` | `CYLSearchView.setQuery` | DONE |
 | `CYLSearchView.showSuggestions()` | `showSuggestions` | `CYLSearchView.showSuggestions` | DONE |
 | `CYLSearchView.dismissSuggestions()` | `dismissSuggestions` | `CYLSearchView.dismissSuggestions` | DONE |
+| `CYLSearchView.clearSuggestionCache()` | — | `CYLSearchView.clearSuggestionCache` | DONE |
 | `CYLSearchView.searchBarView(_:textDidChange:)` | — | internal listener (UIKit protocol conformance) | N/A |
 | `CYLSearchView.searchBarViewSearchButtonClicked(_:)` | — | internal listener (UIKit protocol conformance) | N/A |
 | `CYLSearchView.searchBarViewNavigationButtonClicked(_:)` | — | internal listener (UIKit protocol conformance) | N/A |

@@ -16,6 +16,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -260,6 +261,92 @@ class CYLSearchView @JvmOverloads constructor(
 
     private var emptyResultsVisible = false
 
+    // Suggestion cache (docs/core-todo.md)
+
+    /**
+     * Where submitted queries are cached for the suggestion list (iOS `suggestionCachePolicy`): `Database`, a local
+     * SQLite database, by default. While the query is empty the list shows the cached queries, newest first, under a
+     * header whose delete button clears them; while typing, matching cached queries come before matching
+     * `suggestions`. `None` turns the cache off.
+     */
+    var suggestionCachePolicy: CYLSearchSuggestionCachePolicy = CYLSearchSuggestionCachePolicy.Database
+        set(value) {
+            field = value
+            rebuildSuggestionCache()
+        }
+
+    /**
+     * Separates the caches of different search screens. "CYLSearchView" by default.
+     */
+    var suggestionCacheName: String = "CYLSearchView"
+        set(value) {
+            field = value
+            rebuildSuggestionCache()
+        }
+
+    /**
+     * The cache in use: the built-in store of `suggestionCachePolicy`, or a store of yours (set it after the policy).
+     * Null when the policy is `None`.
+     */
+    var suggestionCache: CYLSearchSuggestionCache? =
+        CYLSearchSuggestionStore.cacheWithPolicy(context, CYLSearchSuggestionCachePolicy.Database, "CYLSearchView")
+        set(value) {
+            field = value
+            refilter()
+        }
+
+    /**
+     * The header above the cached queries: a title and, at its end, `clearSuggestionCacheButton`.
+     */
+    val suggestionCacheHeaderView = LinearLayout(context)
+
+    /**
+     * The title of `suggestionCacheHeaderView` ("Recent searches").
+     */
+    val suggestionCacheTitleLabel = TextView(context)
+
+    /**
+     * Clears the whole cache (a delete icon at the top right of the suggestion list).
+     */
+    val clearSuggestionCacheButton = ImageButton(context)
+
+    /**
+     * Shows CYLTableViewPlaceHolder's placeholder for `emptySuggestionsScenario` while the query is empty and the cache
+     * holds nothing. True by default.
+     */
+    var showsEmptySuggestionsPlaceholder = true
+        set(value) {
+            field = value
+            refilter()
+        }
+
+    /**
+     * The scenario of that placeholder. `NoContent` by default.
+     */
+    var emptySuggestionsScenario: CYLPlaceholderScenario = CYLPlaceholderScenario.NoContent
+        set(value) {
+            field = value
+            emptySuggestionsView?.let { bodyView.removeView(it) }
+            emptySuggestionsView = null
+            refilter()
+        }
+
+    /**
+     * The placeholder shown for an empty cache, created the first time it is shown; null before.
+     */
+    var emptySuggestionsView: CYLPlaceholderStackView? = null
+        private set
+
+    /**
+     * Focuses the search field when the search opens, which raises the keyboard (iOS `focusesSearchFieldOnShow`). True
+     * by default. False opens the search with the suggestion list (or the empty placeholder) and the keyboard down; the
+     * field is focused when the person taps it.
+     */
+    var focusesSearchFieldOnShow = true
+
+    private var showsCachedQueries = false
+    private var emptySuggestionsVisible = false
+
     /**
      * The color of `dividerView` (lapism `setDividerColor`). The theme's divider color when null; transparent hides
      * it.
@@ -451,6 +538,21 @@ class CYLSearchView @JvmOverloads constructor(
         pageView.addView(searchBarView, LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
         dividerView.importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
         pageView.addView(dividerView, LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 1))
+        suggestionCacheHeaderView.orientation = LinearLayout.HORIZONTAL
+        suggestionCacheHeaderView.gravity = Gravity.CENTER_VERTICAL
+        suggestionCacheHeaderView.minimumHeight = (48 * density).toInt()
+        suggestionCacheHeaderView.setPadding((16 * density).toInt(), 0, (4 * density).toInt(), 0)
+        suggestionCacheHeaderView.visibility = GONE
+        suggestionCacheTitleLabel.text = CYLSearchResources.localizedString(context, "search.recent")
+        suggestionCacheTitleLabel.setTextColor(themeColor(android.R.attr.textColorSecondary))
+        androidx.core.view.ViewCompat.setAccessibilityHeading(suggestionCacheTitleLabel, true)
+        suggestionCacheHeaderView.addView(suggestionCacheTitleLabel, LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
+        clearSuggestionCacheButton.setImageResource(android.R.drawable.ic_menu_delete)
+        clearSuggestionCacheButton.setBackgroundColor(Color.TRANSPARENT)
+        clearSuggestionCacheButton.contentDescription = CYLSearchResources.localizedString(context, "search.clearRecent")
+        clearSuggestionCacheButton.setOnClickListener { clearSuggestionCache() }
+        suggestionCacheHeaderView.addView(clearSuggestionCacheButton, LinearLayout.LayoutParams((48 * density).toInt(), (48 * density).toInt()))
+        pageView.addView(suggestionCacheHeaderView, LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
         pageView.addView(bodyView, LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 0, 1f))
         suggestionsTableView.layoutManager = LinearLayoutManager(context)
         suggestionsTableView.adapter = adapter
@@ -555,7 +657,7 @@ class CYLSearchView @JvmOverloads constructor(
         }
         bringToFront()
         if (isSearchOpen) {
-            searchBarView.showKeyboard()
+            if (focusesSearchFieldOnShow) searchBarView.showKeyboard()
             return
         }
         isSearchOpen = true
@@ -563,7 +665,8 @@ class CYLSearchView @JvmOverloads constructor(
         backCallback.isEnabled = true
         refilter()
         ViewCompat.requestApplyInsets(this)
-        searchBarView.showKeyboard()
+        // `focusesSearchFieldOnShow` decides when the keyboard appears: now, or when the person taps the field.
+        if (focusesSearchFieldOnShow) searchBarView.showKeyboard()
         val finish = {
             searchBarView.textField.sendAccessibilityEvent(android.view.accessibility.AccessibilityEvent.TYPE_VIEW_FOCUSED)
             delegate?.searchViewDidShow(this)
@@ -676,8 +779,13 @@ class CYLSearchView @JvmOverloads constructor(
         val query = searchBarView.text.orEmpty()
         val trimmed = query.trim()
         val folded = fold(trimmed)
-        filteredSuggestions = suggestions.filter { suggestion ->
+        val cached = suggestionCache?.cachedQueries().orEmpty()
+        // An empty query lists the cached queries, newest first, under the header that clears them.
+        showsCachedQueries = trimmed.isEmpty() && cached.isNotEmpty()
+        val candidates = if (showsCachedQueries) cached else cached + suggestions.filter { it !in cached }
+        filteredSuggestions = candidates.filter { suggestion ->
             when {
+                showsCachedQueries -> true
                 trimmed.isEmpty() -> showsSuggestionsForEmptyQuery
                 suggestionFilter != null -> suggestionFilter!!.invoke(suggestion, query)
                 else -> fold(suggestion).contains(folded)
@@ -685,6 +793,7 @@ class CYLSearchView @JvmOverloads constructor(
         }
         suggestionsVisible = filteredSuggestions.isNotEmpty()
         emptyResultsVisible = showsEmptyResultsPlaceholder && trimmed.isNotEmpty() && filteredSuggestions.isEmpty()
+        emptySuggestionsVisible = showsEmptySuggestionsPlaceholder && suggestionCache != null && trimmed.isEmpty() && filteredSuggestions.isEmpty()
         updateSuggestionsVisibility()
     }
 
@@ -699,6 +808,8 @@ class CYLSearchView @JvmOverloads constructor(
     fun dismissSuggestions() {
         suggestionsVisible = false
         emptyResultsVisible = false
+        emptySuggestionsVisible = false
+        showsCachedQueries = false
         updateSuggestionsVisibility()
     }
 
@@ -715,11 +826,32 @@ class CYLSearchView @JvmOverloads constructor(
             }
         }
         emptyResultsView?.visibility = if (emptyResultsVisible) VISIBLE else GONE
+        if (emptySuggestionsVisible && emptySuggestionsView == null) {
+            emptySuggestionsView = CYLPlaceholderStackView(context, emptySuggestionsScenario).also {
+                bodyView.addView(it, 0, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+            }
+        }
+        emptySuggestionsView?.visibility = if (emptySuggestionsVisible) VISIBLE else GONE
+        suggestionCacheHeaderView.visibility = if (suggestionsVisible && showsCachedQueries) VISIBLE else GONE
         reloadSuggestions()
     }
 
     @Suppress("NotifyDataSetChanged")
     private fun reloadSuggestions() = adapter.notifyDataSetChanged()
+
+    private fun rebuildSuggestionCache() {
+        suggestionCache = CYLSearchSuggestionStore.cacheWithPolicy(context, suggestionCachePolicy, suggestionCacheName)
+    }
+
+    /**
+     * Removes every cached query (the delete button of `suggestionCacheHeaderView`) and shows the list again (iOS
+     * `clearSuggestionCache`).
+     */
+    fun clearSuggestionCache() {
+        suggestionCache?.removeAllQueries()
+        refilter()
+        announceForAccessibility(CYLSearchResources.localizedString(context, "search.recentCleared"))
+    }
 
     private fun queryChanged(text: String) {
         refilter()
@@ -741,6 +873,8 @@ class CYLSearchView @JvmOverloads constructor(
         override fun searchBarViewTextDidChange(searchBarView: CYLSearchBarView, text: String) = queryChanged(text)
 
         override fun searchBarViewSearchButtonClicked(searchBarView: CYLSearchBarView) {
+            // Every submitted query is cached, so the list shows it the next time.
+            suggestionCache?.addQuery(searchBarView.text.orEmpty())
             val handled = delegate?.searchViewDidSubmitText(this@CYLSearchView, searchBarView.text.orEmpty()) ?: false
             if (!handled && closesOnSubmit) closeSearch() else dismissSuggestions()
         }

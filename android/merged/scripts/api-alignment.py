@@ -28,6 +28,7 @@ RENAMES = {
     'setIconified(_:animated:)': 'setIconified', 'showSearch(animated:)': 'showSearch',
     'closeSearch(animated:)': 'closeSearch', 'updateSearchResults(for:)': 'updateSearchResults',
     'resourceBundle': 'resourceBundle',
+    'cache(policy:name:)': 'cacheWithPolicy',
 }
 # Kotlin constructors that stand for Swift initializers: a regex on the class's file.
 INITIALIZERS = {
@@ -37,6 +38,7 @@ INITIALIZERS = {
     ('CYLSearchPlaceholderView', 'init(image:message:)'): (r'constructor\(context: Context, image: Drawable\?, message:', 'constructor(context, image, message)'),
     ('CYLSearchPlaceholderView', 'init(image:text:)'): (r'class CYLSearchPlaceholderView\(context: Context, image: Drawable\?, text: String\)', 'constructor(context, image, text)'),
     ('CYLSearchController', 'init(searchDataSource:)'): (r'constructor\(searchDataSource: CYLSearchResultsDataSource\)', 'constructor(searchDataSource)'),
+    ('CYLSearchSuggestionStore', 'init(policy:name:)'): (r'class CYLSearchSuggestionStore\(context: Context, val policy: CYLSearchSuggestionCachePolicy, name: String\)', 'constructor(context, policy, name)'),
     ('CYLSearchResultsViewController', 'init(searchDataSource:)'): (r'constructor\(searchDataSource: CYLSearchResultsDataSource\)', 'constructor(searchDataSource)'),
 }
 # init(coder:): a view's Kotlin counterpart is the XML constructor; a fragment's is the no-argument constructor the
@@ -186,7 +188,8 @@ def main():
             swift = f'`{owner}.{swift}`'
         elif kind == 'initializer':
             pattern, android = INITIALIZERS.get((owner, swift), (None, '—'))
-            status = 'DONE' if pattern and re.search(pattern, sources.get(owner, '')) else 'TODO'
+            # A class declared in another class's file (CYLSearchSuggestionStore in CYLSearchSuggestionCache.kt).
+            status = 'DONE' if pattern and re.search(pattern, sources.get(owner) or '\n'.join(sources.values())) else 'TODO'
             swift = f'`{owner}.{swift}`'
         elif kind == 'method' and CONFORMANCE.match(swift) and owner in ('CYLSearchBarView', 'CYLSearchView', 'CYLMultiSearchView'):
             status, android = 'N/A', 'internal listener (UIKit protocol conformance)'

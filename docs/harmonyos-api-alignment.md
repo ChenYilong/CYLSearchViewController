@@ -25,7 +25,7 @@ Score = rows whose third column is not `TODO` / rows × 100.
 ## Table
 
 <!-- harmonyos-api-alignment:begin -->
-Rows: 302; implemented or N/A 0, TODO 302; score 0/100.
+Rows: 323; implemented or N/A 0, TODO 323; score 0/100.
 
 | iOS public API | Doc comment | HarmonyOS |
 | :--- | :--- | :--- |
@@ -264,6 +264,16 @@ Rows: 302; implemented or N/A 0, TODO 302; score 0/100.
 | `CYLSearchResultsViewController.tableView(_:numberOfRowsInSection:)` | — | TODO |
 | `CYLSearchResultsViewController.tableView(_:cellForRowAt:)` | — | TODO |
 | `CYLSearchResultsViewController.tableView(_:didSelectRowAt:)` | — | TODO |
+| **class `CYLSearchSuggestionStore`** | The built-in caches: a database, `NSUserDefaults` or a file, behind one class. | TODO |
+| `CYLSearchSuggestionStore.policy` | The policy of this store. | TODO |
+| `CYLSearchSuggestionStore.name` | Separates the caches of different search screens: the database table key, the defaults key or the file name. | TODO |
+| `CYLSearchSuggestionStore.maximumCount` | The largest number of queries kept; the oldest go first. 20 by default. | TODO |
+| `CYLSearchSuggestionStore.cache(policy:name:)` | Makes the store for `policy` and `name`; nil for `CYLSearchSuggestionCachePolicyNone`. | TODO |
+| `CYLSearchSuggestionStore.init(policy:name:)` | Makes the store for `policy` (not `none`) and `name`. | TODO |
+| `CYLSearchSuggestionStore.cachedQueries()` | The cached queries, newest first. | TODO |
+| `CYLSearchSuggestionStore.addQuery(_:)` | Adds `query` at the front, without repeating it. | TODO |
+| `CYLSearchSuggestionStore.removeQuery(_:)` | Removes `query`. | TODO |
+| `CYLSearchSuggestionStore.removeAllQueries()` | Removes every cached query. | TODO |
 | **enum `CYLSearchSuggestionStyle`** | How the suggestions are shown under the search bar (`CYLSearchView.suggestionStyle`). | TODO |
 | `CYLSearchSuggestionStyle.list` | One suggestion per row with its icon, in `suggestionsTableView`. | TODO |
 | `CYLSearchSuggestionStyle.tags` | Tags that wrap like words, in `suggestionsTagView` (CollectionViewClassifyMenu's `CYLTagListView`). | TODO |
@@ -300,6 +310,16 @@ Rows: 302; implemented or N/A 0, TODO 302; score 0/100.
 | `CYLSearchView.suggestionLineBreakMode` | How a long suggestion is cut (MaterialSearchView `setEllipsize`). `NSLineBreakByWordWrapping` by default (whole text on several lines); `NSLineBreakByTruncatingTail` keeps one line with an ellipsis. | TODO |
 | `CYLSearchView.submitsOnSuggestionSelection` | Submits a suggestion as soon as it is tapped (`setSubmitOnClick`). NO by default: the field shows it and the person can edit it. | TODO |
 | `CYLSearchView.suggestionCellConfiguration` | Configures each suggestion cell after the defaults (a custom adapter's `getView`). Optional. | TODO |
+| `CYLSearchView.suggestionCachePolicy` | Where submitted queries are cached for the suggestion list (`CYLSearchSuggestionCachePolicyDatabase`, a local SQLite database, by default). While the query is empty, the list shows the cached queries, newest first, under a header whose d… | TODO |
+| `CYLSearchView.suggestionCacheName` | Separates the caches of different search screens. "CYLSearchView" by default. | TODO |
+| `CYLSearchView.suggestionCache` | The cache in use: the built-in store of `suggestionCachePolicy`, or a store of yours (set it after the policy). Nil when the policy is `CYLSearchSuggestionCachePolicyNone`. | TODO |
+| `CYLSearchView.suggestionCacheHeaderView` | The header above the cached queries: a title and, at its trailing edge, `clearSuggestionCacheButton`. | TODO |
+| `CYLSearchView.suggestionCacheTitleLabel` | The title of `suggestionCacheHeaderView` ("Recent searches"). | TODO |
+| `CYLSearchView.clearSuggestionCacheButton` | Clears the whole cache (a trash icon at the top right of the suggestion list). | TODO |
+| `CYLSearchView.showsEmptySuggestionsPlaceholder` | Shows CYLTableViewPlaceHolder's placeholder for `emptySuggestionsScenario` while the query is empty and the cache holds nothing, so an open search is never a blank page. YES by default. | TODO |
+| `CYLSearchView.emptySuggestionsScenario` | The scenario of that placeholder. `CYLPlaceholderScenarioNoContent` by default. | TODO |
+| `CYLSearchView.emptySuggestionsView` | The placeholder shown for an empty cache, created the first time it is shown; nil before. | TODO |
+| `CYLSearchView.focusesSearchFieldOnShow` | Focuses the search field when the search opens, which raises the keyboard. YES by default. NO opens the search with the suggestion list (or the empty placeholder) and the keyboard down; the field is focused when the person taps it. | TODO |
 | `CYLSearchView.searchOpen` | YES while the search view is open (MaterialSearchView `isSearchOpen`). | TODO |
 | `CYLSearchView.animationDuration` | The length of the open and close animations, in seconds (`setAnimationDuration`). 0.25 by default. | TODO |
 | `CYLSearchView.closesOnSubmit` | Closes the search view after a submitted query that the delegate did not handle. YES by default. | TODO |
@@ -321,6 +341,7 @@ Rows: 302; implemented or N/A 0, TODO 302; score 0/100.
 | `CYLSearchView.setQuery(_:submit:)` | Sets the query and submits it when `submit` is YES (`setQuery`, `setTextQuery`). | TODO |
 | `CYLSearchView.showSuggestions()` | Lists the suggestions that match the current query (`showSuggestions`). | TODO |
 | `CYLSearchView.dismissSuggestions()` | Hides the suggestions (`dismissSuggestions`). | TODO |
+| `CYLSearchView.clearSuggestionCache()` | Removes every cached query (the delete button of `suggestionCacheHeaderView`) and shows the list again. | TODO |
 | `CYLSearchView.searchBarView(_:textDidChange:)` | Filters the suggestions and reports the change. | TODO |
 | `CYLSearchView.searchBarViewSearchButtonClicked(_:)` | Reports the submitted query and closes unless the delegate handled it. | TODO |
 | `CYLSearchView.searchBarViewNavigationButtonClicked(_:)` | Reports the navigation button, or closes the search view. | TODO |

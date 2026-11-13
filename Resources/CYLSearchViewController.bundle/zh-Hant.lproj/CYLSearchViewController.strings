@@ -51,3 +51,6 @@
 "demo.port.events" = "事件";
 "demo.port.open" = "打開搜尋";
 "demo.port.item" = "第 %ld 項";
+"search.recent" = "最近搜尋";
+"search.clearRecent" = "清除最近搜尋";
+"search.recentCleared" = "已清除最近搜尋";

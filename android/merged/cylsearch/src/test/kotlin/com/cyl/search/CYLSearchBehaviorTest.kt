@@ -22,6 +22,14 @@ class CYLSearchBehaviorTest {
 
     private val activity: Activity = Robolectric.buildActivity(Activity::class.java).setup().get()
 
+    /**
+     * The suggestion cache persists by design (docs/core-todo.md): every test starts from an empty default cache.
+     */
+    @org.junit.Before
+    fun clearTheDefaultSuggestionCache() {
+        CYLSearchSuggestionStore.cacheWithPolicy(activity, CYLSearchSuggestionCachePolicy.Database, "CYLSearchView")?.removeAllQueries()
+    }
+
     private fun searchView(): CYLSearchView {
         val host = FrameLayout(activity)
         activity.setContentView(host)

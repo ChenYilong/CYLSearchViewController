@@ -54,4 +54,7 @@
     <string name="cyl_demo_port_events">Events</string>
     <string name="cyl_demo_port_open">Open search</string>
     <string name="cyl_demo_port_item">Item %d</string>
+    <string name="cyl_search_recent">Recent searches</string>
+    <string name="cyl_search_clearRecent">Clear recent searches</string>
+    <string name="cyl_search_recentCleared">Recent searches cleared</string>
 </resources>

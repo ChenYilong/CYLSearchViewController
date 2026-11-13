@@ -51,3 +51,6 @@
 "demo.port.events" = "Events";
 "demo.port.open" = "Open search";
 "demo.port.item" = "Item %ld";
+"search.recent" = "Recent searches";
+"search.clearRecent" = "Clear recent searches";
+"search.recentCleared" = "Recent searches cleared";

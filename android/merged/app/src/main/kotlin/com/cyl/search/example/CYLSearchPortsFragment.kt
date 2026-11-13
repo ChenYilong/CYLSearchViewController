@@ -186,6 +186,9 @@ class CYLMaterialSearchSampleFragment : CYLExamplePage(), CYLSearchViewDelegate 
             searchBarView.isSecureTextEntry = sample == CYLMaterialSearchSample.InputType
             // A query that matches nothing shows CYLTableViewPlaceHolder's "no search results" state (docs/sub-repositories.md).
             showsEmptyResultsPlaceholder = true
+            // Submitted queries are cached in the core's local database (docs/core-todo.md), one cache for these samples.
+            suggestionCachePolicy = com.cyl.search.CYLSearchSuggestionCachePolicy.Database
+            suggestionCacheName = "MaterialSearchView"
             if (themed) {
                 // The colored theme: white text on the primary color.
                 setBackgroundColor(Color.rgb(88, 86, 214))

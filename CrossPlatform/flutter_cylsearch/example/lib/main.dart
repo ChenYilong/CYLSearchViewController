@@ -26,7 +26,8 @@ const List<String> cylSampleSuggestions = <String>[
 /// One search page demo: how the native search page is configured.
 class CYLSearchDemo {
   /// Creates a demo.
-  const CYLSearchDemo(this.label, {this.style = CYLSearchSuggestionStyle.list, this.query, this.scenario});
+  const CYLSearchDemo(this.label,
+      {this.style = CYLSearchSuggestionStyle.list, this.query, this.scenario, this.focusesSearchFieldOnShow = true});
 
   /// The label of the button that opens it.
   final String label;
@@ -39,6 +40,9 @@ class CYLSearchDemo {
 
   /// The empty results placeholder's scenario, or null for the default.
   final CYLPlaceholderScenario? scenario;
+
+  /// Whether the keyboard rises when the page opens (false: the cached queries or the empty placeholder show first).
+  final bool focusesSearchFieldOnShow;
 }
 
 /// A tab of search page demos.
@@ -61,7 +65,10 @@ class CYLSearchDemoTab {
 const List<CYLSearchDemoTab> cylDemoTabs = <CYLSearchDemoTab>[
   CYLSearchDemoTab('List style', 'Suggestions as a list, filtered as you type.', <CYLSearchDemo>[CYLSearchDemo('Open search')]),
   CYLSearchDemoTab('Tag style', 'The same suggestions as tags (CollectionViewClassifyMenu).',
-      <CYLSearchDemo>[CYLSearchDemo('Open search', style: CYLSearchSuggestionStyle.tags)]),
+      <CYLSearchDemo>[
+        // The keyboard stays down until the field is tapped: the cached queries (or the empty placeholder) show first.
+        CYLSearchDemo('Open search', style: CYLSearchSuggestionStyle.tags, focusesSearchFieldOnShow: false),
+      ]),
   CYLSearchDemoTab('Empty results', 'A query without a match shows a CYLTableViewPlaceHolder placeholder.', <CYLSearchDemo>[
     CYLSearchDemo('No matching results', query: 'zzz'),
     CYLSearchDemo('No content', query: 'zzz', scenario: CYLPlaceholderScenario.noContent),
@@ -141,6 +148,10 @@ class CYLSearchDemoPage extends StatelessWidget {
           query: demo.query,
           showsEmptyResultsPlaceholder: true,
           emptyResultsScenario: demo.scenario ?? CYLPlaceholderScenario.noSearchResults,
+          // Submitted queries are cached in the core's local database, one cache for these demos.
+          suggestionCachePolicy: CYLSearchSuggestionCachePolicy.database,
+          suggestionCacheName: 'FlutterExample',
+          focusesSearchFieldOnShow: demo.focusesSearchFieldOnShow,
           onSubmitted: (text) => ScaffoldMessenger.of(routeContext).showSnackBar(SnackBar(content: Text('Query: $text'))),
           onClose: () => Navigator.of(routeContext).pop(),
         ),

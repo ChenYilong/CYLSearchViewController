@@ -23,6 +23,21 @@ enum CYLPlaceholderScenario {
   noSearchResults,
 }
 
+/// Where the search page caches submitted queries for its suggestion list (iOS `CYLSearchSuggestionCachePolicy`).
+enum CYLSearchSuggestionCachePolicy {
+  /// No cache: the list shows only the suggestions.
+  none,
+
+  /// A local SQLite database (the default).
+  database,
+
+  /// `NSUserDefaults` on iOS, `SharedPreferences` on Android.
+  userDefaults,
+
+  /// A JSON file in the app's sandbox.
+  sandboxFile,
+}
+
 /// The view types the platform side registers.
 @visibleForTesting
 class CYLSearchViewTypes {
@@ -101,6 +116,9 @@ class CYLSearchView extends StatefulWidget {
     this.submitsOnSuggestionSelection = false,
     this.showsEmptyResultsPlaceholder = false,
     this.emptyResultsScenario = CYLPlaceholderScenario.noSearchResults,
+    this.suggestionCachePolicy = CYLSearchSuggestionCachePolicy.database,
+    this.suggestionCacheName = 'CYLSearchView',
+    this.focusesSearchFieldOnShow = true,
     this.onTextChanged,
     this.onSubmitted,
     this.onSuggestionSelected,
@@ -130,6 +148,17 @@ class CYLSearchView extends StatefulWidget {
 
   /// The scenario of that placeholder (iOS `emptyResultsScenario`).
   final CYLPlaceholderScenario emptyResultsScenario;
+
+  /// Where submitted queries are cached (iOS `suggestionCachePolicy`): an empty query lists them, newest first, under a
+  /// header whose delete button clears them. A local database by default.
+  final CYLSearchSuggestionCachePolicy suggestionCachePolicy;
+
+  /// Separates the caches of different search pages (iOS `suggestionCacheName`).
+  final String suggestionCacheName;
+
+  /// Focuses the search field when the page opens, which raises the keyboard (iOS `focusesSearchFieldOnShow`). False
+  /// shows the suggestion list (or an empty placeholder) with the keyboard down until the field is tapped.
+  final bool focusesSearchFieldOnShow;
 
   /// The query changed (iOS `searchView(_:textDidChange:)`).
   final ValueChanged<String>? onTextChanged;
@@ -277,6 +306,9 @@ Map<String, Object?> cylSearchViewParameters(CYLSearchView widget, {Brightness b
       'submitsOnSuggestionSelection': widget.submitsOnSuggestionSelection,
       'showsEmptyResultsPlaceholder': widget.showsEmptyResultsPlaceholder,
       'emptyResultsScenario': widget.emptyResultsScenario.name,
+      'suggestionCachePolicy': widget.suggestionCachePolicy.name,
+      'suggestionCacheName': widget.suggestionCacheName,
+      'focusesSearchFieldOnShow': widget.focusesSearchFieldOnShow,
     };
 
 /// Calls the [CYLSearchView] callback of an event from its native view.

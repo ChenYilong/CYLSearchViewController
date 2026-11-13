@@ -8,6 +8,7 @@ import com.cyl.classifymenu.CYLTagListView
 import com.cyl.placeholder.CYLPlaceholderScenario
 import com.cyl.search.CYLSearchBarView
 import com.cyl.search.CYLSearchBarViewDelegate
+import com.cyl.search.CYLSearchSuggestionCachePolicy
 import com.cyl.search.CYLSearchSuggestionStyle
 import com.cyl.search.CYLSearchView
 import com.cyl.search.CYLSearchViewDelegate
@@ -94,6 +95,18 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
         searchView.emptyResultsScenario =
             if (arguments["emptyResultsScenario"] == "noContent") CYLPlaceholderScenario.NoContent else CYLPlaceholderScenario.NoSearchResults
         searchView.showsEmptyResultsPlaceholder = arguments["showsEmptyResultsPlaceholder"] as? Boolean ?: false
+        val policy = when (arguments["suggestionCachePolicy"]) {
+            "none" -> CYLSearchSuggestionCachePolicy.None
+            "userDefaults" -> CYLSearchSuggestionCachePolicy.UserDefaults
+            "sandboxFile" -> CYLSearchSuggestionCachePolicy.SandboxFile
+            else -> CYLSearchSuggestionCachePolicy.Database
+        }
+        val name = arguments["suggestionCacheName"] as? String ?: "CYLSearchView"
+        if (policy != searchView.suggestionCachePolicy || name != searchView.suggestionCacheName) {
+            searchView.suggestionCacheName = name
+            searchView.suggestionCachePolicy = policy
+        }
+        searchView.focusesSearchFieldOnShow = arguments["focusesSearchFieldOnShow"] as? Boolean ?: true
     }
 
     override fun getView(): View = container

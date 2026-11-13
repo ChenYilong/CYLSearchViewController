@@ -91,6 +91,14 @@ final class CYLFlutterSearchView: NSObject, FlutterPlatformView, CYLSearchViewDe
         searchView.submitsOnSuggestionSelection = arguments["submitsOnSuggestionSelection"] as? Bool ?? false
         searchView.emptyResultsScenario = (arguments["emptyResultsScenario"] as? String) == "noContent" ? .noContent : .noSearchResults
         searchView.showsEmptyResultsPlaceholder = arguments["showsEmptyResultsPlaceholder"] as? Bool ?? false
+        let policies: [String: CYLSearchSuggestionCachePolicy] = ["none": .none, "database": .database, "userDefaults": .userDefaults, "sandboxFile": .sandboxFile]
+        let policy = policies[arguments["suggestionCachePolicy"] as? String ?? ""] ?? .database
+        let name = arguments["suggestionCacheName"] as? String ?? "CYLSearchView"
+        if policy != searchView.suggestionCachePolicy || name != searchView.suggestionCacheName {
+            searchView.suggestionCacheName = name
+            searchView.suggestionCachePolicy = policy
+        }
+        searchView.focusesSearchFieldOnShow = arguments["focusesSearchFieldOnShow"] as? Bool ?? true
     }
 
     func searchView(_ searchView: CYLSearchView, textDidChange text: String) {

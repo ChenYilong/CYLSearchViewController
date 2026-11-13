@@ -35,6 +35,36 @@ pass parameters.
   7. Extract the code that exists in the repository first (the `CYLSearchController` history logic, the Discover
      pages' recent-search handling) instead of writing it again.
   8. Same API on Android (API alignment table) and in the cross-platform packages.
+- Progress (2026-11-13):
+  - iOS core: `Sources/CYLSearchViewController/CYLSearchSuggestionCache.swift`: `CYLSearchSuggestionCachePolicy`
+    (`none`, `database` default, `userDefaults`, `sandboxFile`), the `CYLSearchSuggestionCache` protocol (load, add,
+    remove, clear) and `CYLSearchSuggestionStore` (the built-in stores; SQLite through the system `libsqlite3`, linked by
+    the podspec; `maximumCount` 20; `name` separates caches). `CYLSearchView`: `suggestionCachePolicy`,
+    `suggestionCacheName`, `suggestionCache` (a store of yours), `suggestionCacheHeaderView` with
+    `suggestionCacheTitleLabel` ("Recent searches") and `clearSuggestionCacheButton` (trash, top right),
+    `clearSuggestionCache()`, `showsEmptySuggestionsPlaceholder` / `emptySuggestionsScenario` / `emptySuggestionsView`.
+    Every submitted query is cached; an empty query lists the cache under the header; typing puts cached matches
+    before `suggestions`. Strings in four languages. Unit tests: every policy, the view's cache and clear button.
+  - Android: the same API in `cylsearch` (`CYLSearchSuggestionCache.kt`: `SQLiteOpenHelper`, `SharedPreferences`, a JSON
+    file), Robolectric tests 3/3 (13/13 in the module), API alignment 100 at 323 rows.
+  - Flutter: `CYLSearchView(suggestionCachePolicy:, suggestionCacheName:, focusesSearchFieldOnShow:)`, passed to both
+    native views; plugin tests 7/7.
+  - Examples pass the parameters: iOS MaterialSearchView samples (cache "MaterialSearchView"; the "Tag style" tab with
+    focus off), Android `CYLSuggestionStyleFragment` / `CYLSearchPortsFragment`, the Flutter example (cache
+    "FlutterExample"; Tag style with focus off).
+  - Verified on the Android emulator (Android 15, API 35; 2026-11-13 15:2x NZDT), top to bottom: the Tag style search
+    opens with the keyboard down and the empty placeholder; after two searches, "Recent searches" lists them newest
+    first with the trash button; the trash button clears them and the placeholder comes back.
+
+    ![Android: focus off, empty cache](assets/android-cache-empty-focus-off.png)
+
+    ![Android: recent searches](assets/android-cache-recent-searches.png)
+
+    ![Android: cleared](assets/android-cache-cleared.png)
+
+  - Still open: the iOS screenshots; the animated placeholder (CYLTableViewPlaceHolder's animation subspec is on a
+    newer branch than the pinned commit; move the pin, then use it for `emptySuggestionsView`); React Native and
+    HarmonyOS with the cross-platform work.
 - Prompt (verbatim): "找到docs中关于core功能TODO 相关描述。如果没有就新建一个，加入以下core核心代码，全英文写入：总结现在所有example以及core核心代码，为搜索备选列表加入缓存策略。每次搜索框光标处于聚焦状态，那么就开始显示搜索备选列表，备选列表默认从本地缓存中获取。每次输入新的内容点击搜索后，都更新本地缓存，下一次进入搜索备选列表可以看到原有数据加入了缓存中。点击搜索备选框右上角的删除图标可以全部清理缓存。具体缓存实现在总结现在所有example以及core核心代码，放入到core核心代码中。形成api接口。缓存策略可以是一个枚举。默认为本地缓存。也可能是本地数据 沙河中的数据。总结现在所有example以及core核心代码中缓存形式做的最好的，最好是数据库，其次才是其他形式缓存格式。以及缓存策略总结现在所有example以及core核心代码中缓存策略形式做的最好的，最好是多个缓存策略，如果没有我们自己新增，至少定义一个保证以后新增缓存策略。优先提取现在仓库中已经存在的代码。 第二个TODO是光标聚焦功能，该功能含义是进入搜索界面，后自动聚焦光标，目的是唤起键盘，以及显示搜索备选框。新增接口默认实现聚焦，同时允许用户自定义 不使用聚焦。只显示搜索备选框，搜索备选框为空的时候，也就是本地缓存或者数据库空的时候展示CYLPlaceholder提示。只有在用户点击搜索框才手动聚焦。该参数应该是一个bool值。这个参数决定键盘唤起的时间。优先在core层面实现上面功能，example层负责新增参数传入。CYLPlaceholder 优先使用动图效果，其次才是静态图片。"
 - Prompt (English): "Find the core feature TODO description in docs; if there is none, create one and add the following
   core work, written in English. Survey all examples and the core, and add a cache policy for the search suggestion

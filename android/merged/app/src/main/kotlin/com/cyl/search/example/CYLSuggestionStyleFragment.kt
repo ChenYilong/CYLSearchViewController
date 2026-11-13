@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.cyl.search.CYLLineBreakMode
 import com.cyl.search.CYLSearchSuggestionStyle
+import com.cyl.search.CYLSearchSuggestionCachePolicy
 import com.cyl.search.CYLSearchView
 import com.cyl.search.CYLSearchViewDelegate
 
@@ -53,6 +54,11 @@ class CYLSuggestionStyleFragment : CYLExamplePage(), CYLSearchViewDelegate {
             suggestions = CYLMaterialSearchSampleFragment.SUGGESTIONS
             suggestionLineBreakMode = CYLLineBreakMode.WordWrapping
             showsEmptyResultsPlaceholder = true
+            // Submitted queries are cached in the core's local database (docs/core-todo.md), one cache for these demos.
+            suggestionCachePolicy = CYLSearchSuggestionCachePolicy.Database
+            suggestionCacheName = "MaterialSearchView"
+            // The tag style opens with the keyboard down: the cached queries (or the empty placeholder) show first, as on iOS.
+            focusesSearchFieldOnShow = style != CYLSearchSuggestionStyle.Tags
             delegate = this@CYLSuggestionStyleFragment
         }
         searchView.installInView(page)

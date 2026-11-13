@@ -54,4 +54,7 @@
     <string name="cyl_demo_port_events">イベント</string>
     <string name="cyl_demo_port_open">検索を開く</string>
     <string name="cyl_demo_port_item">項目 %d</string>
+    <string name="cyl_search_recent">最近の検索</string>
+    <string name="cyl_search_clearRecent">最近の検索を消去</string>
+    <string name="cyl_search_recentCleared">最近の検索を消去しました</string>
 </resources>

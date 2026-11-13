@@ -54,4 +54,7 @@
     <string name="cyl_demo_port_events">事件</string>
     <string name="cyl_demo_port_open">打開搜尋</string>
     <string name="cyl_demo_port_item">第 %d 項</string>
+    <string name="cyl_search_recent">最近搜尋</string>
+    <string name="cyl_search_clearRecent">清除最近搜尋</string>
+    <string name="cyl_search_recentCleared">已清除最近搜尋</string>
 </resources>

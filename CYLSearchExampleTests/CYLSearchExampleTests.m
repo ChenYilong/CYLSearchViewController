@@ -189,6 +189,16 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
 
 @implementation CYLSearchExampleTests
 
+- (void)setUp
+{
+    [super setUp];
+    // The suggestion cache persists by design (a local database, docs/core-todo.md): every test starts from an empty
+    // default cache and an empty example cache, so a query submitted by one test never shows in another.
+    for (NSString *name in @[@"CYLSearchView", @"MaterialSearchView"]) {
+        [[CYLSearchSuggestionStore cacheWithPolicy:CYLSearchSuggestionCachePolicyDatabase name:name] removeAllQueries];
+    }
+}
+
 - (void)testLocalPodsConfigureSearchAndRefresh
 {
     CYLSearchExampleDataSource *source = [[CYLSearchExampleDataSource alloc] init];
@@ -1007,4 +1017,103 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     window.hidden = YES;
 }
 
+- (void)testEverySuggestionCachePolicyKeepsSubmittedQueriesNewestFirst
+{
+    // docs/core-todo.md: each policy stores the queries newest first, moves a repeated query to the front, keeps at most
+    // maximumCount and clears everything; separate names keep separate caches.
+    for (NSNumber *policy in @[@(CYLSearchSuggestionCachePolicyDatabase), @(CYLSearchSuggestionCachePolicyUserDefaults),
+                               @(CYLSearchSuggestionCachePolicySandboxFile)]) {
+        CYLSearchSuggestionStore *cache = [CYLSearchSuggestionStore cacheWithPolicy:policy.integerValue name:@"CYLTestCache"];
+        CYLSearchSuggestionStore *other = [CYLSearchSuggestionStore cacheWithPolicy:policy.integerValue name:@"CYLTestOther"];
+        [cache removeAllQueries];
+        [other removeAllQueries];
+        cache.maximumCount = 3;
+        [cache addQuery:@"Swift"];
+        [cache addQuery:@"Kotlin"];
+        [cache addQuery:@"  "];
+        [cache addQuery:@"Swift"];
+        XCTAssertEqualObjects([cache cachedQueries], (@[@"Swift", @"Kotlin"]), @"policy %@", policy);
+        [cache addQuery:@"Dart"];
+        [cache addQuery:@"Rust"];
+        XCTAssertEqualObjects([cache cachedQueries], (@[@"Rust", @"Dart", @"Swift"]), @"the oldest goes, policy %@", policy);
+        XCTAssertEqualObjects([other cachedQueries], @[], @"names are separate, policy %@", policy);
+        CYLSearchSuggestionStore *reopened = [CYLSearchSuggestionStore cacheWithPolicy:policy.integerValue name:@"CYLTestCache"];
+        XCTAssertEqualObjects([reopened cachedQueries], (@[@"Rust", @"Dart", @"Swift"]), @"persisted, policy %@", policy);
+        [cache removeQuery:@"Dart"];
+        XCTAssertEqualObjects([cache cachedQueries], (@[@"Rust", @"Swift"]), @"policy %@", policy);
+        [cache removeAllQueries];
+        XCTAssertEqualObjects([cache cachedQueries], @[], @"policy %@", policy);
+    }
+    XCTAssertNil([CYLSearchSuggestionStore cacheWithPolicy:CYLSearchSuggestionCachePolicyNone name:@"CYLTestCache"]);
+}
+
+- (void)testTheSearchViewCachesSubmittedQueriesAndClearsThemFromTheHeader
+{
+    // docs/core-todo.md: a submitted query is cached; an empty query lists the cache under a header whose delete button
+    // clears it; an empty cache shows CYLTableViewPlaceHolder's placeholder.
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
+    UIViewController *host = [UIViewController new];
+    window.rootViewController = host;
+    [window makeKeyAndVisible];
+    CYLSearchView *searchView = [[CYLSearchView alloc] initWithFrame:CGRectZero];
+    XCTAssertEqual(searchView.suggestionCachePolicy, CYLSearchSuggestionCachePolicyDatabase, @"a local database by default");
+    searchView.suggestionCacheName = @"CYLTestSearchView";
+    [searchView.suggestionCache removeAllQueries];
+    searchView.suggestions = @[@"Android", @"Kotlin", @"Swift"];
+    searchView.closesOnSubmit = NO;
+    [searchView installInView:host.view];
+    [searchView showSearchAnimated:NO];
+    [searchView layoutIfNeeded];
+    XCTAssertFalse(searchView.emptySuggestionsView.hidden, @"an empty cache shows the placeholder");
+    XCTAssertTrue(searchView.suggestionCacheHeaderView.hidden);
+    [searchView setQuery:@"Flutter" submit:YES];
+    [searchView setQuery:@"Kotlin" submit:YES];
+    [searchView setQuery:@"" submit:NO];
+    [searchView layoutIfNeeded];
+    XCTAssertEqualObjects(searchView.filteredSuggestions, (@[@"Kotlin", @"Flutter"]), @"the cache, newest first");
+    XCTAssertFalse(searchView.suggestionCacheHeaderView.hidden, @"with its header");
+    XCTAssertTrue(searchView.emptySuggestionsView.hidden);
+    XCTAssertGreaterThan(CGRectGetHeight(searchView.suggestionCacheHeaderView.frame), 0);
+    XCTAssertGreaterThanOrEqual(CGRectGetMinY(searchView.suggestionsTableView.frame), CGRectGetMaxY(searchView.suggestionCacheHeaderView.frame),
+                                @"the list starts under the header");
+    [searchView setQuery:@"t" submit:NO];
+    XCTAssertEqualObjects(searchView.filteredSuggestions, (@[@"Kotlin", @"Flutter", @"Swift"]), @"cached matches first, no repeats");
+    [searchView setQuery:@"" submit:NO];
+    [searchView.clearSuggestionCacheButton sendActionsForControlEvents:UIControlEventTouchUpInside];
+    XCTAssertEqualObjects([searchView.suggestionCache cachedQueries], @[]);
+    XCTAssertFalse(searchView.emptySuggestionsView.hidden, @"cleared: the placeholder again");
+    CYLSearchView *again = [[CYLSearchView alloc] initWithFrame:CGRectZero];
+    again.suggestionCacheName = @"CYLTestSearchView";
+    [again.suggestionCache addQuery:@"Rust"];
+    searchView.suggestionCachePolicy = CYLSearchSuggestionCachePolicyDatabase;
+    [searchView setQuery:@"" submit:NO];
+    XCTAssertEqualObjects(searchView.filteredSuggestions, @[@"Rust"], @"another view with the same name shares the cache");
+    [again.suggestionCache removeAllQueries];
+    searchView.suggestionCachePolicy = CYLSearchSuggestionCachePolicyNone;
+    XCTAssertNil(searchView.suggestionCache);
+    window.hidden = YES;
+}
+
+- (void)testFocusesSearchFieldOnShowDecidesWhenTheKeyboardAppears
+{
+    // docs/core-todo.md: YES (default) focuses the field when the search opens; NO leaves it unfocused until tapped.
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
+    UIViewController *host = [UIViewController new];
+    window.rootViewController = host;
+    [window makeKeyAndVisible];
+    for (NSNumber *focuses in @[@YES, @NO]) {
+        CYLSearchView *searchView = [[CYLSearchView alloc] initWithFrame:CGRectZero];
+        XCTAssertTrue(searchView.focusesSearchFieldOnShow, @"YES by default");
+        searchView.focusesSearchFieldOnShow = focuses.boolValue;
+        searchView.suggestionCachePolicy = CYLSearchSuggestionCachePolicyNone;
+        [searchView installInView:host.view];
+        [searchView showSearchAnimated:NO];
+        XCTAssertEqual(searchView.searchBarView.textField.isFirstResponder, focuses.boolValue, @"focusesSearchFieldOnShow %@", focuses);
+        [searchView closeSearchAnimated:NO];
+        [searchView removeFromSuperview];
+    }
+    window.hidden = YES;
+}
+
 @end
+

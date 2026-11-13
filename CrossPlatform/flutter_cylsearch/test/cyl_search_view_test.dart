@@ -16,6 +16,9 @@ void main() {
         submitsOnSuggestionSelection: true,
         showsEmptyResultsPlaceholder: true,
         emptyResultsScenario: CYLPlaceholderScenario.noContent,
+        suggestionCachePolicy: CYLSearchSuggestionCachePolicy.sandboxFile,
+        suggestionCacheName: 'Demo',
+        focusesSearchFieldOnShow: false,
       ));
       expect(parameters, <String, Object?>{
         'brightness': 'light',
@@ -27,6 +30,9 @@ void main() {
         'submitsOnSuggestionSelection': true,
         'showsEmptyResultsPlaceholder': true,
         'emptyResultsScenario': 'noContent',
+        'suggestionCachePolicy': 'sandboxFile',
+        'suggestionCacheName': 'Demo',
+        'focusesSearchFieldOnShow': false,
       });
     });
 
@@ -40,6 +46,9 @@ void main() {
       expect(parameters['suggestionStyle'], 'list');
       expect(parameters['showsEmptyResultsPlaceholder'], false);
       expect(parameters['emptyResultsScenario'], 'noSearchResults');
+      expect(parameters['suggestionCachePolicy'], 'database');
+      expect(parameters['suggestionCacheName'], 'CYLSearchView');
+      expect(parameters['focusesSearchFieldOnShow'], true);
     });
 
     test('native events reach the callbacks', () {
