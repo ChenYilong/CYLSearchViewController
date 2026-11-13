@@ -161,7 +161,7 @@ Native) for the CYLSearchViewController components.
   - Still open for Flutter (`TODO`): Swift Package Manager support. Then React Native, then HarmonyOS NEXT (the emulator image is
     downloaded; a device still has to be created in DevEco's Device Manager).
 
-## TODO (2026-11-13): Flutter example on iOS: the plus button's title disappears once the plus page is selected
+## DONE (2026-11-13): Flutter example on iOS: the plus button's title disappears once the plus page is selected
 
 - Context: the Flutter example (`CrossPlatform/flutter_cylsearch/example`) uses CYLTabBarController's Flutter tab bar
   (`flutter_cyltabbar`, pinned at `74aa25e`), Liquid Glass on iOS 26. In the report below (top to bottom, left to
@@ -197,7 +197,32 @@ Native) for the CYLSearchViewController components.
     UIKit never calls `-[UITabBar endCustomizingAnimated:]`, so views hidden when editing began (Home's star) stayed
     hidden; the fix polls `isCustomizing` and restores them. It is in the pin. Context:
     CYLTabBarController `docs/Liquid-Glass-Robustness.md`.
-- Status: `TODO`.
+- Result (2026-11-13): fixed in CYLTabBarController's core,
+  [ChenYilong/CYLTabBarController#793](https://github.com/ChenYilong/CYLTabBarController/pull/793).
+  - Cause: with `CYLPlusButtonAlignsTitle` on (the default with a title) the plus button's title is drawn by its tab
+    item, and UIKit draws the selected tab's title inside the Liquid Glass lens. CYLTabBarController hid the lens on the
+    plus page (`CYLPlusButtonShowsSelection` off, the plus button not layout-centered), so the title went with it.
+    A runtime log confirmed it (`show=0` on the plus page; the plus button has no title label of its own), and the
+    title came back with `CYLPlusButtonShowsSelection` on.
+  - Fix (`8ae53a7`): the lens stays when the plus title is drawn by its tab item. The mask switch stays 0.
+  - Pinned: `bc73220` (the fix merged with the newest `feat/cross-platform-components`, `bdf23ef`) in the Flutter
+    example (`pubspec.yaml`, `ios/Podfile`), the repository's `Podfile` and `android/merged/gradle.properties`.
+  - Verified with the example's default configuration: the plus page shows the lens and "Search bar" every time it is
+    selected (below, top to bottom: List style, the plus button, Discover, the plus button again; cropped tab bars,
+    then the full plus page). CYLTabBarController unit tests: 135, 0 failures, 2 skipped (iPhone 17, iOS 26.3).
+
+    ![Fixed: the plus page shows its title](assets/flutter-ios-plus-title-fixed.png)
+
+    ![Fixed: the full plus page](assets/flutter-ios-plus-page-fixed-full.png)
+
+    | Field | Value |
+    |:---|:---|
+    | Platform | Flutter 3.47.9 on iOS, flutter_cyltabbar at `8ae53a7` |
+    | Host | macOS 27.3 (26C5035r), Xcode 27.2 (27B5028f) |
+    | Simulator | iPhone 17, iOS 26.3 |
+    | SDK | iOS SDK 27.2 (deployment iOS 15.0) |
+    | Taken | 2026-11-13 14:12 NZDT |
+- Status: DONE.
 
 ## TODO (2026-11-13): HarmonyOS: learn from FlexibleSearchBar, and a HarmonyOS API table scored to 100
 
