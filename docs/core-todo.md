@@ -1,0 +1,74 @@
+# Core TODO
+
+Features of the core (`Sources/CYLSearchViewController`, Swift; mirrored in `android/merged/cylsearch` and wrapped by
+the cross-platform packages) that are planned but not built yet. Implement them in the core first; the examples only
+pass parameters.
+
+## TODO (2026-11-13): a cache for the suggestion list, with cache policies
+
+- Context (survey of the core and every example, 2026-11-13):
+  - The Swift core has no cache: `CYLSearchView.suggestions` is set by the app, and the Discover pages (iOS, Android,
+    Flutter) keep their recent searches in memory only (loaded from `search-discover.json`, lost on relaunch).
+  - The only persistent store in the repository is the legacy Objective-C `CYLSearchController`
+    (`CYLSearchViewController/Class/Controller/CYLSearchController.m`): the search history in `NSUserDefaults` under
+    `kSearchHistory`, newest first, written after each search and after deleting a row (per-row delete icons
+    `search_history_delete_icon_*`, history icon `SearchHistory`). It is the code to extract first.
+  - No database is used anywhere (no SQLite, Core Data, Room or `SQLiteOpenHelper` in the core, the examples or the
+    Android ports); no example offers more than one cache policy. So the best existing form is `NSUserDefaults` with
+    a single policy; this task adds a database and a policy enum.
+- Requirements:
+  1. When the search field is focused, the suggestion list shows; by default its items come from the local cache.
+  2. Each new query submitted (search tapped) is added to the cache, newest first, without duplicates; the next time
+     the list opens, the query is there.
+  3. A delete icon at the top right of the suggestion list clears the whole cache (with confirmation for
+     accessibility: an announcement such as "Recent searches cleared").
+  4. The cache lives in the core as public API, not in the examples.
+  5. The cache policy is an enum, default the local cache. Storage forms ranked as asked: a database first (SQLite,
+     available on every platform without a third-party dependency: `libsqlite3` on iOS, `SQLiteOpenHelper` on
+     Android, `sqflite` or the native store through the plugin on Flutter, the native store on React Native,
+     `@ohos.data.relationalStore` on HarmonyOS), then other forms (`NSUserDefaults` / `SharedPreferences`, a file in
+     the app's sandbox).
+  6. Several policies, at least one defined in a way that leaves room for more: for example
+     `CYLSearchSuggestionCachePolicy` with `.none`, `.database` (default, the local cache), `.userDefaults`,
+     `.sandboxFile`, and a protocol (`CYLSearchSuggestionCache`: load, add, remove, clear) so an app can plug in its own
+     store; a maximum count; a key or table name so several search screens keep separate caches.
+  7. Extract the code that exists in the repository first (the `CYLSearchController` history logic, the Discover
+     pages' recent-search handling) instead of writing it again.
+  8. Same API on Android (API alignment table) and in the cross-platform packages.
+- Prompt (verbatim): "找到docs中关于core功能TODO 相关描述。如果没有就新建一个，加入以下core核心代码，全英文写入：总结现在所有example以及core核心代码，为搜索备选列表加入缓存策略。每次搜索框光标处于聚焦状态，那么就开始显示搜索备选列表，备选列表默认从本地缓存中获取。每次输入新的内容点击搜索后，都更新本地缓存，下一次进入搜索备选列表可以看到原有数据加入了缓存中。点击搜索备选框右上角的删除图标可以全部清理缓存。具体缓存实现在总结现在所有example以及core核心代码，放入到core核心代码中。形成api接口。缓存策略可以是一个枚举。默认为本地缓存。也可能是本地数据 沙河中的数据。总结现在所有example以及core核心代码中缓存形式做的最好的，最好是数据库，其次才是其他形式缓存格式。以及缓存策略总结现在所有example以及core核心代码中缓存策略形式做的最好的，最好是多个缓存策略，如果没有我们自己新增，至少定义一个保证以后新增缓存策略。优先提取现在仓库中已经存在的代码。 第二个TODO是光标聚焦功能，该功能含义是进入搜索界面，后自动聚焦光标，目的是唤起键盘，以及显示搜索备选框。新增接口默认实现聚焦，同时允许用户自定义 不使用聚焦。只显示搜索备选框，搜索备选框为空的时候，也就是本地缓存或者数据库空的时候展示CYLPlaceholder提示。只有在用户点击搜索框才手动聚焦。该参数应该是一个bool值。这个参数决定键盘唤起的时间。优先在core层面实现上面功能，example层负责新增参数传入。CYLPlaceholder 优先使用动图效果，其次才是静态图片。"
+- Prompt (English): "Find the core feature TODO description in docs; if there is none, create one and add the following
+  core work, written in English. Survey all examples and the core, and add a cache policy for the search suggestion
+  list. Whenever the search field's cursor is focused, show the suggestion list; by default it comes from the local
+  cache. Each time new text is entered and search is tapped, update the local cache, so the next time the list opens
+  the earlier data is in the cache. Tapping the delete icon at the top right of the suggestion list clears the whole
+  cache. Put the cache implementation, after surveying all examples and the core, into the core as an API. The cache
+  policy can be an enum, default the local cache; it may also be local data in the sandbox. Find the best cache form
+  among the examples and the core: a database is best, other formats come second. Likewise for the cache policy: best
+  is several policies; if there are none, add our own, at least one defined so that more can be added later. Extract
+  code that already exists in the repository first. The second TODO is the focus feature: entering the search screen
+  focuses the cursor automatically, to raise the keyboard and show the suggestion list. The new API focuses by
+  default and lets the app choose not to: then only the suggestion list shows, and when it is empty (the local cache
+  or database is empty) a CYLPlaceholder message shows; the field is focused only when the user taps it. The
+  parameter is a Bool; it decides when the keyboard appears. Implement these in the core first; the examples pass the
+  new parameters. CYLPlaceholder prefers an animated image, a still image second."
+- Status: `TODO`.
+
+## TODO (2026-11-13): focus the search field on entry, as a Bool, with a placeholder for an empty list
+
+- Context: `CYLSearchView.showSearch(animated:)` focuses the field today, so the keyboard always rises when the
+  search opens (the Flutter platform view calls it on creation). There is no way to open the search with the
+  suggestion list shown and the keyboard down. The empty-results placeholder
+  (`showsEmptyResultsPlaceholder`, CYLTableViewPlaceHolder's `CYLPlaceholderStackView`) covers a query without
+  results, not an empty suggestion list.
+- Requirements:
+  1. A Bool on the core (for example `focusesSearchFieldOnShow`, default `true`): `true` focuses the field when the
+     search screen opens, which raises the keyboard and shows the suggestion list; `false` shows the suggestion list
+     without focusing, and the field is focused only when the user taps it. The Bool decides when the keyboard
+     appears.
+  2. While the suggestion list is empty (the cache or database is empty), a CYLPlaceholder message shows in its
+     place, through CYLTableViewPlaceHolder; prefer an animated placeholder (its `CYLPlaceholderItemAnimation`
+     subspec: Lottie, PAG, GIF), a still image second.
+  3. In the core first, on iOS and Android and through the cross-platform packages; the examples only pass the new
+     parameter (at least one example with focus off).
+- Prompt: the same prompt as the entry above (its second part).
+- Status: `TODO`.
