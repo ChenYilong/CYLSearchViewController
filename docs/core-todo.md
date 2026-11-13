@@ -117,6 +117,12 @@ packages). A test checks each rule.
 
     ![iOS: three frames of the animation](assets/ios-empty-cache-animation-frames.png)
 
+  - Pin update (2026-11-14): CYLTableViewPlaceHolder is pinned at `bdd78c7` everywhere (main `Podfile`, the Flutter
+    and React Native example Podfiles, `android/merged/gradle.properties`): the newest commit on any branch, a merge of
+    `feat/android-refresh-port` (`3514839`) into the privacy-manifest fix (`a96e9d2`, PR #29), so the privacy manifest
+    ships in its own `CYLTableViewPlaceHolderPrivacy.bundle` and no longer clashes with an app's own
+    `PrivacyInfo.xcprivacy`. Verified: iOS tests 25/25, Android unit tests 16/16 (JDK 17). The Flutter example's
+    `Podfile.lock` updates on its next `pod install`.
   - Still open: Android's placeholder module (CYLTableViewPlaceHolder `android/placeholder`, at `9d49d16`) has no
     animation support yet (only still images), so Android shows the still image; adding animated icons there is a
     CYLTableViewPlaceHolder task (sub-repository rule). React Native and HarmonyOS with the cross-platform work.

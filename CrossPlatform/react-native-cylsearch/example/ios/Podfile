@@ -25,7 +25,7 @@ target 'CylsearchExample' do
   # The native core from this repository, and its sub-repositories at their pinned commits (docs/sub-repositories.md).
   pod 'CYLSearchViewController', :path => '../../../..'
   pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => 'f9724167235dee050a81432f3c16f6c4e15dc186'
-  pod 'CYLTableViewPlaceHolder', :git => 'https://github.com/ChenYilong/CYLTableViewPlaceHolder.git', :commit => 'a96e9d27d41c32db0418d737f052d4bd57aae08f'
+  pod 'CYLTableViewPlaceHolder', :git => 'https://github.com/ChenYilong/CYLTableViewPlaceHolder.git', :commit => 'bdd78c7d8d3521d3ceb25032f10ebdd0d1ffc3c6'
 
   use_react_native!(
     :path => config[:reactNativePath],
