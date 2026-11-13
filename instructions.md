@@ -289,3 +289,7 @@ Every time a branch is created, open its pull request automatically as soon as t
 (`gh pr create`), without asking. The base (target) branch is the branch it was created from (its source branch) by
 preference; use `master` or `main` only when that is the source, or when the source branch no longer exists on the
 remote. Name the base branch in the reply.
+
+## Swift core: examples adapt to the core (added 2026-11-13)
+
+- When an Objective-C to Swift change of the core breaks an example's build, fix the example: example code has the lowest weight of all code here. Change any example code as needed; never keep a core API, overload, shim or deprecated alias only because an example uses it, and never lower the Swift core's quality (naming, types, optionality, access control) to fit an example. Compatibility matters only for callers outside the examples (published API users). The Swift coding standard (docs/swift-coding-standard.md) decides.

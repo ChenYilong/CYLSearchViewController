@@ -366,3 +366,7 @@ marks it `DONE`.
   into one playback strategy applied live, with accessibility labels and values; change the core when an example
   needs it. This repository has no animation example yet; the rule and its status live in CollectionViewClassifyMenu
   `docs/example-animation-controls.md` and CYLTabBarController `docs/Tab-Icon-Animation-Quick-Start.md`.
+
+## Swift core: examples adapt to the core (added 2026-11-13)
+
+- When an Objective-C to Swift change of the core breaks an example's build, fix the example: example code has the lowest weight of all code here. Change any example code as needed; never keep a core API, overload, shim or deprecated alias only because an example uses it, and never lower the Swift core's quality (naming, types, optionality, access control) to fit an example. Compatibility matters only for callers outside the examples (published API users). The Swift coding standard (docs/swift-coding-standard.md) decides.

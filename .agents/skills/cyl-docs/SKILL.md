@@ -96,3 +96,7 @@ When we translate or port another GitHub project's code (for example `android/`)
 (before translating, or translate and merge them afterwards), list its open issues in a `docs/` table (issue link,
 description, fix status `TODO`), fix them in our code and score after every fix until 100; a translation that has not
 started begins at 60. Full rule: `AGENTS.md`, same section.
+
+## Swift core: examples adapt to the core (added 2026-11-13)
+
+When an Objective-C to Swift change of the core breaks an example's build, fix the example: example code has the lowest weight of all code here. Change any example code as needed; never keep a core API, overload, shim or deprecated alias only because an example uses it, and never lower the Swift core's quality (naming, types, optionality, access control) to fit an example. Compatibility matters only for callers outside the examples (published API users). The Swift coding standard (docs/swift-coding-standard.md) decides. Rule and context: [docs/swift-migration.md](../../../docs/swift-migration.md).

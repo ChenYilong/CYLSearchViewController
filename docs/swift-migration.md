@@ -80,3 +80,20 @@ The all-Swift core in the example app, key details stacked top to bottom (the sa
 | SDK | iOS SDK 27.2, Swift 5 language mode, deployment target iOS 15.0 |
 | Repository | [`9735f79`](https://github.com/ChenYilong/CYLSearchViewController/commit/9735f79) on `feat/swift-core` |
 | Taken | 2026-11-12 16:14–16:17 NZDT |
+
+## Rule (2026-11-13): example build errors are fixed in the examples; the Swift core carries no burden
+
+When an Objective-C to Swift change of the core breaks an example's build, fix the example: example code has the lowest weight of all code here. Change any example code as needed; never keep a core API, overload, shim or deprecated alias only because an example uses it, and never lower the Swift core's quality (naming, types, optionality, access control) to fit an example. Compatibility matters only for callers outside the examples (published API users). The Swift coding standard (docs/swift-coding-standard.md) decides.
+
+## DONE (2026-11-13): write the rule above into the docs, instructions and skills
+
+- Context: the Objective-C core became Swift (this document); examples sometimes stop compiling after a core change.
+- Requirements: append the rule, in English, to the Swift migration documents, the instructions and the skills.
+- Prompt (verbatim): "在文档中找到objc迁移swift相关文档，包含docs instructions skils 相关文档。全英文更新，追加规则：更新example 编译错误，规则为优先改example层代码，所有example权重为最低，无须example修改的考虑兼容性。任意修改example代码，全力保障core核心层代码没有包袱，负担。不要因为example层的用法而降低core swif代码质量。以swift编码规范为准。continue continue"
+- Prompt (English): "Find the Objective-C to Swift migration documents, including docs, instructions and skills. Update
+  them in English and append this rule: for example build errors, change the example code first; all examples have the
+  lowest weight, and compatibility need not be kept for the examples' sake. Change any example code, and do everything
+  to keep the core free of baggage and burden. Do not lower the Swift core's code quality because of how an example
+  uses it. The Swift coding standard decides."
+- Result: appended to this file, `docs/swift-coding-standard.md`, `AGENTS.md`, `instructions.md` and the `cyl-*`
+  skills that mention the Swift migration (additions only).

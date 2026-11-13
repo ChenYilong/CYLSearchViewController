@@ -86,3 +86,7 @@ while the core moves to Swift.
   keep every test green. New tests may use XCTest or Swift Testing (`swift-testing`).
 - Before a commit: clean build of the example, `scripts/unit-tests.sh`, analyze with 0 warnings in `Sources/`,
   `scripts/check-public-api-comments.sh` (headers and Swift sources), and the score in `docs/swift-migration.md`.
+
+## Examples never shape the core (2026-11-13)
+
+When an Objective-C to Swift change of the core breaks an example's build, fix the example: example code has the lowest weight of all code here. Change any example code as needed; never keep a core API, overload, shim or deprecated alias only because an example uses it, and never lower the Swift core's quality (naming, types, optionality, access control) to fit an example. Compatibility matters only for callers outside the examples (published API users). The Swift coding standard (docs/swift-coding-standard.md) decides.
