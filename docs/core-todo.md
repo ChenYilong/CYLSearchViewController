@@ -4,6 +4,34 @@ Features of the core (`Sources/CYLSearchViewController`, Swift; mirrored in `and
 the cross-platform packages) that are planned but not built yet. Implement them in the core first; the examples only
 pass parameters.
 
+## Core behavior rules
+
+Rules every implementation of the core follows (iOS, Android, and the native views behind the cross-platform
+packages). A test checks each rule.
+
+1. **Focus alone changes nothing below the search bar (2026-11-13).** Focusing the search field (cursor shown, keyboard up) without typing changes nothing below the search bar: the area under it (the cached queries and their header, the suggestions, the empty placeholder) looks exactly as it does while the field is not focused. That area is updated only when the person changes the text (typing, deleting, pasting, the clear button, a selected suggestion) or when its data changes (a submitted query, the cache cleared).
+
+## TODO (2026-11-13): focusing the field without typing must not change the suggestion area
+
+- Context: the screenshot below (Android example, Tag style tab, after the cache work): the search opens with focus
+  off; the person then taps the field (cursor and keyboard) without typing. The area below the bar must stay as it was
+  before the tap; the core must not refresh it on focus, only on text changes (rule 1 above).
+
+  ![Report: focus without typing](assets/focus-without-typing-report.png)
+
+- Requirements:
+  1. Record the bug as a TODO with the screenshot (this entry).
+  2. Write the rule into the instructions and the docs, in a core behavior section (created above).
+  3. Fix it in the core on iOS and Android: focus and blur never change the list, the header or the placeholder; only
+     text changes and data changes do. Add a test per platform.
+- Prompt (verbatim): "全英文记录该内容为TODO 并附带截图：这个截图里有一个bug，只聚焦光标 调出键盘 不输入任何文字的时候，下方搜索框备选区 显示应该和未调出键盘，光标未聚焦时保持一致。只在用户有输入内容时 更新搜索框下方显示内容，将该规则记入instructions相关和docs相关文件，core核心逻辑实现章节，没有就新建。continue"
+- Prompt (English): "Record this in English as a TODO with the screenshot: there is a bug in this screenshot. When the
+  cursor is only focused and the keyboard raised, without typing any text, the suggestion area under the search field
+  should look the same as when the keyboard is not raised and the cursor not focused. Update the content under the
+  search field only when the person enters something. Write this rule into the instructions and docs files, in the core
+  logic implementation section; create one if there is none."
+- Status: `TODO`.
+
 ## TODO (2026-11-13): a cache for the suggestion list, with cache policies
 
 - Context (survey of the core and every example, 2026-11-13):
