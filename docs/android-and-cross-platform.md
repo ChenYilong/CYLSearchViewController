@@ -213,7 +213,12 @@ Native) for the CYLSearchViewController components.
 
     ![React Native Android: Discover unfolded](assets/rn-android-unfolded.png)
 
-  - Still open: the iOS run (the build succeeds; the simulator was unresponsive under the load), CYLTabBarController's
+  - iOS (2026-11-14): the Debug and Release builds succeed and the Release app launched to the List style page, but
+    under the host's load (load average 900 to 970 for hours, other sessions' builds) the simulator ignored taps and
+    touches, and after a reboot `simctl launch` and UI snapshots no longer answered, so the search page, the tags and
+    Discover are not verified on iOS yet. Found on the way: the example's tab row used a `tablist` container that hid
+    the tabs from iOS accessibility; each tab is now its own element with its title (`fc55a2f`), to confirm in that run.
+  - Still open: the iOS run (above), CYLTabBarController's
     React Native tab bar in the example (it lives inside CYLTabBarController's repository, which is not a yarn
     workspace, so it cannot be pinned as a git dependency yet), the other platforms' pins of `a96e9d2`.
 - Status: `TODO`.
