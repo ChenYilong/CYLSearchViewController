@@ -1,7 +1,7 @@
 # Versions of the merged Android project. The aliases the pinned library modules use (cyltabbar, tabpages, classifymenu)
 # are kept with the same names, so their build files work here unchanged.
 [versions]
-agp = "9.1.0"
+agp = "9.2.1"
 kotlin = "2.2.20"
 appcompat = "1.7.0"
 fragment = "1.8.5"
