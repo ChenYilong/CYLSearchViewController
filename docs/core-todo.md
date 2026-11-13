@@ -11,7 +11,7 @@ packages). A test checks each rule.
 
 1. **Focus alone changes nothing below the search bar (2026-11-13).** Focusing the search field (cursor shown, keyboard up) without typing changes nothing below the search bar: the area under it (the cached queries and their header, the suggestions, the empty placeholder) looks exactly as it does while the field is not focused. That area is updated only when the person changes the text (typing, deleting, pasting, the clear button, a selected suggestion) or when its data changes (a submitted query, the cache cleared).
 
-## TODO (2026-11-13): focusing the field without typing must not change the suggestion area
+## DONE (2026-11-13): focusing the field without typing must not change the suggestion area
 
 - Context: the screenshot below (Android example, Tag style tab, after the cache work): the search opens with focus
   off; the person then taps the field (cursor and keyboard) without typing. The area below the bar must stay as it was
@@ -30,7 +30,17 @@ packages). A test checks each rule.
   should look the same as when the keyboard is not raised and the cursor not focused. Update the content under the
   search field only when the person enters something. Write this rule into the instructions and docs files, in the core
   logic implementation section; create one if there is none."
-- Status: `TODO`.
+- Result (2026-11-13):
+  - Finding: neither core refreshes the area on focus. On iOS, `searchBarViewDidBeginEditing` / `DidEndEditing` only report
+    focus to the delegate; on Android, focus runs `textStateChanged()`, which only updates the bar's own placeholder and
+    clear button, without reporting a text change. In the report, the field in the second and third pictures had been
+    focused by the verification script (it tapped the field to delete the text); the third picture is the correct
+    empty-cache state after the trash button, not a change caused by focus.
+  - The rule is now enforced by a test on each platform, with and without cached queries: before focus, while focused
+    and after losing focus, the list, its header, the empty placeholder and the list's frame are identical
+    (`testFocusAloneChangesNothingBelowTheSearchBar`, iOS 24/24; `focusAloneChangesNothingBelowTheSearchBar`, Android
+    14/14).
+- Status: DONE.
 
 ## TODO (2026-11-13): a cache for the suggestion list, with cache policies
 

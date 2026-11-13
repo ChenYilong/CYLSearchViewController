@@ -1115,5 +1115,46 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     window.hidden = YES;
 }
 
+- (void)testFocusAloneChangesNothingBelowTheSearchBar
+{
+    // docs/core-todo.md, core behavior rule 1: focusing the field without typing, and losing focus, leave the list,
+    // its header and the empty placeholder exactly as they were.
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
+    UIViewController *host = [UIViewController new];
+    window.rootViewController = host;
+    [window makeKeyAndVisible];
+    for (NSArray<NSString *> *cached in @[@[@"Kotlin", @"Swift"], @[]]) {
+        CYLSearchView *searchView = [[CYLSearchView alloc] initWithFrame:CGRectZero];
+        searchView.suggestionCacheName = @"CYLTestFocus";
+        [searchView.suggestionCache removeAllQueries];
+        for (NSString *query in cached.reverseObjectEnumerator) {
+            [searchView.suggestionCache addQuery:query];
+        }
+        searchView.suggestions = @[@"Android", @"Kotlin", @"Swift"];
+        searchView.focusesSearchFieldOnShow = NO;
+        [searchView installInView:host.view];
+        [searchView showSearchAnimated:NO];
+        [searchView layoutIfNeeded];
+        NSArray *(^snapshot)(void) = ^NSArray * {
+            return @[searchView.filteredSuggestions, @(searchView.suggestionCacheHeaderView.hidden),
+                     @(searchView.emptySuggestionsView == nil || searchView.emptySuggestionsView.hidden),
+                     @(searchView.suggestionsTableView.hidden), NSStringFromCGRect(searchView.suggestionsTableView.frame)];
+        };
+        NSArray *before = snapshot();
+        XCTAssertFalse(searchView.searchBarView.textField.isFirstResponder);
+        [searchView.searchBarView.textField becomeFirstResponder];
+        [searchView layoutIfNeeded];
+        XCTAssertTrue(searchView.searchBarView.textField.isFirstResponder);
+        XCTAssertEqualObjects(snapshot(), before, @"focus alone, cache %@", cached);
+        [searchView.searchBarView.textField resignFirstResponder];
+        [searchView layoutIfNeeded];
+        XCTAssertEqualObjects(snapshot(), before, @"blur alone, cache %@", cached);
+        [searchView.suggestionCache removeAllQueries];
+        [searchView closeSearchAnimated:NO];
+        [searchView removeFromSuperview];
+    }
+    window.hidden = YES;
+}
+
 @end
 

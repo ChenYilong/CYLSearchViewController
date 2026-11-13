@@ -93,4 +93,31 @@ class CYLSearchSuggestionCacheTest {
             assertEquals("focusesSearchFieldOnShow $focuses", focuses, view.searchBarView.textField.hasFocus())
         }
     }
+
+    @Test
+    fun focusAloneChangesNothingBelowTheSearchBar() {
+        // docs/core-todo.md, core behavior rule 1.
+        for (cached in listOf(listOf("Kotlin", "Swift"), emptyList())) {
+            val host = FrameLayout(activity)
+            activity.setContentView(host)
+            val view = CYLSearchView(activity)
+            view.suggestionCacheName = "CYLTestFocus"
+            view.suggestionCache!!.removeAllQueries()
+            cached.reversed().forEach { view.suggestionCache!!.addQuery(it) }
+            view.suggestions = listOf("Android", "Kotlin", "Swift")
+            view.focusesSearchFieldOnShow = false
+            view.installInView(host)
+            view.showSearch(false)
+            fun snapshot() = listOf(view.filteredSuggestions, view.suggestionCacheHeaderView.visibility,
+                view.emptySuggestionsView?.visibility, view.suggestionsTableView.visibility)
+            val before = snapshot()
+            view.searchBarView.textField.requestFocus()
+            assertTrue(view.searchBarView.textField.hasFocus())
+            assertEquals("focus alone, cache $cached", before, snapshot())
+            view.searchBarView.textField.clearFocus()
+            assertEquals("blur alone, cache $cached", before, snapshot())
+            view.suggestionCache!!.removeAllQueries()
+        }
+    }
 }
+
