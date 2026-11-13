@@ -219,7 +219,7 @@ CollectionViewClassifyMenu).
 
     ![Android Discover titles end with an ellipsis](assets/android-discover-titles-ellipsis.png)
 
-## BUG TODO (2026-11-13): the tag list lost its fold button on later platforms
+## BUG DONE (2026-11-13): the tag list lost its fold button on later platforms
 
 - Context: the first implementations, the iOS Discover page (`CYLSearchDiscoverViewController`:
   `CYLTagListView(foldControl: CYLMenuFoldControl(position: .inline, content: .icon))`) and its Android port
@@ -247,5 +247,24 @@ CollectionViewClassifyMenu).
   the core supports customizing this style from outside through parameters, then check the pages in all the examples'
   screenshots and set the parameter. Expected: the last item of the tag list is the fold button. Refer to this
   project's iOS example. Record it in the docs and mark it BUG TODO."
-- Status: `BUG TODO`.
+- Result (2026-11-13):
+  - Core parameters on `CYLSearchView` (tag suggestion style), iOS and Android: `suggestionsFoldControl`
+    (CollectionViewClassifyMenu's `CYLMenuFoldControl`; default an inline icon, the chevron as the last tag) and
+    `suggestionsFoldedRowCount` (default 2; 0 shows every row). On iOS the search view relays out on fold changes
+    through a private `CYLMenuDelegate` object, so it gains no public conformance.
+  - Flutter: `CYLSearchView(suggestionsFoldControlPosition:, suggestionsFoldControlContent:, suggestionsFoldedRowCount:)`
+    and `CYLTagListView(foldControlPosition:, foldControlContent:, foldedRowCount:)` (enums `CYLTagFoldControlPosition`,
+    `CYLTagFoldControlContent`); the native tag list reports its height again after folding and unfolding.
+  - Examples set the parameters on every page with a tag list: iOS MaterialSearchView samples (the Tag style tab),
+    Android `CYLSuggestionStyleFragment`, the Flutter Tag style demo and Discover page; the iOS and Android Discover
+    pages already had it.
+  - Tests: iOS 25/25 (`testTagSuggestionsEndWithTheFoldButtonByDefault`), Android 15/15
+    (`tagSuggestionsEndWithTheFoldButtonByDefault`), Flutter plugin 7/7 (parameters), both Flutter builds.
+  - Verified (Flutter, iPhone 17 simulator iOS 26.3, 2026-11-13 19:0x NZDT), top to bottom: the Discover page folded
+    to two rows with the chevron ("More") as the last tag; after tapping it, every recent search with the up chevron
+    ("Less") last, and the page below moved down. The Android Flutter build passes; its emulator run is still to do.
+
+    ![Flutter Discover: folded, then unfolded](assets/fold-fixed-flutter-ios.png)
+
+- Status: `BUG DONE` (Android Flutter screenshot pending).
 

@@ -217,7 +217,14 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                     setState(() => _recent = <String>[]);
                     _show(data.text('discover.cleared'));
                   }),
-                  CYLTagListView(tags: _recent, onTagSelected: (index, title) => _search(title)),
+                  // The last tag is the fold chevron, two rows while folded (the iOS and Android Discover pages).
+                  CYLTagListView(
+                    tags: _recent,
+                    foldControlPosition: CYLTagFoldControlPosition.inline,
+                    foldControlContent: CYLTagFoldControlContent.icon,
+                    foldedRowCount: 2,
+                    onTagSelected: (index, title) => _search(title),
+                  ),
                 ],
                 _header(context, data.text('discover.title'), Icons.refresh, data.text('discover.refresh'),
                     () => setState(() => _topics = data.randomTopics(_topics))),

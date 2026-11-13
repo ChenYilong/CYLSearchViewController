@@ -119,5 +119,16 @@ class CYLSearchSuggestionCacheTest {
             view.suggestionCache!!.removeAllQueries()
         }
     }
+
+    @Test
+    fun tagSuggestionsEndWithTheFoldButtonByDefault() {
+        // docs/tag-view-suggestions.md, BUG TODO.
+        val view = CYLSearchView(activity)
+        assertEquals(com.cyl.classifymenu.CYLMenuFoldControlPosition.CYLMenuFoldControlPositionInline, view.suggestionsFoldControl.position)
+        assertEquals(com.cyl.classifymenu.CYLMenuFoldControlContent.CYLMenuFoldControlContentIcon, view.suggestionsFoldControl.content)
+        assertEquals(2, view.suggestionsFoldedRowCount)
+        view.suggestionsFoldedRowCount = 3
+        assertEquals(3, view.suggestionsTagView.defaultVisibleRows)
+    }
 }
 

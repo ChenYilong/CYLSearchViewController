@@ -59,6 +59,12 @@ class CYLSuggestionStyleFragment : CYLExamplePage(), CYLSearchViewDelegate {
             suggestionCacheName = "MaterialSearchView"
             // The tag style opens with the keyboard down: the cached queries (or the empty placeholder) show first, as on iOS.
             focusesSearchFieldOnShow = style != CYLSearchSuggestionStyle.Tags
+            // The tags end with the fold chevron, two rows while folded, as on the Discover page.
+            suggestionsFoldControl = com.cyl.classifymenu.CYLMenuFoldControl().apply {
+                position = com.cyl.classifymenu.CYLMenuFoldControlPosition.CYLMenuFoldControlPositionInline
+                content = com.cyl.classifymenu.CYLMenuFoldControlContent.CYLMenuFoldControlContentIcon
+            }
+            suggestionsFoldedRowCount = 2
             delegate = this@CYLSuggestionStyleFragment
         }
         searchView.installInView(page)

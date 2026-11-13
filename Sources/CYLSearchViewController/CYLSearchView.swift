@@ -107,7 +107,33 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
      * The tags that show the suggestions when `suggestionStyle` is `CYLSearchSuggestionStyleTags`
      * (CollectionViewClassifyMenu's `CYLTagListView`). Style it directly: `style`, spacing, rows, colors.
      */
-    @objc public let suggestionsTagView = CYLTagListView(foldControl: nil)
+    @objc public let suggestionsTagView = CYLTagListView(foldControl: CYLMenuFoldControl(position: .inline, content: .icon))
+
+    /**
+     * The fold control of the tag suggestions (CollectionViewClassifyMenu's `CYLMenuFoldControl`). An inline chevron as
+     * the last tag by default, as in the example's Discover page: tap it to show every row, again to fold. Position
+     * `CYLMenuFoldControlPositionNone` shows every tag without a control.
+     */
+    @objc public var suggestionsFoldControl: CYLMenuFoldControl {
+        get { suggestionsTagView.foldControl }
+        set {
+            suggestionsTagView.foldControl = newValue
+            updateSuggestionsVisibility()
+        }
+    }
+
+    /**
+     * The rows of tag suggestions shown while folded. 2 by default; 0 shows every row.
+     */
+    @objc public var suggestionsFoldedRowCount: UInt {
+        get { UInt(suggestionsTagView.defaultVisibleRows) }
+        set {
+            suggestionsTagView.defaultVisibleRows = newValue
+            updateSuggestionsVisibility()
+        }
+    }
+
+    private lazy var tagMenuObserver = CYLSearchTagMenuObserver { [weak self] in self?.setNeedsLayout() }
 
     /**
      * How the suggestions are shown: a list (`CYLSearchSuggestionStyleList`, the default) or tags
@@ -392,6 +418,9 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         suggestionsTagView.isHidden = true
         suggestionsTagView.showsSectionHeaders = false
         suggestionsTagView.accessibilityLabel = CYLSearchResources.localizedString(forKey: "search.suggestions")
+        suggestionsTagView.defaultVisibleRows = 2
+        // Folding and unfolding change the tags' height: lay the page out again (it can be as tall as its content).
+        suggestionsTagView.menuDelegate = tagMenuObserver
         suggestionsTagView.tagClickHandler = { [weak self] index, _ in
             self?.selectSuggestion(at: index)
         }
@@ -861,3 +890,23 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         }
     }
 }
+
+/**
+ * Forwards the tag list's height changes (folding, unfolding) to its search view, which keeps the conformance private.
+ */
+private final class CYLSearchTagMenuObserver: NSObject, CYLMenuDelegate {
+    private let heightChanged: () -> Void
+
+    init(heightChanged: @escaping () -> Void) {
+        self.heightChanged = heightChanged
+    }
+
+    func menu(_ menu: Any, didChangeContentHeight height: CGFloat) {
+        heightChanged()
+    }
+
+    func menu(_ menu: Any, didChangeExpanded expanded: Bool, inSection section: Int) {
+        heightChanged()
+    }
+}
+

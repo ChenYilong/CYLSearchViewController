@@ -38,6 +38,36 @@ enum CYLSearchSuggestionCachePolicy {
   sandboxFile,
 }
 
+/// Where a tag list's fold control is (CollectionViewClassifyMenu's `CYLMenuFoldControlPosition`).
+enum CYLTagFoldControlPosition {
+  /// No control: every tag shows.
+  none,
+
+  /// A chevron as the last tag (the default).
+  inline,
+
+  /// Under the tags.
+  bottom,
+
+  /// At the top trailing corner.
+  topTrailing,
+
+  /// At the top leading corner.
+  topLeading,
+}
+
+/// What a tag list's fold control shows (CollectionViewClassifyMenu's `CYLMenuFoldControlContent`).
+enum CYLTagFoldControlContent {
+  /// An icon and a title.
+  iconAndTitle,
+
+  /// A title.
+  title,
+
+  /// An icon (the default).
+  icon,
+}
+
 /// The view types the platform side registers.
 @visibleForTesting
 class CYLSearchViewTypes {
@@ -119,6 +149,9 @@ class CYLSearchView extends StatefulWidget {
     this.suggestionCachePolicy = CYLSearchSuggestionCachePolicy.database,
     this.suggestionCacheName = 'CYLSearchView',
     this.focusesSearchFieldOnShow = true,
+    this.suggestionsFoldControlPosition = CYLTagFoldControlPosition.inline,
+    this.suggestionsFoldControlContent = CYLTagFoldControlContent.icon,
+    this.suggestionsFoldedRowCount = 2,
     this.onTextChanged,
     this.onSubmitted,
     this.onSuggestionSelected,
@@ -159,6 +192,16 @@ class CYLSearchView extends StatefulWidget {
   /// Focuses the search field when the page opens, which raises the keyboard (iOS `focusesSearchFieldOnShow`). False
   /// shows the suggestion list (or an empty placeholder) with the keyboard down until the field is tapped.
   final bool focusesSearchFieldOnShow;
+
+  /// Where the tag suggestions' fold control is (iOS `suggestionsFoldControl.position`): a chevron as the last tag by
+  /// default.
+  final CYLTagFoldControlPosition suggestionsFoldControlPosition;
+
+  /// What that control shows (iOS `suggestionsFoldControl.content`).
+  final CYLTagFoldControlContent suggestionsFoldControlContent;
+
+  /// The rows of tag suggestions shown while folded (iOS `suggestionsFoldedRowCount`); 0 shows every row.
+  final int suggestionsFoldedRowCount;
 
   /// The query changed (iOS `searchView(_:textDidChange:)`).
   final ValueChanged<String>? onTextChanged;
@@ -309,6 +352,9 @@ Map<String, Object?> cylSearchViewParameters(CYLSearchView widget, {Brightness b
       'suggestionCachePolicy': widget.suggestionCachePolicy.name,
       'suggestionCacheName': widget.suggestionCacheName,
       'focusesSearchFieldOnShow': widget.focusesSearchFieldOnShow,
+      'suggestionsFoldControlPosition': widget.suggestionsFoldControlPosition.name,
+      'suggestionsFoldControlContent': widget.suggestionsFoldControlContent.name,
+      'suggestionsFoldedRowCount': widget.suggestionsFoldedRowCount,
     };
 
 /// Calls the [CYLSearchView] callback of an event from its native view.
@@ -357,10 +403,26 @@ void cylSearchBarViewDispatch(CYLSearchBarView widget, MethodCall call) {
 /// unbounded column.
 class CYLTagListView extends StatefulWidget {
   /// Creates the tag list.
-  const CYLTagListView({super.key, this.tags = const <String>[], this.onTagSelected});
+  const CYLTagListView({
+    super.key,
+    this.tags = const <String>[],
+    this.foldControlPosition = CYLTagFoldControlPosition.inline,
+    this.foldControlContent = CYLTagFoldControlContent.icon,
+    this.foldedRowCount = 2,
+    this.onTagSelected,
+  });
 
   /// The titles of the tags (`setTagsWithTitles`).
   final List<String> tags;
+
+  /// Where the fold control is (`foldControl.position`): a chevron as the last tag by default.
+  final CYLTagFoldControlPosition foldControlPosition;
+
+  /// What the fold control shows (`foldControl.content`).
+  final CYLTagFoldControlContent foldControlContent;
+
+  /// The rows shown while folded (`defaultVisibleRows`); 0 shows every row.
+  final int foldedRowCount;
 
   /// A tag was tapped (`tagClickHandler`), with its index and title.
   final void Function(int index, String title)? onTagSelected;
@@ -392,7 +454,12 @@ class _CYLTagListViewState extends State<CYLTagListView> {
   @override
   void didUpdateWidget(CYLTagListView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (!listEquals(oldWidget.tags, widget.tags)) _channel?.invokeMethod<void>('update', _parameters);
+    if (!listEquals(oldWidget.tags, widget.tags) ||
+        oldWidget.foldControlPosition != widget.foldControlPosition ||
+        oldWidget.foldControlContent != widget.foldControlContent ||
+        oldWidget.foldedRowCount != widget.foldedRowCount) {
+      _channel?.invokeMethod<void>('update', _parameters);
+    }
   }
 
   @override
@@ -419,6 +486,9 @@ class _CYLTagListViewState extends State<CYLTagListView> {
 Map<String, Object?> cylTagListViewParameters(CYLTagListView widget, {Brightness brightness = Brightness.light}) => <String, Object?>{
       'brightness': brightness.name,
       'tags': widget.tags,
+      'foldControlPosition': widget.foldControlPosition.name,
+      'foldControlContent': widget.foldControlContent.name,
+      'foldedRowCount': widget.foldedRowCount,
     };
 
 /// Calls the [CYLTagListView] callback of an event from its native view; returns the height it reported, if any.

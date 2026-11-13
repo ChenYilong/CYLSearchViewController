@@ -11,6 +11,7 @@
 #import <CYLSearchViewController/CYLSearchViewController-Swift.h>
 #import <CYLSearchViewController/CYLSearchViewController-Swift.h>
 #import <CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.h>
+#import <CollectionViewClassifyMenu/CollectionViewClassifyMenu-umbrella.h>
 
 @interface CYLSearchExampleTests : XCTestCase
 @end
@@ -1154,6 +1155,21 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
         [searchView removeFromSuperview];
     }
     window.hidden = YES;
+}
+
+- (void)testTagSuggestionsEndWithTheFoldButtonByDefault
+{
+    // docs/tag-view-suggestions.md, BUG TODO: the tag suggestions fold to two rows behind an inline chevron, and both
+    // are parameters.
+    CYLSearchView *searchView = [[CYLSearchView alloc] initWithFrame:CGRectZero];
+    XCTAssertEqual(searchView.suggestionsFoldControl.position, CYLMenuFoldControlPositionInline);
+    XCTAssertEqual(searchView.suggestionsFoldControl.content, CYLMenuFoldControlContentIcon);
+    XCTAssertEqual(searchView.suggestionsFoldedRowCount, 2u);
+    XCTAssertEqual(searchView.suggestionsTagView.defaultVisibleRows, 2u);
+    searchView.suggestionsFoldControl = [CYLMenuFoldControl foldControlWithPosition:CYLMenuFoldControlPositionBottom content:CYLMenuFoldControlContentTitle];
+    searchView.suggestionsFoldedRowCount = 3;
+    XCTAssertEqual(searchView.suggestionsTagView.foldControl.position, CYLMenuFoldControlPositionBottom);
+    XCTAssertEqual(searchView.suggestionsTagView.defaultVisibleRows, 3u);
 }
 
 @end

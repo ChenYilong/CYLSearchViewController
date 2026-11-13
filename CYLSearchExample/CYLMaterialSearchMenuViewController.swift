@@ -1,5 +1,6 @@
 import UIKit
 import Speech
+import CollectionViewClassifyMenu
 import CYLSearchViewController
 
 /**
@@ -123,6 +124,9 @@ final class CYLMaterialSearchSampleViewController: UIViewController {
         searchView.suggestionLineBreakMode = sample == .standard || sample == .inputType ? .byTruncatingTail : .byWordWrapping
         searchView.suggestions = sample == .sticky ? [] : Self.suggestions
         searchView.suggestionStyle = suggestionStyle
+        // The tags end with the fold chevron, two rows while folded, as on the Discover page.
+        searchView.suggestionsFoldControl = CYLMenuFoldControl(position: .inline, content: .icon)
+        searchView.suggestionsFoldedRowCount = 2
         // A query that matches nothing shows CYLTableViewPlaceHolder's "no search results" state (docs/sub-repositories.md).
         searchView.showsEmptyResultsPlaceholder = true
         // Submitted queries are cached in the core's local database (docs/core-todo.md), one cache for these samples;

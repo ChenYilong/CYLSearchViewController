@@ -107,6 +107,8 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
             searchView.suggestionCachePolicy = policy
         }
         searchView.focusesSearchFieldOnShow = arguments["focusesSearchFieldOnShow"] as? Boolean ?: true
+        searchView.suggestionsFoldControl = cylFoldControl(arguments["suggestionsFoldControlPosition"], arguments["suggestionsFoldControlContent"])
+        searchView.suggestionsFoldedRowCount = maxOf(0, (arguments["suggestionsFoldedRowCount"] as? Number)?.toInt() ?: 2)
     }
 
     override fun getView(): View = container
@@ -199,6 +201,11 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
         // The Flutter page shows through, as around any other widget.
         tagListView.style = tagListView.style?.copy()?.apply { backgroundColor = android.graphics.Color.TRANSPARENT }
         tagListView.tagClickHandler = { index, tag -> channel.invokeMethod("didSelectTag", mapOf("index" to index, "title" to tag.title)) }
+        // Folding and unfolding change the height: report it again.
+        tagListView.menuDelegate = object : com.cyl.classifymenu.CYLMenuDelegate {
+            override fun menuDidChangeContentHeight(menu: Any, height: Float) = reportHeight()
+            override fun menuDidChangeExpanded(menu: Any, expanded: Boolean, inSection: Int) = reportHeight()
+        }
         apply(arguments)
         channel.setMethodCallHandler { call, result ->
             @Suppress("UNCHECKED_CAST")
@@ -209,6 +216,8 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
 
     @Suppress("UNCHECKED_CAST")
     private fun apply(arguments: Map<String, Any?>) {
+        tagListView.foldControl = cylFoldControl(arguments["foldControlPosition"], arguments["foldControlContent"])
+        tagListView.defaultVisibleRows = maxOf(0, (arguments["foldedRowCount"] as? Number)?.toInt() ?: 2)
         tagListView.setTagsWithTitles((arguments["tags"] as? List<String>) ?: emptyList())
         reportHeight()
     }
@@ -229,3 +238,22 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
         channel.setMethodCallHandler(null)
     }
 }
+
+/**
+ * The fold control for a Dart `CYLTagFoldControlPosition` and `CYLTagFoldControlContent` name; an inline icon by default.
+ */
+internal fun cylFoldControl(position: Any?, content: Any?) = com.cyl.classifymenu.CYLMenuFoldControl().apply {
+    this.position = when (position) {
+        "none" -> com.cyl.classifymenu.CYLMenuFoldControlPosition.CYLMenuFoldControlPositionNone
+        "bottom" -> com.cyl.classifymenu.CYLMenuFoldControlPosition.CYLMenuFoldControlPositionBottom
+        "topTrailing" -> com.cyl.classifymenu.CYLMenuFoldControlPosition.CYLMenuFoldControlPositionTopTrailing
+        "topLeading" -> com.cyl.classifymenu.CYLMenuFoldControlPosition.CYLMenuFoldControlPositionTopLeading
+        else -> com.cyl.classifymenu.CYLMenuFoldControlPosition.CYLMenuFoldControlPositionInline
+    }
+    this.content = when (content) {
+        "iconAndTitle" -> com.cyl.classifymenu.CYLMenuFoldControlContent.CYLMenuFoldControlContentIconAndTitle
+        "title" -> com.cyl.classifymenu.CYLMenuFoldControlContent.CYLMenuFoldControlContentTitle
+        else -> com.cyl.classifymenu.CYLMenuFoldControlContent.CYLMenuFoldControlContentIcon
+    }
+}
+

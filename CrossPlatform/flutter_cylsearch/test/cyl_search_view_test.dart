@@ -33,6 +33,9 @@ void main() {
         'suggestionCachePolicy': 'sandboxFile',
         'suggestionCacheName': 'Demo',
         'focusesSearchFieldOnShow': false,
+        'suggestionsFoldControlPosition': 'inline',
+        'suggestionsFoldControlContent': 'icon',
+        'suggestionsFoldedRowCount': 2,
       });
     });
 
@@ -49,6 +52,9 @@ void main() {
       expect(parameters['suggestionCachePolicy'], 'database');
       expect(parameters['suggestionCacheName'], 'CYLSearchView');
       expect(parameters['focusesSearchFieldOnShow'], true);
+      expect(parameters['suggestionsFoldControlPosition'], 'inline', reason: 'the last tag is the fold chevron');
+      expect(parameters['suggestionsFoldControlContent'], 'icon');
+      expect(parameters['suggestionsFoldedRowCount'], 2);
     });
 
     test('native events reach the callbacks', () {
@@ -103,7 +109,13 @@ void main() {
     String? tapped;
     final widget = CYLTagListView(tags: const <String>['Swift', 'Kotlin'], onTagSelected: (index, title) => tapped = '$index $title');
     expect(cylTagListViewParameters(widget, brightness: Brightness.dark),
-        <String, Object?>{'brightness': 'dark', 'tags': <String>['Swift', 'Kotlin']});
+        <String, Object?>{
+          'brightness': 'dark',
+          'tags': <String>['Swift', 'Kotlin'],
+          'foldControlPosition': 'inline',
+          'foldControlContent': 'icon',
+          'foldedRowCount': 2,
+        });
     expect(cylTagListViewDispatch(widget, const MethodCall('didSelectTag', <String, Object?>{'index': 1, 'title': 'Kotlin'})), isNull);
     expect(tapped, '1 Kotlin');
     expect(cylTagListViewDispatch(widget, const MethodCall('didChangeHeight', <String, Object?>{'height': 88})), 88);

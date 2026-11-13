@@ -28,6 +28,9 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.ImageViewCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.cyl.classifymenu.CYLMenuFoldControl
+import com.cyl.classifymenu.CYLMenuFoldControlPosition
+import com.cyl.classifymenu.CYLMenuFoldControlContent
 import com.cyl.classifymenu.CYLTagListView
 import com.cyl.placeholder.CYLPlaceholderScenario
 import com.cyl.placeholder.CYLPlaceholderStackView
@@ -220,6 +223,28 @@ class CYLSearchView @JvmOverloads constructor(
      * `CYLTagListView`). Style it directly: colors (`colorTheme`), spacing, rows, the tag style.
      */
     val suggestionsTagView: CYLTagListView = CYLTagListView(context)
+
+    /**
+     * The fold control of the tag suggestions (CollectionViewClassifyMenu's `CYLMenuFoldControl`; iOS
+     * `suggestionsFoldControl`). An inline chevron as the last tag by default: tap it to show every row, again to fold.
+     * Position `None` shows every tag without a control.
+     */
+    var suggestionsFoldControl: CYLMenuFoldControl
+        get() = suggestionsTagView.foldControl ?: CYLMenuFoldControl()
+        set(value) {
+            suggestionsTagView.foldControl = value
+            updateSuggestionsVisibility()
+        }
+
+    /**
+     * The rows of tag suggestions shown while folded (iOS `suggestionsFoldedRowCount`). 2 by default; 0 shows every row.
+     */
+    var suggestionsFoldedRowCount: Int
+        get() = suggestionsTagView.defaultVisibleRows
+        set(value) {
+            suggestionsTagView.defaultVisibleRows = value
+            updateSuggestionsVisibility()
+        }
 
     /**
      * How the suggestions are shown: a list (`List`, the default) or tags (`Tags`).
@@ -570,6 +595,12 @@ class CYLSearchView @JvmOverloads constructor(
         suggestionsTagView.visibility = GONE
         suggestionsTagView.showsSectionHeaders = false
         suggestionsTagView.contentDescription = CYLSearchResources.localizedString(context, "search.suggestions")
+        // The last tag is a fold chevron by default (iOS `suggestionsFoldControl`), two rows while folded.
+        suggestionsTagView.foldControl = CYLMenuFoldControl().apply {
+            position = CYLMenuFoldControlPosition.CYLMenuFoldControlPositionInline
+            content = CYLMenuFoldControlContent.CYLMenuFoldControlContentIcon
+        }
+        suggestionsTagView.defaultVisibleRows = 2
         suggestionsTagView.tagClickHandler = { index, _ -> select(index) }
         val padding = (12 * density).toInt()
         suggestionsTagView.setPadding(padding, padding, padding, padding)

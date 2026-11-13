@@ -99,6 +99,8 @@ final class CYLFlutterSearchView: NSObject, FlutterPlatformView, CYLSearchViewDe
             searchView.suggestionCachePolicy = policy
         }
         searchView.focusesSearchFieldOnShow = arguments["focusesSearchFieldOnShow"] as? Bool ?? true
+        searchView.suggestionsFoldControl = cylFoldControl(arguments["suggestionsFoldControlPosition"], arguments["suggestionsFoldControlContent"])
+        searchView.suggestionsFoldedRowCount = UInt(max(0, arguments["suggestionsFoldedRowCount"] as? Int ?? 2))
     }
 
     func searchView(_ searchView: CYLSearchView, textDidChange text: String) {
@@ -199,6 +201,8 @@ final class CYLFlutterTagListView: NSObject, FlutterPlatformView {
 
     private func apply(_ arguments: [String: Any]) {
         container.overrideUserInterfaceStyle = (arguments["brightness"] as? String) == "dark" ? .dark : .light
+        container.tagListView.foldControl = cylFoldControl(arguments["foldControlPosition"], arguments["foldControlContent"])
+        container.tagListView.defaultVisibleRows = UInt(max(0, arguments["foldedRowCount"] as? Int ?? 2))
         container.tagListView.setTags(withTitles: arguments["tags"] as? [String] ?? [])
         container.setNeedsLayout()
     }
@@ -207,7 +211,7 @@ final class CYLFlutterTagListView: NSObject, FlutterPlatformView {
 /**
  * The tag list and the height it reported last.
  */
-final class CYLFlutterTagListContainer: UIView {
+final class CYLFlutterTagListContainer: UIView, CYLMenuDelegate {
     let tagListView = CYLTagListView(foldControl: nil)
     var heightChanged: ((CGFloat) -> Void)?
     private var reportedHeight: CGFloat = -1
@@ -215,6 +219,8 @@ final class CYLFlutterTagListContainer: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         tagListView.showsSectionHeaders = false
+        // Folding and unfolding change the height: report it again.
+        tagListView.menuDelegate = self
         // The Flutter page shows through, as around any other widget.
         backgroundColor = .clear
         let style = tagListView.style.copy() as! CYLMenuStyle
@@ -225,6 +231,14 @@ final class CYLFlutterTagListContainer: UIView {
 
     required init?(coder: NSCoder) {
         nil
+    }
+
+    func menu(_ menu: Any, didChangeContentHeight height: CGFloat) {
+        setNeedsLayout()
+    }
+
+    func menu(_ menu: Any, didChangeExpanded expanded: Bool, inSection section: Int) {
+        setNeedsLayout()
     }
 
     override func layoutSubviews() {
@@ -238,3 +252,14 @@ final class CYLFlutterTagListContainer: UIView {
         }
     }
 }
+
+/**
+ * The fold control for a Dart `CYLTagFoldControlPosition` and `CYLTagFoldControlContent` name; an inline icon by default.
+ */
+func cylFoldControl(_ position: Any?, _ content: Any?) -> CYLMenuFoldControl {
+    let positions: [String: CYLMenuFoldControlPosition] = ["none": .none, "inline": .inline, "bottom": .bottom,
+                                                           "topTrailing": .topTrailing, "topLeading": .topLeading]
+    let contents: [String: CYLMenuFoldControlContent] = ["iconAndTitle": .iconAndTitle, "title": .title, "icon": .icon]
+    return CYLMenuFoldControl(position: positions[position as? String ?? ""] ?? .inline, content: contents[content as? String ?? ""] ?? .icon)
+}
+

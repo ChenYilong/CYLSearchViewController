@@ -152,6 +152,10 @@ class CYLSearchDemoPage extends StatelessWidget {
           suggestionCachePolicy: CYLSearchSuggestionCachePolicy.database,
           suggestionCacheName: 'FlutterExample',
           focusesSearchFieldOnShow: demo.focusesSearchFieldOnShow,
+          // The tags end with the fold chevron, two rows while folded, as on the Discover page.
+          suggestionsFoldControlPosition: CYLTagFoldControlPosition.inline,
+          suggestionsFoldControlContent: CYLTagFoldControlContent.icon,
+          suggestionsFoldedRowCount: 2,
           onSubmitted: (text) => ScaffoldMessenger.of(routeContext).showSnackBar(SnackBar(content: Text('Query: $text'))),
           onClose: () => Navigator.of(routeContext).pop(),
         ),
