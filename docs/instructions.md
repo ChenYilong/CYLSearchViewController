@@ -22,3 +22,5 @@ repository and vault instructions.
 - A project whose code we translate (for example in `android/`) gets an open-issues table in the related document:
   issue link, description, fix status (`TODO` by default), and a score that is updated after every fix
   (`AGENTS.md`, "Open pull requests and issues of projects we translate").
+- Animation examples (English rule, AGENTS.md "Animation examples: playback controls"): a page that shows animations
+  offers Play all (from progress 0), a speed slider and a loop switch, combined and applied live, on every platform.

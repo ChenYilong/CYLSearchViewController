@@ -358,3 +358,11 @@ marks it `DONE`.
   `type`, `scope`, `subject`, `body`, `breaking`, `issues`, and `lerna`;
   prompts cover optional scope, imperative subject, longer description,
   breaking changes, issue references, and affected packages.
+
+## Animation examples: playback controls (added 2026-11-13)
+
+- Any example page that shows animations, on every platform (iOS, Android, React Native, Flutter, mini programs,
+  HarmonyOS), offers "Play all" (each animation restarts from progress 0), a speed slider and a loop switch, combined
+  into one playback strategy applied live, with accessibility labels and values; change the core when an example
+  needs it. This repository has no animation example yet; the rule and its status live in CollectionViewClassifyMenu
+  `docs/example-animation-controls.md` and CYLTabBarController `docs/Tab-Icon-Animation-Quick-Start.md`.
