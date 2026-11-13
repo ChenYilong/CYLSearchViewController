@@ -225,7 +225,8 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
     private fun reportHeight() {
         val width = tagListView.width / tagListView.resources.displayMetrics.density
         if (width <= 0f) return
-        val height = kotlin.math.ceil(tagListView.heightThatFitsWidth(width))
+        // The list's own content height includes a folded inline row that `heightThatFitsWidth` can leave out.
+        val height = kotlin.math.ceil(maxOf(tagListView.heightThatFitsWidth(width), tagListView.contentHeight))
         if (height != reportedHeight) {
             reportedHeight = height
             channel.invokeMethod("didChangeHeight", mapOf("height" to height.toDouble()))

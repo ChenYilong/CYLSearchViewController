@@ -262,9 +262,17 @@ CollectionViewClassifyMenu).
     (`tagSuggestionsEndWithTheFoldButtonByDefault`), Flutter plugin 7/7 (parameters), both Flutter builds.
   - Verified (Flutter, iPhone 17 simulator iOS 26.3, 2026-11-13 19:0x NZDT), top to bottom: the Discover page folded
     to two rows with the chevron ("More") as the last tag; after tapping it, every recent search with the up chevron
-    ("Less") last, and the page below moved down. The Android Flutter build passes; its emulator run is still to do.
+    ("Less") last, and the page below moved down.
 
     ![Flutter Discover: folded, then unfolded](assets/fold-fixed-flutter-ios.png)
 
-- Status: `BUG DONE` (Android Flutter screenshot pending).
+  - Android (Flutter, `CYL_API35_arm64` read-only instance, Android 15 / API 35, 2026-11-13 19:42 NZDT): the first run
+    showed the folded list one row short (the row with the chevron clipped): the plugin reported `heightThatFitsWidth`
+    before the folded layout settled. It now reports the larger of that and the list's own `contentHeight`, which the
+    list updates through `menuDidChangeContentHeight`. Left to right: folded (two rows, the chevron last), unfolded
+    (the up chevron last), folded again.
+
+    ![Flutter Discover on Android: folded, unfolded, folded again](assets/fold-fixed-flutter-android.png)
+
+- Status: `BUG DONE`.
 
