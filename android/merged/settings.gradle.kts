@@ -58,6 +58,9 @@ val cylPlaceholderDir = pinnedCheckout("CYLTableViewPlaceHolder", "https://githu
     "cyl.placeholder.commit", "cyl.placeholder.dir", "CYL_PLACEHOLDER_DIR")
 include(":placeholder")
 project(":placeholder").projectDir = File(cylPlaceholderDir, "android/placeholder")
+// Its Lottie animator: the placeholders play their animations (iOS: the CYLPlaceholderAnimation/Lottie subspec).
+include(":placeholder-lottie")
+project(":placeholder-lottie").projectDir = File(cylPlaceholderDir, "android/placeholder-lottie")
 
 // The five translated projects, as library modules (each keeps its own resources and package).
 include(":search-lapism", ":search-materialsearchview", ":search-multisearchview")

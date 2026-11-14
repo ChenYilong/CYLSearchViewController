@@ -168,3 +168,8 @@ begins and becomes `DONE` when it ends.
   `axe` (`/opt/homebrew/Cellar/xcodebuildmcp/2.7.0/libexec/bundled/axe`); typing filters to "Swift", "More" unfolds.
   Still blocked: WeChat DevTools, a HarmonyOS device with hypium, CYLTableViewPlaceHolder PR #28, CYLTabBarController
   raised plus on Liquid Glass.
+- Progress (2026-11-15, Android animated placeholder): DONE. The user set the order of what remains: the Android
+  animated placeholder, then the raised plus button, then the mini program components, then HarmonyOS.
+  CYLTableViewPlaceHolder PR #30 → PR #28's branch (`af23ea0`); Android pin moved; details and screenshot in
+  `docs/core-todo.md`. Prompt: "Android animated placeholder: CYLTableViewPlaceHolder PR #28 merged with a Lottie
+  animator. order is 3。4 1 2。"

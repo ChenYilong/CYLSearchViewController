@@ -153,7 +153,18 @@ packages). A test checks each rule.
   there, in this order: a Lottie animator (`com.airbnb.android:lottie`), the JSON assets (iOS
   `Animations/CYLPlaceholder<Name>.json` per scenario, the table is `+animationFileNamesForScenario:`), and the stack
   view playing its scenario's animation with the still image as the fallback; then nothing changes in `cylsearch`,
-  which already shows `CYLPlaceholderStackView`. HarmonyOS: done, see its entry
+  which already shows `CYLPlaceholderStackView`.
+  DONE on Android (2026-11-15): CYLTableViewPlaceHolder PR #30, merged into PR #28's branch at `af23ea0`, adds
+  `android/placeholder-lottie` (`CYLLottiePlaceholderItemAnimator`, lottie-android 6.6.2, registered at app start),
+  the scenarios' JSON and GIF files in `assets/CYLPlaceholderAnimations`, and `CYLPlaceholderStackView.animationView`
+  (the still image stays the fallback). Here: `cylsearch` depends on `:placeholder-lottie`; the Android pin moved to
+  `af23ea0` (the iOS pins stay at `c202b8c`, PR #29's privacy-manifest fix on another branch). Tests: placeholder
+  36/36, placeholder-lottie 3/3, cylsearch 16/16. Verified on the Android 15 emulator: the Tag style search with an
+  empty cache shows the animated cactus; three frames 0.6 s apart differ in the face.
+
+  ![Android: animated empty-cache placeholder](assets/android-empty-cache-lottie-placeholder.png)
+
+  HarmonyOS: done, see its entry
   ([harmonyos-api-alignment.md](harmonyos-api-alignment.md)).
 
 ## DONE (2026-11-14; TODO 2026-11-13): focus the search field on entry, as a Bool, with a placeholder for an empty list
@@ -176,5 +187,5 @@ packages). A test checks each rule.
 - Prompt: the same prompt as the entry above (its second part).
 - Status: DONE (2026-11-14) on iOS, Android, Flutter and React Native: `focusesSearchFieldOnShow` (default on);
   with it off the suggestion list shows without the keyboard, and an empty list shows the CYLTableViewPlaceHolder
-  placeholder (animated on iOS; a still image on Android until the follow-up above). The Tag style samples pass
+  placeholder (animated on iOS and, since 2026-11-15, on Android). The Tag style samples pass
   `false`. Tests: `testFocusesSearchFieldOnShowDecidesWhenTheKeyboardAppears`, Android `CYLSearchBehaviorTest`.
