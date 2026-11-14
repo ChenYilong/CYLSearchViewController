@@ -7,6 +7,10 @@ and the applicable skill in `.agents/skills/` before making changes.
 
 ## Skills
 
+TODO: please install following docs 开发者工具 Skills
+ https://developers.weixin.qq.com/miniprogram/dev/devtools/Skills.html
+
+
 `.agents/skills` holds the skills; `.claude/skills` only points there.
 
 | Skill | Use it when |
