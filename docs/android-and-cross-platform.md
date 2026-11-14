@@ -25,6 +25,9 @@ Native) for the CYLSearchViewController components.
   cross-platform (React Native, Flutter; Flutter first, adapt React Native after Flutter passes its tests)
   support, adapted for Android and the HarmonyOS NEXT system."
 - Status: logged, not started; waits for the search API parity task and the Swift migration.
+- Status (2026-11-14): Android DONE (`android/merged`, API alignment 395 rows, 100/100); Flutter DONE
+  (`CrossPlatform/flutter_cylsearch`, tests pass); React Native DONE except the touch checks on iOS and the tab bar
+  (its own entry below); HarmonyOS NEXT open (its own entry below, 0/323).
 - Order of work: Android → HarmonyOS NEXT compatibility → Flutter (tests pass) → React Native.
 - Decisions (user, 2026-11-13):
   - Flutter wraps the native core, like CYLTabBarController's `flutter_cyltabbar`: a plugin

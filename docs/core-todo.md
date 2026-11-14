@@ -42,7 +42,7 @@ packages). A test checks each rule.
     14/14).
 - Status: DONE.
 
-## TODO (2026-11-13): a cache for the suggestion list, with cache policies
+## DONE (2026-11-14; TODO 2026-11-13): a cache for the suggestion list, with cache policies
 
 - Context (survey of the core and every example, 2026-11-13):
   - The Swift core has no cache: `CYLSearchView.suggestions` is set by the app, and the Discover pages (iOS, Android,
@@ -142,9 +142,15 @@ packages). A test checks each rule.
   or database is empty) a CYLPlaceholder message shows; the field is focused only when the user taps it. The
   parameter is a Bool; it decides when the keyboard appears. Implement these in the core first; the examples pass the
   new parameters. CYLPlaceholder prefers an animated image, a still image second."
-- Status: `TODO`.
+- Status: DONE (2026-11-14) on iOS, Android, Flutter and React Native: `suggestionCachePolicy` (none, database
+  default, user defaults, sandbox file; `CYLSearchSuggestionCache` for more), `suggestionCacheName`, the "Recent
+  searches" header with its clear button, and the empty-cache placeholder. Tests: iOS 26/26, Android 16/16, Flutter
+  Dart 8/8. Two follow-ups live in their own entries: the animated placeholder on Android waits for
+  CYLTableViewPlaceHolder's Android port (its PR #28: `CYLPlaceholderStackView` does not play the scenarios'
+  animations yet; then `cylsearch` registers a Lottie factory and pins that commit), and HarmonyOS
+  ([harmonyos-api-alignment.md](harmonyos-api-alignment.md)).
 
-## TODO (2026-11-13): focus the search field on entry, as a Bool, with a placeholder for an empty list
+## DONE (2026-11-14; TODO 2026-11-13): focus the search field on entry, as a Bool, with a placeholder for an empty list
 
 - Context: `CYLSearchView.showSearch(animated:)` focuses the field today, so the keyboard always rises when the
   search opens (the Flutter platform view calls it on creation). There is no way to open the search with the
@@ -162,4 +168,7 @@ packages). A test checks each rule.
   3. In the core first, on iOS and Android and through the cross-platform packages; the examples only pass the new
      parameter (at least one example with focus off).
 - Prompt: the same prompt as the entry above (its second part).
-- Status: `TODO`.
+- Status: DONE (2026-11-14) on iOS, Android, Flutter and React Native: `focusesSearchFieldOnShow` (default on);
+  with it off the suggestion list shows without the keyboard, and an empty list shows the CYLTableViewPlaceHolder
+  placeholder (animated on iOS; a still image on Android until the follow-up above). The Tag style samples pass
+  `false`. Tests: `testFocusesSearchFieldOnShowDecidesWhenTheKeyboardAppears`, Android `CYLSearchBehaviorTest`.

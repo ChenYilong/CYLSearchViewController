@@ -84,7 +84,7 @@ CollectionViewClassifyMenu).
 | Taken | 2026-11-12 21:30–21:40 NZDT |
   - The iOS side is the TODO above (still open, in order).
 
-## TODO (2026-11-12): tag-style suggestion demos copied from CollectionViewClassifyMenu, iOS first
+## DONE (2026-11-14; TODO 2026-11-12): tag-style suggestion demos copied from CollectionViewClassifyMenu, iOS first
 
 - Context: refines the iOS TODO at the top of this document. CollectionViewClassifyMenu already implements tag
   pages (the user's screenshots below): a search page with "Recent searches" tags (a fold button at the end of the
@@ -180,7 +180,11 @@ CollectionViewClassifyMenu).
   plugin's `CYLSearchView` takes `suggestionStyle: CYLSearchSuggestionStyle.tags`, and its new `CYLTagListView` widget
   is CollectionViewClassifyMenu's native tag list; the example has a Tag style tab and a Discover tab built on it (same
   data as iOS and Android). Details and screenshots: [android-and-cross-platform.md](android-and-cross-platform.md).
-- Status: `TODO` (iOS, Android and Flutter done; React Native open).
+- React Native: DONE (2026-11-14). `react-native-cylsearch` has `suggestionStyle="tags"` on `CYLSearchView` and the
+  `CYLTagListView` component (CollectionViewClassifyMenu's native tag list, folded to two rows behind the inline
+  chevron); the example has a Tag style tab and a Discover tab on the same data. Screenshots (Android and iOS):
+  [android-and-cross-platform.md](android-and-cross-platform.md).
+- Status: DONE (2026-11-14): iOS, Android, Flutter and React Native.
 
 ## DONE (2026-11-12): Android tag cells cut their text at the cell edge
 

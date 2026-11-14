@@ -106,4 +106,9 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
     | Taken | 2026-11-13 00:4x NZDT |
 - Next: React Native, Flutter, HarmonyOS and mini programs, when those versions of this library exist (the
   cross-platform TODO in [android-and-cross-platform.md](android-and-cross-platform.md)).
-- Status: `TODO` (iOS and Android done; React Native, Flutter, HarmonyOS, mini programs open).
+- Flutter and React Native: DONE (2026-11-13 and 2026-11-14). Both wrap the native cores, so they get the same
+  placeholder: `showsEmptyResultsPlaceholder` and `emptyResultsScenario` on Flutter's `CYLSearchView` widget and on
+  React Native's `CYLSearchView`; each example has an Empty results demo. Pin: CYLTableViewPlaceHolder `bdd78c7` on
+  every platform.
+- Status: `TODO` (iOS, Android, Flutter and React Native done; HarmonyOS and mini programs open: no version of this
+  library exists on them yet, see [android-and-cross-platform.md](android-and-cross-platform.md)).
