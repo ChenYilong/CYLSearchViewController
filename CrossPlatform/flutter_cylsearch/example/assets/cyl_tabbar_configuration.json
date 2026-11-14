@@ -1,0 +1,35 @@
+{
+  "CYLTabBarControllerContext": "CYLSearchFlutterExample",
+  "CYLTabBarControllerTabBarItemsAttributes": [
+    {
+      "CYLTabBarItemTitle": "List style",
+      "CYLTabBarItemImage": "flutter-asset:assets/tab_list.png",
+      "CYLTabBarItemIdentifier": "listStyle"
+    },
+    {
+      "CYLTabBarItemTitle": "Tag style",
+      "CYLTabBarItemImage": "flutter-asset:assets/tab_tags.png",
+      "CYLTabBarItemIdentifier": "tagStyle"
+    },
+    {
+      "CYLTabBarItemTitle": "Empty results",
+      "CYLTabBarItemImage": "flutter-asset:assets/tab_empty.png",
+      "CYLTabBarItemIdentifier": "emptyResults"
+    },
+    {
+      "CYLTabBarItemTitle": "Discover",
+      "CYLTabBarItemImage": "flutter-asset:assets/tab_discover.png",
+      "CYLTabBarItemIdentifier": "discover"
+    }
+  ],
+  "CYLTabBarControllerPlusButton": {
+    "CYLTabBarItemTitle": "Search bar",
+    "CYLTabBarItemImage": "flutter-asset:assets/plus.png",
+    "CYLTabBarItemIdentifier": "plus",
+    "CYLPlusButtonSize": "{55, 80}",
+    "CYLPlusButtonImageSize": "{55, 55}",
+    "CYLPlusButtonCenterYOffset": -14,
+    "CYLTabBarItemPageIdentifier": "plus",
+    "CYLPlusButtonIndexInTabBar": 2
+  }
+}

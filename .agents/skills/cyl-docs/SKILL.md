@@ -58,6 +58,17 @@ description: "Document public integration and reproducible steps for CYLSearchVi
 - Screenshots in `docs/assets/` show search screens with nothing behind the
   search bar (`AGENTS.md`, "Search bar placement").
 
+## Screenshots in docs and README
+
+- Screenshots of local builds and of CI/CD go into the related `docs/` document (images in `docs/assets/`, create
+  a document when none fits), as clear originals with platform, environment (host OS, simulator or emulator, SDK
+  version), repository version or commit link, and date and time.
+- At a key milestone (a `TODO` or `Linux` note can be removed, a PR can be merged, the result works with no known
+  bug or open issue) update the screenshot section of `README.md` (create it if missing): cropped key details, not
+  full screens unless needed, stitched into one image with `scripts/stitch-screenshots.swift`; layout preference:
+  stacked top to bottom, then two columns, then one row of at most three.
+- Correction (user, 2026-11-12): the original wording, "prefer the horizontal arrangement" and "worst is horizontal stitching", contradicted itself; the rule is to prefer the vertical arrangement, one image per row stacked top to bottom.
+
 ## Task log before every task
 
 Before any task, log it as `TODO` in the most suitable document in `docs/`
@@ -72,3 +83,20 @@ Full rule: `AGENTS.md`, "Task log before every task".
   the entry is English.
 - The stale-notes search before a commit skips the open `TODO` of the task in
   progress; every other `TODO` it finds is tested and resolved as before.
+
+## Swift
+
+Swift code follows `docs/swift-coding-standard.md` and the third-party Swift skills in `.agents/skills`
+(`swift-api-design-guidelines`, `swift-language`, `swift-concurrency`, `swift-testing`, `swift-architecture`,
+`uikit`, `uikit-layouting`). The core's translation and its score: `docs/swift-migration.md`.
+
+## Open pull requests and issues of projects we translate
+
+When we translate or port another GitHub project's code (for example `android/`), merge its open pull requests
+(before translating, or translate and merge them afterwards), list its open issues in a `docs/` table (issue link,
+description, fix status `TODO`), fix them in our code and score after every fix until 100; a translation that has not
+started begins at 60. Full rule: `AGENTS.md`, same section.
+
+## Swift core: examples adapt to the core (added 2026-11-13)
+
+When an Objective-C to Swift change of the core breaks an example's build, fix the example: example code has the lowest weight of all code here. Change any example code as needed; never keep a core API, overload, shim or deprecated alias only because an example uses it, and never lower the Swift core's quality (naming, types, optionality, access control) to fit an example. Compatibility matters only for callers outside the examples (published API users). The Swift coding standard (docs/swift-coding-standard.md) decides. Rule and context: [docs/swift-migration.md](../../../docs/swift-migration.md).

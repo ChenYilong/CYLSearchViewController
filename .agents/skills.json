@@ -1,0 +1,24 @@
+{
+  "note": "Third-party skills vendored into .agents/skills from GitHub at pinned commits (the same pins as CYLTabBarController's .agents/skills.json). Do not edit them by hand; update the pin and copy again. Project skills are the cyl-* folders.",
+  "sources": [
+    {
+      "repo": "dpearson2699/swift-ios-skills",
+      "commit": "8d90fd121a263355a4fb44fd082af1416a5c1c2a",
+      "license": "PolyForm-Perimeter-1.0.0",
+      "licenseFile": "UPSTREAM-LICENSE in each skill folder",
+      "skills": ["swift-language", "swift-api-design-guidelines", "swift-concurrency", "swift-testing", "swift-architecture"]
+    },
+    {
+      "repo": "Prisma-Labs-Dev/apple-skills",
+      "commit": "498626005e65783ebe8570a103b2335cf397768c",
+      "license": "MIT",
+      "skills": ["uikit"]
+    },
+    {
+      "repo": "JordanCoin/ios-skills-collection",
+      "commit": "90d180768169d5b422790042fe1606976abb1a0c",
+      "license": "MIT",
+      "skills": ["uikit-layouting"]
+    }
+  ]
+}

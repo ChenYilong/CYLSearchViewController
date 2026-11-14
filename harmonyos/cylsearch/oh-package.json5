@@ -1,0 +1,9 @@
+{
+  "name": "cylsearch",
+  "version": "0.1.0",
+  "description": "The search components of CYLSearchViewController in ArkTS, with the iOS names.",
+  "main": "Index.ets",
+  "author": "ChenYilong",
+  "license": "MIT",
+  "dependencies": {}
+}

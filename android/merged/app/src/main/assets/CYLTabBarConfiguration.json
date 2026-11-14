@@ -1,0 +1,48 @@
+{
+  "CYLTabBarControllerContext": "CYLSearchExampleAndroid",
+  "CYLTabBarControllerLocalization": {
+    "CYLTabBarLocalizationTableName": "CYLSearchTabs",
+    "CYLTabBarLocalizationBundleName": "CYLSearchTabs.bundle"
+  },
+  "CYLTabBarControllerTabBarItemsAttributes": [
+    {
+      "CYLTabBarItemTitle": "tab.search",
+      "CYLTabBarItemImage": "system:magnifyingglass",
+      "CYLTabBarItemIdentifier": "search",
+      "CYLTabBarItemPageIdentifier": "search"
+    },
+    {
+      "CYLTabBarItemTitle": "tab.examples",
+      "CYLTabBarItemImage": "system:list.bullet",
+      "CYLTabBarItemIdentifier": "examples",
+      "CYLTabBarItemPageIdentifier": "examples"
+    },
+    {
+      "CYLTabBarItemTitle": "tab.listStyle",
+      "CYLTabBarItemImage": "cyl_tab_list_style",
+      "CYLTabBarItemIdentifier": "listStyle",
+      "CYLTabBarItemPageIdentifier": "listStyle"
+    },
+    {
+      "CYLTabBarItemTitle": "tab.tagStyle",
+      "CYLTabBarItemImage": "cyl_tab_tag_style",
+      "CYLTabBarItemIdentifier": "tagStyle",
+      "CYLTabBarItemPageIdentifier": "tagStyle"
+    },
+    {
+      "CYLTabBarItemTitle": "tab.discover",
+      "CYLTabBarItemImage": "cyl_tab_discover",
+      "CYLTabBarItemIdentifier": "discover",
+      "CYLTabBarItemPageIdentifier": "discover"
+    }
+  ],
+  "CYLTabBarControllerPlusButton": {
+    "CYLTabBarItemTitle": "tab.searchBar",
+    "CYLTabBarItemImage": "system:plus.circle.fill",
+    "CYLTabBarItemIdentifier": "plus",
+    "CYLTabBarItemPageIdentifier": "plus",
+    "CYLPlusButtonSize": "{56, 56}",
+    "CYLPlusButtonCenterYMultiplier": 0.3,
+    "CYLPlusButtonIndexInTabBar": 2
+  }
+}

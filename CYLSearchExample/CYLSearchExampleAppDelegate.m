@@ -1,7 +1,7 @@
 #import "CYLSearchExampleAppDelegate.h"
 #import "CYLSearchBarDemoViewController.h"
 #import "CYLSearchDemoMenuViewController.h"
-#import "CYLSearchExampleViewController.h"
+#import "CYLSearchExample-Swift.h"
 #import <CYLTabBarController/CYLTabBarController.h>
 
 @implementation CYLSearchExampleAppDelegate
@@ -44,6 +44,14 @@
     [pages registerPageProvider:^UIViewController *(NSString *pageIdentifier, NSDictionary<NSString *, id> *tab) {
         return [self navigationControllerWithRoot:[CYLSearchBarDemoViewController new]];
     } forPageIdentifier:@"plus"];
+    // The suggestion style demos (docs/tag-view-suggestions.md): suggestions as tags, and the discover page copied from
+    // CollectionViewClassifyMenu. The discover page draws its own search bar in place of the navigation bar.
+    [pages registerPageProvider:^UIViewController *(NSString *pageIdentifier, NSDictionary<NSString *, id> *tab) {
+        return [self navigationControllerWithRoot:[CYLSuggestionDemoPages tagStyleViewController]];
+    } forPageIdentifier:@"tagStyle"];
+    [pages registerPageProvider:^UIViewController *(NSString *pageIdentifier, NSDictionary<NSString *, id> *tab) {
+        return [self navigationControllerWithRoot:[CYLSuggestionDemoPages discoverViewController]];
+    } forPageIdentifier:@"discover"];
 }
 
 + (UINavigationController *)navigationControllerWithRoot:(UIViewController *)root

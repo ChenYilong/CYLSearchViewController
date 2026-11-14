@@ -162,3 +162,30 @@ plus page; the Examples tab at the largest accessibility text size.
   the Podfile pin, compare upstream `AGENTS.md` and the `cyl-*` skills, and
   update the commits recorded in this document and the skill links. CI warns
   when the pin is not the newest commit.
+
+## DONE (2026-11-12): raised plus button in example demos
+
+- Context: the example's plus button comes from `CYLSearchExample/CYLTabBarConfiguration.json`
+  (`CYLTabBarControllerPlusButton`), shown inside the tab bar like a tab.
+- Requirements: in the instruction files and the skills, find the CYLTabBarController example-layer integration
+  section (create it if missing) and add, in English: when the example demonstrates a plus button, prefer the
+  raised plus button, whose top edge rises above the tab bar.
+- Prompt (verbatim): "找到instructions相关文档以及skills相关文档。找到CYLTabBarController 相关example层集成章节，如果没有就新建，全英文追加一条规则集成PlusButton进行example演示时，总是优先使用plus button凸起效果。凸起的含义是plus button顶点超出tabbar范围。"
+- Prompt (English): "Find the instruction documents and skill documents, find the CYLTabBarController example-layer
+  integration section (create it if missing), and append a rule in English: when integrating a PlusButton for an
+  example demo, always prefer the raised plus button effect; raised means the top of the plus button goes beyond
+  the tab bar."
+- Status: DONE (2026-11-12): the rule is in the CYLTabBarController section of `AGENTS.md` ("Raised plus button")
+  and `instructions.md`, and in the `cyl-plus-button` and `cyl-tabbar-integration` skills. The Android example
+  already follows it (56 dp, `CYLPlusButtonCenterYMultiplier` 0.3; screenshots in
+  [android-and-cross-platform.md](android-and-cross-platform.md)).
+- Follow-up `TODO`: the iOS example's plus button (`CYLSearchExample/CYLTabBarConfiguration.json`) is not raised
+  yet; give it the raised effect, build and screenshot it (iOS example layer).
+  - Tried (2026-11-14, iPhone 17, iOS 26.3.1): `CYLPlusButtonSize` `{56, 56}` and `CYLPlusButtonCenterYMultiplier` 0.3
+    in `CYLSearchExample/CYLTabBarConfiguration.json` (the keys the Android example uses, read by the iOS parser) change
+    nothing: the plus button stays level with the tab icons in the floating Liquid Glass bar. The same in the React
+    Native example. Cause, from `CYLPlusButton.h`: a plus button with a title lets its tab item draw the title and the
+    button replaces only the item's icon (`cyl_showsTitleInTabBarItem`), so it is placed inside the item, not by
+    `+multiplierOfTabBarHeight:`; the multiplier applies to a title-less button with
+    `cyl_appliesCenterYOffsetWithoutTitle` YES, or in the other styles. Decision needed in CYLTabBarController (raised
+    effect with a title on Liquid Glass), so it stays `TODO` here; the config was reverted.

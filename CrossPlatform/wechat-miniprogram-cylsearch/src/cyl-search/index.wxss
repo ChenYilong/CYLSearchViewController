@@ -1,0 +1,10 @@
+.cyl-page { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 100; background: #fff; }
+.cyl-line { height: 1rpx; background: #d1d1d6; }
+.cyl-empty { margin-top: 240rpx; text-align: center; color: #8e8e93; font-size: 34rpx; }
+.cyl-header { display: flex; align-items: center; justify-content: space-between; padding: 16rpx 32rpx; }
+.cyl-header-title { color: #8e8e93; font-size: 30rpx; font-weight: 500; }
+.cyl-clear { min-width: 88rpx; min-height: 88rpx; display: flex; align-items: center; justify-content: center; }
+.cyl-row { min-height: 88rpx; padding: 16rpx 32rpx; font-size: 34rpx; border-bottom: 1rpx solid #e5e5ea; }
+.cyl-tags { display: flex; flex-wrap: wrap; padding: 32rpx; }
+.cyl-tags-folded { max-height: 164rpx; overflow: hidden; }
+.cyl-tag { height: 68rpx; padding: 0 28rpx; margin: 0 16rpx 16rpx 0; line-height: 68rpx; border: 2rpx solid #d1d1d6; border-radius: 34rpx; font-size: 30rpx; }

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Independent layout for the reveal search sample (see CYLRevealSearchActivity.kt). Upstream issues #4 / #2: the
+     text and the hint have readable colors on the light card (upstream used light yellow text on a light card). -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorPrimary">
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cyl_search_card"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_gravity="center"
+        android:layout_margin="4dp"
+        app:cardBackgroundColor="#F2F2F2"
+        app:cardCornerRadius="2dp">
+
+        <EditText
+            android:id="@+id/cyl_search_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:hint="@android:string/search_go"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:paddingStart="12dp"
+            android:paddingEnd="56dp"
+            android:textColor="#212121"
+            android:textColorHint="#757575" />
+
+        <ImageView
+            android:id="@+id/cyl_search_magnifier"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center"
+            android:contentDescription="@android:string/search_go"
+            android:padding="12dp"
+            android:src="@android:drawable/ic_menu_search" />
+    </androidx.cardview.widget.CardView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/cyl_search_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:contentDescription="@android:string/search_go"
+        android:src="@android:drawable/ic_menu_search"
+        app:backgroundTint="#FFFFFF" />
+</FrameLayout>

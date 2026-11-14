@@ -1,0 +1,22 @@
+<!-- The search page: the bar, a divider, then the cached queries and suggestions as a list or tags (iOS CYLSearchView). -->
+<view class="cyl-page" wx:if="{{open}}">
+  <cyl-search-bar value="{{query}}" placeholder="{{placeholder}}" focus="{{focus}}" searchBarStyle="{{searchBarStyle}}"
+    items="{{items}}" showsCancelButton="{{true}}" cancelButtonTitle="{{cancelButtonTitle}}"
+    bind:textchange="onTextChange" bind:submit="onSubmit" bind:focuschange="onFocusChange" bind:cancel="close"
+    bind:itemselect="onItemSelect" />
+  <view class="cyl-line" />
+  <view wx:if="{{showsEmptyResults || showsEmptySuggestions}}" class="cyl-empty" role="status">{{showsEmptyResults ? emptyResultsText : emptySuggestionsText}}</view>
+  <block wx:elif="{{suggestions.length > 0}}">
+    <view wx:if="{{showsCachedQueries}}" class="cyl-header">
+      <text class="cyl-header-title">{{recentTitle}}</text>
+      <view class="cyl-clear" role="button" aria-label="{{clearLabel}}" bindtap="onClear">🗑</view>
+    </view>
+    <view wx:if="{{suggestionStyle === 'tags'}}" class="cyl-tags {{folded ? 'cyl-tags-folded' : ''}}">
+      <view wx:for="{{suggestions}}" wx:key="*this" class="cyl-tag" data-index="{{index}}" bindtap="onSuggestionTap">{{item}}</view>
+      <view wx:if="{{foldedRowCount > 0}}" class="cyl-tag cyl-fold" role="button" bindtap="onToggleFold">{{folded ? '⌄' : '⌃'}}</view>
+    </view>
+    <view wx:else class="cyl-list">
+      <view wx:for="{{suggestions}}" wx:key="*this" class="cyl-row" data-index="{{index}}" bindtap="onSuggestionTap">{{item}}</view>
+    </view>
+  </block>
+</view>

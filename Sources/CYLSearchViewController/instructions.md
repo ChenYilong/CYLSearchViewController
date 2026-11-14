@@ -4,6 +4,8 @@
 - Keep this UIKit component independent of the example app and refresh or
   placeholder libraries. Expose integration points through public interfaces.
 - Keep public headers suitable for CocoaPods consumers.
+- New and translated code is Swift: follow `docs/swift-coding-standard.md`, keep the Objective-C names with
+  `@objc(...)`, and update the score in `docs/swift-migration.md` with every commit.
 
 ## Search bar placement
 

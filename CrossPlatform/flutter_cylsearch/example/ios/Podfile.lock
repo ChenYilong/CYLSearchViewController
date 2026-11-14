@@ -1,0 +1,97 @@
+PODS:
+  - CollectionViewClassifyMenu (0.1.0)
+  - CYLSearchViewController (0.1.0):
+    - CollectionViewClassifyMenu
+    - CYLTableViewPlaceHolder/Lottie
+  - CYLTabBarController (1.100.0):
+    - CYLTabBarController/Core (= 1.100.0)
+  - CYLTabBarController/Core (1.100.0):
+    - CYLTabBarController/CYLBadgeView
+    - CYLTabBarController/CYLUtils
+  - CYLTabBarController/CYLBadgeView (1.100.0):
+    - CYLTabBarController/CYLUtils
+  - CYLTabBarController/CYLUtils (1.100.0)
+  - CYLTableViewPlaceHolder (1.1.0):
+    - CYLTableViewPlaceHolder/Core (= 1.1.0)
+  - CYLTableViewPlaceHolder/Core (1.1.0)
+  - CYLTableViewPlaceHolder/CYLPlaceholderItemAnimation (1.1.0):
+    - CYLTableViewPlaceHolder/Core
+  - CYLTableViewPlaceHolder/Lottie (1.1.0):
+    - CYLTableViewPlaceHolder/LottieSwift
+  - CYLTableViewPlaceHolder/LottieSwift (1.1.0):
+    - CYLTableViewPlaceHolder/Core
+    - CYLTableViewPlaceHolder/CYLPlaceholderItemAnimation
+    - lottie-ios (>= 4.5.1)
+  - Flutter (1.0.0)
+  - flutter_cylsearch (0.1.0):
+    - CollectionViewClassifyMenu
+    - CYLSearchViewController
+    - CYLTableViewPlaceHolder/Core
+    - Flutter
+  - flutter_cyltabbar (0.1.0):
+    - CYLTabBarController
+    - Flutter
+  - integration_test (0.0.1):
+    - Flutter
+  - lottie-ios (4.6.1)
+
+DEPENDENCIES:
+  - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `f9724167235dee050a81432f3c16f6c4e15dc186`)
+  - CYLSearchViewController (from `../../../..`)
+  - CYLTabBarController (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `2a125822c58049ed14b9f2f5b9f8a7e609a8dccb`)
+  - CYLTableViewPlaceHolder (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `9d49d16863d984e7d094f30ddf78330a5f2fe854`)
+  - Flutter (from `Flutter`)
+  - flutter_cylsearch (from `.symlinks/plugins/flutter_cylsearch/ios`)
+  - flutter_cyltabbar (from `.symlinks/plugins/flutter_cyltabbar/ios`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+
+SPEC REPOS:
+  trunk:
+    - lottie-ios
+
+EXTERNAL SOURCES:
+  CollectionViewClassifyMenu:
+    :commit: f9724167235dee050a81432f3c16f6c4e15dc186
+    :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
+  CYLSearchViewController:
+    :path: "../../../.."
+  CYLTabBarController:
+    :commit: 2a125822c58049ed14b9f2f5b9f8a7e609a8dccb
+    :git: https://github.com/ChenYilong/CYLTabBarController.git
+  CYLTableViewPlaceHolder:
+    :commit: 9d49d16863d984e7d094f30ddf78330a5f2fe854
+    :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
+  Flutter:
+    :path: Flutter
+  flutter_cylsearch:
+    :path: ".symlinks/plugins/flutter_cylsearch/ios"
+  flutter_cyltabbar:
+    :path: ".symlinks/plugins/flutter_cyltabbar/ios"
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+
+CHECKOUT OPTIONS:
+  CollectionViewClassifyMenu:
+    :commit: f9724167235dee050a81432f3c16f6c4e15dc186
+    :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
+  CYLTabBarController:
+    :commit: 2a125822c58049ed14b9f2f5b9f8a7e609a8dccb
+    :git: https://github.com/ChenYilong/CYLTabBarController.git
+  CYLTableViewPlaceHolder:
+    :commit: 9d49d16863d984e7d094f30ddf78330a5f2fe854
+    :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
+
+SPEC CHECKSUMS:
+  CollectionViewClassifyMenu: ebd3e85358cf219b3ad20b5e005c54719b2708f4
+  CYLSearchViewController: 4826e3fa2030073fe576ff501eea6143db865c3b
+  CYLTabBarController: 9e49f3142d6f7a671c3baa9aab8f91ebc2661889
+  CYLTableViewPlaceHolder: 2cf43940d6a518b80fd4941264ddb17cd3a400d8
+  Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
+  flutter_cylsearch: dd80a2d8a656b1c334d031da3665a32f7766d103
+  flutter_cyltabbar: 21d7189f47947477d10f84e5232104daa2ec2e50
+  integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
+  lottie-ios: 6467ca7035120c5b0e0acee58bb679cf15875686
+
+PODFILE CHECKSUM: f651624738540747f57912004f9138dd5d3fc1b6
+
+COCOAPODS: 1.17.0

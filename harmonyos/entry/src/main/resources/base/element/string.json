@@ -1,0 +1,10 @@
+{
+  "string": [
+    { "name": "module_desc", "value": "CYLSearch example" },
+    { "name": "EntryAbility_desc", "value": "CYLSearch example" },
+    { "name": "EntryAbility_label", "value": "CYLSearch" },
+    { "name": "discover_title", "value": "Discover" },
+    { "name": "discover_search", "value": "Search" },
+    { "name": "discover_image_search", "value": "Search by image" }
+  ]
+}

@@ -70,6 +70,21 @@ shellcheck scripts/*.sh && actionlint
 Name the environment in every report: the GitHub runner (`macos-26` unless
 `MACOS_RUNNER` is set) or the local macOS and Xcode versions.
 
+### Screenshots
+
+Every local build or run screenshot and every CI/CD screenshot is committed and shown in the related `docs/`
+document (`docs/assets/`, create a document when none fits), as a clear original, labeled with:
+
+- the platform (iOS, Android, Flutter, React Native, HarmonyOS, mini program);
+- the environment: host OS version and build, simulator or emulator and its OS version, platform SDK version;
+- this repository's version or commit link;
+- the date and time, with the time zone.
+
+Take them at key milestones: a `TODO` or `Linux` note can be removed, a PR can be merged, or the result works with
+no known bug or open issue. Then update `README.md` (see `cyl-docs`). Stitch with
+`swift scripts/stitch-screenshots.swift --columns 1 --out <file> <images…>`. Full rule: `AGENTS.md`, "Screenshots
+of builds and CI/CD".
+
 ## Search bar placement
 
 A search bar never covers the main view, the view controller's view
@@ -97,3 +112,25 @@ Before any task, log it as `TODO` in the most suitable document in `docs/`
 (verbatim plus English translation) and a status line. Commit and push it,
 then start; mark it `DONE (YYYY-MM-DD)` with the result when the task ends.
 Full rule: `AGENTS.md`, "Task log before every task".
+
+## Swift
+
+Swift code follows `docs/swift-coding-standard.md` and the third-party Swift skills in `.agents/skills`
+(`swift-api-design-guidelines`, `swift-language`, `swift-concurrency`, `swift-testing`, `swift-architecture`,
+`uikit`, `uikit-layouting`). The core's translation and its score: `docs/swift-migration.md`.
+
+## Open pull requests and issues of projects we translate
+
+When we translate or port another GitHub project's code (for example `android/`), merge its open pull requests
+(before translating, or translate and merge them afterwards), list its open issues in a `docs/` table (issue link,
+description, fix status `TODO`), fix them in our code and score after every fix until 100; a translation that has not
+started begins at 60. Full rule: `AGENTS.md`, same section.
+
+## Screenshot stitching order
+
+Stitched screenshots: stacked top to bottom first, then two columns over several rows, then one row of at most
+three. Correction (user, 2026-11-12): the original wording, "prefer the horizontal arrangement" and "worst is horizontal stitching", contradicted itself; the rule is to prefer the vertical arrangement, one image per row stacked top to bottom.
+
+## Swift core: examples adapt to the core (added 2026-11-13)
+
+When an Objective-C to Swift change of the core breaks an example's build, fix the example: example code has the lowest weight of all code here. Change any example code as needed; never keep a core API, overload, shim or deprecated alias only because an example uses it, and never lower the Swift core's quality (naming, types, optionality, access control) to fit an example. Compatibility matters only for callers outside the examples (published API users). The Swift coding standard (docs/swift-coding-standard.md) decides. Rule and context: [docs/swift-migration.md](../../../docs/swift-migration.md).

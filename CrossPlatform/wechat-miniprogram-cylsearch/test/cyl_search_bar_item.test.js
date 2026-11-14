@@ -1,0 +1,50 @@
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const { CYLSearchBarItem, CYLSearchBarItems, CYLSearchBarItemStyle } = require('../src/cyl-search/cyl_search_bar_item');
+
+test('items are appended like the FlatDesign tab bar items and report their taps', () => {
+  const bar = new CYLSearchBarItems();
+  const events = [];
+  bar.onSelect = (item, index) => events.push(`select ${index}`);
+  let cameraTaps = 0;
+  const camera = CYLSearchBarItem.iconItem('camera.png', 'Camera', () => { cameraTaps += 1; });
+  const divider = CYLSearchBarItem.divider();
+  const search = CYLSearchBarItem.textItem('Search');
+  assert.equal(bar.indexOf(camera), -1);
+  bar.addItem(camera);
+  bar.addItem(search);
+  bar.insertItem(divider, 1);
+  assert.deepEqual(bar.items, [camera, divider, search]);
+  assert.equal(bar.indexOf(search), 2);
+  assert.equal(bar.hasItem(CYLSearchBarItemStyle.text), true);
+  bar.itemTapped(camera);
+  assert.equal(cameraTaps, 1);
+  assert.deepEqual(events, ['select 0']);
+  camera.isEnabled = false;
+  bar.itemTapped(camera);
+  bar.itemTapped(divider);
+  assert.equal(cameraTaps, 1);
+  camera.isEnabled = true;
+  camera.isSelectable = true;
+  assert.equal(bar.selectedItem, undefined);
+  assert.equal(bar.selectedIndex, -1);
+  bar.itemTapped(camera);
+  assert.equal(camera.isSelected, true);
+  assert.equal(bar.selectedItem, camera);
+  assert.equal(bar.selectedIndex, 0);
+  bar.removeItem(divider);
+  assert.deepEqual(bar.items, [camera, search]);
+  bar.removeAllItems();
+  assert.equal(bar.items.length, 0);
+});
+
+test('an item is built from plain values', () => {
+  const item = CYLSearchBarItem.item({ style: 'icon', title: 'Camera', image: 'c.png', accessibilityIdentifier: 'camera', isSelectable: true, badgeValue: '' });
+  assert.equal(item.style, 'icon');
+  assert.equal(item.itemAccessibilityIdentifier, 'camera');
+  assert.equal(item.isSelectable, true);
+  assert.equal(item.badgeValue, '');
+  assert.equal(CYLSearchBarItem.item({ style: 'divider' }).style, 'divider');
+  assert.equal(CYLSearchBarItem.item({ style: 'text', title: 'Search' }).style, 'text');
+  assert.equal(CYLSearchBarItem.item({}).style, 'icon');
+});

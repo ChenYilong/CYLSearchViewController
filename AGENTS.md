@@ -16,8 +16,11 @@ and the applicable skill in `.agents/skills/` before making changes.
 | `cyl-new-project` | Creating or extending an example project |
 | `cyl-api-map` | Finding the public API of `CYLTableViewPlaceHolder` and `CYLTabBarController` |
 | `cyl-xcode-compat` | Touching the `.xcodeproj`, Podfile or deployment targets |
+| `cyl-sub-repositories` | Adding or updating a sibling project as a sub-repository (CollectionViewClassifyMenu, CYLTableViewPlaceHolder): commit pin, core option, example, every platform |
 | `cyl-docs` | Editing `README.md` or `docs/` |
 | `cyl-verify` | Building, testing, running the simulator |
+| `swift-api-design-guidelines`, `swift-language`, `swift-concurrency`, `swift-testing`, `swift-architecture` | Writing or translating Swift (third-party, pinned in `.agents/skills.json`) |
+| `uikit`, `uikit-layouting` | UIKit views, controllers and layout in Swift (third-party) |
 
 Every new integration rule updates, in the same change, `AGENTS.md`,
 `instructions.md` and the affected skills.
@@ -34,6 +37,15 @@ Every new integration rule updates, in the same change, `AGENTS.md`,
 - Keep the sample configurable through protocols or public properties. Avoid
   dependencies on `AppDelegate`, global state, or concrete model types.
 - Keep all instructions and skill files in English.
+
+## Swift
+
+The core moves from Objective-C to Swift (`docs/swift-migration.md`, scored after every commit). All Swift code
+follows `docs/swift-coding-standard.md` and the Swift skills in `.agents/skills` (`swift-api-design-guidelines`,
+`swift-language`, `swift-concurrency`, `swift-testing`, `swift-architecture`, `uikit`, `uikit-layouting`; third-party,
+pinned in `.agents/skills.json`, never edited by hand). Public Swift API keeps the Objective-C class names and
+selectors (`@objc(...)`), so Objective-C callers keep working; documentation comments are three-line `/** */`
+blocks.
 
 ## Comments on public API
 
@@ -179,6 +191,35 @@ CYLTabBarController's `AGENTS.md` and `cyl-*` skills at its latest commit
 - **Clean builds.** Build into an empty derived data folder after a
   dependency change, so the app does not run stale pod code.
 
+- **Raised plus button.** Example layer, raised plus button: when an example demonstrates a plus button, always prefer the raised effect, where the top of the plus button rises above the top edge of the tab bar (for example `CYLPlusButtonCenterYMultiplier` below 0.5 with a button taller than half the bar, or `CYLPlusButtonCenterYOffset`); keep it fully tappable (`touchableRect`) and never let it cover the page content above the bar.
+
+## Sub-repositories (CollectionViewClassifyMenu, CYLTableViewPlaceHolder)
+
+Sibling projects in the same local folder (`../<Name>`) that this library uses are sub-repositories. The rules were
+set for CollectionViewClassifyMenu (the tag-view suggestion style, `docs/tag-view-suggestions.md`) and apply to every
+sub-repository:
+
+- **Dependency.** iOS: through the sub-repository's root podspec, as a sub-dependency of this pod (podspec
+  `s.dependency`, Podfile `:git` + `:commit`). Android and the other platforms: through their package manager by
+  commit; when that is not possible, the build checks out that commit and builds the module from source
+  (`android/merged/settings.gradle.kts`, `pinnedCheckout`).
+- **Newest commit.** Pin the newest commit on any branch (`git fetch` then `git log --remotes -1`); it may not be on
+  `main` or `master`. A local path is allowed only while developing: remove it before committing and commit the
+  commit-based dependency.
+- **Core first.** Add the feature to this library's core with an enum or a parameter that chooses it. When the
+  sub-repository lacks an interface, add it there, commit and push it there, then update this repository's pinned
+  commit and continue.
+- **Example.** The example shows every style the option offers; it passes only data, style parameters and click
+  handling.
+
+CollectionViewClassifyMenu shows the suggestions under the search bar as tags instead of a list
+(`CYLSearchSuggestionStyle`; Android done, iOS `TODO` in `docs/tag-view-suggestions.md`).
+
+CYLTableViewPlaceHolder is integrated as a sub-repository under all the requirements above. Requirement: when a search
+has no results (the content is empty), show CYLTableViewPlaceHolder's empty-content placeholder style. This applies to
+every platform: iOS, Android, React Native, Flutter, HarmonyOS and mini programs. Status: `TODO`, tracked in
+`docs/sub-repositories.md`. Use the `cyl-sub-repositories` skill.
+
 ## Verification
 
 Run `pod install`, validate the project with Xcodeproj/CocoaPods, build and
@@ -193,6 +234,56 @@ reproduction or fix without launching the sample on a simulator.
   pushing; see `docs/CI-CD.md`.
 - A script added under `scripts/` must pass `shellcheck`. A workflow change
   must pass `actionlint`.
+
+### Screenshots of builds and CI/CD
+
+- **Where they go.** Every screenshot, local build and run screenshots and CI/CD screenshots alike (a GitHub Actions
+  run, a job log, an artifact), is committed to this repository and shown in the related document in `docs/`, with
+  the image in `docs/assets/` and the shortest relative link. When no document fits, create one.
+- **Clear originals.** Use the original pixels (`xcrun simctl io <device> screenshot`, an emulator's own capture,
+  a full-resolution browser capture); crop to the detail, never scale below the original size.
+- **Labels.** Next to every screenshot (its caption or table row) write:
+  - the platform: iOS, Android, Flutter, React Native, HarmonyOS or mini program;
+  - the environment: the host OS version and build, the simulator or emulator (device and OS version), and the
+    platform SDK version (Xcode and iOS SDK; Android SDK and API level; Flutter SDK; React Native; HarmonyOS SDK and
+    API version; the mini program base library);
+  - this repository's version number or commit link;
+  - the date and time it was taken, with the time zone.
+- **Key milestones.** Take and publish screenshots at key milestones: when a `TODO` or `Linux` note can be removed,
+  when a pull request can be merged, or when the result works as expected with no known bug and no open issue.
+- **README.** At such a milestone, when the result is as expected, update the screenshot section of `README.md`
+  (create it if missing) with the latest images and the labels above. Show the key details, cropped; capture the
+  full screen only when it is needed. Combine several details into one stitched image
+  (`scripts/stitch-screenshots.swift`), laid out in this order of preference:
+  1. stacked top to bottom, one image per row (easiest to read on a phone);
+  2. two columns over several rows;
+  3. one horizontal row of at most three images.
+
+  Correction (user, 2026-11-12): the original wording, "prefer the horizontal arrangement" and "worst is horizontal stitching", contradicted itself; the rule is to prefer the vertical arrangement, one image per row stacked top to bottom.
+
+## Open pull requests and issues of projects we translate
+
+When a document of this project links to another project's GitHub repository (not this project) because its code
+is translated, ported or merged into ours (for example the Kotlin transcriptions in `android/`), the work covers
+that project's open pull requests and open issues, not only its default branch. The same rule applies on every
+platform (iOS, Android, Flutter, React Native, HarmonyOS, mini programs).
+
+1. **Open pull requests.**
+   - Translation not started yet: merge the project's open pull requests into the code you translate first.
+   - Translation already done: translate each open pull request's changes separately and merge them into our
+     translated code.
+2. **Open issues table.** In the related `docs/` document (create one when none fits), list every open issue of
+   that project in a table: first column the issue link, second column the issue description, third column the fix
+   status, `TODO` by default. Record the date the list was read.
+3. **Fix them in our code.** For each issue, find its counterpart in our code and try to fix it there; set the
+   status to `DONE` with the commit (or `N/A` with the reason when the issue does not apply to our code, for example
+   a feature we do not have).
+4. **Score.** Score = issues `DONE` or `N/A` / all listed issues × 100. Score again after every fixed issue and
+   continue until 100.
+5. **Order.** When the translation has not started: merge the open pull requests, then work on the open issues;
+   start translating once the issue score reaches 60; after translating, fix the remaining issues until 100. When
+   the translation is done: translate and merge the open pull requests, then fix the issues on the translated code
+   until 100.
 
 ## Task log before every task
 
@@ -267,3 +358,19 @@ marks it `DONE`.
   `type`, `scope`, `subject`, `body`, `breaking`, `issues`, and `lerna`;
   prompts cover optional scope, imperative subject, longer description,
   breaking changes, issue references, and affected packages.
+
+## Animation examples: playback controls (added 2026-11-13)
+
+- Any example page that shows animations, on every platform (iOS, Android, React Native, Flutter, mini programs,
+  HarmonyOS), offers "Play all" (each animation restarts from progress 0), a speed slider and a loop switch, combined
+  into one playback strategy applied live, with accessibility labels and values; change the core when an example
+  needs it. This repository has no animation example yet; the rule and its status live in CollectionViewClassifyMenu
+  `docs/example-animation-controls.md` and CYLTabBarController `docs/Tab-Icon-Animation-Quick-Start.md`.
+
+## Swift core: examples adapt to the core (added 2026-11-13)
+
+- When an Objective-C to Swift change of the core breaks an example's build, fix the example: example code has the lowest weight of all code here. Change any example code as needed; never keep a core API, overload, shim or deprecated alias only because an example uses it, and never lower the Swift core's quality (naming, types, optionality, access control) to fit an example. Compatibility matters only for callers outside the examples (published API users). The Swift coding standard (docs/swift-coding-standard.md) decides.
+
+## Core behavior: focus alone changes nothing below the search bar (added 2026-11-13)
+
+- Focusing the search field (cursor shown, keyboard up) without typing changes nothing below the search bar: the area under it (the cached queries and their header, the suggestions, the empty placeholder) looks exactly as it does while the field is not focused. That area is updated only when the person changes the text (typing, deleting, pasting, the clear button, a selected suggestion) or when its data changes (a submitted query, the cache cleared). Rule list: `docs/core-todo.md`, "Core behavior rules".

@@ -1,0 +1,6 @@
+{
+  "pages": ["pages/index/index"],
+  "window": { "navigationBarTitleText": "CYLSearch", "navigationBarBackgroundColor": "#ffffff", "navigationBarTextStyle": "black" },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

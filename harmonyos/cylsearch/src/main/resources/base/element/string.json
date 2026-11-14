@@ -1,0 +1,80 @@
+{
+  "string": [
+    {
+      "name": "cyl_search_title",
+      "value": "Search"
+    },
+    {
+      "name": "cyl_search_placeholder",
+      "value": "Filter results"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "No data"
+    },
+    {
+      "name": "cyl_placeholder_search",
+      "value": "No matching results"
+    },
+    {
+      "name": "cyl_placeholder_error",
+      "value": "Something went wrong"
+    },
+    {
+      "name": "cyl_placeholder_network",
+      "value": "Check your internet connection"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "Cancel"
+    },
+    {
+      "name": "cyl_search_field",
+      "value": "Search"
+    },
+    {
+      "name": "cyl_search_back",
+      "value": "Back"
+    },
+    {
+      "name": "cyl_search_voice",
+      "value": "Voice search"
+    },
+    {
+      "name": "cyl_search_submit",
+      "value": "Search"
+    },
+    {
+      "name": "cyl_search_clear",
+      "value": "Clear text"
+    },
+    {
+      "name": "cyl_search_suggestions",
+      "value": "Suggestions"
+    },
+    {
+      "name": "cyl_multisearch_add",
+      "value": "New search"
+    },
+    {
+      "name": "cyl_multisearch_remove",
+      "value": "Remove search"
+    },
+    {
+      "name": "cyl_multisearch_item",
+      "value": "Search %1$d of %2$d"
+    },
+    {
+      "name": "cyl_search_recent",
+      "value": "Recent searches"
+    },
+    {
+      "name": "cyl_search_clearRecent",
+      "value": "Clear recent searches"
+    },
+    {
+      "name": "cyl_search_recentCleared",
+      "value": "Recent searches cleared"
+    }
+  ]
+}

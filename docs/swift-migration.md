@@ -1,0 +1,99 @@
+# Swift Migration of the Core
+
+This document tracks the translation of the core (`Sources/CYLSearchViewController/`) from Objective-C to Swift,
+with a score after every commit.
+
+## DONE (2026-11-12): translate the core to Swift, with a Swift coding standard
+
+- Context: the core of CYLSearchViewController is Objective-C (`Sources/CYLSearchViewController/*.h` and `*.m`:
+  `CYLSearchBarView`, `CYLSearchController`, `CYLSearchPlaceholderView`, `CYLSearchResources`,
+  `CYLSearchResultsViewController`, and the new `CYLSearchView` / `CYLMultiSearchView` from the search API parity
+  task in `docs/search-api-comparison.md`). The pod is built with `use_frameworks!`, and the example
+  (`CYLSearchExample/`) is Objective-C. Logged on branch `feat/search-api-parity` while the search API parity
+  task was in progress.
+- Requirements:
+  1. iOS only. The focus is the core code of this project; third-party libraries are out of scope.
+  2. First create a Swift coding standard document, then update the instruction files (`AGENTS.md`,
+     `instructions.md`, folder `instructions.md`) and the skills to refer to it. All in English.
+  3. If ready-made Swift skills exist online, copy and install them into this project (`.agents/skills`).
+  4. Following the Swift coding standard and the Swift skills, translate all core code to Swift.
+  5. Do not change the example layer unless it is necessary.
+  6. Record the translation progress in this document.
+  7. Scoring: the measure is that no Objective-C code is left in the core. Code that cannot be written in Swift
+     counts as translated when it is kept compatible with Swift through macros or keywords (for example
+     `NS_SWIFT_NAME`, `NS_REFINED_FOR_SWIFT`). No Objective-C code left = 100/100.
+  8. Score after every commit and check whether it is 100; continue until it is.
+- Prompt (verbatim): "将下面的任务找一个合适的文档，标注 TODO：全英文写入：注意本操作仅仅设计iOS端，重点修改 本项目的Core核心层面代码。 不涉及第三方库，首先创建swift编码规范文档，更新instructions和skills相关文档。如果网络有现成的swift skills请直接复制安装到本项目中，按照swift编码规范以及swift相关skilla，将Core 核心层面代码全部转录为Swift代码，如果无必要不要修改example层代码。在该文档中记录swift翻译进度。以项目中不存在objc代码为准，如果无法翻译为swift以宏定义 关键字形式 进行兼容swift的也可以算作翻译成功。不存在objc代码为满分，每提交一次就打一次分。每提交一次检查是否满分。一直到满分为止。"
+- Prompt (English): "Put the following task in a suitable document and mark it TODO, written fully in English: note
+  that this work concerns iOS only and focuses on changing this project's core code. Third-party libraries are not
+  involved. First create a Swift coding standard document and update the instruction and skill documents. If
+  ready-made Swift skills exist online, copy and install them into this project. Following the Swift coding
+  standard and the Swift skills, translate all core code into Swift; do not change the example layer unless
+  necessary. Record the Swift translation progress in this document. The measure is that no Objective-C code
+  exists in the project; code that cannot be translated to Swift but is made Swift-compatible through macros or
+  keywords also counts as translated. No Objective-C code = full marks. Score after every commit, check after
+  every commit whether it is full marks, and continue until it is."
+- Result: 100/100. `Sources/CYLSearchViewController/` holds only Swift (7 files, one per type); the podspec builds
+  `*.swift` with `swift_version` 5.0. Every class, protocol, enum and selector keeps its Objective-C name through
+  `@objc(...)`, so the Objective-C example and the Objective-C tests compile unchanged except for imports
+  (`CYLSearchViewController-Swift.h`). Verified on Xcode 27.2 (macOS 27.3, iPhone 17 simulator, iOS 26.1): 19/19
+  tests, clean build with 0 warnings, `pod lib lint` passes, `scripts/check-public-api-comments.sh` (now also Swift)
+  passes, the app runs (search tab, the Swift `CYLSearchBarView` on the plus page reports typed text). CI's "Fail
+  on warnings in Sources/" step now also matches Swift files. Bug found and fixed on the way: the lapism port's
+  `searchBarViewDidTapWhileNotEditable:` did not match the protocol. Branch `feat/swift-core`, PR #8.
+- Plan: 1) `docs/swift-coding-standard.md`; 2) install ready-made Swift skills from GitHub (pinned commits, with
+  their licenses) into `.agents/skills`; 3) update `AGENTS.md`, `instructions.md` and the `cyl-*` skills; 4)
+  translate one type per commit, smallest first, keeping every Objective-C selector through `@objc(...)` so the
+  Objective-C example and tests keep compiling; 5) score after every commit.
+
+## Progress
+
+| Commit | Objective-C files left in `Sources/` | Score |
+|:---|:---|:---|
+| `db9991a` (standard and skills) | 14 files, 2838 lines | 0/100 |
+| CYLSearchResources → Swift | 12 files, 2757 lines | 3/100 |
+| CYLSearchPlaceholderView → Swift | 10 files, 2533 lines | 10/100 |
+| CYLSearchResultsViewController, CYLSearchController → Swift | 6 files, 2241 lines | 21/100 |
+| CYLMultiSearchView → Swift | 4 files, 1713 lines | 39/100 |
+| CYLSearchView → Swift (+ a 2-line umbrella header while CYLSearchBarView is Objective-C) | 3 files, 1043 lines | 63/100 |
+| CYLSearchBarView → Swift; umbrella header removed | 0 files, 0 lines | **100/100** |
+
+Score = Objective-C lines removed from `Sources/` / 2838 (the Objective-C lines when the migration started) × 100,
+rounded down. 100 = no `.h` or `.m` file left in `Sources/`.
+
+Example changes that were necessary: `CYLSearchExampleViewController` (an Objective-C subclass of
+`CYLSearchResultsViewController`) moved to Swift, because Objective-C cannot subclass a Swift class. It and its
+data source are `public` so the Objective-C app files and tests reach them through `CYLSearchExample-Swift.h`; the
+test target finds that header through `$(CONFIGURATION_TEMP_DIR)/CYLSearchExample.build/DerivedSources`.
+
+## Screenshots
+
+The all-Swift core in the example app, key details stacked top to bottom (the same image as `README.md`).
+
+![Key details of the iOS example](assets/readme-ios-key-details.png)
+
+| Field | Value |
+|:---|:---|
+| Platform | iOS |
+| Host | macOS 27.3 (26C5035r), Xcode 27.2 (27B52) |
+| Simulator | iPhone 17, iOS 26.1 |
+| SDK | iOS SDK 27.2, Swift 5 language mode, deployment target iOS 15.0 |
+| Repository | [`9735f79`](https://github.com/ChenYilong/CYLSearchViewController/commit/9735f79) on `feat/swift-core` |
+| Taken | 2026-11-12 16:14–16:17 NZDT |
+
+## Rule (2026-11-13): example build errors are fixed in the examples; the Swift core carries no burden
+
+When an Objective-C to Swift change of the core breaks an example's build, fix the example: example code has the lowest weight of all code here. Change any example code as needed; never keep a core API, overload, shim or deprecated alias only because an example uses it, and never lower the Swift core's quality (naming, types, optionality, access control) to fit an example. Compatibility matters only for callers outside the examples (published API users). The Swift coding standard (docs/swift-coding-standard.md) decides.
+
+## DONE (2026-11-13): write the rule above into the docs, instructions and skills
+
+- Context: the Objective-C core became Swift (this document); examples sometimes stop compiling after a core change.
+- Requirements: append the rule, in English, to the Swift migration documents, the instructions and the skills.
+- Prompt (verbatim): "在文档中找到objc迁移swift相关文档，包含docs instructions skils 相关文档。全英文更新，追加规则：更新example 编译错误，规则为优先改example层代码，所有example权重为最低，无须example修改的考虑兼容性。任意修改example代码，全力保障core核心层代码没有包袱，负担。不要因为example层的用法而降低core swif代码质量。以swift编码规范为准。continue continue"
+- Prompt (English): "Find the Objective-C to Swift migration documents, including docs, instructions and skills. Update
+  them in English and append this rule: for example build errors, change the example code first; all examples have the
+  lowest weight, and compatibility need not be kept for the examples' sake. Change any example code, and do everything
+  to keep the core free of baggage and burden. Do not lower the Swift core's code quality because of how an example
+  uses it. The Swift coding standard decides."
+- Result: appended to this file, `docs/swift-coding-standard.md`, `AGENTS.md`, `instructions.md` and the `cyl-*`
+  skills that mention the Swift migration (additions only).

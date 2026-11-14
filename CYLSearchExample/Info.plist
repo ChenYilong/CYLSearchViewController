@@ -25,6 +25,8 @@
             </array>
         </dict>
     </dict>
+    <key>NSMicrophoneUsageDescription</key><string>The voice search example listens to one phrase and turns it into a search query.</string>
+    <key>NSSpeechRecognitionUsageDescription</key><string>The voice search example turns what you say into a search query.</string>
     <key>UILaunchStoryboardName</key><string>CYLLaunchScreen</string>
     <key>UISupportedInterfaceOrientations</key>
     <array><string>UIInterfaceOrientationPortrait</string></array>

@@ -1,0 +1,3 @@
+.page { padding: 16px; }
+.hint { margin-top: 24px; color: #8e8e93; font-size: 14px; }
+.event { margin-top: 8px; color: #007aff; font-size: 14px; }

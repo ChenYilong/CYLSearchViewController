@@ -1,0 +1,19 @@
+<!-- The search bar: the field, then the appended items inside it (iOS CYLSearchBarView with items). -->
+<view class="cyl-bar {{searchBarStyle === 'bordered' ? 'cyl-bar-bordered' : ''}}">
+  <view class="cyl-field">
+    <image wx:if="{{showsSearchIcon}}" class="cyl-field-icon" src="{{searchIcon}}" aria-hidden="true" />
+    <input class="cyl-input" value="{{value}}" placeholder="{{placeholder}}" focus="{{focus}}" confirm-type="search"
+      bindinput="onInput" bindconfirm="onConfirm" bindfocus="onFocus" bindblur="onBlur" />
+    <block wx:for="{{items}}" wx:key="index">
+      <view wx:if="{{item.style === 'divider'}}" class="cyl-divider" aria-hidden="true" />
+      <view wx:else class="cyl-item {{item.isEnabled === false ? 'cyl-item-disabled' : ''}}" data-index="{{index}}"
+        id="{{item.accessibilityIdentifier}}" role="button" aria-label="{{item.itemAccessibilityLabel || item.title}}"
+        bindtap="onItemTap">
+        <image wx:if="{{item.image}}" class="cyl-item-icon" src="{{item.isSelected && item.selectedImage ? item.selectedImage : item.image}}" />
+        <text wx:if="{{item.style === 'text'}}" class="cyl-item-title">{{item.title}}</text>
+        <view wx:if="{{item.badgeValue !== undefined && item.badgeValue !== null}}" class="cyl-badge {{item.badgeValue === '' ? 'cyl-badge-dot' : ''}}">{{item.badgeValue}}</view>
+      </view>
+    </block>
+  </view>
+  <view wx:if="{{showsCancelButton}}" class="cyl-cancel" role="button" bindtap="onCancel">{{cancelButtonTitle}}</view>
+</view>

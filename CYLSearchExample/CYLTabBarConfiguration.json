@@ -11,7 +11,13 @@
       "CYLTabBarItemPageIdentifier": "search" },
     { "CYLTabBarItemTitle": "tab.examples", "CYLTabBarItemImage": "system:list.bullet",
       "CYLTabBarItemSelectedImage": "system:list.bullet", "CYLTabBarItemIdentifier": "examples",
-      "CYLTabBarItemPageIdentifier": "examples" }
+      "CYLTabBarItemPageIdentifier": "examples" },
+    { "CYLTabBarItemTitle": "tab.tagStyle", "CYLTabBarItemImage": "system:tag",
+      "CYLTabBarItemSelectedImage": "system:tag.fill", "CYLTabBarItemIdentifier": "tagStyle",
+      "CYLTabBarItemPageIdentifier": "tagStyle" },
+    { "CYLTabBarItemTitle": "tab.discover", "CYLTabBarItemImage": "system:sparkle.magnifyingglass",
+      "CYLTabBarItemSelectedImage": "system:sparkle.magnifyingglass", "CYLTabBarItemIdentifier": "discover",
+      "CYLTabBarItemPageIdentifier": "discover" }
   ],
   "CYLTabBarControllerPlusButton": {
     "CYLTabBarItemTitle": "tab.searchBar",

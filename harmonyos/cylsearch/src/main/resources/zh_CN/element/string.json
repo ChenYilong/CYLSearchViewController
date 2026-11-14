@@ -1,0 +1,80 @@
+{
+  "string": [
+    {
+      "name": "cyl_search_title",
+      "value": "搜索"
+    },
+    {
+      "name": "cyl_search_placeholder",
+      "value": "筛选结果"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "暂无数据"
+    },
+    {
+      "name": "cyl_placeholder_search",
+      "value": "没有匹配的结果"
+    },
+    {
+      "name": "cyl_placeholder_error",
+      "value": "出错了"
+    },
+    {
+      "name": "cyl_placeholder_network",
+      "value": "请检查网络连接"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "取消"
+    },
+    {
+      "name": "cyl_search_field",
+      "value": "搜索"
+    },
+    {
+      "name": "cyl_search_back",
+      "value": "返回"
+    },
+    {
+      "name": "cyl_search_voice",
+      "value": "语音搜索"
+    },
+    {
+      "name": "cyl_search_submit",
+      "value": "搜索"
+    },
+    {
+      "name": "cyl_search_clear",
+      "value": "清除文本"
+    },
+    {
+      "name": "cyl_search_suggestions",
+      "value": "搜索建议"
+    },
+    {
+      "name": "cyl_multisearch_add",
+      "value": "新建搜索"
+    },
+    {
+      "name": "cyl_multisearch_remove",
+      "value": "删除搜索"
+    },
+    {
+      "name": "cyl_multisearch_item",
+      "value": "第 %1$d 个搜索，共 %2$d 个"
+    },
+    {
+      "name": "cyl_search_recent",
+      "value": "最近搜索"
+    },
+    {
+      "name": "cyl_search_clearRecent",
+      "value": "清除最近搜索"
+    },
+    {
+      "name": "cyl_search_recentCleared",
+      "value": "已清除最近搜索"
+    }
+  ]
+}

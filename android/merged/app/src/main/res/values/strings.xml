@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="example_originals">Original samples</string>
+    <string name="example_originals_subtitle">The upstream samples, unchanged</string>
+    <string name="example_list_style">Suggestions as a list</string>
+    <string name="example_tag_style">Suggestions as tags</string>
+    <string name="example_open_search">Open the search to see the suggestions</string>
+    <string name="example_search_note">Pull-to-refresh, the overlay and the empty state (the iOS repro toggle has no Android counterpart)</string>
+    <!-- The discover demo, copied from CollectionViewClassifyMenu (same texts as iOS CYLSearchDiscover.bundle). -->
+    <string name="cyl_discover_recent">Recent searches</string>
+    <string name="cyl_discover_tapToSearch">Double-tap to search</string>
+    <string name="cyl_discover_title">Discover</string>
+    <string name="cyl_discover_refresh">Refresh topics</string>
+    <string name="cyl_discover_back">Back</string>
+    <string name="cyl_discover_search">Search</string>
+    <string name="cyl_discover_imageSearch">Search by image</string>
+    <string name="cyl_discover_clear">Clear recent searches</string>
+    <string name="cyl_discover_cleared">Recent searches cleared</string>
+    <string name="cyl_discover_askHint">Hold to ask, answer all</string>
+    <string name="cyl_discover_ask">Hold to ask</string>
+    <string name="cyl_discover_askAccessibilityHint">Hold and say your question, release to send</string>
+    <string name="cyl_discover_listening">Listening…</string>
+    <string name="cyl_discover_searching">Searching: %1$s</string>
+    <string name="cyl_discover_imageSearchUnavailable">Search by image is not available in this demo.</string>
+    <string name="cyl_discover_ok">OK</string>
+    <string name="cyl_discover_holdMic">Hold the mic button and say your question</string>
+    <string name="cyl_discover_hot">Hot</string>
+</resources>

@@ -12,3 +12,8 @@ xcuserdata/
 ._*
 *.base
 DerivedData/
+
+# Local build output, logs and lint checkouts (scripts/*.sh).
+build/
+
+__pycache__/

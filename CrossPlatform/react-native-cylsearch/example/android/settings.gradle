@@ -1,0 +1,20 @@
+pluginManagement { includeBuild("../node_modules/@react-native/gradle-plugin") }
+plugins { id("com.facebook.react.settings") }
+extensions.configure(com.facebook.react.ReactSettingsExtension){ ex -> ex.autolinkLibrariesFromCommand() }
+rootProject.name = 'cylsearch.example'
+include ':app'
+includeBuild('../node_modules/@react-native/gradle-plugin')
+
+// The native core from this repository: android/merged publishes com.cyl.search:cylsearch, which the library depends on.
+includeBuild('../../../../android/merged') {
+  dependencySubstitution {
+    substitute(module('com.cyl.search:cylsearch')).using(project(':cylsearch'))
+  }
+}
+
+
+// react-native-cyltabbar builds CYLTabBarController's Kotlin sources from the pinned checkout (scripts/fetch-cyltabbar.sh);
+// without this it looks for them next to its own folder in node_modules and falls back to an unpublished Maven artifact.
+gradle.beforeProject { project ->
+  project.ext.cylAndroidRoot = new File(rootDir, '../vendor/CYLTabBarController/Example-Android').canonicalPath
+}

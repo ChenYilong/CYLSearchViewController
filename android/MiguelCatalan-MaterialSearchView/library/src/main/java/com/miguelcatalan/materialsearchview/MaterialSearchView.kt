@@ -1,0 +1,918 @@
+// Kotlin transcription of MiguelCatalan/MaterialSearchView (commit 53e163c), Apache License 2.0, see ../../../../../../LICENSE.
+// Original author: Miguel Catalan Bañuls. Changes: Java to Kotlin, android.support to AndroidX, setCursorDrawable uses
+// TextView.setTextCursorDrawable on API 29+ (the private field it set before is not accessible there).
+// Merged open pull requests (translated): #66 / #105 / #146 / #159 isVoiceAvailable() fixed; #81 about-to-show and
+// about-to-close callbacks; #106 closeSearch(animate); #114 default suggestions (not its "cover" behavior, which
+// would change what Back and the tint do); #130 getQuery(); #153 SuggestionItem; #176 checkWholeString; #209 the
+// layout stays hidden when suggestions are set before the search opens; #220 as setSuggestionTextColor.
+// Open issues fixed in this file (docs/android-upstream-issues.md): #237 state set before callbacks; #248 lookups in
+// the inflated view; #170 / #206 / #57 / #26 reveal after layout, only when attached, from the menu item, with the
+// duration; #214 focus after rotation; #122 focus after clearing; #123 optional keyboard on open; #145 / #20 empty
+// queries; #50 the app's item click listener is kept; #80 tint for custom adapters; #75 stale suggestions cleared;
+// #242 / #165 / #250 custom and accent-insensitive filters; #198 filter delay; #244 maximum length; #236 / #149 /
+// #62 text size; #210 typeface; #252 gravity; #187 row height; #166 long click; #56 enable / disable; #41 cursor
+// attribute; #40 custom voice action; #71 cancel callback; #185 back icon listener; #102 keep the query on close;
+// #186 / #217 dim background; #125 select all; #14 / #34 divider color.
+package com.miguelcatalan.materialsearchview
+
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.graphics.Rect
+import android.graphics.drawable.Drawable
+import android.os.Build
+import android.os.Parcel
+import android.os.Parcelable
+import android.speech.RecognizerIntent
+import android.text.Editable
+import android.text.TextUtils
+import android.text.TextWatcher
+import android.util.AttributeSet
+import android.util.Log
+import android.view.LayoutInflater
+import android.graphics.Typeface
+import android.os.Handler
+import android.os.Looper
+import android.text.InputFilter
+import android.util.TypedValue
+import android.view.MenuItem
+import android.view.MotionEvent
+import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.widget.AdapterView
+import android.widget.EditText
+import android.widget.FrameLayout
+import android.widget.Filter
+import android.widget.Filterable
+import android.widget.ImageButton
+import android.widget.ListAdapter
+import android.widget.ListView
+import android.widget.RelativeLayout
+import android.widget.TextView
+import com.miguelcatalan.materialsearchview.utils.AnimationUtil
+
+/**
+ * A Material Design search view that opens over the toolbar, with voice search and filtered suggestions.
+ *
+ * @author Miguel Catalan Bañuls
+ */
+class MaterialSearchView @JvmOverloads constructor(
+    private val mContext: Context,
+    attrs: AttributeSet? = null,
+    defStyleAttr: Int = 0,
+) : FrameLayout(mContext, attrs), Filter.FilterListener {
+
+    companion object {
+        const val REQUEST_VOICE = 9999
+    }
+
+    private var mMenuItem: MenuItem? = null
+    private var menuItemId = 0
+    private var mIsSearchOpen = false
+    private var mAnimationDuration = 0
+    private var mClearingFocus = false
+
+    // Views
+    private lateinit var mSearchLayout: View
+    private lateinit var mTintView: View
+    private lateinit var mSuggestionsListView: ListView
+    private lateinit var mSearchSrcTextView: EditText
+    private lateinit var mBackBtn: ImageButton
+    private lateinit var mVoiceBtn: ImageButton
+    private lateinit var mEmptyBtn: ImageButton
+    private lateinit var mSearchTopBar: RelativeLayout
+
+    private var mOldQueryText: CharSequence? = null
+    private var mUserQuery: CharSequence? = null
+
+    private var mOnQueryChangeListener: OnQueryTextListener? = null
+    private var mSearchViewListener: SearchViewListener? = null
+
+    private var mAdapter: ListAdapter? = null
+
+    private var mSavedState: SavedState? = null
+    private var submit = false
+
+    private var ellipsize = false
+
+    private var allowVoiceSearch = false
+    private var suggestionIcon: Drawable? = null
+    private var suggestionTextColor: Int? = null
+    private var suggestionFilter: ((String, String) -> Boolean)? = null
+    private var ignoreAccents = false
+    private var suggestionMinHeight = 0
+    private var userItemClickListener: AdapterView.OnItemClickListener? = null
+    private var onBackIconClickListener: OnClickListener? = null
+    private var onVoiceClickListener: OnClickListener? = null
+    private var allowEmptyQuery = false
+    private var showKeyboardOnOpen = true
+    private var clearQueryOnClose = true
+    private var dimBackground = false
+    private var filterDelay = 0L
+    private val filterHandler = Handler(Looper.getMainLooper())
+    private var pendingFilter: Runnable? = null
+    private lateinit var mDivider: View
+
+    private val mOnClickListener = OnClickListener { v ->
+        when (v) {
+            // #185: an app can take over the back icon; #71: closing from here is a cancel.
+            mBackBtn -> onBackIconClickListener?.onClick(v) ?: cancelSearch()
+            mVoiceBtn -> onVoiceClickListener?.onClick(v) ?: onVoiceClicked()
+            // #122: the field keeps the focus and the keyboard after clearing.
+            mEmptyBtn -> {
+                mSearchSrcTextView.text = null
+                showKeyboard(mSearchSrcTextView)
+            }
+            mSearchSrcTextView -> showSuggestions()
+            mTintView -> cancelSearch()
+        }
+    }
+
+    init {
+        initiateView()
+        initStyle(attrs, defStyleAttr)
+    }
+
+    private fun initStyle(attrs: AttributeSet?, defStyleAttr: Int) {
+        val a = mContext.obtainStyledAttributes(attrs, R.styleable.MaterialSearchView, defStyleAttr, 0)
+        if (a.hasValue(R.styleable.MaterialSearchView_searchBackground)) {
+            background = a.getDrawable(R.styleable.MaterialSearchView_searchBackground)
+        }
+        if (a.hasValue(R.styleable.MaterialSearchView_android_textColor)) {
+            setTextColor(a.getColor(R.styleable.MaterialSearchView_android_textColor, 0))
+        }
+        if (a.hasValue(R.styleable.MaterialSearchView_android_textColorHint)) {
+            setHintTextColor(a.getColor(R.styleable.MaterialSearchView_android_textColorHint, 0))
+        }
+        if (a.hasValue(R.styleable.MaterialSearchView_android_hint)) {
+            setHint(a.getString(R.styleable.MaterialSearchView_android_hint))
+        }
+        if (a.hasValue(R.styleable.MaterialSearchView_searchVoiceIcon)) {
+            setVoiceIcon(a.getDrawable(R.styleable.MaterialSearchView_searchVoiceIcon))
+        }
+        if (a.hasValue(R.styleable.MaterialSearchView_searchCloseIcon)) {
+            setCloseIcon(a.getDrawable(R.styleable.MaterialSearchView_searchCloseIcon))
+        }
+        if (a.hasValue(R.styleable.MaterialSearchView_searchBackIcon)) {
+            setBackIcon(a.getDrawable(R.styleable.MaterialSearchView_searchBackIcon))
+        }
+        if (a.hasValue(R.styleable.MaterialSearchView_searchSuggestionBackground)) {
+            setSuggestionBackground(a.getDrawable(R.styleable.MaterialSearchView_searchSuggestionBackground))
+        }
+        if (a.hasValue(R.styleable.MaterialSearchView_searchSuggestionIcon)) {
+            setSuggestionIcon(a.getDrawable(R.styleable.MaterialSearchView_searchSuggestionIcon))
+        }
+        if (a.hasValue(R.styleable.MaterialSearchView_android_inputType)) {
+            setInputType(a.getInt(R.styleable.MaterialSearchView_android_inputType, EditorInfo.TYPE_NULL))
+        }
+        if (a.hasValue(R.styleable.MaterialSearchView_searchCursorDrawable)) {
+            setCursorDrawable(a.getResourceId(R.styleable.MaterialSearchView_searchCursorDrawable, 0))
+        }
+        a.recycle()
+    }
+
+    private fun initiateView() {
+        // #248: the views are looked up in the inflated layout only, never in the app's hierarchy.
+        mSearchLayout = LayoutInflater.from(mContext).inflate(R.layout.search_view, this, false)
+        addView(mSearchLayout)
+        mSearchTopBar = mSearchLayout.findViewById(R.id.search_top_bar)
+        mSuggestionsListView = mSearchLayout.findViewById(R.id.suggestion_list)
+        mSearchSrcTextView = mSearchLayout.findViewById(R.id.searchTextView)
+        mBackBtn = mSearchLayout.findViewById(R.id.action_up_btn)
+        mVoiceBtn = mSearchLayout.findViewById(R.id.action_voice_btn)
+        mEmptyBtn = mSearchLayout.findViewById(R.id.action_empty_btn)
+        mTintView = mSearchLayout.findViewById(R.id.transparent_view)
+        mDivider = mSearchLayout.findViewById(R.id.search_divider)
+        // #84: the list is as tall as the view now; a tap on its empty part closes the search like the tint.
+        mSuggestionsListView.setOnTouchListener { list, event ->
+            if (event.action == MotionEvent.ACTION_UP && mSuggestionsListView.pointToPosition(event.x.toInt(), event.y.toInt()) == AdapterView.INVALID_POSITION) {
+                list.performClick()
+                cancelSearch()
+                true
+            } else {
+                false
+            }
+        }
+
+        mSearchSrcTextView.setOnClickListener(mOnClickListener)
+        mBackBtn.setOnClickListener(mOnClickListener)
+        mVoiceBtn.setOnClickListener(mOnClickListener)
+        mEmptyBtn.setOnClickListener(mOnClickListener)
+        mTintView.setOnClickListener(mOnClickListener)
+
+        allowVoiceSearch = false
+        showVoice(true)
+        initSearchView()
+        mSuggestionsListView.visibility = GONE
+        setAnimationDuration(AnimationUtil.ANIMATION_DURATION_MEDIUM)
+    }
+
+    private fun initSearchView() {
+        mSearchSrcTextView.setOnEditorActionListener { _, _, _ ->
+            onSubmitQuery()
+            true
+        }
+        mSearchSrcTextView.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) = Unit
+
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                mUserQuery = s
+                startFilter(s)
+                this@MaterialSearchView.onTextChanged(s)
+            }
+
+            override fun afterTextChanged(s: Editable) = Unit
+        })
+        mSearchSrcTextView.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                showKeyboard(mSearchSrcTextView)
+                showSuggestions()
+            }
+        }
+    }
+
+    private fun startFilter(s: CharSequence?) {
+        val adapter = mAdapter as? Filterable ?: return
+        // #198: an optional delay, so a filter does not run for every typed letter.
+        pendingFilter?.let { filterHandler.removeCallbacks(it) }
+        val run = Runnable { adapter.filter.filter(s, this) }
+        if (filterDelay > 0) {
+            pendingFilter = run
+            filterHandler.postDelayed(run, filterDelay)
+        } else {
+            run.run()
+        }
+    }
+
+    private fun onVoiceClicked() {
+        val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        // setting recognition model, optimized for short phrases – search queries
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_WEB_SEARCH)
+        // quantity of results we want to receive
+        intent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 1)
+        @Suppress("DEPRECATION")
+        (mContext as? Activity)?.startActivityForResult(intent, REQUEST_VOICE)
+    }
+
+    private fun onTextChanged(newText: CharSequence) {
+        val text = mSearchSrcTextView.text
+        mUserQuery = text
+        val hasText = !TextUtils.isEmpty(text)
+        if (hasText) {
+            mEmptyBtn.visibility = VISIBLE
+            showVoice(false)
+        } else {
+            mEmptyBtn.visibility = GONE
+            showVoice(true)
+        }
+        if (mOnQueryChangeListener != null && !TextUtils.equals(newText, mOldQueryText)) {
+            mOnQueryChangeListener?.onQueryTextChange(newText.toString())
+        }
+        mOldQueryText = newText.toString()
+    }
+
+    private fun onSubmitQuery() {
+        val query = mSearchSrcTextView.text
+        // #145 / #20: empty queries can be submitted when allowed.
+        if (query != null && (allowEmptyQuery || TextUtils.getTrimmedLength(query) > 0)) {
+            if (mOnQueryChangeListener == null || mOnQueryChangeListener?.onQueryTextSubmit(query.toString()) == false) {
+                closeSearch()
+                mSearchSrcTextView.text = null
+            }
+        }
+    }
+
+    // PRs #66, #105, #146, #159: voice is available when an activity handles speech recognition (upstream checked
+    // for none).
+    private fun isVoiceAvailable(): Boolean {
+        if (isInEditMode) {
+            return true
+        }
+        val activities = context.packageManager.queryIntentActivities(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0)
+        return activities.size > 0
+    }
+
+    fun hideKeyboard(view: View) {
+        val imm = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+    fun showKeyboard(view: View) {
+        view.requestFocus()
+        val imm = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.showSoftInput(view, 0)
+    }
+
+    // Public Attributes
+
+    override fun setBackground(background: Drawable?) {
+        if (::mSearchTopBar.isInitialized) {
+            mSearchTopBar.background = background
+        } else {
+            super.setBackground(background)
+        }
+    }
+
+    override fun setBackgroundColor(color: Int) {
+        mSearchTopBar.setBackgroundColor(color)
+    }
+
+    fun setTextColor(color: Int) {
+        mSearchSrcTextView.setTextColor(color)
+    }
+
+    fun setHintTextColor(color: Int) {
+        mSearchSrcTextView.setHintTextColor(color)
+    }
+
+    fun setHint(hint: CharSequence?) {
+        mSearchSrcTextView.hint = hint
+    }
+
+    fun setVoiceIcon(drawable: Drawable?) {
+        mVoiceBtn.setImageDrawable(drawable)
+    }
+
+    fun setCloseIcon(drawable: Drawable?) {
+        mEmptyBtn.setImageDrawable(drawable)
+    }
+
+    fun setBackIcon(drawable: Drawable?) {
+        mBackBtn.setImageDrawable(drawable)
+    }
+
+    fun setSuggestionIcon(drawable: Drawable?) {
+        suggestionIcon = drawable
+    }
+
+    /**
+     * The color of the suggestion text (PR #220 hard-coded white).
+     */
+    fun setSuggestionTextColor(color: Int) {
+        suggestionTextColor = color
+        (mAdapter as? SearchAdapter)?.textColor = color
+    }
+
+    /**
+     * Returns the query string currently in the text field (PR #130).
+     */
+    fun getQuery(): CharSequence? = mSearchSrcTextView.text
+
+    fun setInputType(inputType: Int) {
+        mSearchSrcTextView.inputType = inputType
+    }
+
+    /**
+     * #242 / #165: decides whether a suggestion matches the query; replaces the "starts with" test.
+     */
+    fun setSuggestionFilter(filter: ((suggestion: String, query: String) -> Boolean)?) {
+        suggestionFilter = filter
+        (mAdapter as? SearchAdapter)?.let { it.customFilter = filter; startFilter(mSearchSrcTextView.text) }
+    }
+
+    /**
+     * #250: matches "José" for "jose".
+     */
+    fun setIgnoreAccents(ignore: Boolean) {
+        ignoreAccents = ignore
+        (mAdapter as? SearchAdapter)?.let { it.ignoreAccents = ignore; startFilter(mSearchSrcTextView.text) }
+    }
+
+    /**
+     * #198: waits `delayMillis` after the last change before filtering. 0 by default.
+     */
+    fun setFilterDelay(delayMillis: Long) {
+        filterDelay = maxOf(0L, delayMillis)
+    }
+
+    /**
+     * #244: the longest query; 0 removes the limit.
+     */
+    fun setMaxLength(maxLength: Int) {
+        mSearchSrcTextView.filters = if (maxLength > 0) arrayOf(InputFilter.LengthFilter(maxLength)) else emptyArray()
+    }
+
+    /**
+     * #236 / #149 / #62: the size of the query and the hint, in sp.
+     */
+    fun setTextSize(sizeSp: Float) {
+        mSearchSrcTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, sizeSp)
+    }
+
+    /**
+     * #210: the font of the query and the hint.
+     */
+    fun setTypeface(typeface: Typeface?) {
+        mSearchSrcTextView.typeface = typeface
+    }
+
+    /**
+     * #252: the gravity of the query (for example Gravity.END for right-to-left text).
+     */
+    fun setTextGravity(gravity: Int) {
+        mSearchSrcTextView.gravity = gravity
+    }
+
+    /**
+     * #187: the minimum height of a suggestion row, in pixels.
+     */
+    fun setSuggestionMinHeight(heightPx: Int) {
+        suggestionMinHeight = heightPx
+        (mAdapter as? SearchAdapter)?.rowMinHeight = heightPx
+    }
+
+    /**
+     * #166: long taps on suggestions.
+     */
+    fun setOnItemLongClickListener(listener: AdapterView.OnItemLongClickListener?) {
+        mSuggestionsListView.onItemLongClickListener = listener
+    }
+
+    /**
+     * #56: disables typing (for example during an action mode) without closing the search.
+     */
+    fun setSearchEnabled(enabled: Boolean) {
+        mSearchSrcTextView.isEnabled = enabled
+        mEmptyBtn.isEnabled = enabled
+        mVoiceBtn.isEnabled = enabled
+    }
+
+    /**
+     * #40: replaces what the voice button does (by default it starts the speech recognizer).
+     */
+    fun setOnVoiceClickListener(listener: OnClickListener?) {
+        onVoiceClickListener = listener
+    }
+
+    /**
+     * #185: replaces what the back icon does (by default it closes the search).
+     */
+    fun setOnBackIconClickListener(listener: OnClickListener?) {
+        onBackIconClickListener = listener
+    }
+
+    /**
+     * #145 / #20: lets an empty query be submitted.
+     */
+    fun setAllowEmptyQuery(allow: Boolean) {
+        allowEmptyQuery = allow
+    }
+
+    /**
+     * #123: whether opening the search shows the keyboard. true by default.
+     */
+    fun setShowKeyboardOnOpen(show: Boolean) {
+        showKeyboardOnOpen = show
+    }
+
+    /**
+     * #102: whether closing the search clears the query. true by default.
+     */
+    fun setClearQueryOnClose(clear: Boolean) {
+        clearQueryOnClose = clear
+    }
+
+    /**
+     * #186 / #217: dims the content behind the open search even without suggestions.
+     */
+    fun setDimBackground(dim: Boolean) {
+        dimBackground = dim
+        if (dim && mIsSearchOpen) mTintView.visibility = VISIBLE
+    }
+
+    /**
+     * #14 / #34: the color of the line under the search bar (transparent hides it).
+     */
+    fun setDividerColor(color: Int) {
+        mDivider.backgroundTintList = null
+        mDivider.setBackgroundColor(color)
+    }
+
+    /**
+     * #125: selects the whole query.
+     */
+    fun selectAll() {
+        mSearchSrcTextView.selectAll()
+    }
+
+    /**
+     * The background of each suggestion row (the list itself is transparent; issue #84).
+     */
+    fun setSuggestionBackground(background: Drawable?) {
+        suggestionBackground = background
+        (mAdapter as? SearchAdapter)?.rowBackground = background
+    }
+
+    private var suggestionBackground: Drawable? = null
+
+    fun setCursorDrawable(drawable: Int) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            mSearchSrcTextView.setTextCursorDrawable(drawable)
+            return
+        }
+        try {
+            // https://github.com/android/platform_frameworks_base/blob/kitkat-release/core/java/android/widget/TextView.java#L562-564
+            val f = TextView::class.java.getDeclaredField("mCursorDrawableRes")
+            f.isAccessible = true
+            f.set(mSearchSrcTextView, drawable)
+        } catch (ignored: Exception) {
+            Log.e("MaterialSearchView", ignored.toString())
+        }
+    }
+
+    fun setVoiceSearch(voiceSearch: Boolean) {
+        allowVoiceSearch = voiceSearch
+    }
+
+    // Public Methods
+
+    /**
+     * Call this method to show suggestions list. This shows up when adapter is set. Call [setAdapter] before calling this.
+     */
+    fun showSuggestions() {
+        val adapter = mAdapter ?: return
+        if (adapter.count > 0 && mSuggestionsListView.visibility == GONE) {
+            mSuggestionsListView.visibility = VISIBLE
+        }
+    }
+
+    /**
+     * Submit the query as soon as the user clicks the item.
+     */
+    fun setSubmitOnClick(submit: Boolean) {
+        this.submit = submit
+    }
+
+    /**
+     * Set Suggest List OnItemClickListener
+     */
+    fun setOnItemClickListener(listener: AdapterView.OnItemClickListener?) {
+        // #50: kept when suggestions are set later; the built-in suggestions call it after filling the query.
+        userItemClickListener = listener
+        mSuggestionsListView.onItemClickListener = listener
+    }
+
+    /**
+     * Set Adapter for suggestions list. Should implement Filterable.
+     */
+    fun setAdapter(adapter: ListAdapter?) {
+        mAdapter = adapter
+        (adapter as? SearchAdapter)?.let { searchAdapter ->
+            suggestionTextColor?.let { searchAdapter.textColor = it }
+            searchAdapter.customFilter = suggestionFilter
+            searchAdapter.ignoreAccents = ignoreAccents
+            searchAdapter.rowMinHeight = suggestionMinHeight
+            searchAdapter.rowBackground = suggestionBackground
+        }
+        // #80: a custom adapter shows the tint too.
+        if (adapter != null) mTintView.visibility = VISIBLE
+        mSuggestionsListView.adapter = adapter
+        startFilter(mSearchSrcTextView.text)
+    }
+
+    /**
+     * Set Adapter for suggestions list with the given suggestion array
+     */
+    fun setSuggestions(suggestions: Array<String>?) {
+        setSuggestions(suggestions, false)
+    }
+
+    /**
+     * Suggestions that match anywhere in their text when `checkSuggestion` is true, else at their start (PR #176).
+     */
+    fun setSuggestions(suggestions: Array<String>?, checkSuggestion: Boolean) {
+        if (!suggestions.isNullOrEmpty()) {
+            useAdapter(SearchAdapter(mContext, suggestions, suggestionIcon, ellipsize, checkSuggestion))
+        } else {
+            mTintView.visibility = GONE
+        }
+    }
+
+    /**
+     * Suggestions, plus `emptySuggestions` listed while the text is empty (PR #114).
+     */
+    fun setSuggestionsWithDefault(suggestions: Array<String>?, emptySuggestions: Array<String>?) {
+        if (!suggestions.isNullOrEmpty()) {
+            useAdapter(SearchAdapter(mContext, suggestions, emptySuggestions, suggestionIcon, ellipsize))
+        } else {
+            mTintView.visibility = GONE
+        }
+    }
+
+    /**
+     * Suggestions with their own icons; sticky ones are always listed (PR #153).
+     */
+    fun setSuggestions(suggestions: Array<SuggestionItem>?) {
+        if (!suggestions.isNullOrEmpty()) {
+            useAdapter(SearchAdapter(mContext, suggestions, ellipsize))
+        } else {
+            mTintView.visibility = GONE
+        }
+    }
+
+    /**
+     * Suggestions that share one icon resource (PR #153).
+     */
+    fun setSuggestions(suggestions: Array<String>, @androidx.annotation.DrawableRes suggestionIconRes: Int) {
+        setSuggestions(Array(suggestions.size) { SuggestionItem(false, suggestionIconRes, suggestions[it]) })
+    }
+
+    private fun useAdapter(adapter: SearchAdapter) {
+        mTintView.visibility = VISIBLE
+        // PR #209: suggestions set before the search opens must not show the search layout.
+        if (!mIsSearchOpen) {
+            mSearchLayout.visibility = GONE
+        }
+        setAdapter(adapter)
+        val appListener = userItemClickListener
+        mSuggestionsListView.setOnItemClickListener { parent, view, position, id ->
+            setQuery(adapter.getItem(position) as String, submit)
+            appListener?.onItemClick(parent, view, position, id)
+        }
+    }
+
+    /**
+     * Dismiss the suggestions list.
+     */
+    fun dismissSuggestions() {
+        if (mSuggestionsListView.visibility == VISIBLE) {
+            mSuggestionsListView.visibility = GONE
+        }
+    }
+
+    /**
+     * Calling this will set the query to search text box. if submit is true, it'll submit the query.
+     */
+    fun setQuery(query: CharSequence?, submit: Boolean) {
+        mSearchSrcTextView.setText(query)
+        if (query != null) {
+            mSearchSrcTextView.setSelection(mSearchSrcTextView.length())
+            mUserQuery = query
+        }
+        if (submit && !TextUtils.isEmpty(query)) {
+            onSubmitQuery()
+        }
+    }
+
+    /**
+     * if show is true, this will enable voice search. If voice is not available on the device, this method call has not effect.
+     */
+    fun showVoice(show: Boolean) {
+        mVoiceBtn.visibility = if (show && isVoiceAvailable() && allowVoiceSearch) VISIBLE else GONE
+    }
+
+    /**
+     * Call this method and pass the menu item so this class can handle click events for the Menu Item.
+     */
+    fun setMenuItem(menuItem: MenuItem) {
+        mMenuItem = menuItem
+        menuItemId = menuItem.itemId
+        menuItem.setOnMenuItemClickListener {
+            showSearch()
+            true
+        }
+    }
+
+    /**
+     * Return true if search is open
+     */
+    fun isSearchOpen(): Boolean = mIsSearchOpen
+
+    /**
+     * Sets animation duration. ONLY FOR PRE-LOLLIPOP!!
+     */
+    fun setAnimationDuration(duration: Int) {
+        mAnimationDuration = duration
+    }
+
+    /**
+     * Open Search View. If animate is true, Animate the showing of the view.
+     */
+    @JvmOverloads
+    fun showSearch(animate: Boolean = true) {
+        if (isSearchOpen()) {
+            return
+        }
+        // PR #81
+        mSearchViewListener?.onSearchViewAboutToShow()
+        // Request Focus
+        if (clearQueryOnClose) mSearchSrcTextView.text = null
+        if (showKeyboardOnOpen) showKeyboard(mSearchSrcTextView) else mSearchSrcTextView.requestFocus()
+        if (dimBackground) mTintView.visibility = VISIBLE
+        // #237: the state is set before the callbacks run.
+        mIsSearchOpen = true
+        if (animate && isAttachedToWindow) {
+            setVisibleWithAnimation()
+        } else {
+            mSearchLayout.visibility = VISIBLE
+            mSearchViewListener?.onSearchViewShown()
+        }
+    }
+
+    private fun setVisibleWithAnimation() {
+        val animationListener = object : AnimationUtil.AnimationListener {
+            override fun onAnimationStart(view: View): Boolean = false
+
+            override fun onAnimationEnd(view: View): Boolean {
+                mSearchViewListener?.onSearchViewShown()
+                return false
+            }
+
+            override fun onAnimationCancel(view: View): Boolean = false
+        }
+        mSearchLayout.visibility = VISIBLE
+        // #170 / #206: reveal once the bar is laid out and attached; #57: from the menu item; #26: with the duration.
+        mSearchTopBar.post {
+            if (!mSearchTopBar.isAttachedToWindow || mSearchTopBar.width == 0) {
+                animationListener.onAnimationEnd(mSearchTopBar)
+                return@post
+            }
+            AnimationUtil.reveal(mSearchTopBar, revealCenterX(), mAnimationDuration, animationListener)
+        }
+    }
+
+    // #57: the center of the menu item's view, in the bar's coordinates; the end of the bar without one.
+    private fun revealCenterX(): Int {
+        val itemView = (mContext as? Activity)?.findViewById<View>(menuItemId).takeIf { menuItemId != 0 }
+        if (itemView != null && itemView.isShown) {
+            val item = IntArray(2).also { itemView.getLocationInWindow(it) }
+            val bar = IntArray(2).also { mSearchTopBar.getLocationInWindow(it) }
+            return item[0] - bar[0] + itemView.width / 2
+        }
+        return -1
+    }
+
+    /**
+     * Closes the search as a cancel (back icon, tint, empty list area, Back): `onSearchViewCanceled` then closes (#71).
+     */
+    fun cancelSearch() {
+        if (!isSearchOpen()) return
+        mSearchViewListener?.onSearchViewCanceled()
+        closeSearch()
+    }
+
+    /**
+     * Close search view. If animate is true, animate the closing of the view (PR #106; without the argument it
+     * closes at once, as before).
+     */
+    @JvmOverloads
+    fun closeSearch(animate: Boolean = false) {
+        if (!isSearchOpen()) {
+            return
+        }
+        // PR #81
+        mSearchViewListener?.onSearchViewAboutToClose()
+        // #102: the query can stay; #75: stale suggestions are cleared with it.
+        if (clearQueryOnClose) mSearchSrcTextView.text = null
+        dismissSuggestions()
+        clearFocus()
+        // #237: the state is set before the callbacks run.
+        mIsSearchOpen = false
+        if (!dimBackground && mAdapter == null) mTintView.visibility = GONE
+        // #206: INVISIBLE, like the initial state, so the bar keeps its size for the next reveal.
+        if (animate && isAttachedToWindow) {
+            AnimationUtil.disappear(mSearchTopBar, object : AnimationUtil.AnimationListener {
+                override fun onAnimationStart(view: View): Boolean = false
+
+                override fun onAnimationEnd(view: View): Boolean {
+                    mSearchTopBar.visibility = VISIBLE
+                    mSearchLayout.visibility = INVISIBLE
+                    mSearchViewListener?.onSearchViewClosed()
+                    return false
+                }
+
+                override fun onAnimationCancel(view: View): Boolean = false
+            })
+        } else {
+            mSearchLayout.visibility = INVISIBLE
+            mSearchViewListener?.onSearchViewClosed()
+        }
+    }
+
+    /**
+     * Set this listener to listen to Query Change events.
+     */
+    fun setOnQueryTextListener(listener: OnQueryTextListener?) {
+        mOnQueryChangeListener = listener
+    }
+
+    /**
+     * Set this listener to listen to Search View open and close events
+     */
+    fun setOnSearchViewListener(listener: SearchViewListener?) {
+        mSearchViewListener = listener
+    }
+
+    /**
+     * Ellipsize suggestions longer than one line.
+     */
+    fun setEllipsize(ellipsize: Boolean) {
+        this.ellipsize = ellipsize
+    }
+
+    override fun onFilterComplete(count: Int) {
+        if (count > 0) showSuggestions() else dismissSuggestions()
+    }
+
+    override fun requestFocus(direction: Int, previouslyFocusedRect: Rect?): Boolean {
+        // Don't accept focus if in the middle of clearing focus
+        if (mClearingFocus) return false
+        // Check if SearchView is focusable.
+        if (!isFocusable) return false
+        return mSearchSrcTextView.requestFocus(direction, previouslyFocusedRect)
+    }
+
+    override fun clearFocus() {
+        mClearingFocus = true
+        hideKeyboard(this)
+        super.clearFocus()
+        mSearchSrcTextView.clearFocus()
+        mClearingFocus = false
+    }
+
+    override fun onSaveInstanceState(): Parcelable {
+        val state = SavedState(super.onSaveInstanceState())
+        state.query = mUserQuery?.toString()
+        state.isSearchOpen = mIsSearchOpen
+        mSavedState = state
+        return state
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        if (state !is SavedState) {
+            super.onRestoreInstanceState(state)
+            return
+        }
+        mSavedState = state
+        if (state.isSearchOpen) {
+            showSearch(false)
+            setQuery(state.query, false)
+            // #214: the field gets the focus and the keyboard back after a rotation.
+            post { showKeyboard(mSearchSrcTextView) }
+        }
+        super.onRestoreInstanceState(state.superState)
+    }
+
+    internal class SavedState : BaseSavedState {
+        var query: String? = null
+        var isSearchOpen = false
+
+        constructor(superState: Parcelable?) : super(superState)
+
+        private constructor(parcel: Parcel) : super(parcel) {
+            query = parcel.readString()
+            isSearchOpen = parcel.readInt() == 1
+        }
+
+        override fun writeToParcel(out: Parcel, flags: Int) {
+            super.writeToParcel(out, flags)
+            out.writeString(query)
+            out.writeInt(if (isSearchOpen) 1 else 0)
+        }
+
+        companion object {
+            // required field that makes Parcelables from a Parcel
+            @JvmField
+            val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
+                override fun createFromParcel(parcel: Parcel): SavedState = SavedState(parcel)
+
+                override fun newArray(size: Int): Array<SavedState?> = arrayOfNulls(size)
+            }
+        }
+    }
+
+    interface OnQueryTextListener {
+        /**
+         * Called when the user submits the query. Return true when the listener handled it, false to let the
+         * search view close.
+         */
+        fun onQueryTextSubmit(query: String): Boolean
+
+        /**
+         * Called when the query text is changed by the user. Return true when the listener handled it.
+         */
+        fun onQueryTextChange(newText: String): Boolean
+    }
+
+    interface SearchViewListener {
+        fun onSearchViewShown()
+
+        fun onSearchViewClosed()
+
+        /**
+         * Called before the search view opens (PR #81). Optional.
+         */
+        fun onSearchViewAboutToShow() = Unit
+
+        /**
+         * Called before the search view closes (PR #81). Optional.
+         */
+        fun onSearchViewAboutToClose() = Unit
+
+        /**
+         * Called when the person cancels the search (back icon, tint, Back), before it closes (#71). Optional.
+         */
+        fun onSearchViewCanceled() = Unit
+    }
+}

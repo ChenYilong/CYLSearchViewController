@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="example_originals">原始示例</string>
+    <string name="example_originals_subtitle">上游示例（未修改）</string>
+    <string name="example_list_style">候选项以列表显示</string>
+    <string name="example_tag_style">候选项以标签显示</string>
+    <string name="example_open_search">打开搜索查看候选项</string>
+    <string name="example_search_note">下拉刷新、浮层与空状态（iOS 的复现开关在 Android 上没有对应项）</string>
+    <!-- The discover demo, copied from CollectionViewClassifyMenu (same texts as iOS CYLSearchDiscover.bundle). -->
+    <string name="cyl_discover_recent">最近搜索</string>
+    <string name="cyl_discover_tapToSearch">轻点两下搜索</string>
+    <string name="cyl_discover_title">发现</string>
+    <string name="cyl_discover_refresh">换一批</string>
+    <string name="cyl_discover_back">返回</string>
+    <string name="cyl_discover_search">搜索</string>
+    <string name="cyl_discover_imageSearch">以图搜索</string>
+    <string name="cyl_discover_clear">清空最近搜索</string>
+    <string name="cyl_discover_cleared">已清空最近搜索</string>
+    <string name="cyl_discover_askHint">按住提问，有问必答</string>
+    <string name="cyl_discover_ask">按住提问</string>
+    <string name="cyl_discover_askAccessibilityHint">按住说出问题，松开发送</string>
+    <string name="cyl_discover_listening">正在聆听…</string>
+    <string name="cyl_discover_searching">正在搜索：%1$s</string>
+    <string name="cyl_discover_imageSearchUnavailable">演示中暂不支持以图搜索。</string>
+    <string name="cyl_discover_ok">好</string>
+    <string name="cyl_discover_holdMic">请按住麦克风按钮说出问题</string>
+    <string name="cyl_discover_hot">热门</string>
+</resources>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <public name="search_navigationIconCompat" type="attr" />
+    <public name="search_navigationIcon" type="attr" />
+    <public name="search_navigationContentDescription" type="attr" />
+    <public name="search_navigationBackgroundColor" type="attr" />
+    <public name="search_navigationElevation" type="attr" />
+    <public name="search_radius" type="attr" />
+    <public name="search_clearIcon" type="attr" />
+    <public name="search_dividerColor" type="attr" />
+    <public name="search_scrimColor" type="attr" />
+
+    <public name="material_search_bar_scrolling_view_behavior" type="string" />
+
+</resources>
