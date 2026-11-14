@@ -1,6 +1,6 @@
 # WeChat Mini Program API alignment
 
-## TODO (2026-11-15): mini program core aligned with every iOS public API; example with CYLTabBarController's mini program tab bar
+## DONE (2026-11-15; TODO 2026-11-15): mini program core aligned with every iOS public API; example with CYLTabBarController's mini program tab bar
 
 - Branch: `feat/swift-core` (PR #8). Package: `CrossPlatform/wechat-miniprogram-cylsearch`.
 - Prompt (verbatim): "item1 完善 core核心代码 对标 iOS端所有公开API ，然后完善 example ，并使用CYLTabBarController 微信小程序端的组件用来做tabbar item2 你先帮我创建工程，我再用ide打开，然后再进行下一步使用模拟器打开项目"
@@ -27,7 +27,18 @@
   `InputType`…). New component `cyl-search-bar-item` (iOS `CYLSearchBarItemView`); `cyl-search-bar` gets the
   `leading` / `trailing` slots and a default search icon. Table below: 397/397, 100/100. Node tests 14/14
   (`test/core.test.js` 6). Next: the example with CYLTabBarController's mini program tab bar.
-- Status: IN PROGRESS.
+- Progress (2026-11-15): example DONE. Five tab pages and the plus button's page (`pages/plus`, opened with
+  `wx.navigateTo`, since a mini program has at most five tab pages). The tab bar is `cyl-tab-bar` of
+  CYLTabBarController pinned at `a8e5305` (`package.json` `cylTabBarControllerCommit`, fetched by
+  `scripts/sync-example.js`), configured with the iOS and Android examples' keys (`utils/cyl_search_tabs.js`), with a
+  raised plus button. Verified in WeChat DevTools (base library 3.6.6) with `scripts/devtools-screenshots.js`: every
+  tab, the empty-cache placeholder with the keyboard down, filtering, "No matching results", the Discover items, and
+  the plus page's plain, bordered and slotted bars; no console errors. The script waits for the first page before
+  relaunching (an earlier relaunch fails with "Uncaught").
+
+  ![Mini program example with the CYLTabBarController tab bar](assets/miniprogram-example-tabbar-devtools.png)
+
+- Status: DONE (2026-11-15). Open elsewhere: Lottie animations in the mini program placeholders.
 
 <!-- miniprogram-api-alignment:begin -->
 Rows: 397; implemented or N/A 397, TODO 0; score 100/100.

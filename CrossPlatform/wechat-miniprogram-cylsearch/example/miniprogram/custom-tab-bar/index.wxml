@@ -1,0 +1,5 @@
+<!-- The custom tab bar: cyl-tab-bar of CYLTabBarController's mini program package, five tabs and a raised plus button. -->
+<cyl-tab-bar id="cyl-tab-bar" generic:cyl-lottie-view="cyl-placeholder" generic:cyl-pag-view="cyl-placeholder"
+  generic:cyl-rive-view="cyl-placeholder" configuration="{{configuration}}" strings="{{strings}}"
+  symbols-by-theme="{{symbolsByTheme}}" selected-identifier="{{selectedIdentifier}}"
+  bind:select="onSelect" bind:plustap="onPlusTap" />

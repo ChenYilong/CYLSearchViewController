@@ -1,0 +1,6 @@
+.page { padding: 16px; }
+.hint { margin-top: 16px; color: #8e8e93; font-size: 14px; }
+.event { margin-top: 8px; color: #007aff; font-size: 14px; }
+.row { padding: 12px 0; border-bottom: 1px solid #e5e5ea; }
+.row-title { font-size: 16px; }
+.row-detail { font-size: 13px; color: #8e8e93; margin-top: 2px; }

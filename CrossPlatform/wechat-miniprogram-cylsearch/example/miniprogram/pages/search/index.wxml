@@ -1,0 +1,7 @@
+<view class="page">
+  <cyl-search-bar placeholder="Search languages" bind:focuschange="openSearch" />
+  <view class="hint">The search page: cached queries first, then the suggestions as a list; the keyboard rises.</view>
+  <view class="event">{{lastEvent}}</view>
+  <cyl-search id="search" suggestions="{{suggestions}}" suggestionStyle="list" placeholder="Search languages"
+  searchBarStyle="plain" cacheName="MiniProgramSearch" focusesSearchFieldOnShow="{{true}}" bind:submit="onSubmit" />
+</view>

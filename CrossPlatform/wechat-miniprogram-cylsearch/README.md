@@ -12,7 +12,16 @@ cache, and the rules behind them, with the iOS names.
   none, database, userDefaults, sandboxFile; storage is `wx.getStorageSync`), `CYLSearchBarItem` / `CYLSearchBarItems`,
   `CYLSearchViewModel`.
 
-Status (2026-11-15): the logic is covered by 8 Node tests, and the example runs in WeChat DevTools (base library
-3.6.6): the bordered bar with its items, the search page with the empty-cache placeholder and the keyboard down, and
-the `submit` event (screenshot: `docs/assets/miniprogram-search-devtools.png` in the repository). Not yet: a search
-icon image in the field, and the placeholders' Lottie animations.
+Core: `src/core/` has a counterpart for every public iOS API (397/397, `docs/miniprogram-api-alignment.md` in the
+repository), ported from the HarmonyOS models: `require('cyl-search-miniprogram/src/core')`. Components:
+`cyl-search-bar` (slots `leading` and `trailing`), `cyl-search-bar-item`, `cyl-search`.
+
+Example: `node scripts/sync-example.js` copies `src/` into `example/miniprogram/components/` and installs
+CYLTabBarController's mini program tab bar (`cyl-tabbar-miniprogram`, at the commit in `package.json`
+`cylTabBarControllerCommit`) into `example/miniprogram/miniprogram_npm/`. Then open `example/` in WeChat DevTools. Five
+tabs (Search, Examples, List style, Tag style, Discover) and a raised plus button that opens the search bar samples.
+`scripts/devtools-screenshots.js` drives every tab with miniprogram-automator.
+
+Status (2026-11-15): Node tests 14/14; the example runs in WeChat DevTools (base library 3.6.6) with no console
+errors (screenshot: `docs/assets/miniprogram-example-tabbar-devtools.png` in the repository). Not yet: the
+placeholders' Lottie animations.

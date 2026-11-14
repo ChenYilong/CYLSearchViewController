@@ -191,3 +191,6 @@ begins and becomes `DONE` when it ends.
   Verified: bar with items, search page with the empty-cache placeholder and the keyboard down, `submit: Swift`;
   screenshot `docs/assets/miniprogram-search-devtools.png`. Node tests 8/8. Still open: a search icon image in the
   field; Lottie in the mini program placeholders.
+- Progress (2026-11-15, mini program core and example): DONE, see `docs/miniprogram-api-alignment.md` (397/397, the
+  tab bar example, screenshot). The HarmonyOS project moved to `~/develop/CYLSearchViewController-swift-core/harmonyos`
+  (the `feat/swift-core` worktree) for the user to open in DevEco Studio.

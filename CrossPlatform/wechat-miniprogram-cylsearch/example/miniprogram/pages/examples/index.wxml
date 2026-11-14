@@ -1,0 +1,6 @@
+<view class="page">
+  <view wx:for="{{rows}}" wx:key="path" class="row" role="button" aria-label="{{item.title}}, {{item.detail}}" data-path="{{item.path}}" bindtap="onRow">
+    <view class="row-title">{{item.title}}</view>
+    <view class="row-detail">{{item.detail}}</view>
+  </view>
+</view>

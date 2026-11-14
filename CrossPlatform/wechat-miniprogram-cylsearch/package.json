@@ -5,11 +5,21 @@
   "license": "MIT",
   "author": "ChenYilong <luohanchenyilong@163.com>",
   "homepage": "https://github.com/ChenYilong/CYLSearchViewController/tree/master/CrossPlatform/wechat-miniprogram-cylsearch",
-  "keywords": ["miniprogram", "search", "searchbar", "CYLSearchViewController"],
+  "keywords": [
+    "miniprogram",
+    "search",
+    "searchbar",
+    "CYLSearchViewController"
+  ],
   "miniprogram": "src",
   "main": "src/core/index.js",
-  "files": ["src", "README.md"],
+  "files": [
+    "src",
+    "README.md"
+  ],
   "scripts": {
-    "test": "node --test test/*.test.js"
-  }
+    "test": "node --test test/*.test.js",
+    "example": "node scripts/sync-example.js"
+  },
+  "cylTabBarControllerCommit": "a8e5305ad7f05b299aac1b433e778e662110f2df"
 }

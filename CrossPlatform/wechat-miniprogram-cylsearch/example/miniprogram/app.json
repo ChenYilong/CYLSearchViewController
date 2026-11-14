@@ -1,6 +1,48 @@
 {
-  "pages": ["pages/index/index"],
-  "window": { "navigationBarTitleText": "CYLSearch", "navigationBarBackgroundColor": "#ffffff", "navigationBarTextStyle": "black" },
+  "pages": [
+    "pages/search/index",
+    "pages/examples/index",
+    "pages/listStyle/index",
+    "pages/tagStyle/index",
+    "pages/discover/index",
+    "pages/plus/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "CYLSearch",
+    "navigationBarBackgroundColor": "#ffffff",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#8e8e93",
+    "selectedColor": "#007aff",
+    "list": [
+      {
+        "pagePath": "pages/search/index",
+        "text": "search"
+      },
+      {
+        "pagePath": "pages/examples/index",
+        "text": "examples"
+      },
+      {
+        "pagePath": "pages/listStyle/index",
+        "text": "listStyle"
+      },
+      {
+        "pagePath": "pages/tagStyle/index",
+        "text": "tagStyle"
+      },
+      {
+        "pagePath": "pages/discover/index",
+        "text": "discover"
+      }
+    ]
+  },
+  "usingComponents": {
+    "cyl-search-bar": "/components/cyl-search-bar/index",
+    "cyl-search": "/components/cyl-search/index"
+  },
   "style": "v2",
   "sitemapLocation": "sitemap.json"
 }

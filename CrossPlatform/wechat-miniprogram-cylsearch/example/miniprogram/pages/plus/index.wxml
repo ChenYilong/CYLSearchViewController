@@ -1,0 +1,12 @@
+<view class="page">
+  <view class="label">Plain</view>
+  <cyl-search-bar placeholder="Plain" bind:submit="onSubmit" />
+  <view class="label">Bordered with items</view>
+  <cyl-search-bar placeholder="Bordered" searchBarStyle="bordered" items="{{items}}" bind:submit="onSubmit" />
+  <view class="label">Leading and trailing slots</view>
+  <cyl-search-bar placeholder="Slots" searchBarStyle="bordered" bind:submit="onSubmit">
+    <view slot="leading" class="slot" aria-label="Back" role="button">‹</view>
+    <view slot="trailing" class="slot" aria-label="Filter" role="button">⚙︎</view>
+  </cyl-search-bar>
+  <view class="event">{{lastEvent}}</view>
+</view>
