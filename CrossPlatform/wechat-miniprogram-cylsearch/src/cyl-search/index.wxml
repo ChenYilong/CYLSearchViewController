@@ -6,9 +6,10 @@
     bind:itemselect="onItemSelect" />
   <view class="cyl-line" />
   <view wx:if="{{showsEmptyResults || showsEmptySuggestions}}" class="cyl-empty" role="status">
-    <cyl-animation-view wx:if="{{showsEmptyResults ? emptyResultsAnimation : emptySuggestionsAnimation}}" class="cyl-empty-animation"
-      path="{{showsEmptyResults ? emptyResultsAnimation : emptySuggestionsAnimation}}" loop="{{true}}" autoplay="{{true}}" aria-hidden="true" />
+    <cyl-animation-view wx:if="{{showsEmptyResults ? emptyResultsAnimation : emptySuggestionsAnimation}}" id="cyl-empty-animation" class="cyl-empty-animation"
+      path="{{showsEmptyResults ? emptyResultsAnimation : emptySuggestionsAnimation}}" loop="{{animationLoops}}" speed="{{playbackSpeed}}" autoplay="{{true}}" aria-hidden="true" />
     <view>{{showsEmptyResults ? emptyResultsText : emptySuggestionsText}}</view>
+    <slot name="placeholder-footer" />
   </view>
   <block wx:elif="{{shownSuggestions.length > 0}}">
     <view wx:if="{{showsCachedQueries}}" class="cyl-header">

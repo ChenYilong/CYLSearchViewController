@@ -7,8 +7,10 @@ and the applicable skill in `.agents/skills/` before making changes.
 
 ## Skills
 
-TODO: please install following docs 开发者工具 Skills
- https://developers.weixin.qq.com/miniprogram/dev/devtools/Skills.html
+WeChat DevTools Skills (<https://developers.weixin.qq.com/miniprogram/dev/devtools/Skills.html>): DONE
+(2026-11-15). `wechatide-skill` ships with WeChat DevTools and is linked into the user skill folder
+(`~/.claude/skills/wechatide-skill`); use it for every mini program build, run, automation and screenshot
+(`CrossPlatform/wechat-miniprogram-cylsearch`). Notes for Windows: see `docs/miniprogram-api-alignment.md`.
 
 
 `.agents/skills` holds the skills; `.claude/skills` only points there.

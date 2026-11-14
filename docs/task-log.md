@@ -194,3 +194,6 @@ begins and becomes `DONE` when it ends.
 - Progress (2026-11-15, mini program core and example): DONE, see `docs/miniprogram-api-alignment.md` (397/397, the
   tab bar example, screenshot). The HarmonyOS project moved to `~/develop/CYLSearchViewController-swift-core/harmonyos`
   (the `feat/swift-core` worktree) for the user to open in DevEco Studio.
+- Progress (2026-11-15, mini program playback controls and DevTools Skills, branch `feat/swift-core-next`): DONE, see
+  `docs/miniprogram-api-alignment.md` ("playback controls on the animated placeholders"); verified in WeChat DevTools
+  through `wechatide-skill`, Node tests 17/17.

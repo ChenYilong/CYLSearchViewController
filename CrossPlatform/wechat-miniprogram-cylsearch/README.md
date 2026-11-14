@@ -29,3 +29,7 @@ Animated placeholders: `cyl-search` plays `emptySuggestionsAnimation` / `emptyRe
 above the text through its abstract node `cyl-animation-view`; pass `generic:cyl-animation-view="cyl-lottie"` with
 `cyl-lottie-miniprogram` installed (the example does, with CYLTableViewPlaceHolder's animations and their licenses in
 `example/miniprogram/assets/placeholder/`). Without the node, only the text shows and no player is shipped.
+
+Playback: `animationSpeed` (0.25 to 3) and `animationLoops` apply live; `playAnimationFromStart()` restarts the
+animation from progress 0. Put controls in the slot `placeholder-footer` (under the placeholder); the List style and
+Tag style pages of the example offer "Play all", a speed slider and a loop switch. Node tests 17/17.

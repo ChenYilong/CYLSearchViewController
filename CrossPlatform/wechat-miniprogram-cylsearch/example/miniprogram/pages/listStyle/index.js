@@ -1,6 +1,11 @@
 const { cylSelectTab } = require('../../utils/cyl_tab_page');
+const { cylAnimationControls } = require('../../utils/cyl_animation_controls');
+
+const { initialData, ...playbackHandlers } = cylAnimationControls('#search');
+
 Page({
-  data: { suggestions: ['Swift', 'Objective-C', 'Kotlin', 'Java', 'Dart', 'ArkTS', 'TypeScript', 'JavaScript', 'Rust', 'Go', 'C++', 'Python'], lastEvent: '' },
+  ...playbackHandlers,
+  data: { suggestions: ['Swift', 'Objective-C', 'Kotlin', 'Java', 'Dart', 'ArkTS', 'TypeScript', 'JavaScript', 'Rust', 'Go', 'C++', 'Python'], lastEvent: '', ...initialData },
   onShow() {
     cylSelectTab(this, 'listStyle');
   },

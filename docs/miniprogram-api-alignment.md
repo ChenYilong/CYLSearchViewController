@@ -48,6 +48,39 @@
   not measured. The screenshot script retries the first relaunch after a compile.
 - Status: DONE (2026-11-15).
 
+## DONE (2026-11-15): playback controls on the animated placeholders; WeChat DevTools Skills
+
+- Branch: `feat/swift-core-next` (based on `feat/swift-core` at `bab8444`).
+- Prompt (verbatim): "基于新分支 开始下微信小程序开发。找到docs里面任何提及微信小程序的信息开始开发。找到crossplatorm
+  相关文件夹，没有就新建，新建或者更微信小程序开发。微信小程序开发者工具Skills ，根据文档"
+- Prompt (English): "On the new branch, start the WeChat Mini Program work: begin from everything in docs that
+  mentions the mini program; find the CrossPlatform folder (create it if missing) and create or update the mini
+  program there; use the WeChat DevTools Skills, following the documentation."
+- Requirements, from the docs: `AGENTS.md`, "Animation examples: playback controls" (every example page that shows
+  animations offers "Play all", a speed slider and a loop switch, applied live, with accessibility labels; change the
+  core when an example needs it), and the `AGENTS.md` TODO to install the DevTools Skills
+  (<https://developers.weixin.qq.com/miniprogram/dev/devtools/Skills.html>).
+- Core: `cyl-search` gets `animationSpeed` (0.25 to 3, rounded to 0.25), `animationLoops`, `playAnimationFromStart()`
+  and the slot `placeholder-footer` under the empty placeholder. The strategy without views is
+  `src/cyl-search/cyl_search_animation_playback.js` (Node tests 3; all 17/17).
+- Example: List style (no results) and Tag style (empty cache) put the controls in that slot
+  (`utils/cyl_animation_controls.js`; the slider counts quarter steps 1 to 12).
+- `scripts/sync-example.js` checks out only the two mini program folders of CYLTabBarController (sparse checkout):
+  the full checkout failed on Windows with "Filename too long".
+- DevTools Skills: `wechatide-skill` 0.3.11 ships with WeChat DevTools 2.02.2609250 and is linked into
+  `~/.claude/skills`; `check_wechatide_status` gives `versionRelation: equal`. On Windows `wechatide` is not on `PATH`:
+  call `C:\Program Files (x86)\Tencent\微信web开发者工具\wechatide.cmd` (the skill's own install check reports
+  `cli_unavailable` because it does not quote that path). The CLI needs the service port on (Settings → Security)
+  and a logged-in DevTools.
+- Verified with the skill's automation tools: the slider set to 2x and the loop switched off reach the Lottie player
+  (`playSpeed` 2, `loop` false); switching the loop on resumes playback; "Play all" plays again with the loop off;
+  the console buffer has no line at all (no error, no warning).
+
+| Platform | Screenshot | Environment |
+| :--- | :--- | :--- |
+| Mini program | ![Tag style: speed 2x, loop off](assets/miniprogram-playback-controls-tag-style.png) | Windows 11 Pro 10.0.22631; WeChat DevTools 2.02.2609250 simulator (iPhone frame, original 289 x 625 px); base library 3.6.6; branch `feat/swift-core-next` on `bab8444`; 2026-11-15 12:05 NZDT (UTC+13) |
+| Mini program | ![List style: no results, controls under the animation](assets/miniprogram-playback-controls-list-style.png) | Same; 2026-11-15 12:05 NZDT (UTC+13) |
+
 <!-- miniprogram-api-alignment:begin -->
 Rows: 397; implemented or N/A 397, TODO 0; score 100/100.
 

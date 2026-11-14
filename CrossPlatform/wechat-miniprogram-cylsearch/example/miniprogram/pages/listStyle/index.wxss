@@ -1,3 +1,7 @@
 .page { padding: 16px; }
 .hint { margin-top: 16px; color: #8e8e93; font-size: 14px; }
 .event { margin-top: 8px; color: #007aff; font-size: 14px; }
+.playback { margin: 32rpx 48rpx 0; padding: 24rpx 32rpx; border-radius: 24rpx; background: #f2f2f7; color: #3c3c43; font-size: 28rpx; text-align: left; }
+.play-all { display: block; margin: 0 0 16rpx; }
+.playback-row { display: flex; align-items: center; justify-content: space-between; min-height: 88rpx; }
+.playback-slider { flex: 1; margin-left: 24rpx; }

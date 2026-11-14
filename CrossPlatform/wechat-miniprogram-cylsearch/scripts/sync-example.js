@@ -27,9 +27,13 @@ function tabBarCheckout() {
     fs.mkdirSync(path.dirname(dir), { recursive: true });
     execFileSync('git', ['clone', '--filter=blob:none', '--no-checkout', 'https://github.com/ChenYilong/CYLTabBarController.git', dir], { stdio: 'inherit' });
   }
+  // Only the two mini program folders are needed. A sparse checkout also keeps Windows below its path length limit,
+  // which the full checkout (deep Xcode folders) exceeds with "Filename too long".
+  git('config', 'core.longpaths', 'true');
+  git('sparse-checkout', 'set', 'CrossPlatform/wechat-miniprogram-cyltabbar', 'CrossPlatform/lottie-miniprogram');
   let head = '';
   try { head = git('rev-parse', 'HEAD'); } catch (error) { head = ''; }
-  if (head !== commit) {
+  if (head !== commit || !fs.existsSync(path.join(dir, 'CrossPlatform', 'lottie-miniprogram'))) {
     git('fetch', '--filter=blob:none', 'origin', commit);
     git('checkout', '--force', commit);
   }

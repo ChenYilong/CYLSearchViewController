@@ -1,11 +1,14 @@
 const { CYLSearchViewModel } = require('./cyl_search_view_model');
+const { cylClampAnimationSpeed } = require('./cyl_search_animation_playback');
 
 /**
  * The search page component (iOS `CYLSearchView`): draws a `CYLSearchViewModel`. Set `suggestions`; call `show()` to
  * open it (the field is focused unless `focusesSearchFieldOnShow` is false). Events: `submit` `{ text }`, `close`,
- * `textchange` `{ text }`, `suggestionselect` `{ suggestion, index }`.
+ * `textchange` `{ text }`, `suggestionselect` `{ suggestion, index }`. Slot `placeholder-footer`: shown under the
+ * empty placeholder (playback controls of its animation, for example).
  */
 Component({
+  options: { multipleSlots: true },
   properties: {
     suggestions: { type: Array, value: [], observer: 'onSuggestionsChange' },
     suggestionStyle: { type: String, value: 'list' },
@@ -24,10 +27,14 @@ Component({
     emptySuggestionsAnimation: { type: String, value: '' },
     // The same for the empty-results text.
     emptyResultsAnimation: { type: String, value: '' },
+    // The playback strategy of the animation that shows, applied live: a speed (0.25 to 3, rounded to 0.25) and
+    // whether it loops. playAnimationFromStart() restarts it from progress 0.
+    animationSpeed: { type: Number, value: 1, observer: 'onAnimationSpeedChange' },
+    animationLoops: { type: Boolean, value: true },
     recentTitle: { type: String, value: 'Recent searches' },
     clearLabel: { type: String, value: 'Clear recent searches' },
   },
-  data: { shownSuggestions: [], open: false, focus: false, query: '', folded: true, filtered: [], showsCachedQueries: false, showsEmptyResults: false, showsEmptySuggestions: false },
+  data: { playbackSpeed: 1, shownSuggestions: [], open: false, focus: false, query: '', folded: true, filtered: [], showsCachedQueries: false, showsEmptyResults: false, showsEmptySuggestions: false },
   lifetimes: {
     attached() {
       const model = new CYLSearchViewModel();
@@ -49,6 +56,14 @@ Component({
     },
   },
   methods: {
+    onAnimationSpeedChange(value) {
+      this.setData({ playbackSpeed: cylClampAnimationSpeed(value) });
+    },
+    // Restarts the placeholder animation that shows from progress 0 ("Play all"); does nothing without one.
+    playAnimationFromStart() {
+      const view = this.selectComponent('#cyl-empty-animation');
+      if (view && typeof view.cyl_playFromStart === 'function') view.cyl_playFromStart();
+    },
     onSuggestionsChange(value) {
       if (!this.model) return;
       this.model.suggestions = value;
