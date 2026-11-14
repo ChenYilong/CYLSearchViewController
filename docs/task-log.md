@@ -200,3 +200,7 @@ begins and becomes `DONE` when it ends.
 - Progress (2026-11-15, mini program AppID): the example's AppID is local only, as the user chose: `project.config.json`
   keeps `touristappid` (DevTools refuses it), the real one is in the git-ignored `example/project.private.config.json`.
   Verified in DevTools: `wx.getAccountInfoSync()` reports the private AppID, the example renders, no console error.
+
+- 2026-11-15 DONE: CYLTableViewPlaceHolder PR #28 merged into master (merge commit `7bc27a1`) at the user's
+  go-ahead ("Merge PR #28 to master"). The Android pin `6d8b264` is now on master. HarmonyOS run still waits for
+  DevEco signing (`signingConfigs: []`).
