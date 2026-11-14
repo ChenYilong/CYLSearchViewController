@@ -1,0 +1,80 @@
+{
+  "string": [
+    {
+      "name": "cyl_search_title",
+      "value": "検索"
+    },
+    {
+      "name": "cyl_search_placeholder",
+      "value": "結果を絞り込む"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "データがありません"
+    },
+    {
+      "name": "cyl_placeholder_search",
+      "value": "一致する結果がありません"
+    },
+    {
+      "name": "cyl_placeholder_error",
+      "value": "問題が発生しました"
+    },
+    {
+      "name": "cyl_placeholder_network",
+      "value": "インターネット接続を確認してください"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "キャンセル"
+    },
+    {
+      "name": "cyl_search_field",
+      "value": "検索"
+    },
+    {
+      "name": "cyl_search_back",
+      "value": "戻る"
+    },
+    {
+      "name": "cyl_search_voice",
+      "value": "音声検索"
+    },
+    {
+      "name": "cyl_search_submit",
+      "value": "検索"
+    },
+    {
+      "name": "cyl_search_clear",
+      "value": "テキストを消去"
+    },
+    {
+      "name": "cyl_search_suggestions",
+      "value": "候補"
+    },
+    {
+      "name": "cyl_multisearch_add",
+      "value": "新しい検索"
+    },
+    {
+      "name": "cyl_multisearch_remove",
+      "value": "検索を削除"
+    },
+    {
+      "name": "cyl_multisearch_item",
+      "value": "検索 %1$d / %2$d"
+    },
+    {
+      "name": "cyl_search_recent",
+      "value": "最近の検索"
+    },
+    {
+      "name": "cyl_search_clearRecent",
+      "value": "最近の検索を消去"
+    },
+    {
+      "name": "cyl_search_recentCleared",
+      "value": "最近の検索を消去しました"
+    }
+  ]
+}

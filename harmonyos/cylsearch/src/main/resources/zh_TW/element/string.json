@@ -1,0 +1,80 @@
+{
+  "string": [
+    {
+      "name": "cyl_search_title",
+      "value": "搜尋"
+    },
+    {
+      "name": "cyl_search_placeholder",
+      "value": "篩選結果"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "暫無資料"
+    },
+    {
+      "name": "cyl_placeholder_search",
+      "value": "沒有符合的結果"
+    },
+    {
+      "name": "cyl_placeholder_error",
+      "value": "發生錯誤"
+    },
+    {
+      "name": "cyl_placeholder_network",
+      "value": "請檢查網路連線"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "取消"
+    },
+    {
+      "name": "cyl_search_field",
+      "value": "搜尋"
+    },
+    {
+      "name": "cyl_search_back",
+      "value": "返回"
+    },
+    {
+      "name": "cyl_search_voice",
+      "value": "語音搜尋"
+    },
+    {
+      "name": "cyl_search_submit",
+      "value": "搜尋"
+    },
+    {
+      "name": "cyl_search_clear",
+      "value": "清除文字"
+    },
+    {
+      "name": "cyl_search_suggestions",
+      "value": "搜尋建議"
+    },
+    {
+      "name": "cyl_multisearch_add",
+      "value": "新增搜尋"
+    },
+    {
+      "name": "cyl_multisearch_remove",
+      "value": "刪除搜尋"
+    },
+    {
+      "name": "cyl_multisearch_item",
+      "value": "第 %1$d 個搜尋，共 %2$d 個"
+    },
+    {
+      "name": "cyl_search_recent",
+      "value": "最近搜尋"
+    },
+    {
+      "name": "cyl_search_clearRecent",
+      "value": "清除最近搜尋"
+    },
+    {
+      "name": "cyl_search_recentCleared",
+      "value": "已清除最近搜尋"
+    }
+  ]
+}

@@ -41,6 +41,34 @@ VIEW_OBJECTS = {
      ('CYLSearchBarItemView', 'badgeLabel')}
 
 
+# Counterparts that are not a member of the model class (the component's builder parameters, struct parameters), and
+# UIKit lifecycle or text traits ArkUI has no equivalent for.
+MANUAL = {
+    ('CYLSearchBarView', 'trailingAccessoryViews'): '`CYLSearchBarComponent.trailingAccessoryViews` (a `@BuilderParam`)',
+    ('CYLSearchBarView', 'leadingView'): '`CYLSearchBarComponent.leadingView` (a `@BuilderParam`)',
+    ('CYLSearchBarItemView', 'init(item:)'): '`CYLSearchBarItemView({ item })` (the `@Param item`)',
+    ('CYLSearchBarItemView', 'intrinsicContentSize'): 'N/A: ArkUI measures `CYLSearchBarItemView` from its content (36 vp minimum)',
+    ('CYLSearchBarView', 'autocapitalizationType'): 'N/A: ArkUI `TextInput` has no capitalization trait',
+    ('CYLSearchBarView', 'autocorrectionType'): 'N/A: ArkUI `TextInput` has no autocorrection trait',
+    ('CYLMultiSearchView', 'autocapitalizationType'): 'N/A: ArkUI `TextInput` has no capitalization trait',
+    ('CYLMultiSearchView', 'searchButton'): 'N/A: ArkUI has no view objects; `CYLMultiSearchComponent` draws it (`searchImage`)',
+    ('CYLMultiSearchView', 'tintColorDidChange()'): 'N/A: system colors follow the theme by themselves (`indicatorColor` overrides)',
+    ('CYLSearchController', 'viewDidLoad()'): 'N/A: ArkUI components have no load phase (`CYLSearchOverlayComponent.build`)',
+    ('CYLSearchController', 'viewDidLayoutSubviews()'): 'N/A: the overlay is laid out below the safe area by ArkUI, never over the page it hides',
+    ('CYLSearchResultsViewController', 'viewDidLoad()'): 'N/A: ArkUI components have no load phase (`CYLSearchResultsComponent.build`)',
+    ('CYLSearchResultsViewController', 'viewDidLayoutSubviews()'): 'N/A: `CYLSearchResultsComponent` lays the bar above the list in one column, never over it',
+    ('CYLSearchView', 'safeAreaInsetsDidChange()'): 'N/A: ArkUI keeps the page inside the safe area by itself',
+    ('CYLSearchView', 'dividerView'): 'N/A: ArkUI has no view objects; `CYLSearchComponent` draws the divider (`dividerColor`)',
+    ('CYLSearchView', 'suggestionsTableView'): 'N/A: ArkUI has no view objects; `CYLSearchComponent` draws the list (`suggestionCellConfiguration`)',
+    ('CYLSearchView', 'suggestionsTagView'): 'N/A: ArkUI has no view objects; `CYLSearchComponent` draws the tags (`suggestionsFoldControl`)',
+    ('CYLSearchView', 'suggestionCacheHeaderView'): 'N/A: ArkUI has no view objects; `CYLSearchComponent.cacheHeader` draws it',
+    ('CYLSearchView', 'suggestionCacheTitleLabel'): '`CYLSearchView.suggestionCacheTitle`',
+    ('CYLSearchView', 'clearSuggestionCacheButton'): '`CYLSearchView.clearSuggestionCache()` (the header button calls it)',
+    ('CYLSearchPlaceholderView', 'imageView'): '`CYLSearchPlaceholderView.image`',
+    ('CYLSearchPlaceholderView', 'textLabel'): '`CYLSearchPlaceholderView.text`',
+}
+
+
 def ets_sources():
     texts = []
     if os.path.isdir(ETS):
@@ -58,6 +86,8 @@ def body_of(sources, owner):
 
 def detect(sources, owner, swift, kind, kotlin):
     body = body_of(sources, owner)
+    if (owner, swift) in MANUAL:
+        return MANUAL[(owner, swift)]
     if kind in ('class', 'protocol', 'enum'):
         return f'`{owner}`' if body else None
     if swift in NOT_APPLICABLE:

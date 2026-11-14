@@ -13,7 +13,7 @@ made as the [Android table](android-api-alignment.md) was. Rules and prompt: the
 - Before the search bar: study [Applib-HarmonyOS/FlexibleSearchBar](https://github.com/Applib-HarmonyOS/FlexibleSearchBar)
   and note what is reused.
 - Status: `TODO`, score 0 (no HarmonyOS module yet).
-- Status (2026-11-14): `IN PROGRESS`: the module exists (`harmonyos/cylsearch`); the score below is computed from its
+- Status (2026-11-14): score 100/100 (declarations; compiled, not run). The module exists (`harmonyos/cylsearch`); the score below is computed from its
   sources.
 
 ## Score log
@@ -27,47 +27,47 @@ Score = rows whose third column is not `TODO` / rows × 100.
 ## Table
 
 <!-- harmonyos-api-alignment:begin -->
-Rows: 397; implemented or N/A 196, TODO 201; score 49/100.
+Rows: 397; implemented or N/A 397, TODO 0; score 100/100.
 
 | iOS public API | Doc comment | HarmonyOS |
 | :--- | :--- | :--- |
-| **protocol `CYLMultiSearchViewDelegate`** | Events of a `CYLMultiSearchView` (iammert `MultiSearchViewListener`). | TODO |
-| `CYLMultiSearchViewDelegate.-multiSearchView:textDidChange:atIndex:` | The text of the search being typed changed (`onTextChanged`). | TODO |
-| `CYLMultiSearchViewDelegate.-multiSearchView:didCompleteSearch:atIndex:` | A search was completed and became an item (`onSearchComplete`). | TODO |
-| `CYLMultiSearchViewDelegate.-multiSearchView:didRemoveItemAtIndex:` | An item was removed (`onSearchItemRemoved`). | TODO |
-| `CYLMultiSearchViewDelegate.-multiSearchView:didSelectItem:atIndex:` | An item was selected by a tap (`onItemSelected`). | TODO |
-| **class `CYLMultiSearchView`** | Several searches side by side (iammert `MultiSearchView`): the search button starts a new search; a completed search becomes an item in a horizontally scrolling row, with an indicator under the selected item and a remove button on it. Us… | TODO |
-| `CYLMultiSearchView.delegate` | Receives the events. | TODO |
-| `CYLMultiSearchView.selectedIndex` | The selected item, or `NSNotFound` when there is none. | TODO |
-| `CYLMultiSearchView.inSearchMode` | YES while a new search is being typed (`isInSearchMode`). | TODO |
-| `CYLMultiSearchView.searchButton` | The button at the trailing end: it starts a search, or completes the one being typed. | TODO |
-| `CYLMultiSearchView.placeholder` | The placeholder of a new search (`android:hint`). "Search" by default. | TODO |
-| `CYLMultiSearchView.font` | The font of the items (`android:textSize`). The body text style by default, following Dynamic Type. | TODO |
-| `CYLMultiSearchView.textColor` | The text color (`android:textColor`). `labelColor` by default. | TODO |
-| `CYLMultiSearchView.placeholderColor` | The placeholder color (`android:textColorHint`). `placeholderTextColor` by default. | TODO |
-| `CYLMultiSearchView.maximumTextLength` | The longest search a person can type (`android:maxLength`); 0 means no limit. 0 by default. | TODO |
-| `CYLMultiSearchView.minimumTextLength` | A search shorter than this is dropped when it is completed. 3 by default, as in MultiSearchView. | TODO |
-| `CYLMultiSearchView.returnKeyType` | The return key (`android:imeOptions`). `UIReturnKeySearch` by default. | TODO |
-| `CYLMultiSearchView.keyboardType` | The keyboard (`android:inputType`). `UIKeyboardTypeDefault` by default. | TODO |
-| `CYLMultiSearchView.autocapitalizationType` | Capitalization (`textCapSentences`). `UITextAutocapitalizationTypeSentences` by default. | TODO |
-| `CYLMultiSearchView.indicatorColor` | The color of the indicator under the selected item and of the buttons. `tintColor` by default. | TODO |
-| `CYLMultiSearchView.unselectedItemAlpha` | The opacity of items that are not selected. 0.5 by default. | TODO |
-| `CYLMultiSearchView.searchFieldWidth` | The width of the field for a new search, in points. 160 by default. | TODO |
-| `CYLMultiSearchView.animationDuration` | The length of the animations, in seconds. 0.25 by default. | TODO |
-| `CYLMultiSearchView.searchImage` | The search button's icon. `magnifyingglass` by default. | TODO |
-| `CYLMultiSearchView.removeImage` | The remove button's icon. `xmark.circle.fill` by default. | TODO |
-| `CYLMultiSearchView.searchTexts` | The texts of the items, completed searches first, then the one being typed. | TODO |
-| `CYLMultiSearchView.init(frame:)` | — | TODO |
+| **protocol `CYLMultiSearchViewDelegate`** | Events of a `CYLMultiSearchView` (iammert `MultiSearchViewListener`). | `CYLMultiSearchViewDelegate` |
+| `CYLMultiSearchViewDelegate.-multiSearchView:textDidChange:atIndex:` | The text of the search being typed changed (`onTextChanged`). | `CYLMultiSearchViewDelegate.multiSearchViewTextDidChange` |
+| `CYLMultiSearchViewDelegate.-multiSearchView:didCompleteSearch:atIndex:` | A search was completed and became an item (`onSearchComplete`). | `CYLMultiSearchViewDelegate.multiSearchViewDidCompleteSearch` |
+| `CYLMultiSearchViewDelegate.-multiSearchView:didRemoveItemAtIndex:` | An item was removed (`onSearchItemRemoved`). | `CYLMultiSearchViewDelegate.multiSearchViewDidRemoveItemAtIndex` |
+| `CYLMultiSearchViewDelegate.-multiSearchView:didSelectItem:atIndex:` | An item was selected by a tap (`onItemSelected`). | `CYLMultiSearchViewDelegate.multiSearchViewDidSelectItem` |
+| **class `CYLMultiSearchView`** | Several searches side by side (iammert `MultiSearchView`): the search button starts a new search; a completed search becomes an item in a horizontally scrolling row, with an indicator under the selected item and a remove button on it. Us… | `CYLMultiSearchView` |
+| `CYLMultiSearchView.delegate` | Receives the events. | `CYLMultiSearchView.delegate` |
+| `CYLMultiSearchView.selectedIndex` | The selected item, or `NSNotFound` when there is none. | `CYLMultiSearchView.selectedIndex` |
+| `CYLMultiSearchView.inSearchMode` | YES while a new search is being typed (`isInSearchMode`). | `CYLMultiSearchView.isInSearchMode` |
+| `CYLMultiSearchView.searchButton` | The button at the trailing end: it starts a search, or completes the one being typed. | N/A: ArkUI has no view objects; `CYLMultiSearchComponent` draws it (`searchImage`) |
+| `CYLMultiSearchView.placeholder` | The placeholder of a new search (`android:hint`). "Search" by default. | `CYLMultiSearchView.placeholder` |
+| `CYLMultiSearchView.font` | The font of the items (`android:textSize`). The body text style by default, following Dynamic Type. | `CYLMultiSearchView.font` |
+| `CYLMultiSearchView.textColor` | The text color (`android:textColor`). `labelColor` by default. | `CYLMultiSearchView.textColor` |
+| `CYLMultiSearchView.placeholderColor` | The placeholder color (`android:textColorHint`). `placeholderTextColor` by default. | `CYLMultiSearchView.placeholderColor` |
+| `CYLMultiSearchView.maximumTextLength` | The longest search a person can type (`android:maxLength`); 0 means no limit. 0 by default. | `CYLMultiSearchView.maximumTextLength` |
+| `CYLMultiSearchView.minimumTextLength` | A search shorter than this is dropped when it is completed. 3 by default, as in MultiSearchView. | `CYLMultiSearchView.minimumTextLength` |
+| `CYLMultiSearchView.returnKeyType` | The return key (`android:imeOptions`). `UIReturnKeySearch` by default. | `CYLMultiSearchView.returnKeyType` |
+| `CYLMultiSearchView.keyboardType` | The keyboard (`android:inputType`). `UIKeyboardTypeDefault` by default. | `CYLMultiSearchView.keyboardType` |
+| `CYLMultiSearchView.autocapitalizationType` | Capitalization (`textCapSentences`). `UITextAutocapitalizationTypeSentences` by default. | N/A: ArkUI `TextInput` has no capitalization trait |
+| `CYLMultiSearchView.indicatorColor` | The color of the indicator under the selected item and of the buttons. `tintColor` by default. | `CYLMultiSearchView.indicatorColor` |
+| `CYLMultiSearchView.unselectedItemAlpha` | The opacity of items that are not selected. 0.5 by default. | `CYLMultiSearchView.unselectedItemAlpha` |
+| `CYLMultiSearchView.searchFieldWidth` | The width of the field for a new search, in points. 160 by default. | `CYLMultiSearchView.searchFieldWidth` |
+| `CYLMultiSearchView.animationDuration` | The length of the animations, in seconds. 0.25 by default. | `CYLMultiSearchView.animationDuration` |
+| `CYLMultiSearchView.searchImage` | The search button's icon. `magnifyingglass` by default. | `CYLMultiSearchView.searchImage` |
+| `CYLMultiSearchView.removeImage` | The remove button's icon. `xmark.circle.fill` by default. | `CYLMultiSearchView.removeImage` |
+| `CYLMultiSearchView.searchTexts` | The texts of the items, completed searches first, then the one being typed. | `CYLMultiSearchView.searchTexts` |
+| `CYLMultiSearchView.init(frame:)` | — | `new CYLMultiSearchView(…)` |
 | `CYLMultiSearchView.init(coder:)` | — | N/A: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
-| `CYLMultiSearchView.tintColorDidChange()` | — | TODO |
+| `CYLMultiSearchView.tintColorDidChange()` | — | N/A: system colors follow the theme by themselves (`indicatorColor` overrides) |
 | `CYLMultiSearchView.traitCollectionDidChange(_:)` | — | N/A: system colors (`sys.color.*`) follow the color mode by themselves |
-| `CYLMultiSearchView.intrinsicContentSize` | — | TODO |
+| `CYLMultiSearchView.intrinsicContentSize` | — | `CYLMultiSearchView.intrinsicContentSize` |
 | `CYLMultiSearchView.layoutSubviews()` | — | N/A: ArkUI lays a component out from its declaration |
-| `CYLMultiSearchView.search()` | Starts a new search and shows the keyboard (`search`). Does nothing while a search is being typed. | TODO |
-| `CYLMultiSearchView.completeSearch()` | Completes the search being typed (`completeSearch`): it becomes the selected item, or is dropped when shorter than `minimumTextLength`. | TODO |
-| `CYLMultiSearchView.addSearchText(_:)` | Adds a completed search without typing it and selects it. | TODO |
-| `CYLMultiSearchView.selectItem(at:)` | Selects an item, like a tap on it. | TODO |
-| `CYLMultiSearchView.removeItem(at:)` | Removes an item, like a tap on its remove button. | TODO |
+| `CYLMultiSearchView.search()` | Starts a new search and shows the keyboard (`search`). Does nothing while a search is being typed. | `CYLMultiSearchView.search` |
+| `CYLMultiSearchView.completeSearch()` | Completes the search being typed (`completeSearch`): it becomes the selected item, or is dropped when shorter than `minimumTextLength`. | `CYLMultiSearchView.completeSearch` |
+| `CYLMultiSearchView.addSearchText(_:)` | Adds a completed search without typing it and selects it. | `CYLMultiSearchView.addSearchText` |
+| `CYLMultiSearchView.selectItem(at:)` | Selects an item, like a tap on it. | `CYLMultiSearchView.selectItemAtIndex` |
+| `CYLMultiSearchView.removeItem(at:)` | Removes an item, like a tap on its remove button. | `CYLMultiSearchView.removeItemAtIndex` |
 | `CYLMultiSearchView.textFieldShouldBeginEditing(_:)` | Only the search being typed is editable; a tap on a completed one selects it. | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
 | `CYLMultiSearchView.textFieldShouldReturn(_:)` | The return key completes the search. | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
 | `CYLMultiSearchView.textField(_:shouldChangeCharactersIn:replacementString:)` | Enforces `maximumTextLength`. | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
@@ -120,11 +120,11 @@ Rows: 397; implemented or N/A 196, TODO 201; score 49/100.
 | `CYLSearchBarItemView.imageView` | The icon. | N/A: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
 | `CYLSearchBarItemView.titleLabel` | The title of a text item. | N/A: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
 | `CYLSearchBarItemView.badgeLabel` | The badge (`badgeValue`). | N/A: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
-| `CYLSearchBarItemView.init(item:)` | The view for an item; the item's `itemView` is the one the bar shows. | TODO |
+| `CYLSearchBarItemView.init(item:)` | The view for an item; the item's `itemView` is the one the bar shows. | `CYLSearchBarItemView({ item })` (the `@Param item`) |
 | `CYLSearchBarItemView.init(coder:)` | Not supported: an item view is created from its item. | N/A: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
 | `CYLSearchBarItemView.actualBadgeSuperView()` | The view the badge is drawn in (this view). | N/A: ArkUI has no view objects; the badge is drawn by `CYLSearchBarItemView` |
 | `CYLSearchBarItemView.traitCollectionDidChange(_:)` | — | N/A: system colors (`sys.color.*`) follow the color mode by themselves |
-| `CYLSearchBarItemView.intrinsicContentSize` | — | TODO |
+| `CYLSearchBarItemView.intrinsicContentSize` | — | N/A: ArkUI measures `CYLSearchBarItemView` from its content (36 vp minimum) |
 | `CYLSearchBarItemView.sizeThatFits(_:)` | — | N/A: ArkUI measures a component from its declaration (`intrinsicContentSize` gives the height) |
 | `CYLSearchBarItemView.layoutSubviews()` | — | N/A: ArkUI lays a component out from its declaration |
 | **enum `CYLSearchBarNavigationIcon`** | The icon of the navigation button before the field (lapism `NavigationIconCompat`). | `CYLSearchBarNavigationIcon` |
@@ -177,7 +177,7 @@ Rows: 397; implemented or N/A 196, TODO 201; score 49/100.
 | `CYLSearchBarView.fieldShadowOpacity` | The field's shadow, 0 to 1. 0 by default. | `CYLSearchBarView.fieldShadowOpacity` |
 | `CYLSearchBarView.searchIcon` | The magnifier; nil shows none. `magnifyingglass` by default. | `CYLSearchBarView.searchIcon` |
 | `CYLSearchBarView.searchIconTintColor` | The magnifier's tint. `secondaryLabelColor` by default. | `CYLSearchBarView.searchIconTintColor` |
-| `CYLSearchBarView.trailingAccessoryViews` | Views of yours inside the field after the text, scaled down when they would squeeze it. | TODO |
+| `CYLSearchBarView.trailingAccessoryViews` | Views of yours inside the field after the text, scaled down when they would squeeze it. | `CYLSearchBarComponent.trailingAccessoryViews` (a `@BuilderParam`) |
 | `CYLSearchBarView.items` | The appended items, in order, after the text and after `trailingAccessoryViews` (like the FlatDesign tab bar's `items`). The field stays; only items are appended. | `CYLSearchBarView.items` |
 | `CYLSearchBarView.itemViews` | The views of `items`, in the same order. | `CYLSearchBarView.itemViews` |
 | `CYLSearchBarView.itemTintColor` | The icon and title color of every item without its own `tintColor`; nil uses the label color. | `CYLSearchBarView.itemTintColor` |
@@ -191,7 +191,7 @@ Rows: 397; implemented or N/A 196, TODO 201; score 49/100.
 | `CYLSearchBarView.removeItem(_:)` | Removes an item from the bar. | `CYLSearchBarView.removeItem` |
 | `CYLSearchBarView.removeAllItems()` | Removes every item. | `CYLSearchBarView.removeAllItems` |
 | `CYLSearchBarView.hasItem(of:)` | YES when an item of the style was appended (a text "Search" button), like `-hasPlusButton`. | `CYLSearchBarView.hasItem` |
-| `CYLSearchBarView.leadingView` | A view of yours before the field (a back button); it wins over the navigation button. | TODO |
+| `CYLSearchBarView.leadingView` | A view of yours before the field (a back button); it wins over the navigation button. | `CYLSearchBarComponent.leadingView` (a `@BuilderParam`) |
 | `CYLSearchBarView.showsCancelButton` | Shows the Cancel button after the field. NO by default. | `CYLSearchBarView.showsCancelButton` |
 | `CYLSearchBarView.cancelButtonTitle` | The Cancel title. The localized "Cancel" by default. | `CYLSearchBarView.cancelButtonTitle` |
 | `CYLSearchBarView.cancelButtonEndsEditing` | Taps on Cancel also end editing and clear nothing. YES by default. | `CYLSearchBarView.cancelButtonEndsEditing` |
@@ -210,8 +210,8 @@ Rows: 397; implemented or N/A 196, TODO 201; score 49/100.
 | `CYLSearchBarView.clearImage` | A custom clear button icon, shown while editing with text. Nil keeps the system clear button. | `CYLSearchBarView.clearImage` |
 | `CYLSearchBarView.keyboardType` | The keyboard type (Android `inputType`). `UIKeyboardTypeDefault` by default. | `CYLSearchBarView.keyboardType` |
 | `CYLSearchBarView.returnKeyType` | The return key (Android `imeOptions`). `UIReturnKeySearch` by default. | `CYLSearchBarView.returnKeyType` |
-| `CYLSearchBarView.autocapitalizationType` | Automatic capitalization. `UITextAutocapitalizationTypeSentences` by default. | TODO |
-| `CYLSearchBarView.autocorrectionType` | Automatic correction. `UITextAutocorrectionTypeDefault` by default. | TODO |
+| `CYLSearchBarView.autocapitalizationType` | Automatic capitalization. `UITextAutocapitalizationTypeSentences` by default. | N/A: ArkUI `TextInput` has no capitalization trait |
+| `CYLSearchBarView.autocorrectionType` | Automatic correction. `UITextAutocorrectionTypeDefault` by default. | N/A: ArkUI `TextInput` has no autocorrection trait |
 | `CYLSearchBarView.isSecureTextEntry` | Hides the typed characters (Android `inputType="textPassword"`). NO by default. | `CYLSearchBarView.isSecureTextEntry` |
 | `CYLSearchBarView.maximumTextLength` | The longest text a person can type (Android `maxLength`); 0 means no limit. 0 by default. | `CYLSearchBarView.maximumTextLength` |
 | `CYLSearchBarView.isIconified` | Shows only a search button instead of the field (Android `SearchView.isIconified`). Tapping the button opens the field and starts editing. NO by default. | `CYLSearchBarView.isIconified` |
@@ -237,104 +237,104 @@ Rows: 397; implemented or N/A 196, TODO 201; score 49/100.
 | `CYLSearchBarView.textField(_:shouldChangeCharactersIn:replacementString:)` | Enforces `maximumTextLength`; deleting is always allowed. | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
 | `CYLSearchBarView.textFieldDidBeginEditing(_:)` | Reports the start of editing. | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
 | `CYLSearchBarView.textFieldDidEndEditing(_:)` | Clears the text and closes to the icon when configured, then reports the end of editing. | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchBarView.becomeFirstResponder()` | Starts editing in the text field. | TODO |
-| `CYLSearchBarView.resignFirstResponder()` | Ends editing; the bar itself also gives up first responder as UIKit expects. | TODO |
-| **protocol `CYLSearchControllerDelegate`** | Events of a `CYLSearchController`. | TODO |
-| `CYLSearchControllerDelegate.-searchControllerDidCancel:` | Cancel was tapped and the overlay is gone. | TODO |
-| **class `CYLSearchController`** | An animated search overlay that uses the same injectable result source as `CYLSearchResultsViewController`. Keep the controller while it is presented. | TODO |
-| `CYLSearchController.delegate` | Receives the cancel event. | TODO |
-| `CYLSearchController.resultsViewController` | The results controller shown inside the overlay. | TODO |
-| `CYLSearchController.presented` | YES while the overlay is on screen or animating in. | TODO |
-| `CYLSearchController.init(searchDataSource:)` | Creates the overlay with the data source of its results. | TODO |
+| `CYLSearchBarView.becomeFirstResponder()` | Starts editing in the text field. | `CYLSearchBarView.becomeFirstResponder` |
+| `CYLSearchBarView.resignFirstResponder()` | Ends editing; the bar itself also gives up first responder as UIKit expects. | `CYLSearchBarView.resignFirstResponder` |
+| **protocol `CYLSearchControllerDelegate`** | Events of a `CYLSearchController`. | `CYLSearchControllerDelegate` |
+| `CYLSearchControllerDelegate.-searchControllerDidCancel:` | Cancel was tapped and the overlay is gone. | `CYLSearchControllerDelegate.searchControllerDidCancel` |
+| **class `CYLSearchController`** | An animated search overlay that uses the same injectable result source as `CYLSearchResultsViewController`. Keep the controller while it is presented. | `CYLSearchController` |
+| `CYLSearchController.delegate` | Receives the cancel event. | `CYLSearchController.delegate` |
+| `CYLSearchController.resultsViewController` | The results controller shown inside the overlay. | `CYLSearchController.resultsViewController` |
+| `CYLSearchController.presented` | YES while the overlay is on screen or animating in. | `CYLSearchController.isPresented` |
+| `CYLSearchController.init(searchDataSource:)` | Creates the overlay with the data source of its results. | `new CYLSearchController(…)` |
 | `CYLSearchController.init(nibName:bundle:)` | Not available: use `init(searchDataSource:)`. | N/A: not available on iOS either (`@available(*, unavailable)`) |
 | `CYLSearchController.init(coder:)` | Not available: use `init(searchDataSource:)`. | N/A: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
-| `CYLSearchController.viewDidLayoutSubviews()` | Keeps the view below the navigation bar and its search bar after every layout (a search bar never covers a view). | TODO |
-| `CYLSearchController.viewDidLoad()` | — | TODO |
-| `CYLSearchController.show(in:)` | Adds a child navigation controller to the host and animates it into view. | TODO |
-| `CYLSearchController.hide(_:)` | Completion is called after the overlay is removed, including when not presented. | TODO |
-| **enum `CYLSearchPlaceholderKind`** | The common placeholder kinds: an empty list, no search results, or an error. | TODO |
-| `CYLSearchPlaceholderKind.empty` | Nothing to show yet. | TODO |
-| `CYLSearchPlaceholderKind.noResults` | The search found nothing. | TODO |
-| `CYLSearchPlaceholderKind.error` | Loading failed. | TODO |
-| **enum `CYLSearchPlaceholderStyle`** | The image of a placeholder; each style has an image in the resource bundle. | TODO |
-| `CYLSearchPlaceholderStyle.empty` | The Empty placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.noResults` | The NoResults placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.error` | The Error placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.wifiOff` | The WifiOff placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.signalWifiOff` | The SignalWifiOff placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.noInternet` | The NoInternet placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.cloudOff` | The CloudOff placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.syncProblem` | The SyncProblem placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.syncDisabled` | The SyncDisabled placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.networkLocked` | The NetworkLocked placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.bluetoothDisabled` | The BluetoothDisabled placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.locationOff` | The LocationOff placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.publicOff` | The PublicOff placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.errorOutline` | The ErrorOutline placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.warning` | The Warning placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.reportProblem` | The ReportProblem placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.blocked` | The Blocked placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.help` | The Help placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.hourglass` | The Hourglass placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.locked` | The Locked placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.visibilityOff` | The VisibilityOff placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.searchOff` | The SearchOff placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.folderOff` | The FolderOff placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.folderOpen` | The FolderOpen placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.downloadOff` | The DownloadOff placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.uploadOff` | The UploadOff placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.inbox` | The Inbox placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.brokenImage` | The BrokenImage placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.imageUnavailable` | The ImageUnavailable placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.photoLibrary` | The PhotoLibrary placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.musicOff` | The MusicOff placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.videoOff` | The VideoOff placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.personOff` | The PersonOff placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.groupOff` | The GroupOff placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.eventBusy` | The EventBusy placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.emptyCart` | The EmptyCart placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.favorite` | The Favorite placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.batteryAlert` | The BatteryAlert placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.unknownDevice` | The UnknownDevice placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.phoneDisabled` | The PhoneDisabled placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.wrongLocation` | The WrongLocation placeholder image. | TODO |
-| `CYLSearchPlaceholderStyle.count` | The Count placeholder image. | TODO |
-| **enum `CYLSearchPlaceholderMessage`** | The localized message of a placeholder. | TODO |
-| `CYLSearchPlaceholderMessage.empty` | "No data". | TODO |
-| `CYLSearchPlaceholderMessage.noResults` | "No matching results". | TODO |
-| `CYLSearchPlaceholderMessage.error` | "Something went wrong". | TODO |
-| `CYLSearchPlaceholderMessage.network` | "Check your internet connection". | TODO |
-| **class `CYLSearchPlaceholderView`** | An image above a message, centered in its bounds: the empty, no-result and error states of a list. | TODO |
-| `CYLSearchPlaceholderView.imageView` | The image, 80 × 80 points, tinted with `secondaryLabelColor` (except the colored empty image). | TODO |
-| `CYLSearchPlaceholderView.textLabel` | The message, in the body text style with Dynamic Type. | TODO |
-| `CYLSearchPlaceholderView.imageName(for:)` | The name of the image of `style` in the resource bundle. | TODO |
-| `CYLSearchPlaceholderView.init(kind:)` | A placeholder of a common kind with its built-in image and message. | TODO |
-| `CYLSearchPlaceholderView.init(style:message:)` | A built-in image with a built-in message. | TODO |
-| `CYLSearchPlaceholderView.init(style:text:)` | A built-in image with your own text. | TODO |
-| `CYLSearchPlaceholderView.init(image:message:)` | Your own image with a built-in message. | TODO |
-| `CYLSearchPlaceholderView.init(image:text:)` | Your own image and text. | TODO |
-| **class `CYLSearchResources`** | Images and localized strings of `CYLSearchViewController.bundle`, the resource bundle of this pod. | TODO |
-| `CYLSearchResources.resourceBundle` | The resource bundle, found next to this class's framework or in the main bundle; nil when it is missing. | TODO |
-| `CYLSearchResources.image(named:)` | An image of the resource bundle, or nil (logged) when it is missing. | TODO |
-| `CYLSearchResources.localizedString(forKey:)` | The text of `key` in the language the app shows (the preferred languages), English when the key has no translation, or the key itself (logged) when it is missing everywhere. | TODO |
-| `CYLSearchResources.localizedString(forKey:language:)` | The text of `key` in `language` (for example "zh-Hans"), or in the preferred languages when `language` is nil. | TODO |
-| **protocol `CYLSearchResultsDataSource`** | Supplies the results of a `CYLSearchResultsViewController` and configures their cells. | TODO |
-| `CYLSearchResultsDataSource.-searchResultsViewController:resultsForQuery:` | The results for `query` (an empty string while nothing is typed). | TODO |
-| `CYLSearchResultsDataSource.-searchResultsViewController:configureCell:withResult:` | Shows `result` in `cell`. | TODO |
-| `CYLSearchResultsDataSource.-searchResultsViewController:didSelectResult:` | A result was tapped. | TODO |
-| **class `CYLSearchResultsViewController`** | A table of search results with a search bar in its navigation item, driven by a `CYLSearchResultsDataSource`. The search bar stays pinned under the title, and the view starts below it, so the bar never covers the list. | TODO |
-| `CYLSearchResultsViewController.searchDataSource` | The data source given at creation. | TODO |
-| `CYLSearchResultsViewController.searchController` | The search controller installed in the navigation item. | TODO |
-| `CYLSearchResultsViewController.searchResults` | The results of the last query. | TODO |
-| `CYLSearchResultsViewController.init(searchDataSource:)` | Creates the controller with its data source (plain table style). | TODO |
+| `CYLSearchController.viewDidLayoutSubviews()` | Keeps the view below the navigation bar and its search bar after every layout (a search bar never covers a view). | N/A: the overlay is laid out below the safe area by ArkUI, never over the page it hides |
+| `CYLSearchController.viewDidLoad()` | — | N/A: ArkUI components have no load phase (`CYLSearchOverlayComponent.build`) |
+| `CYLSearchController.show(in:)` | Adds a child navigation controller to the host and animates it into view. | `CYLSearchController.showInViewController` |
+| `CYLSearchController.hide(_:)` | Completion is called after the overlay is removed, including when not presented. | `CYLSearchController.hide` |
+| **enum `CYLSearchPlaceholderKind`** | The common placeholder kinds: an empty list, no search results, or an error. | `CYLSearchPlaceholderKind` |
+| `CYLSearchPlaceholderKind.empty` | Nothing to show yet. | `CYLSearchPlaceholderKind.empty` |
+| `CYLSearchPlaceholderKind.noResults` | The search found nothing. | `CYLSearchPlaceholderKind.noResults` |
+| `CYLSearchPlaceholderKind.error` | Loading failed. | `CYLSearchPlaceholderKind.error` |
+| **enum `CYLSearchPlaceholderStyle`** | The image of a placeholder; each style has an image in the resource bundle. | `CYLSearchPlaceholderStyle` |
+| `CYLSearchPlaceholderStyle.empty` | The Empty placeholder image. | `CYLSearchPlaceholderStyle.empty` |
+| `CYLSearchPlaceholderStyle.noResults` | The NoResults placeholder image. | `CYLSearchPlaceholderStyle.noResults` |
+| `CYLSearchPlaceholderStyle.error` | The Error placeholder image. | `CYLSearchPlaceholderStyle.error` |
+| `CYLSearchPlaceholderStyle.wifiOff` | The WifiOff placeholder image. | `CYLSearchPlaceholderStyle.wifiOff` |
+| `CYLSearchPlaceholderStyle.signalWifiOff` | The SignalWifiOff placeholder image. | `CYLSearchPlaceholderStyle.signalWifiOff` |
+| `CYLSearchPlaceholderStyle.noInternet` | The NoInternet placeholder image. | `CYLSearchPlaceholderStyle.noInternet` |
+| `CYLSearchPlaceholderStyle.cloudOff` | The CloudOff placeholder image. | `CYLSearchPlaceholderStyle.cloudOff` |
+| `CYLSearchPlaceholderStyle.syncProblem` | The SyncProblem placeholder image. | `CYLSearchPlaceholderStyle.syncProblem` |
+| `CYLSearchPlaceholderStyle.syncDisabled` | The SyncDisabled placeholder image. | `CYLSearchPlaceholderStyle.syncDisabled` |
+| `CYLSearchPlaceholderStyle.networkLocked` | The NetworkLocked placeholder image. | `CYLSearchPlaceholderStyle.networkLocked` |
+| `CYLSearchPlaceholderStyle.bluetoothDisabled` | The BluetoothDisabled placeholder image. | `CYLSearchPlaceholderStyle.bluetoothDisabled` |
+| `CYLSearchPlaceholderStyle.locationOff` | The LocationOff placeholder image. | `CYLSearchPlaceholderStyle.locationOff` |
+| `CYLSearchPlaceholderStyle.publicOff` | The PublicOff placeholder image. | `CYLSearchPlaceholderStyle.publicOff` |
+| `CYLSearchPlaceholderStyle.errorOutline` | The ErrorOutline placeholder image. | `CYLSearchPlaceholderStyle.errorOutline` |
+| `CYLSearchPlaceholderStyle.warning` | The Warning placeholder image. | `CYLSearchPlaceholderStyle.warning` |
+| `CYLSearchPlaceholderStyle.reportProblem` | The ReportProblem placeholder image. | `CYLSearchPlaceholderStyle.reportProblem` |
+| `CYLSearchPlaceholderStyle.blocked` | The Blocked placeholder image. | `CYLSearchPlaceholderStyle.blocked` |
+| `CYLSearchPlaceholderStyle.help` | The Help placeholder image. | `CYLSearchPlaceholderStyle.help` |
+| `CYLSearchPlaceholderStyle.hourglass` | The Hourglass placeholder image. | `CYLSearchPlaceholderStyle.hourglass` |
+| `CYLSearchPlaceholderStyle.locked` | The Locked placeholder image. | `CYLSearchPlaceholderStyle.locked` |
+| `CYLSearchPlaceholderStyle.visibilityOff` | The VisibilityOff placeholder image. | `CYLSearchPlaceholderStyle.visibilityOff` |
+| `CYLSearchPlaceholderStyle.searchOff` | The SearchOff placeholder image. | `CYLSearchPlaceholderStyle.searchOff` |
+| `CYLSearchPlaceholderStyle.folderOff` | The FolderOff placeholder image. | `CYLSearchPlaceholderStyle.folderOff` |
+| `CYLSearchPlaceholderStyle.folderOpen` | The FolderOpen placeholder image. | `CYLSearchPlaceholderStyle.folderOpen` |
+| `CYLSearchPlaceholderStyle.downloadOff` | The DownloadOff placeholder image. | `CYLSearchPlaceholderStyle.downloadOff` |
+| `CYLSearchPlaceholderStyle.uploadOff` | The UploadOff placeholder image. | `CYLSearchPlaceholderStyle.uploadOff` |
+| `CYLSearchPlaceholderStyle.inbox` | The Inbox placeholder image. | `CYLSearchPlaceholderStyle.inbox` |
+| `CYLSearchPlaceholderStyle.brokenImage` | The BrokenImage placeholder image. | `CYLSearchPlaceholderStyle.brokenImage` |
+| `CYLSearchPlaceholderStyle.imageUnavailable` | The ImageUnavailable placeholder image. | `CYLSearchPlaceholderStyle.imageUnavailable` |
+| `CYLSearchPlaceholderStyle.photoLibrary` | The PhotoLibrary placeholder image. | `CYLSearchPlaceholderStyle.photoLibrary` |
+| `CYLSearchPlaceholderStyle.musicOff` | The MusicOff placeholder image. | `CYLSearchPlaceholderStyle.musicOff` |
+| `CYLSearchPlaceholderStyle.videoOff` | The VideoOff placeholder image. | `CYLSearchPlaceholderStyle.videoOff` |
+| `CYLSearchPlaceholderStyle.personOff` | The PersonOff placeholder image. | `CYLSearchPlaceholderStyle.personOff` |
+| `CYLSearchPlaceholderStyle.groupOff` | The GroupOff placeholder image. | `CYLSearchPlaceholderStyle.groupOff` |
+| `CYLSearchPlaceholderStyle.eventBusy` | The EventBusy placeholder image. | `CYLSearchPlaceholderStyle.eventBusy` |
+| `CYLSearchPlaceholderStyle.emptyCart` | The EmptyCart placeholder image. | `CYLSearchPlaceholderStyle.emptyCart` |
+| `CYLSearchPlaceholderStyle.favorite` | The Favorite placeholder image. | `CYLSearchPlaceholderStyle.favorite` |
+| `CYLSearchPlaceholderStyle.batteryAlert` | The BatteryAlert placeholder image. | `CYLSearchPlaceholderStyle.batteryAlert` |
+| `CYLSearchPlaceholderStyle.unknownDevice` | The UnknownDevice placeholder image. | `CYLSearchPlaceholderStyle.unknownDevice` |
+| `CYLSearchPlaceholderStyle.phoneDisabled` | The PhoneDisabled placeholder image. | `CYLSearchPlaceholderStyle.phoneDisabled` |
+| `CYLSearchPlaceholderStyle.wrongLocation` | The WrongLocation placeholder image. | `CYLSearchPlaceholderStyle.wrongLocation` |
+| `CYLSearchPlaceholderStyle.count` | The Count placeholder image. | `CYLSearchPlaceholderStyle.count` |
+| **enum `CYLSearchPlaceholderMessage`** | The localized message of a placeholder. | `CYLSearchPlaceholderMessage` |
+| `CYLSearchPlaceholderMessage.empty` | "No data". | `CYLSearchPlaceholderMessage.empty` |
+| `CYLSearchPlaceholderMessage.noResults` | "No matching results". | `CYLSearchPlaceholderMessage.noResults` |
+| `CYLSearchPlaceholderMessage.error` | "Something went wrong". | `CYLSearchPlaceholderMessage.error` |
+| `CYLSearchPlaceholderMessage.network` | "Check your internet connection". | `CYLSearchPlaceholderMessage.network` |
+| **class `CYLSearchPlaceholderView`** | An image above a message, centered in its bounds: the empty, no-result and error states of a list. | `CYLSearchPlaceholderView` |
+| `CYLSearchPlaceholderView.imageView` | The image, 80 × 80 points, tinted with `secondaryLabelColor` (except the colored empty image). | `CYLSearchPlaceholderView.image` |
+| `CYLSearchPlaceholderView.textLabel` | The message, in the body text style with Dynamic Type. | `CYLSearchPlaceholderView.text` |
+| `CYLSearchPlaceholderView.imageName(for:)` | The name of the image of `style` in the resource bundle. | `CYLSearchPlaceholderView.imageNameForStyle` |
+| `CYLSearchPlaceholderView.init(kind:)` | A placeholder of a common kind with its built-in image and message. | `new CYLSearchPlaceholderView(…)` |
+| `CYLSearchPlaceholderView.init(style:message:)` | A built-in image with a built-in message. | `new CYLSearchPlaceholderView(…)` |
+| `CYLSearchPlaceholderView.init(style:text:)` | A built-in image with your own text. | `new CYLSearchPlaceholderView(…)` |
+| `CYLSearchPlaceholderView.init(image:message:)` | Your own image with a built-in message. | `new CYLSearchPlaceholderView(…)` |
+| `CYLSearchPlaceholderView.init(image:text:)` | Your own image and text. | `new CYLSearchPlaceholderView(…)` |
+| **class `CYLSearchResources`** | Images and localized strings of `CYLSearchViewController.bundle`, the resource bundle of this pod. | `CYLSearchResources` |
+| `CYLSearchResources.resourceBundle` | The resource bundle, found next to this class's framework or in the main bundle; nil when it is missing. | `CYLSearchResources.resourceBundle` |
+| `CYLSearchResources.image(named:)` | An image of the resource bundle, or nil (logged) when it is missing. | `CYLSearchResources.imageNamed` |
+| `CYLSearchResources.localizedString(forKey:)` | The text of `key` in the language the app shows (the preferred languages), English when the key has no translation, or the key itself (logged) when it is missing everywhere. | `CYLSearchResources.localizedString` |
+| `CYLSearchResources.localizedString(forKey:language:)` | The text of `key` in `language` (for example "zh-Hans"), or in the preferred languages when `language` is nil. | `CYLSearchResources.localizedString` |
+| **protocol `CYLSearchResultsDataSource`** | Supplies the results of a `CYLSearchResultsViewController` and configures their cells. | `CYLSearchResultsDataSource` |
+| `CYLSearchResultsDataSource.-searchResultsViewController:resultsForQuery:` | The results for `query` (an empty string while nothing is typed). | `CYLSearchResultsDataSource.searchResultsViewControllerResultsForQuery` |
+| `CYLSearchResultsDataSource.-searchResultsViewController:configureCell:withResult:` | Shows `result` in `cell`. | `CYLSearchResultsDataSource.searchResultsViewControllerConfigureCell` |
+| `CYLSearchResultsDataSource.-searchResultsViewController:didSelectResult:` | A result was tapped. | `CYLSearchResultsDataSource.searchResultsViewControllerDidSelectResult` |
+| **class `CYLSearchResultsViewController`** | A table of search results with a search bar in its navigation item, driven by a `CYLSearchResultsDataSource`. The search bar stays pinned under the title, and the view starts below it, so the bar never covers the list. | `CYLSearchResultsViewController` |
+| `CYLSearchResultsViewController.searchDataSource` | The data source given at creation. | `CYLSearchResultsViewController.searchDataSource` |
+| `CYLSearchResultsViewController.searchController` | The search controller installed in the navigation item. | `CYLSearchResultsViewController.searchController` |
+| `CYLSearchResultsViewController.searchResults` | The results of the last query. | `CYLSearchResultsViewController.searchResults` |
+| `CYLSearchResultsViewController.init(searchDataSource:)` | Creates the controller with its data source (plain table style). | `new CYLSearchResultsViewController(…)` |
 | `CYLSearchResultsViewController.init(style:)` | Not available: use `init(searchDataSource:)`. | N/A: not available on iOS either (`@available(*, unavailable)`) |
 | `CYLSearchResultsViewController.init(nibName:bundle:)` | Not available: use `init(searchDataSource:)`. | N/A: not available on iOS either (`@available(*, unavailable)`) |
 | `CYLSearchResultsViewController.init(coder:)` | Not available: use `init(searchDataSource:)`. | N/A: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
-| `CYLSearchResultsViewController.viewDidLayoutSubviews()` | Keeps the view below the navigation bar and its search bar after every layout (a search bar never covers a view): on some devices ("iPhone Duo") UIKit places the view 10 pt under the stacked search bar. | TODO |
-| `CYLSearchResultsViewController.viewDidLoad()` | — | TODO |
-| `CYLSearchResultsViewController.reloadSearchResults()` | Requeries the data source using the current search text and reloads the table. | TODO |
-| `CYLSearchResultsViewController.reloadResultsTableView()` | Override to integrate a custom table reload, such as an empty-state provider. | TODO |
-| `CYLSearchResultsViewController.updateSearchResults(for:)` | Requeries the results when the search text changes. | TODO |
+| `CYLSearchResultsViewController.viewDidLayoutSubviews()` | Keeps the view below the navigation bar and its search bar after every layout (a search bar never covers a view): on some devices ("iPhone Duo") UIKit places the view 10 pt under the stacked search bar. | N/A: `CYLSearchResultsComponent` lays the bar above the list in one column, never over it |
+| `CYLSearchResultsViewController.viewDidLoad()` | — | N/A: ArkUI components have no load phase (`CYLSearchResultsComponent.build`) |
+| `CYLSearchResultsViewController.reloadSearchResults()` | Requeries the data source using the current search text and reloads the table. | `CYLSearchResultsViewController.reloadSearchResults` |
+| `CYLSearchResultsViewController.reloadResultsTableView()` | Override to integrate a custom table reload, such as an empty-state provider. | `CYLSearchResultsViewController.reloadResultsTableView` |
+| `CYLSearchResultsViewController.updateSearchResults(for:)` | Requeries the results when the search text changes. | `CYLSearchResultsViewController.updateSearchResults` |
 | `CYLSearchResultsViewController.tableView(_:numberOfRowsInSection:)` | — | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
 | `CYLSearchResultsViewController.tableView(_:cellForRowAt:)` | — | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
 | `CYLSearchResultsViewController.tableView(_:didSelectRowAt:)` | — | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
@@ -348,76 +348,76 @@ Rows: 397; implemented or N/A 196, TODO 201; score 49/100.
 | `CYLSearchSuggestionStore.addQuery(_:)` | Adds `query` at the front, without repeating it. | `CYLSearchSuggestionStore.addQuery` |
 | `CYLSearchSuggestionStore.removeQuery(_:)` | Removes `query`. | `CYLSearchSuggestionStore.removeQuery` |
 | `CYLSearchSuggestionStore.removeAllQueries()` | Removes every cached query. | `CYLSearchSuggestionStore.removeAllQueries` |
-| **enum `CYLSearchSuggestionStyle`** | How the suggestions are shown under the search bar (`CYLSearchView.suggestionStyle`). | TODO |
-| `CYLSearchSuggestionStyle.list` | One suggestion per row with its icon, in `suggestionsTableView`. | TODO |
-| `CYLSearchSuggestionStyle.tags` | Tags that wrap like words, in `suggestionsTagView` (CollectionViewClassifyMenu's `CYLTagListView`). | TODO |
-| **protocol `CYLSearchViewDelegate`** | Events of a `CYLSearchView`: opening and closing, the query, focus, suggestions and the voice button. | TODO |
-| `CYLSearchViewDelegate.-searchViewDidShow:` | The search view finished opening (MaterialSearchView `onSearchViewShown`). | TODO |
-| `CYLSearchViewDelegate.-searchViewDidClose:` | The search view finished closing (MaterialSearchView `onSearchViewClosed`). | TODO |
-| `CYLSearchViewDelegate.-searchView:textDidChange:` | The query changed (`onQueryTextChange`). | TODO |
-| `CYLSearchViewDelegate.-searchView:didSubmitText:` | The query was submitted (`onQueryTextSubmit`). Return YES when you handled it and the search view stays open; return NO (or leave this method out) to let the search view close. | TODO |
-| `CYLSearchViewDelegate.-searchView:didChangeFocus:` | The field started or stopped editing (lapism `OnFocusChangeListener`). | TODO |
-| `CYLSearchViewDelegate.-searchView:didSelectSuggestion:atIndex:` | A suggestion was tapped (MaterialSearchView `setOnItemClickListener`). The field shows it first, and it is submitted when `submitsOnSuggestionSelection` is YES. | TODO |
-| `CYLSearchViewDelegate.-searchViewVoiceButtonClicked:` | The voice button was tapped. Start speech recognition and pass the result to `-setQuery:submit:`. | TODO |
-| `CYLSearchViewDelegate.-searchViewNavigationButtonClicked:` | The navigation button (the back arrow by default) was tapped. Without this method it closes the search view. | TODO |
-| **class `CYLSearchView`** | A search page that opens over its host view: a `CYLSearchBarView` at the top of the safe area, a divider, a list of suggestions filtered as you type, and an optional content view of yours below (MiguelCatalan and lapism `MaterialSearchVi… | TODO |
-| `CYLSearchView.delegate` | Receives the events of the search view. | TODO |
-| `CYLSearchView.searchBarView` | The search bar at the top. Style it directly (placeholder, colors, icons, keyboard, voice button). | TODO |
-| `CYLSearchView.dividerView` | The line under the search bar. | TODO |
-| `CYLSearchView.suggestionsTableView` | The table that lists the suggestions. | TODO |
-| `CYLSearchView.suggestionsTagView` | The tags that show the suggestions when `suggestionStyle` is `CYLSearchSuggestionStyleTags` (CollectionViewClassifyMenu's `CYLTagListView`). Style it directly: `style`, spacing, rows, colors. | TODO |
-| `CYLSearchView.suggestionsFoldControl` | The fold control of the tag suggestions (CollectionViewClassifyMenu's `CYLMenuFoldControl`). An inline chevron as the last tag by default, as in the example's Discover page: tap it to show every row, again to fold. Position `CYLMenuFoldC… | TODO |
-| `CYLSearchView.suggestionsFoldedRowCount` | The rows of tag suggestions shown while folded. 2 by default; 0 shows every row. | TODO |
-| `CYLSearchView.suggestionStyle` | How the suggestions are shown: a list (`CYLSearchSuggestionStyleList`, the default) or tags (`CYLSearchSuggestionStyleTags`). A tapped tag works like a tapped row. | TODO |
-| `CYLSearchView.showsEmptyResultsPlaceholder` | Shows CYLTableViewPlaceHolder's placeholder for `emptyResultsScenario` under the search bar while a non-empty query matches no suggestion, in both suggestion styles. NO by default. | TODO |
-| `CYLSearchView.emptyResultsScenario` | The CYLTableViewPlaceHolder scenario of that placeholder. `CYLPlaceholderScenarioNoSearchResults` (an icon, a title and a hint) by default; `CYLPlaceholderScenarioNoContent` shows the plain empty state. | TODO |
-| `CYLSearchView.emptyResultsView` | The placeholder shown for empty results (CYLTableViewPlaceHolder's `CYLPlaceholderStackView`), created the first time it is shown; nil before. Style it after it appears, or change `emptyResultsScenario`. | TODO |
-| `CYLSearchView.dividerColor` | The color of `dividerView` (lapism `setDividerColor`). `separatorColor` by default; clear hides it. | TODO |
-| `CYLSearchView.contentView` | A view of yours shown under the divider, behind the suggestions (lapism `addView`): a results list, a history, anything. Nil by default. | TODO |
-| `CYLSearchView.scrimColor` | The color behind the page while it is open (lapism `setScrimColor`). Nil (none) by default; the page itself uses `backgroundColor`, `systemBackgroundColor` by default. | TODO |
-| `CYLSearchView.suggestions` | The suggestions to filter as the text changes (MaterialSearchView `setSuggestions`). | TODO |
-| `CYLSearchView.suggestionFilter` | Decides whether a suggestion matches the query. Nil uses a case- and diacritic-insensitive "contains" test. An empty query matches nothing unless `showsSuggestionsForEmptyQuery` is YES. | TODO |
-| `CYLSearchView.showsSuggestionsForEmptyQuery` | Lists every suggestion while the query is empty. NO by default. | TODO |
-| `CYLSearchView.filteredSuggestions` | The suggestions that match the current query, in their original order. | TODO |
-| `CYLSearchView.suggestionImage` | The icon before each suggestion (MaterialSearchView `setSuggestionIcon`). `magnifyingglass` by default; nil shows none. | TODO |
-| `CYLSearchView.suggestionImageTintColor` | The tint of `suggestionImage`. `secondaryLabelColor` by default. | TODO |
-| `CYLSearchView.suggestionBackgroundColor` | The background of the suggestion rows (`setSuggestionBackground`). Nil keeps the page background. | TODO |
-| `CYLSearchView.suggestionTextColor` | The color of the suggestion text. `labelColor` by default. | TODO |
-| `CYLSearchView.suggestionLineBreakMode` | How a long suggestion is cut (MaterialSearchView `setEllipsize`). `NSLineBreakByWordWrapping` by default (whole text on several lines); `NSLineBreakByTruncatingTail` keeps one line with an ellipsis. | TODO |
-| `CYLSearchView.submitsOnSuggestionSelection` | Submits a suggestion as soon as it is tapped (`setSubmitOnClick`). NO by default: the field shows it and the person can edit it. | TODO |
-| `CYLSearchView.suggestionCellConfiguration` | Configures each suggestion cell after the defaults (a custom adapter's `getView`). Optional. | TODO |
-| `CYLSearchView.suggestionCachePolicy` | Where submitted queries are cached for the suggestion list (`CYLSearchSuggestionCachePolicyDatabase`, a local SQLite database, by default). While the query is empty, the list shows the cached queries, newest first, under a header whose d… | TODO |
-| `CYLSearchView.suggestionCacheName` | Separates the caches of different search screens. "CYLSearchView" by default. | TODO |
-| `CYLSearchView.suggestionCache` | The cache in use: the built-in store of `suggestionCachePolicy`, or a store of yours (set it after the policy). Nil when the policy is `CYLSearchSuggestionCachePolicyNone`. | TODO |
-| `CYLSearchView.suggestionCacheHeaderView` | The header above the cached queries: a title and, at its trailing edge, `clearSuggestionCacheButton`. | TODO |
-| `CYLSearchView.suggestionCacheTitleLabel` | The title of `suggestionCacheHeaderView` ("Recent searches"). | TODO |
-| `CYLSearchView.clearSuggestionCacheButton` | Clears the whole cache (a trash icon at the top right of the suggestion list). | TODO |
-| `CYLSearchView.showsEmptySuggestionsPlaceholder` | Shows CYLTableViewPlaceHolder's placeholder for `emptySuggestionsScenario` while the query is empty and the cache holds nothing, so an open search is never a blank page. YES by default. | TODO |
-| `CYLSearchView.emptySuggestionsScenario` | The scenario of that placeholder. `CYLPlaceholderScenarioNoContent` by default. | TODO |
-| `CYLSearchView.emptySuggestionsView` | The placeholder shown for an empty cache, created the first time it is shown; nil before. | TODO |
-| `CYLSearchView.focusesSearchFieldOnShow` | Focuses the search field when the search opens, which raises the keyboard. YES by default. NO opens the search with the suggestion list (or the empty placeholder) and the keyboard down; the field is focused when the person taps it. | TODO |
-| `CYLSearchView.searchOpen` | YES while the search view is open (MaterialSearchView `isSearchOpen`). | TODO |
-| `CYLSearchView.animationDuration` | The length of the open and close animations, in seconds (`setAnimationDuration`). 0.25 by default. | TODO |
-| `CYLSearchView.closesOnSubmit` | Closes the search view after a submitted query that the delegate did not handle. YES by default. | TODO |
-| `CYLSearchView.query` | The current query (lapism `getTextQuery`). | TODO |
-| `CYLSearchView.backgroundColor` | The page background (the view itself only shows the scrim). `systemBackgroundColor` by default. | TODO |
-| `CYLSearchView.init(frame:)` | — | TODO |
+| **enum `CYLSearchSuggestionStyle`** | How the suggestions are shown under the search bar (`CYLSearchView.suggestionStyle`). | `CYLSearchSuggestionStyle` |
+| `CYLSearchSuggestionStyle.list` | One suggestion per row with its icon, in `suggestionsTableView`. | `CYLSearchSuggestionStyle.list` |
+| `CYLSearchSuggestionStyle.tags` | Tags that wrap like words, in `suggestionsTagView` (CollectionViewClassifyMenu's `CYLTagListView`). | `CYLSearchSuggestionStyle.tags` |
+| **protocol `CYLSearchViewDelegate`** | Events of a `CYLSearchView`: opening and closing, the query, focus, suggestions and the voice button. | `CYLSearchViewDelegate` |
+| `CYLSearchViewDelegate.-searchViewDidShow:` | The search view finished opening (MaterialSearchView `onSearchViewShown`). | `CYLSearchViewDelegate.searchViewDidShow` |
+| `CYLSearchViewDelegate.-searchViewDidClose:` | The search view finished closing (MaterialSearchView `onSearchViewClosed`). | `CYLSearchViewDelegate.searchViewDidClose` |
+| `CYLSearchViewDelegate.-searchView:textDidChange:` | The query changed (`onQueryTextChange`). | `CYLSearchViewDelegate.searchViewTextDidChange` |
+| `CYLSearchViewDelegate.-searchView:didSubmitText:` | The query was submitted (`onQueryTextSubmit`). Return YES when you handled it and the search view stays open; return NO (or leave this method out) to let the search view close. | `CYLSearchViewDelegate.searchViewDidSubmitText` |
+| `CYLSearchViewDelegate.-searchView:didChangeFocus:` | The field started or stopped editing (lapism `OnFocusChangeListener`). | `CYLSearchViewDelegate.searchViewDidChangeFocus` |
+| `CYLSearchViewDelegate.-searchView:didSelectSuggestion:atIndex:` | A suggestion was tapped (MaterialSearchView `setOnItemClickListener`). The field shows it first, and it is submitted when `submitsOnSuggestionSelection` is YES. | `CYLSearchViewDelegate.searchViewDidSelectSuggestion` |
+| `CYLSearchViewDelegate.-searchViewVoiceButtonClicked:` | The voice button was tapped. Start speech recognition and pass the result to `-setQuery:submit:`. | `CYLSearchViewDelegate.searchViewVoiceButtonClicked` |
+| `CYLSearchViewDelegate.-searchViewNavigationButtonClicked:` | The navigation button (the back arrow by default) was tapped. Without this method it closes the search view. | `CYLSearchViewDelegate.searchViewNavigationButtonClicked` |
+| **class `CYLSearchView`** | A search page that opens over its host view: a `CYLSearchBarView` at the top of the safe area, a divider, a list of suggestions filtered as you type, and an optional content view of yours below (MiguelCatalan and lapism `MaterialSearchVi… | `CYLSearchView` |
+| `CYLSearchView.delegate` | Receives the events of the search view. | `CYLSearchView.delegate` |
+| `CYLSearchView.searchBarView` | The search bar at the top. Style it directly (placeholder, colors, icons, keyboard, voice button). | `CYLSearchView.searchBarView` |
+| `CYLSearchView.dividerView` | The line under the search bar. | N/A: ArkUI has no view objects; `CYLSearchComponent` draws the divider (`dividerColor`) |
+| `CYLSearchView.suggestionsTableView` | The table that lists the suggestions. | N/A: ArkUI has no view objects; `CYLSearchComponent` draws the list (`suggestionCellConfiguration`) |
+| `CYLSearchView.suggestionsTagView` | The tags that show the suggestions when `suggestionStyle` is `CYLSearchSuggestionStyleTags` (CollectionViewClassifyMenu's `CYLTagListView`). Style it directly: `style`, spacing, rows, colors. | N/A: ArkUI has no view objects; `CYLSearchComponent` draws the tags (`suggestionsFoldControl`) |
+| `CYLSearchView.suggestionsFoldControl` | The fold control of the tag suggestions (CollectionViewClassifyMenu's `CYLMenuFoldControl`). An inline chevron as the last tag by default, as in the example's Discover page: tap it to show every row, again to fold. Position `CYLMenuFoldC… | `CYLSearchView.suggestionsFoldControl` |
+| `CYLSearchView.suggestionsFoldedRowCount` | The rows of tag suggestions shown while folded. 2 by default; 0 shows every row. | `CYLSearchView.suggestionsFoldedRowCount` |
+| `CYLSearchView.suggestionStyle` | How the suggestions are shown: a list (`CYLSearchSuggestionStyleList`, the default) or tags (`CYLSearchSuggestionStyleTags`). A tapped tag works like a tapped row. | `CYLSearchView.suggestionStyle` |
+| `CYLSearchView.showsEmptyResultsPlaceholder` | Shows CYLTableViewPlaceHolder's placeholder for `emptyResultsScenario` under the search bar while a non-empty query matches no suggestion, in both suggestion styles. NO by default. | `CYLSearchView.showsEmptyResultsPlaceholder` |
+| `CYLSearchView.emptyResultsScenario` | The CYLTableViewPlaceHolder scenario of that placeholder. `CYLPlaceholderScenarioNoSearchResults` (an icon, a title and a hint) by default; `CYLPlaceholderScenarioNoContent` shows the plain empty state. | `CYLSearchView.emptyResultsScenario` |
+| `CYLSearchView.emptyResultsView` | The placeholder shown for empty results (CYLTableViewPlaceHolder's `CYLPlaceholderStackView`), created the first time it is shown; nil before. Style it after it appears, or change `emptyResultsScenario`. | `CYLSearchView.emptyResultsView` |
+| `CYLSearchView.dividerColor` | The color of `dividerView` (lapism `setDividerColor`). `separatorColor` by default; clear hides it. | `CYLSearchView.dividerColor` |
+| `CYLSearchView.contentView` | A view of yours shown under the divider, behind the suggestions (lapism `addView`): a results list, a history, anything. Nil by default. | `CYLSearchView.contentView` |
+| `CYLSearchView.scrimColor` | The color behind the page while it is open (lapism `setScrimColor`). Nil (none) by default; the page itself uses `backgroundColor`, `systemBackgroundColor` by default. | `CYLSearchView.scrimColor` |
+| `CYLSearchView.suggestions` | The suggestions to filter as the text changes (MaterialSearchView `setSuggestions`). | `CYLSearchView.suggestions` |
+| `CYLSearchView.suggestionFilter` | Decides whether a suggestion matches the query. Nil uses a case- and diacritic-insensitive "contains" test. An empty query matches nothing unless `showsSuggestionsForEmptyQuery` is YES. | `CYLSearchView.suggestionFilter` |
+| `CYLSearchView.showsSuggestionsForEmptyQuery` | Lists every suggestion while the query is empty. NO by default. | `CYLSearchView.showsSuggestionsForEmptyQuery` |
+| `CYLSearchView.filteredSuggestions` | The suggestions that match the current query, in their original order. | `CYLSearchView.filteredSuggestions` |
+| `CYLSearchView.suggestionImage` | The icon before each suggestion (MaterialSearchView `setSuggestionIcon`). `magnifyingglass` by default; nil shows none. | `CYLSearchView.suggestionImage` |
+| `CYLSearchView.suggestionImageTintColor` | The tint of `suggestionImage`. `secondaryLabelColor` by default. | `CYLSearchView.suggestionImageTintColor` |
+| `CYLSearchView.suggestionBackgroundColor` | The background of the suggestion rows (`setSuggestionBackground`). Nil keeps the page background. | `CYLSearchView.suggestionBackgroundColor` |
+| `CYLSearchView.suggestionTextColor` | The color of the suggestion text. `labelColor` by default. | `CYLSearchView.suggestionTextColor` |
+| `CYLSearchView.suggestionLineBreakMode` | How a long suggestion is cut (MaterialSearchView `setEllipsize`). `NSLineBreakByWordWrapping` by default (whole text on several lines); `NSLineBreakByTruncatingTail` keeps one line with an ellipsis. | `CYLSearchView.suggestionLineBreakMode` |
+| `CYLSearchView.submitsOnSuggestionSelection` | Submits a suggestion as soon as it is tapped (`setSubmitOnClick`). NO by default: the field shows it and the person can edit it. | `CYLSearchView.submitsOnSuggestionSelection` |
+| `CYLSearchView.suggestionCellConfiguration` | Configures each suggestion cell after the defaults (a custom adapter's `getView`). Optional. | `CYLSearchView.suggestionCellConfiguration` |
+| `CYLSearchView.suggestionCachePolicy` | Where submitted queries are cached for the suggestion list (`CYLSearchSuggestionCachePolicyDatabase`, a local SQLite database, by default). While the query is empty, the list shows the cached queries, newest first, under a header whose d… | `CYLSearchView.suggestionCachePolicy` |
+| `CYLSearchView.suggestionCacheName` | Separates the caches of different search screens. "CYLSearchView" by default. | `CYLSearchView.suggestionCacheName` |
+| `CYLSearchView.suggestionCache` | The cache in use: the built-in store of `suggestionCachePolicy`, or a store of yours (set it after the policy). Nil when the policy is `CYLSearchSuggestionCachePolicyNone`. | `CYLSearchView.suggestionCache` |
+| `CYLSearchView.suggestionCacheHeaderView` | The header above the cached queries: a title and, at its trailing edge, `clearSuggestionCacheButton`. | N/A: ArkUI has no view objects; `CYLSearchComponent.cacheHeader` draws it |
+| `CYLSearchView.suggestionCacheTitleLabel` | The title of `suggestionCacheHeaderView` ("Recent searches"). | `CYLSearchView.suggestionCacheTitle` |
+| `CYLSearchView.clearSuggestionCacheButton` | Clears the whole cache (a trash icon at the top right of the suggestion list). | `CYLSearchView.clearSuggestionCache()` (the header button calls it) |
+| `CYLSearchView.showsEmptySuggestionsPlaceholder` | Shows CYLTableViewPlaceHolder's placeholder for `emptySuggestionsScenario` while the query is empty and the cache holds nothing, so an open search is never a blank page. YES by default. | `CYLSearchView.showsEmptySuggestionsPlaceholder` |
+| `CYLSearchView.emptySuggestionsScenario` | The scenario of that placeholder. `CYLPlaceholderScenarioNoContent` by default. | `CYLSearchView.emptySuggestionsScenario` |
+| `CYLSearchView.emptySuggestionsView` | The placeholder shown for an empty cache, created the first time it is shown; nil before. | `CYLSearchView.emptySuggestionsView` |
+| `CYLSearchView.focusesSearchFieldOnShow` | Focuses the search field when the search opens, which raises the keyboard. YES by default. NO opens the search with the suggestion list (or the empty placeholder) and the keyboard down; the field is focused when the person taps it. | `CYLSearchView.focusesSearchFieldOnShow` |
+| `CYLSearchView.searchOpen` | YES while the search view is open (MaterialSearchView `isSearchOpen`). | `CYLSearchView.isSearchOpen` |
+| `CYLSearchView.animationDuration` | The length of the open and close animations, in seconds (`setAnimationDuration`). 0.25 by default. | `CYLSearchView.animationDuration` |
+| `CYLSearchView.closesOnSubmit` | Closes the search view after a submitted query that the delegate did not handle. YES by default. | `CYLSearchView.closesOnSubmit` |
+| `CYLSearchView.query` | The current query (lapism `getTextQuery`). | `CYLSearchView.query` |
+| `CYLSearchView.backgroundColor` | The page background (the view itself only shows the scrim). `systemBackgroundColor` by default. | `CYLSearchView.backgroundColor` |
+| `CYLSearchView.init(frame:)` | — | `new CYLSearchView(…)` |
 | `CYLSearchView.init(coder:)` | — | N/A: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
 | `CYLSearchView.layoutSubviews()` | — | N/A: ArkUI lays a component out from its declaration |
-| `CYLSearchView.safeAreaInsetsDidChange()` | — | TODO |
-| `CYLSearchView.install(in:)` | Adds the search view over `view` (pinned to its edges) without opening it. `-showSearch` calls it with the key window's root view when the search view has no superview. | TODO |
-| `CYLSearchView.showSearch()` | Opens the search view with animation and starts editing (`showSearch`). | TODO |
-| `CYLSearchView.showSearch(animated:)` | Opens the search view and starts editing (`showSearch(animate)`). | TODO |
-| `CYLSearchView.closeSearch()` | Closes the search view with animation and ends editing (`closeSearch`). | TODO |
-| `CYLSearchView.closeSearch(animated:)` | Closes the search view and ends editing. | TODO |
-| `CYLSearchView.encodeRestorableState(with:)` | Saves whether the search view is open and its query (`onSaveInstanceState`). UIKit calls it for a view with a `restorationIdentifier` inside a restored view controller. | TODO |
-| `CYLSearchView.decodeRestorableState(with:)` | Restores the query and reopens the search view when it was open (`onRestoreInstanceState`). | TODO |
-| `CYLSearchView.accessibilityPerformEscape()` | — | TODO |
-| `CYLSearchView.attach(to:)` | Makes a bar button item open the search view (`setMenuItem`). | TODO |
-| `CYLSearchView.setQuery(_:submit:)` | Sets the query and submits it when `submit` is YES (`setQuery`, `setTextQuery`). | TODO |
-| `CYLSearchView.showSuggestions()` | Lists the suggestions that match the current query (`showSuggestions`). | TODO |
-| `CYLSearchView.dismissSuggestions()` | Hides the suggestions (`dismissSuggestions`). | TODO |
-| `CYLSearchView.clearSuggestionCache()` | Removes every cached query (the delete button of `suggestionCacheHeaderView`) and shows the list again. | TODO |
+| `CYLSearchView.safeAreaInsetsDidChange()` | — | N/A: ArkUI keeps the page inside the safe area by itself |
+| `CYLSearchView.install(in:)` | Adds the search view over `view` (pinned to its edges) without opening it. `-showSearch` calls it with the key window's root view when the search view has no superview. | `CYLSearchView.installInView` |
+| `CYLSearchView.showSearch()` | Opens the search view with animation and starts editing (`showSearch`). | `CYLSearchView.showSearch` |
+| `CYLSearchView.showSearch(animated:)` | Opens the search view and starts editing (`showSearch(animate)`). | `CYLSearchView.showSearch` |
+| `CYLSearchView.closeSearch()` | Closes the search view with animation and ends editing (`closeSearch`). | `CYLSearchView.closeSearch` |
+| `CYLSearchView.closeSearch(animated:)` | Closes the search view and ends editing. | `CYLSearchView.closeSearch` |
+| `CYLSearchView.encodeRestorableState(with:)` | Saves whether the search view is open and its query (`onSaveInstanceState`). UIKit calls it for a view with a `restorationIdentifier` inside a restored view controller. | `CYLSearchView.encodeRestorableState` |
+| `CYLSearchView.decodeRestorableState(with:)` | Restores the query and reopens the search view when it was open (`onRestoreInstanceState`). | `CYLSearchView.decodeRestorableState` |
+| `CYLSearchView.accessibilityPerformEscape()` | — | `CYLSearchView.accessibilityPerformEscape` |
+| `CYLSearchView.attach(to:)` | Makes a bar button item open the search view (`setMenuItem`). | `CYLSearchView.attachToMenuItem` |
+| `CYLSearchView.setQuery(_:submit:)` | Sets the query and submits it when `submit` is YES (`setQuery`, `setTextQuery`). | `CYLSearchView.setQuery` |
+| `CYLSearchView.showSuggestions()` | Lists the suggestions that match the current query (`showSuggestions`). | `CYLSearchView.showSuggestions` |
+| `CYLSearchView.dismissSuggestions()` | Hides the suggestions (`dismissSuggestions`). | `CYLSearchView.dismissSuggestions` |
+| `CYLSearchView.clearSuggestionCache()` | Removes every cached query (the delete button of `suggestionCacheHeaderView`) and shows the list again. | `CYLSearchView.clearSuggestionCache` |
 | `CYLSearchView.searchBarView(_:textDidChange:)` | Filters the suggestions and reports the change. | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
 | `CYLSearchView.searchBarViewSearchButtonClicked(_:)` | Reports the submitted query and closes unless the delegate handled it. | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
 | `CYLSearchView.searchBarViewNavigationButtonClicked(_:)` | Reports the navigation button, or closes the search view. | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |

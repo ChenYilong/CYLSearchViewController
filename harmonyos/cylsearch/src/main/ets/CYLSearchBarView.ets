@@ -467,6 +467,22 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
   }
 
   /**
+   * Focuses the field and returns true (iOS `-becomeFirstResponder`).
+   */
+  becomeFirstResponder(): boolean {
+    this.showKeyboard();
+    return true;
+  }
+
+  /**
+   * Ends editing and returns true (iOS `-resignFirstResponder`).
+   */
+  resignFirstResponder(): boolean {
+    this.hideKeyboard();
+    return true;
+  }
+
+  /**
    * Ends editing, which lowers the keyboard.
    */
   hideKeyboard(): void {

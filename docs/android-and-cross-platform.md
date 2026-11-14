@@ -368,7 +368,19 @@ Native) for the CYLSearchViewController components.
     JSON file): 49/100 (397 rows: 196 implemented or N/A, 201 TODO).
 - Not possible yet: running it. No emulator device exists (create one in DevEco Studio's Device Manager); until then
   the library is verified by compiling only.
-- Status: `IN PROGRESS` (2026-11-14): score 49/100.
+  - Second increment (2026-11-14): every remaining type: `CYLSearchView` (list and tag suggestions with the fold
+    control, the cache and its "Recent searches" header, the empty-cache and empty-results placeholders,
+    `focusesSearchFieldOnShow`), `CYLMultiSearchView`, `CYLSearchResultsViewController`, `CYLSearchController`
+    (overlay), `CYLSearchPlaceholderView` with its 40 styles as system symbols, `CYLSearchResources` and the strings
+    (generated from the Android library's, four languages: `harmonyos/scripts/import-android-strings.py`). UIKit-only
+    rows (view objects, lifecycle, text traits) are `N/A` with a reason in
+    [harmonyos-api-alignment.md](harmonyos-api-alignment.md). Score: 397/397 rows, 100/100 by the script; `assembleHar`
+    BUILD SUCCESSFUL.
+- Limits, said plainly: the library is verified by compiling, not by running or testing; no emulator device exists
+  (create one in DevEco Studio's Device Manager), so nothing was run or screenshotted on HarmonyOS. The score counts
+  declarations, as the Android table does; an example app and tests (`ohosTest`) are the next step, to prove the
+  behavior. The cross-platform wrappers (Flutter, React Native) do not target HarmonyOS yet.
+- Status: `IN PROGRESS` (2026-11-14): score 100/100 for the API table; behavior unverified (no device).
 
 ## DONE (2026-11-12): android/ folder: five Kotlin transcriptions, a merged library and example
 
