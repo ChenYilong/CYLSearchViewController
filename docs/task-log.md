@@ -164,3 +164,7 @@ begins and becomes `DONE` when it ends.
   CYLTableViewPlaceHolder's Android port (animated placeholder), CYLTabBarController (raised plus with a title on
   Liquid Glass). The headings above say IN PROGRESS where part is done.
 
+- Progress (2026-11-15, later): React Native touch checks DONE (`a3f48b0`): the tap tool is xcodebuildmcp's bundled
+  `axe` (`/opt/homebrew/Cellar/xcodebuildmcp/2.7.0/libexec/bundled/axe`); typing filters to "Swift", "More" unfolds.
+  Still blocked: WeChat DevTools, a HarmonyOS device with hypium, CYLTableViewPlaceHolder PR #28, CYLTabBarController
+  raised plus on Liquid Glass.
