@@ -114,3 +114,19 @@ begins and becomes `DONE` when it ends.
 
 - Logged in [sub-repositories.md](sub-repositories.md) (context, requirements, prompt verbatim and in English).
   The rules are written; the integration is open.
+
+## TODO (2026-11-14): finish the unfinished CYLSearchViewController tasks, then every `TODO` in the documents
+
+- Context: after the search bar items work (`7d254d6` to `6a9b5d9`), several entries in `docs/` still say `TODO`:
+  some are done but their status line is stale, some are open (the native iOS Discover screenshot, the "iPhone Duo"
+  overlap, the iOS example's raised plus button, React Native touch checks and tab bar, the sibling-checkout pull
+  request, Android's animated placeholder, HarmonyOS, mini programs).
+- Requirements: 1) from the memory files and the local memory documents, continue and finish the unfinished tasks
+  of CYLSearchViewController; 2) go through every document, find the keyword `TODO`, and complete all `TODO` work.
+- Prompt (verbatim): "根据Memory 以及本地Memory文档，尝试继续完成对于 CYLSearchViewController 我们未结束的任务，然后遍历所有文档，找到关键词TODO 完成所有TODO工作。"
+- Prompt (English): "From Memory and the local Memory documents, try to continue and finish our unfinished tasks for
+  CYLSearchViewController, then go through all documents, find the keyword TODO and complete all TODO work."
+- Order (oldest instruction first): the sibling-checkout pull request (2026-11-12); the "iPhone Duo" overlap; the
+  iOS raised plus button; the tag-style, placeholder, cache and focus entries (status lines against what is done);
+  React Native; the search bar items' last screenshot; HarmonyOS; mini programs.
+- Status: `TODO`.
