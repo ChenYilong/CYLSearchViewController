@@ -26,7 +26,16 @@ const errors = [];
     }
     await mp.evaluate(() => wx.clearStorageSync());
     console.log('storage cleared');
-    let page = await mp.reLaunch('/pages/search/index');
+    // Right after a compile the first reLaunch can fail ("Uncaught"): try again.
+    let page = null;
+    for (let attempt = 1; !page; attempt += 1) {
+      try {
+        page = await mp.reLaunch('/pages/search/index');
+      } catch (error) {
+        if (attempt >= 6) throw error;
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+      }
+    }
     await page.waitFor(2500);
     await shot('1-search-tab');
 

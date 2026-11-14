@@ -2,6 +2,6 @@
   <cyl-search-bar placeholder="Search languages" searchBarStyle="bordered" bind:focuschange="openSearch" />
   <view class="hint">List style with the keyboard up and an empty-results placeholder.</view>
   <view class="event">{{lastEvent}}</view>
-  <cyl-search id="search" suggestions="{{suggestions}}" suggestionStyle="list" placeholder="Search languages"
+  <cyl-search id="search" generic:cyl-animation-view="cyl-lottie" emptyResultsAnimation="/assets/placeholder/CYLPlaceholderNoResults.json" suggestions="{{suggestions}}" suggestionStyle="list" placeholder="Search languages"
     searchBarStyle="bordered" cacheName="MiniProgramList" showsEmptyResultsPlaceholder="{{true}}" bind:submit="onSubmit" />
 </view>

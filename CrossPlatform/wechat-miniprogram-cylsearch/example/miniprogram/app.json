@@ -41,7 +41,8 @@
   },
   "usingComponents": {
     "cyl-search-bar": "/components/cyl-search-bar/index",
-    "cyl-search": "/components/cyl-search/index"
+    "cyl-search": "/components/cyl-search/index",
+    "cyl-lottie": "cyl-lottie-miniprogram/cyl-lottie/index"
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json"

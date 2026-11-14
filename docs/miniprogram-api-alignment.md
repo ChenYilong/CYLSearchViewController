@@ -38,7 +38,15 @@
 
   ![Mini program example with the CYLTabBarController tab bar](assets/miniprogram-example-tabbar-devtools.png)
 
-- Status: DONE (2026-11-15). Open elsewhere: Lottie animations in the mini program placeholders.
+- Progress (2026-11-15, later): Lottie placeholders DONE. `cyl-search` has an optional abstract node
+  `cyl-animation-view` (default: `cyl-search-animation-placeholder`, draws nothing) and the properties
+  `emptySuggestionsAnimation` / `emptyResultsAnimation`. The example passes `cyl-lottie` (CYLTabBarController's
+  `cyl-lottie-miniprogram`, same pinned commit, installed by `scripts/sync-example.js`) with
+  `CYLPlaceholderNoDrafts.json` (Tag style, empty cache) and `CYLPlaceholderNoResults.json` (List style, no results),
+  copied from CYLTableViewPlaceHolder with `LICENSE.lottie-ios`, `LICENSE.useanimations` and `NOTICE.animations`.
+  Verified in WeChat DevTools: both draw above their text (screens 2 and 4 of the screenshot); single frames only, motion
+  not measured. The screenshot script retries the first relaunch after a compile.
+- Status: DONE (2026-11-15).
 
 <!-- miniprogram-api-alignment:begin -->
 Rows: 397; implemented or N/A 397, TODO 0; score 100/100.

@@ -23,5 +23,9 @@ tabs (Search, Examples, List style, Tag style, Discover) and a raised plus butto
 `scripts/devtools-screenshots.js` drives every tab with miniprogram-automator.
 
 Status (2026-11-15): Node tests 14/14; the example runs in WeChat DevTools (base library 3.6.6) with no console
-errors (screenshot: `docs/assets/miniprogram-example-tabbar-devtools.png` in the repository). Not yet: the
-placeholders' Lottie animations.
+errors (screenshot: `docs/assets/miniprogram-example-tabbar-devtools.png` in the repository).
+
+Animated placeholders: `cyl-search` plays `emptySuggestionsAnimation` / `emptyResultsAnimation` (Lottie JSON paths)
+above the text through its abstract node `cyl-animation-view`; pass `generic:cyl-animation-view="cyl-lottie"` with
+`cyl-lottie-miniprogram` installed (the example does, with CYLTableViewPlaceHolder's animations and their licenses in
+`example/miniprogram/assets/placeholder/`). Without the node, only the text shows and no player is shipped.

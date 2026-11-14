@@ -19,6 +19,11 @@ Component({
     foldedRowCount: { type: Number, value: 2 },
     emptyResultsText: { type: String, value: 'No matching results' },
     emptySuggestionsText: { type: String, value: 'Nothing here yet' },
+    // A Lottie JSON path played above the empty-cache text, through the abstract node cyl-animation-view
+    // (generic:cyl-animation-view="cyl-lottie" with cyl-lottie-miniprogram); nothing plays without the node.
+    emptySuggestionsAnimation: { type: String, value: '' },
+    // The same for the empty-results text.
+    emptyResultsAnimation: { type: String, value: '' },
     recentTitle: { type: String, value: 'Recent searches' },
     clearLabel: { type: String, value: 'Clear recent searches' },
   },

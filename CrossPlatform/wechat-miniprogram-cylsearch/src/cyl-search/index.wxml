@@ -5,7 +5,11 @@
     bind:textchange="onTextChange" bind:submit="onSubmit" bind:focuschange="onFocusChange" bind:cancel="close"
     bind:itemselect="onItemSelect" />
   <view class="cyl-line" />
-  <view wx:if="{{showsEmptyResults || showsEmptySuggestions}}" class="cyl-empty" role="status">{{showsEmptyResults ? emptyResultsText : emptySuggestionsText}}</view>
+  <view wx:if="{{showsEmptyResults || showsEmptySuggestions}}" class="cyl-empty" role="status">
+    <cyl-animation-view wx:if="{{showsEmptyResults ? emptyResultsAnimation : emptySuggestionsAnimation}}" class="cyl-empty-animation"
+      path="{{showsEmptyResults ? emptyResultsAnimation : emptySuggestionsAnimation}}" loop="{{true}}" autoplay="{{true}}" aria-hidden="true" />
+    <view>{{showsEmptyResults ? emptyResultsText : emptySuggestionsText}}</view>
+  </view>
   <block wx:elif="{{shownSuggestions.length > 0}}">
     <view wx:if="{{showsCachedQueries}}" class="cyl-header">
       <text class="cyl-header-title">{{recentTitle}}</text>

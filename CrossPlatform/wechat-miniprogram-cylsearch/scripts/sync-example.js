@@ -2,7 +2,7 @@
 // 1. copies src/ into example/miniprogram/components/;
 // 2. installs CYLTabBarController's mini program package (cyl-tabbar-miniprogram, the tab bar) into
 //    example/miniprogram/miniprogram_npm/, from CYLTabBarController at the commit pinned in package.json
-//    (`cylTabBarControllerCommit`), cloned into example/vendor/; CYL_TABBAR_DIR=<checkout> uses a local checkout.
+//    (`cylTabBarControllerCommit`), with its Lottie player (cyl-lottie-miniprogram), cloned into example/vendor/; CYL_TABBAR_DIR=<checkout> uses a local checkout.
 // Both outputs are git-ignored. Run: node scripts/sync-example.js
 const fs = require('fs');
 const path = require('path');
@@ -39,3 +39,6 @@ function tabBarCheckout() {
 copy(path.join(root, 'src'), path.join(miniprogram, 'components'));
 const tabBar = path.join(tabBarCheckout(), 'CrossPlatform', 'wechat-miniprogram-cyltabbar', 'src');
 copy(tabBar, path.join(miniprogram, 'miniprogram_npm', 'cyl-tabbar-miniprogram'));
+// The Lottie player of the same commit, for the animated empty placeholders (cyl-search's cyl-animation-view node).
+const lottie = path.join(path.dirname(path.dirname(tabBar)), 'lottie-miniprogram', 'miniprogram_dist');
+copy(lottie, path.join(miniprogram, 'miniprogram_npm', 'cyl-lottie-miniprogram'));
