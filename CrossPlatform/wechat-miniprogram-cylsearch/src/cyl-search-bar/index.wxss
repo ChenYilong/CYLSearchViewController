@@ -1,0 +1,13 @@
+.cyl-bar { display: flex; align-items: center; padding: 12rpx 24rpx; }
+.cyl-field { flex: 1; display: flex; align-items: center; height: 72rpx; padding: 0 24rpx; border-radius: 36rpx; background: #f2f2f7; }
+.cyl-bar-bordered .cyl-field { background: #fff; border: 2rpx solid #d1d1d6; box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.06); }
+.cyl-field-icon { width: 36rpx; height: 36rpx; margin-right: 12rpx; }
+.cyl-input { flex: 1; height: 72rpx; font-size: 34rpx; }
+.cyl-item { position: relative; display: flex; align-items: center; justify-content: center; min-width: 72rpx; min-height: 72rpx; padding: 0 8rpx; }
+.cyl-item-disabled { opacity: 0.4; }
+.cyl-item-icon { width: 44rpx; height: 44rpx; }
+.cyl-item-title { font-size: 34rpx; font-weight: 600; margin-left: 8rpx; }
+.cyl-divider { width: 2rpx; height: 36rpx; margin: 0 8rpx; background: #d1d1d6; }
+.cyl-badge { position: absolute; top: 4rpx; right: 4rpx; min-width: 32rpx; height: 32rpx; padding: 0 8rpx; border-radius: 16rpx; background: #ff3b30; color: #fff; font-size: 22rpx; line-height: 32rpx; text-align: center; }
+.cyl-badge-dot { min-width: 16rpx; width: 16rpx; height: 16rpx; padding: 0; }
+.cyl-cancel { padding: 0 24rpx; color: #007aff; font-size: 34rpx; }

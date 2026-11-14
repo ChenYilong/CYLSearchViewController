@@ -110,5 +110,9 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   placeholder: `showsEmptyResultsPlaceholder` and `emptyResultsScenario` on Flutter's `CYLSearchView` widget and on
   React Native's `CYLSearchView`; each example has an Empty results demo. Pin: CYLTableViewPlaceHolder `bdd78c7` on
   every platform.
-- Status: `TODO` (iOS, Android, Flutter and React Native done; HarmonyOS and mini programs open: no version of this
+- HarmonyOS: the library has `CYLSearchPlaceholderView` with 40 styles as system symbols and the empty-cache and
+  empty-results placeholders (`harmonyos/cylsearch`); it does not use CYLTableViewPlaceHolder (no HarmonyOS version of
+  it exists). Mini programs: the search page has text placeholders only.
+- Status: `TODO` (iOS, Android, Flutter and React Native done; HarmonyOS and mini programs have their own simple
+  placeholders, CYLTableViewPlaceHolder itself is not ported to them: no version of this
   library exists on them yet, see [android-and-cross-platform.md](android-and-cross-platform.md)).

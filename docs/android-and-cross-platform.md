@@ -25,6 +25,13 @@ Native) for the CYLSearchViewController components.
   cross-platform (React Native, Flutter; Flutter first, adapt React Native after Flutter passes its tests)
   support, adapted for Android and the HarmonyOS NEXT system."
 - Status: logged, not started; waits for the search API parity task and the Swift migration.
+- Mini programs (2026-11-14, first increment): `CrossPlatform/wechat-miniprogram-cylsearch` (npm `cyl-search-miniprogram`):
+  the `cyl-search-bar` component with appended items and the bordered style, the `cyl-search` page component, and
+  view-free logic (`CYLSearchSuggestionStore` with the four policies on `wx` storage, `CYLSearchBarItem` /
+  `CYLSearchBarItems`, `CYLSearchViewModel` with the cache-first list, `focusesSearchFieldOnShow`, the empty-cache and
+  empty-results rules, and core rule 1). The logic has 8 Node tests, all passing (`node --test`). The components were
+  never run in WeChat DevTools (not available here): their rendering is unverified; there is no example mini program
+  yet, no animated placeholder, and no API table for this platform.
 - Status (2026-11-14): Android DONE (`android/merged`, API alignment 395 rows, 100/100); Flutter DONE
   (`CrossPlatform/flutter_cylsearch`, tests pass); React Native DONE except the touch checks on iOS and the tab bar
   (its own entry below); HarmonyOS NEXT open (its own entry below, 0/323).

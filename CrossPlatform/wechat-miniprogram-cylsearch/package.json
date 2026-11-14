@@ -1,0 +1,15 @@
+{
+  "name": "cyl-search-miniprogram",
+  "version": "0.1.0",
+  "description": "CYLSearchViewController for WeChat Mini Program: the cyl-search-bar and cyl-search components and their logic (suggestion cache, items, focus), with the iOS names",
+  "license": "MIT",
+  "author": "ChenYilong <luohanchenyilong@163.com>",
+  "homepage": "https://github.com/ChenYilong/CYLSearchViewController/tree/master/CrossPlatform/wechat-miniprogram-cylsearch",
+  "keywords": ["miniprogram", "search", "searchbar", "CYLSearchViewController"],
+  "miniprogram": "src",
+  "main": "src/cyl-search/cyl_search_view_model.js",
+  "files": ["src", "README.md"],
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  }
+}
