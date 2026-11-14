@@ -22,7 +22,7 @@ Component({
     recentTitle: { type: String, value: 'Recent searches' },
     clearLabel: { type: String, value: 'Clear recent searches' },
   },
-  data: { open: false, focus: false, query: '', folded: true, filtered: [], showsCachedQueries: false, showsEmptyResults: false, showsEmptySuggestions: false },
+  data: { shownSuggestions: [], open: false, focus: false, query: '', folded: true, filtered: [], showsCachedQueries: false, showsEmptyResults: false, showsEmptySuggestions: false },
   lifetimes: {
     attached() {
       const model = new CYLSearchViewModel();
@@ -55,7 +55,7 @@ Component({
       this.setData({
         open: model.isSearchOpen,
         query: model.query,
-        suggestions: model.filteredSuggestions,
+        shownSuggestions: model.filteredSuggestions,
         showsCachedQueries: model.showsCachedQueries,
         showsEmptyResults: model.showsEmptyResults,
         showsEmptySuggestions: model.showsEmptySuggestions,
@@ -93,7 +93,7 @@ Component({
     },
     onSuggestionTap(event) {
       const index = Number(event.currentTarget.dataset.index);
-      this.model.suggestionSelected(this.data.suggestions[index], index);
+      this.model.suggestionSelected(this.data.shownSuggestions[index], index);
       this.sync();
     },
     onClear() {

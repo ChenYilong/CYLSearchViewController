@@ -3,7 +3,7 @@
 This document tracks support for Android, HarmonyOS NEXT and the cross-platform frameworks (Flutter, then React
 Native) for the CYLSearchViewController components.
 
-## IN PROGRESS (TODO 2026-11-12): Android, HarmonyOS NEXT, Flutter, then React Native (Android, Flutter and React Native done; HarmonyOS and mini programs compile only)
+## IN PROGRESS (TODO 2026-11-12): Android, HarmonyOS NEXT, Flutter, then React Native (Android, Flutter and React Native done; HarmonyOS compiles only; mini programs run in WeChat DevTools)
 
 - Context: CYLSearchViewController is iOS only today (Objective-C core in `Sources/CYLSearchViewController/`:
   `CYLSearchResultsViewController`, `CYLSearchController`, `CYLSearchBarView`, `CYLSearchView`,
@@ -32,6 +32,14 @@ Native) for the CYLSearchViewController components.
   empty-results rules, and core rule 1). The logic has 8 Node tests, all passing (`node --test`). The components were
   never run in WeChat DevTools (not available here): their rendering is unverified; there is no example mini program
   yet, no animated placeholder, and no API table for this platform.
+  - Update (2026-11-15): the components run in WeChat DevTools (base library 3.6.6) in the new example
+    (`example/`, `scripts/sync-example.js`, `scripts/devtools-screenshots.js`). A bug found on the first run is fixed:
+    `cyl-search` recursed without end because `sync()` wrote its own observed `suggestions` property. Verified, top to
+    bottom: the bordered bar with the "Search" item; the search page with the empty-cache placeholder and the keyboard
+    down (`focusesSearchFieldOnShow` false); the page after submitting "Swift". Still open: a search icon image, Lottie
+    placeholders, an API table.
+
+    ![WeChat Mini Program in DevTools](assets/miniprogram-search-devtools.png)
 - Status (2026-11-14): Android DONE (`android/merged`, API alignment 395 rows, 100/100); Flutter DONE
   (`CrossPlatform/flutter_cylsearch`, tests pass); React Native DONE except the touch checks on iOS and the tab bar
   (its own entry below); HarmonyOS NEXT open (its own entry below, 0/323).

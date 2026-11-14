@@ -184,3 +184,10 @@ begins and becomes `DONE` when it ends.
   DevEco's support folder). A HarmonyOS emulator installs only signed HAPs, so the example run, the hypium tests and the
   screenshots wait for automatic signing in DevEco Studio (Huawei ID sign-in, then Project Structure > Signing Configs >
   "Automatically generate signature").
+- Progress (2026-11-15, mini program, run by the user's go-ahead "item1自行执行 脚本"): the example runs in WeChat
+  DevTools through `scripts/devtools-screenshots.js`. Fixed on the way: `cyl-search` recursed without end (its
+  `sync()` wrote the `suggestions` property, whose observer calls `sync()`; the drawn list is now `shownSuggestions`);
+  the example uses the AppID of CYLTabBarController's mini program example, since the tourist AppID cannot be automated.
+  Verified: bar with items, search page with the empty-cache placeholder and the keyboard down, `submit: Swift`;
+  screenshot `docs/assets/miniprogram-search-devtools.png`. Node tests 8/8. Still open: a search icon image in the
+  field; Lottie in the mini program placeholders.

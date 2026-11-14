@@ -12,6 +12,7 @@ cache, and the rules behind them, with the iOS names.
   none, database, userDefaults, sandboxFile; storage is `wx.getStorageSync`), `CYLSearchBarItem` / `CYLSearchBarItems`,
   `CYLSearchViewModel`.
 
-Status: the logic is covered by 8 Node tests. The components were written against the Mini Program component API and
-have not been run in WeChat DevTools (not available here): treat their rendering as unverified. Animations of the
-placeholders (Lottie) are not included.
+Status (2026-11-15): the logic is covered by 8 Node tests, and the example runs in WeChat DevTools (base library
+3.6.6): the bordered bar with its items, the search page with the empty-cache placeholder and the keyboard down, and
+the `submit` event (screenshot: `docs/assets/miniprogram-search-devtools.png` in the repository). Not yet: a search
+icon image in the field, and the placeholders' Lottie animations.

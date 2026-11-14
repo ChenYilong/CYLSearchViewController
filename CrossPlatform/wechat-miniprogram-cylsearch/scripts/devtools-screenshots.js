@@ -11,10 +11,12 @@ const projectPath = process.argv[3] || path.join(__dirname, '..', 'example');
     cliPath: '/Applications/wechatwebdevtools.app/Contents/MacOS/cli',
     projectPath,
   });
+  mp.on('console', (message) => console.log('[console]', message.type, JSON.stringify(message.args)));
+  mp.on('exception', (error) => console.log('[exception]', error.message, error.stack));
   try {
     await mp.callWxMethod('clearStorageSync');
     const page = await mp.reLaunch('/pages/index/index');
-    await page.waitFor(1500);
+    await page.waitFor(2500);
     await mp.screenshot({ path: path.join(out, 'miniprogram-1-home.png') });
     await page.callMethod('openSearch');
     await page.waitFor(1000);
@@ -28,7 +30,7 @@ const projectPath = process.argv[3] || path.join(__dirname, '..', 'example');
     await mp.screenshot({ path: path.join(out, 'miniprogram-3-after-submit.png') });
     const data = await search.data();
     console.log(JSON.stringify({
-      open: data.open, query: data.query, suggestions: data.suggestions,
+      open: data.open, query: data.query, suggestions: data.shownSuggestions,
       cached: data.showsCachedQueries, emptySuggestions: data.showsEmptySuggestions,
     }));
     console.log('event:', (await page.data()).lastEvent);
@@ -36,6 +38,6 @@ const projectPath = process.argv[3] || path.join(__dirname, '..', 'example');
     await mp.close();
   }
 })().catch((error) => {
-  console.error('FAIL', (error && error.message) || error);
+  console.error('FAIL', error instanceof Error ? error.stack : JSON.stringify(error, null, 2));
   process.exit(1);
 });
