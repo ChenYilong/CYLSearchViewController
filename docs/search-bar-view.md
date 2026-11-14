@@ -224,7 +224,15 @@ text size.
 
   ![React Native iOS Discover: the field, then the camera, a divider and Search inside one bordered capsule; iPhone 17, iOS 26.3.1, Release, 2026-11-14 14:29](assets/rn-ios-discover-items-iphone17-ios26.3.1.png)
 
-- Status: `IN PROGRESS` (2026-11-14): the cores, the wrappers, all Discover examples and their tests done; the React
-  Native iOS Discover page shows the items (screenshot above); the native iOS, Android and Flutter examples' screenshots
-  open (the host's load average stays around 900).
+- Screenshots (Android 15 / API 35 emulator `CYL_API35_arm64`, read-only instance, `496ac41`, 2026-11-14 14:50 and
+  14:51): top, the native Android example's Discover tab (`--ei CYLDemoTab 4`); bottom, the Flutter example's
+  Discover page on Android (built with `--dart-define=CYL_DEMO_TAB=3`). Both draw the field, then the camera, a
+  divider and Search inside one bordered capsule. The Flutter page is the one reported (its camera and Search sat
+  outside the field): fixed.
+
+  ![Discover with the search bar items: native Android (top), Flutter on Android (bottom); API 35 emulator, 2026-11-14](assets/discover-items-android-flutter-stitched.png)
+
+- Status: `IN PROGRESS` (2026-11-14): the cores, the wrappers, all Discover examples and their tests done; Discover
+  screenshots taken for React Native (iOS), native Android and Flutter (Android); the native iOS example's screenshot
+  open (`simctl launch` hung under the host's load).
 

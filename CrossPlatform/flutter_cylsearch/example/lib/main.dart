@@ -105,7 +105,8 @@ class CYLSearchTabs extends StatefulWidget {
 }
 
 class _CYLSearchTabsState extends State<CYLSearchTabs> {
-  int _selectedIndex = 0;
+  // `--dart-define=CYL_DEMO_TAB=3` builds the example opened on that tab (3: Discover), for screenshots.
+  int _selectedIndex = const int.fromEnvironment('CYL_DEMO_TAB');
   bool _plusPageSelected = false;
 
   @override
