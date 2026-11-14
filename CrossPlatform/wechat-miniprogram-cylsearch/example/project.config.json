@@ -1,6 +1,6 @@
 {
   "description": "The example of cyl-search-miniprogram: run `node scripts/sync-example.js` first, then open this folder in WeChat DevTools.",
-  "appid": "wx5e29c9d33906f074",
+  "appid": "touristappid",
   "projectname": "cyl-search-miniprogram-example",
   "compileType": "miniprogram",
   "miniprogramRoot": "miniprogram/",

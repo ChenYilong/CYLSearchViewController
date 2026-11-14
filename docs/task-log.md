@@ -197,3 +197,6 @@ begins and becomes `DONE` when it ends.
 - Progress (2026-11-15, mini program playback controls and DevTools Skills, branch `feat/swift-core-next`): DONE, see
   `docs/miniprogram-api-alignment.md` ("playback controls on the animated placeholders"); verified in WeChat DevTools
   through `wechatide-skill`, Node tests 17/17.
+- Progress (2026-11-15, mini program AppID): the example's AppID is local only, as the user chose: `project.config.json`
+  keeps `touristappid` (DevTools refuses it), the real one is in the git-ignored `example/project.private.config.json`.
+  Verified in DevTools: `wx.getAccountInfoSync()` reports the private AppID, the example renders, no console error.

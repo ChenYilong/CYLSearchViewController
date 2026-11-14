@@ -18,7 +18,10 @@ repository), ported from the HarmonyOS models: `require('cyl-search-miniprogram/
 
 Example: `node scripts/sync-example.js` copies `src/` into `example/miniprogram/components/` and installs
 CYLTabBarController's mini program tab bar (`cyl-tabbar-miniprogram`, at the commit in `package.json`
-`cylTabBarControllerCommit`) into `example/miniprogram/miniprogram_npm/`. Then open `example/` in WeChat DevTools. Five
+`cylTabBarControllerCommit`) into `example/miniprogram/miniprogram_npm/`. Then open `example/` in WeChat DevTools.
+AppID: `project.config.json` keeps `touristappid`, which DevTools refuses to run and automate; put your own AppID in
+`example/project.private.config.json` (git-ignored; it overrides `project.config.json`):
+`{ "appid": "wx…" }`. Five
 tabs (Search, Examples, List style, Tag style, Discover) and a raised plus button that opens the search bar samples.
 `scripts/devtools-screenshots.js` drives every tab with miniprogram-automator.
 
