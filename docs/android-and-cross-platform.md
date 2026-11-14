@@ -261,8 +261,17 @@ Native) for the CYLSearchViewController components.
   - Still open: touch checks on iOS (above; the tab bar can now also be tapped through its accessibility labels, but no
     tap tool exists). The pins are done: CYLTableViewPlaceHolder `bdd78c7`, CYLTabBarController `2a12582` on every
     platform.
-- Status: DONE (2026-11-14) except touch checks on iOS (typing, the search page, unfolding), which need a tap tool: the
-  library, its three views, the tab bar, the Android and iOS builds, tests and screenshots are done.
+- Touch checks on iOS (2026-11-15, iPhone 17, iOS 26.3.1, Release): `axe` bundled with xcodebuildmcp
+  (`/opt/homebrew/Cellar/xcodebuildmcp/2.7.0/libexec/bundled/axe`) taps by accessibility label. "Open search" opens
+  the native search page; typing "sw" filters the list to "Swift"; on Discover, "More" unfolds the recent searches and
+  the chevron becomes the last tag.
+
+  ![React Native iOS: typing filters the suggestions](assets/rn-ios-typing-iphone17-ios26.3.1.png)
+
+  ![React Native iOS: Discover unfolded](assets/rn-ios-unfolded-iphone17-ios26.3.1.png)
+
+- Status: DONE (2026-11-15): the library, its three views, the tab bar, the Android and iOS builds, touch checks and
+  screenshots.
 
 ## DONE (2026-11-13): Flutter example on iOS: the plus button's title disappears once the plus page is selected
 
