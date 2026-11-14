@@ -4,7 +4,7 @@ Every public API of the iOS library (`Sources/CYLSearchViewController`) next to 
 made as the [Android table](android-api-alignment.md) was. Rules and prompt: the HarmonyOS TODO in
 [android-and-cross-platform.md](android-and-cross-platform.md).
 
-## TODO (2026-11-13): implement every iOS API on HarmonyOS, score to 100
+## IN PROGRESS (TODO 2026-11-13): implement every iOS API on HarmonyOS, score to 100 (100/100 by declarations; not run)
 
 - Columns: the iOS public API; its doc comment; the HarmonyOS counterpart, `TODO` by default.
 - After each API is implemented, replace that row's `TODO` with the HarmonyOS API (`N/A: <reason>` for a UIKit-only

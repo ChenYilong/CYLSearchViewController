@@ -3,7 +3,7 @@
 This document tracks support for Android, HarmonyOS NEXT and the cross-platform frameworks (Flutter, then React
 Native) for the CYLSearchViewController components.
 
-## TODO (2026-11-12): Android, HarmonyOS NEXT, Flutter, then React Native
+## IN PROGRESS (TODO 2026-11-12): Android, HarmonyOS NEXT, Flutter, then React Native (Android, Flutter and React Native done; HarmonyOS and mini programs compile only)
 
 - Context: CYLSearchViewController is iOS only today (Objective-C core in `Sources/CYLSearchViewController/`:
   `CYLSearchResultsViewController`, `CYLSearchController`, `CYLSearchBarView`, `CYLSearchView`,
@@ -327,7 +327,7 @@ Native) for the CYLSearchViewController components.
     | Taken | 2026-11-13 14:12 NZDT |
 - Status: DONE.
 
-## TODO (2026-11-13): HarmonyOS: learn from FlexibleSearchBar, and a HarmonyOS API table scored to 100
+## IN PROGRESS (TODO 2026-11-13): HarmonyOS: learn from FlexibleSearchBar, and a HarmonyOS API table scored to 100
 
 - Context: HarmonyOS NEXT comes after Flutter and React Native (first TODO of this document); DevEco Studio 6.0.1 and
   the API 21 SDK are installed, an emulator device still has to be created. Android was aligned with a table

@@ -8,7 +8,7 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
 | CollectionViewClassifyMenu | Suggestions as tags (`CYLSearchSuggestionStyle`) | Android done (`eb3590e`); iOS `TODO` ([tag-view-suggestions.md](tag-view-suggestions.md)) |
 | CYLTableViewPlaceHolder | The empty-content placeholder when a search has no results | iOS and Android done; other platforms `TODO` (below) |
 
-## TODO (2026-11-12): CYLTableViewPlaceHolder as a sub-repository, empty search results on every platform
+## IN PROGRESS (TODO 2026-11-12): CYLTableViewPlaceHolder as a sub-repository, empty search results on every platform (iOS, Android, Flutter, React Native done)
 
 - Context:
   - The requirements for CollectionViewClassifyMenu as a sub-repository ([tag-view-suggestions.md](tag-view-suggestions.md))

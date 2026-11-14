@@ -74,7 +74,7 @@ begins and becomes `DONE` when it ends.
   remain. Local branches and worktrees of this session were removed. The shared working folder is still on the
   local `feat/search-bar-view` of another session and was not touched.
 
-## TODO (2026-11-12): pull request for the clean sibling checkout
+## DONE (2026-11-14; TODO 2026-11-12): pull request for the clean sibling checkout
 
 - Context: while building, the sibling `CYLTableViewPlaceHolder` had another session's uncommitted, half-finished
   `CYLRefresh/Custom/Drawn/` folder, so this session built against a clean detached checkout of its last commit
@@ -117,7 +117,7 @@ begins and becomes `DONE` when it ends.
 - Logged in [sub-repositories.md](sub-repositories.md) (context, requirements, prompt verbatim and in English).
   The rules are written; the integration is open.
 
-## TODO (2026-11-14): finish the unfinished CYLSearchViewController tasks, then every `TODO` in the documents
+## IN PROGRESS (TODO 2026-11-14): finish the unfinished CYLSearchViewController tasks, then every `TODO` in the documents
 
 - Context: after the search bar items work (`7d254d6` to `6a9b5d9`), several entries in `docs/` still say `TODO`:
   some are done but their status line is stale, some are open (the native iOS Discover screenshot, the "iPhone Duo"
@@ -156,4 +156,11 @@ begins and becomes `DONE` when it ends.
   - Still open: mini programs; Android animated placeholder (waits for CYLTableViewPlaceHolder PR #28); iOS raised
     plus button (CYLTabBarController gap); React Native touch checks (no tap tool: `axe` is gone); HarmonyOS example
     app and tests.
+- Progress (2026-11-15): React Native tab bar DONE (`94b6621`, CYLTabBarController `2a12582`); CYLTableViewPlaceHolder
+  pinned at `c202b8c` (`04611dc`); mini program package, first increment (`c3f82f9`); HarmonyOS example app (`2da246e`);
+  raised plus button on iOS 26: the config keys have no effect, see `docs/CYLTabBarController-Integration.md`.
+  What remains needs something this machine lacks or another repository's decision: WeChat DevTools (mini program
+  components, an example), a HarmonyOS device and hypium (tests, screenshots), a tap tool (React Native touch checks),
+  CYLTableViewPlaceHolder's Android port (animated placeholder), CYLTabBarController (raised plus with a title on
+  Liquid Glass). The headings above say IN PROGRESS where part is done.
 
