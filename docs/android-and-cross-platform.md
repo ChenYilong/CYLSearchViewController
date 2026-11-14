@@ -348,7 +348,27 @@ Native) for the CYLSearchViewController components.
   third column the HarmonyOS counterpart, `TODO` by default. A full match is a full score; each time an API is
   implemented, update that row's third column, replacing `TODO` with the API, and score once; repeat until the score
   is 100."
-- Status: `TODO` (rules and table written; score 0 until the HarmonyOS module exists).
+- FlexibleSearchBar, studied (2026-11-14, `eeb43c2`): it is a Java UI library (`SearchBarView extends Component
+  implements DrawTask`, HarmonyOS 2), a framework HarmonyOS NEXT no longer runs, so no code is reused. What it does:
+  one custom-drawn component with an open / closed state (`startOpen()`, `startClose()`, `chekOpen()`), two
+  `AnimatorValue`s whose single fraction grows a rounded rectangle from an icon circle to the full bar, and the hint
+  text drawn only once it is open. Taken: that model, as `CYLSearchBarView.isIconified` / `setIconified(_, animated)`
+  with one animated `expansionFraction` (`CYLSearchBarExpansionAnimation.circularReveal`); not taken: custom canvas
+  drawing (ArkUI's `TextInput`, `SymbolGlyph` and `Row` give editing, accessibility and dark mode for free).
+- Module (2026-11-14): `harmonyos/` is a DevEco project (HarmonyOS 6.0.1, API 21; compatible with 5.0.0, API 12) with
+  the library `cylsearch` (a HAR, ArkTS, state management V2). Each iOS class is a model class with the iOS names
+  (`@ObservedV2`, properties `@Trace`) and a component that draws it (`CYLSearchBarComponent`,
+  `CYLSearchBarItemView`). Build, no IDE needed:
+  `DEVECO_SDK_HOME=/Applications/DevEco-Studio.app/Contents/sdk hvigorw assembleHar --mode module -p module=cylsearch@default -p product=default`
+  (`hvigorw`, `ohpm` and `node` from `DevEco-Studio.app/Contents/tools`): BUILD SUCCESSFUL.
+- Score: the script now fills a row only when the ArkTS sources declare the counterpart
+  (`python3 scripts/harmonyos-api-alignment.py`); UIKit-only rows are `N/A` with the reason.
+  - First increment (2026-11-14): `CYLSearchBarView` and its delegate, `CYLSearchBarItem`, `CYLSearchBarItemView`,
+    the bar's enums, `CYLSearchSuggestionCache` and `CYLSearchSuggestionStore` (preferences store, shared preferences,
+    JSON file): 49/100 (397 rows: 196 implemented or N/A, 201 TODO).
+- Not possible yet: running it. No emulator device exists (create one in DevEco Studio's Device Manager); until then
+  the library is verified by compiling only.
+- Status: `IN PROGRESS` (2026-11-14): score 49/100.
 
 ## DONE (2026-11-12): android/ folder: five Kotlin transcriptions, a merged library and example
 
