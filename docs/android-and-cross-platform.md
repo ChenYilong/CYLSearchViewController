@@ -232,6 +232,26 @@ Native) for the CYLSearchViewController components.
 
     ![React Native iOS: Discover (items inside the bordered bar), then Search bar; iPhone 17, iOS 26.3.1, Release, 2026-11-14 14:29 and 14:31](assets/rn-ios-discover-and-search-bar-stitched.png)
 
+  - Tab bar attempt (2026-11-14): the example was wired to CYLTabBarController's `react-native-cyltabbar` and then
+    reverted, because it cannot build on iOS yet.
+    - What worked: a script checks CYLTabBarController out at the pinned commit (`cyl.tabbar.commit`) into
+      `example/vendor/` (not committed); `package.json` depends on it with
+      `"portal:./vendor/CYLTabBarController/CrossPlatform/react-native-cyltabbar"`; Metro and TypeScript resolve its
+      sources with the `react-native-cyltabbar-source` condition; `yarn`, `tsc` and `pod install` pass. This solves the
+      "not a yarn workspace" problem below.
+    - Android: the library looks for its Kotlin sources at `${projectDir}/../../../Example-Android`, which is wrong
+      through the `node_modules` symlink ("Could not find io.github.chenyilong:cyltabbarcontroller:1.100.0"); set
+      `ext.cylAndroidRoot` to the checkout's `Example-Android` in the example's root `build.gradle`.
+    - iOS (the blocker, a CYLTabBarController bug at `bc73220`): its Swift code exports 24 C functions (`@_cdecl`:
+      `CYLLocalizedString`, `CYLImageNamed`, `CYLTabBarItemsAttributesAddingLottieFiles`, ...) that its Objective-C
+      headers declare again, and `CYLSwiftInterface.h` imports the generated `CYLTabBarController-Swift.h` from public
+      headers. In Objective-C++ (every Fabric view, `CyltabbarView.mm`) the two declarations disagree: the generated
+      header says `noexcept` and plain `NSArray *`, the Objective-C header no exception specification and
+      `NSArray<NSDictionary *> *` ("is missing exception specification 'noexcept'", "conflicting types"). Fix in
+      CYLTabBarController: hide the Objective-C redeclarations from C++ when the generated header is present
+      (`#if !defined(__cplusplus) || !__has_include(<CYLTabBarController/CYLTabBarController-Swift.h>)`), and import
+      `CYLSwiftInterface.h` there instead. Its newest commit (`49df44f`) has the same problem. Open: that fix (in its
+      repository, by the sub-repository rule), then this wiring.
   - Still open: touch checks on iOS (above), CYLTabBarController's
     React Native tab bar in the example (it lives inside CYLTabBarController's repository, which is not a yarn
     workspace, so it cannot be pinned as a git dependency yet). The pins are done: CYLTableViewPlaceHolder `bdd78c7`
