@@ -82,6 +82,8 @@ begins and becomes `DONE` when it ends.
 - Requirement: "then create a PR that merges into the current branch".
 - Prompt (verbatim): "found an uncommitted, half-finished Drawn/ folder in the sibling's working tree, so I'm building from a clean checkout of their last commit in my own folder instead. then create pr merge to current branch"
 - Status: logged; to check what can be put in a PR (this session changed nothing in the sibling).
+- Status: DONE (2026-11-14): nothing to put in a pull request: the clean checkout had no changes of this session.
+  The work built against it went in through this repository's own pull requests (#6 merged, then #8).
 
 ## DONE (2026-11-12): rule for open PRs and issues of projects we translate
 
@@ -130,3 +132,16 @@ begins and becomes `DONE` when it ends.
   iOS raised plus button; the tag-style, placeholder, cache and focus entries (status lines against what is done);
   React Native; the search bar items' last screenshot; HarmonyOS; mini programs.
 - Status: `TODO`.
+- Progress (2026-11-14, usage limit reached mid-task):
+  - Sibling-checkout pull request: DONE (entry above).
+  - Android animated placeholder: not started here on purpose. CYLTableViewPlaceHolder's Android port is in progress
+    in another session (its PR #28, `6ef5000`: the full scenario catalog and `CYLPlaceholderView` with
+    `CYLPlaceholderAnimationPlayer` / `registerAnimationFactory`); `CYLPlaceholderStackView` does not play the
+    scenarios' animations yet. When it does, `cylsearch` registers a Lottie factory and pins that commit.
+  - iOS raised plus button: the iOS configuration file has no keys for it (Android has `CYLPlusButtonSize`,
+    `CYLPlusButtonCenterYMultiplier`); on iOS it needs a `CYLPlusButton` subclass (`+multiplierOfTabBarHeight:`), and
+    on iOS 26 the plus button is drawn by its tab item in the glass bar. A CYLTabBarController feature gap: open.
+  - Native iOS Discover screenshot: `-CYLDemoTab 4` is Discover (2 is the plus page); the retake was running.
+  - Not started: the "iPhone Duo" overlap, stale status lines (cache, focus, tag style, placeholder sub-repository),
+    React Native touch checks and tab bar, HarmonyOS (0/323), mini programs. The React Native example's
+    `Podfile.lock` still names `a96e9d2`; `pod install` updates it to `bdd78c7`.
