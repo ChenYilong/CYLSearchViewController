@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "cyl-search-bar": "../../components/cyl-search-bar/index",
+    "cyl-search": "../../components/cyl-search/index"
+  }
+}

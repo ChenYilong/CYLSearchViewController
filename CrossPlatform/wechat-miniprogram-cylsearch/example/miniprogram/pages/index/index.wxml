@@ -1,0 +1,9 @@
+<view class="page">
+  <cyl-search-bar placeholder="Search languages" searchBarStyle="bordered" items="{{items}}"
+    bind:itemselect="onItemSelect" bind:focuschange="openSearch" />
+  <view class="hint">Tap the field or "Search" to open the search page (tags, keyboard down).</view>
+  <view class="event">{{lastEvent}}</view>
+  <cyl-search id="search" suggestions="{{suggestions}}" suggestionStyle="tags" placeholder="Search languages"
+    searchBarStyle="bordered" cacheName="MiniProgramExample" focusesSearchFieldOnShow="{{false}}"
+    bind:submit="onSubmit" />
+</view>

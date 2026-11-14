@@ -173,3 +173,9 @@ begins and becomes `DONE` when it ends.
   CYLTableViewPlaceHolder PR #30 → PR #28's branch (`af23ea0`); Android pin moved; details and screenshot in
   `docs/core-todo.md`. Prompt: "Android animated placeholder: CYLTableViewPlaceHolder PR #28 merged with a Lottie
   animator. order is 3。4 1 2。"
+- Progress (2026-11-15, raised plus button): skipped by the user's choice; stays TODO in
+  `docs/CYLTabBarController-Integration.md`.
+- Progress (2026-11-15, mini program): WeChat DevTools is installed and logged in. Added the example
+  (`CrossPlatform/wechat-miniprogram-cylsearch/example`, `scripts/sync-example.js`) and a DevTools screenshot script
+  (`scripts/devtools-screenshots.js`, miniprogram-automator). Not run: auto mode refused to launch the logged-in
+  DevTools from this session; the user runs the script. Component rendering is still unverified.
