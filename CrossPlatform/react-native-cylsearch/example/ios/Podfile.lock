@@ -1898,7 +1898,7 @@ DEPENDENCIES:
   - CYLSearchViewController (from `../../../..`)
   - Cyltabbar (from `../node_modules/react-native-cyltabbar`)
   - CYLTabBarController (from `../vendor/CYLTabBarController`)
-  - CYLTableViewPlaceHolder (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `bdd78c7d8d3521d3ceb25032f10ebdd0d1ffc3c6`)
+  - CYLTableViewPlaceHolder (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `c202b8c91bc231fa51c523b64a4f3cbd9a94b5f6`)
   - DoubleConversion (from `build/rndeps-facades/DoubleConversion`)
   - fast_float (from `build/rndeps-facades/fast_float`)
   - FBLazyVector (from `build/rncore-facades/FBLazyVector`)
@@ -2006,7 +2006,7 @@ EXTERNAL SOURCES:
   CYLTabBarController:
     :path: "../vendor/CYLTabBarController"
   CYLTableViewPlaceHolder:
-    :commit: bdd78c7d8d3521d3ceb25032f10ebdd0d1ffc3c6
+    :commit: c202b8c91bc231fa51c523b64a4f3cbd9a94b5f6
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
   DoubleConversion:
     :path: build/rndeps-facades/DoubleConversion
@@ -2187,7 +2187,7 @@ CHECKOUT OPTIONS:
     :commit: f9724167235dee050a81432f3c16f6c4e15dc186
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLTableViewPlaceHolder:
-    :commit: bdd78c7d8d3521d3ceb25032f10ebdd0d1ffc3c6
+    :commit: c202b8c91bc231fa51c523b64a4f3cbd9a94b5f6
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
 
 SPEC CHECKSUMS:

@@ -146,8 +146,14 @@ packages). A test checks each rule.
   default, user defaults, sandbox file; `CYLSearchSuggestionCache` for more), `suggestionCacheName`, the "Recent
   searches" header with its clear button, and the empty-cache placeholder. Tests: iOS 26/26, Android 16/16, Flutter
   Dart 8/8. Two follow-ups live in their own entries: the animated placeholder on Android waits for
-  CYLTableViewPlaceHolder's Android port (its PR #28: `CYLPlaceholderStackView` does not play the scenarios'
-  animations yet; then `cylsearch` registers a Lottie factory and pins that commit), and HarmonyOS
+  CYLTableViewPlaceHolder's Android port (its PR #28). State at `c202b8c` (2026-11-14): that module now has the
+  animation infrastructure (`CYLPlaceholderItemAnimationFactory`, the animator registry, `CYLPlaceholderAnimationView`,
+  a GIF animator) but no Lottie animator and no animation in `CYLPlaceholderStackView`, and the scenarios' Lottie
+  JSON files are not in its assets (`android/scripts/import-ios-resources.py` imports images and strings only). Open
+  there, in this order: a Lottie animator (`com.airbnb.android:lottie`), the JSON assets (iOS
+  `Animations/CYLPlaceholder<Name>.json` per scenario, the table is `+animationFileNamesForScenario:`), and the stack
+  view playing its scenario's animation with the still image as the fallback; then nothing changes in `cylsearch`,
+  which already shows `CYLPlaceholderStackView`. HarmonyOS: done, see its entry
   ([harmonyos-api-alignment.md](harmonyos-api-alignment.md)).
 
 ## DONE (2026-11-14; TODO 2026-11-13): focus the search field on entry, as a Bool, with a placeholder for an empty list
