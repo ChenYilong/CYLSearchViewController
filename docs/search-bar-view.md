@@ -217,5 +217,9 @@ text size.
     Discover demo uses it. `tsc` clean.
 - Open: running the Flutter and React Native examples on devices and the screenshots of every example (the host's
   load average stays around 900; the simulator and emulator do not answer reliably).
-- Status: `IN PROGRESS` (2026-11-14): iOS and Android cores, their Discover examples and tests done; Flutter and React Native wrappers and the example screenshots open.
+- Verified (2026-11-14, `7d254d6`): iOS tests 26/26 (iPhone 17 simulator, iOS 26.3.1, Xcode beta), Android unit
+  tests 16/16 (JDK 17, Robolectric SDK 34), the Android example, the Flutter example APK and the React Native release
+  APK build, Flutter Dart tests 8/8, React Native `tsc` clean.
+- Status: `IN PROGRESS` (2026-11-14): the cores, the wrappers, all Discover examples and their tests done; running
+  the examples on devices and their screenshots open (the host's load average stays around 900).
 
