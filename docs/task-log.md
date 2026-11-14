@@ -145,3 +145,15 @@ begins and becomes `DONE` when it ends.
   - Not started: the "iPhone Duo" overlap, stale status lines (cache, focus, tag style, placeholder sub-repository),
     React Native touch checks and tab bar, HarmonyOS (0/323), mini programs. The React Native example's
     `Podfile.lock` still names `a96e9d2`; `pod install` updates it to `bdd78c7`.
+- Progress (2026-11-14, later):
+  - "iPhone Duo" overlap: DONE (`c9d1da3`): core fix in both search screens; iPhone 17 26/26, iPhone Duo 26/26.
+  - Status lines of the cache, focus, tag style and placeholder entries: updated (`b073588`).
+  - Search bar items: DONE (all four Discover pages screenshotted).
+  - HarmonyOS: API table 397/397, 100/100 by the script (`db5481f`), library compiles; not run (no emulator device),
+    no example app or tests yet.
+  - React Native tab bar: wiring works for yarn, Metro, TypeScript and `pod install`; blocked on iOS by a
+    CYLTabBarController header bug (details in `docs/android-and-cross-platform.md`); fix goes in that repository first.
+  - Still open: mini programs; Android animated placeholder (waits for CYLTableViewPlaceHolder PR #28); iOS raised
+    plus button (CYLTabBarController gap); React Native touch checks (no tap tool: `axe` is gone); HarmonyOS example
+    app and tests.
+
