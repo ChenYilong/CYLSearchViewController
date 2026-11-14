@@ -83,7 +83,7 @@ text size.
 - Also: `scripts/unit-tests.sh` should prefer a fixed device (as CI does) so local runs are comparable.
 - Status: `TODO`.
 
-## TODO (2026-11-13): Mimicking the tab bar's FlatDesign item-appending API: refactoring how search bar elements are arranged
+## DONE (2026-11-14; TODO 2026-11-13): Mimicking the tab bar's FlatDesign item-appending API: refactoring how search bar elements are arranged
 
 - Context: the Flutter Discover page's search bar (first screenshot, left two pictures) lacks what the Android reference
   has (second screenshot): the field's border and the spacing between its elements (the camera icon, the divider and
@@ -232,7 +232,11 @@ text size.
 
   ![Discover with the search bar items: native Android (top), Flutter on Android (bottom); API 35 emulator, 2026-11-14](assets/discover-items-android-flutter-stitched.png)
 
-- Status: `IN PROGRESS` (2026-11-14): the cores, the wrappers, all Discover examples and their tests done; Discover
-  screenshots taken for React Native (iOS), native Android and Flutter (Android); the native iOS example's screenshot
-  open (`simctl launch` hung under the host's load).
+- Screenshot (native iOS example, Discover tab, `-CYLDemoTab 4`; iPhone 17, iOS 26.3.1, Debug, `7d254d6` core,
+  2026-11-14 15:04): the field, then the camera, a divider and Search inside one bordered capsule.
+
+  ![Native iOS Discover with the search bar items; iPhone 17, iOS 26.3.1, 2026-11-14 15:04](assets/ios-discover-items-iphone17-ios26.3.1.png)
+
+- Status: DONE (2026-11-14): the cores, the wrappers, all four Discover examples (native iOS, native Android,
+  Flutter, React Native), their tests and their screenshots. Table 58/58, no `TODO`.
 
