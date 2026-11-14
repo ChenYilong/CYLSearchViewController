@@ -220,6 +220,11 @@ text size.
 - Verified (2026-11-14, `7d254d6`): iOS tests 26/26 (iPhone 17 simulator, iOS 26.3.1, Xcode beta), Android unit
   tests 16/16 (JDK 17, Robolectric SDK 34), the Android example, the Flutter example APK and the React Native release
   APK build, Flutter Dart tests 8/8, React Native `tsc` clean.
-- Status: `IN PROGRESS` (2026-11-14): the cores, the wrappers, all Discover examples and their tests done; running
-  the examples on devices and their screenshots open (the host's load average stays around 900).
+- Screenshot (React Native on iOS, the core items through the Fabric view; originals in `assets/`):
+
+  ![React Native iOS Discover: the field, then the camera, a divider and Search inside one bordered capsule; iPhone 17, iOS 26.3.1, Release, 2026-11-14 14:29](assets/rn-ios-discover-items-iphone17-ios26.3.1.png)
+
+- Status: `IN PROGRESS` (2026-11-14): the cores, the wrappers, all Discover examples and their tests done; the React
+  Native iOS Discover page shows the items (screenshot above); the native iOS, Android and Flutter examples' screenshots
+  open (the host's load average stays around 900).
 

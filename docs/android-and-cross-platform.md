@@ -218,9 +218,21 @@ Native) for the CYLSearchViewController components.
     touches, and after a reboot `simctl launch` and UI snapshots no longer answered, so the search page, the tags and
     Discover are not verified on iOS yet. Found on the way: the example's tab row used a `tablist` container that hid
     the tabs from iOS accessibility; each tab is now its own element with its title (`fc55a2f`), to confirm in that run.
-  - Still open: the iOS run (above), CYLTabBarController's
+  - iOS, second run (2026-11-14, `abb19aa` plus the `-initialTab` example change): the Release app with the search
+    bar items installs and runs on the iPhone 17 simulator (iOS 26.3.1, Xcode beta). No tap tool answered (`axe` is
+    no longer installed; `xcodebuildmcp` UI automation times out after 30 s at this load), so the example reads an
+    iOS launch argument, `-initialTab discover|bar|tags|empty|list`, through React Native's `Settings`, and each tab
+    was opened with `simctl launch cylsearch.example -initialTab <tab>`. Discover shows the bordered search bar with
+    the camera, the divider and Search appended inside it (core `CYLSearchBarItem`) and the recent searches folded to
+    two rows behind the inline chevron; Search bar shows the plain bar with its magnifier and Cancel. Still to check
+    by touch: typing, the search page, unfolding.
+
+    ![React Native iOS: Discover (items inside the bordered bar), then Search bar; iPhone 17, iOS 26.3.1, Release, 2026-11-14 14:29 and 14:31](assets/rn-ios-discover-and-search-bar-stitched.png)
+
+  - Still open: touch checks on iOS (above), CYLTabBarController's
     React Native tab bar in the example (it lives inside CYLTabBarController's repository, which is not a yarn
-    workspace, so it cannot be pinned as a git dependency yet), the other platforms' pins of `a96e9d2`.
+    workspace, so it cannot be pinned as a git dependency yet). The pins are done: CYLTableViewPlaceHolder `bdd78c7`
+    on every platform (`e4a9c79`).
 - Status: `TODO`.
 
 ## DONE (2026-11-13): Flutter example on iOS: the plus button's title disappears once the plus page is selected

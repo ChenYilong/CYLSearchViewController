@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { Platform, Pressable, ScrollView, Settings, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { CYLSearchBarView, CYLSearchView, CYLTagListView } from 'react-native-cylsearch';
 import discoverData from './search-discover.json';
@@ -64,7 +64,8 @@ export default function App() {
 
 function Screens() {
   const palette = usePalette();
-  const [tab, setTab] = useState('list');
+  // `-initialTab discover` (an iOS launch argument, read through Settings) opens a tab directly, for screenshots.
+  const [tab, setTab] = useState<string>(() => (Platform.OS === 'ios' && typeof Settings.get('initialTab') === 'string' ? Settings.get('initialTab') : 'list'));
   const [open, setOpen] = useState<Demo | null>(null);
   if (open) {
     return (
