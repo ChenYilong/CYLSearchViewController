@@ -181,3 +181,11 @@ plus page; the Examples tab at the largest accessibility text size.
   [android-and-cross-platform.md](android-and-cross-platform.md)).
 - Follow-up `TODO`: the iOS example's plus button (`CYLSearchExample/CYLTabBarConfiguration.json`) is not raised
   yet; give it the raised effect, build and screenshot it (iOS example layer).
+  - Tried (2026-11-14, iPhone 17, iOS 26.3.1): `CYLPlusButtonSize` `{56, 56}` and `CYLPlusButtonCenterYMultiplier` 0.3
+    in `CYLSearchExample/CYLTabBarConfiguration.json` (the keys the Android example uses, read by the iOS parser) change
+    nothing: the plus button stays level with the tab icons in the floating Liquid Glass bar. The same in the React
+    Native example. Cause, from `CYLPlusButton.h`: a plus button with a title lets its tab item draw the title and the
+    button replaces only the item's icon (`cyl_showsTitleInTabBarItem`), so it is placed inside the item, not by
+    `+multiplierOfTabBarHeight:`; the multiplier applies to a title-less button with
+    `cyl_appliesCenterYOffsetWithoutTitle` YES, or in the other styles. Decision needed in CYLTabBarController (raised
+    effect with a title on Liquid Glass), so it stays `TODO` here; the config was reverted.
