@@ -13,6 +13,10 @@
 #import <CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.h>
 #import <CollectionViewClassifyMenu/CollectionViewClassifyMenu-umbrella.h>
 
+@interface CYLSearchItemRecorder : NSObject <CYLSearchBarViewDelegate>
+@property (nonatomic, strong) NSMutableArray<CYLSearchBarItem *> *items;
+@end
+
 @interface CYLSearchExampleTests : XCTestCase
 @end
 
@@ -1172,5 +1176,112 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     XCTAssertEqual(searchView.suggestionsTagView.defaultVisibleRows, 3u);
 }
 
+
+- (void)testSearchBarItemsAreAppendedLikeFlatDesignTabBarItems
+{
+    // docs/search-bar-view.md, "Mimicking the tab bar's FlatDesign item-appending API": the field stays, the camera,
+    // a divider and the Search button are items appended after the text.
+    CYLSearchBarView *bar = [[CYLSearchBarView alloc] initWithFrame:CGRectMake(0, 0, 390, 56)];
+    CYLSearchItemRecorder *recorder = [[CYLSearchItemRecorder alloc] init];
+    bar.delegate = recorder;
+    __block NSInteger cameraTaps = 0;
+    CYLSearchBarItem *camera = [CYLSearchBarItem iconItemWithImage:[UIImage systemImageNamed:@"camera"] title:@"Camera" handler:^(CYLSearchBarItem *item) {
+        cameraTaps += 1;
+    }];
+    CYLSearchBarItem *divider = [CYLSearchBarItem dividerItem];
+    CYLSearchBarItem *search = [CYLSearchBarItem textItemWithTitle:@"Search" handler:nil];
+    XCTAssertEqual(camera.index, NSNotFound);
+    XCTAssertFalse([bar hasItemOfStyle:CYLSearchBarItemStyleText]);
+    [bar addItem:camera];
+    [bar addItem:search];
+    [bar insertItem:divider atIndex:1];
+    XCTAssertEqualObjects(bar.items, (@[camera, divider, search]));
+    XCTAssertEqual(search.index, 2);
+    XCTAssertTrue(camera.searchBarView == bar);
+    XCTAssertTrue([bar hasItemOfStyle:CYLSearchBarItemStyleText]);
+    XCTAssertEqual(bar.itemViews.count, 3u);
+    XCTAssertTrue(camera.itemView.superview == bar.fieldView);
+    XCTAssertTrue(camera.itemView.item == camera);
+    XCTAssertTrue([camera actualBadgeSuperView] == camera.itemView);
+
+    // Layout: in order after the text, inside the field, a 36 pt camera, a 1 pt divider skipped by VoiceOver.
+    [bar layoutIfNeeded];
+    CGRect cameraFrame = camera.itemView.frame;
+    CGRect dividerFrame = divider.itemView.frame;
+    CGRect searchFrame = search.itemView.frame;
+    XCTAssertLessThanOrEqual(CGRectGetMaxX(bar.textField.frame), CGRectGetMinX(cameraFrame) + 0.5);
+    XCTAssertLessThanOrEqual(CGRectGetMaxX(cameraFrame), CGRectGetMinX(dividerFrame) + 0.5);
+    XCTAssertLessThanOrEqual(CGRectGetMaxX(dividerFrame), CGRectGetMinX(searchFrame) + 0.5);
+    XCTAssertLessThanOrEqual(CGRectGetMaxX(searchFrame), CGRectGetWidth(bar.fieldView.bounds) + 0.5);
+    XCTAssertEqualWithAccuracy(CGRectGetWidth(cameraFrame), 36, 0.5);
+    XCTAssertFalse(divider.itemView.isAccessibilityElement);
+    XCTAssertTrue(camera.itemView.isAccessibilityElement);
+    XCTAssertEqualObjects(camera.itemView.accessibilityLabel, @"Camera");
+    XCTAssertEqualObjects(search.itemView.titleLabel.text, @"Search");
+
+    // Events: the delegate first, then the handler; a disabled item ignores taps; a selectable item toggles.
+    [camera.itemView sendActionsForControlEvents:UIControlEventTouchUpInside];
+    XCTAssertEqual(cameraTaps, 1);
+    XCTAssertEqualObjects(recorder.items, (@[camera]));
+    camera.isEnabled = NO;
+    [camera.itemView sendActionsForControlEvents:UIControlEventTouchUpInside];
+    XCTAssertEqual(cameraTaps, 1);
+    camera.isEnabled = YES;
+    camera.isSelectable = YES;
+    XCTAssertNil(bar.selectedItem);
+    XCTAssertEqual(bar.selectedIndex, NSNotFound);
+    [camera.itemView sendActionsForControlEvents:UIControlEventTouchUpInside];
+    XCTAssertTrue(camera.isSelected);
+    XCTAssertTrue(bar.selectedItem == camera);
+    XCTAssertEqual(bar.selectedIndex, 0);
+
+    // Badge, text attributes and tint.
+    camera.badgeValue = @"3";
+    [camera.itemView layoutIfNeeded];
+    XCTAssertFalse(camera.itemView.badgeLabel.hidden);
+    XCTAssertEqualObjects(camera.itemView.badgeLabel.text, @"3");
+    camera.badgeValue = nil;
+    XCTAssertTrue(camera.itemView.badgeLabel.hidden);
+    [search setTitleTextAttributes:@{NSForegroundColorAttributeName: UIColor.systemBlueColor} forState:UIControlStateNormal];
+    XCTAssertEqualObjects([search titleTextAttributesForState:UIControlStateNormal][NSForegroundColorAttributeName], UIColor.systemBlueColor);
+    bar.itemTintColor = UIColor.systemGreenColor;
+    XCTAssertEqualObjects(camera.itemView.imageView.tintColor, UIColor.systemGreenColor);
+
+    // The fixed bordered style, and removal.
+    bar.searchBarStyle = CYLSearchBarStyleBordered;
+    XCTAssertEqual(bar.fieldBorderWidth, 1);
+    XCTAssertNotNil(bar.fieldBorderColor);
+    [bar removeItem:divider];
+    XCTAssertEqualObjects(bar.items, (@[camera, search]));
+    XCTAssertNil(divider.searchBarView);
+    XCTAssertNil(divider.itemView.superview);
+    [bar addItemWithStyle:CYLSearchBarItemStyleDivider title:nil image:nil index:1 handler:nil];
+    XCTAssertEqual(bar.items[1].style, CYLSearchBarItemStyleDivider);
+    [bar removeAllItems];
+    XCTAssertEqual(bar.items.count, 0u);
+
+    // Plain values from the cross-platform wrappers (Flutter, React Native).
+    CYLSearchBarItem *wrapped = [CYLSearchBarItem itemWithDictionary:@{@"style": @"icon", @"title": @"Camera", @"image": @"camera", @"accessibilityIdentifier": @"camera", @"isSelectable": @YES, @"badgeValue": @""}];
+    XCTAssertEqual(wrapped.style, CYLSearchBarItemStyleIcon);
+    XCTAssertNotNil(wrapped.image);
+    XCTAssertEqualObjects(wrapped.itemAccessibilityIdentifier, @"camera");
+    XCTAssertTrue(wrapped.isSelectable);
+    XCTAssertEqualObjects(wrapped.badgeValue, @"");
+    XCTAssertEqual([CYLSearchBarItem itemWithDictionary:@{@"style": @"divider"}].style, CYLSearchBarItemStyleDivider);
+    CYLSearchBarItem *wrappedText = [CYLSearchBarItem itemWithDictionary:@{@"style": @"text", @"title": @"Search"}];
+    XCTAssertEqual(wrappedText.style, CYLSearchBarItemStyleText);
+}
+
 @end
 
+@implementation CYLSearchItemRecorder
+
+- (void)searchBarView:(CYLSearchBarView *)searchBarView didSelectItem:(CYLSearchBarItem *)item
+{
+    if (!self.items) {
+        self.items = [NSMutableArray array];
+    }
+    [self.items addObject:item];
+}
+
+@end

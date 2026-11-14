@@ -126,6 +126,12 @@ public protocol CYLSearchBarViewDelegate: NSObjectProtocol {
      */
     @objc(searchBarView:didChangeIconified:)
     optional func searchBarView(_ searchBarView: CYLSearchBarView, didChangeIconified iconified: Bool)
+
+    /**
+     * An appended item was tapped (`-[CYLSearchBarView addItem:]`), like `-tabBar:didSelectItem:`.
+     */
+    @objc(searchBarView:didSelectItem:)
+    optional func searchBarView(_ searchBarView: CYLSearchBarView, didSelect item: CYLSearchBarItem)
 }
 
 /**
@@ -343,6 +349,152 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
             oldValue.forEach { $0.removeFromSuperview() }
             trailingAccessoryViews.forEach { fieldView.addSubview($0) }
             setNeedsLayout()
+        }
+    }
+
+    // MARK: - Items
+
+    /**
+     * The appended items, in order, after the text and after `trailingAccessoryViews` (like the FlatDesign tab bar's
+     * `items`). The field stays; only items are appended.
+     */
+    @objc public private(set) var items: [CYLSearchBarItem] = []
+
+    /**
+     * The views of `items`, in the same order.
+     */
+    @objc public var itemViews: [CYLSearchBarItemView] {
+        items.map(\.itemView)
+    }
+
+    /**
+     * The icon and title color of every item without its own `tintColor`; nil uses the label color.
+     */
+    @objc public var itemTintColor: UIColor? {
+        didSet { items.forEach { $0.itemView.reload() } }
+    }
+
+    /**
+     * The fixed look of the bar. `.bordered` draws the field and its items inside one capsule outline.
+     */
+    @objc public var searchBarStyle: CYLSearchBarStyle = .plain {
+        didSet { applySearchBarStyle() }
+    }
+
+    /**
+     * An image drawn behind the field's content, clipped to its corners.
+     */
+    @objc public var fieldBackgroundImage: UIImage? {
+        didSet {
+            fieldBackgroundImageView.image = fieldBackgroundImage
+            fieldBackgroundImageView.isHidden = fieldBackgroundImage == nil
+            setNeedsLayout()
+        }
+    }
+
+    /**
+     * The first selected item (an item with `selectable` YES that was tapped on), or nil.
+     */
+    @objc public var selectedItem: CYLSearchBarItem? {
+        items.first { $0.isSelected }
+    }
+
+    /**
+     * The index of `selectedItem`, or `NSNotFound`.
+     */
+    @objc public var selectedIndex: Int {
+        items.firstIndex { $0.isSelected } ?? NSNotFound
+    }
+
+    private let fieldBackgroundImageView = UIImageView()
+
+    /**
+     * Appends an item after the others.
+     */
+    @objc(addItem:)
+    public func addItem(_ item: CYLSearchBarItem) {
+        insertItem(item, at: items.count)
+    }
+
+    /**
+     * Inserts an item at an index (clamped to `items`); an item already in a bar moves here.
+     */
+    @objc(insertItem:atIndex:)
+    public func insertItem(_ item: CYLSearchBarItem, at index: Int) {
+        item.searchBarView?.removeItem(item)
+        items.insert(item, at: min(max(0, index), items.count))
+        item.searchBarView = self
+        let view = item.itemView
+        view.removeTarget(nil, action: nil, for: .allEvents)
+        view.addTarget(self, action: #selector(itemTapped(_:)), for: .touchUpInside)
+        fieldView.addSubview(view)
+        view.reload()
+        setNeedsLayout()
+    }
+
+    /**
+     * Creates an item and inserts it at an index; `NSNotFound` or a larger index appends it. Mirrors
+     * `-addItemWithTitle:tabBarItemImage:tabBarItemSelectedImage:index:`.
+     */
+    @discardableResult
+    @objc(addItemWithStyle:title:image:index:handler:)
+    public func addItem(style: CYLSearchBarItemStyle, title: String?, image: UIImage?, index: Int, handler: ((CYLSearchBarItem) -> Void)?) -> CYLSearchBarItem {
+        let item = CYLSearchBarItem(style: style, title: title, image: image)
+        item.handler = handler
+        insertItem(item, at: index == NSNotFound ? items.count : index)
+        return item
+    }
+
+    /**
+     * Removes an item from the bar.
+     */
+    @objc(removeItem:)
+    public func removeItem(_ item: CYLSearchBarItem) {
+        guard let index = items.firstIndex(of: item) else {
+            return
+        }
+        items.remove(at: index)
+        item.searchBarView = nil
+        item.itemView.removeTarget(self, action: nil, for: .allEvents)
+        item.itemView.removeFromSuperview()
+        setNeedsLayout()
+    }
+
+    /**
+     * Removes every item.
+     */
+    @objc public func removeAllItems() {
+        items.forEach { removeItem($0) }
+    }
+
+    /**
+     * YES when an item of the style was appended (a text "Search" button), like `-hasPlusButton`.
+     */
+    @objc(hasItemOfStyle:)
+    public func hasItem(of style: CYLSearchBarItemStyle) -> Bool {
+        items.contains { $0.style == style }
+    }
+
+    @objc private func itemTapped(_ sender: CYLSearchBarItemView) {
+        guard let item = sender.item, item.isEnabled else {
+            return
+        }
+        if item.isSelectable {
+            item.isSelected.toggle()
+        }
+        delegate?.searchBarView?(self, didSelect: item)
+        item.handler?(item)
+    }
+
+    private func applySearchBarStyle() {
+        switch searchBarStyle {
+        case .plain:
+            break
+        case .bordered:
+            fieldBorderColor = .separator
+            fieldBorderWidth = 1
+            fieldBackgroundColor = .systemBackground
+            fieldCornerRadius = -1
         }
     }
 
@@ -594,6 +746,11 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
 
     private func commonInit() {
         addSubview(fieldView)
+        fieldBackgroundImageView.contentMode = .scaleAspectFill
+        fieldBackgroundImageView.clipsToBounds = true
+        fieldBackgroundImageView.isHidden = true
+        fieldBackgroundImageView.isAccessibilityElement = false
+        fieldView.addSubview(fieldBackgroundImageView)
         searchIconView.image = searchIcon
         searchIconView.contentMode = .scaleAspectFit
         searchIconView.isAccessibilityElement = false
@@ -698,7 +855,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     }
 
     private var effectiveAccessoryViews: [UIView] {
-        var views = trailingAccessoryViews
+        var views = trailingAccessoryViews + itemViews.map { $0 as UIView }
         let hasText = !(textField.text ?? "").isEmpty
         if showsVoiceButton && !hasText {
             views.append(voiceButton)
@@ -972,6 +1129,8 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         field = fieldView.frame
         field.size = CGSize(width: max(0, trailing - leading), height: fieldHeight)
         fieldView.layer.cornerRadius = fieldCornerRadius < 0 ? fieldHeight / 2 : fieldCornerRadius
+        fieldBackgroundImageView.frame = CGRect(origin: .zero, size: field.size)
+        fieldBackgroundImageView.layer.cornerRadius = fieldView.layer.cornerRadius
 
         let inner = max(10, min(14, fieldHeight / 3))
         var x = inner

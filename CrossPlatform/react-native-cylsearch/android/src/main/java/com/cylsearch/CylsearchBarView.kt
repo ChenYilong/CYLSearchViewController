@@ -1,10 +1,13 @@
 package com.cylsearch
 
 import android.widget.FrameLayout
+import com.cyl.search.CYLSearchBarItem
 import com.cyl.search.CYLSearchBarView
 import com.cyl.search.CYLSearchBarViewDelegate
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.UIManagerHelper
+import org.json.JSONArray
+import org.json.JSONObject
 
 /**
  * CYLSearchBarView of the `cylsearch` module (a final class), filling the component.
@@ -41,4 +44,26 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
   }
 
   override fun searchBarViewCancelButtonClicked(searchBarView: CYLSearchBarView) = emit("topCancel")
+
+  override fun searchBarViewDidSelectItem(searchBarView: CYLSearchBarView, item: CYLSearchBarItem) =
+    emit("topItemSelect", "index" to item.index, "selected" to item.isSelected)
+
+  private var itemsJSON: String = ""
+
+  /**
+   * Rebuilds the items when JavaScript sends other ones, so a re-render keeps the native selection.
+   */
+  fun setItemsJSON(value: String?) {
+    val json = value.orEmpty()
+    if (json == itemsJSON) return
+    itemsJSON = json
+    bar.removeAllItems()
+    val array = runCatching { JSONArray(json) }.getOrNull() ?: return
+    for (i in 0 until array.length()) {
+      val objectValue = array.optJSONObject(i) ?: continue
+      bar.addItem(CYLSearchBarItem.fromMap(context, objectValue.toMap()))
+    }
+  }
+
+  private fun JSONObject.toMap(): Map<String, Any?> = keys().asSequence().associateWith { key -> opt(key).takeUnless { it == JSONObject.NULL } }
 }

@@ -258,8 +258,112 @@ class _CYLSearchViewState extends State<CYLSearchView> {
   Widget build(BuildContext context) => _platformView(CYLSearchViewTypes.searchView, _parameters, _created);
 }
 
+/// How an item appended to a search bar looks (iOS and Android `CYLSearchBarItemStyle`).
+enum CYLSearchBarItemStyle {
+  /// An icon button with a 36-point touch area (a camera, a filter).
+  icon,
+
+  /// A thin vertical line between two items; screen readers skip it.
+  divider,
+
+  /// A text button (a "Search" button).
+  text,
+}
+
+/// The fixed look of the whole bar (iOS and Android `CYLSearchBarStyle`).
+enum CYLSearchBarStyle {
+  /// The field as configured by its own parameters.
+  plain,
+
+  /// A capsule with a 1-point outline: the field and its items inside one outline.
+  bordered,
+}
+
+/// One element after the text of a [CYLSearchBarView] (iOS and Android `CYLSearchBarItem`, like the FlatDesign tab
+/// bar's items). The field stays; the bar only appends items.
+@immutable
+class CYLSearchBarItem {
+  /// An item of the given style.
+  const CYLSearchBarItem({
+    required this.style,
+    this.title,
+    this.image,
+    this.accessibilityIdentifier,
+    this.isEnabled = true,
+    this.isSelectable = false,
+    this.isSelected = false,
+    this.badgeValue,
+    this.onTap,
+  });
+
+  /// An icon item; [title] is what screen readers read.
+  const CYLSearchBarItem.icon({required String this.image, required String this.title, this.accessibilityIdentifier, this.isEnabled = true, this.isSelectable = false, this.isSelected = false, this.badgeValue, this.onTap})
+      : style = CYLSearchBarItemStyle.icon;
+
+  /// A text item (a "Search" button).
+  const CYLSearchBarItem.text({required String this.title, this.accessibilityIdentifier, this.isEnabled = true, this.onTap})
+      : style = CYLSearchBarItemStyle.text,
+        image = null,
+        isSelectable = false,
+        isSelected = false,
+        badgeValue = null;
+
+  /// A divider between two items.
+  const CYLSearchBarItem.divider()
+      : style = CYLSearchBarItemStyle.divider,
+        title = null,
+        image = null,
+        accessibilityIdentifier = null,
+        isEnabled = true,
+        isSelectable = false,
+        isSelected = false,
+        badgeValue = null,
+        onTap = null;
+
+  /// The look (iOS `style`).
+  final CYLSearchBarItemStyle style;
+
+  /// The text of a text item, and the screen reader label of an icon item (iOS `title`).
+  final String? title;
+
+  /// The icon: `camera`, `mic`, `search` or `back` (drawn by the core on both platforms), else an image of the app
+  /// (an iOS asset or SF Symbol name, an Android drawable name).
+  final String? image;
+
+  /// A test identifier of the item view (iOS `itemAccessibilityIdentifier`).
+  final String? accessibilityIdentifier;
+
+  /// False dims the item and ignores taps (iOS `isEnabled`).
+  final bool isEnabled;
+
+  /// Each tap toggles [isSelected] on the native side (iOS `isSelectable`).
+  final bool isSelectable;
+
+  /// The selected state (iOS `isSelected`).
+  final bool isSelected;
+
+  /// The badge text; an empty string draws a dot (iOS `badgeValue`).
+  final String? badgeValue;
+
+  /// Called on each tap with the selected state after the tap (iOS `handler`).
+  final ValueChanged<bool>? onTap;
+
+  /// The parameters the native view builds the item from.
+  Map<String, Object?> toMap() => <String, Object?>{
+        'style': style.name,
+        'title': title,
+        'image': image,
+        'accessibilityIdentifier': accessibilityIdentifier,
+        'isEnabled': isEnabled,
+        'isSelectable': isSelectable,
+        'isSelected': isSelected,
+        'badgeValue': badgeValue,
+      };
+}
+
 /// The search bar of CYLSearchViewController (iOS and Android `CYLSearchBarView`) as a widget: a rounded field with a
-/// magnifier, the text, a clear button and an optional Cancel button. Give it a height (about 48 logical pixels).
+/// magnifier, the text, a clear button, appended [items] and an optional Cancel button. Give it a height (about 48
+/// logical pixels).
 class CYLSearchBarView extends StatefulWidget {
   /// Creates the search bar.
   const CYLSearchBarView({
@@ -268,10 +372,26 @@ class CYLSearchBarView extends StatefulWidget {
     this.text,
     this.showsCancelButton = false,
     this.fieldShadowOpacity = 0,
+    this.searchBarStyle = CYLSearchBarStyle.plain,
+    this.showsSearchIcon = true,
+    this.items = const <CYLSearchBarItem>[],
     this.onTextChanged,
     this.onSubmitted,
     this.onCancel,
+    this.onItemSelected,
   });
+
+  /// The fixed look of the bar (iOS `searchBarStyle`).
+  final CYLSearchBarStyle searchBarStyle;
+
+  /// Draws the magnifier at the start of the field (iOS `searchIcon` set or nil).
+  final bool showsSearchIcon;
+
+  /// The items appended after the text, in order (iOS `addItem(_:)`).
+  final List<CYLSearchBarItem> items;
+
+  /// An item was tapped, with its index (iOS `searchBarView(_:didSelect:)`), after the item's own `onTap`.
+  final void Function(CYLSearchBarItem item, int index)? onItemSelected;
 
   /// The placeholder (iOS `placeholder`).
   final String? placeholder;
@@ -382,6 +502,9 @@ Map<String, Object?> cylSearchBarViewParameters(CYLSearchBarView widget, {Bright
       'text': widget.text,
       'showsCancelButton': widget.showsCancelButton,
       'fieldShadowOpacity': widget.fieldShadowOpacity,
+      'searchBarStyle': widget.searchBarStyle.name,
+      'showsSearchIcon': widget.showsSearchIcon,
+      'items': widget.items.map((item) => item.toMap()).toList(),
     };
 
 /// Calls the [CYLSearchBarView] callback of an event from its native view.
@@ -395,6 +518,12 @@ void cylSearchBarViewDispatch(CYLSearchBarView widget, MethodCall call) {
       widget.onSubmitted?.call(arguments['text'] as String? ?? '');
     case 'didCancel':
       widget.onCancel?.call();
+    case 'didSelectItem':
+      final index = arguments['index'] as int? ?? -1;
+      if (index < 0 || index >= widget.items.length) return;
+      final item = widget.items[index];
+      item.onTap?.call(arguments['selected'] as bool? ?? false);
+      widget.onItemSelected?.call(item, index);
   }
 }
 

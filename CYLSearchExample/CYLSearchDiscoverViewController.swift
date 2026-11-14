@@ -116,8 +116,6 @@ final class CYLSearchDiscoverViewController: UIViewController {
      */
     let searchBar = CYLSearchBarView()
     var searchField: UITextField { searchBar.textField }
-    let cameraButton = UIButton(type: .system)
-    let searchButton = UIButton(type: .system)
     let recentList = CYLTagListView(foldControl: CYLMenuFoldControl(position: .inline, content: .icon))
     let discoverList = CYLTagListView()
     let hintLabel = UILabel()
@@ -264,37 +262,28 @@ final class CYLSearchDiscoverViewController: UIViewController {
         searchBar.searchIcon = nil
         searchBar.contentInsets = .zero
         searchBar.fieldHeight = 46
+        searchBar.searchBarStyle = .bordered
         searchBar.fieldCornerRadius = 22
-        searchBar.fieldBackgroundColor = .systemBackground
         searchBar.fieldShadowOpacity = 0.06
         searchBar.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: .systemFont(ofSize: 16))
         searchField.accessibilityLabel = cylDiscoverText("discover.search")
         searchField.accessibilityIdentifier = "CYLSearchDiscoverField"
 
-        cameraButton.setImage(UIImage(systemName: "camera.viewfinder", withConfiguration: UIImage.SymbolConfiguration(pointSize: 19, weight: .regular)), for: .normal)
-        cameraButton.tintColor = .label
-        cameraButton.accessibilityLabel = cylDiscoverText("discover.imageSearch")
-        cameraButton.addTarget(self, action: #selector(searchByImage), for: .touchUpInside)
-        showsLargeContent(cameraButton)
         showsLargeContent(backButton)
 
-        let divider = UIView(frame: CGRect(x: 0, y: 0, width: 1, height: 18))
-        divider.backgroundColor = .separator
-        divider.isAccessibilityElement = false
-
-        searchButton.setTitle(cylDiscoverText("discover.search"), for: .normal)
-        searchButton.setTitleColor(.label, for: .normal)
-        searchButton.titleLabel?.font = UIFontMetrics(forTextStyle: .headline).scaledFont(for: .systemFont(ofSize: 17, weight: .semibold))
-        searchButton.titleLabel?.adjustsFontForContentSizeCategory = true
-        searchButton.accessibilityIdentifier = "CYLSearchDiscoverSearchButton"
-        searchButton.addTarget(self, action: #selector(searchTapped), for: .touchUpInside)
-
-        // The camera keeps a 36 pt touch area: a container of that size holds it.
-        let cameraArea = UIView(frame: CGRect(x: 0, y: 0, width: 36, height: 36))
-        cameraButton.frame = cameraArea.bounds
-        cameraButton.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        cameraArea.addSubview(cameraButton)
-        searchBar.trailingAccessoryViews = [cameraArea, divider, searchButton]
+        // The field stays; the camera, a divider and the 搜索 button are items appended to the bar.
+        let camera = CYLSearchBarItem.iconItem(image: UIImage(systemName: "camera.viewfinder"), title: cylDiscoverText("discover.imageSearch")) { [weak self] _ in
+            self?.searchByImage()
+        }
+        camera.imageSize = CGSize(width: 22, height: 22)
+        let search = CYLSearchBarItem.textItem(title: cylDiscoverText("discover.search")) { [weak self] _ in
+            self?.searchTapped()
+        }
+        search.itemAccessibilityIdentifier = "CYLSearchDiscoverSearchButton"
+        searchBar.itemTintColor = .label
+        searchBar.addItem(camera)
+        searchBar.addItem(.divider())
+        searchBar.addItem(search)
     }
 
     private func setUpLists() {

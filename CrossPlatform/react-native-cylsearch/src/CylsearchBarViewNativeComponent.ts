@@ -11,6 +11,11 @@ type TextEvent = Readonly<{
 
 type CancelEvent = Readonly<{}>;
 
+type ItemSelectEvent = Readonly<{
+  index: CodegenTypes.Int32;
+  selected: boolean;
+}>;
+
 export interface NativeProps extends ViewProps {
   /**
    * The placeholder.
@@ -32,6 +37,19 @@ export interface NativeProps extends ViewProps {
    * "light" or "dark".
    */
   colorScheme?: string;
+  /**
+   * The fixed look of the bar: "plain" (default) or "bordered".
+   */
+  searchBarStyle?: string;
+  /**
+   * Draws the magnifier at the start of the field.
+   */
+  showsSearchIcon?: CodegenTypes.WithDefault<boolean, true>;
+  /**
+   * The appended items as JSON (an array of `CYLSearchBarItem` values; see `CYLSearchBarView` in index.tsx).
+   */
+  itemsJSON?: string;
+  onItemSelect?: CodegenTypes.DirectEventHandler<ItemSelectEvent>;
   onTextChange?: CodegenTypes.DirectEventHandler<TextEvent>;
   onSubmit?: CodegenTypes.DirectEventHandler<TextEvent>;
   onCancel?: CodegenTypes.DirectEventHandler<CancelEvent>;

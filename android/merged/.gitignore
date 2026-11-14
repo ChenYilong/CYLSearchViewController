@@ -2,3 +2,6 @@
 .gradle/
 build/
 local.properties
+
+# Kotlin compiler caches (Kotlin 2.x).
+.kotlin/

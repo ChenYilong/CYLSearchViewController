@@ -38,6 +38,8 @@ import com.cyl.classifymenu.CYLMenuSelectionMode
 import com.cyl.classifymenu.CYLMenuStyle
 import com.cyl.classifymenu.CYLSize
 import com.cyl.classifymenu.CYLTagListView
+import com.cyl.search.CYLSearchBarItem
+import com.cyl.search.CYLSearchBarStyle
 import com.cyl.search.CYLSearchBarView
 import com.cyl.search.CYLSearchBarViewDelegate
 import org.json.JSONObject
@@ -171,6 +173,7 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             searchIcon = null
             contentInsets = android.graphics.Rect(0, 0, 0, 0)
             fieldHeight = 46f
+            searchBarStyle = CYLSearchBarStyle.Bordered
             fieldCornerRadius = 22f
             fieldBackgroundColor = Color.WHITE
             fieldBorderColor = Color.argb(40, 0, 0, 0)
@@ -179,30 +182,17 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             fontSize = 16f
             textField.contentDescription = getString(R.string.cyl_discover_search)
         }
-        val camera = ImageButton(context).apply {
-            setImageResource(R.drawable.cyl_ic_camera)
-            background = null
-            setColorFilter(primary)
-            contentDescription = getString(R.string.cyl_discover_imageSearch)
-            layoutParams = ViewGroup.LayoutParams(dp(36f), dp(36f))
-            setOnClickListener { searchByImage() }
+        // The field stays; the camera, a divider and the Search button are items appended to the bar.
+        val camera = CYLSearchBarItem.iconItem(context.getDrawable(R.drawable.cyl_ic_camera), getString(R.string.cyl_discover_imageSearch)) {
+            searchByImage()
         }
-        val divider = View(context).apply {
-            setBackgroundColor(Color.argb(40, 0, 0, 0))
-            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-            layoutParams = ViewGroup.LayoutParams(dp(1f), dp(18f))
-        }
-        val searchButton = TextView(context).apply {
-            text = getString(R.string.cyl_discover_search)
-            setTextColor(primary)
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f)
-            typeface = Typeface.DEFAULT_BOLD
-            setPadding(dp(4f), 0, dp(4f), 0)
-            isClickable = true
-            isFocusable = true
-            setOnClickListener { searchTapped() }
-        }
-        searchBar.trailingAccessoryViews = listOf(camera, divider, searchButton)
+        camera.imageSize = android.util.SizeF(22f, 22f)
+        val search = CYLSearchBarItem.textItem(getString(R.string.cyl_discover_search)) { searchTapped() }
+        search.itemAccessibilityIdentifier = "CYLSearchDiscoverSearchButton"
+        searchBar.itemTintColor = primary
+        searchBar.addItem(camera)
+        searchBar.addItem(CYLSearchBarItem.divider())
+        searchBar.addItem(search)
 
         // Recent searches: folded to two rows, the chevron as the last tag; the trash clears the list.
         recentSource.clearButton = ImageButton(context).apply {

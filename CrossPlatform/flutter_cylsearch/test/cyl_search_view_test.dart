@@ -97,11 +97,53 @@ void main() {
         onCancel: () => events.add('cancel'),
       );
       expect(cylSearchBarViewParameters(bar),
-          <String, Object?>{'brightness': 'light', 'placeholder': 'Song', 'text': null, 'showsCancelButton': true, 'fieldShadowOpacity': 0.12});
+          <String, Object?>{
+            'brightness': 'light',
+            'placeholder': 'Song',
+            'text': null,
+            'showsCancelButton': true,
+            'fieldShadowOpacity': 0.12,
+            'searchBarStyle': 'plain',
+            'showsSearchIcon': true,
+            'items': <Object?>[],
+          });
       cylSearchBarViewDispatch(bar, const MethodCall('textDidChange', <String, Object?>{'text': 'a'}));
       cylSearchBarViewDispatch(bar, const MethodCall('didSubmit', <String, Object?>{'text': 'a'}));
       cylSearchBarViewDispatch(bar, const MethodCall('didCancel'));
       expect(events, <String>['text a', 'submit a', 'cancel']);
+    });
+
+    test('appends items like the FlatDesign tab bar and reports their taps', () {
+      final events = <String>[];
+      final bar = CYLSearchBarView(
+        searchBarStyle: CYLSearchBarStyle.bordered,
+        items: <CYLSearchBarItem>[
+          CYLSearchBarItem.icon(image: 'camera', title: 'Camera', badgeValue: '', onTap: (selected) => events.add('camera $selected')),
+          const CYLSearchBarItem.divider(),
+          CYLSearchBarItem.text(title: 'Search', accessibilityIdentifier: 'search', onTap: (_) => events.add('search')),
+        ],
+        onItemSelected: (item, index) => events.add('selected $index ${item.style.name}'),
+      );
+      final parameters = cylSearchBarViewParameters(bar);
+      expect(parameters['searchBarStyle'], 'bordered');
+      final items = parameters['items']! as List<Object?>;
+      expect(items.length, 3);
+      expect(items[0], <String, Object?>{
+        'style': 'icon',
+        'title': 'Camera',
+        'image': 'camera',
+        'accessibilityIdentifier': null,
+        'isEnabled': true,
+        'isSelectable': false,
+        'isSelected': false,
+        'badgeValue': '',
+      });
+      expect((items[1]! as Map<String, Object?>)['style'], 'divider');
+      expect((items[2]! as Map<String, Object?>)['accessibilityIdentifier'], 'search');
+      cylSearchBarViewDispatch(bar, const MethodCall('didSelectItem', <String, Object?>{'index': 0, 'selected': true}));
+      cylSearchBarViewDispatch(bar, const MethodCall('didSelectItem', <String, Object?>{'index': 2, 'selected': false}));
+      cylSearchBarViewDispatch(bar, const MethodCall('didSelectItem', <String, Object?>{'index': 9}));
+      expect(events, <String>['camera true', 'selected 0 icon', 'search', 'selected 2 text']);
     });
   });
 

@@ -152,6 +152,21 @@ final class CYLFlutterSearchBarView: NSObject, FlutterPlatformView, CYLSearchBar
         if let text = arguments["text"] as? String, text != bar.text { bar.text = text }
         bar.showsCancelButton = arguments["showsCancelButton"] as? Bool ?? false
         bar.fieldShadowOpacity = CGFloat(arguments["fieldShadowOpacity"] as? Double ?? 0)
+        bar.searchBarStyle = (arguments["searchBarStyle"] as? String) == "bordered" ? .bordered : .plain
+        bar.searchIcon = arguments["showsSearchIcon"] as? Bool ?? true ? UIImage(systemName: "magnifyingglass") : nil
+        let items = arguments["items"] as? [[String: Any]] ?? []
+        // Rebuilt only when Dart sends other items, so a rebuild of the widget keeps the native selection.
+        if (items as NSArray) != (appliedItems as NSArray) {
+            appliedItems = items
+            bar.removeAllItems()
+            items.forEach { bar.addItem(CYLSearchBarItem.item(dictionary: $0)) }
+        }
+    }
+
+    private var appliedItems: [[String: Any]] = []
+
+    func searchBarView(_ searchBarView: CYLSearchBarView, didSelect item: CYLSearchBarItem) {
+        channel.invokeMethod("didSelectItem", arguments: ["index": item.index, "selected": item.isSelected])
     }
 
     func searchBarView(_ searchBarView: CYLSearchBarView, textDidChange text: String) {

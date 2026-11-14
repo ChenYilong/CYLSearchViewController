@@ -6,12 +6,15 @@ import android.view.View
 import android.widget.FrameLayout
 import com.cyl.classifymenu.CYLTagListView
 import com.cyl.placeholder.CYLPlaceholderScenario
+import com.cyl.search.CYLSearchBarItem
+import com.cyl.search.CYLSearchBarStyle
 import com.cyl.search.CYLSearchBarView
 import com.cyl.search.CYLSearchBarViewDelegate
 import com.cyl.search.CYLSearchSuggestionCachePolicy
 import com.cyl.search.CYLSearchSuggestionStyle
 import com.cyl.search.CYLSearchView
 import com.cyl.search.CYLSearchViewDelegate
+import androidx.core.content.ContextCompat
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
@@ -158,6 +161,22 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
         (arguments["text"] as? String)?.takeIf { it != bar.text }?.let { bar.text = it }
         bar.showsCancelButton = arguments["showsCancelButton"] as? Boolean ?: false
         bar.fieldShadowOpacity = (arguments["fieldShadowOpacity"] as? Number)?.toFloat() ?: 0f
+        bar.searchBarStyle = if (arguments["searchBarStyle"] == "bordered") CYLSearchBarStyle.Bordered else CYLSearchBarStyle.Plain
+        bar.searchIcon = if (arguments["showsSearchIcon"] as? Boolean != false) ContextCompat.getDrawable(bar.context, com.cyl.search.R.drawable.cyl_search_ic_search) else null
+        @Suppress("UNCHECKED_CAST")
+        val items = (arguments["items"] as? List<Map<String, Any?>>) ?: emptyList()
+        // Rebuilt only when Dart sends other items, so a rebuild of the widget keeps the native selection.
+        if (items != appliedItems) {
+            appliedItems = items
+            bar.removeAllItems()
+            items.forEach { bar.addItem(CYLSearchBarItem.fromMap(bar.context, it)) }
+        }
+    }
+
+    private var appliedItems: List<Map<String, Any?>> = emptyList()
+
+    override fun searchBarViewDidSelectItem(searchBarView: CYLSearchBarView, item: CYLSearchBarItem) {
+        channel.invokeMethod("didSelectItem", mapOf("index" to item.index, "selected" to item.isSelected))
     }
 
     override fun getView(): View = bar

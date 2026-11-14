@@ -186,28 +186,34 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
       appBar: AppBar(title: Text(data.text('discover.title'))),
       body: Column(
         children: <Widget>[
-          // The search bar sits under the navigation bar: it covers no view.
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: SizedBox(
-                  height: 52,
-                  child: CYLSearchBarView(
-                    text: _barText,
-                    fieldShadowOpacity: 0.12,
-                    onTextChanged: (text) => _typed = text,
-                    onSubmitted: _search,
+          // The search bar sits under the navigation bar: it covers no view. The field stays; the camera, a divider
+          // and the Search button are items appended inside its bordered capsule (core `CYLSearchBarItem`).
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: SizedBox(
+              height: 56,
+              child: CYLSearchBarView(
+                text: _barText,
+                searchBarStyle: CYLSearchBarStyle.bordered,
+                showsSearchIcon: false,
+                fieldShadowOpacity: 0.06,
+                items: <CYLSearchBarItem>[
+                  CYLSearchBarItem.icon(
+                    image: 'camera',
+                    title: data.text('discover.imageSearch'),
+                    onTap: (_) => _show(data.text('discover.imageSearchUnavailable')),
                   ),
-                ),
+                  const CYLSearchBarItem.divider(),
+                  CYLSearchBarItem.text(
+                    title: data.text('discover.search'),
+                    accessibilityIdentifier: 'CYLSearchDiscoverSearchButton',
+                    onTap: (_) => _search(_typed),
+                  ),
+                ],
+                onTextChanged: (text) => _typed = text,
+                onSubmitted: _search,
               ),
-              IconButton(
-                icon: const Icon(Icons.photo_camera_outlined),
-                tooltip: data.text('discover.imageSearch'),
-                onPressed: () => _show(data.text('discover.imageSearchUnavailable')),
-              ),
-              TextButton(onPressed: () => _search(_typed), child: Text(data.text('discover.search'))),
-              const SizedBox(width: 8),
-            ],
+            ),
           ),
           Expanded(
             child: ListView(

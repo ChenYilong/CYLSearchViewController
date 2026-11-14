@@ -9,6 +9,7 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.LayerDrawable
 import android.os.Bundle
 import android.os.Parcelable
 import android.text.Editable
@@ -199,6 +200,12 @@ interface CYLSearchBarViewDelegate {
      * The field opened or closed (`isIconified`).
      */
     fun searchBarViewDidChangeIconified(searchBarView: CYLSearchBarView, iconified: Boolean) {}
+
+    /**
+     * An appended item was tapped (`CYLSearchBarView.addItem`), like `-tabBar:didSelectItem:` (iOS
+     * `-searchBarView:didSelectItem:`).
+     */
+    fun searchBarViewDidSelectItem(searchBarView: CYLSearchBarView, item: CYLSearchBarItem) {}
 }
 
 /**
@@ -438,6 +445,146 @@ class CYLSearchBarView @JvmOverloads constructor(
             field = value
             updateAccessories()
         }
+
+    // Items
+
+    private val mutableItems = mutableListOf<CYLSearchBarItem>()
+
+    /**
+     * The appended items, in order, after the text and after `trailingAccessoryViews` (like the FlatDesign tab bar's
+     * `items`). The field stays; only items are appended.
+     */
+    val items: List<CYLSearchBarItem>
+        get() = mutableItems.toList()
+
+    /**
+     * The views of `items`, in the same order.
+     */
+    val itemViews: List<CYLSearchBarItemView>
+        get() = mutableItems.map { it.itemView(context) }
+
+    /**
+     * The icon and title color of every item without its own `tintColor`; null uses the primary text color.
+     */
+    var itemTintColor: Int? = null
+        set(value) {
+            field = value
+            mutableItems.forEach { it.itemView?.reload() }
+        }
+
+    /**
+     * The fixed look of the bar. `Bordered` draws the field and its items inside one capsule outline.
+     */
+    var searchBarStyle: CYLSearchBarStyle = CYLSearchBarStyle.Plain
+        set(value) {
+            field = value
+            applySearchBarStyle()
+        }
+
+    /**
+     * An image drawn behind the field's content, clipped to its corners.
+     */
+    var fieldBackgroundImage: Drawable? = null
+        set(value) {
+            field = value
+            fieldView.background = if (value != null) LayerDrawable(arrayOf(fieldBackground, value)) else fieldBackground
+            fieldView.clipToOutline = value != null
+        }
+
+    /**
+     * The first selected item (a `isSelectable` item that is on), or null.
+     */
+    val selectedItem: CYLSearchBarItem?
+        get() = mutableItems.firstOrNull { it.isSelected }
+
+    /**
+     * The index of `selectedItem`, or -1.
+     */
+    val selectedIndex: Int
+        get() = mutableItems.indexOfFirst { it.isSelected }
+
+    /**
+     * Appends an item after the others.
+     */
+    fun addItem(item: CYLSearchBarItem) {
+        insertItem(item, mutableItems.size)
+    }
+
+    /**
+     * Inserts an item at an index (clamped to `items`); an item already in a bar moves here.
+     */
+    fun insertItem(item: CYLSearchBarItem, index: Int) {
+        item.searchBarView?.removeItem(item)
+        mutableItems.add(index.coerceIn(0, mutableItems.size), item)
+        item.searchBarView = this
+        item.itemView(context).reload()
+        updateAccessories()
+    }
+
+    /**
+     * Creates an item and inserts it at an index; -1 or a larger index appends it. Mirrors
+     * `-addItemWithTitle:tabBarItemImage:tabBarItemSelectedImage:index:`.
+     */
+    @JvmOverloads
+    fun addItem(
+        style: CYLSearchBarItemStyle,
+        title: String?,
+        image: Drawable?,
+        index: Int = -1,
+        handler: ((CYLSearchBarItem) -> Unit)? = null,
+    ): CYLSearchBarItem {
+        val item = CYLSearchBarItem(style, title, image)
+        item.handler = handler
+        insertItem(item, if (index < 0) mutableItems.size else index)
+        return item
+    }
+
+    /**
+     * Removes an item from the bar.
+     */
+    fun removeItem(item: CYLSearchBarItem) {
+        if (!mutableItems.remove(item)) {
+            return
+        }
+        item.searchBarView = null
+        item.itemView?.let { (it.parent as? ViewGroup)?.removeView(it) }
+        updateAccessories()
+    }
+
+    /**
+     * Removes every item.
+     */
+    fun removeAllItems() {
+        mutableItems.toList().forEach { removeItem(it) }
+    }
+
+    /**
+     * True when an item of the style was appended (a text "Search" button), like `-hasPlusButton`.
+     */
+    fun hasItem(style: CYLSearchBarItemStyle): Boolean = mutableItems.any { it.style == style }
+
+    internal fun itemTapped(item: CYLSearchBarItem) {
+        if (!item.isEnabled) {
+            return
+        }
+        if (item.isSelectable) {
+            item.isSelected = !item.isSelected
+        }
+        delegate?.searchBarViewDidSelectItem(this, item)
+        item.handler?.invoke(item)
+    }
+
+    private fun applySearchBarStyle() {
+        when (searchBarStyle) {
+            CYLSearchBarStyle.Plain -> Unit
+            CYLSearchBarStyle.Bordered -> {
+                fieldBorderColor = themeColor(android.R.attr.textColorHint)
+                fieldBorderWidth = 1f
+                fieldBackgroundColor = themeColor(android.R.attr.colorBackground)
+                fieldCornerRadius = -1f
+            }
+        }
+    }
 
     /**
      * A view of yours before the field (a back button); it wins over the navigation button.
@@ -910,7 +1057,7 @@ class CYLSearchBarView @JvmOverloads constructor(
     private fun updateAccessories() {
         accessoryContainer.removeAllViews()
         val hasText = !text.isNullOrEmpty()
-        val views = trailingAccessoryViews.toMutableList()
+        val views = (trailingAccessoryViews + itemViews).toMutableList()
         if (showsVoiceButton && !hasText) {
             views.add(voiceButton)
         }

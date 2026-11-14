@@ -16,6 +16,7 @@ using namespace facebook::react;
  */
 @implementation CylsearchBarView {
   CYLSearchBarView *_bar;
+  NSString *_itemsJSON;
 }
 
 + (ComponentDescriptorProvider)componentDescriptorProvider
@@ -46,10 +47,33 @@ using namespace facebook::react;
   }
   _bar.showsCancelButton = p.showsCancelButton;
   _bar.fieldShadowOpacity = p.fieldShadowOpacity;
+  _bar.searchBarStyle = [CYLRNString(p.searchBarStyle) isEqualToString:@"bordered"] ? CYLSearchBarStyleBordered : CYLSearchBarStylePlain;
+  _bar.searchIcon = p.showsSearchIcon ? [UIImage systemImageNamed:@"magnifyingglass"] : nil;
+  // Rebuilt only when JavaScript sends other items, so a re-render keeps the native selection.
+  NSString *itemsJSON = CYLRNString(p.itemsJSON) ?: @"";
+  if (![itemsJSON isEqualToString:_itemsJSON ?: @""]) {
+    _itemsJSON = itemsJSON;
+    [_bar removeAllItems];
+    NSData *data = [itemsJSON dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *values = data.length > 0 ? [NSJSONSerialization JSONObjectWithData:data options:0 error:nil] : nil;
+    for (id value in [values isKindOfClass:[NSArray class]] ? values : @[]) {
+      if ([value isKindOfClass:[NSDictionary class]]) {
+        [_bar addItem:[CYLSearchBarItem itemWithDictionary:value]];
+      }
+    }
+  }
   [super updateProps:props oldProps:oldProps];
 }
 
 #pragma mark - CYLSearchBarViewDelegate
+
+- (void)searchBarView:(CYLSearchBarView *)searchBarView didSelectItem:(CYLSearchBarItem *)item
+{
+  if (_eventEmitter) {
+    std::static_pointer_cast<CylsearchBarViewEventEmitter const>(_eventEmitter)
+        ->onItemSelect(CylsearchBarViewEventEmitter::OnItemSelect{.index = (int)item.index, .selected = (bool)item.isSelected});
+  }
+}
 
 - (void)searchBarView:(CYLSearchBarView *)searchBarView textDidChange:(NSString *)text
 {

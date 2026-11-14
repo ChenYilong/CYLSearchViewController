@@ -123,67 +123,99 @@ text size.
   examples call it to verify that the API extends; if an example needs it, update the core to adapt and extend the
   API. The rule applies to every platform, core and examples."
 - Score: 0 / 58 rows matched, score 0/100.
+- Score (2026-11-14): 58 / 58 rows, no `TODO`: 53 rows matched by an API, 5 rows `N/A` with the reason in the cell
+  (`respectsVerticalStatusBarSafeArea`, `context`, `-hasPlusChildViewController`, `layoutCentered`, `lottieURL`);
+  score 100/100 for the iOS and Android cores. iOS↔Android API alignment (`android/merged/scripts/api-alignment.py`):
+  394 rows, 100/100.
 
-| FlatDesign tab bar item API | What it does | Search bar item API |
+| FlatDesign tab bar item API | What it does | Search bar item API (iOS names; Android below) |
 | :--- | :--- | :--- |
-| **protocol `CYLFlatDesignTabBarDelegate`** | the bar reports item events | TODO |
-| `-tabBar:didSelectItem:` | an item was tapped | TODO |
-| **class `CYLFlatDesignTabBar`** | the bar that lays its items out | TODO |
-| `delegate` | receives item events | TODO |
-| `items` | the items, in order | TODO |
-| `tabBarItems` | the item views | TODO |
-| `-addItemWithTitle:tabBarItemImage:tabBarItemSelectedImage:index:` | appends (or inserts at `index`) an item | TODO |
-| `selectedItem` | the selected item | TODO |
-| `selectedIndex` | its index | TODO |
-| `tabBarButtons` | the item views, read only | TODO |
-| `standardAppearance` | the bar appearance | TODO |
-| `tintColor` | the tint of every item | TODO |
-| `barTintColor` | the bar background color | TODO |
-| `backgroundImage` | the bar background image | TODO |
-| `shadowImage` | the bar border (shadow) image | TODO |
-| `useLayoutSafeAreaInsets` | lay out inside the safe area | TODO |
-| `respectsVerticalStatusBarSafeArea` | the vertical safe area | TODO |
-| `context` | separates several bars | TODO |
-| `-hasPlusButton` | a special item exists | TODO |
-| `-hasPlusChildViewController` | the special item has a page | TODO |
-| **class `CYLFlatDesignTabBarItem`** | one item: model, independent of its view | TODO |
-| `-initWithTitle:image:` | an item with a title and an icon | TODO |
-| `-initWithTitle:image:selectedImage:` | plus a selected icon | TODO |
-| `-initWithTitle:image:selectedImage:index:` | plus its position | TODO |
-| `tabBarButton` | the item's view | TODO |
-| `enabled` | enabled or not | TODO |
-| `index` | position in the bar | TODO |
-| `title` | text | TODO |
-| `image` | icon | TODO |
-| `selectedImage` | selected icon | TODO |
-| `childViewController` | what the item opens | TODO |
-| `badgeValue` | badge text | TODO |
-| `badgeColor` | badge color | TODO |
-| `cylflatdesign_tabBarController` | the owning controller | TODO |
-| `titlePositionAdjustment` | title offset | TODO |
-| `standardAppearance` (item) | item appearance | TODO |
-| `-setTitleTextAttributes:forState:` | title attributes per state | TODO |
-| `-titleTextAttributesForState:` | reads them | TODO |
-| `-setBadgeTextAttributes:forState:` | badge text attributes per state | TODO |
-| `-badgeTextAttributesForState:` | reads them | TODO |
-| `badgeSize` | badge size | TODO |
-| `badgeContentInset` | badge padding | TODO |
-| `badgePositionAdjustment` | badge offset | TODO |
-| `imagePositionAdjustment` | icon offset | TODO |
-| `layoutCentered` | centered layout | TODO |
-| `backgroundColor` | item background | TODO |
-| `selectedBackgroundColor` | selected item background | TODO |
-| `imageInsets` | icon insets | TODO |
-| `lottieURL` | animated icon URL | TODO |
-| `lottieFilePath` | animated icon file | TODO |
-| `lottieSizeValue` | animated icon size | TODO |
-| `-actualBadgeSuperView` | where the badge is drawn | TODO |
-| **class `CYLFlatDesignTabBarButton`** | the item's view (a control) | TODO |
-| `-initWithTabBarItem:` | the view for an item | TODO |
-| `tabBarItem` | its item | TODO |
-| `imageView` | its icon view | TODO |
-| `titleLabel` | its title label | TODO |
-| `-actualBadgeSuperView` (button) | where the badge is drawn | TODO |
+| **protocol `CYLFlatDesignTabBarDelegate`** | the bar reports item events | **protocol `CYLSearchBarViewDelegate`** (existing) |
+| `-tabBar:didSelectItem:` | an item was tapped | `-searchBarView:didSelectItem:` |
+| **class `CYLFlatDesignTabBar`** | the bar that lays its items out | **class `CYLSearchBarView`** (existing) |
+| `delegate` | receives item events | `delegate` (existing) |
+| `items` | the items, in order | `items` |
+| `tabBarItems` | the item views | `itemViews` |
+| `-addItemWithTitle:tabBarItemImage:tabBarItemSelectedImage:index:` | appends (or inserts at `index`) an item | `-addItemWithStyle:title:image:index:handler:`, `-addItem:`, `-insertItem:atIndex:`, `-removeItem:`, `-removeAllItems` |
+| `selectedItem` | the selected item | `selectedItem` (an `isSelectable` item that is on) |
+| `selectedIndex` | its index | `selectedIndex` |
+| `tabBarButtons` | the item views, read only | `itemViews` (read only) |
+| `standardAppearance` | the bar appearance | `searchBarStyle` (enum `CYLSearchBarStyle`: `.plain`, `.bordered`) |
+| `tintColor` | the tint of every item | `itemTintColor` |
+| `barTintColor` | the bar background color | `fieldBackgroundColor` (existing) |
+| `backgroundImage` | the bar background image | `fieldBackgroundImage` |
+| `shadowImage` | the bar border (shadow) image | `fieldBorderColor`, `fieldBorderWidth`, `fieldShadowOpacity` (existing) |
+| `useLayoutSafeAreaInsets` | lay out inside the safe area | `contentInsets` (existing) |
+| `respectsVerticalStatusBarSafeArea` | the vertical safe area | N/A: the host places the bar (title view, header); the bar has no status bar of its own |
+| `context` | separates several bars | N/A: one bar per view; items keep `itemAccessibilityIdentifier` to tell them apart |
+| `-hasPlusButton` | a special item exists | `-hasItemOfStyle:` |
+| `-hasPlusChildViewController` | the special item has a page | N/A: items open no pages; `handler` decides what a tap does |
+| **class `CYLFlatDesignTabBarItem`** | one item: model, independent of its view | **class `CYLSearchBarItem`** |
+| `-initWithTitle:image:` | an item with a title and an icon | `-initWithTitle:image:`; `+iconItemWithImage:title:handler:`, `+textItemWithTitle:handler:`, `+dividerItem` |
+| `-initWithTitle:image:selectedImage:` | plus a selected icon | `-initWithTitle:image:selectedImage:` |
+| `-initWithTitle:image:selectedImage:index:` | plus its position | `-initWithStyle:title:image:` (the index is given to `-insertItem:atIndex:`) |
+| `tabBarButton` | the item's view | `itemView` |
+| `enabled` | enabled or not | `isEnabled` |
+| `index` | position in the bar | `index` (`NSNotFound` outside a bar) |
+| `title` | text | `title` |
+| `image` | icon | `image` |
+| `selectedImage` | selected icon | `selectedImage` |
+| `childViewController` | what the item opens | `handler` |
+| `badgeValue` | badge text | `badgeValue` (empty string: a dot) |
+| `badgeColor` | badge color | `badgeColor` |
+| `cylflatdesign_tabBarController` | the owning controller | `searchBarView` (weak) |
+| `titlePositionAdjustment` | title offset | `titlePositionAdjustment` |
+| `standardAppearance` (item) | item appearance | `style` (enum `CYLSearchBarItemStyle`: `.icon`, `.divider`, `.text`) |
+| `-setTitleTextAttributes:forState:` | title attributes per state | `-setTitleTextAttributes:forState:` |
+| `-titleTextAttributesForState:` | reads them | `-titleTextAttributesForState:` |
+| `-setBadgeTextAttributes:forState:` | badge text attributes per state | `-setBadgeTextAttributes:forState:` |
+| `-badgeTextAttributesForState:` | reads them | `-badgeTextAttributesForState:` |
+| `badgeSize` | badge size | `badgeSize` |
+| `badgeContentInset` | badge padding | `badgeContentInsets` |
+| `badgePositionAdjustment` | badge offset | `badgePositionAdjustment` |
+| `imagePositionAdjustment` | icon offset | `imagePositionAdjustment` |
+| `layoutCentered` | centered layout | N/A: an item is centered in its own frame; the bar lays items out after the text |
+| `backgroundColor` | item background | `backgroundColor` |
+| `selectedBackgroundColor` | selected item background | `selectedBackgroundColor` |
+| `imageInsets` | icon insets | `contentInsets` |
+| `lottieURL` | animated icon URL | N/A: the core loads no network resources; pass the frames as `animatedImage` |
+| `lottieFilePath` | animated icon file | `animatedImage` |
+| `lottieSizeValue` | animated icon size | `imageSize` |
+| `-actualBadgeSuperView` | where the badge is drawn | `-actualBadgeSuperView` |
+| **class `CYLFlatDesignTabBarButton`** | the item's view (a control) | **class `CYLSearchBarItemView`** (a `UIControl`) |
+| `-initWithTabBarItem:` | the view for an item | `-initWithItem:` |
+| `tabBarItem` | its item | `item` |
+| `imageView` | its icon view | `imageView` |
+| `titleLabel` | its title label | `titleLabel` |
+| `-actualBadgeSuperView` (button) | where the badge is drawn | `-actualBadgeSuperView` |
 
-- Status: `TODO`.
+- Android (`cylsearch`, `CYLSearchBarItem.kt`): the same names, with these Kotlin forms: enum cases in PascalCase
+  (`CYLSearchBarItemStyle.Icon`, `.Divider`, `.Text`; `CYLSearchBarStyle.Plain`, `.Bordered`); text attributes are
+  `CYLSearchBarItemTextAttributes(color, sizeSp, typeface)` per `CYLSearchBarItemState` (`Normal`, `Selected`,
+  `Disabled`); sizes in dp (`imageSize: SizeF?`, `badgeSize`), insets and offsets as `FloatArray`s; `index` and
+  `selectedIndex` are -1 when absent; the view is `itemView(context)` (created on first use) and `itemView` once
+  created; `delegate.searchBarViewDidSelectItem(bar, item)`.
+- Usage (both platforms): `bar.searchBarStyle = .bordered`, then `addItem(iconItem(camera))`, `addItem(divider())`,
+  `addItem(textItem("Search"))`. The examples' Discover pages (iOS `CYLSearchDiscoverViewController`, Android
+  `CYLSearchDiscoverFragment`) now build their camera, divider and Search button this way instead of hand-made views
+  in `trailingAccessoryViews`.
+- Tests: iOS `testSearchBarItemsAreAppendedLikeFlatDesignTabBarItems`, Android `CYLSearchBarItemTest` (order,
+  index, layout after the text and inside the field, 36 pt/dp camera, divider hidden from VoiceOver/TalkBack, delegate
+  then handler, disabled and selectable items, badge, text attributes, tint, bordered style, removal).
+- Cross-platform (2026-11-14): the core builds an item from plain values for the wrappers (iOS
+  `+[CYLSearchBarItem itemWithDictionary:]`, Android `CYLSearchBarItem.fromMap(context, map)`: `style`, `title`,
+  `image` (`camera`, `mic`, `search`, `back` drawn by the core, else an app image), `accessibilityIdentifier`,
+  `isEnabled`, `isSelectable`, `isSelected`, `badgeValue`); the Android core gained `cyl_search_ic_camera`.
+  - Flutter (`flutter_cylsearch`): `CYLSearchBarView(searchBarStyle:, showsSearchIcon:, items:, onItemSelected:)` with
+    `CYLSearchBarItem.icon(...)`, `.text(...)`, `.divider()` and `onTap`; the native views rebuild items only when
+    Dart sends other ones and report taps as `didSelectItem` (index, selected). The example's Discover page now puts
+    the camera, divider and Search inside the bordered bar (the reported bug: they sat loose outside the field). Dart
+    tests 8/8, `flutter analyze` clean.
+  - React Native (`react-native-cylsearch`): `<CYLSearchBarView searchBarStyle="bordered" showsSearchIcon={false}
+    items={[{ style: 'icon', image: 'camera', ... }, { style: 'divider' }, { style: 'text', ... }]} onItemSelect>`;
+    the Fabric prop is `itemsJSON` (one string, the same on both platforms), the event `onItemSelect`. The example's
+    Discover demo uses it. `tsc` clean.
+- Open: running the Flutter and React Native examples on devices and the screenshots of every example (the host's
+  load average stays around 900; the simulator and emulator do not answer reliably).
+- Status: `IN PROGRESS` (2026-11-14): iOS and Android cores, their Discover examples and tests done; Flutter and React Native wrappers and the example screenshots open.
 

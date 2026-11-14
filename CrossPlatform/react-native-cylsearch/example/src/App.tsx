@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { CYLSearchBarView, CYLSearchView, CYLTagListView } from 'react-native-cylsearch';
@@ -148,6 +148,7 @@ function DiscoverDemo() {
   const [recent, setRecent] = useState<string[]>(discoverData.recentSearches);
   const [offset, setOffset] = useState(0);
   const [barText, setBarText] = useState('');
+  const typed = useRef('');
   const [message, setMessage] = useState('');
   const topics = useMemo(() => {
     const pool = discoverData.discover;
@@ -164,7 +165,21 @@ function DiscoverDemo() {
   return (
     <ScrollView contentContainerStyle={styles.page}>
       <Text style={[styles.title, { color: palette.text }]}>Discover</Text>
-      <CYLSearchBarView style={styles.bar} text={barText} fieldShadowOpacity={0.12} onSubmit={(event) => search(event.nativeEvent.text)} />
+      {/* The field stays; the camera, a divider and the Search button are items appended inside its bordered capsule. */}
+      <CYLSearchBarView
+        style={styles.bar}
+        text={barText}
+        searchBarStyle="bordered"
+        showsSearchIcon={false}
+        fieldShadowOpacity={0.06}
+        onTextChange={(event) => { typed.current = event.nativeEvent.text; }}
+        onSubmit={(event) => search(event.nativeEvent.text)}
+        items={[
+          { style: 'icon', image: 'camera', title: 'Search by image', onPress: () => setMessage('Image search is not available in this demo') },
+          { style: 'divider' },
+          { style: 'text', title: 'Search', accessibilityIdentifier: 'CYLSearchDiscoverSearchButton', onPress: () => search(typed.current) },
+        ]}
+      />
       <View style={styles.header}>
         <Text accessibilityRole="header" style={[styles.section, { color: palette.text }]}>Recent searches</Text>
         <Pressable accessibilityRole="button" accessibilityLabel="Clear recent searches" onPress={() => { setRecent([]); setMessage('Recent searches cleared'); }}>

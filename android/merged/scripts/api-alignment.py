@@ -29,6 +29,7 @@ RENAMES = {
     'closeSearch(animated:)': 'closeSearch', 'updateSearchResults(for:)': 'updateSearchResults',
     'resourceBundle': 'resourceBundle',
     'cache(policy:name:)': 'cacheWithPolicy',
+    'item(dictionary:)': 'fromMap',
 }
 # Kotlin constructors that stand for Swift initializers: a regex on the class's file.
 INITIALIZERS = {
@@ -39,6 +40,10 @@ INITIALIZERS = {
     ('CYLSearchPlaceholderView', 'init(image:text:)'): (r'class CYLSearchPlaceholderView\(context: Context, image: Drawable\?, text: String\)', 'constructor(context, image, text)'),
     ('CYLSearchController', 'init(searchDataSource:)'): (r'constructor\(searchDataSource: CYLSearchResultsDataSource\)', 'constructor(searchDataSource)'),
     ('CYLSearchSuggestionStore', 'init(policy:name:)'): (r'class CYLSearchSuggestionStore\(context: Context, val policy: CYLSearchSuggestionCachePolicy, name: String\)', 'constructor(context, policy, name)'),
+    ('CYLSearchBarItem', 'init(style:title:image:)'): (r'class CYLSearchBarItem @JvmOverloads constructor\(\s*(/\*\*[\s\S]*?\*/\s*)?val style: CYLSearchBarItemStyle,\s*title: String\?', 'constructor(style, title, image)'),
+    ('CYLSearchBarItem', 'init(title:image:)'): (r'constructor\(title: String\?, image: Drawable\?\) :', 'constructor(title, image)'),
+    ('CYLSearchBarItem', 'init(title:image:selectedImage:)'): (r'constructor\(title: String\?, image: Drawable\?, selectedImage: Drawable\?\)', 'constructor(title, image, selectedImage)'),
+    ('CYLSearchBarItemView', 'init(item:)'): (r'class CYLSearchBarItemView\(context: Context, item: CYLSearchBarItem\)', 'constructor(context, item)'),
     ('CYLSearchResultsViewController', 'init(searchDataSource:)'): (r'constructor\(searchDataSource: CYLSearchResultsDataSource\)', 'constructor(searchDataSource)'),
 }
 # init(coder:): a view's Kotlin counterpart is the XML constructor; a fragment's is the no-argument constructor the
@@ -49,7 +54,11 @@ CODER = {
     'CYLSearchView': (r'class CYLSearchView @JvmOverloads constructor\(\s*context: Context,\s*attrs: AttributeSet\?', 'constructor(context, attrs) (XML)'),
     'CYLSearchController': (r'class CYLSearchController\(\) : Fragment\(\)', 'no-argument constructor (fragment recreation)'),
     'CYLSearchResultsViewController': (r'open class CYLSearchResultsViewController\(\) : Fragment\(\)', 'no-argument constructor (fragment recreation)'),
+    # iOS returns nil (an item view is created from its item, never from a storyboard): no XML constructor either.
+    'CYLSearchBarItemView': (r'class CYLSearchBarItemView\(context: Context, item: CYLSearchBarItem\)', 'none: created from its item (iOS returns nil too)', 'N/A'),
 }
+# Model classes (not views): UIKit view overrides such as `backgroundColor` are their own properties there.
+MODELS = {'CYLSearchBarItem'}
 # UIKit overrides: (Kotlin regex in the class's file or None, Android counterpart, status when found).
 OVERRIDES = {
     'init(frame:)': (r'@JvmOverloads constructor\(\s*context: Context,', 'constructor(context)', 'DONE'),
@@ -178,13 +187,15 @@ def main():
             android = owner
             status = 'DONE' if declared(sources, owner) else 'TODO'
             swift = f'**{kind} `{owner}`**'
-        elif (swift if kind != 'initializer' or swift != 'init(coder:)' else None) in OVERRIDES and (owner, swift) not in INITIALIZERS:
+        elif (swift if kind != 'initializer' or swift != 'init(coder:)' else None) in OVERRIDES and (owner, swift) not in INITIALIZERS and owner not in MODELS:
             pattern, android, found = OVERRIDES[swift]
             status = found if pattern is None or re.search(pattern, sources.get(owner, '')) else 'TODO'
             swift = f'`{owner}.{swift}`'
         elif kind == 'initializer' and swift == 'init(coder:)':
-            pattern, android = CODER.get(owner, (None, '—'))
-            status = 'DONE' if pattern and re.search(pattern, sources.get(owner, '')) else 'TODO'
+            pattern, android, *found = CODER.get(owner, (None, '—'))
+            # A view class declared in another class's file (CYLSearchBarItemView in CYLSearchBarItem.kt).
+            text = sources.get(owner) or '\n'.join(sources.values())
+            status = (found[0] if found else 'DONE') if pattern and re.search(pattern, text) else 'TODO'
             swift = f'`{owner}.{swift}`'
         elif kind == 'initializer':
             pattern, android = INITIALIZERS.get((owner, swift), (None, '—'))

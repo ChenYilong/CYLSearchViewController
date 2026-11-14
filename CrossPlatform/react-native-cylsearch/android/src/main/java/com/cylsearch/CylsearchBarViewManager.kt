@@ -1,5 +1,7 @@
 package com.cylsearch
 
+import androidx.core.content.ContextCompat
+import com.cyl.search.CYLSearchBarStyle
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
@@ -38,6 +40,19 @@ class CylsearchBarViewManager : SimpleViewManager<CylsearchBarView>(), Cylsearch
   override fun setFieldShadowOpacity(view: CylsearchBarView, value: Double) {
     view.bar.fieldShadowOpacity = value.toFloat()
   }
+
+  @ReactProp(name = "searchBarStyle")
+  override fun setSearchBarStyle(view: CylsearchBarView, value: String?) {
+    view.bar.searchBarStyle = if (value == "bordered") CYLSearchBarStyle.Bordered else CYLSearchBarStyle.Plain
+  }
+
+  @ReactProp(name = "showsSearchIcon", defaultBoolean = true)
+  override fun setShowsSearchIcon(view: CylsearchBarView, value: Boolean) {
+    view.bar.searchIcon = if (value) ContextCompat.getDrawable(view.context, com.cyl.search.R.drawable.cyl_search_ic_search) else null
+  }
+
+  @ReactProp(name = "itemsJSON")
+  override fun setItemsJSON(view: CylsearchBarView, value: String?) = view.setItemsJSON(value)
 
   /**
    * The views use the activity's theme (DayNight), which follows the system like React Native's color scheme.
