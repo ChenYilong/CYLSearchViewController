@@ -1079,7 +1079,8 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     XCTAssertFalse(searchView.suggestionCacheHeaderView.hidden, @"with its header");
     XCTAssertTrue(searchView.emptySuggestionsView.hidden);
     XCTAssertGreaterThan(CGRectGetHeight(searchView.suggestionCacheHeaderView.frame), 0);
-    XCTAssertGreaterThanOrEqual(CGRectGetMinY(searchView.suggestionsTableView.frame), CGRectGetMaxY(searchView.suggestionCacheHeaderView.frame),
+    // 0.01: on a 3x screen the two edges are the same third of a point, apart by float rounding ("iPhone Duo").
+    XCTAssertGreaterThanOrEqual(CGRectGetMinY(searchView.suggestionsTableView.frame), CGRectGetMaxY(searchView.suggestionCacheHeaderView.frame) - 0.01,
                                 @"the list starts under the header");
     [searchView setQuery:@"t" submit:NO];
     XCTAssertEqualObjects(searchView.filteredSuggestions, (@[@"Kotlin", @"Flutter", @"Swift"]), @"cached matches first, no repeats");

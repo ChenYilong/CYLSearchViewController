@@ -69,7 +69,7 @@ text size.
   largest text size. VoiceOver labels are checked in unit tests; no session
   with VoiceOver running on a device has been recorded.
 
-## TODO (2026-11-12): the results screen's search bar overlaps its view on "iPhone Duo"
+## DONE (2026-11-14; TODO 2026-11-12): the results screen's search bar overlaps its view on "iPhone Duo"
 
 - Found while verifying [tag-view-suggestions.md](tag-view-suggestions.md): `scripts/unit-tests.sh` without a device
   name picked the first available iPhone simulator, "iPhone Duo" (`CC15DBDB-…`, new in this Xcode). There
@@ -81,7 +81,18 @@ text size.
   the test; the screen's code did not change.
 - Requirement (AGENTS.md, "Search bar placement"): a search bar never covers a view, on every device.
 - Also: `scripts/unit-tests.sh` should prefer a fixed device (as CI does) so local runs are comparable.
-- Status: `TODO`.
+- Cause (2026-11-14): reproduced on "iPhone Duo" (iOS 26.3.1): UIKit lays the view controller's view out as if the
+  stacked search bar were 44 pt high, while the bar there is 54 pt (navigation bar bottom 121.5, view top 112): a
+  10 pt overlap that UIKit does not correct on a later layout pass.
+- Fix (core): `CYLSearchResultsViewController` and `CYLSearchController` check their view against the navigation bar
+  after every layout (`viewDidLayoutSubviews` → `cylKeepViewBelowNavigationBar()`) and move it down, shortened, by the
+  covered height; nothing changes where UIKit already places the view at the bar's bottom edge (iPhone 17).
+- Also: `scripts/unit-tests.sh` without a name now prefers "iPhone 17" (the device CI uses), else the first iPhone.
+  One more test failed only on "iPhone Duo": the cache header and the list share an edge at a third of a point and
+  differed by float rounding; the test now allows 0.01 pt.
+- Verified: "iPhone Duo" `testSearchBarNeverCoversTheViewControllersView` and `testSearchBarsCoverNoView` pass (they
+  failed with 6 assertions before the fix); iPhone 17 26/26.
+- Status: DONE (2026-11-14).
 
 ## DONE (2026-11-14; TODO 2026-11-13): Mimicking the tab bar's FlatDesign item-appending API: refactoring how search bar elements are arranged
 

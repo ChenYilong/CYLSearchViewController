@@ -70,6 +70,15 @@ public final class CYLSearchController: UIViewController {
         fatalError("init(coder:) is not available; use init(searchDataSource:)")
     }
 
+    /**
+     * Keeps the view below the navigation bar and its search bar after every layout (a search bar never covers a
+     * view).
+     */
+    override public func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        cylKeepViewBelowNavigationBar()
+    }
+
     override public func viewDidLoad() {
         super.viewDidLoad()
         // The view starts below the navigation bar and its search bar: the search bar never covers this view.

@@ -3,7 +3,7 @@
 #
 # Adapted from CYLTabBarController/scripts/unit-tests.sh.
 # Runs the test action of the shared CYLSearchExample scheme (CYLSearchExampleTests) on an iOS simulator, on a Mac with
-# Xcode. Without a name, the first available iPhone of the newest runtime. Builds into a new, empty derived data folder
+# Xcode. Without a name, "iPhone 17" of the newest runtime (the device CI uses), else the first available iPhone. Builds into a new, empty derived data folder
 # (AGENTS.md, "Clean builds"). Exits with xcodebuild's status; the log is build/unit-tests.log.
 set -eu
 cd "$(dirname "$0")/.."
@@ -14,12 +14,14 @@ DEVICE_ID=$(xcrun simctl list devices available -j | python3 -c '
 import json, sys
 name = sys.argv[1]
 devices = json.load(sys.stdin)["devices"]
-for runtime in sorted(devices, reverse=True):
-    if "iOS" not in runtime:
-        continue
-    for device in devices[runtime]:
-        if (name and device["name"] == name) or (not name and device["name"].startswith("iPhone")):
-            print(device["udid"]); sys.exit(0)
+# Without a name: "iPhone 17" (the device CI uses) so local runs are comparable, else the first iPhone.
+for wanted in ([name] if name else ["iPhone 17", ""]):
+    for runtime in sorted(devices, reverse=True):
+        if "iOS" not in runtime:
+            continue
+        for device in devices[runtime]:
+            if (wanted and device["name"] == wanted) or (not wanted and device["name"].startswith("iPhone")):
+                print(device["udid"]); sys.exit(0)
 sys.exit(1)' "$DEVICE_NAME") || { echo "No iPhone simulator${DEVICE_NAME:+ named $DEVICE_NAME}"; xcrun simctl list devices available; exit 1; }
 echo "Simulator: $DEVICE_ID"
 xcodebuild -version

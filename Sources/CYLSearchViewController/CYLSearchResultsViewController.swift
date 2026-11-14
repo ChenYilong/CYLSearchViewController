@@ -84,6 +84,15 @@ open class CYLSearchResultsViewController: UITableViewController, UISearchResult
         fatalError("init(coder:) is not available; use init(searchDataSource:)")
     }
 
+    /**
+     * Keeps the view below the navigation bar and its search bar after every layout (a search bar never covers a
+     * view): on some devices ("iPhone Duo") UIKit places the view 10 pt under the stacked search bar.
+     */
+    override open func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        cylKeepViewBelowNavigationBar()
+    }
+
     override open func viewDidLoad() {
         super.viewDidLoad()
         // The view starts below the navigation bar and its search bar: the search bar never covers this view.
@@ -139,5 +148,27 @@ open class CYLSearchResultsViewController: UITableViewController, UISearchResult
     override open func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         searchDataSource.searchResultsViewController?(self, didSelectResult: searchResults[indexPath.row])
         tableView.deselectRow(at: indexPath, animated: true)
+    }
+}
+
+extension UIViewController {
+    /**
+     * Moves the view down, and shortens it, by the height the navigation bar (with a stacked search bar) covers.
+     * Nothing changes when the view already starts at the bar's bottom edge or lower.
+     */
+    func cylKeepViewBelowNavigationBar() {
+        guard let bar = navigationController?.navigationBar, !bar.isHidden, bar.window != nil,
+              let container = viewIfLoaded?.superview else {
+            return
+        }
+        let barBottom = container.convert(bar.bounds, from: bar).maxY
+        let overlap = barBottom - view.frame.minY
+        guard overlap > 0.5 else {
+            return
+        }
+        var frame = view.frame
+        frame.origin.y += overlap
+        frame.size.height = max(0, frame.height - overlap)
+        view.frame = frame
     }
 }
