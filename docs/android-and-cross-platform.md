@@ -170,7 +170,7 @@ Native) for the CYLSearchViewController components.
     first. Then React Native, then HarmonyOS NEXT (the emulator image is
     downloaded; a device still has to be created in DevEco's Device Manager).
 
-## TODO (2026-11-13): React Native: `react-native-cylsearch`, wrapping the native core
+## DONE (2026-11-14; TODO 2026-11-13): React Native: `react-native-cylsearch`, wrapping the native core
 
 - Context: the third cross-platform step after Android and Flutter (first TODO of this document), with the same
   requirements as Flutter: the tag style, the Discover page and the empty placeholders, by wrapping the native core.
@@ -232,31 +232,30 @@ Native) for the CYLSearchViewController components.
 
     ![React Native iOS: Discover (items inside the bordered bar), then Search bar; iPhone 17, iOS 26.3.1, Release, 2026-11-14 14:29 and 14:31](assets/rn-ios-discover-and-search-bar-stitched.png)
 
-  - Tab bar attempt (2026-11-14): the example was wired to CYLTabBarController's `react-native-cyltabbar` and then
-    reverted, because it cannot build on iOS yet.
-    - What worked: a script checks CYLTabBarController out at the pinned commit (`cyl.tabbar.commit`) into
-      `example/vendor/` (not committed); `package.json` depends on it with
-      `"portal:./vendor/CYLTabBarController/CrossPlatform/react-native-cyltabbar"`; Metro and TypeScript resolve its
-      sources with the `react-native-cyltabbar-source` condition; `yarn`, `tsc` and `pod install` pass. This solves the
-      "not a yarn workspace" problem below.
-    - Android: the library looks for its Kotlin sources at `${projectDir}/../../../Example-Android`, which is wrong
-      through the `node_modules` symlink ("Could not find io.github.chenyilong:cyltabbarcontroller:1.100.0"); set
-      `ext.cylAndroidRoot` to the checkout's `Example-Android` in the example's root `build.gradle`.
-    - iOS (the blocker, a CYLTabBarController bug at `bc73220`): its Swift code exports 24 C functions (`@_cdecl`:
-      `CYLLocalizedString`, `CYLImageNamed`, `CYLTabBarItemsAttributesAddingLottieFiles`, ...) that its Objective-C
-      headers declare again, and `CYLSwiftInterface.h` imports the generated `CYLTabBarController-Swift.h` from public
-      headers. In Objective-C++ (every Fabric view, `CyltabbarView.mm`) the two declarations disagree: the generated
-      header says `noexcept` and plain `NSArray *`, the Objective-C header no exception specification and
-      `NSArray<NSDictionary *> *` ("is missing exception specification 'noexcept'", "conflicting types"). Fix in
-      CYLTabBarController: hide the Objective-C redeclarations from C++ when the generated header is present
-      (`#if !defined(__cplusplus) || !__has_include(<CYLTabBarController/CYLTabBarController-Swift.h>)`), and import
-      `CYLSwiftInterface.h` there instead. Its newest commit (`49df44f`) has the same problem. Open: that fix (in its
-      repository, by the sub-repository rule), then this wiring.
-  - Still open: touch checks on iOS (above), CYLTabBarController's
-    React Native tab bar in the example (it lives inside CYLTabBarController's repository, which is not a yarn
-    workspace, so it cannot be pinned as a git dependency yet). The pins are done: CYLTableViewPlaceHolder `bdd78c7`
-    on every platform (`e4a9c79`).
-- Status: `TODO`.
+  - Tab bar (2026-11-14): DONE. The example uses CYLTabBarController's `react-native-cyltabbar`: four tabs and a plus
+    button for the search bar page, `<CYLTabBar items plusButton tapAnimation="scale" onTabSelect>`.
+    - Dependency: `example/scripts/fetch-cyltabbar.sh` checks CYLTabBarController out at the pinned commit
+      (`cyl.tabbar.commit` in `android/merged/gradle.properties`) into `example/vendor/` (git-ignored); `package.json`
+      depends on it by path (`portal:`); Metro reads its TypeScript sources (`metro.config.js`), TypeScript through the
+      `react-native-cyltabbar-source` condition; the iOS Podfile uses the checkout as the `CYLTabBarController` pod, and
+      `example/android/settings.gradle` points `cylAndroidRoot` at its `Example-Android`, so Android builds the Kotlin
+      sources. (The package is not a yarn workspace, so a git dependency was not possible.) Run the script once before
+      `yarn`.
+    - Two bugs of CYLTabBarController found and fixed on the way (PR #793, `docs/Liquid-Glass-Robustness.md` there):
+      15 C functions exported by its Swift code were declared twice, which Objective-C++ (every Fabric view) rejected
+      (`2bd846a`), and `react-native-cyltabbar` lacked `androidx.viewpager2` for its source build on Android
+      (`2a12582`).
+    - Verified: iOS Release and Android release builds succeed; on the iPhone 17 simulator (iOS 26.3.1, Release,
+      22:51) the floating glass tab bar shows four tabs and the plus button with its title, Discover selected.
+      The plus button is not raised above the bar on iOS 26 (the raised-plus-button gap of CYLTabBarController, open).
+
+      ![React Native iOS: Discover with CYLTabBarController's tab bar; iPhone 17, iOS 26.3.1, Release, 2026-11-14 22:51](assets/rn-ios-discover-cyltabbar-iphone17-ios26.3.1.png)
+
+  - Still open: touch checks on iOS (above; the tab bar can now also be tapped through its accessibility labels, but no
+    tap tool exists). The pins are done: CYLTableViewPlaceHolder `bdd78c7`, CYLTabBarController `2a12582` on every
+    platform.
+- Status: DONE (2026-11-14) except touch checks on iOS (typing, the search page, unfolding), which need a tap tool: the
+  library, its three views, the tab bar, the Android and iOS builds, tests and screenshots are done.
 
 ## DONE (2026-11-13): Flutter example on iOS: the plus button's title disappears once the plus page is selected
 

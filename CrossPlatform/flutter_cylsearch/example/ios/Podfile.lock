@@ -38,7 +38,7 @@ PODS:
 DEPENDENCIES:
   - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `f9724167235dee050a81432f3c16f6c4e15dc186`)
   - CYLSearchViewController (from `../../../..`)
-  - CYLTabBarController (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `bc732203d79fd071522d2c13416f250184f214c9`)
+  - CYLTabBarController (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `2a125822c58049ed14b9f2f5b9f8a7e609a8dccb`)
   - CYLTableViewPlaceHolder (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `9d49d16863d984e7d094f30ddf78330a5f2fe854`)
   - Flutter (from `Flutter`)
   - flutter_cylsearch (from `.symlinks/plugins/flutter_cylsearch/ios`)
@@ -56,7 +56,7 @@ EXTERNAL SOURCES:
   CYLSearchViewController:
     :path: "../../../.."
   CYLTabBarController:
-    :commit: bc732203d79fd071522d2c13416f250184f214c9
+    :commit: 2a125822c58049ed14b9f2f5b9f8a7e609a8dccb
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
     :commit: 9d49d16863d984e7d094f30ddf78330a5f2fe854
@@ -75,7 +75,7 @@ CHECKOUT OPTIONS:
     :commit: f9724167235dee050a81432f3c16f6c4e15dc186
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLTabBarController:
-    :commit: bc732203d79fd071522d2c13416f250184f214c9
+    :commit: 2a125822c58049ed14b9f2f5b9f8a7e609a8dccb
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
     :commit: 9d49d16863d984e7d094f30ddf78330a5f2fe854

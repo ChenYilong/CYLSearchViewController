@@ -12,3 +12,9 @@ includeBuild('../../../../android/merged') {
   }
 }
 
+
+// react-native-cyltabbar builds CYLTabBarController's Kotlin sources from the pinned checkout (scripts/fetch-cyltabbar.sh);
+// without this it looks for them next to its own folder in node_modules and falls back to an unpublished Maven artifact.
+gradle.beforeProject { project ->
+  project.ext.cylAndroidRoot = new File(rootDir, '../vendor/CYLTabBarController/Example-Android').canonicalPath
+}

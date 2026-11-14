@@ -30,6 +30,38 @@ PODS:
   - CYLSearchViewController (0.1.0):
     - CollectionViewClassifyMenu
     - CYLTableViewPlaceHolder/Lottie
+  - Cyltabbar (0.1.0):
+    - CYLTabBarController
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-bridging
+    - React-Core
+    - React-Core-prebuilt
+    - React-cxxstableapi
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
+  - CYLTabBarController (1.100.0):
+    - CYLTabBarController/Core (= 1.100.0)
+  - CYLTabBarController/Core (1.100.0):
+    - CYLTabBarController/CYLBadgeView
+    - CYLTabBarController/CYLUtils
+  - CYLTabBarController/CYLBadgeView (1.100.0):
+    - CYLTabBarController/CYLUtils
+  - CYLTabBarController/CYLUtils (1.100.0)
   - CYLTableViewPlaceHolder (1.1.0):
     - CYLTableViewPlaceHolder/Core (= 1.1.0)
   - CYLTableViewPlaceHolder/Core (1.1.0)
@@ -1864,7 +1896,9 @@ DEPENDENCIES:
   - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `f9724167235dee050a81432f3c16f6c4e15dc186`)
   - Cylsearch (from `../..`)
   - CYLSearchViewController (from `../../../..`)
-  - CYLTableViewPlaceHolder (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `a96e9d27d41c32db0418d737f052d4bd57aae08f`)
+  - Cyltabbar (from `../node_modules/react-native-cyltabbar`)
+  - CYLTabBarController (from `../vendor/CYLTabBarController`)
+  - CYLTableViewPlaceHolder (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `bdd78c7d8d3521d3ceb25032f10ebdd0d1ffc3c6`)
   - DoubleConversion (from `build/rndeps-facades/DoubleConversion`)
   - fast_float (from `build/rndeps-facades/fast_float`)
   - FBLazyVector (from `build/rncore-facades/FBLazyVector`)
@@ -1967,8 +2001,12 @@ EXTERNAL SOURCES:
     :path: "../.."
   CYLSearchViewController:
     :path: "../../../.."
+  Cyltabbar:
+    :path: "../node_modules/react-native-cyltabbar"
+  CYLTabBarController:
+    :path: "../vendor/CYLTabBarController"
   CYLTableViewPlaceHolder:
-    :commit: a96e9d27d41c32db0418d737f052d4bd57aae08f
+    :commit: bdd78c7d8d3521d3ceb25032f10ebdd0d1ffc3c6
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
   DoubleConversion:
     :path: build/rndeps-facades/DoubleConversion
@@ -2149,7 +2187,7 @@ CHECKOUT OPTIONS:
     :commit: f9724167235dee050a81432f3c16f6c4e15dc186
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLTableViewPlaceHolder:
-    :commit: a96e9d27d41c32db0418d737f052d4bd57aae08f
+    :commit: bdd78c7d8d3521d3ceb25032f10ebdd0d1ffc3c6
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
 
 SPEC CHECKSUMS:
@@ -2157,6 +2195,8 @@ SPEC CHECKSUMS:
   CollectionViewClassifyMenu: ebd3e85358cf219b3ad20b5e005c54719b2708f4
   Cylsearch: 4e013831da81af9fa530b9ffa15571639eb0658d
   CYLSearchViewController: 4826e3fa2030073fe576ff501eea6143db865c3b
+  Cyltabbar: 2454057ff09d832ec84609d9a84165677e6a0301
+  CYLTabBarController: 9e49f3142d6f7a671c3baa9aab8f91ebc2661889
   CYLTableViewPlaceHolder: b874c56a79c46a89df6d3acac675d87fa0e78277
   DoubleConversion: e85e4faac763226bfd1cc4c6a98d8355149b27a5
   fast_float: 908e5ee35999f3d91af4b962ac951acac591866c
@@ -2246,6 +2286,6 @@ SPEC CHECKSUMS:
   SocketRocket: d57b1af80c029e12a75cd9b218287c67381e4593
   Yoga: 58b502c52b14ad3c4468805d461fc37d275c2a42
 
-PODFILE CHECKSUM: 977ede8439d5dbd9165867adcb017aa70bc99bdf
+PODFILE CHECKSUM: f0bf2da84e311a9611d06fb5905e59b1f6016cfc
 
 COCOAPODS: 1.17.0

@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react';
 import { Platform, Pressable, ScrollView, Settings, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { CYLSearchBarView, CYLSearchView, CYLTagListView } from 'react-native-cylsearch';
+import { CYLTabBar, type CYLTabBarItem, type CYLTabBarPlusButton } from 'react-native-cyltabbar';
 import discoverData from './search-discover.json';
 
 /**
@@ -62,6 +63,26 @@ export default function App() {
   );
 }
 
+/**
+ * The tab bar: the three sample tabs and Discover, as in the native and Flutter examples; the plus button opens the
+ * search bar page and rises above the bar (AGENTS.md, "Raised plus button").
+ */
+const TAB_KEYS = ['list', 'tags', 'empty', 'discover'];
+const TAB_ITEMS: CYLTabBarItem[] = [
+  { title: 'List style', image: 'system:list.bullet', selectedImage: 'system:list.bullet', identifier: 'list' },
+  { title: 'Tag style', image: 'system:tag', selectedImage: 'system:tag.fill', identifier: 'tags' },
+  { title: 'Empty results', image: 'system:magnifyingglass', selectedImage: 'system:magnifyingglass', identifier: 'empty' },
+  { title: 'Discover', image: 'system:sparkle.magnifyingglass', selectedImage: 'system:sparkle.magnifyingglass', identifier: 'discover' },
+];
+const PLUS_BUTTON: CYLTabBarPlusButton = {
+  title: 'Search bar',
+  image: 'system:plus.circle.fill',
+  size: [56, 56],
+  centerYMultiplier: 0.3,
+  identifier: 'plus',
+  pageIdentifier: 'plus',
+};
+
 function Screens() {
   const palette = usePalette();
   // `-initialTab discover` (an iOS launch argument, read through Settings) opens a tab directly, for screenshots.
@@ -91,7 +112,7 @@ function Screens() {
   }
   const current = TABS.find((item) => item.key === tab);
   return (
-    <SafeAreaView style={[styles.fill, { backgroundColor: palette.background }]}>
+    <SafeAreaView style={[styles.fill, { backgroundColor: palette.background }]} edges={['top', 'left', 'right']}>
       <View style={styles.fill}>
         {tab === 'bar' ? <SearchBarDemo /> : tab === 'discover' ? <DiscoverDemo /> : current ? (
           <View style={styles.page}>
@@ -105,14 +126,15 @@ function Screens() {
           </View>
         ) : null}
       </View>
-      {/* Each tab is its own accessibility element (a "tablist" container hid them from iOS accessibility). */}
-      <View style={styles.tabs}>
-        {[...TABS.map((item) => ({ key: item.key, title: item.title })), { key: 'bar', title: 'Search bar' }, { key: 'discover', title: 'Discover' }].map((item) => (
-          <Pressable key={item.key} accessible accessibilityRole="tab" accessibilityLabel={item.title} accessibilityState={{ selected: tab === item.key }} style={styles.tab} onPress={() => setTab(item.key)}>
-            <Text style={[styles.tabText, tab === item.key && styles.tabSelected]}>{item.title}</Text>
-          </Pressable>
-        ))}
-      </View>
+      {/* CYLTabBarController's tab bar (react-native-cyltabbar): four tabs and a raised plus button for the search bar. */}
+      <CYLTabBar
+        style={styles.tabBar}
+        items={TAB_ITEMS}
+        plusButton={PLUS_BUTTON}
+        tapAnimation="scale"
+        selectedIndex={tab === 'bar' ? -1 : TAB_KEYS.indexOf(tab)}
+        onTabSelect={(index) => setTab(index < 0 ? 'bar' : TAB_KEYS[index] ?? 'list')}
+      />
     </SafeAreaView>
   );
 }
@@ -222,8 +244,6 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
   topic: { width: '50%', paddingVertical: 10, paddingRight: 8 },
   message: { fontSize: 14, color: '#666' },
-  tabs: { flexDirection: 'row', borderTopWidth: StyleSheet.hairlineWidth, borderColor: '#ccc' },
-  tab: { flex: 1, alignItems: 'center', paddingVertical: 10 },
-  tabText: { fontSize: 11, color: '#888' },
-  tabSelected: { color: '#007AFF', fontWeight: '600' },
+  // In the layout flow under the page: the bar takes its own height, the bottom safe area included.
+  tabBar: { alignSelf: 'stretch' },
 });

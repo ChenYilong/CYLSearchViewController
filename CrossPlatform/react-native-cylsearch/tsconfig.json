@@ -8,6 +8,7 @@
     "allowUnusedLabels": false,
     "customConditions": [
       "react-native-cylsearch-source",
+      "react-native-cyltabbar-source",
       "react-native-strict-api"
     ],
     "esModuleInterop": true,
@@ -27,5 +28,6 @@
     "strict": true,
     "target": "ESNext",
     "verbatimModuleSyntax": true
-  }
+  },
+  "exclude": ["node_modules", "lib", "example/vendor"]
 }
