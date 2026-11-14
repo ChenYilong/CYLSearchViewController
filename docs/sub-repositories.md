@@ -8,7 +8,7 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
 | CollectionViewClassifyMenu | Suggestions as tags (`CYLSearchSuggestionStyle`) | Android done (`eb3590e`); iOS `TODO` ([tag-view-suggestions.md](tag-view-suggestions.md)) |
 | CYLTableViewPlaceHolder | The empty-content placeholder when a search has no results | iOS and Android done; other platforms `TODO` (below) |
 
-## IN PROGRESS (TODO 2026-11-12): CYLTableViewPlaceHolder as a sub-repository, empty search results on every platform (iOS, Android, Flutter, React Native done)
+## IN PROGRESS (TODO 2026-11-12): CYLTableViewPlaceHolder as a sub-repository, empty search results on every platform (iOS, Android, Flutter, React Native, mini programs done; HarmonyOS not run)
 
 - Context:
   - The requirements for CollectionViewClassifyMenu as a sub-repository ([tag-view-suggestions.md](tag-view-suggestions.md))
@@ -116,3 +116,8 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
 - Status: `TODO` (iOS, Android, Flutter and React Native done; HarmonyOS and mini programs have their own simple
   placeholders, CYLTableViewPlaceHolder itself is not ported to them: no version of this
   library exists on them yet, see [android-and-cross-platform.md](android-and-cross-platform.md)).
+- Progress (2026-11-15): mini programs DONE: the empty results and the empty cache of `cyl-search` play
+  CYLTableViewPlaceHolder's `CYLPlaceholderNoResults.json` / `CYLPlaceholderNoDrafts.json` (with their licenses) through
+  CYLTabBarController's `cyl-lottie`; screenshot in [miniprogram-api-alignment.md](miniprogram-api-alignment.md). Android
+  animated too (`docs/core-todo.md`, CYLTableViewPlaceHolder `6d8b264`). Left: HarmonyOS on a device (waits for
+  signing in DevEco Studio).
