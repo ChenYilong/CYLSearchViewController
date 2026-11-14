@@ -17,6 +17,13 @@
   },
   "modules": [
     {
+      "name": "entry",
+      "srcPath": "./entry",
+      "targets": [
+        { "name": "default", "applyToProducts": ["default"] }
+      ]
+    },
+    {
       "name": "cylsearch",
       "srcPath": "./cylsearch"
     }

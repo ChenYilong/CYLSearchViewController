@@ -1,0 +1,11 @@
+{
+  "name": "entry",
+  "version": "1.0.0",
+  "description": "The CYLSearchViewController example for HarmonyOS: the Discover page built on the cylsearch library.",
+  "main": "",
+  "author": "ChenYilong",
+  "license": "MIT",
+  "dependencies": {
+    "cylsearch": "file:../cylsearch"
+  }
+}

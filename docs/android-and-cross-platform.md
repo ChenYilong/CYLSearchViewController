@@ -386,7 +386,16 @@ Native) for the CYLSearchViewController components.
   (create one in DevEco Studio's Device Manager), so nothing was run or screenshotted on HarmonyOS. The score counts
   declarations, as the Android table does; an example app and tests (`ohosTest`) are the next step, to prove the
   behavior. The cross-platform wrappers (Flutter, React Native) do not target HarmonyOS yet.
-- Status: `IN PROGRESS` (2026-11-14): score 100/100 for the API table; behavior unverified (no device).
+- Example app (2026-11-14): `harmonyos/entry` (a HAP, depends on `cylsearch` by `file:`): the Discover page as on the
+  other platforms: the bordered search bar with the camera, divider and Search items, recent searches as tags folded to
+  two rows, and the search page (`CYLSearchComponent`) over it. `hvigorw assembleHap --mode module -p
+  module=entry@default -p product=default`: BUILD SUCCESSFUL (unsigned: no signing config is set up; sign it in DevEco
+  Studio before installing).
+- Tests: none yet. Local unit tests need `@ohos/hypium` from the OpenHarmony registry (not installed here) and
+  `ohosTest` needs a device or emulator; ArkTS with `@ObservedV2` cannot run under Node, so the logic has no executable
+  check. The mini program package (same logic in plain JavaScript) has 8 Node tests.
+- Status: `IN PROGRESS` (2026-11-14): score 100/100 for the API table; the library and the example compile; nothing has
+  run on HarmonyOS (no device, no tests, no screenshots).
 
 ## DONE (2026-11-12): android/ folder: five Kotlin transcriptions, a merged library and example
 
