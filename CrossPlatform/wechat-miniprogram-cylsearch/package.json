@@ -7,7 +7,7 @@
   "homepage": "https://github.com/ChenYilong/CYLSearchViewController/tree/master/CrossPlatform/wechat-miniprogram-cylsearch",
   "keywords": ["miniprogram", "search", "searchbar", "CYLSearchViewController"],
   "miniprogram": "src",
-  "main": "src/cyl-search/cyl_search_view_model.js",
+  "main": "src/core/index.js",
   "files": ["src", "README.md"],
   "scripts": {
     "test": "node --test test/*.test.js"

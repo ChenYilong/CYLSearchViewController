@@ -6,12 +6,13 @@ const { CYLSearchBarItem, CYLSearchBarItems } = require('../cyl-search/cyl_searc
  * `itemselect` with `{ item, index }` and toggles a selectable item.
  */
 Component({
+  options: { multipleSlots: true },
   properties: {
     value: { type: String, value: '' },
     placeholder: { type: String, value: '' },
     focus: { type: Boolean, value: false },
     searchBarStyle: { type: String, value: 'plain' },
-    searchIcon: { type: String, value: '' },
+    searchIcon: { type: String, value: '../images/search.svg' },
     showsSearchIcon: { type: Boolean, value: true },
     showsCancelButton: { type: Boolean, value: false },
     cancelButtonTitle: { type: String, value: 'Cancel' },
