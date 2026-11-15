@@ -73,6 +73,20 @@ export class CYLSearchController {
   }
 
   /**
+   * Hides the presented overlay for the system Back gesture, like its Cancel button; true when it did. Call it from
+   * the page's `onBackPress()` and return its result.
+   */
+  handleBackPress(): boolean {
+    if (!this.shown) {
+      return false;
+    }
+    this.hide(() => {
+      this.delegate?.searchControllerDidCancel?.(this);
+    });
+    return true;
+  }
+
+  /**
    * Hides the overlay; the completion is called after it is removed, including when it was not presented.
    */
   hide(completion?: () => void): void {

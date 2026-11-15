@@ -228,3 +228,36 @@ begins and becomes `DONE` when it ends.
   1.100.0 and subspecs; the lock's spec checksum is refreshed by the next `pod install`, which CI runs). The 4 commits
   of `fix/flutter-plus-title-hidden` that `c006143` lacks are Flutter/React Native work; the Flutter and Android pins
   stay on `2a12582`.
+  Fixed ("fix 1"): the emulator runs in zh-CN; the library was localized ("暂无数据" is its zh_CN string) but the
+  example hard-coded English. The example strings are now resources (`entry/.../base` and `zh_CN/element/string.json`),
+  read with `getStringByNameSync`; the screenshots above are retaken in Chinese. Open: hypium tests not run yet.
+
+- 2026-11-15 DONE: HarmonyOS hypium tests on the emulator. Prompt: "Run tests". There were none, so this adds
+  `harmonyos/entry/src/ohosTest` (TestAbility, OpenHarmonyTestRunner, `CYLSearchCore.test.ets`: cache order and
+  duplicates, maximum count and blanks, `none` policy, localized strings, placeholder kinds, search bar items),
+  the `ohosTest` target in `entry/build-profile.json5` and `@ohos/hypium` 1.0.21. Run (unsigned):
+  `hvigorw -p module=entry@ohosTest -p isOhosTest=true -p buildMode=test assembleHap`, `hdc install` both HAPs,
+  `hdc shell aa test -b com.cyl.search.harmonyos -m entry_test -s unittest /ets/testrunner/OpenHarmonyTestRunner`.
+  Result on the Mate 70 Pro emulator (HarmonyOS 6.0.1, API 21): Tests run: 6, Failure: 0, Error: 0, Pass: 6.
+
+- 2026-11-15 DONE: HarmonyOS UI tests. Prompt: "ui tests". `entry/src/ohosTest/ets/test/CYLSearchUI.test.ets` drives
+  the example with `@kit.TestKit` `Driver` (strings read from resources, so it passes in any system language):
+  Discover shows its title and search bar; "Open search" (id `CYLSearchDiscoverOpenSearch`) shows the empty
+  placeholder; typing "Kot" lists Kotlin and hides Flutter; Back returns to Discover.
+  Bug found and fixed: the system Back gesture never closed the search page (the second press left the app). New core
+  API `CYLSearchView.handleBackPress()` closes an open search view and returns true; the example page's
+  `onBackPress()` returns it. Core test `handleBackPressOnlyWhenOpen` added.
+  Result on the Mate 70 Pro emulator: Tests run: 11, Failure: 0, Error: 0, Pass: 11.
+
+- 2026-11-15 DONE: Back gesture on the other HarmonyOS search views. Prompt: "check others". Same gap in
+  `CYLSearchController` (the overlay stayed on Back) and `CYLMultiSearchView` (typing never ended on Back); neither
+  is in the example, so they are covered by core tests. New API: `CYLSearchController.handleBackPress()` hides the
+  presented overlay like its Cancel button (calls `searchControllerDidCancel`); `CYLMultiSearchView.handleBackPress()`
+  ends the search being typed like `completeSearch`. `CYLSearchResultsViewController` is shown inside
+  `CYLSearchController`, so it needs nothing. Tests `controllerHandleBackPressOnlyWhenPresented` and
+  `multiSearchHandleBackPressCompletesTyping`; result on the emulator: Tests run: 13, Pass: 13.
+
+- 2026-11-15 Screenshot: Back closes the search page (Mate 70 Pro emulator, HarmonyOS 6.0.1, API 21, unsigned,
+  commit `82797a4`, originals 1316×2832 stacked top to bottom): the search page with "Kot" typed, then Discover after
+  one Back press (the keyboard was already hidden).
+  ![Back closes the search page](assets/harmonyos-back-closes-search-emulator.jpeg)

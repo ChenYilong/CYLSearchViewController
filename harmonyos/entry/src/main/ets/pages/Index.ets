@@ -32,11 +32,11 @@ struct Index {
     this.bar.fieldShadowOpacity = 0.06;
     this.bar.contentInsets = { top: 6, left: 12, bottom: 6, right: 12 };
     this.bar.itemTintColor = $r('sys.color.font_primary');
-    this.bar.addItem(CYLSearchBarItem.iconItem($r('sys.symbol.camera'), 'Search by image', () => {
-      this.message = 'Image search is not available in this demo';
+    this.bar.addItem(CYLSearchBarItem.iconItem($r('sys.symbol.camera'), this.text('discover_image_search'), () => {
+      this.message = this.text('discover_image_unavailable');
     }));
     this.bar.addItem(CYLSearchBarItem.divider());
-    const search = CYLSearchBarItem.textItem('Search', () => {
+    const search = CYLSearchBarItem.textItem(this.text('discover_search'), () => {
       this.search(this.typed);
     });
     search.itemAccessibilityIdentifier = 'CYLSearchDiscoverSearchButton';
@@ -58,7 +58,17 @@ struct Index {
     this.searchView.suggestionsFoldedRowCount = 2;
     this.searchView.showsEmptyResultsPlaceholder = true;
     this.searchView.suggestionCacheName = 'HarmonyOSExample';
-    this.searchView.searchBarView.placeholder = 'Search';
+    this.searchView.searchBarView.placeholder = this.text('discover_search');
+  }
+
+  // The system Back gesture closes the search page first.
+  onBackPress(): boolean {
+    return this.searchView.handleBackPress();
+  }
+
+  // A string of this module in the system language (resources/base, resources/zh_CN).
+  private text(name: string): string {
+    return this.getUIContext().getHostContext()!.resourceManager.getStringByNameSync(name);
   }
 
   private search(text: string): void {
@@ -67,7 +77,7 @@ struct Index {
       return;
     }
     this.recent = [query].concat(this.recent.filter((item: string) => item !== query));
-    this.message = `Searching: ${query}`;
+    this.message = this.text('discover_searching').replace('%s', query);
   }
 
   build() {
@@ -80,10 +90,11 @@ struct Index {
           .padding({ left: 16, top: 24, bottom: 8 })
         CYLSearchBarComponent({ searchBarView: this.bar })
         Row() {
-          Text('Recent searches').fontSize(20).fontWeight(FontWeight.Bold).layoutWeight(1)
-          Text('Open search')
+          Text($r('app.string.discover_recent')).fontSize(20).fontWeight(FontWeight.Bold).layoutWeight(1)
+          Text($r('app.string.discover_open_search'))
             .fontSize(16)
             .fontColor($r('sys.color.brand'))
+            .id('CYLSearchDiscoverOpenSearch')
             .onClick(() => {
               this.searchView.showSearch();
             })

@@ -2,5 +2,7 @@
   "modelVersion": "5.0.0",
   "description": "CYLSearchViewController for HarmonyOS NEXT (ArkTS): the cylsearch library.",
   "dependencies": {},
-  "devDependencies": {}
+  "devDependencies": {
+    "@ohos/hypium": "1.0.21"
+  }
 }
