@@ -279,7 +279,7 @@ touch .git/hooks/NO_AUTO_SYNC
 ```
 
 Rule (added 2026-11-16): every commit is a `git cz` (Commitizen) style commit, and the whole commit message (subject,
-body and trailers) is in English: no Chinese characters are allowed anywhere in it. Check a message with
+body and trailers) is in English: no Chinese characters (or any other non-English text) are allowed anywhere in it. Check a message with
 `scripts/check-commit-message.sh <file>` (or `git log -1 --format=%B | scripts/check-commit-message.sh -`). Skill:
 `cyl-commit`. Full rule: `AGENTS.md`, "Commit readiness".
 
