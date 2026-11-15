@@ -127,6 +127,10 @@
     {
       "name": "refresh_none_last_date",
       "value": "記録なし"
+    },
+    {
+      "name": "microphone_reason",
+      "value": "音声サンプルで話した検索語をテキストにします。"
     }
   ]
 }
