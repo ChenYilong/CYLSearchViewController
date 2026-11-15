@@ -338,7 +338,8 @@ marks it `DONE`.
      non-English text) are allowed,
      not even a quoted prompt: quote a Chinese prompt in the `docs/` task log and link it from the body instead.
   3. Check before committing: `scripts/check-commit-message.sh <message file>`, or
-     `git log -1 --format=%B | scripts/check-commit-message.sh -` for the last commit. A failing message is rewritten
+     `git log -1 --format=%B | scripts/check-commit-message.sh -` for the last commit. It checks the git cz form, the
+     subject length (3 to 64 characters) and Chinese characters. A failing message is rewritten
      before pushing. Skill: `cyl-commit`.
 
 - **On any branch other than `master` or `main`, commit and push as soon as the work is written, without asking

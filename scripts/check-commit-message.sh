@@ -24,6 +24,13 @@ if ! printf '%s\n' "$subject" | grep -Eq "^($types)(\([^)]+\))?: .+"; then
     status=1
 fi
 
+# Commitizen's configured message length: 3 to 64 characters (instructions.md, "Commitizen defaults").
+length="$(printf '%s' "$subject" | perl -CSD -ne 'print length')"
+if [ "$length" -lt 3 ] || [ "$length" -gt 64 ]; then
+    echo "commit message: the subject has $length characters; Commitizen allows 3 to 64" >&2
+    status=1
+fi
+
 # CJK Unified Ideographs, extension A, compatibility ideographs, CJK punctuation and full-width forms.
 # perl, not grep -P, so it also works with the BSD grep of macOS.
 cjk='[\x{3000}-\x{303F}\x{3400}-\x{4DBF}\x{4E00}-\x{9FFF}\x{F900}-\x{FAFF}\x{FF00}-\x{FFEF}]'
