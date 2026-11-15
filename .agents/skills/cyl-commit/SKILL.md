@@ -10,7 +10,7 @@ Full rules: `AGENTS.md`, "Commit readiness"; `instructions.md`, "Commitizen defa
 ## The rule (2026-11-16)
 
 Every commit is a `git cz` (Commitizen) style commit, and the whole commit message is in English: no Chinese
-characters anywhere, in the subject, the body or the trailers.
+characters (or any other non-English text) anywhere, in the subject, the body or the trailers.
 
 ## Format
 

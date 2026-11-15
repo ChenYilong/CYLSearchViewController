@@ -334,7 +334,8 @@ marks it `DONE`.
   1. Every commit is a Commitizen (`git cz`) style commit: `<type>(<scope>): <emoji> <subject>` or
      `<type>: <emoji> <subject>`, type one of `test`, `feat`, `fix`, `chore`, `docs`, `refactor`, `style`, `ci`, `perf`,
      `release` (instructions.md, "Commitizen defaults").
-  2. The whole message (subject, body, author line and trailers) is in English. No Chinese characters are allowed,
+  2. The whole message (subject, body, author line and trailers) is in English. No Chinese characters (or any other
+     non-English text) are allowed,
      not even a quoted prompt: quote a Chinese prompt in the `docs/` task log and link it from the body instead.
   3. Check before committing: `scripts/check-commit-message.sh <message file>`, or
      `git log -1 --format=%B | scripts/check-commit-message.sh -` for the last commit. A failing message is rewritten
