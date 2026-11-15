@@ -144,3 +144,5 @@ or device was used.
 
 Without an emulator, run the pure logic of the HarmonyOS core on the host: `node harmonyos/scripts/host-logic-test.mjs`
 (Node 22.18 or newer). Keep `harmonyos/cylsearch/src/main/ets/CYLSearchLogic.ets` free of kit imports so it runs there.
+Check that the HarmonyOS strings and placeholder images still match iOS after any iOS resource change:
+`node harmonyos/scripts/check-ios-parity.mjs` (exit code 1 lists what is missing or different).
