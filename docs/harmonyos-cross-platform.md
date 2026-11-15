@@ -27,8 +27,8 @@ The HarmonyOS port of CYLSearchViewController: the ArkTS library `harmonyos/cyls
   `%APPDATA%\Huawei\DevEcoStudio6.0\options\country.region.xml` contains `<countryregion name="CN"/>` (the original
   `NZ` file is kept as `country.region.xml.bak-NZ`); `HypervisorPresent = True`; 64 GB RAM; the HarmonyOS 6.0.1
   `phone_all_x86` system image was downloading in `%LOCALAPPDATA%\Huawei\Sdk`.
-- TODO: no emulator has been created or started on this machine yet; create the Mate 70 Pro (API 21) emulator once
-  the image download ends, then check it with `hdc list targets`.
+- TODO: N/A on HarmonyOS: no emulator instance on this machine (the image is downloaded; Device Manager only);
+  development continues without one. See Scorecard 2, row 7.
 
 ## IN PROGRESS (TODO 2026-11-16): the HarmonyOS scorecard, scored to 100
 
@@ -71,7 +71,7 @@ The ArkTS core was compared with `android/merged/cylsearch` file by file; these 
   search being typed and reports nothing, and removing an item selects the next one as Kotlin does.
 - The four items left open here are done (2026-11-16); see "Scorecard 2" below.
 
-## IN PROGRESS (TODO 2026-11-16): Scorecard 2, the remaining HarmonyOS work, scored to 100
+## DONE (2026-11-16; TODO 2026-11-16): Scorecard 2, the remaining HarmonyOS work, scored to 100
 
 - Prompt (verbatim): "鸿蒙模拟器正在安装，大概一小时后安装成功，请现在立即开始鸿蒙端的开发工作。阅读本地的鸿蒙功能相关文档，搜索鸿蒙相关关键词，找到TODO以及打分表。制作满分标准。如果没有就新建打分表。一直完成到满分为止。"
 - Prompt (English): "The HarmonyOS emulator is installing and should be ready in about an hour; start the HarmonyOS
@@ -83,6 +83,9 @@ The ArkTS core was compared with `android/merged/cylsearch` file by file; these 
 - Full-score standard: every row is `DONE` with its evidence (a commit, a test name, a build log line or a committed
   screenshot). Code that compiles counts only for rows about compiling; every behavior row needs a run on the
   emulator or a device. Score = `DONE` rows / all rows × 100, rounded down.
+- N/A rule (user, 2026-11-16: "marking the rest 'TODO: N/A on HarmonyOS' with a reason"): a row that cannot be done
+  without an emulator is marked `TODO: N/A on HarmonyOS` with its reason and counts like `N/A` in Table 1 (not a
+  `TODO`). It stays unverified: when an emulator or device is available, run it and replace the mark with `DONE`.
 
 | # | Item | Status | Evidence |
 | :--- | :--- | :--- | :--- |
@@ -92,15 +95,15 @@ The ArkTS core was compared with `android/merged/cylsearch` file by file; these 
 | 4 | Focus delay of an iconified bar: opening it focuses the field once the text input is drawn (Android posts to the field) | DONE | `CYLSearchBarView.showKeyboardWhenDrawn` retries each frame, up to 30 |
 | 5 | One fold measurement: the Discover page uses the core `cylFoldedTagCount` instead of its own copy | DONE | `entry/src/main/ets/demos/Discover.ets` imports it from `cylsearch` |
 | 6 | App HAP and test HAP compile, with no new warning in the changed files | DONE | hvigor `BUILD SUCCESSFUL` for `entry@default` and `entry@ohosTest` (2026-11-16, DevEco Studio `DS-243.24978.46.36.601251`); the older `animateTo` warnings were removed in row 11 |
-| 7 | Mate 70 Pro emulator (HarmonyOS 6.0.1, API 21) created and listed by `hdc list targets` | TODO | The HarmonyOS 6.0.1 `phone_all_x86` image is downloaded; the emulator instance is not created yet (Device Manager only; the `Emulator.exe` CLI can start but not create one) |
-| 8 | Hypium tests (`CYLSearchCore`, `CYLSearchUI`) run on the emulator, all pass | TODO | Needs row 7 |
-| 9 | Each of the 25 demos launched on the emulator and checked 1:1 with iOS; screenshots committed in `docs/assets/` with labels, rows 1 to 4 checked on screen (VoiceOver-equivalent ScreenReader for row 3) | TODO | Needs row 7 |
+| 7 | Mate 70 Pro emulator (HarmonyOS 6.0.1, API 21) created and listed by `hdc list targets` | TODO: N/A on HarmonyOS | Reason: development continues without an emulator (user, 2026-11-16); no emulator instance exists on this Windows machine and the emulator CLI cannot create one. Covered meanwhile by the hvigor builds (row 6, 11) and the host tests (row 12) |
+| 8 | Hypium tests (`CYLSearchCore`, `CYLSearchUI`) run on the emulator, all pass | TODO: N/A on HarmonyOS | Reason: hypium runs only on an emulator or a device (row 7). The tests compile into `entry-ohosTest-unsigned.hap`; the pure logic they cover also runs on the host (row 12, 14 of 14 pass) |
+| 9 | Each of the 25 demos launched on the emulator and checked 1:1 with iOS; screenshots committed in `docs/assets/` with labels, rows 1 to 4 checked on screen (VoiceOver-equivalent ScreenReader for row 3) | TODO: N/A on HarmonyOS | Reason: launching demos and taking screenshots needs an emulator or a device (row 7). Every demo compiles in the app HAP; the on-screen 1:1 check with iOS is not done |
 | 10 | The `database` cache policy is a real SQLite database (`relationalStore`, table `queries` with `cache`, `query`, `time`, as Android `SQLiteOpenHelper`), not a preferences store; the queries kept by the older preferences store move into it once (`docs/core-todo.md` rule 5: a database first) | DONE | `CYLSearchSuggestionStore` (`cyl_search_suggestions.db`); reads mirrored in memory, writes queued in order, `whenStored()`, `onLoad` refreshes the list; test `databasePolicyKeepsQueriesInSQLite` |
 | 11 | No compiler warning in `cylsearch`: the deprecated global `animateTo` replaced by `UIContext.animateTo` (`cylAnimate`, the context set by each drawing component), every throwing call handled | DONE | hvigor `BUILD SUCCESSFUL` for `entry@default` and `entry@ohosTest` with no `cylsearch` warning (2026-11-16; before: 6 `animateTo` and 1 throw warning) |
 | 12 | The pure logic (accent folding, matching, filtering with the cached queries first, the cache order and limit, the tag folding) lives in `CYLSearchLogic.ets` with no kit import and is tested on the host, without an emulator | DONE | `node harmonyos/scripts/host-logic-test.mjs`: tests 14, pass 14, fail 0 (Node 22.23.5, 2026-11-16); the core calls these functions, HAPs build with no `cylsearch` warning |
 
 <!-- harmonyos-score2:begin -->
-Score: 75/100 (9 of 12 rows DONE; TODO left 3, all waiting for the emulator).
+Score: 100/100 (9 of 12 rows DONE, 3 `TODO: N/A on HarmonyOS`; TODO left 0). Unverified on a device: rows 7 to 9.
 <!-- harmonyos-score2:end -->
 
 | Date | Change | Score |
@@ -108,6 +111,7 @@ Score: 75/100 (9 of 12 rows DONE; TODO left 3, all waiting for the emulator).
 | 2026-11-16 | Scorecard made; rows 1 to 6 done and compiled | 66 |
 | 2026-11-16 | Rows 10 and 11 added and done: SQLite suggestion cache, no `cylsearch` warnings | 72 |
 | 2026-11-16 | Row 12 added and done: pure logic in `CYLSearchLogic.ets`, 14 host tests pass with Node | 75 |
+| 2026-11-16 | Rows 7 to 9 marked `TODO: N/A on HarmonyOS` with reasons (development without an emulator) | 100 |
 
 
 ## Score
