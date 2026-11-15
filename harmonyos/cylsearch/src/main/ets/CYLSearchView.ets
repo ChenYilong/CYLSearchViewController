@@ -143,10 +143,6 @@ export class CYLSearchView {
    */
   @Trace showsEmptyResultsPlaceholder: boolean = false;
   /**
-   * The kind of that placeholder. `noResults` by default.
-   */
-  @Trace emptyResultsScenario: CYLSearchPlaceholderKind = CYLSearchPlaceholderKind.noResults;
-  /**
    * The color of the line under the search bar; undefined uses the system divider color.
    */
   @Trace dividerColor: ResourceColor | undefined = undefined;
@@ -211,10 +207,6 @@ export class CYLSearchView {
    */
   @Trace showsEmptySuggestionsPlaceholder: boolean = true;
   /**
-   * The kind of that placeholder. `empty` by default.
-   */
-  @Trace emptySuggestionsScenario: CYLSearchPlaceholderKind = CYLSearchPlaceholderKind.empty;
-  /**
    * Focuses the search field when the search opens, which raises the keyboard. True by default. False opens the
    * search with the suggestion list only; the field is focused when the user taps it.
    */
@@ -237,6 +229,8 @@ export class CYLSearchView {
   @Trace suggestionsFolded: boolean = true;
 
   @Trace private open: boolean = false;
+  @Trace private resultsScenario: CYLSearchPlaceholderKind = CYLSearchPlaceholderKind.noResults;
+  @Trace private suggestionsScenario: CYLSearchPlaceholderKind = CYLSearchPlaceholderKind.empty;
   @Trace private suggestionsShown: boolean = true;
   @Trace private allSuggestions: string[] = [];
   @Trace private showsAllForEmptyQuery: boolean = false;
@@ -253,8 +247,7 @@ export class CYLSearchView {
     this.searchBarView.navigationIcon = CYLSearchBarNavigationIcon.arrow;
     const barDelegate: CYLSearchBarViewDelegate = {
       searchBarViewTextDidChange: (_: CYLSearchBarView, text: string) => {
-        this.refilter();
-        this.delegate?.searchViewTextDidChange?.(this, text);
+        this.queryChanged(text);
       },
       searchBarViewSearchButtonClicked: (_: CYLSearchBarView) => {
         this.submitted();
@@ -328,6 +321,33 @@ export class CYLSearchView {
   }
 
   /**
+   * The kind of the empty results placeholder. `noResults` by default. Setting it drops the placeholder made for the
+   * old kind (Android `emptyResultsScenario`).
+   */
+  get emptyResultsScenario(): CYLSearchPlaceholderKind {
+    return this.resultsScenario;
+  }
+
+  set emptyResultsScenario(value: CYLSearchPlaceholderKind) {
+    this.resultsScenario = value;
+    this.emptyResults = undefined;
+    this.refilter();
+  }
+
+  /**
+   * The kind of the empty suggestions placeholder. `empty` by default; setting it drops the old placeholder.
+   */
+  get emptySuggestionsScenario(): CYLSearchPlaceholderKind {
+    return this.suggestionsScenario;
+  }
+
+  set emptySuggestionsScenario(value: CYLSearchPlaceholderKind) {
+    this.suggestionsScenario = value;
+    this.emptySuggestions = undefined;
+    this.refilter();
+  }
+
+  /**
    * The placeholder shown for empty results, created the first time it is needed; undefined before.
    */
   get emptyResultsView(): CYLSearchPlaceholderView | undefined {
@@ -370,14 +390,15 @@ export class CYLSearchView {
    * True while the query is not empty, nothing matches it and the empty results placeholder is on.
    */
   get showsEmptyResults(): boolean {
-    return this.showsEmptyResultsPlaceholder && this.query.length > 0 && this.filteredSuggestions.length === 0;
+    return this.suggestionsShown && this.showsEmptyResultsPlaceholder && this.query.trim().length > 0 &&
+      this.filteredSuggestions.length === 0;
   }
 
   /**
    * True while the query is empty, there is nothing to list and the empty suggestions placeholder is on.
    */
   get showsEmptySuggestions(): boolean {
-    return this.showsEmptySuggestionsPlaceholder && this.query.length === 0 &&
+    return this.suggestionsShown && this.showsEmptySuggestionsPlaceholder && this.query.trim().length === 0 &&
       this.filteredSuggestions.length === 0 && this.suggestionCache !== undefined;
   }
 
@@ -395,22 +416,30 @@ export class CYLSearchView {
    */
   showSearch(animated: boolean = true): void {
     if (this.open) {
+      // Already open: only the field is focused again (Android `showSearch`).
+      if (this.focusesSearchFieldOnShow) {
+        this.searchBarView.showKeyboard();
+      }
       return;
     }
     this.refilter();
     if (animated && this.animationDuration > 0) {
-      animateTo({ duration: this.animationDuration * 1000, curve: Curve.EaseOut }, () => {
+      // The delegate hears of it when the animation ends, as on Android.
+      animateTo({ duration: this.animationDuration * 1000, curve: Curve.EaseOut, onFinish: () => {
+        this.delegate?.searchViewDidShow?.(this);
+      } }, () => {
         this.open = true;
       });
     } else {
       this.open = true;
+      this.delegate?.searchViewDidShow?.(this);
     }
     if (this.focusesSearchFieldOnShow) {
+      // The field exists once the open state is drawn.
       setTimeout(() => {
         this.searchBarView.showKeyboard();
-      }, animated ? this.animationDuration * 1000 : 0);
+      }, 0);
     }
-    this.delegate?.searchViewDidShow?.(this);
   }
 
   /**
@@ -422,13 +451,15 @@ export class CYLSearchView {
     }
     this.searchBarView.hideKeyboard();
     if (animated && this.animationDuration > 0) {
-      animateTo({ duration: this.animationDuration * 1000, curve: Curve.EaseIn }, () => {
+      animateTo({ duration: this.animationDuration * 1000, curve: Curve.EaseIn, onFinish: () => {
+        this.delegate?.searchViewDidClose?.(this);
+      } }, () => {
         this.open = false;
       });
     } else {
       this.open = false;
+      this.delegate?.searchViewDidClose?.(this);
     }
-    this.delegate?.searchViewDidClose?.(this);
   }
 
   /**
@@ -485,10 +516,12 @@ export class CYLSearchView {
    * Sets the query and submits it when `submit` is true (iOS `-setQuery:submit:`).
    */
   setQuery(text: string | undefined, submit: boolean): void {
+    // As on Android: the text is set silently, the change is reported once, and a submit goes through the bar
+    // (`searchBarViewShouldSubmitText`, blank text refused).
     this.searchBarView.setText(text, false);
-    this.refilter();
+    this.queryChanged(text ?? '');
     if (submit) {
-      this.submitted();
+      this.searchBarView.submit();
     }
   }
 
@@ -496,7 +529,6 @@ export class CYLSearchView {
    * Lists the suggestions that match the current query.
    */
   showSuggestions(): void {
-    this.suggestionsShown = true;
     this.refilter();
   }
 
@@ -520,26 +552,31 @@ export class CYLSearchView {
    * `submitsOnSuggestionSelection`.
    */
   suggestionSelected(suggestion: string, index: number): void {
+    // Android `select`: the text is set silently, the delegate is told, then the query is submitted or reported.
     this.searchBarView.setText(suggestion, false);
-    this.refilter();
     this.delegate?.searchViewDidSelectSuggestion?.(this, suggestion, index);
     if (this.submitsOnSuggestionSelection) {
-      this.submitted();
+      this.searchBarView.submit();
+    } else {
+      this.queryChanged(suggestion);
     }
   }
 
+  private queryChanged(text: string): void {
+    this.refilter();
+    this.delegate?.searchViewTextDidChange?.(this, text);
+  }
+
+  // Every submitted query is cached, so the list shows it the next time (Android `searchBarViewSearchButtonClicked`).
   private submitted(): void {
-    const text = this.query.trim();
-    if (text.length === 0) {
-      return;
-    }
+    const text = this.query;
     this.suggestionCache?.addQuery(text);
-    this.searchBarView.hideKeyboard();
     const handled = this.delegate?.searchViewDidSubmitText?.(this, text) ?? false;
     if (!handled && this.closesOnSubmit) {
       this.closeSearch(true);
+    } else {
+      this.dismissSuggestions();
     }
-    this.refilter();
   }
 
   private rebuildCache(): void {
@@ -550,18 +587,24 @@ export class CYLSearchView {
     this.refilter();
   }
 
+  // Accents removed and lowercased, so "cafe" matches "café" (Android `fold`).
+  private static fold(text: string): string {
+    return text.normalize('NFD').replace(new RegExp('[\u0300-\u036f]+', 'g'), '').toLowerCase();
+  }
+
   private matches(suggestion: string, query: string): boolean {
     if (this.suggestionFilter !== undefined) {
       return this.suggestionFilter(suggestion, query);
     }
-    return suggestion.toLocaleLowerCase().includes(query.toLocaleLowerCase());
+    return CYLSearchView.fold(suggestion).includes(CYLSearchView.fold(query.trim()));
   }
 
   private refilter(): void {
     const query = this.query;
     const cached = this.suggestionCache?.cachedQueries() ?? [];
     let result: string[] = [];
-    if (query.length === 0) {
+    this.suggestionsShown = true;
+    if (query.trim().length === 0) {
       if (cached.length > 0) {
         result = cached;
         this.showsCachedQueries = true;
@@ -584,10 +627,10 @@ export class CYLSearchView {
     }
     this.filteredSuggestions = result;
     if (this.showsEmptyResults && this.emptyResults === undefined) {
-      this.emptyResults = CYLSearchPlaceholderView.withKind(this.emptyResultsScenario);
+      this.emptyResults = CYLSearchPlaceholderView.withKind(this.resultsScenario);
     }
     if (this.showsEmptySuggestions && this.emptySuggestions === undefined) {
-      this.emptySuggestions = CYLSearchPlaceholderView.withKind(this.emptySuggestionsScenario);
+      this.emptySuggestions = CYLSearchPlaceholderView.withKind(this.suggestionsScenario);
     }
   }
 }

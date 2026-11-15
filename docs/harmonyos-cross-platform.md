@@ -34,6 +34,27 @@ The HarmonyOS port of CYLSearchViewController: the ArkTS library `harmonyos/cyls
   path (for example `C:\cylbuild\harmonyos`) and run `hvigorw assembleHap --mode module -p module=entry@default
   -p product=default` there, with `DEVECO_SDK_HOME` set to DevEco Studio's `sdk` and its `jbr\bin` on `PATH`.
 
+## Kotlin parity of the internals (2026-11-16)
+
+The ArkTS core was compared with `android/merged/cylsearch` file by file; these behaviours now follow the Kotlin code
+(tests in `harmonyos/entry/src/ohosTest/ets/test/CYLSearchCore.test.ets`, "Kotlin parity"):
+
+- `CYLSearchView`: the query is trimmed before "empty or not" and matched with accents folded (`fold`); the
+  placeholders use the trimmed query; any refilter shows the suggestions again and a handled submit dismisses them;
+  `setQuery` and a tapped suggestion set the text silently, report the change once and submit through the bar
+  (`searchBarViewShouldSubmitText`, blank refused, untrimmed text to the delegate); `searchViewDidShow` /
+  `searchViewDidClose` fire when the animation ends; `showSearch` on an open view focuses the field again; changing
+  `emptyResultsScenario` / `emptySuggestionsScenario` replaces the placeholder.
+- `CYLSearchBarView`: `setText` is silent, `submit` refuses whitespace, and with `iconifiedByDefault` an empty field
+  folds back to the search button when editing ends.
+- `CYLSearchSuggestionStore`: keeps at least one query, an empty name is `CYLSearchView`, the file name is made safe,
+  `none` keeps nothing.
+- `CYLMultiSearchView`: nothing is selected while typing, the typed text is not trimmed, `addSearchText` completes the
+  search being typed and reports nothing, and removing an item selects the next one as Kotlin does.
+- Open: the inline fold control of the tag suggestions is still laid over the last row instead of placed as the last
+  tag (the Discover page already places it as a tag); `CYLMenuFoldControlPosition.none`; a screen-reader announcement
+  after clearing the cache; the focus delay of an iconified bar.
+
 ## Score
 
 Status: 100 by implementation; every demo compiles, none has run yet (no emulator on the Windows machine; create one in

@@ -448,7 +448,12 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
    * Sets the text and, when `submit` is true, submits it (iOS `-setText:submit:`).
    */
   setText(text: string | undefined, submit: boolean): void {
-    this.textChanged(text ?? '');
+    // Set silently: only typing reports `searchBarViewTextDidChange` (Android `text` / `setText`).
+    let next = text ?? '';
+    if (this.maximumTextLength > 0 && next.length > this.maximumTextLength) {
+      next = next.substring(0, this.maximumTextLength);
+    }
+    this.text = next;
     if (submit) {
       this.submit();
     }
@@ -458,7 +463,7 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
    * Submits the text like the search key; false when the text is empty or the delegate refuses it.
    */
   submit(): boolean {
-    if (this.text.length === 0) {
+    if (this.text.trim().length === 0) {
       return false;
     }
     const allowed = this.delegate?.searchBarViewShouldSubmitText?.(this, this.text) ?? true;
@@ -577,6 +582,10 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
     } else {
       if (this.clearsTextOnEndEditing) {
         this.textChanged('');
+      }
+      // With `iconifiedByDefault`, an empty field folds back to the search button (Android).
+      if (this.iconifiedByDefault && this.text.length === 0) {
+        this.setIconified(true, true);
       }
       this.delegate?.searchBarViewDidEndEditing?.(this);
     }
