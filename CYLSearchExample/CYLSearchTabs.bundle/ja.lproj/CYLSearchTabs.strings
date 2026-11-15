@@ -12,3 +12,6 @@
 "svga.source.file" = "SVGA（設定ファイル）";
 "svga.demo.hint" = "SVGA アニメーションをもう一度再生します";
 "svga.source.hint" = "タブアイコンを切り替えてタブバーを作り直します";
+"svga.swiftui" = "SwiftUI ホスト（SVGA タブバー）";
+"svga.swiftui.title" = "SwiftUI ホスト";
+"svga.swiftui.close" = "閉じる";

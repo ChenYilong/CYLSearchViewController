@@ -12,3 +12,6 @@
 "svga.source.file" = "SVGA (configuration file)";
 "svga.demo.hint" = "Plays the SVGA animation again";
 "svga.source.hint" = "Switches the tab icons and rebuilds the tab bar";
+"svga.swiftui" = "SwiftUI host (SVGA tab bar)";
+"svga.swiftui.title" = "SwiftUI host";
+"svga.swiftui.close" = "Close";

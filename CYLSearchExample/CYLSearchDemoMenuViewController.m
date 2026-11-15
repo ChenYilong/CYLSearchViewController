@@ -212,7 +212,8 @@ static NSString *CYLExampleText(NSString *key)
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 4;
+    // The fifth row: the SVGA tab bar hosted in SwiftUI (CYLSVGASwiftUIDemo.swift).
+    return 5;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -220,7 +221,8 @@ static NSString *CYLExampleText(NSString *key)
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CYLDemoMenu"];
     if (!cell) cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"CYLDemoMenu"];
     NSArray<NSString *> *rows = @[@"demo.reproduction", @"demo.styles", @"demo.searchBar", @"demo.ports"];
-    cell.textLabel.text = CYLDemoText(rows[indexPath.row]);
+    cell.textLabel.text = indexPath.row < (NSInteger)rows.count ? CYLDemoText(rows[indexPath.row]) : CYLExampleText(@"svga.swiftui");
+    cell.accessibilityIdentifier = [NSString stringWithFormat:@"CYLDemoRow%ld", (long)indexPath.row];
     cell.textLabel.numberOfLines = 0;
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
     return cell;
@@ -228,6 +230,13 @@ static NSString *CYLExampleText(NSString *key)
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    if (indexPath.row == 4) {
+        // The SVGA tab bar hosted in SwiftUI, full screen (a tab bar cannot be pushed inside another one).
+        UIViewController *host = [NSClassFromString(@"CYLSVGASwiftUIDemo") performSelector:@selector(viewController)];
+        [self presentViewController:host animated:YES completion:nil];
+        [tableView deselectRowAtIndexPath:indexPath animated:YES];
+        return;
+    }
     UIViewController *controller;
     if (indexPath.row == 0) {
         CYLSearchExampleDataSource *source = [CYLSearchExampleDataSource new];

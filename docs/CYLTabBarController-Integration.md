@@ -226,13 +226,13 @@ Rive scenes in CYLTabBarController's demos (Example-Rive, Example-SwiftUI-Rive, 
 | Plus button with its own page (purple "Start", `rive_plus.png`) | DONE: the "Search bar" plus button opens its own page with the SVGA tab icons (tapped with `axe`) |
 | In-page animation above a list (Bell page, `menu_button.riv`, `RiveMenuButtonDemoView`) | DONE: `CYLSVGADemoHeaderView` above the Examples list: `tab_activity.svga` plays once, tap to play again (`SVGAPlayer`, accessibility label and hint) |
 | Switching a tab icon at runtime (`-updateTabBarItemForViewController:attributes:`, Rive ↔ SVGA button) | DONE: "Tab icons: …" button cycles SF Symbols → SVGA keys → SVGA file and rebuilds the tab bar (as Example-Rive's "Tab icon source" button); the choice is kept |
-| SwiftUI host (Example-SwiftUI-Rive) | TODO |
+| SwiftUI host (Example-SwiftUI-Rive) | DONE: Examples row 5 / `-CYLDemoTab 1 -CYLDemoRow 4`: `CYLSVGASwiftUIDemo.swift`, a SwiftUI screen hosting a `CYLTabBarController` from `CYLTabBarConfiguration_svga_swiftui.json` through `UIViewControllerRepresentable` |
 | Android (`example-rive`, `CYLRiveTabBarItemAnimator`) | DONE: `android/merged` pins CYLTabBarController `5682b9e` (`CYLSVGATabBarItemAnimator`) + SVGAPlayer-Android 2.6.1 (JitPack); `--es CYLDemoTabIconSource 2` loads `CYLTabBarConfiguration_svga.json` |
 | Flutter (`example_rive`) | TODO (waits for SVGA in `flutter_cyltabbar`) |
 | React Native (`example-rive`, `<CYLAnimationView>`) | TODO (waits for SVGA in `react-native-cyltabbar`) |
 | WeChat mini program (`cyl-rive`) | TODO (waits for an SVGA mini program package) |
 
-Score: 8/12.
+Score: 9/12.
 
 iOS example, SVGA tab icons (Search selected, its animation on the last frame). Top to bottom: initialization keys;
 configuration file. CYL 17Pro simulator, iOS 26.3, Debug, CYLTabBarController `5682b9e` (`CYLTabBarController/SVGA`),
@@ -271,3 +271,8 @@ APK, base b08c020, 2026-11-16 12:28. Build and `:cylsearch:testDebugUnitTest` pa
 
 ![Android, SVGA tab icons](assets/android-svga-tab-icons-configuration.png)
 ![Android, default tab icons](assets/android-tab-icons-default.png)
+
+SwiftUI host: SwiftUI title bar and Close button above the hosted SVGA tab bar. CYL 17Pro, iOS 26.3, Debug, base 329e50f,
+2026-11-16 12:38.
+
+![SwiftUI host with the SVGA tab bar](assets/ios-svga-swiftui-host-ios26.3.png)
