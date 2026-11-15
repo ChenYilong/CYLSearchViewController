@@ -12,3 +12,6 @@
 "svga.source.file" = "SVGA（設定檔）";
 "svga.demo.hint" = "再次播放 SVGA 動畫";
 "svga.source.hint" = "切換 Tab 圖示並重建 TabBar";
+"svga.swiftui" = "SwiftUI 宿主（SVGA TabBar）";
+"svga.swiftui.title" = "SwiftUI 宿主";
+"svga.swiftui.close" = "關閉";
