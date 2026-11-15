@@ -5,9 +5,10 @@
       {
         "name": "default",
         "signingConfig": "default",
-        "compatibleSdkVersion": "5.0.0(12)",
+        "compatibleSdkVersion": "6.0.1(21)",
         "targetSdkVersion": "6.0.1(21)",
-        "runtimeOS": "HarmonyOS"
+        "runtimeOS": "HarmonyOS",
+        "buildOption": { "strictMode": { "useNormalizedOHMUrl": true } }
       }
     ],
     "buildModeSet": [
@@ -26,6 +27,14 @@
     {
       "name": "cylsearch",
       "srcPath": "./cylsearch"
+    },
+    {
+      "name": "cyltabbar",
+      "srcPath": "./vendor/cyltabbar"
+    },
+    {
+      "name": "cylplaceholder",
+      "srcPath": "./vendor/cylplaceholder"
     }
   ]
 }

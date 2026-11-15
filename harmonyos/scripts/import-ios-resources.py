@@ -17,19 +17,9 @@ EXAMPLE = os.path.join(ROOT, 'CYLSearchExample')
 LIB = os.path.join(ROOT, 'harmonyos', 'cylsearch', 'src', 'main', 'resources')
 ENTRY = os.path.join(ROOT, 'harmonyos', 'entry', 'src', 'main', 'resources')
 LANGS = {'en': 'base', 'ja': 'ja_JP', 'zh-Hans': 'zh_CN', 'zh-Hant': 'zh_TW'}
-# CYLTableViewPlaceHolder's CYLRefreshNormalHeader texts (its CYLRefresh.bundle; the mini program's cyl-refresh locales),
-# for the example's pull to refresh: idle, pulling, refreshing, last update, today, no record.
-REFRESH = {
-    'en': ['Pull down to refresh', 'Release to refresh', 'Loading...', 'Last update: ', 'Today', 'No record'],
-    'ja': ['下に引っ張って更新', '離すと更新', '更新中...', '最終更新：', '今日', '記録なし'],
-    'zh-Hans': ['下拉可以刷新', '松开立即刷新', '正在刷新数据中...', '最后更新：', '今天', '无记录'],
-    'zh-Hant': ['下拉可以刷新', '鬆開立即刷新', '正在刷新數據中...', '最後更新：', '今天', '無記錄'],
-}
 # The microphone permission reason of the Voice sample (iOS NSSpeechRecognitionUsageDescription / NSMicrophoneUsageDescription).
 MICROPHONE = {'en': 'Turns your spoken query into text in the Voice sample.', 'ja': '音声サンプルで話した検索語をテキストにします。',
               'zh-Hans': '在语音示例中把你说出的搜索词转成文字。', 'zh-Hant': '在語音範例中把你說出的搜尋詞轉成文字。'}
-REFRESH_NAMES = ['refresh_idle', 'refresh_pulling', 'refresh_refreshing', 'refresh_last_time', 'refresh_today',
-                 'refresh_none_last_date']
 
 
 def strings(path):
@@ -78,7 +68,6 @@ def main():
         for bundle in ('CYLSearchTabs', 'CYLSearchDiscover'):
             for key, value in strings(os.path.join(EXAMPLE, bundle + '.bundle', lang + '.lproj', bundle + '.strings')):
                 items[key.replace('.', '_')] = value
-        items.update(zip(REFRESH_NAMES, REFRESH[lang]))
         items['microphone_reason'] = MICROPHONE[lang]
         write(path, list(items.items()))
         lproj = os.path.join(EXAMPLE, 'CYLSearchDiscover.bundle', lang + '.lproj')
@@ -88,6 +77,8 @@ def main():
         media = os.path.join(ENTRY, q, 'media')
         os.makedirs(media, exist_ok=True)
         shutil.copyfile(os.path.join(lproj, 'discover-hot@3x.png'), os.path.join(media, 'discover_hot.png'))
+    # The tab bar configuration of the iOS example, read by CYLTabBarController's HarmonyOS library.
+    shutil.copyfile(os.path.join(EXAMPLE, 'CYLTabBarConfiguration.json'), os.path.join(ENTRY, 'rawfile', 'CYLTabBarConfiguration.json'))
     media = os.path.join(LIB, 'base', 'media')
     os.makedirs(media, exist_ok=True)
     count = 0

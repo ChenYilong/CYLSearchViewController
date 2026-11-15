@@ -105,30 +105,6 @@
       "value": "Hot"
     },
     {
-      "name": "refresh_idle",
-      "value": "Pull down to refresh"
-    },
-    {
-      "name": "refresh_pulling",
-      "value": "Release to refresh"
-    },
-    {
-      "name": "refresh_refreshing",
-      "value": "Loading..."
-    },
-    {
-      "name": "refresh_last_time",
-      "value": "Last update: "
-    },
-    {
-      "name": "refresh_today",
-      "value": "Today"
-    },
-    {
-      "name": "refresh_none_last_date",
-      "value": "No record"
-    },
-    {
       "name": "microphone_reason",
       "value": "Turns your spoken query into text in the Voice sample."
     }

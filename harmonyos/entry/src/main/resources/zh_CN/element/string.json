@@ -105,30 +105,6 @@
       "value": "热门"
     },
     {
-      "name": "refresh_idle",
-      "value": "下拉可以刷新"
-    },
-    {
-      "name": "refresh_pulling",
-      "value": "松开立即刷新"
-    },
-    {
-      "name": "refresh_refreshing",
-      "value": "正在刷新数据中..."
-    },
-    {
-      "name": "refresh_last_time",
-      "value": "最后更新："
-    },
-    {
-      "name": "refresh_today",
-      "value": "今天"
-    },
-    {
-      "name": "refresh_none_last_date",
-      "value": "无记录"
-    },
-    {
       "name": "microphone_reason",
       "value": "在语音示例中把你说出的搜索词转成文字。"
     }
