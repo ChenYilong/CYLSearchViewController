@@ -84,3 +84,47 @@ describe('cylFoldedTagCount', () => {
     assert.equal(logic.cylFoldedTagCount([300], 100, 1, 10, 40), 1);
   });
 });
+
+describe('cylSearchTextLimited', () => {
+  it('cuts to the limit, or keeps the text with no limit', () => {
+    assert.equal(logic.cylSearchTextLimited('Kotlin', 3), 'Kot');
+    assert.equal(logic.cylSearchTextLimited('Kotlin', 0), 'Kotlin');
+  });
+});
+
+describe('cylSearchTextCompletes', () => {
+  it('needs a non-empty text of at least the minimum length, not trimmed', () => {
+    assert.ok(!logic.cylSearchTextCompletes('', 0));
+    assert.ok(!logic.cylSearchTextCompletes('ab', 3));
+    assert.ok(logic.cylSearchTextCompletes('  ', 2));
+    assert.ok(logic.cylSearchTextCompletes('abc', 3));
+  });
+});
+
+describe('cylSelectionAfterRemoval', () => {
+  it('selects the next item when the selected one is removed', () => {
+    assert.equal(logic.cylSelectionAfterRemoval(1, 1, 3), 1);
+  });
+  it('selects the previous item when the last one is removed', () => {
+    assert.equal(logic.cylSelectionAfterRemoval(2, 2, 2), 1);
+  });
+  it('keeps the same item when an earlier one is removed', () => {
+    assert.equal(logic.cylSelectionAfterRemoval(2, 0, 2), 1);
+  });
+  it('keeps the selection when a later one is removed', () => {
+    assert.equal(logic.cylSelectionAfterRemoval(0, 2, 2), 0);
+  });
+  it('selects the item at the removed place when nothing was selected', () => {
+    assert.equal(logic.cylSelectionAfterRemoval(-1, 0, 1), 0);
+  });
+  it('selects nothing when no item is left', () => {
+    assert.equal(logic.cylSelectionAfterRemoval(0, 0, 0), -1);
+  });
+});
+
+describe('cylSearchTextSubmittable', () => {
+  it('refuses blank text', () => {
+    assert.ok(!logic.cylSearchTextSubmittable('   '));
+    assert.ok(logic.cylSearchTextSubmittable(' Swift '));
+  });
+});

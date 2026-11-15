@@ -116,3 +116,45 @@ export function cylFoldedTagCount(widths: number[], width: number, rows: number,
   }
   return 0;
 }
+
+/**
+ * The text cut to `maximumTextLength` characters; unchanged when the limit is 0 or less (Android
+ * `CYLMultiSearchView` text limit).
+ */
+export function cylSearchTextLimited(text: string, maximumTextLength: number): string {
+  return maximumTextLength > 0 && text.length > maximumTextLength ? text.substring(0, maximumTextLength) : text;
+}
+
+/**
+ * Whether a typed search becomes an item when completed: not empty and at least `minimumTextLength` characters,
+ * the text as typed, not trimmed (Android `CYLMultiSearchView.completeSearch`).
+ */
+export function cylSearchTextCompletes(text: string, minimumTextLength: number): boolean {
+  return text.length > 0 && text.length >= minimumTextLength;
+}
+
+/**
+ * The selected index after the item at `removedIndex` was removed, with `countAfter` items left: the next item when
+ * the selected one (or none) was removed, the previous one when the last went away, the same item shifted when an
+ * earlier one went away, -1 when none is left (Android `CYLMultiSearchView.remove`).
+ */
+export function cylSelectionAfterRemoval(selectedIndex: number, removedIndex: number, countAfter: number): number {
+  if (countAfter <= 0) {
+    return -1;
+  }
+  if (selectedIndex === removedIndex || selectedIndex === -1) {
+    return Math.min(removedIndex, countAfter - 1);
+  }
+  if (selectedIndex > removedIndex) {
+    return selectedIndex - 1;
+  }
+  return selectedIndex;
+}
+
+/**
+ * Whether the search bar submits `text`: anything but blank text (Android `CYLSearchBarView.submit`; the delegate
+ * still receives the text untrimmed).
+ */
+export function cylSearchTextSubmittable(text: string): boolean {
+  return text.trim().length > 0;
+}
