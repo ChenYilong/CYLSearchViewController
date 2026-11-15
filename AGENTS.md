@@ -25,6 +25,7 @@ WeChat DevTools Skills (<https://developers.weixin.qq.com/miniprogram/dev/devtoo
 | `cyl-sub-repositories` | Adding or updating a sibling project as a sub-repository (CollectionViewClassifyMenu, CYLTableViewPlaceHolder): commit pin, core option, example, every platform |
 | `cyl-docs` | Editing `README.md` or `docs/` |
 | `cyl-verify` | Building, testing, running the simulator |
+| `cyl-harmonyos-setup` | Preparing DevEco Studio and the HarmonyOS emulator: SDK paths, virtualization, Huawei ID, region `CN` in `country.region.xml` |
 | `swift-api-design-guidelines`, `swift-language`, `swift-concurrency`, `swift-testing`, `swift-architecture` | Writing or translating Swift (third-party, pinned in `.agents/skills.json`) |
 | `uikit`, `uikit-layouting` | UIKit views, controllers and layout in Swift (third-party) |
 
@@ -392,6 +393,32 @@ marks it `DONE`.
      filtering, caching and event order); write new code only where Android has none, and note it.
   4. Score both tables of `docs/harmonyos-cross-platform.md` after each feature (`python3 scripts/harmonyos-scorecard.py`)
      until no TODO is left.
+
+## HarmonyOS: IDE preparation and emulator prerequisites (added 2026-11-16)
+
+- Prompt (verbatim): "全英文写入instructions相关文件以及 skills相关文件： 鸿蒙系统 ide 准备工作，模拟器安装的必要条件， region should be set to china (NZ) in country.region.xml to china make sure The region file now says China: <countryregion name="CN"/>"
+- Prompt (English): "Write, in English only, into the instruction files and the skill files: the HarmonyOS IDE
+  preparation and the prerequisites for installing the emulator. The region must be set to China in
+  `country.region.xml` (the developer is in New Zealand); make sure the region file says China:
+  `<countryregion name="CN"/>`."
+- Before the first HarmonyOS build or run on a machine, follow the `cyl-harmonyos-setup` skill. In short:
+  1. IDE: DevEco Studio 6.0.1 with its bundled SDK (API 21), signed in with a Huawei ID. Command-line builds set
+     `DEVECO_SDK_HOME` to DevEco Studio's `sdk` and put its `jbr\bin` and `sdk\default\openharmony\toolchains`
+     (`hdc`) on `PATH`. hvigor rejects paths with spaces or non-ASCII characters: build from an ASCII mirror of
+     `harmonyos/` (for example `C:\cylbuild\harmonyos`).
+  2. Emulator prerequisites: a 64-bit Windows 10 or 11 host (or a Mac with Apple silicon); CPU virtualization
+     enabled in the firmware; the Windows features Hyper-V, Windows Hypervisor Platform and Virtual Machine Platform
+     on (`HypervisorPresent` is `True`); 16 GB RAM at least and enough free disk; a Huawei ID sign-in; the Device
+     Manager privacy statement accepted; and the region set to China.
+  3. Region: the developer is in New Zealand (first-launch region `NZ`), but the local emulator is offered only for
+     China. With DevEco Studio closed, `%APPDATA%\Huawei\DevEcoStudio6.0\options\country.region.xml` (macOS:
+     `~/Library/Application Support/Huawei/DevEcoStudio6.0/options/country.region.xml`) must contain
+     `<countryregion name="CN"/>`. Check it before creating an emulator and after restarting the IDE; keep the
+     original as `country.region.xml.bak-NZ`.
+  4. Emulator: Device Manager > Local Emulator > New Emulator > Mate 70 Pro, HarmonyOS 6.0.1 (API 21); check with
+     `hdc list targets`; install with `hdc install`.
+- Status on the Windows machine (checked 2026-11-16): the region file says `<countryregion name="CN"/>`, a hypervisor
+  is present, 64 GB RAM, and the HarmonyOS 6.0.1 `phone_all_x86` image was downloading.
 
 ## Mini program example: a 1:1 copy of the iOS example (added 2026-11-15)
 

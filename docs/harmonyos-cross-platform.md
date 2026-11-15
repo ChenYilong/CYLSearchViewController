@@ -12,7 +12,7 @@ The HarmonyOS port of CYLSearchViewController: the ArkTS library `harmonyos/cyls
 | IDE and SDK | DevEco Studio 6.0.1 with its bundled SDK (API 21), hvigor, ohpm |
 | Run | Huawei emulator (Mate 70 Pro, HarmonyOS 6.0.1, API 21); unsigned HAP installed with `hdc install` |
 
-## IDE preparation and emulator prerequisites (TODO 2026-11-16)
+## IDE preparation and emulator prerequisites (DONE 2026-11-16)
 
 - Prompt (verbatim): "全英文写入instructions相关文件以及 skills相关文件： 鸿蒙系统 ide 准备工作，模拟器安装的必要条件， region should be set to china (NZ) in country.region.xml to china make sure The region file now says China: <countryregion name="CN"/>"
 - Prompt (English): "Write, in English only, into the instruction files and the skill files: the HarmonyOS IDE
@@ -21,7 +21,14 @@ The HarmonyOS port of CYLSearchViewController: the ArkTS library `harmonyos/cyls
   `<countryregion name="CN"/>`."
 - Requirements: English only; update `AGENTS.md`, `instructions.md` and a skill in `.agents/skills`; DevEco Studio
   preparation; emulator prerequisites; region set to China (`CN`) in `country.region.xml`, checked on this machine.
-- Status: TODO.
+- Status: DONE (2026-11-16). New skill `.agents/skills/cyl-harmonyos-setup`; new sections in `AGENTS.md` and
+  `instructions.md` ("HarmonyOS: IDE preparation and emulator prerequisites"); a pointer in `cyl-verify`.
+- Evidence (Windows 11 Pro 10.0.22631, DevEco Studio build `DS-243.24978.46.36.601251`):
+  `%APPDATA%\Huawei\DevEcoStudio6.0\options\country.region.xml` contains `<countryregion name="CN"/>` (the original
+  `NZ` file is kept as `country.region.xml.bak-NZ`); `HypervisorPresent = True`; 64 GB RAM; the HarmonyOS 6.0.1
+  `phone_all_x86` system image was downloading in `%LOCALAPPDATA%\Huawei\Sdk`.
+- TODO: no emulator has been created or started on this machine yet; create the Mate 70 Pro (API 21) emulator once
+  the image download ends, then check it with `hdc list targets`.
 
 ## IN PROGRESS (TODO 2026-11-16): the HarmonyOS scorecard, scored to 100
 

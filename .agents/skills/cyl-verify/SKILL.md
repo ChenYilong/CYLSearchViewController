@@ -134,3 +134,10 @@ three. Correction (user, 2026-11-12): the original wording, "prefer the horizont
 ## Swift core: examples adapt to the core (added 2026-11-13)
 
 When an Objective-C to Swift change of the core breaks an example's build, fix the example: example code has the lowest weight of all code here. Change any example code as needed; never keep a core API, overload, shim or deprecated alias only because an example uses it, and never lower the Swift core's quality (naming, types, optionality, access control) to fit an example. Compatibility matters only for callers outside the examples (published API users). The Swift coding standard (docs/swift-coding-standard.md) decides. Rule and context: [docs/swift-migration.md](../../../docs/swift-migration.md).
+
+## HarmonyOS
+
+Before the first HarmonyOS build or emulator run on a machine, follow `cyl-harmonyos-setup`: DevEco Studio 6.0.1
+and its SDK paths, the emulator prerequisites (virtualization, Hyper-V, Huawei ID), and the region set to China in
+`country.region.xml` (`<countryregion name="CN"/>`, not `NZ`). Report a HarmonyOS run as unverified when no emulator
+or device was used.
