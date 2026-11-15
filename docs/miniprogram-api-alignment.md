@@ -78,7 +78,8 @@
      and drops that file ("module … is not defined"): the entry uses plain `Object.assign(module.exports, require(…))`.
   The same `main` fault exists in cyl-placeholder-miniprogram (`main` is `src/cyl-placeholder/cyl_placeholder.js`, so
   `require('cyl-placeholder-miniprogram')` finds no `index.js` after Build npm); its README uses paths, so it does not
-  show there. Not changed (another repository).
+  show there. Fixed there the same day, with its object-spread entry (fault 3), in
+  [CYLTableViewPlaceHolder PR #32](https://github.com/ChenYilong/CYLTableViewPlaceHolder/pull/32) (`a72ff3f`).
 - Verified in WeChat DevTools 2.02.2609250 (base library 3.6.6): the consumer page renders `cyl-search-bar` with items,
   `cyl-multi-search`, `cyl-search-placeholder` (its image path resolves inside `miniprogram_npm`) and opens
   `cyl-search`; `require('cyl-search-miniprogram')` gives 41 exports. The package folder opens and runs the example
