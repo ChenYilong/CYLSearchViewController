@@ -192,3 +192,20 @@ plus page; the Examples tab at the largest accessibility text size.
   - React Native: DONE 2026-11-16. `CYLPlusButtonAlignsTitle` false (RN `alignsTitle: false`) keeps the title on the
     button, so the multiplier applies; see `android-and-cross-platform.md`, "Open TODOs". The iOS example can use the
     same key in `CYLTabBarConfiguration.json` (still `TODO`, iOS example layer).
+
+## TODO (2026-11-16): SVGA animations from CYLTabBarController, with one SVGA demo for every Rive demo
+
+- Context: CYLTabBarController now ships SVGA animations (SVGA tab icons, integrated like Rive: `0af437e`,
+  `c5c0d33`, `0342bb2`, issue #415). This project integrates CYLTabBarController's tab bar on every platform (iOS,
+  Android, Flutter, React Native, mini program, HarmonyOS); it has no Rive demos of its own yet, so the reference
+  Rive demos are CYLTabBarController's (Example-Rive and the cross-platform Rive demos).
+- Requirements:
+  1. Update the core code so it supports CYLTabBarController's SVGA animations.
+  2. Example layer: copy the Rive demos one to one in SVGA. Every scene that has a Rive demo also gets an SVGA demo.
+  3. List each Rive scene in a table (first column the Rive scene, second column its SVGA counterpart, `TODO` by
+     default); replace a `TODO` when its SVGA demo works, with a screenshot; done when no `TODO` is left.
+- Prompt (verbatim): "找到本项目相关文档，加入TODO：cyltabbar 现已增加svga动效，更新core代码以支持该动效，要求example层一比一复刻rive相关演示。只要rive有的演示场景 svga也要有。"
+- Prompt (English): "Find this project's related document and add a TODO: CYLTabBarController now has SVGA
+  animations; update the core code to support them; the example layer must copy the Rive demos one to one. Every
+  demo scene Rive has, SVGA must have too."
+- Status: logged, not started.
