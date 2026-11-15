@@ -233,3 +233,8 @@ begins and becomes `DONE` when it ends.
   ends the search being typed like `completeSearch`. `CYLSearchResultsViewController` is shown inside
   `CYLSearchController`, so it needs nothing. Tests `controllerHandleBackPressOnlyWhenPresented` and
   `multiSearchHandleBackPressCompletesTyping`; result on the emulator: Tests run: 13, Pass: 13.
+
+- 2026-11-15 Screenshot: Back closes the search page (Mate 70 Pro emulator, HarmonyOS 6.0.1, API 21, unsigned,
+  commit `82797a4`, originals 1316×2832 stacked top to bottom): the search page with "Kot" typed, then Discover after
+  one Back press (the keyboard was already hidden).
+  ![Back closes the search page](assets/harmonyos-back-closes-search-emulator.jpeg)
