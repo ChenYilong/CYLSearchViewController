@@ -1,4 +1,9 @@
+node_modules/
+miniprogram_npm/
+*.tgz
+# Copied from src/ and from CYLTabBarController by scripts/sync-example.js (also run by the DevTools beforeCompile hook).
 example/miniprogram/components/
 example/miniprogram/miniprogram_npm/
 example/vendor/
-example/project.private.config.json
+# Your AppID (DevTools refuses the committed touristappid).
+project.private.config.json

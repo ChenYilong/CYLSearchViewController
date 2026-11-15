@@ -1,14 +1,14 @@
-// Opens example/ in WeChat DevTools (logged in; Settings > Security > service port on), visits every page of the
+// Opens the package folder (its example) in WeChat DevTools (logged in; Settings > Security > service port on), visits every page of the
 // example (a 1:1 copy of the iOS example: four tabs and the plus button's tab, the Examples menu and what it opens),
 // drives the interactions of each, and saves a screenshot of each step:
-// node scripts/devtools-screenshots.js <output folder> [path to example]. Needs: npm i miniprogram-automator, and
-// node scripts/sync-example.js first. CYL_DEVTOOLS_CLI is the DevTools CLI (the macOS path by default; on Windows
+// node scripts/devtools-screenshots.js <output folder> [project path, the package folder by default]. Needs: npm i
+// miniprogram-automator, and node scripts/sync-example.js first. CYL_DEVTOOLS_CLI is the DevTools CLI (the macOS path by default; on Windows
 // "C:\\Program Files (x86)\\Tencent\\微信web开发者工具\\cli.bat").
 const path = require('path');
 const automator = require('miniprogram-automator');
 
 const out = process.argv[2] || '.';
-const projectPath = process.argv[3] || path.join(__dirname, '..', 'example');
+const projectPath = process.argv[3] || path.join(__dirname, '..');
 const cliPath = process.env.CYL_DEVTOOLS_CLI || '/Applications/wechatwebdevtools.app/Contents/MacOS/cli';
 const errors = [];
 

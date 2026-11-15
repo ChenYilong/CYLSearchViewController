@@ -48,6 +48,58 @@
   not measured. The screenshot script retries the first relaunch after a compile.
 - Status: DONE (2026-11-15).
 
+## DONE (2026-11-15): cyl-search-miniprogram as a mini program library
+
+- Branch: `feat/swift-core-next` (PR #9).
+- Prompt (verbatim): "你也要将searchviewcontroller封装为一个小程序库。学习wechat-miniprogram-cylplaceholder他的封装过程"
+- Prompt (English): "Also package SearchViewController as a mini program library, learning from how
+  wechat-miniprogram-cylplaceholder was packaged."
+- What cyl-placeholder-miniprogram (CYLTableViewPlaceHolder `CrossPlatform/wechat-miniprogram-cylplaceholder`) does,
+  and what this package now does the same way:
+  1. `project.config.json` at the package root, `miniprogramRoot` `example/miniprogram/`, the `beforeCompile` /
+     `beforePreview` / `beforeUpload` hooks run `node scripts/sync-example.js` (`scriptsEnable`): the package folder
+     opens in DevTools as is. Your AppID in the git-ignored `project.private.config.json` at the same place.
+  2. `package.json`: `repository.directory`, `miniprogram: "src"` (what DevTools' Build npm copies), `main`, `files`
+     (`src`, `README.md`, `LICENSE`), scripts `test` / `sync-example` / `import-ios`.
+  3. `LICENSE` (MIT, the user's choice on 2026-11-15; the iOS podspec says "All rights reserved"), with the licenses of
+     the bundled images next to them.
+  4. `scripts/sync-example.js` copies with its own `copyDir` (`fs.cpSync` crashes Node 22 on Windows) and copies each
+     installed library's `LICENSE`.
+  5. The README in the same order: install, usage with the properties and events of each component, example,
+     development, license.
+- Beyond the model, checked as a library: `npm pack` (106 files, `src/`, `README.md`, `LICENSE` only), installed into a
+  new mini program, DevTools Build npm, rendered. That found three faults that only a library build shows, all fixed
+  and covered by `test/package.test.js`:
+  1. `require('cyl-search-miniprogram')` loads the `index.js` of the built folder: the entry is `src/index.js`
+     (`main`), which loads `src/cyl_search.js`.
+  2. A mini program resolves no folder to its `index.js`: `require('./core')` failed; every relative require names a
+     file (a test walks `src/`).
+  3. DevTools' "filter unused files" does not see a `require` inside an object spread (`{ ...require('./core/index') }`)
+     and drops that file ("module … is not defined"): the entry uses plain `Object.assign(module.exports, require(…))`.
+  The same `main` fault exists in cyl-placeholder-miniprogram (`main` is `src/cyl-placeholder/cyl_placeholder.js`, so
+  `require('cyl-placeholder-miniprogram')` finds no `index.js` after Build npm); its README uses paths, so it does not
+  show there. Not changed (another repository).
+- Verified in WeChat DevTools 2.02.2609250 (base library 3.6.6): the consumer page renders `cyl-search-bar` with items,
+  `cyl-multi-search`, `cyl-search-placeholder` (its image path resolves inside `miniprogram_npm`) and opens
+  `cyl-search`; `require('cyl-search-miniprogram')` gives 41 exports. The package folder opens and runs the example
+  after `npm run sync-example`; the DevTools hooks did not run when the project was opened and refreshed through the
+  CLI (DevTools asks once in its own window whether to run a project's custom commands). Node tests 30/30.
+
+| Path (under `CrossPlatform/wechat-miniprogram-cylsearch/`) | Role |
+| --- | --- |
+| `package.json`, `LICENSE`, `README.md` | The npm package (`main` `src/index.js`, `miniprogram` `src`, `files`) |
+| `project.config.json` (+ git-ignored `project.private.config.json`) | The DevTools project: the example, the sync hooks |
+| `src/index.js`, `src/cyl_search.js` | The JavaScript entry: the core and the helpers |
+| `src/core/` | The core: a counterpart of every public iOS API (ported from the HarmonyOS models) |
+| `src/cyl-search-bar/`, `src/cyl-search-bar-item/`, `src/cyl-search/`, `src/cyl-search-controller/`, `src/cyl-multi-search/`, `src/cyl-search-placeholder/`, `src/cyl-search-animation-placeholder/` | The components |
+| `src/cyl-search/*.js` | The components' logic: view model, items, suggestion cache, playback, tag fold, navigation metrics, format |
+| `src/images/` | Icons; `placeholder/` holds the 41 placeholder images of the iOS bundle and their licenses |
+| `scripts/import-ios-resources.js` | Re-imports the iOS images, texts and Discover data |
+| `scripts/sync-example.js` | Copies `src/` and CYLTabBarController's tab bar and Lottie player into the example (DevTools hooks) |
+| `scripts/devtools-screenshots.js` | Drives every page of the example with miniprogram-automator |
+| `example/miniprogram/` | The example, a 1:1 copy of the iOS example |
+| `test/*.test.js` | `node --test` unit tests |
+
 ## DONE (2026-11-15): the example is a 1:1 copy of the iOS example
 
 - Branch: `feat/swift-core-next` (PR #9). Code: [`d19e0bb`](https://github.com/ChenYilong/CYLSearchViewController/commit/d19e0bb).

@@ -216,3 +216,8 @@ begins and becomes `DONE` when it ends.
   1:1 copy of the iOS example (tabs, pages, texts in four languages, data, images, interactions), with the core
   components it needed (`d19e0bb`); see `docs/miniprogram-api-alignment.md`. Verified in WeChat DevTools: 18 pages,
   11 interactions, no console error; Node tests 26/26.
+- Progress (2026-11-15, "将searchviewcontroller封装为一个小程序库", branch `feat/swift-core-next`): DONE, modeled on
+  CYLTableViewPlaceHolder's `wechat-miniprogram-cylplaceholder`: the DevTools project and the sync hooks at the package
+  root (the AppID moved to the package's git-ignored `project.private.config.json`), `package.json` entry and files,
+  MIT `LICENSE`, README; checked with `npm pack` in a new mini program (Build npm), which found and fixed three
+  library-only faults. See `docs/miniprogram-api-alignment.md`. Node tests 30/30.
