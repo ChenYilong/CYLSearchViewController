@@ -83,7 +83,9 @@
   `cyl-multi-search`, `cyl-search-placeholder` (its image path resolves inside `miniprogram_npm`) and opens
   `cyl-search`; `require('cyl-search-miniprogram')` gives 41 exports. The package folder opens and runs the example
   after `npm run sync-example`; the DevTools hooks did not run when the project was opened and refreshed through the
-  CLI (DevTools asks once in its own window whether to run a project's custom commands). Node tests 30/30.
+  CLI, neither with `simulator_refresh` nor with a full compile (`simulator_open_page`). cyl-placeholder-miniprogram's
+  identical hooks do not run that way either (checked the same day): DevTools runs a project's custom commands only
+  after you allow them in its own window. Run `npm run sync-example` when driving DevTools from the CLI. Node tests 30/30.
 
 | Path (under `CrossPlatform/wechat-miniprogram-cylsearch/`) | Role |
 | --- | --- |
