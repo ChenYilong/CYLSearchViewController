@@ -216,3 +216,12 @@ begins and becomes `DONE` when it ends.
   `hvigorw -p module=entry@ohosTest -p isOhosTest=true -p buildMode=test assembleHap`, `hdc install` both HAPs,
   `hdc shell aa test -b com.cyl.search.harmonyos -m entry_test -s unittest /ets/testrunner/OpenHarmonyTestRunner`.
   Result on the Mate 70 Pro emulator (HarmonyOS 6.0.1, API 21): Tests run: 6, Failure: 0, Error: 0, Pass: 6.
+
+- 2026-11-15 DONE: HarmonyOS UI tests. Prompt: "ui tests". `entry/src/ohosTest/ets/test/CYLSearchUI.test.ets` drives
+  the example with `@kit.TestKit` `Driver` (strings read from resources, so it passes in any system language):
+  Discover shows its title and search bar; "Open search" (id `CYLSearchDiscoverOpenSearch`) shows the empty
+  placeholder; typing "Kot" lists Kotlin and hides Flutter; Back returns to Discover.
+  Bug found and fixed: the system Back gesture never closed the search page (the second press left the app). New core
+  API `CYLSearchView.handleBackPress()` closes an open search view and returns true; the example page's
+  `onBackPress()` returns it. Core test `handleBackPressOnlyWhenOpen` added.
+  Result on the Mate 70 Pro emulator: Tests run: 11, Failure: 0, Error: 0, Pass: 11.

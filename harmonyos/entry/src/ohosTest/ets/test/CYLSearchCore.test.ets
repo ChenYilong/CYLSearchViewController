@@ -8,7 +8,8 @@ import {
   CYLSearchPlaceholderView,
   CYLSearchResources,
   CYLSearchSuggestionCachePolicy,
-  CYLSearchSuggestionStore
+  CYLSearchSuggestionStore,
+  CYLSearchView
 } from 'cylsearch';
 
 function context(): common.Context {
@@ -54,6 +55,15 @@ export default function cylSearchCoreTest() {
     it('placeholderKindsHaveViews', 0, () => {
       expect(CYLSearchPlaceholderView.withKind(CYLSearchPlaceholderKind.noResults) !== undefined).assertTrue();
       expect(CYLSearchPlaceholderView.withKind(CYLSearchPlaceholderKind.error) !== undefined).assertTrue();
+    });
+
+    it('handleBackPressOnlyWhenOpen', 0, () => {
+      const view = new CYLSearchView();
+      expect(view.handleBackPress()).assertFalse();
+      view.showSearch(false);
+      expect(view.isSearchOpen).assertTrue();
+      expect(view.handleBackPress()).assertTrue();
+      expect(view.isSearchOpen).assertFalse();
     });
 
     it('searchBarKeepsItemsInOrder', 0, () => {

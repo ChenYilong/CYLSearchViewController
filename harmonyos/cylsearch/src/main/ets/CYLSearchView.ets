@@ -432,6 +432,18 @@ export class CYLSearchView {
   }
 
   /**
+   * Closes the open search view for the system Back gesture; true when it did. Call it from the page's
+   * `onBackPress()` and return its result (Android `OnBackPressedCallback`; iOS has the back button only).
+   */
+  handleBackPress(): boolean {
+    if (!this.open) {
+      return false;
+    }
+    this.closeSearch(true);
+    return true;
+  }
+
+  /**
    * The state to keep across a restart: whether the search view is open and its query.
    */
   encodeRestorableState(): Record<string, Object> {

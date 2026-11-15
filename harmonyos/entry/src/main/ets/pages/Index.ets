@@ -61,6 +61,11 @@ struct Index {
     this.searchView.searchBarView.placeholder = this.text('discover_search');
   }
 
+  // The system Back gesture closes the search page first.
+  onBackPress(): boolean {
+    return this.searchView.handleBackPress();
+  }
+
   // A string of this module in the system language (resources/base, resources/zh_CN).
   private text(name: string): string {
     return this.getUIContext().getHostContext()!.resourceManager.getStringByNameSync(name);
@@ -89,6 +94,7 @@ struct Index {
           Text($r('app.string.discover_open_search'))
             .fontSize(16)
             .fontColor($r('sys.color.brand'))
+            .id('CYLSearchDiscoverOpenSearch')
             .onClick(() => {
               this.searchView.showSearch();
             })
