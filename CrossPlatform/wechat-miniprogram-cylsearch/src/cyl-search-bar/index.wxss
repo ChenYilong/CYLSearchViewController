@@ -1,13 +1,47 @@
-.cyl-bar { display: flex; align-items: center; padding: 12rpx 24rpx; }
-.cyl-field { flex: 1; display: flex; align-items: center; height: 72rpx; padding: 0 24rpx; border-radius: 36rpx; background: #f2f2f7; }
-.cyl-bar-bordered .cyl-field { background: #fff; border: 2rpx solid #d1d1d6; box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.06); }
-.cyl-field-icon { width: 36rpx; height: 36rpx; margin-right: 12rpx; }
-.cyl-input { flex: 1; height: 72rpx; font-size: 34rpx; }
-.cyl-item { position: relative; display: flex; align-items: center; justify-content: center; min-width: 72rpx; min-height: 72rpx; padding: 0 8rpx; }
+:host { display: block; }
+.cyl-bar { display: flex; align-items: center; padding: 6px 12px; }
+.cyl-field { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; padding: 0 12px; box-sizing: border-box; background: rgba(118, 118, 128, 0.12); transition-property: opacity, transform, clip-path; transition-timing-function: ease-out; }
+.cyl-bar-bordered .cyl-field { background: #fff; border: 1px solid #c6c6c8; }
+.cyl-field-icon { flex: none; width: 18px; height: 18px; margin-right: 6px; }
+.cyl-input { flex: 1; min-width: 0; color: #000; }
+.cyl-tap-cover { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
+.cyl-field-button, .cyl-navigation { flex: none; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; }
+.cyl-navigation { margin-right: 4px; }
+.cyl-item { position: relative; display: flex; align-items: center; justify-content: center; min-width: 36px; min-height: 36px; padding: 0 4px; }
 .cyl-item-disabled { opacity: 0.4; }
-.cyl-item-icon { width: 44rpx; height: 44rpx; }
-.cyl-item-title { font-size: 34rpx; font-weight: 600; margin-left: 8rpx; }
-.cyl-divider { width: 2rpx; height: 36rpx; margin: 0 8rpx; background: #d1d1d6; }
-.cyl-badge { position: absolute; top: 4rpx; right: 4rpx; min-width: 32rpx; height: 32rpx; padding: 0 8rpx; border-radius: 16rpx; background: #ff3b30; color: #fff; font-size: 22rpx; line-height: 32rpx; text-align: center; }
-.cyl-badge-dot { min-width: 16rpx; width: 16rpx; height: 16rpx; padding: 0; }
-.cyl-cancel { padding: 0 24rpx; color: #007aff; font-size: 34rpx; }
+.cyl-item-icon { width: 22px; height: 22px; }
+.cyl-item-title { font-size: 17px; font-weight: 600; margin-left: 4px; }
+.cyl-divider { width: 1px; height: 18px; margin: 0 4px; background: #c6c6c8; }
+.cyl-badge { position: absolute; top: 2px; right: 2px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: #ff3b30; color: #fff; font-size: 11px; line-height: 16px; text-align: center; }
+.cyl-badge-dot { min-width: 8px; width: 8px; height: 8px; padding: 0; }
+.cyl-cancel { flex: none; padding: 0 0 0 12px; color: #007aff; font-size: 17px; }
+
+/* The expansion animations: the field fades in from the icon, or a circle grows from the icon until it uncovers it. */
+.cyl-anim-fade.cyl-field-revealing { opacity: 0; transform: scaleX(0.2); }
+.cyl-icon-trailing .cyl-anim-fade { transform-origin: right center; }
+.cyl-icon-leading .cyl-anim-fade { transform-origin: left center; }
+.cyl-anim-circularReveal { clip-path: circle(150% at 50% 50%); }
+.cyl-icon-trailing .cyl-anim-circularReveal.cyl-field-revealing { clip-path: circle(0 at 100% 50%); }
+.cyl-icon-leading .cyl-anim-circularReveal.cyl-field-revealing { clip-path: circle(0 at 0 50%); }
+.cyl-icon-center .cyl-anim-circularReveal.cyl-field-revealing { clip-path: circle(0 at 50% 50%); }
+
+/* Iconified: only the search button, at the icon position. */
+.cyl-icon-trailing { justify-content: flex-end; }
+.cyl-icon-center { justify-content: center; }
+.cyl-icon-leading { justify-content: flex-start; }
+.cyl-icon-button { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 22px; }
+
+/* Template icons: a shape filled with the tint color (dark mode and colored themes set background-color). */
+.cyl-mask-icon { width: 22px; height: 22px; background-color: #007aff; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; }
+.cyl-mask-search { -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'><circle cx='10.5' cy='10.5' r='6.5'/><path d='M15.5 15.5L21 21'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'><circle cx='10.5' cy='10.5' r='6.5'/><path d='M15.5 15.5L21 21'/></svg>"); }
+.cyl-mask-back { -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><path d='M15 4l-8 8 8 8'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><path d='M15 4l-8 8 8 8'/></svg>"); }
+.cyl-mask-clear { width: 18px; height: 18px; background-color: rgba(60, 60, 67, 0.3); -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='black' fill-rule='evenodd' d='M12 1a11 11 0 1 1 0 22 11 11 0 0 1 0-22zm-3.3 6.3l-1.4 1.4 3.3 3.3-3.3 3.3 1.4 1.4 3.3-3.3 3.3 3.3 1.4-1.4-3.3-3.3 3.3-3.3-1.4-1.4-3.3 3.3z'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='black' fill-rule='evenodd' d='M12 1a11 11 0 1 1 0 22 11 11 0 0 1 0-22zm-3.3 6.3l-1.4 1.4 3.3 3.3-3.3 3.3 1.4 1.4 3.3-3.3 3.3 3.3 1.4-1.4-3.3-3.3 3.3-3.3-1.4-1.4-3.3 3.3z'/></svg>"); }
+.cyl-mask-mic { background-color: rgba(60, 60, 67, 0.6); -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'><rect x='9' y='2' width='6' height='12' rx='3'/><path d='M5 11a7 7 0 0 0 14 0M12 18v4'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'><rect x='9' y='2' width='6' height='12' rx='3'/><path d='M5 11a7 7 0 0 0 14 0M12 18v4'/></svg>"); }
+.cyl-mask-submit { -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='black' fill-rule='evenodd' d='M12 1a11 11 0 1 1 0 22 11 11 0 0 1 0-22zm.6 5.6l-1.4 1.4 3 3H6v2h8.2l-3 3 1.4 1.4 5.4-5.4z'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='black' fill-rule='evenodd' d='M12 1a11 11 0 1 1 0 22 11 11 0 0 1 0-22zm.6 5.6l-1.4 1.4 3 3H6v2h8.2l-3 3 1.4 1.4 5.4-5.4z'/></svg>"); }
+
+@media (prefers-color-scheme: dark) {
+  .cyl-field { background: rgba(118, 118, 128, 0.24); }
+  .cyl-bar-bordered .cyl-field { background: #1c1c1e; border-color: #38383a; }
+  .cyl-input { color: #fff; }
+  .cyl-mask-icon { background-color: #0a84ff; }
+}

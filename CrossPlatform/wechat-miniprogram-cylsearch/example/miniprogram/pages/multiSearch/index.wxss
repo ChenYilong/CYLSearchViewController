@@ -1,0 +1,5 @@
+.screen { display: flex; flex-direction: column; height: 100vh; background: #fff; }
+.multi { margin: 16px 8px 0; }
+.log { flex: 1; min-height: 0; margin-top: 16px; padding: 0 16px; box-sizing: border-box; }
+.log-text { font-family: Menlo, monospace; font-size: 13px; line-height: 1.4; color: #000; white-space: pre-wrap; }
+@media (prefers-color-scheme: dark) { .screen { background: #000; } .log-text { color: #fff; } }

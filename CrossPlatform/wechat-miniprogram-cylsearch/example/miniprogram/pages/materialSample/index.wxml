@@ -1,0 +1,43 @@
+<view class="screen">
+  <cyl-demo-nav title="{{title}}" rightIcon="search" rightLabel="{{openLabel}}" rightIdentifier="CYLMaterialOpenSearch" bind:righttap="openSearch" />
+  <!-- StickyActivity: a long list scrolls under the sticky toolbar. -->
+  <scroll-view wx:if="{{sample === 'sticky'}}" scroll-y class="sticky-list">
+    <view wx:for="{{items}}" wx:key="*this" class="sticky-item">{{item}}</view>
+  </scroll-view>
+  <!-- TabActivity: three pages under tabs. -->
+  <view wx:elif="{{sample === 'tabs'}}" class="tabs-page">
+    <view class="segmented" role="tablist">
+      <view wx:for="{{pages}}" wx:key="*this" class="segment {{index === selectedPage ? 'segment-selected' : ''}}" role="tab"
+        aria-selected="{{index === selectedPage}}" data-index="{{index}}" bindtap="onSelectPage">{{item}}</view>
+    </view>
+    <view class="title2">{{pages[selectedPage]}}</view>
+  </view>
+  <view wx:else class="center"><view class="title2">{{title}}</view></view>
+
+  <cyl-search id="search" generic:cyl-animation-view="cyl-lottie" coversNavigationBar
+    suggestions="{{configuration.suggestions}}" suggestionStyle="{{suggestionStyle}}" foldedRowCount="{{2}}"
+    showsEmptyResultsPlaceholder="{{true}}" cacheName="MaterialSearchView" focusesSearchFieldOnShow="{{focusesSearchFieldOnShow}}"
+    placeholder="{{placeholder}}" showsVoiceButton="{{configuration.showsVoiceButton}}" cursorColor="{{configuration.cursorColor}}"
+    suggestionLineBreak="{{configuration.suggestionLineBreak}}" secure="{{configuration.secure}}"
+    backgroundColor="{{configuration.backgroundColor}}" textColor="{{configuration.textColor}}" placeholderColor="{{configuration.placeholderColor}}"
+    navigationColor="{{configuration.navigationColor}}" suggestionTextColor="{{configuration.suggestionTextColor}}"
+    suggestionImageTintColor="{{configuration.suggestionImageTintColor}}" dividerColor="{{configuration.dividerColor}}"
+    emptyResultsAnimation="/assets/placeholder/CYLPlaceholderNoResults.json" emptySuggestionsAnimation="/assets/placeholder/CYLPlaceholderNoDrafts.json"
+    animationSpeed="{{animationSpeed}}" animationLoops="{{animationLoops}}"
+    bind:submit="onSubmit" bind:close="onSearchClose" bind:voicetap="onVoice">
+    <!-- The playback controls of the animated placeholder (AGENTS.md, "Animation examples: playback controls"). -->
+    <view slot="placeholder-footer" class="playback" aria-label="Animation playback" aria-value="{{animationPlaybackDescription}}">
+      <button class="play-all" size="mini" bindtap="onPlayAll" aria-label="Play all animations from the start">Play all</button>
+      <view class="playback-row">
+        <text>Speed {{animationSpeed}}x</text>
+        <slider class="playback-slider" min="1" max="12" step="1" value="{{animationSpeedStep}}" bindchanging="onSpeedChange" bindchange="onSpeedChange"
+          aria-label="Animation speed" aria-valuetext="{{animationSpeed}}x" />
+      </view>
+      <view class="playback-row">
+        <text>Loop</text>
+        <switch checked="{{animationLoops}}" bindchange="onLoopChange" aria-label="Loop animations" />
+      </view>
+    </view>
+  </cyl-search>
+  <cyl-demo-snackbar id="snackbar" />
+</view>

@@ -1,0 +1,11 @@
+<view class="screen">
+  <cyl-demo-nav title="{{expanded ? '' : 'SearchView'}}">
+    <view slot="right" class="toolbar-search" style="width: {{expanded ? expandedWidth : 44}}px">
+      <cyl-search-bar id="toolbarSearch" iconifiedByDefault showsSubmitButton returnKeyType="search" placeholder="{{keyword}}" placeholderColor="#dcdcdc"
+        contentInsets="0" fieldBackgroundColor="transparent" iconPosition="trailing"
+        bind:submit="onSubmit" bind:textchange="onTextChange" bind:iconifiedchange="onIconifiedChange" />
+    </view>
+  </cyl-demo-nav>
+  <view class="center"><view wx:if="{{showsResult}}" class="title2">{{result}}</view></view>
+  <cyl-demo-snackbar id="snackbar" />
+</view>

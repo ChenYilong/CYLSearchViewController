@@ -1,0 +1,20 @@
+<view wx:if="{{shown}}" class="nav-space" style="height: {{statusBarHeight + navigationBarHeight}}px" />
+<view wx:if="{{shown}}" class="nav" style="padding-top: {{statusBarHeight}}px; {{barStyle}}">
+  <view class="nav-row" style="height: {{navigationBarHeight}}px; padding-right: {{trailingInset}}px">
+    <view class="nav-leading">
+      <view wx:if="{{showsBack && !leftTitle}}" class="nav-back" role="button" aria-label="{{backLabel}}" bindtap="onBack">
+        <view class="nav-icon nav-icon-back" style="{{tintColor ? 'background-color: ' + tintColor : ''}}" aria-hidden="true" />
+      </view>
+      <view wx:if="{{leftTitle}}" class="nav-button" role="button" bindtap="onLeft" style="{{tintColor ? 'color: ' + tintColor : ''}}">{{leftTitle}}</view>
+      <slot name="left" />
+    </view>
+    <view class="nav-title" role="heading" style="{{tintColor ? 'color: ' + tintColor : ''}}">{{title}}</view>
+    <view class="nav-trailing">
+      <slot name="right" />
+      <view wx:if="{{rightTitle}}" class="nav-button" role="button" id="{{rightIdentifier}}" bindtap="onRight" style="{{tintColor ? 'color: ' + tintColor : ''}}">{{rightTitle}}</view>
+      <view wx:if="{{rightIcon}}" class="nav-back" role="button" aria-label="{{rightLabel}}" id="{{rightIdentifier}}" bindtap="onRight">
+        <view class="nav-icon nav-icon-{{rightIcon}}" style="{{tintColor ? 'background-color: ' + tintColor : ''}}" aria-hidden="true" />
+      </view>
+    </view>
+  </view>
+</view>

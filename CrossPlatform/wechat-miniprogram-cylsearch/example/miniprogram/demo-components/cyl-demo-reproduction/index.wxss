@@ -1,0 +1,10 @@
+.screen { display: flex; flex-direction: column; height: 100vh; background: #fff; }
+.screen-tab { height: calc(100vh - 50px - env(safe-area-inset-bottom)); }
+.pinned { flex: none; background: rgba(249, 249, 249, 0.94); }
+.list { flex: 1; min-height: 0; }
+.row { padding: 11px 16px; font-size: 17px; color: #000; border-bottom: 1px solid #e5e5ea; }
+@media (prefers-color-scheme: dark) {
+  .screen { background: #000; }
+  .pinned { background: rgba(29, 29, 31, 0.94); }
+  .row { color: #fff; border-color: #38383a; }
+}

@@ -1,0 +1,5 @@
+<view class="screen">
+  <cyl-demo-nav title="{{title}}" />
+  <cyl-search-placeholder class="fill" placeholderStyle="{{placeholderStyle}}" message="{{message}}" text="{{text}}"
+    image="{{image}}" tintsImage="{{!!image}}" imageTintColor="{{tint}}" />
+</view>

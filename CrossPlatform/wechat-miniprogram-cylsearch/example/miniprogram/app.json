@@ -2,47 +2,50 @@
   "pages": [
     "pages/search/index",
     "pages/examples/index",
-    "pages/listStyle/index",
+    "pages/plus/index",
     "pages/tagStyle/index",
     "pages/discover/index",
-    "pages/plus/index"
+    "pages/reproduction/index",
+    "pages/styles/index",
+    "pages/placeholderDetail/index",
+    "pages/searchBar/index",
+    "pages/ports/index",
+    "pages/lapism/index",
+    "pages/materialMenu/index",
+    "pages/materialSample/index",
+    "pages/yechaoa/index",
+    "pages/reveal/index",
+    "pages/multiSearch/index"
   ],
   "window": {
-    "navigationBarTitleText": "CYLSearch",
-    "navigationBarBackgroundColor": "#ffffff",
-    "navigationBarTextStyle": "black"
+    "navigationStyle": "custom",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#f2f2f7"
   },
   "tabBar": {
     "custom": true,
     "color": "#8e8e93",
     "selectedColor": "#007aff",
     "list": [
-      {
-        "pagePath": "pages/search/index",
-        "text": "search"
-      },
-      {
-        "pagePath": "pages/examples/index",
-        "text": "examples"
-      },
-      {
-        "pagePath": "pages/listStyle/index",
-        "text": "listStyle"
-      },
-      {
-        "pagePath": "pages/tagStyle/index",
-        "text": "tagStyle"
-      },
-      {
-        "pagePath": "pages/discover/index",
-        "text": "discover"
-      }
+      { "pagePath": "pages/search/index", "text": "Search" },
+      { "pagePath": "pages/examples/index", "text": "Examples" },
+      { "pagePath": "pages/plus/index", "text": "Search bar" },
+      { "pagePath": "pages/tagStyle/index", "text": "Tag style" },
+      { "pagePath": "pages/discover/index", "text": "Discover" }
     ]
   },
   "usingComponents": {
     "cyl-search-bar": "/components/cyl-search-bar/index",
     "cyl-search": "/components/cyl-search/index",
-    "cyl-lottie": "cyl-lottie-miniprogram/cyl-lottie/index"
+    "cyl-search-placeholder": "/components/cyl-search-placeholder/index",
+    "cyl-search-controller": "/components/cyl-search-controller/index",
+    "cyl-multi-search": "/components/cyl-multi-search/index",
+    "cyl-lottie": "cyl-lottie-miniprogram/cyl-lottie/index",
+    "cyl-demo-nav": "/demo-components/cyl-demo-nav/index",
+    "cyl-demo-snackbar": "/demo-components/cyl-demo-snackbar/index",
+    "cyl-demo-reproduction": "/demo-components/cyl-demo-reproduction/index",
+    "cyl-demo-material-menu": "/demo-components/cyl-demo-material-menu/index",
+    "cyl-demo-search-bar": "/demo-components/cyl-demo-search-bar/index"
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json"

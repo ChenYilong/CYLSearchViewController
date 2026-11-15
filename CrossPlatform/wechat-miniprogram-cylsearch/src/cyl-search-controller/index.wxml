@@ -1,0 +1,10 @@
+<!-- The search overlay (iOS CYLSearchController): Cancel, the pinned search field, the results. -->
+<view wx:if="{{visible}}" class="cyl-overlay {{entered ? 'cyl-overlay-entered' : ''}}" role="dialog">
+  <view class="cyl-overlay-top" style="{{topStyle}}">
+    <view class="cyl-overlay-cancel" role="button" bindtap="onCancel">{{labels.cancel}}</view>
+  </view>
+  <cyl-search-bar value="{{query}}" placeholder="{{placeholder || labels.placeholder}}" focus="{{focus}}" bind:textchange="onTextChange" />
+  <scroll-view scroll-y class="cyl-overlay-list">
+    <view wx:for="{{results}}" wx:key="index" class="cyl-overlay-row" role="button" data-index="{{index}}" bindtap="onResultTap">{{item}}</view>
+  </scroll-view>
+</view>

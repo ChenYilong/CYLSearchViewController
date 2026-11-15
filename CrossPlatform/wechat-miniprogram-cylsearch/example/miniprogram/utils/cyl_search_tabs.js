@@ -1,79 +1,52 @@
-// The example's tab bar: the same configuration keys as the iOS and Android examples (CYLTabBarConfiguration.json),
-// read by cyl-tab-bar of CYLTabBarController's mini program package. Tab pages are limited to five, so the plus button
-// opens its page (pages/plus, the search bar samples) with wx.navigateTo.
+// The example's tab bar: the iOS example's CYLTabBarConfiguration.json (four tabs and the plus button, whose "plus"
+// page is a tab of its own), read by cyl-tab-bar of CYLTabBarController's mini program package. The titles are the
+// iOS CYLSearchTabs.strings (utils/cyl_demo_resources.js). The plus button keeps the mini program sizes of the raised
+// button; the tab pages are the five pages of app.json "tabBar".
+const { cylDemoText } = require('./cyl_demo_text');
+
 const configuration = {
-  "CYLTabBarControllerContext": "CYLSearchExampleMiniProgram",
-  "CYLTabBarControllerTabBarItemsAttributes": [
-    {
-      "CYLTabBarItemTitle": "tab.search",
-      "CYLTabBarItemImage": "system:magnifyingglass",
-      "CYLTabBarItemIdentifier": "search",
-      "CYLTabBarItemPageIdentifier": "search"
-    },
-    {
-      "CYLTabBarItemTitle": "tab.examples",
-      "CYLTabBarItemImage": "system:list.bullet",
-      "CYLTabBarItemIdentifier": "examples",
-      "CYLTabBarItemPageIdentifier": "examples"
-    },
-    {
-      "CYLTabBarItemTitle": "tab.listStyle",
-      "CYLTabBarItemImage": "system:list.style",
-      "CYLTabBarItemIdentifier": "listStyle",
-      "CYLTabBarItemPageIdentifier": "listStyle"
-    },
-    {
-      "CYLTabBarItemTitle": "tab.tagStyle",
-      "CYLTabBarItemImage": "system:tag",
-      "CYLTabBarItemIdentifier": "tagStyle",
-      "CYLTabBarItemPageIdentifier": "tagStyle"
-    },
-    {
-      "CYLTabBarItemTitle": "tab.discover",
-      "CYLTabBarItemImage": "system:discover",
-      "CYLTabBarItemIdentifier": "discover",
-      "CYLTabBarItemPageIdentifier": "discover"
-    }
+  CYLTabBarControllerContext: 'CYLSearchExample',
+  CYLTabBarControllerTitlePositionAdjustment: '{0, -2}',
+  CYLTabBarControllerTabBarItemsAttributes: [
+    { CYLTabBarItemTitle: 'tab.search', CYLTabBarItemImage: 'system:magnifyingglass',
+      CYLTabBarItemSelectedImage: 'system:magnifyingglass', CYLTabBarItemIdentifier: 'search',
+      CYLTabBarItemPageIdentifier: 'search' },
+    { CYLTabBarItemTitle: 'tab.examples', CYLTabBarItemImage: 'system:list.bullet',
+      CYLTabBarItemSelectedImage: 'system:list.bullet', CYLTabBarItemIdentifier: 'examples',
+      CYLTabBarItemPageIdentifier: 'examples' },
+    { CYLTabBarItemTitle: 'tab.tagStyle', CYLTabBarItemImage: 'system:tag',
+      CYLTabBarItemSelectedImage: 'system:tag.fill', CYLTabBarItemIdentifier: 'tagStyle',
+      CYLTabBarItemPageIdentifier: 'tagStyle' },
+    { CYLTabBarItemTitle: 'tab.discover', CYLTabBarItemImage: 'system:sparkle.magnifyingglass',
+      CYLTabBarItemSelectedImage: 'system:sparkle.magnifyingglass', CYLTabBarItemIdentifier: 'discover',
+      CYLTabBarItemPageIdentifier: 'discover' },
   ],
-  "CYLTabBarControllerPlusButton": {
-    "CYLTabBarItemTitle": "tab.searchBar",
-    "CYLTabBarItemImage": "system:plus.circle.fill",
-    "CYLTabBarItemIdentifier": "plus",
-    "CYLTabBarItemPageIdentifier": "plus",
-    "CYLPlusButtonSize": "{56, 56}",
-    "CYLPlusButtonCenterYMultiplier": 0.3,
-    "CYLPlusButtonIndexInTabBar": 2
-  }
-};
-const strings = {
-  "en": {
-    "tab.search": "Search",
-    "tab.examples": "Examples",
-    "tab.listStyle": "List style",
-    "tab.tagStyle": "Tag style",
-    "tab.discover": "Discover",
-    "tab.searchBar": "Search bar"
+  CYLTabBarControllerPlusButton: {
+    CYLTabBarItemTitle: 'tab.searchBar',
+    CYLTabBarItemImage: 'system:plus.circle.fill',
+    CYLTabBarItemIdentifier: 'plus',
+    CYLTabBarItemPageIdentifier: 'plus',
+    CYLPlusButtonSize: '{56, 56}',
+    CYLPlusButtonCenterYMultiplier: 0.3,
+    CYLPlusButtonIndexInTabBar: 2,
   },
-  "zh-Hans": {
-    "tab.search": "搜索",
-    "tab.examples": "示例",
-    "tab.listStyle": "列表样式",
-    "tab.tagStyle": "标签样式",
-    "tab.discover": "发现",
-    "tab.searchBar": "搜索栏"
-  }
 };
+
 const symbols = {
   magnifyingglass: '/assets/tab/search.svg',
   'list.bullet': '/assets/tab/examples.svg',
-  'list.style': '/assets/tab/list-style.svg',
   tag: '/assets/tab/tag.svg',
-  discover: '/assets/tab/discover.svg',
+  'tag.fill': '/assets/tab/tag-fill.svg',
+  'sparkle.magnifyingglass': '/assets/tab/discover.svg',
   'plus.circle.fill': '/assets/tab/plus.svg',
 };
+
+/** The tab titles in the WeChat language (en, ja, zh-Hans, zh-Hant, as on iOS). */
 function cylTabStrings() {
-  let language = 'en';
-  try { language = (wx.getAppBaseInfo ? wx.getAppBaseInfo() : wx.getSystemInfoSync()).language || 'en'; } catch (e) {}
-  return /^zh/.test(language) ? strings['zh-Hans'] : strings.en;
+  const keys = ['tab.search', 'tab.examples', 'tab.searchBar', 'tab.tagStyle', 'tab.discover'];
+  const strings = {};
+  keys.forEach((key) => { strings[key] = cylDemoText(key); });
+  return strings;
 }
+
 module.exports = { configuration, symbols, cylTabStrings };

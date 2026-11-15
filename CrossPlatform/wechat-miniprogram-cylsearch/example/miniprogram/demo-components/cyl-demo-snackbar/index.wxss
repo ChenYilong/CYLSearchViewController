@@ -1,0 +1,2 @@
+.snackbar { position: fixed; left: 8px; right: 8px; z-index: 300; padding: 14px 16px; border-radius: 8px; background: rgba(51, 51, 51, 0.95); color: #fff; font-size: 15px; line-height: 1.35; transition: opacity 0.25s; }
+.snackbar-fading { opacity: 0; }

@@ -1,19 +1,24 @@
+// The "Examples" tab (iOS CYLSearchDemoMenuViewController): the reproduction, the placeholder styles, the search bar
+// and the other libraries' examples.
 const { cylSelectTab } = require('../../utils/cyl_tab_page');
+const { cylDemoText } = require('../../utils/cyl_demo_text');
+
+const ROWS = [
+  { key: 'demo.reproduction', url: '/pages/reproduction/index' },
+  { key: 'demo.styles', url: '/pages/styles/index' },
+  { key: 'demo.searchBar', url: '/pages/searchBar/index' },
+  { key: 'demo.ports', url: '/pages/ports/index' },
+];
+
 Page({
-  data: { suggestions: ['Swift', 'Objective-C', 'Kotlin', 'Java', 'Dart', 'ArkTS', 'TypeScript', 'JavaScript', 'Rust', 'Go', 'C++', 'Python'], lastEvent: '', rows: [{ title: 'List style', detail: 'Suggestions as a list, keyboard up', path: '/pages/listStyle/index' }, { title: 'Tag style', detail: 'Suggestions as tags, keyboard down', path: '/pages/tagStyle/index' }, { title: 'Discover', detail: 'Search bar with items', path: '/pages/discover/index' }, { title: 'Search bar', detail: 'Plain, bordered, leading and trailing slots', path: '/pages/plus/index' }] },
+  data: { title: '', rows: [] },
+  onLoad() {
+    this.setData({ title: cylDemoText('demo.title'), rows: ROWS.map((row) => ({ title: cylDemoText(row.key), url: row.url })) });
+  },
   onShow() {
     cylSelectTab(this, 'examples');
   },
-  openSearch() {
-    const search = this.selectComponent('#search');
-    if (search) search.show();
-  },
-  onSubmit(event) {
-    this.setData({ lastEvent: `submit: ${event.detail.text}` });
-  },
   onRow(event) {
-    const path = event.currentTarget.dataset.path;
-    if (path === '/pages/plus/index') wx.navigateTo({ url: path });
-    else wx.switchTab({ url: path });
+    wx.navigateTo({ url: event.currentTarget.dataset.url });
   },
 });

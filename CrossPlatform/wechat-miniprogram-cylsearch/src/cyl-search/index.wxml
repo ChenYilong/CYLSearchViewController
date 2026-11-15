@@ -1,27 +1,50 @@
-<!-- The search page: the bar, a divider, then the cached queries and suggestions as a list or tags (iOS CYLSearchView). -->
-<view class="cyl-page" wx:if="{{open}}">
+<!-- The search page: the bar (back arrow), a divider, then your content, or the cached queries and suggestions as a
+     list or tags (iOS CYLSearchView). -->
+<view class="cyl-page" wx:if="{{open}}" style="{{pageStyle}} {{backgroundColor ? 'background: ' + backgroundColor + ';' : ''}}">
   <cyl-search-bar value="{{query}}" placeholder="{{placeholder}}" focus="{{focus}}" searchBarStyle="{{searchBarStyle}}"
-    items="{{items}}" showsCancelButton="{{true}}" cancelButtonTitle="{{cancelButtonTitle}}"
+    items="{{items}}" navigationIcon="{{navigationIcon}}" navigationColor="{{navigationColor || textColor}}"
+    showsCancelButton="{{showsCancelButton}}" cancelButtonTitle="{{cancelButtonTitle}}" showsVoiceButton="{{showsVoiceButton}}"
+    showsSearchIcon="{{showsSearchIcon}}" secure="{{secure}}" cursorColor="{{cursorColor}}" textColor="{{textColor}}"
+    placeholderColor="{{placeholderColor}}" searchIconTintColor="{{textColor}}" fieldBackgroundColor="transparent" contentInsets="{{barInsets}}"
     bind:textchange="onTextChange" bind:submit="onSubmit" bind:focuschange="onFocusChange" bind:cancel="close"
-    bind:itemselect="onItemSelect" />
-  <view class="cyl-line" />
-  <view wx:if="{{showsEmptyResults || showsEmptySuggestions}}" class="cyl-empty" role="status">
-    <cyl-animation-view wx:if="{{showsEmptyResults ? emptyResultsAnimation : emptySuggestionsAnimation}}" id="cyl-empty-animation" class="cyl-empty-animation"
-      path="{{showsEmptyResults ? emptyResultsAnimation : emptySuggestionsAnimation}}" loop="{{animationLoops}}" speed="{{playbackSpeed}}" autoplay="{{true}}" aria-hidden="true" />
-    <view>{{showsEmptyResults ? emptyResultsText : emptySuggestionsText}}</view>
+    bind:navigationtap="close" bind:voicetap="onVoiceTap" bind:itemselect="onItemSelect" />
+  <view class="cyl-line" style="{{dividerColor ? 'background: ' + dividerColor : ''}}" />
+  <view wx:if="{{showsContent}}" class="cyl-content"><slot name="content" /></view>
+  <view wx:elif="{{showsEmptyResults || showsEmptySuggestions}}" class="cyl-empty" role="status">
+    <block wx:if="{{showsEmptyResults ? emptyResultsAnimation : emptySuggestionsAnimation}}">
+      <cyl-animation-view id="cyl-empty-animation" class="cyl-empty-animation"
+        path="{{showsEmptyResults ? emptyResultsAnimation : emptySuggestionsAnimation}}" loop="{{animationLoops}}" speed="{{playbackSpeed}}" autoplay="{{true}}" aria-hidden="true" />
+      <view class="cyl-empty-text" style="{{suggestionTextColor ? 'color: ' + suggestionTextColor : ''}}">{{showsEmptyResults ? (emptyResultsText || labels.noResults) : (emptySuggestionsText || labels.empty)}}</view>
+    </block>
+    <cyl-search-placeholder wx:else kind="{{showsEmptyResults ? 'noResults' : 'empty'}}" text="{{showsEmptyResults ? emptyResultsText : emptySuggestionsText}}" />
     <slot name="placeholder-footer" />
   </view>
   <block wx:elif="{{shownSuggestions.length > 0}}">
     <view wx:if="{{showsCachedQueries}}" class="cyl-header">
-      <text class="cyl-header-title">{{recentTitle}}</text>
-      <view class="cyl-clear" role="button" aria-label="{{clearLabel}}" bindtap="onClear">🗑</view>
+      <text class="cyl-header-title" style="{{suggestionTextColor ? 'color: ' + suggestionTextColor : ''}}">{{recentTitle || labels.recent}}</text>
+      <view class="cyl-clear" role="button" aria-label="{{clearLabel || labels.clear}}" bindtap="onClear">
+        <view class="cyl-mask-trash" style="{{suggestionImageTintColor ? 'background-color: ' + suggestionImageTintColor : ''}}" aria-hidden="true" />
+      </view>
     </view>
-    <view wx:if="{{suggestionStyle === 'tags'}}" class="cyl-tags {{folded ? 'cyl-tags-folded' : ''}}">
-      <view wx:for="{{shownSuggestions}}" wx:key="*this" class="cyl-tag" data-index="{{index}}" bindtap="onSuggestionTap">{{item}}</view>
-      <view wx:if="{{foldedRowCount > 0}}" class="cyl-tag cyl-fold" role="button" bindtap="onToggleFold">{{folded ? '⌄' : '⌃'}}</view>
+    <view wx:if="{{suggestionStyle === 'tags'}}" class="cyl-tags">
+      <view wx:for="{{visibleTags}}" wx:key="*this" class="cyl-tag" role="button" data-index="{{index}}" bindtap="onSuggestionTap"
+        style="{{suggestionTextColor ? 'color: ' + suggestionTextColor + '; border-color: ' + (dividerColor || suggestionTextColor) : ''}}">{{item}}</view>
+      <view wx:if="{{needsFold}}" class="cyl-tag cyl-fold" role="button" aria-label="{{folded ? labels.showMore : labels.showLess}}" bindtap="onToggleFold"
+        style="{{dividerColor ? 'border-color: ' + dividerColor : ''}}">
+        <view class="cyl-mask-chevron {{folded ? '' : 'cyl-chevron-up'}}" style="{{suggestionImageTintColor ? 'background-color: ' + suggestionImageTintColor : ''}}" aria-hidden="true" />
+      </view>
+      <!-- Measures every tag on one line, out of sight, for the fold. -->
+      <view class="cyl-measure" aria-hidden="true">
+        <view wx:for="{{shownSuggestions}}" wx:key="*this" class="cyl-tag cyl-measure-tag">{{item}}</view>
+        <view class="cyl-tag cyl-fold cyl-measure-chevron"><view class="cyl-mask-chevron" /></view>
+      </view>
     </view>
-    <view wx:else class="cyl-list">
-      <view wx:for="{{shownSuggestions}}" wx:key="*this" class="cyl-row" data-index="{{index}}" bindtap="onSuggestionTap">{{item}}</view>
-    </view>
+    <scroll-view wx:else scroll-y class="cyl-list" aria-label="{{labels.suggestions}}">
+      <view wx:for="{{shownSuggestions}}" wx:key="*this" class="cyl-row" role="button" data-index="{{index}}" bindtap="onSuggestionTap"
+        style="{{dividerColor ? 'border-color: ' + dividerColor : ''}}">
+        <view class="cyl-row-icon" style="{{suggestionImageTintColor ? 'background-color: ' + suggestionImageTintColor : ''}}" aria-hidden="true" />
+        <text class="cyl-row-text {{suggestionLineBreak === 'wrap' ? 'cyl-row-wrap' : ''}}" style="{{suggestionTextColor ? 'color: ' + suggestionTextColor : ''}}">{{item}}</text>
+      </view>
+    </scroll-view>
   </block>
 </view>
