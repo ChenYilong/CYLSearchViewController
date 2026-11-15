@@ -194,6 +194,12 @@ begins and becomes `DONE` when it ends.
 - Progress (2026-11-15, mini program core and example): DONE, see `docs/miniprogram-api-alignment.md` (397/397, the
   tab bar example, screenshot). The HarmonyOS project moved to `~/develop/CYLSearchViewController-swift-core/harmonyos`
   (the `feat/swift-core` worktree) for the user to open in DevEco Studio.
+- Progress (2026-11-15, mini program playback controls and DevTools Skills, branch `feat/swift-core-next`): DONE, see
+  `docs/miniprogram-api-alignment.md` ("playback controls on the animated placeholders"); verified in WeChat DevTools
+  through `wechatide-skill`, Node tests 17/17.
+- Progress (2026-11-15, mini program AppID): the example's AppID is local only, as the user chose: `project.config.json`
+  keeps `touristappid` (DevTools refuses it), the real one is in the git-ignored `example/project.private.config.json`.
+  Verified in DevTools: `wx.getAccountInfoSync()` reports the private AppID, the example renders, no console error.
 
 - 2026-11-15 DONE: CYLTableViewPlaceHolder PR #28 merged into master (merge commit `7bc27a1`) at the user's
   go-ahead ("Merge PR #28 to master"). The Android pin `6d8b264` is now on master. HarmonyOS run still waits for
@@ -205,6 +211,22 @@ begins and becomes `DONE` when it ends.
   and `aa start` opens it. Screenshots (commit `ca56d68`, original 1316×2832), top to bottom:
   1. ![Discover](assets/harmonyos-discover-emulator-unsigned.jpeg)
   2. ![Search, empty cache](assets/harmonyos-search-empty-cache-emulator-unsigned.jpeg)
+- Progress (2026-11-15, "小程序example层要一比一复刻", branch `feat/swift-core-next`): DONE. The mini program example is a
+  1:1 copy of the iOS example (tabs, pages, texts in four languages, data, images, interactions), with the core
+  components it needed (`d19e0bb`); see `docs/miniprogram-api-alignment.md`. Verified in WeChat DevTools: 18 pages,
+  11 interactions, no console error; Node tests 26/26.
+- Progress (2026-11-15, "将searchviewcontroller封装为一个小程序库", branch `feat/swift-core-next`): DONE, modeled on
+  CYLTableViewPlaceHolder's `wechat-miniprogram-cylplaceholder`: the DevTools project and the sync hooks at the package
+  root (the AppID moved to the package's git-ignored `project.private.config.json`), `package.json` entry and files,
+  MIT `LICENSE`, README; checked with `npm pack` in a new mini program (Build npm), which found and fixed three
+  library-only faults. See `docs/miniprogram-api-alignment.md`. Node tests 30/30.
+- Progress (2026-11-15, iOS CI, branch `feat/swift-core-next`): the example build failed in CYLTabBarController's
+  `CYLTabBarManifest.swift:812` (`remote ?? dictionary`, two optionals of different types) at the pinned `2a12582`.
+  The newest commit on any branch (`scripts/latest-cyl-commit.sh`), `c006143` on `feat/cross-platform-components`,
+  fixes that line; its own `pod lib lint` and unit tests pass. Podfile and Podfile.lock now pin `c006143` (same version
+  1.100.0 and subspecs; the lock's spec checksum is refreshed by the next `pod install`, which CI runs). The 4 commits
+  of `fix/flutter-plus-title-hidden` that `c006143` lacks are Flutter/React Native work; the Flutter and Android pins
+  stay on `2a12582`.
   Fixed ("fix 1"): the emulator runs in zh-CN; the library was localized ("暂无数据" is its zh_CN string) but the
   example hard-coded English. The example strings are now resources (`entry/.../base` and `zh_CN/element/string.json`),
   read with `getStringByNameSync`; the screenshots above are retaken in Chinese. Open: hypium tests not run yet.
@@ -249,3 +271,6 @@ begins and becomes `DONE` when it ends.
     non-tab page) gets an "Open search" button to show it. TODO: verify in WeChat DevTools — the run stopped at
     "Login is required" (APPID_ERROR); the check script is `back-test.js` (navigateTo plus, open, navigateBack,
     expect plus still shown with the search page closed).
+- Progress (2026-11-15, "先把本项目的example 丰富到与iOS端保持一致再考虑发布npm", branch `feat/swift-core-next`): DONE.
+  The mini program example now shows CYLTableViewPlaceHolder's scenario placeholders and CYLRefreshNormalHeader, as
+  iOS, and follows dark mode; see `docs/miniprogram-api-alignment.md`. Publishing to npm waits for the user.

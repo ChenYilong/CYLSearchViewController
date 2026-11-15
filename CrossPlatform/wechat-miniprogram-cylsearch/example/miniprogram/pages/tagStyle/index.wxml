@@ -1,7 +1,1 @@
-<view class="page">
-  <cyl-search-bar placeholder="Search languages" searchBarStyle="bordered" bind:focuschange="openSearch" />
-  <view class="hint">Tag style with the keyboard down (focusesSearchFieldOnShow false) and the empty-cache placeholder.</view>
-  <view class="event">{{lastEvent}}</view>
-  <cyl-search id="search" generic:cyl-animation-view="cyl-lottie" emptySuggestionsAnimation="/assets/placeholder/CYLPlaceholderNoDrafts.json" suggestions="{{suggestions}}" suggestionStyle="tags" placeholder="Search languages"
-  searchBarStyle="bordered" cacheName="MiniProgramTags" focusesSearchFieldOnShow="{{false}}" bind:submit="onSubmit" />
-</view>
+<cyl-demo-material-menu suggestionStyle="tags" focusesSearchFieldOnShow="{{false}}" inTabBar />

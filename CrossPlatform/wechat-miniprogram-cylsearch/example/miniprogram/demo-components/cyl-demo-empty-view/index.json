@@ -1,0 +1,7 @@
+{
+  "component": true,
+  "usingComponents": {
+    "cyl-placeholder": "cyl-placeholder-miniprogram/cyl-placeholder/index",
+    "cyl-lottie": "cyl-lottie-miniprogram/cyl-lottie/index"
+  }
+}

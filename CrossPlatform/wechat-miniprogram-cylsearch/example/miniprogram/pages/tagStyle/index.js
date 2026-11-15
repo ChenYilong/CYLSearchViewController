@@ -1,14 +1,9 @@
+// The "Tag style" tab (iOS CYLSuggestionDemoPages.tagStyleViewController): MaterialSearchView's six samples, the same
+// suggestions and parameters as the list-style ports, shown as tags, the keyboard down until the field is tapped.
 const { cylSelectTab } = require('../../utils/cyl_tab_page');
+
 Page({
-  data: { suggestions: ['Swift', 'Objective-C', 'Kotlin', 'Java', 'Dart', 'ArkTS', 'TypeScript', 'JavaScript', 'Rust', 'Go', 'C++', 'Python'], lastEvent: '' },
   onShow() {
     cylSelectTab(this, 'tagStyle');
-  },
-  openSearch() {
-    const search = this.selectComponent('#search');
-    if (search) search.show();
-  },
-  onSubmit(event) {
-    this.setData({ lastEvent: `submit: ${event.detail.text}` });
   },
 });

@@ -19,6 +19,12 @@ description: "Create or extend an Objective-C example using CYLTableViewPlaceHol
 - Document the run steps and the known `hidesSearchBarWhenScrolling` workaround
   in the repository README.
 
+## Other platforms' examples
+
+- The WeChat Mini Program example is a 1:1 copy of this iOS example: when you add or change a page here, do the same
+  in `CrossPlatform/wechat-miniprogram-cylsearch/example` and run `node scripts/import-ios-resources.js` after
+  changing texts, data or images (`AGENTS.md`, "Mini program example: a 1:1 copy of the iOS example").
+
 ## CYLTabBarController
 
 Adapted from CYLTabBarController's `cyl-new-project` skill (commit `caf3c92`).

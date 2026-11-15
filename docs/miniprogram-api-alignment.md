@@ -48,6 +48,201 @@
   not measured. The screenshot script retries the first relaunch after a compile.
 - Status: DONE (2026-11-15).
 
+## DONE (2026-11-15): the example as on iOS, before publishing to npm
+
+- Branch: `feat/swift-core-next` (PR #9).
+- Prompt (verbatim): "先把本项目的example 丰富到与iOS端保持一致再考虑发布npm"
+- Prompt (English): "First enrich this project's example until it is consistent with iOS, then consider publishing to
+  npm."
+- Gaps left by the first 1:1 copy, found by reading the iOS example and `CYLSearchView.swift` again:
+  1. Empty placeholders. iOS `CYLSearchView` shows CYLTableViewPlaceHolder's `CYLPlaceholderStackView` for
+     `emptyResultsScenario` (`CYLPlaceholderScenarioNoSearchResults`: icon, title, hint) and
+     `emptySuggestionsScenario` (`CYLPlaceholderScenarioNoContent`), static (`componentsForScenario`, no animation).
+     The mini program drew its own placeholder with Lottie animations and playback controls.
+  2. Pull to refresh. iOS uses CYLTableViewPlaceHolder's `CYLRefreshNormalHeader` (arrow, state and last-updated
+     texts); the mini program used the native scroll-view refresher.
+  3. Dark mode. iOS follows the system; the mini program had `prefers-color-scheme` rules but no `"darkmode": true`,
+     so they never applied.
+- Done:
+  1. Core: `cyl-search` has iOS's `emptyResultsScenario` / `emptySuggestionsScenario` (scenario names), drawn by the
+     abstract node `cyl-empty-view` (default `cyl-search-empty-view`: the library's CYLSearchPlaceholderView, so the
+     package keeps no dependency); `emptyPlaceholderAnimated` (off, as on iOS), `animationSpeed`, `animationLoops`
+     and `playAnimationFromStart()` stay for a view that animates. Removed: `emptyResultsText`,
+     `emptySuggestionsText`, `emptyResultsAnimation`, `emptySuggestionsAnimation`, the node `cyl-animation-view` and
+     `cyl-search-animation-placeholder` (not published, no caller outside the example).
+  2. Sub-repository: CYLTableViewPlaceHolder's mini program package (`cyl-placeholder`, `cyl-refresh`), pinned at its
+     newest commit that has it, `8ee7013` (`cylTableViewPlaceHolderCommit`; the newest of all, `1cac0d1` on
+     `ci-screenshots`, holds screenshots only), synced with its licenses by `scripts/sync-example.js` as the tab bar is.
+     CYLTabBarController's mini program pin moves to its newest commit `c006143`, as the iOS Podfile did.
+  3. Example: `demo-components/cyl-demo-empty-view` renders `<cyl-placeholder scenario>` and is passed to the
+     MaterialSearchView samples (`generic:cyl-empty-view`); their Lottie files, the playback controls and
+     `utils/cyl_animation_controls.js` are gone, as iOS has none (the "Animation examples: playback controls" rule
+     covers pages that show animations; none does now). The reproduction uses `<cyl-refresh header="normal">`.
+  4. Dark mode: `app.json` `"darkmode": true` with `theme.json` (status bar text, window background); dark rules added
+     to `cyl-search-bar-item`, `cyl-search-placeholder`, the gallery's template images and the reveal page's indigo.
+- Verified in WeChat DevTools 2.02.2609250 (base library 3.6.6, Windows 11 Pro 10.0.22631): the empty cache shows
+  NoContent ("Nothing here yet"), a query without results NoSearchResults ("No matching results", "Try different
+  keywords"), also on the Themed sample; `cyl-refresh` goes Refreshing (54 px normal header) and back to Idle with the
+  last-updated time saved; the 18 pages and 11 interactions run again with the new tab bar; no console error. Node tests
+  31/31. Not verified: the dark appearance (wechatide has no theme switch; switch the simulator to dark mode in
+  DevTools to see it).
+
+| Platform | Screenshot | Environment |
+| :--- | :--- | :--- |
+| Mini program | ![NoContent, NoSearchResults, Themed](assets/miniprogram-example-placeholder-scenarios.png) | CYLTableViewPlaceHolder's NoContent (empty cache), NoSearchResults, the same on the Themed sample. Windows 11 Pro 10.0.22631; WeChat DevTools 2.02.2609250 simulator (screenshots at 289 x 625 px); base library 3.6.6; branch `feat/swift-core-next`; 2026-11-15 22:36 NZDT (UTC+13) |
+
+## DONE (2026-11-15): cyl-search-miniprogram as a mini program library
+
+- Branch: `feat/swift-core-next` (PR #9).
+- Prompt (verbatim): "你也要将searchviewcontroller封装为一个小程序库。学习wechat-miniprogram-cylplaceholder他的封装过程"
+- Prompt (English): "Also package SearchViewController as a mini program library, learning from how
+  wechat-miniprogram-cylplaceholder was packaged."
+- What cyl-placeholder-miniprogram (CYLTableViewPlaceHolder `CrossPlatform/wechat-miniprogram-cylplaceholder`) does,
+  and what this package now does the same way:
+  1. `project.config.json` at the package root, `miniprogramRoot` `example/miniprogram/`, the `beforeCompile` /
+     `beforePreview` / `beforeUpload` hooks run `node scripts/sync-example.js` (`scriptsEnable`): the package folder
+     opens in DevTools as is. Your AppID in the git-ignored `project.private.config.json` at the same place.
+  2. `package.json`: `repository.directory`, `miniprogram: "src"` (what DevTools' Build npm copies), `main`, `files`
+     (`src`, `README.md`, `LICENSE`), scripts `test` / `sync-example` / `import-ios`.
+  3. `LICENSE` (MIT, the user's choice on 2026-11-15; the iOS podspec says "All rights reserved"), with the licenses of
+     the bundled images next to them.
+  4. `scripts/sync-example.js` copies with its own `copyDir` (`fs.cpSync` crashes Node 22 on Windows) and copies each
+     installed library's `LICENSE`.
+  5. The README in the same order: install, usage with the properties and events of each component, example,
+     development, license.
+- Beyond the model, checked as a library: `npm pack` (106 files, `src/`, `README.md`, `LICENSE` only), installed into a
+  new mini program, DevTools Build npm, rendered. That found three faults that only a library build shows, all fixed
+  and covered by `test/package.test.js`:
+  1. `require('cyl-search-miniprogram')` loads the `index.js` of the built folder: the entry is `src/index.js`
+     (`main`), which loads `src/cyl_search.js`.
+  2. A mini program resolves no folder to its `index.js`: `require('./core')` failed; every relative require names a
+     file (a test walks `src/`).
+  3. DevTools' "filter unused files" does not see a `require` inside an object spread (`{ ...require('./core/index') }`)
+     and drops that file ("module … is not defined"): the entry uses plain `Object.assign(module.exports, require(…))`.
+  The same `main` fault exists in cyl-placeholder-miniprogram (`main` is `src/cyl-placeholder/cyl_placeholder.js`, so
+  `require('cyl-placeholder-miniprogram')` finds no `index.js` after Build npm); its README uses paths, so it does not
+  show there. Fixed there the same day, with its object-spread entry (fault 3), in
+  [CYLTableViewPlaceHolder PR #32](https://github.com/ChenYilong/CYLTableViewPlaceHolder/pull/32) (`a72ff3f`).
+- Verified in WeChat DevTools 2.02.2609250 (base library 3.6.6): the consumer page renders `cyl-search-bar` with items,
+  `cyl-multi-search`, `cyl-search-placeholder` (its image path resolves inside `miniprogram_npm`) and opens
+  `cyl-search`; `require('cyl-search-miniprogram')` gives 41 exports. The package folder opens and runs the example
+  after `npm run sync-example`; the DevTools hooks did not run when the project was opened and refreshed through the
+  CLI, neither with `simulator_refresh` nor with a full compile (`simulator_open_page`). cyl-placeholder-miniprogram's
+  identical hooks do not run that way either (checked the same day): DevTools runs a project's custom commands only
+  after you allow them in its own window. Run `npm run sync-example` when driving DevTools from the CLI. Node tests 30/30.
+
+| Path (under `CrossPlatform/wechat-miniprogram-cylsearch/`) | Role |
+| --- | --- |
+| `package.json`, `LICENSE`, `README.md` | The npm package (`main` `src/index.js`, `miniprogram` `src`, `files`) |
+| `project.config.json` (+ git-ignored `project.private.config.json`) | The DevTools project: the example, the sync hooks |
+| `src/index.js`, `src/cyl_search.js` | The JavaScript entry: the core and the helpers |
+| `src/core/` | The core: a counterpart of every public iOS API (ported from the HarmonyOS models) |
+| `src/cyl-search-bar/`, `src/cyl-search-bar-item/`, `src/cyl-search/`, `src/cyl-search-controller/`, `src/cyl-multi-search/`, `src/cyl-search-placeholder/`, `src/cyl-search-animation-placeholder/` | The components |
+| `src/cyl-search/*.js` | The components' logic: view model, items, suggestion cache, playback, tag fold, navigation metrics, format |
+| `src/images/` | Icons; `placeholder/` holds the 41 placeholder images of the iOS bundle and their licenses |
+| `scripts/import-ios-resources.js` | Re-imports the iOS images, texts and Discover data |
+| `scripts/sync-example.js` | Copies `src/` and CYLTabBarController's tab bar and Lottie player into the example (DevTools hooks) |
+| `scripts/devtools-screenshots.js` | Drives every page of the example with miniprogram-automator |
+| `example/miniprogram/` | The example, a 1:1 copy of the iOS example |
+| `test/*.test.js` | `node --test` unit tests |
+
+## DONE (2026-11-15): the example is a 1:1 copy of the iOS example
+
+- Branch: `feat/swift-core-next` (PR #9). Code: [`d19e0bb`](https://github.com/ChenYilong/CYLSearchViewController/commit/d19e0bb).
+- Prompt (verbatim): "小程序example层要一比一复刻"
+- Prompt (English): "The mini program's example layer must replicate [the iOS example] one to one."
+- Reading: the reference is the iOS example (`CYLSearchExample`), the one every other port follows. Before, the mini
+  program example had its own simplified pages (five tabs, one of them a List style tab iOS does not have).
+- Requirements:
+  1. The same tabs (`CYLTabBarConfiguration.json`: four tabs and the plus button's page), the same pages, the same
+     texts in the same languages (en, ja, zh-Hans, zh-Hant), the same data and images, the same interactions.
+  2. The example passes only data, style parameters and taps; what it needs that the core lacks goes into the core
+     (`AGENTS.md`, "Swift core: examples adapt to the core", and "change the core when an example needs it").
+- Resources: `scripts/import-ios-resources.js` reads `Resources/CYLSearchViewController.bundle` (texts, the 41
+  placeholder images into `src/images/placeholder/` with their licenses), `CYLSearchTabs.bundle` and
+  `CYLSearchDiscover.bundle` (texts, `search-discover.json`, the localized hot icons) into
+  `example/miniprogram/utils/cyl_demo_resources.js`; `utils/cyl_demo_text.js` fills the iOS formats (`%@`, `%lu`,
+  `%1$lu`).
+
+| iOS (`CYLSearchExample`) | Mini program (`example/miniprogram`) |
+| :--- | :--- |
+| `CYLTabBarConfiguration.json`: Search, Examples, Tag style, Discover, plus button "Search bar" | `utils/cyl_search_tabs.js` (the same keys and titles); the plus button's `plus` page is a tab page, as on iOS |
+| `CYLSearchExampleViewController` (Issue #1317: Overlay, Repro ON/OFF, pull to refresh, 40 sample results, "No matching results") | `demo-components/cyl-demo-reproduction` in `pages/search` (tab) and `pages/reproduction` (pushed) |
+| `CYLSearchController` overlay | core `cyl-search-controller` |
+| `CYLSearchDemoMenuViewController` (4 rows) | `pages/examples` |
+| `CYLSearchPlaceholderGalleryViewController` (41 styles × 4 messages, 3 custom rows) and its detail | `pages/styles`, `pages/placeholderDetail`; core `cyl-search-placeholder` |
+| `CYLSearchBarDemoViewController` (Cancel, shadow, camera, "Text: …", "Searched: …") | `demo-components/cyl-demo-search-bar` in `pages/plus` (tab) and `pages/searchBar` (pushed) |
+| `CYLSearchPortsViewController` (5 rows) | `pages/ports` |
+| `CYLLapismSearchViewController` | `pages/lapism` (bar as a button, results in `cyl-search`'s `content` slot) |
+| `CYLMaterialSearchMenuViewController` and `CYLMaterialSearchSampleViewController` (Default, Themed, Voice, Sticky, Tabs, Input type) | `demo-components/cyl-demo-material-menu`, `pages/materialMenu`, `pages/materialSample`, `utils/cyl_material_samples.js` |
+| `CYLSuggestionDemoPages.tagStyleViewController` (the same samples, tags, keyboard down) | `pages/tagStyle` |
+| `CYLYechaoaSearchViewController` | `pages/yechaoa` (iconified bar in the navigation bar, submit button, snackbar, result) |
+| `CYLRevealSearchViewController` | `pages/reveal` (circular reveal over 1 s from a centered button) |
+| `CYLMultiSearchDemoViewController` | `pages/multiSearch`; core `cyl-multi-search` |
+| `CYLSearchDiscoverViewController` (recent searches folded inline, discover grid, More, hold to ask) | `pages/discover`, `utils/cyl_discover_logic.js`; core `cyl_tag_fold.js` |
+| `CYLSnackbar`, `UINavigationBar` items | `demo-components/cyl-demo-snackbar`, `demo-components/cyl-demo-nav` |
+
+- Core changes for the example: `cyl-search-bar` (navigation button, voice, submit and clear buttons, field look,
+  `editable`, iconified states with fade or circular reveal, `setText`, `setIconified`); `cyl-search` (back arrow
+  instead of Cancel as on iOS, colors, voice, `content` slot, `closesOnSubmit`, `setQuery`, `coversNavigationBar`, the
+  inline tag fold measured from the real tag widths); new `cyl-search-placeholder`, `cyl-search-controller`,
+  `cyl-multi-search`.
+- Platform differences (no iOS counterpart possible):
+  - WeChat's menu button (the capsule) stays at the top trailing corner of every page. Pages use
+    `"navigationStyle": "custom"`; a bar that takes the navigation bar's place (the search page, the overlay, the
+    Discover bar) is centered on the capsule and ends before it (`cyl_navigation_metrics.js`).
+  - Speech recognition needs a plugin: the Voice sample shows "Speech recognition is not available." as iOS does when
+    recognition is unavailable. Hold to ask changes the hint only, as on iOS.
+  - The camera of the Discover bar opens a modal with the iOS alert's texts.
+- Verified in WeChat DevTools 2.02.2609250 (base library 3.6.6, Windows 11 Pro 10.0.22631) with `wechatide-skill`: all
+  18 pages and 11 interactions (the overlay filtering, Repro ON with no results, the Themed sample's suggestions, the
+  tags folded and unfolded, the snackbar after a submit, lapism's filtered content, yechaoa's expanded bar and result,
+  the circular reveal, MultiSearchView's items and event log, the search bar's "Searched: …", Discover's search, More
+  and fold). The console has no error. One warning stays after dozens of relaunches in a row: "21 listeners of event
+  ThemeChange", from CYLTabBarController's `cyl-tab-bar` (it adds the listener when attached and removes it when
+  detached); not fixed here. Node tests 26/26.
+
+| Platform | Screenshot | Environment |
+| :--- | :--- | :--- |
+| Mini program | ![The tabs and the pushed reproduction](assets/miniprogram-example-ios-replica-tabs.png) | Left to right, top to bottom: Search tab, Examples tab, Search bar tab after a search, Tag style tab, Discover tab, the pushed reproduction ("Overlay" in place of the back button). Windows 11 Pro 10.0.22631; WeChat DevTools 2.02.2609250 simulator (390 x 844 window, screenshots at 289 x 625 px); base library 3.6.6; [`d19e0bb`](https://github.com/ChenYilong/CYLSearchViewController/commit/d19e0bb); 2026-11-15 13:22–13:38 NZDT (UTC+13) |
+| Mini program | ![The pages and interactions](assets/miniprogram-example-ios-replica-pages.png) | Placeholder styles; custom image and text; NoInternet with the network message; Other libraries' examples; lapism filtered; Themed suggestions; tags folded; the overlay filtering; Repro ON with no results; yechaoa after a submit (snackbar); the circular reveal opened; MultiSearchView with its event log. Same environment |
+
+## DONE (2026-11-15): playback controls on the animated placeholders; WeChat DevTools Skills
+
+Update (2026-11-15, 1:1 example): the List style tab is gone (iOS has none); the playback controls are on every
+MaterialSearchView sample (`pages/materialSample`), the pages that show the animated placeholders.
+
+- Branch: `feat/swift-core-next` (based on `feat/swift-core` at `bab8444`).
+- Prompt (verbatim): "基于新分支 开始下微信小程序开发。找到docs里面任何提及微信小程序的信息开始开发。找到crossplatorm
+  相关文件夹，没有就新建，新建或者更微信小程序开发。微信小程序开发者工具Skills ，根据文档"
+- Prompt (English): "On the new branch, start the WeChat Mini Program work: begin from everything in docs that
+  mentions the mini program; find the CrossPlatform folder (create it if missing) and create or update the mini
+  program there; use the WeChat DevTools Skills, following the documentation."
+- Requirements, from the docs: `AGENTS.md`, "Animation examples: playback controls" (every example page that shows
+  animations offers "Play all", a speed slider and a loop switch, applied live, with accessibility labels; change the
+  core when an example needs it), and the `AGENTS.md` TODO to install the DevTools Skills
+  (<https://developers.weixin.qq.com/miniprogram/dev/devtools/Skills.html>).
+- Core: `cyl-search` gets `animationSpeed` (0.25 to 3, rounded to 0.25), `animationLoops`, `playAnimationFromStart()`
+  and the slot `placeholder-footer` under the empty placeholder. The strategy without views is
+  `src/cyl-search/cyl_search_animation_playback.js` (Node tests 3; all 17/17).
+- Example: List style (no results) and Tag style (empty cache) put the controls in that slot
+  (`utils/cyl_animation_controls.js`; the slider counts quarter steps 1 to 12).
+- `scripts/sync-example.js` checks out only the two mini program folders of CYLTabBarController (sparse checkout):
+  the full checkout failed on Windows with "Filename too long".
+- DevTools Skills: `wechatide-skill` 0.3.11 ships with WeChat DevTools 2.02.2609250 and is linked into
+  `~/.claude/skills`; `check_wechatide_status` gives `versionRelation: equal`. On Windows `wechatide` is not on `PATH`:
+  call `C:\Program Files (x86)\Tencent\微信web开发者工具\wechatide.cmd` (the skill's own install check reports
+  `cli_unavailable` because it does not quote that path). The CLI needs the service port on (Settings → Security)
+  and a logged-in DevTools.
+- Verified with the skill's automation tools: the slider set to 2x and the loop switched off reach the Lottie player
+  (`playSpeed` 2, `loop` false); switching the loop on resumes playback; "Play all" plays again with the loop off;
+  the console buffer has no line at all (no error, no warning).
+
+| Platform | Screenshot | Environment |
+| :--- | :--- | :--- |
+| Mini program | ![Tag style: speed 2x, loop off](assets/miniprogram-playback-controls-tag-style.png) | Windows 11 Pro 10.0.22631; WeChat DevTools 2.02.2609250 simulator (iPhone frame, original 289 x 625 px); base library 3.6.6; branch `feat/swift-core-next` on `bab8444`; 2026-11-15 12:05 NZDT (UTC+13) |
+| Mini program | ![List style: no results, controls under the animation](assets/miniprogram-playback-controls-list-style.png) | Same; 2026-11-15 12:05 NZDT (UTC+13) |
+
 <!-- miniprogram-api-alignment:begin -->
 Rows: 397; implemented or N/A 397, TODO 0; score 100/100.
 

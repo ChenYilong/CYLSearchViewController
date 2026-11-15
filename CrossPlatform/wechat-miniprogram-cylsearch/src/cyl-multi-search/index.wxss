@@ -1,0 +1,16 @@
+:host { display: block; }
+.cyl-multi { display: flex; align-items: center; height: 48px; }
+.cyl-multi-row { flex: 1; min-width: 0; height: 48px; white-space: nowrap; }
+.cyl-multi-items { display: inline-flex; align-items: center; height: 48px; }
+.cyl-multi-item { position: relative; display: inline-flex; align-items: center; height: 48px; margin-right: 16px; transition: opacity 0.25s; }
+.cyl-multi-text { color: #000; line-height: 48px; }
+.cyl-multi-input { width: 100%; height: 48px; color: #000; }
+.cyl-multi-indicator { position: absolute; left: 0; right: 0; bottom: 6px; height: 2px; border-radius: 1px; background: #007aff; }
+.cyl-multi-remove, .cyl-multi-button { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
+.cyl-multi-remove { width: 32px; }
+.cyl-multi-icon { width: 22px; height: 22px; background-color: #007aff; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; }
+.cyl-multi-xmark { width: 18px; height: 18px; -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='black' fill-rule='evenodd' d='M12 1a11 11 0 1 1 0 22 11 11 0 0 1 0-22zm-3.3 6.3l-1.4 1.4 3.3 3.3-3.3 3.3 1.4 1.4 3.3-3.3 3.3 3.3 1.4-1.4-3.3-3.3 3.3-3.3-1.4-1.4-3.3 3.3z'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='black' fill-rule='evenodd' d='M12 1a11 11 0 1 1 0 22 11 11 0 0 1 0-22zm-3.3 6.3l-1.4 1.4 3.3 3.3-3.3 3.3 1.4 1.4 3.3-3.3 3.3 3.3 1.4-1.4-3.3-3.3 3.3-3.3-1.4-1.4-3.3 3.3z'/></svg>"); }
+.cyl-multi-search-icon { -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'><circle cx='10.5' cy='10.5' r='6.5'/><path d='M15.5 15.5L21 21'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'><circle cx='10.5' cy='10.5' r='6.5'/><path d='M15.5 15.5L21 21'/></svg>"); }
+@media (prefers-color-scheme: dark) {
+  .cyl-multi-text, .cyl-multi-input { color: #fff; }
+}

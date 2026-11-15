@@ -1,0 +1,6 @@
+<view class="screen">
+  <cyl-demo-nav title="MultiSearchView" />
+  <cyl-multi-search id="multi" class="multi" placeholder="{{hint}}" fontSize="{{18}}" maximumTextLength="{{15}}" returnKeyType="search"
+    placeholderColor="rgba(153, 153, 153, 0.5)" bind:select="onSelect" bind:textchange="onTextChange" bind:complete="onComplete" bind:remove="onRemove" />
+  <scroll-view scroll-y class="log" aria-label="{{eventsLabel}}"><text class="log-text" user-select>{{log}}</text></scroll-view>
+</view>

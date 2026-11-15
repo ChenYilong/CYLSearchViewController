@@ -1,0 +1,15 @@
+<view class="screen">
+  <cyl-demo-nav title="lapism/search" />
+  <cyl-search-bar value="{{barText}}" navigationIcon="search" showsSearchIcon="{{false}}" placeholder="{{hint}}" fieldCornerRadius="{{-1}}"
+    fieldShadowOpacity="{{0.15}}" fieldBackgroundColor="#f2f2f7" editable="{{false}}"
+    bind:tapwhilenoteditable="openSearch" bind:navigationtap="openSearch" />
+  <scroll-view scroll-y class="list">
+    <view wx:for="{{items}}" wx:key="*this" class="row">{{item}}</view>
+  </scroll-view>
+  <cyl-search id="search" coversNavigationBar showsContent showsSearchIcon="{{false}}" placeholder="{{hint}}" closesOnSubmit="{{false}}"
+    cacheName="LapismSearch" bind:textchange="onTextChange" bind:focuschange="onFocusChange">
+    <scroll-view slot="content" scroll-y class="results">
+      <view wx:for="{{filteredItems}}" wx:key="*this" class="row">{{item}}</view>
+    </scroll-view>
+  </cyl-search>
+</view>

@@ -1,25 +1,24 @@
 {
   "name": "cyl-search-miniprogram",
   "version": "0.1.0",
-  "description": "CYLSearchViewController for WeChat Mini Program: the cyl-search-bar and cyl-search components and their logic (suggestion cache, items, focus), with the iOS names",
+  "description": "CYLSearchViewController for WeChat Mini Program: the cyl-search-bar, cyl-search, cyl-search-controller, cyl-multi-search and cyl-search-placeholder components with the iOS API (suggestion cache, items, overlay, several searches, 41 placeholder styles), localized in 4 languages",
   "license": "MIT",
   "author": "ChenYilong <luohanchenyilong@163.com>",
   "homepage": "https://github.com/ChenYilong/CYLSearchViewController/tree/master/CrossPlatform/wechat-miniprogram-cylsearch",
-  "keywords": [
-    "miniprogram",
-    "search",
-    "searchbar",
-    "CYLSearchViewController"
-  ],
-  "miniprogram": "src",
-  "main": "src/core/index.js",
-  "files": [
-    "src",
-    "README.md"
-  ],
-  "scripts": {
-    "test": "node --test test/*.test.js",
-    "example": "node scripts/sync-example.js"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ChenYilong/CYLSearchViewController.git",
+    "directory": "CrossPlatform/wechat-miniprogram-cylsearch"
   },
-  "cylTabBarControllerCommit": "a8e5305ad7f05b299aac1b433e778e662110f2df"
+  "keywords": ["miniprogram", "wechat", "search", "searchbar", "suggestions", "CYLSearchViewController"],
+  "miniprogram": "src",
+  "main": "src/index.js",
+  "files": ["src", "README.md", "LICENSE"],
+  "scripts": {
+    "import-ios": "node scripts/import-ios-resources.js",
+    "sync-example": "node scripts/sync-example.js",
+    "test": "node --test \"test/*.test.js\""
+  },
+  "cylTabBarControllerCommit": "c006143e677894926aa10725f5928b7bad25ac6d",
+  "cylTableViewPlaceHolderCommit": "8ee70138c661e4ebf89108ea14e2fb9859544501"
 }

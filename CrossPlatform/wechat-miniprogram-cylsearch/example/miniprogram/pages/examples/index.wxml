@@ -1,6 +1,9 @@
-<view class="page">
-  <view wx:for="{{rows}}" wx:key="path" class="row" role="button" aria-label="{{item.title}}, {{item.detail}}" data-path="{{item.path}}" bindtap="onRow">
-    <view class="row-title">{{item.title}}</view>
-    <view class="row-detail">{{item.detail}}</view>
+<view class="screen">
+  <cyl-demo-nav title="{{title}}" />
+  <view class="group grouped-first">
+    <view wx:for="{{rows}}" wx:key="url" class="cell" role="button" aria-label="{{item.title}}" data-url="{{item.url}}" bindtap="onRow">
+      <text class="cell-title">{{item.title}}</text>
+      <view class="chevron" aria-hidden="true" />
+    </view>
   </view>
 </view>

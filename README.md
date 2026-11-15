@@ -21,6 +21,24 @@ MaterialSearchView "Default" port); `CYLMultiSearchView` with two searches and i
 | Repository | [`9735f79`](https://github.com/ChenYilong/CYLSearchViewController/commit/9735f79) on `feat/swift-core` |
 | Taken | 2026-11-12 16:14–16:17 NZDT |
 
+### WeChat Mini Program
+
+The example is a 1:1 copy of the iOS example (`docs/miniprogram-api-alignment.md`). Two columns, left to right then
+top to bottom: the Search tab (the Issue #1317 reproduction); the Examples tab; a MaterialSearchView sample with the
+suggestions as tags folded to two rows, the chevron as the last tag; the Discover tab; the Themed sample; the
+placeholder styles.
+
+![Key details of the mini program example](docs/assets/readme-miniprogram-ios-replica.png)
+
+| Field | Value |
+|:---|:---|
+| Platform | Mini program (`CrossPlatform/wechat-miniprogram-cylsearch`) |
+| Host | Windows 11 Pro 10.0.22631 |
+| Simulator | WeChat DevTools 2.02.2609250 simulator (390 x 844 window; screenshots at the simulator's 289 x 625 px) |
+| SDK | Mini program base library 3.6.6 |
+| Repository | [`d19e0bb`](https://github.com/ChenYilong/CYLSearchViewController/commit/d19e0bb) on `feat/swift-core-next` |
+| Taken | 2026-11-15 13:22–13:38 NZDT (UTC+13) |
+
 More screenshots, one state per row: `docs/search-api-comparison.md` (the Swift ports of five search libraries'
 examples) and `docs/CYLTabBarController-Integration.md`.
 

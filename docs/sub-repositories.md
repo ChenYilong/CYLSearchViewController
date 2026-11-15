@@ -118,6 +118,11 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   library exists on them yet, see [android-and-cross-platform.md](android-and-cross-platform.md)).
 - Progress (2026-11-15): mini programs DONE: the empty results and the empty cache of `cyl-search` play
   CYLTableViewPlaceHolder's `CYLPlaceholderNoResults.json` / `CYLPlaceholderNoDrafts.json` (with their licenses) through
-  CYLTabBarController's `cyl-lottie`; screenshot in [miniprogram-api-alignment.md](miniprogram-api-alignment.md). Android
+  CYLTabBarController's `cyl-lottie`; screenshot in [miniprogram-api-alignment.md](miniprogram-api-alignment.md).
+  Update (2026-11-15, the example as on iOS): CYLTableViewPlaceHolder's mini program package is now the sub-repository
+  (`cyl-placeholder-miniprogram`, pinned at `8ee7013` in `package.json`, synced by `scripts/sync-example.js`):
+  `cyl-search` has iOS's `emptyResultsScenario` (`NoSearchResults`) and `emptySuggestionsScenario` (`NoContent`), drawn
+  by its abstract node `cyl-empty-view`; the example passes `<cyl-placeholder scenario>`, static as iOS
+  `CYLPlaceholderStackView`. The Lottie paths are gone. Android
   animated too (`docs/core-todo.md`, CYLTableViewPlaceHolder `6d8b264`). Left: HarmonyOS on a device (waits for
   signing in DevEco Studio).

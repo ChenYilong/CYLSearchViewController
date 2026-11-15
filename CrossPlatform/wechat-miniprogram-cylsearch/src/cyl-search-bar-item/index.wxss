@@ -6,3 +6,9 @@
 .cyl-divider { width: 2rpx; height: 36rpx; margin: 0 8rpx; background: #d1d1d6; }
 .cyl-badge { position: absolute; top: 4rpx; right: 4rpx; min-width: 32rpx; height: 32rpx; padding: 0 8rpx; border-radius: 16rpx; background: #ff3b30; color: #fff; font-size: 22rpx; line-height: 32rpx; text-align: center; }
 .cyl-badge-dot { min-width: 16rpx; width: 16rpx; height: 16rpx; padding: 0; }
+.cyl-item-title { color: #000; }
+.cyl-divider { background: #c6c6c8; }
+@media (prefers-color-scheme: dark) {
+  .cyl-item-title { color: #fff; }
+  .cyl-divider { background: #38383a; }
+}

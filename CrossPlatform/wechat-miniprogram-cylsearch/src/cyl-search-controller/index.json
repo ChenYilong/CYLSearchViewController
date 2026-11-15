@@ -1,0 +1,1 @@
+{ "component": true, "usingComponents": { "cyl-search-bar": "../cyl-search-bar/index" } }

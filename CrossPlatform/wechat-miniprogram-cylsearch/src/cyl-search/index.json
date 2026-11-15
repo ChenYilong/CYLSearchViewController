@@ -4,8 +4,8 @@
     "cyl-search-bar": "../cyl-search-bar/index"
   },
   "componentGenerics": {
-    "cyl-animation-view": {
-      "default": "../cyl-search-animation-placeholder/index"
+    "cyl-empty-view": {
+      "default": "../cyl-search-empty-view/index"
     }
   }
 }

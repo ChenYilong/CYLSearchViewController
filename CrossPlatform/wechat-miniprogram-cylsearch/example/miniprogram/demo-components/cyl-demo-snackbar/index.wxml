@@ -1,0 +1,2 @@
+<view wx:if="{{visible}}" class="snackbar {{fading ? 'snackbar-fading' : ''}}" role="alert" aria-live="assertive"
+  style="bottom: calc({{bottomInset}}px + 8px + env(safe-area-inset-bottom))">{{text}}</view>

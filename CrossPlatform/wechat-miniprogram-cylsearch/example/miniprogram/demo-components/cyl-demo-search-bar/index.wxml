@@ -1,0 +1,10 @@
+<view class="screen">
+  <cyl-demo-nav title="{{title}}" />
+  <cyl-search-bar id="bar" placeholder="{{placeholder}}" showsCancelButton fieldShadowOpacity="{{0.12}}"
+    bind:textchange="onTextChange" bind:submit="onSubmit" bind:cancel="onCancel">
+    <view slot="trailing" class="camera" role="button" aria-label="{{cameraLabel}}">
+      <image class="camera-icon" src="/components/images/camera.svg" aria-hidden="true" />
+    </view>
+  </cyl-search-bar>
+  <view class="status" aria-live="polite">{{status}}</view>
+</view>

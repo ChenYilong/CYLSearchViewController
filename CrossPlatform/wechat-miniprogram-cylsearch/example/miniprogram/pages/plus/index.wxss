@@ -1,5 +1,0 @@
-.page { padding: 16px; }
-.hint { margin-top: 16px; color: #8e8e93; font-size: 14px; }
-.event { margin-top: 8px; color: #007aff; font-size: 14px; }
-.label { margin: 16px 0 6px; font-size: 13px; color: #8e8e93; }
-.slot { padding: 0 10px; font-size: 22px; color: #007aff; }
