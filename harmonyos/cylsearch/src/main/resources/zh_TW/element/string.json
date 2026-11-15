@@ -1,20 +1,152 @@
 {
   "string": [
     {
-      "name": "cyl_search_title",
-      "value": "搜尋"
+      "name": "cyl_action_ok",
+      "value": "確定"
     },
     {
-      "name": "cyl_search_placeholder",
-      "value": "篩選結果"
+      "name": "cyl_action_overlay",
+      "value": "浮層"
+    },
+    {
+      "name": "cyl_demo_choose",
+      "value": "圖片與提示"
+    },
+    {
+      "name": "cyl_demo_custom",
+      "value": "自訂圖片與提示"
+    },
+    {
+      "name": "cyl_demo_custom_both",
+      "value": "自訂圖片和文字"
+    },
+    {
+      "name": "cyl_demo_custom_imageOnly",
+      "value": "自訂圖片，內建提示"
+    },
+    {
+      "name": "cyl_demo_custom_text",
+      "value": "自訂圖片和提示文字"
+    },
+    {
+      "name": "cyl_demo_custom_textOnly",
+      "value": "內建圖片，自訂文字"
+    },
+    {
+      "name": "cyl_demo_port_default",
+      "value": "預設"
+    },
+    {
+      "name": "cyl_demo_port_events",
+      "value": "事件"
+    },
+    {
+      "name": "cyl_demo_port_inputType",
+      "value": "輸入類型"
+    },
+    {
+      "name": "cyl_demo_port_item",
+      "value": "第 %d 項"
+    },
+    {
+      "name": "cyl_demo_port_keyword",
+      "value": "請輸入關鍵字"
+    },
+    {
+      "name": "cyl_demo_port_listening",
+      "value": "正在聆聽…"
+    },
+    {
+      "name": "cyl_demo_port_open",
+      "value": "打開搜尋"
+    },
+    {
+      "name": "cyl_demo_port_page",
+      "value": "第 %d 頁"
+    },
+    {
+      "name": "cyl_demo_port_query",
+      "value": "查詢：%s"
+    },
+    {
+      "name": "cyl_demo_port_result",
+      "value": "搜尋結果"
+    },
+    {
+      "name": "cyl_demo_port_searched",
+      "value": "搜尋內容===%s"
+    },
+    {
+      "name": "cyl_demo_port_sticky",
+      "value": "固定"
+    },
+    {
+      "name": "cyl_demo_port_tab",
+      "value": "分頁"
+    },
+    {
+      "name": "cyl_demo_port_themed",
+      "value": "主題"
+    },
+    {
+      "name": "cyl_demo_port_voice",
+      "value": "語音"
+    },
+    {
+      "name": "cyl_demo_port_voiceUnavailable",
+      "value": "語音辨識無法使用。"
+    },
+    {
+      "name": "cyl_demo_ports",
+      "value": "其他程式庫的範例"
+    },
+    {
+      "name": "cyl_demo_reproduction",
+      "value": "搜尋與重新整理"
+    },
+    {
+      "name": "cyl_demo_searchBar",
+      "value": "搜尋列"
+    },
+    {
+      "name": "cyl_demo_searchBar_camera",
+      "value": "相機"
+    },
+    {
+      "name": "cyl_demo_searchBar_placeholder",
+      "value": "主播暱稱/直播間ID/神曲名"
+    },
+    {
+      "name": "cyl_demo_searchBar_searched",
+      "value": "已搜尋：%s"
+    },
+    {
+      "name": "cyl_demo_searchBar_text",
+      "value": "文字：%s"
+    },
+    {
+      "name": "cyl_demo_styles",
+      "value": "預留畫面樣式"
+    },
+    {
+      "name": "cyl_demo_title",
+      "value": "搜尋範例"
+    },
+    {
+      "name": "cyl_multisearch_add",
+      "value": "新增搜尋"
+    },
+    {
+      "name": "cyl_multisearch_item",
+      "value": "第 %1$d 個搜尋，共 %2$d 個"
+    },
+    {
+      "name": "cyl_multisearch_remove",
+      "value": "刪除搜尋"
     },
     {
       "name": "cyl_placeholder_empty",
       "value": "暫無資料"
-    },
-    {
-      "name": "cyl_placeholder_search",
-      "value": "沒有符合的結果"
     },
     {
       "name": "cyl_placeholder_error",
@@ -25,56 +157,72 @@
       "value": "請檢查網路連線"
     },
     {
-      "name": "cyl_search_cancel",
-      "value": "取消"
+      "name": "cyl_placeholder_search",
+      "value": "沒有符合的結果"
     },
     {
-      "name": "cyl_search_field",
-      "value": "搜尋"
+      "name": "cyl_refresh_error",
+      "value": "重新整理失敗"
+    },
+    {
+      "name": "cyl_repro_off",
+      "value": "重現：關"
+    },
+    {
+      "name": "cyl_repro_on",
+      "value": "重現：開"
+    },
+    {
+      "name": "cyl_sample_result",
+      "value": "範例結果 %d"
     },
     {
       "name": "cyl_search_back",
       "value": "返回"
     },
     {
-      "name": "cyl_search_voice",
-      "value": "語音搜尋"
-    },
-    {
-      "name": "cyl_search_submit",
-      "value": "搜尋"
+      "name": "cyl_search_cancel",
+      "value": "取消"
     },
     {
       "name": "cyl_search_clear",
       "value": "清除文字"
     },
     {
-      "name": "cyl_search_suggestions",
-      "value": "搜尋建議"
+      "name": "cyl_search_clearRecent",
+      "value": "清除最近搜尋"
     },
     {
-      "name": "cyl_multisearch_add",
-      "value": "新增搜尋"
+      "name": "cyl_search_field",
+      "value": "搜尋"
     },
     {
-      "name": "cyl_multisearch_remove",
-      "value": "刪除搜尋"
-    },
-    {
-      "name": "cyl_multisearch_item",
-      "value": "第 %1$d 個搜尋，共 %2$d 個"
+      "name": "cyl_search_placeholder",
+      "value": "篩選結果"
     },
     {
       "name": "cyl_search_recent",
       "value": "最近搜尋"
     },
     {
-      "name": "cyl_search_clearRecent",
-      "value": "清除最近搜尋"
-    },
-    {
       "name": "cyl_search_recentCleared",
       "value": "已清除最近搜尋"
+    },
+    {
+      "name": "cyl_search_submit",
+      "value": "搜尋"
+    },
+    {
+      "name": "cyl_search_suggestions",
+      "value": "搜尋建議"
+    },
+    {
+      "name": "cyl_search_title",
+      "value": "搜尋"
+    },
+    {
+      "name": "cyl_search_voice",
+      "value": "語音搜尋"
     }
   ]
 }

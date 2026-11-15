@@ -9,11 +9,20 @@ function context(): common.Context {
   return abilityDelegatorRegistry.getAbilityDelegator().getAppContext();
 }
 
-// A string of the app in the system language, so the tests pass in any language.
+// A string of the library in the system language (`demo.title`), so the tests pass in any language.
+function libString(key: string): string {
+  return CYLSearchResources.localizedString(context(), key);
+}
+
+// A string of the app (`tab_examples`).
 function appString(name: string): string {
   return context().resourceManager.getStringByNameSync(name);
 }
 
+/**
+ * The example as on iOS (CYLSearchExampleUITests): the tab bar, the Examples menu, a MaterialSearchView sample whose
+ * search page Back closes, and the Discover tab.
+ */
 export default function cylSearchUITest() {
   describe('CYLSearchUI', () => {
     beforeAll(async () => {
@@ -22,40 +31,45 @@ export default function cylSearchUITest() {
       await Driver.create().delayMs(2000);
     });
 
-    it('discoverShowsTitleAndSearchBar', 0, async () => {
+    it('searchTabShowsResultsAndReproductionToggle', 0, async () => {
       const driver = Driver.create();
-      await driver.assertComponentExist(ON.text(appString('discover_title')));
-      await driver.assertComponentExist(ON.id('CYLSearchDiscoverOpenSearch'));
-      expect((await driver.findComponents(ON.type('TextInput'))).length > 0).assertTrue();
+      await driver.assertComponentExist(ON.text(libString('search.title')));
+      await driver.assertComponentExist(ON.id('CYLIssueReproductionToggle'));
+      await driver.assertComponentExist(ON.text(libString('sample.result').replace('%d', '1')));
     });
 
-    it('openSearchShowsEmptyPlaceholder', 0, async () => {
+    it('examplesMenuOpensPlaceholderStyles', 0, async () => {
       const driver = Driver.create();
-      await (await driver.findComponent(ON.id('CYLSearchDiscoverOpenSearch'))).click();
-      await driver.delayMs(1500);
-      const empty = CYLSearchResources.localizedString(context(), 'placeholder.empty');
-      await driver.assertComponentExist(ON.text(empty));
-    });
-
-    it('typingFiltersSuggestions', 0, async () => {
-      const driver = Driver.create();
-      const fields = await driver.findComponents(ON.type('TextInput'));
-      const field = fields[fields.length - 1];
-      await field.inputText('Kot');
+      await (await driver.findComponent(ON.id('CYLTab1'))).click();
+      await driver.delayMs(800);
+      await driver.assertComponentExist(ON.text(libString('demo.title')));
+      await (await driver.findComponent(ON.id('CYLDemoRow1'))).click();
       await driver.delayMs(1000);
-      await driver.assertComponentExist(ON.text('Kotlin'));
-      expect(await driver.findComponent(ON.text('Flutter'))).assertNull();
+      await driver.assertComponentExist(ON.text('CYLSearchEmpty'));
+      await driver.pressBack();
+      await driver.delayMs(800);
     });
 
-    it('backReturnsToDiscover', 0, async () => {
+    it('tagStyleSampleSearchClosesOnBack', 0, async () => {
       const driver = Driver.create();
-      // Back may hide the keyboard first, then closes the search page (onBackPress → handleBackPress).
-      for (let i = 0; i < 2 && (await driver.findComponent(ON.text('Kotlin'))) !== null; i++) {
-        await driver.pressBack();
-        await driver.delayMs(1000);
-      }
-      await driver.assertComponentExist(ON.id('CYLSearchDiscoverOpenSearch'));
-      expect(await driver.findComponent(ON.text('Kotlin'))).assertNull();
+      await (await driver.findComponent(ON.id('CYLTab3'))).click();
+      await driver.delayMs(800);
+      await (await driver.findComponent(ON.id('CYLMaterialSample0'))).click();
+      await driver.delayMs(1000);
+      await (await driver.findComponent(ON.id('CYLMaterialOpenSearch'))).click();
+      await driver.delayMs(1000);
+      expect((await driver.findComponents(ON.type('TextInput'))).length > 0).assertTrue();
+      await driver.pressBack();
+      await driver.delayMs(1000);
+      await driver.assertComponentExist(ON.id('CYLMaterialOpenSearch'));
+    });
+
+    it('discoverTabShowsRecentSearches', 0, async () => {
+      const driver = Driver.create();
+      await (await driver.findComponent(ON.id('CYLTab4'))).click();
+      await driver.delayMs(800);
+      await driver.assertComponentExist(ON.text(appString('discover_recent')));
+      await driver.assertComponentExist(ON.id('CYLSearchDiscoverMicButton'));
     });
   });
 }

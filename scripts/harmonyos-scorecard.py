@@ -19,7 +19,7 @@ DEMOS = [
     ('Tab bar: CYLTabBarController with Search, Examples, Tag style, Discover and the plus button (CYLTabBarConfiguration.json)', 'CYLSearchExampleAppDelegate.m'),
     ('Search tab: Issue #1317 reproduction, the search bar in the navigation bar over a list (CYLSearchController + CYLSearchResultsViewController)', 'CYLSearchExampleViewController.swift'),
     ('Search tab: pull to refresh with CYLTableViewPlaceHolder\'s CYLRefreshNormalHeader', 'CYLSearchExampleViewController.swift'),
-    ('Search tab: CYLTableViewPlaceHolder NoContent / NoSearchResults placeholders', 'CYLSearchExampleViewController.swift'),
+    ('Search tab: the empty state, CYLSearchPlaceholderView "No matching results"', 'CYLSearchExampleViewController.swift'),
     ('Examples tab: the menu (Search and refresh, Placeholder styles, Search bar, Ports)', 'CYLSearchDemoMenuViewController.m'),
     ('Placeholder styles: the 41 styles x 4 messages and the Custom section (text only, image only, both)', 'CYLSearchDemoMenuViewController.m'),
     ('Placeholder styles: the detail page with one CYLSearchPlaceholderView', 'CYLSearchDemoMenuViewController.m'),

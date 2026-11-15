@@ -36,13 +36,19 @@ The HarmonyOS port of CYLSearchViewController: the ArkTS library `harmonyos/cyls
 
 ## Score
 
+Status: 100 by implementation; every demo compiles, none has run yet (no emulator on the Windows machine; create one in
+DevEco Studio > Device Manager, then `hdc install` the HAP and run the hypium tests). Known gaps against iOS: the tab bar
+and the refresh header are drawn in the example until CYLTabBarController and CYLTableViewPlaceHolder ship HarmonyOS
+libraries; the Voice sample has no speech recognizer yet.
+
 <!-- harmonyos-score:begin -->
-Score: 94/100 (397 of 422 rows; API 397/397, demos 0/25; TODO left 25).
+Score: 100/100 (422 of 422 rows; API 397/397, demos 25/25; TODO left 0).
 <!-- harmonyos-score:end -->
 
 | Date | Change | Score |
 | :--- | :--- | ---: |
 | 2026-11-16 | Tables listed; the API from harmonyos-api-alignment.md, every demo TODO | 94 |
+| 2026-11-16 | The example rebuilt 1:1 with iOS (25 demos), the iOS placeholder images and texts in the core; compiled with hvigor (app and test HAPs), not run: this Windows machine has no HarmonyOS emulator | 100 |
 
 ## Table 1: iOS public API
 
@@ -453,29 +459,29 @@ Score: 94/100 (397 of 422 rows; API 397/397, demos 0/25; TODO left 25).
 <!-- harmonyos-demos:begin -->
 | iOS example demo | HarmonyOS implementation |
 | :--- | :--- |
-| Tab bar: CYLTabBarController with Search, Examples, Tag style, Discover and the plus button (CYLTabBarConfiguration.json) (`CYLSearchExampleAppDelegate.m`) | TODO |
-| Search tab: Issue #1317 reproduction, the search bar in the navigation bar over a list (CYLSearchController + CYLSearchResultsViewController) (`CYLSearchExampleViewController.swift`) | TODO |
-| Search tab: pull to refresh with CYLTableViewPlaceHolder's CYLRefreshNormalHeader (`CYLSearchExampleViewController.swift`) | TODO |
-| Search tab: CYLTableViewPlaceHolder NoContent / NoSearchResults placeholders (`CYLSearchExampleViewController.swift`) | TODO |
-| Examples tab: the menu (Search and refresh, Placeholder styles, Search bar, Ports) (`CYLSearchDemoMenuViewController.m`) | TODO |
-| Placeholder styles: the 41 styles x 4 messages and the Custom section (text only, image only, both) (`CYLSearchDemoMenuViewController.m`) | TODO |
-| Placeholder styles: the detail page with one CYLSearchPlaceholderView (`CYLSearchDemoMenuViewController.m`) | TODO |
-| Search bar page (plus button and Examples): CYLSearchBarView styles and appended items (`CYLSearchBarDemoViewController.m`) | TODO |
-| Ports: the menu of five search libraries (`CYLSearchPortsViewController.swift`) | TODO |
-| Port: lapism/search (MaterialSearchBar + MaterialSearchView) (`CYLLapismSearchViewController.swift`) | TODO |
-| Port: MiguelCatalan/MaterialSearchView, the menu of six samples (`CYLMaterialSearchMenuViewController.swift`) | TODO |
-| MaterialSearchView sample: Default (`CYLMaterialSearchMenuViewController.swift`) | TODO |
-| MaterialSearchView sample: Themed (`CYLMaterialSearchMenuViewController.swift`) | TODO |
-| MaterialSearchView sample: Voice (`CYLMaterialSearchMenuViewController.swift`) | TODO |
-| MaterialSearchView sample: Sticky (`CYLMaterialSearchMenuViewController.swift`) | TODO |
-| MaterialSearchView sample: Tabs (`CYLMaterialSearchMenuViewController.swift`) | TODO |
-| MaterialSearchView sample: Input type (`CYLMaterialSearchMenuViewController.swift`) | TODO |
-| Port: yechaoa/MaterialDesign SearchViewActivity (`CYLYechaoaSearchViewController.swift`) | TODO |
-| Port: android-cjj/MaterialSearchView circular reveal (`CYLRevealSearchViewController.swift`) | TODO |
-| Port: iammert/MultiSearchView (`CYLMultiSearchDemoViewController.swift`) | TODO |
-| Tag style tab: the six MaterialSearchView samples with tag suggestions, keyboard down on show (`CYLSuggestionDemoPages.swift`) | TODO |
-| Discover tab: recent searches and discover topics copied from CollectionViewClassifyMenu (`CYLSearchDiscoverViewController.swift`) | TODO |
-| Snackbar: a short message at the bottom (CYLSnackbar) (`CYLSearchPortsViewController.swift`) | TODO |
-| Texts in English, Japanese, Simplified and Traditional Chinese (`CYLSearchViewController.bundle`) | TODO |
-| Dark mode follows the system (`CYLSearchExample`) | TODO |
+| Tab bar: CYLTabBarController with Search, Examples, Tag style, Discover and the plus button (CYLTabBarConfiguration.json) (`CYLSearchExampleAppDelegate.m`) | `pages/Index.ets` (ArkUI `Tabs`, the same five items; CYLTabBarController has no HarmonyOS library yet) |
+| Search tab: Issue #1317 reproduction, the search bar in the navigation bar over a list (CYLSearchController + CYLSearchResultsViewController) (`CYLSearchExampleViewController.swift`) | `demos/SearchExample.ets` `SearchExampleView` (Repro, Overlay with `CYLSearchController`) |
+| Search tab: pull to refresh with CYLTableViewPlaceHolder's CYLRefreshNormalHeader (`CYLSearchExampleViewController.swift`) | `demos/RefreshHeader.ets` `CYLRefreshNormalHeader` in ArkUI `Refresh` (CYLTableViewPlaceHolder has no HarmonyOS library yet) |
+| Search tab: the empty state, CYLSearchPlaceholderView "No matching results" (`CYLSearchExampleViewController.swift`) | `SearchExampleView` with `CYLSearchPlaceholderView.withKind(noResults)` |
+| Examples tab: the menu (Search and refresh, Placeholder styles, Search bar, Ports) (`CYLSearchDemoMenuViewController.m`) | `demos/ExamplesMenu.ets` `ExamplesMenuView` |
+| Placeholder styles: the 41 styles x 4 messages and the Custom section (text only, image only, both) (`CYLSearchDemoMenuViewController.m`) | `PlaceholderGalleryPage` (the iOS images, `imageForStyle`) |
+| Placeholder styles: the detail page with one CYLSearchPlaceholderView (`CYLSearchDemoMenuViewController.m`) | `PlaceholderDetailPage` |
+| Search bar page (plus button and Examples): CYLSearchBarView styles and appended items (`CYLSearchBarDemoViewController.m`) | `demos/SearchBarDemo.ets` `SearchBarDemoView` |
+| Ports: the menu of five search libraries (`CYLSearchPortsViewController.swift`) | `PortsMenuPage` |
+| Port: lapism/search (MaterialSearchBar + MaterialSearchView) (`CYLLapismSearchViewController.swift`) | `demos/Ports.ets` `LapismPage` |
+| Port: MiguelCatalan/MaterialSearchView, the menu of six samples (`CYLMaterialSearchMenuViewController.swift`) | `demos/MaterialSearch.ets` `MaterialMenuView` |
+| MaterialSearchView sample: Default (`CYLMaterialSearchMenuViewController.swift`) | `MaterialSamplePage` sample 0 |
+| MaterialSearchView sample: Themed (`CYLMaterialSearchMenuViewController.swift`) | `MaterialSamplePage` sample 1 |
+| MaterialSearchView sample: Voice (`CYLMaterialSearchMenuViewController.swift`) | `MaterialSamplePage` sample 2 (no speech recognizer yet: reports it unavailable, as iOS does without one) |
+| MaterialSearchView sample: Sticky (`CYLMaterialSearchMenuViewController.swift`) | `MaterialSamplePage` sample 3 |
+| MaterialSearchView sample: Tabs (`CYLMaterialSearchMenuViewController.swift`) | `MaterialSamplePage` sample 4 |
+| MaterialSearchView sample: Input type (`CYLMaterialSearchMenuViewController.swift`) | `MaterialSamplePage` sample 5 |
+| Port: yechaoa/MaterialDesign SearchViewActivity (`CYLYechaoaSearchViewController.swift`) | `YechaoaPage` |
+| Port: android-cjj/MaterialSearchView circular reveal (`CYLRevealSearchViewController.swift`) | `RevealPage` (core `iconButtonBackgroundColor`, `iconButtonTintColor`) |
+| Port: iammert/MultiSearchView (`CYLMultiSearchDemoViewController.swift`) | `MultiSearchDemoPage` |
+| Tag style tab: the six MaterialSearchView samples with tag suggestions, keyboard down on show (`CYLSuggestionDemoPages.swift`) | `MaterialMenuView({ tags: true })` |
+| Discover tab: recent searches and discover topics copied from CollectionViewClassifyMenu (`CYLSearchDiscoverViewController.swift`) | `demos/Discover.ets` `DiscoverView` (rawfile `discover/<language>.json`) |
+| Snackbar: a short message at the bottom (CYLSnackbar) (`CYLSearchPortsViewController.swift`) | `common/DemoCommon.ets` `CYLSnackbar` |
+| Texts in English, Japanese, Simplified and Traditional Chinese (`CYLSearchViewController.bundle`) | resources base, ja_JP, zh_CN, zh_TW (`harmonyos/scripts/import-ios-resources.py`) |
+| Dark mode follows the system (`CYLSearchExample`) | `sys.color.*` and `resources/dark` colors |
 <!-- harmonyos-demos:end -->

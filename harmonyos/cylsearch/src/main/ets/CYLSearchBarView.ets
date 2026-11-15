@@ -286,6 +286,15 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
    */
   animationDuration: number = 0.3;
   /**
+   * The fill of the search button shown while iconified; undefined draws no fill (iOS `iconButton.configuration`
+   * `baseBackgroundColor`, a filled capsule).
+   */
+  @Trace iconButtonBackgroundColor: ResourceColor | undefined = undefined;
+  /**
+   * The magnifier color of that button; undefined uses `searchIconTintColor` (iOS `baseForegroundColor`).
+   */
+  @Trace iconButtonTintColor: ResourceColor | undefined = undefined;
+  /**
    * The appended items, in order, after the text (like the FlatDesign tab bar's `items`). The field stays; only
    * items are appended.
    */
@@ -764,11 +773,14 @@ export struct CYLSearchBarComponent {
         Row() {
           SymbolGlyph($r('sys.symbol.magnifyingglass'))
             .fontSize(22)
-            .fontColor([this.secondary()])
+            .fontColor([this.searchBarView.iconButtonTintColor ?? this.secondary()])
         }
-        .width(44)
-        .height(44)
+        .width(this.searchBarView.iconButtonBackgroundColor !== undefined ? 56 : 44)
+        .height(this.searchBarView.iconButtonBackgroundColor !== undefined ? 56 : 44)
         .justifyContent(FlexAlign.Center)
+        .backgroundColor(this.searchBarView.iconButtonBackgroundColor ?? Color.Transparent)
+        .borderRadius(28)
+        .shadow({ radius: this.searchBarView.iconButtonBackgroundColor !== undefined ? 6 : 0, color: 'rgba(0,0,0,0.2)', offsetY: 2 })
         .accessibilityGroup(true)
         .accessibilityText('Search')
         .onClick(() => {

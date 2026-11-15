@@ -1,14 +1,132 @@
 {
   "string": [
-    { "name": "module_desc", "value": "CYLSearch 示例" },
-    { "name": "EntryAbility_desc", "value": "CYLSearch 示例" },
-    { "name": "EntryAbility_label", "value": "CYLSearch" },
-    { "name": "discover_title", "value": "发现" },
-    { "name": "discover_search", "value": "搜索" },
-    { "name": "discover_image_search", "value": "以图搜索" },
-    { "name": "discover_image_unavailable", "value": "本示例暂不支持以图搜索" },
-    { "name": "discover_searching", "value": "正在搜索：%s" },
-    { "name": "discover_recent", "value": "最近搜索" },
-    { "name": "discover_open_search", "value": "打开搜索" }
+    {
+      "name": "module_desc",
+      "value": "CYLSearch 示例"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "CYLSearch 示例"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "CYLSearch"
+    },
+    {
+      "name": "tab_search",
+      "value": "搜索"
+    },
+    {
+      "name": "tab_examples",
+      "value": "示例"
+    },
+    {
+      "name": "tab_searchBar",
+      "value": "搜索栏"
+    },
+    {
+      "name": "tab_tagStyle",
+      "value": "标签样式"
+    },
+    {
+      "name": "tab_discover",
+      "value": "发现"
+    },
+    {
+      "name": "discover_recent",
+      "value": "最近搜索"
+    },
+    {
+      "name": "discover_tapToSearch",
+      "value": "轻点两下搜索"
+    },
+    {
+      "name": "discover_title",
+      "value": "发现"
+    },
+    {
+      "name": "discover_refresh",
+      "value": "换一批"
+    },
+    {
+      "name": "discover_back",
+      "value": "返回"
+    },
+    {
+      "name": "discover_search",
+      "value": "搜索"
+    },
+    {
+      "name": "discover_imageSearch",
+      "value": "以图搜索"
+    },
+    {
+      "name": "discover_clear",
+      "value": "清空最近搜索"
+    },
+    {
+      "name": "discover_cleared",
+      "value": "已清空最近搜索"
+    },
+    {
+      "name": "discover_askHint",
+      "value": "按住提问，有问必答"
+    },
+    {
+      "name": "discover_ask",
+      "value": "按住提问"
+    },
+    {
+      "name": "discover_askAccessibilityHint",
+      "value": "按住说出问题，松开发送"
+    },
+    {
+      "name": "discover_listening",
+      "value": "正在聆听…"
+    },
+    {
+      "name": "discover_searching",
+      "value": "正在搜索：%s"
+    },
+    {
+      "name": "discover_imageSearchUnavailable",
+      "value": "演示中暂不支持以图搜索。"
+    },
+    {
+      "name": "discover_ok",
+      "value": "好"
+    },
+    {
+      "name": "discover_holdMic",
+      "value": "请按住麦克风按钮说出问题"
+    },
+    {
+      "name": "discover_hot",
+      "value": "热门"
+    },
+    {
+      "name": "refresh_idle",
+      "value": "下拉可以刷新"
+    },
+    {
+      "name": "refresh_pulling",
+      "value": "松开立即刷新"
+    },
+    {
+      "name": "refresh_refreshing",
+      "value": "正在刷新数据中..."
+    },
+    {
+      "name": "refresh_last_time",
+      "value": "最后更新："
+    },
+    {
+      "name": "refresh_today",
+      "value": "今天"
+    },
+    {
+      "name": "refresh_none_last_date",
+      "value": "无记录"
+    }
   ]
 }

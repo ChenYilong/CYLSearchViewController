@@ -1,0 +1,132 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "CYLSearch example"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "CYLSearch example"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "CYLSearch"
+    },
+    {
+      "name": "tab_search",
+      "value": "搜尋"
+    },
+    {
+      "name": "tab_examples",
+      "value": "範例"
+    },
+    {
+      "name": "tab_searchBar",
+      "value": "搜尋列"
+    },
+    {
+      "name": "tab_tagStyle",
+      "value": "標籤樣式"
+    },
+    {
+      "name": "tab_discover",
+      "value": "發現"
+    },
+    {
+      "name": "discover_recent",
+      "value": "最近搜尋"
+    },
+    {
+      "name": "discover_tapToSearch",
+      "value": "點兩下搜尋"
+    },
+    {
+      "name": "discover_title",
+      "value": "發現"
+    },
+    {
+      "name": "discover_refresh",
+      "value": "換一批"
+    },
+    {
+      "name": "discover_back",
+      "value": "返回"
+    },
+    {
+      "name": "discover_search",
+      "value": "搜尋"
+    },
+    {
+      "name": "discover_imageSearch",
+      "value": "以圖搜尋"
+    },
+    {
+      "name": "discover_clear",
+      "value": "清除最近搜尋"
+    },
+    {
+      "name": "discover_cleared",
+      "value": "已清除最近搜尋"
+    },
+    {
+      "name": "discover_askHint",
+      "value": "按住提問，有問必答"
+    },
+    {
+      "name": "discover_ask",
+      "value": "按住提問"
+    },
+    {
+      "name": "discover_askAccessibilityHint",
+      "value": "按住說出問題，放開傳送"
+    },
+    {
+      "name": "discover_listening",
+      "value": "正在聆聽…"
+    },
+    {
+      "name": "discover_searching",
+      "value": "正在搜尋：%s"
+    },
+    {
+      "name": "discover_imageSearchUnavailable",
+      "value": "示範中暫不支援以圖搜尋。"
+    },
+    {
+      "name": "discover_ok",
+      "value": "好"
+    },
+    {
+      "name": "discover_holdMic",
+      "value": "請按住麥克風按鈕說出問題"
+    },
+    {
+      "name": "discover_hot",
+      "value": "熱門"
+    },
+    {
+      "name": "refresh_idle",
+      "value": "下拉可以刷新"
+    },
+    {
+      "name": "refresh_pulling",
+      "value": "鬆開立即刷新"
+    },
+    {
+      "name": "refresh_refreshing",
+      "value": "正在刷新數據中..."
+    },
+    {
+      "name": "refresh_last_time",
+      "value": "最後更新："
+    },
+    {
+      "name": "refresh_today",
+      "value": "今天"
+    },
+    {
+      "name": "refresh_none_last_date",
+      "value": "無記錄"
+    }
+  ]
+}
