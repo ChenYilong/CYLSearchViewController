@@ -221,3 +221,10 @@ begins and becomes `DONE` when it ends.
   root (the AppID moved to the package's git-ignored `project.private.config.json`), `package.json` entry and files,
   MIT `LICENSE`, README; checked with `npm pack` in a new mini program (Build npm), which found and fixed three
   library-only faults. See `docs/miniprogram-api-alignment.md`. Node tests 30/30.
+- Progress (2026-11-15, iOS CI, branch `feat/swift-core-next`): the example build failed in CYLTabBarController's
+  `CYLTabBarManifest.swift:812` (`remote ?? dictionary`, two optionals of different types) at the pinned `2a12582`.
+  The newest commit on any branch (`scripts/latest-cyl-commit.sh`), `c006143` on `feat/cross-platform-components`,
+  fixes that line; its own `pod lib lint` and unit tests pass. Podfile and Podfile.lock now pin `c006143` (same version
+  1.100.0 and subspecs; the lock's spec checksum is refreshed by the next `pod install`, which CI runs). The 4 commits
+  of `fix/flutter-plus-title-hidden` that `c006143` lacks are Flutter/React Native work; the Flutter and Android pins
+  stay on `2a12582`.
