@@ -3,8 +3,8 @@
 // 2. installs the sub-repositories the example uses, as the iOS example does through CocoaPods, into
 //    example/miniprogram/miniprogram_npm/, each with its licenses, from a sparse checkout at the commit pinned in
 //    package.json, cloned into example/vendor/:
-//    - CYLTabBarController (`cylTabBarControllerCommit`): its tab bar (cyl-tabbar-miniprogram) and Lottie player
-//      (cyl-lottie-miniprogram); CYL_TABBAR_DIR=<checkout> uses a local checkout instead;
+//    - CYLTabBarController (`cylTabBarControllerCommit`): its tab bar (cyl-tabbar-miniprogram), Lottie player
+//      (cyl-lottie-miniprogram) and SVGA player (cyl-svga-miniprogram, the SVGA tab icons); CYL_TABBAR_DIR=<checkout> uses a local checkout instead;
 //    - CYLTableViewPlaceHolder (`cylTableViewPlaceHolderCommit`): cyl-placeholder (the scenario placeholders of the
 //      search page) and cyl-refresh (CYLRefreshNormalHeader), as cyl-placeholder-miniprogram;
 //      CYL_PLACEHOLDER_DIR=<checkout> uses a local checkout instead.
@@ -69,12 +69,13 @@ function copyLicenses(fromDirs, to) {
 
 sync(path.join(root, 'src'), path.join(miniprogram, 'components'));
 
-// CYLTabBarController: the tab bar and the Lottie player.
+// CYLTabBarController: the tab bar, the Lottie player and the SVGA player (SVGA tab icons, docs/svga-tab-icons.md).
 const tabBarRoot = process.env.CYL_TABBAR_DIR || checkout('CYLTabBarController', pkg.cylTabBarControllerCommit,
-  ['CrossPlatform/wechat-miniprogram-cyltabbar', 'CrossPlatform/lottie-miniprogram']);
+  ['CrossPlatform/wechat-miniprogram-cyltabbar', 'CrossPlatform/lottie-miniprogram', 'CrossPlatform/svga-miniprogram']);
 for (const library of [
   { name: 'cyl-tabbar-miniprogram', from: 'CrossPlatform/wechat-miniprogram-cyltabbar', dist: 'src' },
   { name: 'cyl-lottie-miniprogram', from: 'CrossPlatform/lottie-miniprogram', dist: 'miniprogram_dist' },
+  { name: 'cyl-svga-miniprogram', from: 'CrossPlatform/svga-miniprogram', dist: 'miniprogram_dist' },
 ]) {
   const libraryRoot = path.join(tabBarRoot, library.from);
   const to = path.join(miniprogram, 'miniprogram_npm', library.name);

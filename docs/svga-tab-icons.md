@@ -30,11 +30,20 @@ Full score: every row `DONE` with evidence, or `TODO: N/A` with a reason. Score 
 
 | # | Platform | Status | Evidence |
 | :--- | :--- | :--- | :--- |
-| 1 | WeChat mini program | TODO | |
+| 1 | WeChat mini program | DONE | Search, Examples and Discover play `tab_search`, `tab_list`, `tab_activity` (`*.svga.bin`, 30 x 30) through `cyl-svga`; Tag style keeps its tag symbol (no tag icon among the samples). `cylTabBarControllerCommit` `c72323f`; `scripts/sync-example.js` installs `cyl-svga-miniprogram`; tests 34 of 34 (`test/svga-tab-icons.test.js` decodes every icon with cyl-svga's decoder); shown in WeChat DevTools (screenshot below) |
 | 2 | Android | TODO | |
 | 3 | iOS | TODO | |
 | 4 | React Native | TODO | |
 | 5 | Flutter | TODO | |
-| 6 | HarmonyOS | TODO | |
+| 6 | HarmonyOS | TODO: N/A on HarmonyOS | Reason: CYLTabBarController's ArkTS tab bar (`cyltabbar`) has no animated tab icons, so no SVGA (CYLTabBarController `c72323f`, "TODO: SVGA tab icons on HarmonyOS"). Replace with `DONE` when it ships them |
 
-Score: 0/100 (TODO left 6).
+Score: 33/100 (1 of 6 rows DONE, 1 `TODO: N/A on HarmonyOS`; TODO left 4).
+
+## Screenshots
+
+- WeChat mini program, WeChat DevTools 2.02.2609250 (base library 3.6.6, simulator iPhone, original 324×701), Windows 11
+  Pro 10.0.22631, CYLSearchViewController branch `feat/harmonyos-parity` with CYLTabBarController `c72323f`,
+  2026-11-16 12:24 NZDT (UTC+13:00): the Search tab selected; Search, Examples and Discover show their SVGA icons, Tag
+  style its symbol.
+
+  ![SVGA tab icons in WeChat DevTools](assets/miniprogram-svga-tab-icons-devtools.png)

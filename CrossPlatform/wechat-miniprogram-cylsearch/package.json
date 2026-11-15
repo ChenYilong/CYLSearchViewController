@@ -19,6 +19,6 @@
     "sync-example": "node scripts/sync-example.js",
     "test": "node --test \"test/*.test.js\""
   },
-  "cylTabBarControllerCommit": "c006143e677894926aa10725f5928b7bad25ac6d",
+  "cylTabBarControllerCommit": "c72323fa14db43240f19da9fc4adde9a21b40c46",
   "cylTableViewPlaceHolderCommit": "8ee70138c661e4ebf89108ea14e2fb9859544501"
 }
