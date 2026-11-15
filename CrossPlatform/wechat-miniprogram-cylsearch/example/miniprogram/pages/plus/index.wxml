@@ -8,5 +8,9 @@
     <view slot="leading" class="slot" aria-label="Back" role="button">‹</view>
     <view slot="trailing" class="slot" aria-label="Filter" role="button">⚙︎</view>
   </cyl-search-bar>
+  <view class="label">Search page (back closes it)</view>
+  <button id="openSearch" size="mini" bindtap="openSearch">Open search</button>
   <view class="event">{{lastEvent}}</view>
 </view>
+<cyl-search id="search" suggestions="{{suggestions}}" suggestionStyle="list" placeholder="Search languages"
+  cacheName="plus" bind:submit="onSubmit" />

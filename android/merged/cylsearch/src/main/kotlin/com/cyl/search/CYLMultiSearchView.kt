@@ -1,6 +1,7 @@
 package com.cyl.search
 
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.res.ColorStateList
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
@@ -20,6 +21,8 @@ import android.widget.HorizontalScrollView
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
 import kotlin.math.max
@@ -89,7 +92,15 @@ class CYLMultiSearchView @JvmOverloads constructor(
      * True while a new search is being typed (`isInSearchMode`).
      */
     var isInSearchMode: Boolean = false
-        private set
+        private set(value) {
+            field = value
+            backCallback.isEnabled = value
+        }
+
+    // The system Back gesture ends the search being typed, like `completeSearch`, while one is typed.
+    private val backCallback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() = completeSearch()
+    }
 
     /**
      * The button at the end: it starts a search, or completes the one being typed.
@@ -409,6 +420,21 @@ class CYLMultiSearchView @JvmOverloads constructor(
         selectedIndex = index
         applyStyle()
         delegate?.multiSearchViewDidCompleteSearch(this, text, index)
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        var base: Context? = context
+        while (base is ContextWrapper && base !is ComponentActivity) {
+            base = base.baseContext
+        }
+        (base as? ComponentActivity)?.onBackPressedDispatcher?.addCallback(backCallback)
+        backCallback.isEnabled = isInSearchMode
+    }
+
+    override fun onDetachedFromWindow() {
+        backCallback.remove()
+        super.onDetachedFromWindow()
     }
 
     /**

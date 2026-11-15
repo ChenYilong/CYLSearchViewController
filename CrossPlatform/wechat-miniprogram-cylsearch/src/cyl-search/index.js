@@ -76,6 +76,10 @@ Component({
       this.setData({ focus: false });
       this.sync();
     },
+    // The page container left: a back press, or `close` already ran.
+    onBackLeave() {
+      if (this.data.open) this.close();
+    },
     onTextChange(event) {
       this.model.textChanged(event.detail.text);
       this.triggerEvent('textchange', { text: event.detail.text });
