@@ -8,13 +8,8 @@
 .segmented { display: flex; margin-bottom: 24px; padding: 2px; border-radius: 9px; background: rgba(118, 118, 128, 0.12); }
 .segment { flex: 1; height: 28px; line-height: 28px; border-radius: 7px; text-align: center; font-size: 13px; color: #000; }
 .segment-selected { background: #fff; font-weight: 600; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12); }
-.playback { margin: 16px 24px 0; padding: 12px 16px; border-radius: 12px; background: #f2f2f7; color: #3c3c43; font-size: 14px; text-align: left; }
-.play-all { display: block; margin: 0 0 8px; }
-.playback-row { display: flex; align-items: center; justify-content: space-between; min-height: 44px; }
-.playback-slider { flex: 1; margin-left: 12px; }
 @media (prefers-color-scheme: dark) {
   .screen { background: #000; }
   .title2, .sticky-item, .segment { color: #fff; }
   .segment-selected { background: #636366; }
-  .playback { background: #1c1c1e; color: #ebebf5; }
 }

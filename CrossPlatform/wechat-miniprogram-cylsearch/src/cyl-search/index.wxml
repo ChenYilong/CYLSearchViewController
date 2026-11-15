@@ -15,12 +15,8 @@
   <view class="cyl-line" style="{{dividerColor ? 'background: ' + dividerColor : ''}}" />
   <view wx:if="{{showsContent}}" class="cyl-content"><slot name="content" /></view>
   <view wx:elif="{{showsEmptyResults || showsEmptySuggestions}}" class="cyl-empty" role="status">
-    <block wx:if="{{showsEmptyResults ? emptyResultsAnimation : emptySuggestionsAnimation}}">
-      <cyl-animation-view id="cyl-empty-animation" class="cyl-empty-animation"
-        path="{{showsEmptyResults ? emptyResultsAnimation : emptySuggestionsAnimation}}" loop="{{animationLoops}}" speed="{{playbackSpeed}}" autoplay="{{true}}" aria-hidden="true" />
-      <view class="cyl-empty-text" style="{{suggestionTextColor ? 'color: ' + suggestionTextColor : ''}}">{{showsEmptyResults ? (emptyResultsText || labels.noResults) : (emptySuggestionsText || labels.empty)}}</view>
-    </block>
-    <cyl-search-placeholder wx:else kind="{{showsEmptyResults ? 'noResults' : 'empty'}}" text="{{showsEmptyResults ? emptyResultsText : emptySuggestionsText}}" />
+    <cyl-empty-view id="cyl-empty-view" class="cyl-empty-view" scenario="{{showsEmptyResults ? emptyResultsScenario : emptySuggestionsScenario}}"
+      animated="{{emptyPlaceholderAnimated}}" loop="{{animationLoops}}" speed="{{playbackSpeed}}" />
     <slot name="placeholder-footer" />
   </view>
   <block wx:elif="{{shownSuggestions.length > 0}}">

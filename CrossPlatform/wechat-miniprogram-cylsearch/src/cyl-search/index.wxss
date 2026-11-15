@@ -1,9 +1,8 @@
 .cyl-page { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 100; display: flex; flex-direction: column; background: #fff; }
 .cyl-line { flex: none; height: 1px; background: #c6c6c8; transform: scaleY(0.5); }
 .cyl-content { flex: 1; min-height: 0; overflow: hidden; }
-.cyl-empty { margin-top: 80px; text-align: center; color: rgba(60, 60, 67, 0.6); font-size: 17px; }
-.cyl-empty-text { margin-top: 12px; }
-.cyl-empty-animation { display: block; width: 160px; height: 160px; margin: 0 auto; }
+.cyl-empty { margin-top: 48px; }
+.cyl-empty-view { display: block; }
 .cyl-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 4px 8px 16px; }
 .cyl-header-title { color: rgba(60, 60, 67, 0.6); font-size: 15px; font-weight: 600; }
 .cyl-clear { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }

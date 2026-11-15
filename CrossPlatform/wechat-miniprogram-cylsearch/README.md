@@ -72,15 +72,16 @@ Events: `textchange`, `submit`, `focuschange`, `cancel`, `itemselect`, `navigati
 | --- | --- | --- |
 | `suggestions`, `suggestionStyle` | `[]`, `list` | The suggestions, as a list or as `tags` folded inline to `foldedRowCount` rows |
 | `cacheName`, `focusesSearchFieldOnShow`, `closesOnSubmit` | `CYLSearchView`, `true`, `true` | Submitted queries are cached and listed first |
-| `showsEmptyResultsPlaceholder`, `emptyResultsText`, `emptySuggestionsText` | `false` | The placeholders (`cyl-search-placeholder`) |
-| `emptyResultsAnimation`, `emptySuggestionsAnimation`, `animationSpeed`, `animationLoops` | | Lottie placeholders through the abstract node `cyl-animation-view` (`generic:cyl-animation-view="cyl-lottie"`) |
+| `showsEmptyResultsPlaceholder`, `emptyResultsScenario`, `emptySuggestionsScenario` | `false`, `NoSearchResults`, `NoContent` | The empty placeholders: CYLTableViewPlaceHolder scenario names, drawn by the abstract node `cyl-empty-view` (default `cyl-search-empty-view`, CYLSearchPlaceholderView; pass a view that renders cyl-placeholder-miniprogram's `<cyl-placeholder scenario>` for CYLTableViewPlaceHolder's own) |
+| `emptyPlaceholderAnimated`, `animationSpeed`, `animationLoops` | `false`, 1, `true` | Ask `cyl-empty-view` to play the scenario's animation (static on iOS) |
 | `navigationIcon`, `showsCancelButton`, `showsVoiceButton`, `showsSearchIcon`, `secure`, `cursorColor` | `arrow`… | The bar |
 | `backgroundColor`, `textColor`, `placeholderColor`, `navigationColor`, `suggestionTextColor`, `suggestionImageTintColor`, `dividerColor`, `suggestionLineBreak` | | The look |
 | `showsContent` | `false` | Your own view (slot `content`) in place of the suggestions |
 | `coversNavigationBar` | `false` | On a `"navigationStyle": "custom"` page, the bar takes the navigation bar's place, clear of WeChat's menu button |
 
 Events: `submit`, `close`, `textchange`, `suggestionselect`, `focuschange`, `voicetap`, `itemselect`. Methods: `show()`,
-`close()`, `setQuery(text, submit)`, `playAnimationFromStart()`. Slots: `content`, `placeholder-footer`.
+`close()`, `setQuery(text, submit)`, `playAnimationFromStart()`. Slots: `content`, `placeholder-footer`. Abstract node:
+`cyl-empty-view` (properties `scenario`, `animated`, `loop`, `speed`; method `playAll()`).
 
 ### Other components
 
@@ -97,14 +98,17 @@ Open this folder (`CrossPlatform/wechat-miniprogram-cylsearch`) in WeChat DevToo
 `miniprogramRoot` at `example/miniprogram/` and its `beforeCompile` / `beforePreview` / `beforeUpload` hooks run
 `node scripts/sync-example.js`, which copies `src/` into the example (a mini program cannot load files outside its
 root) and installs CYLTabBarController's tab bar and Lottie player at the commit pinned in `package.json`
-(`cylTabBarControllerCommit`; `CYL_TABBAR_DIR` uses a local checkout). DevTools asks once whether to run the project's
+(`cylTabBarControllerCommit`; `CYL_TABBAR_DIR` uses a local checkout), and CYLTableViewPlaceHolder's `cyl-placeholder`
+and `cyl-refresh` (`cylTableViewPlaceHolderCommit`; `CYL_PLACEHOLDER_DIR`), the sub-repositories the iOS example uses
+through CocoaPods. DevTools asks once whether to run the project's
 custom commands; run `npm run sync-example` yourself if the hooks are off. DevTools refuses the committed
 `touristappid`: put your own AppID in `project.private.config.json` (git-ignored), for example `{ "appid": "wx…" }`.
 
 The example is a 1:1 copy of the iOS example (`CYLSearchExample`): the Search tab (the Issue #1317 reproduction), the
 Examples menu (Search and refresh, Placeholder styles, Search bar, the ports of lapism/search, MaterialSearchView,
 yechaoa, android-cjj and iammert MultiSearchView), the plus button's Search bar page, the Tag style tab and the
-Discover tab, with the iOS texts, data and images.
+Discover tab, with the iOS texts, data and images; the search pages show CYLTableViewPlaceHolder's NoContent and
+NoSearchResults placeholders and the reproduction its CYLRefreshNormalHeader, as on iOS; dark mode follows the system.
 
 ## Development
 
@@ -119,6 +123,5 @@ Discover tab, with the iOS texts, data and images.
 
 MIT, see `LICENSE`. The placeholder images in `src/images/placeholder` come unchanged from the iOS bundle and keep
 their licenses (the Material Design icons are Apache 2.0, `LICENSE.material-design-icons`, listed in `NOTICE` and
-`ICON-SOURCES`; `LICENSE.placeholder-third-party` covers the others). The example's Lottie files come from
-CYLTableViewPlaceHolder (`example/miniprogram/assets/placeholder`, with `LICENSE.lottie-ios`, `LICENSE.useanimations`
-and `NOTICE.animations`).
+`ICON-SOURCES`; `LICENSE.placeholder-third-party` covers the others). The example's sub-repositories are copied with
+their own licenses (`scripts/sync-example.js`).

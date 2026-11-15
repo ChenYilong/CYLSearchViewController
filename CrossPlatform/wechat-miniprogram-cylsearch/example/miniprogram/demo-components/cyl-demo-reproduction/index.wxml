@@ -3,13 +3,15 @@
     rightIdentifier="CYLIssueReproductionToggle" bind:lefttap="onShowOverlay" bind:righttap="onToggleReproduction" />
   <!-- Repro OFF (hidesSearchBarWhenScrolling NO): the field stays pinned above the list. -->
   <cyl-search-bar wx:if="{{!hidesSearchBarWhenScrolling}}" class="pinned" value="{{query}}" placeholder="{{texts.placeholder}}" bind:textchange="onQuery" />
-  <scroll-view scroll-y class="list" refresher-enabled refresher-triggered="{{refreshing}}" bindrefresherrefresh="onRefresh">
+  <!-- Pull to refresh: CYLTableViewPlaceHolder's CYLRefreshNormalHeader (cyl-placeholder-miniprogram's cyl-refresh, arrow,
+       state and last-updated texts), as tableView.cyl_header on iOS. -->
+  <cyl-refresh id="refresh" class="list" header="normal" footer="none" bind:refresh="onRefresh">
     <!-- Repro ON: the field is part of the list and scrolls away with it. -->
     <cyl-search-bar wx:if="{{hidesSearchBarWhenScrolling}}" value="{{query}}" placeholder="{{texts.placeholder}}" bind:textchange="onQuery" />
     <view wx:for="{{shown}}" wx:key="*this" class="row">{{item}}</view>
     <!-- The empty state (CYLTableViewPlaceHolder with CYLSearchPlaceholderView "No matching results"); the list
          keeps scrolling and refreshing under it. -->
     <cyl-search-placeholder wx:if="{{shown.length === 0}}" id="CYLSearchEmptyState" kind="noResults" />
-  </scroll-view>
+  </cyl-refresh>
   <cyl-search-controller id="overlay" results="{{overlayResults}}" coversNavigationBar bind:querychange="onOverlayQuery" />
 </view>

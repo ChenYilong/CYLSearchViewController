@@ -48,6 +48,49 @@
   not measured. The screenshot script retries the first relaunch after a compile.
 - Status: DONE (2026-11-15).
 
+## DONE (2026-11-15): the example as on iOS, before publishing to npm
+
+- Branch: `feat/swift-core-next` (PR #9).
+- Prompt (verbatim): "先把本项目的example 丰富到与iOS端保持一致再考虑发布npm"
+- Prompt (English): "First enrich this project's example until it is consistent with iOS, then consider publishing to
+  npm."
+- Gaps left by the first 1:1 copy, found by reading the iOS example and `CYLSearchView.swift` again:
+  1. Empty placeholders. iOS `CYLSearchView` shows CYLTableViewPlaceHolder's `CYLPlaceholderStackView` for
+     `emptyResultsScenario` (`CYLPlaceholderScenarioNoSearchResults`: icon, title, hint) and
+     `emptySuggestionsScenario` (`CYLPlaceholderScenarioNoContent`), static (`componentsForScenario`, no animation).
+     The mini program drew its own placeholder with Lottie animations and playback controls.
+  2. Pull to refresh. iOS uses CYLTableViewPlaceHolder's `CYLRefreshNormalHeader` (arrow, state and last-updated
+     texts); the mini program used the native scroll-view refresher.
+  3. Dark mode. iOS follows the system; the mini program had `prefers-color-scheme` rules but no `"darkmode": true`,
+     so they never applied.
+- Done:
+  1. Core: `cyl-search` has iOS's `emptyResultsScenario` / `emptySuggestionsScenario` (scenario names), drawn by the
+     abstract node `cyl-empty-view` (default `cyl-search-empty-view`: the library's CYLSearchPlaceholderView, so the
+     package keeps no dependency); `emptyPlaceholderAnimated` (off, as on iOS), `animationSpeed`, `animationLoops`
+     and `playAnimationFromStart()` stay for a view that animates. Removed: `emptyResultsText`,
+     `emptySuggestionsText`, `emptyResultsAnimation`, `emptySuggestionsAnimation`, the node `cyl-animation-view` and
+     `cyl-search-animation-placeholder` (not published, no caller outside the example).
+  2. Sub-repository: CYLTableViewPlaceHolder's mini program package (`cyl-placeholder`, `cyl-refresh`), pinned at its
+     newest commit that has it, `8ee7013` (`cylTableViewPlaceHolderCommit`; the newest of all, `1cac0d1` on
+     `ci-screenshots`, holds screenshots only), synced with its licenses by `scripts/sync-example.js` as the tab bar is.
+     CYLTabBarController's mini program pin moves to its newest commit `c006143`, as the iOS Podfile did.
+  3. Example: `demo-components/cyl-demo-empty-view` renders `<cyl-placeholder scenario>` and is passed to the
+     MaterialSearchView samples (`generic:cyl-empty-view`); their Lottie files, the playback controls and
+     `utils/cyl_animation_controls.js` are gone, as iOS has none (the "Animation examples: playback controls" rule
+     covers pages that show animations; none does now). The reproduction uses `<cyl-refresh header="normal">`.
+  4. Dark mode: `app.json` `"darkmode": true` with `theme.json` (status bar text, window background); dark rules added
+     to `cyl-search-bar-item`, `cyl-search-placeholder`, the gallery's template images and the reveal page's indigo.
+- Verified in WeChat DevTools 2.02.2609250 (base library 3.6.6, Windows 11 Pro 10.0.22631): the empty cache shows
+  NoContent ("Nothing here yet"), a query without results NoSearchResults ("No matching results", "Try different
+  keywords"), also on the Themed sample; `cyl-refresh` goes Refreshing (54 px normal header) and back to Idle with the
+  last-updated time saved; the 18 pages and 11 interactions run again with the new tab bar; no console error. Node tests
+  31/31. Not verified: the dark appearance (wechatide has no theme switch; switch the simulator to dark mode in
+  DevTools to see it).
+
+| Platform | Screenshot | Environment |
+| :--- | :--- | :--- |
+| Mini program | ![NoContent, NoSearchResults, Themed](assets/miniprogram-example-placeholder-scenarios.png) | CYLTableViewPlaceHolder's NoContent (empty cache), NoSearchResults, the same on the Themed sample. Windows 11 Pro 10.0.22631; WeChat DevTools 2.02.2609250 simulator (screenshots at 289 x 625 px); base library 3.6.6; branch `feat/swift-core-next`; 2026-11-15 22:36 NZDT (UTC+13) |
+
 ## DONE (2026-11-15): cyl-search-miniprogram as a mini program library
 
 - Branch: `feat/swift-core-next` (PR #9).

@@ -3,18 +3,14 @@
 // closes the search, as onQueryTextSubmit returning false does. Options: sample, style (list | tags), focus (1 | 0).
 const { cylDemoText } = require('../../utils/cyl_demo_text');
 const { cylMaterialSampleTitle, cylMaterialSampleConfiguration } = require('../../utils/cyl_material_samples');
-const { cylAnimationControls } = require('../../utils/cyl_animation_controls');
-
-const { initialData, ...playbackHandlers } = cylAnimationControls('#search');
 
 Page({
-  ...playbackHandlers,
-  data: Object.assign({
+  data: {
     sample: 'standard', title: '', suggestionStyle: 'list', focusesSearchFieldOnShow: true,
     // Every key set before onLoad, so no property receives null.
     configuration: cylMaterialSampleConfiguration('standard'),
     placeholder: '', items: [], pages: [], selectedPage: 0, openLabel: '', searchOpen: false,
-  }, initialData),
+  },
   onLoad(options) {
     const sample = options.sample || 'standard';
     this.setData({

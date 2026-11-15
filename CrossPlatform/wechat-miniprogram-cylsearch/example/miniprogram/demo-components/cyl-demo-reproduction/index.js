@@ -18,7 +18,7 @@ Component({
     inTabBar: { type: Boolean, value: false },
   },
   data: {
-    query: '', shown: items, overlayResults: items, refreshing: false, hidesSearchBarWhenScrolling: false,
+    query: '', shown: items, overlayResults: items, hidesSearchBarWhenScrolling: false,
     texts: {
       title: cylDemoText('search.title'),
       placeholder: cylDemoText('search.placeholder'),
@@ -32,11 +32,12 @@ Component({
       const query = event.detail.text;
       this.setData({ query, shown: results(query) });
     },
-    // Pull to refresh: the data source reloads in 0.4 s without an error, then the results reload.
+    // Pull to refresh: the data source reloads in 0.4 s without an error, then the header ends and the results reload
+    // (iOS: endRefreshing, then reloadSearchResults; an error would show the "Refresh Failed" alert).
     onRefresh() {
-      this.setData({ refreshing: true });
       setTimeout(() => {
-        this.setData({ refreshing: false, shown: results(this.data.query) });
+        this.selectComponent('#refresh').endRefreshing();
+        this.setData({ shown: results(this.data.query) });
       }, 400);
     },
     onToggleReproduction() {

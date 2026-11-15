@@ -27,8 +27,8 @@ test('the entry exports the iOS API and the helpers', () => {
 test('every component of src is complete and its paths resolve inside the package', () => {
   const src = path.join(root, pkg.miniprogram);
   const components = fs.readdirSync(src).filter((name) => fs.existsSync(path.join(src, name, 'index.json')));
-  assert.deepStrictEqual(components.sort(), ['cyl-multi-search', 'cyl-search', 'cyl-search-animation-placeholder', 'cyl-search-bar',
-    'cyl-search-bar-item', 'cyl-search-controller', 'cyl-search-placeholder']);
+  assert.deepStrictEqual(components.sort(), ['cyl-multi-search', 'cyl-search', 'cyl-search-bar', 'cyl-search-bar-item',
+    'cyl-search-controller', 'cyl-search-empty-view', 'cyl-search-placeholder']);
   for (const name of components) {
     for (const extension of ['js', 'json', 'wxml']) assert.ok(fs.existsSync(path.join(src, name, `index.${extension}`)), `${name}.${extension}`);
     const json = JSON.parse(fs.readFileSync(path.join(src, name, 'index.json'), 'utf8'));
@@ -62,4 +62,13 @@ test('every relative require names a file, as a mini program needs', () => {
       assert.ok(isFile, `${path.relative(root, file)} requires the folder ${match[2]}`);
     }
   }
+});
+
+test('cyl-search-empty-view draws a CYLTableViewPlaceHolder scenario as a CYLSearchPlaceholderView kind', () => {
+  const { cylEmptyViewKind } = require('../src/cyl-search-empty-view/cyl_empty_view_kind');
+  assert.strictEqual(cylEmptyViewKind('NoSearchResults'), 'noResults');
+  assert.strictEqual(cylEmptyViewKind('CYLPlaceholderScenarioNoSearchResults'), 'noResults');
+  assert.strictEqual(cylEmptyViewKind('NoContent'), 'empty');
+  assert.strictEqual(cylEmptyViewKind('LoadFailed'), 'error');
+  assert.strictEqual(cylEmptyViewKind(''), 'empty');
 });

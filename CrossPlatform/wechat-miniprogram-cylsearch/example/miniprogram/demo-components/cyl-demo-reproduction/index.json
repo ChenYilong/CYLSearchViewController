@@ -4,6 +4,7 @@
     "cyl-demo-nav": "../cyl-demo-nav/index",
     "cyl-search-bar": "/components/cyl-search-bar/index",
     "cyl-search-placeholder": "/components/cyl-search-placeholder/index",
-    "cyl-search-controller": "/components/cyl-search-controller/index"
+    "cyl-search-controller": "/components/cyl-search-controller/index",
+    "cyl-refresh": "cyl-placeholder-miniprogram/cyl-refresh/index"
   }
 }

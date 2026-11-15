@@ -14,7 +14,7 @@
   </view>
   <view wx:else class="center"><view class="title2">{{title}}</view></view>
 
-  <cyl-search id="search" generic:cyl-animation-view="cyl-lottie" coversNavigationBar
+  <cyl-search id="search" generic:cyl-empty-view="cyl-demo-empty-view" coversNavigationBar
     suggestions="{{configuration.suggestions}}" suggestionStyle="{{suggestionStyle}}" foldedRowCount="{{2}}"
     showsEmptyResultsPlaceholder="{{true}}" cacheName="MaterialSearchView" focusesSearchFieldOnShow="{{focusesSearchFieldOnShow}}"
     placeholder="{{placeholder}}" showsVoiceButton="{{configuration.showsVoiceButton}}" cursorColor="{{configuration.cursorColor}}"
@@ -22,22 +22,7 @@
     backgroundColor="{{configuration.backgroundColor}}" textColor="{{configuration.textColor}}" placeholderColor="{{configuration.placeholderColor}}"
     navigationColor="{{configuration.navigationColor}}" suggestionTextColor="{{configuration.suggestionTextColor}}"
     suggestionImageTintColor="{{configuration.suggestionImageTintColor}}" dividerColor="{{configuration.dividerColor}}"
-    emptyResultsAnimation="/assets/placeholder/CYLPlaceholderNoResults.json" emptySuggestionsAnimation="/assets/placeholder/CYLPlaceholderNoDrafts.json"
-    animationSpeed="{{animationSpeed}}" animationLoops="{{animationLoops}}"
-    bind:submit="onSubmit" bind:close="onSearchClose" bind:voicetap="onVoice">
-    <!-- The playback controls of the animated placeholder (AGENTS.md, "Animation examples: playback controls"). -->
-    <view slot="placeholder-footer" class="playback" aria-label="Animation playback" aria-value="{{animationPlaybackDescription}}">
-      <button class="play-all" size="mini" bindtap="onPlayAll" aria-label="Play all animations from the start">Play all</button>
-      <view class="playback-row">
-        <text>Speed {{animationSpeed}}x</text>
-        <slider class="playback-slider" min="1" max="12" step="1" value="{{animationSpeedStep}}" bindchanging="onSpeedChange" bindchange="onSpeedChange"
-          aria-label="Animation speed" aria-valuetext="{{animationSpeed}}x" />
-      </view>
-      <view class="playback-row">
-        <text>Loop</text>
-        <switch checked="{{animationLoops}}" bindchange="onLoopChange" aria-label="Loop animations" />
-      </view>
-    </view>
-  </cyl-search>
+    bind:submit="onSubmit" bind:close="onSearchClose" bind:voicetap="onVoice" />
+
   <cyl-demo-snackbar id="snackbar" />
 </view>

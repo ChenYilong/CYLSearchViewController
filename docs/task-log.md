@@ -271,3 +271,6 @@ begins and becomes `DONE` when it ends.
     non-tab page) gets an "Open search" button to show it. TODO: verify in WeChat DevTools — the run stopped at
     "Login is required" (APPID_ERROR); the check script is `back-test.js` (navigateTo plus, open, navigateBack,
     expect plus still shown with the search page closed).
+- Progress (2026-11-15, "先把本项目的example 丰富到与iOS端保持一致再考虑发布npm", branch `feat/swift-core-next`): DONE.
+  The mini program example now shows CYLTableViewPlaceHolder's scenario placeholders and CYLRefreshNormalHeader, as
+  iOS, and follows dark mode; see `docs/miniprogram-api-alignment.md`. Publishing to npm waits for the user.

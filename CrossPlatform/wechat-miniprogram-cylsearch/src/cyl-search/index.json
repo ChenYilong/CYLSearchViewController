@@ -1,12 +1,11 @@
 {
   "component": true,
   "usingComponents": {
-    "cyl-search-bar": "../cyl-search-bar/index",
-    "cyl-search-placeholder": "../cyl-search-placeholder/index"
+    "cyl-search-bar": "../cyl-search-bar/index"
   },
   "componentGenerics": {
-    "cyl-animation-view": {
-      "default": "../cyl-search-animation-placeholder/index"
+    "cyl-empty-view": {
+      "default": "../cyl-search-empty-view/index"
     }
   }
 }

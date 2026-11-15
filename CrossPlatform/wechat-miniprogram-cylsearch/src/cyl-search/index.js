@@ -20,7 +20,8 @@ const text = (key) => CYLSearchResources.localizedString(undefined, key);
  *
  * Events: `submit` `{ text }`, `close`, `textchange` `{ text }`, `suggestionselect` `{ suggestion, index }`,
  * `focuschange` `{ focused }`, `voicetap`, `itemselect`.
- * Methods: `show()`, `close()`, `setQuery(text, submit)`, `playAnimationFromStart()`.
+ * Methods: `show()`, `close()`, `setQuery(text, submit)`, `playAnimationFromStart()`. Abstract node: `cyl-empty-view`
+ * (properties `scenario`, `animated`, `loop`, `speed`; method `playAll()`), the empty placeholders.
  * Slots: `placeholder-footer` (under the empty placeholder); `content` (with `showsContent`: your own view in place of
  * the suggestions, iOS `contentView`).
  */
@@ -38,15 +39,17 @@ Component({
     // NO keeps the page open after a submitted query (iOS closesOnSubmit, or a delegate that handles the query).
     closesOnSubmit: { type: Boolean, value: true },
     foldedRowCount: { type: Number, value: 2 },
-    emptyResultsText: { type: String, value: '' },
-    emptySuggestionsText: { type: String, value: '' },
-    // A Lottie JSON path played above the empty-cache text, through the abstract node cyl-animation-view
-    // (generic:cyl-animation-view="cyl-lottie" with cyl-lottie-miniprogram); nothing plays without the node.
-    emptySuggestionsAnimation: { type: String, value: '' },
-    // The same for the empty-results text.
-    emptyResultsAnimation: { type: String, value: '' },
-    // The playback strategy of the animation that shows, applied live: a speed (0.25 to 3, rounded to 0.25) and
-    // whether it loops. playAnimationFromStart() restarts it from progress 0.
+    // The CYLTableViewPlaceHolder scenario shown while a non-empty query matches nothing (iOS emptyResultsScenario,
+    // CYLPlaceholderScenarioNoSearchResults by default) and while the query and the cache are empty (iOS
+    // emptySuggestionsScenario, CYLPlaceholderScenarioNoContent). The abstract node cyl-empty-view draws it: by
+    // default cyl-search-empty-view (CYLSearchPlaceholderView, no dependency); pass a view that draws
+    // cyl-placeholder-miniprogram's <cyl-placeholder scenario> for CYLTableViewPlaceHolder's own placeholders.
+    emptyResultsScenario: { type: String, value: 'NoSearchResults' },
+    emptySuggestionsScenario: { type: String, value: 'NoContent' },
+    // YES asks cyl-empty-view to play the scenario's animation (NO on iOS: CYLPlaceholderStackView is static).
+    emptyPlaceholderAnimated: { type: Boolean, value: false },
+    // The playback strategy of that animation, applied live: a speed (0.25 to 3, rounded to 0.25) and whether it
+    // loops. playAnimationFromStart() restarts it from progress 0.
     animationSpeed: { type: Number, value: 1, observer: 'onAnimationSpeedChange' },
     animationLoops: { type: Boolean, value: true },
     recentTitle: { type: String, value: '' },
@@ -109,8 +112,7 @@ Component({
         pageStyle,
         barInsets,
         labels: {
-          recent: text('search.recent'), clear: text('search.clearRecent'), noResults: text('placeholder.search'),
-          empty: text('placeholder.empty'), suggestions: text('search.suggestions'),
+          recent: text('search.recent'), clear: text('search.clearRecent'), suggestions: text('search.suggestions'),
           showMore: (FOLD_LABELS[CYLSearchResources.languageFor()] || FOLD_LABELS.en)[0],
           showLess: (FOLD_LABELS[CYLSearchResources.languageFor()] || FOLD_LABELS.en)[1],
         },
@@ -124,8 +126,8 @@ Component({
     },
     // Restarts the placeholder animation that shows from progress 0 ("Play all"); does nothing without one.
     playAnimationFromStart() {
-      const view = this.selectComponent('#cyl-empty-animation');
-      if (view && typeof view.cyl_playFromStart === 'function') view.cyl_playFromStart();
+      const view = this.selectComponent('#cyl-empty-view');
+      if (view && typeof view.playAll === 'function') view.playAll();
     },
     onSuggestionsChange(value) {
       if (!this.model) return;

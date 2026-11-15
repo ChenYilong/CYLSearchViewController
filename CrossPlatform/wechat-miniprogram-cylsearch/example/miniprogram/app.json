@@ -19,19 +19,37 @@
   ],
   "window": {
     "navigationStyle": "custom",
-    "navigationBarTextStyle": "black",
-    "backgroundColor": "#f2f2f7"
+    "navigationBarTextStyle": "@statusBarText",
+    "backgroundColor": "@windowBackground",
+    "backgroundTextStyle": "@backgroundText"
   },
+  "darkmode": true,
+  "themeLocation": "theme.json",
   "tabBar": {
     "custom": true,
     "color": "#8e8e93",
     "selectedColor": "#007aff",
     "list": [
-      { "pagePath": "pages/search/index", "text": "Search" },
-      { "pagePath": "pages/examples/index", "text": "Examples" },
-      { "pagePath": "pages/plus/index", "text": "Search bar" },
-      { "pagePath": "pages/tagStyle/index", "text": "Tag style" },
-      { "pagePath": "pages/discover/index", "text": "Discover" }
+      {
+        "pagePath": "pages/search/index",
+        "text": "Search"
+      },
+      {
+        "pagePath": "pages/examples/index",
+        "text": "Examples"
+      },
+      {
+        "pagePath": "pages/plus/index",
+        "text": "Search bar"
+      },
+      {
+        "pagePath": "pages/tagStyle/index",
+        "text": "Tag style"
+      },
+      {
+        "pagePath": "pages/discover/index",
+        "text": "Discover"
+      }
     ]
   },
   "usingComponents": {
@@ -45,7 +63,8 @@
     "cyl-demo-snackbar": "/demo-components/cyl-demo-snackbar/index",
     "cyl-demo-reproduction": "/demo-components/cyl-demo-reproduction/index",
     "cyl-demo-material-menu": "/demo-components/cyl-demo-material-menu/index",
-    "cyl-demo-search-bar": "/demo-components/cyl-demo-search-bar/index"
+    "cyl-demo-search-bar": "/demo-components/cyl-demo-search-bar/index",
+    "cyl-demo-empty-view": "/demo-components/cyl-demo-empty-view/index"
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json"
