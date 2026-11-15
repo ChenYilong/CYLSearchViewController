@@ -1,5 +1,9 @@
 <!-- The search page: the bar (back arrow), a divider, then your content, or the cached queries and suggestions as a
      list or tags (iOS CYLSearchView). -->
+<!-- While the search page is open, the back button or gesture closes it instead of leaving the page (iOS back button,
+     Android OnBackPressedCallback, HarmonyOS handleBackPress). -->
+<page-container show="{{open}}" overlay="{{false}}" duration="{{0}}" custom-style="height:0;overflow:hidden"
+  bind:afterleave="onBackLeave" />
 <view class="cyl-page" wx:if="{{open}}" style="{{pageStyle}} {{backgroundColor ? 'background: ' + backgroundColor + ';' : ''}}">
   <cyl-search-bar value="{{query}}" placeholder="{{placeholder}}" focus="{{focus}}" searchBarStyle="{{searchBarStyle}}"
     items="{{items}}" navigationIcon="{{navigationIcon}}" navigationColor="{{navigationColor || textColor}}"

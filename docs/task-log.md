@@ -260,3 +260,14 @@ begins and becomes `DONE` when it ends.
   commit `82797a4`, originals 1316×2832 stacked top to bottom): the search page with "Kot" typed, then Discover after
   one Back press (the keyboard was already hidden).
   ![Back closes the search page](assets/harmonyos-back-closes-search-emulator.jpeg)
+
+- 2026-11-15 Back gesture parity on Android and mini programs. Prompt: "screenshot back continue" (the screenshot was
+  already in; continued with the parity check offered next).
+  - Android: `CYLSearchView` and `CYLSearchController` already close on Back (`OnBackPressedCallback`).
+    `CYLMultiSearchView` did not: Back only hid the keyboard. DONE: a callback enabled while `isInSearchMode` ends
+    the typed search like `completeSearch`; Robolectric test `CYLMultiSearchBackTest`; `:cylsearch` tests 17/17.
+  - Mini program: the back button or gesture left the page with the search page open. `cyl-search` now holds a
+    `page-container` while open, so back closes the search page (`onBackLeave`). The example's plus page (the only
+    non-tab page) gets an "Open search" button to show it. TODO: verify in WeChat DevTools — the run stopped at
+    "Login is required" (APPID_ERROR); the check script is `back-test.js` (navigateTo plus, open, navigateBack,
+    expect plus still shown with the search page closed).

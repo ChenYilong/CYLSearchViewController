@@ -177,6 +177,10 @@ Component({
       this.setData({ focus: false });
       this.sync();
     },
+    // The page container left: a back press, or `close` already ran.
+    onBackLeave() {
+      if (this.data.open) this.close();
+    },
     /** Sets the query and, with `submit`, submits it (iOS `-setQuery:submit:`). */
     setQuery(query, submit) {
       this.model.setQuery(query, !!submit);
