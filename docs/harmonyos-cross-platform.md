@@ -12,6 +12,17 @@ The HarmonyOS port of CYLSearchViewController: the ArkTS library `harmonyos/cyls
 | IDE and SDK | DevEco Studio 6.0.1 with its bundled SDK (API 21), hvigor, ohpm |
 | Run | Huawei emulator (Mate 70 Pro, HarmonyOS 6.0.1, API 21); unsigned HAP installed with `hdc install` |
 
+## IDE preparation and emulator prerequisites (TODO 2026-11-16)
+
+- Prompt (verbatim): "全英文写入instructions相关文件以及 skills相关文件： 鸿蒙系统 ide 准备工作，模拟器安装的必要条件， region should be set to china (NZ) in country.region.xml to china make sure The region file now says China: <countryregion name="CN"/>"
+- Prompt (English): "Write, in English only, into the instruction files and the skill files: the HarmonyOS IDE
+  preparation and the prerequisites for installing the emulator. The region must be set to China in
+  `country.region.xml` (the developer is in New Zealand); make sure the region file says China:
+  `<countryregion name="CN"/>`."
+- Requirements: English only; update `AGENTS.md`, `instructions.md` and a skill in `.agents/skills`; DevEco Studio
+  preparation; emulator prerequisites; region set to China (`CN`) in `country.region.xml`, checked on this machine.
+- Status: TODO.
+
 ## IN PROGRESS (TODO 2026-11-16): the HarmonyOS scorecard, scored to 100
 
 - Prompt (verbatim): "合并pr 新建pr 开始鸿蒙端开发，在新建跨端文档，标注鸿蒙系统版本，新建表格，列出iOS版本存在的API， 在新建表格列出iOS端example 层所有演示，每个表格的第二列为鸿蒙对应实现，默认填TODO 鸿蒙系统软件开发过程中需要实时打分，两个表格一起打分。移除所有todo为满分。每每完成一个功能移除一个todo，一直到满分为止。"
