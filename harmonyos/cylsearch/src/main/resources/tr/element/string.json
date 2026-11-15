@@ -1,0 +1,20 @@
+{
+  "string": [
+    {
+      "name": "cyl_action_ok",
+      "value": "Tamam"
+    },
+    {
+      "name": "cyl_demo_port_default",
+      "value": "Varsayılan"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "Veri yok"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "İptal"
+    }
+  ]
+}

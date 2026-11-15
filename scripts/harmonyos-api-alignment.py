@@ -5,7 +5,7 @@ One row per public declaration of Sources/CYLSearchViewController/*.swift, parse
 (android/merged/scripts/api-alignment.py): the iOS API, its doc comment, and the HarmonyOS counterpart. The third
 column is TODO by default. A row is filled when the ArkTS sources (harmonyos/cylsearch/src/main/ets) declare the
 counterpart: the type, the enum case, or the member inside the type's body, under the same name as on Android. A
-row that is UIKit only gets `N/A: <reason>` from the rules below. A third column written by hand in the document is
+row that is UIKit only gets `TODO: N/A on HarmonyOS: <reason>` (handled: it counts as done) from the rules below. A third column written by hand in the document is
 kept. Score: rows not TODO / rows x 100.
 
 Usage: python3 scripts/harmonyos-api-alignment.py [--check]
@@ -47,21 +47,21 @@ MANUAL = {
     ('CYLSearchBarView', 'trailingAccessoryViews'): '`CYLSearchBarComponent.trailingAccessoryViews` (a `@BuilderParam`)',
     ('CYLSearchBarView', 'leadingView'): '`CYLSearchBarComponent.leadingView` (a `@BuilderParam`)',
     ('CYLSearchBarItemView', 'init(item:)'): '`CYLSearchBarItemView({ item })` (the `@Param item`)',
-    ('CYLSearchBarItemView', 'intrinsicContentSize'): 'N/A: ArkUI measures `CYLSearchBarItemView` from its content (36 vp minimum)',
-    ('CYLSearchBarView', 'autocapitalizationType'): 'N/A: ArkUI `TextInput` has no capitalization trait',
-    ('CYLSearchBarView', 'autocorrectionType'): 'N/A: ArkUI `TextInput` has no autocorrection trait',
-    ('CYLMultiSearchView', 'autocapitalizationType'): 'N/A: ArkUI `TextInput` has no capitalization trait',
-    ('CYLMultiSearchView', 'searchButton'): 'N/A: ArkUI has no view objects; `CYLMultiSearchComponent` draws it (`searchImage`)',
-    ('CYLMultiSearchView', 'tintColorDidChange()'): 'N/A: system colors follow the theme by themselves (`indicatorColor` overrides)',
-    ('CYLSearchController', 'viewDidLoad()'): 'N/A: ArkUI components have no load phase (`CYLSearchOverlayComponent.build`)',
-    ('CYLSearchController', 'viewDidLayoutSubviews()'): 'N/A: the overlay is laid out below the safe area by ArkUI, never over the page it hides',
-    ('CYLSearchResultsViewController', 'viewDidLoad()'): 'N/A: ArkUI components have no load phase (`CYLSearchResultsComponent.build`)',
-    ('CYLSearchResultsViewController', 'viewDidLayoutSubviews()'): 'N/A: `CYLSearchResultsComponent` lays the bar above the list in one column, never over it',
-    ('CYLSearchView', 'safeAreaInsetsDidChange()'): 'N/A: ArkUI keeps the page inside the safe area by itself',
-    ('CYLSearchView', 'dividerView'): 'N/A: ArkUI has no view objects; `CYLSearchComponent` draws the divider (`dividerColor`)',
-    ('CYLSearchView', 'suggestionsTableView'): 'N/A: ArkUI has no view objects; `CYLSearchComponent` draws the list (`suggestionCellConfiguration`)',
-    ('CYLSearchView', 'suggestionsTagView'): 'N/A: ArkUI has no view objects; `CYLSearchComponent` draws the tags (`suggestionsFoldControl`)',
-    ('CYLSearchView', 'suggestionCacheHeaderView'): 'N/A: ArkUI has no view objects; `CYLSearchComponent.cacheHeader` draws it',
+    ('CYLSearchBarItemView', 'intrinsicContentSize'): 'TODO: N/A on HarmonyOS: ArkUI measures `CYLSearchBarItemView` from its content (36 vp minimum)',
+    ('CYLSearchBarView', 'autocapitalizationType'): 'TODO: N/A on HarmonyOS: ArkUI `TextInput` has no capitalization trait',
+    ('CYLSearchBarView', 'autocorrectionType'): 'TODO: N/A on HarmonyOS: ArkUI `TextInput` has no autocorrection trait',
+    ('CYLMultiSearchView', 'autocapitalizationType'): 'TODO: N/A on HarmonyOS: ArkUI `TextInput` has no capitalization trait',
+    ('CYLMultiSearchView', 'searchButton'): 'TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLMultiSearchComponent` draws it (`searchImage`)',
+    ('CYLMultiSearchView', 'tintColorDidChange()'): 'TODO: N/A on HarmonyOS: system colors follow the theme by themselves (`indicatorColor` overrides)',
+    ('CYLSearchController', 'viewDidLoad()'): 'TODO: N/A on HarmonyOS: ArkUI components have no load phase (`CYLSearchOverlayComponent.build`)',
+    ('CYLSearchController', 'viewDidLayoutSubviews()'): 'TODO: N/A on HarmonyOS: the overlay is laid out below the safe area by ArkUI, never over the page it hides',
+    ('CYLSearchResultsViewController', 'viewDidLoad()'): 'TODO: N/A on HarmonyOS: ArkUI components have no load phase (`CYLSearchResultsComponent.build`)',
+    ('CYLSearchResultsViewController', 'viewDidLayoutSubviews()'): 'TODO: N/A on HarmonyOS: `CYLSearchResultsComponent` lays the bar above the list in one column, never over it',
+    ('CYLSearchView', 'safeAreaInsetsDidChange()'): 'TODO: N/A on HarmonyOS: ArkUI keeps the page inside the safe area by itself',
+    ('CYLSearchView', 'dividerView'): 'TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchComponent` draws the divider (`dividerColor`)',
+    ('CYLSearchView', 'suggestionsTableView'): 'TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchComponent` draws the list (`suggestionCellConfiguration`)',
+    ('CYLSearchView', 'suggestionsTagView'): 'TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchComponent` draws the tags (`suggestionsFoldControl`)',
+    ('CYLSearchView', 'suggestionCacheHeaderView'): 'TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchComponent.cacheHeader` draws it',
     ('CYLSearchView', 'suggestionCacheTitleLabel'): '`CYLSearchView.suggestionCacheTitle`',
     ('CYLSearchView', 'clearSuggestionCacheButton'): '`CYLSearchView.clearSuggestionCache()` (the header button calls it)',
     ('CYLSearchPlaceholderView', 'imageView'): '`CYLSearchPlaceholderView.image`',
@@ -91,11 +91,11 @@ def detect(sources, owner, swift, kind, kotlin):
     if kind in ('class', 'protocol', 'enum'):
         return f'`{owner}`' if body else None
     if swift in NOT_APPLICABLE:
-        return 'N/A: ' + NOT_APPLICABLE[swift]
+        return 'TODO: N/A on HarmonyOS: ' + NOT_APPLICABLE[swift]
     if (owner, swift) in VIEW_OBJECTS:
-        return 'N/A: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties'
+        return 'TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties'
     if kind == 'method' and android.CONFORMANCE.match(swift):
-        return 'N/A: a UIKit protocol conformance (ArkUI reports the same events to the model)'
+        return 'TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model)'
     if body is None:
         return None
     if kind == 'case':
@@ -138,7 +138,9 @@ def main():
         if len(note) > 240:
             note = note[:237].rstrip() + '…'
         third = kept.get(first, 'TODO')
-        if third == 'TODO' or third.startswith('`') or third.startswith('N/A: '):
+        if third.startswith('N/A: '):
+            third = 'TODO: N/A on HarmonyOS: ' + third[len('N/A: '):]
+        if third == 'TODO' or third.startswith('`') or third.startswith('TODO: N/A on HarmonyOS: '):
             third = detect(sources, owner, swift, kind, kotlin) or 'TODO'
         total += 1
         done += third != 'TODO'

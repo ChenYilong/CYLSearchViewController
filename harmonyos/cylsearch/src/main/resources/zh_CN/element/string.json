@@ -223,6 +223,26 @@
     {
       "name": "cyl_search_voice",
       "value": "语音搜索"
+    },
+    {
+      "name": "cyl_search_suggestion_hint",
+      "value": "轻点两下以搜索"
+    },
+    {
+      "name": "cyl_search_fold_more",
+      "value": "更多"
+    },
+    {
+      "name": "cyl_search_fold_less",
+      "value": "收起"
+    },
+    {
+      "name": "cyl_search_show_more",
+      "value": "显示更多"
+    },
+    {
+      "name": "cyl_search_show_less",
+      "value": "显示更少"
     }
   ]
 }

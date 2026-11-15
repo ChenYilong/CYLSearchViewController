@@ -1,3 +1,4 @@
+import { CYLSearchResources } from './CYLSearchResources';
 import { CYLSearchBarItem, CYLSearchBarItemOwner, CYLSearchBarItemStyle, CYLSearchBarItemView, CYLSearchBarStyle } from './CYLSearchBarItem';
 
 /**
@@ -196,7 +197,7 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
   /**
    * The Cancel button's title.
    */
-  @Trace cancelButtonTitle: string = 'Cancel';
+  @Trace cancelButtonTitle: ResourceStr = $r('app.string.cyl_search_cancel');
   /**
    * Cancel also ends editing. True by default.
    */
@@ -220,7 +221,7 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
   /**
    * What screen readers read for the button before the field.
    */
-  @Trace navigationAccessibilityLabel: string = 'Back';
+  @Trace navigationAccessibilityLabel: ResourceStr = $r('app.string.cyl_search_back');
   /**
    * A round background behind the button before the field; undefined draws none.
    */
@@ -804,7 +805,7 @@ export struct CYLSearchBarComponent {
             color: `rgba(0,0,0,${this.searchBarView.navigationShadowOpacity * 0.3})`
           })
           .accessibilityGroup(true)
-          .accessibilityText(this.searchBarView.navigationAccessibilityLabel)
+          .accessibilityText(CYLSearchResources.accessibilityString(this.searchBarView.navigationAccessibilityLabel))
           .onClick(() => {
             this.searchBarView.navigationTapped();
           })
@@ -817,6 +818,8 @@ export struct CYLSearchBarComponent {
             .maxLines(1)
             .constraintSize({ minWidth: 44, minHeight: 36 })
             .textAlign(TextAlign.Center)
+            .accessibilityText(CYLSearchResources.accessibilityString(this.searchBarView.cancelButtonTitle))
+            .id('CYLSearchBarCancelButton')
             .onClick(() => {
               this.searchBarView.cancelTapped();
             })

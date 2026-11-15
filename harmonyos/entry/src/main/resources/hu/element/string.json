@@ -1,0 +1,12 @@
+{
+  "string": [
+    {
+      "name": "discover_ok",
+      "value": "OK"
+    },
+    {
+      "name": "discover_hot",
+      "value": "népszerű"
+    }
+  ]
+}

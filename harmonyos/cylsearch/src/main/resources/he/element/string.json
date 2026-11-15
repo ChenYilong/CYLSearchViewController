@@ -1,0 +1,20 @@
+{
+  "string": [
+    {
+      "name": "cyl_action_ok",
+      "value": "אישור"
+    },
+    {
+      "name": "cyl_demo_port_default",
+      "value": "ברירת מחדל"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "אין נתונים"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "ביטול"
+    }
+  ]
+}

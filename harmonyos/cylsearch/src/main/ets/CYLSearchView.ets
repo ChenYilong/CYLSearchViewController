@@ -654,6 +654,10 @@ export struct CYLSearchComponent {
     .constraintSize({ minHeight: this.rowHeight() })
     .padding({ left: 16, right: 16, top: 8, bottom: 8 })
     .backgroundColor(this.searchView.suggestionBackgroundColor ?? Color.Transparent)
+    // One element for screen readers: the suggestion's text, announced as a button.
+    .accessibilityGroup(true)
+    .accessibilityText(suggestion)
+    .accessibilityDescription($r('app.string.cyl_search_suggestion_hint'))
     .onClick(() => {
       this.searchView.suggestionSelected(suggestion, index);
     })
@@ -669,6 +673,9 @@ export struct CYLSearchComponent {
               this.searchView.suggestionCellConfiguration.builder(suggestion, index)
             }
             .width('100%')
+            .accessibilityGroup(true)
+            .accessibilityText(suggestion)
+            .accessibilityDescription($r('app.string.cyl_search_suggestion_hint'))
             .onClick(() => {
               this.searchView.suggestionSelected(suggestion, index);
             })
@@ -688,7 +695,7 @@ export struct CYLSearchComponent {
   foldControl() {
     Row() {
       if (this.searchView.suggestionsFoldControl.content === CYLMenuFoldControlContent.title) {
-        Text(this.searchView.suggestionsFolded ? 'More' : 'Less')
+        Text(this.searchView.suggestionsFolded ? $r('app.string.cyl_search_fold_more') : $r('app.string.cyl_search_fold_less'))
           .fontSize(14)
           .fontColor($r('sys.color.font_secondary'))
       } else {
@@ -705,7 +712,8 @@ export struct CYLSearchComponent {
     .border({ width: 1, color: $r('sys.color.comp_divider') })
     .backgroundColor(this.searchView.backgroundColor ?? $r('sys.color.background_primary'))
     .accessibilityGroup(true)
-    .accessibilityText(this.searchView.suggestionsFolded ? 'Show more' : 'Show less')
+    .accessibilityText(this.searchView.suggestionsFolded ? $r('app.string.cyl_search_show_more') : $r('app.string.cyl_search_show_less'))
+    .id('CYLSearchSuggestionsFoldControl')
     .onClick(() => {
       this.searchView.suggestionsFolded = !this.searchView.suggestionsFolded;
     })
@@ -728,6 +736,8 @@ export struct CYLSearchComponent {
                 .borderRadius(17)
                 .border({ width: 1, color: $r('sys.color.comp_divider') })
                 .backgroundColor(this.searchView.suggestionBackgroundColor ?? Color.Transparent)
+                .accessibilityText(suggestion)
+                .accessibilityDescription($r('app.string.cyl_search_suggestion_hint'))
                 .onClick(() => {
                   this.searchView.suggestionSelected(suggestion, index);
                 })
