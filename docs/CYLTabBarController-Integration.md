@@ -189,3 +189,6 @@ plus page; the Examples tab at the largest accessibility text size.
     `+multiplierOfTabBarHeight:`; the multiplier applies to a title-less button with
     `cyl_appliesCenterYOffsetWithoutTitle` YES, or in the other styles. Decision needed in CYLTabBarController (raised
     effect with a title on Liquid Glass), so it stays `TODO` here; the config was reverted.
+  - React Native: DONE 2026-11-16. `CYLPlusButtonAlignsTitle` false (RN `alignsTitle: false`) keeps the title on the
+    button, so the multiplier applies; see `android-and-cross-platform.md`, "Open TODOs". The iOS example can use the
+    same key in `CYLTabBarConfiguration.json` (still `TODO`, iOS example layer).
