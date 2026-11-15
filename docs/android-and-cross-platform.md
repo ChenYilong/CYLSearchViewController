@@ -13,9 +13,11 @@ Collected from every cross-platform document. A row's TODO is removed when it is
 | `android-and-cross-platform.md`, React Native entry: "Still open: touch checks on iOS … no tap tool exists" (stale; `axe` touch checks done, `a3f48b0`) | DONE: line updated |
 | Android: system Back while typing in `CYLMultiSearchView` did not end the search (parity with the HarmonyOS fix) | DONE: `OnBackPressedCallback`, Robolectric test, 17/17 |
 | `task-log.md`: "Android animated placeholder (waits for CYLTableViewPlaceHolder PR #28)" | DONE: PR #28 merged (`7bc27a1`), pin `6d8b264` |
-| React Native iOS example: plus button not raised above the bar on iOS 26 (CYLTabBarController gap; skipped by the user 2026-11-15) | TODO |
+| React Native iOS example: plus button not raised above the bar on iOS 26 (CYLTabBarController gap; skipped by the user 2026-11-15) | DONE 2026-11-16: `alignsTitle: false` keeps the title on the button, so `centerYMultiplier` applies; `imageSize` 52, `size` 64×84, multiplier 0.3: the icon rises above the bar, the title sits on the tab-title line. No CYLTabBarController change. |
 
-Score: 4/5 = 80.
+Score: 5/5 = 100.
+
+![React Native iOS: raised plus button, title on the tab-title line; CYL 17Pro simulator, iOS 26.3, Release, base 0c8ae0f, 2026-11-16](assets/rn-ios-raised-plus-button-iphone17pro-ios26.3.png)
 
 ## IN PROGRESS (TODO 2026-11-12): Android, HarmonyOS NEXT, Flutter, then React Native (Android, Flutter and React Native done; HarmonyOS compiles only; mini programs run in WeChat DevTools)
 
@@ -289,7 +291,7 @@ Score: 4/5 = 80.
       (`2a12582`).
     - Verified: iOS Release and Android release builds succeed; on the iPhone 17 simulator (iOS 26.3.1, Release,
       22:51) the floating glass tab bar shows four tabs and the plus button with its title, Discover selected.
-      The plus button is not raised above the bar on iOS 26 (the raised-plus-button gap of CYLTabBarController, open).
+      The plus button is not raised above the bar on iOS 26 (fixed 2026-11-16 with `alignsTitle: false`, see "Open TODOs").
 
       ![React Native iOS: Discover with CYLTabBarController's tab bar; iPhone 17, iOS 26.3.1, Release, 2026-11-14 22:51](assets/rn-ios-discover-cyltabbar-iphone17-ios26.3.1.png)
 

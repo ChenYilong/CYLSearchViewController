@@ -77,8 +77,11 @@ const TAB_ITEMS: CYLTabBarItem[] = [
 const PLUS_BUTTON: CYLTabBarPlusButton = {
   title: 'Search bar',
   image: 'system:plus.circle.fill',
-  size: [56, 56],
+  size: [64, 84],
+  imageSize: [52, 52],
   centerYMultiplier: 0.3,
+  // Keeps the title on the button: a title moved into the tab item (Liquid Glass) pins the button inside the item.
+  alignsTitle: false,
   identifier: 'plus',
   pageIdentifier: 'plus',
 };

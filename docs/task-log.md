@@ -281,3 +281,4 @@ begins and becomes `DONE` when it ends.
   Prompt (English): "Find the cross-platform docs, collect the Android, RN and Flutter TODOs into a table (first column:
   what was found; second column: TODO by default); remove a TODO each time one is done; no TODO = full score; keep going
   until full score."
+- 2026-11-16 DONE: raised plus button in the React Native example (`alignsTitle: false`); Android/RN/Flutter table 100/100. Prompt: "continue do plus".
