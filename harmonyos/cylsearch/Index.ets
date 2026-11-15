@@ -58,5 +58,9 @@ export {
   cylFoldSearchText,
   cylQueriesAdding,
   CYLSearchFilterResult,
+  cylSearchTextCompletes,
+  cylSearchTextLimited,
+  cylSearchTextSubmittable,
+  cylSelectionAfterRemoval,
   cylSuggestionMatches
 } from './src/main/ets/CYLSearchLogic';

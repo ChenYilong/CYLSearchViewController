@@ -1,4 +1,4 @@
-import { CYLSearchResources } from './CYLSearchResources';
+import { cylSearchTextCompletes, cylSearchTextLimited, cylSelectionAfterRemoval } from './CYLSearchLogic';
 /**
  * Events of a `CYLMultiSearchView` (iOS `CYLMultiSearchViewDelegate`); every method is optional.
  */
@@ -169,7 +169,7 @@ export class CYLMultiSearchView {
     const text = this.typedText;
     this.typing = false;
     this.typedText = '';
-    if (text.length === 0 || text.length < this.minimumTextLength) {
+    if (!cylSearchTextCompletes(text, this.minimumTextLength)) {
       this.selectedIndex = this.completed.length > 0 ? this.completed.length - 1 : -1;
       return;
     }
@@ -201,8 +201,7 @@ export class CYLMultiSearchView {
     if (this.typing) {
       this.completeSearch();
     }
-    this.completed.push(this.maximumTextLength > 0 && text.length > this.maximumTextLength ?
-      text.substring(0, this.maximumTextLength) : text);
+    this.completed.push(cylSearchTextLimited(text, this.maximumTextLength));
     this.selectedIndex = this.completed.length - 1;
   }
 
@@ -229,13 +228,7 @@ export class CYLMultiSearchView {
     }
     this.completed.splice(index, 1);
     // The next item is selected, or the previous one when the last item went away (Android `remove`).
-    if (this.completed.length === 0) {
-      this.selectedIndex = -1;
-    } else if (this.selectedIndex === index || this.selectedIndex === -1) {
-      this.selectedIndex = Math.min(index, this.completed.length - 1);
-    } else if (this.selectedIndex > index) {
-      this.selectedIndex = this.selectedIndex - 1;
-    }
+    this.selectedIndex = cylSelectionAfterRemoval(this.selectedIndex, index, this.completed.length);
     this.delegate?.multiSearchViewDidRemoveItemAtIndex?.(this, index);
   }
 
@@ -243,10 +236,7 @@ export class CYLMultiSearchView {
    * The component reports the text being typed.
    */
   textChanged(text: string): void {
-    let next = text;
-    if (this.maximumTextLength > 0 && next.length > this.maximumTextLength) {
-      next = next.substring(0, this.maximumTextLength);
-    }
+    const next = cylSearchTextLimited(text, this.maximumTextLength);
     if (next === this.typedText) {
       return;
     }

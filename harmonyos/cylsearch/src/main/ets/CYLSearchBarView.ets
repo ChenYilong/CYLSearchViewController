@@ -1,5 +1,6 @@
 import { UIContext } from '@kit.ArkUI';
 import { cylAnimate } from './CYLSearchAnimation';
+import { cylSearchTextSubmittable } from './CYLSearchLogic';
 import { CYLSearchBarItem, CYLSearchBarItemOwner, CYLSearchBarItemStyle, CYLSearchBarItemView, CYLSearchBarStyle } from './CYLSearchBarItem';
 
 /**
@@ -468,7 +469,7 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
    * Submits the text like the search key; false when the text is empty or the delegate refuses it.
    */
   submit(): boolean {
-    if (this.text.trim().length === 0) {
+    if (!cylSearchTextSubmittable(this.text)) {
       return false;
     }
     const allowed = this.delegate?.searchBarViewShouldSubmitText?.(this, this.text) ?? true;
