@@ -278,6 +278,11 @@ Before every Commitizen-style (`git cz`) commit, run this first in the repositor
 touch .git/hooks/NO_AUTO_SYNC
 ```
 
+Rule (added 2026-11-16): every commit is a `git cz` (Commitizen) style commit, and the whole commit message (subject,
+body and trailers) is in English: no Chinese characters are allowed anywhere in it. Check a message with
+`scripts/check-commit-message.sh <file>` (or `git log -1 --format=%B | scripts/check-commit-message.sh -`). Skill:
+`cyl-commit`. Full rule: `AGENTS.md`, "Commit readiness".
+
 ## Committing on branches
 
 On any branch other than `master` or `main`, commit and push as soon as the work is written, without asking for
