@@ -379,7 +379,7 @@ marks it `DONE`.
 - Prompt (English): "Write into the instructions documents the HarmonyOS version and these principles: the API matches
   iOS, the example matches iOS, a one-to-one copy; the internal implementation is migrated to HarmonyOS from the
   Kotlin sources in android/. Then continue the unfinished tasks."
-- HarmonyOS version: HarmonyOS NEXT, target HarmonyOS 6.0.1 (API 21), compatible from HarmonyOS 5.0.0 (API 12)
+- HarmonyOS version: HarmonyOS NEXT, target HarmonyOS 6.0.1 (API 21), compatible from HarmonyOS 6.0.1 (API 21; the minimum of CYLTableViewPlaceHolder's cylplaceholder)
   (`harmonyos/build-profile.json5`); ArkTS with ArkUI state management V2 (`@ComponentV2`); DevEco Studio 6.0.1 with
   its bundled SDK, hvigor and ohpm.
 - Rules:

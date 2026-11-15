@@ -292,7 +292,7 @@ remote. Name the base branch in the reply.
 
 ## HarmonyOS: API and example 1:1 with iOS, internals from the Android Kotlin sources (added 2026-11-16)
 
-- HarmonyOS version: HarmonyOS NEXT, target HarmonyOS 6.0.1 (API 21), compatible from HarmonyOS 5.0.0 (API 12);
+- HarmonyOS version: HarmonyOS NEXT, target HarmonyOS 6.0.1 (API 21), compatible from HarmonyOS 6.0.1 (API 21; the minimum of CYLTableViewPlaceHolder's cylplaceholder);
   ArkTS with ArkUI state management V2; DevEco Studio 6.0.1 and its bundled SDK.
 - The API of `harmonyos/cylsearch` matches the iOS public API; the example `harmonyos/entry` replicates
   `CYLSearchExample` one to one (tabs, pages, texts, data, images, interactions; resources imported by
