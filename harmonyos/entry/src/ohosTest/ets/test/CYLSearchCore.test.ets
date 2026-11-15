@@ -99,6 +99,57 @@ export default function cylSearchCoreTest() {
       expect(JSON.stringify(view.completedSearchTexts)).assertEqual('["Swift"]');
     });
 
+    // Kotlin parity (android/merged/cylsearch): the checks below follow CYLSearchView.kt, CYLSearchBarView.kt,
+    // CYLSearchSuggestionCache.kt and CYLMultiSearchView.kt.
+    it('suggestionsFoldAccentsAndTrimTheQuery', 0, () => {
+      const view = new CYLSearchView();
+      view.suggestions = ['Café', 'Kotlin'];
+      view.setQuery('cafe', false);
+      expect(JSON.stringify(view.filteredSuggestions)).assertEqual('["Café"]');
+      view.showsEmptyResultsPlaceholder = true;
+      view.setQuery('   ', false);
+      expect(view.showsEmptyResults).assertFalse();
+    });
+
+    it('setQueryReportsTheChangeOnceAndRefusesBlankSubmit', 0, () => {
+      const view = new CYLSearchView();
+      let changes = 0;
+      let submits = 0;
+      view.delegate = {
+        searchViewTextDidChange: () => {
+          changes++;
+        },
+        searchViewDidSubmitText: () => {
+          submits++;
+          return true;
+        }
+      };
+      view.setQuery('Swift', false);
+      view.setQuery('  ', true);
+      expect(changes).assertEqual(2);
+      expect(submits).assertEqual(0);
+    });
+
+    it('cacheKeepsAtLeastOneQuery', 0, () => {
+      const store = new CYLSearchSuggestionStore(context(), CYLSearchSuggestionCachePolicy.database, '');
+      store.removeAllQueries();
+      store.maximumCount = 0;
+      store.addQuery('Swift');
+      expect(JSON.stringify(store.cachedQueries())).assertEqual('["Swift"]');
+      store.removeAllQueries();
+    });
+
+    it('multiSearchSelectsTheNextItemAfterRemoval', 0, () => {
+      const view = new CYLMultiSearchView();
+      view.addSearchText('Swift');
+      view.addSearchText('Kotlin');
+      view.search();
+      expect(view.selectedIndex).assertEqual(-1);
+      view.completeSearch();
+      view.removeItemAtIndex(0);
+      expect(view.selectedIndex).assertEqual(0);
+    });
+
     it('searchBarKeepsItemsInOrder', 0, () => {
       const bar = new CYLSearchBarView();
       bar.addItem(CYLSearchBarItem.divider());

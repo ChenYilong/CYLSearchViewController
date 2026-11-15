@@ -149,7 +149,8 @@ export class CYLMultiSearchView {
     }
     this.typedText = '';
     this.typing = true;
-    this.selectedIndex = this.completed.length;
+    // Nothing is selected while a search is typed (Android `selectedIndex = NO_SELECTION`).
+    this.selectedIndex = -1;
     setTimeout(() => {
       focusControl.requestFocus(this.textFieldId);
     }, 50);
@@ -163,10 +164,11 @@ export class CYLMultiSearchView {
     if (!this.typing) {
       return;
     }
-    const text = this.typedText.trim();
+    // The text as typed, not trimmed (Android `completeSearch`).
+    const text = this.typedText;
     this.typing = false;
     this.typedText = '';
-    if (text.length < this.minimumTextLength) {
+    if (text.length === 0 || text.length < this.minimumTextLength) {
       this.selectedIndex = this.completed.length > 0 ? this.completed.length - 1 : -1;
       return;
     }
@@ -191,17 +193,16 @@ export class CYLMultiSearchView {
    * Adds a completed search without typing it and selects it.
    */
   addSearchText(text: string): void {
-    const value = text.trim();
-    if (value.length === 0) {
+    if (text.length === 0) {
       return;
     }
+    // A search being typed is completed first; the added text is not reported (Android `addSearchText`).
     if (this.typing) {
-      this.typing = false;
-      this.typedText = '';
+      this.completeSearch();
     }
-    this.completed.push(value);
+    this.completed.push(this.maximumTextLength > 0 && text.length > this.maximumTextLength ?
+      text.substring(0, this.maximumTextLength) : text);
     this.selectedIndex = this.completed.length - 1;
-    this.delegate?.multiSearchViewDidCompleteSearch?.(this, value, this.selectedIndex);
   }
 
   /**
@@ -226,10 +227,13 @@ export class CYLMultiSearchView {
       return;
     }
     this.completed.splice(index, 1);
+    // The next item is selected, or the previous one when the last item went away (Android `remove`).
     if (this.completed.length === 0) {
       this.selectedIndex = -1;
-    } else if (this.selectedIndex >= this.completed.length || this.selectedIndex > index) {
-      this.selectedIndex = Math.max(0, this.selectedIndex - 1);
+    } else if (this.selectedIndex === index || this.selectedIndex === -1) {
+      this.selectedIndex = Math.min(index, this.completed.length - 1);
+    } else if (this.selectedIndex > index) {
+      this.selectedIndex = this.selectedIndex - 1;
     }
     this.delegate?.multiSearchViewDidRemoveItemAtIndex?.(this, index);
   }

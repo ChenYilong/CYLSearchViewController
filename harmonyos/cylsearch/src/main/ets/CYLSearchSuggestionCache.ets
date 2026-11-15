@@ -72,7 +72,8 @@ export class CYLSearchSuggestionStore implements CYLSearchSuggestionCache {
   constructor(context: common.Context, policy: CYLSearchSuggestionCachePolicy, name: string) {
     this.context = context;
     this.policy = policy;
-    this.name = name;
+    // An empty name is the default cache, as on Android.
+    this.name = name.length > 0 ? name : 'CYLSearchView';
   }
 
   /**
@@ -95,7 +96,8 @@ export class CYLSearchSuggestionStore implements CYLSearchSuggestionCache {
     }
     const queries = this.read().filter((value: string) => value !== text);
     queries.unshift(text);
-    this.write(queries.slice(0, Math.max(0, this.maximumCount)));
+    // At least one query is kept (Android `maxOf(1, maximumCount)`).
+    this.write(queries.slice(0, Math.max(1, this.maximumCount)));
   }
 
   removeQuery(query: string): void {
@@ -113,7 +115,9 @@ export class CYLSearchSuggestionStore implements CYLSearchSuggestionCache {
   }
 
   private filePath(): string {
-    return `${this.context.filesDir}/CYLSearchSuggestions_${this.name}.json`;
+    // The name is made safe for a file name, as on Android.
+    const safe = this.name.replace(new RegExp('[^A-Za-z0-9]', 'g'), '_');
+    return `${this.context.filesDir}/CYLSearchSuggestions_${safe}.json`;
   }
 
   private read(): string[] {
@@ -125,7 +129,7 @@ export class CYLSearchSuggestionStore implements CYLSearchSuggestionCache {
         return CYLSearchSuggestionStore.parse(fileIo.readTextSync(this.filePath()));
       }
       if (this.policy === CYLSearchSuggestionCachePolicy.none) {
-        return this.memory;
+        return [];
       }
       return CYLSearchSuggestionStore.parse(this.store().getSync(this.name, '[]') as string);
     } catch (error) {
