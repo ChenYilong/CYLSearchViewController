@@ -10,7 +10,7 @@ import {
   CYLSearchResultsViewController
 } from 'cylsearch';
 import { cylDemoText, CYLDemoNavBar } from '../common/DemoCommon';
-import { CYLRefreshNormalHeader, CYLRefreshState } from './RefreshHeader';
+import { CYLRefreshContainer, CYLRefreshNormalHeaderModel, CYLRefreshScrollViewModel } from 'cylplaceholder';
 
 /**
  * Forty localized sample results, filtered by the query; also the example's refresh provider (iOS
@@ -56,9 +56,10 @@ export struct SearchExampleView {
   @Event onBack: () => void = () => {
   };
   @Local hidesSearchBarWhenScrolling: boolean = false;
-  @Local refreshing: boolean = false;
-  @Local refreshState: CYLRefreshState = CYLRefreshState.idle;
-  @Local lastUpdated: Date | undefined = undefined;
+  // CYLTableViewPlaceHolder's CYLRefreshNormalHeader (its HarmonyOS library `cylplaceholder`), as `tableView.cyl_header`.
+  private scrollView: CYLRefreshScrollViewModel = new CYLRefreshScrollViewModel();
+  private header: CYLRefreshNormalHeaderModel = new CYLRefreshNormalHeaderModel();
+  private scroller: Scroller = new Scroller();
   private context: common.Context = this.getUIContext().getHostContext() as common.Context;
   private source: CYLSearchExampleDataSource = new CYLSearchExampleDataSource(this.context);
   private controller: CYLSearchResultsViewController = new CYLSearchResultsViewController(this.source);
@@ -69,6 +70,8 @@ export struct SearchExampleView {
   aboutToAppear(): void {
     this.controller.searchController.placeholder = cylDemoText(this.context, 'search.placeholder');
     this.controller.searchController.cancelButtonTitle = cylDemoText(this.context, 'search.cancel');
+    this.header.refreshingBlock = () => this.refresh();
+    this.scrollView.cyl_header = this.header;
   }
 
   private showOverlay(): void {
@@ -81,10 +84,8 @@ export struct SearchExampleView {
   }
 
   private refresh(): void {
-    this.refreshState = CYLRefreshState.refreshing;
     this.source.reload((error?: Error) => {
-      this.refreshing = false;
-      this.refreshState = CYLRefreshState.idle;
+      this.header.endRefreshing();
       if (error !== undefined) {
         this.getUIContext().showAlertDialog({
           title: cylDemoText(this.context, 'refresh.error'),
@@ -93,15 +94,9 @@ export struct SearchExampleView {
           } }
         });
       } else {
-        this.lastUpdated = new Date();
         this.controller.reloadSearchResults();
       }
     });
-  }
-
-  @Builder
-  header() {
-    CYLRefreshNormalHeader({ state: this.refreshState, lastUpdated: this.lastUpdated })
   }
 
   @Builder
@@ -127,8 +122,9 @@ export struct SearchExampleView {
         if (!this.hidesSearchBarWhenScrolling) {
           this.bar()
         }
-        Refresh({ refreshing: $$this.refreshing, builder: this.header() }) {
-          List() {
+        Column() {
+        CYLRefreshContainer({ scrollView: this.scrollView, scroller: this.scroller }) {
+          List({ scroller: this.scroller }) {
             if (this.hidesSearchBarWhenScrolling) {
               ListItem() {
                 this.bar()
@@ -157,17 +153,8 @@ export struct SearchExampleView {
           .divider({ strokeWidth: 0.5, color: $r('sys.color.comp_divider'), startMargin: 16 })
           .edgeEffect(EdgeEffect.Spring, { alwaysEnabled: true })
         }
+        }
         .layoutWeight(1)
-        .refreshOffset(54)
-        .pullToRefresh(true)
-        .onStateChange((state: RefreshStatus) => {
-          if (state === RefreshStatus.Drag) {
-            this.refreshState = CYLRefreshState.idle;
-          } else if (state === RefreshStatus.OverDrag) {
-            this.refreshState = CYLRefreshState.pulling;
-          }
-        })
-        .onRefreshing(() => this.refresh())
       }
       .width('100%')
       .height('100%')

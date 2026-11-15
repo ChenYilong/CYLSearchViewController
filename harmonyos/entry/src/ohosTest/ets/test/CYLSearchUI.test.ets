@@ -48,8 +48,7 @@ export default function cylSearchUITest() {
 
     it('examplesMenuOpensPlaceholderStyles', 0, async () => {
       const driver = Driver.create();
-      await backToTabBar(driver);
-      await (await driver.findComponent(ON.id('CYLTab1'))).click();
+      await (await driver.findComponent(ON.id('cyl-tab-examples'))).click();
       await driver.delayMs(800);
       await driver.assertComponentExist(ON.text(libString('demo.title')));
       await (await driver.findComponent(ON.id('CYLDemoRow1'))).click();
@@ -61,8 +60,7 @@ export default function cylSearchUITest() {
 
     it('tagStyleSampleSearchClosesOnBack', 0, async () => {
       const driver = Driver.create();
-      await backToTabBar(driver);
-      await (await driver.findComponent(ON.id('CYLTab3'))).click();
+      await (await driver.findComponent(ON.id('cyl-tab-tagStyle'))).click();
       await driver.delayMs(800);
       await (await driver.findComponent(ON.id('CYLMaterialSample0'))).click();
       await driver.delayMs(1000);
@@ -76,8 +74,7 @@ export default function cylSearchUITest() {
 
     it('discoverTabShowsRecentSearches', 0, async () => {
       const driver = Driver.create();
-      await backToTabBar(driver);
-      await (await driver.findComponent(ON.id('CYLTab4'))).click();
+      await (await driver.findComponent(ON.id('cyl-tab-discover'))).click();
       await driver.delayMs(800);
       await driver.assertComponentExist(ON.text(appString('discover_recent')));
       await driver.assertComponentExist(ON.id('CYLSearchDiscoverMicButton'));

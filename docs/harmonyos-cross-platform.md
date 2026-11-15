@@ -7,7 +7,7 @@ The HarmonyOS port of CYLSearchViewController: the ArkTS library `harmonyos/cyls
 
 | Item | Version |
 | :--- | :--- |
-| System | HarmonyOS NEXT, target HarmonyOS 6.0.1 (API 21), compatible from HarmonyOS 5.0.0 (API 12) (`harmonyos/build-profile.json5`) |
+| System | HarmonyOS NEXT, target HarmonyOS 6.0.1 (API 21), compatible from HarmonyOS 6.0.1 (API 21; the minimum of CYLTableViewPlaceHolder's cylplaceholder) (`harmonyos/build-profile.json5`) |
 | Language and UI | ArkTS, ArkUI state management V2 (`@ComponentV2`) |
 | IDE and SDK | DevEco Studio 6.0.1 with its bundled SDK (API 21), hvigor, ohpm |
 | Run | Huawei emulator (Mate 70 Pro, HarmonyOS 6.0.1, API 21); unsigned HAP installed with `hdc install` |
@@ -58,12 +58,11 @@ The ArkTS core was compared with `android/merged/cylsearch` file by file; these 
 ## Score
 
 Status: 100 by implementation; every demo compiles, none has run yet (no emulator on the Windows machine; create one in
-DevEco Studio > Device Manager, then `hdc install` the HAP and run the hypium tests). Known gaps against iOS: the tab bar
-and the refresh header are drawn in the example until CYLTabBarController and CYLTableViewPlaceHolder ship HarmonyOS
-libraries; the Voice sample has no speech recognizer yet.
+DevEco Studio > Device Manager, then `hdc install` the HAP and run the hypium tests). The tab bar and the refresh header come from the
+sub-repositories' HarmonyOS libraries: run `python3 harmonyos/scripts/sync-sub-repositories.py` before building.
 
 <!-- harmonyos-score:begin -->
-Score: 99/100 (420 of 422 rows; API 397/397, demos 23/25; TODO left 2).
+Score: 100/100 (422 of 422 rows; API 397/397, demos 25/25; TODO left 0).
 <!-- harmonyos-score:end -->
 
 | Date | Change | Score |
@@ -72,6 +71,7 @@ Score: 99/100 (420 of 422 rows; API 397/397, demos 23/25; TODO left 2).
 | 2026-11-16 | The example rebuilt 1:1 with iOS (25 demos), the iOS placeholder images and texts in the core; compiled with hvigor (app and test HAPs), not run: this Windows machine has no HarmonyOS emulator | 100 |
 | 2026-11-16 | Back to TODO, not 1:1 yet: the tab bar and the refresh header are drawn in the example (CYLTabBarController and CYLTableViewPlaceHolder have no HarmonyOS library), the Voice sample has no speech recognizer | 99 |
 | 2026-11-16 | Voice sample: CoreSpeechKit speech recognition | 99 |
+| 2026-11-16 | The tab bar on CYLTabBarController's `cyltabbar` and the refresh header on CYLTableViewPlaceHolder's `cylplaceholder` (harmonyos/scripts/sync-sub-repositories.py, pinned commits); minimum raised to API 21, the libraries' minimum | 100 |
 
 ## Table 1: iOS public API
 
@@ -482,9 +482,9 @@ Score: 99/100 (420 of 422 rows; API 397/397, demos 23/25; TODO left 2).
 <!-- harmonyos-demos:begin -->
 | iOS example demo | HarmonyOS implementation |
 | :--- | :--- |
-| Tab bar: CYLTabBarController with Search, Examples, Tag style, Discover and the plus button (CYLTabBarConfiguration.json) (`CYLSearchExampleAppDelegate.m`) | TODO |
+| Tab bar: CYLTabBarController with Search, Examples, Tag style, Discover and the plus button (CYLTabBarConfiguration.json) (`CYLSearchExampleAppDelegate.m`) | `pages/Index.ets` on CYLTabBarController's HarmonyOS library `cyltabbar` (commit 94eb7b1), configured by the iOS CYLTabBarConfiguration.json |
 | Search tab: Issue #1317 reproduction, the search bar in the navigation bar over a list (CYLSearchController + CYLSearchResultsViewController) (`CYLSearchExampleViewController.swift`) | `demos/SearchExample.ets` `SearchExampleView` (Repro, Overlay with `CYLSearchController`) |
-| Search tab: pull to refresh with CYLTableViewPlaceHolder's CYLRefreshNormalHeader (`CYLSearchExampleViewController.swift`) | TODO |
+| Search tab: pull to refresh with CYLTableViewPlaceHolder's CYLRefreshNormalHeader (`CYLSearchExampleViewController.swift`) | `SearchExampleView` with CYLTableViewPlaceHolder's HarmonyOS library `cylplaceholder` (commit 5bcbdb5): `CYLRefreshContainer` + `CYLRefreshNormalHeaderModel` |
 | Search tab: the empty state, CYLSearchPlaceholderView "No matching results" (`CYLSearchExampleViewController.swift`) | `SearchExampleView` with `CYLSearchPlaceholderView.withKind(noResults)` |
 | Examples tab: the menu (Search and refresh, Placeholder styles, Search bar, Ports) (`CYLSearchDemoMenuViewController.m`) | `demos/ExamplesMenu.ets` `ExamplesMenuView` |
 | Placeholder styles: the 41 styles x 4 messages and the Custom section (text only, image only, both) (`CYLSearchDemoMenuViewController.m`) | `PlaceholderGalleryPage` (the iOS images, `imageForStyle`) |

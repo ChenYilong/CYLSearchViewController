@@ -1,11 +1,13 @@
 {
   "name": "entry",
   "version": "1.0.0",
-  "description": "The CYLSearchViewController example for HarmonyOS: the Discover page built on the cylsearch library.",
+  "description": "The CYLSearchViewController example for HarmonyOS: a 1:1 copy of the iOS example, on cylsearch, CYLTabBarController's cyltabbar and CYLTableViewPlaceHolder's cylplaceholder.",
   "main": "",
   "author": "ChenYilong",
   "license": "MIT",
   "dependencies": {
-    "cylsearch": "file:../cylsearch"
+    "cylsearch": "file:../cylsearch",
+    "cyltabbar": "file:../vendor/cyltabbar",
+    "cylplaceholder": "file:../vendor/cylplaceholder"
   }
 }
