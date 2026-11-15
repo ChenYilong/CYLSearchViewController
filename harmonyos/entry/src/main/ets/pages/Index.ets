@@ -1,136 +1,138 @@
-import {
-  CYLMenuFoldControl,
-  CYLSearchBarComponent,
-  CYLSearchBarItem,
-  CYLSearchBarStyle,
-  CYLSearchBarView,
-  CYLSearchBarViewDelegate,
-  CYLSearchComponent,
-  CYLSearchSuggestionStyle,
-  CYLSearchView
-} from 'cylsearch';
+import { common } from '@kit.AbilityKit';
+import { cylAppText, CYLDemoRoute, CYLMaterialSampleParam, CYLPlaceholderDetailParam } from '../common/DemoCommon';
+import { SearchExamplePage, SearchExampleView } from '../demos/SearchExample';
+import { ExamplesMenuView, PlaceholderDetailPage, PlaceholderGalleryPage } from '../demos/ExamplesMenu';
+import { PortsMenuPage, SearchBarDemoPage, SearchBarDemoView } from '../demos/SearchBarDemo';
+import { MaterialMenuPage, MaterialMenuView, MaterialSamplePage } from '../demos/MaterialSearch';
+import { LapismPage, MultiSearchDemoPage, RevealPage, YechaoaPage } from '../demos/Ports';
+import { DiscoverView } from '../demos/Discover';
+
+interface CYLTabItem {
+  title: string;
+  symbol: Resource;
+  selectedSymbol: Resource;
+}
 
 /**
- * The Discover page, as in the iOS, Android, Flutter and React Native examples: the search bar with the camera, a
- * divider and Search appended inside its bordered capsule (core `CYLSearchBarItem`), recent searches as tags folded to
- * two rows behind the chevron, and a search page that opens over it.
+ * The example app (iOS `CYLSearchExampleAppDelegate` with CYLTabBarConfiguration.json): CYLTabBarController's tab bar
+ * with Search, Examples, the plus button (Search bar), Tag style and Discover; each tab keeps its own navigation
+ * stack. CYLTabBarController has no HarmonyOS library yet, so the example draws the same tab bar with ArkUI `Tabs`.
  */
 @Entry
 @ComponentV2
 struct Index {
-  private bar: CYLSearchBarView = new CYLSearchBarView();
-  private searchView: CYLSearchView = new CYLSearchView();
-  @Local message: string = '';
-  @Local recent: string[] = ['Swift concurrency', 'SwiftUI animations', 'Adapting to iOS 26 Liquid Glass',
-    'Kotlin coroutines', 'Flutter plugins'];
-  private typed: string = '';
+  @Local selected: number = 0;
+  private context: common.Context = this.getUIContext().getHostContext() as common.Context;
+  private stacks: NavPathStack[] = [new NavPathStack(), new NavPathStack(), new NavPathStack(), new NavPathStack(),
+    new NavPathStack()];
+  private tabs: CYLTabItem[] = [
+    { title: 'tab_search', symbol: $r('sys.symbol.magnifyingglass'), selectedSymbol: $r('sys.symbol.magnifyingglass') },
+    { title: 'tab_examples', symbol: $r('sys.symbol.list_bullet'), selectedSymbol: $r('sys.symbol.list_bullet') },
+    { title: 'tab_searchBar', symbol: $r('sys.symbol.plus_circle_fill'), selectedSymbol: $r('sys.symbol.plus_circle_fill') },
+    { title: 'tab_tagStyle', symbol: $r('sys.symbol.bookmark'), selectedSymbol: $r('sys.symbol.bookmark_fill') },
+    { title: 'tab_discover', symbol: $r('sys.symbol.star'), selectedSymbol: $r('sys.symbol.star_fill') }
+  ];
 
   aboutToAppear(): void {
-    this.bar.searchBarStyle = CYLSearchBarStyle.bordered;
-    this.bar.searchIcon = undefined;
-    this.bar.fieldHeight = 46;
-    this.bar.fieldShadowOpacity = 0.06;
-    this.bar.contentInsets = { top: 6, left: 12, bottom: 6, right: 12 };
-    this.bar.itemTintColor = $r('sys.color.font_primary');
-    this.bar.addItem(CYLSearchBarItem.iconItem($r('sys.symbol.camera'), this.text('discover_image_search'), () => {
-      this.message = this.text('discover_image_unavailable');
-    }));
-    this.bar.addItem(CYLSearchBarItem.divider());
-    const search = CYLSearchBarItem.textItem(this.text('discover_search'), () => {
-      this.search(this.typed);
-    });
-    search.itemAccessibilityIdentifier = 'CYLSearchDiscoverSearchButton';
-    this.bar.addItem(search);
-    const delegate: CYLSearchBarViewDelegate = {
-      searchBarViewTextDidChange: (_: CYLSearchBarView, text: string) => {
-        this.typed = text;
-      },
-      searchBarViewSearchButtonClicked: (_: CYLSearchBarView) => {
-        this.search(this.typed);
-      }
-    };
-    this.bar.delegate = delegate;
-
-    this.searchView.installInView(this.getUIContext().getHostContext() as Context);
-    this.searchView.suggestions = ['Swift', 'SwiftUI', 'Kotlin', 'Flutter', 'React Native', 'HarmonyOS'];
-    this.searchView.suggestionStyle = CYLSearchSuggestionStyle.tags;
-    this.searchView.suggestionsFoldControl = new CYLMenuFoldControl();
-    this.searchView.suggestionsFoldedRowCount = 2;
-    this.searchView.showsEmptyResultsPlaceholder = true;
-    this.searchView.suggestionCacheName = 'HarmonyOSExample';
-    this.searchView.searchBarView.placeholder = this.text('discover_search');
-  }
-
-  // The system Back gesture closes the search page first.
-  onBackPress(): boolean {
-    return this.searchView.handleBackPress();
-  }
-
-  // A string of this module in the system language (resources/base, resources/zh_CN).
-  private text(name: string): string {
-    return this.getUIContext().getHostContext()!.resourceManager.getStringByNameSync(name);
-  }
-
-  private search(text: string): void {
-    const query = text.trim();
-    if (query.length === 0) {
-      return;
+    // `aa start ... --pi CYLDemoTab 1` selects that tab, for screenshots (iOS `-CYLDemoTab 1`).
+    const tab = AppStorage.get<number>('CYLDemoTab');
+    if (tab !== undefined && tab >= 0 && tab < this.tabs.length) {
+      this.selected = tab;
     }
-    this.recent = [query].concat(this.recent.filter((item: string) => item !== query));
-    this.message = this.text('discover_searching').replace('%s', query);
   }
 
-  build() {
-    Stack() {
-      Column() {
-        Text($r('app.string.discover_title'))
-          .fontSize(32)
-          .fontWeight(FontWeight.Bold)
-          .width('100%')
-          .padding({ left: 16, top: 24, bottom: 8 })
-        CYLSearchBarComponent({ searchBarView: this.bar })
-        Row() {
-          Text($r('app.string.discover_recent')).fontSize(20).fontWeight(FontWeight.Bold).layoutWeight(1)
-          Text($r('app.string.discover_open_search'))
-            .fontSize(16)
-            .fontColor($r('sys.color.brand'))
-            .id('CYLSearchDiscoverOpenSearch')
-            .onClick(() => {
-              this.searchView.showSearch();
-            })
-        }
-        .width('100%')
-        .padding({ left: 16, right: 16, top: 24, bottom: 8 })
-        Flex({ wrap: FlexWrap.Wrap }) {
-          ForEach(this.recent, (item: string) => {
-            Text(item)
-              .fontSize(15)
-              .height(34)
-              .padding({ left: 14, right: 14 })
-              .margin({ right: 8, bottom: 8 })
-              .borderRadius(17)
-              .border({ width: 1, color: $r('sys.color.comp_divider') })
-              .onClick(() => {
-                this.search(item);
-              })
-          }, (item: string) => item)
-        }
-        .padding({ left: 16, right: 16 })
-        .constraintSize({ maxHeight: 76 })
-        .clip(true)
-        Text(this.message)
-          .fontSize(16)
-          .fontColor($r('sys.color.font_secondary'))
-          .width('100%')
-          .padding(16)
-      }
-      .width('100%')
-      .height('100%')
-      .justifyContent(FlexAlign.Start)
+  @Builder
+  route(name: string, param: Object) {
+    if (name === CYLDemoRoute.reproduction) {
+      SearchExamplePage({ stack: this.stacks[this.selected] })
+    } else if (name === CYLDemoRoute.styles) {
+      PlaceholderGalleryPage({ stack: this.stacks[this.selected] })
+    } else if (name === CYLDemoRoute.placeholderDetail) {
+      PlaceholderDetailPage({ stack: this.stacks[this.selected], param: param as CYLPlaceholderDetailParam })
+    } else if (name === CYLDemoRoute.searchBar) {
+      SearchBarDemoPage({ stack: this.stacks[this.selected] })
+    } else if (name === CYLDemoRoute.ports) {
+      PortsMenuPage({ stack: this.stacks[this.selected] })
+    } else if (name === CYLDemoRoute.materialMenu) {
+      MaterialMenuPage({ stack: this.stacks[this.selected] })
+    } else if (name === CYLDemoRoute.materialSample) {
+      MaterialSamplePage({ stack: this.stacks[this.selected], param: param as CYLMaterialSampleParam })
+    } else if (name === CYLDemoRoute.lapism) {
+      LapismPage({ stack: this.stacks[this.selected] })
+    } else if (name === CYLDemoRoute.yechaoa) {
+      YechaoaPage({ stack: this.stacks[this.selected] })
+    } else if (name === CYLDemoRoute.reveal) {
+      RevealPage({ stack: this.stacks[this.selected] })
+    } else if (name === CYLDemoRoute.multiSearch) {
+      MultiSearchDemoPage({ stack: this.stacks[this.selected] })
+    }
+  }
 
-      CYLSearchComponent({ searchView: this.searchView })
+  @Builder
+  tabBarItem(index: number) {
+    Column({ space: 2 }) {
+      SymbolGlyph(this.selected === index ? this.tabs[index].selectedSymbol : this.tabs[index].symbol)
+        .fontSize(index === 2 ? 34 : 24)
+        .fontColor([this.selected === index ? $r('sys.color.brand') : $r('sys.color.font_secondary')])
+      Text(cylAppText(this.context, this.tabs[index].title))
+        .fontSize(10)
+        .fontColor(this.selected === index ? $r('sys.color.brand') : $r('sys.color.font_secondary'))
     }
     .width('100%')
     .height('100%')
+    .justifyContent(FlexAlign.Center)
+    .padding({ top: 2 })
+    .id(`CYLTab${index}`)
+    .accessibilityText(cylAppText(this.context, this.tabs[index].title))
+  }
+
+  @Builder
+  tabContent(index: number) {
+    if (index === 0) {
+      SearchExampleView()
+    } else if (index === 1) {
+      ExamplesMenuView({ stack: this.stacks[1] })
+    } else if (index === 2) {
+      SearchBarDemoView()
+    } else if (index === 3) {
+      MaterialMenuView({ stack: this.stacks[3], tags: true })
+    } else {
+      DiscoverView()
+    }
+  }
+
+  build() {
+    Tabs({ barPosition: BarPosition.End, index: this.selected }) {
+      ForEach(this.tabs, (_: CYLTabItem, index: number) => {
+        TabContent() {
+          Navigation(this.stacks[index]) {
+            this.tabContent(index)
+          }
+          .hideTitleBar(true)
+          .hideToolBar(true)
+          .mode(NavigationMode.Stack)
+          .navDestination(this.route)
+        }
+        .tabBar(this.tabBarItem(index))
+      }, (item: CYLTabItem) => item.title)
+    }
+    .barHeight(56)
+    .scrollable(false)
+    .animationDuration(0)
+    .barBackgroundColor($r('sys.color.background_primary'))
+    .divider({ strokeWidth: 0.5, color: $r('sys.color.comp_divider') })
+    .onChange((index: number) => {
+      this.selected = index;
+    })
+  }
+
+  // The system Back gesture: a search page closes first (each page handles it), then the tab's stack pops.
+  onBackPress(): boolean {
+    const stack = this.stacks[this.selected];
+    if (stack.size() > 0) {
+      stack.pop();
+      return true;
+    }
+    return false;
   }
 }

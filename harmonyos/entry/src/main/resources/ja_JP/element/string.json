@@ -1,0 +1,132 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "CYLSearch example"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "CYLSearch example"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "CYLSearch"
+    },
+    {
+      "name": "tab_search",
+      "value": "検索"
+    },
+    {
+      "name": "tab_examples",
+      "value": "サンプル"
+    },
+    {
+      "name": "tab_searchBar",
+      "value": "検索バー"
+    },
+    {
+      "name": "tab_tagStyle",
+      "value": "タグ表示"
+    },
+    {
+      "name": "tab_discover",
+      "value": "発見"
+    },
+    {
+      "name": "discover_recent",
+      "value": "最近の検索"
+    },
+    {
+      "name": "discover_tapToSearch",
+      "value": "ダブルタップで検索"
+    },
+    {
+      "name": "discover_title",
+      "value": "発見"
+    },
+    {
+      "name": "discover_refresh",
+      "value": "別の話題"
+    },
+    {
+      "name": "discover_back",
+      "value": "戻る"
+    },
+    {
+      "name": "discover_search",
+      "value": "検索"
+    },
+    {
+      "name": "discover_imageSearch",
+      "value": "画像で検索"
+    },
+    {
+      "name": "discover_clear",
+      "value": "最近の検索を消去"
+    },
+    {
+      "name": "discover_cleared",
+      "value": "最近の検索を消去しました"
+    },
+    {
+      "name": "discover_askHint",
+      "value": "長押しで質問、何でも答えます"
+    },
+    {
+      "name": "discover_ask",
+      "value": "長押しで質問"
+    },
+    {
+      "name": "discover_askAccessibilityHint",
+      "value": "長押しして質問を話し、離すと送信します"
+    },
+    {
+      "name": "discover_listening",
+      "value": "聞いています…"
+    },
+    {
+      "name": "discover_searching",
+      "value": "検索中：%s"
+    },
+    {
+      "name": "discover_imageSearchUnavailable",
+      "value": "このデモでは画像検索は使えません。"
+    },
+    {
+      "name": "discover_ok",
+      "value": "OK"
+    },
+    {
+      "name": "discover_holdMic",
+      "value": "マイクボタンを長押しして質問を話してください"
+    },
+    {
+      "name": "discover_hot",
+      "value": "人気"
+    },
+    {
+      "name": "refresh_idle",
+      "value": "下に引っ張って更新"
+    },
+    {
+      "name": "refresh_pulling",
+      "value": "離すと更新"
+    },
+    {
+      "name": "refresh_refreshing",
+      "value": "更新中..."
+    },
+    {
+      "name": "refresh_last_time",
+      "value": "最終更新："
+    },
+    {
+      "name": "refresh_today",
+      "value": "今日"
+    },
+    {
+      "name": "refresh_none_last_date",
+      "value": "記録なし"
+    }
+  ]
+}

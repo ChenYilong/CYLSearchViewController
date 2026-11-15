@@ -1,14 +1,132 @@
 {
   "string": [
-    { "name": "module_desc", "value": "CYLSearch example" },
-    { "name": "EntryAbility_desc", "value": "CYLSearch example" },
-    { "name": "EntryAbility_label", "value": "CYLSearch" },
-    { "name": "discover_title", "value": "Discover" },
-    { "name": "discover_search", "value": "Search" },
-    { "name": "discover_image_search", "value": "Search by image" },
-    { "name": "discover_image_unavailable", "value": "Image search is not available in this demo" },
-    { "name": "discover_searching", "value": "Searching: %s" },
-    { "name": "discover_recent", "value": "Recent searches" },
-    { "name": "discover_open_search", "value": "Open search" }
+    {
+      "name": "module_desc",
+      "value": "CYLSearch example"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "CYLSearch example"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "CYLSearch"
+    },
+    {
+      "name": "tab_search",
+      "value": "Search"
+    },
+    {
+      "name": "tab_examples",
+      "value": "Examples"
+    },
+    {
+      "name": "tab_searchBar",
+      "value": "Search bar"
+    },
+    {
+      "name": "tab_tagStyle",
+      "value": "Tag style"
+    },
+    {
+      "name": "tab_discover",
+      "value": "Discover"
+    },
+    {
+      "name": "discover_recent",
+      "value": "Recent searches"
+    },
+    {
+      "name": "discover_tapToSearch",
+      "value": "Double-tap to search"
+    },
+    {
+      "name": "discover_title",
+      "value": "Discover"
+    },
+    {
+      "name": "discover_refresh",
+      "value": "Refresh topics"
+    },
+    {
+      "name": "discover_back",
+      "value": "Back"
+    },
+    {
+      "name": "discover_search",
+      "value": "Search"
+    },
+    {
+      "name": "discover_imageSearch",
+      "value": "Search by image"
+    },
+    {
+      "name": "discover_clear",
+      "value": "Clear recent searches"
+    },
+    {
+      "name": "discover_cleared",
+      "value": "Recent searches cleared"
+    },
+    {
+      "name": "discover_askHint",
+      "value": "Hold to ask, answer all"
+    },
+    {
+      "name": "discover_ask",
+      "value": "Hold to ask"
+    },
+    {
+      "name": "discover_askAccessibilityHint",
+      "value": "Hold and say your question, release to send"
+    },
+    {
+      "name": "discover_listening",
+      "value": "Listening…"
+    },
+    {
+      "name": "discover_searching",
+      "value": "Searching: %s"
+    },
+    {
+      "name": "discover_imageSearchUnavailable",
+      "value": "Search by image is not available in this demo."
+    },
+    {
+      "name": "discover_ok",
+      "value": "OK"
+    },
+    {
+      "name": "discover_holdMic",
+      "value": "Hold the mic button and say your question"
+    },
+    {
+      "name": "discover_hot",
+      "value": "Hot"
+    },
+    {
+      "name": "refresh_idle",
+      "value": "Pull down to refresh"
+    },
+    {
+      "name": "refresh_pulling",
+      "value": "Release to refresh"
+    },
+    {
+      "name": "refresh_refreshing",
+      "value": "Loading..."
+    },
+    {
+      "name": "refresh_last_time",
+      "value": "Last update: "
+    },
+    {
+      "name": "refresh_today",
+      "value": "Today"
+    },
+    {
+      "name": "refresh_none_last_date",
+      "value": "No record"
+    }
   ]
 }

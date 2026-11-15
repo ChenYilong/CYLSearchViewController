@@ -215,6 +215,9 @@ export enum CYLSearchPlaceholderMessage {
   network = 3
 }
 
+// The resource type of a media image (`$r('app.media.x')`); other images are system symbols.
+const MEDIA_TYPE: number = 20000;
+
 const STYLE_NAMES: string[] = [
     'Empty',
     'NoResults',
@@ -266,9 +269,19 @@ const STYLE_NAMES: string[] = [
 @ObservedV2
 export class CYLSearchPlaceholderView {
   /**
-   * The image, a system symbol drawn 80 vp high in the secondary text color.
+   * The image, 80 x 80 vp: a media image (tinted with `imageTintColor` while `tintsImage` is true, as iOS draws its
+   * images as templates) or a system symbol (drawn in `imageTintColor`).
    */
   @Trace image: Resource | undefined = undefined;
+  /**
+   * The color of a template image and of a symbol (iOS `imageView.tintColor`, `secondaryLabelColor` by default).
+   */
+  @Trace imageTintColor: ResourceColor = $r('sys.color.font_secondary');
+  /**
+   * Whether a media image is drawn in `imageTintColor`; false for the colored empty image (iOS `.alwaysTemplate`
+   * except `CYLSearchPlaceholderStyle.empty`).
+   */
+  @Trace tintsImage: boolean = true;
   /**
    * The message.
    */
@@ -302,15 +315,19 @@ export class CYLSearchPlaceholderView {
    */
   static withStyleMessage(style: CYLSearchPlaceholderStyle,
     message: CYLSearchPlaceholderMessage): CYLSearchPlaceholderView {
-    return new CYLSearchPlaceholderView(CYLSearchPlaceholderView.imageForStyle(style),
+    const view = new CYLSearchPlaceholderView(CYLSearchPlaceholderView.imageForStyle(style),
       CYLSearchPlaceholderView.textForMessage(message));
+    view.tintsImage = style !== CYLSearchPlaceholderStyle.empty;
+    return view;
   }
 
   /**
    * A built-in image with your own text (iOS `-initWithStyle:text:`).
    */
   static withStyleText(style: CYLSearchPlaceholderStyle, text: ResourceStr): CYLSearchPlaceholderView {
-    return new CYLSearchPlaceholderView(CYLSearchPlaceholderView.imageForStyle(style), text);
+    const view = new CYLSearchPlaceholderView(CYLSearchPlaceholderView.imageForStyle(style), text);
+    view.tintsImage = style !== CYLSearchPlaceholderStyle.empty;
+    return view;
   }
 
   /**
@@ -330,54 +347,55 @@ export class CYLSearchPlaceholderView {
   }
 
   /**
-   * The system symbol of a style.
+   * The image of a style: the iOS image (`CYLSearch<Name>.png`, the Material Design icons and the colored empty
+   * image), in the library's media.
    */
   static imageForStyle(style: CYLSearchPlaceholderStyle): Resource {
-    const symbols: Resource[] = [
-    $r('sys.symbol.archivebox'),
-    $r('sys.symbol.magnifyingglass'),
-    $r('sys.symbol.exclamationmark_circle'),
-    $r('sys.symbol.wifi_slash'),
-    $r('sys.symbol.wifi_slash'),
-    $r('sys.symbol.wifi_slash'),
-    $r('sys.symbol.icloud_slash'),
-    $r('sys.symbol.exclamationmark_triangle'),
-    $r('sys.symbol.nosign'),
-    $r('sys.symbol.lock'),
-    $r('sys.symbol.bluetooth_slash'),
-    $r('sys.symbol.map_slash'),
-    $r('sys.symbol.nosign'),
-    $r('sys.symbol.exclamationmark_circle'),
-    $r('sys.symbol.exclamationmark_triangle'),
-    $r('sys.symbol.exclamationmark_triangle'),
-    $r('sys.symbol.nosign'),
-    $r('sys.symbol.questionmark_circle'),
-    $r('sys.symbol.hourglass'),
-    $r('sys.symbol.lock'),
-    $r('sys.symbol.eye_slash'),
-    $r('sys.symbol.magnifyingglass'),
-    $r('sys.symbol.folder'),
-    $r('sys.symbol.folder'),
-    $r('sys.symbol.arrow_down_circle'),
-    $r('sys.symbol.arrow_up_circle'),
-    $r('sys.symbol.archivebox'),
-    $r('sys.symbol.picture'),
-    $r('sys.symbol.picture'),
-    $r('sys.symbol.picture'),
-    $r('sys.symbol.nosign'),
-    $r('sys.symbol.video'),
-    $r('sys.symbol.person_2'),
-    $r('sys.symbol.person_2'),
-    $r('sys.symbol.calendar'),
-    $r('sys.symbol.cart'),
-    $r('sys.symbol.heart'),
-    $r('sys.symbol.battery'),
-    $r('sys.symbol.questionmark_circle'),
-    $r('sys.symbol.phone'),
-    $r('sys.symbol.map_slash')
+    const images: Resource[] = [
+      $r('app.media.cyl_search_empty'),
+      $r('app.media.cyl_search_no_results'),
+      $r('app.media.cyl_search_error'),
+      $r('app.media.cyl_search_wifi_off'),
+      $r('app.media.cyl_search_signal_wifi_off'),
+      $r('app.media.cyl_search_no_internet'),
+      $r('app.media.cyl_search_cloud_off'),
+      $r('app.media.cyl_search_sync_problem'),
+      $r('app.media.cyl_search_sync_disabled'),
+      $r('app.media.cyl_search_network_locked'),
+      $r('app.media.cyl_search_bluetooth_disabled'),
+      $r('app.media.cyl_search_location_off'),
+      $r('app.media.cyl_search_public_off'),
+      $r('app.media.cyl_search_error_outline'),
+      $r('app.media.cyl_search_warning'),
+      $r('app.media.cyl_search_report_problem'),
+      $r('app.media.cyl_search_blocked'),
+      $r('app.media.cyl_search_help'),
+      $r('app.media.cyl_search_hourglass'),
+      $r('app.media.cyl_search_locked'),
+      $r('app.media.cyl_search_visibility_off'),
+      $r('app.media.cyl_search_search_off'),
+      $r('app.media.cyl_search_folder_off'),
+      $r('app.media.cyl_search_folder_open'),
+      $r('app.media.cyl_search_download_off'),
+      $r('app.media.cyl_search_upload_off'),
+      $r('app.media.cyl_search_inbox'),
+      $r('app.media.cyl_search_broken_image'),
+      $r('app.media.cyl_search_image_unavailable'),
+      $r('app.media.cyl_search_photo_library'),
+      $r('app.media.cyl_search_music_off'),
+      $r('app.media.cyl_search_video_off'),
+      $r('app.media.cyl_search_person_off'),
+      $r('app.media.cyl_search_group_off'),
+      $r('app.media.cyl_search_event_busy'),
+      $r('app.media.cyl_search_empty_cart'),
+      $r('app.media.cyl_search_favorite'),
+      $r('app.media.cyl_search_battery_alert'),
+      $r('app.media.cyl_search_unknown_device'),
+      $r('app.media.cyl_search_phone_disabled'),
+      $r('app.media.cyl_search_wrong_location')
     ];
     const index = style as number;
-    return index >= 0 && index < symbols.length ? symbols[index] : symbols[0];
+    return index >= 0 && index < images.length ? images[index] : images[0];
   }
 
   /**
@@ -417,10 +435,26 @@ export struct CYLSearchPlaceholderComponent {
 
   build() {
     Column({ space: 12 }) {
-      if (this.placeholderView.image !== undefined) {
+      if (this.placeholderView.image !== undefined && this.placeholderView.image.type === MEDIA_TYPE) {
+        if (this.placeholderView.tintsImage) {
+          Image(this.placeholderView.image)
+            .width(80)
+            .height(80)
+            .objectFit(ImageFit.Contain)
+            .fillColor(this.placeholderView.imageTintColor)
+            .renderMode(ImageRenderMode.Template)
+            .accessibilityLevel('no')
+        } else {
+          Image(this.placeholderView.image)
+            .width(80)
+            .height(80)
+            .objectFit(ImageFit.Contain)
+            .accessibilityLevel('no')
+        }
+      } else if (this.placeholderView.image !== undefined) {
         SymbolGlyph(this.placeholderView.image)
           .fontSize(80)
-          .fontColor([$r('sys.color.font_secondary')])
+          .fontColor([this.placeholderView.imageTintColor])
           .accessibilityLevel('no')
       }
       Text(this.placeholderView.text)
