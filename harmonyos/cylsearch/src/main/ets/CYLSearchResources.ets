@@ -13,21 +13,6 @@ export class CYLSearchResources {
    * A built-in image by name (`camera`, `mic`, `search`, `back`, `clear`, `submit`, `trash`), as a system symbol, or
    * undefined when there is none (iOS `+imageNamed:`).
    */
-  /**
-   * A string or a string resource as plain text, for `accessibilityText` (which takes one or the other, not both): the
-   * screen reader label of a localized default such as the cancel button's title.
-   */
-  static accessibilityString(value: ResourceStr): string {
-    if (typeof value === 'string') {
-      return value;
-    }
-    try {
-      return getContext().resourceManager.getStringSync(value as Resource);
-    } catch (error) {
-      return '';
-    }
-  }
-
   static imageNamed(name: string): Resource | undefined {
     if (name === 'camera') {
       return $r('sys.symbol.camera');

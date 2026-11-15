@@ -309,7 +309,6 @@ export struct CYLMultiSearchComponent {
           if (this.multiSearchView.isInSearchMode) {
             TextInput({ text: this.multiSearchView.typedText, placeholder: this.multiSearchView.placeholder })
               .id(this.multiSearchView.textFieldId)
-              .accessibilityText(CYLSearchResources.accessibilityString(this.multiSearchView.placeholder))
               .width(this.multiSearchView.searchFieldWidth)
               .height(36)
               .padding(0)

@@ -779,10 +779,6 @@ export struct CYLSearchComponent {
     .constraintSize({ minHeight: this.rowHeight() })
     .padding({ left: 16, right: 16, top: 8, bottom: 8 })
     .backgroundColor(this.searchView.suggestionBackgroundColor ?? Color.Transparent)
-    // One element for screen readers: the suggestion's text, announced as a button.
-    .accessibilityGroup(true)
-    .accessibilityText(suggestion)
-    .accessibilityDescription($r('app.string.cyl_search_suggestion_hint'))
     .onClick(() => {
       this.searchView.suggestionSelected(suggestion, index);
     })
@@ -864,8 +860,6 @@ export struct CYLSearchComponent {
                 .borderRadius(17)
                 .border({ width: 1, color: $r('sys.color.comp_divider') })
                 .backgroundColor(this.searchView.suggestionBackgroundColor ?? Color.Transparent)
-                .accessibilityText(suggestion)
-                .accessibilityDescription($r('app.string.cyl_search_suggestion_hint'))
                 .onClick(() => {
                   this.searchView.suggestionSelected(suggestion, index);
                 })
