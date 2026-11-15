@@ -21,6 +21,7 @@ WeChat DevTools Skills (<https://developers.weixin.qq.com/miniprogram/dev/devtoo
 | `cyl-plus-button` | Writing or changing the plus button: configuration keys, title alignment, Liquid Glass limits |
 | `cyl-new-project` | Creating or extending an example project |
 | `cyl-api-map` | Finding the public API of `CYLTableViewPlaceHolder` and `CYLTabBarController` |
+| `cyl-commit` | Writing a commit: `git cz` (Commitizen) style, English-only messages |
 | `cyl-xcode-compat` | Touching the `.xcodeproj`, Podfile or deployment targets |
 | `cyl-sub-repositories` | Adding or updating a sibling project as a sub-repository (CollectionViewClassifyMenu, CYLTableViewPlaceHolder): commit pin, core option, example, every platform |
 | `cyl-docs` | Editing `README.md` or `docs/` |
@@ -354,6 +355,7 @@ marks it `DONE`.
   detailed completion and pending-work summaries in the body. If the detailed
   description exceeds 50 characters, create or update a suitable `docs/` note
   and link it from the commit body; reuse existing tracking documents.
+- **English only (added 2026-11-16):** commit in `git cz` (Commitizen) style, and write the whole commit message in English: subject, body and trailers. No Chinese (or any other non-English text) anywhere in a commit message.
 - Follow the Commitizen defaults: `{type}{scope}: {emoji}{subject}`, emojis
   enabled, no predefined scopes, and a 3–64 character message. The interactive
   format examples separate the emoji from the subject with a space. The

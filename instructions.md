@@ -272,6 +272,8 @@ a directory and Git uses its default hooks path; linked worktrees and custom
 
 ## Commitizen commits
 
+- **English only (added 2026-11-16):** commit in `git cz` (Commitizen) style, and write the whole commit message in English: subject, body and trailers. No Chinese (or any other non-English text) anywhere in a commit message.
+
 Before every Commitizen-style (`git cz`) commit, run this first in the repository root:
 
 ```sh
