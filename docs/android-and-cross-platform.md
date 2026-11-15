@@ -13,7 +13,7 @@ Collected from every cross-platform document. A row's TODO is removed when it is
 | `android-and-cross-platform.md`, React Native entry: "Still open: touch checks on iOS … no tap tool exists" (stale; `axe` touch checks done, `a3f48b0`) | DONE: line updated |
 | Android: system Back while typing in `CYLMultiSearchView` did not end the search (parity with the HarmonyOS fix) | DONE: `OnBackPressedCallback`, Robolectric test, 17/17 |
 | `task-log.md`: "Android animated placeholder (waits for CYLTableViewPlaceHolder PR #28)" | DONE: PR #28 merged (`7bc27a1`), pin `6d8b264` |
-| React Native iOS example: plus button not raised above the bar on iOS 26 (CYLTabBarController gap; skipped by the user 2026-11-15) | DONE 2026-11-16: `alignsTitle: false` keeps the title on the button, so `centerYMultiplier` applies; `imageSize` 52, `size` 64×84, multiplier 0.3: the icon rises above the bar, the title sits on the tab-title line. No CYLTabBarController change. |
+| React Native iOS example: plus button not raised above the bar on iOS 26 (CYLTabBarController gap; skipped by the user 2026-11-15) | DONE 2026-11-16: `alignsTitle: false` keeps the title on the button, so `centerYMultiplier` applies; a 52 pt green PNG (`src/assets/plus-button*.png`; `imageSize` redrew the SF Symbol black), `size` 64×84, multiplier 0.3: the icon rises above the bar, the title sits on the tab-title line. No CYLTabBarController change. |
 
 Score: 5/5 = 100.
 
