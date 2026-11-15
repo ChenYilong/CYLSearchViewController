@@ -49,7 +49,7 @@ By  @ChenYilong <luohanchenyilong@163.com>
 1. `touch .git/hooks/NO_AUTO_SYNC` (instructions.md, "Commitizen commits").
 2. Review the changed scope and record unfinished work as a `TODO` in `docs/` (AGENTS.md, "Commit readiness").
 3. Check the message: write it to a file and run `scripts/check-commit-message.sh <file>`; after committing,
-   `git log -1 --format=%B | scripts/check-commit-message.sh -`. It fails on a subject that is not git cz style and on
+   `git log -1 --format=%B | scripts/check-commit-message.sh -`. It fails on a subject that is not git cz style, a subject outside 3 to 64 characters, and on
    any Chinese (CJK) character, and prints the offending lines. Rewrite the message before pushing
    (`git commit --amend` while the commit is not pushed).
 4. Branches other than `master` / `main`: commit and push without asking; `master` / `main`: ask first.
