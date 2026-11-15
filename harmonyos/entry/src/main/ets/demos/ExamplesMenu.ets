@@ -33,6 +33,9 @@ export struct ExamplesMenuView {
           ListItem() {
             CYLDemoCell({ text: cylDemoText(this.context, key), showsDivider: index < this.rows.length - 1 })
           }
+          // Read as one element with its title as the label; UI tests find it by that label.
+          .accessibilityGroup(true)
+          .accessibilityText(cylDemoText(this.context, key))
           .id(`CYLDemoRow${index}`)
           .onClick(() => this.stack.pushPath({ name: this.routes[index] }))
         }, (key: string) => key)
@@ -128,6 +131,8 @@ export struct PlaceholderGalleryPage {
                 }
                 .backgroundColor($r('sys.color.background_primary'))
                 .margin({ left: 16, right: 16 })
+                .accessibilityGroup(true)
+                .accessibilityText(this.textOf(section, row))
                 .onClick(() => {
                   const param: CYLPlaceholderDetailParam = { title: this.textOf(section, row), section: section, row: row };
                   this.stack.pushPath({ name: CYLDemoRoute.placeholderDetail, param: param });

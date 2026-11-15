@@ -38,7 +38,8 @@ function names(module, qualifier) {
 const literal = /(?:\bText|\.accessibilityText|\.accessibilityDescription)\(\s*(?:[^)]*\?\s*)?'([^']*[A-Za-z][^']*)'/;
 const titleDefault = /(?:Title|Label|title|label)\s*:\s*string\s*=\s*'([^']*[A-Za-z][^']*)'/;
 let clicks = 0;
-for (const file of etsFiles(join(library, 'ets'))) {
+// The whole HarmonyOS code: the library and the example (AGENTS.md, "HarmonyOS: screen readers and localization").
+for (const file of [...etsFiles(join(library, 'ets')), ...etsFiles(join(example, 'ets'))]) {
   const lines = readFileSync(file, 'utf8').split('\n');
   const short = file.slice(harmonyos.length + 1).replaceAll('\\', '/');
   lines.forEach((line, i) => {

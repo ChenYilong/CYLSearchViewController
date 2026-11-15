@@ -105,9 +105,10 @@ The ArkTS core was compared with `android/merged/cylsearch` file by file; these 
 | 14 | The resources are a 1:1 copy of iOS, checked without an emulator: every string of the library and of the example (tabs, Discover) in en, ja, zh-Hans and zh-Hant with the same text (iOS `%@` / `%ld` / `%lu` as HarmonyOS `%s` / `%d`), and every placeholder image | DONE | `node harmonyos/scripts/check-ios-parity.mjs`: checked 357, 357 match, 0 problems (2026-11-16) |
 | 15 | Screen readers (ScreenReader, the VoiceOver of HarmonyOS): every tappable element of the library has a label in the language the app shows; icons have 44 vp touch areas (the voice and submit buttons, the multi-search remove button, the fold control); a custom suggestion cell is read as one element; multi-search items read their position ("Search 2 of 3", iOS `multisearch.item`) and their selected state; the cache cleared is announced (row 3) | DONE | `node harmonyos/scripts/check-accessibility-i18n.mjs`: 15 tappable elements, 0 problems; HAPs build with no `cylsearch` warning. Not heard on a device: see row 9 |
 | 16 | Localization: no English text written in the library's UI (Cancel, Back, Voice search, Search, More / Less, Show more / Show less now come from string resources in en, ja, zh-Hans, zh-Hant); 29 more languages copied from CYLTabBarController's string table, filtered to the texts this project uses (OK, Default, No data, Cancel) | DONE | `node harmonyos/scripts/import-cyltabbar-localizations.mjs` (58 `string.json` files in 29 language folders); `check-accessibility-i18n.mjs`: 25 string resources used, all present in the four curated languages; hvigor accepts every language folder |
+| 17 | UI automation by label: the hypium UI tests find every control by its accessibility label or localized text (`findByLabel`, `tapLabel`), ids only for the text field; a new flow test types, clears, types again and submits through labelled controls; the example's list rows are labelled groups (Examples menu, placeholder styles, MaterialSearchView samples, other libraries) so tests and screen readers find them | DONE (code) | `CYLSearchUI.test.ets` compiles into `entry-ohosTest-unsigned.hap`; `check-accessibility-i18n.mjs` now covers the library and the example: 31 tappable elements, 0 problems. Running the tests: row 8 |
 
 <!-- harmonyos-score2:begin -->
-Score: 100/100 (13 of 16 rows DONE, 3 `TODO: N/A on HarmonyOS`; TODO left 0). Unverified on a device: rows 7 to 9.
+Score: 100/100 (14 of 17 rows DONE, 3 `TODO: N/A on HarmonyOS`; TODO left 0). Unverified on a device: rows 7 to 9.
 <!-- harmonyos-score2:end -->
 
 | Date | Change | Score |
@@ -119,6 +120,7 @@ Score: 100/100 (13 of 16 rows DONE, 3 `TODO: N/A on HarmonyOS`; TODO left 0). Un
 | 2026-11-16 | Row 13 added and done: multi-search and search bar rules tested on the host (23 of 23) | 100 |
 | 2026-11-16 | Row 14 added and done: iOS resource parity checked on the host (357 of 357) | 100 |
 | 2026-11-16 | Rows 15 and 16 added and done: screen-reader labels and touch areas, localization with CYLTabBarController's translations | 100 |
+| 2026-11-16 | Row 17 added and done: UI tests find controls by label, example rows labelled | 100 |
 
 
 ## Score

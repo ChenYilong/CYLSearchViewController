@@ -72,6 +72,8 @@ export struct MaterialMenuView {
           ListItem() {
             CYLDemoCell({ text: cylDemoText(this.context, SAMPLE_KEYS[sample]), showsDivider: sample < 5 })
           }
+          .accessibilityGroup(true)
+          .accessibilityText(cylDemoText(this.context, SAMPLE_KEYS[sample]))
           .id(`CYLMaterialSample${sample}`)
           .onClick(() => {
             const param: CYLMaterialSampleParam = { sample: sample, tags: this.tags, focusesSearchFieldOnShow: !this.tags };

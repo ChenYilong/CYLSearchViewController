@@ -148,3 +148,5 @@ Check that the HarmonyOS strings and placeholder images still match iOS after an
 `node harmonyos/scripts/check-ios-parity.mjs` (exit code 1 lists what is missing or different).
 Check the HarmonyOS screen-reader labels, touch areas and localization: `node harmonyos/scripts/check-accessibility-i18n.mjs`.
 After CYLTabBarController's string table changes, run `node harmonyos/scripts/import-cyltabbar-localizations.mjs` again.
+UI tests find controls by their accessibility labels and localized texts first (skill `cyl-accessibility-i18n`); a
+control a test cannot find by label is a screen-reader gap to fix in the app first.

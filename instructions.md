@@ -322,6 +322,16 @@ remote. Name the base branch in the reply.
   (`harmonyos/scripts/import-cyltabbar-localizations.mjs`). Check with `harmonyos/scripts/check-accessibility-i18n.mjs`.
   Full rule: `AGENTS.md`, same section.
 
+## Accessibility, localization and UI automation by label (added 2026-11-16)
+
+- All code of this project supports visual assistance and blind users (screen readers) and is internationalized
+  and localized with localization files, the HarmonyOS code included.
+- When something is not supported, support it first.
+- In automated UI tests, locate controls by those features first: their accessibility labels and localized texts,
+  read from the app's string resources in the device language (an id only when a control has no label). Use them
+  to trigger taps, complex flows and continuous operations.
+- Skill: `cyl-accessibility-i18n`. Full rule: `AGENTS.md`, same section.
+
 ## Mini program example: a 1:1 copy of the iOS example (added 2026-11-15)
 
 - The mini program example replicates `CYLSearchExample` one to one (tabs, pages, texts in en/ja/zh-Hans/zh-Hant,
