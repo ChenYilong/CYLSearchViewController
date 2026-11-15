@@ -1,4 +1,5 @@
-import { CYLSearchResources } from './CYLSearchResources';
+import { UIContext } from '@kit.ArkUI';
+import { cylAnimate } from './CYLSearchAnimation';
 import { CYLSearchBarItem, CYLSearchBarItemOwner, CYLSearchBarItemStyle, CYLSearchBarItemView, CYLSearchBarStyle } from './CYLSearchBarItem';
 
 /**
@@ -113,6 +114,10 @@ export interface CYLSearchBarViewDelegate {
  */
 @ObservedV2
 export class CYLSearchBarView implements CYLSearchBarItemOwner {
+  /**
+   * The UI context of the component that draws it, set by that component; animations use it.
+   */
+  uiContext: UIContext | undefined = undefined;
   private static nextIdentifier: number = 0;
   /**
    * Receives the events.
@@ -536,7 +541,7 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
       this.expansionFraction = iconified ? 0 : 1;
     };
     if (animated && this.animationDuration > 0) {
-      animateTo({ duration: this.animationDuration * 1000, curve: Curve.EaseInOut }, apply);
+      cylAnimate(this.uiContext, { duration: this.animationDuration * 1000, curve: Curve.EaseInOut }, apply);
     } else {
       apply();
     }
@@ -694,6 +699,7 @@ export struct CYLSearchBarComponent {
   }
 
   aboutToAppear(): void {
+    this.searchBarView.uiContext = this.getUIContext();
     if (this.searchBarView.iconifiedByDefault) {
       this.searchBarView.setIconified(true, false);
     }

@@ -186,5 +186,21 @@ export default function cylSearchCoreTest() {
       view.clearSuggestionCache();
       expect(view.filteredSuggestions.length).assertEqual(0);
     });
+
+    it('databasePolicyKeepsQueriesInSQLite', 0, async () => {
+      const first = new CYLSearchSuggestionStore(context(), CYLSearchSuggestionCachePolicy.database, 'CYLDatabaseTest');
+      first.removeAllQueries();
+      first.addQuery('Swift');
+      first.addQuery('Kotlin');
+      expect(JSON.stringify(first.cachedQueries())).assertEqual('["Kotlin","Swift"]');
+      await first.whenStored();
+      // A second store reads the same table in the background.
+      const second = new CYLSearchSuggestionStore(context(), CYLSearchSuggestionCachePolicy.database, 'CYLDatabaseTest');
+      await second.whenStored();
+      expect(second.isLoaded).assertTrue();
+      expect(JSON.stringify(second.cachedQueries())).assertEqual('["Kotlin","Swift"]');
+      second.removeAllQueries();
+      await second.whenStored();
+    });
   });
 }

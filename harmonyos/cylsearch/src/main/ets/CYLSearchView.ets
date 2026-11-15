@@ -1,3 +1,5 @@
+import { UIContext } from '@kit.ArkUI';
+import { cylAnimate } from './CYLSearchAnimation';
 import { common } from '@kit.AbilityKit';
 import { LengthMetrics } from '@kit.ArkUI';
 import { accessibility } from '@kit.AccessibilityKit';
@@ -165,6 +167,10 @@ export interface CYLSearchViewDelegate {
  */
 @ObservedV2
 export class CYLSearchView {
+  /**
+   * The UI context of the component that draws it, set by that component; animations use it.
+   */
+  uiContext: UIContext | undefined = undefined;
   /**
    * Receives the events of the search view.
    */
@@ -472,7 +478,7 @@ export class CYLSearchView {
     this.refilter();
     if (animated && this.animationDuration > 0) {
       // The delegate hears of it when the animation ends, as on Android.
-      animateTo({ duration: this.animationDuration * 1000, curve: Curve.EaseOut, onFinish: () => {
+      cylAnimate(this.uiContext, { duration: this.animationDuration * 1000, curve: Curve.EaseOut, onFinish: () => {
         this.delegate?.searchViewDidShow?.(this);
       } }, () => {
         this.open = true;
@@ -498,7 +504,7 @@ export class CYLSearchView {
     }
     this.searchBarView.hideKeyboard();
     if (animated && this.animationDuration > 0) {
-      animateTo({ duration: this.animationDuration * 1000, curve: Curve.EaseIn, onFinish: () => {
+      cylAnimate(this.uiContext, { duration: this.animationDuration * 1000, curve: Curve.EaseIn, onFinish: () => {
         this.delegate?.searchViewDidClose?.(this);
       } }, () => {
         this.open = false;
@@ -651,7 +657,16 @@ export class CYLSearchView {
     if (this.context === undefined) {
       return;
     }
-    this.suggestionCache = CYLSearchSuggestionStore.cache(this.context, this.cachePolicy, this.cacheName);
+    const cache = CYLSearchSuggestionStore.cache(this.context, this.cachePolicy, this.cacheName);
+    if (cache !== undefined) {
+      // The database is read in the background: its queries are data that changed, so the list shows them.
+      cache.onLoad = () => {
+        if (this.suggestionCache === cache) {
+          this.refilter();
+        }
+      };
+    }
+    this.suggestionCache = cache;
     this.refilter();
   }
 
@@ -715,6 +730,10 @@ export struct CYLSearchComponent {
    */
   @Require @Param searchView: CYLSearchView;
   @Local tagsWidth: number = 0;
+
+  aboutToAppear(): void {
+    this.searchView.uiContext = this.getUIContext();
+  }
 
   private rowHeight(): number {
     return 44;
