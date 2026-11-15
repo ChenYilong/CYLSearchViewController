@@ -52,16 +52,22 @@ static NSString *CYLSearchTabTitle(NSString *key)
     }
     // The initialization keys: the same tabs as CYLTabBarConfiguration.json, written in code, each with its SVGA file.
     NSMutableArray<NSDictionary *> *tabs = [NSMutableArray array];
+    // Search and Discover have a second file for dark mode (`CYLTabBarSVGADarkURL`), as the Rive demo's dark file.
+    NSDictionary<NSString *, NSString *> *darkFiles = @{ @"search" : @"tab_activity", @"discover" : @"tab_profile" };
     for (NSArray<NSString *> *tab in @[ @[ @"search", @"tab.search", @"tab_search" ], @[ @"examples", @"tab.examples", @"tab_list" ],
                                         @[ @"tagStyle", @"tab.tagStyle", @"tab_chat" ], @[ @"discover", @"tab.discover", @"tab_home" ] ]) {
         NSURL *url = [NSBundle.mainBundle URLForResource:tab[2] withExtension:@"svga"];
-        [tabs addObject:@{
+        NSURL *darkURL = darkFiles[tab[0]] ? [NSBundle.mainBundle URLForResource:darkFiles[tab[0]] withExtension:@"svga"] : nil;
+        NSMutableDictionary *attributes = [NSMutableDictionary dictionary];
+        if (darkURL) attributes[CYLTabBarSVGADarkURL] = darkURL;
+        [attributes addEntriesFromDictionary:@{
             CYLTabBarItemTitle : CYLSearchTabTitle(tab[1]),
             CYLTabBarItemIdentifier : tab[0],
             CYLTabBarItemPageIdentifier : tab[0],
             CYLTabBarSVGAURL : url,
             CYLTabBarSVGASize : [NSValue valueWithCGSize:CGSizeMake(28, 28)],
         }];
+        [tabs addObject:attributes];
     }
     // `-CYLDemoTabBarStyle flatDesign` (or "liquidGlass", "default"): the same icons in another tab bar style.
     NSString *style = [NSUserDefaults.standardUserDefaults stringForKey:@"CYLDemoTabBarStyle"] ?: @"default";
