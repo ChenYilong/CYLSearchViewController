@@ -97,15 +97,17 @@ The ArkTS core was compared with `android/merged/cylsearch` file by file; these 
 | 9 | Each of the 25 demos launched on the emulator and checked 1:1 with iOS; screenshots committed in `docs/assets/` with labels, rows 1 to 4 checked on screen (VoiceOver-equivalent ScreenReader for row 3) | TODO | Needs row 7 |
 | 10 | The `database` cache policy is a real SQLite database (`relationalStore`, table `queries` with `cache`, `query`, `time`, as Android `SQLiteOpenHelper`), not a preferences store; the queries kept by the older preferences store move into it once (`docs/core-todo.md` rule 5: a database first) | DONE | `CYLSearchSuggestionStore` (`cyl_search_suggestions.db`); reads mirrored in memory, writes queued in order, `whenStored()`, `onLoad` refreshes the list; test `databasePolicyKeepsQueriesInSQLite` |
 | 11 | No compiler warning in `cylsearch`: the deprecated global `animateTo` replaced by `UIContext.animateTo` (`cylAnimate`, the context set by each drawing component), every throwing call handled | DONE | hvigor `BUILD SUCCESSFUL` for `entry@default` and `entry@ohosTest` with no `cylsearch` warning (2026-11-16; before: 6 `animateTo` and 1 throw warning) |
+| 12 | The pure logic (accent folding, matching, filtering with the cached queries first, the cache order and limit, the tag folding) lives in `CYLSearchLogic.ets` with no kit import and is tested on the host, without an emulator | DONE | `node harmonyos/scripts/host-logic-test.mjs`: tests 14, pass 14, fail 0 (Node 22.23.5, 2026-11-16); the core calls these functions, HAPs build with no `cylsearch` warning |
 
 <!-- harmonyos-score2:begin -->
-Score: 72/100 (8 of 11 rows DONE; TODO left 3, all waiting for the emulator).
+Score: 75/100 (9 of 12 rows DONE; TODO left 3, all waiting for the emulator).
 <!-- harmonyos-score2:end -->
 
 | Date | Change | Score |
 | :--- | :--- | ---: |
 | 2026-11-16 | Scorecard made; rows 1 to 6 done and compiled | 66 |
 | 2026-11-16 | Rows 10 and 11 added and done: SQLite suggestion cache, no `cylsearch` warnings | 72 |
+| 2026-11-16 | Row 12 added and done: pure logic in `CYLSearchLogic.ets`, 14 host tests pass with Node | 75 |
 
 
 ## Score

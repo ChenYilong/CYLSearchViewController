@@ -141,3 +141,6 @@ Before the first HarmonyOS build or emulator run on a machine, follow `cyl-harmo
 and its SDK paths, the emulator prerequisites (virtualization, Hyper-V, Huawei ID), and the region set to China in
 `country.region.xml` (`<countryregion name="CN"/>`, not `NZ`). Report a HarmonyOS run as unverified when no emulator
 or device was used.
+
+Without an emulator, run the pure logic of the HarmonyOS core on the host: `node harmonyos/scripts/host-logic-test.mjs`
+(Node 22.18 or newer). Keep `harmonyos/cylsearch/src/main/ets/CYLSearchLogic.ets` free of kit imports so it runs there.

@@ -1,5 +1,6 @@
 import { UIContext } from '@kit.ArkUI';
 import { cylAnimate } from './CYLSearchAnimation';
+import { cylFilterSuggestions, cylFoldedTagCount, CYLSearchFilterResult, cylSuggestionMatches } from './CYLSearchLogic';
 import { common } from '@kit.AbilityKit';
 import { LengthMetrics } from '@kit.ArkUI';
 import { accessibility } from '@kit.AccessibilityKit';
@@ -40,46 +41,6 @@ export enum CYLMenuFoldControlPosition {
   none = 2
 }
 
-/**
- * How many of the tags (`widths`, in vp) fit in `rows` rows of `width` with `spacing` between them, when a fold
- * control of `controlWidth` must follow the last visible tag (0 for no control in the flow); all of them when they
- * fit together with the control. Rows of 0 or less show every tag.
- */
-export function cylFoldedTagCount(widths: number[], width: number, rows: number, spacing: number,
-  controlWidth: number): number {
-  if (rows <= 0 || width <= 0) {
-    return widths.length;
-  }
-  const fits = (count: number, extra: number): boolean => {
-    let row = 1;
-    let x = 0;
-    const items = widths.slice(0, count).map((w: number) => Math.min(w, width));
-    if (extra > 0) {
-      items.push(Math.min(extra, width));
-    }
-    for (const w of items) {
-      if (x > 0 && x + spacing + w > width) {
-        row++;
-        x = w;
-      } else {
-        x = x > 0 ? x + spacing + w : w;
-      }
-      if (row > rows) {
-        return false;
-      }
-    }
-    return true;
-  };
-  if (fits(widths.length, 0)) {
-    return widths.length;
-  }
-  for (let count = widths.length - 1; count >= 0; count--) {
-    if (fits(count, controlWidth)) {
-      return count;
-    }
-  }
-  return 0;
-}
 
 /**
  * What the fold control shows (CollectionViewClassifyMenu's `CYLMenuFoldControlContent`).
@@ -670,45 +631,21 @@ export class CYLSearchView {
     this.refilter();
   }
 
-  // Accents removed and lowercased, so "cafe" matches "café" (Android `fold`).
-  private static fold(text: string): string {
-    return text.normalize('NFD').replace(new RegExp('[\u0300-\u036f]+', 'g'), '').toLowerCase();
-  }
-
+  // The custom filter, or the folded match of `CYLSearchLogic` (Android `matches`).
   private matches(suggestion: string, query: string): boolean {
     if (this.suggestionFilter !== undefined) {
       return this.suggestionFilter(suggestion, query);
     }
-    return CYLSearchView.fold(suggestion).includes(CYLSearchView.fold(query.trim()));
+    return cylSuggestionMatches(suggestion, query);
   }
 
   private refilter(): void {
-    const query = this.query;
     const cached = this.suggestionCache?.cachedQueries() ?? [];
-    let result: string[] = [];
     this.suggestionsShown = true;
-    if (query.trim().length === 0) {
-      if (cached.length > 0) {
-        result = cached;
-        this.showsCachedQueries = true;
-      } else {
-        result = this.showsAllForEmptyQuery ? this.allSuggestions.slice() : [];
-        this.showsCachedQueries = false;
-      }
-    } else {
-      this.showsCachedQueries = false;
-      cached.forEach((value: string) => {
-        if (this.matches(value, query)) {
-          result.push(value);
-        }
-      });
-      this.allSuggestions.forEach((value: string) => {
-        if (this.matches(value, query) && !result.includes(value)) {
-          result.push(value);
-        }
-      });
-    }
-    this.filteredSuggestions = result;
+    const filtered: CYLSearchFilterResult = cylFilterSuggestions(this.query, cached, this.allSuggestions,
+      this.showsAllForEmptyQuery, (suggestion: string, query: string) => this.matches(suggestion, query));
+    this.showsCachedQueries = filtered.showsCachedQueries;
+    this.filteredSuggestions = filtered.suggestions;
     if (this.showsEmptyResults && this.emptyResults === undefined) {
       this.emptyResults = CYLSearchPlaceholderView.withKind(this.resultsScenario);
     }
