@@ -1,6 +1,7 @@
 import { preferences, relationalStore } from '@kit.ArkData';
 import { fileIo } from '@kit.CoreFileKit';
 import { common } from '@kit.AbilityKit';
+import { cylQueriesAdding } from './CYLSearchLogic';
 
 const CYL_SUGGESTION_DATABASE: string = 'cyl_search_suggestions.db';
 const CYL_SUGGESTION_TABLE: string = 'queries';
@@ -233,11 +234,9 @@ export class CYLSearchSuggestionStore implements CYLSearchSuggestionCache {
     if (text.length === 0) {
       return;
     }
-    const queries = this.read().filter((value: string) => value !== text);
-    queries.unshift(text);
     // At least one query is kept (Android `maxOf(1, maximumCount)`).
     const limit = Math.max(1, this.maximumCount);
-    this.write(queries.slice(0, limit));
+    this.write(cylQueriesAdding(this.read(), text, limit));
     if (this.policy === CYLSearchSuggestionCachePolicy.database) {
       const time = cylSuggestionNextTime();
       this.enqueue(async (store: relationalStore.RdbStore) => {
