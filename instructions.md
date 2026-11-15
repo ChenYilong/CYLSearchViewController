@@ -299,6 +299,18 @@ remote. Name the base branch in the reply.
   `harmonyos/scripts/import-ios-resources.py`). The internals are migrated from the Android Kotlin sources
   (`android/`), not written anew. Full rule: `AGENTS.md`, same section; scorecard: `docs/harmonyos-cross-platform.md`.
 
+## HarmonyOS: IDE preparation and emulator prerequisites (added 2026-11-16)
+
+- Before the first HarmonyOS build or run on a machine, follow the `cyl-harmonyos-setup` skill.
+- IDE: DevEco Studio 6.0.1 with its bundled SDK (API 21), signed in with a Huawei ID; for command-line builds set
+  `DEVECO_SDK_HOME` and put `jbr\bin` and `sdk\default\openharmony\toolchains` (`hdc`) on `PATH`; build from an
+  ASCII path without spaces (hvigor).
+- Emulator prerequisites: 64-bit Windows 10 or 11 (or Apple silicon); CPU virtualization on; Hyper-V, Windows
+  Hypervisor Platform and Virtual Machine Platform on; 16 GB RAM at least; Huawei ID sign-in; region China.
+- Region: the developer is in New Zealand, but the emulator needs the region China. With DevEco Studio closed,
+  `%APPDATA%\Huawei\DevEcoStudio6.0\options\country.region.xml` must say `<countryregion name="CN"/>` (not `NZ`);
+  check it before creating an emulator. Full rule: `AGENTS.md`, same section.
+
 ## Mini program example: a 1:1 copy of the iOS example (added 2026-11-15)
 
 - The mini program example replicates `CYLSearchExample` one to one (tabs, pages, texts in en/ja/zh-Hans/zh-Hant,

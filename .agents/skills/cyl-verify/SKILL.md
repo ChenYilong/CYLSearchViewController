@@ -135,16 +135,9 @@ three. Correction (user, 2026-11-12): the original wording, "prefer the horizont
 
 When an Objective-C to Swift change of the core breaks an example's build, fix the example: example code has the lowest weight of all code here. Change any example code as needed; never keep a core API, overload, shim or deprecated alias only because an example uses it, and never lower the Swift core's quality (naming, types, optionality, access control) to fit an example. Compatibility matters only for callers outside the examples (published API users). The Swift coding standard (docs/swift-coding-standard.md) decides. Rule and context: [docs/swift-migration.md](../../../docs/swift-migration.md).
 
-## Accessibility and localization on every platform; UI tests locate controls through them (added 2026-11-16)
+## HarmonyOS
 
-- All code of this project (the core, every port and every example, HarmonyOS included) supports visual accessibility
-  and screen readers for blind users (VoiceOver, TalkBack, HarmonyOS ScreenReader), and internationalization /
-  localization through localization files. Every control a user can tap or read has an accessibility label (and a hint
-  where the action is not obvious), tappable rows are one accessibility element, and every user-facing text comes from
-  a localization file, never a hard-coded string (HarmonyOS: `$r('app.string.…')` in `resources/<locale>/element/string.json`;
-  translations shared with CYLTabBarController are copied from its `CYLTabBarController.bundle/*.lproj`).
-- If something turns out not to support them, add the support first, then continue the task.
-- In automated UI tests, locate controls through these features first: accessibility identifiers / labels (iOS
-  `accessibilityIdentifier` / `accessibilityLabel`, Android `contentDescription`, HarmonyOS `.id()` /
-  `accessibilityText`, `ON.id` / `ON.accessibilityText`), then localized text. Use them to trigger taps, complex flows and
-  series of actions; coordinates are the last resort.
+Before the first HarmonyOS build or emulator run on a machine, follow `cyl-harmonyos-setup`: DevEco Studio 6.0.1
+and its SDK paths, the emulator prerequisites (virtualization, Hyper-V, Huawei ID), and the region set to China in
+`country.region.xml` (`<countryregion name="CN"/>`, not `NZ`). Report a HarmonyOS run as unverified when no emulator
+or device was used.
