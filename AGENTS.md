@@ -21,11 +21,11 @@ WeChat DevTools Skills (<https://developers.weixin.qq.com/miniprogram/dev/devtoo
 | `cyl-plus-button` | Writing or changing the plus button: configuration keys, title alignment, Liquid Glass limits |
 | `cyl-new-project` | Creating or extending an example project |
 | `cyl-api-map` | Finding the public API of `CYLTableViewPlaceHolder` and `CYLTabBarController` |
-| `cyl-commit` | Writing a commit: `git cz` (Commitizen) style, English-only messages |
 | `cyl-xcode-compat` | Touching the `.xcodeproj`, Podfile or deployment targets |
 | `cyl-sub-repositories` | Adding or updating a sibling project as a sub-repository (CollectionViewClassifyMenu, CYLTableViewPlaceHolder): commit pin, core option, example, every platform |
 | `cyl-docs` | Editing `README.md` or `docs/` |
 | `cyl-verify` | Building, testing, running the simulator |
+| `cyl-commit` | Writing any commit message: `git cz` style, English only, the author line, the checks before committing |
 | `cyl-accessibility-i18n` | Screen readers and localization in any code; writing UI tests that find controls by their labels |
 | `cyl-harmonyos-setup` | Preparing DevEco Studio and the HarmonyOS emulator: SDK paths, virtualization, Huawei ID, region `CN` in `country.region.xml` |
 | `swift-api-design-guidelines`, `swift-language`, `swift-concurrency`, `swift-testing`, `swift-architecture` | Writing or translating Swift (third-party, pinned in `.agents/skills.json`) |
@@ -330,6 +330,16 @@ marks it `DONE`.
   touch .git/hooks/NO_AUTO_SYNC
   ```
 
+- **`git cz` style, English only (added 2026-11-16).** Prompt (verbatim): "写入instructions相关文件以及skills，找到commit规范，如果没找到就新建，寻找关键字 git cz，如果没有就新建，如果有就追加以下规则：全英文写入： git cz 风格提交，全英文commit 不允许出现中午。 continue" ("中午" is a typo for "中文", Chinese). Prompt (English): "Write into the instruction files and the skills: find the commit rules (create them if missing), look for the keyword git cz (create it if missing, append if present) and add, in English: commits in git cz style, commit messages entirely in English, no Chinese allowed. Continue." Rules:
+  1. Every commit is a Commitizen (`git cz`) style commit: `<type>(<scope>): <emoji> <subject>` or
+     `<type>: <emoji> <subject>`, type one of `test`, `feat`, `fix`, `chore`, `docs`, `refactor`, `style`, `ci`, `perf`,
+     `release` (instructions.md, "Commitizen defaults").
+  2. The whole message (subject, body, author line and trailers) is in English. No Chinese characters are allowed,
+     not even a quoted prompt: quote a Chinese prompt in the `docs/` task log and link it from the body instead.
+  3. Check before committing: `scripts/check-commit-message.sh <message file>`, or
+     `git log -1 --format=%B | scripts/check-commit-message.sh -` for the last commit. A failing message is rewritten
+     before pushing. Skill: `cyl-commit`.
+
 - **On any branch other than `master` or `main`, commit and push as soon as the work is written, without asking
   for confirmation.** On `master` or `main`, ask first.
 
@@ -355,7 +365,6 @@ marks it `DONE`.
   detailed completion and pending-work summaries in the body. If the detailed
   description exceeds 50 characters, create or update a suitable `docs/` note
   and link it from the commit body; reuse existing tracking documents.
-- **English only (added 2026-11-16):** commit in `git cz` (Commitizen) style, and write the whole commit message in English: subject, body and trailers. No Chinese (or any other non-English text) anywhere in a commit message.
 - Follow the Commitizen defaults: `{type}{scope}: {emoji}{subject}`, emojis
   enabled, no predefined scopes, and a 3–64 character message. The interactive
   format examples separate the emoji from the subject with a space. The

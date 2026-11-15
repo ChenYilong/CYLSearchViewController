@@ -272,13 +272,16 @@ a directory and Git uses its default hooks path; linked worktrees and custom
 
 ## Commitizen commits
 
-- **English only (added 2026-11-16):** commit in `git cz` (Commitizen) style, and write the whole commit message in English: subject, body and trailers. No Chinese (or any other non-English text) anywhere in a commit message.
-
 Before every Commitizen-style (`git cz`) commit, run this first in the repository root:
 
 ```sh
 touch .git/hooks/NO_AUTO_SYNC
 ```
+
+Rule (added 2026-11-16): every commit is a `git cz` (Commitizen) style commit, and the whole commit message (subject,
+body and trailers) is in English: no Chinese characters are allowed anywhere in it. Check a message with
+`scripts/check-commit-message.sh <file>` (or `git log -1 --format=%B | scripts/check-commit-message.sh -`). Skill:
+`cyl-commit`. Full rule: `AGENTS.md`, "Commit readiness".
 
 ## Committing on branches
 
