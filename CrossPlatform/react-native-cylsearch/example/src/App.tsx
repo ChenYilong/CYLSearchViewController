@@ -133,7 +133,7 @@ function Screens() {
       <CYLTabBar
         style={styles.tabBar}
         items={TAB_ITEMS}
-        plusButton={PLUS_BUTTON}
+        plusButton={{ ...PLUS_BUTTON, titleColor: palette.text }}
         tapAnimation="scale"
         selectedIndex={tab === 'bar' ? -1 : TAB_KEYS.indexOf(tab)}
         onTabSelect={(index) => setTab(index < 0 ? 'bar' : TAB_KEYS[index] ?? 'list')}
