@@ -176,6 +176,18 @@ export class CYLMultiSearchView {
   }
 
   /**
+   * Ends the search being typed for the system Back gesture, like `completeSearch`; true when it did. Call it from
+   * the page's `onBackPress()` and return its result.
+   */
+  handleBackPress(): boolean {
+    if (!this.typing) {
+      return false;
+    }
+    this.completeSearch();
+    return true;
+  }
+
+  /**
    * Adds a completed search without typing it and selects it.
    */
   addSearchText(text: string): void {

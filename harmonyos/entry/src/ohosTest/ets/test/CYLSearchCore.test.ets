@@ -2,7 +2,11 @@ import { describe, it, expect } from '@ohos/hypium';
 import { abilityDelegatorRegistry } from '@kit.TestKit';
 import { common } from '@kit.AbilityKit';
 import {
+  CYLMultiSearchView,
   CYLSearchBarItem,
+  CYLSearchController,
+  CYLSearchResultsDataSource,
+  CYLSearchResultsViewController,
   CYLSearchBarView,
   CYLSearchPlaceholderKind,
   CYLSearchPlaceholderView,
@@ -64,6 +68,35 @@ export default function cylSearchCoreTest() {
       expect(view.isSearchOpen).assertTrue();
       expect(view.handleBackPress()).assertTrue();
       expect(view.isSearchOpen).assertFalse();
+    });
+
+    it('controllerHandleBackPressOnlyWhenPresented', 0, async () => {
+      const source: CYLSearchResultsDataSource = {
+        searchResultsViewControllerResultsForQuery: () => [],
+        searchResultsViewControllerConfigureCell: (_: CYLSearchResultsViewController, result: Object) => `${result}`
+      };
+      const controller = new CYLSearchController(source);
+      let cancelled = false;
+      controller.delegate = { searchControllerDidCancel: () => { cancelled = true; } };
+      expect(controller.handleBackPress()).assertFalse();
+      controller.animationDuration = 0;
+      controller.showInViewController();
+      expect(controller.isPresented).assertTrue();
+      expect(controller.handleBackPress()).assertTrue();
+      expect(controller.isPresented).assertFalse();
+      // The Cancel callback runs when the hide animation finishes.
+      await new Promise<void>((resolve) => setTimeout(resolve, 600));
+      expect(cancelled).assertTrue();
+    });
+
+    it('multiSearchHandleBackPressCompletesTyping', 0, () => {
+      const view = new CYLMultiSearchView();
+      expect(view.handleBackPress()).assertFalse();
+      view.search();
+      view.typedText = 'Swift';
+      expect(view.handleBackPress()).assertTrue();
+      expect(view.isInSearchMode).assertFalse();
+      expect(JSON.stringify(view.completedSearchTexts)).assertEqual('["Swift"]');
     });
 
     it('searchBarKeepsItemsInOrder', 0, () => {

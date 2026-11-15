@@ -225,3 +225,11 @@ begins and becomes `DONE` when it ends.
   API `CYLSearchView.handleBackPress()` closes an open search view and returns true; the example page's
   `onBackPress()` returns it. Core test `handleBackPressOnlyWhenOpen` added.
   Result on the Mate 70 Pro emulator: Tests run: 11, Failure: 0, Error: 0, Pass: 11.
+
+- 2026-11-15 DONE: Back gesture on the other HarmonyOS search views. Prompt: "check others". Same gap in
+  `CYLSearchController` (the overlay stayed on Back) and `CYLMultiSearchView` (typing never ended on Back); neither
+  is in the example, so they are covered by core tests. New API: `CYLSearchController.handleBackPress()` hides the
+  presented overlay like its Cancel button (calls `searchControllerDidCancel`); `CYLMultiSearchView.handleBackPress()`
+  ends the search being typed like `completeSearch`. `CYLSearchResultsViewController` is shown inside
+  `CYLSearchController`, so it needs nothing. Tests `controllerHandleBackPressOnlyWhenPresented` and
+  `multiSearchHandleBackPressCompletesTyping`; result on the emulator: Tests run: 13, Pass: 13.
