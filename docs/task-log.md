@@ -204,3 +204,11 @@ begins and becomes `DONE` when it ends.
 - 2026-11-15 DONE: CYLTableViewPlaceHolder PR #28 merged into master (merge commit `7bc27a1`) at the user's
   go-ahead ("Merge PR #28 to master"). The Android pin `6d8b264` is now on master. HarmonyOS run still waits for
   DevEco signing (`signingConfigs: []`).
+
+- 2026-11-15 DONE: HarmonyOS example on the emulator without signing. Prompt: "请使用模拟器 开发鸿蒙 忽略签名 继续开发"
+  (use the emulator for HarmonyOS, ignore signing, keep developing). hvigor `assembleHap` skips signing and builds
+  `entry-default-unsigned.hap`; `hdc install` accepts it on the Mate 70 Pro emulator (HarmonyOS 6.0.1, API 21),
+  and `aa start` opens it. Screenshots (commit `ca56d68`, original 1316×2832), top to bottom:
+  1. ![Discover](assets/harmonyos-discover-emulator-unsigned.jpeg)
+  2. ![Search, empty cache](assets/harmonyos-search-empty-cache-emulator-unsigned.jpeg)
+  Open: the empty placeholder reads "暂无数据" in an English UI; hypium tests not run yet.
