@@ -286,3 +286,4 @@ begins and becomes `DONE` when it ends.
 - 2026-11-16 DONE: RN plus title color follows the text color (black / white in dark mode). Prompt: "title black".
 - 2026-11-16 TODO logged: SVGA animations + one SVGA demo per Rive demo, `docs/CYLTabBarController-Integration.md`.
 - 2026-11-16 IN PROGRESS: SVGA TODO, 12 Rive scenes listed (0/12). Prompt: "start svga".
+- 2026-11-16 DONE: SVGA rows 1-2 (iOS tab icons from keys and from a config file), 2/12. Prompt: "go ios svga".
