@@ -120,9 +120,8 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   (`feat/harmonyos-component`). The newest CYLTabBarController commit on any branch (`0342bb2`,
   `feat/cross-platform-components`) has no HarmonyOS library, so the pin is the newest commit that has one. Their
   minimum is API 21, so the example's `compatibleSdkVersion` is 6.0.1(21).
-- Status: `TODO` (iOS, Android, Flutter and React Native done; HarmonyOS and mini programs have their own simple
-  placeholders, CYLTableViewPlaceHolder itself is not ported to them: no version of this
-  library exists on them yet, see [android-and-cross-platform.md](android-and-cross-platform.md)).
+- Status: `TODO` (iOS, Android, Flutter and React Native done; HarmonyOS uses CYLTableViewPlaceHolder's `cylplaceholder` library
+  (above) and compiles, not run yet; mini programs done, see below).
 - Progress (2026-11-15): mini programs DONE: the empty results and the empty cache of `cyl-search` play
   CYLTableViewPlaceHolder's `CYLPlaceholderNoResults.json` / `CYLPlaceholderNoDrafts.json` (with their licenses) through
   CYLTabBarController's `cyl-lottie`; screenshot in [miniprogram-api-alignment.md](miniprogram-api-alignment.md).
@@ -131,5 +130,5 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   `cyl-search` has iOS's `emptyResultsScenario` (`NoSearchResults`) and `emptySuggestionsScenario` (`NoContent`), drawn
   by its abstract node `cyl-empty-view`; the example passes `<cyl-placeholder scenario>`, static as iOS
   `CYLPlaceholderStackView`. The Lottie paths are gone. Android
-  animated too (`docs/core-todo.md`, CYLTableViewPlaceHolder `6d8b264`). Left: HarmonyOS on a device (waits for
-  signing in DevEco Studio).
+  animated too (`docs/core-todo.md`, CYLTableViewPlaceHolder `6d8b264`). Left: HarmonyOS on the emulator (no signing needed, rule 2026-11-16; waits for the emulator instance, Scorecard 2 rows
+  7 to 9 in [harmonyos-cross-platform.md](harmonyos-cross-platform.md)).
