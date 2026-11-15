@@ -224,15 +224,15 @@ Rive scenes in CYLTabBarController's demos (Example-Rive, Example-SwiftUI-Rive, 
 | Tab icons in all three styles: Liquid Glass, FlatDesign, classic | DONE: Liquid Glass (above); FlatDesign with `-CYLDemoTabBarStyle flatDesign` (keys mode, `CYLFlatDesignTabBar` subspec); classic on iOS 17.5, both modes |
 | Dark mode animation file (`CYLTabBarRiveDarkURL`) | DONE: `CYLTabBarSVGADarkURL` / `CYLTabBarSVGADarkFilePath` for Search (`tab_activity`) and Discover (`tab_profile`), both modes. Found: switching back to light while running keeps the dark files (CYLTabBarController, not fixed here) |
 | Plus button with its own page (purple "Start", `rive_plus.png`) | DONE: the "Search bar" plus button opens its own page with the SVGA tab icons (tapped with `axe`) |
-| In-page animation above a list (Bell page, `menu_button.riv`, `RiveMenuButtonDemoView`) | TODO |
-| Switching a tab icon at runtime (`-updateTabBarItemForViewController:attributes:`, Rive ↔ SVGA button) | TODO |
+| In-page animation above a list (Bell page, `menu_button.riv`, `RiveMenuButtonDemoView`) | DONE: `CYLSVGADemoHeaderView` above the Examples list: `tab_activity.svga` plays once, tap to play again (`SVGAPlayer`, accessibility label and hint) |
+| Switching a tab icon at runtime (`-updateTabBarItemForViewController:attributes:`, Rive ↔ SVGA button) | DONE: "Tab icons: …" button cycles SF Symbols → SVGA keys → SVGA file and rebuilds the tab bar (as Example-Rive's "Tab icon source" button); the choice is kept |
 | SwiftUI host (Example-SwiftUI-Rive) | TODO |
 | Android (`example-rive`, `CYLRiveTabBarItemAnimator`) | TODO |
 | Flutter (`example_rive`) | TODO (waits for SVGA in `flutter_cyltabbar`) |
 | React Native (`example-rive`, `<CYLAnimationView>`) | TODO (waits for SVGA in `react-native-cyltabbar`) |
 | WeChat mini program (`cyl-rive`) | TODO (waits for an SVGA mini program package) |
 
-Score: 5/12.
+Score: 7/12.
 
 iOS example, SVGA tab icons (Search selected, its animation on the last frame). Top to bottom: initialization keys;
 configuration file. CYL 17Pro simulator, iOS 26.3, Debug, CYLTabBarController `5682b9e` (`CYLTabBarController/SVGA`),
@@ -257,3 +257,11 @@ and Discover still show the dark files). CYL 17Pro, iOS 26.3, Debug, base a4ccf9
 ![SVGA dark mode, keys](assets/ios-svga-dark-keys-ios26.3.png)
 ![SVGA dark mode, configuration file](assets/ios-svga-dark-configuration-ios26.3.png)
 ![Plus button page with SVGA tab icons](assets/ios-svga-plus-page-ios26.3.png)
+
+Examples tab, the SVGA demo above the list; top to bottom: after the first, second and third tap on the source button
+(SVGA keys, SVGA configuration file, SF Symbols). CYL 17Pro, iOS 26.3, Debug, base e93d8e3, 2026-11-16 10:55. The button
+was tapped by coordinates: `axe` lists every element twice, so its accessibility identifier matched two elements.
+
+![Source switch, tap 1](assets/ios-svga-menu-switch-1-ios26.3.png)
+![Source switch, tap 2](assets/ios-svga-menu-switch-2-ios26.3.png)
+![Source switch, tap 3](assets/ios-svga-menu-switch-3-ios26.3.png)
