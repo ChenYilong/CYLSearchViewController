@@ -103,9 +103,11 @@ The ArkTS core was compared with `android/merged/cylsearch` file by file; these 
 | 12 | The pure logic (accent folding, matching, filtering with the cached queries first, the cache order and limit, the tag folding) lives in `CYLSearchLogic.ets` with no kit import and is tested on the host, without an emulator | DONE | `node harmonyos/scripts/host-logic-test.mjs`: tests 14, pass 14, fail 0 (Node 22.23.5, 2026-11-16); the core calls these functions, HAPs build with no `cylsearch` warning |
 | 13 | The multi-search and search bar rules in `CYLSearchLogic.ets`, used by the core and tested on the host: text limit, when a typed search completes (not trimmed), the selection after a removal (Android `remove`), blank text refused on submit | DONE | `CYLMultiSearchView` and `CYLSearchBarView` call `cylSearchTextLimited`, `cylSearchTextCompletes`, `cylSelectionAfterRemoval`, `cylSearchTextSubmittable`; `node harmonyos/scripts/host-logic-test.mjs`: tests 23, pass 23, fail 0; HAPs build with no `cylsearch` warning |
 | 14 | The resources are a 1:1 copy of iOS, checked without an emulator: every string of the library and of the example (tabs, Discover) in en, ja, zh-Hans and zh-Hant with the same text (iOS `%@` / `%ld` / `%lu` as HarmonyOS `%s` / `%d`), and every placeholder image | DONE | `node harmonyos/scripts/check-ios-parity.mjs`: checked 357, 357 match, 0 problems (2026-11-16) |
+| 15 | Screen readers (ScreenReader, the VoiceOver of HarmonyOS): every tappable element of the library has a label in the language the app shows; icons have 44 vp touch areas (the voice and submit buttons, the multi-search remove button, the fold control); a custom suggestion cell is read as one element; multi-search items read their position ("Search 2 of 3", iOS `multisearch.item`) and their selected state; the cache cleared is announced (row 3) | DONE | `node harmonyos/scripts/check-accessibility-i18n.mjs`: 15 tappable elements, 0 problems; HAPs build with no `cylsearch` warning. Not heard on a device: see row 9 |
+| 16 | Localization: no English text written in the library's UI (Cancel, Back, Voice search, Search, More / Less, Show more / Show less now come from string resources in en, ja, zh-Hans, zh-Hant); 29 more languages copied from CYLTabBarController's string table, filtered to the texts this project uses (OK, Default, No data, Cancel) | DONE | `node harmonyos/scripts/import-cyltabbar-localizations.mjs` (58 `string.json` files in 29 language folders); `check-accessibility-i18n.mjs`: 25 string resources used, all present in the four curated languages; hvigor accepts every language folder |
 
 <!-- harmonyos-score2:begin -->
-Score: 100/100 (11 of 14 rows DONE, 3 `TODO: N/A on HarmonyOS`; TODO left 0). Unverified on a device: rows 7 to 9.
+Score: 100/100 (13 of 16 rows DONE, 3 `TODO: N/A on HarmonyOS`; TODO left 0). Unverified on a device: rows 7 to 9.
 <!-- harmonyos-score2:end -->
 
 | Date | Change | Score |
@@ -116,6 +118,7 @@ Score: 100/100 (11 of 14 rows DONE, 3 `TODO: N/A on HarmonyOS`; TODO left 0). Un
 | 2026-11-16 | Rows 7 to 9 marked `TODO: N/A on HarmonyOS` with reasons (development without an emulator) | 100 |
 | 2026-11-16 | Row 13 added and done: multi-search and search bar rules tested on the host (23 of 23) | 100 |
 | 2026-11-16 | Row 14 added and done: iOS resource parity checked on the host (357 of 357) | 100 |
+| 2026-11-16 | Rows 15 and 16 added and done: screen-reader labels and touch areas, localization with CYLTabBarController's translations | 100 |
 
 
 ## Score

@@ -420,6 +420,24 @@ marks it `DONE`.
   5. Signing (user, 2026-11-16: "模拟器 测试 不需要签名 跳过签名", "emulator tests need no signing; skip signing"):
      emulator runs and tests use the unsigned HAPs; keep `signingConfigs` empty and do not ask for a certificate,
      a profile or automatic signing. Signing is needed only for a real device or a release, when the user asks.
+
+## HarmonyOS: screen readers and localization (added 2026-11-16)
+
+- Prompt (verbatim): "适配视觉辅助 盲人辅助 为鸿蒙代码 。 适配国际化本地化，本地化文件可以从CYLTabBarController中复制一份过来。筛选本项目用到的文字。"
+- Prompt (English): "Adapt the HarmonyOS code for visual assistance and for blind users. Adapt it for
+  internationalization and localization; the localization files can be copied from CYLTabBarController. Keep only
+  the texts this project uses."
+- Screen readers: every tappable element of `harmonyos/cylsearch` has a label (`accessibilityText`, or a `Text` child)
+  in the language the app shows; decorative icons are `accessibilityLevel('no')`; a touch area is at least 44 vp
+  (`responseRegion` when the icon is smaller and the layout must not change); a list item reads its position and
+  selected state (`accessibilityDescription`, `accessibilitySelected`); a state change with nothing on screen to
+  read is announced (`accessibility.sendAccessibilityEvent`, `announceForAccessibility`).
+- Localization: no English text written in the library's UI code; titles and labels default to string resources
+  (`ResourceStr`). en, ja, zh-Hans and zh-Hant come from iOS (`check-ios-parity.mjs`); the other languages come from
+  CYLTabBarController's string table, filtered to the texts this project uses
+  (`node harmonyos/scripts/import-cyltabbar-localizations.mjs`, which never overwrites the four iOS languages).
+- Check both with `node harmonyos/scripts/check-accessibility-i18n.mjs`; Scorecard 2 rows 15 and 16 in
+  `docs/harmonyos-cross-platform.md`.
 - Status on the Windows machine (checked 2026-11-16): the region file says `<countryregion name="CN"/>`, a hypervisor
   is present, 64 GB RAM, and the HarmonyOS 6.0.1 `phone_all_x86` image was downloading.
 

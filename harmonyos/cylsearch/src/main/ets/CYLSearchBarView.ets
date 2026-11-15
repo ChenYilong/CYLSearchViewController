@@ -201,9 +201,9 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
    */
   @Trace showsCancelButton: boolean = false;
   /**
-   * The Cancel button's title.
+   * The Cancel button's title; "Cancel" in the language the app shows by default (iOS `search.cancel`).
    */
-  @Trace cancelButtonTitle: string = 'Cancel';
+  @Trace cancelButtonTitle: ResourceStr = $r('app.string.cyl_search_cancel');
   /**
    * Cancel also ends editing. True by default.
    */
@@ -225,9 +225,10 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
    */
   @Trace navigationImage: Resource | undefined = undefined;
   /**
-   * What screen readers read for the button before the field.
+   * What screen readers read for the button before the field; "Back" in the language the app shows by default (iOS
+   * `search.back`).
    */
-  @Trace navigationAccessibilityLabel: string = 'Back';
+  @Trace navigationAccessibilityLabel: ResourceStr = $r('app.string.cyl_search_back');
   /**
    * A round background behind the button before the field; undefined draws none.
    */
@@ -699,6 +700,18 @@ export struct CYLSearchBarComponent {
     return this.searchBarView.iconPosition === CYLSearchBarIconPosition.leading ? FlexAlign.Start : FlexAlign.End;
   }
 
+  // A string as is, a resource in the language the app shows (for screen-reader labels).
+  private resolvedText(value: ResourceStr): string {
+    if (typeof value === 'string') {
+      return value;
+    }
+    try {
+      return this.getUIContext().getHostContext()?.resourceManager.getStringSync((value as Resource).id) ?? '';
+    } catch (error) {
+      return '';
+    }
+  }
+
   aboutToAppear(): void {
     this.searchBarView.uiContext = this.getUIContext();
     if (this.searchBarView.iconifiedByDefault) {
@@ -753,22 +766,34 @@ export struct CYLSearchBarComponent {
         })
       this.trailingAccessoryViews()
       if (this.searchBarView.showsVoiceButton && this.searchBarView.text.length === 0) {
-        SymbolGlyph(this.searchBarView.voiceImage)
-          .fontSize(20)
-          .fontColor([this.secondary()])
-          .accessibilityText('Voice search')
-          .onClick(() => {
-            this.searchBarView.voiceTapped();
-          })
+        Row() {
+          SymbolGlyph(this.searchBarView.voiceImage)
+            .fontSize(20)
+            .fontColor([this.secondary()])
+        }
+        .width(44)
+        .height(44)
+        .justifyContent(FlexAlign.Center)
+        .accessibilityGroup(true)
+        .accessibilityText($r('app.string.cyl_search_voice'))
+        .onClick(() => {
+          this.searchBarView.voiceTapped();
+        })
       }
       if (this.searchBarView.showsSubmitButton && this.searchBarView.text.length > 0) {
-        SymbolGlyph(this.searchBarView.submitImage)
-          .fontSize(20)
-          .fontColor([this.secondary()])
-          .accessibilityText('Search')
-          .onClick(() => {
-            this.searchBarView.submit();
-          })
+        Row() {
+          SymbolGlyph(this.searchBarView.submitImage)
+            .fontSize(20)
+            .fontColor([this.secondary()])
+        }
+        .width(44)
+        .height(44)
+        .justifyContent(FlexAlign.Center)
+        .accessibilityGroup(true)
+        .accessibilityText($r('app.string.cyl_search_submit'))
+        .onClick(() => {
+          this.searchBarView.submit();
+        })
       }
       ForEach(this.searchBarView.items, (item: CYLSearchBarItem) => {
         CYLSearchBarItemView({
@@ -817,7 +842,7 @@ export struct CYLSearchBarComponent {
         .borderRadius(28)
         .shadow({ radius: this.searchBarView.iconButtonBackgroundColor !== undefined ? 6 : 0, color: 'rgba(0,0,0,0.2)', offsetY: 2 })
         .accessibilityGroup(true)
-        .accessibilityText('Search')
+        .accessibilityText($r('app.string.cyl_search_field'))
         .onClick(() => {
           this.searchBarView.setIconified(false, true);
         })
@@ -839,7 +864,7 @@ export struct CYLSearchBarComponent {
             color: `rgba(0,0,0,${this.searchBarView.navigationShadowOpacity * 0.3})`
           })
           .accessibilityGroup(true)
-          .accessibilityText(this.searchBarView.navigationAccessibilityLabel)
+          .accessibilityText(this.resolvedText(this.searchBarView.navigationAccessibilityLabel))
           .onClick(() => {
             this.searchBarView.navigationTapped();
           })
@@ -850,8 +875,9 @@ export struct CYLSearchBarComponent {
             .fontSize(this.searchBarView.font)
             .fontColor($r('sys.color.brand'))
             .maxLines(1)
-            .constraintSize({ minWidth: 44, minHeight: 36 })
+            .constraintSize({ minWidth: 44, minHeight: 44 })
             .textAlign(TextAlign.Center)
+            .accessibilityText(this.resolvedText(this.searchBarView.cancelButtonTitle))
             .onClick(() => {
               this.searchBarView.cancelTapped();
             })

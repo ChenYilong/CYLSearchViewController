@@ -223,6 +223,22 @@
     {
       "name": "cyl_search_voice",
       "value": "语音搜索"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "更多"
+    },
+    {
+      "name": "cyl_search_foldLess",
+      "value": "收起"
+    },
+    {
+      "name": "cyl_search_showMore",
+      "value": "显示更多"
+    },
+    {
+      "name": "cyl_search_showLess",
+      "value": "显示更少"
     }
   ]
 }

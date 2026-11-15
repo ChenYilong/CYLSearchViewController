@@ -146,3 +146,5 @@ Without an emulator, run the pure logic of the HarmonyOS core on the host: `node
 (Node 22.18 or newer). Keep `harmonyos/cylsearch/src/main/ets/CYLSearchLogic.ets` free of kit imports so it runs there.
 Check that the HarmonyOS strings and placeholder images still match iOS after any iOS resource change:
 `node harmonyos/scripts/check-ios-parity.mjs` (exit code 1 lists what is missing or different).
+Check the HarmonyOS screen-reader labels, touch areas and localization: `node harmonyos/scripts/check-accessibility-i18n.mjs`.
+After CYLTabBarController's string table changes, run `node harmonyos/scripts/import-cyltabbar-localizations.mjs` again.
