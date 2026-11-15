@@ -63,8 +63,11 @@ static NSString *CYLSearchTabTitle(NSString *key)
             CYLTabBarSVGASize : [NSValue valueWithCGSize:CGSizeMake(28, 28)],
         }];
     }
+    // `-CYLDemoTabBarStyle flatDesign` (or "liquidGlass", "default"): the same icons in another tab bar style.
+    NSString *style = [NSUserDefaults.standardUserDefaults stringForKey:@"CYLDemoTabBarStyle"] ?: @"default";
     return [CYLTabBarController tabBarControllerWithConfiguration:@{
         CYLTabBarControllerContext : @"CYLSearchExample",
+        CYLTabBarControllerStyleType : style,
         CYLTabBarControllerTabBarItemsAttributes : tabs,
         CYLTabBarControllerTitlePositionAdjustment : [NSValue valueWithUIOffset:UIOffsetMake(0, -2)],
         CYLTabBarControllerPlusButton : @{
