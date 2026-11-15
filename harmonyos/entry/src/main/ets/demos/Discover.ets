@@ -5,7 +5,8 @@ import {
   CYLSearchBarComponent,
   CYLSearchBarItem,
   CYLSearchBarStyle,
-  CYLSearchBarView
+  CYLSearchBarView,
+  cylFoldedTagCount
 } from 'cylsearch';
 import { cylAppText } from '../common/DemoCommon';
 
@@ -32,38 +33,6 @@ const TAG_SPACING: number = 12;
 const TAG_MARGIN: number = 14;
 const CHEVRON_WIDTH: number = 44;
 
-/**
- * How many tags fit in `rows` rows of `width` when the fold chevron (CollectionViewClassifyMenu
- * `CYLMenuFoldControlPositionInline`) must follow the last visible tag; all of them when they fit with the chevron.
- */
-export function cylFoldedTagCount(widths: number[], width: number, rows: number): number {
-  const place = (count: number, extra: number): boolean => {
-    let row = 1;
-    let x = 0;
-    const items = widths.slice(0, count).map((w: number) => Math.min(w, width));
-    if (extra > 0) {
-      items.push(extra);
-    }
-    for (const w of items) {
-      if (x > 0 && x + TAG_SPACING + w > width) {
-        row++;
-        x = w;
-      } else {
-        x = x > 0 ? x + TAG_SPACING + w : w;
-      }
-      if (row > rows) {
-        return false;
-      }
-    }
-    return true;
-  };
-  for (let count = widths.length; count >= 0; count--) {
-    if (place(count, CHEVRON_WIDTH)) {
-      return count;
-    }
-  }
-  return 0;
-}
 
 /**
  * The Discover tab (iOS `CYLSearchDiscoverViewController`, copied from CollectionViewClassifyMenu's CYLMenuExample):
@@ -197,12 +166,14 @@ export struct DiscoverView {
     if (!this.recentFolded || this.listWidth <= 0) {
       return this.recent;
     }
-    const count = cylFoldedTagCount(this.recent.map((title: string) => this.tagWidth(title)), this.listWidth, 2);
+    const count = cylFoldedTagCount(this.recent.map((title: string) => this.tagWidth(title)), this.listWidth, 2, TAG_SPACING,
+      CHEVRON_WIDTH);
     return this.recent.slice(0, count);
   }
 
   private showsChevron(): boolean {
-    return this.listWidth > 0 && (cylFoldedTagCount(this.recent.map((t: string) => this.tagWidth(t)), this.listWidth, 2) <
+    return this.listWidth > 0 && (cylFoldedTagCount(this.recent.map((t: string) => this.tagWidth(t)), this.listWidth, 2, TAG_SPACING,
+      CHEVRON_WIDTH) <
     this.recent.length || !this.recentFolded);
   }
 

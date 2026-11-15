@@ -481,6 +481,22 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
   }
 
   /**
+   * Focuses the field as soon as it is drawn: tries again each frame (up to 30 frames, about half a second) while the
+   * text input does not exist yet, and stops when the bar was iconified again meanwhile.
+   */
+  private showKeyboardWhenDrawn(attempt: number = 0): void {
+    if (this.iconified) {
+      return;
+    }
+    if (focusControl.requestFocus(this.textFieldId) || attempt >= 30) {
+      return;
+    }
+    setTimeout(() => {
+      this.showKeyboardWhenDrawn(attempt + 1);
+    }, 16);
+  }
+
+  /**
    * Focuses the field and returns true (iOS `-becomeFirstResponder`).
    */
   becomeFirstResponder(): boolean {
@@ -524,7 +540,9 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
       apply();
     }
     if (!iconified) {
-      this.showKeyboard();
+      // While iconified the text input is not built; it exists once the open state is drawn (Android posts the
+      // keyboard to the field for the same reason).
+      this.showKeyboardWhenDrawn();
     }
     this.delegate?.searchBarViewDidChangeIconified?.(this, iconified);
   }

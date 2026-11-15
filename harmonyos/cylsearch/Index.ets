@@ -35,7 +35,8 @@ export {
   CYLSearchComponent,
   CYLSearchSuggestionStyle,
   CYLSearchView,
-  CYLSearchViewDelegate
+  CYLSearchViewDelegate,
+  cylFoldedTagCount
 } from './src/main/ets/CYLSearchView';
 export {
   CYLMultiSearchComponent,
