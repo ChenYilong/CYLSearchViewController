@@ -17,6 +17,7 @@ import {
   CYLSnackbar,
   CYLSnackbarView
 } from '../common/DemoCommon';
+import { CYLSpeechRecognizer } from '../common/SpeechRecognizer';
 
 /**
  * The sample screens of MiguelCatalan/MaterialSearchView (iOS `CYLMaterialSearchSample`).
@@ -119,6 +120,7 @@ export struct MaterialSamplePage {
   private context: common.Context = this.getUIContext().getHostContext() as common.Context;
   private searchView: CYLSearchView = new CYLSearchView();
   private snackbar: CYLSnackbar = new CYLSnackbar();
+  private speech: CYLSpeechRecognizer = new CYLSpeechRecognizer();
 
   private title(): string {
     return cylDemoText(this.context, SAMPLE_KEYS[this.param.sample]);
@@ -169,13 +171,16 @@ export struct MaterialSamplePage {
         return false;
       },
       searchViewVoiceButtonClicked: (view: CYLSearchView) => {
-        // REQUEST_VOICE: the example has no speech recognizer on HarmonyOS, so it reports it as iOS does when
-        // recognition is not available.
+        // REQUEST_VOICE + onActivityResult: the first result becomes the query, without submitting it.
         view.searchBarView.placeholder = cylDemoText(this.context, 'demo.port.listening');
-        setTimeout(() => {
+        this.speech.recognize(this.context as common.UIAbilityContext, (text?: string) => {
           view.searchBarView.placeholder = undefined;
-          this.snackbar.show(cylDemoText(this.context, 'demo.port.voiceUnavailable'));
-        }, 600);
+          if (text !== undefined && text.length > 0) {
+            view.setQuery(text, false);
+          } else {
+            this.snackbar.show(cylDemoText(this.context, 'demo.port.voiceUnavailable'));
+          }
+        });
       }
     };
   }

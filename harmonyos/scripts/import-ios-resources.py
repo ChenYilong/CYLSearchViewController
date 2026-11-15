@@ -25,6 +25,9 @@ REFRESH = {
     'zh-Hans': ['下拉可以刷新', '松开立即刷新', '正在刷新数据中...', '最后更新：', '今天', '无记录'],
     'zh-Hant': ['下拉可以刷新', '鬆開立即刷新', '正在刷新數據中...', '最後更新：', '今天', '無記錄'],
 }
+# The microphone permission reason of the Voice sample (iOS NSSpeechRecognitionUsageDescription / NSMicrophoneUsageDescription).
+MICROPHONE = {'en': 'Turns your spoken query into text in the Voice sample.', 'ja': '音声サンプルで話した検索語をテキストにします。',
+              'zh-Hans': '在语音示例中把你说出的搜索词转成文字。', 'zh-Hant': '在語音範例中把你說出的搜尋詞轉成文字。'}
 REFRESH_NAMES = ['refresh_idle', 'refresh_pulling', 'refresh_refreshing', 'refresh_last_time', 'refresh_today',
                  'refresh_none_last_date']
 
@@ -76,6 +79,7 @@ def main():
             for key, value in strings(os.path.join(EXAMPLE, bundle + '.bundle', lang + '.lproj', bundle + '.strings')):
                 items[key.replace('.', '_')] = value
         items.update(zip(REFRESH_NAMES, REFRESH[lang]))
+        items['microphone_reason'] = MICROPHONE[lang]
         write(path, list(items.items()))
         lproj = os.path.join(EXAMPLE, 'CYLSearchDiscover.bundle', lang + '.lproj')
         raw = os.path.join(ENTRY, 'rawfile', 'discover')

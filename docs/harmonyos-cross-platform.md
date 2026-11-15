@@ -42,7 +42,7 @@ and the refresh header are drawn in the example until CYLTabBarController and CY
 libraries; the Voice sample has no speech recognizer yet.
 
 <!-- harmonyos-score:begin -->
-Score: 99/100 (419 of 422 rows; API 397/397, demos 22/25; TODO left 3).
+Score: 99/100 (420 of 422 rows; API 397/397, demos 23/25; TODO left 2).
 <!-- harmonyos-score:end -->
 
 | Date | Change | Score |
@@ -50,6 +50,7 @@ Score: 99/100 (419 of 422 rows; API 397/397, demos 22/25; TODO left 3).
 | 2026-11-16 | Tables listed; the API from harmonyos-api-alignment.md, every demo TODO | 94 |
 | 2026-11-16 | The example rebuilt 1:1 with iOS (25 demos), the iOS placeholder images and texts in the core; compiled with hvigor (app and test HAPs), not run: this Windows machine has no HarmonyOS emulator | 100 |
 | 2026-11-16 | Back to TODO, not 1:1 yet: the tab bar and the refresh header are drawn in the example (CYLTabBarController and CYLTableViewPlaceHolder have no HarmonyOS library), the Voice sample has no speech recognizer | 99 |
+| 2026-11-16 | Voice sample: CoreSpeechKit speech recognition | 99 |
 
 ## Table 1: iOS public API
 
@@ -473,7 +474,7 @@ Score: 99/100 (419 of 422 rows; API 397/397, demos 22/25; TODO left 3).
 | Port: MiguelCatalan/MaterialSearchView, the menu of six samples (`CYLMaterialSearchMenuViewController.swift`) | `demos/MaterialSearch.ets` `MaterialMenuView` |
 | MaterialSearchView sample: Default (`CYLMaterialSearchMenuViewController.swift`) | `MaterialSamplePage` sample 0 |
 | MaterialSearchView sample: Themed (`CYLMaterialSearchMenuViewController.swift`) | `MaterialSamplePage` sample 1 |
-| MaterialSearchView sample: Voice (`CYLMaterialSearchMenuViewController.swift`) | TODO |
+| MaterialSearchView sample: Voice (`CYLMaterialSearchMenuViewController.swift`) | `MaterialSamplePage` sample 2, `common/SpeechRecognizer.ets` (CoreSpeechKit, microphone permission; zh-CN, the engine's only language) |
 | MaterialSearchView sample: Sticky (`CYLMaterialSearchMenuViewController.swift`) | `MaterialSamplePage` sample 3 |
 | MaterialSearchView sample: Tabs (`CYLMaterialSearchMenuViewController.swift`) | `MaterialSamplePage` sample 4 |
 | MaterialSearchView sample: Input type (`CYLMaterialSearchMenuViewController.swift`) | `MaterialSamplePage` sample 5 |

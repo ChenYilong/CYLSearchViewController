@@ -127,6 +127,10 @@
     {
       "name": "refresh_none_last_date",
       "value": "No record"
+    },
+    {
+      "name": "microphone_reason",
+      "value": "Turns your spoken query into text in the Voice sample."
     }
   ]
 }
