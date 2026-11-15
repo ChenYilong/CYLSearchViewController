@@ -19,7 +19,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         registerPages(CYLTabBarPageRegistry.sharedRegistry)
-        val controller = CYLTabBarController.tabBarControllerWithConfigurationFile(this, "CYLTabBarConfiguration.json")
+        // `--es CYLDemoTabIconSource 2` (or the int extra): the same tabs with SVGA icons from
+        // CYLTabBarConfiguration_svga.json (`CYLTabBarSVGAFilePath`), as the iOS example's `-CYLDemoTabIconSource 2`.
+        val svga = (intent.getStringExtra(EXTRA_TAB_ICON_SOURCE)?.toIntOrNull() ?: intent.getIntExtra(EXTRA_TAB_ICON_SOURCE, 0)) == 2
+        val file = if (svga) "CYLTabBarConfiguration_svga.json" else "CYLTabBarConfiguration.json"
+        val controller = CYLTabBarController.tabBarControllerWithConfigurationFile(this, file)
         // `adb shell am start -n com.cyl.search.example/.MainActivity --ei CYLDemoTab 2` selects that tab, for screenshots.
         val tab = intent.getIntExtra(EXTRA_TAB, -1)
         if (tab in controller.viewControllers.indices) {
@@ -51,6 +55,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
+        /**
+         * The intent extra that picks where the tab icons come from: 2 = SVGA (configuration file).
+         */
+        const val EXTRA_TAB_ICON_SOURCE = "CYLDemoTabIconSource"
+
         /**
          * The intent extra that selects a tab at launch.
          */

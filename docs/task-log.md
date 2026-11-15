@@ -303,3 +303,4 @@ begins and becomes `DONE` when it ends.
   these features first, for taps, complex flows and series of actions) in English into the instruction files and the
   skills, creating them if missing."
 - 2026-11-16 DONE: SVGA rows 6-7 (SVGA animation above the Examples list; tab icon source switch), 7/12. Prompt: "go menu switch".
+- 2026-11-16 DONE: SVGA Android row (pin 5682b9e, SVGAPlayer-Android, SVGA config file), 8/12. Prompt: "go android svga".

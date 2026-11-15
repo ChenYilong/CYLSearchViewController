@@ -36,6 +36,8 @@ android {
 
 dependencies {
     implementation(project(":cyltabbar"))
+    // CYLTabBarController plays SVGA tab icons through SVGAPlayer-Android, found by reflection.
+    implementation(libs.svgaplayer)
     implementation(project(":cylsearch"))
     implementation(project(":sample-materialsearchview"))
     implementation(project(":sample-multisearchview"))
