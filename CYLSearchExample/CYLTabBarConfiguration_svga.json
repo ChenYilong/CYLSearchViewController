@@ -13,7 +13,8 @@
       "CYLTabBarItemIdentifier": "search",
       "CYLTabBarItemPageIdentifier": "search",
       "CYLTabBarSVGAFilePath": "tab_search.svga",
-      "CYLTabBarSVGASize": "{28, 28}"
+      "CYLTabBarSVGASize": "{28, 28}",
+      "CYLTabBarSVGADarkFilePath": "tab_activity.svga"
     },
     {
       "CYLTabBarItemTitle": "tab.examples",
@@ -40,7 +41,8 @@
       "CYLTabBarItemIdentifier": "discover",
       "CYLTabBarItemPageIdentifier": "discover",
       "CYLTabBarSVGAFilePath": "tab_home.svga",
-      "CYLTabBarSVGASize": "{28, 28}"
+      "CYLTabBarSVGASize": "{28, 28}",
+      "CYLTabBarSVGADarkFilePath": "tab_profile.svga"
     }
   ],
   "CYLTabBarControllerPlusButton": {

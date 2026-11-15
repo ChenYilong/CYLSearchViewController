@@ -222,8 +222,8 @@ Rive scenes in CYLTabBarController's demos (Example-Rive, Example-SwiftUI-Rive, 
 | Every tab icon animated by Rive (`icons.riv`, `CYLTabBarRiveFilePath`), set with the initialization keys: iOS | DONE: `-CYLDemoTabIconSource 1`, `CYLTabBarSVGAURL` / `CYLTabBarSVGASize` in `tabBarControllerWithConfiguration:` (`CYLSearchExampleAppDelegate.m`) |
 | The same tab icons from a configuration file (`cyl_tabbar_configuration*.json`): iOS | DONE: `-CYLDemoTabIconSource 2`, `CYLTabBarConfiguration_svga.json` (`CYLTabBarSVGAFilePath`) |
 | Tab icons in all three styles: Liquid Glass, FlatDesign, classic | DONE: Liquid Glass (above); FlatDesign with `-CYLDemoTabBarStyle flatDesign` (keys mode, `CYLFlatDesignTabBar` subspec); classic on iOS 17.5, both modes |
-| Dark mode animation file (`CYLTabBarRiveDarkURL`) | TODO |
-| Plus button with its own page (purple "Start", `rive_plus.png`) | TODO |
+| Dark mode animation file (`CYLTabBarRiveDarkURL`) | DONE: `CYLTabBarSVGADarkURL` / `CYLTabBarSVGADarkFilePath` for Search (`tab_activity`) and Discover (`tab_profile`), both modes. Found: switching back to light while running keeps the dark files (CYLTabBarController, not fixed here) |
+| Plus button with its own page (purple "Start", `rive_plus.png`) | DONE: the "Search bar" plus button opens its own page with the SVGA tab icons (tapped with `axe`) |
 | In-page animation above a list (Bell page, `menu_button.riv`, `RiveMenuButtonDemoView`) | TODO |
 | Switching a tab icon at runtime (`-updateTabBarItemForViewController:attributes:`, Rive ↔ SVGA button) | TODO |
 | SwiftUI host (Example-SwiftUI-Rive) | TODO |
@@ -232,7 +232,7 @@ Rive scenes in CYLTabBarController's demos (Example-Rive, Example-SwiftUI-Rive, 
 | React Native (`example-rive`, `<CYLAnimationView>`) | TODO (waits for SVGA in `react-native-cyltabbar`) |
 | WeChat mini program (`cyl-rive`) | TODO (waits for an SVGA mini program package) |
 
-Score: 3/12.
+Score: 5/12.
 
 iOS example, SVGA tab icons (Search selected, its animation on the last frame). Top to bottom: initialization keys;
 configuration file. CYL 17Pro simulator, iOS 26.3, Debug, CYLTabBarController `5682b9e` (`CYLTabBarController/SVGA`),
@@ -249,3 +249,11 @@ classic, initialization keys; classic, configuration file (iPhone 15 Pro, iOS 17
 ![SVGA tab icons, FlatDesign, iOS 26.3](assets/ios-svga-tab-icons-flatdesign-ios26.3.png)
 ![SVGA tab icons, classic, keys, iOS 17.5](assets/ios-svga-tab-icons-classic-keys-ios17.5.png)
 ![SVGA tab icons, classic, configuration file, iOS 17.5](assets/ios-svga-tab-icons-classic-configuration-ios17.5.png)
+
+Dark mode and the plus page, top to bottom: dark, initialization keys; dark, configuration file (Search shows its dark
+file `tab_activity`, Discover `tab_profile`); the plus button's page selected, after switching back to light (Search
+and Discover still show the dark files). CYL 17Pro, iOS 26.3, Debug, base a4ccf9f, 2026-11-16 10:03.
+
+![SVGA dark mode, keys](assets/ios-svga-dark-keys-ios26.3.png)
+![SVGA dark mode, configuration file](assets/ios-svga-dark-configuration-ios26.3.png)
+![Plus button page with SVGA tab icons](assets/ios-svga-plus-page-ios26.3.png)
