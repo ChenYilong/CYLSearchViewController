@@ -99,6 +99,21 @@ Status on this machine (checked 2026-11-16): the file says `<countryregion name=
 4. Install and run: `hdc install <path>\entry-default-unsigned.hap`, or Run in DevEco Studio. Run the hypium tests
    from DevEco Studio or with the test HAP.
 
+### No signing for the emulator (rule, 2026-11-16)
+
+Emulator runs and tests need no signing. Keep `signingConfigs` empty in `harmonyos/build-profile.json5`, ignore the
+hvigor note "If needed, configure the signingConfigs", and install the unsigned HAPs directly:
+
+```powershell
+$hdc = 'C:\Program Files\Huawei\DevEco Studio\sdk\default\openharmony\toolchains\hdc.exe'
+& $hdc install -r C:\cylbuild\harmonyos\entry\build\default\outputs\default\entry-default-unsigned.hap
+& $hdc install -r C:\cylbuild\harmonyos\entry\build\default\outputs\ohosTest\entry-ohosTest-unsigned.hap
+& $hdc shell aa test -b com.cyl.search.harmonyos -m entry_test -s unittest OpenHarmonyTestRunner -s timeout 15000
+```
+
+Do not ask for a signing certificate, a profile or automatic signing before an emulator run. Signing is needed only
+for a real device or a release, and is out of scope until the user asks for it.
+
 ## Troubleshooting
 
 | Symptom | Cause | Fix |
