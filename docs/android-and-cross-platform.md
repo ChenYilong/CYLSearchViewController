@@ -40,6 +40,20 @@ Native) for the CYLSearchViewController components.
     placeholders, an API table.
 
     ![WeChat Mini Program in DevTools](assets/miniprogram-search-devtools.png)
+  - TODO (2026-11-15): publish the mini program library to npm. Prompt (verbatim): "在跨端相关文档中标记TODO：小程序封装成库
+    cyl- 开头的小程序库，用 npm 打包加「构建 npm」实际验证过。提醒我的话先运行 ! npm login。 然后继续你未完成的任务。"
+    - Done: the mini program is packaged as the library `cyl-search-miniprogram` (`cyl-` like CYLTableViewPlaceHolder's
+      `cyl-placeholder-miniprogram` and CYLTabBarController's `cyl-tabbar-miniprogram`), checked as a library: `npm pack`,
+      the tarball installed into a new mini program, WeChat DevTools' Build npm, the components rendered and
+      `require('cyl-search-miniprogram')` resolved (`docs/miniprogram-api-alignment.md`, "cyl-search-miniprogram as a mini
+      program library"). The example is consistent with iOS first, as the user asked (same document, "the example as on
+      iOS, before publishing to npm").
+    - Left: `npm publish` from `CrossPlatform/wechat-miniprogram-cylsearch`. Reminder for the user: run `! npm login`
+      first (in the Claude Code prompt), then ask for the publish. Check before publishing: the name is free on npm
+      (2026-11-15: `npm view cyl-search-miniprogram` gives 404, so are `cyl-placeholder-miniprogram` and
+      `cyl-tabbar-miniprogram`), the version (`0.1.0`), `npm pack --dry-run` lists only `src/`, `README.md` and `LICENSE`.
+    - Also open: the dark appearance is configured but not seen (switch the DevTools simulator to dark mode); DevTools
+      asks once in its own window before running the project's sync hooks.
 - Status (2026-11-14): Android DONE (`android/merged`, API alignment 395 rows, 100/100); Flutter DONE
   (`CrossPlatform/flutter_cylsearch`, tests pass); React Native DONE except the touch checks on iOS and the tab bar
   (its own entry below); HarmonyOS NEXT open (its own entry below, 0/323).
