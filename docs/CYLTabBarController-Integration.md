@@ -227,12 +227,12 @@ Rive scenes in CYLTabBarController's demos (Example-Rive, Example-SwiftUI-Rive, 
 | In-page animation above a list (Bell page, `menu_button.riv`, `RiveMenuButtonDemoView`) | DONE: `CYLSVGADemoHeaderView` above the Examples list: `tab_activity.svga` plays once, tap to play again (`SVGAPlayer`, accessibility label and hint) |
 | Switching a tab icon at runtime (`-updateTabBarItemForViewController:attributes:`, Rive ↔ SVGA button) | DONE: "Tab icons: …" button cycles SF Symbols → SVGA keys → SVGA file and rebuilds the tab bar (as Example-Rive's "Tab icon source" button); the choice is kept |
 | SwiftUI host (Example-SwiftUI-Rive) | TODO |
-| Android (`example-rive`, `CYLRiveTabBarItemAnimator`) | TODO |
+| Android (`example-rive`, `CYLRiveTabBarItemAnimator`) | DONE: `android/merged` pins CYLTabBarController `5682b9e` (`CYLSVGATabBarItemAnimator`) + SVGAPlayer-Android 2.6.1 (JitPack); `--es CYLDemoTabIconSource 2` loads `CYLTabBarConfiguration_svga.json` |
 | Flutter (`example_rive`) | TODO (waits for SVGA in `flutter_cyltabbar`) |
 | React Native (`example-rive`, `<CYLAnimationView>`) | TODO (waits for SVGA in `react-native-cyltabbar`) |
 | WeChat mini program (`cyl-rive`) | TODO (waits for an SVGA mini program package) |
 
-Score: 7/12.
+Score: 8/12.
 
 iOS example, SVGA tab icons (Search selected, its animation on the last frame). Top to bottom: initialization keys;
 configuration file. CYL 17Pro simulator, iOS 26.3, Debug, CYLTabBarController `5682b9e` (`CYLTabBarController/SVGA`),
@@ -265,3 +265,9 @@ was tapped by coordinates: `axe` lists every element twice, so its accessibility
 ![Source switch, tap 1](assets/ios-svga-menu-switch-1-ios26.3.png)
 ![Source switch, tap 2](assets/ios-svga-menu-switch-2-ios26.3.png)
 ![Source switch, tap 3](assets/ios-svga-menu-switch-3-ios26.3.png)
+
+Android, top to bottom: SVGA icons (`--es CYLDemoTabIconSource 2`); the default icons. Emulator emulator-5554, debug
+APK, base b08c020, 2026-11-16 12:28. Build and `:cylsearch:testDebugUnitTest` pass with the new pin.
+
+![Android, SVGA tab icons](assets/android-svga-tab-icons-configuration.png)
+![Android, default tab icons](assets/android-tab-icons-default.png)
