@@ -1,0 +1,14 @@
+{
+  "string": [
+    { "name": "module_desc", "value": "CYLSearch 示例" },
+    { "name": "EntryAbility_desc", "value": "CYLSearch 示例" },
+    { "name": "EntryAbility_label", "value": "CYLSearch" },
+    { "name": "discover_title", "value": "发现" },
+    { "name": "discover_search", "value": "搜索" },
+    { "name": "discover_image_search", "value": "以图搜索" },
+    { "name": "discover_image_unavailable", "value": "本示例暂不支持以图搜索" },
+    { "name": "discover_searching", "value": "正在搜索：%s" },
+    { "name": "discover_recent", "value": "最近搜索" },
+    { "name": "discover_open_search", "value": "打开搜索" }
+  ]
+}

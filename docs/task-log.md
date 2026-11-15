@@ -205,4 +205,6 @@ begins and becomes `DONE` when it ends.
   and `aa start` opens it. Screenshots (commit `ca56d68`, original 1316×2832), top to bottom:
   1. ![Discover](assets/harmonyos-discover-emulator-unsigned.jpeg)
   2. ![Search, empty cache](assets/harmonyos-search-empty-cache-emulator-unsigned.jpeg)
-  Open: the empty placeholder reads "暂无数据" in an English UI; hypium tests not run yet.
+  Fixed ("fix 1"): the emulator runs in zh-CN; the library was localized ("暂无数据" is its zh_CN string) but the
+  example hard-coded English. The example strings are now resources (`entry/.../base` and `zh_CN/element/string.json`),
+  read with `getStringByNameSync`; the screenshots above are retaken in Chinese. Open: hypium tests not run yet.
