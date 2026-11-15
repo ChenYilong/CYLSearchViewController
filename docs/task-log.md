@@ -282,3 +282,4 @@ begins and becomes `DONE` when it ends.
   what was found; second column: TODO by default); remove a TODO each time one is done; no TODO = full score; keep going
   until full score."
 - 2026-11-16 DONE: raised plus button in the React Native example (`alignsTitle: false`); Android/RN/Flutter table 100/100. Prompt: "continue do plus".
+- 2026-11-16 DONE: RN raised plus icon green again (52 pt PNG instead of `imageSize`, which drew the SF Symbol black). Prompt: "green".
