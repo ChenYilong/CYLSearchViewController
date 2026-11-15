@@ -1,3 +1,5 @@
+import { UIContext } from '@kit.ArkUI';
+import { cylAnimate } from './CYLSearchAnimation';
 import { CYLSearchResultsComponent, CYLSearchResultsDataSource, CYLSearchResultsViewController } from './CYLSearchResultsViewController';
 
 /**
@@ -16,6 +18,10 @@ export interface CYLSearchControllerDelegate {
  */
 @ObservedV2
 export class CYLSearchController {
+  /**
+   * The UI context of the component that draws it, set by that component; animations use it.
+   */
+  uiContext: UIContext | undefined = undefined;
   /**
    * Receives the cancel event.
    */
@@ -64,7 +70,7 @@ export class CYLSearchController {
     if (this.shown) {
       return;
     }
-    animateTo({ duration: this.animationDuration * 1000, curve: Curve.EaseOut }, () => {
+    cylAnimate(this.uiContext, { duration: this.animationDuration * 1000, curve: Curve.EaseOut }, () => {
       this.shown = true;
     });
     setTimeout(() => {
@@ -95,7 +101,7 @@ export class CYLSearchController {
       return;
     }
     this.resultsViewController.searchController.hideKeyboard();
-    animateTo({
+    cylAnimate(this.uiContext, {
       duration: this.animationDuration * 1000,
       curve: Curve.EaseIn,
       onFinish: () => {
@@ -116,6 +122,10 @@ export struct CYLSearchOverlayComponent {
    * The controller to draw.
    */
   @Require @Param controller: CYLSearchController;
+
+  aboutToAppear(): void {
+    this.controller.uiContext = this.getUIContext();
+  }
 
   build() {
     Stack() {

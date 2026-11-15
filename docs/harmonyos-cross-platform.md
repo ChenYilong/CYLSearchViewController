@@ -91,21 +91,22 @@ The ArkTS core was compared with `android/merged/cylsearch` file by file; these 
 | 3 | Screen-reader announcement "Recent searches cleared" after `clearSuggestionCache` (iOS `UIAccessibility.post(.announcement)`, Android `announceForAccessibility`) | DONE | `accessibility.sendAccessibilityEvent` with `announceForAccessibility`; test `clearSuggestionCacheWithoutContextDoesNotThrow` |
 | 4 | Focus delay of an iconified bar: opening it focuses the field once the text input is drawn (Android posts to the field) | DONE | `CYLSearchBarView.showKeyboardWhenDrawn` retries each frame, up to 30 |
 | 5 | One fold measurement: the Discover page uses the core `cylFoldedTagCount` instead of its own copy | DONE | `entry/src/main/ets/demos/Discover.ets` imports it from `cylsearch` |
-| 6 | App HAP and test HAP compile, with no new warning in the changed files | DONE | hvigor `BUILD SUCCESSFUL` for `entry@default` and `entry@ohosTest` (2026-11-16, DevEco Studio `DS-243.24978.46.36.601251`); warnings left: the older `animateTo` deprecations |
-| 7 | Mate 70 Pro emulator (HarmonyOS 6.0.1, API 21) created and listed by `hdc list targets` | TODO | Blocked: the system image is still downloading (2026-11-16) |
+| 6 | App HAP and test HAP compile, with no new warning in the changed files | DONE | hvigor `BUILD SUCCESSFUL` for `entry@default` and `entry@ohosTest` (2026-11-16, DevEco Studio `DS-243.24978.46.36.601251`); the older `animateTo` warnings were removed in row 11 |
+| 7 | Mate 70 Pro emulator (HarmonyOS 6.0.1, API 21) created and listed by `hdc list targets` | TODO | The HarmonyOS 6.0.1 `phone_all_x86` image is downloaded; the emulator instance is not created yet (Device Manager only; the `Emulator.exe` CLI can start but not create one) |
 | 8 | Hypium tests (`CYLSearchCore`, `CYLSearchUI`) run on the emulator, all pass | TODO | Needs row 7 |
 | 9 | Each of the 25 demos launched on the emulator and checked 1:1 with iOS; screenshots committed in `docs/assets/` with labels, rows 1 to 4 checked on screen (VoiceOver-equivalent ScreenReader for row 3) | TODO | Needs row 7 |
+| 10 | The `database` cache policy is a real SQLite database (`relationalStore`, table `queries` with `cache`, `query`, `time`, as Android `SQLiteOpenHelper`), not a preferences store; the queries kept by the older preferences store move into it once (`docs/core-todo.md` rule 5: a database first) | DONE | `CYLSearchSuggestionStore` (`cyl_search_suggestions.db`); reads mirrored in memory, writes queued in order, `whenStored()`, `onLoad` refreshes the list; test `databasePolicyKeepsQueriesInSQLite` |
+| 11 | No compiler warning in `cylsearch`: the deprecated global `animateTo` replaced by `UIContext.animateTo` (`cylAnimate`, the context set by each drawing component), every throwing call handled | DONE | hvigor `BUILD SUCCESSFUL` for `entry@default` and `entry@ohosTest` with no `cylsearch` warning (2026-11-16; before: 6 `animateTo` and 1 throw warning) |
 
 <!-- harmonyos-score2:begin -->
-Score: 66/100 (6 of 9 rows DONE; TODO left 3, all waiting for the emulator).
+Score: 72/100 (8 of 11 rows DONE; TODO left 3, all waiting for the emulator).
 <!-- harmonyos-score2:end -->
 
 | Date | Change | Score |
 | :--- | :--- | ---: |
 | 2026-11-16 | Scorecard made; rows 1 to 6 done and compiled | 66 |
+| 2026-11-16 | Rows 10 and 11 added and done: SQLite suggestion cache, no `cylsearch` warnings | 72 |
 
-- Follow-up outside the score: `animateTo` is deprecated (6 warnings in `cylsearch`); the classes have no
-  `UIContext`, so moving to `UIContext.animateTo` needs the component to hand its context to the view. Not started.
 
 ## Score
 
