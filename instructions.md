@@ -310,6 +310,8 @@ remote. Name the base branch in the reply.
 - Region: the developer is in New Zealand, but the emulator needs the region China. With DevEco Studio closed,
   `%APPDATA%\Huawei\DevEcoStudio6.0\options\country.region.xml` must say `<countryregion name="CN"/>` (not `NZ`);
   check it before creating an emulator. Full rule: `AGENTS.md`, same section.
+- Signing: emulator runs and tests need no signing. Install the unsigned HAPs with `hdc install`; do not configure
+  `signingConfigs` or ask for a certificate unless the user asks for a device or release build (2026-11-16).
 
 ## Mini program example: a 1:1 copy of the iOS example (added 2026-11-15)
 

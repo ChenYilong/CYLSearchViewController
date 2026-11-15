@@ -417,6 +417,9 @@ marks it `DONE`.
      original as `country.region.xml.bak-NZ`.
   4. Emulator: Device Manager > Local Emulator > New Emulator > Mate 70 Pro, HarmonyOS 6.0.1 (API 21); check with
      `hdc list targets`; install with `hdc install`.
+  5. Signing (user, 2026-11-16: "模拟器 测试 不需要签名 跳过签名", "emulator tests need no signing; skip signing"):
+     emulator runs and tests use the unsigned HAPs; keep `signingConfigs` empty and do not ask for a certificate,
+     a profile or automatic signing. Signing is needed only for a real device or a release, when the user asks.
 - Status on the Windows machine (checked 2026-11-16): the region file says `<countryregion name="CN"/>`, a hypervisor
   is present, 64 GB RAM, and the HarmonyOS 6.0.1 `phone_all_x86` image was downloading.
 
