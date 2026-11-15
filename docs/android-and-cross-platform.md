@@ -3,6 +3,20 @@
 This document tracks support for Android, HarmonyOS NEXT and the cross-platform frameworks (Flutter, then React
 Native) for the CYLSearchViewController components.
 
+## Open TODOs: Android, React Native, Flutter (2026-11-16)
+
+Collected from every cross-platform document. A row's TODO is removed when it is done; no TODO left = full score.
+
+| Found | Status |
+|:---|:---|
+| `android-and-cross-platform.md`, status line: "React Native DONE except the touch checks on iOS and the tab bar" (stale; both done 2026-11-15) | DONE: line updated |
+| `android-and-cross-platform.md`, React Native entry: "Still open: touch checks on iOS … no tap tool exists" (stale; `axe` touch checks done, `a3f48b0`) | DONE: line updated |
+| Android: system Back while typing in `CYLMultiSearchView` did not end the search (parity with the HarmonyOS fix) | DONE: `OnBackPressedCallback`, Robolectric test, 17/17 |
+| `task-log.md`: "Android animated placeholder (waits for CYLTableViewPlaceHolder PR #28)" | DONE: PR #28 merged (`7bc27a1`), pin `6d8b264` |
+| React Native iOS example: plus button not raised above the bar on iOS 26 (CYLTabBarController gap; skipped by the user 2026-11-15) | TODO |
+
+Score: 4/5 = 80.
+
 ## IN PROGRESS (TODO 2026-11-12): Android, HarmonyOS NEXT, Flutter, then React Native (Android, Flutter and React Native done; HarmonyOS compiles only; mini programs run in WeChat DevTools)
 
 - Context: CYLSearchViewController is iOS only today (Objective-C core in `Sources/CYLSearchViewController/`:
@@ -55,8 +69,7 @@ Native) for the CYLSearchViewController components.
     - Also open: the dark appearance is configured but not seen (switch the DevTools simulator to dark mode); DevTools
       asks once in its own window before running the project's sync hooks.
 - Status (2026-11-14): Android DONE (`android/merged`, API alignment 395 rows, 100/100); Flutter DONE
-  (`CrossPlatform/flutter_cylsearch`, tests pass); React Native DONE except the touch checks on iOS and the tab bar
-  (its own entry below); HarmonyOS NEXT open (its own entry below, 0/323).
+  (`CrossPlatform/flutter_cylsearch`, tests pass); React Native DONE (touch checks and tab bar included, its own entry below); HarmonyOS NEXT open (its own entry below, 0/323).
 - Order of work: Android → HarmonyOS NEXT compatibility → Flutter (tests pass) → React Native.
 - Decisions (user, 2026-11-13):
   - Flutter wraps the native core, like CYLTabBarController's `flutter_cyltabbar`: a plugin
@@ -280,8 +293,7 @@ Native) for the CYLSearchViewController components.
 
       ![React Native iOS: Discover with CYLTabBarController's tab bar; iPhone 17, iOS 26.3.1, Release, 2026-11-14 22:51](assets/rn-ios-discover-cyltabbar-iphone17-ios26.3.1.png)
 
-  - Still open: touch checks on iOS (above; the tab bar can now also be tapped through its accessibility labels, but no
-    tap tool exists). The pins are done: CYLTableViewPlaceHolder `bdd78c7`, CYLTabBarController `2a12582` on every
+  - Touch checks on iOS: DONE 2026-11-15 (next item). The pins are done: CYLTableViewPlaceHolder `bdd78c7`, CYLTabBarController `2a12582` on every
     platform.
 - Touch checks on iOS (2026-11-15, iPhone 17, iOS 26.3.1, Release): `axe` bundled with xcodebuildmcp
   (`/opt/homebrew/Cellar/xcodebuildmcp/2.7.0/libexec/bundled/axe`) taps by accessibility label. "Open search" opens
