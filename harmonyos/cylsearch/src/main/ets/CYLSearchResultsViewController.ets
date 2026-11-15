@@ -121,6 +121,8 @@ export struct CYLSearchResultsComponent {
                 .constraintSize({ minHeight: 44 })
                 .padding({ left: 16, right: 16, top: 8, bottom: 8 })
             }
+            // One element for screen readers: the result's text.
+            .accessibilityGroup(true)
             .onClick(() => {
               this.controller.resultSelected(result);
             })

@@ -480,3 +480,17 @@ marks it `DONE`.
 ## Core behavior: focus alone changes nothing below the search bar (added 2026-11-13)
 
 - Focusing the search field (cursor shown, keyboard up) without typing changes nothing below the search bar: the area under it (the cached queries and their header, the suggestions, the empty placeholder) looks exactly as it does while the field is not focused. That area is updated only when the person changes the text (typing, deleting, pasting, the clear button, a selected suggestion) or when its data changes (a submitted query, the cache cleared). Rule list: `docs/core-todo.md`, "Core behavior rules".
+
+## Accessibility and localization on every platform; UI tests locate controls through them (added 2026-11-16)
+
+- All code of this project (the core, every port and every example, HarmonyOS included) supports visual accessibility
+  and screen readers for blind users (VoiceOver, TalkBack, HarmonyOS ScreenReader), and internationalization /
+  localization through localization files. Every control a user can tap or read has an accessibility label (and a hint
+  where the action is not obvious), tappable rows are one accessibility element, and every user-facing text comes from
+  a localization file, never a hard-coded string (HarmonyOS: `$r('app.string.…')` in `resources/<locale>/element/string.json`;
+  translations shared with CYLTabBarController are copied from its `CYLTabBarController.bundle/*.lproj`).
+- If something turns out not to support them, add the support first, then continue the task.
+- In automated UI tests, locate controls through these features first: accessibility identifiers / labels (iOS
+  `accessibilityIdentifier` / `accessibilityLabel`, Android `contentDescription`, HarmonyOS `.id()` /
+  `accessibilityText`, `ON.id` / `ON.accessibilityText`), then localized text. Use them to trigger taps, complex flows and
+  series of actions; coordinates are the last resort.
