@@ -42,13 +42,14 @@ and the refresh header are drawn in the example until CYLTabBarController and CY
 libraries; the Voice sample has no speech recognizer yet.
 
 <!-- harmonyos-score:begin -->
-Score: 100/100 (422 of 422 rows; API 397/397, demos 25/25; TODO left 0).
+Score: 99/100 (419 of 422 rows; API 397/397, demos 22/25; TODO left 3).
 <!-- harmonyos-score:end -->
 
 | Date | Change | Score |
 | :--- | :--- | ---: |
 | 2026-11-16 | Tables listed; the API from harmonyos-api-alignment.md, every demo TODO | 94 |
 | 2026-11-16 | The example rebuilt 1:1 with iOS (25 demos), the iOS placeholder images and texts in the core; compiled with hvigor (app and test HAPs), not run: this Windows machine has no HarmonyOS emulator | 100 |
+| 2026-11-16 | Back to TODO, not 1:1 yet: the tab bar and the refresh header are drawn in the example (CYLTabBarController and CYLTableViewPlaceHolder have no HarmonyOS library), the Voice sample has no speech recognizer | 99 |
 
 ## Table 1: iOS public API
 
@@ -459,9 +460,9 @@ Score: 100/100 (422 of 422 rows; API 397/397, demos 25/25; TODO left 0).
 <!-- harmonyos-demos:begin -->
 | iOS example demo | HarmonyOS implementation |
 | :--- | :--- |
-| Tab bar: CYLTabBarController with Search, Examples, Tag style, Discover and the plus button (CYLTabBarConfiguration.json) (`CYLSearchExampleAppDelegate.m`) | `pages/Index.ets` (ArkUI `Tabs`, the same five items; CYLTabBarController has no HarmonyOS library yet) |
+| Tab bar: CYLTabBarController with Search, Examples, Tag style, Discover and the plus button (CYLTabBarConfiguration.json) (`CYLSearchExampleAppDelegate.m`) | TODO |
 | Search tab: Issue #1317 reproduction, the search bar in the navigation bar over a list (CYLSearchController + CYLSearchResultsViewController) (`CYLSearchExampleViewController.swift`) | `demos/SearchExample.ets` `SearchExampleView` (Repro, Overlay with `CYLSearchController`) |
-| Search tab: pull to refresh with CYLTableViewPlaceHolder's CYLRefreshNormalHeader (`CYLSearchExampleViewController.swift`) | `demos/RefreshHeader.ets` `CYLRefreshNormalHeader` in ArkUI `Refresh` (CYLTableViewPlaceHolder has no HarmonyOS library yet) |
+| Search tab: pull to refresh with CYLTableViewPlaceHolder's CYLRefreshNormalHeader (`CYLSearchExampleViewController.swift`) | TODO |
 | Search tab: the empty state, CYLSearchPlaceholderView "No matching results" (`CYLSearchExampleViewController.swift`) | `SearchExampleView` with `CYLSearchPlaceholderView.withKind(noResults)` |
 | Examples tab: the menu (Search and refresh, Placeholder styles, Search bar, Ports) (`CYLSearchDemoMenuViewController.m`) | `demos/ExamplesMenu.ets` `ExamplesMenuView` |
 | Placeholder styles: the 41 styles x 4 messages and the Custom section (text only, image only, both) (`CYLSearchDemoMenuViewController.m`) | `PlaceholderGalleryPage` (the iOS images, `imageForStyle`) |
@@ -472,7 +473,7 @@ Score: 100/100 (422 of 422 rows; API 397/397, demos 25/25; TODO left 0).
 | Port: MiguelCatalan/MaterialSearchView, the menu of six samples (`CYLMaterialSearchMenuViewController.swift`) | `demos/MaterialSearch.ets` `MaterialMenuView` |
 | MaterialSearchView sample: Default (`CYLMaterialSearchMenuViewController.swift`) | `MaterialSamplePage` sample 0 |
 | MaterialSearchView sample: Themed (`CYLMaterialSearchMenuViewController.swift`) | `MaterialSamplePage` sample 1 |
-| MaterialSearchView sample: Voice (`CYLMaterialSearchMenuViewController.swift`) | `MaterialSamplePage` sample 2 (no speech recognizer yet: reports it unavailable, as iOS does without one) |
+| MaterialSearchView sample: Voice (`CYLMaterialSearchMenuViewController.swift`) | TODO |
 | MaterialSearchView sample: Sticky (`CYLMaterialSearchMenuViewController.swift`) | `MaterialSamplePage` sample 3 |
 | MaterialSearchView sample: Tabs (`CYLMaterialSearchMenuViewController.swift`) | `MaterialSamplePage` sample 4 |
 | MaterialSearchView sample: Input type (`CYLMaterialSearchMenuViewController.swift`) | `MaterialSamplePage` sample 5 |
