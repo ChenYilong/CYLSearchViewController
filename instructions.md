@@ -313,6 +313,15 @@ remote. Name the base branch in the reply.
 - Signing: emulator runs and tests need no signing. Install the unsigned HAPs with `hdc install`; do not configure
   `signingConfigs` or ask for a certificate unless the user asks for a device or release build (2026-11-16).
 
+## HarmonyOS: screen readers and localization (added 2026-11-16)
+
+- Every tappable element of the library has a screen-reader label in the app's language, touch areas are at least
+  44 vp, list items read their position and selected state, and state changes are announced.
+- No English text in the library's UI code. en, ja, zh-Hans and zh-Hant come from iOS; other languages are copied
+  from CYLTabBarController's string table, filtered to the texts this project uses
+  (`harmonyos/scripts/import-cyltabbar-localizations.mjs`). Check with `harmonyos/scripts/check-accessibility-i18n.mjs`.
+  Full rule: `AGENTS.md`, same section.
+
 ## Mini program example: a 1:1 copy of the iOS example (added 2026-11-15)
 
 - The mini program example replicates `CYLSearchExample` one to one (tabs, pages, texts in en/ja/zh-Hans/zh-Hant,

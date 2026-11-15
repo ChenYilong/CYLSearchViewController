@@ -256,6 +256,16 @@ export struct CYLMultiSearchComponent {
    */
   @Require @Param multiSearchView: CYLMultiSearchView;
 
+  // "Search 2 of 3" in the language the app shows (iOS `multisearch.item`).
+  private positionText(position: number, count: number): string {
+    try {
+      return this.getUIContext().getHostContext()?.resourceManager
+        .getStringSync($r('app.string.cyl_multisearch_item').id, position, count) ?? '';
+    } catch (error) {
+      return '';
+    }
+  }
+
   private accent(): ResourceColor {
     return this.multiSearchView.indicatorColor ?? $r('sys.color.brand');
   }
@@ -276,6 +286,8 @@ export struct CYLMultiSearchComponent {
                     .fontSize(18)
                     .fontColor([this.accent()])
                     .accessibilityText($r('app.string.cyl_multisearch_remove'))
+                    // A 44 vp touch area around the 18 vp icon, without changing the layout.
+                    .responseRegion({ x: -13, y: -13, width: 44, height: 44 })
                     .onClick(() => {
                       this.multiSearchView.removeItemAtIndex(index);
                     })
@@ -287,6 +299,9 @@ export struct CYLMultiSearchComponent {
                 .opacity(index === this.multiSearchView.selectedIndex ? 1 : 0)
             }
             .opacity(index === this.multiSearchView.selectedIndex ? 1 : this.multiSearchView.unselectedItemAlpha)
+            // Screen readers hear the position and whether it is selected (iOS `multisearch.item`).
+            .accessibilityDescription(this.positionText(index + 1, this.multiSearchView.completedSearchTexts.length))
+            .accessibilitySelected(index === this.multiSearchView.selectedIndex)
             .onClick(() => {
               this.multiSearchView.selectItemAtIndex(index);
             })

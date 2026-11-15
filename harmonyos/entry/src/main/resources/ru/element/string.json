@@ -2,11 +2,7 @@
   "string": [
     {
       "name": "discover_ok",
-      "value": "ОК"
-    },
-    {
-      "name": "discover_hot",
-      "value": "хит"
+      "value": "OK"
     }
   ]
 }

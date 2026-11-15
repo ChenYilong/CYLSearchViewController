@@ -258,7 +258,7 @@ export struct DiscoverView {
                 .justifyContent(FlexAlign.Center)
                 .backgroundColor($r('sys.color.background_primary'))
                 .border({ width: 1, color: $r('sys.color.comp_divider') })
-                .accessibilityText(this.recentFolded ? 'Show more' : 'Show less')
+                .accessibilityText(this.recentFolded ? $r('app.string.cyl_search_showMore') : $r('app.string.cyl_search_showLess'))
                 .id('CYLSearchDiscoverFold')
                 .onClick(() => {
                   this.recentFolded = !this.recentFolded;

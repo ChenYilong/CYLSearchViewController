@@ -225,23 +225,19 @@
       "value": "音声検索"
     },
     {
-      "name": "cyl_search_suggestion_hint",
-      "value": "ダブルタップして検索"
-    },
-    {
-      "name": "cyl_search_fold_more",
+      "name": "cyl_search_foldMore",
       "value": "もっと見る"
     },
     {
-      "name": "cyl_search_fold_less",
+      "name": "cyl_search_foldLess",
       "value": "閉じる"
     },
     {
-      "name": "cyl_search_show_more",
-      "value": "さらに表示"
+      "name": "cyl_search_showMore",
+      "value": "もっと表示"
     },
     {
-      "name": "cyl_search_show_less",
+      "name": "cyl_search_showLess",
       "value": "表示を減らす"
     }
   ]

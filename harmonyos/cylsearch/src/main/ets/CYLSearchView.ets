@@ -676,6 +676,15 @@ export struct CYLSearchComponent {
     return 44;
   }
 
+  // A resource in the language the app shows, as a string (to measure it).
+  private resolvedText(value: Resource): string {
+    try {
+      return this.getUIContext().getHostContext()?.resourceManager.getStringSync(value.id) ?? '';
+    } catch (error) {
+      return '';
+    }
+  }
+
   private textWidth(text: string, fontSize: number): number {
     const size = this.getUIContext().getMeasureUtils().measureTextSize({ textContent: text, fontSize: fontSize });
     return this.getUIContext().px2vp(Number(size.width));
@@ -687,7 +696,8 @@ export struct CYLSearchComponent {
 
   private foldControlWidth(): number {
     if (this.searchView.suggestionsFoldControl.content === CYLMenuFoldControlContent.title) {
-      return Math.max(this.textWidth('More', 14), this.textWidth('Less', 14)) + 12 * 2 + 2;
+      return Math.max(this.textWidth(this.resolvedText($r('app.string.cyl_search_foldMore')), 14),
+        this.textWidth(this.resolvedText($r('app.string.cyl_search_foldLess')), 14)) + 12 * 2 + 2;
     }
     return 44;
   }
@@ -788,9 +798,9 @@ export struct CYLSearchComponent {
               this.searchView.suggestionCellConfiguration.builder(suggestion, index)
             }
             .width('100%')
+            // A cell of yours is read as one element with the suggestion as its label.
             .accessibilityGroup(true)
             .accessibilityText(suggestion)
-            .accessibilityDescription($r('app.string.cyl_search_suggestion_hint'))
             .onClick(() => {
               this.searchView.suggestionSelected(suggestion, index);
             })
@@ -810,7 +820,8 @@ export struct CYLSearchComponent {
   foldControl() {
     Row() {
       if (this.searchView.suggestionsFoldControl.content === CYLMenuFoldControlContent.title) {
-        Text(this.searchView.suggestionsFolded ? $r('app.string.cyl_search_fold_more') : $r('app.string.cyl_search_fold_less'))
+        Text(this.searchView.suggestionsFolded ? $r('app.string.cyl_search_foldMore') :
+          $r('app.string.cyl_search_foldLess'))
           .fontSize(14)
           .fontColor($r('sys.color.font_secondary'))
       } else {
@@ -824,11 +835,13 @@ export struct CYLSearchComponent {
     .padding({ left: 12, right: 12 })
     .justifyContent(FlexAlign.Center)
     .borderRadius(17)
+    // A 44 vp tall touch area around the 34 vp control, without changing the layout.
+    .responseRegion({ x: 0, y: -5, width: '100%', height: 44 })
     .border({ width: 1, color: $r('sys.color.comp_divider') })
     .backgroundColor(this.searchView.backgroundColor ?? $r('sys.color.background_primary'))
     .accessibilityGroup(true)
-    .accessibilityText(this.searchView.suggestionsFolded ? $r('app.string.cyl_search_show_more') : $r('app.string.cyl_search_show_less'))
-    .id('CYLSearchSuggestionsFoldControl')
+    .accessibilityText(this.searchView.suggestionsFolded ? $r('app.string.cyl_search_showMore') :
+      $r('app.string.cyl_search_showLess'))
     .onClick(() => {
       this.searchView.suggestionsFolded = !this.searchView.suggestionsFolded;
     })

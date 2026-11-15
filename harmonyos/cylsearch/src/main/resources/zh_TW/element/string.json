@@ -225,23 +225,19 @@
       "value": "語音搜尋"
     },
     {
-      "name": "cyl_search_suggestion_hint",
-      "value": "點兩下以搜尋"
-    },
-    {
-      "name": "cyl_search_fold_more",
+      "name": "cyl_search_foldMore",
       "value": "更多"
     },
     {
-      "name": "cyl_search_fold_less",
-      "value": "收起"
+      "name": "cyl_search_foldLess",
+      "value": "收合"
     },
     {
-      "name": "cyl_search_show_more",
+      "name": "cyl_search_showMore",
       "value": "顯示更多"
     },
     {
-      "name": "cyl_search_show_less",
+      "name": "cyl_search_showLess",
       "value": "顯示更少"
     }
   ]

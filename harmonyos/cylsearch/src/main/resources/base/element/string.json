@@ -225,23 +225,19 @@
       "value": "Voice search"
     },
     {
-      "name": "cyl_search_suggestion_hint",
-      "value": "Double-tap to search"
-    },
-    {
-      "name": "cyl_search_fold_more",
+      "name": "cyl_search_foldMore",
       "value": "More"
     },
     {
-      "name": "cyl_search_fold_less",
+      "name": "cyl_search_foldLess",
       "value": "Less"
     },
     {
-      "name": "cyl_search_show_more",
+      "name": "cyl_search_showMore",
       "value": "Show more"
     },
     {
-      "name": "cyl_search_show_less",
+      "name": "cyl_search_showLess",
       "value": "Show less"
     }
   ]

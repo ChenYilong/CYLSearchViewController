@@ -225,23 +225,19 @@
       "value": "语音搜索"
     },
     {
-      "name": "cyl_search_suggestion_hint",
-      "value": "轻点两下以搜索"
-    },
-    {
-      "name": "cyl_search_fold_more",
+      "name": "cyl_search_foldMore",
       "value": "更多"
     },
     {
-      "name": "cyl_search_fold_less",
+      "name": "cyl_search_foldLess",
       "value": "收起"
     },
     {
-      "name": "cyl_search_show_more",
+      "name": "cyl_search_showMore",
       "value": "显示更多"
     },
     {
-      "name": "cyl_search_show_less",
+      "name": "cyl_search_showLess",
       "value": "显示更少"
     }
   ]
