@@ -373,6 +373,26 @@ marks it `DONE`.
   needs it. This repository has no animation example yet; the rule and its status live in CollectionViewClassifyMenu
   `docs/example-animation-controls.md` and CYLTabBarController `docs/Tab-Icon-Animation-Quick-Start.md`.
 
+## HarmonyOS: API and example 1:1 with iOS, internals from the Android Kotlin sources (added 2026-11-16)
+
+- Prompt (verbatim): "写入instructions相关文档，鸿蒙系统版本，原则如下：API对标iOS端，example对标iOS端。需要一比一复刻。内部实现对标android 内的Kotlin 源码实现迁移到鸿蒙端。继续 continue 你未完成的任务"
+- Prompt (English): "Write into the instructions documents the HarmonyOS version and these principles: the API matches
+  iOS, the example matches iOS, a one-to-one copy; the internal implementation is migrated to HarmonyOS from the
+  Kotlin sources in android/. Then continue the unfinished tasks."
+- HarmonyOS version: HarmonyOS NEXT, target HarmonyOS 6.0.1 (API 21), compatible from HarmonyOS 5.0.0 (API 12)
+  (`harmonyos/build-profile.json5`); ArkTS with ArkUI state management V2 (`@ComponentV2`); DevEco Studio 6.0.1 with
+  its bundled SDK, hvigor and ohpm.
+- Rules:
+  1. API: every public API of the iOS library has a HarmonyOS counterpart with the iOS name
+     (`docs/harmonyos-api-alignment.md`).
+  2. Example: `harmonyos/entry` replicates `CYLSearchExample` one to one: the same tabs, pages, texts in
+     en/ja/zh-Hans/zh-Hant, data, images and interactions (`harmonyos/scripts/import-ios-resources.py` imports the iOS
+     resources). A change to the iOS example changes the HarmonyOS example in the same task.
+  3. Internals: migrate the behavior from the Android Kotlin sources (`android/`) to ArkTS (the same state handling,
+     filtering, caching and event order); write new code only where Android has none, and note it.
+  4. Score both tables of `docs/harmonyos-cross-platform.md` after each feature (`python3 scripts/harmonyos-scorecard.py`)
+     until no TODO is left.
+
 ## Mini program example: a 1:1 copy of the iOS example (added 2026-11-15)
 
 - The WeChat Mini Program example (`CrossPlatform/wechat-miniprogram-cylsearch/example`) replicates the iOS example

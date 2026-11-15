@@ -26,7 +26,9 @@ The HarmonyOS port of CYLSearchViewController: the ArkTS library `harmonyos/cyls
      `python3 scripts/harmonyos-api-alignment.py`).
   2. Table 2 lists every demo of the iOS example (`CYLSearchExample`); its second column is the HarmonyOS page or
      component, `TODO` until the demo works on HarmonyOS as on iOS (1:1: same texts, data, layout and behaviour).
-  3. After each feature: replace its `TODO`, run `python3 scripts/harmonyos-scorecard.py` (rewrites both tables and
+  3. Principles (2026-11-16, `AGENTS.md` "HarmonyOS: API and example 1:1 with iOS"): the API matches iOS, the
+     example is a 1:1 copy of the iOS example, and the internals are migrated from the Android Kotlin sources.
+  4. After each feature: replace its `TODO`, run `python3 scripts/harmonyos-scorecard.py` (rewrites both tables and
      the score), add a line to the score log, commit.
 - Build on Windows: hvigor rejects a path with spaces or non-ASCII characters, so mirror `harmonyos/` to an ASCII
   path (for example `C:\cylbuild\harmonyos`) and run `hvigorw assembleHap --mode module -p module=entry@default
