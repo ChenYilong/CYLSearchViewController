@@ -117,6 +117,8 @@ export struct PortsMenuPage {
             ListItem() {
               CYLDemoCell({ text: row.title, subtitle: row.subtitle, showsDivider: index < this.rows.length - 1 })
             }
+            .accessibilityGroup(true)
+            .accessibilityText(`${row.title}, ${row.subtitle}`)
             .onClick(() => this.stack.pushPath({ name: row.route }))
           }, (row: CYLPortRow) => row.title)
         }

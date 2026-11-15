@@ -25,6 +25,7 @@ WeChat DevTools Skills (<https://developers.weixin.qq.com/miniprogram/dev/devtoo
 | `cyl-sub-repositories` | Adding or updating a sibling project as a sub-repository (CollectionViewClassifyMenu, CYLTableViewPlaceHolder): commit pin, core option, example, every platform |
 | `cyl-docs` | Editing `README.md` or `docs/` |
 | `cyl-verify` | Building, testing, running the simulator |
+| `cyl-accessibility-i18n` | Screen readers and localization in any code; writing UI tests that find controls by their labels |
 | `cyl-harmonyos-setup` | Preparing DevEco Studio and the HarmonyOS emulator: SDK paths, virtualization, Huawei ID, region `CN` in `country.region.xml` |
 | `swift-api-design-guidelines`, `swift-language`, `swift-concurrency`, `swift-testing`, `swift-architecture` | Writing or translating Swift (third-party, pinned in `.agents/skills.json`) |
 | `uikit`, `uikit-layouting` | UIKit views, controllers and layout in Swift (third-party) |
@@ -438,6 +439,26 @@ marks it `DONE`.
   (`node harmonyos/scripts/import-cyltabbar-localizations.mjs`, which never overwrites the four iOS languages).
 - Check both with `node harmonyos/scripts/check-accessibility-i18n.mjs`; Scorecard 2 rows 15 and 16 in
   `docs/harmonyos-cross-platform.md`.
+
+## Accessibility, localization and UI automation by label (added 2026-11-16)
+
+- Prompt (verbatim): "并将下面的内容规则写入instructions相关文件并写入skills相关文件，如果相关文件不存在就新建文件确保成功。全英文写入：本项目全部代码已经支持适配视觉辅助 盲人辅助 为鸿蒙代码 。 适配国际化本地化，本地化文件。如果发现不支持请先支持，然后在自动化UI测试过程中，优先使用刚刚提到的功能进行UI控件定位。触发点击事件，或者触发复杂流程，连续操作等。"
+- Prompt (English): "Write the following rule, in English, into the instruction files and the skill files, creating
+  them when missing: all code of this project supports visual assistance and blind users, the HarmonyOS code
+  included, and is internationalized and localized with localization files. When something is not supported,
+  support it first; then, in automated UI tests, locate UI controls with these features first, to trigger taps,
+  complex flows and continuous operations."
+- Rules:
+  1. All code of this project (library and examples, every platform, HarmonyOS included) supports screen readers
+     and is localized (the two sections above for HarmonyOS; skill `cyl-accessibility-i18n`).
+  2. A gap found (a control with no label, a text written in code, a missing language key) is fixed first, before
+     the test or the feature that needs it.
+  3. UI automation locates controls by their accessibility label or localized visible text first, read from the
+     app's string resources in the device language; an id only for a control with no label of its own. Taps,
+     typing, submitting, complex flows and continuous operations go through labelled controls. A control a test
+     cannot find by label is a screen-reader gap (rule 2).
+- HarmonyOS: `harmonyos/entry/src/ohosTest/ets/test/CYLSearchUI.test.ets` (`findByLabel`, `tapLabel`, the flow test
+  `searchFlowByLabels`); check `node harmonyos/scripts/check-accessibility-i18n.mjs` (the library and the example).
 - Status on the Windows machine (checked 2026-11-16): the region file says `<countryregion name="CN"/>`, a hypervisor
   is present, 64 GB RAM, and the HarmonyOS 6.0.1 `phone_all_x86` image was downloading.
 
