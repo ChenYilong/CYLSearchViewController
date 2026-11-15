@@ -208,4 +208,28 @@ plus page; the Examples tab at the largest accessibility text size.
 - Prompt (English): "Find this project's related document and add a TODO: CYLTabBarController now has SVGA
   animations; update the core code to support them; the example layer must copy the Rive demos one to one. Every
   demo scene Rive has, SVGA must have too."
-- Status: logged, not started.
+- Status: IN PROGRESS (2026-11-16): the Rive scenes are listed below; no SVGA demo yet.
+- SVGA support in CYLTabBarController today (`origin/feat/cross-platform-components`, read 2026-11-16): iOS
+  (`CYLTabBarController/SVGA`, `CYLSVGATabBarItemAnimator`) and Android (`CYLSVGATabBarItemAnimator.kt`) have it;
+  `flutter_cyltabbar`, `react-native-cyltabbar` and the mini program package have no SVGA code yet (Rive only), so
+  those rows wait for CYLTabBarController first (sub-repository rule: worktree, branch, pull request).
+
+Rive scenes in CYLTabBarController's demos (Example-Rive, Example-SwiftUI-Rive, Example-Android `example-rive`,
+`flutter_cyltabbar/example_rive`, `react-native-cyltabbar/example-rive`, `rive-miniprogram`):
+
+| Rive scene | SVGA counterpart in this project |
+|:---|:---|
+| Every tab icon animated by Rive (`icons.riv`, `CYLTabBarRiveFilePath`), set with the initialization keys: iOS | TODO |
+| The same tab icons from a configuration file (`cyl_tabbar_configuration*.json`): iOS | TODO |
+| Tab icons in all three styles: Liquid Glass, FlatDesign, classic | TODO |
+| Dark mode animation file (`CYLTabBarRiveDarkURL`) | TODO |
+| Plus button with its own page (purple "Start", `rive_plus.png`) | TODO |
+| In-page animation above a list (Bell page, `menu_button.riv`, `RiveMenuButtonDemoView`) | TODO |
+| Switching a tab icon at runtime (`-updateTabBarItemForViewController:attributes:`, Rive ↔ SVGA button) | TODO |
+| SwiftUI host (Example-SwiftUI-Rive) | TODO |
+| Android (`example-rive`, `CYLRiveTabBarItemAnimator`) | TODO |
+| Flutter (`example_rive`) | TODO (waits for SVGA in `flutter_cyltabbar`) |
+| React Native (`example-rive`, `<CYLAnimationView>`) | TODO (waits for SVGA in `react-native-cyltabbar`) |
+| WeChat mini program (`cyl-rive`) | TODO (waits for an SVGA mini program package) |
+
+Score: 0/12.
