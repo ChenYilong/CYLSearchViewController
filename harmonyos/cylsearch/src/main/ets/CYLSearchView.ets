@@ -1,8 +1,10 @@
 import { common } from '@kit.AbilityKit';
 import { LengthMetrics } from '@kit.ArkUI';
+import { accessibility } from '@kit.AccessibilityKit';
 import { CYLSearchBarComponent, CYLSearchBarNavigationIcon, CYLSearchBarView, CYLSearchBarViewDelegate } from './CYLSearchBarView';
 import { CYLSearchPlaceholderComponent, CYLSearchPlaceholderKind, CYLSearchPlaceholderView } from './CYLSearchPlaceholderView';
 import { CYLSearchSuggestionCache, CYLSearchSuggestionCachePolicy, CYLSearchSuggestionStore } from './CYLSearchSuggestionCache';
+import { CYLSearchResources } from './CYLSearchResources';
 
 /**
  * How the suggestions are shown under the search bar (iOS `CYLSearchSuggestionStyle`).
@@ -29,7 +31,52 @@ export enum CYLMenuFoldControlPosition {
   /**
    * On a row of its own under the tags.
    */
-  bottom = 1
+  bottom = 1,
+  /**
+   * No control: every tag is shown (iOS `CYLMenuFoldControlPositionNone`).
+   */
+  none = 2
+}
+
+/**
+ * How many of the tags (`widths`, in vp) fit in `rows` rows of `width` with `spacing` between them, when a fold
+ * control of `controlWidth` must follow the last visible tag (0 for no control in the flow); all of them when they
+ * fit together with the control. Rows of 0 or less show every tag.
+ */
+export function cylFoldedTagCount(widths: number[], width: number, rows: number, spacing: number,
+  controlWidth: number): number {
+  if (rows <= 0 || width <= 0) {
+    return widths.length;
+  }
+  const fits = (count: number, extra: number): boolean => {
+    let row = 1;
+    let x = 0;
+    const items = widths.slice(0, count).map((w: number) => Math.min(w, width));
+    if (extra > 0) {
+      items.push(Math.min(extra, width));
+    }
+    for (const w of items) {
+      if (x > 0 && x + spacing + w > width) {
+        row++;
+        x = w;
+      } else {
+        x = x > 0 ? x + spacing + w : w;
+      }
+      if (row > rows) {
+        return false;
+      }
+    }
+    return true;
+  };
+  if (fits(widths.length, 0)) {
+    return widths.length;
+  }
+  for (let count = widths.length - 1; count >= 0; count--) {
+    if (fits(count, controlWidth)) {
+      return count;
+    }
+  }
+  return 0;
 }
 
 /**
@@ -545,6 +592,27 @@ export class CYLSearchView {
   clearSuggestionCache(): void {
     this.suggestionCache?.removeAllQueries();
     this.refilter();
+    this.announceForAccessibility('search.recentCleared');
+  }
+
+  /**
+   * Tells the screen reader the text of `key`, as iOS posts `UIAccessibilityAnnouncementNotification` and Android
+   * calls `announceForAccessibility`. Does nothing without a context.
+   */
+  private announceForAccessibility(key: string): void {
+    const context = this.context;
+    if (context === undefined) {
+      return;
+    }
+    const eventInfo: accessibility.EventInfo = {
+      type: 'announceForAccessibility',
+      bundleName: context.applicationInfo.name,
+      triggerAction: 'common',
+      textAnnouncedForAccessibility: CYLSearchResources.localizedString(context, key)
+    };
+    accessibility.sendAccessibilityEvent(eventInfo).catch(() => {
+      // No screen reader running.
+    });
   }
 
   /**
@@ -646,9 +714,57 @@ export struct CYLSearchComponent {
    * The search view to draw.
    */
   @Require @Param searchView: CYLSearchView;
+  @Local tagsWidth: number = 0;
 
   private rowHeight(): number {
     return 44;
+  }
+
+  private textWidth(text: string, fontSize: number): number {
+    const size = this.getUIContext().getMeasureUtils().measureTextSize({ textContent: text, fontSize: fontSize });
+    return this.getUIContext().px2vp(Number(size.width));
+  }
+
+  private tagWidth(title: string): number {
+    return this.textWidth(title, 15) + 14 * 2 + 2;
+  }
+
+  private foldControlWidth(): number {
+    if (this.searchView.suggestionsFoldControl.content === CYLMenuFoldControlContent.title) {
+      return Math.max(this.textWidth('More', 14), this.textWidth('Less', 14)) + 12 * 2 + 2;
+    }
+    return 44;
+  }
+
+  /**
+   * The number of tags shown: every tag unfolded, with no control, or before the layout is known; otherwise the tags
+   * of the folded rows, leaving room for the control when it is inline (as CollectionViewClassifyMenu does).
+   */
+  private visibleTagCount(): number {
+    const all = this.searchView.filteredSuggestions.length;
+    const control = this.searchView.suggestionsFoldControl;
+    if (!this.searchView.suggestionsFolded || control.position === CYLMenuFoldControlPosition.none ||
+      this.searchView.suggestionsFoldedRowCount <= 0 || this.tagsWidth <= 0) {
+      return all;
+    }
+    const widths = this.searchView.filteredSuggestions.map((title: string) => this.tagWidth(title));
+    return cylFoldedTagCount(widths, this.tagsWidth, this.searchView.suggestionsFoldedRowCount, 8,
+      control.position === CYLMenuFoldControlPosition.inline ? this.foldControlWidth() : 0);
+  }
+
+  /**
+   * The control is shown while folding hides a tag, and while unfolded tags would be hidden by folding again.
+   */
+  private showsFoldControl(): boolean {
+    const control = this.searchView.suggestionsFoldControl;
+    if (control.position === CYLMenuFoldControlPosition.none || this.searchView.suggestionsFoldedRowCount <= 0 ||
+      this.tagsWidth <= 0) {
+      return false;
+    }
+    const widths = this.searchView.filteredSuggestions.map((title: string) => this.tagWidth(title));
+    const folded = cylFoldedTagCount(widths, this.tagsWidth, this.searchView.suggestionsFoldedRowCount, 8,
+      control.position === CYLMenuFoldControlPosition.inline ? this.foldControlWidth() : 0);
+    return folded < widths.length;
   }
 
   @Builder
@@ -766,9 +882,9 @@ export struct CYLSearchComponent {
   suggestionTags() {
     Scroll() {
       Column({ space: 8 }) {
-        Stack({ alignContent: Alignment.BottomEnd }) {
-          Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(8), cross: LengthMetrics.vp(8) } }) {
-            ForEach(this.searchView.filteredSuggestions, (suggestion: string, index: number) => {
+        Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(8), cross: LengthMetrics.vp(8) } }) {
+          ForEach(this.searchView.filteredSuggestions.slice(0, this.visibleTagCount()),
+            (suggestion: string, index: number) => {
               Text(suggestion)
                 .fontSize(15)
                 .fontColor(this.searchView.suggestionTextColor ?? $r('sys.color.font_primary'))
@@ -785,22 +901,18 @@ export struct CYLSearchComponent {
                   this.searchView.suggestionSelected(suggestion, index);
                 })
             }, (suggestion: string, index: number) => `${index}-${suggestion}`)
-          }
-          .width('100%')
-          .constraintSize({
-            maxHeight: this.searchView.suggestionsFolded && this.searchView.suggestionsFoldedRowCount > 0 ?
-              this.searchView.suggestionsFoldedRowCount * 34 + (this.searchView.suggestionsFoldedRowCount - 1) * 8 :
-              100000
-          })
-          .clip(true)
-
-          if (this.searchView.suggestionsFoldedRowCount > 0 &&
+          // Inline: the control is the last tag of the flow (CollectionViewClassifyMenu `CYLMenuFoldControlPositionInline`).
+          if (this.showsFoldControl() &&
             this.searchView.suggestionsFoldControl.position === CYLMenuFoldControlPosition.inline) {
             this.foldControl()
           }
         }
+        .width('100%')
+        .onAreaChange((_: Area, area: Area) => {
+          this.tagsWidth = Number(area.width);
+        })
 
-        if (this.searchView.suggestionsFoldedRowCount > 0 &&
+        if (this.showsFoldControl() &&
           this.searchView.suggestionsFoldControl.position === CYLMenuFoldControlPosition.bottom) {
           this.foldControl()
         }

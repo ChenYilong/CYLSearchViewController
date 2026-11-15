@@ -13,7 +13,10 @@ import {
   CYLSearchResources,
   CYLSearchSuggestionCachePolicy,
   CYLSearchSuggestionStore,
-  CYLSearchView
+  CYLSearchView,
+  CYLMenuFoldControl,
+  CYLMenuFoldControlPosition,
+  cylFoldedTagCount
 } from 'cylsearch';
 
 function context(): common.Context {
@@ -155,6 +158,33 @@ export default function cylSearchCoreTest() {
       bar.addItem(CYLSearchBarItem.divider());
       bar.addItem(CYLSearchBarItem.textItem('Search', () => {}));
       expect(bar.items.length).assertEqual(2);
+    });
+
+    it('foldedTagCountLeavesRoomForAnInlineControl', 0, () => {
+      // Rows of 100 vp, spacing 10: tags of 45 fit two per row.
+      const widths: number[] = [45, 45, 45, 45, 45];
+      // Everything fits in 3 rows: no control needed.
+      expect(cylFoldedTagCount(widths, 100, 3, 10, 40)).assertEqual(5);
+      // 2 rows hold 4 tags, but the inline control (40) must follow the last visible tag: 3 tags and the control.
+      expect(cylFoldedTagCount(widths, 100, 2, 10, 40)).assertEqual(3);
+      // A control on its own row (width 0 in the flow) leaves all 4.
+      expect(cylFoldedTagCount(widths, 100, 2, 10, 0)).assertEqual(4);
+      // 0 rows or no layout yet: every tag.
+      expect(cylFoldedTagCount(widths, 100, 0, 10, 40)).assertEqual(5);
+      expect(cylFoldedTagCount(widths, 0, 2, 10, 40)).assertEqual(5);
+    });
+
+    it('foldControlPositionNone', 0, () => {
+      const view = new CYLSearchView();
+      view.suggestionsFoldControl = new CYLMenuFoldControl(CYLMenuFoldControlPosition.none);
+      expect(view.suggestionsFoldControl.position).assertEqual(CYLMenuFoldControlPosition.none);
+      expect(new CYLMenuFoldControl().position).assertEqual(CYLMenuFoldControlPosition.inline);
+    });
+
+    it('clearSuggestionCacheWithoutContextDoesNotThrow', 0, () => {
+      const view = new CYLSearchView();
+      view.clearSuggestionCache();
+      expect(view.filteredSuggestions.length).assertEqual(0);
     });
   });
 }

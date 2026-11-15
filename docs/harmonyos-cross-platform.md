@@ -69,9 +69,43 @@ The ArkTS core was compared with `android/merged/cylsearch` file by file; these 
   `none` keeps nothing.
 - `CYLMultiSearchView`: nothing is selected while typing, the typed text is not trimmed, `addSearchText` completes the
   search being typed and reports nothing, and removing an item selects the next one as Kotlin does.
-- Open: the inline fold control of the tag suggestions is still laid over the last row instead of placed as the last
-  tag (the Discover page already places it as a tag); `CYLMenuFoldControlPosition.none`; a screen-reader announcement
-  after clearing the cache; the focus delay of an iconified bar.
+- The four items left open here are done (2026-11-16); see "Scorecard 2" below.
+
+## IN PROGRESS (TODO 2026-11-16): Scorecard 2, the remaining HarmonyOS work, scored to 100
+
+- Prompt (verbatim): "鸿蒙模拟器正在安装，大概一小时后安装成功，请现在立即开始鸿蒙端的开发工作。阅读本地的鸿蒙功能相关文档，搜索鸿蒙相关关键词，找到TODO以及打分表。制作满分标准。如果没有就新建打分表。一直完成到满分为止。"
+- Prompt (English): "The HarmonyOS emulator is installing and should be ready in about an hour; start the HarmonyOS
+  development now. Read the local HarmonyOS documents, search the HarmonyOS keywords, find the TODOs and the
+  scorecards. Write a full-score standard; make a new scorecard if there is none. Keep going until the score is full."
+- Found: Table 1 and Table 2 below already score 100/100, but only "by implementation": nothing has run on a device.
+  The open items were the four Kotlin-parity gaps above, the emulator TODO in "IDE preparation and emulator
+  prerequisites", and "HarmonyOS not run" in [sub-repositories.md](sub-repositories.md). This scorecard collects them.
+- Full-score standard: every row is `DONE` with its evidence (a commit, a test name, a build log line or a committed
+  screenshot). Code that compiles counts only for rows about compiling; every behavior row needs a run on the
+  emulator or a device. Score = `DONE` rows / all rows × 100, rounded down.
+
+| # | Item | Status | Evidence |
+| :--- | :--- | :--- | :--- |
+| 1 | Inline fold control placed as the last tag of the flow, not laid over the last row (CollectionViewClassifyMenu `CYLMenuFoldControlPositionInline`) | DONE | `CYLSearchComponent.visibleTagCount()`, `cylFoldedTagCount` in the core; test `foldedTagCountLeavesRoomForAnInlineControl` |
+| 2 | `CYLMenuFoldControlPosition.none`: every tag, no control (iOS `CYLMenuFoldControlPositionNone`) | DONE | Enum value `none = 2`; test `foldControlPositionNone` |
+| 3 | Screen-reader announcement "Recent searches cleared" after `clearSuggestionCache` (iOS `UIAccessibility.post(.announcement)`, Android `announceForAccessibility`) | DONE | `accessibility.sendAccessibilityEvent` with `announceForAccessibility`; test `clearSuggestionCacheWithoutContextDoesNotThrow` |
+| 4 | Focus delay of an iconified bar: opening it focuses the field once the text input is drawn (Android posts to the field) | DONE | `CYLSearchBarView.showKeyboardWhenDrawn` retries each frame, up to 30 |
+| 5 | One fold measurement: the Discover page uses the core `cylFoldedTagCount` instead of its own copy | DONE | `entry/src/main/ets/demos/Discover.ets` imports it from `cylsearch` |
+| 6 | App HAP and test HAP compile, with no new warning in the changed files | DONE | hvigor `BUILD SUCCESSFUL` for `entry@default` and `entry@ohosTest` (2026-11-16, DevEco Studio `DS-243.24978.46.36.601251`); warnings left: the older `animateTo` deprecations |
+| 7 | Mate 70 Pro emulator (HarmonyOS 6.0.1, API 21) created and listed by `hdc list targets` | TODO | Blocked: the system image is still downloading (2026-11-16) |
+| 8 | Hypium tests (`CYLSearchCore`, `CYLSearchUI`) run on the emulator, all pass | TODO | Needs row 7 |
+| 9 | Each of the 25 demos launched on the emulator and checked 1:1 with iOS; screenshots committed in `docs/assets/` with labels, rows 1 to 4 checked on screen (VoiceOver-equivalent ScreenReader for row 3) | TODO | Needs row 7 |
+
+<!-- harmonyos-score2:begin -->
+Score: 66/100 (6 of 9 rows DONE; TODO left 3, all waiting for the emulator).
+<!-- harmonyos-score2:end -->
+
+| Date | Change | Score |
+| :--- | :--- | ---: |
+| 2026-11-16 | Scorecard made; rows 1 to 6 done and compiled | 66 |
+
+- Follow-up outside the score: `animateTo` is deprecated (6 warnings in `cylsearch`); the classes have no
+  `UIContext`, so moving to `UIContext.animateTo` needs the component to hand its context to the view. Not started.
 
 ## Score
 
