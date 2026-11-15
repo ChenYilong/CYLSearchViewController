@@ -3,6 +3,14 @@
 #import "CYLSearchDemoMenuViewController.h"
 #import "CYLSearchExample-Swift.h"
 #import <CYLTabBarController/CYLTabBarController.h>
+#import <CYLTabBarController/CYLSVGATabBarItemAnimator.h>
+
+/// A tab title from CYLSearchTabs.bundle, as the configuration file's `CYLTabBarControllerLocalization` reads it.
+static NSString *CYLSearchTabTitle(NSString *key)
+{
+    NSBundle *bundle = [NSBundle bundleWithPath:[NSBundle.mainBundle pathForResource:@"CYLSearchTabs" ofType:@"bundle"]];
+    return [bundle localizedStringForKey:key value:key table:@"CYLSearchTabs"];
+}
 
 @implementation CYLSearchExampleAppDelegate
 
@@ -17,7 +25,7 @@
 {
     [self registerPages:CYLTabBarPageRegistry.sharedRegistry];
     NSError *error = nil;
-    CYLTabBarController *tabBarController = [CYLTabBarController tabBarControllerWithConfigurationFile:@"CYLTabBarConfiguration.json" error:&error];
+    CYLTabBarController *tabBarController = [self tabBarControllerForIconSource:&error];
     if (tabBarController) {
         // `-CYLDemoTab 1` on launch selects that tab, for screenshots.
         NSString *tab = [NSUserDefaults.standardUserDefaults stringForKey:@"CYLDemoTab"];
@@ -28,6 +36,44 @@
     }
     NSLog(@"CYLTabBarConfiguration.json: %@", error);
     return [self navigationControllerWithRoot:[[CYLSearchDemoMenuViewController alloc] initWithStyle:UITableViewStyleGrouped]];
+}
+
+/// Where the tab icons come from (`-CYLDemoTabIconSource <n>` launch argument or user default), as CYLTabBarController's
+/// Example-Rive: 0 SF Symbols (`CYLTabBarConfiguration.json`); 1 SVGA through the initialization keys
+/// (`CYLTabBarSVGAURL`, `CYLTabBarSVGASize`); 2 SVGA through a configuration file (`CYLTabBarConfiguration_svga.json`).
++ (CYLTabBarController *)tabBarControllerForIconSource:(NSError **)error
+{
+    NSInteger source = [NSUserDefaults.standardUserDefaults integerForKey:@"CYLDemoTabIconSource"];
+    if (source == 2) {
+        return [CYLTabBarController tabBarControllerWithConfigurationFile:@"CYLTabBarConfiguration_svga.json" error:error];
+    }
+    if (source != 1) {
+        return [CYLTabBarController tabBarControllerWithConfigurationFile:@"CYLTabBarConfiguration.json" error:error];
+    }
+    // The initialization keys: the same tabs as CYLTabBarConfiguration.json, written in code, each with its SVGA file.
+    NSMutableArray<NSDictionary *> *tabs = [NSMutableArray array];
+    for (NSArray<NSString *> *tab in @[ @[ @"search", @"tab.search", @"tab_search" ], @[ @"examples", @"tab.examples", @"tab_list" ],
+                                        @[ @"tagStyle", @"tab.tagStyle", @"tab_chat" ], @[ @"discover", @"tab.discover", @"tab_home" ] ]) {
+        NSURL *url = [NSBundle.mainBundle URLForResource:tab[2] withExtension:@"svga"];
+        [tabs addObject:@{
+            CYLTabBarItemTitle : CYLSearchTabTitle(tab[1]),
+            CYLTabBarItemIdentifier : tab[0],
+            CYLTabBarItemPageIdentifier : tab[0],
+            CYLTabBarSVGAURL : url,
+            CYLTabBarSVGASize : [NSValue valueWithCGSize:CGSizeMake(28, 28)],
+        }];
+    }
+    return [CYLTabBarController tabBarControllerWithConfiguration:@{
+        CYLTabBarControllerContext : @"CYLSearchExample",
+        CYLTabBarControllerTabBarItemsAttributes : tabs,
+        CYLTabBarControllerTitlePositionAdjustment : [NSValue valueWithUIOffset:UIOffsetMake(0, -2)],
+        CYLTabBarControllerPlusButton : @{
+            CYLTabBarItemTitle : CYLSearchTabTitle(@"tab.searchBar"),
+            CYLTabBarItemImage : [UIImage systemImageNamed:@"plus.circle.fill"],
+            CYLTabBarItemIdentifier : @"plus",
+            CYLTabBarItemPageIdentifier : @"plus",
+        },
+    }];
 }
 
 + (void)registerPages:(CYLTabBarPageRegistry *)pages

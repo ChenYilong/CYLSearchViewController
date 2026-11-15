@@ -219,8 +219,8 @@ Rive scenes in CYLTabBarController's demos (Example-Rive, Example-SwiftUI-Rive, 
 
 | Rive scene | SVGA counterpart in this project |
 |:---|:---|
-| Every tab icon animated by Rive (`icons.riv`, `CYLTabBarRiveFilePath`), set with the initialization keys: iOS | TODO |
-| The same tab icons from a configuration file (`cyl_tabbar_configuration*.json`): iOS | TODO |
+| Every tab icon animated by Rive (`icons.riv`, `CYLTabBarRiveFilePath`), set with the initialization keys: iOS | DONE: `-CYLDemoTabIconSource 1`, `CYLTabBarSVGAURL` / `CYLTabBarSVGASize` in `tabBarControllerWithConfiguration:` (`CYLSearchExampleAppDelegate.m`) |
+| The same tab icons from a configuration file (`cyl_tabbar_configuration*.json`): iOS | DONE: `-CYLDemoTabIconSource 2`, `CYLTabBarConfiguration_svga.json` (`CYLTabBarSVGAFilePath`) |
 | Tab icons in all three styles: Liquid Glass, FlatDesign, classic | TODO |
 | Dark mode animation file (`CYLTabBarRiveDarkURL`) | TODO |
 | Plus button with its own page (purple "Start", `rive_plus.png`) | TODO |
@@ -232,4 +232,12 @@ Rive scenes in CYLTabBarController's demos (Example-Rive, Example-SwiftUI-Rive, 
 | React Native (`example-rive`, `<CYLAnimationView>`) | TODO (waits for SVGA in `react-native-cyltabbar`) |
 | WeChat mini program (`cyl-rive`) | TODO (waits for an SVGA mini program package) |
 
-Score: 0/12.
+Score: 2/12.
+
+iOS example, SVGA tab icons (Search selected, its animation on the last frame). Top to bottom: initialization keys;
+configuration file. CYL 17Pro simulator, iOS 26.3, Debug, CYLTabBarController `5682b9e` (`CYLTabBarController/SVGA`),
+base c0e7a8c, 2026-11-16 09:50. SVGA files: CYLTabBarController's `Example-SwiftUI-Rive/AnimatedApp/SVGAAssets`
+(Apache 2.0, `CYLSearchExample/SVGA/NOTICE.md`); 0 (default) keeps the SF Symbols.
+
+![SVGA tab icons, initialization keys](assets/ios-svga-tab-icons-keys-ios26.3.png)
+![SVGA tab icons, configuration file](assets/ios-svga-tab-icons-configuration-ios26.3.png)

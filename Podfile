@@ -16,7 +16,8 @@ target 'CYLSearchExample' do
   # Sub-repository (AGENTS.md, "Sub-repositories"): the tag suggestion style of CYLSearchView. Pinned to its newest
   # commit on any branch (`git log --remotes -1`); never a local path in a commit.
   pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => 'f9724167235dee050a81432f3c16f6c4e15dc186'
-  pod 'CYLTabBarController', :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => 'c006143e677894926aa10725f5928b7bad25ac6d'
+  # SVGA: the tab icon animations (docs/CYLTabBarController-Integration.md, SVGA TODO).
+  pod 'CYLTabBarController', :subspecs => ['Core', 'SVGA'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '5682b9e13f55bef1410b4eb0d1b7187bd8244cea'
 
   target 'CYLSearchExampleTests' do
     inherit! :search_paths
