@@ -3,3 +3,12 @@
 "tab.searchBar" = "検索バー";
 "tab.tagStyle" = "タグ表示";
 "tab.discover" = "発見";
+
+/* SVGA demo above the Examples list (docs/CYLTabBarController-Integration.md, SVGA TODO rows 6-7). */
+"svga.demo" = "SVGA アニメーション：タップで再生";
+"svga.source" = "タブアイコン：%@";
+"svga.source.symbols" = "SF Symbols";
+"svga.source.keys" = "SVGA（初期化キー）";
+"svga.source.file" = "SVGA（設定ファイル）";
+"svga.demo.hint" = "SVGA アニメーションをもう一度再生します";
+"svga.source.hint" = "タブアイコンを切り替えてタブバーを作り直します";

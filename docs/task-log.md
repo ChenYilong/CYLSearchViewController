@@ -302,3 +302,4 @@ begins and becomes `DONE` when it ends.
   the rule (all code supports accessibility and localization; add it where missing; UI tests locate controls through
   these features first, for taps, complex flows and series of actions) in English into the instruction files and the
   skills, creating them if missing."
+- 2026-11-16 DONE: SVGA rows 6-7 (SVGA animation above the Examples list; tab icon source switch), 7/12. Prompt: "go menu switch".
