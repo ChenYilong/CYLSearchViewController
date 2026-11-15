@@ -208,3 +208,11 @@ begins and becomes `DONE` when it ends.
   Fixed ("fix 1"): the emulator runs in zh-CN; the library was localized ("暂无数据" is its zh_CN string) but the
   example hard-coded English. The example strings are now resources (`entry/.../base` and `zh_CN/element/string.json`),
   read with `getStringByNameSync`; the screenshots above are retaken in Chinese. Open: hypium tests not run yet.
+
+- 2026-11-15 DONE: HarmonyOS hypium tests on the emulator. Prompt: "Run tests". There were none, so this adds
+  `harmonyos/entry/src/ohosTest` (TestAbility, OpenHarmonyTestRunner, `CYLSearchCore.test.ets`: cache order and
+  duplicates, maximum count and blanks, `none` policy, localized strings, placeholder kinds, search bar items),
+  the `ohosTest` target in `entry/build-profile.json5` and `@ohos/hypium` 1.0.21. Run (unsigned):
+  `hvigorw -p module=entry@ohosTest -p isOhosTest=true -p buildMode=test assembleHap`, `hdc install` both HAPs,
+  `hdc shell aa test -b com.cyl.search.harmonyos -m entry_test -s unittest /ets/testrunner/OpenHarmonyTestRunner`.
+  Result on the Mate 70 Pro emulator (HarmonyOS 6.0.1, API 21): Tests run: 6, Failure: 0, Error: 0, Pass: 6.
