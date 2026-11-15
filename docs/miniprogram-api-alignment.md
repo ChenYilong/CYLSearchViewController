@@ -48,7 +48,71 @@
   not measured. The screenshot script retries the first relaunch after a compile.
 - Status: DONE (2026-11-15).
 
+## DONE (2026-11-15): the example is a 1:1 copy of the iOS example
+
+- Branch: `feat/swift-core-next` (PR #9). Code: [`d19e0bb`](https://github.com/ChenYilong/CYLSearchViewController/commit/d19e0bb).
+- Prompt (verbatim): "小程序example层要一比一复刻"
+- Prompt (English): "The mini program's example layer must replicate [the iOS example] one to one."
+- Reading: the reference is the iOS example (`CYLSearchExample`), the one every other port follows. Before, the mini
+  program example had its own simplified pages (five tabs, one of them a List style tab iOS does not have).
+- Requirements:
+  1. The same tabs (`CYLTabBarConfiguration.json`: four tabs and the plus button's page), the same pages, the same
+     texts in the same languages (en, ja, zh-Hans, zh-Hant), the same data and images, the same interactions.
+  2. The example passes only data, style parameters and taps; what it needs that the core lacks goes into the core
+     (`AGENTS.md`, "Swift core: examples adapt to the core", and "change the core when an example needs it").
+- Resources: `scripts/import-ios-resources.js` reads `Resources/CYLSearchViewController.bundle` (texts, the 41
+  placeholder images into `src/images/placeholder/` with their licenses), `CYLSearchTabs.bundle` and
+  `CYLSearchDiscover.bundle` (texts, `search-discover.json`, the localized hot icons) into
+  `example/miniprogram/utils/cyl_demo_resources.js`; `utils/cyl_demo_text.js` fills the iOS formats (`%@`, `%lu`,
+  `%1$lu`).
+
+| iOS (`CYLSearchExample`) | Mini program (`example/miniprogram`) |
+| :--- | :--- |
+| `CYLTabBarConfiguration.json`: Search, Examples, Tag style, Discover, plus button "Search bar" | `utils/cyl_search_tabs.js` (the same keys and titles); the plus button's `plus` page is a tab page, as on iOS |
+| `CYLSearchExampleViewController` (Issue #1317: Overlay, Repro ON/OFF, pull to refresh, 40 sample results, "No matching results") | `demo-components/cyl-demo-reproduction` in `pages/search` (tab) and `pages/reproduction` (pushed) |
+| `CYLSearchController` overlay | core `cyl-search-controller` |
+| `CYLSearchDemoMenuViewController` (4 rows) | `pages/examples` |
+| `CYLSearchPlaceholderGalleryViewController` (41 styles × 4 messages, 3 custom rows) and its detail | `pages/styles`, `pages/placeholderDetail`; core `cyl-search-placeholder` |
+| `CYLSearchBarDemoViewController` (Cancel, shadow, camera, "Text: …", "Searched: …") | `demo-components/cyl-demo-search-bar` in `pages/plus` (tab) and `pages/searchBar` (pushed) |
+| `CYLSearchPortsViewController` (5 rows) | `pages/ports` |
+| `CYLLapismSearchViewController` | `pages/lapism` (bar as a button, results in `cyl-search`'s `content` slot) |
+| `CYLMaterialSearchMenuViewController` and `CYLMaterialSearchSampleViewController` (Default, Themed, Voice, Sticky, Tabs, Input type) | `demo-components/cyl-demo-material-menu`, `pages/materialMenu`, `pages/materialSample`, `utils/cyl_material_samples.js` |
+| `CYLSuggestionDemoPages.tagStyleViewController` (the same samples, tags, keyboard down) | `pages/tagStyle` |
+| `CYLYechaoaSearchViewController` | `pages/yechaoa` (iconified bar in the navigation bar, submit button, snackbar, result) |
+| `CYLRevealSearchViewController` | `pages/reveal` (circular reveal over 1 s from a centered button) |
+| `CYLMultiSearchDemoViewController` | `pages/multiSearch`; core `cyl-multi-search` |
+| `CYLSearchDiscoverViewController` (recent searches folded inline, discover grid, More, hold to ask) | `pages/discover`, `utils/cyl_discover_logic.js`; core `cyl_tag_fold.js` |
+| `CYLSnackbar`, `UINavigationBar` items | `demo-components/cyl-demo-snackbar`, `demo-components/cyl-demo-nav` |
+
+- Core changes for the example: `cyl-search-bar` (navigation button, voice, submit and clear buttons, field look,
+  `editable`, iconified states with fade or circular reveal, `setText`, `setIconified`); `cyl-search` (back arrow
+  instead of Cancel as on iOS, colors, voice, `content` slot, `closesOnSubmit`, `setQuery`, `coversNavigationBar`, the
+  inline tag fold measured from the real tag widths); new `cyl-search-placeholder`, `cyl-search-controller`,
+  `cyl-multi-search`.
+- Platform differences (no iOS counterpart possible):
+  - WeChat's menu button (the capsule) stays at the top trailing corner of every page. Pages use
+    `"navigationStyle": "custom"`; a bar that takes the navigation bar's place (the search page, the overlay, the
+    Discover bar) is centered on the capsule and ends before it (`cyl_navigation_metrics.js`).
+  - Speech recognition needs a plugin: the Voice sample shows "Speech recognition is not available." as iOS does when
+    recognition is unavailable. Hold to ask changes the hint only, as on iOS.
+  - The camera of the Discover bar opens a modal with the iOS alert's texts.
+- Verified in WeChat DevTools 2.02.2609250 (base library 3.6.6, Windows 11 Pro 10.0.22631) with `wechatide-skill`: all
+  18 pages and 11 interactions (the overlay filtering, Repro ON with no results, the Themed sample's suggestions, the
+  tags folded and unfolded, the snackbar after a submit, lapism's filtered content, yechaoa's expanded bar and result,
+  the circular reveal, MultiSearchView's items and event log, the search bar's "Searched: …", Discover's search, More
+  and fold). The console has no error. One warning stays after dozens of relaunches in a row: "21 listeners of event
+  ThemeChange", from CYLTabBarController's `cyl-tab-bar` (it adds the listener when attached and removes it when
+  detached); not fixed here. Node tests 26/26.
+
+| Platform | Screenshot | Environment |
+| :--- | :--- | :--- |
+| Mini program | ![The tabs and the pushed reproduction](assets/miniprogram-example-ios-replica-tabs.png) | Left to right, top to bottom: Search tab, Examples tab, Search bar tab after a search, Tag style tab, Discover tab, the pushed reproduction ("Overlay" in place of the back button). Windows 11 Pro 10.0.22631; WeChat DevTools 2.02.2609250 simulator (390 x 844 window, screenshots at 289 x 625 px); base library 3.6.6; [`d19e0bb`](https://github.com/ChenYilong/CYLSearchViewController/commit/d19e0bb); 2026-11-15 13:22–13:38 NZDT (UTC+13) |
+| Mini program | ![The pages and interactions](assets/miniprogram-example-ios-replica-pages.png) | Placeholder styles; custom image and text; NoInternet with the network message; Other libraries' examples; lapism filtered; Themed suggestions; tags folded; the overlay filtering; Repro ON with no results; yechaoa after a submit (snackbar); the circular reveal opened; MultiSearchView with its event log. Same environment |
+
 ## DONE (2026-11-15): playback controls on the animated placeholders; WeChat DevTools Skills
+
+Update (2026-11-15, 1:1 example): the List style tab is gone (iOS has none); the playback controls are on every
+MaterialSearchView sample (`pages/materialSample`), the pages that show the animated placeholders.
 
 - Branch: `feat/swift-core-next` (based on `feat/swift-core` at `bab8444`).
 - Prompt (verbatim): "基于新分支 开始下微信小程序开发。找到docs里面任何提及微信小程序的信息开始开发。找到crossplatorm

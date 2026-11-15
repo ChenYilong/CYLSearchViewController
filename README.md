@@ -23,21 +23,21 @@ MaterialSearchView "Default" port); `CYLMultiSearchView` with two searches and i
 
 ### WeChat Mini Program
 
-The animated empty placeholders with their playback controls ("Play all", speed, loop), top to bottom: Tag style
-(empty cache) at 2x with the loop off; List style (no matching results) at the defaults.
+The example is a 1:1 copy of the iOS example (`docs/miniprogram-api-alignment.md`). Two columns, left to right then
+top to bottom: the Search tab (the Issue #1317 reproduction); the Examples tab; a MaterialSearchView sample with the
+suggestions as tags folded to two rows, the chevron as the last tag; the Discover tab; the Themed sample; the
+placeholder styles.
 
-![Mini program: Tag style, speed 2x, loop off](docs/assets/miniprogram-playback-controls-tag-style.png)
-
-![Mini program: List style, no matching results](docs/assets/miniprogram-playback-controls-list-style.png)
+![Key details of the mini program example](docs/assets/readme-miniprogram-ios-replica.png)
 
 | Field | Value |
 |:---|:---|
 | Platform | Mini program (`CrossPlatform/wechat-miniprogram-cylsearch`) |
 | Host | Windows 11 Pro 10.0.22631 |
-| Simulator | WeChat DevTools 2.02.2609250 simulator (iPhone frame, original 289 x 625 px) |
+| Simulator | WeChat DevTools 2.02.2609250 simulator (390 x 844 window; screenshots at the simulator's 289 x 625 px) |
 | SDK | Mini program base library 3.6.6 |
-| Repository | [`f485062`](https://github.com/ChenYilong/CYLSearchViewController/commit/f485062) on `feat/swift-core-next` |
-| Taken | 2026-11-15 12:05 NZDT (UTC+13) |
+| Repository | [`d19e0bb`](https://github.com/ChenYilong/CYLSearchViewController/commit/d19e0bb) on `feat/swift-core-next` |
+| Taken | 2026-11-15 13:22–13:38 NZDT (UTC+13) |
 
 More screenshots, one state per row: `docs/search-api-comparison.md` (the Swift ports of five search libraries'
 examples) and `docs/CYLTabBarController-Integration.md`.

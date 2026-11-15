@@ -290,6 +290,13 @@ Every time a branch is created, open its pull request automatically as soon as t
 preference; use `master` or `main` only when that is the source, or when the source branch no longer exists on the
 remote. Name the base branch in the reply.
 
+## Mini program example: a 1:1 copy of the iOS example (added 2026-11-15)
+
+- The mini program example replicates `CYLSearchExample` one to one (tabs, pages, texts in en/ja/zh-Hans/zh-Hant,
+  data, images, interactions), with the iOS resources imported by `scripts/import-ios-resources.js`. A change to the
+  iOS example changes the mini program example in the same task; missing behavior goes into the core components.
+  Full rule: `AGENTS.md`, same section; mapping and platform differences: `docs/miniprogram-api-alignment.md`.
+
 ## Swift core: examples adapt to the core (added 2026-11-13)
 
 - When an Objective-C to Swift change of the core breaks an example's build, fix the example: example code has the lowest weight of all code here. Change any example code as needed; never keep a core API, overload, shim or deprecated alias only because an example uses it, and never lower the Swift core's quality (naming, types, optionality, access control) to fit an example. Compatibility matters only for callers outside the examples (published API users). The Swift coding standard (docs/swift-coding-standard.md) decides.

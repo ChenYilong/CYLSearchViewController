@@ -212,3 +212,7 @@ begins and becomes `DONE` when it ends.
   1. ![Discover](assets/harmonyos-discover-emulator-unsigned.jpeg)
   2. ![Search, empty cache](assets/harmonyos-search-empty-cache-emulator-unsigned.jpeg)
   Open: the empty placeholder reads "暂无数据" in an English UI; hypium tests not run yet.
+- Progress (2026-11-15, "小程序example层要一比一复刻", branch `feat/swift-core-next`): DONE. The mini program example is a
+  1:1 copy of the iOS example (tabs, pages, texts in four languages, data, images, interactions), with the core
+  components it needed (`d19e0bb`); see `docs/miniprogram-api-alignment.md`. Verified in WeChat DevTools: 18 pages,
+  11 interactions, no console error; Node tests 26/26.
