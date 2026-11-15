@@ -442,6 +442,16 @@ Score: 5/5 = 100.
 - Status: `IN PROGRESS` (2026-11-14): score 100/100 for the API table; the library and the example compile; nothing has
   run on HarmonyOS (no device, no tests, no screenshots).
 
+- Run (2026-11-16, Mate 70 Pro emulator, HarmonyOS 6.0.1, unsigned HAP, base 7158911): the build with the accessibility
+  labels and the 30 locales installs and starts; Examples tab (system language zh-CN):
+
+  ![HarmonyOS Examples tab, emulator, 2026-11-16](assets/harmonyos-examples-emulator-unsigned.jpeg)
+
+  Tests: 13 run, 10–11 pass; the UI tests for the tag style sample and Discover error ("click of null"). Cause found:
+  another session drives the same emulator (its apps `com.cyl.tabbar.harmony` and `com.cyl.classifymenu.rn` came to the
+  front mid-test) and the first tap after launch only dismisses the search field's keyboard. Fixed in the tests: each
+  tab test first goes back until the tab bar (`CYLTab0`) shows. Re-run needed with the emulator to itself.
+
 ## DONE (2026-11-12): android/ folder: five Kotlin transcriptions, a merged library and example
 
 - Context: refines the TODO above. Android only; iOS code is not changed. The five reference projects were read in

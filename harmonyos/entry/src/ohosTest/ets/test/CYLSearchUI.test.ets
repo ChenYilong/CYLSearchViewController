@@ -19,6 +19,14 @@ function appString(name: string): string {
   return context().resourceManager.getStringByNameSync(name);
 }
 
+// Back until the tab bar (found by its id) shows again: a test that ends on a pushed page must not break the next one.
+async function backToTabBar(driver: Driver): Promise<void> {
+  for (let i = 0; i < 4 && (await driver.findComponent(ON.id('CYLTab0'))) === null; i++) {
+    await driver.pressBack();
+    await driver.delayMs(800);
+  }
+}
+
 /**
  * The example as on iOS (CYLSearchExampleUITests): the tab bar, the Examples menu, a MaterialSearchView sample whose
  * search page Back closes, and the Discover tab.
@@ -40,6 +48,7 @@ export default function cylSearchUITest() {
 
     it('examplesMenuOpensPlaceholderStyles', 0, async () => {
       const driver = Driver.create();
+      await backToTabBar(driver);
       await (await driver.findComponent(ON.id('CYLTab1'))).click();
       await driver.delayMs(800);
       await driver.assertComponentExist(ON.text(libString('demo.title')));
@@ -52,6 +61,7 @@ export default function cylSearchUITest() {
 
     it('tagStyleSampleSearchClosesOnBack', 0, async () => {
       const driver = Driver.create();
+      await backToTabBar(driver);
       await (await driver.findComponent(ON.id('CYLTab3'))).click();
       await driver.delayMs(800);
       await (await driver.findComponent(ON.id('CYLMaterialSample0'))).click();
@@ -66,6 +76,7 @@ export default function cylSearchUITest() {
 
     it('discoverTabShowsRecentSearches', 0, async () => {
       const driver = Driver.create();
+      await backToTabBar(driver);
       await (await driver.findComponent(ON.id('CYLTab4'))).click();
       await driver.delayMs(800);
       await driver.assertComponentExist(ON.text(appString('discover_recent')));
