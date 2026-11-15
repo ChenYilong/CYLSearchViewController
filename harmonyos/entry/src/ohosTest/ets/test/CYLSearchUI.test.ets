@@ -46,6 +46,16 @@ async function assertLabel(driver: Driver, label: string): Promise<void> {
   expect(await findByLabel(driver, label) !== undefined).assertTrue();
 }
 
+// Back until the tab bar shows again (found by the Search tab's label): a test that ends on a pushed page must not
+// break the next one.
+async function backToTabBar(driver: Driver): Promise<void> {
+  const tab = appString('tab_search');
+  for (let i = 0; i < 4 && !(await driver.findComponent(ON.text(tab))); i++) {
+    await driver.pressBack();
+    await driver.delayMs(800);
+  }
+}
+
 /**
  * The example as on iOS (CYLSearchExampleUITests): the tab bar, the Examples menu, a MaterialSearchView sample whose
  * search page Back closes, and the Discover tab; every control found by its label.
@@ -67,6 +77,7 @@ export default function cylSearchUITest() {
 
     it('examplesMenuOpensPlaceholderStyles', 0, async () => {
       const driver = Driver.create();
+      await backToTabBar(driver);
       await tapLabel(driver, appString('tab_examples'));
       await assertLabel(driver, libString('demo.title'));
       await tapLabel(driver, libString('demo.styles'), 1000);
@@ -77,6 +88,7 @@ export default function cylSearchUITest() {
 
     it('tagStyleSampleSearchClosesOnBack', 0, async () => {
       const driver = Driver.create();
+      await backToTabBar(driver);
       await tapLabel(driver, appString('tab_tagStyle'));
       await tapLabel(driver, libString('demo.port.default'), 1000);
       await tapLabel(driver, libString('demo.port.open'), 1000);
@@ -92,6 +104,7 @@ export default function cylSearchUITest() {
     // type again and submit, then leave with Back twice.
     it('searchFlowByLabels', 0, async () => {
       const driver = Driver.create();
+      await backToTabBar(driver);
       await tapLabel(driver, appString('tab_tagStyle'));
       await tapLabel(driver, libString('demo.port.default'), 1000);
       await tapLabel(driver, libString('demo.port.open'), 1000);
@@ -112,6 +125,7 @@ export default function cylSearchUITest() {
 
     it('discoverTabShowsRecentSearches', 0, async () => {
       const driver = Driver.create();
+      await backToTabBar(driver);
       await tapLabel(driver, appString('tab_discover'));
       await assertLabel(driver, appString('discover_recent'));
       await assertLabel(driver, appString('discover_ask'));
