@@ -28,7 +28,8 @@ emulator. Versions: HarmonyOS NEXT 6.0.1 (API 21), DevEco Studio 6.0.1 (`AGENTS.
 
    `hdc.exe` lives in `sdk\default\openharmony\toolchains`.
 5. hvigor rejects a project path with spaces or non-ASCII characters. This repository lives under
-   `OneDrive - AUT University\文档\…`, so mirror `harmonyos/` to an ASCII path (for example
+   `C:\Users\Chen Yilong\OneDrive - AUT University\Documents\GitHub\…` (ASCII since 2026-11-17, when the folder
+   `文档` was renamed `Documents`, but still with spaces), so mirror `harmonyos/` to an ASCII path without spaces (for example
    `C:\cylbuild\harmonyos`), then open that folder in DevEco Studio or run
    `hvigorw assembleHap --mode module -p module=entry@default -p product=default` there.
 6. Run `ohpm install` in the project root (DevEco Studio does it on Sync) before the first build.
