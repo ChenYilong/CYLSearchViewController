@@ -168,6 +168,7 @@ export struct CYLDemoNavBar {
           }
           .height(44)
           .padding({ left: 8, right: 12 })
+          .accessibilityGroup(true)
           .accessibilityText($r('app.string.discover_back'))
           .onClick(() => this.onBack())
         } else if (this.leftTitle.length > 0) {
@@ -183,6 +184,7 @@ export struct CYLDemoNavBar {
           }
           .height(44)
           .padding({ left: 12, right: 16 })
+          .accessibilityGroup(true)
           .accessibilityText(this.rightLabel)
           .id(this.rightId)
           .onClick(() => this.onRight())

@@ -50,6 +50,35 @@ for (const file of [...etsFiles(join(library, 'ets')), ...etsFiles(join(example,
     if (text) {
       problems.push(`${short}:${i + 1}: English text "${text[1]}" in the UI; use a string resource`);
     }
+    // A container (Row, Column, Stack …) with a label: without accessibilityGroup(true) the screen reader and uitest do
+    // not see the label (found on the emulator, 2026-11-17: "No control labelled 打开搜索").
+    const labelled = /^(\s*)\.accessibilityText\(/.exec(line);
+    if (labelled) {
+      const ind = labelled[1].length;
+      let j = i - 1;
+      let grouped = false;
+      while (j >= 0) {
+        const t = lines[j].trim();
+        const d = lines[j].search(/\S/);
+        if (t === '' || d > ind) {
+          j--;
+        } else if (d === ind && t.startsWith('.')) {
+          grouped ||= t.startsWith('.accessibilityGroup(');
+          j--;
+        } else {
+          break;
+        }
+      }
+      // The container's opening line: a List, Grid, Scroll or WaterFlow keeps its rows separate (a label names it only).
+      let k = j - 1;
+      while (k >= 0 && !(lines[k].search(/\S/) === ind && lines[k].trim().endsWith('{'))) {
+        k--;
+      }
+      const opener = k >= 0 ? lines[k].trim() : '';
+      if (j >= 0 && lines[j].trim() === '}' && !grouped && !/^(List|Grid|Scroll|WaterFlow)\(/.test(opener)) {
+        problems.push(`${short}:${i + 1}: a labelled container without .accessibilityGroup(true); its label is not exposed`);
+      }
+    }
     if (line.includes('.onClick(')) {
       clicks++;
       const before = lines.slice(Math.max(0, i - 30), i).join('\n');

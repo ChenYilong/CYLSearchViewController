@@ -268,6 +268,7 @@ export struct DiscoverView {
                 .justifyContent(FlexAlign.Center)
                 .backgroundColor($r('sys.color.background_primary'))
                 .border({ width: 1, color: $r('sys.color.comp_divider') })
+                .accessibilityGroup(true)
                 .accessibilityText(this.recentFolded ? $r('app.string.cyl_search_showMore') : $r('app.string.cyl_search_showLess'))
                 .id('CYLSearchDiscoverFold')
                 .onClick(() => {
@@ -350,6 +351,7 @@ export struct DiscoverView {
           .borderRadius(26)
           .backgroundColor($r('sys.color.background_primary'))
           .shadow({ radius: 8, color: 'rgba(0,0,0,0.08)', offsetY: 2 })
+          .accessibilityGroup(true)
           .accessibilityText(this.text('discover_ask'))
           .accessibilityDescription(this.text('discover_askAccessibilityHint'))
           .id('CYLSearchDiscoverMicButton')
@@ -367,11 +369,17 @@ export struct DiscoverView {
         .padding({ bottom: 16 })
       }
       .width('100%')
+
+      // The mic button stays above the raised plus button: the space under it continues the curved area's color, so
+      // no white strip shows between the curve and the tab bar (seen on the emulator, 2026-11-17).
+      Row()
+        .width('100%')
+        .height(CYL_PLUS_OVERHANG)
+        .backgroundColor($r('sys.color.background_secondary'))
+        .accessibilityLevel('no')
     }
     .width('100%')
     .height('100%')
-    // The mic button stays above the raised plus button (its page background is white, so the space shows no band).
-    .padding({ bottom: CYL_PLUS_OVERHANG })
     .backgroundColor($r('sys.color.background_primary'))
   }
 }
