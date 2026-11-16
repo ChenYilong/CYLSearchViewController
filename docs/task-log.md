@@ -327,3 +327,23 @@ begins and becomes `DONE` when it ends.
   Prompt (English): "Cherry-pick all open PRs into each other so every PR keeps the same code." / "log both"
 - 2026-11-16 BLOCKED: HarmonyOS next-page screenshots: the current build ignores all touches and the CYLDemoTab launch parameter (BUG TODO in docs/android-and-cross-platform.md). Prompt: "run our HarmonyOS version code on an emulator and push next page update more screenshot in docs".
 - 2026-11-16 DONE: HarmonyOS pushed-page screenshots (Examples + 4 pages, Tag style, Discover, plus page); the "ignores touches" BUG TODO was wrong (stale uitest dumpLayout), corrected. Prompt: "continue "fix harmony touch".
+- 2026-11-16 DONE: rule "every branch with commits has an open pull request; check before each commit; base = the
+  previously active pull request's branch, else master; ask the user when more than two pull requests are open" in
+  AGENTS.md ("Commit readiness"), instructions.md ("Pull requests for new branches") and the `cyl-commit` skill.
+  Applied: PR #8 (feat/swift-core) was closed unmerged, so feat/swift-core got a new pull request to
+  feat/harmonyos-parity (PR #11, the active one).
+  Prompt (verbatim): "写入instructions相关文件，skills相关指令，找到commit 的相关章节，没有的话就新建，保证写入成功：全英文写入：创建分支后有任何commit必须提交pr。不允许只新建分支，持续向该分支commit代码，但不创建pr。因为不创建pr会导致该分支上的所有commit代码全部被忽略。 commit前必须检查该分支pr是否处于open状态，如果不处于open状态必须新建pr。target 目标优先设置为 在创建pr前的活跃pr，如果没有才设置为master分支。如果open状态的pr已经超过两个，那么就要慎重，你需要询问我，是否新建分支创建pr还是保持在本分支继续提交。因为超过两个分支会导致代码合并困难，无法合理分配分支的目标分支。"
+  Prompt (English): "Write into the instruction files and skills, in the commit section (create it if missing), in
+  English: any branch with commits must have a pull request; never keep committing to a branch without one, because
+  its commits are ignored. Before committing, check that the branch's pull request is open; if not, open one. Target:
+  the active pull request from before, else master. When more than two pull requests are open, be careful and ask me
+  whether to create a new branch with a pull request or keep committing on this branch, because more branches make
+  merging hard and leave no sensible target."
+- 2026-11-16 DONE: rule extended: at the end of every exchange, on any branch other than master / main, commit and push
+  without asking (AGENTS.md, instructions.md, `cyl-commit` skill, under the pull request rule). PR #12 is open for
+  feat/swift-core.
+  Prompt (verbatim, new part): "一次问答结束后，只要当前分支不是master main，则必须commit 必须push ，无须询问，因为代码总是在分支上，并不会push 到master main分支。非常安全。无须担心push后的任何风险。"
+  Prompt (English): "After every exchange, as long as the current branch is not master / main, commit and push without
+  asking: the code is always on a branch and never pushed to master / main, so it is safe; no need to worry about any
+  risk after pushing."
+- 2026-11-16 DONE: HarmonyOS Rive crash fix via pins (CYLTableViewPlaceHolder 76762c6, CYLTabBarController c795d08); every platform checked. Prompt: "...learn from it update our 鸿蒙os core component library to fix crash..."
