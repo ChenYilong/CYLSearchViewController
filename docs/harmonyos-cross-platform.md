@@ -12,7 +12,42 @@ The HarmonyOS port of CYLSearchViewController: the ArkTS library `harmonyos/cyls
 | IDE and SDK | DevEco Studio 6.0.1 with its bundled SDK (API 21), hvigor, ohpm |
 | Run | Huawei emulator (Mate 70 Pro, HarmonyOS 6.0.1, API 21); unsigned HAP installed with `hdc install` |
 
-## IDE preparation and emulator prerequisites (DONE 2026-11-16)
+## IN PROGRESS (TODO 2026-11-16): Scorecard 3, issues seen in the emulator screenshots
+
+- Prompt (verbatim): "我已经更新了鸿蒙代码在模拟器上的截图 并更新了鸿蒙相关文档，请查看当前代码的运行截图，识别出截图中存在的问题 。给出issues猎鸟，每发现一个问题就新增一行，第二列写修复工作状态默认填TODO，给出打分机制，这个表格没有TODO 为满分，在没有模拟器的前提下修复issues，我会在你全部修复好后统一运行截图。每次修复一个issue就更新TODO为 TODO need 模拟器截图验证，更新所有TODO后视为满分。一直修复到满分为止。记录所有异常 不限于本仓库的异常，其他仓库的异常也一并列出。比如 tabbar 的badge为文字的时候，文字显示异常，NEW字样 无法一行显示，被换行了。疑似是badge大小未根据字体大小 字体做大小适配拉伸，怀疑是写死了badge的大小。需要根据label文字适配badge大小，参考android与I iOS端实现。 icon 与title y轴放点中心线未对齐。类似的issue也都要列出。"
+- Prompt (English): "I updated the screenshots of the HarmonyOS code on the emulator and the HarmonyOS documents. Look at the
+  screenshots of the current code and find the problems in them. Give an issue list: one row per problem, the second
+  column the fix status, `TODO` by default; give a scoring rule: no `TODO` in the table is a full score. Fix the issues
+  without an emulator; I will take all the screenshots once everything is fixed. Each time an issue is fixed, change its
+  `TODO` to `TODO need 模拟器截图验证` (needs an emulator screenshot to verify); with every `TODO` updated the score is
+  full. Keep fixing until the score is full. Record every problem, not only in this repository: list other
+  repositories' problems too. For example, when a tab bar badge is text, the text is wrong: `NEW` does not fit on one
+  line and wraps, probably because the badge size does not follow the font and the text (a fixed badge size); the badge
+  must size itself to its label, as on Android and iOS. The icon and the title are not aligned on the vertical center
+  line. List every similar issue."
+- Screenshots read (2026-11-16): `docs/assets/harmonyos-examples-emulator-unsigned.jpeg` (Examples tab, emulator time
+  07:36, today); `harmonyos-discover-emulator-unsigned.jpeg` and `harmonyos-search-empty-cache-emulator-unsigned.jpeg`
+  (2026-11-15, before the example was rebuilt 1:1 with iOS in `940db01`); CYLTabBarController
+  `docs/assets/harmonyos-tab-bar-svga-launch.png` and `harmonyos-tab-bar-svga-messages-tap.png` (branch
+  `feat/harmonyos-svga`); and the text badge described by the user (no screenshot in the repositories).
+- Scoring: Score = rows whose status is not `TODO` / all rows × 100. `TODO need 模拟器截图验证` (fixed in code, waiting
+  for the user's emulator screenshot) counts as not `TODO`; `DONE` once the screenshot confirms it.
+
+| # | Status | Repository | Seen in | Issue | Cause found in the code | Fix |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 | TODO | CYLTabBarController (`harmonyos-cyltabbar`) | user report | A text badge (`NEW`) wraps to two lines: the badge does not size itself to its text | `CYLBadgeView`: the `Text` has no `maxLines(1)` and no width from its text; positioned inside the narrow icon box, it takes the box's width limit and wraps (iOS and Android measure the label and grow the badge) | |
+| 2 | TODO | CYLTabBarController (`harmonyos-cyltabbar`) | `harmonyos-tab-bar-svga-launch.png` | The icon is not centered over its title (on the vertical center line): every animated icon sits about 6 vp right of its title | `cylTab`: the icon `Stack` is `imageSize` wide with `alignContent(TopStart)`; an SVGA / Lottie icon of `svgaSize` / `lottieSize` larger than `imageSize` overflows to the right | |
+| 3 | TODO | CYLTabBarController (`harmonyos-cyltabbar`) | both tab bar screenshots, `harmonyos-examples-emulator-unsigned.jpeg` | The plus button\x27s title sits lower than the other tab titles (`发布`, `搜索栏`) | `cylPlus`: the title is at a fixed `y = tabBarHeight - 17`, while the other titles are centered with their icon in the column (`(tabBarHeight - imageSize - 3 - 13) / 2 + imageSize + 3`) | |
+| 4 | TODO | CYLTabBarController (`harmonyos-cyltabbar`) | `harmonyos-tab-bar-svga-messages-tap.png` | The badge sits on the icon\x27s right edge for a number but the red dot is far to the right of the icon: the badge position does not follow the icon\x27s real size | `CYLBadgeView` is anchored at `anchorWidth = imageSize`, not at the drawn icon size (row 2) | |
+| 5 | TODO | CYLSearchViewController (`harmonyos/entry`) | `harmonyos-examples-emulator-unsigned.jpeg` | The plus button is a small grey circle inside the bar; on iOS (and its mini program copy) it is a raised blue button (AGENTS.md: examples prefer the raised plus button) | `pages/Index.ets` gives the plus button `imageSize: 30`; `tab_plus_circle_fill_normal.svg` is grey | |
+| 6 | TODO | CYLSearchViewController (`harmonyos/entry`) | `harmonyos-examples-emulator-unsigned.jpeg` | The Examples card (white, rounded) runs down to the tab bar instead of ending after its four rows, as the iOS inset grouped list does | `ExamplesMenu.ets`: the `List` has `layoutWeight(1)` | |
+| 7 | TODO | CYLSearchViewController (`harmonyos/entry`) | `harmonyos-search-empty-cache-emulator-unsigned.jpeg` | The empty placeholder is centered in the whole page, so the keyboard covers its lower part ("暂无数据" touches the keyboard) | The window does not resize for the keyboard (`KeyboardAvoidMode.OFFSET` by default), so the page keeps its full height under the keyboard | |
+| 8 | TODO | CYLSearchViewController (`harmonyos/entry`) | `harmonyos-examples-emulator-unsigned.jpeg` | The Tag style and Discover tab icons are a bookmark and a star, not iOS\x27s `tag` and `sparkle.magnifyingglass` | The current `tab_tag_*.svg` draw a tag and `tab_sparkle_magnifyingglass_*.svg` a magnifying glass: the screenshot came from an older build. The magnifying glass has a plus inside, not iOS\x27s sparkle | |
+| 9 | TODO | CYLSearchViewController (`harmonyos/entry`) | `harmonyos-discover-emulator-unsigned.jpeg` (2026-11-15) | Discover: no tab bar; recent searches in English in a Chinese UI; empty search field; no discover topics; "打开搜索" where iOS has the trash button | Not in the current code: Discover is a tab page of `CYLTabBarController` since `940db01`, reads `rawfile/discover/zh_CN.json`, takes the first topic as the placeholder, shows the topics and the trash header button | |
+
+<!-- harmonyos-score3:begin -->
+Score: 0/100 (0 of 9 rows not `TODO`).
+<!-- harmonyos-score3:end -->
 
 - Prompt (verbatim): "全英文写入instructions相关文件以及 skills相关文件： 鸿蒙系统 ide 准备工作，模拟器安装的必要条件， region should be set to china (NZ) in country.region.xml to china make sure The region file now says China: <countryregion name="CN"/>"
 - Prompt (English): "Write, in English only, into the instruction files and the skill files: the HarmonyOS IDE
