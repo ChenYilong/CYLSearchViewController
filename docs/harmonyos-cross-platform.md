@@ -65,6 +65,20 @@ The HarmonyOS port of CYLSearchViewController: the ArkTS library `harmonyos/cyls
   instance in Device Manager, `hdc list targets` empty), so the code could not be run here; the CYLTabBarController
   session, which has the emulator `127.0.0.1:5557`, was asked to run the row 17 checks.
 
+- Next screenshot run (prepared 2026-11-16 16:22): build from `feat/harmonyos-parity` at the commit that adds this note
+  or later; cyltabbar `ebaed17` (badges centred on the icon corner, its #25, double-checked in `CYLBadge.ets`: one line,
+  width with the border, `markAnchor` 50 %). Sync `harmonyos/vendor` first (`python3 harmonyos/scripts/sync-sub-repositories.py`),
+  then `hvigorw clean` and `hvigorw assembleHap --mode module -p module=entry@default -p product=default`; install the
+  unsigned HAP (no signing). The screenshots of `d771c1f` came from base `5a30019`, older than rows 16 to 23.
+  What each screen should show:
+  - Search tab (row 10, 20): the last result rows scroll above the plus button; no white band above the bar.
+  - Examples tab (rows 6, 20, 23): the SVGA animation and "Tab icons: SF Symbols" above the card; the card ends after
+    its four rows; no band. Tap "Tab icons" twice: SVGA icons in the tab bar (keys, then file).
+  - Placeholder styles (rows 20, 21): grey icons in every section; the list runs down to the bar without a band.
+  - Discover (rows 18, 22): the light curve spans the whole width, with no outline; the mic button above the plus button.
+  - `aa start -b com.cyl.search.harmonyos -a EntryAbility --pi CYLDemoTab 3` (row 16): opens Tag style.
+  - CYLTabBarController demo (rows 1, 12, 14, 15): `NEW` on one line, centred on the icon corner.
+
 <!-- harmonyos-score3:begin -->
 Score: 100/100 (23 of 23 rows not `TODO`).
 <!-- harmonyos-score3:end -->
