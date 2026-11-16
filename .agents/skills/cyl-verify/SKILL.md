@@ -150,3 +150,12 @@ Check the HarmonyOS screen-reader labels, touch areas and localization: `node ha
 After CYLTabBarController's string table changes, run `node harmonyos/scripts/import-cyltabbar-localizations.mjs` again.
 UI tests find controls by their accessibility labels and localized texts first (skill `cyl-accessibility-i18n`); a
 control a test cannot find by label is a screen-reader gap to fix in the app first.
+
+## Running scripts: prefer bash (added 2026-11-16)
+
+- Run scripts with bash first: write them as `#!/usr/bin/env bash` files and run them with `bash script.sh`, or pipe
+  a heredoc to `bash` (`bash <<'EOF' … EOF`), instead of typing them straight into the interactive shell.
+- Reason: the default shell here is zsh, and zsh does not split an unquoted variable into words. For example, with
+  `box="10 20 30 40"`, `sips --cropOffset $box …` passes one argument in zsh but four in bash. The error this rule
+  avoids: "zsh doesn't split $box into words either. Running the same measurement as a bash script."
+- In zsh, when a script cannot be used, split explicitly (`${=box}`) or use an array; never rely on word splitting.

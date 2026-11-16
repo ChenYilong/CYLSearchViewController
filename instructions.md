@@ -365,3 +365,12 @@ remote. Name the base branch in the reply.
   `accessibilityIdentifier` / `accessibilityLabel`, Android `contentDescription`, HarmonyOS `.id()` /
   `accessibilityText`, `ON.id` / `ON.accessibilityText`), then localized text. Use them to trigger taps, complex flows and
   series of actions; coordinates are the last resort.
+
+## Running scripts: prefer bash (added 2026-11-16)
+
+- Run scripts with bash first: write them as `#!/usr/bin/env bash` files and run them with `bash script.sh`, or pipe
+  a heredoc to `bash` (`bash <<'EOF' … EOF`), instead of typing them straight into the interactive shell.
+- Reason: the default shell here is zsh, and zsh does not split an unquoted variable into words. For example, with
+  `box="10 20 30 40"`, `sips --cropOffset $box …` passes one argument in zsh but four in bash. The error this rule
+  avoids: "zsh doesn't split $box into words either. Running the same measurement as a bash script."
+- In zsh, when a script cannot be used, split explicitly (`${=box}`) or use an array; never rely on word splitting.
