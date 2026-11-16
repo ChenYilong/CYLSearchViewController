@@ -1,4 +1,4 @@
-import { UIContext } from '@kit.ArkUI';
+import { display, UIContext, window } from '@kit.ArkUI';
 import { cylAnimate } from './CYLSearchAnimation';
 import { cylFilterSuggestions, cylFoldedTagCount, CYLSearchFilterResult, cylSuggestionMatches } from './CYLSearchLogic';
 import { common } from '@kit.AbilityKit';
@@ -667,9 +667,53 @@ export struct CYLSearchComponent {
    */
   @Require @Param searchView: CYLSearchView;
   @Local tagsWidth: number = 0;
+  // The part of the area under the search bar that the keyboard covers (vp): the placeholders and suggestions end
+  // above the keyboard, whatever keyboard mode the app's window uses (iOS insets the scroll view for the keyboard).
+  @Local keyboardInset: number = 0;
+  private keyboardHeight: number = 0;
+  private contentBottom: number = 0;
+  private hostWindow: window.Window | undefined = undefined;
+  private keyboardListener: (height: number) => void = (height: number) => {
+    this.keyboardHeight = this.getUIContext().px2vp(height);
+    this.updateKeyboardInset();
+  };
 
   aboutToAppear(): void {
     this.searchView.uiContext = this.getUIContext();
+    const context = this.getUIContext().getHostContext();
+    if (context === undefined) {
+      return;
+    }
+    window.getLastWindow(context).then((win: window.Window) => {
+      this.hostWindow = win;
+      win.on('keyboardHeightChange', this.keyboardListener);
+    }).catch(() => {
+      // No window: the content keeps its full height.
+    });
+  }
+
+  aboutToDisappear(): void {
+    try {
+      this.hostWindow?.off('keyboardHeightChange', this.keyboardListener);
+    } catch (error) {
+      // Already gone with its window.
+    }
+  }
+
+  // The keyboard rises from the bottom of the screen: only the part above the content's bottom edge covers it.
+  private updateKeyboardInset(): void {
+    if (this.keyboardHeight <= 0 || this.contentBottom <= 0) {
+      this.keyboardInset = 0;
+      return;
+    }
+    let screenHeight = 0;
+    try {
+      screenHeight = this.getUIContext().px2vp(display.getDefaultDisplaySync().height);
+    } catch (error) {
+      this.keyboardInset = 0;
+      return;
+    }
+    this.keyboardInset = Math.max(0, this.keyboardHeight - (screenHeight - this.contentBottom));
   }
 
   private rowHeight(): number {
@@ -919,9 +963,14 @@ export struct CYLSearchComponent {
             }
             .width('100%')
             .height('100%')
+            .padding({ bottom: this.keyboardInset })
           }
           .width('100%')
           .layoutWeight(1)
+          .onAreaChange((_: Area, area: Area) => {
+            this.contentBottom = Number(area.globalPosition.y ?? 0) + Number(area.height);
+            this.updateKeyboardInset();
+          })
         }
         .width('100%')
         .height('100%')
