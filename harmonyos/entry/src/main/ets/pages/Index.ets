@@ -57,6 +57,8 @@ function cylMarkSelectedImages(configuration: Record<string, Object>): void {
 @Component
 struct Index {
   @State selectedIndex: number = 0;
+  // The `CYLDemoTab` launch parameter (EntryAbility stores it), also when the app is already running.
+  @StorageLink('CYLDemoTab') @Watch('demoTabChanged') demoTab: number = -1;
   private context: common.Context = this.getUIContext().getHostContext() as common.Context;
   private items: CYLConfiguredTabBarItem[] = [];
   private plusButton: CYLPlusButton | undefined = undefined;
@@ -100,9 +102,12 @@ struct Index {
       console.error(`CYLTabBarConfiguration.json: ${JSON.stringify(error)}`);
     }
     // `aa start ... --pi CYLDemoTab 1` selects that tab, for screenshots (iOS `-CYLDemoTab 1`).
-    const tab = AppStorage.get<number>('CYLDemoTab');
-    if (tab !== undefined && tab >= 0 && tab < this.items.length) {
-      this.selectedIndex = tab;
+    this.demoTabChanged();
+  }
+
+  private demoTabChanged(): void {
+    if (this.demoTab >= 0 && this.demoTab < this.items.length) {
+      this.selectedIndex = this.demoTab;
     }
   }
 
