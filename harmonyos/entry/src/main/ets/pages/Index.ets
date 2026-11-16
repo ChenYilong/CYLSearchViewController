@@ -90,7 +90,9 @@ struct Index {
           selectedImage: cylTabImage((plus['CYLTabBarItemImage'] as string) + '#selected'),
           title: cylAppText(this.context, (plus['CYLTabBarItemTitle'] as string).replace('.', '_')),
           identifier: plus['CYLTabBarItemPageIdentifier'] as string,
-          imageSize: 30,
+          // The raised plus button of the iOS example (and its mini program copy): 56 vp, its top above the bar (the
+          // title stays aligned with the tab titles; AGENTS.md, "Example layer, raised plus button").
+          imageSize: 56,
           selectable: true
         };
       }
