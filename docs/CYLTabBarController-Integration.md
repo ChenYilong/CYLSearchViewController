@@ -288,3 +288,24 @@ Flutter example on iOS with SVGA tab icons (CYL 17Pro, iOS 26.3, debug, base 785
 CYLTabBarController pin needed the plugin's platform views to be `@MainActor` (the core's views are main-actor isolated).
 
 ![Flutter iOS, SVGA tab icons](assets/flutter-ios-svga-tab-icons-ios26.3.png)
+
+## IN PROGRESS (TODO 2026-11-16): Rive tab icons in the Flutter and React Native examples, iOS and Android
+
+- Prompt (verbatim): "I call: 加上 Rive\" for  Flutter and React Native on iOS and Android should include Rive, so those tags animate there too. 至少tabbar需要加"
+- Prompt (English): "Add Rive: Flutter and React Native, on iOS and Android, should include Rive, so those tabs animate there
+  too. At least the tab bar needs it."
+- Requirements: Rive tab icons in the tab bar of both examples on both platforms, from CYLTabBarController's Rive
+  support at the pinned `5682b9e` (iOS subspec `CYLTabBarController/Rive` with RiveRuntime; Android `app.rive:rive-android`
+  10.3.0, initialised by the library); the file is CYLTabBarController's `Example-SwiftUI-Rive/AnimatedApp/RiveAssets/icons.riv`
+  (artboards CHAT, SEARCH, BELL, USER, state machine `<ARTBOARD>_Interactivity`, input `active`), as its `example_rive` and
+  `example-rive`. Rive is the default icon source; the symbols and SVGA stay selectable.
+- Status: TODO.
+
+| # | Example | Status |
+| :--- | :--- | :--- |
+| 1 | Flutter, iOS | TODO |
+| 2 | Flutter, Android | TODO |
+| 3 | React Native, iOS | TODO |
+| 4 | React Native, Android | TODO |
+
+Score: 0/100 (TODO left 4).
