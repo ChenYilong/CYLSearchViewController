@@ -7,12 +7,14 @@
 //      pinned checkout android/merged/.cyl-deps/CollectionViewClassifyMenu.
 // Column 3, the iOS counterpart, is found (1) in docs/android-api-alignment.md (the iOS-to-Android table, read in
 // reverse), (2) as a declaration of the same name in the iOS sources (Sources/CYLSearchViewController for A,
-// CollectionViewClassifyMenu's Class folder for B), or (3) in MANUAL below; otherwise it is TODO.
+// CollectionViewClassifyMenu's Class folder for B), (3) for B, in the sub-repository's own generated Android-to-iOS
+// table (its docs/android-ios-api.md, 100/100 there), or (4) in MANUAL below; otherwise it is TODO.
 // Score = rows not TODO / rows x 100 (rule "API parity tables", AGENTS.md).
 //
 // Usage: node android/merged/scripts/ios-alignment.mjs [--check]
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..');
@@ -21,6 +23,11 @@ const REVERSE = join(ROOT, 'docs', 'android-api-alignment.md');
 const BEGIN = '<!-- ios-alignment:begin -->';
 const END = '<!-- ios-alignment:end -->';
 const MENU = join(ROOT, 'android', 'merged', '.cyl-deps', 'CollectionViewClassifyMenu');
+// The commit of the CollectionViewClassifyMenu checkout the table was measured against (it may differ from the pin).
+let MENU_COMMIT = 'unknown commit';
+try {
+  MENU_COMMIT = execFileSync('git', ['-C', MENU, 'log', '-1', '--format=%h %cs'], { encoding: 'utf8' }).trim();
+} catch { /* no checkout */ }
 
 const SECTIONS = [
   {
@@ -29,14 +36,65 @@ const SECTIONS = [
     ios: [join(ROOT, 'Sources', 'CYLSearchViewController')],
   },
   {
-    title: 'B. CollectionViewClassifyMenu (tag views): `com.cyl.classifymenu` → its iOS library',
+    title: `B. CollectionViewClassifyMenu (tag views): \`com.cyl.classifymenu\` → its iOS library (measured at \`${MENU_COMMIT}\`)`,
     kotlin: join(MENU, 'android', 'merged', 'library', 'src', 'main', 'java', 'com', 'cyl', 'classifymenu'),
     ios: [join(MENU, 'CollectionViewClassifyMenu', 'Class')],
+    table: join(MENU, 'docs', 'android-ios-api.md'),
   },
 ];
 
 // Counterparts with another name or shape, found by reading both sides: "Kotlin row key" -> "iOS counterpart".
-const MANUAL = {};
+// A. Android stand-ins for UIKit types map to the UIKit type the iOS API takes; B. Swift names of the tag library.
+const MANUAL = {
+  // A. CYLSearchViewController
+  'CYLMultiSearchView.fontSize': '`CYLMultiSearchView.font` (`UIFont.pointSize`)',
+  'CYLSearchBarView.fontSize': '`CYLSearchBarView.font` (`UIFont.pointSize`)',
+  CYLSearchBarItemState: '`UIControl.State` (`CYLSearchBarItem.setTitleTextAttributes(_:for:)`; Android stand-in)',
+  'CYLSearchBarItemState.Normal': '`UIControl.State.normal`',
+  'CYLSearchBarItemState.Selected': '`UIControl.State.selected`',
+  'CYLSearchBarItemState.Disabled': '`UIControl.State.disabled`',
+  CYLSearchBarItemTextAttributes: '`[NSAttributedString.Key: Any]` (`CYLSearchBarItem.setTitleTextAttributes(_:for:)`, `setBadgeTextAttributes(_:for:)`; Android stand-in)',
+  CYLTextAutocapitalizationType: '`UITextAutocapitalizationType` (`CYLSearchBarView.autocapitalizationType`, `CYLMultiSearchView.autocapitalizationType`; Android stand-in)',
+  'CYLTextAutocapitalizationType.None': '`UITextAutocapitalizationType.none`',
+  'CYLTextAutocapitalizationType.Words': '`UITextAutocapitalizationType.words`',
+  'CYLTextAutocapitalizationType.Sentences': '`UITextAutocapitalizationType.sentences`',
+  'CYLTextAutocapitalizationType.AllCharacters': '`UITextAutocapitalizationType.allCharacters`',
+  CYLTextAutocorrectionType: '`UITextAutocorrectionType` (`CYLSearchBarView.autocorrectionType`; Android stand-in)',
+  'CYLTextAutocorrectionType.Default': '`UITextAutocorrectionType.default`',
+  'CYLTextAutocorrectionType.No': '`UITextAutocorrectionType.no`',
+  'CYLTextAutocorrectionType.Yes': '`UITextAutocorrectionType.yes`',
+  CYLLineBreakMode: '`NSLineBreakMode` (`CYLSearchView.suggestionLineBreakMode`; Android stand-in)',
+  'CYLLineBreakMode.WordWrapping': '`NSLineBreakMode.byWordWrapping`',
+  'CYLLineBreakMode.CharWrapping': '`NSLineBreakMode.byCharWrapping`',
+  'CYLLineBreakMode.Clipping': '`NSLineBreakMode.byClipping`',
+  'CYLLineBreakMode.TruncatingHead': '`NSLineBreakMode.byTruncatingHead`',
+  'CYLLineBreakMode.TruncatingTail': '`NSLineBreakMode.byTruncatingTail`',
+  'CYLLineBreakMode.TruncatingMiddle': '`NSLineBreakMode.byTruncatingMiddle`',
+  CYLSearchSuggestionCell: 'the `CYLSearchView` suggestion row: a `UITableViewCell` (reuse identifier `CYLSearchSuggestionCell`) with a `UIListContentConfiguration` (icon and text)',
+  'CYLSearchView.pageBackgroundColor': '`CYLSearchView.backgroundColor` (the page background; the view itself only shows the scrim)',
+  // B. CollectionViewClassifyMenu: Swift names of the Objective-C selectors the Android API mirrors
+  Kind: '`CYLMenuIconDrawable.Kind` → the bundle images `cyl_fold_chevron` (CHEVRON_DOWN), `cyl_tag_plus` (PLUS), `cyl_more` (ELLIPSIS)',
+  'CYLTag.styleWithBaseStyle': '`CYLTag.style(basedOn:)`',
+  'CYLTagColors.styleByApplyingToStyle': '`CYLTagColors.styleByApplying(to:)`',
+  'CYLTagListView.addTagsWithTitles': '`CYLTagListView.addTags(withTitles:)`',
+  'CYLTagListView.removeTagAtIndex': '`CYLTagListView.removeTag(at:)`',
+  'CYLTagListView.deleteItemAtIndexPath': '`CYLTagListView.deleteItem(at:)`',
+  'CYLTagListView.tagButtonAtIndexPath': '`CYLTagListView.tagButton(at:)`',
+  'CYLTagListView.reordering': '`CYLTagListView.isReordering`',
+  'CYLTagListView.setTagsWithTitles': '`CYLTagListView.setTags(withTitles:colors:)`',
+  'CYLTagListView.addTagWithTitle': '`CYLTagListView.addTag(withTitle:)`',
+  'CYLTagListView.insertTagWithTitle': '`CYLTagListView.insertTag(withTitle:at:)`',
+  'CYLTagListView.removeTagsAtIndexes': '`CYLTagListView.removeTags(at:)`',
+  'CYLTagListView.toggleSelectionOfItemAtIndexPath': '`CYLTagListView.toggleSelection(at:)`',
+  'CYLTagListView.selectItemAtIndexPath': '`CYLTagListView.selectItem(at:)`',
+  'CYLTagListView.deselectItemAtIndexPath': '`CYLTagListView.deselectItem(at:)`',
+  'CYLTagListView.numberOfRowsInSection': '`CYLTagListView.numberOfRows(inSection:)`',
+  'CYLTagListView.numberOfVisibleItemsInSection': '`CYLTagListView.numberOfVisibleItems(inSection:)`',
+  'CYLTagListView.scrollToSection': '`CYLTagListView.scroll(toSection:animated:)`',
+  'CYLTagListView.scrollToItemAtIndexPath': '`CYLTagListView.scrollToItem(at:animated:)`',
+  'CYLMenuConfigurationException.domain': '`CYLMenuConfigurationError.errorDomain` (`"CYLMenuConfigurationErrorDomain"`)',
+  tagListViewWithConfigurationFile: '`CYLTagListView(configurationFile:)` (`throws`)',
+};
 
 function files(dir, exts) {
   if (!existsSync(dir)) return [];
@@ -150,6 +208,19 @@ function reverseMap() {
   return map;
 }
 
+// Kotlin "Class.member" -> iOS API, read from a sub-repository's own Android-to-iOS table
+// (rows "| `Android API` | description | iOS API |"; TODO rows are skipped).
+function tableMap(path) {
+  const map = new Map();
+  if (!path || !existsSync(path)) return map;
+  for (const line of readFileSync(path, 'utf8').split(/\r?\n/)) {
+    const m = /^\| `([\w.]+)` \| .*? \| (.+) \|$/.exec(line);
+    if (!m || m[2].trim() === 'TODO') continue;
+    if (!map.has(m[1])) map.set(m[1], m[2].trim());
+  }
+  return map;
+}
+
 function iosIndex(dirs) {
   const text = dirs.flatMap((d) => files(d, ['.swift', '.h'])).filter((f) => !/Tests?\b|Demo|Example/i.test(f))
     .map((f) => readFileSync(f, 'utf8')).join('\n');
@@ -162,7 +233,7 @@ function iosMatch(row, index) {
   const patterns = row.type
     ? [new RegExp(`(class|struct|enum|protocol|@interface|@protocol|typedef NS_(?:ENUM|OPTIONS)\\(\\w+,)\\s*${esc}\\b`)]
     : row.kind === 'case'
-      ? [new RegExp(`\\bcase\\s+${esc}\\b`), new RegExp(`\\b${row.owner}${esc[0].toUpperCase()}${esc.slice(1)}\\b`), new RegExp(`\\b${esc}\\b\\s*[,=]`)]
+      ? [new RegExp(`\\bcase\\s+${esc}\\b`), new RegExp(`\\bcase\\s+${esc[0].toLowerCase()}${esc.slice(1)}\\b`), new RegExp(`\\b${row.owner}${esc[0].toUpperCase()}${esc.slice(1)}\\b`), new RegExp(`\\b${esc}\\b\\s*[,=]`)]
       : [
         new RegExp(`(func|var|let)\\s+${esc}\\b`),
         new RegExp(`@property[^;]*\\b${esc}\\s*;`),
@@ -181,9 +252,10 @@ function build() {
   for (const section of SECTIONS) {
     const rows = kotlinRows(section.kotlin);
     const index = iosIndex(section.ios);
+    const table = tableMap(section.table);
     let ok = 0;
     const body = rows.map((r) => {
-      const ios = MANUAL[r.key] ?? reverse.get(r.key) ?? (r.type ? reverse.get(r.name) : undefined) ?? iosMatch(r, index);
+  const ios = MANUAL[r.key] ?? table.get(r.key) ?? reverse.get(r.key) ?? (r.type ? reverse.get(r.name) : undefined) ?? iosMatch(r, index);
       if (ios) ok++;
       const label = r.type ? `**${r.kind} \`${r.name}\`**` : `\`${r.key}\``;
       const iosCell = ios ? (ios.startsWith('`') || ios.startsWith('**') ? ios : `\`${ios}\``) : 'TODO';

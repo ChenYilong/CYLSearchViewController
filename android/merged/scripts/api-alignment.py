@@ -77,6 +77,7 @@ OVERRIDES = {
     'tintColorDidChange()': (None, 'framework override (Android has no inherited tint)', 'N/A'),
     'safeAreaInsetsDidChange()': (None, 'framework override (Android: window insets listener)', 'N/A'),
     'viewDidLoad()': (None, 'framework override (Android: `onViewCreated`)', 'N/A'),
+    'viewDidLayoutSubviews()': (None, 'framework override (Android lays out with its layout classes)', 'N/A'),
 }
 # UIKit protocol conformances: public in Swift only because the protocol requires it.
 CONFORMANCE = re.compile(r'^(textField|textFieldShouldReturn|textFieldShouldBeginEditing|textFieldDidBeginEditing|'

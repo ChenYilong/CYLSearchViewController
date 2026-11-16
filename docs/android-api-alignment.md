@@ -35,6 +35,7 @@ Score = (DONE + N/A) / rows × 100, recomputed by the script after each change.
 | 2026-11-12 | iOS added `CYLSearchSuggestionStyle` and `suggestionsTagView` / `suggestionStyle` (299 rows); Android had them already | 100 |
 | 2026-11-13 | iOS and Android added `showsEmptyResultsPlaceholder`, `emptyResultsScenario`, `emptyResultsView` (302 rows) | 100 |
 | 2026-11-13 | iOS and Android added the suggestion cache (`CYLSearchSuggestionCachePolicy`, `CYLSearchSuggestionCache`, `CYLSearchSuggestionStore`, the cache properties of `CYLSearchView`) and `focusesSearchFieldOnShow` (323 rows; docs/core-todo.md) | 100 |
+| 2026-11-17 | Regenerated: two new rows, `viewDidLayoutSubviews()` of `CYLSearchController` and `CYLSearchResultsViewController`, marked N/A as UIKit overrides (397 rows) | 100 |
 
 The scores per step are replayed with `--only=<classes added so far>` on the final sources, so they include the
 `requestFocus` / `clearFocus` / `setBackgroundColor` overrides that were added last.
@@ -49,7 +50,7 @@ messages, localized strings (English, Simplified Chinese, a missing key) and the
 ## Table
 
 <!-- api-alignment:begin -->
-Rows: 395; DONE 357, N/A 38, TODO 0; score 100/100.
+Rows: 397; DONE 357, N/A 40, TODO 0; score 100/100.
 
 | iOS API | Upstream counterpart (named in the iOS doc comment) | Android (`cylsearch`) | Status |
 | :--- | :--- | :--- | :--- |
@@ -270,6 +271,7 @@ Rows: 395; DONE 357, N/A 38, TODO 0; score 100/100.
 | `CYLSearchController.init(searchDataSource:)` | — | constructor(searchDataSource) | DONE |
 | `CYLSearchController.init(nibName:bundle:)` | — | not available on iOS either (`@available(*, unavailable)`) | N/A |
 | `CYLSearchController.init(coder:)` | — | no-argument constructor (fragment recreation) | DONE |
+| `CYLSearchController.viewDidLayoutSubviews()` | — | framework override (Android lays out with its layout classes) | N/A |
 | `CYLSearchController.viewDidLoad()` | — | framework override (Android: `onViewCreated`) | N/A |
 | `CYLSearchController.show(in:)` | — | `CYLSearchController.showInViewController` | DONE |
 | `CYLSearchController.hide(_:)` | — | `CYLSearchController.hide` | DONE |
@@ -351,6 +353,7 @@ Rows: 395; DONE 357, N/A 38, TODO 0; score 100/100.
 | `CYLSearchResultsViewController.init(style:)` | — | not available on iOS either (`@available(*, unavailable)`) | N/A |
 | `CYLSearchResultsViewController.init(nibName:bundle:)` | — | not available on iOS either (`@available(*, unavailable)`) | N/A |
 | `CYLSearchResultsViewController.init(coder:)` | — | no-argument constructor (fragment recreation) | DONE |
+| `CYLSearchResultsViewController.viewDidLayoutSubviews()` | — | framework override (Android lays out with its layout classes) | N/A |
 | `CYLSearchResultsViewController.viewDidLoad()` | — | framework override (Android: `onViewCreated`) | N/A |
 | `CYLSearchResultsViewController.reloadSearchResults()` | — | `CYLSearchResultsViewController.reloadSearchResults` | DONE |
 | `CYLSearchResultsViewController.reloadResultsTableView()` | — | `CYLSearchResultsViewController.reloadResultsTableView` | DONE |
