@@ -623,3 +623,32 @@ done, so each pull request's changes were translated to Kotlin and merged into t
 
 All 22 open pull requests are handled (19 merged, fully or adapted to keep the existing API; 3 change no code).
 Open issues: `docs/android-upstream-issues.md`.
+
+## DONE (2026-11-16): HarmonyOS Rive crash fixes from the sibling libraries, and a check of every platform
+
+- Prompt (verbatim): "CYLTabBarController andCollectionViewClassifyMenu文件夹CYLTableViewPlaceHolder 文件夹has Writing the Rive tab icon component.please learn from it update our 鸿蒙os core component library to fix crash on 鸿蒙os。please learn from it double check this is also fixed on other platform like iOS Android rect native and flutter 微信小程序  continue"
+- Prompt (English): "CYLTabBarController, CollectionViewClassifyMenu and CYLTableViewPlaceHolder have written the Rive tab
+  icon component; learn from them, update our HarmonyOS core component library to fix the crash on HarmonyOS, and
+  double-check that it is fixed on the other platforms too (iOS, Android, React Native, Flutter, WeChat mini program)."
+- What the sibling projects found (CYLTabBarController `c795d08`, docs/Rive-Animation.md): `@ohos/rive` 1.0.4 crashes
+  (1) with its default GPU renderer on the emulator (`eglDestroySurface` on the EGL worker thread) and (2) when Rive views
+  are disposed and recreated many times a second. Fixes: the Canvas renderer on the emulator
+  (CYLTableViewPlaceHolder `1902852`, `cylRiveRendererType()`; CollectionViewClassifyMenu `3417e7e`) and no rebuild churn
+  (one Rive view per item, kept across relayouts).
+- This project: the search core itself has no Rive code on any platform; on HarmonyOS, Rive comes only through the
+  vendored libraries. The pins in `harmonyos/oh-package.json5` moved:
+  CYLTableViewPlaceHolder `5bcbdb5` → `76762c6` (has the Canvas renderer fix, plus the HUD page and GIF crash fixes),
+  CYLTabBarController `ea5b989` → `c795d08` (its HarmonyOS tab bar has no Rive icon yet on the pushed branch).
+- Verified (Mate 70 Pro emulator, unsigned HAP, base 7cc3d83): builds; Examples → Search and refresh (pull to refresh),
+  Placeholder styles → a placeholder detail; the app keeps one process (no crash), the emulator stays up.
+
+  ![HarmonyOS placeholder detail with the fixed library](assets/harmonyos-placeholder-detail-rive-fix-emulator.jpeg)
+
+| Platform | Rive in this project | Status |
+|:---|:---|:---|
+| HarmonyOS | through CYLTableViewPlaceHolder (refresh / placeholder animations) | DONE: pin with the Canvas renderer fix |
+| iOS | none in the core; CYLTabBarController's Rive subspec not used (SVGA icons) | no change needed (RiveRuntime uses Metal, no EGL path) |
+| Android | none; tab icons default or SVGA | no change needed; CYLTabBarController's Android Rive tap fix (`1cd86c2`) only matters with Rive icons |
+| React Native | none (SVGA / symbols) | no change needed (native host views) |
+| Flutter | none (SVGA config) | no change needed (native platform views) |
+| WeChat mini program | none in cyl-search (Lottie, SVGA) | no change needed (`cyl-rive` is a Canvas renderer already) |

@@ -346,3 +346,4 @@ begins and becomes `DONE` when it ends.
   Prompt (English): "After every exchange, as long as the current branch is not master / main, commit and push without
   asking: the code is always on a branch and never pushed to master / main, so it is safe; no need to worry about any
   risk after pushing."
+- 2026-11-16 DONE: HarmonyOS Rive crash fix via pins (CYLTableViewPlaceHolder 76762c6, CYLTabBarController c795d08); every platform checked. Prompt: "...learn from it update our 鸿蒙os core component library to fix crash..."
