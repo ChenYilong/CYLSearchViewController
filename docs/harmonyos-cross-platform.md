@@ -12,7 +12,7 @@ The HarmonyOS port of CYLSearchViewController: the ArkTS library `harmonyos/cyls
 | IDE and SDK | DevEco Studio 6.0.1 with its bundled SDK (API 21), hvigor, ohpm |
 | Run | Huawei emulator (Mate 70 Pro, HarmonyOS 6.0.1, API 21); unsigned HAP installed with `hdc install` |
 
-## IN PROGRESS (TODO 2026-11-16): Scorecard 3, issues seen in the emulator screenshots
+## DONE in code (2026-11-16; TODO 2026-11-16): Scorecard 3, issues seen in the emulator screenshots (screenshot checks pending)
 
 - Prompt (verbatim): "我已经更新了鸿蒙代码在模拟器上的截图 并更新了鸿蒙相关文档，请查看当前代码的运行截图，识别出截图中存在的问题 。给出issues猎鸟，每发现一个问题就新增一行，第二列写修复工作状态默认填TODO，给出打分机制，这个表格没有TODO 为满分，在没有模拟器的前提下修复issues，我会在你全部修复好后统一运行截图。每次修复一个issue就更新TODO为 TODO need 模拟器截图验证，更新所有TODO后视为满分。一直修复到满分为止。记录所有异常 不限于本仓库的异常，其他仓库的异常也一并列出。比如 tabbar 的badge为文字的时候，文字显示异常，NEW字样 无法一行显示，被换行了。疑似是badge大小未根据字体大小 字体做大小适配拉伸，怀疑是写死了badge的大小。需要根据label文字适配badge大小，参考android与I iOS端实现。 icon 与title y轴放点中心线未对齐。类似的issue也都要列出。"
 - Prompt (English): "I updated the screenshots of the HarmonyOS code on the emulator and the HarmonyOS documents. Look at the
@@ -99,7 +99,7 @@ Score: 100/100 (23 of 23 rows not `TODO`).
 - TODO: N/A on HarmonyOS: no emulator instance on this machine (the image is downloaded; Device Manager only);
   development continues without one. See Scorecard 2, row 7.
 
-## IN PROGRESS (TODO 2026-11-16): the HarmonyOS scorecard, scored to 100
+## DONE (2026-11-16; TODO 2026-11-16): the HarmonyOS scorecard, scored to 100
 
 - Prompt (verbatim): "合并pr 新建pr 开始鸿蒙端开发，在新建跨端文档，标注鸿蒙系统版本，新建表格，列出iOS版本存在的API， 在新建表格列出iOS端example 层所有演示，每个表格的第二列为鸿蒙对应实现，默认填TODO 鸿蒙系统软件开发过程中需要实时打分，两个表格一起打分。移除所有todo为满分。每每完成一个功能移除一个todo，一直到满分为止。"
 - Prompt (English): "Merge the PRs, open a new PR and start the HarmonyOS development. Make a new cross-platform document

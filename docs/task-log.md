@@ -112,12 +112,12 @@ begins and becomes `DONE` when it ends.
   (their translation is done: translate and merge their open PRs, then the issue tables and fixes) is a follow-up
   recorded in `docs/android-and-cross-platform.md`.
 
-## TODO (2026-11-12): CYLTableViewPlaceHolder as a sub-repository on every platform
+## DONE (2026-11-16; TODO 2026-11-12): CYLTableViewPlaceHolder as a sub-repository on every platform
 
 - Logged in [sub-repositories.md](sub-repositories.md) (context, requirements, prompt verbatim and in English).
-  The rules are written; the integration is open.
+  Done on every platform (2026-11-16): see the DONE entry in [sub-repositories.md](sub-repositories.md).
 
-## IN PROGRESS (TODO 2026-11-14): finish the unfinished CYLSearchViewController tasks, then every `TODO` in the documents
+## DONE (2026-11-16; TODO 2026-11-14): finish the unfinished CYLSearchViewController tasks, then every `TODO` in the documents
 
 - Context: after the search bar items work (`7d254d6` to `6a9b5d9`), several entries in `docs/` still say `TODO`:
   some are done but their status line is stale, some are open (the native iOS Discover screenshot, the "iPhone Duo"
@@ -131,7 +131,12 @@ begins and becomes `DONE` when it ends.
 - Order (oldest instruction first): the sibling-checkout pull request (2026-11-12); the "iPhone Duo" overlap; the
   iOS raised plus button; the tag-style, placeholder, cache and focus entries (status lines against what is done);
   React Native; the search bar items' last screenshot; HarmonyOS; mini programs.
-- Status: `TODO`.
+- Status: DONE (2026-11-16). Every item of the order is done: the sibling-checkout pull request; the "iPhone Duo"
+  overlap (`search-bar-view.md`); the iOS raised plus button; the tag-style, placeholder, cache and focus entries; React
+  Native (touch checks and tab bar, `android-and-cross-platform.md`, Open TODOs 5/5); the native iOS Discover screenshot
+  (`assets/ios-discover-tab.png`); Android's animated placeholder (CYLTableViewPlaceHolder PR #28, pin `6d8b264`);
+  HarmonyOS (Scorecards 1 to 3 at 100, the last screenshot checks listed in `harmonyos-cross-platform.md`); mini programs.
+  Left outside this entry: SVGA tab icons in the React Native example (`CYLTabBarController-Integration.md`).
 - Progress (2026-11-14, usage limit reached mid-task):
   - Sibling-checkout pull request: DONE (entry above).
   - Android animated placeholder: not started here on purpose. CYLTableViewPlaceHolder's Android port is in progress

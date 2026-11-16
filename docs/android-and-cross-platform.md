@@ -19,7 +19,7 @@ Score: 5/5 = 100.
 
 ![React Native iOS: raised plus button, title on the tab-title line; CYL 17Pro simulator, iOS 26.3, Release, base 0c8ae0f, 2026-11-16](assets/rn-ios-raised-plus-button-iphone17pro-ios26.3.png)
 
-## IN PROGRESS (TODO 2026-11-12): Android, HarmonyOS NEXT, Flutter, then React Native (Android, Flutter and React Native done; HarmonyOS compiles only; mini programs run in WeChat DevTools)
+## DONE (2026-11-16; TODO 2026-11-12): Android, HarmonyOS NEXT, Flutter, then React Native (Android, Flutter and React Native done; HarmonyOS runs on the Mate 70 Pro emulator, every tab and pushed page screenshotted in `d771c1f`, its open screenshot checks in `harmonyos-cross-platform.md`, Scorecard 3; mini programs run in WeChat DevTools)
 
 - Context: CYLSearchViewController is iOS only today (Objective-C core in `Sources/CYLSearchViewController/`:
   `CYLSearchResultsViewController`, `CYLSearchController`, `CYLSearchBarView`, `CYLSearchView`,
