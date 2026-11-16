@@ -43,8 +43,10 @@ export struct ExamplesMenuView {
       .backgroundColor($r('sys.color.background_primary'))
       .borderRadius(10)
       .margin({ left: 16, right: 16, top: 20 })
-      .layoutWeight(1)
+      // As iOS's inset grouped list: the card ends after its last row (it shrinks and scrolls only when the rows do
+      // not fit).
       .height('auto')
+      .flexShrink(1)
       Blank()
     }
     .width('100%')
