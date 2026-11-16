@@ -105,9 +105,18 @@ struct Index {
     this.demoTabChanged();
   }
 
+  // As iOS `-CYLDemoTab <n>`: n counts the tab bar's view controllers, the plus button's page included in its slot
+  // (0 Search, 1 Examples, 2 the plus page, 3 Tag style, 4 Discover).
   private demoTabChanged(): void {
-    if (this.demoTab >= 0 && this.demoTab < this.items.length) {
-      this.selectedIndex = this.demoTab;
+    const slot = this.demoTab;
+    const plusSlot = this.plusButton === undefined ? -1 : Math.floor(this.items.length / 2);
+    if (slot < 0 || slot > this.items.length + (plusSlot >= 0 ? 0 : -1)) {
+      return;
+    }
+    if (slot === plusSlot) {
+      this.selectedIndex = CYLPlusButtonPageIndex;
+    } else {
+      this.selectedIndex = plusSlot >= 0 && slot > plusSlot ? slot - 1 : slot;
     }
   }
 
