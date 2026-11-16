@@ -116,8 +116,8 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
 - HarmonyOS (2026-11-16): the example uses both sub-repositories' HarmonyOS libraries, installed into the git-ignored
   `harmonyos/vendor` by `harmonyos/scripts/sync-sub-repositories.py` at the commits in `harmonyos/oh-package.json5`:
   CYLTableViewPlaceHolder `cylplaceholder` at `5bcbdb5` (the newest commit on any branch,
-  `feat/android-refresh-port-followup`) for CYLRefreshNormalHeader; CYLTabBarController `cyltabbar` at `3ddb96c`
-  (`feat/cross-platform-components`, the newest commit on any branch, 2026-11-16: SVGA tab icons, the badge, icon and
+  `feat/android-refresh-port-followup`) for CYLRefreshNormalHeader; CYLTabBarController `cyltabbar` at `ea5b989`
+  (`feat/harmonyos-component`, the newest commit on any branch; it contains `3ddb96c`, 2026-11-16: SVGA tab icons, the badge, icon and
   plus title fixes of `127b8ae8` and `16a19bbf`, the badge border width of PR #805 and the demo translations;
   Scorecard 3 rows 1 to 4, 12 and 13). Before: `94eb7b1`. Their
   minimum is API 21, so the example's `compatibleSdkVersion` is 6.0.1(21).

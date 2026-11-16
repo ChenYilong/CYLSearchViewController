@@ -53,6 +53,12 @@ The HarmonyOS port of CYLSearchViewController: the ArkTS library `harmonyos/cyls
 | 16 | TODO need 模拟器截图验证 | CYLSearchViewController (`harmonyos/entry`) | BUG TODO in `docs/android-and-cross-platform.md` (`4ae57b6`) | The launch parameter `--pi CYLDemoTab <n>` does not select a tab | Nothing copied `want.parameters` into AppStorage: `pages/Index.ets` read `AppStorage.get('CYLDemoTab')`, which no code ever set (since `dcaf837`) | `EntryAbility` stores it in `onCreate` and `onNewWant`; `Index` watches it (`@StorageLink` + `@Watch`), so it also works while the app runs |
 | 17 | TODO | CYLSearchViewController (`harmonyos/entry`) with CYLTabBarController `9fb874c` | BUG TODO in `docs/android-and-cross-platform.md` (`4ae57b6`) | The example ignores every touch (tab bar, "Overlay", result rows; `uitest uiInput click`, `uinput`), while touch works elsewhere on the emulator | Not found in the code. Ruled out by reading: no dialog, sub-window, `setWindowTouchable`, `HitTestMode.Block` or `enabled(false)` in the app, `cylsearch` or `cyltabbar`; hidden tab pages are `Visibility.Hidden` and the bar is outside the page stack, so no page covers the bar. Candidates to check on the emulator: (1) `9fb874c` tabs used an exclusive long-press + tap group (CYLTabBarController issue #14), replaced by `onClick` + a parallel long press in the now pinned `3ddb96c`; (2) `KeyboardAvoidMode.RESIZE` (row 7) came in the same hour; (3) `hdc shell uitest dumpLayout` shows which node is on top | Next run: build with `3ddb96c`; if touches still fail, run `uitest dumpLayout` and try a build without `setKeyboardAvoidMode` |
 
+- Third review (2026-11-16, 15:10): no new screenshot in either repository since the second review. CYLTabBarController
+  double-checked at `ea5b989` (now pinned; it contains `3ddb96c`): its issues #15 to #24 are fixed in code, among them
+  our rows 11, 12 and 13 (its #15, #19, #20); none covers the touch bug of row 17. The local emulator is not set up (no
+  instance in Device Manager, `hdc list targets` empty), so the code could not be run here; the CYLTabBarController
+  session, which has the emulator `127.0.0.1:5557`, was asked to run the row 17 checks.
+
 <!-- harmonyos-score3:begin -->
 Score: 94/100 (16 of 17 rows not `TODO`).
 <!-- harmonyos-score3:end -->
