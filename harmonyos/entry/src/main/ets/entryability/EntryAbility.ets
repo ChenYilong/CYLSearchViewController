@@ -6,8 +6,25 @@ const DOMAIN = 0x0000;
 
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
+    this.storeLaunchParameters(want);
     this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onCreate');
+  }
+
+  onNewWant(want: Want, launchParam: AbilityConstant.LaunchParam): void {
+    this.storeLaunchParameters(want);
+  }
+
+  // `aa start -b com.cyl.search.harmonyos -a EntryAbility --pi CYLDemoTab 3` selects that tab (iOS `-CYLDemoTab 3`, for
+  // screenshots): the launch parameters arrive in `want.parameters`, and `pages/Index.ets` reads them from AppStorage.
+  private storeLaunchParameters(want: Want): void {
+    const tab = want.parameters?.['CYLDemoTab'];
+    if (tab !== undefined && tab !== null) {
+      const index = Number(tab);
+      if (!Number.isNaN(index)) {
+        AppStorage.setOrCreate<number>('CYLDemoTab', index);
+      }
+    }
   }
 
   onDestroy(): void {
