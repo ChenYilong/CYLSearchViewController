@@ -324,6 +324,17 @@ marks it `DONE`.
 
 ## Commit readiness
 
+- **Every branch with commits has an open pull request (added 2026-11-16).** Never create a branch and keep committing
+  to it without a pull request: commits on a branch without a pull request are ignored, they are never reviewed or
+  merged.
+  - Before every commit, check that the branch has an open pull request (`gh pr list --head <branch> --state open`).
+    If it has none, open one.
+  - Target (base) of a new pull request: the pull request that was active before this one (its head branch) first;
+    `master` only when there is none.
+  - When more than two pull requests are already open, stop and ask the user whether to create a new branch with a
+    pull request or keep committing on the current branch: more than two open branches make merging hard and leave no
+    sensible target branch for each.
+
 - **Before every Commitizen-style (`git cz`) commit**, run this first in the repository root, so the vault's auto sync does not commit or push in the middle of it:
 
   ```sh
