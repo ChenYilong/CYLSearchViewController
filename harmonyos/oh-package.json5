@@ -2,7 +2,7 @@
   "modelVersion": "5.0.0",
   "description": "CYLSearchViewController for HarmonyOS NEXT (ArkTS): the cylsearch library.",
   "dependencies": {},
-  "cylTabBarControllerCommit": "9fb874c52b8556ab9ccf1a9208385dc6c3d011f6",
+  "cylTabBarControllerCommit": "3ddb96c3f23017cf898b914d2001f0b8877d394b",
   "cylTableViewPlaceHolderCommit": "5bcbdb57aa5f301e940c8fc114e77ccf16e6109e",
   "devDependencies": {
     "@ohos/hypium": "1.0.21"
