@@ -14,7 +14,8 @@ import {
   CYLDemoRoute,
   CYLPlaceholderDetailParam,
   cylSetTabIconSource,
-  CYL_TAB_ICON_SOURCE_KEY
+  CYL_TAB_ICON_SOURCE_KEY,
+  CYL_PLUS_OVERHANG
 } from '../common/DemoCommon';
 
 /**
@@ -102,6 +103,7 @@ export struct ExamplesMenuView {
           .onClick(() => this.stack.pushPath({ name: this.routes[index] }))
         }, (key: string) => key)
       }
+      .contentEndOffset(CYL_PLUS_OVERHANG)
       .backgroundColor($r('sys.color.background_primary'))
       .borderRadius(10)
       .margin({ left: 16, right: 16, top: 20 })
@@ -205,6 +207,7 @@ export struct PlaceholderGalleryPage {
             }
           }, (section: number) => `${section}`)
         }
+        .contentEndOffset(CYL_PLUS_OVERHANG)
         .layoutWeight(1)
         .cachedCount(4)
       }

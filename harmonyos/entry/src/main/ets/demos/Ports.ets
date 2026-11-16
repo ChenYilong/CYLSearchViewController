@@ -11,7 +11,7 @@ import {
   CYLSearchComponent,
   CYLSearchView
 } from 'cylsearch';
-import { CYLDemoNavBar, cylDemoText, CYLSnackbar, CYLSnackbarView } from '../common/DemoCommon';
+import { CYLDemoNavBar, cylDemoText, CYLSnackbar, CYLSnackbarView, CYL_PLUS_OVERHANG } from '../common/DemoCommon';
 
 /**
  * The filtered list shown inside the lapism search view (the README's adapter); a global builder draws it as the
@@ -36,6 +36,7 @@ struct CYLLapismResults {
         }
       }, (item: string) => item)
     }
+    .contentEndOffset(CYL_PLUS_OVERHANG)
     .width('100%')
     .height('100%')
     .divider({ strokeWidth: 0.5, color: $r('sys.color.comp_divider'), startMargin: 16 })
@@ -109,6 +110,7 @@ export struct LapismPage {
               }
             }, (item: string) => item)
           }
+          .contentEndOffset(CYL_PLUS_OVERHANG)
           .layoutWeight(1)
           .divider({ strokeWidth: 0.5, color: $r('sys.color.comp_divider'), startMargin: 16 })
         }
@@ -318,7 +320,7 @@ export struct MultiSearchDemoPage {
         }
         .layoutWeight(1)
         .align(Alignment.TopStart)
-        .padding({ left: 16, right: 16, top: 16 })
+        .padding({ left: 16, right: 16, top: 16, bottom: CYL_PLUS_OVERHANG })
       }
       .width('100%')
       .height('100%')

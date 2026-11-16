@@ -9,7 +9,7 @@ import {
   CYLSearchResultsDataSource,
   CYLSearchResultsViewController
 } from 'cylsearch';
-import { cylDemoText, CYLDemoNavBar } from '../common/DemoCommon';
+import { cylDemoText, CYLDemoNavBar, CYL_PLUS_OVERHANG } from '../common/DemoCommon';
 import { CYLRefreshContainer, CYLRefreshNormalHeaderModel, CYLRefreshScrollViewModel } from 'cylplaceholder';
 
 /**
@@ -148,6 +148,7 @@ export struct SearchExampleView {
               }
             }, (result: Object) => result as string)
           }
+          .contentEndOffset(CYL_PLUS_OVERHANG)
           .width('100%')
           .height('100%')
           .divider({ strokeWidth: 0.5, color: $r('sys.color.comp_divider'), startMargin: 16 })
