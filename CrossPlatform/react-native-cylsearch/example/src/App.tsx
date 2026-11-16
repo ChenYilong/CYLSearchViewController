@@ -68,12 +68,21 @@ export default function App() {
  * search bar page and rises above the bar (AGENTS.md, "Raised plus button").
  */
 const TAB_KEYS = ['list', 'tags', 'empty', 'discover'];
-const TAB_ITEMS: CYLTabBarItem[] = [
+const SYMBOL_TAB_ITEMS: CYLTabBarItem[] = [
   { title: 'List style', image: 'system:list.bullet', selectedImage: 'system:list.bullet', identifier: 'list' },
   { title: 'Tag style', image: 'system:tag', selectedImage: 'system:tag.fill', identifier: 'tags' },
   { title: 'Empty results', image: 'system:magnifyingglass', selectedImage: 'system:magnifyingglass', identifier: 'empty' },
   { title: 'Discover', image: 'system:sparkle.magnifyingglass', selectedImage: 'system:sparkle.magnifyingglass', identifier: 'discover' },
 ];
+// SVGA tab icons through the initialization keys (`CYLTabBarSVGAFilePath`, `CYLTabBarSVGASize`), as the iOS example's
+// `-CYLDemoTabIconSource 1`; the .svga files are in the iOS app (ios/CylsearchExample/SVGA) and the Android assets.
+const SVGA_FILES: Record<string, string> = { list: 'tab_list.svga', tags: 'tab_chat.svga', empty: 'tab_search.svga', discover: 'tab_home.svga' };
+// iOS: `simctl launch … -CYLDemoTabIconSource 1`; Android: the constant below (no launch arguments in React Native).
+const SVGA_ON_ANDROID = false;
+const USES_SVGA = Platform.OS === 'ios' ? Number(Settings.get('CYLDemoTabIconSource')) === 1 : SVGA_ON_ANDROID;
+const TAB_ITEMS: CYLTabBarItem[] = USES_SVGA
+  ? SYMBOL_TAB_ITEMS.map((item) => ({ ...item, CYLTabBarSVGAFilePath: SVGA_FILES[item.identifier as string], CYLTabBarSVGASize: '{28, 28}' }))
+  : SYMBOL_TAB_ITEMS;
 const PLUS_BUTTON: CYLTabBarPlusButton = {
   title: 'Search bar',
   // A 52 pt green PNG: `imageSize` would redraw an SF Symbol into a black bitmap.

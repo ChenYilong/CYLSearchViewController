@@ -58,7 +58,7 @@ The HarmonyOS port of CYLSearchViewController: the ArkTS library `harmonyos/cyls
 | 21 | DONE (emulator screenshot 2026-11-16, Mate 70 Pro, base 4cdf9c9: `harmonyos-sc3-placeholder-styles.jpeg`) | CYLSearchViewController (`harmonyos/entry`) | Placeholder styles screenshot | The NoResults and Error icons are black; iOS tints them secondary grey | `fillColor` tints SVG only; these are PNGs | `CYLDemoCell`: a `ColorFilter` matrix to #8E8E93, alpha kept |
 | 22 | DONE (emulator screenshot 2026-11-16, Mate 70 Pro, base 4cdf9c9: `harmonyos-sc3-discover.jpeg`) | CYLSearchViewController (`harmonyos/entry`) | Discover screenshot | The curve under the mic button has a black outline (and is the old 360 px shape: the build predates row 18's fix `d9376af`) | `Path` draws a default black stroke | `.stroke(Color.Transparent).strokeWidth(0)`; row 18's width fix waits for a new build |
 | 23 | DONE (emulator screenshot 2026-11-16, Mate 70 Pro, base 4cdf9c9: `harmonyos-sc3-examples.jpeg`) | CYLSearchViewController (`harmonyos/entry`) | Examples screenshot | No SVGA header or "Tab icons: …" button above the Examples list | The build (base `5a30019`) predates `6eb2d6a` | Nothing to change; check on a new build |
-| 24 | TODO | CYLSearchViewController (`harmonyos/entry`) | `harmonyos-sc3-discover.jpeg` (2026-11-16) | Discover: a white strip between the grey area under the mic button and the tab bar | not analysed yet |
+| 24 | DONE (emulator 2026-11-16, `harmonyos-discover-row24-fixed.jpeg`) | CYLSearchViewController (`harmonyos/entry`) | `harmonyos-sc3-discover.jpeg` (2026-11-16) | Discover: a white strip between the grey area under the mic button and the tab bar | The page padding (`CYL_PLUS_OVERHANG`) showed the white page under the grey area; the grey curved area is now 24 vp taller and holds that space itself (`Discover.ets`) |
 
 - Third review (2026-11-16, 15:10): no new screenshot in either repository since the second review. CYLTabBarController
   double-checked at `ea5b989` (now pinned; it contains `3ddb96c`): its issues #15 to #24 are fixed in code, among them
@@ -671,3 +671,5 @@ styles, Search bar, Other libraries' examples); the plus button's page; Tag styl
 ![Tag style](assets/harmonyos-eba8c44-tag-style.jpeg)
 ![Tag style sample](assets/harmonyos-eba8c44-tag-sample.jpeg)
 ![Discover](assets/harmonyos-eba8c44-discover.jpeg)
+
+![Discover, row 24 fixed: grey area reaches the tab bar](assets/harmonyos-discover-row24-fixed.jpeg)

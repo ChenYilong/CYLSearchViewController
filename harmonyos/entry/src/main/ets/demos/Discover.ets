@@ -162,8 +162,9 @@ export struct DiscoverView {
   // The light curved area: a bump up in the middle, as on iOS, scaled to the measured width (px).
   private curveCommands(): string {
     const w = this.curveWidth;
-    const h = this.getUIContext().vp2px(110);
-    const edge = h * 0.25;
+    // The area reaches down to the tab bar: 110 vp of curve plus the raised plus button's overhang.
+    const h = this.getUIContext().vp2px(110 + CYL_PLUS_OVERHANG);
+    const edge = this.getUIContext().vp2px(110) * 0.25;
     return `M0 ${edge} Q ${w / 2} ${-edge} ${w} ${edge} L ${w} ${h} L 0 ${h} Z`;
   }
 
@@ -327,7 +328,7 @@ export struct DiscoverView {
           .commands(this.curveCommands())
           .fill($r('sys.color.background_secondary'))
           .width('100%')
-          .height(110)
+          .height(110 + CYL_PLUS_OVERHANG)
           .accessibilityLevel('no')
           .onAreaChange((_: Area, area: Area) => {
             this.curveWidth = this.getUIContext().vp2px(Number(area.width));
@@ -364,14 +365,13 @@ export struct DiscoverView {
               this.hint = this.text('discover_askHint');
             }))
         }
-        .padding({ bottom: 16 })
+        // Above the raised plus button (CYL_PLUS_OVERHANG), inside the grey area so no white band shows under it.
+        .padding({ bottom: 16 + CYL_PLUS_OVERHANG })
       }
       .width('100%')
     }
     .width('100%')
     .height('100%')
-    // The mic button stays above the raised plus button (its page background is white, so the space shows no band).
-    .padding({ bottom: CYL_PLUS_OVERHANG })
     .backgroundColor($r('sys.color.background_primary'))
   }
 }

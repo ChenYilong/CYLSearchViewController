@@ -30,6 +30,10 @@ target 'CylsearchExample' do
   # CYLTabBarController for react-native-cyltabbar (the example's tab bar), from the pinned checkout
   # (scripts/fetch-cyltabbar.sh; the commit is `cyl.tabbar.commit` in android/merged/gradle.properties).
   pod 'CYLTabBarController', :path => '../vendor/CYLTabBarController'
+  # SVGA tab icons (SVGAPlayer); static linking needs module maps for these two Objective-C pods.
+  pod 'CYLTabBarController/SVGA', :path => '../vendor/CYLTabBarController'
+  pod 'SVGAPlayer', :modular_headers => true
+  pod 'Protobuf', :modular_headers => true
 
   use_react_native!(
     :path => config[:reactNativePath],

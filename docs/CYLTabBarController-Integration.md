@@ -229,11 +229,11 @@ Rive scenes in CYLTabBarController's demos (Example-Rive, Example-SwiftUI-Rive, 
 | SwiftUI host (Example-SwiftUI-Rive) | DONE: Examples row 5 / `-CYLDemoTab 1 -CYLDemoRow 4`: `CYLSVGASwiftUIDemo.swift`, a SwiftUI screen hosting a `CYLTabBarController` from `CYLTabBarConfiguration_svga_swiftui.json` through `UIViewControllerRepresentable` |
 | Android (`example-rive`, `CYLRiveTabBarItemAnimator`) | DONE: `android/merged` pins CYLTabBarController `5682b9e` (`CYLSVGATabBarItemAnimator`) + SVGAPlayer-Android 2.6.1 (JitPack); `--es CYLDemoTabIconSource 2` loads `CYLTabBarConfiguration_svga.json` |
 | Flutter (`example_rive`) | DONE on iOS: `--dart-define=CYL_DEMO_TAB_ICON_SOURCE=2` loads `assets/cyl_tabbar_configuration_svga.json`; `flutter_cyltabbar` already passes the SVGA keys (no CYLTabBarController change was needed, the earlier "waits" note was wrong). Android side wired (SVGAPlayer, assets) but not built yet |
-| React Native (`example-rive`, `<CYLAnimationView>`) | TODO: no longer blocked (CYLTabBarController reports SVGA passed through by `react-native-cyltabbar` from `96c8efc`, the app adds the players; same guide) |
+| React Native (`example-rive`, `<CYLAnimationView>`) | DONE on iOS (2026-11-16): `-CYLDemoTabIconSource 1` gives each tab `CYLTabBarSVGAFilePath` (`src/App.tsx`); SVGA subspec + SVGAPlayer/Protobuf with module maps; the shared pin moved to `c795d08` (has `bd29916`: the duplicate `cyl_contentView` selector broke Release builds). Android: SVGAPlayer from JitPack and the assets are in, `SVGA_ON_ANDROID` off by default, not run |
 | WeChat mini program (`cyl-rive`) | DONE (tab icons): `cylTabBarControllerCommit` `c72323f`; `scripts/sync-example.js` installs `cyl-svga-miniprogram`; `generic:cyl-svga-view="cyl-svga"`; Search, Examples and Discover play `tab_search`, `tab_list`, `tab_activity` (`*.svga.bin`, 30 x 30); test `svga-tab-icons.test.js` decodes each icon; shown in WeChat DevTools (`fb15432`). TODO for 1:1 with iOS: SVGA is the default here while iOS keeps SF Symbols by default and switches with "Tab icons: …"; no in-page SVGA above the Examples list yet |
 | HarmonyOS (`harmonyos/entry`) | DONE (emulator 2026-11-16: `--pi CYLDemoTabIconSource 1` shows the SVGA tab icons, `docs/assets/harmonyos-sc3-examples-svga-keys.jpeg`; code done 2026-11-16): the pinned cyltabbar `ea5b989` reads CYLTabBarSVGA* and exports `CYLSVGAView`. Copied 1:1 from iOS: the six `.svga` files and `NOTICE.md` in `rawfile/svga`; `CYLTabBarConfiguration_svga.json` (rawfile paths `svga/<name>.svga`); the initialization keys in code (`pages/Index.ets`, same files, `svgaSize` 28, dark files for Search and Discover); the "Tab icons: …" switch on the Examples page (0 symbols, 1 keys, 2 file; kept in preferences, launch parameter `--pi CYLDemoTabIconSource <n>`; the tab bar changes at once, Examples stays selected); `CYLSVGADemoHeader`, the 64 vp `tab_activity.svga` above the list, a tap plays it again; the 10 `svga.*` strings in en, ja, zh-Hans, zh-Hant (`check-ios-parity.mjs`: 397 of 397). N/A on HarmonyOS: the SwiftUI host (Examples row 5 on iOS), there is no SwiftUI |
 
-Score: 12/13 (React Native left; HarmonyOS done in code 2026-11-16, waiting for an emulator screenshot).
+Score: 13/13.
 
 iOS example, SVGA tab icons (Search selected, its animation on the last frame). Top to bottom: initialization keys;
 configuration file. CYL 17Pro simulator, iOS 26.3, Debug, CYLTabBarController `5682b9e` (`CYLTabBarController/SVGA`),
@@ -288,3 +288,7 @@ Flutter example on iOS with SVGA tab icons (CYL 17Pro, iOS 26.3, debug, base 785
 CYLTabBarController pin needed the plugin's platform views to be `@MainActor` (the core's views are main-actor isolated).
 
 ![Flutter iOS, SVGA tab icons](assets/flutter-ios-svga-tab-icons-ios26.3.png)
+
+React Native on iOS with SVGA tab icons (CYL 17Pro, iOS 26.3, Release, base ae8a4ea, 2026-11-16 19:26).
+
+![React Native iOS, SVGA tab icons](assets/rn-ios-svga-tab-icons-ios26.3.png)

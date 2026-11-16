@@ -19,3 +19,10 @@ buildscript {
 }
 
 apply plugin: "com.facebook.react.rootproject"
+
+// SVGAPlayer-Android (com.github.yyued) is only on JitPack: the SVGA tab icons.
+allprojects {
+    repositories {
+        maven { url "https://jitpack.io"; content { includeGroup("com.github.yyued") } }
+    }
+}

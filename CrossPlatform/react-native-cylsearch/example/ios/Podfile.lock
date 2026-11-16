@@ -61,7 +61,14 @@ PODS:
     - CYLTabBarController/CYLUtils
   - CYLTabBarController/CYLBadgeView (1.100.0):
     - CYLTabBarController/CYLUtils
+  - CYLTabBarController/CYLTabBarItemAnimation (1.100.0):
+    - CYLTabBarController/Core
   - CYLTabBarController/CYLUtils (1.100.0)
+  - CYLTabBarController/SVGA (1.100.0):
+    - CYLTabBarController/Core
+    - CYLTabBarController/CYLTabBarItemAnimation
+    - Protobuf (~> 3.21.0)
+    - SVGAPlayer (~> 2.5)
   - CYLTableViewPlaceHolder (1.1.0):
     - CYLTableViewPlaceHolder/Core (= 1.1.0)
   - CYLTableViewPlaceHolder/Core (1.1.0)
@@ -87,6 +94,7 @@ PODS:
     - hermes-engine/Pre-built (= 260318099.0.4)
   - hermes-engine/Pre-built (260318099.0.4)
   - lottie-ios (4.6.1)
+  - Protobuf (3.21.12)
   - RCT-Folly (2024.11.18.00):
     - RCT-Folly/Default (= 2024.11.18.00)
     - ReactNativeDependencies
@@ -1888,6 +1896,15 @@ PODS:
   - ReactNativeDependencies (0.88.0)
   - SocketRocket (0.7.1):
     - ReactNativeDependencies
+  - SSZipArchive (2.4.3)
+  - SVGAPlayer (2.5.7):
+    - SVGAPlayer/Core (= 2.5.7)
+    - SVGAPlayer/ProtoFiles (= 2.5.7)
+  - SVGAPlayer/Core (2.5.7):
+    - SSZipArchive (>= 1.8.1)
+    - SVGAPlayer/ProtoFiles
+  - SVGAPlayer/ProtoFiles (2.5.7):
+    - Protobuf (~> 3.4)
   - Yoga (0.0.0):
     - React-Core-prebuilt
 
@@ -1898,6 +1915,7 @@ DEPENDENCIES:
   - CYLSearchViewController (from `../../../..`)
   - Cyltabbar (from `../node_modules/react-native-cyltabbar`)
   - CYLTabBarController (from `../vendor/CYLTabBarController`)
+  - CYLTabBarController/SVGA (from `../vendor/CYLTabBarController`)
   - CYLTableViewPlaceHolder (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `c202b8c91bc231fa51c523b64a4f3cbd9a94b5f6`)
   - DoubleConversion (from `build/rndeps-facades/DoubleConversion`)
   - fast_float (from `build/rndeps-facades/fast_float`)
@@ -1905,6 +1923,7 @@ DEPENDENCIES:
   - fmt (from `build/rndeps-facades/fmt`)
   - glog (from `build/rndeps-facades/glog`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
+  - Protobuf
   - RCT-Folly (from `build/rndeps-facades/RCT-Folly`)
   - RCTDeprecation (from `build/rncore-facades/RCTDeprecation`)
   - RCTRequired (from `build/rncore-facades/RCTRequired`)
@@ -1985,11 +2004,15 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeDependencies (from `../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)
   - SocketRocket (from `build/rndeps-facades/SocketRocket`)
+  - SVGAPlayer
   - Yoga (from `build/rncore-facades/Yoga`)
 
 SPEC REPOS:
   trunk:
     - lottie-ios
+    - Protobuf
+    - SSZipArchive
+    - SVGAPlayer
 
 EXTERNAL SOURCES:
   boost:
@@ -2195,8 +2218,8 @@ SPEC CHECKSUMS:
   CollectionViewClassifyMenu: ebd3e85358cf219b3ad20b5e005c54719b2708f4
   Cylsearch: 4e013831da81af9fa530b9ffa15571639eb0658d
   CYLSearchViewController: 4826e3fa2030073fe576ff501eea6143db865c3b
-  Cyltabbar: 2454057ff09d832ec84609d9a84165677e6a0301
-  CYLTabBarController: 9e49f3142d6f7a671c3baa9aab8f91ebc2661889
+  Cyltabbar: 4a0ad4bcdf18e8a3953d6e55273ccce83e80ffdd
+  CYLTabBarController: 9054e3e43cf2e5099374a6d87bff733b0a9b5ede
   CYLTableViewPlaceHolder: b874c56a79c46a89df6d3acac675d87fa0e78277
   DoubleConversion: e85e4faac763226bfd1cc4c6a98d8355149b27a5
   fast_float: 908e5ee35999f3d91af4b962ac951acac591866c
@@ -2205,6 +2228,7 @@ SPEC CHECKSUMS:
   glog: b4427c3119645da795ff09985ba9da909c940c96
   hermes-engine: a1158910bb7e300b9e3d2f1e2d433f817ec1a4b5
   lottie-ios: 6467ca7035120c5b0e0acee58bb679cf15875686
+  Protobuf: 120350fc38646e2dedc26f49ecba778184ea1de2
   RCT-Folly: d173e541eeb78cad5c81011c1bbf62d5b86b9778
   RCTDeprecation: b5015bad0dc536eff092b252e8cdcf7903448e03
   RCTRequired: 1f568a6519677ef482387250f5a098a9ec5dba57
@@ -2284,8 +2308,10 @@ SPEC CHECKSUMS:
   ReactCommon: c6895b36d81986f89a7e40a00b4b72ca70e82710
   ReactNativeDependencies: d3b7423ba1e52525e42085c8470109abde583d2e
   SocketRocket: d57b1af80c029e12a75cd9b218287c67381e4593
+  SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
+  SVGAPlayer: 318b85a78b61292d6ae9dfcd651f3f0d1cdadd86
   Yoga: 58b502c52b14ad3c4468805d461fc37d275c2a42
 
-PODFILE CHECKSUM: f0bf2da84e311a9611d06fb5905e59b1f6016cfc
+PODFILE CHECKSUM: 3c35c3c39d82024e3f3e7345a64e4919ae4fbc32
 
 COCOAPODS: 1.17.0

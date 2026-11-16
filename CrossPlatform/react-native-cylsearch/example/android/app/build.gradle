@@ -108,6 +108,8 @@ android {
 }
 
 dependencies {
+    // CYLTabBarController plays SVGA tab icons through SVGAPlayer-Android, found by reflection.
+    implementation("com.github.yyued:SVGAPlayer-Android:2.6.1")
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 
