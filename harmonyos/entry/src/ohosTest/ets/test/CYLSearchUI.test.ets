@@ -115,7 +115,7 @@ export default function cylSearchUITest() {
     });
 
     // A longer flow by labels only: open a sample, open its search page, type, clear with the labelled button,
-    // type again and submit, then leave with Back twice.
+    // type again and submit (which closes the search page), then leave the sample with Back.
     it('searchFlowByLabels', 0, async () => {
       const driver = Driver.create();
       await backToTabBar(driver);
@@ -131,8 +131,8 @@ export default function cylSearchUITest() {
       await driver.delayMs(500);
       await driver.triggerKey(2054);
       await driver.delayMs(800);
-      await driver.pressBack();
-      await driver.delayMs(800);
+      // Submitting closes the search page, as MaterialSearchView does: the sample's open-search button is back.
+      await assertLabel(driver, libString('demo.port.open'), OPEN_SEARCH);
       await driver.pressBack();
       await driver.delayMs(800);
     });
