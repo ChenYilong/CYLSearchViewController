@@ -313,3 +313,11 @@ begins and becomes `DONE` when it ends.
   Prompt (English): "Write into the instruction files and the skills: find the commit conventions (create them if missing),
   look for the keyword git cz (create if missing, append if present), and add in English: commit in git cz style,
   English-only commit messages, no Chinese allowed. continue"
+- 2026-11-16 DONE (iOS): SVGA Flutter row, 10/12; plugin platform views made @MainActor for the new pin. Prompt: "go flutter svga".
+- 2026-11-16 PARTLY DONE: HarmonyOS re-run with the new tab bar: builds (after sync-sub-repositories + ohpm install), runs, Search screenshot; taps did not reach the app, other tabs not captured. Prompt: "run our HarmonyOS version code on an emulator and update more screenshot in docs".
+- 2026-11-16 DONE: rule "prefer bash for scripts (zsh does not split unquoted variables)" in a new section of
+  AGENTS.md, instructions.md and the `cyl-verify` skill.
+  Prompt (verbatim): "写入instructions相关文件，skills相关指令，找到脚本执行的相关章节，没有的话就新建，保证写入成功：全英文写入：优先使用bash 执行脚本 避免以下错误zsh doesn't split $box into words either. Running the same measurement as a bash script."
+  Prompt (English): "Write into the instruction files and the skills, in the script-running section (create it if
+  missing), in English: prefer running scripts with bash, to avoid this error: zsh doesn't split $box into words
+  either. Running the same measurement as a bash script."
