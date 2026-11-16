@@ -38,7 +38,7 @@ const SECTIONS = [
   {
     title: `B. CollectionViewClassifyMenu (tag views): \`com.cyl.classifymenu\` → its iOS library (measured at \`${MENU_COMMIT}\`)`,
     kotlin: join(MENU, 'android', 'merged', 'library', 'src', 'main', 'java', 'com', 'cyl', 'classifymenu'),
-    ios: [join(MENU, 'CollectionViewClassifyMenu', 'Class')],
+    ios: [join(MENU, 'CollectionViewClassifyMenu', 'Class'), join(MENU, 'TagCollectionView', 'TagCollectionView')],
     table: join(MENU, 'docs', 'android-ios-api.md'),
   },
 ];
@@ -71,6 +71,9 @@ const MANUAL = {
   'CYLLineBreakMode.TruncatingTail': '`NSLineBreakMode.byTruncatingTail`',
   'CYLLineBreakMode.TruncatingMiddle': '`NSLineBreakMode.byTruncatingMiddle`',
   CYLSearchSuggestionCell: 'the `CYLSearchView` suggestion row: a `UITableViewCell` (reuse identifier `CYLSearchSuggestionCell`) with a `UIListContentConfiguration` (icon and text)',
+  // Name matching found CYLSearchPlaceholderView's imageView / textLabel; iOS has no suggestion cell class.
+  'CYLSearchSuggestionCell.imageView': 'the suggestion row\'s `UIListContentConfiguration.image` (`CYLSearchView.suggestionImage`)',
+  'CYLSearchSuggestionCell.textLabel': 'the suggestion row\'s `UIListContentConfiguration.text` (the suggestion)',
   'CYLSearchView.pageBackgroundColor': '`CYLSearchView.backgroundColor` (the page background; the view itself only shows the scrim)',
   // B. CollectionViewClassifyMenu: Swift names of the Objective-C selectors the Android API mirrors
   Kind: '`CYLMenuIconDrawable.Kind` → the bundle images `cyl_fold_chevron` (CHEVRON_DOWN), `cyl_tag_plus` (PLUS), `cyl_more` (ELLIPSIS)',
@@ -94,6 +97,17 @@ const MANUAL = {
   'CYLTagListView.scrollToItemAtIndexPath': '`CYLTagListView.scrollToItem(at:animated:)`',
   'CYLMenuConfigurationException.domain': '`CYLMenuConfigurationError.errorDomain` (`"CYLMenuConfigurationErrorDomain"`)',
   tagListViewWithConfigurationFile: '`CYLTagListView(configurationFile:)` (`throws`)',
+  // B. Objective-C globals that the sub-repository's Swift migration turned into Swift members (its own table still
+  // names the Objective-C ones, which no longer exist at the measured commit).
+  CYLMenuColorFromString: '`UIColor.cylMenuColor(from:)`',
+  CYLMenuLocalizedStringForKey: '`CYLMenuLocalizedString(_:)`',
+  CYLMenuImage: '`CYLMenuResources.image(named:)`',
+  CYLScaledSystemFont: '`CYLTagMetrics.scaledSystemFont(ofSize:traitCollection:)`',
+  CYLTagHeightForFont: '`CYLTagMetrics.tagHeight(for:minimumHeight:)`',
+  CYLTagTitleFontForTraitCollection: '`CYLTagMetrics.titleFont(for:)`',
+  CYLMenuAnimationURLWithOptions: '`URL.cylAddingAnimationOptions(_:)`',
+  'CYLTagGroup.firstRowCount': '`CYLTagGroup.cellCountsPerRow.first` (computed on iOS, stored on Android)',
+  'CYLFilterParamsTool.filterParamsArray': '`CYLMultipleFilterController.selectedIndexPaths()` / `setSelectedIndexPaths(_:)` (index paths instead of flags)',
 };
 
 function files(dir, exts) {
@@ -244,8 +258,32 @@ function iosMatch(row, index) {
   return null;
 }
 
+// A bare name taken from a sub-repository's table must exist in the iOS sources it was measured against: that table
+// can lag behind its own Swift migration (renamed or removed Objective-C names). Prose cells and UIKit / Foundation /
+// Core Graphics names pass; a name is found as declared, in its Swift spelling (`isX`, a lowercased enum case), as an
+// `@objc(name)` selector, or as the Objective-C name of a Swift enum case (`CYLFooBar` for case `bar` of `CYLFoo`).
+function existsInIOS(ios, index) {
+  if (!/^[\w.]+$/.test(ios)) return true;
+  if (/^(UI|NS|CG|CA)[A-Z]/.test(ios)) return true;
+  const esc = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const declared = (n) => new RegExp(`\\b(class|struct|enum|protocol|extension|typealias|func|var|let|case|@interface|@protocol)\\s+${esc(n)}\\b|@objc\\(${esc(n)}[:)]|NS_(?:ENUM|OPTIONS)\\(\\w+,\\s*${esc(n)}\\)`).test(index);
+  const [owner, member] = ios.includes('.') ? ios.split('.', 2) : [null, ios];
+  if (owner && !declared(owner)) return false;
+  const m = member;
+  if (declared(m) || declared(m[0].toLowerCase() + m.slice(1)) || declared(`is${m[0].toUpperCase()}${m.slice(1)}`)) return true;
+  // Objective-C name of a Swift enum case: an enum name that prefixes it, then the case.
+  for (const e of index.matchAll(/\benum\s+(CYL\w+)/g)) {
+    if (m.startsWith(e[1]) && m.length > e[1].length) {
+      const rest = m.slice(e[1].length);
+      if (declared(rest[0].toLowerCase() + rest.slice(1))) return true;
+    }
+  }
+  return false;
+}
+
 function build() {
   const reverse = reverseMap();
+  const unverified = [];
   let total = 0;
   let matched = 0;
   const parts = [];
@@ -255,10 +293,13 @@ function build() {
     const table = tableMap(section.table);
     let ok = 0;
     const body = rows.map((r) => {
-  const ios = MANUAL[r.key] ?? table.get(r.key) ?? reverse.get(r.key) ?? (r.type ? reverse.get(r.name) : undefined) ?? iosMatch(r, index);
+  const fromTable = table.get(r.key);
+      const tableOk = fromTable !== undefined && existsInIOS(fromTable.replace(/^`|`$/g, ''), index);
+      if (fromTable !== undefined && !tableOk && MANUAL[r.key] === undefined) unverified.push(`${r.key} -> ${fromTable}`);
+      const ios = MANUAL[r.key] ?? (tableOk ? fromTable : undefined) ?? reverse.get(r.key) ?? (r.type ? reverse.get(r.name) : undefined) ?? iosMatch(r, index);
       if (ios) ok++;
       const label = r.type ? `**${r.kind} \`${r.name}\`**` : `\`${r.key}\``;
-      const iosCell = ios ? (ios.startsWith('`') || ios.startsWith('**') ? ios : `\`${ios}\``) : 'TODO';
+      const iosCell = ios ? (/^[\w.():]+$/.test(ios) ? `\`${ios}\`` : ios) : 'TODO'; // only a bare name gets backticks
       return `| ${label} | ${r.desc || '—'} | ${iosCell} |`;
     });
     total += rows.length;
@@ -267,6 +308,7 @@ function build() {
   }
   const score = total ? Math.floor(matched / total * 100) : 100;
   const head = `Rows: ${total}; matched ${matched}, TODO ${total - matched}; score ${score}/100 (generated by \`android/merged/scripts/ios-alignment.mjs\`).\n`;
+  if (unverified.length) console.error(`Not found in the iOS sources (sub-repository table entries dropped):\n  ${unverified.join('\n  ')}`);
   return { text: `${BEGIN}\n${head}\n${parts.join('\n')}${END}`, score, total, matched };
 }
 

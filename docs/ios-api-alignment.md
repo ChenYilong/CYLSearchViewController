@@ -39,7 +39,25 @@ this project ships with, such as CollectionViewClassifyMenu's tag views) next to
 
 ### TODO
 
-- TODO (blocked: no push access to CollectionViewClassifyMenu from this session): `CYLTag.resetColors()` is missing
+- Status (2026-11-17, third pass): 99 (917 of 924); A 100, B 98. The generator now checks every bare name it takes
+  from the sub-repository's table against the iOS sources it measures (`existsInIOS`): that table lags behind its own
+  Swift migration. 38 of its names were missing: 23 lived in `TagCollectionView/` (now searched), 9 are Swift
+  replacements now in `MANUAL` (`CYLMenuColorFromString` → `UIColor.cylMenuColor(from:)`, `CYLTagHeightForFont` →
+  `CYLTagMetrics.tagHeight(for:minimumHeight:)`, `CYLMenuAnimationURLWithOptions` →
+  `URL.cylAddingAnimationOptions(_:)`, `filterParamsArray` → `CYLMultipleFilterController.selectedIndexPaths()`, …),
+  and 6 were removed from iOS (below). Rows matched only by name were reviewed (114): 2 were wrong
+  (`CYLSearchSuggestionCell.imageView` / `textLabel` had matched `CYLSearchPlaceholderView`) and now name the
+  suggestion row's `UIListContentConfiguration.image` / `.text`. Cells with prose are no longer wrapped in backticks.
+- DONE (generator review): see the third pass above.
+- TODO (blocked: no push access to CollectionViewClassifyMenu from this session; two attempts denied): the
+  multiple filter's state object. Android `CYLFilterParamsTool` (`dataSources`, `filterParamsDictionary`,
+  `filterParamsContentDictionary`, `filename`: titles, settings with a modified flag, free-form content, saved to a
+  file) and `CYLFilterBaseController.settingArray` have no iOS counterpart since the sub-repository's Swift migration
+  step 5 (`70dcc816`), which removed `CYLFilterParamsTool` and keeps the titles and selection private in
+  `CYLMultipleFilterController`. Either bring the state object back on iOS with the Android names (core first,
+  then the filter example), or remove it from Android; decide in that repository, then pin and regenerate. Its own
+  table still claims these rows (611 / 611): fix its generator to check names against the Swift sources.
+- TODO (blocked, same reason): `CYLTag.resetColors()` is missing
   on iOS. Android: `fun resetColors() { colors = CYLTagColors() }` (`CYLTag.kt:85`), all four colors back to the
   list's. iOS today: `tag.colors = CYLTagColors()` does the same, without the method. Add to
   `CollectionViewClassifyMenu/Class/TagList/CYLTag.swift`, with a `/** … */` comment:
@@ -49,13 +67,21 @@ this project ships with, such as CollectionViewClassifyMenu's tag views) next to
   or `CYLTagListView.scrollToSection`); fix its generator in the same change.
 - TODO (pin): this repository still pins CollectionViewClassifyMenu `f972416` (2026-11-12, Objective-C iOS core) in
   `Podfile` and `android/merged/gradle.properties`; the table measures `41aec0d` (newest, Swift iOS core). The rule
-  "Sub-repositories" asks for the newest commit. Bump both pins, run `pod install`, and build iOS (CI) and Android:
-  the core's calls (`CYLTagListView(foldControl:)`, `setTags(withTitles:)`, `menuDelegate`, `tagClickHandler`,
-  `defaultVisibleRows`, `heightThatFitsWidth`, `showsSectionHeaders`) exist with the same Swift names at `41aec0d`;
-  the `CYLMenuDelegate` method signatures were not compared. Not done here: no Xcode or Android SDK in this session,
-  and another session was committing to this branch.
-- TODO (generator): name matching searches all iOS sources, so a case can match another enum's case of the same
-  name. Rows matched only by name are worth a review once.
+  "Sub-repositories" asks for the newest commit. Details of the bump in the next item.
+- TODO (pin, found 2026-11-17): bumping the pin is a breaking change for this repository. At `41aec0d` the fold
+  position `inline` is renamed `tail` (iOS `.tail`, Objective-C `CYLMenuFoldControlPositionTail`, Android `TAIL`;
+  sub-repository `e0129e8`, no alias), and the Objective-C factory `+foldControlWithPosition:content:` became
+  `init(position:content:)`. Call sites to change with the bump: `Sources/CYLSearchViewController/CYLSearchView.swift`
+  (`suggestionsTagView`), `CYLSearchExample/CYLMaterialSearchMenuViewController.swift`,
+  `CYLSearchExample/CYLSearchDiscoverViewController.swift`, `CYLSearchExampleTests/CYLSearchExampleTests.m`,
+  `android/merged/cylsearch/.../CYLSearchView.kt` and its test, `android/merged/app/.../CYLSuggestionStyleFragment.kt`
+  and `CYLSearchDiscoverFragment.kt`, the React Native wrapper (`CYLRNSearchSupport.h`, `CylsearchSupport.kt`, and the
+  `"inline"` string of its prop) and the Flutter plugin (`FlutterCylsearchPlugin.swift` / `.kt`), plus the pins in
+  `Podfile`, `android/merged/gradle.properties` and the React Native and Flutter example Podfiles. Every other
+  CollectionViewClassifyMenu API this repository's iOS core and example call was checked at `41aec0d` and exists with
+  the same Swift names and signatures (`CYLMenuDelegate`, `CYLMenuDataSource`, `CYLMenuStyle`, `CYLTagAppearance`).
+  Not done here: CI builds only iOS, the Android SDK host is blocked by this session's network proxy, and React
+  Native and Flutter have no CI; a blind change to four platforms needs the maintainer's go-ahead.
 
 ## Score log
 
@@ -67,11 +93,13 @@ Score = rows whose iOS column is not `TODO` / rows × 100 (no `TODO` = 100, all 
 | 2026-11-17 | Regenerated against CollectionViewClassifyMenu's newest commit `41aec0d` (Swift iOS core, more rows; name matching found fewer) | 72 (668 of 924) |
 | 2026-11-17 | Step 1: the sub-repository's own Android → iOS table read for section B | 94 (875 of 924) |
 | 2026-11-17 | Step 1: `MANUAL` map (UIKit types for the Android stand-ins, Swift selector renames) and case-insensitive enum cases; A 100, B 99 | 99 (923 of 924) |
+| 2026-11-17 | Review: sub-repository table names checked against the Swift sources (38 missing, 15 after adding `TagCollectionView/`) | 98 (908 of 924) |
+| 2026-11-17 | Step 3: 9 Swift replacements mapped; 2 wrong name matches corrected; 7 rows left that need the sub-repository | 99 (917 of 924) |
 
 ## Table
 
 <!-- ios-alignment:begin -->
-Rows: 924; matched 923, TODO 1; score 99/100 (generated by `android/merged/scripts/ios-alignment.mjs`).
+Rows: 924; matched 917, TODO 7; score 99/100 (generated by `android/merged/scripts/ios-alignment.mjs`).
 
 ### A. CYLSearchViewController: `android/merged/cylsearch` → `Sources/CYLSearchViewController`
 
@@ -347,9 +375,9 @@ Rows: 320; matched 320, TODO 0; score 100/100.
 | `CYLSearchViewDelegate.searchViewDidSelectSuggestion` | A suggestion was tapped (MaterialSearchView `setOnItemClickListener`). | `CYLSearchViewDelegate.-searchView:didSelectSuggestion:atIndex:` |
 | `CYLSearchViewDelegate.searchViewVoiceButtonClicked` | The voice button was tapped. | `CYLSearchViewDelegate.-searchViewVoiceButtonClicked:` |
 | `CYLSearchViewDelegate.searchViewNavigationButtonClicked` | The navigation button (the back arrow by default) was tapped. | `CYLSearchViewDelegate.-searchViewNavigationButtonClicked:` |
-| **class `CYLSearchSuggestionCell`** | A suggestion row of a `CYLSearchView`: an icon and a text (iOS `UITableViewCell` with a list content configuration). | `the `CYLSearchView` suggestion row: a `UITableViewCell` (reuse identifier `CYLSearchSuggestionCell`) with a `UIListContentConfiguration` (icon and text)` |
-| `CYLSearchSuggestionCell.imageView` | The icon before the text (`suggestionImage`). | `CYLSearchSuggestionCell.imageView` |
-| `CYLSearchSuggestionCell.textLabel` | The suggestion text. | `CYLSearchSuggestionCell.textLabel` |
+| **class `CYLSearchSuggestionCell`** | A suggestion row of a `CYLSearchView`: an icon and a text (iOS `UITableViewCell` with a list content configuration). | the `CYLSearchView` suggestion row: a `UITableViewCell` (reuse identifier `CYLSearchSuggestionCell`) with a `UIListContentConfiguration` (icon and text) |
+| `CYLSearchSuggestionCell.imageView` | The icon before the text (`suggestionImage`). | the suggestion row's `UIListContentConfiguration.image` (`CYLSearchView.suggestionImage`) |
+| `CYLSearchSuggestionCell.textLabel` | The suggestion text. | the suggestion row's `UIListContentConfiguration.text` (the suggestion) |
 | **class `CYLSearchView`** | A search page that opens over its host view (iOS `CYLSearchView`; MiguelCatalan and lapism `MaterialSearchView`): a `CYLSearchBarView` below the status bar, a divider, a list of su | **class `CYLSearchView`** |
 | `CYLSearchView.delegate` | Receives the events of the search view. | `CYLSearchView.delegate` |
 | `CYLSearchView.searchBarView` | The search bar at the top. | `CYLSearchView.searchBarView` |
@@ -402,7 +430,7 @@ Rows: 320; matched 320, TODO 0; score 100/100.
 
 ### B. CollectionViewClassifyMenu (tag views): `com.cyl.classifymenu` → its iOS library (measured at `41aec0d 2026-11-17`)
 
-Rows: 604; matched 603, TODO 1; score 99/100.
+Rows: 604; matched 597, TODO 7; score 98/100.
 
 | Android API or feature | Description | iOS counterpart |
 | :--- | :--- | :--- |
@@ -573,7 +601,7 @@ Rows: 604; matched 603, TODO 1; score 99/100.
 | `CYLImageTagView.dragHandler` | — | `dragHandler` (same name in the iOS core) |
 | `CYLImageTagView.imageAccessibilityHint` | — | `CYLImageTagView.imageAccessibilityHint` |
 | `CYLImageTagView.longPressAccessibilityActionName` | — | `CYLImageTagView.longPressAccessibilityActionName` |
-| `CYLMenuColorFromString` | `CYLMenuColorFromString`: "#RGB", "#RRGGBB", "#RRGGBBAA" (alpha last, as on iOS), or the name of a UIColor class property ("systemBlue", "systemBlueColor", "red"…); null when it is | `CYLMenuColorFromString` |
+| `CYLMenuColorFromString` | `CYLMenuColorFromString`: "#RGB", "#RRGGBB", "#RRGGBBAA" (alpha last, as on iOS), or the name of a UIColor class property ("systemBlue", "systemBlueColor", "red"…); null when it is | `UIColor.cylMenuColor(from:)` |
 | **enum `CYLMenuItemType`** | `CYLMenuItemType`: a tag, or the "+ New tag" item that asks for a name. | `CYLMenuItemType` |
 | **interface `CYLMenuDataSource`** | `CYLMenuDataSource`: the sections and items of a tag list. | `CYLMenuDataSource` |
 | `CYLMenuDataSource.numberOfSectionsInMenu` | — | `CYLMenuDataSource -numberOfSectionsInMenu` |
@@ -638,7 +666,7 @@ Rows: 604; matched 603, TODO 1; score 99/100.
 | `CYLMenuFoldControl.showsTitleWhenExpanded` | — | `CYLMenuFoldControl -showsTitleWhenExpanded:` |
 | `CYLMenuFoldControl.titleWhenExpanded` | — | `CYLMenuFoldControl -titleWhenExpanded:` |
 | `CYLMenuFoldControl.copy` | NSCopying. | `CYLMenuFoldControl -copyWith:` |
-| **class `CYLMenuIconDrawable`** | The core's default icons, drawn in code (SF Symbols on iOS): the fold chevron ("chevron.down"), the plus of the "+ New tag" item ("plus") and the More button ("ellipsis"). | `the bundle images `cyl_fold_chevron`, `cyl_tag_plus`, `cyl_more` (`CYLMenuResources.image(named:)`, SF Symbol fallback); Android draws them` |
+| **class `CYLMenuIconDrawable`** | The core's default icons, drawn in code (SF Symbols on iOS): the fold chevron ("chevron.down"), the plus of the "+ New tag" item ("plus") and the More button ("ellipsis"). | the bundle images `cyl_fold_chevron`, `cyl_tag_plus`, `cyl_more` (`CYLMenuResources.image(named:)`, SF Symbol fallback); Android draws them |
 | **enum `Kind`** | — | `CYLMenuIconDrawable.Kind` → the bundle images `cyl_fold_chevron` (CHEVRON_DOWN), `cyl_tag_plus` (PLUS), `cyl_more` (ELLIPSIS) |
 | **object `CYLMenuResources`** | The core's localized strings and images: the same `<language>.lproj/CYLClassifyMenu.strings` tables as iOS (`CYLClassifyMenuResources.bundle`), packaged as Java resources under `CY | `CYLMenuResources` |
 | `CYLMenuResources.bundle` | `+bundle`: the resource folder's name in the library's Java resources. | `CYLMenuResources +bundle` |
@@ -647,9 +675,9 @@ Rows: 604; matched 603, TODO 1; score 99/100.
 | `CYLMenuResources.preferredLanguage` | `preferredLanguage`: a language of `availableLanguages()` used instead of the system's; null for the system's. | `CYLMenuResources.preferredLanguage` |
 | `CYLMenuResources.currentLanguage` | `+currentLanguage`: the preferred language when set, else the system language, else English. | `CYLMenuResources +currentLanguage` |
 | `CYLMenuResources.localizedStringForKey` | `+localizedStringForKey:`. | `CYLMenuResources +localizedStringForKey:` |
-| `CYLMenuLocalizedStringForKey` | `CYLMenuLocalizedStringForKey` / the macro `CYLMenuLocalizedString(key, comment)`. | `CYLMenuLocalizedStringForKey` |
+| `CYLMenuLocalizedStringForKey` | `CYLMenuLocalizedStringForKey` / the macro `CYLMenuLocalizedString(key, comment)`. | `CYLMenuLocalizedString(_:)` |
 | `CYLMenuLocalizedString` | The macro `CYLMenuLocalizedString(key, comment)`: the comment only documents the key. | `CYLMenuLocalizedString` |
-| `CYLMenuImage` | The macro `CYLMenuImage(name)`. | `CYLMenuImage` |
+| `CYLMenuImage` | The macro `CYLMenuImage(name)`. | `CYLMenuResources.image(named:)` |
 | **enum `CYLTagImagePlacement`** | `CYLTagImagePlacement`: the icon before or after the title. | `CYLTagImagePlacement` |
 | **enum `CYLTagContentAlignment`** | `CYLTagContentAlignment`: the icon and title centered in the tag, or at its leading edge. | `CYLTagContentAlignment` |
 | **enum `CYLTagRowAlignment`** | `CYLTagRowAlignment`: where a row of tags sits in the list's width. | `CYLTagRowAlignment` |
@@ -713,13 +741,13 @@ Rows: 604; matched 603, TODO 1; score 99/100.
 | `CYLMenuStyle.deleteIndicatorFontForState` | `-deleteIndicatorFontForState:traitCollection:`: `deleteIndicatorFont`, else the title font. | `CYLMenuStyle -deleteIndicatorFontForState:traitCollection:` |
 | `CYLMenuStyle.headerFontForTraitCollection` | `-headerFontForTraitCollection:`. | `CYLMenuStyle -headerFontForTraitCollection:` |
 | `CYLMenuStyle.copy` | NSCopying. | `CYLMenuStyle -copyWith:` |
-| **class `CYLFilterParamsTool`** | `CYLFilterParamsTool`: the state of the multiple filter: the titles per section (`dataSources`) and a selected flag per item (`filterParamsArray`, the first item of each section se | `CYLFilterParamsTool` |
-| `CYLFilterParamsTool.dataSources` | The titles, one list per section. | `CYLFilterParamsTool.dataSources` |
-| `CYLFilterParamsTool.filterParamsArray` | One selected flag per item; made from `dataSources` (first item selected) on first use. | `CYLFilterParamsTool.filterParamsArray` |
-| `CYLFilterParamsTool.filterParamsDictionary` | The settings and the modified flag. | `CYLFilterParamsTool.filterParamsDictionary` |
-| `CYLFilterParamsTool.filterParamsContentDictionary` | Free-form content of the filter ("skilled" by default, as on iOS). | `CYLFilterParamsTool.filterParamsContentDictionary` |
-| `CYLFilterParamsTool.filename` | Where the settings are saved: `kMultipleFilterSetting` in the app's files folder (the documents folder on iOS), once `filesDir` is known; set it to choose another file. | `CYLFilterParamsTool.filename` |
-| `CYLFilterParamsTool.filesDir` | The folder `filename` defaults to (an app sets `context.filesDir`). | `N/A on iOS: `CYLFilterParamsTool` was removed in the Swift migration (`70dcc816`); `CYLMultipleFilterController` keeps its state (`selectedIndexPaths()` / `setSelectedIndexPaths(_:)`)` |
+| **class `CYLFilterParamsTool`** | `CYLFilterParamsTool`: the state of the multiple filter: the titles per section (`dataSources`) and a selected flag per item (`filterParamsArray`, the first item of each section se | TODO |
+| `CYLFilterParamsTool.dataSources` | The titles, one list per section. | TODO |
+| `CYLFilterParamsTool.filterParamsArray` | One selected flag per item; made from `dataSources` (first item selected) on first use. | `CYLMultipleFilterController.selectedIndexPaths()` / `setSelectedIndexPaths(_:)` (index paths instead of flags) |
+| `CYLFilterParamsTool.filterParamsDictionary` | The settings and the modified flag. | TODO |
+| `CYLFilterParamsTool.filterParamsContentDictionary` | Free-form content of the filter ("skilled" by default, as on iOS). | TODO |
+| `CYLFilterParamsTool.filename` | Where the settings are saved: `kMultipleFilterSetting` in the app's files folder (the documents folder on iOS), once `filesDir` is known; set it to choose another file. | TODO |
+| `CYLFilterParamsTool.filesDir` | The folder `filename` defaults to (an app sets `context.filesDir`). | N/A on iOS: `CYLFilterParamsTool` was removed in the Swift migration (`70dcc816`); `CYLMultipleFilterController` keeps its state (`selectedIndexPaths()` / `setSelectedIndexPaths(_:)`) |
 | **class `CYLFilterCollectionCell`** | `CYLFilterCollectionCell`: an item of the multiple filter: a button with the slide backgrounds (green title, white when selected), not touchable itself (the cell is). | `CYLFilterCollectionCell` |
 | `CYLFilterCollectionCell.titleButton` | — | `CYLFilterCollectionCell.titleButton` |
 | **class `CYLMultipleFilterHeaderView`** | `CYLMultipleFilterHeaderView`: a section header of the multiple filter: an image at the leading edge and the title (50 dp in, half-transparent black) above a green line. | `CYLMultipleFilterHeaderView` |
@@ -733,7 +761,7 @@ Rows: 604; matched 603, TODO 1; score 99/100.
 | `CYLFilterBaseController.restoreButton` | — | `CYLFilterBaseController.restoreButton` |
 | `CYLFilterBaseController.okButton` | — | `CYLFilterBaseController.okButton` |
 | `CYLFilterBaseController.dataSource` | Free-form data of a subclass. | `CYLFilterBaseController.dataSource` |
-| `CYLFilterBaseController.settingArray` | Free-form settings of a subclass. | `CYLFilterBaseController.settingArray` |
+| `CYLFilterBaseController.settingArray` | Free-form settings of a subclass. | TODO |
 | `CYLFilterBaseController.delegate` | — | `CYLFilterBaseController.delegate` |
 | `CYLFilterBaseController.showInView` | `-showInView:`: captures and blurs `view` as the panel's background, adds the panel over it and slides it in. | `CYLFilterBaseController -showInView:` |
 | `CYLFilterBaseController.hide` | Closes the panel without applying (a tap on the dimmed area). | `hide` (same name in the iOS core) |
@@ -749,9 +777,9 @@ Rows: 604; matched 603, TODO 1; score 99/100.
 | `CYLMultipleFilterController.selectedIndexPaths` | `-selectedIndexPaths`. | `CYLMultipleFilterController -selectedIndexPaths` |
 | `CYLMultipleFilterController.setSelectedIndexPaths` | `-setSelectedIndexPaths:`: throws for an invalid item, or an exclusive item selected with another in its section. | `CYLMultipleFilterController -setSelectedIndexPaths:` |
 | `CYLMultipleFilterController.selectItemAtIndexPath` | Selects or deselects an item as a tap does (the collection view's `didSelectItemAtIndexPath:`). | `CYLMultipleFilterController.collectionView(_:didSelectItemAt:)` (a tap) |
-| `CYLScaledSystemFont` | `CYLScaledSystemFont`: the system font of `pointSize` scaled by `fontScale` (the system font scale, 1 by default), at most `CYLMaximumFontScale` times. | `CYLScaledSystemFont` |
-| `CYLTagHeightForFont` | `CYLTagHeightForFont`: at least `minimumHeight`, else the font's line height plus 10. | `CYLTagHeightForFont` |
-| `CYLTagTitleFontForTraitCollection` | `CYLTagTitleFontForTraitCollection`: the scaled title font. | `CYLTagTitleFontForTraitCollection` |
+| `CYLScaledSystemFont` | `CYLScaledSystemFont`: the system font of `pointSize` scaled by `fontScale` (the system font scale, 1 by default), at most `CYLMaximumFontScale` times. | `CYLTagMetrics.scaledSystemFont(ofSize:traitCollection:)` |
+| `CYLTagHeightForFont` | `CYLTagHeightForFont`: at least `minimumHeight`, else the font's line height plus 10. | `CYLTagMetrics.tagHeight(for:minimumHeight:)` |
+| `CYLTagTitleFontForTraitCollection` | `CYLTagTitleFontForTraitCollection`: the scaled title font. | `CYLTagMetrics.titleFont(for:)` |
 | **class `CYLTag`** | `CYLTag`: one tag of a `CYLTagDataSource`: its title, identifier, icons, badge, state, and the look it changes over the list's style (android-tagview's `Tag`). | `CYLTag` |
 | `CYLTag.title` | The title; null becomes "". | `CYLTag.title` |
 | `CYLTag.image` | — | `CYLTag.image` |
@@ -945,7 +973,7 @@ Rows: 604; matched 603, TODO 1; score 99/100.
 | `CYLMenuConfigurationError.CYLMenuConfigurationErrorUnsupportedFormat` | — | `Code.unsupportedFormat` |
 | **class `CYLMenuConfigurationException`** | The exception thrown where iOS returns an `NSError` of `CYLMenuConfigurationErrorDomain`. | `CYLMenuConfigurationError` thrown as `NSError` (domain `CYLMenuConfigurationErrorDomain`) |
 | `CYLMenuConfigurationException.domain` | Always `CYLMenuConfigurationErrorDomain`. | `CYLMenuConfigurationError.errorDomain` (`"CYLMenuConfigurationErrorDomain"`) |
-| `CYLMenuAnimationURLWithOptions` | `CYLMenuAnimationURLWithOptions`: `fileURL` with `options` as its fragment ("name=value&…", names sorted, percent encoded), which the animation engine reads (Rive's artboard and st | `CYLMenuAnimationURLWithOptions` |
+| `CYLMenuAnimationURLWithOptions` | `CYLMenuAnimationURLWithOptions`: `fileURL` with `options` as its fragment ("name=value&…", names sorted, percent encoded), which the animation engine reads (Rive's artboard and st | `URL.cylAddingAnimationOptions(_:)` |
 | `foldControlWithConfiguration` | `CYLMenuFoldControl (CYLConfiguration) +foldControlWithConfiguration:`: a copy of a fold control, a control for a position name (with the position's usual content), or one built fr | `CYLMenuFoldControl (CYLConfiguration) +foldControlWithConfiguration:` |
 | `applyConfiguration` | `CYLMenuFoldControl (CYLConfiguration) -applyConfiguration:`: sets the values the dictionary holds. | `CYLTagListView (CYLConfiguration) -applyConfiguration:` |
 | `styleWithConfiguration` | `CYLMenuStyle (CYLConfiguration) +styleWithConfiguration:`: the default style with the dictionary applied. | `CYLMenuStyle (CYLConfiguration) +styleWithConfiguration:` |
@@ -966,7 +994,7 @@ Rows: 604; matched 603, TODO 1; score 99/100.
 | `CYLTagGroup.isOpened` | `isOpened`. | `isOpened` (same name in the iOS core) |
 | `CYLTagGroup.section` | — | `CYLTagGroup.section` |
 | `CYLTagGroup.itemArr` | The tags; setting them computes the rows again. | `CYLTagGroup.itemArr` |
-| `CYLTagGroup.firstRowCount` | — | `CYLTagGroup.firstRowCount` |
+| `CYLTagGroup.firstRowCount` | — | `CYLTagGroup.cellCountsPerRow.first` (computed on iOS, stored on Android) |
 | `CYLTagGroup.cellsCountArrayPerRowInSections` | The number of tags of each row at the view's width. | `CYLTagGroup.cellsCountArrayPerRowInSections` |
 | `CYLTagGroup.firstRowCellCountForContentWidth` | `-firstRowCellCountForContentWidth:`: how many tags fit on the first row of `contentWidth` dp. | `CYLTagGroup -firstRowCellCountForContentWidth:` |
 | **class `CYLTagCell`** | `CYLTagCell`: a tag: white text on a blue pill (the XIB's label). | `CYLTagCell` |
