@@ -372,7 +372,7 @@ Score: 5/5 = 100.
     | Taken | 2026-11-13 14:12 NZDT |
 - Status: DONE.
 
-## IN PROGRESS (TODO 2026-11-13): HarmonyOS: learn from FlexibleSearchBar, and a HarmonyOS API table scored to 100
+## DONE (2026-11-16; TODO 2026-11-13): HarmonyOS: learn from FlexibleSearchBar, and a HarmonyOS API table scored to 100 (397/397 rows, see the score below)
 
 - Context: HarmonyOS NEXT comes after Flutter and React Native (first TODO of this document); DevEco Studio 6.0.1 and
   the API 21 SDK are installed, an emulator device still has to be created. Android was aligned with a table
