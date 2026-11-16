@@ -347,3 +347,4 @@ begins and becomes `DONE` when it ends.
   asking: the code is always on a branch and never pushed to master / main, so it is safe; no need to worry about any
   risk after pushing."
 - 2026-11-16 DONE: HarmonyOS Rive crash fix via pins (CYLTableViewPlaceHolder 76762c6, CYLTabBarController c795d08); every platform checked. Prompt: "...learn from it update our 鸿蒙os core component library to fix crash..."
+- 2026-11-16 DONE: HarmonyOS Scorecard 3 emulator check: rows 6, 9, 16, 18, 20-23 and the SVGA row verified DONE; row 10 still fails; row 7 not reached; new row 24. Prompt: "fix 鸿蒙os TODO with emulator / fix TODO need 模拟器截图验证".
