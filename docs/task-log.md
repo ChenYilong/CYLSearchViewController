@@ -325,3 +325,4 @@ begins and becomes `DONE` when it ends.
   for sync: both branches had the same tree (3f4981e), so nothing was cherry-picked; this entry is committed on both.
   Prompt (verbatim): "将所有处于open状态的pr 互相cherry pick 保持所有pr保持代码同步" / "log both"
   Prompt (English): "Cherry-pick all open PRs into each other so every PR keeps the same code." / "log both"
+- 2026-11-16 BLOCKED: HarmonyOS next-page screenshots: the current build ignores all touches and the CYLDemoTab launch parameter (BUG TODO in docs/android-and-cross-platform.md). Prompt: "run our HarmonyOS version code on an emulator and push next page update more screenshot in docs".
