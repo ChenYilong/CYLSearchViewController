@@ -297,6 +297,6 @@ export const CYL_PLUS_IMAGE_SIZE: number = 56;
  * How far the raised plus button rises above the tab bar (vp), from cyltabbar's `cyl_plusButtonOverhang` (24 for the
  * 56 vp image above an aligned title in the 49 vp bar). Scrolling lists end this much lower (`contentEndOffset`), so
  * their last rows can scroll clear of the plus button, which never covers content at rest. The layout lives in the
- * library (CYLTabBarController PR #812, rule "Fix issues in the core first"); the example only applies it.
+ * library (CYLTabBarController PR #811, rule "Fix issues in the core first"); the example only applies it.
  */
 export const CYL_PLUS_OVERHANG: number = cyl_plusButtonOverhang({ imageSize: CYL_PLUS_IMAGE_SIZE, title: '+' });
