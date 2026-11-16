@@ -1,6 +1,6 @@
 import { common } from '@kit.AbilityKit';
 import { CYLSearchBarComponent, CYLSearchBarView } from 'cylsearch';
-import { CYLDemoCell, CYLDemoNavBar, cylDemoText, CYLDemoRoute, CYL_PLUS_OVERHANG } from '../common/DemoCommon';
+import { CYLDemoCell, CYLDemoNavBar, cylDemoText, CYLDemoRoute } from '../common/DemoCommon';
 
 /**
  * The Search bar page (iOS `CYLSearchBarDemoViewController`), the plus button's page and a row of the Examples menu:
@@ -122,7 +122,6 @@ export struct PortsMenuPage {
             .onClick(() => this.stack.pushPath({ name: row.route }))
           }, (row: CYLPortRow) => row.title)
         }
-        .contentEndOffset(CYL_PLUS_OVERHANG)
         .backgroundColor($r('sys.color.background_primary'))
         .borderRadius(10)
         .margin({ left: 16, right: 16, top: 20 })
