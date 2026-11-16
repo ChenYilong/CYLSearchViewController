@@ -4,6 +4,13 @@ This repository contains an Objective-C search UI sample and the Issue #1317
 reproduction for `UISearchController` with `CYLTableViewPlaceHolder` refresh.
 Read this file and `AGENTS.md` before changing project files.
 
+## API parity tables (added 2026-11-17)
+
+- Compare two platforms with a table: column 1 an API or feature, column 2 its description, column 3 the counterpart
+  (`TODO` by default). Score = rows not `TODO` / rows × 100 (no `TODO` = 100, all `TODO` = 0).
+- Search the code to match `TODO` rows, score, resolve the rest one by one (core first, then the example), score, and
+  repeat until 100; then make the reverse table. Full rule: `AGENTS.md`, "API parity tables"; skill `cyl-api-parity`.
+
 ## Fix issues in the core first (added 2026-11-17)
 
 - When you meet an issue or a bug, fix it first in the core, so that similar problems cannot happen in any app, not

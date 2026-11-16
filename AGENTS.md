@@ -25,6 +25,7 @@ WeChat DevTools Skills (<https://developers.weixin.qq.com/miniprogram/dev/devtoo
 | `cyl-sub-repositories` | Adding or updating a sibling project as a sub-repository (CollectionViewClassifyMenu, CYLTableViewPlaceHolder): commit pin, core option, example, every platform |
 | `cyl-docs` | Editing `README.md` or `docs/` |
 | `cyl-verify` | Building, testing, running the simulator |
+| `cyl-api-parity` | Comparing two platforms' APIs: the parity table (source API, description, target counterpart, `TODO` by default), its score, and the loop to 100 |
 | `cyl-fix-in-core` | Fixing any issue or bug: in the core (code published to a package registry) first; example-layer fixes only after asking, with the reason documented |
 | `cyl-commit` | Writing any commit message: `git cz` style, English only, the author line, the checks before committing |
 | `cyl-accessibility-i18n` | Screen readers and localization in any code; writing UI tests that find controls by their labels |
@@ -34,6 +35,19 @@ WeChat DevTools Skills (<https://developers.weixin.qq.com/miniprogram/dev/devtoo
 
 Every new integration rule updates, in the same change, `AGENTS.md`,
 `instructions.md` and the affected skills.
+
+## API parity tables (added 2026-11-17)
+
+- A parity table compares two platforms (or two libraries). Column 1: an API or feature of the source; column 2: what
+  it does; column 3: the counterpart on the target, `TODO` by default.
+- Score: (rows whose column 3 is not `TODO`) / rows × 100. No `TODO` in column 3 is 100; all `TODO` is 0.
+- Loop until 100: (1) search the existing code to match each `TODO` row with its counterpart; (2) score; (3) resolve
+  the remaining `TODO` rows one by one, each becoming the name of its implementation; (4) score again; repeat.
+- Implement in the core first (rule "Fix issues in the core first"), then use the example to show the usage, copying
+  the source platform's example. Keep the logic and the API names the same on both platforms.
+- When one direction reaches 100, make the reverse table the same way.
+- Tables: [docs/ios-api-alignment.md](docs/ios-api-alignment.md) (Android core → iOS),
+  [docs/android-api-alignment.md](docs/android-api-alignment.md) (iOS → Android). Skill: `cyl-api-parity`.
 
 ## Fix issues in the core first (added 2026-11-17)
 
