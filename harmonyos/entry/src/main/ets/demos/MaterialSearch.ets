@@ -15,7 +15,8 @@ import {
   CYLDemoRoute,
   CYLMaterialSampleParam,
   CYLSnackbar,
-  CYLSnackbarView
+  CYLSnackbarView,
+  CYL_PLUS_OVERHANG
 } from '../common/DemoCommon';
 import { CYLSpeechRecognizer } from '../common/SpeechRecognizer';
 
@@ -81,6 +82,7 @@ export struct MaterialMenuView {
           })
         }, (sample: number) => `${sample}`)
       }
+      .contentEndOffset(CYL_PLUS_OVERHANG)
       .backgroundColor($r('sys.color.background_primary'))
       .borderRadius(10)
       .margin({ left: 16, right: 16, top: 20 })
@@ -210,6 +212,7 @@ export struct MaterialSamplePage {
           }
         }, (i: number) => `${i}`)
       }
+      .contentEndOffset(CYL_PLUS_OVERHANG)
       .layoutWeight(1)
     } else if (this.param.sample === CYLMaterialSearchSample.tabs) {
       // TabActivity: three pages under tabs.

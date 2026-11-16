@@ -8,7 +8,7 @@ import {
   CYLSearchBarView,
   cylFoldedTagCount
 } from 'cylsearch';
-import { cylAppText } from '../common/DemoCommon';
+import { cylAppText, CYL_PLUS_OVERHANG } from '../common/DemoCommon';
 
 /**
  * A discover topic of search-discover.json; `icon` "hot" adds the localized hot icon after the title.
@@ -332,6 +332,9 @@ export struct DiscoverView {
           .onAreaChange((_: Area, area: Area) => {
             this.curveWidth = this.getUIContext().vp2px(Number(area.width));
           })
+          // No outline: Path draws a black 1 px stroke unless told otherwise.
+          .stroke(Color.Transparent)
+          .strokeWidth(0)
         Column({ space: 20 }) {
           Text(this.hint + ' ✨')
             .fontSize(20)
@@ -367,6 +370,8 @@ export struct DiscoverView {
     }
     .width('100%')
     .height('100%')
+    // The mic button stays above the raised plus button (its page background is white, so the space shows no band).
+    .padding({ bottom: CYL_PLUS_OVERHANG })
     .backgroundColor($r('sys.color.background_primary'))
   }
 }

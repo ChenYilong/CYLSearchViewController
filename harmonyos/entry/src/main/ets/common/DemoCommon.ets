@@ -217,7 +217,10 @@ export struct CYLDemoCell {
       Row({ space: 12 }) {
         if (this.image !== undefined && this.image.type === 20000) {
           if (this.tintsImage) {
-            Image(this.image).width(28).height(28).fillColor(this.imageTint).renderMode(ImageRenderMode.Template)
+            // fillColor tints SVG images only; the PNG placeholder images (CYLSearch<Name>@2x.png) get the same secondary grey
+            // (iOS `secondaryLabelColor`, #8E8E93) through a color filter that keeps their alpha.
+            Image(this.image).width(28).height(28).fillColor(this.imageTint)
+              .colorFilter(new ColorFilter([0, 0, 0, 0, 0.557, 0, 0, 0, 0, 0.557, 0, 0, 0, 0, 0.576, 0, 0, 0, 1, 0]))
           } else {
             Image(this.image).width(28).height(28)
           }
@@ -282,3 +285,11 @@ export function cylSetTabIconSource(context: common.Context, source: number): vo
     // Kept for this run only.
   }
 }
+
+/**
+ * How far the raised plus button rises above the tab bar (vp): cyltabbar puts its 56 vp image right above the title,
+ * whose top is tabBarHeight - 17 = 32 vp in the 49 vp bar, so 56 - 32 = 24. Scrolling lists end this much lower
+ * (`contentEndOffset`), so their last rows can scroll clear of the plus button, which never covers content at rest
+ * (AGENTS.md, "Example layer, raised plus button").
+ */
+export const CYL_PLUS_OVERHANG: number = 24;
