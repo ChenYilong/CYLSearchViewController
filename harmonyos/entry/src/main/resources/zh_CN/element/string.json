@@ -107,6 +107,46 @@
     {
       "name": "microphone_reason",
       "value": "在语音示例中把你说出的搜索词转成文字。"
+    },
+    {
+      "name": "svga_demo",
+      "value": "SVGA 动画：点按再次播放"
+    },
+    {
+      "name": "svga_source",
+      "value": "Tab 图标：%s"
+    },
+    {
+      "name": "svga_source_symbols",
+      "value": "SF Symbols"
+    },
+    {
+      "name": "svga_source_keys",
+      "value": "SVGA（初始化 Key）"
+    },
+    {
+      "name": "svga_source_file",
+      "value": "SVGA（配置文件）"
+    },
+    {
+      "name": "svga_demo_hint",
+      "value": "再次播放 SVGA 动画"
+    },
+    {
+      "name": "svga_source_hint",
+      "value": "切换 Tab 图标并重建 TabBar"
+    },
+    {
+      "name": "svga_swiftui",
+      "value": "SwiftUI 宿主（SVGA TabBar）"
+    },
+    {
+      "name": "svga_swiftui_title",
+      "value": "SwiftUI 宿主"
+    },
+    {
+      "name": "svga_swiftui_close",
+      "value": "关闭"
     }
   ]
 }

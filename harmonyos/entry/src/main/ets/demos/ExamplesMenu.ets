@@ -5,7 +5,17 @@ import {
   CYLSearchPlaceholderStyle,
   CYLSearchPlaceholderView
 } from 'cylsearch';
-import { CYLDemoCell, CYLDemoNavBar, cylDemoText, CYLDemoRoute, CYLPlaceholderDetailParam } from '../common/DemoCommon';
+import { CYLSVGAView } from 'cyltabbar';
+import {
+  cylAppText,
+  CYLDemoCell,
+  CYLDemoNavBar,
+  cylDemoText,
+  CYLDemoRoute,
+  CYLPlaceholderDetailParam,
+  cylSetTabIconSource,
+  CYL_TAB_ICON_SOURCE_KEY
+} from '../common/DemoCommon';
 
 /**
  * The number of placeholder styles (iOS `CYLSearchPlaceholderStyleCount`).
@@ -22,12 +32,64 @@ const CUSTOM_KEYS: string[] = ['demo.custom.textOnly', 'demo.custom.imageOnly', 
 export struct ExamplesMenuView {
   @Require @Param stack: NavPathStack;
   private context: common.Context = this.getUIContext().getHostContext() as common.Context;
+  // The SVGA demo above the list (iOS `CYLSVGADemoHeaderView`): a tap plays it again.
+  @Local svgaReplay: number = 0;
+  // Where the tab icons come from (iOS `CYLDemoTabIconSource`): 0 symbols, 1 SVGA keys, 2 SVGA configuration file.
+  @Local iconSource: number = AppStorage.get<number>(CYL_TAB_ICON_SOURCE_KEY) ?? 0;
+
+  private sourceName(): string {
+    const names: string[] = ['svga_source_symbols', 'svga_source_keys', 'svga_source_file'];
+    return cylAppText(this.context, names[Math.max(0, Math.min(this.iconSource, 2))]);
+  }
+
+  // "Tab icons: …": the next source; the tab bar changes at once (pages/Index.ets watches it) and Examples stays selected.
+  private switchSource(): void {
+    this.iconSource = (this.iconSource + 1) % 3;
+    cylSetTabIconSource(this.context, this.iconSource);
+  }
+
+  // As iOS `CYLSVGADemoHeaderView`: the 64 vp animation (tab_activity.svga, played once) and its label, the source button
+  // below.
+  @Builder
+  svgaHeader() {
+    Column() {
+      Row({ space: 12 }) {
+        CYLSVGAView({ path: 'svga/tab_activity.svga', iconSize: 64, selected: true, replayToken: this.svgaReplay })
+          .width(64)
+          .height(64)
+        Text(cylAppText(this.context, 'svga_demo'))
+          .fontSize(15)
+          .fontColor($r('sys.color.font_primary'))
+          .layoutWeight(1)
+      }
+      .width('100%')
+      .height(64)
+      .accessibilityGroup(true)
+      .accessibilityText(cylAppText(this.context, 'svga_demo'))
+      .accessibilityDescription(cylAppText(this.context, 'svga_demo_hint'))
+      .id('CYLSVGADemoHeader')
+      .onClick(() => {
+        this.svgaReplay++;
+      })
+      Text(cylAppText(this.context, 'svga_source', this.sourceName()))
+        .fontSize(17)
+        .fontColor($r('sys.color.brand'))
+        .width('100%')
+        .constraintSize({ minHeight: 44 })
+        .accessibilityDescription(cylAppText(this.context, 'svga_source_hint'))
+        .id('CYLSVGADemoSourceButton')
+        .onClick(() => this.switchSource())
+    }
+    .padding({ left: 16, right: 16, top: 12 })
+    .width('100%')
+  }
   private rows: string[] = ['demo.reproduction', 'demo.styles', 'demo.searchBar', 'demo.ports'];
   private routes: string[] = [CYLDemoRoute.reproduction, CYLDemoRoute.styles, CYLDemoRoute.searchBar, CYLDemoRoute.ports];
 
   build() {
     Column() {
       CYLDemoNavBar({ title: cylDemoText(this.context, 'demo.title'), barColor: $r('sys.color.background_secondary') })
+      this.svgaHeader()
       List() {
         ForEach(this.rows, (key: string, index: number) => {
           ListItem() {

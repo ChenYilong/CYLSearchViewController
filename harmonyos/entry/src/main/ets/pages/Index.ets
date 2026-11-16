@@ -8,7 +8,13 @@ import {
   CYLTabBarController,
   CYLTabBarItemAttributes
 } from 'cyltabbar';
-import { cylAppText, CYLDemoRoute, CYLMaterialSampleParam, CYLPlaceholderDetailParam } from '../common/DemoCommon';
+import {
+  cylAppText,
+  CYLDemoRoute,
+  CYLMaterialSampleParam,
+  CYLPlaceholderDetailParam,
+  CYL_TAB_ICON_SOURCE_KEY
+} from '../common/DemoCommon';
 import { SearchExamplePage, SearchExampleView } from '../demos/SearchExample';
 import { ExamplesMenuView, PlaceholderDetailPage, PlaceholderGalleryPage } from '../demos/ExamplesMenu';
 import { PortsMenuPage, SearchBarDemoPage, SearchBarDemoView } from '../demos/SearchBarDemo';
@@ -59,16 +65,34 @@ struct Index {
   @State selectedIndex: number = 0;
   // The `CYLDemoTab` launch parameter (EntryAbility stores it), also when the app is already running.
   @StorageLink('CYLDemoTab') @Watch('demoTabChanged') demoTab: number = -1;
+  // Where the tab icons come from (iOS `CYLDemoTabIconSource`): the Examples page's "Tab icons: …" button switches it.
+  @StorageLink(CYL_TAB_ICON_SOURCE_KEY) @Watch('iconSourceChanged') iconSource: number = 0;
   private context: common.Context = this.getUIContext().getHostContext() as common.Context;
-  private items: CYLConfiguredTabBarItem[] = [];
+  @State private items: CYLConfiguredTabBarItem[] = [];
   private plusButton: CYLPlusButton | undefined = undefined;
   private result: CYLTabBarConfigurationResult | undefined = undefined;
   private stacks: Record<string, NavPathStack> = {};
 
   aboutToAppear(): void {
     CYLTabBarConfiguration.imageResolver = cylTabImage;
+    this.loadTabs();
+    // `aa start ... --pi CYLDemoTab 1` selects that tab, for screenshots (iOS `-CYLDemoTab 1`).
+    this.demoTabChanged();
+  }
+
+  private iconSourceChanged(): void {
+    this.loadTabs();
+  }
+
+  /**
+   * The tabs for the icon source, as iOS `+tabBarControllerForIconSource:`: 2 reads CYLTabBarConfiguration_svga.json
+   * (CYLTabBarSVGAFilePath); 1 writes the SVGA files in code (the initialization keys: CYLTabBarSVGAFilePath,
+   * CYLTabBarSVGASize 28, a dark file for Search and Discover); 0 reads CYLTabBarConfiguration.json (the symbols).
+   */
+  private loadTabs(): void {
+    const file = this.iconSource === 2 ? 'CYLTabBarConfiguration_svga.json' : 'CYLTabBarConfiguration.json';
     try {
-      const configuration = CYLTabBarConfiguration.configurationWithRawFile(this.context, 'CYLTabBarConfiguration.json');
+      const configuration = CYLTabBarConfiguration.configurationWithRawFile(this.context, file);
       cylMarkSelectedImages(configuration);
       this.result = CYLTabBarConfiguration.resultWithConfiguration(configuration, '1.0.0', false);
       // CYLTabBarLocalizationTableName "CYLSearchTabs": the titles are keys of that table.
@@ -80,8 +104,28 @@ struct Index {
           selectedImage: item.selectedImage,
           identifier: item.identifier,
           pageIdentifier: item.pageIdentifier,
-          titlePositionAdjustment: item.titlePositionAdjustment
+          titlePositionAdjustment: item.titlePositionAdjustment,
+          svgaFilePath: item.svgaFilePath,
+          svgaURL: item.svgaURL,
+          svgaDarkFilePath: item.svgaDarkFilePath,
+          svgaDarkURL: item.svgaDarkURL,
+          svgaSize: item.svgaSize
         };
+        if (this.iconSource === 1) {
+          // The initialization keys of iOS: the same tabs, each with its SVGA file set in code.
+          const files: Record<string, string[]> = {
+            'search': ['svga/tab_search.svga', 'svga/tab_activity.svga'],
+            'examples': ['svga/tab_list.svga'],
+            'tagStyle': ['svga/tab_chat.svga'],
+            'discover': ['svga/tab_home.svga', 'svga/tab_profile.svga']
+          };
+          const pair = files[item.identifier ?? ''];
+          if (pair !== undefined) {
+            localized.svgaFilePath = pair[0];
+            localized.svgaDarkFilePath = pair.length > 1 ? pair[1] : undefined;
+            localized.svgaSize = 28;
+          }
+        }
         return localized;
       });
       // CYLTabBarControllerPlusButton: a selectable plus button with its own page.
@@ -99,10 +143,8 @@ struct Index {
         };
       }
     } catch (error) {
-      console.error(`CYLTabBarConfiguration.json: ${JSON.stringify(error)}`);
+      console.error(`${file}: ${JSON.stringify(error)}`);
     }
-    // `aa start ... --pi CYLDemoTab 1` selects that tab, for screenshots (iOS `-CYLDemoTab 1`).
-    this.demoTabChanged();
   }
 
   // As iOS `-CYLDemoTab <n>`: n counts the tab bar's view controllers, the plus button's page included in its slot

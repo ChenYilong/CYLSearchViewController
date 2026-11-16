@@ -1,0 +1,54 @@
+{
+  "CYLTabBarControllerContext": "CYLSearchExample",
+  "CYLTabBarControllerLocalization": {
+    "CYLTabBarLocalizationTableName": "CYLSearchTabs",
+    "CYLTabBarLocalizationBundleName": "CYLSearchTabs.bundle"
+  },
+  "CYLTabBarControllerTitlePositionAdjustment": "{0, -2}",
+  "CYLTabBarControllerTabBarItemsAttributes": [
+    {
+      "CYLTabBarItemTitle": "tab.search",
+      "CYLTabBarItemImage": "system:magnifyingglass",
+      "CYLTabBarItemSelectedImage": "system:magnifyingglass",
+      "CYLTabBarItemIdentifier": "search",
+      "CYLTabBarItemPageIdentifier": "search",
+      "CYLTabBarSVGAFilePath": "svga/tab_search.svga",
+      "CYLTabBarSVGASize": "{28, 28}",
+      "CYLTabBarSVGADarkFilePath": "svga/tab_activity.svga"
+    },
+    {
+      "CYLTabBarItemTitle": "tab.examples",
+      "CYLTabBarItemImage": "system:list.bullet",
+      "CYLTabBarItemSelectedImage": "system:list.bullet",
+      "CYLTabBarItemIdentifier": "examples",
+      "CYLTabBarItemPageIdentifier": "examples",
+      "CYLTabBarSVGAFilePath": "svga/tab_list.svga",
+      "CYLTabBarSVGASize": "{28, 28}"
+    },
+    {
+      "CYLTabBarItemTitle": "tab.tagStyle",
+      "CYLTabBarItemImage": "system:tag",
+      "CYLTabBarItemSelectedImage": "system:tag.fill",
+      "CYLTabBarItemIdentifier": "tagStyle",
+      "CYLTabBarItemPageIdentifier": "tagStyle",
+      "CYLTabBarSVGAFilePath": "svga/tab_chat.svga",
+      "CYLTabBarSVGASize": "{28, 28}"
+    },
+    {
+      "CYLTabBarItemTitle": "tab.discover",
+      "CYLTabBarItemImage": "system:sparkle.magnifyingglass",
+      "CYLTabBarItemSelectedImage": "system:sparkle.magnifyingglass",
+      "CYLTabBarItemIdentifier": "discover",
+      "CYLTabBarItemPageIdentifier": "discover",
+      "CYLTabBarSVGAFilePath": "svga/tab_home.svga",
+      "CYLTabBarSVGASize": "{28, 28}",
+      "CYLTabBarSVGADarkFilePath": "svga/tab_profile.svga"
+    }
+  ],
+  "CYLTabBarControllerPlusButton": {
+    "CYLTabBarItemTitle": "tab.searchBar",
+    "CYLTabBarItemImage": "system:plus.circle.fill",
+    "CYLTabBarItemIdentifier": "plus",
+    "CYLTabBarItemPageIdentifier": "plus"
+  }
+}
