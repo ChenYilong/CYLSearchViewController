@@ -339,3 +339,10 @@ begins and becomes `DONE` when it ends.
   the active pull request from before, else master. When more than two pull requests are open, be careful and ask me
   whether to create a new branch with a pull request or keep committing on this branch, because more branches make
   merging hard and leave no sensible target."
+- 2026-11-16 DONE: rule extended: at the end of every exchange, on any branch other than master / main, commit and push
+  without asking (AGENTS.md, instructions.md, `cyl-commit` skill, under the pull request rule). PR #12 is open for
+  feat/swift-core.
+  Prompt (verbatim, new part): "一次问答结束后，只要当前分支不是master main，则必须commit 必须push ，无须询问，因为代码总是在分支上，并不会push 到master main分支。非常安全。无须担心push后的任何风险。"
+  Prompt (English): "After every exchange, as long as the current branch is not master / main, commit and push without
+  asking: the code is always on a branch and never pushed to master / main, so it is safe; no need to worry about any
+  risk after pushing."

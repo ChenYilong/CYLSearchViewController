@@ -300,6 +300,9 @@ confirmation. On `master` or `main`, ask first.
   - When more than two pull requests are already open, stop and ask the user whether to create a new branch with a
     pull request or keep committing on the current branch: more than two open branches make merging hard and leave no
     sensible target branch for each.
+  - At the end of every exchange (one question and its answer), when the current branch is not `master` / `main`,
+    commit and push without asking: the work is always on a branch, never pushed to `master` / `main`, so pushing is
+    safe and carries no risk to worry about.
 
 Every time a branch is created, open its pull request automatically as soon as the branch is first pushed
 (`gh pr create`), without asking. The base (target) branch is the branch it was created from (its source branch) by
