@@ -313,3 +313,4 @@ begins and becomes `DONE` when it ends.
   Prompt (English): "Write into the instruction files and the skills: find the commit conventions (create them if missing),
   look for the keyword git cz (create if missing, append if present), and add in English: commit in git cz style,
   English-only commit messages, no Chinese allowed. continue"
+- 2026-11-16 DONE (iOS): SVGA Flutter row, 10/12; plugin platform views made @MainActor for the new pin. Prompt: "go flutter svga".

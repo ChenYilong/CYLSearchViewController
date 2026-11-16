@@ -33,16 +33,17 @@ public final class FlutterCylsearchPlugin: NSObject, FlutterPlugin {
  */
 final class CYLFlutterViewFactory: NSObject, FlutterPlatformViewFactory {
     private let messenger: FlutterBinaryMessenger
-    private let make: (CGRect, Int64, [String: Any], FlutterMethodChannel) -> FlutterPlatformView
+    private let make: @MainActor (CGRect, Int64, [String: Any], FlutterMethodChannel) -> FlutterPlatformView
 
-    init(messenger: FlutterBinaryMessenger, make: @escaping (CGRect, Int64, [String: Any], FlutterMethodChannel) -> FlutterPlatformView) {
+    init(messenger: FlutterBinaryMessenger, make: @escaping @MainActor (CGRect, Int64, [String: Any], FlutterMethodChannel) -> FlutterPlatformView) {
         self.messenger = messenger
         self.make = make
     }
 
     func create(withFrame frame: CGRect, viewIdentifier viewId: Int64, arguments args: Any?) -> FlutterPlatformView {
         let channel = FlutterMethodChannel(name: "cyl_search/view_\(viewId)", binaryMessenger: messenger)
-        return make(frame, viewId, args as? [String: Any] ?? [:], channel)
+        // The engine creates platform views on the main thread.
+        return MainActor.assumeIsolated { make(frame, viewId, args as? [String: Any] ?? [:], channel) }
     }
 
     func createArgsCodec() -> FlutterMessageCodec & NSObjectProtocol {
@@ -53,7 +54,9 @@ final class CYLFlutterViewFactory: NSObject, FlutterPlatformViewFactory {
 /**
  * `CYLSearchView` in a container, open from the start (Dart pops its route in `onClose`).
  */
-final class CYLFlutterSearchView: NSObject, FlutterPlatformView, CYLSearchViewDelegate {
+// Platform views live on the main thread, as the core views they wrap (main-actor isolated).
+@MainActor
+final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView, CYLSearchViewDelegate {
     private let container: UIView
     private let searchView = CYLSearchView(frame: .zero)
     private let channel: FlutterMethodChannel
@@ -124,7 +127,9 @@ final class CYLFlutterSearchView: NSObject, FlutterPlatformView, CYLSearchViewDe
 /**
  * `CYLSearchBarView` filling the platform view.
  */
-final class CYLFlutterSearchBarView: NSObject, FlutterPlatformView, CYLSearchBarViewDelegate {
+// Platform views live on the main thread, as the core views they wrap (main-actor isolated).
+@MainActor
+final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformView, CYLSearchBarViewDelegate {
     private let bar: CYLSearchBarView
     private let channel: FlutterMethodChannel
 
@@ -187,7 +192,9 @@ final class CYLFlutterSearchBarView: NSObject, FlutterPlatformView, CYLSearchBar
  * CollectionViewClassifyMenu's `CYLTagListView` filling the platform view; it reports the height its tags need at the
  * view's width (`didChangeHeight`), so Dart can size it.
  */
-final class CYLFlutterTagListView: NSObject, FlutterPlatformView {
+// Platform views live on the main thread, as the core views they wrap (main-actor isolated).
+@MainActor
+final class CYLFlutterTagListView: NSObject, @preconcurrency FlutterPlatformView {
     private let container: CYLFlutterTagListContainer
     private let channel: FlutterMethodChannel
 

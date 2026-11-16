@@ -10,7 +10,14 @@ PODS:
     - CYLTabBarController/CYLUtils
   - CYLTabBarController/CYLBadgeView (1.100.0):
     - CYLTabBarController/CYLUtils
+  - CYLTabBarController/CYLTabBarItemAnimation (1.100.0):
+    - CYLTabBarController/Core
   - CYLTabBarController/CYLUtils (1.100.0)
+  - CYLTabBarController/SVGA (1.100.0):
+    - CYLTabBarController/Core
+    - CYLTabBarController/CYLTabBarItemAnimation
+    - Protobuf (~> 3.21.0)
+    - SVGAPlayer (~> 2.5)
   - CYLTableViewPlaceHolder (1.1.0):
     - CYLTableViewPlaceHolder/Core (= 1.1.0)
   - CYLTableViewPlaceHolder/Core (1.1.0)
@@ -34,20 +41,36 @@ PODS:
   - integration_test (0.0.1):
     - Flutter
   - lottie-ios (4.6.1)
+  - Protobuf (3.21.12)
+  - SSZipArchive (2.4.3)
+  - SVGAPlayer (2.5.7):
+    - SVGAPlayer/Core (= 2.5.7)
+    - SVGAPlayer/ProtoFiles (= 2.5.7)
+  - SVGAPlayer/Core (2.5.7):
+    - SSZipArchive (>= 1.8.1)
+    - SVGAPlayer/ProtoFiles
+  - SVGAPlayer/ProtoFiles (2.5.7):
+    - Protobuf (~> 3.4)
 
 DEPENDENCIES:
   - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `f9724167235dee050a81432f3c16f6c4e15dc186`)
   - CYLSearchViewController (from `../../../..`)
-  - CYLTabBarController (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `2a125822c58049ed14b9f2f5b9f8a7e609a8dccb`)
-  - CYLTableViewPlaceHolder (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `9d49d16863d984e7d094f30ddf78330a5f2fe854`)
+  - CYLTabBarController/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `5682b9e13f55bef1410b4eb0d1b7187bd8244cea`)
+  - CYLTabBarController/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `5682b9e13f55bef1410b4eb0d1b7187bd8244cea`)
+  - CYLTableViewPlaceHolder (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `c202b8c91bc231fa51c523b64a4f3cbd9a94b5f6`)
   - Flutter (from `Flutter`)
   - flutter_cylsearch (from `.symlinks/plugins/flutter_cylsearch/ios`)
   - flutter_cyltabbar (from `.symlinks/plugins/flutter_cyltabbar/ios`)
   - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - Protobuf
+  - SVGAPlayer
 
 SPEC REPOS:
   trunk:
     - lottie-ios
+    - Protobuf
+    - SSZipArchive
+    - SVGAPlayer
 
 EXTERNAL SOURCES:
   CollectionViewClassifyMenu:
@@ -56,10 +79,10 @@ EXTERNAL SOURCES:
   CYLSearchViewController:
     :path: "../../../.."
   CYLTabBarController:
-    :commit: 2a125822c58049ed14b9f2f5b9f8a7e609a8dccb
+    :commit: 5682b9e13f55bef1410b4eb0d1b7187bd8244cea
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
-    :commit: 9d49d16863d984e7d094f30ddf78330a5f2fe854
+    :commit: c202b8c91bc231fa51c523b64a4f3cbd9a94b5f6
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
   Flutter:
     :path: Flutter
@@ -75,23 +98,26 @@ CHECKOUT OPTIONS:
     :commit: f9724167235dee050a81432f3c16f6c4e15dc186
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLTabBarController:
-    :commit: 2a125822c58049ed14b9f2f5b9f8a7e609a8dccb
+    :commit: 5682b9e13f55bef1410b4eb0d1b7187bd8244cea
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
-    :commit: 9d49d16863d984e7d094f30ddf78330a5f2fe854
+    :commit: c202b8c91bc231fa51c523b64a4f3cbd9a94b5f6
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
 
 SPEC CHECKSUMS:
   CollectionViewClassifyMenu: ebd3e85358cf219b3ad20b5e005c54719b2708f4
   CYLSearchViewController: 4826e3fa2030073fe576ff501eea6143db865c3b
-  CYLTabBarController: 9e49f3142d6f7a671c3baa9aab8f91ebc2661889
-  CYLTableViewPlaceHolder: 2cf43940d6a518b80fd4941264ddb17cd3a400d8
+  CYLTabBarController: 9054e3e43cf2e5099374a6d87bff733b0a9b5ede
+  CYLTableViewPlaceHolder: b874c56a79c46a89df6d3acac675d87fa0e78277
   Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
   flutter_cylsearch: dd80a2d8a656b1c334d031da3665a32f7766d103
   flutter_cyltabbar: 21d7189f47947477d10f84e5232104daa2ec2e50
   integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
   lottie-ios: 6467ca7035120c5b0e0acee58bb679cf15875686
+  Protobuf: 120350fc38646e2dedc26f49ecba778184ea1de2
+  SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
+  SVGAPlayer: 318b85a78b61292d6ae9dfcd651f3f0d1cdadd86
 
-PODFILE CHECKSUM: f651624738540747f57912004f9138dd5d3fc1b6
+PODFILE CHECKSUM: da16c62bd89be7fe4388c49ef0664af5b6c995d8
 
 COCOAPODS: 1.17.0
