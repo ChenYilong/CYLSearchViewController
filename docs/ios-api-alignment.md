@@ -82,6 +82,24 @@ this project ships with, such as CollectionViewClassifyMenu's tag views) next to
   the same Swift names and signatures (`CYLMenuDelegate`, `CYLMenuDataSource`, `CYLMenuStyle`, `CYLTagAppearance`).
   Not done here: CI builds only iOS, the Android SDK host is blocked by this session's network proxy, and React
   Native and Flutter have no CI; a blind change to four platforms needs the maintainer's go-ahead.
+- TODO (pin, blocker found 2026-11-17, after the go-ahead): the bump cannot be finished without a change in
+  CollectionViewClassifyMenu. At `41aec0d` its Swift `CYLTagListView` no longer exposes most members to
+  Objective-C (`showsSectionHeaders`, `menuDelegate`, `style`, `tagClickHandler`, `foldControl`,
+  `setTags(withTitles:colors:)`, `heightThatFitsWidth(_:)` have no `@objc`; only `init(foldControl:)` and
+  `defaultVisibleRows` do), `CYLTag` is a pure Swift class (not an `NSObject`), and the pod ships no headers (import
+  `CollectionViewClassifyMenu-Swift.h`, not `-umbrella.h`). The React Native iOS wrapper
+  (`CrossPlatform/react-native-cylsearch/ios/CylsearchTagListView.mm`, `CYLRNSearchSupport.h`, Objective-C++, as
+  Fabric requires) calls all of them, and its example compiles this repository's `Sources/` too, so iOS cannot move
+  without it. Core-first fix: in CollectionViewClassifyMenu, mark those members `@objc` and give `tagClickHandler` an
+  Objective-C-compatible tag type (or make `CYLTag` an `NSObject`); then pin, apply
+  [patches/classifymenu-41aec0d-fold-position-rename.patch](patches/classifymenu-41aec0d-fold-position-rename.patch)
+  (the `inline` → `tail` rename on iOS, Android, React Native Android, Flutter iOS and Android; the plugins keep
+  their `"inline"` / `"bottom"` strings and also accept the new names), update the React Native iOS mapping
+  (`CYLMenuFoldControlPositionTail`… and `-initWithPosition:content:` in place of `+foldControlWithPosition:content:`),
+  bump every pin (`Podfile`, `android/merged/gradle.properties`, both CrossPlatform example Podfiles), and build iOS,
+  Android, React Native and Flutter. Fallback without the sub-repository: a Swift `@objc` adapter for
+  `CYLTagListView` inside the React Native package (its core, npm), called from the `.mm` files. The patch was
+  checked to apply (`git apply --check`); none of it was compiled (no Xcode, no Android SDK here).
 
 ## Score log
 
