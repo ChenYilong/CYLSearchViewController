@@ -17,9 +17,9 @@ val fetchCylRiveIcons by tasks.registering {
     doLast {
         val target = output.get().asFile
         target.parentFile.mkdirs()
-        val url = "https://raw.githubusercontent.com/ChenYilong/CYLTabBarController//" +
+        val url = "https://raw.githubusercontent.com/ChenYilong/CYLTabBarController/$cylTabBarCommit/" +
             "Example-SwiftUI-Rive/AnimatedApp/RiveAssets/icons.riv"
-        java.net.URI(url).toURL().openStream().use { input -> target.outputStream().use { input.copyTo(it) } }
+        uri(url).toURL().openStream().use { input -> target.outputStream().use { input.copyTo(it) } }
     }
 }
 
@@ -50,7 +50,8 @@ android {
 
     sourceSets {
         getByName("main") {
-            assets.srcDir(cylRiveAssets)
+            // A plain directory (AGP 9 refuses a Provider here); fetchCylRiveIcons runs before preBuild.
+            assets.srcDir(cylRiveAssets.get().asFile)
         }
     }
 
