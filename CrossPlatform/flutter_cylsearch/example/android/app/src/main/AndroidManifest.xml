@@ -1,5 +1,8 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- tools:replace: SVGAPlayer-Android (SVGA tab icons) declares android:label in its own manifest. -->
     <application
+        tools:replace="android:label"
         android:label="flutter_cylsearch_example"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
