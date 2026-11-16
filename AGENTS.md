@@ -25,6 +25,7 @@ WeChat DevTools Skills (<https://developers.weixin.qq.com/miniprogram/dev/devtoo
 | `cyl-sub-repositories` | Adding or updating a sibling project as a sub-repository (CollectionViewClassifyMenu, CYLTableViewPlaceHolder): commit pin, core option, example, every platform |
 | `cyl-docs` | Editing `README.md` or `docs/` |
 | `cyl-verify` | Building, testing, running the simulator |
+| `cyl-fix-in-core` | Fixing any issue or bug: in the core (code published to a package registry) first; example-layer fixes only after asking, with the reason documented |
 | `cyl-commit` | Writing any commit message: `git cz` style, English only, the author line, the checks before committing |
 | `cyl-accessibility-i18n` | Screen readers and localization in any code; writing UI tests that find controls by their labels |
 | `cyl-harmonyos-setup` | Preparing DevEco Studio and the HarmonyOS emulator: SDK paths, virtualization, Huawei ID, region `CN` in `country.region.xml` |
@@ -33,6 +34,31 @@ WeChat DevTools Skills (<https://developers.weixin.qq.com/miniprogram/dev/devtoo
 
 Every new integration rule updates, in the same change, `AGENTS.md`,
 `instructions.md` and the affected skills.
+
+## Fix issues in the core first (added 2026-11-17)
+
+- Prompt (verbatim): "并找到instructions相关文档，以及skills相关文档，追加编码规范：全英文写入：如果遇到issue bug，你应该主要优先修改 core 层面的代码以规避类似问题，而非example层。core的定义为发布到 相关库管理平台的代码比如 cocoapods maven gradle npm等平台的代码。最差的方式是在example层修复。如果无法从core 层面修复，你要询问我并告知我原因。并在相关文档中解释 ：为什么不能从core层面解决，而是在example层解决。"
+- Prompt (English): "Find the instruction documents and the skill documents and append this coding rule, in English: when
+  you meet an issue or a bug, fix it first in the core code so that similar problems cannot happen, not in the example
+  layer. The core is the code published to a package registry, such as CocoaPods, Maven, Gradle or npm. Fixing it in
+  the example layer is the worst way. If it cannot be fixed in the core, ask me and tell me why, and explain in the
+  related document why it could not be solved in the core and was solved in the example layer."
+- Rules:
+  1. The core is every piece of code published to a package registry: the CocoaPods pod (`Sources/`,
+     `CYLSearchViewController.podspec`), the Android library (`android/merged/cylsearch`, Maven / Gradle), the React
+     Native and mini program packages (npm), the Flutter plugin (pub), the HarmonyOS library (`harmonyos/cylsearch`,
+     ohpm), and the libraries of the sub-repositories (CYLTabBarController, CYLTableViewPlaceHolder,
+     CollectionViewClassifyMenu). Everything else (`CYLSearchExample`, `harmonyos/entry`, the `example` folders) is
+     the example layer.
+  2. An issue or a bug is fixed in the core first, in a way that keeps every app of the library from meeting it, not
+     only the example. A bug in a sub-repository's library is fixed there (its own branch and pull request, then the
+     new commit is pinned here), not worked around in this repository.
+  3. The example layer is the last resort. Before fixing an issue only there, ask the user and give the reason the
+     core cannot fix it.
+  4. Every fix made in the example layer is explained in the related document (the issue's row or its section): why
+     the core could not solve it, and why the example layer is the right place. A fix of example-only code (an example
+     page's layout, its texts or images) says so: "example-only: the core has no such code".
+- Skill: `cyl-fix-in-core`.
 
 ## Project rules
 

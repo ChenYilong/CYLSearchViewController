@@ -4,6 +4,16 @@ This repository contains an Objective-C search UI sample and the Issue #1317
 reproduction for `UISearchController` with `CYLTableViewPlaceHolder` refresh.
 Read this file and `AGENTS.md` before changing project files.
 
+## Fix issues in the core first (added 2026-11-17)
+
+- When you meet an issue or a bug, fix it first in the core, so that similar problems cannot happen in any app, not
+  in the example layer. The core is the code published to a package registry: CocoaPods, Maven / Gradle, npm, pub,
+  ohpm (`Sources/`, `android/merged/cylsearch`, the React Native, Flutter and mini program packages,
+  `harmonyos/cylsearch`, and the sub-repositories' libraries). Fixing an issue in the example layer is the worst way.
+- If the core cannot fix it, ask the user first and tell them why. Then explain in the related document why the core
+  could not solve it and why the example layer did.
+- Full rule: `AGENTS.md`, "Fix issues in the core first"; skill `cyl-fix-in-core`.
+
 ## Naming
 
 - Write all instruction and skill files in English.
