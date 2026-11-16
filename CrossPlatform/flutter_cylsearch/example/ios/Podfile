@@ -33,7 +33,10 @@ target 'Runner' do
 
   pod 'CYLSearchViewController', :path => '../../../..'
   # flutter_cyltabbar's native tab bar, at the newest CYLTabBarController commit (as its git dependency in pubspec.yaml).
-  pod 'CYLTabBarController', :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '2a125822c58049ed14b9f2f5b9f8a7e609a8dccb'
+  pod 'CYLTabBarController', :subspecs => ['Core', 'SVGA'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '5682b9e13f55bef1410b4eb0d1b7187bd8244cea'
+  # SVGA tab icons (SVGAPlayer); static linking needs module maps for these two Objective-C pods.
+  pod 'SVGAPlayer', :modular_headers => true
+  pod 'Protobuf', :modular_headers => true
   pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => 'f9724167235dee050a81432f3c16f6c4e15dc186'
   pod 'CYLTableViewPlaceHolder', :git => 'https://github.com/ChenYilong/CYLTableViewPlaceHolder.git', :commit => 'c202b8c91bc231fa51c523b64a4f3cbd9a94b5f6'
 

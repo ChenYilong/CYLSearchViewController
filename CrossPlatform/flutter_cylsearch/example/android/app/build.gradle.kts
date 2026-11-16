@@ -47,3 +47,8 @@ kotlin {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // CYLTabBarController plays SVGA tab icons through SVGAPlayer-Android, found by reflection.
+    implementation("com.github.yyued:SVGAPlayer-Android:2.6.1")
+}

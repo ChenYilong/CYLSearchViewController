@@ -10,8 +10,11 @@ import 'discover_page.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // The tab bar comes from a local configuration file (the default example integration of CYLTabBarController).
-  final configuration =
-      jsonDecode(await rootBundle.loadString('assets/cyl_tabbar_configuration.json')) as Map<String, Object?>;
+  // `--dart-define=CYL_DEMO_TAB_ICON_SOURCE=2`: the same tabs with SVGA icons (`CYLTabBarSVGAFilePath`), as the iOS
+  // example's `-CYLDemoTabIconSource 2`; the .svga files are in the iOS app (ios/Runner/SVGA) and the Android assets.
+  const svga = int.fromEnvironment('CYL_DEMO_TAB_ICON_SOURCE') == 2;
+  final configuration = jsonDecode(await rootBundle.loadString(
+      svga ? 'assets/cyl_tabbar_configuration_svga.json' : 'assets/cyl_tabbar_configuration.json')) as Map<String, Object?>;
   runApp(CYLSearchExampleApp(tabBarConfiguration: configuration));
 }
 

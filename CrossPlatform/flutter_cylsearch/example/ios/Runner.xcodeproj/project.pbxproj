@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		06124082F2BC313A2AB7961B /* tab_home.svga in Resources */ = {isa = PBXBuildFile; fileRef = 28FBF9FD87D3F3E1420BF3BC /* tab_home.svga */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		25EA99894B6276C823657D01 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 628CD1976A1121A6A8BCF4C1 /* Pods_RunnerTests.framework */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
@@ -15,9 +16,14 @@
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */; };
 		78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */; };
+		7CE7609D4DC9228152CF2305 /* tab_activity.svga in Resources */ = {isa = PBXBuildFile; fileRef = 2B626B7349C6D3BEB14A12CD /* tab_activity.svga */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
+		AD7283CFB0AA1C18C2A8D4EB /* tab_list.svga in Resources */ = {isa = PBXBuildFile; fileRef = 540D6C7171429268206681C2 /* tab_list.svga */; };
+		BD410309DBF084320734A622 /* tab_search.svga in Resources */ = {isa = PBXBuildFile; fileRef = B20A980A20675881DD0E4ED2 /* tab_search.svga */; };
+		DB371AD79997F0A6655764FE /* tab_profile.svga in Resources */ = {isa = PBXBuildFile; fileRef = 082AC340B32287F237A923E1 /* tab_profile.svga */; };
+		F543FDB9F5FD183CF9672648 /* tab_chat.svga in Resources */ = {isa = PBXBuildFile; fileRef = CFEFEA328CB9282C8340B7F3 /* tab_chat.svga */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,11 +50,15 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		082AC340B32287F237A923E1 /* tab_profile.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_profile.svga; sourceTree = "<group>"; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
+		28FBF9FD87D3F3E1420BF3BC /* tab_home.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_home.svga; sourceTree = "<group>"; };
+		2B626B7349C6D3BEB14A12CD /* tab_activity.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_activity.svga; sourceTree = "<group>"; };
 		331C807B294A618700263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
+		540D6C7171429268206681C2 /* tab_list.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_list.svga; sourceTree = "<group>"; };
 		628CD1976A1121A6A8BCF4C1 /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		649EE75577F168EA20154BAE /* Pods-Runner.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig"; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -69,7 +79,9 @@
 		97C147021CF9000F007C117D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9B99C21ED936F90DA6525C6B /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		B07663ECCEE81C41175292E3 /* Pods-RunnerTests.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile.xcconfig"; sourceTree = "<group>"; };
+		B20A980A20675881DD0E4ED2 /* tab_search.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_search.svga; sourceTree = "<group>"; };
 		BAD82456B078E8C92514A186 /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
+		CFEFEA328CB9282C8340B7F3 /* tab_chat.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_chat.svga; sourceTree = "<group>"; };
 		E50E71991A371327FF3AE7E9 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -172,8 +184,23 @@
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
+				AF6A7B16CC4CF06D93C44AFC /* SVGA */,
 			);
 			path = Runner;
+			sourceTree = "<group>";
+		};
+		AF6A7B16CC4CF06D93C44AFC /* SVGA */ = {
+			isa = PBXGroup;
+			children = (
+				B20A980A20675881DD0E4ED2 /* tab_search.svga */,
+				540D6C7171429268206681C2 /* tab_list.svga */,
+				CFEFEA328CB9282C8340B7F3 /* tab_chat.svga */,
+				28FBF9FD87D3F3E1420BF3BC /* tab_home.svga */,
+				2B626B7349C6D3BEB14A12CD /* tab_activity.svga */,
+				082AC340B32287F237A923E1 /* tab_profile.svga */,
+			);
+			name = SVGA;
+			path = SVGA;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -281,6 +308,12 @@
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
+				BD410309DBF084320734A622 /* tab_search.svga in Resources */,
+				AD7283CFB0AA1C18C2A8D4EB /* tab_list.svga in Resources */,
+				F543FDB9F5FD183CF9672648 /* tab_chat.svga in Resources */,
+				06124082F2BC313A2AB7961B /* tab_home.svga in Resources */,
+				7CE7609D4DC9228152CF2305 /* tab_activity.svga in Resources */,
+				DB371AD79997F0A6655764FE /* tab_profile.svga in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
