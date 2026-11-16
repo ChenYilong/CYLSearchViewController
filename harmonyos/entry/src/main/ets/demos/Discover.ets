@@ -48,6 +48,8 @@ export struct DiscoverView {
   @Local recent: string[] = [];
   @Local topics: CYLDiscoverTopic[] = [];
   @Local recentFolded: boolean = true;
+  // The width of the curved area under the mic button, in px (Path commands are in px).
+  @Local curveWidth: number = 0;
   @Local listWidth: number = 0;
   @Local hint: string = '';
   private context: common.Context = this.getUIContext().getHostContext() as common.Context;
@@ -155,6 +157,14 @@ export struct DiscoverView {
       confirm: { value: this.text('discover_ok'), action: () => {
       } }
     });
+  }
+
+  // The light curved area: a bump up in the middle, as on iOS, scaled to the measured width (px).
+  private curveCommands(): string {
+    const w = this.curveWidth;
+    const h = this.getUIContext().vp2px(110);
+    const edge = h * 0.25;
+    return `M0 ${edge} Q ${w / 2} ${-edge} ${w} ${edge} L ${w} ${h} L 0 ${h} Z`;
   }
 
   private tagWidth(title: string): number {
@@ -311,12 +321,17 @@ export struct DiscoverView {
 
       // The hint and the hold-to-ask mic button on a light curved area.
       Stack({ alignContent: Alignment.Bottom }) {
+        // Path commands are in px and are not scaled to the component: the curve is built from the measured width, so it
+        // spans the whole page instead of a 360 px shape at the left edge.
         Path()
-          .commands('M0 40 Q 180 -40 360 40 L 360 160 L 0 160 Z')
+          .commands(this.curveCommands())
           .fill($r('sys.color.background_secondary'))
           .width('100%')
           .height(110)
           .accessibilityLevel('no')
+          .onAreaChange((_: Area, area: Area) => {
+            this.curveWidth = this.getUIContext().vp2px(Number(area.width));
+          })
         Column({ space: 20 }) {
           Text(this.hint + ' ✨')
             .fontSize(20)

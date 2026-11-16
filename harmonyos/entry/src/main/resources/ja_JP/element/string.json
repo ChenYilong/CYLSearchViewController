@@ -107,6 +107,46 @@
     {
       "name": "microphone_reason",
       "value": "音声サンプルで話した検索語をテキストにします。"
+    },
+    {
+      "name": "svga_demo",
+      "value": "SVGA アニメーション：タップで再生"
+    },
+    {
+      "name": "svga_source",
+      "value": "タブアイコン：%s"
+    },
+    {
+      "name": "svga_source_symbols",
+      "value": "SF Symbols"
+    },
+    {
+      "name": "svga_source_keys",
+      "value": "SVGA（初期化キー）"
+    },
+    {
+      "name": "svga_source_file",
+      "value": "SVGA（設定ファイル）"
+    },
+    {
+      "name": "svga_demo_hint",
+      "value": "SVGA アニメーションをもう一度再生します"
+    },
+    {
+      "name": "svga_source_hint",
+      "value": "タブアイコンを切り替えてタブバーを作り直します"
+    },
+    {
+      "name": "svga_swiftui",
+      "value": "SwiftUI ホスト（SVGA タブバー）"
+    },
+    {
+      "name": "svga_swiftui_title",
+      "value": "SwiftUI ホスト"
+    },
+    {
+      "name": "svga_swiftui_close",
+      "value": "閉じる"
     }
   ]
 }

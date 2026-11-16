@@ -107,6 +107,46 @@
     {
       "name": "microphone_reason",
       "value": "Turns your spoken query into text in the Voice sample."
+    },
+    {
+      "name": "svga_demo",
+      "value": "SVGA animation: tap to play again"
+    },
+    {
+      "name": "svga_source",
+      "value": "Tab icons: %s"
+    },
+    {
+      "name": "svga_source_symbols",
+      "value": "SF Symbols"
+    },
+    {
+      "name": "svga_source_keys",
+      "value": "SVGA (initialization keys)"
+    },
+    {
+      "name": "svga_source_file",
+      "value": "SVGA (configuration file)"
+    },
+    {
+      "name": "svga_demo_hint",
+      "value": "Plays the SVGA animation again"
+    },
+    {
+      "name": "svga_source_hint",
+      "value": "Switches the tab icons and rebuilds the tab bar"
+    },
+    {
+      "name": "svga_swiftui",
+      "value": "SwiftUI host (SVGA tab bar)"
+    },
+    {
+      "name": "svga_swiftui_title",
+      "value": "SwiftUI host"
+    },
+    {
+      "name": "svga_swiftui_close",
+      "value": "Close"
     }
   ]
 }

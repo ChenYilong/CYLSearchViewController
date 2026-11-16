@@ -1,4 +1,5 @@
 import { common } from '@kit.AbilityKit';
+import { preferences } from '@kit.ArkData';
 import { CYLSearchResources } from 'cylsearch';
 
 /**
@@ -242,5 +243,42 @@ export struct CYLDemoCell {
     }
     .accessibilityGroup(true)
     .accessibilityRole(AccessibilityRoleType.BUTTON)
+  }
+}
+
+/**
+ * Where the tab icons come from (iOS `CYLDemoTabIconSource`, a user default and a launch argument): 0 the symbols of
+ * CYLTabBarConfiguration.json, 1 SVGA files set in code (the initialization keys), 2 SVGA files of
+ * CYLTabBarConfiguration_svga.json. Kept in AppStorage (`pages/Index.ets` watches it) and in preferences (kept across
+ * launches, as NSUserDefaults).
+ */
+export const CYL_TAB_ICON_SOURCE_KEY: string = 'CYLDemoTabIconSource';
+
+const CYL_DEMO_PREFERENCES: string = 'CYLSearchExample';
+
+/**
+ * The stored tab icon source, 0 when none was chosen.
+ */
+export function cylStoredTabIconSource(context: common.Context): number {
+  try {
+    const store = preferences.getPreferencesSync(context, { name: CYL_DEMO_PREFERENCES });
+    const value = store.getSync(CYL_TAB_ICON_SOURCE_KEY, 0) as number;
+    return value >= 0 && value <= 2 ? value : 0;
+  } catch (error) {
+    return 0;
+  }
+}
+
+/**
+ * Chooses the tab icon source: stored for the next launch and set in AppStorage, so the tab bar changes now.
+ */
+export function cylSetTabIconSource(context: common.Context, source: number): void {
+  AppStorage.setOrCreate<number>(CYL_TAB_ICON_SOURCE_KEY, source);
+  try {
+    const store = preferences.getPreferencesSync(context, { name: CYL_DEMO_PREFERENCES });
+    store.putSync(CYL_TAB_ICON_SOURCE_KEY, source);
+    store.flush();
+  } catch (error) {
+    // Kept for this run only.
   }
 }

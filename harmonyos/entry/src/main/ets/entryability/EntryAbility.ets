@@ -1,13 +1,38 @@
 import { AbilityConstant, ConfigurationConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { KeyboardAvoidMode, window } from '@kit.ArkUI';
+import { CYL_TAB_ICON_SOURCE_KEY, cylStoredTabIconSource } from '../common/DemoCommon';
 
 const DOMAIN = 0x0000;
 
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
+    // The tab icon source chosen last time (the Examples page's "Tab icons: …" button), before any page is built.
+    AppStorage.setOrCreate<number>(CYL_TAB_ICON_SOURCE_KEY, cylStoredTabIconSource(this.context));
+    this.storeLaunchParameters(want);
     this.context.getApplicationContext().setColorMode(ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET);
     hilog.info(DOMAIN, 'testTag', '%{public}s', 'Ability onCreate');
+  }
+
+  onNewWant(want: Want, launchParam: AbilityConstant.LaunchParam): void {
+    this.storeLaunchParameters(want);
+  }
+
+  // `aa start -b com.cyl.search.harmonyos -a EntryAbility --pi CYLDemoTab 3` selects that tab (iOS `-CYLDemoTab 3`, for
+  // screenshots): the launch parameters arrive in `want.parameters`, and `pages/Index.ets` reads them from AppStorage.
+  private storeLaunchParameters(want: Want): void {
+    // `--pi CYLDemoTabIconSource <0|1|2>` chooses the tab icons for this launch (iOS `-CYLDemoTabIconSource <n>`).
+    const source = want.parameters?.[CYL_TAB_ICON_SOURCE_KEY];
+    if (source !== undefined && source !== null && [0, 1, 2].includes(Number(source))) {
+      AppStorage.setOrCreate<number>(CYL_TAB_ICON_SOURCE_KEY, Number(source));
+    }
+    const tab = want.parameters?.['CYLDemoTab'];
+    if (tab !== undefined && tab !== null) {
+      const index = Number(tab);
+      if (!Number.isNaN(index)) {
+        AppStorage.setOrCreate<number>('CYLDemoTab', index);
+      }
+    }
   }
 
   onDestroy(): void {
