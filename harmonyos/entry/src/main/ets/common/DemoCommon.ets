@@ -1,6 +1,7 @@
 import { common } from '@kit.AbilityKit';
 import { preferences } from '@kit.ArkData';
 import { CYLSearchResources } from 'cylsearch';
+import { cyl_plusButtonOverhang } from 'cyltabbar';
 
 /**
  * Fills `%s`, `%d` and positional `%1$d` / `%1$s` in `format` with `args`, in order.
@@ -287,9 +288,15 @@ export function cylSetTabIconSource(context: common.Context, source: number): vo
 }
 
 /**
- * How far the raised plus button rises above the tab bar (vp): cyltabbar puts its 56 vp image right above the title,
- * whose top is tabBarHeight - 17 = 32 vp in the 49 vp bar, so 56 - 32 = 24. Scrolling lists end this much lower
- * (`contentEndOffset`), so their last rows can scroll clear of the plus button, which never covers content at rest
- * (AGENTS.md, "Example layer, raised plus button").
+ * The image size of the example's raised plus button (vp), as the iOS example (AGENTS.md, "Example layer, raised plus
+ * button").
  */
-export const CYL_PLUS_OVERHANG: number = 24;
+export const CYL_PLUS_IMAGE_SIZE: number = 56;
+
+/**
+ * How far the raised plus button rises above the tab bar (vp), from cyltabbar's `cyl_plusButtonOverhang` (24 for the
+ * 56 vp image above an aligned title in the 49 vp bar). Scrolling lists end this much lower (`contentEndOffset`), so
+ * their last rows can scroll clear of the plus button, which never covers content at rest. The layout lives in the
+ * library (CYLTabBarController PR #812, rule "Fix issues in the core first"); the example only applies it.
+ */
+export const CYL_PLUS_OVERHANG: number = cyl_plusButtonOverhang({ imageSize: CYL_PLUS_IMAGE_SIZE, title: '+' });

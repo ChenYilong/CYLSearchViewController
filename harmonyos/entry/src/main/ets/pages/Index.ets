@@ -13,7 +13,8 @@ import {
   CYLDemoRoute,
   CYLMaterialSampleParam,
   CYLPlaceholderDetailParam,
-  CYL_TAB_ICON_SOURCE_KEY
+  CYL_TAB_ICON_SOURCE_KEY,
+  CYL_PLUS_IMAGE_SIZE
 } from '../common/DemoCommon';
 import { SearchExamplePage, SearchExampleView } from '../demos/SearchExample';
 import { ExamplesMenuView, PlaceholderDetailPage, PlaceholderGalleryPage } from '../demos/ExamplesMenu';
@@ -138,7 +139,7 @@ struct Index {
           identifier: plus['CYLTabBarItemPageIdentifier'] as string,
           // The raised plus button of the iOS example (and its mini program copy): 56 vp, its top above the bar (the
           // title stays aligned with the tab titles; AGENTS.md, "Example layer, raised plus button").
-          imageSize: 56,
+          imageSize: CYL_PLUS_IMAGE_SIZE,
           selectable: true
         };
       }
