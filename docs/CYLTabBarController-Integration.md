@@ -289,6 +289,16 @@ CYLTabBarController pin needed the plugin's platform views to be `@MainActor` (t
 
 ![Flutter iOS, SVGA tab icons](assets/flutter-ios-svga-tab-icons-ios26.3.png)
 
+## IN PROGRESS (TODO 2026-11-17): fix the React Native Android tab icons
+
+- Prompt (verbatim): "fix rn android icons"
+- Prompt (English): "Fix the React Native Android icons."
+- Context: row 4 of "Rive tab icons in the Flutter and React Native examples" below. The React Native example's Android
+  APK has never been built on this machine: the native link of `libappmodules` fails (40 undefined libc++ symbols), so
+  its Rive (and SVGA) tab icons were never seen. Plan: make the APK build, run it on an Android emulator, check the tab
+  icons animate, fix what does not (in the core first: `react-native-cyltabbar` / CYLTabBarController, then the
+  example), screenshot.
+
 ## IN PROGRESS (TODO 2026-11-16): Rive tab icons in the Flutter and React Native examples, iOS and Android
 
 - Prompt (verbatim): "I call: 加上 Rive\" for  Flutter and React Native on iOS and Android should include Rive, so those tags animate there too. 至少tabbar需要加"
