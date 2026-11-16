@@ -10,11 +10,17 @@ import 'discover_page.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // The tab bar comes from a local configuration file (the default example integration of CYLTabBarController).
-  // `--dart-define=CYL_DEMO_TAB_ICON_SOURCE=2`: the same tabs with SVGA icons (`CYLTabBarSVGAFilePath`), as the iOS
-  // example's `-CYLDemoTabIconSource 2`; the .svga files are in the iOS app (ios/Runner/SVGA) and the Android assets.
-  const svga = int.fromEnvironment('CYL_DEMO_TAB_ICON_SOURCE') == 2;
-  final configuration = jsonDecode(await rootBundle.loadString(
-      svga ? 'assets/cyl_tabbar_configuration_svga.json' : 'assets/cyl_tabbar_configuration.json')) as Map<String, Object?>;
+  // The tab icons (`--dart-define=CYL_DEMO_TAB_ICON_SOURCE=<n>`, as the iOS example's `-CYLDemoTabIconSource`):
+  // 3 (the default) Rive: the artboards of CYLTabBarController's icons.riv (`CYLTabBarRiveFilePath`), which the iOS and
+  // Android builds fetch from the pinned commit (not committed here: the file has no licence of its own);
+  // 2 SVGA (`CYLTabBarSVGAFilePath`; ios/Runner/SVGA and the Android assets); 0 the PNG icons.
+  const source = int.fromEnvironment('CYL_DEMO_TAB_ICON_SOURCE', defaultValue: 3);
+  final file = switch (source) {
+    3 => 'assets/cyl_tabbar_configuration_rive.json',
+    2 => 'assets/cyl_tabbar_configuration_svga.json',
+    _ => 'assets/cyl_tabbar_configuration.json',
+  };
+  final configuration = jsonDecode(await rootBundle.loadString(file)) as Map<String, Object?>;
   runApp(CYLSearchExampleApp(tabBarConfiguration: configuration));
 }
 

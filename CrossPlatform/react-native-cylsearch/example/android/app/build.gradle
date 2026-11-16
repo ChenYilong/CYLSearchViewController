@@ -78,6 +78,13 @@ android {
     compileSdk rootProject.ext.compileSdkVersion
 
     namespace "cylsearch.example"
+    // Rive tab icons (src/App.tsx): CYLTabBarController's icons.riv from the pinned checkout (vendor/, created by
+    // scripts/fetch-cyltabbar.sh), not a copy: the file has no licence of its own.
+    sourceSets {
+        main {
+            assets.srcDir("../../vendor/CYLTabBarController/Example-SwiftUI-Rive/AnimatedApp/RiveAssets")
+        }
+    }
     defaultConfig {
         applicationId "cylsearch.example"
         minSdkVersion rootProject.ext.minSdkVersion
@@ -108,6 +115,8 @@ android {
 }
 
 dependencies {
+    // CYLTabBarController plays the Rive tab icons through rive-android, found by reflection (it calls Rive.init itself).
+    implementation("app.rive:rive-android:10.3.0")
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 

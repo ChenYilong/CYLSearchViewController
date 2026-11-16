@@ -234,6 +234,7 @@
 				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
 				97C146EC1CF9000F007C117D /* Resources */,
+				1CCB20DEB8A10AC2530FED8A /* Fetch Rive tab icons */,
 				9705A1C41CF9048500538489 /* Embed Frameworks */,
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				563EC7B25ED43E418CB319B4 /* [CP] Copy Pods Resources */,
@@ -411,6 +412,22 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
+		};
+		1CCB20DEB8A10AC2530FED8A /* Fetch Rive tab icons */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Fetch Rive tab icons";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icons.riv",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Rive tab icons: CYLTabBarController's icons.riv, fetched from the commit flutter_cyltabbar is pinned to in\n# pubspec.yaml and copied into the app bundle (not committed here: the file has no licence of its own; see\n# CYLTabBarController Example-SwiftUI-Rive/README.md, \"Source and license\").\nset -e\nCOMMIT=$(sed -n 's/^ *ref: \\([0-9a-f]\\{40\\}\\).*/\\1/p' \"${SRCROOT}/../pubspec.yaml\" | head -n 1)\nif [ -z \"$COMMIT\" ]; then echo \"error: flutter_cyltabbar ref not found in pubspec.yaml\"; exit 1; fi\nCACHE=\"${SRCROOT}/build/cyl-rive/${COMMIT}/icons.riv\"\nif [ ! -f \"$CACHE\" ]; then\n  mkdir -p \"$(dirname \"$CACHE\")\"\n  curl -fsSL -o \"$CACHE\" \"https://raw.githubusercontent.com/ChenYilong/CYLTabBarController/${COMMIT}/Example-SwiftUI-Rive/AnimatedApp/RiveAssets/icons.riv\"\nfi\ncp \"$CACHE\" \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icons.riv\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

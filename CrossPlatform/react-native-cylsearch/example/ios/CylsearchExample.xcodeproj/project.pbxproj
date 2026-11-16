@@ -112,6 +112,7 @@
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
+				1E07E1EA551880B5833A7C31 /* Copy Rive tab icons */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */,
 				E235C05ADACE081382539298 /* [CP] Copy Pods Resources */,
@@ -241,6 +242,22 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-CylsearchExample/Pods-CylsearchExample-resources.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		1E07E1EA551880B5833A7C31 /* Copy Rive tab icons */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Rive tab icons";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icons.riv",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Rive tab icons (src/App.tsx): CYLTabBarController's icons.riv from the pinned checkout (vendor/, created by\n# scripts/fetch-cyltabbar.sh), copied into the app bundle (not committed here: the file has no licence of its own; see\n# CYLTabBarController Example-SwiftUI-Rive/README.md, \"Source and license\").\nset -e\nSOURCE=\"${SRCROOT}/../vendor/CYLTabBarController/Example-SwiftUI-Rive/AnimatedApp/RiveAssets/icons.riv\"\nif [ ! -f \"$SOURCE\" ]; then echo \"error: $SOURCE not found: run scripts/fetch-cyltabbar.sh first\"; exit 1; fi\ncp \"$SOURCE\" \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icons.riv\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

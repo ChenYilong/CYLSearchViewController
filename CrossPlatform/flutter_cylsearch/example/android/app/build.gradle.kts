@@ -4,6 +4,25 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Rive tab icons: CYLTabBarController's icons.riv, fetched at build time from the commit flutter_cyltabbar is pinned to in
+// pubspec.yaml (not committed here: the file has no licence of its own; see CYLTabBarController
+// Example-SwiftUI-Rive/README.md, "Source and license"). It goes to generated assets, read by name ("icons.riv").
+val cylTabBarCommit: String = Regex("ref: ([0-9a-f]{40})").find(file("../../pubspec.yaml").readText())?.groupValues?.get(1)
+    ?: error("flutter_cyltabbar ref not found in pubspec.yaml")
+val cylRiveAssets = layout.buildDirectory.dir("generated/cyl-rive-assets")
+val fetchCylRiveIcons by tasks.registering {
+    val output = cylRiveAssets.map { it.file("icons.riv") }
+    inputs.property("commit", cylTabBarCommit)
+    outputs.file(output)
+    doLast {
+        val target = output.get().asFile
+        target.parentFile.mkdirs()
+        val url = "https://raw.githubusercontent.com/ChenYilong/CYLTabBarController//" +
+            "Example-SwiftUI-Rive/AnimatedApp/RiveAssets/icons.riv"
+        java.net.URI(url).toURL().openStream().use { input -> target.outputStream().use { input.copyTo(it) } }
+    }
+}
+
 android {
     namespace = "com.cyl.search.flutter_cylsearch_example"
     compileSdk = flutter.compileSdkVersion
@@ -29,6 +48,12 @@ android {
         versionName = flutter.versionName
     }
 
+    sourceSets {
+        getByName("main") {
+            assets.srcDir(cylRiveAssets)
+        }
+    }
+
     buildTypes {
         release {
             // The example signs release builds with the debug key; it is not published.
@@ -51,4 +76,10 @@ flutter {
 dependencies {
     // CYLTabBarController plays SVGA tab icons through SVGAPlayer-Android, found by reflection.
     implementation("com.github.yyued:SVGAPlayer-Android:2.6.1")
+    // ... and Rive tab icons through rive-android (it calls Rive.init itself).
+    implementation("app.rive:rive-android:10.3.0")
+}
+
+tasks.named("preBuild") {
+    dependsOn(fetchCylRiveIcons)
 }

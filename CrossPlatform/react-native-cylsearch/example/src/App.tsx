@@ -68,11 +68,23 @@ export default function App() {
  * search bar page and rises above the bar (AGENTS.md, "Raised plus button").
  */
 const TAB_KEYS = ['list', 'tags', 'empty', 'discover'];
+// Rive tab icons: each tab plays an artboard of CYLTabBarController's icons.riv (its state machine input "active"), as
+// CYLTabBarController's example-rive; the symbol stays as the image before the file loads. The file comes from the pinned
+// CYLTabBarController checkout (vendor/, scripts/fetch-cyltabbar.sh), copied into the iOS app by a build phase and read
+// from the Android assets; it is not committed here (no licence of its own).
+function riveTab(item: CYLTabBarItem, artboard: string): CYLTabBarItem {
+  return {
+    ...item,
+    CYLTabBarRiveFilePath: 'icons.riv',
+    CYLTabBarAnimationOptions: { artboard, stateMachine: `${artboard}_Interactivity`, input: 'active' },
+    CYLTabBarRiveSize: '{28, 28}',
+  };
+}
 const TAB_ITEMS: CYLTabBarItem[] = [
-  { title: 'List style', image: 'system:list.bullet', selectedImage: 'system:list.bullet', identifier: 'list' },
-  { title: 'Tag style', image: 'system:tag', selectedImage: 'system:tag.fill', identifier: 'tags' },
-  { title: 'Empty results', image: 'system:magnifyingglass', selectedImage: 'system:magnifyingglass', identifier: 'empty' },
-  { title: 'Discover', image: 'system:sparkle.magnifyingglass', selectedImage: 'system:sparkle.magnifyingglass', identifier: 'discover' },
+  riveTab({ title: 'List style', image: 'system:list.bullet', selectedImage: 'system:list.bullet', identifier: 'list' }, 'CHAT'),
+  riveTab({ title: 'Tag style', image: 'system:tag', selectedImage: 'system:tag.fill', identifier: 'tags' }, 'BELL'),
+  riveTab({ title: 'Empty results', image: 'system:magnifyingglass', selectedImage: 'system:magnifyingglass', identifier: 'empty' }, 'SEARCH'),
+  riveTab({ title: 'Discover', image: 'system:sparkle.magnifyingglass', selectedImage: 'system:sparkle.magnifyingglass', identifier: 'discover' }, 'USER'),
 ];
 const PLUS_BUTTON: CYLTabBarPlusButton = {
   title: 'Search bar',

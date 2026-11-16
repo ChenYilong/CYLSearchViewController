@@ -30,6 +30,8 @@ target 'CylsearchExample' do
   # CYLTabBarController for react-native-cyltabbar (the example's tab bar), from the pinned checkout
   # (scripts/fetch-cyltabbar.sh; the commit is `cyl.tabbar.commit` in android/merged/gradle.properties).
   pod 'CYLTabBarController', :path => '../vendor/CYLTabBarController'
+  # Rive tab icons (src/App.tsx): CYLTabBarController's Rive subspec brings RiveRuntime.
+  pod 'CYLTabBarController/Rive', :path => '../vendor/CYLTabBarController'
 
   use_react_native!(
     :path => config[:reactNativePath],
