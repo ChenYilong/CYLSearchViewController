@@ -172,6 +172,16 @@ struct Index {
     .hideToolBar(true)
     .mode(NavigationMode.Stack)
     .navDestination(this.route)
+    // The raised plus button rises above the bar; the page ends above it, so it never covers page content (AGENTS.md,
+    // "Example layer, raised plus button").
+    .padding({ bottom: this.plusOverhang() })
+  }
+
+  // How far the plus button rises above the bar: cyltabbar puts its image right above the title, whose top is
+  // tabBarHeight - 17, so a 56 vp image in the 49 vp bar rises 56 - 32 = 24 vp.
+  private plusOverhang(): number {
+    const tabBarHeight = 49;
+    return Math.max(0, (this.plusButton?.imageSize ?? 0) - (tabBarHeight - 17));
   }
 
   build() {
