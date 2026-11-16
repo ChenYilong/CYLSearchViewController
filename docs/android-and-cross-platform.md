@@ -447,6 +447,14 @@ Score: 5/5 = 100.
 
   ![HarmonyOS Examples tab, emulator, 2026-11-16](assets/harmonyos-examples-emulator-unsigned.jpeg)
 
+  Search tab after the switch to CYLTabBarController's HarmonyOS tab bar (`vendor/cyltabbar` `8c56e0c`, raised plus
+  button; Mate 70 Pro emulator, unsigned HAP, base de27d60, 2026-11-16 09:24 emulator time). Set-up before a build:
+  `python3 harmonyos/scripts/sync-sub-repositories.py`, then `ohpm install --all`. The tab buttons have no `CYLTab<n>`
+  ids any more, so `CYLSearchUI.test.ets` needs new locators (localized tab titles or the tab bar's ids); taps sent
+  with `uitest uiInput click` did not reach the app in this run (the emulator is shared with another session).
+
+  ![HarmonyOS Search tab with CYLTabBarController's tab bar](assets/harmonyos-search-tab-cyltabbar-emulator-unsigned.jpeg)
+
   Tests: 13 run, 10–11 pass; the UI tests for the tag style sample and Discover error ("click of null"). Cause found:
   another session drives the same emulator (its apps `com.cyl.tabbar.harmony` and `com.cyl.classifymenu.rn` came to the
   front mid-test) and the first tap after launch only dismisses the search field's keyboard. Fixed in the tests: each
