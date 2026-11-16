@@ -314,3 +314,4 @@ begins and becomes `DONE` when it ends.
   look for the keyword git cz (create if missing, append if present), and add in English: commit in git cz style,
   English-only commit messages, no Chinese allowed. continue"
 - 2026-11-16 DONE (iOS): SVGA Flutter row, 10/12; plugin platform views made @MainActor for the new pin. Prompt: "go flutter svga".
+- 2026-11-16 PARTLY DONE: HarmonyOS re-run with the new tab bar: builds (after sync-sub-repositories + ohpm install), runs, Search screenshot; taps did not reach the app, other tabs not captured. Prompt: "run our HarmonyOS version code on an emulator and update more screenshot in docs".
