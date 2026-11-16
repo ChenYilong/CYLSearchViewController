@@ -321,3 +321,7 @@ begins and becomes `DONE` when it ends.
   Prompt (English): "Write into the instruction files and the skills, in the script-running section (create it if
   missing), in English: prefer running scripts with bash, to avoid this error: zsh doesn't split $box into words
   either. Running the same measurement as a bash script."
+- 2026-11-16 DONE: open PRs #11 (feat/harmonyos-parity -> feat/swift-core) and #8 (feat/swift-core -> master) checked
+  for sync: both branches had the same tree (3f4981e), so nothing was cherry-picked; this entry is committed on both.
+  Prompt (verbatim): "将所有处于open状态的pr 互相cherry pick 保持所有pr保持代码同步" / "log both"
+  Prompt (English): "Cherry-pick all open PRs into each other so every PR keeps the same code." / "log both"
