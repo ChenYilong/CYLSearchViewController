@@ -455,12 +455,20 @@ Score: 5/5 = 100.
 
   ![HarmonyOS Search tab with CYLTabBarController's tab bar](assets/harmonyos-search-tab-cyltabbar-emulator-unsigned.jpeg)
 
-- BUG TODO (2026-11-16, base ed54f08, vendor/cyltabbar `9fb874c`, Mate 70 Pro emulator): the example ignores every touch.
-  Taps on the tab bar, on "Overlay" and on result rows change nothing (`uitest uiInput click`, `uinput -T -c`), and the
-  launch parameter `--pi CYLDemoTab <n>` no longer selects a tab. Touch works elsewhere on the same emulator (desktop
-  swipe, launching CYLSearch by tapping its icon); the app is idle (0 % CPU), its window has focus and nothing covers it,
-  and hilog shows no error. It started with the switch to CYLTabBarController's HarmonyOS tab bar (the earlier
-  `CYLTab<n>` build accepted taps). So no screenshot of the next pages could be taken.
+- Not a bug (corrected 2026-11-16): taps did work. `uitest dumpLayout` returned a stale tree, so the check read the
+  old screen; screenshots (`snapshot_display`) after each tap show the right page. Rule for checks: confirm with a
+  screenshot, not with the layout dump alone. Pages after taps (Mate 70 Pro emulator, unsigned HAP, zh-CN, base 5a30019,
+  vendor/cyltabbar `9fb874c`), top to bottom: Examples; its four pushed pages (Search and refresh, Placeholder styles,
+  Search bar, Other libraries' examples); Tag style; Discover; the plus button's page (Search bar).
+
+  ![Examples](assets/harmonyos-examples-cyltabbar-emulator.jpeg)
+  ![Examples, Search and refresh](assets/harmonyos-examples-1-search-refresh-emulator.jpeg)
+  ![Examples, Placeholder styles](assets/harmonyos-examples-2-placeholder-styles-emulator.jpeg)
+  ![Examples, Search bar](assets/harmonyos-examples-3-search-bar-emulator.jpeg)
+  ![Examples, Other libraries' examples](assets/harmonyos-examples-4-other-libraries-emulator.jpeg)
+  ![Tag style tab](assets/harmonyos-tag-style-tab-emulator.jpeg)
+  ![Discover tab](assets/harmonyos-discover-tab-cyltabbar-emulator.jpeg)
+  ![Plus button page](assets/harmonyos-plus-page-emulator.jpeg)
 
   Tests: 13 run, 10–11 pass; the UI tests for the tag style sample and Discover error ("click of null"). Cause found:
   another session drives the same emulator (its apps `com.cyl.tabbar.harmony` and `com.cyl.classifymenu.rn` came to the
