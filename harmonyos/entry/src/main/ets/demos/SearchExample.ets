@@ -67,7 +67,7 @@ export struct SearchExampleView {
   private context: common.Context = this.getUIContext().getHostContext() as common.Context;
   private source: CYLSearchExampleDataSource = new CYLSearchExampleDataSource(this.context);
   private searchBar: CYLSearchBarView = new CYLSearchBarView();
-  private overlay: CYLSearchView = new CYLSearchView();
+  private overlaySearchView: CYLSearchView = new CYLSearchView();
 
   aboutToAppear(): void {
     this.searchBar.placeholder = cylDemoText(this.context, 'search.placeholder');
@@ -83,16 +83,16 @@ export struct SearchExampleView {
     CYLSearchView.setRefreshHandler(() => this.refresh(() => CYLSearchView.endRefreshingIn(this.scroller)),
       this.scroller);
 
-    this.overlay.suggestionCachePolicy = CYLSearchSuggestionCachePolicy.none;
-    this.overlay.showsEmptyResultsPlaceholder = true;
-    this.overlay.searchBarView.placeholder = cylDemoText(this.context, 'search.placeholder');
-    this.overlay.resultsDataSource = this.source;
-    this.overlay.refreshHandler = () => this.refresh(() => this.overlay.endRefreshing());
+    this.overlaySearchView.suggestionCachePolicy = CYLSearchSuggestionCachePolicy.none;
+    this.overlaySearchView.showsEmptyResultsPlaceholder = true;
+    this.overlaySearchView.searchBarView.placeholder = cylDemoText(this.context, 'search.placeholder');
+    this.overlaySearchView.resultsDataSource = this.source;
+    this.overlaySearchView.refreshHandler = () => this.refresh(() => this.overlaySearchView.endRefreshing());
   }
 
   aboutToDisappear(): void {
     CYLSearchView.setRefreshHandler(undefined, this.scroller);
-    this.overlay.refreshHandler = undefined;
+    this.overlaySearchView.refreshHandler = undefined;
   }
 
   // Reloads the data source; `finish` stops the refresh on every path, before the results or the error are shown.
@@ -108,7 +108,7 @@ export struct SearchExampleView {
         });
       } else {
         this.results = this.source.results(this.searchBar.text);
-        this.overlay.reloadResults();
+        this.overlaySearchView.reloadResults();
       }
     });
   }
@@ -128,7 +128,7 @@ export struct SearchExampleView {
           rightTitle: cylDemoText(this.context, this.hidesSearchBarWhenScrolling ? 'repro.on' : 'repro.off'),
           rightId: 'CYLIssueReproductionToggle',
           onBack: () => this.onBack(),
-          onLeft: () => this.overlay.showSearchIn(this.context),
+          onLeft: () => this.overlaySearchView.showSearchIn(this.context),
           onRight: () => {
             this.hidesSearchBarWhenScrolling = !this.hidesSearchBarWhenScrolling;
           }
@@ -175,7 +175,7 @@ export struct SearchExampleView {
       .height('100%')
       .backgroundColor($r('sys.color.background_primary'))
 
-      CYLSearchComponent({ searchView: this.overlay })
+      CYLSearchComponent({ searchView: this.overlaySearchView })
     }
     .width('100%')
     .height('100%')

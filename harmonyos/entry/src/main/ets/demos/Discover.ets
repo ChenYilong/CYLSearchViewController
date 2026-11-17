@@ -186,7 +186,19 @@ export struct DiscoverView {
 
   // The Search button and the keyboard's search key: the typed text, else the placeholder topic.
   private searchTapped(): void {
-    this.search(this.searchBar.text.length > 0 ? this.searchBar.text : (this.searchBar.placeholder ?? ''));
+    this.search(this.searchBar.text.length > 0 ? this.searchBar.text : this.placeholderText());
+  }
+
+  // The search bar's placeholder as text: a string, or a string resource resolved in the device's language.
+  private placeholderText(): string {
+    const placeholder: ResourceStr | undefined = this.searchBar.placeholder;
+    if (placeholder === undefined) {
+      return '';
+    }
+    if (typeof placeholder === 'string') {
+      return placeholder;
+    }
+    return this.getUIContext().getHostContext()?.resourceManager.getStringSync(placeholder as Resource) ?? '';
   }
 
   // The camera button: not part of this demo, which says so instead of ignoring the tap.
