@@ -27,12 +27,14 @@ Full rule: `AGENTS.md`, "Licenses in published packages (added 2026-11-17)". Rec
 | Registry | Package | License file (bundle) |
 |:---|:---|:---|
 | CocoaPods | `CYLSearchViewController.podspec` | `LICENSE` (podspec `:file`) and `Resources/CYLSearchViewController.bundle/LICENSE` |
-| Maven / Gradle | `android/merged/cylsearch` | `src/main/assets/CYLSearchViewController.bundle/LICENSE` (created for this rule) |
+| Maven / Gradle | `android/merged/cylsearch` | `src/main/resources/META-INF/cylsearch/LICENSE` (Java resources, packaged into the AAR's `classes.jar`; created for this rule) |
 | ohpm | `harmonyos/cylsearch` | `LICENSE` (package root) and `src/main/resources/rawfile/CYLSearchViewController.bundle/LICENSE` |
 | npm | `CrossPlatform/react-native-cylsearch` | `LICENSE` (package root; the native parts use the iOS bundle) |
-| npm | `CrossPlatform/wechat-miniprogram-cylsearch` | `LICENSE` (package root, listed in `files`) |
+| npm | `CrossPlatform/wechat-miniprogram-cylsearch` | `LICENSE` (package root) and `src/LICENSE` (the component folder) |
 | pub.dev | `CrossPlatform/flutter_cylsearch` | `LICENSE` (package root; its iOS podspec points at it) |
 
+The layout follows CYLTabBarController's rule (`docs/License-Notices.md`, commit `ee106e8`): the iOS resource bundle,
+`META-INF/<module>/` Java resources on Android, the component folder for the mini program, otherwise the package root.
 A JavaScript or Dart package has no resource bundle of its own: its package root is the folder the registry ships,
 so the license file sits there.
 

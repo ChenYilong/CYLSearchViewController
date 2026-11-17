@@ -61,8 +61,9 @@ Every new integration rule updates, in the same change, `AGENTS.md`,
   1. Every package published to an external registry (CocoaPods, Maven / Gradle, npm, pub.dev, ohpm and any other)
      ships its license file, not only a manifest field.
   2. The license file goes into the package's built-in resource bundle folder; when the package has none, create
-     one. iOS: `Resources/CYLSearchViewController.bundle/LICENSE`. A JavaScript or Dart package's root is the folder
-     its registry ships, so the file sits there.
+     one. iOS: `Resources/CYLSearchViewController.bundle/LICENSE`; Android: `META-INF/<module>/LICENSE` in the
+     library's Java resources (inside the AAR); the mini program: its component folder (`src/`); a JavaScript or Dart
+     package: its root, the folder its registry ships. The same layout as CYLTabBarController (`docs/License-Notices.md`).
   3. Every platform, every new package.
   4. The license is MIT, `Copyright (c) 2015 ChenYilong` (owner's choice, 2026-11-17). The root `LICENSE` is the source;
      every copy is identical to it, and each manifest declares MIT.

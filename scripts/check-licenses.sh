@@ -8,11 +8,12 @@ cd "$(dirname "$0")/.."
 required=(
   LICENSE                                                                                    # repository, CocoaPods license file
   Resources/CYLSearchViewController.bundle/LICENSE                                           # CocoaPods resource bundle
-  android/merged/cylsearch/src/main/assets/CYLSearchViewController.bundle/LICENSE            # Android library (Maven / Gradle)
+  android/merged/cylsearch/src/main/resources/META-INF/cylsearch/LICENSE                     # Android library (Maven / Gradle): in the AAR's classes.jar
   harmonyos/cylsearch/LICENSE                                                                # ohpm package root
   harmonyos/cylsearch/src/main/resources/rawfile/CYLSearchViewController.bundle/LICENSE      # HarmonyOS resource bundle
   CrossPlatform/react-native-cylsearch/LICENSE                                               # npm
   CrossPlatform/wechat-miniprogram-cylsearch/LICENSE                                         # npm (mini program)
+  CrossPlatform/wechat-miniprogram-cylsearch/src/LICENSE                                     # mini program component folder
   CrossPlatform/flutter_cylsearch/LICENSE                                                    # pub.dev
 )
 

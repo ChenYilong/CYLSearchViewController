@@ -286,3 +286,19 @@
   the tip does not contain PR #814 (`CYLAnimatedItem.podspec` `DEFINES_MODULE`, no Lottie view for an unplayable
   file), so pinning it would bring back two CI failures. TODO: move the pin to the branch once PR #814 is merged into
   it.
+
+## DONE (2026-11-17): the guide re-read at `ec12a9d`
+
+- **Prompt (verbatim)**: "我已经更新了该文档地址 最新地址https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md 文档更新了一些描述 请重新阅读 调整"
+- **Prompt (English)**: "I updated the document, latest address …/docs/Animated-Item.md; some descriptions changed. Please read
+  it again and adjust."
+- **What changed** (`ec12a9d`, after `ee106e8`): the resources paragraph names each platform's license location
+  (iOS `CYLAnimatedItem.bundle/LICENSE`, Android `META-INF/cylanimateditem/LICENSE` in the AAR); the commit list adds
+  the per-type guards (`CYL_LOTTIE_AVAILABLE`, `CYL_GIF_AVAILABLE`, `CYL_PAG_AVAILABLE`, `CYL_RIVE_AVAILABLE`,
+  `CYL_SVGA_AVAILABLE`), the engine-free type keys and "a license notice in every published package"; the iOS CI
+  status (run 839 on `caf0a38`: Carthage, the root Podfile with `pod 'CYLAnimatedItem'` and Example-Swift-03 passed).
+- **Adjusted**: the license layout follows the same rule as CYLTabBarController: the Android library's license and
+  icon notices moved from `assets/CYLSearchViewController.bundle/` to `src/main/resources/META-INF/cylsearch/` (inside
+  the AAR), and the mini program's component folder gets `src/LICENSE` (`docs/licenses.md`). The animated item code
+  needed no change: it uses no type key or engine-only API.
+- **Pin**: still `fbd05d5`; the branch tip `ec12a9d` does not contain PR #814 yet.

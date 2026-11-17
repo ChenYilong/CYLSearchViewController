@@ -243,6 +243,6 @@ screenshots: `docs/CYLTabBarController-Integration.md`.
 
 CYLSearchViewController is released under the MIT License: see [LICENSE](LICENSE). Every published package carries
 the same file inside its resource bundle (CocoaPods `CYLSearchViewController.bundle`, the Android library's
-`assets/CYLSearchViewController.bundle`, HarmonyOS `rawfile/CYLSearchViewController.bundle` and package root, and the
-npm and pub.dev package roots), next to the notices of the third-party icons it ships ([docs/licenses.md](docs/licenses.md)).
+`META-INF/cylsearch/` in its AAR, HarmonyOS `rawfile/CYLSearchViewController.bundle` and package root, the mini
+program's `src/`, and the npm and pub.dev package roots), next to the notices of the third-party icons it ships ([docs/licenses.md](docs/licenses.md)).
 

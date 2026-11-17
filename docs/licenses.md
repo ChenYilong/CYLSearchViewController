@@ -31,10 +31,10 @@ any other) ships its license declaration inside the package, in the package's re
     | Registry | Package | License file |
     |:---|:---|:---|
     | CocoaPods | `CYLSearchViewController.podspec` (`s.license = { :type => 'MIT', :file => 'LICENSE' }`, was "All rights reserved") | `LICENSE`, `Resources/CYLSearchViewController.bundle/LICENSE` |
-    | Maven / Gradle | `android/merged/cylsearch` | `src/main/assets/CYLSearchViewController.bundle/` (new bundle folder: `LICENSE` and the icon notices) |
+    | Maven / Gradle | `android/merged/cylsearch` | `src/main/resources/META-INF/cylsearch/` (new: `LICENSE` and the icon notices, inside the AAR) |
     | ohpm | `harmonyos/cylsearch` | `LICENSE`, `src/main/resources/rawfile/CYLSearchViewController.bundle/` (new: `LICENSE` and the icon notices) |
     | npm | `CrossPlatform/react-native-cylsearch` | `LICENSE` (copyright year aligned to 2015) |
-    | npm | `CrossPlatform/wechat-miniprogram-cylsearch` | `LICENSE` (already identical) |
+    | npm | `CrossPlatform/wechat-miniprogram-cylsearch` | `LICENSE` (already identical) and `src/LICENSE` (component folder) |
     | pub.dev | `CrossPlatform/flutter_cylsearch` | `LICENSE` (was "All rights reserved") |
 
   - The new Android and HarmonyOS bundles also carry the third-party icon notices (`NOTICE`,
