@@ -7,12 +7,15 @@ import android.widget.FrameLayout
 import com.cyl.classifymenu.CYLTagListView
 import com.cyl.placeholder.CYLPlaceholderScenario
 import com.cyl.search.CYLSearchBarItem
+import com.cyl.search.CYLSearchBarMode
 import com.cyl.search.CYLSearchBarStyle
 import com.cyl.search.CYLSearchBarView
 import com.cyl.search.CYLSearchBarViewDelegate
 import com.cyl.search.CYLSearchSuggestionCachePolicy
+import com.cyl.search.CYLSearchSuggestionCell
 import com.cyl.search.CYLSearchSuggestionStyle
 import com.cyl.search.CYLSearchView
+import com.cyl.search.CYLSearchViewDataSource
 import com.cyl.search.CYLSearchViewDelegate
 import androidx.core.content.ContextCompat
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -72,6 +75,8 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
 
     private val container = FrameLayout(context)
     private val searchView = CYLSearchView(context)
+    private val resultsDataSource = CYLFlutterSearchResultsDataSource()
+    private var appliedResults: List<String>? = null
 
     init {
         searchView.delegate = this
@@ -81,14 +86,49 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
         searchView.installInView(container)
         searchView.showSearch(false)
         channel.setMethodCallHandler { call, result ->
-            @Suppress("UNCHECKED_CAST")
-            if (call.method == "update") (call.arguments as? Map<String, Any?>)?.let { apply(it) }
-            result.success(null)
+            when (call.method) {
+                "update" -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val updated = call.arguments as? Map<String, Any?>
+                    updated?.let { apply(it) }
+                    result.success(null)
+                }
+                "beginRefreshing" -> {
+                    searchView.beginRefreshing()
+                    result.success(null)
+                }
+                "endRefreshing" -> {
+                    searchView.endRefreshing()
+                    result.success(null)
+                }
+                "isRefreshing" -> result.success(searchView.isRefreshing)
+                "reloadResults" -> {
+                    searchView.reloadResults()
+                    result.success(null)
+                }
+                else -> result.notImplemented()
+            }
         }
     }
 
     @Suppress("UNCHECKED_CAST")
     private fun apply(arguments: Map<String, Any?>) {
+        // Results: a list sets the data source (and reloads the rows when it changed); null removes it.
+        val results = arguments["results"] as? List<String>
+        if (results != appliedResults) {
+            appliedResults = results
+            resultsDataSource.results = results.orEmpty()
+            when {
+                results == null -> searchView.resultsDataSource = null
+                searchView.resultsDataSource == null -> searchView.resultsDataSource = resultsDataSource
+                else -> searchView.reloadResults()
+            }
+        }
+        // Refresh: the handler only reports the pull to Dart, which calls `endRefreshing` when it is done.
+        val refreshEnabled = arguments["refreshEnabled"] as? Boolean ?: false
+        if (refreshEnabled != (searchView.refreshHandler != null)) {
+            searchView.refreshHandler = if (refreshEnabled) ({ channel.invokeMethod("refresh", null) }) else null
+        }
         (arguments["suggestions"] as? List<String>)?.let { searchView.suggestions = it }
         searchView.suggestionStyle = if (arguments["suggestionStyle"] == "tags") CYLSearchSuggestionStyle.Tags else CYLSearchSuggestionStyle.List
         searchView.searchBarView.placeholder = arguments["placeholder"] as? String
@@ -136,6 +176,31 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
     override fun searchViewDidClose(searchView: CYLSearchView) {
         channel.invokeMethod("didClose", null)
     }
+
+    override fun searchViewDidSelectResult(searchView: CYLSearchView, result: Any) {
+        val row = result as? CYLFlutterSearchResult ?: return
+        channel.invokeMethod("didSelectResult", mapOf("result" to row.text, "index" to row.index))
+    }
+}
+
+/**
+ * One row of the results Dart sent: its text and its index in Dart's `results` list.
+ */
+internal data class CYLFlutterSearchResult(val text: String, val index: Int)
+
+/**
+ * The results data source of a `CYLFlutterSearchView`: Dart filters the results itself, so every query gets the list
+ * Dart sent last.
+ */
+internal class CYLFlutterSearchResultsDataSource : CYLSearchViewDataSource {
+    var results: List<String> = emptyList()
+
+    override fun searchViewResultsForQuery(searchView: CYLSearchView, query: String): List<Any> =
+        results.mapIndexed { index, text -> CYLFlutterSearchResult(text, index) }
+
+    override fun searchViewConfigureResultCell(searchView: CYLSearchView, cell: CYLSearchSuggestionCell, result: Any) {
+        cell.textLabel.text = (result as? CYLFlutterSearchResult)?.text
+    }
 }
 
 /**
@@ -146,17 +211,60 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
 
     private val bar = CYLSearchBarView(context)
 
+    /**
+     * Dart's `searches` as applied last.
+     */
+    private var appliedSearches: List<String> = emptyList()
+
+    /**
+     * True while Dart's `searches` replace the bar's own: the removals are not reported back.
+     */
+    private var syncingSearches = false
+
     init {
         bar.delegate = this
         apply(arguments)
         channel.setMethodCallHandler { call, result ->
             @Suppress("UNCHECKED_CAST")
-            if (call.method == "update") (call.arguments as? Map<String, Any?>)?.let { apply(it) }
+            val callArguments = (call.arguments as? Map<String, Any?>) ?: emptyMap()
+            val index = (callArguments["index"] as? Number)?.toInt() ?: -1
+            when (call.method) {
+                "update" -> apply(callArguments)
+                "beginNewSearch" -> bar.beginNewSearch()
+                "completeSearch" -> bar.completeSearch()
+                "addSearch" -> bar.addSearch(callArguments["text"] as? String ?: "")
+                "selectSearch" -> bar.selectSearch(index)
+                "removeSearch" -> bar.removeSearch(index)
+                "searches" -> return@setMethodCallHandler result.success(bar.searches)
+                "selectedSearchIndex" -> return@setMethodCallHandler result.success(bar.selectedSearchIndex)
+                else -> return@setMethodCallHandler result.notImplemented()
+            }
             result.success(null)
         }
     }
 
+    /**
+     * Takes Dart's completed searches when Dart sent another list and it differs from the bar's own, unless a search
+     * is being typed.
+     */
+    private fun applySearches(searches: List<String>) {
+        if (bar.mode != CYLSearchBarMode.Multiple || bar.isEditingNewSearch || searches == appliedSearches) return
+        appliedSearches = searches
+        if (searches == bar.searches) return
+        syncingSearches = true
+        while (bar.searches.isNotEmpty()) {
+            bar.removeSearch(bar.searches.size - 1)
+        }
+        searches.forEach { bar.addSearch(it) }
+        syncingSearches = false
+    }
+
     private fun apply(arguments: Map<String, Any?>) {
+        val mode = if (arguments["mode"] == "multiple") CYLSearchBarMode.Multiple else CYLSearchBarMode.Single
+        if (mode != bar.mode) bar.mode = mode
+        @Suppress("UNCHECKED_CAST")
+        val searches = (arguments["searches"] as? List<String>) ?: emptyList()
+        applySearches(searches)
         bar.placeholder = arguments["placeholder"] as? String
         (arguments["text"] as? String)?.takeIf { it != bar.text }?.let { bar.text = it }
         bar.showsCancelButton = arguments["showsCancelButton"] as? Boolean ?: false
@@ -196,6 +304,23 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
 
     override fun searchBarViewCancelButtonClicked(searchBarView: CYLSearchBarView) {
         channel.invokeMethod("didCancel", null)
+    }
+
+    override fun searchBarViewTextDidChange(searchBarView: CYLSearchBarView, text: String, index: Int) {
+        channel.invokeMethod("textDidChangeAtIndex", mapOf("text" to text, "index" to index))
+    }
+
+    override fun searchBarViewDidCompleteSearch(searchBarView: CYLSearchBarView, text: String, index: Int) {
+        channel.invokeMethod("didCompleteSearch", mapOf("text" to text, "index" to index))
+    }
+
+    override fun searchBarViewDidRemoveSearchAtIndex(searchBarView: CYLSearchBarView, index: Int) {
+        if (syncingSearches) return
+        channel.invokeMethod("didRemoveSearch", mapOf("index" to index))
+    }
+
+    override fun searchBarViewDidSelectSearch(searchBarView: CYLSearchBarView, text: String, index: Int) {
+        channel.invokeMethod("didSelectSearch", mapOf("text" to text, "index" to index))
     }
 }
 

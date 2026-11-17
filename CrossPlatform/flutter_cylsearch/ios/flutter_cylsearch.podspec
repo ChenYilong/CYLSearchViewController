@@ -15,8 +15,9 @@ Pod::Spec.new do |s|
   s.source_files     = 'flutter_cylsearch/Sources/flutter_cylsearch/**/*.swift'
   s.dependency 'Flutter'
   s.dependency 'CYLSearchViewController'
+  # The tag list widget wraps CollectionViewClassifyMenu's CYLTagListView directly. CYLTableViewPlaceHolder (placeholder
+  # and refresh) comes only through CYLSearchViewController; the plugin depends on no other search library.
   s.dependency 'CollectionViewClassifyMenu'
-  s.dependency 'CYLTableViewPlaceHolder/Core'
   s.platform = :ios, '15.0'
   s.static_framework = true
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }

@@ -22,6 +22,8 @@ void main() {
       ));
       expect(parameters, <String, Object?>{
         'brightness': 'light',
+        'results': null,
+        'refreshEnabled': false,
         'suggestions': <String>['Android', 'Swift'],
         'suggestionStyle': 'tags',
         'placeholder': 'Search',
@@ -73,6 +75,46 @@ void main() {
       expect(events, <String>['text sw', 'select Swift 1', 'submit Swift', 'close']);
     });
 
+    test('sends the results and the refresh switch, and reports result taps and pulls', () {
+      final events = <String>[];
+      final view = CYLSearchView(
+        results: const <String>['Swift', 'Swift UI'],
+        refreshEnabled: true,
+        onSelectResult: (result, index) => events.add('result $result $index'),
+        onRefresh: () => events.add('refresh'),
+      );
+      final parameters = cylSearchViewParameters(view);
+      expect(parameters['results'], <String>['Swift', 'Swift UI']);
+      expect(parameters['refreshEnabled'], true);
+      expect(cylSearchViewParameters(const CYLSearchView())['results'], isNull, reason: 'null keeps the suggestions only');
+      cylSearchViewDispatch(view, const MethodCall('didSelectResult', <String, Object?>{'result': 'Swift UI', 'index': 1}));
+      cylSearchViewDispatch(view, const MethodCall('refresh'));
+      expect(events, <String>['result Swift UI 1', 'refresh']);
+    });
+
+    test('the controller calls the refresh and results methods of the native view', () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      const channel = MethodChannel('cyl_search/view_test_search');
+      final calls = <String>[];
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, (call) async {
+        calls.add(call.method);
+        return call.method == 'isRefreshing' ? true : null;
+      });
+      final controller = CYLSearchViewWidgetController();
+      expect(await controller.isRefreshing(), false, reason: 'no native view yet');
+      await controller.endRefreshing();
+      expect(calls, isEmpty);
+      controller.attach(channel);
+      expect(controller.isAttached, true);
+      await controller.beginRefreshing();
+      expect(await controller.isRefreshing(), true);
+      await controller.endRefreshing();
+      await controller.reloadResults();
+      expect(calls, <String>['beginRefreshing', 'isRefreshing', 'endRefreshing', 'reloadResults']);
+      controller.attach(null);
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null);
+    });
+
     testWidgets('builds the native view of its platform', (tester) async {
       debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
       await tester.pumpWidget(const Directionality(textDirection: TextDirection.ltr, child: CYLSearchView()));
@@ -99,6 +141,8 @@ void main() {
       expect(cylSearchBarViewParameters(bar),
           <String, Object?>{
             'brightness': 'light',
+            'mode': 'single',
+            'searches': <String>[],
             'placeholder': 'Song',
             'text': null,
             'showsCancelButton': true,
@@ -144,6 +188,77 @@ void main() {
       cylSearchBarViewDispatch(bar, const MethodCall('didSelectItem', <String, Object?>{'index': 2, 'selected': false}));
       cylSearchBarViewDispatch(bar, const MethodCall('didSelectItem', <String, Object?>{'index': 9}));
       expect(events, <String>['camera true', 'selected 0 icon', 'search', 'selected 2 text']);
+    });
+
+    test('multiple mode sends its searches and forwards the search events', () {
+      final events = <String>[];
+      final bar = CYLSearchBarView(
+        mode: CYLSearchBarMode.multiple,
+        searches: const <String>['Swift', 'Kotlin'],
+        onTextChange: (text, index) => events.add('text $text $index'),
+        onCompleteSearch: (text, index) => events.add('complete $text $index'),
+        onRemoveSearch: (index) => events.add('remove $index'),
+        onSelectSearch: (text, index) => events.add('select $text $index'),
+        onTextChanged: (text) => events.add('single $text'),
+      );
+      final parameters = cylSearchBarViewParameters(bar);
+      expect(parameters['mode'], 'multiple');
+      expect(parameters['searches'], <String>['Swift', 'Kotlin']);
+      cylSearchBarViewDispatch(bar, const MethodCall('textDidChangeAtIndex', <String, Object?>{'text': 'Da', 'index': 2}));
+      cylSearchBarViewDispatch(bar, const MethodCall('didCompleteSearch', <String, Object?>{'text': 'Dart', 'index': 2}));
+      cylSearchBarViewDispatch(bar, const MethodCall('didSelectSearch', <String, Object?>{'text': 'Swift', 'index': 0}));
+      cylSearchBarViewDispatch(bar, const MethodCall('didRemoveSearch', <String, Object?>{'index': 1}));
+      expect(events, <String>['text Da 2', 'complete Dart 2', 'select Swift 0', 'remove 1']);
+    });
+
+    test('the controller calls the multiple-search methods of the native bar', () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      const channel = MethodChannel('cyl_search/view_test_bar');
+      final calls = <MethodCall>[];
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, (call) async {
+        calls.add(call);
+        switch (call.method) {
+          case 'searches':
+            return <Object?>['Swift', 'Dart'];
+          case 'selectedSearchIndex':
+            return 1;
+        }
+        return null;
+      });
+      final controller = CYLSearchBarWidgetController();
+      expect(await controller.searches(), isEmpty, reason: 'no native view yet');
+      expect(await controller.selectedSearchIndex(), -1);
+      controller.attach(channel);
+      await controller.beginNewSearch();
+      await controller.completeSearch();
+      await controller.addSearch('Dart');
+      await controller.selectSearch(1);
+      await controller.removeSearch(0);
+      expect(await controller.searches(), <String>['Swift', 'Dart']);
+      expect(await controller.selectedSearchIndex(), 1);
+      expect(calls.map((call) => call.method), <String>[
+        'beginNewSearch', 'completeSearch', 'addSearch', 'selectSearch', 'removeSearch', 'searches', 'selectedSearchIndex',
+      ]);
+      expect(calls[2].arguments, <String, Object?>{'text': 'Dart'});
+      expect(calls[3].arguments, <String, Object?>{'index': 1});
+      expect(calls[4].arguments, <String, Object?>{'index': 0});
+      controller.attach(null);
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null);
+    });
+
+    testWidgets('a controller is attached to the native view and detached on dispose', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+      final controller = CYLSearchBarWidgetController();
+      await tester.pumpWidget(Directionality(
+        textDirection: TextDirection.ltr,
+        child: CYLSearchBarView(controller: controller, mode: CYLSearchBarMode.multiple),
+      ));
+      final view = tester.widget<UiKitView>(find.byType(UiKitView));
+      view.onPlatformViewCreated!(7);
+      expect(controller.isAttached, true);
+      await tester.pumpWidget(const SizedBox());
+      expect(controller.isAttached, false);
+      debugDefaultTargetPlatformOverride = null;
     });
   });
 

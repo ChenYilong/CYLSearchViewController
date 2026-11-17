@@ -14,6 +14,16 @@ enum CYLSearchSuggestionStyle {
   tags,
 }
 
+/// What a [CYLSearchBarView] holds (iOS and Android `CYLSearchBarMode`).
+enum CYLSearchBarMode {
+  /// One search field (the default).
+  single,
+
+  /// Several searches side by side: the new search button starts one, and a completed search becomes an entry of
+  /// `searches`, with an indicator under the selected one and a remove button on it.
+  multiple,
+}
+
 /// The CYLTableViewPlaceHolder scenario of the empty results placeholder (iOS `CYLPlaceholderScenario`).
 enum CYLPlaceholderScenario {
   /// Nothing to show: an illustration and "Nothing here yet".
@@ -86,6 +96,70 @@ class CYLSearchViewTypes {
   static String channel(int id) => 'cyl_search/view_$id';
 }
 
+/// Sends calls to the native view of one widget; calls made before the view exists do nothing.
+abstract class _CYLPlatformViewController {
+  MethodChannel? _channel;
+
+  /// Connects the controller to the channel of its widget's native view, or disconnects it (null).
+  @visibleForTesting
+  void attach(MethodChannel? channel) => _channel = channel;
+
+  /// True while a native view is connected.
+  bool get isAttached => _channel != null;
+
+  Future<T?> _invoke<T>(String method, [Object? arguments]) async {
+    final channel = _channel;
+    if (channel == null) return null;
+    return channel.invokeMethod<T>(method, arguments);
+  }
+}
+
+/// Drives a [CYLSearchView] from code (iOS and Android `CYLSearchView` methods): the refresh of its results and their
+/// reload. Pass it as [CYLSearchView.controller]; one controller serves one search view at a time.
+class CYLSearchViewWidgetController extends _CYLPlatformViewController {
+  /// Starts the refresh of the results, as a pull would; the native view then calls [CYLSearchView.onRefresh] (iOS and
+  /// Android `beginRefreshing()`).
+  Future<void> beginRefreshing() => _invoke<void>('beginRefreshing');
+
+  /// Stops the refresh of the results (iOS and Android `endRefreshing()`). Call it on every completion path of
+  /// [CYLSearchView.onRefresh].
+  Future<void> endRefreshing() => _invoke<void>('endRefreshing');
+
+  /// Whether the results refresh (iOS and Android `isRefreshing`); false before the native view exists.
+  Future<bool> isRefreshing() async => await _invoke<bool>('isRefreshing') ?? false;
+
+  /// Queries the results again for the current query and reloads their list (iOS and Android `reloadResults()`). A new
+  /// [CYLSearchView.results] list reloads them already.
+  Future<void> reloadResults() => _invoke<void>('reloadResults');
+}
+
+/// Drives a [CYLSearchBarView] in [CYLSearchBarMode.multiple] from code (iOS and Android `CYLSearchBarView`). Pass it as
+/// [CYLSearchBarView.controller]; one controller serves one search bar at a time.
+class CYLSearchBarWidgetController extends _CYLPlatformViewController {
+  /// Starts a new search and shows the keyboard (`beginNewSearch()`).
+  Future<void> beginNewSearch() => _invoke<void>('beginNewSearch');
+
+  /// Completes the search being typed (`completeSearch()`): it becomes the selected search, or is dropped when it is
+  /// too short.
+  Future<void> completeSearch() => _invoke<void>('completeSearch');
+
+  /// Adds a completed search without typing it, and selects it (`addSearch(_:)`).
+  Future<void> addSearch(String text) => _invoke<void>('addSearch', <String, Object?>{'text': text});
+
+  /// Selects a search, like a tap on it (`selectSearch(at:)`).
+  Future<void> selectSearch(int index) => _invoke<void>('selectSearch', <String, Object?>{'index': index});
+
+  /// Removes a search, like a tap on its remove button (`removeSearch(at:)`).
+  Future<void> removeSearch(int index) => _invoke<void>('removeSearch', <String, Object?>{'index': index});
+
+  /// The texts of the searches, completed searches first, then the one being typed (`searches`).
+  Future<List<String>> searches() async =>
+      (await _invoke<List<Object?>>('searches'))?.whereType<String>().toList() ?? const <String>[];
+
+  /// The index of the selected search, or -1 when none is selected (`selectedSearchIndex`; iOS `NSNotFound`).
+  Future<int> selectedSearchIndex() async => await _invoke<int>('selectedSearchIndex') ?? -1;
+}
+
 Widget _platformView(
   String viewType,
   Map<String, Object?> creationParams,
@@ -132,12 +206,19 @@ Widget _platformView(
 
 /// The search page of CYLSearchViewController (iOS `CYLSearchView`, Android `CYLSearchView`) as a widget: its native
 /// search bar at the top of the safe area, the suggestions filtered as the user types (a list or tags), and
-/// CYLTableViewPlaceHolder's placeholder for a query without results. It is open while it is shown; push it as a full
-/// screen route so its bar takes the place of the navigation bar, and pop the route in [onClose].
+/// CYLTableViewPlaceHolder's placeholder for a query without results. With [results] it lists your results instead of
+/// the suggestions while the query is not empty, with an optional pull-to-refresh ([refreshEnabled], [onRefresh]). It
+/// is open while it is shown; push it as a full screen route so its bar takes the place of the navigation bar, and pop
+/// the route in [onClose].
 class CYLSearchView extends StatefulWidget {
   /// Creates the search page.
   const CYLSearchView({
     super.key,
+    this.controller,
+    this.results,
+    this.onSelectResult,
+    this.refreshEnabled = false,
+    this.onRefresh,
     this.suggestions = const <String>[],
     this.suggestionStyle = CYLSearchSuggestionStyle.list,
     this.placeholder,
@@ -157,6 +238,26 @@ class CYLSearchView extends StatefulWidget {
     this.onSuggestionSelected,
     this.onClose,
   });
+
+  /// Calls the native view's refresh and results methods; optional.
+  final CYLSearchViewWidgetController? controller;
+
+  /// The results of the current query, one row each (iOS and Android `resultsDataSource`, `searchResults`). Non-null
+  /// lists them in `resultsTableView` while the query is not empty, instead of the suggestions; an empty list shows the
+  /// empty results placeholder when [showsEmptyResultsPlaceholder] is true. Update it as the query changes
+  /// ([onTextChanged], [onSubmitted]): a new list reloads the rows. Null (the default) keeps the suggestions only.
+  final List<String>? results;
+
+  /// A result row was tapped (iOS `searchView(_:didSelectResult:)`), with the result and its index in [results].
+  final void Function(String result, int index)? onSelectResult;
+
+  /// Adds pull-to-refresh to the results list (iOS and Android `refreshHandler`, CYLTableViewPlaceHolder's normal
+  /// header). A pull, or [CYLSearchViewWidgetController.beginRefreshing], calls [onRefresh].
+  final bool refreshEnabled;
+
+  /// The results list was pulled to refresh (iOS and Android `refreshHandler`). Call
+  /// [CYLSearchViewWidgetController.endRefreshing] on every completion path.
+  final VoidCallback? onRefresh;
 
   /// The suggestions to filter as the text changes (iOS `suggestions`).
   final List<String> suggestions;
@@ -227,6 +328,7 @@ class _CYLSearchViewState extends State<CYLSearchView> {
   void _created(int id) {
     final channel = MethodChannel(CYLSearchViewTypes.channel(id));
     channel.setMethodCallHandler(_handle);
+    widget.controller?.attach(channel);
     setState(() => _channel = channel);
   }
 
@@ -238,6 +340,10 @@ class _CYLSearchViewState extends State<CYLSearchView> {
   @override
   void didUpdateWidget(CYLSearchView oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller?.attach(null);
+      widget.controller?.attach(_channel);
+    }
     _channel?.invokeMethod<void>('update', _parameters);
   }
 
@@ -250,6 +356,7 @@ class _CYLSearchViewState extends State<CYLSearchView> {
 
   @override
   void dispose() {
+    widget.controller?.attach(null);
     _channel?.setMethodCallHandler(null);
     super.dispose();
   }
@@ -362,12 +469,20 @@ class CYLSearchBarItem {
 }
 
 /// The search bar of CYLSearchViewController (iOS and Android `CYLSearchBarView`) as a widget: a rounded field with a
-/// magnifier, the text, a clear button, appended [items] and an optional Cancel button. Give it a height (about 48
-/// logical pixels).
+/// magnifier, the text, a clear button, appended [items] and an optional Cancel button. With [mode] set to
+/// [CYLSearchBarMode.multiple] it holds several searches side by side instead ([searches], [controller]). Give it a
+/// height (about 48 logical pixels, 56 in multiple mode).
 class CYLSearchBarView extends StatefulWidget {
   /// Creates the search bar.
   const CYLSearchBarView({
     super.key,
+    this.controller,
+    this.mode = CYLSearchBarMode.single,
+    this.searches = const <String>[],
+    this.onTextChange,
+    this.onCompleteSearch,
+    this.onRemoveSearch,
+    this.onSelectSearch,
     this.placeholder,
     this.text,
     this.showsCancelButton = false,
@@ -380,6 +495,33 @@ class CYLSearchBarView extends StatefulWidget {
     this.onCancel,
     this.onItemSelected,
   });
+
+  /// Calls the native bar's multiple-search methods; optional.
+  final CYLSearchBarWidgetController? controller;
+
+  /// One field, or several searches side by side (iOS and Android `mode`).
+  final CYLSearchBarMode mode;
+
+  /// [CYLSearchBarMode.multiple]: the completed searches (iOS and Android `searches`, filled with `addSearch(_:)`).
+  /// The native bar takes a list that differs from its own completed searches, unless a search is being typed; keep
+  /// it in sync through [onCompleteSearch] and [onRemoveSearch], or leave it empty and let the bar keep its own.
+  final List<String> searches;
+
+  /// [CYLSearchBarMode.multiple]: the text of the search being typed changed, with its index (iOS
+  /// `searchBarView(_:textDidChange:at:)`). [CYLSearchBarMode.single] reports [onTextChanged] instead.
+  final void Function(String text, int index)? onTextChange;
+
+  /// [CYLSearchBarMode.multiple]: a search was completed and became an entry of the searches, with its index (iOS
+  /// `searchBarView(_:didCompleteSearch:at:)`).
+  final void Function(String text, int index)? onCompleteSearch;
+
+  /// [CYLSearchBarMode.multiple]: a search was removed by its remove button or
+  /// [CYLSearchBarWidgetController.removeSearch] (iOS `searchBarView(_:didRemoveSearchAt:)`).
+  final ValueChanged<int>? onRemoveSearch;
+
+  /// [CYLSearchBarMode.multiple]: a search was selected by a tap or [CYLSearchBarWidgetController.selectSearch] (iOS
+  /// `searchBarView(_:didSelectSearch:at:)`).
+  final void Function(String text, int index)? onSelectSearch;
 
   /// The fixed look of the bar (iOS `searchBarStyle`).
   final CYLSearchBarStyle searchBarStyle;
@@ -405,7 +547,7 @@ class CYLSearchBarView extends StatefulWidget {
   /// The field's shadow, 0 to 1 (iOS `fieldShadowOpacity`).
   final double fieldShadowOpacity;
 
-  /// The text changed (iOS `searchBarView(_:textDidChange:)`).
+  /// [CYLSearchBarMode.single]: the text changed (iOS `searchBarView(_:textDidChange:)`).
   final ValueChanged<String>? onTextChanged;
 
   /// The search key or the submit button (iOS `searchBarViewSearchButtonClicked(_:)`), with the text.
@@ -426,6 +568,7 @@ class _CYLSearchBarViewState extends State<CYLSearchBarView> {
   void _created(int id) {
     final channel = MethodChannel(CYLSearchViewTypes.channel(id));
     channel.setMethodCallHandler(_handle);
+    widget.controller?.attach(channel);
     setState(() => _channel = channel);
   }
 
@@ -437,6 +580,10 @@ class _CYLSearchBarViewState extends State<CYLSearchBarView> {
   @override
   void didUpdateWidget(CYLSearchBarView oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller?.attach(null);
+      widget.controller?.attach(_channel);
+    }
     _channel?.invokeMethod<void>('update', _parameters);
   }
 
@@ -448,6 +595,7 @@ class _CYLSearchBarViewState extends State<CYLSearchBarView> {
 
   @override
   void dispose() {
+    widget.controller?.attach(null);
     _channel?.setMethodCallHandler(null);
     super.dispose();
   }
@@ -461,6 +609,8 @@ class _CYLSearchBarViewState extends State<CYLSearchBarView> {
 @visibleForTesting
 Map<String, Object?> cylSearchViewParameters(CYLSearchView widget, {Brightness brightness = Brightness.light}) => <String, Object?>{
       'brightness': brightness.name,
+      'results': widget.results,
+      'refreshEnabled': widget.refreshEnabled,
       'suggestions': widget.suggestions,
       'suggestionStyle': widget.suggestionStyle.name,
       'placeholder': widget.placeholder,
@@ -490,6 +640,10 @@ void cylSearchViewDispatch(CYLSearchView widget, MethodCall call) {
       widget.onSuggestionSelected?.call(arguments['suggestion'] as String? ?? '', arguments['index'] as int? ?? 0);
     case 'didClose':
       widget.onClose?.call();
+    case 'didSelectResult':
+      widget.onSelectResult?.call(arguments['result'] as String? ?? '', arguments['index'] as int? ?? 0);
+    case 'refresh':
+      widget.onRefresh?.call();
   }
 }
 
@@ -498,6 +652,8 @@ void cylSearchViewDispatch(CYLSearchView widget, MethodCall call) {
 @visibleForTesting
 Map<String, Object?> cylSearchBarViewParameters(CYLSearchBarView widget, {Brightness brightness = Brightness.light}) => <String, Object?>{
       'brightness': brightness.name,
+      'mode': widget.mode.name,
+      'searches': widget.searches,
       'placeholder': widget.placeholder,
       'text': widget.text,
       'showsCancelButton': widget.showsCancelButton,
@@ -518,6 +674,14 @@ void cylSearchBarViewDispatch(CYLSearchBarView widget, MethodCall call) {
       widget.onSubmitted?.call(arguments['text'] as String? ?? '');
     case 'didCancel':
       widget.onCancel?.call();
+    case 'textDidChangeAtIndex':
+      widget.onTextChange?.call(arguments['text'] as String? ?? '', arguments['index'] as int? ?? 0);
+    case 'didCompleteSearch':
+      widget.onCompleteSearch?.call(arguments['text'] as String? ?? '', arguments['index'] as int? ?? 0);
+    case 'didRemoveSearch':
+      widget.onRemoveSearch?.call(arguments['index'] as int? ?? 0);
+    case 'didSelectSearch':
+      widget.onSelectSearch?.call(arguments['text'] as String? ?? '', arguments['index'] as int? ?? 0);
     case 'didSelectItem':
       final index = arguments['index'] as int? ?? -1;
       if (index < 0 || index >= widget.items.length) return;

@@ -36,7 +36,14 @@ const List<String> cylSampleSuggestions = <String>[
 class CYLSearchDemo {
   /// Creates a demo.
   const CYLSearchDemo(this.label,
-      {this.style = CYLSearchSuggestionStyle.list, this.query, this.scenario, this.focusesSearchFieldOnShow = true});
+      {this.style = CYLSearchSuggestionStyle.list,
+      this.query,
+      this.scenario,
+      this.focusesSearchFieldOnShow = true,
+      this.showsResults = false});
+
+  /// Whether the page lists results (the matching sample suggestions) with pull to refresh, instead of suggestions only.
+  final bool showsResults;
 
   /// The label of the button that opens it.
   final String label;
@@ -72,7 +79,11 @@ class CYLSearchDemoTab {
 /// The first three tabs, in the order of the configuration file; the fourth tab is the discover page. iOS shows at most
 /// five items in a tab bar (more become "More"), so the two empty states share a tab.
 const List<CYLSearchDemoTab> cylDemoTabs = <CYLSearchDemoTab>[
-  CYLSearchDemoTab('List style', 'Suggestions as a list, filtered as you type.', <CYLSearchDemo>[CYLSearchDemo('Open search')]),
+  CYLSearchDemoTab('List style', 'Suggestions as a list, filtered as you type; or results with pull to refresh.',
+      <CYLSearchDemo>[
+        CYLSearchDemo('Open search'),
+        CYLSearchDemo('Results and pull to refresh', showsResults: true),
+      ]),
   CYLSearchDemoTab('Tag style', 'The same suggestions as tags (CollectionViewClassifyMenu).',
       <CYLSearchDemo>[
         // The keyboard stays down until the field is tapped: the cached queries (or the empty placeholder) show first.
@@ -147,6 +158,13 @@ class CYLSearchDemoPage extends StatelessWidget {
   final CYLSearchDemoTab tab;
 
   void _openSearch(BuildContext context, CYLSearchDemo demo) {
+    if (demo.showsResults) {
+      Navigator.of(context).push(MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (routeContext) => const Scaffold(body: CYLSearchResultsDemoPage()),
+      ));
+      return;
+    }
     Navigator.of(context).push(MaterialPageRoute<void>(
       fullscreenDialog: true,
       builder: (routeContext) => Scaffold(
@@ -196,6 +214,57 @@ class CYLSearchDemoPage extends StatelessWidget {
       );
 }
 
+/// The results demo: the native search page lists the sample suggestions that contain the query as results (iOS and
+/// Android `resultsDataSource`), and a pull on the results refreshes them (`refreshHandler`, ended with
+/// `endRefreshing()`).
+class CYLSearchResultsDemoPage extends StatefulWidget {
+  /// Creates the page.
+  const CYLSearchResultsDemoPage({super.key});
+
+  @override
+  State<CYLSearchResultsDemoPage> createState() => _CYLSearchResultsDemoPageState();
+}
+
+class _CYLSearchResultsDemoPageState extends State<CYLSearchResultsDemoPage> {
+  final CYLSearchViewWidgetController _controller = CYLSearchViewWidgetController();
+  String _query = '';
+  int _refreshCount = 0;
+
+  /// The sample suggestions that contain the query; after a refresh, the newest refresh comes first.
+  List<String> get _results {
+    final query = _query.trim().toLowerCase();
+    final matches = cylSampleSuggestions.where((item) => item.toLowerCase().contains(query)).toList();
+    return <String>[if (_refreshCount > 0 && matches.isNotEmpty) 'Refreshed $_refreshCount×: ${matches.first}', ...matches];
+  }
+
+  Future<void> _refresh() async {
+    try {
+      // Stands for a network request.
+      await Future<void>.delayed(const Duration(seconds: 1));
+      if (mounted) setState(() => _refreshCount += 1);
+    } finally {
+      // Every completion path ends the refresh.
+      await _controller.endRefreshing();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) => CYLSearchView(
+        controller: _controller,
+        suggestions: cylSampleSuggestions,
+        placeholder: 'Search',
+        results: _results,
+        refreshEnabled: true,
+        onRefresh: _refresh,
+        showsEmptyResultsPlaceholder: true,
+        suggestionCachePolicy: CYLSearchSuggestionCachePolicy.none,
+        onTextChanged: (text) => setState(() => _query = text),
+        onSelectResult: (result, index) =>
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Result $index: $result'))),
+        onClose: () => Navigator.of(context).pop(),
+      );
+}
+
 /// The plus button's page: the native search bar inline, its text and search shown below.
 class CYLSearchBarDemoPage extends StatefulWidget {
   /// Creates the page.
@@ -207,12 +276,17 @@ class CYLSearchBarDemoPage extends StatefulWidget {
 
 class _CYLSearchBarDemoPageState extends State<CYLSearchBarDemoPage> {
   String _status = 'Text: ';
+  final CYLSearchBarWidgetController _multipleController = CYLSearchBarWidgetController();
+  // The completed searches of the multiple-search bar, kept in sync through its callbacks.
+  List<String> _searches = const <String>['Swift', 'Kotlin'];
+  String _multipleStatus = 'Searches: Swift, Kotlin';
+
+  void _showSearches(String event) => setState(() => _multipleStatus = '$event · Searches: ${_searches.join(', ')}');
 
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: const Text('Search bar')),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        body: ListView(
           children: <Widget>[
             SizedBox(
               height: 52,
@@ -226,6 +300,52 @@ class _CYLSearchBarDemoPageState extends State<CYLSearchBarDemoPage> {
               ),
             ),
             Padding(padding: const EdgeInsets.all(16), child: Text(_status)),
+            // Several searches side by side (`mode: multiple`): the magnifier starts a new search, the return key
+            // completes it, a tap selects a search and its remove button removes it.
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Text('Multiple searches', style: Theme.of(context).textTheme.titleMedium),
+            ),
+            SizedBox(
+              height: 56,
+              child: CYLSearchBarView(
+                controller: _multipleController,
+                mode: CYLSearchBarMode.multiple,
+                placeholder: 'Category',
+                searches: _searches,
+                onTextChange: (text, index) => setState(() => _multipleStatus = 'Typing $index: $text'),
+                onCompleteSearch: (text, index) {
+                  _searches = <String>[..._searches, text];
+                  _showSearches('Completed $text');
+                },
+                onRemoveSearch: (index) {
+                  _searches = <String>[..._searches]..removeAt(index);
+                  _showSearches('Removed $index');
+                },
+                onSelectSearch: (text, index) => _showSearches('Selected $text'),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Wrap(
+                spacing: 8,
+                children: <Widget>[
+                  OutlinedButton(onPressed: _multipleController.beginNewSearch, child: const Text('New search')),
+                  OutlinedButton(onPressed: _multipleController.completeSearch, child: const Text('Complete')),
+                  OutlinedButton(
+                    // Added without typing: the bar reports no completion, so the list follows the bar.
+                    onPressed: () async {
+                      await _multipleController.addSearch('Dart');
+                      final searches = await _multipleController.searches();
+                      _searches = searches;
+                      _showSearches('Added Dart');
+                    },
+                    child: const Text('Add "Dart"'),
+                  ),
+                ],
+              ),
+            ),
+            Padding(padding: const EdgeInsets.all(16), child: Text(_multipleStatus)),
           ],
         ),
       );

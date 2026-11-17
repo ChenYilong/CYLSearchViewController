@@ -1,6 +1,7 @@
 import CollectionViewClassifyMenu
+// CYLTableViewPlaceHolder (the empty results placeholder and the refresh header) comes only through the core: its
+// types are used through `CYLSearchView`'s API, never imported here.
 import CYLSearchViewController
-import CYLTableViewPlaceHolder
 import Flutter
 import UIKit
 
@@ -52,6 +53,39 @@ final class CYLFlutterViewFactory: NSObject, FlutterPlatformViewFactory {
 }
 
 /**
+ * One row of the results Dart sent: its text and its index in Dart's `results` list.
+ */
+final class CYLFlutterSearchResult: NSObject {
+    let text: String
+    let index: Int
+
+    init(text: String, index: Int) {
+        self.text = text
+        self.index = index
+    }
+}
+
+/**
+ * The results data source of a `CYLFlutterSearchView`: Dart filters the results itself, so every query gets the list
+ * Dart sent last.
+ */
+@MainActor
+final class CYLFlutterSearchResultsDataSource: NSObject, CYLSearchViewDataSource {
+    var results: [String] = []
+
+    func searchView(_ searchView: CYLSearchView, resultsForQuery query: String) -> [Any] {
+        results.enumerated().map { CYLFlutterSearchResult(text: $0.element, index: $0.offset) }
+    }
+
+    func searchView(_ searchView: CYLSearchView, configureResultCell cell: UITableViewCell, withResult result: Any) {
+        var content = UIListContentConfiguration.cell()
+        content.text = (result as? CYLFlutterSearchResult)?.text
+        cell.contentConfiguration = content
+        cell.accessibilityTraits.insert(.button)
+    }
+}
+
+/**
  * `CYLSearchView` in a container, open from the start (Dart pops its route in `onClose`).
  */
 // Platform views live on the main thread, as the core views they wrap (main-actor isolated).
@@ -60,6 +94,9 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
     private let container: UIView
     private let searchView = CYLSearchView(frame: .zero)
     private let channel: FlutterMethodChannel
+    // `resultsDataSource` is weak: the platform view keeps it.
+    private let resultsDataSource = CYLFlutterSearchResultsDataSource()
+    private var appliedResults: [String]?
 
     init(frame: CGRect, arguments: [String: Any], channel: FlutterMethodChannel) {
         container = UIView(frame: frame)
@@ -72,10 +109,30 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
         searchView.install(in: container)
         searchView.showSearch(animated: false)
         channel.setMethodCallHandler { [weak self] call, result in
-            if call.method == "update", let arguments = call.arguments as? [String: Any] {
-                self?.apply(arguments)
+            guard let self else {
+                result(nil)
+                return
             }
-            result(nil)
+            switch call.method {
+            case "update":
+                if let arguments = call.arguments as? [String: Any] {
+                    self.apply(arguments)
+                }
+                result(nil)
+            case "beginRefreshing":
+                self.searchView.beginRefreshing()
+                result(nil)
+            case "endRefreshing":
+                self.searchView.endRefreshing()
+                result(nil)
+            case "isRefreshing":
+                result(self.searchView.isRefreshing)
+            case "reloadResults":
+                self.searchView.reloadResults()
+                result(nil)
+            default:
+                result(FlutterMethodNotImplemented)
+            }
         }
     }
 
@@ -86,6 +143,30 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
     private func apply(_ arguments: [String: Any]) {
         // The Flutter app's brightness, whatever the system setting is.
         container.overrideUserInterfaceStyle = (arguments["brightness"] as? String) == "dark" ? .dark : .light
+        // Results: a list sets the data source (and reloads the rows when it changed); null removes it.
+        let results = arguments["results"] as? [String]
+        if results != appliedResults {
+            appliedResults = results
+            resultsDataSource.results = results ?? []
+            if results == nil {
+                searchView.resultsDataSource = nil
+            } else if searchView.resultsDataSource == nil {
+                searchView.resultsDataSource = resultsDataSource
+            } else {
+                searchView.reloadResults()
+            }
+        }
+        // Refresh: the handler only reports the pull to Dart, which calls `endRefreshing` when it is done.
+        let refreshEnabled = arguments["refreshEnabled"] as? Bool ?? false
+        if refreshEnabled != (searchView.refreshHandler != nil) {
+            if refreshEnabled {
+                searchView.refreshHandler = { [weak channel] in
+                    channel?.invokeMethod("refresh", arguments: nil)
+                }
+            } else {
+                searchView.refreshHandler = nil
+            }
+        }
         if let suggestions = arguments["suggestions"] as? [String] { searchView.suggestions = suggestions }
         searchView.suggestionStyle = (arguments["suggestionStyle"] as? String) == "tags" ? .tags : .list
         searchView.searchBarView.placeholder = arguments["placeholder"] as? String
@@ -122,6 +203,13 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
     func searchViewDidClose(_ searchView: CYLSearchView) {
         channel.invokeMethod("didClose", arguments: nil)
     }
+
+    func searchView(_ searchView: CYLSearchView, didSelectResult result: Any) {
+        guard let result = result as? CYLFlutterSearchResult else {
+            return
+        }
+        channel.invokeMethod("didSelectResult", arguments: ["result": result.text, "index": result.index])
+    }
 }
 
 /**
@@ -140,10 +228,38 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
         bar.delegate = self
         apply(arguments)
         channel.setMethodCallHandler { [weak self] call, result in
-            if call.method == "update", let arguments = call.arguments as? [String: Any] {
-                self?.apply(arguments)
+            guard let self else {
+                result(nil)
+                return
             }
-            result(nil)
+            let arguments = call.arguments as? [String: Any] ?? [:]
+            switch call.method {
+            case "update":
+                self.apply(arguments)
+                result(nil)
+            case "beginNewSearch":
+                self.bar.beginNewSearch()
+                result(nil)
+            case "completeSearch":
+                self.bar.completeSearch()
+                result(nil)
+            case "addSearch":
+                self.bar.addSearch(arguments["text"] as? String ?? "")
+                result(nil)
+            case "selectSearch":
+                self.bar.selectSearch(at: arguments["index"] as? Int ?? -1)
+                result(nil)
+            case "removeSearch":
+                self.bar.removeSearch(at: arguments["index"] as? Int ?? -1)
+                result(nil)
+            case "searches":
+                result(self.bar.searches)
+            case "selectedSearchIndex":
+                let index = self.bar.selectedSearchIndex
+                result(index == NSNotFound ? -1 : index)
+            default:
+                result(FlutterMethodNotImplemented)
+            }
         }
     }
 
@@ -151,8 +267,41 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
         bar
     }
 
+    /**
+     * True while Dart's `searches` replace the bar's own: the removals are not reported back.
+     */
+    private var syncingSearches = false
+
+    /**
+     * Dart's `searches` as applied last.
+     */
+    private var appliedSearches: [String] = []
+
+    /**
+     * Takes Dart's completed searches when Dart sent another list and it differs from the bar's own, unless a search
+     * is being typed.
+     */
+    private func applySearches(_ searches: [String]) {
+        guard bar.mode == .multiple, !bar.isEditingNewSearch, searches != appliedSearches else {
+            return
+        }
+        appliedSearches = searches
+        guard searches != bar.searches else {
+            return
+        }
+        syncingSearches = true
+        while !bar.searches.isEmpty {
+            bar.removeSearch(at: bar.searches.count - 1)
+        }
+        searches.forEach { bar.addSearch($0) }
+        syncingSearches = false
+    }
+
     private func apply(_ arguments: [String: Any]) {
         bar.overrideUserInterfaceStyle = (arguments["brightness"] as? String) == "dark" ? .dark : .light
+        let mode: CYLSearchBarMode = (arguments["mode"] as? String) == "multiple" ? .multiple : .single
+        if mode != bar.mode { bar.mode = mode }
+        applySearches(arguments["searches"] as? [String] ?? [])
         bar.placeholder = arguments["placeholder"] as? String
         if let text = arguments["text"] as? String, text != bar.text { bar.text = text }
         bar.showsCancelButton = arguments["showsCancelButton"] as? Bool ?? false
@@ -185,6 +334,25 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
 
     func searchBarViewCancelButtonClicked(_ searchBarView: CYLSearchBarView) {
         channel.invokeMethod("didCancel", arguments: nil)
+    }
+
+    func searchBarView(_ searchBarView: CYLSearchBarView, textDidChange text: String, at index: Int) {
+        channel.invokeMethod("textDidChangeAtIndex", arguments: ["text": text, "index": index])
+    }
+
+    func searchBarView(_ searchBarView: CYLSearchBarView, didCompleteSearch text: String, at index: Int) {
+        channel.invokeMethod("didCompleteSearch", arguments: ["text": text, "index": index])
+    }
+
+    func searchBarView(_ searchBarView: CYLSearchBarView, didRemoveSearchAt index: Int) {
+        guard !syncingSearches else {
+            return
+        }
+        channel.invokeMethod("didRemoveSearch", arguments: ["index": index])
+    }
+
+    func searchBarView(_ searchBarView: CYLSearchBarView, didSelectSearch text: String, at index: Int) {
+        channel.invokeMethod("didSelectSearch", arguments: ["text": text, "index": index])
     }
 }
 
