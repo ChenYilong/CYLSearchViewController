@@ -45,8 +45,13 @@ fun pinnedCheckout(name: String, url: String, commitProperty: String, dirPropert
 
 val cylTabBarDir = pinnedCheckout("CYLTabBarController", "https://github.com/ChenYilong/CYLTabBarController.git",
     "cyl.tabbar.commit", "cyl.tabbar.dir", "CYL_TABBAR_DIR")
-include(":tabpages", ":cyltabbar")
+include(":tabpages", ":cylanimateditem", ":cyltabbar")
 project(":tabpages").projectDir = File(cylTabBarDir, "Example-Android/tabpages")
+// The shared animated icon + title component (CYLAnimatedItemView and the animation engine, no animation library):
+// :cyltabbar depends on it, and CollectionViewClassifyMenu's CYLTagButton (the search bar items) subclasses it through
+// the Maven coordinate io.github.chenyilong:cyltabbarcontroller-animateditem, substituted by this project in
+// build.gradle.kts. Guide: https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md
+project(":cylanimateditem").projectDir = File(cylTabBarDir, "Example-Android/cylanimateditem")
 project(":cyltabbar").projectDir = File(cylTabBarDir, "Example-Android/cyltabbar")
 
 // CollectionViewClassifyMenu's merged Android library: the tag views of the tag suggestion style (CYLTagListView).

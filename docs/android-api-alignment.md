@@ -203,7 +203,7 @@ Rows: 284; DONE 262, N/A 22, TODO 0; score 100/100.
 | `CYLSearchBarItem.image` | — | `CYLSearchBarItem.image` | DONE |
 | `CYLSearchBarItem.selectedImage` | — | `CYLSearchBarItem.selectedImage` | DONE |
 | `CYLSearchBarItem.animatedImage` | `+[UIImage animatedImageWithImages:duration:]` | `CYLSearchBarItem.animatedImage` | DONE |
-| `CYLSearchBarItem.animationURL` | — | `CYLSearchBarItem.animationURL` | DONE |
+| `CYLSearchBarItem.animationURL` | `CYLTabBarController/CYLAnimatedItem<Type>`; the core adds none | `CYLSearchBarItem.animationURL` | DONE |
 | `CYLSearchBarItem.imageSize` | — | `CYLSearchBarItem.imageSize` | DONE |
 | `CYLSearchBarItem.itemAccessibilityLabel` | — | `CYLSearchBarItem.itemAccessibilityLabel` | DONE |
 | `CYLSearchBarItem.itemAccessibilityIdentifier` | — | `CYLSearchBarItem.itemAccessibilityIdentifier` | DONE |

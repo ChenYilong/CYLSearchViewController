@@ -218,7 +218,8 @@ in example code. Handlers must not retain their controller strongly.
   `feat/android-refresh-port-followup`). Before: iOS, React Native and Flutter `c202b8c`, Android `6d8b264`, HarmonyOS
   `76762c6`, mini program `8ee7013`.
 - Pins: `Podfile`, both CrossPlatform example Podfiles (`:git` + `:commit`), the podspec's `s.dependency
-  'CYLTableViewPlaceHolder/Lottie'`; `android/merged/gradle.properties` `cyl.placeholder.commit` (`pinnedCheckout`);
+  'CYLTableViewPlaceHolder/Core'` (no animation engine in the core; the example Podfiles add `Lottie`,
+  docs/animated-icon-component.md); `android/merged/gradle.properties` `cyl.placeholder.commit` (`pinnedCheckout`);
   `harmonyos/oh-package.json5` and the mini program `package.json` `cylTableViewPlaceHolderCommit`.
 - The core's refresh API (above) calls CYLTableViewPlaceHolder's refresh header on every platform.
 

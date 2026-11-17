@@ -1583,8 +1583,10 @@ public final class CYLSearchBarItem: NSObject {
     @objc public var animatedImage: UIImage? { didSet { itemChanged() } }
 
     /**
-     * An animated icon file (Lottie .json, .pag, .riv, .svga, .gif), drawn by the item's `CYLTagButton` through
-     * CYLTabBarController's animation engine and played on each tap; `image` is shown without the engine.
+     * An animated icon file (Lottie .json, .pag, .riv, .svga, .gif), drawn by the item's `CYLTagButton` (a
+     * `CYLAnimatedItemView`) when the app adds the engine of its type (`CYLTabBarController/CYLAnimatedItem<Type>`;
+     * the core adds none) and played on each tap. Otherwise `image` shows, or the component's placeholder when there
+     * is no `image`.
      */
     @objc public var animationURL: URL? { didSet { itemChanged() } }
 

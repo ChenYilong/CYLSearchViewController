@@ -143,7 +143,7 @@
   `harmonyos-scorecard.py` 100, `check-public-api-comments.sh`, the HarmonyOS host logic tests (30 pass), iOS parity
   (397 match) and accessibility checks (0 problems), the mini program `npm test` (48 pass, with the example synced).
 
-## TODO (2026-11-17): depend on CYLTabBarController's CYLAnimatedItem; no animation engine in the core
+## DONE (2026-11-17): depend on CYLTabBarController's CYLAnimatedItem; no animation engine in the core
 
 - **Context**: CYLTabBarController (`feat/cross-platform-components`, guide
   [docs/Animated-Item.md](https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md),
@@ -178,4 +178,55 @@
 - **Guide link (user, 2026-11-17)**: "更新该文档地址 最新地址https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md"
   ("Update the document's address to the newest one: …"). The guide is linked on its branch, so it always shows the
   newest version: <https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md>.
-- **Status**: logged; plan step 1 next.
+- **Status**: done; the verification items below stay TODO. The guide's "Downstream migration status" row for this
+  repository says it follows CollectionViewClassifyMenu (its search bar items subclass `CYLTagButton`); the commits are
+  CollectionViewClassifyMenu `45101fb` (task log) and `1813025` (the migration), and this repository's checkpoint
+  `31d8b8a` plus the commit after it.
+- **Result**:
+  - Pins: CollectionViewClassifyMenu `181302515f4c7dffa80fac349096d6593764a593` (`feat/harmony`: `CYLTagButton` subclasses
+    `CYLAnimatedItemView`) in the `Podfile`, both CrossPlatform example Podfiles, `android/merged/gradle.properties`,
+    `harmonyos/oh-package.json5` and the mini program `package.json`; CYLTabBarController
+    `7511f7db2c9ada0da015e4b4e0f4c1bb94df8f93` (its branch tip; no code change since `35aa757`) in the `Podfile`, the
+    Flutter example's Podfile and `pubspec.yaml` (`flutter_cyltabbar`, which compiles `cylanimateditem` since `09e782a`),
+    `gradle.properties` (`cyl.tabbar.commit`, also the React Native checkout), HarmonyOS and the mini program.
+    `harmonyos/scripts/sync-sub-repositories.py` and the mini program's `scripts/sync-example.js` ran at the new pins.
+  - iOS core: the podspec depends on `CYLTabBarController/CYLAnimatedItem` (no engine) and on
+    `CYLTableViewPlaceHolder/Core` instead of `CYLTableViewPlaceHolder/Lottie`, so the core carries no animation engine
+    at all (it brought `lottie-ios` before). The example Podfiles add the engines they play: the root `Podfile`
+    `CYLAnimatedItem`, `CYLAnimatedItemSVGA` (the SVGA demo tag) and `CYLAnimatedItemLottieSwift` next to the tab bar's
+    subspecs, and `CYLTableViewPlaceHolder` `:subspecs => ['Core', 'Lottie']` (the animated placeholders); the Flutter
+    example `CYLAnimatedItemSVGA` / `…Rive` and the placeholder's Lottie; the React Native example the placeholder's
+    Lottie (its tab bar comes from the vendored CYLTabBarController with `Rive`). `scripts/pod-lint.sh lib` also checks
+    out CYLTabBarController at the pinned commit for `--include-podspecs` (the subspec is in no trunk release). The bar
+    item button (`CYLSearchBarItemButton`, a `CYLTagButton`) needed no code change: it sets `title`, `image`,
+    `selectedImage`, `animationURL`, the badge and its accessibility, which are now the base class's or
+    `CYLTagButton`'s overrides; `CYLTagButton`'s `updateItemAccessibility()` keeps the item's label and traits.
+  - Android: `settings.gradle.kts` includes `:cylanimateditem` from the pinned CYLTabBarController checkout (`:cyltabbar`
+    depends on it), and `build.gradle.kts` substitutes `io.github.chenyilong:cyltabbarcontroller-animateditem` (the
+    coordinate CollectionViewClassifyMenu's library asks for) with it; the React Native and Flutter examples substitute
+    it in their `includeBuild` of `android/merged` too. `cylsearch` no longer depends on `:placeholder-lottie`: the app
+    adds it (and keeps SVGAPlayer), so the core has no animation library. `CYLSearchBarItemButton` passes
+    `animationURL?.toString()` (the base class's `String?`) and keeps the item's TalkBack text through
+    `accessibilityText()`.
+  - Display priority (the component's, inherited): the animation when it can play; otherwise the static image; the
+    component's placeholder, sized like the item's icon, only for an item with an animation file and no image; a text
+    item never shows one. Documented in `README.md` ("Local CocoaPods component") and on `CYLSearchBarItem.animationURL`.
+  - Tests: iOS `testSearchBarItemsFollowTheAnimatedItemDisplayPriority`, Android
+    `CYLSearchBarItemTest.itemsFollowTheAnimatedItemDisplayPriority` (static image over placeholder, placeholder without
+    an image, none for a text item); the existing item tests read `animationURL` as the base class's type on Android.
+  - Checks run here: `scripts/check-public-api-comments.sh` OK; `android/merged/scripts/api-alignment.py` 100,
+    `ios-alignment.mjs` (with `.cyl-deps/CollectionViewClassifyMenu` at `1813025`) 842 / 842 = 100,
+    `harmonyos-api-alignment.py` 100, `harmonyos-scorecard.py` 100 (309 / 309), `miniprogram-api-alignment.py` 100;
+    HarmonyOS host tests (`host-logic-test.mjs` 30 pass, `check-accessibility-i18n.mjs` 0 problems,
+    `check-ios-parity.mjs` 397 / 397); mini program `npm test` 48 pass.
+- **TODO (blocked upstream)**: HarmonyOS and the mini program. CYLTabBarController has no `CYLAnimatedItem` component
+  there yet (the guide's TODO 3 and 4), so `harmonyos/cylsearch` and the mini program's `cyl-search-bar` keep the
+  animated icon code of CollectionViewClassifyMenu's `CYLTagButton` ports; move them onto the component when it ships.
+- **TODO (verification)**: no Xcode, Android SDK or DevEco here, so nothing was compiled or run: (1) `pod install`, the
+  example build and analyzer, the unit tests and `scripts/pod-lint.sh lib` in iOS CI; (2) the Android build and tests
+  (`./gradlew :cylsearch:testDebugUnitTest :app:assembleDebug`), including the `:cylanimateditem` substitution; (3)
+  the React Native and Flutter Android builds: `react-native-cyltabbar` / `flutter_cyltabbar` compile
+  `cylanimateditem`'s sources themselves, and `cylsearch` now brings the `:cylanimateditem` project through
+  CollectionViewClassifyMenu, so check for duplicate `com.cyl.animateditem` / `com.cyl.tabbar` classes (if so, exclude
+  `io.github.chenyilong:cyltabbarcontroller-animateditem` from the app's runtime classpath there); (4) screenshots of
+  the SVGA demo tag and the animated placeholders against the previous ones.

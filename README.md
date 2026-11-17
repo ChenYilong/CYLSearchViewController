@@ -104,8 +104,38 @@ three Swift files and four public classes.
 | `CYLSearchView.swift` | `CYLSearchView` (suggestions, results, empty placeholders, pull-to-refresh), `CYLSearchViewDelegate`, `CYLSearchViewDataSource` |
 | `CYLSearchResources.swift` | `CYLSearchResources` (bundle images and strings), `CYLSearchSuggestionCache`, `CYLSearchSuggestionCachePolicy` |
 
-It depends only on CollectionViewClassifyMenu (tag suggestions) and CYLTableViewPlaceHolder (placeholders and
-pull-to-refresh); no other search library. Use these APIs on the main thread.
+It depends only on CollectionViewClassifyMenu (tag suggestions), CYLTableViewPlaceHolder (placeholders and
+pull-to-refresh, its `Core` subspec) and CYLTabBarController's shared animated icon + title component
+`CYLTabBarController/CYLAnimatedItem`; no other search library and no animation engine. Use these APIs on the main
+thread.
+
+Animated icons. The search bar items are CollectionViewClassifyMenu's `CYLTagButton`, a subclass of
+CYLTabBarController's `CYLAnimatedItemView`
+([guide](https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md)).
+The core plays no animation by itself: an app that wants animated icons adds the engine subspec of each file type it
+plays, pinned by commit like the other sub-repositories (the subspecs are in no CocoaPods release yet):
+
+```ruby
+pod 'CYLTabBarController', :subspecs => ['CYLAnimatedItem', 'CYLAnimatedItemSVGA'], # or …LottieSwift, …PAG, …Rive, …GIF
+    :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '<sha>'
+pod 'CYLTableViewPlaceHolder', :subspecs => ['Core', 'Lottie'], # the placeholders' animated icons
+    :git => 'https://github.com/ChenYilong/CYLTableViewPlaceHolder.git', :commit => '<sha>'
+```
+
+On Android the core gets `io.github.chenyilong:cyltabbarcontroller-animateditem` through CollectionViewClassifyMenu;
+the app adds the animation libraries (SVGAPlayer, Lottie, libpag, rive-android) and CYLTableViewPlaceHolder's
+`placeholder-lottie`. What an item (`CYLSearchBarItem`) shows, by the component's rules:
+
+1. its animation (`animationURL`), when it can play;
+2. otherwise its static `image` / `selectedImage`, with the layout of the image alone: without an engine or library,
+   for an unknown type, a missing, empty or corrupted file, a failed download, and while a remote file downloads;
+3. the component's placeholder, sized like the item's icon, only for an item with an animation file and no static
+   image; a text item without an icon never shows one.
+
+Without an engine `playAnimation()` does nothing and `animationURL` is kept. Remote files are read by the engines:
+on iOS Rive and SVGA read URLs, Lottie (Swift), PAG and GIF local files only (a remote URL shows the static image at
+once); on Android every engine reads URLs. HarmonyOS and the mini program have no such component yet (TODO in
+CYLTabBarController): their items keep their own animated icon code.
 
 Results: set `resultsDataSource` (a `CYLSearchViewDataSource`) and, while the query is not empty,
 `resultsTableView` lists `searchResults` below the search bar instead of the suggestions. Call `reloadResults` when

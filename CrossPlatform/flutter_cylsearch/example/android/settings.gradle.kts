@@ -31,5 +31,8 @@ include(":app")
 includeBuild("../../../../android/merged") {
     dependencySubstitution {
         substitute(module("com.cyl.search:cylsearch")).using(project(":cylsearch"))
+        // CollectionViewClassifyMenu's CYLTagButton (the search bar items) subclasses CYLTabBarController's
+        // CYLAnimatedItemView, by this Maven coordinate: android/merged builds it from the pinned checkout.
+        substitute(module("io.github.chenyilong:cyltabbarcontroller-animateditem")).using(project(":cylanimateditem"))
     }
 }

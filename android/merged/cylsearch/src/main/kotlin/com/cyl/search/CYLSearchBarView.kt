@@ -1897,8 +1897,9 @@ class CYLSearchBarItem @JvmOverloads constructor(
         set(value) { field = value; itemChanged() }
 
     /**
-     * An animated icon file (Lottie .json, .pag, .riv, .svga, .gif), drawn by the item's `CYLTagButton` through
-     * CYLTabBarController's animation engine and played on each tap; `image` is shown without the engine.
+     * An animated icon file (Lottie .json, .pag, .riv, .svga, .gif), drawn by the item's `CYLTagButton` (a
+     * `CYLAnimatedItemView`) when the app adds the file's animation library (the core adds none) and played on each tap.
+     * Otherwise `image` shows, or the component's placeholder when there is no `image`.
      */
     var animationURL: Uri? = null
         set(value) { field = value; itemChanged() }
@@ -2190,6 +2191,17 @@ internal class CYLSearchBarItemButton(context: Context, item: CYLSearchBarItem) 
      */
     fun actualBadgeSuperView(): View = this
 
+    /**
+     * What TalkBack reads (CYLAnimatedItemView's hook, which sets the content description on every state change): the
+     * item's accessibility label or its title, also for an icon item that shows no title.
+     */
+    override fun accessibilityText(): CharSequence {
+        // The base class asks while it is being built, before `item` is set.
+        @Suppress("SENSELESS_COMPARISON")
+        if (item == null) return super.accessibilityText()
+        return item.itemAccessibilityLabel ?: item.title ?: super.accessibilityText()
+    }
+
     private fun dp(value: Float): Int = (value * density + 0.5f).toInt()
 
     private val resolvedTint: Int
@@ -2256,7 +2268,7 @@ internal class CYLSearchBarItemButton(context: Context, item: CYLSearchBarItem) 
         title = if (item.style == CYLSearchBarItemStyle.Text) item.title else null
         image = if (isDivider) null else item.animatedImage ?: item.image
         selectedImage = if (isDivider || item.animatedImage != null) null else item.selectedImage
-        animationURL = if (isDivider) null else item.animationURL
+        animationURL = if (isDivider) null else item.animationURL?.toString()
         badgeValue = if (isDivider) null else item.badgeValue
         badgeColor = item.badgeColor
         isEnabled = item.isEnabled

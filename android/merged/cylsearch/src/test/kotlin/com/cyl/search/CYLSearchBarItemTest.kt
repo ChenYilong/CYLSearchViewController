@@ -30,6 +30,35 @@ class CYLSearchBarItemTest {
 
     private val activity: Activity = Robolectric.buildActivity(Activity::class.java).setup().get()
 
+    /**
+     * The items' CYLTagButton is CYLTabBarController's CYLAnimatedItemView (docs/animated-icon-component.md): a file
+     * whose library is not in the app (no Lottie in the core) shows the static image, the component's placeholder only
+     * without one, and a text item never grows an icon (iOS `testSearchBarItemsFollowTheAnimatedItemDisplayPriority`).
+     */
+    @Test
+    fun itemsFollowTheAnimatedItemDisplayPriority() {
+        val file = java.io.File.createTempFile("cyl-bar-item", ".json").apply { writeText("{\"v\":\"5.7.0\",\"layers\":[]}") }
+        val image = ColorDrawable(Color.RED).apply { setBounds(0, 0, 20, 20) }
+        val withImage = CYLSearchBarItem.iconItem(image, "Camera", null)
+        withImage.animationURL = Uri.fromFile(file)
+        val withImageView = withImage.itemView(activity)
+        assertNull("no animation library in the core", withImageView.animationView)
+        assertSame("the static image wins over the placeholder", image, withImageView.imageView.drawable)
+        assertEquals("Camera", withImageView.contentDescription?.toString())
+
+        val withoutImage = CYLSearchBarItem.iconItem(null, "Camera", null)
+        withoutImage.animationURL = Uri.fromFile(file)
+        val withoutImageView = withoutImage.itemView(activity)
+        if (com.cyl.animateditem.CYLAnimatedItemView.defaultPlaceholderImage(activity) != null) {
+            org.junit.Assert.assertNotNull("no static image: the component's placeholder", withoutImageView.imageView.drawable)
+        }
+        withoutImageView.playAnimation()
+
+        val text = CYLSearchBarItem.textItem("Search", null)
+        assertNull("a text item without an icon shows no placeholder", text.itemView(activity).imageView.drawable)
+        file.delete()
+    }
+
     @Test
     fun itemsAreAppendedLikeFlatDesignTabBarItems() {
         val root = FrameLayout(activity)
@@ -90,7 +119,7 @@ class CYLSearchBarItemTest {
         camera.badgeColor = null
         val animationURL = Uri.parse("file:///nonexistent/CYLSearchBarItemIcon.json")
         camera.animationURL = animationURL
-        assertEquals(animationURL, cameraView.animationURL)
+        assertEquals(animationURL.toString(), cameraView.animationURL)
         camera.animationURL = null
         assertNull(cameraView.animationURL)
 

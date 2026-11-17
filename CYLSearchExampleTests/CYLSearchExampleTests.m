@@ -4,6 +4,7 @@
 #import "CYLSearchBarDemoViewController.h"
 #import "CYLSearchExampleAppDelegate.h"
 #import <CYLTabBarController/CYLTabBarController.h>
+#import <CYLTabBarController/CYLAnimatedItemView.h>
 #import <CYLSearchViewController/CYLSearchViewController-Swift.h>
 #import <CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.h>
 #import <CollectionViewClassifyMenu/CollectionViewClassifyMenu-umbrella.h>
@@ -1325,6 +1326,42 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     XCTAssertEqual(searchView.suggestionsTagView.defaultVisibleRows, 3u);
 }
 
+
+- (void)testSearchBarItemsFollowTheAnimatedItemDisplayPriority
+{
+    // The items' CYLTagButton is CYLTabBarController's CYLAnimatedItemView (docs/animated-icon-component.md; guide:
+    // https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md): a
+    // file that cannot play (here an unknown type) shows the static image, the component's placeholder only without
+    // one, and a text item never grows an icon.
+    NSURL *unknown = [NSURL fileURLWithPath:[NSTemporaryDirectory() stringByAppendingPathComponent:@"cyl-bar-item.unknown-type"]];
+    [@"not an animation" writeToURL:unknown atomically:YES encoding:NSUTF8StringEncoding error:nil];
+    UIImage *image = [UIImage systemImageNamed:@"camera"];
+    CYLSearchBarItem *withImage = [[CYLSearchBarItem alloc] initWithStyle:CYLSearchBarItemStyleIcon title:@"Camera" image:image];
+    withImage.animationURL = unknown;
+    CYLTagButton *withImageView = withImage.itemView;
+    withImageView.frame = CGRectMake(0, 0, 36, 36);
+    [withImageView layoutIfNeeded];
+    XCTAssertNil(withImageView.animationView);
+    XCTAssertTrue(withImageView.imageView.image == image, @"The static image wins over the placeholder");
+    XCTAssertFalse(withImageView.imageView.hidden);
+    XCTAssertEqualObjects(withImageView.accessibilityLabel, @"Camera");
+
+    CYLSearchBarItem *withoutImage = [[CYLSearchBarItem alloc] initWithStyle:CYLSearchBarItemStyleIcon title:@"Camera" image:nil];
+    withoutImage.animationURL = unknown;
+    CYLTagButton *withoutImageView = withoutImage.itemView;
+    withoutImageView.frame = CGRectMake(0, 0, 36, 36);
+    [withoutImageView layoutIfNeeded];
+    if (CYLAnimatedItemView.defaultPlaceholderImage) {
+        XCTAssertNotNil(withoutImageView.imageView.image, @"No static image: the component's placeholder");
+        XCTAssertEqualWithAccuracy(CGRectGetWidth(withoutImageView.imageView.bounds), 20, 0.5, @"Sized like the item's icon");
+    }
+    [withoutImageView playAnimation];
+
+    CYLSearchBarItem *text = [CYLSearchBarItem textItemWithTitle:@"Search" handler:nil];
+    CYLTagButton *textView = text.itemView;
+    [textView layoutIfNeeded];
+    XCTAssertNil(textView.imageView.image, @"A text item without an icon shows no placeholder");
+}
 
 - (void)testSearchBarItemsAreAppendedLikeFlatDesignTabBarItems
 {
