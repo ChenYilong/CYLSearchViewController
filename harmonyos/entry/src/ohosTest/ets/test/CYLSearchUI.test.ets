@@ -63,8 +63,9 @@ async function assertLabel(driver: Driver, label: string, iconId?: string): Prom
 // Back until the tab bar shows again (found by the Search tab's label): a test that ends on a pushed page must not
 // break the next one.
 async function backToTabBar(driver: Driver): Promise<void> {
-  const tab = appString('tab_search');
-  for (let i = 0; i < 4 && !(await driver.findComponent(ON.text(tab))); i++) {
+  // The Examples tab's label, in this app's window: the keyboard's search key also reads "Search".
+  const tab = appString('tab_examples');
+  for (let i = 0; i < 4 && !(await driver.findComponent(ON.text(tab).inWindow(BUNDLE))); i++) {
     await driver.pressBack();
     await driver.delayMs(800);
   }
@@ -117,10 +118,16 @@ export default function cylSearchUITest() {
       await field.clearText();
       await field.inputText('zzzz');
       await driver.delayMs(800);
-      expect((await driver.findComponents(ON.text(libString('sample.result').replace('%d', '12')))).length)
-        .assertEqual(0);
-      await driver.pressBack();
-      await driver.delayMs(1000);
+      // Only in this app's window: the keyboard's clipboard bar shows the text typed before (uitest types through the
+      // clipboard), and it is not a result.
+      // findComponents gives null, not an empty list, when nothing matches.
+      const left = await driver.findComponents(ON.text(libString('sample.result').replace('%d', '12')).inWindow(BUNDLE));
+      expect(left === null || left.length === 0).assertTrue();
+      // Back hides the keyboard first, then closes the overlay.
+      for (let i = 0; i < 3 && !(await driver.findComponent(ON.text(libString('repro.off')).inWindow(BUNDLE))); i++) {
+        await driver.pressBack();
+        await driver.delayMs(800);
+      }
       await assertLabel(driver, libString('repro.off'));
     });
 
