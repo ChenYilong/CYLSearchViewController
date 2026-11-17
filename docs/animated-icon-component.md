@@ -38,7 +38,7 @@ this repository. The document is about the animated component.")
 
 | # | Item | Platform | Why it is open | Next step |
 |:--|:---|:---|:---|:---|
-| 19 | A complete iOS CI run of the current tip | iOS | every run since 06:02 UTC was cancelled by the next push; run 271 (`bb261ce`) is the first left to finish | read its jobs and the example screenshots; fix failures in the core first |
+| 19 | A complete iOS CI run of the current tip | iOS | every run since 06:02 UTC was cancelled by the next push. Run 271 (`bb261ce`): `pod lib lint`, shellcheck, comments and licenses pass; unit tests failed to compile `CYLSearchDemoMenuViewController.m` ("use of undeclared identifier 'CYLSVGADemoTagButton'"): the example's Swift class returns a `CYLTagButton`, whose base class is in the `CYLAnimatedItem` module, which the example never imported, so the generated `CYLSearchExample-Swift.h` left the class out. Fixed in the example (both files import `CYLAnimatedItem`). Example-layer fix, reason: the core side is done (CollectionViewClassifyMenu re-exports `CYLAnimatedItem`, `b15b822`); the missing import is in example code, the same case as ClassifyMenu's demo app (`880d9b1`) | the next complete run |
 | 20 | Animated icons seen playing in the example | iOS, Android | no screenshot of an animated search bar item yet | screenshots from CI (iOS) and an emulator (Android) |
 | 21 | HarmonyOS build and run | HarmonyOS | no DevEco here; ArkTS not compiled; `@tencent/libpag` 4.5.102 (root override) vs ClassifyMenu's 4.4.31 | build the HAP, run ohosTest, emulator screenshots |
 | 22 | Mini program run | Mini program | no WeChat DevTools here; `generic:` resolution through `app.json` and the npm default path untested | run in DevTools, screenshots |

@@ -1,3 +1,7 @@
+// CYLTagButton's base class, CYLAnimatedItemView, is in the CYLAnimatedItem module: imported here so that the
+// generated CYLSearchExample-Swift.h can declare this class, whose method returns a CYLTagButton (CI on bb261ce:
+// "use of undeclared identifier 'CYLSVGADemoTagButton'" in CYLSearchDemoMenuViewController.m).
+import CYLAnimatedItem
 import CollectionViewClassifyMenu
 import UIKit
 

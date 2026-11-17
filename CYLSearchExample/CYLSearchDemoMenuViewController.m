@@ -1,6 +1,7 @@
 #import "CYLSearchDemoMenuViewController.h"
 #import "CYLSearchBarDemoViewController.h"
 #import "CYLSearchExampleAppDelegate.h"
+@import CYLAnimatedItem;
 @import CollectionViewClassifyMenu;
 #import "CYLSearchExample-Swift.h"
 #import <CYLSearchViewController/CYLSearchViewController-Swift.h>
