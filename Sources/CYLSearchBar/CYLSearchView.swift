@@ -157,7 +157,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
     @objc public var suggestionsFoldedRowCount: UInt {
         get { UInt(suggestionsTagView.defaultVisibleRows) }
         set {
-            suggestionsTagView.defaultVisibleRows = newValue
+            suggestionsTagView.defaultVisibleRows = Int(newValue)
             updateSuggestionsVisibility()
         }
     }

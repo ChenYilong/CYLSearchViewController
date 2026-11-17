@@ -1319,11 +1319,11 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     XCTAssertEqual(searchView.suggestionsFoldControl.position, CYLMenuFoldControlPositionTail);
     XCTAssertEqual(searchView.suggestionsFoldControl.content, CYLMenuFoldControlContentIcon);
     XCTAssertEqual(searchView.suggestionsFoldedRowCount, 2u);
-    XCTAssertEqual(searchView.suggestionsTagView.defaultVisibleRows, 2u);
+    XCTAssertEqual(searchView.suggestionsTagView.defaultVisibleRows, 2);
     searchView.suggestionsFoldControl = [[CYLMenuFoldControl alloc] initWithPosition:CYLMenuFoldControlPositionFooter content:CYLMenuFoldControlContentTitle];
     searchView.suggestionsFoldedRowCount = 3;
     XCTAssertEqual(searchView.suggestionsFoldControl.position, CYLMenuFoldControlPositionFooter);
-    XCTAssertEqual(searchView.suggestionsTagView.defaultVisibleRows, 3u);
+    XCTAssertEqual(searchView.suggestionsTagView.defaultVisibleRows, 3);
 }
 
 
