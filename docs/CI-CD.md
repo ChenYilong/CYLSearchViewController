@@ -142,3 +142,15 @@ scripts/local-run-environment.sh
 `cancel-in-progress: true` every push cancelled the running iOS run, and on 2026-11-17 no iOS run finished for more
 than two hours. GitHub keeps at most one pending run per concurrency group and replaces it with the newest push, so a
 started run completes and the next one tests the newest commit.
+
+## TODO (2026-11-17): Example screenshots in iOS CI
+
+- **Context**: `ios.yml` builds and tests the example but takes no screenshots (progress board row 20 in
+  `docs/animated-icon-component.md`); CollectionViewClassifyMenu's `ios.yml` has an "Example screenshots" job
+  (`scripts/example-screenshots.sh`, `scripts/publish-screenshots.sh` to the `ci-screenshots` branch). The example
+  already opens screens from launch arguments: `-CYLDemoTab <index>` (tab) and `-CYLDemoRow <index>` (a row of the
+  demo menu). Artifact storage is blocked from the cloud sessions, so the images go to a `ci-screenshots` branch too.
+- **Requirements**: add a screenshot job to this repository's CI; fix ClassifyMenu's publishing (done there:
+  pull request runs published under the merge commit).
+- **Prompt (verbatim)**: "to fix the screenshot publishing in ClassifyMenu and add a screenshot job to CYLSearchViewController's CI"
+- **Status**: started.
