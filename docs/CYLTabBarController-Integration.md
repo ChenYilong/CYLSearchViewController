@@ -303,6 +303,19 @@ CYLTabBarController pin needed the plugin's platform views to be `@MainActor` (t
   `mklink /J C:cylbuildandroid-sdk %LOCALAPPDATA%AndroidSdk`). Not a code change. Left: run it on the Android
   emulator and check the tab icons (the debug APK could not reach Metro; a release build bundles the JavaScript).
 
+- Progress (2026-11-17, later): the example now runs on the Android emulator (Medium Phone, API 37). Steps that were
+  needed on this Windows machine, none of them a code change: an SDK path without spaces (above); a corrupt Gradle
+  transforms lock (one file with protocol byte 0, deleted); the JavaScript bundled into the debug APK's assets (`react-native
+  bundle`), because the release build overflows the 260-character path limit and Metro fails on a `subst` drive.
+- Bugs recorded (rule "Bugs of the animated components"), with `assets/android-medium-phone-api37-20261117-rn-tab-icons-pale.png`:
+  1. At CYLTabBarController `5682b9e` (the example's old vendored copy) the Rive tab icons never load: `RiveAnimationView:
+     loadResource: no resource to load` once per tab, the icons stay as pale fallback images, the selected tab's icon is
+     not tinted; `assets/icons.riv` is in the APK.
+  2. At the current pin `c8132d26` the example does not build: `react-native-cyltabbar` compiles CYLTabBarController's
+     `cylanimateditem` sources into itself, and the app also gets the `:cylanimateditem` module through
+     CollectionViewClassifyMenu (`2 files found with path META-INF/cylanimateditem/LICENSE`). Sent to CYLTabBarController
+     (its React Native bridge, published on npm); no packaging workaround in the example.
+
 ## IN PROGRESS (TODO 2026-11-16): Rive tab icons in the Flutter and React Native examples, iOS and Android
 
 - Prompt (verbatim): "I call: 加上 Rive\" for  Flutter and React Native on iOS and Android should include Rive, so those tags animate there too. 至少tabbar需要加"
