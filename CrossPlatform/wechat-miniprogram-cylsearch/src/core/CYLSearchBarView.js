@@ -144,8 +144,12 @@ class CYLSearchBarItem {
     this.gifFirstFrame = undefined;
     this.gifLastFrame = undefined;
     this.gifDuration = 0;
-    /** Whether the animated icon plays once when it appears (`cyl-tag-button` `autoplay`, default true). */
-    this.animationAutoplay = true;
+    /**
+     * Whether the animated icon plays once when it appears (`cyl-tag-button` `autoplay`). Default false: an animated
+     * icon rests on its resting frame until it is tapped or played, as iOS `CYLTagButton` (CollectionViewClassifyMenu
+     * 27e17e7, the owner's rule).
+     */
+    this.animationAutoplay = false;
     /** Whether the animated icon is drawn without its own frame, inside the item (`cyl-tag-button` `embedded`). */
     this.animationEmbedded = false;
     this.imageSize = 0;
@@ -228,7 +232,7 @@ class CYLSearchBarItem {
     item.gifFirstFrame = dictionary.gifFirstFrame || undefined;
     item.gifLastFrame = dictionary.gifLastFrame || undefined;
     item.gifDuration = Number(dictionary.gifDuration) || 0;
-    item.animationAutoplay = dictionary.animationAutoplay !== false;
+    item.animationAutoplay = dictionary.animationAutoplay === true;
     item.animationEmbedded = dictionary.animationEmbedded === true;
     item.badgeColor = dictionary.badgeColor || undefined;
     item.itemAccessibilityLabel = dictionary.accessibilityLabel || dictionary.itemAccessibilityLabel;
@@ -301,7 +305,7 @@ class CYLSearchBarItem {
       gifFirstFrame: divider ? '' : (this.gifFirstFrame || ''),
       gifLastFrame: divider ? '' : (this.gifLastFrame || ''),
       gifDuration: Number(this.gifDuration) || 0,
-      autoplay: this.animationAutoplay !== false,
+      autoplay: this.animationAutoplay === true,
       embedded: this.animationEmbedded === true,
       badgeValue: divider || this.badgeValue === undefined ? null : this.badgeValue,
       badgeColor: this.badgeColor || '',

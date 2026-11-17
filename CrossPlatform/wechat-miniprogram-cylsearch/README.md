@@ -35,7 +35,7 @@ CYLTableViewPlaceHolder's mini program package, `cyl-placeholder-miniprogram` (p
    `<cyl-search-bar generic:cyl-lottie-view="cyl-lottie" generic:cyl-svga-view="cyl-svga" …>`; without one, the item
    shows its `image`. A GIF item can also give `gifFirstFrame` and `gifLastFrame` (still images shown before and
    after it plays) and `gifDuration` (one pass in ms; 0: the registered GIF's, else 1000); any animated item can give
-   `animationAutoplay` (default true: plays once when it appears) and `animationEmbedded` (default false).
+   `animationAutoplay` (default false: it rests until tapped or played; true plays it once when it appears) and `animationEmbedded` (default false).
 3. DevTools > Tools > Build npm (构建 npm). The components are then `cyl-search-miniprogram/<component>/index`:
 
 ```json

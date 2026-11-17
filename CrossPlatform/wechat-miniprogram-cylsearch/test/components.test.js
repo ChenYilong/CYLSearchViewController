@@ -163,18 +163,18 @@ test('cyl-search: submit closes the overlay with its transition, Cancel closes i
 test('cyl-search-bar passes GIF stills, duration, autoplay and embedded on to cyl-tag-button', () => {
   const bar = load('cyl-search-bar')({ items: [
     { style: 'icon', title: 'Live', image: '/l.svg', animationURL: '/live.gif', gifFirstFrame: '/live-first.png',
-      gifLastFrame: '/live-last.png', gifDuration: 1200, animationAutoplay: false, animationEmbedded: true },
+      gifLastFrame: '/live-last.png', gifDuration: 1200, animationAutoplay: true, animationEmbedded: true },
     { style: 'icon', title: 'Camera', image: '/c.svg' },
   ] });
   const [gif, plain] = bar.data.shownItems.map((item) => item.button);
   assert.equal(gif.gifFirstFrame, '/live-first.png');
   assert.equal(gif.gifLastFrame, '/live-last.png');
   assert.equal(gif.gifDuration, 1200);
-  assert.equal(gif.autoplay, false);
+  assert.equal(gif.autoplay, true, 'animationAutoplay: true plays once on load');
   assert.equal(gif.embedded, true);
   assert.equal(plain.gifFirstFrame, '');
   assert.equal(plain.gifDuration, 0, '0: the registered GIF duration, else 1000');
-  assert.equal(plain.autoplay, true, 'autoplay by default, as cyl-tag-button');
+  assert.equal(plain.autoplay, false, 'an animated icon rests until played, as cyl-tag-button and iOS');
   assert.equal(plain.embedded, false);
 });
 
