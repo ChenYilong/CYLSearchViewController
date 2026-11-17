@@ -51,7 +51,7 @@ package depends on no other search library.
 - The Android SDK path must have no spaces (CMake would call the short `CLANG_~1.EXE`), and `JAVA_HOME` must be a JDK 17
   (React Native does not support 21).
 - After the pinned CYLTabBarController commit changes, delete `vendor/CYLTabBarController/CrossPlatform/react-native-cyltabbar/android/build`
-  (its path is long: `Remove-Item -LiteralPath \?C:...uild -Recurse`): stale classes there fail the build with
+  (the path is long: prefix it with `\\?\` for `Remove-Item -LiteralPath <path> -Recurse`): stale classes there fail the build with
   "Cannot access ...: it is internal in file" and unresolved references.
 
 ## Contributing
