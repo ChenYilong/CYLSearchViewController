@@ -1,7 +1,7 @@
 #import "CYLSearchDemoMenuViewController.h"
 #import "CYLSearchBarDemoViewController.h"
 #import "CYLSearchExampleAppDelegate.h"
-#import <SVGAPlayer/SVGA.h>
+@import CollectionViewClassifyMenu;
 #import "CYLSearchExample-Swift.h"
 #import <CYLSearchViewController/CYLSearchViewController-Swift.h>
 #import <CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.h>
@@ -22,11 +22,12 @@ static NSString *CYLExampleText(NSString *key)
 }
 
 /// The SVGA demo above the Examples list, as CYLTabBarController's Example-Rive shows its Rive and SVGA demos above the
-/// Bell list: an SVGA animation that plays once (tap to play it again), and a button that switches where the tab icons
-/// come from (SF Symbols, SVGA through the initialization keys, SVGA through a configuration file) and rebuilds the tab
-/// bar (`CYLDemoTabIconSource`, also a launch argument).
+/// Bell list: a `CYLTagButton` (CollectionViewClassifyMenu) with an `.svga` `animationURL` that plays once (tap to play
+/// it again, `playAnimation`), and a button that switches where the tab icons come from (SF Symbols, SVGA through the
+/// initialization keys, SVGA through a configuration file) and rebuilds the tab bar (`CYLDemoTabIconSource`, also a
+/// launch argument).
 @interface CYLSVGADemoHeaderView : UIView
-@property (nonatomic, strong) SVGAPlayer *player;
+@property (nonatomic, strong) CYLTagButton *animationButton;
 @property (nonatomic, strong) UIButton *sourceButton;
 @end
 
@@ -35,26 +36,11 @@ static NSString *CYLExampleText(NSString *key)
 - (instancetype)initWithFrame:(CGRect)frame
 {
     if (!(self = [super initWithFrame:frame])) return nil;
-    self.player = [[SVGAPlayer alloc] initWithFrame:CGRectMake(0, 0, 64, 64)];
-    self.player.loops = 1;
-    self.player.clearsAfterStop = NO;
-    self.player.isAccessibilityElement = YES;
-    self.player.accessibilityTraits = UIAccessibilityTraitButton;
-    self.player.accessibilityLabel = CYLExampleText(@"svga.demo");
-    self.player.accessibilityHint = CYLExampleText(@"svga.demo.hint");
-    self.player.accessibilityIdentifier = @"CYLSVGADemoPlayer";
-    [self.player addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(play)]];
-    [self addSubview:self.player];
-
-    UILabel *label = [UILabel new];
-    label.text = CYLExampleText(@"svga.demo");
-    label.font = [UIFont preferredFontForTextStyle:UIFontTextStyleFootnote];
-    label.adjustsFontForContentSizeCategory = YES;
-    label.textColor = UIColor.secondaryLabelColor;
-    label.numberOfLines = 0;
-    label.isAccessibilityElement = NO;
-    label.tag = 1;
-    [self addSubview:label];
+    NSURL *url = [NSBundle.mainBundle URLForResource:@"tab_activity" withExtension:@"svga"];
+    self.animationButton = [CYLSVGADemoTagButton buttonWithTitle:CYLExampleText(@"svga.demo") animationURL:url];
+    self.animationButton.accessibilityHint = CYLExampleText(@"svga.demo.hint");
+    self.animationButton.accessibilityIdentifier = @"CYLSVGADemoTagButton";
+    [self addSubview:self.animationButton];
 
     self.sourceButton = [UIButton buttonWithType:UIButtonTypeSystem];
     self.sourceButton.titleLabel.numberOfLines = 0;
@@ -64,26 +50,23 @@ static NSString *CYLExampleText(NSString *key)
     [self.sourceButton addTarget:self action:@selector(switchSource) forControlEvents:UIControlEventTouchUpInside];
     [self.sourceButton setTitle:[NSString stringWithFormat:CYLExampleText(@"svga.source"), [self.class sourceName]] forState:UIControlStateNormal];
     [self addSubview:self.sourceButton];
-
-    NSURL *url = [NSBundle.mainBundle URLForResource:@"tab_activity" withExtension:@"svga"];
-    NSData *data = url ? [NSData dataWithContentsOfURL:url] : nil;
-    if (data) {
-        __weak typeof(self) weakSelf = self;
-        [[SVGAParser new] parseWithData:data cacheKey:@"CYLSVGADemo" completionBlock:^(SVGAVideoEntity *videoItem) {
-            weakSelf.player.videoItem = videoItem;
-            [weakSelf play];
-        } failureBlock:nil];
-    }
     return self;
+}
+
+- (void)didMoveToWindow
+{
+    [super didMoveToWindow];
+    if (self.window) {
+        // Plays once when shown, as the tab icons do when selected.
+        [self.animationButton playAnimation];
+    }
 }
 
 - (void)layoutSubviews
 {
     [super layoutSubviews];
     CGFloat inset = 16, width = CGRectGetWidth(self.bounds);
-    self.player.frame = CGRectMake(inset, 12, 64, 64);
-    UIView *label = [self viewWithTag:1];
-    label.frame = CGRectMake(inset + 76, 12, width - inset * 2 - 76, 64);
+    self.animationButton.frame = CGRectMake(inset, 12, width - inset * 2, 64);
     self.sourceButton.frame = CGRectMake(inset, 84, width - inset * 2, 44);
     self.sourceButton.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeading;
 }
@@ -93,11 +76,6 @@ static NSString *CYLExampleText(NSString *key)
     NSArray<NSString *> *names = @[ @"svga.source.symbols", @"svga.source.keys", @"svga.source.file" ];
     NSInteger source = [NSUserDefaults.standardUserDefaults integerForKey:@"CYLDemoTabIconSource"];
     return CYLExampleText(names[(NSUInteger)MAX(0, MIN(source, 2))]);
-}
-
-- (void)play
-{
-    [self.player stepToFrame:0 andPlay:YES];
 }
 
 - (void)switchSource

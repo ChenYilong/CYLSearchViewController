@@ -22,6 +22,7 @@
 		870253A69C9D8386606E41F0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA7A0B9D7510B24AAB4BC47A /* Foundation.framework */; };
 		89E2ACA17CA7765ED192EFB2 /* CYLSearchExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C72AC3EBD45BFF3AC9711025 /* CYLSearchExampleTests.m */; };
 		8C0B3D7B899D8C6301DD6D16 /* CYLSVGASwiftUIDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0314199A175111B3308413FD /* CYLSVGASwiftUIDemo.swift */; };
+		E7351D9305A9995AB1407795 /* CYLSVGADemoTagButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23456A57479C45D0163AC0C0 /* CYLSVGADemoTagButton.swift */; };
 		A19522B4581BBFD417720CE3 /* tab_list.svga in Resources */ = {isa = PBXBuildFile; fileRef = 0539046CE5626071D7218E4A /* tab_list.svga */; };
 		A20000000000000000000001 /* CYLSearchDemoMenuViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* CYLSearchDemoMenuViewController.m */; };
 		A20000000000000000000011 /* CYLSearchBarDemoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000013 /* CYLSearchBarDemoViewController.m */; };
@@ -55,6 +56,7 @@
 
 /* Begin PBXFileReference section */
 		0314199A175111B3308413FD /* CYLSVGASwiftUIDemo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSVGASwiftUIDemo.swift; sourceTree = "<group>"; };
+		23456A57479C45D0163AC0C0 /* CYLSVGADemoTagButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSVGADemoTagButton.swift; sourceTree = "<group>"; };
 		0539046CE5626071D7218E4A /* tab_list.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_list.svga; sourceTree = "<group>"; };
 		0723FAFC7CC20AE1DCCCB285 /* CYLSearchExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CYLSearchExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A6E1B84CDAA97C5FDF54F8D /* tab_search.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_search.svga; sourceTree = "<group>"; };
@@ -192,6 +194,7 @@
 				7388DCCB250617B381967999 /* SVGA */,
 				E639AD5AA798F5082F43D0D8 /* CYLTabBarConfiguration_svga.json */,
 				0314199A175111B3308413FD /* CYLSVGASwiftUIDemo.swift */,
+				23456A57479C45D0163AC0C0 /* CYLSVGADemoTagButton.swift */,
 				466DA7C43DE8376E42F99CDC /* CYLTabBarConfiguration_svga_swiftui.json */,
 			);
 			path = CYLSearchExample;
@@ -431,6 +434,7 @@
 				7AF1742377E0BBB8230ADCC3 /* CYLSearchDiscoverData.swift in Sources */,
 				B7829D16F8E6C9127AA30159 /* CYLSuggestionDemoPages.swift in Sources */,
 				8C0B3D7B899D8C6301DD6D16 /* CYLSVGASwiftUIDemo.swift in Sources */,
+				E7351D9305A9995AB1407795 /* CYLSVGADemoTagButton.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
