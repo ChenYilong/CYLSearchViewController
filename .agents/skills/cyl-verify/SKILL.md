@@ -135,6 +135,16 @@ started begins at 60. Full rule: `AGENTS.md`, same section.
 Stitched screenshots: stacked top to bottom first, then two columns over several rows, then one row of at most
 three. Correction (user, 2026-11-12): the original wording, "prefer the horizontal arrangement" and "worst is horizontal stitching", contradicted itself; the rule is to prefer the vertical arrangement, one image per row stacked top to bottom.
 
+- Stitched screenshots (added 2026-11-18, replaces the order above): one column over several rows; two columns over
+  several rows when one column would be taller than one phone screen (one full screenshot of the device). A header
+  above and a footer below, in bands of their own that never cover a screenshot, bold, English: header (red) with the
+  platform, simulator or emulator and its OS version, IDE or SDK version, host OS when it matters, library and
+  repository commits, branch, date, and the purpose; a red caption above each panel (state, timing, measured result);
+  footer (dark gray) with the result and what is needed to reproduce. Example: "iOS 27.2, iPhone 17 Pro sim, Xcode
+  27.2, CYLTabBarController dcbfdec6 (ef1d0313), feat/harmony, 2026-11-18. Rive tags at rest (no play)". Tool:
+  `swift scripts/stitch-screenshots.swift --header ... --footer ... --out OUT.png IN.png=caption ...`. Full rule:
+  `AGENTS.md`, "Stitched screenshots: layout, header and footer".
+
 ## Swift core: examples adapt to the core (added 2026-11-13)
 
 When an Objective-C to Swift change of the core breaks an example's build, fix the example: example code has the lowest weight of all code here. Change any example code as needed; never keep a core API, overload, shim or deprecated alias only because an example uses it, and never lower the Swift core's quality (naming, types, optionality, access control) to fit an example. Compatibility matters only for callers outside the examples (published API users). The Swift coding standard (docs/swift-coding-standard.md) decides. Rule and context: [docs/swift-migration.md](../../../docs/swift-migration.md).

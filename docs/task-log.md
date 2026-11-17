@@ -388,7 +388,7 @@ begins and becomes `DONE` when it ends.
   `.claude/skills`), and a pointer in `cyl-docs`, `cyl-api-map`, `cyl-new-project` and `cyl-plus-button`.
 - **Score**: 100 of 100 (every acceptance item done, committed and pushed); pass mark 60.
 
-## TODO (2026-11-18): stitched screenshot layout, header and footer
+## DONE (2026-11-18; TODO 2026-11-18): stitched screenshot layout, header and footer
 
 - **Context**: the user attached a stitched screenshot (red header "iOS 27.2, iPhone 17 Pro sim, Xcode 27.2,
   CYLTabBarController dcbfdec6 (ef1d0313), feat/harmony, 2026-11-18. Rive tags at rest (no play)"; one caption above
@@ -403,4 +403,11 @@ begins and becomes `DONE` when it ends.
   phone, use two columns over several rows.
 - **Acceptance**: the rule in `AGENTS.md`, `instructions.md`, `cyl-verify` and `cyl-docs`; `scripts/stitch-screenshots.swift`
   draws the header, the captions and the footer outside the screenshots and picks one or two columns by that height.
-- **Status**: TODO.
+- **Status**: done. Written (appended, nothing removed): `AGENTS.md` ("Stitched screenshots: layout, header and
+  footer", under "Screenshots of builds and CI/CD", with the user's example image
+  `docs/assets/screenshot-style-example-ios27.2-rive-tags-20261118.png`), `instructions.md`, `.agents/skills/cyl-verify`
+  and `.agents/skills/cyl-docs` (also seen through `.claude/skills`). `scripts/stitch-screenshots.swift` now takes
+  `--header`, `--footer`, `IN.png=caption` and `--columns auto` (default; `--screen-height`). Checked on macOS 27.3:
+  two full iPhone 18 Pro screenshots give 2 columns (2460 x 2869 px), three tab bar crops give 1 column; no text
+  touches a screenshot.
+- **Score**: 100 of 100 (rule in all four files, tool and check done, committed and pushed); pass mark 60.

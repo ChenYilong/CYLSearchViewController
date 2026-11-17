@@ -69,6 +69,16 @@ description: "Document public integration and reproducible steps for CYLSearchVi
   stacked top to bottom, then two columns, then one row of at most three.
 - Correction (user, 2026-11-12): the original wording, "prefer the horizontal arrangement" and "worst is horizontal stitching", contradicted itself; the rule is to prefer the vertical arrangement, one image per row stacked top to bottom.
 
+- Stitched screenshots (added 2026-11-18, replaces the order above): one column over several rows; two columns over
+  several rows when one column would be taller than one phone screen (one full screenshot of the device). A header
+  above and a footer below, in bands of their own that never cover a screenshot, bold, English: header (red) with the
+  platform, simulator or emulator and its OS version, IDE or SDK version, host OS when it matters, library and
+  repository commits, branch, date, and the purpose; a red caption above each panel (state, timing, measured result);
+  footer (dark gray) with the result and what is needed to reproduce. Example: "iOS 27.2, iPhone 17 Pro sim, Xcode
+  27.2, CYLTabBarController dcbfdec6 (ef1d0313), feat/harmony, 2026-11-18. Rive tags at rest (no play)". Tool:
+  `swift scripts/stitch-screenshots.swift --header ... --footer ... --out OUT.png IN.png=caption ...`. Full rule:
+  `AGENTS.md`, "Stitched screenshots: layout, header and footer".
+
 ## Task log before every task
 
 Before any task, log it as `TODO` in the most suitable document in `docs/`

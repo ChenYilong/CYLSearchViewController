@@ -360,6 +360,44 @@ reproduction or fix without launching the sample on a simulator.
 
   Correction (user, 2026-11-12): the original wording, "prefer the horizontal arrangement" and "worst is horizontal stitching", contradicted itself; the rule is to prefer the vertical arrangement, one image per row stacked top to bottom.
 
+### Stitched screenshots: layout, header and footer (added 2026-11-18)
+
+- Prompt, verbatim: "找到本项目instructions 相关文件以及skills相关文件，如果没有就新增文件保证写入成功，全英文写入：找到截图相关规范，如果没有就新建保证写入成功，截图除了 优先选用竖版排列风格。优先两列，多行。且给拼接好的图增加header，footer，header，footer不能与截图区域重叠 覆盖，标注关键信息：关键信息也是英文，测试模拟器平台，模拟器系统版本，操作系统版本，ide 版本，以及测试目的等等。以附带的截图为例。提取截图的附带信息以及风格 完善我的描述规则。 更新截图规则，优选一列多行 如果一列拼接后长度超过普通手机的一屏幕 则两列多行"
+- Prompt, English: stitched screenshots are vertical; they get a header and a footer that never overlap or cover the
+  screenshots, with the key information in English (platform, simulator and its OS version, host OS version, IDE
+  version, purpose of the test, and so on), in the style of the example the user attached. Prefer one column over
+  several rows; when that column is taller than one screen of an ordinary phone, use two columns over several rows.
+- **Layout** (replaces the order of preference above):
+  1. one column, several rows, stacked top to bottom;
+  2. when that one column would be taller than one phone screen, two columns over several rows (left to right, then
+     top to bottom). One phone screen is the height of one full screenshot of the device under test (for example
+     2622 px for an iPhone 17 Pro or iPhone 18 Pro simulator, 2400 px for a 1080 x 2400 Android phone); for crops of
+     the full screen width, the script uses the cell width x 19.5 / 9;
+  3. never one horizontal row of more than three images.
+- **Header**: a band of its own above every screenshot, never drawn on a screenshot. Bold, red (#FF3B30) on white,
+  English, one or two lines:
+  1. the platform and the OS version of the simulator or emulator (iOS 27.2, Android API 37, HarmonyOS API 21, WeChat
+     base library 3.6.6) and the device ("iPhone 18 Pro sim", "Medium Phone emulator", "Mate 70 Pro emulator");
+  2. the IDE or SDK version (Xcode 27.2 (27B52), Android Studio and Android SDK, Flutter 3.47.9, React Native,
+     DevEco Studio, WeChat DevTools);
+  3. the host OS version (macOS 27.3, Windows 11) when it matters for the result;
+  4. the code under test: the library and its commit (CYLTabBarController dcbfdec6), this repository's commit, the
+     branch;
+  5. the date (and time with its time zone when several runs are compared);
+  6. the purpose: what the image proves, in a few words ("Rive tags at rest (no play)").
+  Example, from the user's image: "iOS 27.2, iPhone 17 Pro sim, Xcode 27.2, CYLTabBarController dcbfdec6 (ef1d0313),
+  feat/harmony, 2026-11-18. Rive tags at rest (no play)".
+  The image: [docs/assets/screenshot-style-example-ios27.2-rive-tags-20261118.png](docs/assets/screenshot-style-example-ios27.2-rive-tags-20261118.png).
+- **Captions**: every panel has a short caption in its own band right above it, bold red: the state or the step and
+  its timing ("launch, no play"), with a measured result when there is one ("11 s later, 0 changed pixels").
+- **Footer**: a band of its own below every screenshot, bold dark gray: the result or verdict (pass / fail, bug
+  number), and what is not in the header but needed to reproduce (file names, launch arguments, the test or command).
+- **Never overlap**: the header, the captions and the footer never cover any pixel of a screenshot; screenshots keep
+  their original pixels (cropped, never enlarged); everything written on the image is English.
+- **Tool**: `swift scripts/stitch-screenshots.swift --header "<line 1>\n<line 2>" --footer "<result>" --out
+  docs/assets/<name>.png "<shot 1>.png=<caption 1>" "<shot 2>.png=<caption 2>"`. `--columns auto` (the default)
+  applies the layout rule; `--screen-height <px>` sets one screen when the images are not full-width crops.
+
 ## Open pull requests and issues of projects we translate
 
 When a document of this project links to another project's GitHub repository (not this project) because its code
