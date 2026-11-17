@@ -81,8 +81,8 @@ packages:
     dependency: "direct main"
     description:
       path: "CrossPlatform/flutter_cyltabbar"
-      ref: dcbfdec66277354d8d5e0b7e9f86f93a43d342ed
-      resolved-ref: dcbfdec66277354d8d5e0b7e9f86f93a43d342ed
+      ref: d733c80e243cbd9a1cfe2e7b4baeadefb5703f7c
+      resolved-ref: d733c80e243cbd9a1cfe2e7b4baeadefb5703f7c
       url: "https://github.com/ChenYilong/CYLTabBarController.git"
     source: git
     version: "0.0.1"

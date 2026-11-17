@@ -22,7 +22,6 @@
 		870253A69C9D8386606E41F0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA7A0B9D7510B24AAB4BC47A /* Foundation.framework */; };
 		89E2ACA17CA7765ED192EFB2 /* CYLSearchExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C72AC3EBD45BFF3AC9711025 /* CYLSearchExampleTests.m */; };
 		8C0B3D7B899D8C6301DD6D16 /* CYLSVGASwiftUIDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0314199A175111B3308413FD /* CYLSVGASwiftUIDemo.swift */; };
-		E7351D9305A9995AB1407795 /* CYLSVGADemoTagButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23456A57479C45D0163AC0C0 /* CYLSVGADemoTagButton.swift */; };
 		A19522B4581BBFD417720CE3 /* tab_list.svga in Resources */ = {isa = PBXBuildFile; fileRef = 0539046CE5626071D7218E4A /* tab_list.svga */; };
 		A20000000000000000000001 /* CYLSearchDemoMenuViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* CYLSearchDemoMenuViewController.m */; };
 		A20000000000000000000011 /* CYLSearchBarDemoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000013 /* CYLSearchBarDemoViewController.m */; };
@@ -41,6 +40,7 @@
 		CA3BE6055C75D4104A91FC7E /* tab_search.svga in Resources */ = {isa = PBXBuildFile; fileRef = 0A6E1B84CDAA97C5FDF54F8D /* tab_search.svga */; };
 		D787BCBE26892DD9A9415062 /* CYLSearchExampleAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E008B7937D631C1FDD620EA5 /* CYLSearchExampleAppDelegate.m */; };
 		E0196D8390297BD29A49C29F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 34FE1E690725740C1C51847B /* main.m */; };
+		E7351D9305A9995AB1407795 /* CYLSVGADemoTagButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23456A57479C45D0163AC0C0 /* CYLSVGADemoTagButton.swift */; };
 		E940950CEF9FDF271D8F9298 /* CYLTabBarConfiguration_svga.json in Resources */ = {isa = PBXBuildFile; fileRef = E639AD5AA798F5082F43D0D8 /* CYLTabBarConfiguration_svga.json */; };
 /* End PBXBuildFile section */
 
@@ -56,13 +56,13 @@
 
 /* Begin PBXFileReference section */
 		0314199A175111B3308413FD /* CYLSVGASwiftUIDemo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSVGASwiftUIDemo.swift; sourceTree = "<group>"; };
-		23456A57479C45D0163AC0C0 /* CYLSVGADemoTagButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSVGADemoTagButton.swift; sourceTree = "<group>"; };
 		0539046CE5626071D7218E4A /* tab_list.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_list.svga; sourceTree = "<group>"; };
 		0723FAFC7CC20AE1DCCCB285 /* CYLSearchExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CYLSearchExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A6E1B84CDAA97C5FDF54F8D /* tab_search.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_search.svga; sourceTree = "<group>"; };
 		13A5CFF6BFF18FEBE3C40D70 /* Pods_CYLSearchExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CYLSearchExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		1CAB6CA1230E3F537FE774D0 /* Pods-CYLSearchExampleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CYLSearchExampleTests.debug.xcconfig"; path = "Target Support Files/Pods-CYLSearchExampleTests/Pods-CYLSearchExampleTests.debug.xcconfig"; sourceTree = "<group>"; };
 		1E8870E6E14FE5355F516165 /* CYLSuggestionDemoPages.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSuggestionDemoPages.swift; sourceTree = "<group>"; };
+		23456A57479C45D0163AC0C0 /* CYLSVGADemoTagButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSVGADemoTagButton.swift; sourceTree = "<group>"; };
 		2A637C6644B075C276387C54 /* tab_chat.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_chat.svga; sourceTree = "<group>"; };
 		2ECACD2FCF0F1BE4A83F798C /* CYLSearchExampleAppDelegate.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CYLSearchExampleAppDelegate.h; sourceTree = "<group>"; };
 		30E6C2B3AB08D6F182050568 /* Images.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = CYLSearchViewController/Images.xcassets; sourceTree = "<group>"; };
@@ -364,6 +364,7 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-CYLSearchExample/Pods-CYLSearchExample-resources.sh",
+				"${PODS_ROOT}/CYLAnimatedItem/CYLTabBarController/CYLAnimatedItem/Resources/CYLAnimatedItem.bundle",
 				"${PODS_ROOT}/../Resources/CYLSearchViewController.bundle",
 				"${PODS_ROOT}/CYLTabBarController/CYLTabBarController/Resources/CYLTabBarController.bundle",
 				"${PODS_ROOT}/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.bundle",
@@ -371,10 +372,12 @@
 				"${PODS_ROOT}/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLRefresh/LICENSE.third-party",
 				"${PODS_CONFIGURATION_BUILD_DIR}/CYLTableViewPlaceHolder/CYLTableViewPlaceHolderPrivacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/CollectionViewClassifyMenu/CYLClassifyMenuResources.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/Protobuf/Protobuf_Privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/lottie-ios/LottiePrivacyInfo.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/CYLAnimatedItem.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/CYLSearchViewController.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/CYLTabBarController.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/CYLTableViewPlaceHolder.bundle",
@@ -382,6 +385,7 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/LICENSE.third-party",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/CYLTableViewPlaceHolderPrivacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/CYLClassifyMenuResources.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Protobuf_Privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/LottiePrivacyInfo.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
