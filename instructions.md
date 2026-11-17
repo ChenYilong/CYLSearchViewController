@@ -183,8 +183,7 @@ Adapted from CYLTabBarController's instruction files at its latest commit
 - CYLTableViewPlaceHolder is integrated as a sub-repository under all the requirements above: when a search has no
   results, show its empty-content placeholder style, on every platform (iOS, Android, React Native, Flutter,
   HarmonyOS, mini programs). It is the placeholder sub-dependency, pinned at `f488e2f` on every platform:
-  `CYLSearchView` shows its `CYLPlaceholderView` scenarios and wraps its pull-to-refresh header. Done on iOS,
-  Android, HarmonyOS and the mini program; React Native and Flutter are moving to the merged core (in progress)
+  `CYLSearchView` shows its `CYLPlaceholderView` scenarios and wraps its pull-to-refresh header. Done on iOS, Android, HarmonyOS, the mini program and React Native; Flutter is moving to the merged core (in progress)
   (`docs/sub-repositories.md`). Full rule: `AGENTS.md`, same section; skill `cyl-sub-repositories`.
 
 ## Verification

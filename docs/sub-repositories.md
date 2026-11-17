@@ -6,7 +6,7 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
 | Sub-repository | What it adds | Status |
 |:---|:---|:---|
 | CollectionViewClassifyMenu | Suggestions as tags (`CYLSearchSuggestionStyle`) | Android done (`eb3590e`); iOS `TODO` ([tag-view-suggestions.md](tag-view-suggestions.md)) |
-| CYLTableViewPlaceHolder | The placeholder sub-dependency: the empty-content placeholder (`CYLPlaceholderView` scenarios shown by `CYLSearchView`) when a search has no results, and the pull-to-refresh header inside `CYLSearchView`'s refresh API; pinned at `f488e2f` on every platform | Done on iOS, Android, HarmonyOS and the mini program; React Native and Flutter moving to the merged core (in progress, [search-core-merge.md](search-core-merge.md)) |
+| CYLTableViewPlaceHolder | The placeholder sub-dependency: the empty-content placeholder (`CYLPlaceholderView` scenarios shown by `CYLSearchView`) when a search has no results, and the pull-to-refresh header inside `CYLSearchView`'s refresh API; pinned at `f488e2f` on every platform | Done on iOS, Android, HarmonyOS, the mini program and React Native; Flutter moving to the merged core (in progress, [search-core-merge.md](search-core-merge.md)) |
 
 ## DONE (2026-11-16; TODO 2026-11-12): CYLTableViewPlaceHolder as a sub-repository, empty search results on every platform (iOS, Android, Flutter, React Native, mini programs; HarmonyOS through `cylplaceholder`, run on the Mate 70 Pro emulator: the empty placeholder in `harmonyos-search-empty-cache-emulator-unsigned.jpeg`, touches checked 2026-11-16)
 

@@ -5,8 +5,8 @@ classes, `CYLSearchBarView` (with `mode` single or multiple), `CYLSearchBarItem`
 results, empty placeholders, the only refresh API) and `CYLSearchResources`. iOS `Sources/CYLSearchBar`; Android
 `android/merged/cylsearch` (`CYLSearchBarView.kt`, `CYLSearchView.kt`, `CYLSearchResources.kt`, refresh from
 CYLTableViewPlaceHolder's `:placeholder-refresh`); HarmonyOS `harmonyos/cylsearch` (`.ets`, the same three files);
-mini program components `cyl-search-bar` and `cyl-search`. React Native and Flutter are moving to the merged core (in
-progress). Dated task entries below record the work in their own time and name the classes of that time.
+mini program components `cyl-search-bar` and `cyl-search`; React Native components `CYLSearchBarView` and `CYLSearchView`
+on the native cores. Flutter is moving to the merged core (in progress). Dated task entries below record the work in their own time and name the classes of that time.
 
 The HarmonyOS port of CYLSearchViewController: the ArkTS library `harmonyos/cylsearch` and the example app
 `harmonyos/entry`. Other platforms: [android-and-cross-platform.md](android-and-cross-platform.md).

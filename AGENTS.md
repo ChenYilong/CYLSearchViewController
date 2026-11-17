@@ -278,8 +278,7 @@ has no results (the content is empty), show CYLTableViewPlaceHolder's empty-cont
 every platform: iOS, Android, React Native, Flutter, HarmonyOS and mini programs. CYLTableViewPlaceHolder is the
 placeholder sub-dependency: `CYLSearchView` shows its `CYLPlaceholderView` / `CYLPlaceholderStackView` for empty
 results and empty suggestions, and wraps its pull-to-refresh header in the refresh API; every platform pins the
-same commit, `f488e2f`. Status: done on iOS, Android, HarmonyOS and the mini program; React Native and Flutter are
-moving to the merged core (in progress). Tracked in `docs/sub-repositories.md` and `docs/search-core-merge.md`. Use
+same commit, `f488e2f`. Status: done on iOS, Android, HarmonyOS, the mini program and React Native; Flutter is moving to the merged core (in progress). Tracked in `docs/sub-repositories.md` and `docs/search-core-merge.md`. Use
 the `cyl-sub-repositories` skill.
 
 ## Verification
