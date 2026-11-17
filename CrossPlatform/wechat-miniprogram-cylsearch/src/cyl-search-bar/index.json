@@ -1,1 +1,6 @@
-{ "component": true }
+{
+  "component": true,
+  "usingComponents": {
+    "cyl-tag-button": "cyl-tag-list-miniprogram/cyl-tag-button/cyl-tag-button"
+  }
+}

@@ -10,8 +10,11 @@ the iOS core's `Sources/CYLSearchBar` (`CYLSearchBarView.swift`, `CYLSearchView.
 | `core/CYLSearchResources.js` | `CYLSearchResources` | Images, strings, the suggestion cache (`CYLSearchSuggestionCache`, `CYLSearchSuggestionCachePolicy`) |
 
 Texts in English, Japanese, Simplified Chinese and Traditional Chinese. The search core depends on no other search
-library; its only sub-dependency is CYLTableViewPlaceHolder's mini program package, `cyl-placeholder-miniprogram`
-(placeholders and pull-to-refresh, not search), pinned by commit (`cylTableViewPlaceHolderCommit` in `package.json`).
+library; its two sub-dependencies, neither a search library, are pinned by commit in `package.json`:
+CYLTableViewPlaceHolder's mini program package, `cyl-placeholder-miniprogram` (placeholders and pull-to-refresh;
+`cylTableViewPlaceHolderCommit`), and CollectionViewClassifyMenu's, `cyl-tag-list-miniprogram`, whose `cyl-tag-button`
+(the one icon + title + animated icon component) draws every item of `cyl-search-bar`, with its badge and its
+`animationURL` (`collectionViewClassifyMenuCommit`).
 
 ## Install
 
@@ -21,7 +24,10 @@ library; its only sub-dependency is CYLTableViewPlaceHolder's mini program packa
    [CYLTableViewPlaceHolder](https://github.com/ChenYilong/CYLTableViewPlaceHolder) go into
    `miniprogram_npm/cyl-placeholder-miniprogram/` (`scripts/sync-example.js` does it for the example). It is not on
    the npm registry and npm cannot install a folder of a Git repository, so `package.json` names it as an optional
-   peer dependency; the search view needs it.
+   peer dependency; the search view needs it. In the same way, the folder
+   `CrossPlatform/wechat-miniprogram/packages/cyl-tag-list-miniprogram/miniprogram_dist` of
+   [CollectionViewClassifyMenu](https://github.com/ChenYilong/CollectionViewClassifyMenu) goes into
+   `miniprogram_npm/cyl-tag-list-miniprogram/`: the search bar draws its items with its `cyl-tag-button`.
 3. DevTools > Tools > Build npm (构建 npm). The components are then `cyl-search-miniprogram/<component>/index`:
 
 ```json
@@ -120,7 +126,8 @@ Open this folder (`CrossPlatform/wechat-miniprogram-cylsearch`) in WeChat DevToo
 `node scripts/sync-example.js`, which copies `src/` into the example (a mini program cannot load files outside its
 root) and installs CYLTabBarController's tab bar and Lottie player at the commit pinned in `package.json`
 (`cylTabBarControllerCommit`; `CYL_TABBAR_DIR` uses a local checkout), and CYLTableViewPlaceHolder's `cyl-placeholder`
-and `cyl-refresh` (`cylTableViewPlaceHolderCommit`; `CYL_PLACEHOLDER_DIR`). DevTools asks once whether to run the
+and `cyl-refresh` (`cylTableViewPlaceHolderCommit`; `CYL_PLACEHOLDER_DIR`), and CollectionViewClassifyMenu's
+`cyl-tag-list-miniprogram` (`collectionViewClassifyMenuCommit`; `CYL_CLASSIFYMENU_DIR`). DevTools asks once whether to run the
 project's custom commands; run `npm run sync-example` yourself if the hooks are off. DevTools refuses the committed
 `touristappid`: put your own AppID in `project.private.config.json` (git-ignored), for example `{ "appid": "wx…" }`.
 

@@ -137,3 +137,51 @@ describe('cylSearchTextSubmittable', () => {
     assert.ok(logic.cylSearchTextSubmittable(' Swift '));
   });
 });
+
+// Search bar items are drawn by CollectionViewClassifyMenu's CYLTagButton (iOS
+// testSearchBarItemsAreAppendedLikeFlatDesignTabBarItems, Android CYLSearchBarItemTest): what the tag shows per style.
+describe('cylSearchBarItemButtonContent', () => {
+  const camera = { id: 'camera' };
+  const selected = { id: 'camera.fill' };
+  const gif = 'loading.gif';
+  it('draws a text item with its title, its icon, its badge and its animation file', () => {
+    const content = logic.cylSearchBarItemButtonContent(2, 'Search', camera, selected, undefined, 'asset:a.svga', '3');
+    assert.deepEqual(content, {
+      title: 'Search', image: camera, selectedImage: selected, animationURL: 'asset:a.svga', badgeValue: '3'
+    });
+  });
+  it('draws an icon item with its icon only; the title is what screen readers read', () => {
+    const content = logic.cylSearchBarItemButtonContent(0, 'Camera', camera, undefined, undefined, undefined, '');
+    assert.equal(content.title, undefined);
+    assert.equal(content.image, camera);
+    assert.equal(content.badgeValue, '', 'an empty badge is a dot');
+  });
+  it('draws nothing on a divider', () => {
+    assert.deepEqual(logic.cylSearchBarItemButtonContent(1, 'x', camera, selected, gif, 'asset:a.json', '1'), {
+      title: undefined, image: undefined, selectedImage: undefined, animationURL: undefined, badgeValue: undefined
+    });
+  });
+  it('lets an animated image replace the icon and the selected icon', () => {
+    const content = logic.cylSearchBarItemButtonContent(0, 'Loading', camera, selected, gif, undefined, undefined);
+    assert.equal(content.image, gif);
+    assert.equal(content.selectedImage, undefined);
+  });
+});
+
+describe('cylSearchBarItemInsets', () => {
+  it('uses the item insets, else 4 for a text item and 0 for the others', () => {
+    assert.equal(logic.cylSearchBarItemInsets(0, 6), 6);
+    assert.equal(logic.cylSearchBarItemInsets(2, -1), 4);
+    assert.equal(logic.cylSearchBarItemInsets(0, -1), 0);
+    assert.equal(logic.cylSearchBarItemInsets(1, -1), 0);
+  });
+});
+
+describe('cylSearchTouchRegion', () => {
+  it('grows a 36 vp item to a 44 vp touch target around its center', () => {
+    assert.deepEqual(logic.cylSearchTouchRegion(36, 36, 44), { x: -4, y: -4, width: 44, height: 44 });
+  });
+  it('keeps a larger item as it is', () => {
+    assert.deepEqual(logic.cylSearchTouchRegion(80, 36, 44), { x: 0, y: -4, width: 80, height: 44 });
+  });
+});

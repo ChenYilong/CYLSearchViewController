@@ -1,4 +1,8 @@
 import { UIContext } from '@kit.ArkUI';
+import {
+  CYLControlState, CYLEdgeInsets, CYLFont, CYLMenuLocalizedString, CYLMenuStyle, CYLOffset, CYLSize, CYLTagButton,
+  CYLTagButtonHost, CYLTagCornerRadiusSquare
+} from '@cyl/classifymenu';
 
 // MARK: - Pure logic (begin): no ArkUI, no kit; harmonyos/scripts/host-logic-test.mjs runs it with Node.
 
@@ -44,6 +48,73 @@ function cylSearchTextSubmittable(text: string): boolean {
   return text.trim().length > 0;
 }
 
+/**
+ * What the `CYLTagButton` of a search bar item shows (iOS `CYLSearchBarItemButton.reload()`).
+ */
+interface CYLSearchBarItemButtonContent<T> {
+  title: string | undefined;
+  image: T | undefined;
+  selectedImage: T | undefined;
+  animationURL: string | undefined;
+  badgeValue: string | undefined;
+}
+
+/**
+ * The content of an item's `CYLTagButton` for an item of `style` (0 icon, 1 divider, 2 text, as
+ * `CYLSearchBarItemStyle`): a text item shows its title (and its icon before it), an icon item only its icon (its title
+ * is what screen readers read), a divider nothing. An animated image replaces the icon and the selected icon.
+ */
+function cylSearchBarItemButtonContent<T>(style: number, title: string | undefined, image: T | undefined,
+  selectedImage: T | undefined, animatedImage: T | undefined, animationURL: string | undefined,
+  badgeValue: string | undefined): CYLSearchBarItemButtonContent<T> {
+  const divider = style === 1;
+  const content: CYLSearchBarItemButtonContent<T> = {
+    title: style === 2 ? title : undefined,
+    image: divider ? undefined : (animatedImage ?? image),
+    selectedImage: divider || animatedImage !== undefined ? undefined : selectedImage,
+    animationURL: divider ? undefined : animationURL,
+    badgeValue: divider ? undefined : badgeValue
+  };
+  return content;
+}
+
+/**
+ * The horizontal padding of an item in vp: its own when 0 or more, else 4 for a text item (style 2) and 0 for the
+ * others (iOS `CYLSearchBarItemButton.resolvedInsets`).
+ */
+function cylSearchBarItemInsets(style: number, contentInsets: number): number {
+  if (contentInsets >= 0) {
+    return contentInsets;
+  }
+  return style === 2 ? 4 : 0;
+}
+
+/**
+ * A touch region in vp, relative to a view.
+ */
+interface CYLSearchTouchRegion {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/**
+ * The touch region of a view of `width` x `height`: the view grown around its center to at least `minimum` on each
+ * side (44 vp, the screen reader touch target), so a small icon stays easy to tap without changing the layout.
+ */
+function cylSearchTouchRegion(width: number, height: number, minimum: number): CYLSearchTouchRegion {
+  const regionWidth = Math.max(width, minimum);
+  const regionHeight = Math.max(height, minimum);
+  const region: CYLSearchTouchRegion = {
+    x: (width - regionWidth) / 2,
+    y: (height - regionHeight) / 2,
+    width: regionWidth,
+    height: regionHeight
+  };
+  return region;
+}
+
 // MARK: - Pure logic (end)
 
 /**
@@ -58,6 +129,23 @@ function cylAnimate(uiContext: UIContext | undefined, param: AnimateParam, chang
     return;
   }
   uiContext.animateTo(param, change);
+}
+
+/**
+ * The smallest side of an item's view in vp (iOS `CYLSearchBarItemButton.minimumTouchSide`).
+ */
+const CYLSearchBarItemMinimumSide: number = 36;
+
+/**
+ * The smallest touch target in vp: an item's touch region grows to it.
+ */
+const CYLSearchTouchTargetSide: number = 44;
+
+/**
+ * A `Length` of a `Position` in vp: a number as it is, anything else (a percentage, a resource) 0.
+ */
+function cylLength(length: Length | undefined): number {
+  return typeof length === 'number' ? length as number : 0;
 }
 
 /**
@@ -170,6 +258,11 @@ export class CYLSearchBarItem {
    */
   @Trace animatedImage: ResourceStr | undefined = undefined;
   /**
+   * An animated icon file (`asset:<rawfile>`: Lottie .json, .pag, .riv, .svga, .gif), drawn by the item's
+   * `CYLTagButton` (CollectionViewClassifyMenu) and played on each tap; `image` is shown until it is loaded.
+   */
+  @Trace animationURL: string | undefined = undefined;
+  /**
    * The icon side in vp; 0 uses 20.
    */
   @Trace imageSize: number = 0;
@@ -247,6 +340,8 @@ export class CYLSearchBarItem {
   searchBarView: CYLSearchBarView | undefined = undefined;
 
   @Trace private attributesVersion: number = 0;
+  private itemButton: CYLTagButton | undefined = undefined;
+  private itemViewTint: ResourceColor | undefined = undefined;
   private titleAttributes: Map<CYLSearchBarItemState, CYLSearchBarItemTextAttributes> = new Map();
   private badgeAttributes: Map<CYLSearchBarItemState, CYLSearchBarItemTextAttributes> = new Map();
 
@@ -257,6 +352,82 @@ export class CYLSearchBarItem {
     this.style = style;
     this.title = title;
     this.image = image;
+  }
+
+  /**
+   * The item's view, a `CYLTagButton` (CollectionViewClassifyMenu, the one icon + title + animated icon component),
+   * created on first use and styled from the item; `CYLSearchBarComponent` draws it and sends its taps to
+   * `CYLSearchBarViewDelegate.searchBarViewDidSelectItem` and `handler`.
+   */
+  get itemView(): CYLTagButton {
+    if (this.itemButton === undefined) {
+      this.itemButton = new CYLTagButton();
+      this.reloadItemView(this.itemViewTint);
+    }
+    return this.itemButton;
+  }
+
+  /**
+   * Styles `itemView` from the item for its current state (iOS `CYLSearchBarItemButton.reload()`): no border, the
+   * item's background (transparent by default), its tint (`barTint` when it has none) for the title and the icon, its
+   * title attributes, icon size, insets, position adjustments and badge; at least 36 x 36 vp. Returns the view.
+   */
+  reloadItemView(barTint: ResourceColor | undefined): CYLTagButton {
+    this.itemViewTint = barTint;
+    const button = this.itemButton ?? this.itemView;
+    const content = cylSearchBarItemButtonContent<ResourceStr>(this.style, this.title, this.image, this.selectedImage,
+      this.animatedImage, this.animationURL, this.badgeValue);
+    button.style = this.itemStyle(this.tintColor ?? barTint ?? $r('sys.color.font_primary'));
+    button.minimumSize = new CYLSize(CYLSearchBarItemMinimumSide, CYLSearchBarItemMinimumSide);
+    button.title = content.title;
+    button.image = content.image;
+    button.selectedImage = content.selectedImage;
+    button.animationURL = content.animationURL;
+    button.isSelected = this.isSelected;
+    const badge = this.badgeTextAttributes(this.currentState) ?? this.badgeTextAttributes(CYLSearchBarItemState.normal);
+    button.badgeColor = this.badgeColor;
+    button.badgeTextColor = badge?.color;
+    button.badgeFont = badge?.size !== undefined || badge?.weight !== undefined ?
+      new CYLFont(badge?.size ?? 11, badge?.weight ?? FontWeight.Medium) : undefined;
+    button.badgeMinimumSize = this.badgeSize > 0 ? new CYLSize(this.badgeSize, this.badgeSize) : CYLSize.ZERO;
+    button.badgeContentInsets = new CYLEdgeInsets(0, this.badgeContentInsets, 0, this.badgeContentInsets);
+    button.badgePositionAdjustment = new CYLOffset(cylLength(this.badgePositionAdjustment.x),
+      cylLength(this.badgePositionAdjustment.y));
+    button.badgeValue = content.badgeValue;
+    button.accessibilityLabel = this.itemAccessibilityLabel ?? this.title;
+    return button;
+  }
+
+  // Every state is drawn with the item's current look (its title attributes for that state): the view dims itself
+  // while disabled, so the tag stays enabled and its animated icon is not dimmed a second time.
+  private itemStyle(tint: ResourceColor): CYLMenuStyle {
+    const style = new CYLMenuStyle();
+    const side = this.imageSize > 0 ? this.imageSize : 20;
+    const insets = cylSearchBarItemInsets(this.style, this.contentInsets);
+    const background = this.isSelected ? (this.selectedBackgroundColor ?? this.backgroundColor) : this.backgroundColor;
+    const hasBackground = this.backgroundColor !== undefined || this.selectedBackgroundColor !== undefined;
+    const attributes = this.titleTextAttributes(this.currentState) ??
+    this.titleTextAttributes(CYLSearchBarItemState.normal);
+    style.imageSize = new CYLSize(side, side);
+    style.animationSize = new CYLSize(side, side);
+    style.imageTitleSpacing = 4;
+    style.itemHeight = CYLSearchBarItemMinimumSide;
+    style.imagePositionAdjustment = new CYLOffset(cylLength(this.imagePositionAdjustment.x),
+      cylLength(this.imagePositionAdjustment.y));
+    style.titlePositionAdjustment = new CYLOffset(cylLength(this.titlePositionAdjustment.x),
+      cylLength(this.titlePositionAdjustment.y));
+    [CYLControlState.NORMAL, CYLControlState.SELECTED, CYLControlState.DISABLED].forEach((state: number) => {
+      const appearance = style.appearance(state);
+      appearance.font = new CYLFont(attributes?.size ?? 17, attributes?.weight ?? FontWeight.Bold);
+      appearance.textColor = attributes?.color ?? tint;
+      appearance.iconColor = tint;
+      appearance.backgroundColor = background ?? Color.Transparent;
+      appearance.borderColor = undefined;
+      appearance.borderWidth = 0;
+      appearance.contentInsets = new CYLEdgeInsets(0, insets, 0, insets);
+      appearance.cornerRadius = hasBackground ? 10 : CYLTagCornerRadiusSquare;
+    });
+    return style;
   }
 
   /**
@@ -792,10 +963,10 @@ export class CYLSearchBarView {
   }
 
   /**
-   * The items as the bar draws them, in order (iOS `itemViews`; the item views are private to the bar).
+   * The views of `items` (`CYLTagButton`s, CollectionViewClassifyMenu), in the same order (iOS `itemViews`).
    */
-  get itemViews(): CYLSearchBarItem[] {
-    return this.items;
+  get itemViews(): CYLTagButton[] {
+    return this.items.map((item: CYLSearchBarItem) => item.itemView);
   }
 
   /**
@@ -1212,7 +1383,9 @@ export class CYLSearchBarView {
 }
 
 /**
- * The view of a `CYLSearchBarItem` (was the public `CYLSearchBarItemView`; like `CYLFlatDesignTabBarButton`).
+ * The view of a `CYLSearchBarItem` (was the public `CYLSearchBarItemView`; like `CYLFlatDesignTabBarButton`): the item's
+ * `itemView`, CollectionViewClassifyMenu's `CYLTagButton` (drawn through `CYLTagButtonHost`, its V1 bridge), styled from
+ * the item; a divider is a thin line. The touch region grows to 44 vp around the item.
  */
 @ComponentV2
 struct CYLSearchBarItemView {
@@ -1230,39 +1403,29 @@ struct CYLSearchBarItemView {
   @Event onSelect: (item: CYLSearchBarItem) => void = () => {
   };
 
-  private tint(): ResourceColor {
-    return this.item.tintColor ?? this.itemTintColor ?? $r('sys.color.font_primary');
+  // Restyles the item's tag from the item; reading the item's properties here redraws this view when one changes.
+  private itemButton(): CYLTagButton {
+    return this.item.reloadItemView(this.itemTintColor);
   }
 
-  private side(): number {
-    return this.item.imageSize > 0 ? this.item.imageSize : 20;
-  }
-
-  private currentImage(): Resource | undefined {
-    return this.item.isSelected ? (this.item.selectedImage ?? this.item.image) : this.item.image;
-  }
-
-  private titleAttributes(): CYLSearchBarItemTextAttributes | undefined {
-    return this.item.titleTextAttributes(this.item.currentState) ??
-    this.item.titleTextAttributes(CYLSearchBarItemState.normal);
-  }
-
-  private badgeAttributes(): CYLSearchBarItemTextAttributes | undefined {
-    return this.item.badgeTextAttributes(this.item.currentState) ??
-    this.item.badgeTextAttributes(CYLSearchBarItemState.normal);
-  }
-
-  private itemBackground(): ResourceColor {
-    const color = this.item.isSelected ? (this.item.selectedBackgroundColor ?? this.item.backgroundColor) :
-    this.item.backgroundColor;
-    return color ?? Color.Transparent;
+  private touchRegion(): Rectangle {
+    const size = this.itemButton().intrinsicSize();
+    const region = cylSearchTouchRegion(size.width, size.height, CYLSearchTouchTargetSide);
+    const rectangle: Rectangle = { x: region.x, y: region.y, width: region.width, height: region.height };
+    return rectangle;
   }
 
   private insets(): number {
-    if (this.item.contentInsets >= 0) {
-      return this.item.contentInsets;
+    return cylSearchBarItemInsets(this.item.style, this.item.contentInsets);
+  }
+
+  // The badge as the screen reader reads it: its text, or "New" (CollectionViewClassifyMenu's string) for a dot.
+  private badgeDescription(): string {
+    const badge = this.item.badgeValue;
+    if (badge === undefined) {
+      return '';
     }
-    return this.item.style === CYLSearchBarItemStyle.text ? 4 : 0;
+    return badge.length === 0 ? CYLMenuLocalizedString('CYLTagBadgeDot') : badge;
   }
 
   build() {
@@ -1272,63 +1435,23 @@ struct CYLSearchBarItemView {
         .height(18)
         .strokeWidth(1)
         .color($r('sys.color.comp_divider'))
+        .margin({ left: this.insets(), right: this.insets() })
         .accessibilityLevel('no')
     } else {
-      Stack({ alignContent: Alignment.TopEnd }) {
-        Row({ space: 4 }) {
-          if (this.item.animatedImage !== undefined) {
-            Image(this.item.animatedImage)
-              .width(this.side())
-              .height(this.side())
-              .objectFit(ImageFit.Contain)
-              .offset(this.item.imagePositionAdjustment)
-          } else if (this.currentImage() !== undefined) {
-            SymbolGlyph(this.currentImage())
-              .fontSize(this.side())
-              .fontColor([this.tint()])
-              .offset(this.item.imagePositionAdjustment)
-          }
-          if (this.item.style === CYLSearchBarItemStyle.text && this.item.title !== undefined) {
-            Text(this.item.title)
-              .fontSize(this.titleAttributes()?.size ?? 17)
-              .fontWeight(this.titleAttributes()?.weight ?? FontWeight.Bold)
-              .fontColor(this.titleAttributes()?.color ?? this.tint())
-              .maxLines(1)
-              .offset(this.item.titlePositionAdjustment)
-          }
-        }
-        .justifyContent(FlexAlign.Center)
-        .constraintSize({ minWidth: 36, minHeight: 36 })
-        .padding({ left: this.insets(), right: this.insets() })
-
-        if (this.item.badgeValue !== undefined) {
-          Text(this.item.badgeValue)
-            .fontSize(this.badgeAttributes()?.size ?? 11)
-            .fontWeight(this.badgeAttributes()?.weight ?? FontWeight.Medium)
-            .fontColor(this.badgeAttributes()?.color ?? Color.White)
-            .textAlign(TextAlign.Center)
-            .constraintSize({
-              minWidth: this.item.badgeValue.length === 0 ? 8 : (this.item.badgeSize > 0 ? this.item.badgeSize : 16),
-              minHeight: this.item.badgeValue.length === 0 ? 8 : (this.item.badgeSize > 0 ? this.item.badgeSize : 16)
-            })
-            .padding({
-              left: this.item.badgeValue.length === 0 ? 0 : this.item.badgeContentInsets,
-              right: this.item.badgeValue.length === 0 ? 0 : this.item.badgeContentInsets
-            })
-            .backgroundColor(this.item.badgeColor ?? Color.Red)
-            .borderRadius(8)
-            .offset(this.item.badgePositionAdjustment)
-            .accessibilityLevel('no')
-        }
+      Stack() {
+        CYLTagButtonHost({ button: this.itemButton(), interactive: false })
       }
-      .backgroundColor(this.itemBackground())
-      .borderRadius(10)
+      .responseRegion(this.touchRegion())
       .opacity(this.item.isEnabled ? 1 : 0.4)
       .enabled(this.item.isEnabled)
       .id(this.item.itemAccessibilityIdentifier ?? '')
       .accessibilityGroup(true)
       .accessibilityText(this.item.itemAccessibilityLabel ?? this.item.title ?? '')
+      .accessibilityDescription(this.badgeDescription())
       .onClick(() => {
+        if (this.item.animationURL !== undefined) {
+          this.item.itemView.playAnimation();
+        }
         this.onSelect(this.item);
       })
     }

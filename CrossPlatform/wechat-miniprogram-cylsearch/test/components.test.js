@@ -159,3 +159,36 @@ test('cyl-search: submit closes the overlay with its transition, Cancel closes i
   await new Promise((resolve) => setTimeout(resolve, 20));
   assert.equal(search.data.visible, false);
 });
+
+test('cyl-search-bar draws each item with cyl-tag-button: title, image, badge, animationURL, transparent', () => {
+  const bar = load('cyl-search-bar')({ items: [
+    { style: 'icon', title: 'Camera', image: '/c.svg', badgeValue: '', animationURL: 'camera.json' },
+    { style: 'divider' },
+    { style: 'text', title: 'Search', image: '/s.svg', badgeValue: '3', badgeColor: '#0000FF' },
+  ] });
+  const [icon, divider, text] = bar.data.shownItems.map((item) => item.button);
+  assert.equal(icon.title, '', 'an icon item shows only its icon');
+  assert.equal(icon.image, '/c.svg');
+  assert.equal(icon.badgeValue, '', 'an empty badge is a dot');
+  assert.equal(icon.animationURL, 'camera.json');
+  assert.equal(icon.accessibilityLabel, 'Camera', 'the title is what the screen reader reads');
+  assert.equal(icon.tagStyle.allowsTransparentBackground, true);
+  assert.equal(icon.tagStyle.normal.backgroundColor, 'transparent');
+  assert.equal(icon.tagStyle.normal.borderWidth, 0);
+  assert.deepEqual(icon.tagStyle.imageSize, { width: 22, height: 22 });
+  assert.equal(divider.image, '');
+  assert.equal(divider.badgeValue, null);
+  assert.equal(text.title, 'Search');
+  assert.equal(text.badgeValue, '3');
+  assert.equal(text.badgeColor, '#0000FF');
+  assert.equal(text.tagStyle.normal.contentInsets.left, 4);
+  assert.equal(text.tagStyle.normal.font.weight, 'semibold');
+  // A tap plays the animated icon, then selects the item.
+  let played = 0;
+  const tapped = load('cyl-search-bar');
+  const withChild = tapped({ items: [{ style: 'icon', title: 'Camera', image: '/c.svg', animationURL: 'camera.json' }] },
+    { '#cyl-bar-item-0': { playAnimation: () => { played += 1; } } });
+  withChild.onItemTap({ currentTarget: { dataset: { index: 0 } } });
+  assert.equal(played, 1);
+  assert.deepEqual(names(withChild), ['itemselect']);
+});

@@ -35,9 +35,9 @@
   where one does not, change its internal implementation so that it does, so that refactoring that component applies
   the change to all of them. My requirement: in the future, adding a new animation type only needs a change to this
   component, and every component that shows animations supports the new type with no change in a second place."
-- **Status (2026-11-17)**: step 1 DONE, step 2 DONE on iOS and Android (TODO on HarmonyOS and the mini program, waiting
-  for CollectionViewClassifyMenu, below), step 3 TODO. Nothing is compiled or run here (no Xcode, no Android SDK, no
-  DevEco Studio): see "Unverified".
+- **Status (2026-11-17)**: step 1 DONE, step 2 DONE on every platform (iOS, Android, HarmonyOS, the mini program; React
+  Native and Flutter through the native cores), step 3 TODO. Nothing is compiled or run here (no Xcode, no Android SDK,
+  no DevEco Studio, no WeChat DevTools): see "Unverified".
 
 ### Step 1: DONE (2026-11-17), CollectionViewClassifyMenu `1e43253` + `a0c8232`
 
@@ -45,11 +45,12 @@
   (`CYLTagImagePlacement.top` / `.bottom`), `height(forTitle:iconSize:style:traitCollection:)` and the standalone
   initializers `init(title:image:)` / `init(title:image:animationURL:)`, on iOS, Android, HarmonyOS and the mini program
   (`cyl-tag-button`), branch `feat/harmony`.
-- Pinned here at `a0c82323c60eebc4d870a10293cf2a5dcba84d2b`: `Podfile`, the React Native and Flutter example
-  Podfiles, `android/merged/gradle.properties` (`cyl.classifymenu.commit`; `.cyl-deps` checked out at it). HarmonyOS
-  and the mini program do not depend on CollectionViewClassifyMenu yet (no pin to change).
+- Pinned here at `15877a483cbaa16bcbc26755f678f166463b5af4` (branch `feat/harmony`; it adds the HarmonyOS and mini
+  program parts of step 2 below to `a0c8232`) on every platform: `Podfile`, the React Native and Flutter example
+  Podfiles, `android/merged/gradle.properties` (`cyl.classifymenu.commit`), `harmonyos/oh-package.json5`
+  (`collectionViewClassifyMenuCommit`) and the mini program's `package.json` (`collectionViewClassifyMenuCommit`).
 
-### Step 2: DONE on iOS and Android (2026-11-17); TODO on HarmonyOS and the mini program
+### Step 2: DONE (2026-11-17) on every platform
 
 - iOS (`Sources/CYLSearchBar/CYLSearchBarView.swift`): every `CYLSearchBarItem` is drawn by a `CYLTagButton`
   (a private subclass that adds only the link to its item, the divider line, the 36 pt touch area and the item's badge
@@ -65,25 +66,41 @@
   program examples have no SVGA demo header (only SVGA tab icons through CYLTabBarController).
 - Tests: iOS `testSearchBarItemsAreAppendedLikeFlatDesignTabBarItems` and Android `CYLSearchBarItemTest` check that
   an item's view is a `CYLTagButton` showing the item's title, image and badge, and forwarding `animationURL`.
-- TODO, HarmonyOS (`harmonyos/cylsearch`, and the example's SVGA header, `CYLSVGAView` of cyltabbar): waits for
-  CollectionViewClassifyMenu's ArkTS `CYLTagButton`, which cannot draw a bar item yet:
-  1. it draws its icon with `Image`, which does not draw the items' system symbols (`$r('sys.symbol.camera')`,
-     drawn with `SymbolGlyph` today);
-  2. its colors are strings, while the items use theme colors (`ResourceColor`, `$r('sys.color.font_primary')`)
-     that follow the color mode;
-  3. `CYLTagButtonComponent` is a V1 `@Component` with an `@ObjectLink`; the bar is a V2 `@ComponentV2`, and passing
-     the model across needs a check in DevEco Studio;
-  4. adding it as a sub-repository here (`harmonyos/scripts/sync-sub-repositories.py`, `oh-package.json5`) pulls
-     `@ohos/lottie 2.0.38` and `@tencent/libpag 4.4.31` next to cylplaceholder's `2.0.28` / `4.5.102`.
-  Until then `CYLSearchBarItem.animationURL` is TODO in `docs/harmonyos-api-alignment.md` (score 99).
-- TODO, mini program (`src/cyl-search-bar`): waits for CollectionViewClassifyMenu's `cyl-tag-button`, whose tag box
-  cannot be transparent (`opaqueBackground` turns `transparent` and alpha 0 into `#F2F2F7`), so the items would sit
-  on gray boxes inside the field. Then: add `cyl-tag-list-miniprogram` as an optional peer dependency (as
-  `cyl-placeholder-miniprogram`), install it in `scripts/sync-example.js` at the pinned commit, and draw each item
-  with `<cyl-tag-button>`. Until then `CYLSearchBarItem.animationURL` is TODO in `docs/miniprogram-api-alignment.md`
-  (score 99).
+- HarmonyOS (`harmonyos/cylsearch`): `cylsearch` depends on CollectionViewClassifyMenu's HarmonyOS library
+  `@cyl/classifymenu` (`harmonyos/scripts/sync-sub-repositories.py` installs `harmony/classifymenu` at
+  `collectionViewClassifyMenuCommit` into the git-ignored `harmonyos/vendor/classifymenu`, a module of
+  `build-profile.json5`). `CYLSearchBarItem.itemView` is a `CYLTagButton`, created on first use and styled from the
+  item by `reloadItemView(barTint)`: no border, the item's background (transparent by default) and 10 vp corners when
+  it has one, its tint (else the bar's `itemTintColor`, else `sys.color.font_primary`) for the title and the icon,
+  the title attributes of its current state, its icon size, insets, position adjustments and badge (color, text
+  attributes, smallest size, insets, offset), at least 36 x 36 vp; a text item shows its title (and its icon), an
+  icon item only its icon (its title is the screen reader label); system symbols are drawn with `SymbolGlyph`.
+  `CYLSearchBarItemView` draws it through `CYLTagButtonHost` (the V1 bridge inside the V2 bar), grows the touch
+  region to 44 vp, dims a disabled item and reads its label and badge; a divider keeps its line.
+  `CYLSearchBarItem.animationURL` (`asset:<rawfile>`) is forwarded and played on each tap; `CYLSearchBarView.itemViews`
+  returns the `CYLTagButton`s.
+- HarmonyOS example: the SVGA demo above the Examples list is a `CYLTagButton` with `asset:svga/tab_activity.svga` as
+  its `animationURL` (`ExamplesMenu.ets`, `cylSVGADemoTagButton`, as iOS `CYLSVGADemoTagButton`), played once when
+  shown and on each tap; the example no longer uses cyltabbar's `CYLSVGAView` for it.
+- One app, both libraries: classifymenu pins `@ohos/lottie` 2.0.38 and `@tencent/libpag` 4.4.31 (its minimum is
+  API 12; libpag 4.5.102 needs API 15), cylplaceholder 2.0.28 and 4.5.102; `harmonyos/oh-package.json5` picks one
+  version of each with ohpm `overrides` (the newer: `@ohos/lottie` 2.0.38, `@tencent/libpag` 4.5.102, `@ohos/rive`
+  1.0.4), so the HAP carries one libpag.
+- Mini program (`src/cyl-search-bar`): every item is CollectionViewClassifyMenu's `<cyl-tag-button>`
+  (`cyl-tag-list-miniprogram`, an optional peer dependency installed by `scripts/sync-example.js` at
+  `collectionViewClassifyMenuCommit`) with the properties of `CYLSearchBarItem.tagButtonProperties(tint)`: a
+  transparent box (`allowsTransparentBackground`), no border, the tint of the color mode, the title attributes, the
+  icon size, the badge and its color, the item's label for the screen reader; the 36 px box around it takes the taps
+  and plays the item's `animationURL` (a key of the app's animation registry) on each tap.
+- Tests: HarmonyOS `CYLSearchCore.test.ets` `searchBarItemsAreDrawnByTagButtons` (an item's view is a `CYLTagButton`
+  with the item's symbol, badge, tint and `animationURL`; a text item shows its title) and the host logic tests
+  `cylSearchBarItemButtonContent`, `cylSearchBarItemInsets`, `cylSearchTouchRegion`; mini program
+  `components.test.js` "cyl-search-bar draws each item with cyl-tag-button" (title, image, badge, `animationURL`,
+  transparent style, a tap plays the animation) and `package.test.js` (the two sub-dependencies, pinned by commit).
+- Tables: `docs/harmonyos-api-alignment.md` 284 / 284 = 100 (`CYLSearchBarItem.animationURL`, `itemView`),
+  `docs/miniprogram-api-alignment.md` 284 / 284 = 100.
 
-### TODO (2026-11-17): step 2 on HarmonyOS and the mini program
+### DONE (2026-11-17): step 2 on HarmonyOS and the mini program (logged as TODO in `00b8fde`)
 
 - **Context**: CollectionViewClassifyMenu `27777c6b6a35951b9fd639849296dcbfaaae5876` (branch `feat/harmony`) removed
   the four HarmonyOS blockers above (`SymbolGlyph` for `sys.symbol` icons, `ResourceColor` colors, `CYLTagButtonHost`
@@ -97,7 +114,9 @@
   Mini program: `cyl-search-bar` items drawn with classifymenu's `cyl-tag-button` (transparent, iOS look), pinned to
   the same commit; `animationURL` on items. Tests, the parity generators at 100, docs.
 - **Prompt**: relayed by the parent session for the task above (same prompt).
-- **Status**: started.
+- **Result**: step 2 above. CollectionViewClassifyMenu commits on `feat/harmony`: `27777c6` (symbols, `ResourceColor`,
+  `minimumSize`, badge metrics, `CYLTagButtonHost`, `allowsTransparentBackground`), `a7d3474` (`playAnimation()`
+  before the icon is loaded plays it once loaded), `15877a4` (`cyl-tag-button` `accessibilityLabel`).
 
 ### Step 3: TODO
 
@@ -113,6 +132,13 @@
 - Not seen on a simulator: the items' look (no border, the field's background behind them, the 36 pt / dp touch
   area, the badge on the icon's corner), an animated bar item, and the SVGA demo header playing `tab_activity.svga`
   through the engine (whether `playAnimation()` before the SVGA file is parsed plays it once it is loaded).
-- Checks run here: the parity generators (Android 100, iOS 100, HarmonyOS 99, mini program 99: the `animationURL`
-  rows above), `check-public-api-comments.sh`, the HarmonyOS host logic, iOS parity and accessibility checks, the mini
-  program `npm test`.
+- HarmonyOS, not compiled or run (no DevEco Studio here): `CYLSearchBarView.ets`, `ExamplesMenu.ets`, the ohosTest,
+  the ohpm `overrides`; to check: `python3 harmonyos/scripts/sync-sub-repositories.py`, `ohpm install`, build, the
+  ohosTest on the emulator, and on screen: the items' look (symbols tinted, theme colors in dark mode, the badge),
+  the 44 vp touch region, the V1 tag inside the V2 bar redrawing when an item changes, the SVGA demo playing once.
+  Whether `@cyl/classifymenu`'s PAG code runs on libpag 4.5.102 (built against 4.4.31) is not checked.
+- Mini program, not opened in WeChat DevTools: the items drawn by `cyl-tag-button` (the camelCase attributes, the
+  transparent box, the tap reaching the outer box, the badge position).
+- Checks run here: the parity generators (Android 100, iOS 100, HarmonyOS 100, mini program 100),
+  `harmonyos-scorecard.py` 100, `check-public-api-comments.sh`, the HarmonyOS host logic tests (30 pass), iOS parity
+  (397 match) and accessibility checks (0 problems), the mini program `npm test` (48 pass, with the example synced).

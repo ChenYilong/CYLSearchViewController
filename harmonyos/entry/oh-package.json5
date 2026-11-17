@@ -1,13 +1,14 @@
 {
   "name": "entry",
   "version": "1.0.0",
-  "description": "The CYLSearchViewController example for HarmonyOS: a 1:1 copy of the iOS example, on cylsearch, CYLTabBarController's cyltabbar and CYLTableViewPlaceHolder's cylplaceholder.",
+  "description": "The CYLSearchViewController example for HarmonyOS: a 1:1 copy of the iOS example, on cylsearch, CYLTabBarController's cyltabbar, CYLTableViewPlaceHolder's cylplaceholder and CollectionViewClassifyMenu's classifymenu.",
   "main": "",
   "author": "ChenYilong",
   "license": "MIT",
   "dependencies": {
     "cylsearch": "file:../cylsearch",
     "cyltabbar": "file:../vendor/cyltabbar",
-    "cylplaceholder": "file:../vendor/cylplaceholder"
+    "cylplaceholder": "file:../vendor/cylplaceholder",
+    "@cyl/classifymenu": "file:../vendor/classifymenu"
   }
 }

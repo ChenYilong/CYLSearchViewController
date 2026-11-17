@@ -2,6 +2,7 @@ import { describe, it, expect } from '@ohos/hypium';
 import { abilityDelegatorRegistry } from '@kit.TestKit';
 import { common } from '@kit.AbilityKit';
 import { CYLPlaceholderScenario } from 'cylplaceholder';
+import { CYLColorKey, CYLImageIsSymbol, CYLTagButton } from '@cyl/classifymenu';
 import {
   CYLMenuFoldControl,
   CYLMenuFoldControlPosition,
@@ -270,6 +271,34 @@ export default function cylSearchCoreTest() {
       bar.addItem(CYLSearchBarItem.divider());
       bar.addItem(CYLSearchBarItem.textItem('Search', () => {}));
       expect(bar.items.length).assertEqual(2);
+    });
+
+    it('searchBarItemsAreDrawnByTagButtons', 0, () => {
+      const bar = new CYLSearchBarView();
+      const camera = CYLSearchBarItem.iconItem($r('sys.symbol.camera'), 'Camera');
+      camera.badgeValue = '3';
+      camera.animationURL = 'asset:svga/tab_activity.svga';
+      camera.tintColor = $r('sys.color.brand');
+      const search = CYLSearchBarItem.textItem('Search');
+      bar.addItem(camera);
+      bar.addItem(CYLSearchBarItem.divider());
+      bar.addItem(search);
+      const views: CYLTagButton[] = bar.itemViews;
+      expect(views.length).assertEqual(3);
+      expect(views[0] === camera.itemView).assertTrue();
+      const icon = camera.reloadItemView(undefined);
+      expect(icon.title === undefined).assertTrue();
+      expect(CYLImageIsSymbol(icon.image)).assertTrue();
+      expect(icon.badgeValue).assertEqual('3');
+      expect(icon.animationURL).assertEqual('asset:svga/tab_activity.svga');
+      expect(icon.accessibilityLabel).assertEqual('Camera');
+      expect(CYLColorKey(icon.style.iconColor(0))).assertEqual(CYLColorKey($r('sys.color.brand')));
+      expect(icon.style.normalAppearance.borderWidth).assertEqual(0);
+      expect(icon.intrinsicSize().width >= 36).assertTrue();
+      const text = search.reloadItemView(undefined);
+      expect(text.title).assertEqual('Search');
+      expect(text.badgeValue === undefined).assertTrue();
+      expect(views[1].title === undefined && views[1].image === undefined).assertTrue();
     });
 
     it('foldControlPositionNone', 0, () => {

@@ -102,6 +102,18 @@ function tell(delegate, method, ...args) {
   return undefined;
 }
 
+/**
+ * A font weight of the title attributes (a number such as 600, or a name) as CollectionViewClassifyMenu names it
+ * (`semibold`); undefined is `semibold`, the iOS default of a bar item's title.
+ */
+function cylFontWeightName(weight) {
+  const names = { 100: 'ultralight', 200: 'thin', 300: 'light', 400: 'regular', 500: 'medium', 600: 'semibold',
+    700: 'bold', 800: 'heavy', 900: 'black' };
+  if (typeof weight === 'number') return names[Math.min(900, Math.max(100, Math.round(weight / 100) * 100))];
+  if (typeof weight === 'string' && weight) return /^\d+$/.test(weight) ? cylFontWeightName(Number(weight)) : weight.toLowerCase();
+  return 'semibold';
+}
+
 // The names `CYLSearchBarItem.item` maps to the package's images.
 const NAMED_IMAGES = { camera: 'camera', mic: 'mic', search: 'magnifyingglass', back: 'chevron_backward' };
 
@@ -119,6 +131,11 @@ class CYLSearchBarItem {
     this.image = image;
     this.selectedImage = undefined;
     this.animatedImage = undefined;
+    /**
+     * An animated icon file (Lottie .json, .pag, .riv, .svga, .gif, a key of the app's animation registry), drawn by
+     * the item's `cyl-tag-button` (CollectionViewClassifyMenu) and played on each tap; `image` is shown without it.
+     */
+    this.animationURL = undefined;
     this.imageSize = 0;
     this.itemAccessibilityLabel = undefined;
     this.itemAccessibilityIdentifier = undefined;
@@ -185,7 +202,8 @@ class CYLSearchBarItem {
   /**
    * An item from plain values, as `<cyl-search-bar items>` takes them (iOS `+itemWithDictionary:`): `style` (`icon`,
    * `divider`, `text`), `title`, `image` (a path, or `camera`, `mic`, `search`, `back`), `selectedImage`,
-   * `accessibilityLabel`, `accessibilityIdentifier`, `isEnabled`, `isSelectable`, `isSelected`, `badgeValue`.
+   * `animationURL`, `accessibilityLabel`, `accessibilityIdentifier`, `isEnabled`, `isSelectable`, `isSelected`,
+   * `badgeValue`, `badgeColor`.
    */
   static item(values) {
     const dictionary = values || {};
@@ -194,6 +212,8 @@ class CYLSearchBarItem {
     const named = NAMED_IMAGES[dictionary.image];
     const item = new CYLSearchBarItem(style, dictionary.title, named ? $r(`sys.symbol.${named}`) : dictionary.image);
     item.selectedImage = dictionary.selectedImage;
+    item.animationURL = dictionary.animationURL || undefined;
+    item.badgeColor = dictionary.badgeColor || undefined;
     item.itemAccessibilityLabel = dictionary.accessibilityLabel || dictionary.itemAccessibilityLabel;
     item.itemAccessibilityIdentifier = dictionary.accessibilityIdentifier;
     item.isEnabled = dictionary.isEnabled !== false;
@@ -213,12 +233,65 @@ class CYLSearchBarItem {
       title: this.title,
       image: this.image,
       selectedImage: this.selectedImage,
+      animationURL: this.animationURL,
       accessibilityLabel: this.itemAccessibilityLabel,
       accessibilityIdentifier: this.itemAccessibilityIdentifier,
       isEnabled: this.isEnabled,
       isSelectable: this.isSelectable,
       isSelected: this.isSelected,
       badgeValue: this.badgeValue,
+      badgeColor: this.badgeColor,
+    };
+  }
+
+  /**
+   * The properties of the item's `<cyl-tag-button>` (CollectionViewClassifyMenu's `CYLTagButton`, the one icon + title +
+   * animated icon component; iOS `CYLSearchBarItemButton.reload()`): a text item shows its title (and its icon before
+   * it), an icon item only its icon (its title is what screen readers read), a divider nothing; an animated image
+   * replaces the icon. The `tagStyle` has no border, the item's background (transparent by default, through
+   * `allowsTransparentBackground`), its tint (`barTint` when it has none) for the title and the icon, the title
+   * attributes of the current state, its icon size, insets and position adjustments. The view dims a disabled item
+   * itself, so the tag stays enabled.
+   */
+  tagButtonProperties(barTint) {
+    const divider = this.style === CYLSearchBarItemStyle.divider;
+    const tint = this.tintColor || barTint || '#000000';
+    const side = this.imageSize > 0 ? this.imageSize : 20;
+    const insets = this.contentInsets >= 0 ? this.contentInsets : (this.style === CYLSearchBarItemStyle.text ? 4 : 0);
+    const attributes = this.titleTextAttributes(this.currentState) || this.titleTextAttributes(CYLSearchBarItemState.normal) || {};
+    const background = (this.isSelected ? (this.selectedBackgroundColor || this.backgroundColor) : this.backgroundColor) || 'transparent';
+    const hasBackground = Boolean(this.backgroundColor || this.selectedBackgroundColor);
+    const appearance = {
+      backgroundColor: background,
+      borderWidth: 0,
+      textColor: attributes.color || tint,
+      iconColor: tint,
+      font: { size: attributes.size || 17, weight: cylFontWeightName(attributes.weight) },
+      contentInsets: { top: 0, left: insets, bottom: 0, right: insets },
+      cornerRadius: hasBackground ? 10 : 0.001,
+    };
+    const offset = (position) => ({ horizontal: Number(position && position.x) || 0, vertical: Number(position && position.y) || 0 });
+    return {
+      title: this.style === CYLSearchBarItemStyle.text ? (this.title || '') : '',
+      image: divider ? '' : (this.animatedImage || this.image || ''),
+      selectedImage: divider || this.animatedImage ? '' : (this.selectedImage || ''),
+      animationURL: divider ? '' : (this.animationURL || ''),
+      badgeValue: divider || this.badgeValue === undefined ? null : this.badgeValue,
+      badgeColor: this.badgeColor || '',
+      accessibilityLabel: this.itemAccessibilityLabel || this.title || '',
+      selected: this.isSelected,
+      tagStyle: {
+        allowsTransparentBackground: true,
+        imageSize: { width: side, height: side },
+        animationSize: { width: side, height: side },
+        imageTitleSpacing: 4,
+        itemHeight: 36,
+        imagePositionAdjustment: offset(this.imagePositionAdjustment),
+        titlePositionAdjustment: offset(this.titlePositionAdjustment),
+        normal: appearance,
+        selected: appearance,
+        disabled: appearance,
+      },
     };
   }
 

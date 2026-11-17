@@ -31,13 +31,13 @@ NOT_APPLICABLE = {
     'layoutSubviews()': 'ArkUI lays a component out from its declaration',
     'sizeThatFits(_:)': 'ArkUI measures a component from its declaration (`intrinsicContentSize` gives the height)',
     'traitCollectionDidChange(_:)': 'system colors (`sys.color.*`) follow the color mode by themselves',
-    'actualBadgeSuperView()': 'ArkUI has no view objects; the badge is drawn by `CYLSearchBarItemView`',
+    'actualBadgeSuperView()': 'ArkUI has no view objects; the badge is drawn by the item\'s `CYLTagButton` (`itemView`)',
 }
 # View objects iOS exposes for customization: ArkUI has none; the component draws them from the model's properties.
 VIEW_OBJECTS = {
     ('CYLSearchBarView', n) for n in ('fieldView', 'searchIconView', 'cancelButton', 'placeholderLabel',
                                       'navigationButton', 'voiceButton', 'submitButton', 'iconButton')
-} | {('CYLSearchBarItem', 'itemView'), ('CYLSearchBarItemView', 'imageView'), ('CYLSearchBarItemView', 'titleLabel'),
+} | {('CYLSearchBarItemView', 'imageView'), ('CYLSearchBarItemView', 'titleLabel'),
      ('CYLSearchBarItemView', 'badgeLabel')}
 
 

@@ -9,7 +9,10 @@
 //      empty placeholders of cyl-search, the default of its cyl-empty-view node) and cyl-refresh (the pull-to-refresh of
 //      its results, CYLRefreshNormalHeader), as cyl-placeholder-miniprogram; an app that installs the package from
 //      npm installs these two folders at the same commit (the package is not on the npm registry);
-//      CYL_PLACEHOLDER_DIR=<checkout> uses a local checkout instead.
+//      CYL_PLACEHOLDER_DIR=<checkout> uses a local checkout instead;
+//    - CollectionViewClassifyMenu (`collectionViewClassifyMenuCommit`), the other sub-dependency of the core:
+//      cyl-tag-button (the one icon + title + animated icon component, which draws the search bar items) with the rest
+//      of its package, as cyl-tag-list-miniprogram; CYL_CLASSIFYMENU_DIR=<checkout> uses a local checkout instead.
 // Runs from `npm run sync-example` and from the DevTools beforeCompile / beforePreview / beforeUpload hooks of
 // project.config.json. The outputs are git-ignored.
 'use strict';
@@ -97,3 +100,12 @@ for (const component of ['cyl-placeholder', 'cyl-refresh']) {
     (file) => !(file.endsWith('.json') && file.includes(`${path.sep}locales${path.sep}`)));
 }
 copyLicenses([placeholderPackage], placeholderTo);
+
+// CollectionViewClassifyMenu: its mini program package (cyl-tag-button draws the search bar items; it needs the rest of
+// the package: cyl-tag-list's model and animations, cyl-animation-icon, the strings).
+const classifyMenuRoot = process.env.CYL_CLASSIFYMENU_DIR || checkout('CollectionViewClassifyMenu', pkg.collectionViewClassifyMenuCommit,
+  ['CrossPlatform/wechat-miniprogram/packages/cyl-tag-list-miniprogram']);
+const tagListPackage = path.join(classifyMenuRoot, 'CrossPlatform', 'wechat-miniprogram', 'packages', 'cyl-tag-list-miniprogram');
+const tagListTo = path.join(miniprogram, 'miniprogram_npm', 'cyl-tag-list-miniprogram');
+sync(path.join(tagListPackage, 'miniprogram_dist'), tagListTo);
+copyLicenses([classifyMenuRoot, tagListPackage], tagListTo);

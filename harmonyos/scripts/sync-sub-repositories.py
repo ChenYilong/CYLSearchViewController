@@ -3,11 +3,14 @@
 
 - CYLTabBarController `CrossPlatform/harmonyos-cyltabbar/cyltabbar` -> harmonyos/vendor/cyltabbar (the tab bar);
 - CYLTableViewPlaceHolder `CrossPlatform/harmonyos-cylplaceholder/cylplaceholder` -> harmonyos/vendor/cylplaceholder
-  (CYLRefreshNormalHeader and the placeholder scenarios).
+  (CYLRefreshNormalHeader and the placeholder scenarios);
+- CollectionViewClassifyMenu `harmony/classifymenu` -> harmonyos/vendor/classifymenu (`CYLTagButton`, the one icon +
+  title + animated icon component that draws the search bar items).
 
-The commits are in harmonyos/oh-package.json5 (`cylTabBarControllerCommit`, `cylTableViewPlaceHolderCommit`; the
-newest commit on any branch that has the HarmonyOS library, docs/sub-repositories.md). `CYL_TABBAR_DIR` /
-`CYL_PLACEHOLDER_DIR` use a local checkout instead. harmonyos/vendor is git-ignored; run this before building.
+The commits are in harmonyos/oh-package.json5 (`cylTabBarControllerCommit`, `cylTableViewPlaceHolderCommit`,
+`collectionViewClassifyMenuCommit`; the newest commit on any branch that has the HarmonyOS library,
+docs/sub-repositories.md). `CYL_TABBAR_DIR` / `CYL_PLACEHOLDER_DIR` / `CYL_CLASSIFYMENU_DIR` use a local checkout
+instead. harmonyos/vendor is git-ignored; run this before building.
 Run: python3 harmonyos/scripts/sync-sub-repositories.py
 """
 import io, json, os, re, shutil, subprocess, tarfile, tempfile
@@ -19,12 +22,14 @@ REPOS = [
      'CrossPlatform/harmonyos-cyltabbar/cyltabbar', 'CYL_TABBAR_DIR', ['LICENSE']),
     ('cylplaceholder', 'https://github.com/ChenYilong/CYLTableViewPlaceHolder.git', 'cylTableViewPlaceHolderCommit',
      'CrossPlatform/harmonyos-cylplaceholder/cylplaceholder', 'CYL_PLACEHOLDER_DIR', ['LICENSE']),
+    ('classifymenu', 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', 'collectionViewClassifyMenuCommit',
+     'harmony/classifymenu', 'CYL_CLASSIFYMENU_DIR', []),
 ]
 
 
 def pins():
     text = open(os.path.join(HARMONY, 'oh-package.json5'), encoding='utf-8').read()
-    return dict(re.findall(r'"(cyl\w+Commit)"\s*:\s*"([0-9a-f]+)"', text))
+    return dict(re.findall(r'"(\w+Commit)"\s*:\s*"([0-9a-f]+)"', text))
 
 
 def archive(repo_dir, commit, paths):

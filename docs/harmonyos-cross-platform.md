@@ -224,7 +224,7 @@ DevEco Studio > Device Manager, then `hdc install` the HAP and run the hypium te
 sub-repositories' HarmonyOS libraries: run `python3 harmonyos/scripts/sync-sub-repositories.py` before building.
 
 <!-- harmonyos-score:begin -->
-Score: 99/100 (308 of 309 rows; API 283/284, demos 25/25; TODO left 1).
+Score: 100/100 (309 of 309 rows; API 284/284, demos 25/25; TODO left 0).
 <!-- harmonyos-score:end -->
 
 | Date | Change | Score |
@@ -389,7 +389,7 @@ Score: 99/100 (308 of 309 rows; API 283/284, demos 25/25; TODO left 1).
 | `CYLSearchBarItem.image` | `CYLSearchBarItem.image` |
 | `CYLSearchBarItem.selectedImage` | `CYLSearchBarItem.selectedImage` |
 | `CYLSearchBarItem.animatedImage` | `CYLSearchBarItem.animatedImage` |
-| `CYLSearchBarItem.animationURL` | TODO |
+| `CYLSearchBarItem.animationURL` | `CYLSearchBarItem.animationURL` |
 | `CYLSearchBarItem.imageSize` | `CYLSearchBarItem.imageSize` |
 | `CYLSearchBarItem.itemAccessibilityLabel` | `CYLSearchBarItem.itemAccessibilityLabel` |
 | `CYLSearchBarItem.itemAccessibilityIdentifier` | `CYLSearchBarItem.itemAccessibilityIdentifier` |
@@ -409,7 +409,7 @@ Score: 99/100 (308 of 309 rows; API 283/284, demos 25/25; TODO left 1).
 | `CYLSearchBarItem.badgePositionAdjustment` | `CYLSearchBarItem.badgePositionAdjustment` |
 | `CYLSearchBarItem.handler` | `CYLSearchBarItem.handler` |
 | `CYLSearchBarItem.index` | `CYLSearchBarItem.index` |
-| `CYLSearchBarItem.itemView` | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
+| `CYLSearchBarItem.itemView` | `CYLSearchBarItem.itemView` |
 | `CYLSearchBarItem.init(style:title:image:)` | `new CYLSearchBarItem(…)` |
 | `CYLSearchBarItem.init(title:image:)` | `new CYLSearchBarItem(…)` |
 | `CYLSearchBarItem.init(title:image:selectedImage:)` | `new CYLSearchBarItem(…)` |
@@ -421,7 +421,7 @@ Score: 99/100 (308 of 309 rows; API 283/284, demos 25/25; TODO left 1).
 | `CYLSearchBarItem.titleTextAttributes(for:)` | `CYLSearchBarItem.titleTextAttributes` |
 | `CYLSearchBarItem.setBadgeTextAttributes(_:for:)` | `CYLSearchBarItem.setBadgeTextAttributes` |
 | `CYLSearchBarItem.badgeTextAttributes(for:)` | `CYLSearchBarItem.badgeTextAttributes` |
-| `CYLSearchBarItem.actualBadgeSuperView()` | TODO: N/A on HarmonyOS: ArkUI has no view objects; the badge is drawn by `CYLSearchBarItemView` |
+| `CYLSearchBarItem.actualBadgeSuperView()` | TODO: N/A on HarmonyOS: ArkUI has no view objects; the badge is drawn by the item's `CYLTagButton` (`itemView`) |
 | **class `CYLSearchResources`** | `CYLSearchResources` |
 | `CYLSearchResources.resourceBundle` | `CYLSearchResources.resourceBundle` |
 | `CYLSearchResources.image(named:)` | `CYLSearchResources.imageNamed` |

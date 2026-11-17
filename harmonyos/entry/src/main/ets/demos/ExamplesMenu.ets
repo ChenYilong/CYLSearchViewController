@@ -1,6 +1,9 @@
 import { common } from '@kit.AbilityKit';
 import { CYLPlaceholderMessage, CYLPlaceholderStyle, CYLPlaceholderViewModel } from 'cylplaceholder';
-import { CYLSVGAView } from 'cyltabbar';
+import {
+  CYLControlState, CYLEdgeInsets, CYLFont, CYLMenuStyle, CYLSize, CYLTagButton, CYLTagButtonHost,
+  CYLTagContentAlignment, CYLTagCornerRadiusSquare
+} from '@cyl/classifymenu';
 import {
   cylAppText,
   CYLDemoCell,
@@ -28,6 +31,39 @@ const MESSAGES: CYLPlaceholderMessage[] = [CYLPlaceholderMessage.Empty, CYLPlace
 const CUSTOM_KEYS: string[] = ['demo.custom.textOnly', 'demo.custom.imageOnly', 'demo.custom.both'];
 
 /**
+ * The side of the SVGA demo's animated icon in vp (iOS `CYLSVGADemoTagButton.iconSide`).
+ */
+const SVGA_ICON_SIDE: number = 64;
+
+/**
+ * The SVGA demo above the Examples list (iOS `CYLSVGADemoTagButton`): a `CYLTagButton` (CollectionViewClassifyMenu, the
+ * one icon + title + animated icon component) whose `animationURL` is an `.svga` rawfile, drawn by its animation
+ * engine, so the example uses no SVGA player itself. The icon comes before the title, at the leading edge, without a
+ * border or background.
+ */
+function cylSVGADemoTagButton(title: string, animationURL: string): CYLTagButton {
+  const button = new CYLTagButton(title, undefined, animationURL);
+  const style = new CYLMenuStyle();
+  style.imageSize = new CYLSize(SVGA_ICON_SIDE, SVGA_ICON_SIDE);
+  style.animationSize = new CYLSize(SVGA_ICON_SIDE, SVGA_ICON_SIDE);
+  style.imageTitleSpacing = 12;
+  style.contentAlignment = CYLTagContentAlignment.leading;
+  style.itemHeight = SVGA_ICON_SIDE;
+  [CYLControlState.NORMAL, CYLControlState.SELECTED, CYLControlState.DISABLED].forEach((state: number) => {
+    const appearance = style.appearance(state);
+    appearance.backgroundColor = Color.Transparent;
+    appearance.borderColor = undefined;
+    appearance.borderWidth = 0;
+    appearance.contentInsets = new CYLEdgeInsets(0, 0, 0, 0);
+    appearance.cornerRadius = CYLTagCornerRadiusSquare;
+    appearance.textColor = $r('sys.color.font_secondary');
+    appearance.font = CYLFont.systemFont(13);
+  });
+  button.style = style;
+  return button;
+}
+
+/**
  * The Examples tab (iOS `CYLSearchDemoMenuViewController`): Search and refresh, Placeholder styles, Search bar, and
  * the other libraries' examples.
  */
@@ -35,8 +71,9 @@ const CUSTOM_KEYS: string[] = ['demo.custom.textOnly', 'demo.custom.imageOnly', 
 export struct ExamplesMenuView {
   @Require @Param stack: NavPathStack;
   private context: common.Context = this.getUIContext().getHostContext() as common.Context;
-  // The SVGA demo above the list (iOS `CYLSVGADemoHeaderView`): a tap plays it again.
-  @Local svgaReplay: number = 0;
+  // The SVGA demo above the list (iOS `CYLSVGADemoHeaderView`): played once when shown, again on each tap.
+  private svgaButton: CYLTagButton = cylSVGADemoTagButton(cylAppText(this.context, 'svga_demo'),
+    'asset:svga/tab_activity.svga');
   // Where the tab icons come from (iOS `CYLDemoTabIconSource`): 0 symbols, 1 SVGA keys, 2 SVGA configuration file.
   @Local iconSource: number = AppStorage.get<number>(CYL_TAB_ICON_SOURCE_KEY) ?? 0;
 
@@ -51,28 +88,27 @@ export struct ExamplesMenuView {
     cylSetTabIconSource(this.context, this.iconSource);
   }
 
-  // As iOS `CYLSVGADemoHeaderView`: the 64 vp animation (tab_activity.svga, played once) and its label, the source button
-  // below.
+  aboutToAppear(): void {
+    // Plays once when shown, as the tab icons do when selected (iOS `didMoveToWindow`).
+    this.svgaButton.playAnimation();
+  }
+
+  // As iOS `CYLSVGADemoHeaderView`: the tag button with the 64 vp animation (tab_activity.svga) and its title, the
+  // source button below.
   @Builder
   svgaHeader() {
     Column() {
-      Row({ space: 12 }) {
-        CYLSVGAView({ path: 'svga/tab_activity.svga', iconSize: 64, selected: true, replayToken: this.svgaReplay })
-          .width(64)
-          .height(64)
-        Text(cylAppText(this.context, 'svga_demo'))
-          .fontSize(15)
-          .fontColor($r('sys.color.font_primary'))
-          .layoutWeight(1)
+      Row() {
+        CYLTagButtonHost({ button: this.svgaButton, interactive: false })
       }
       .width('100%')
-      .height(64)
+      .height(SVGA_ICON_SIDE)
       .accessibilityGroup(true)
       .accessibilityText(cylAppText(this.context, 'svga_demo'))
       .accessibilityDescription(cylAppText(this.context, 'svga_demo_hint'))
       .id('CYLSVGADemoHeader')
       .onClick(() => {
-        this.svgaReplay++;
+        this.svgaButton.playAnimation();
       })
       Text(cylAppText(this.context, 'svga_source', this.sourceName()))
         .fontSize(17)

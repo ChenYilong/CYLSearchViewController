@@ -3,6 +3,16 @@ const { CYLSearchResources, cylFormatString } = require('../core/CYLSearchResour
 
 const text = (key) => CYLSearchResources.localizedString(undefined, key);
 
+// The items' default tint, the label color of the color mode (iOS `UIColor.label`).
+function defaultItemTint() {
+  try {
+    const info = wx.getAppBaseInfo ? wx.getAppBaseInfo() : {};
+    return info && info.theme === 'dark' ? '#FFFFFF' : '#000000';
+  } catch (error) {
+    return '#000000';
+  }
+}
+
 /**
  * The search bar component (iOS `CYLSearchBarView`), drawing a `CYLSearchBarView` (`this.model`). With `mode`
  * "single" (the default): an optional navigation button, the rounded field (the magnifier, the text, the clear
@@ -166,9 +176,14 @@ Component({
       (values || []).forEach((value) => this.model.addItem(CYLSearchBarItem.item(value)));
       this.syncItems();
     },
+    // Each item is drawn by CollectionViewClassifyMenu's <cyl-tag-button> (`button`: its properties).
     syncItems() {
+      const tint = this.model.itemTintColor || defaultItemTint();
       this.setData({
-        shownItems: this.model.items.map((item) => Object.assign(item.itemDictionary(), { label: item.accessibilityText })),
+        shownItems: this.model.items.map((item) => Object.assign(item.itemDictionary(), {
+          label: item.accessibilityText,
+          button: item.tagButtonProperties(tint),
+        })),
       });
     },
     onValueChange(value) {
@@ -269,8 +284,14 @@ Component({
       this.model.hideKeyboard();
     },
     onItemTap(event) {
-      const item = this.model.items[Number(event.currentTarget.dataset.index)];
-      if (!item) return;
+      const index = Number(event.currentTarget.dataset.index);
+      const item = this.model.items[index];
+      if (!item || !item.isEnabled) return;
+      // An animated icon plays on each tap (iOS `CYLSearchBarItemButton`).
+      if (item.animationURL) {
+        const button = this.selectComponent(`#cyl-bar-item-${index}`);
+        if (button && typeof button.playAnimation === 'function') button.playAnimation();
+      }
       this.model.itemTapped(item);
       this.syncItems();
     },

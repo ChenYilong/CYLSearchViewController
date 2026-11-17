@@ -57,16 +57,18 @@
         <view class="cyl-mask-icon cyl-mask-submit" aria-hidden="true" />
       </view>
       <slot name="trailing" />
-      <!-- The appended items (iOS CYLSearchBarItem): a divider, or a button with an icon or a title and a badge. -->
+      <!-- The appended items (iOS CYLSearchBarItem): a divider, or CollectionViewClassifyMenu's cyl-tag-button (the one
+           icon + title + animated icon component, with the badge), at least 36 px square; it reads the item's label. -->
       <block wx:for="{{shownItems}}" wx:key="index">
         <view wx:if="{{item.style === 'divider'}}" class="cyl-divider" aria-hidden="true" />
         <view wx:else class="cyl-item {{item.isEnabled === false ? 'cyl-item-disabled' : ''}}" id="{{item.accessibilityIdentifier}}"
-          role="button" aria-label="{{item.label}}" aria-selected="{{item.isSelected}}" aria-disabled="{{item.isEnabled === false}}"
           data-index="{{index}}" bindtap="onItemTap">
-          <image wx:if="{{item.image}}" class="cyl-item-icon" src="{{item.isSelected && item.selectedImage ? item.selectedImage : item.image}}" aria-hidden="true" />
-          <text wx:if="{{item.style === 'text'}}" class="cyl-item-title" aria-hidden="true">{{item.title}}</text>
-          <view wx:if="{{item.badgeValue !== undefined && item.badgeValue !== null}}" aria-hidden="true"
-            class="cyl-badge {{item.badgeValue === '' ? 'cyl-badge-dot' : ''}}">{{item.badgeValue}}</view>
+          <cyl-tag-button id="cyl-bar-item-{{index}}" title="{{item.button.title}}" image="{{item.button.image}}"
+            selectedImage="{{item.button.selectedImage}}" animationURL="{{item.button.animationURL}}"
+            badgeValue="{{item.button.badgeValue}}" badgeColor="{{item.button.badgeColor}}"
+            accessibilityLabel="{{item.button.accessibilityLabel}}" selected="{{item.button.selected}}"
+            enabled="{{item.isEnabled !== false}}"
+            tagStyle="{{item.button.tagStyle}}" />
         </view>
       </block>
     </view>

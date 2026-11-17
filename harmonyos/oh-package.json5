@@ -4,6 +4,12 @@
   "dependencies": {},
   "cylTabBarControllerCommit": "b2ec2f3c81a28c18d63383ccde72a8fef960b0fc",
   "cylTableViewPlaceHolderCommit": "f488e2fb0ca175f96daabf5814739832a2cfd1ce",
+  "collectionViewClassifyMenuCommit": "15877a483cbaa16bcbc26755f678f166463b5af4",
+  "overrides": {
+    "@ohos/lottie": "2.0.38",
+    "@tencent/libpag": "4.5.102",
+    "@ohos/rive": "1.0.4"
+  },
   "devDependencies": {
     "@ohos/hypium": "1.0.21"
   }

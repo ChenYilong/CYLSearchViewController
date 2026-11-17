@@ -1,4 +1,4 @@
-// The package as a library: its entry, its files, its two components and its only sub-dependency.
+// The package as a library: its entry, its files, its two components and its two sub-dependencies.
 const test = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
@@ -7,8 +7,10 @@ const path = require('path');
 const root = path.join(__dirname, '..');
 const pkg = require('../package.json');
 const src = path.join(root, pkg.miniprogram);
-// The sub-dependency: CYLTableViewPlaceHolder's mini program package (placeholders and pull-to-refresh, not search).
-const SUB_DEPENDENCY = 'cyl-placeholder-miniprogram';
+// The sub-dependencies, neither a search library: CYLTableViewPlaceHolder's mini program package (placeholders and
+// pull-to-refresh) and CollectionViewClassifyMenu's (cyl-tag-button, which draws the search bar items).
+const SUB_DEPENDENCIES = ['cyl-placeholder-miniprogram', 'cyl-tag-list-miniprogram'];
+const subDependencyOf = (target) => SUB_DEPENDENCIES.find((name) => target.startsWith(`${name}/`));
 const synced = path.join(root, 'example', 'miniprogram', 'miniprogram_npm');
 
 const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true })
@@ -38,9 +40,10 @@ test('src has two components and three core modules', () => {
     assert.strictEqual(json.component, true, name);
     const used = Object.values(json.usingComponents || {}).concat(Object.values(json.componentGenerics || {}).map((g) => g.default));
     for (const target of used) {
-      if (target.startsWith(`${SUB_DEPENDENCY}/`)) {
+      const dependency = subDependencyOf(target);
+      if (dependency) {
         // Resolved from miniprogram_npm; checked when the example has been synced (scripts/sync-example.js).
-        if (fs.existsSync(path.join(synced, SUB_DEPENDENCY))) assert.ok(fs.existsSync(path.join(synced, `${target}.json`)), `${name} -> ${target}`);
+        if (fs.existsSync(path.join(synced, dependency))) assert.ok(fs.existsSync(path.join(synced, `${target}.json`)), `${name} -> ${target}`);
         continue;
       }
       // A library component refers to its siblings by relative path, never to the app (an absolute path).
@@ -50,10 +53,11 @@ test('src has two components and three core modules', () => {
   }
 });
 
-test('the search package depends on no other search library: only CYLTableViewPlaceHolder, pinned by commit', () => {
+test('the search package depends on no other search library: CYLTableViewPlaceHolder and CollectionViewClassifyMenu, pinned by commit', () => {
   const dependencies = Object.assign({}, pkg.dependencies, pkg.peerDependencies);
-  assert.deepStrictEqual(Object.keys(dependencies), [SUB_DEPENDENCY]);
+  assert.deepStrictEqual(Object.keys(dependencies), SUB_DEPENDENCIES);
   assert.match(pkg.cylTableViewPlaceHolderCommit, /^[0-9a-f]{40}$/);
+  assert.match(pkg.collectionViewClassifyMenuCommit, /^[0-9a-f]{40}$/);
   for (const file of walk(src).filter((name) => /\.(js|json)$/.test(name))) {
     const text = fs.readFileSync(file, 'utf8');
     const code = file.endsWith('.js') ? text.replace(/\/\/.*$|\/\*[\s\S]*?\*\//gm, '') : text;
@@ -63,7 +67,7 @@ test('the search package depends on no other search library: only CYLTableViewPl
     if (file.endsWith('.json')) {
       const json = JSON.parse(text);
       const used = Object.values(json.usingComponents || {}).concat(Object.values(json.componentGenerics || {}).map((g) => g.default));
-      for (const target of used) assert.ok(target.startsWith('../') || target.startsWith(`${SUB_DEPENDENCY}/`), `${path.relative(root, file)} uses ${target}`);
+      for (const target of used) assert.ok(target.startsWith('../') || subDependencyOf(target), `${path.relative(root, file)} uses ${target}`);
     }
   }
 });
