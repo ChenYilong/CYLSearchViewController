@@ -10,7 +10,9 @@
 // every image) have bands of their own and never overlap a screenshot; each "=caption" is written in its own band
 // above its image. Text is bold, red for the header and the captions, dark gray for the footer, on white; "\n" in a
 // text starts a new line and long lines wrap. Images keep their original pixels: every cell has the width of the
-// narrowest image, so nothing is enlarged. macOS only (CoreGraphics, CoreText and ImageIO).
+// narrowest image, so nothing is enlarged. --header and --footer are required; the PNG keeps them as its
+// "Description" text ("CYL header: ... | CYL footer: ..."), checked by scripts/check-screenshot-labels.sh. macOS only
+// (CoreGraphics, CoreText and ImageIO); on Windows use scripts/stitch-screenshots.ps1.
 import CoreGraphics
 import CoreText
 import Foundation
@@ -43,7 +45,8 @@ while let argument = arguments.next() {
         }
     }
 }
-guard let output, !inputs.isEmpty else {
+guard let output, !inputs.isEmpty, header?.isEmpty == false, footer?.isEmpty == false else {
+    // AGENTS.md, "Screenshots of builds and CI/CD": every committed screenshot has a header and a footer.
     FileHandle.standardError.write(Data("usage: swift scripts/stitch-screenshots.swift [--columns auto|1|2|3] [--screen-height PIXELS] [--gap PIXELS] [--header TEXT] [--footer TEXT] --out OUT.png IN.png[=caption]...\n".utf8))
     exit(2)
 }
@@ -145,6 +148,12 @@ guard let stitched = context.makeImage(),
       let destination = CGImageDestinationCreateWithURL(URL(fileURLWithPath: output) as CFURL, UTType.png.identifier as CFString, 1, nil) else {
     exit(1)
 }
-CGImageDestinationAddImage(destination, stitched, nil)
+// The label as PNG text ("Description"), which scripts/check-screenshot-labels.sh looks for (as the Windows twin,
+// scripts/stitch-screenshots.ps1).
+let headerLine = header!.replacingOccurrences(of: "\n", with: " ")
+let footerLine = footer!.replacingOccurrences(of: "\n", with: " ")
+let label = "CYL header: \(headerLine) | CYL footer: \(footerLine)"
+let properties = [kCGImagePropertyPNGDictionary: [kCGImagePropertyPNGDescription: label]] as CFDictionary
+CGImageDestinationAddImage(destination, stitched, properties)
 print("\(output): \(columns) column(s), \(l.width)x\(height) px")
 exit(CGImageDestinationFinalize(destination) ? 0 : 1)

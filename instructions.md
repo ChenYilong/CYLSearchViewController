@@ -282,6 +282,12 @@ Start, score and finish every task (added 2026-11-18; skill `cyl-task-start`):
   stitched into one image: stacked top to bottom first, then two columns, then one row of at most three.
 - Correction (user, 2026-11-12): the original wording, "prefer the horizontal arrangement" and "worst is horizontal stitching", contradicted itself; the rule is to prefer the vertical arrangement, one image per row stacked top to bottom.
 - Full rule: `AGENTS.md`, "Screenshots of builds and CI/CD".
+- Enforced (added 2026-11-18): every image committed to `docs/assets` (not only stitched ones) is made with
+  `swift scripts/stitch-screenshots.swift` (macOS) or `scripts/stitch-screenshots.ps1` (Windows) with a header and a
+  footer; the document line that links it carries the label (platform, device and OS, SDK / IDE, host OS, commits,
+  date with time zone). `sh scripts/check-screenshot-labels.sh` must pass before every commit that adds an image; CI
+  runs it too. Re-read rules changed since the session began at each task start. Full rule: `AGENTS.md`, "Screenshot
+  labels are enforced".
 - Stitched screenshots (added 2026-11-18, replaces the order above): one column over several rows; two columns over
   several rows when one column would be taller than one phone screen (one full screenshot of the device). A header
   above and a footer below, in bands of their own that never cover a screenshot, bold, English: header (red) with the

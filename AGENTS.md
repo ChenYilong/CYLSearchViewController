@@ -398,6 +398,33 @@ reproduction or fix without launching the sample on a simulator.
   docs/assets/<name>.png "<shot 1>.png=<caption 1>" "<shot 2>.png=<caption 2>"`. `--columns auto` (the default)
   applies the layout rule; `--screen-height <px>` sets one screen when the images are not full-width crops.
 
+### Screenshot labels are enforced (added 2026-11-18)
+
+User's request (2026-11-18): "检查为什么没有应用新增的截图Label规范，并强化该策略保证以后截图必须遵循该规范，避免再出现该问题。"
+(find out why the new screenshot label rule was not applied, and make every future screenshot follow it).
+
+Why it was missed (2026-11-17/18, the Windows session): the header and footer rule landed mid-session from another
+session and nothing made the session re-read it; the older "Labels" rule was applied only in part (platform, device,
+pins, but no host OS, SDK or IDE version, time zone); the only tool ran on macOS; and nothing checked a screenshot
+before it was committed. So, from now on:
+
+- **Every screenshot, not only stitched ones.** Every image committed to `docs/assets` goes through a stitching tool
+  with `--header` and `--footer` (one image is a one-panel stitch). The raw capture may be kept in `docs/assets/raw/`
+  as the tool's input; documents link the labelled PNG.
+- **A tool on every host.** macOS: `swift scripts/stitch-screenshots.swift`; Windows:
+  `powershell -ExecutionPolicy Bypass -File scripts/stitch-screenshots.ps1 -Header "..." -Footer "..." -Out
+  docs/assets/<name>.png "<shot>.png=<caption>"` (same layout and look). Both require a header and a footer and write
+  them into the PNG as its "Description" text (`CYL header: ... | CYL footer: ...`).
+- **The check.** `sh scripts/check-screenshot-labels.sh` (staged images) or `... BASE HEAD` fails when an added
+  `docs/assets` image is not a PNG, has no header and footer, is shown by no Markdown file, or the line that shows it
+  has no date (YYYY-MM-DD) and commit. Run it before every commit that adds an image (commit readiness); CI runs it
+  on every pull request and push that touches `docs/assets` (`.github/workflows/screenshot-labels.yml`).
+- **The label line in the document**: on the same line as the image link, the platform, device and OS version,
+  SDK / IDE version, host OS, the library commits, the date with time and time zone.
+- **Rules change mid-session.** At the start of each task, pull and read what changed in the rules since the session
+  began (`git log --since=<session start> -p -- AGENTS.md instructions.md .agents/skills`), and apply it to the task.
+- **Scoring.** A task with an unlabelled screenshot cannot pass (`cyl-task-start`).
+
 ## Open pull requests and issues of projects we translate
 
 When a document of this project links to another project's GitHub repository (not this project) because its code
@@ -456,6 +483,9 @@ User's rule (2026-11-18): every task starts with a visible `TODO`, is scored
 against acceptance criteria written before the work, and does not stop before
 it passes. Checklist: the `cyl-task-start` skill.
 
+0. **Read the rules that changed since the session began** (added 2026-11-18): other sessions edit `AGENTS.md`,
+   `instructions.md` and the skills while this one runs. `git pull`, then
+   `git log --since=<session start> -p -- AGENTS.md instructions.md .agents/skills`, and apply what changed.
 1. **Check other sessions first.** List the other sessions (for example
    `ListAgents`) and read their tasks, usually marked `TODO` at the top of each
    session. If no session is editing the same branch, go on. If one is, check
@@ -514,6 +544,9 @@ question to the user.
   - At the end of every exchange (one question and its answer), when the current branch is not `master` / `main`,
     commit and push without asking: the work is always on a branch, never pushed to `master` / `main`, so pushing is
     safe and carries no risk to worry about.
+
+- **Before every commit that adds an image** (added 2026-11-18): `sh scripts/check-screenshot-labels.sh` must print
+  `screenshot labels: ok`; fix the image or its label line before committing ("Screenshot labels are enforced").
 
 - **Before every Commitizen-style (`git cz`) commit**, run this first in the repository root, so the vault's auto sync does not commit or push in the middle of it:
 

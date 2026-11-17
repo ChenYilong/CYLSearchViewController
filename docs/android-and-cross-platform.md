@@ -25,7 +25,8 @@ on the native cores, Flutter as well. Dated task entries below record the work i
   user confirmed both set.
 - Results (pins CYLTabBarController `fe5c3ae3`, CollectionViewClassifyMenu `333b349`; Android emulator Medium Phone API 37,
   HarmonyOS emulator Mate 70 Pro API 21):
-  - HarmonyOS: ohosTest 29 of 29 (`assets/harmonyos-mate70pro-api21-20261117-examples-at-fe5c3ae3.jpeg`).
+  - HarmonyOS: ohosTest 29 of 29; 2026-11-17 23:30 +13:00, CYLTabBarController fe5c3ae3 (`assets/harmonyos-mate70pro-api21-20261117-examples-at-fe5c3ae3.png`:
+    HarmonyOS API 21, Mate 70 Pro emulator, DevEco Studio 6.0.1.251, Windows 11).
   - React Native: builds; Rive tab icons tinted (selected blue), plus button raised by the core
     (`assets/android-medium-phone-api37-20261118-rn-rive-tint-plus.png`); search opens and filters as you type
     (`…-rn-search-filter.png`). Unit tests on a clean clone (CYLTableViewPlaceHolder's session): jest 5 of 5, tsc 0 errors.

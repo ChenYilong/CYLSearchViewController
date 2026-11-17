@@ -411,3 +411,33 @@ begins and becomes `DONE` when it ends.
   two full iPhone 18 Pro screenshots give 2 columns (2460 x 2869 px), three tab bar crops give 1 column; no text
   touches a screenshot.
 - **Score**: 100 of 100 (rule in all four files, tool and check done, committed and pushed); pass mark 60.
+
+## DONE (2026-11-18; TODO 2026-11-18): why the screenshot label rule was not applied; make it impossible to skip
+
+- **Branch**: `feat/harmonyos-parity`.
+- **Context**: the label rule ("Labels" in "Screenshots of builds and CI/CD", 2026-11-12) and the header / footer rule
+  ("Stitched screenshots: layout, header and footer", `a8450f7`, 2026-11-18 11:12 +13:00, from the Mac session) exist,
+  but the Windows session's screenshots of 2026-11-17/18 have neither a header nor a footer and their captions miss the
+  host OS, the SDK / IDE version and the time zone.
+- **Root causes**: (1) the header / footer rule landed after the session read `AGENTS.md`, and no rule makes a session
+  re-read changed rules; (2) the older label rule was applied only in part (platform, device, pins); (3) the only tool,
+  `scripts/stitch-screenshots.swift`, runs on macOS only, so Windows sessions could not draw a header or footer;
+  (4) nothing checks a screenshot before it is committed.
+- **Requirements**: find why; strengthen the rule so every future screenshot follows it.
+- **Acceptance**: full marks (100) = a Windows tool with the same header / footer output, a check script that fails an
+  unlabelled screenshot, the check wired into the commit readiness steps and CI, the rules and skills updated (every
+  screenshot, not only stitched ones; re-read changed rules at each task start), today's Windows screenshots relabelled,
+  all pushed. Pass (60) = the tool, the check script and the rules updated, pushed.
+- **Prompt** (verbatim): 检查为什么没有应用新增的截图Label规范，并强化该策略保证以后截图必须遵循该规范，避免再出现该问题。
+- **Prompt** (English): Find out why the newly added screenshot label rule was not applied, and strengthen the policy
+  so that screenshots must follow it from now on, so the problem does not happen again.
+- **Status**: done. `scripts/stitch-screenshots.ps1` (Windows twin of the Swift tool, same look; both now require a
+  header and footer and write `CYL header: ... | CYL footer: ...` into the PNG); `scripts/check-screenshot-labels.sh`
+  (fails an added `docs/assets` image without that text, without a Markdown link, or whose link line has no date and
+  commit); `.github/workflows/screenshot-labels.yml` runs it on pull requests and pushes; rules in `AGENTS.md`
+  ("Screenshot labels are enforced", commit readiness, step 0 of the task start), `instructions.md`, `cyl-verify`,
+  `cyl-docs`, `cyl-commit`, `cyl-task-start`. The 12 screenshots this session took on 2026-11-17/18 are relabelled
+  (originals in `docs/assets/raw/`); the check passes on them.
+- **Score**: 95 of 100. Missing 5: the Swift tool change (required header / footer, the PNG text) is untested, since
+  Swift does not run on this Windows host; the Mac session is asked to run it. The iOS session's
+  `flutter-ios27.2-iphone18pro-20261118-rive-tint-fe5c3ae-vs-6a9ede85.png` predates the check and is theirs to relabel.

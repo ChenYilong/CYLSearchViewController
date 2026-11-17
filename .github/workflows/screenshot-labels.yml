@@ -1,0 +1,29 @@
+# Fails a pull request or push that adds a screenshot under docs/assets without its header, footer and label
+# (AGENTS.md, "Screenshots of builds and CI/CD"; scripts/check-screenshot-labels.sh).
+name: Screenshot labels
+
+on:
+  pull_request:
+    paths: [ 'docs/assets/**' ]
+  push:
+    paths: [ 'docs/assets/**' ]
+
+permissions:
+  contents: read
+
+jobs:
+  labels:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check the screenshots added by this change
+        env:
+          BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+            BASE=$(git rev-list --max-parents=0 "$HEAD" | tail -n 1)
+          fi
+          sh scripts/check-screenshot-labels.sh "$BASE" "$HEAD"

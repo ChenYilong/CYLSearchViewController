@@ -68,6 +68,12 @@ description: "Document public integration and reproducible steps for CYLSearchVi
   full screens unless needed, stitched into one image with `scripts/stitch-screenshots.swift`; layout preference:
   stacked top to bottom, then two columns, then one row of at most three.
 - Correction (user, 2026-11-12): the original wording, "prefer the horizontal arrangement" and "worst is horizontal stitching", contradicted itself; the rule is to prefer the vertical arrangement, one image per row stacked top to bottom.
+- Enforced (added 2026-11-18): every image committed to `docs/assets` (not only stitched ones) is made with
+  `swift scripts/stitch-screenshots.swift` (macOS) or `scripts/stitch-screenshots.ps1` (Windows) with a header and a
+  footer; the document line that links it carries the label (platform, device and OS, SDK / IDE, host OS, commits,
+  date with time zone). `sh scripts/check-screenshot-labels.sh` must pass before every commit that adds an image; CI
+  runs it too. Re-read rules changed since the session began at each task start. Full rule: `AGENTS.md`, "Screenshot
+  labels are enforced".
 
 - Stitched screenshots (added 2026-11-18, replaces the order above): one column over several rows; two columns over
   several rows when one column would be taller than one phone screen (one full screenshot of the device). A header

@@ -52,7 +52,9 @@ By  @ChenYilong <luohanchenyilong@163.com>
    `git log -1 --format=%B | scripts/check-commit-message.sh -`. It fails on a subject that is not git cz style, a subject outside 3 to 64 characters, and on
    any Chinese (CJK) character, and prints the offending lines. Rewrite the message before pushing
    (`git commit --amend` while the commit is not pushed).
-4. Branches other than `master` / `main`: commit and push without asking; `master` / `main`: ask first.
+4. A commit that adds an image under `docs/assets`: `sh scripts/check-screenshot-labels.sh` prints
+   `screenshot labels: ok` (AGENTS.md, "Screenshot labels are enforced").
+5. Branches other than `master` / `main`: commit and push without asking; `master` / `main`: ask first.
 
 ## Pull requests
 

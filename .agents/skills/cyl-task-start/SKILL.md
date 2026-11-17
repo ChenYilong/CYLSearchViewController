@@ -10,6 +10,8 @@ and simulators: restart when hung" (user's rules, 2026-11-18).
 
 ## Before the first change
 
+0. **Read the rules that changed since the session began** (other sessions edit them):
+   `git pull`, then `git log --since=<session start> -p -- AGENTS.md instructions.md .agents/skills`; apply them.
 1. **Check other sessions.** List them (for example `ListAgents`) and read their tasks, usually marked `TODO` at the
    top of each session.
    - No session is editing the same branch: go on.
@@ -26,7 +28,8 @@ and simulators: restart when hung" (user's rules, 2026-11-18).
 
 ## While working
 
-4. **Score after each milestone** against the acceptance criteria. Below 60 the task must not be interrupted or
+4. **Score after each milestone** against the acceptance criteria. A screenshot without its header, footer and label
+   line (`sh scripts/check-screenshot-labels.sh` fails) keeps the task below a pass. Below 60 the task must not be interrupted or
    handed back: keep working and scoring until it passes.
 
 ## At the end
