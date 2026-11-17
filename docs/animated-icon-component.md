@@ -302,3 +302,6 @@
   the AAR), and the mini program's component folder gets `src/LICENSE` (`docs/licenses.md`). The animated item code
   needed no change: it uses no type key or engine-only API.
 - **Pin**: still `fbd05d5`; the branch tip `ec12a9d` does not contain PR #814 yet.
+- **Pin update** (2026-11-17): CollectionViewClassifyMenu `98182e8` → `4622434` (its newest commit: MIT license in
+  every package, `d0c82cb` / `f752b6c`; CYLTabBarController pins back at `fbd05d5` until PR #814 is merged, recorded in
+  its AGENTS.md). CYLTabBarController stays `fbd05d5` here too.
