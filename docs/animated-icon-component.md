@@ -145,8 +145,9 @@
 
 ## TODO (2026-11-17): depend on CYLTabBarController's CYLAnimatedItem; no animation engine in the core
 
-- **Context**: CYLTabBarController (`feat/cross-platform-components`, guide `docs/Animated-Item.md` at `13e717c9`, newest
-  commit `35aa757`) ships the shared animated icon + title component `CYLAnimatedItem`: the component's core
+- **Context**: CYLTabBarController (`feat/cross-platform-components`, guide
+  [docs/Animated-Item.md](https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md),
+  read at its newest commit `35aa757`) ships the shared animated icon + title component `CYLAnimatedItem`: the component's core
   (`CYLTabBarController/CYLAnimatedItem`, CYLUtils only, static images, `CYL_ANIMATION_ENGINE_AVAILABLE` = 0 without an
   engine; Android module `:cylanimateditem`, Maven `io.github.chenyilong:cyltabbarcontroller-animateditem`) and one
   Core-free engine subspec per type (`CYLAnimatedItemLottieSwift`, `…LottieObjectiveC`, `…PAG`, `…PAGEnterprise`,
@@ -174,4 +175,7 @@
   animation effects. The core code does not depend on the animation engine; animated icons show only when the example
   layer adds the animation engine. The components concerned are this repository's packaged animated icon + title
   core components."
+- **Guide link (user, 2026-11-17)**: "更新该文档地址 最新地址https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md"
+  ("Update the document's address to the newest one: …"). The guide is linked on its branch, so it always shows the
+  newest version: <https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md>.
 - **Status**: logged; plan step 1 next.
