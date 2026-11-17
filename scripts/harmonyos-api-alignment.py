@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Builds the iOS-to-HarmonyOS API table (docs/harmonyos-api-alignment.md, between the generated markers).
 
-One row per public declaration of Sources/CYLSearchViewController/*.swift, parsed as for the Android table
+One row per public declaration of Sources/CYLSearchBar/*.swift, parsed as for the Android table
 (android/merged/scripts/api-alignment.py): the iOS API, its doc comment, and the HarmonyOS counterpart. The third
 column is TODO by default. A row is filled when the ArkTS sources (harmonyos/cylsearch/src/main/ets) declare the
 counterpart: the type, the enum case, or the member inside the type's body, under the same name as on Android. A

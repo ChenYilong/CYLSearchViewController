@@ -6,7 +6,7 @@
 //   B. CollectionViewClassifyMenu's Android library (com.cyl.classifymenu), the tag views the search uses, from the
 //      pinned checkout android/merged/.cyl-deps/CollectionViewClassifyMenu.
 // Column 3, the iOS counterpart, is found (1) in docs/android-api-alignment.md (the iOS-to-Android table, read in
-// reverse), (2) as a declaration of the same name in the iOS sources (Sources/CYLSearchViewController for A,
+// reverse), (2) as a declaration of the same name in the iOS sources (Sources/CYLSearchBar for A,
 // CollectionViewClassifyMenu's Class folder for B), (3) for B, in the sub-repository's own generated Android-to-iOS
 // table (its docs/android-ios-api.md, 100/100 there), or (4) in MANUAL below; otherwise it is TODO.
 // Score = rows not TODO / rows x 100 (rule "API parity tables", AGENTS.md).
@@ -31,9 +31,9 @@ try {
 
 const SECTIONS = [
   {
-    title: 'A. CYLSearchViewController: `android/merged/cylsearch` → `Sources/CYLSearchViewController`',
+    title: 'A. CYLSearchViewController: `android/merged/cylsearch` → `Sources/CYLSearchBar`',
     kotlin: join(ROOT, 'android', 'merged', 'cylsearch', 'src', 'main', 'kotlin', 'com', 'cyl', 'search'),
-    ios: [join(ROOT, 'Sources', 'CYLSearchViewController')],
+    ios: [join(ROOT, 'Sources', 'CYLSearchBar')],
   },
   {
     title: `B. CollectionViewClassifyMenu (tag views): \`com.cyl.classifymenu\` → its iOS library (measured at \`${MENU_COMMIT}\`)`,

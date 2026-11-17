@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Builds the iOS-to-WeChat-Mini-Program API table (docs/miniprogram-api-alignment.md, between the generated markers).
 
-One row per public declaration of Sources/CYLSearchViewController/*.swift, parsed as for the Android and HarmonyOS
+One row per public declaration of Sources/CYLSearchBar/*.swift, parsed as for the Android and HarmonyOS
 tables: the iOS API, its doc comment, and the mini program counterpart in
 CrossPlatform/wechat-miniprogram-cylsearch/src/core (CommonJS, ported from the HarmonyOS models). A row is filled when
 the core declares the counterpart under the HarmonyOS name: the class, the enum case, or the member (a method, a

@@ -17,3 +17,6 @@ DerivedData/
 build/
 
 __pycache__/
+
+# Agent worktrees (Claude Code); never committed
+.claude/worktrees/

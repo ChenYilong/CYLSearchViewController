@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Builds the iOS-to-Android API table (docs/android-api-alignment.md, between the generated markers).
 
-Each public declaration of Sources/CYLSearchViewController/*.swift (types, enum cases, properties, methods,
+Each public declaration of Sources/CYLSearchBar/*.swift (types, enum cases, properties, methods,
 initializers and protocol requirements) is one row: the iOS API, the upstream counterparts its doc comment names
 (the projects merged in android/merged), the Kotlin counterpart in the cylsearch module, and the status. A row is
 DONE only when the Kotlin declaration is found in the module's sources; rows that are UIKit protocol conformances are
@@ -12,7 +12,7 @@ Usage: python3 android/merged/scripts/api-alignment.py [--check] [--only=CYLSear
 import os, re, sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-SWIFT = os.path.join(ROOT, 'Sources', 'CYLSearchViewController')
+SWIFT = os.path.join(ROOT, 'Sources', 'CYLSearchBar')
 KOTLIN = os.path.join(ROOT, 'android', 'merged', 'cylsearch', 'src', 'main', 'kotlin', 'com', 'cyl', 'search')
 DOC = os.path.join(ROOT, 'docs', 'android-api-alignment.md')
 BEGIN, END = '<!-- api-alignment:begin -->', '<!-- api-alignment:end -->'
