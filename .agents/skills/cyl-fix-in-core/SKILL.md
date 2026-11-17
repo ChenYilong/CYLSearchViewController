@@ -27,6 +27,11 @@ into the class that owns the feature (a parameter or a mode), never into a new p
 
 ## Steps
 
+0. Record, then screenshot: write the bug into the related document and capture it (`docs/assets`) before
+   fixing. Bugs of the animated components (`CYLAnimatedItem` and its engines) are fixed in CYLTabBarController and
+   pinned here; if the example must change, CYLTabBarController first adds the API it calls (`AGENTS.md`, "Bugs of
+   the animated components").
+
 1. Find where the bug really lives. If any app of the library could meet it, it belongs to the core, even when only
    the example showed it.
 2. Fix it in the core, so that the same kind of problem cannot happen again (a default, a measured size, an option),
