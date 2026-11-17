@@ -1,3 +1,4 @@
+import CollectionViewClassifyMenu
 import UIKit
 
 /**
@@ -440,9 +441,9 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     @objc public private(set) var items: [CYLSearchBarItem] = []
 
     /**
-     * The views of `items`, in the same order.
+     * The views of `items` (`CYLTagButton`s), in the same order.
      */
-    @objc public var itemViews: [UIControl] {
+    @objc public var itemViews: [CYLTagButton] {
         items.map(\.itemView)
     }
 
@@ -555,11 +556,15 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     }
 
     @objc private func itemTapped(_ sender: UIControl) {
-        guard let item = (sender as? CYLSearchBarItemControl)?.item, item.isEnabled else {
+        guard let item = (sender as? CYLSearchBarItemButton)?.item, item.isEnabled else {
             return
         }
         if item.isSelectable {
             item.isSelected.toggle()
+        }
+        if item.animationURL != nil {
+            // An animated icon plays on each tap, as a tab icon does (after the selection, which resets it).
+            item.itemView.playAnimation()
         }
         delegate?.searchBarView?(self, didSelect: item)
         item.handler?(item)
@@ -1578,6 +1583,12 @@ public final class CYLSearchBarItem: NSObject {
     @objc public var animatedImage: UIImage? { didSet { itemChanged() } }
 
     /**
+     * An animated icon file (Lottie .json, .pag, .riv, .svga, .gif), drawn by the item's `CYLTagButton` through
+     * CYLTabBarController's animation engine and played on each tap; `image` is shown without the engine.
+     */
+    @objc public var animationURL: URL? { didSet { itemChanged() } }
+
+    /**
      * The icon size; zero uses 20 x 20 pt.
      */
     @objc public var imageSize: CGSize = .zero { didSet { itemChanged() } }
@@ -1680,14 +1691,14 @@ public final class CYLSearchBarItem: NSObject {
     }
 
     /**
-     * The item's view (a control), created on first use. The bar adds it inside its field and sends its taps to
-     * `-searchBarView:didSelectItem:` and `handler`.
+     * The item's view, a `CYLTagButton` (CollectionViewClassifyMenu) created on first use. The bar adds it inside its
+     * field and sends its taps to `-searchBarView:didSelectItem:` and `handler`.
      */
-    @objc public var itemView: UIControl {
+    @objc public var itemView: CYLTagButton {
         itemControl
     }
 
-    fileprivate lazy var itemControl = CYLSearchBarItemControl(item: self)
+    fileprivate lazy var itemControl = CYLSearchBarItemButton(item: self)
 
     private var titleAttributes: [UInt: [NSAttributedString.Key: Any]] = [:]
     private var badgeAttributes: [UInt: [NSAttributedString.Key: Any]] = [:]
@@ -1848,34 +1859,25 @@ public final class CYLSearchBarItem: NSObject {
 }
 
 /**
- * The view of a `CYLSearchBarItem` (a control), like `CYLFlatDesignTabBarButton`; it was the public
- * `CYLSearchBarItemView`. The item's `itemView` returns it.
+ * The view of a `CYLSearchBarItem`: CollectionViewClassifyMenu's `CYLTagButton` (the one icon + title + animated icon
+ * component), styled from the item for each state, plus what only a bar item has: the link to its item, the divider
+ * line, the 36 pt touch area and the item's badge metrics. The item's `itemView` returns it.
  */
 @MainActor
-private final class CYLSearchBarItemControl: UIControl {
+private final class CYLSearchBarItemButton: CYLTagButton {
 
     private static let defaultImageSide: CGFloat = 20
     private static let minimumTouchSide: CGFloat = 36
+    private static let dividerHeight: CGFloat = 18
+    private static let imageTitleSpacing: CGFloat = 4
+    private static let backgroundCornerRadius: CGFloat = 10
+    private static let disabledAlpha: CGFloat = 0.4
+    private static let states: [UIControl.State] = [.normal, .selected, .disabled]
 
     /**
      * The item this view draws.
      */
     @objc private(set) weak var item: CYLSearchBarItem?
-
-    /**
-     * The icon.
-     */
-    @objc let imageView = UIImageView()
-
-    /**
-     * The title of a text item.
-     */
-    @objc let titleLabel = UILabel()
-
-    /**
-     * The badge (`badgeValue`).
-     */
-    @objc let badgeLabel = UILabel()
 
     private let dividerLayer = CALayer()
 
@@ -1885,19 +1887,10 @@ private final class CYLSearchBarItemControl: UIControl {
     init(item: CYLSearchBarItem) {
         self.item = item
         super.init(frame: .zero)
-        imageView.contentMode = .scaleAspectFit
         imageView.isUserInteractionEnabled = false
-        titleLabel.adjustsFontForContentSizeCategory = true
-        titleLabel.font = UIFontMetrics(forTextStyle: .headline).scaledFont(for: .systemFont(ofSize: 17, weight: .semibold))
         titleLabel.isUserInteractionEnabled = false
-        badgeLabel.textAlignment = .center
-        badgeLabel.font = .systemFont(ofSize: 11, weight: .semibold)
-        badgeLabel.textColor = .white
-        badgeLabel.clipsToBounds = true
+        titleLabel.adjustsFontForContentSizeCategory = true
         badgeLabel.isUserInteractionEnabled = false
-        addSubview(imageView)
-        addSubview(titleLabel)
-        addSubview(badgeLabel)
         layer.addSublayer(dividerLayer)
         showsLargeContentViewer = true
         addInteraction(UILargeContentViewerInteraction())
@@ -1935,46 +1928,56 @@ private final class CYLSearchBarItemControl: UIControl {
         }
     }
 
-    private var currentImage: UIImage? {
-        guard let item else {
-            return nil
+    /**
+     * The tag style that draws the item: no border, the item's background (clear by default), its tint for the title
+     * and template icons, its title attributes per state, its icon size, insets and position adjustments.
+     */
+    private func makeStyle(for item: CYLSearchBarItem) -> CYLMenuStyle {
+        let style = CYLMenuStyle()
+        let tint = resolvedTint
+        let insets = resolvedInsets
+        let hasBackground = item.backgroundColor != nil || item.selectedBackgroundColor != nil
+        style.imageSize = resolvedImageSize
+        style.animationSize = resolvedImageSize
+        style.imageTitleSpacing = Self.imageTitleSpacing
+        style.itemHeight = item.style == .divider ? Self.dividerHeight : Self.minimumTouchSide
+        style.imagePositionAdjustment = item.imagePositionAdjustment
+        style.titlePositionAdjustment = item.titlePositionAdjustment
+        style.adjustsFontForContentSizeCategory = true
+        for state in Self.states {
+            let appearance = style.appearance(for: state)
+            let attributes = item.titleTextAttributes(for: state) ?? item.titleTextAttributes(for: .normal)
+            appearance.font = attributes?[.font] as? UIFont ?? .systemFont(ofSize: 17, weight: .semibold)
+            appearance.textColor = attributes?[.foregroundColor] as? UIColor ?? tint
+            appearance.iconColor = tint
+            let background = item.isSelected ? (item.selectedBackgroundColor ?? item.backgroundColor) : item.backgroundColor
+            appearance.backgroundColor = background ?? .clear
+            appearance.borderColor = nil
+            appearance.borderWidth = 0
+            appearance.contentInsets = insets
+            appearance.cornerRadius = hasBackground ? Self.backgroundCornerRadius : CYLTagCornerRadiusSquare
         }
-        if let animated = item.animatedImage {
-            return animated
-        }
-        return item.isSelected ? (item.selectedImage ?? item.image) : item.image
+        return style
     }
 
     func reload() {
         guard let item else {
             return
         }
-        let state = item.currentState
-        let tint = resolvedTint
+        style = makeStyle(for: item)
+        // A text item shows its title (and its icon before it); an icon item only its icon, the title is what
+        // VoiceOver reads; a divider neither.
+        title = item.style == .text ? item.title : nil
+        image = item.style == .divider ? nil : (item.animatedImage ?? item.image)
+        selectedImage = item.style == .divider || item.animatedImage != nil ? nil : item.selectedImage
+        animationURL = item.style == .divider ? nil : item.animationURL
+        badgeValue = item.style == .divider ? nil : item.badgeValue
+        badgeColor = item.badgeColor
         isEnabled = item.isEnabled
         isSelected = item.isSelected
-        alpha = item.isEnabled ? 1 : 0.4
-        imageView.image = currentImage
-        imageView.tintColor = tint
-        imageView.isHidden = item.style == .divider || currentImage == nil
-        if item.animatedImage != nil {
-            imageView.startAnimating()
-        }
-        let attributes = item.titleTextAttributes(for: state) ?? item.titleTextAttributes(for: .normal)
-        if item.style == .text, let title = item.title {
-            var merged: [NSAttributedString.Key: Any] = [.foregroundColor: tint, .font: titleLabel.font as Any]
-            attributes?.forEach { merged[$0.key] = $0.value }
-            titleLabel.attributedText = NSAttributedString(string: title, attributes: merged)
-            titleLabel.isHidden = false
-        } else {
-            titleLabel.attributedText = nil
-            titleLabel.isHidden = true
-        }
-        let background = item.isSelected ? (item.selectedBackgroundColor ?? item.backgroundColor) : item.backgroundColor
-        backgroundColor = background
+        alpha = item.isEnabled ? 1 : Self.disabledAlpha
         dividerLayer.isHidden = item.style != .divider
         dividerLayer.backgroundColor = UIColor.separator.resolvedColor(with: traitCollection).cgColor
-        reloadBadge(state: state)
         isAccessibilityElement = item.style != .divider
         accessibilityLabel = item.itemAccessibilityLabel ?? item.title
         accessibilityIdentifier = item.itemAccessibilityIdentifier
@@ -1983,24 +1986,10 @@ private final class CYLSearchBarItemControl: UIControl {
             accessibilityTraits.insert(.notEnabled)
         }
         largeContentTitle = item.itemAccessibilityLabel ?? item.title
-        largeContentImage = currentImage
+        largeContentImage = item.animatedImage ?? (item.isSelected ? (item.selectedImage ?? item.image) : item.image)
         isUserInteractionEnabled = item.style != .divider
         setNeedsLayout()
         invalidateIntrinsicContentSize()
-    }
-
-    private func reloadBadge(state: UIControl.State) {
-        guard let item, let value = item.badgeValue else {
-            badgeLabel.isHidden = true
-            return
-        }
-        badgeLabel.isHidden = false
-        badgeLabel.backgroundColor = item.badgeColor ?? .systemRed
-        let attributes = item.badgeTextAttributes(for: state) ?? item.badgeTextAttributes(for: .normal)
-        badgeLabel.attributedText = NSAttributedString(string: value, attributes: attributes ?? [
-            .font: UIFont.systemFont(ofSize: 11, weight: .semibold),
-            .foregroundColor: UIColor.white,
-        ])
     }
 
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -2016,19 +2005,16 @@ private final class CYLSearchBarItemControl: UIControl {
         guard let item else {
             return .zero
         }
-        let insets = resolvedInsets
+        let fitting = super.intrinsicContentSize
         switch item.style {
         case .divider:
-            return CGSize(width: 1 + insets.left + insets.right, height: 18)
+            let insets = resolvedInsets
+            return CGSize(width: 1 + insets.left + insets.right, height: Self.dividerHeight)
         case .icon:
-            let image = resolvedImageSize
-            let side = max(Self.minimumTouchSide, max(image.width + insets.left + insets.right, image.height + insets.top + insets.bottom))
+            let side = max(Self.minimumTouchSide, max(fitting.width, fitting.height))
             return CGSize(width: side, height: side)
         case .text:
-            let titleSize = titleLabel.attributedText.map { ceil($0.size().width) } ?? 0
-            let imageWidth = currentImage == nil ? 0 : resolvedImageSize.width + 4
-            let height = max(Self.minimumTouchSide, ceil(titleLabel.font.lineHeight) + insets.top + insets.bottom)
-            return CGSize(width: max(Self.minimumTouchSide, titleSize + imageWidth + insets.left + insets.right), height: height)
+            return CGSize(width: max(Self.minimumTouchSide, fitting.width), height: max(Self.minimumTouchSide, fitting.height))
         }
     }
 
@@ -2037,34 +2023,29 @@ private final class CYLSearchBarItemControl: UIControl {
         guard let item else {
             return
         }
-        let insets = resolvedInsets
-        let content = bounds.inset(by: insets)
-        let image = resolvedImageSize
-        switch item.style {
-        case .divider:
-            dividerLayer.frame = CGRect(x: insets.left, y: floor((bounds.height - 18) / 2), width: 1, height: min(18, bounds.height))
-        case .icon:
-            imageView.frame = CGRect(x: content.midX - image.width / 2, y: content.midY - image.height / 2, width: image.width, height: image.height)
-                .offsetBy(dx: item.imagePositionAdjustment.horizontal, dy: item.imagePositionAdjustment.vertical)
-        case .text:
-            var x = content.minX
-            if currentImage != nil {
-                imageView.frame = CGRect(x: x, y: content.midY - image.height / 2, width: image.width, height: image.height)
-                    .offsetBy(dx: item.imagePositionAdjustment.horizontal, dy: item.imagePositionAdjustment.vertical)
-                x += image.width + 4
-            }
-            titleLabel.frame = CGRect(x: x, y: content.minY, width: max(0, content.maxX - x), height: content.height)
-                .offsetBy(dx: item.titlePositionAdjustment.horizontal, dy: item.titlePositionAdjustment.vertical)
+        if item.style == .divider {
+            let insets = resolvedInsets
+            dividerLayer.frame = CGRect(x: insets.left, y: floor((bounds.height - Self.dividerHeight) / 2), width: 1,
+                                        height: min(Self.dividerHeight, bounds.height))
         }
-        layoutBadge(item: item)
-        layer.cornerRadius = item.backgroundColor == nil && item.selectedBackgroundColor == nil ? 0 : min(bounds.height / 2, 10)
+        // The whole item is dimmed while disabled; the animated icon is not dimmed a second time.
+        animationView?.alpha = 1
+        layOutItemBadge(item: item)
     }
 
-    private func layoutBadge(item: CYLSearchBarItem) {
-        guard !badgeLabel.isHidden else {
+    /**
+     * The item's badge metrics on the tag's badge: its text attributes, smallest size, text insets and position
+     * adjustment, at the top trailing corner of the icon (or of the title).
+     */
+    private func layOutItemBadge(item: CYLSearchBarItem) {
+        guard let value = item.badgeValue, item.style != .divider else {
             return
         }
-        let isDot = (item.badgeValue ?? "").isEmpty
+        let attributes = item.badgeTextAttributes(for: currentItemState) ?? item.badgeTextAttributes(for: .normal)
+        if let attributes, !value.isEmpty {
+            badgeLabel.attributedText = NSAttributedString(string: value, attributes: attributes)
+        }
+        let isDot = value.isEmpty
         let minimum = item.badgeSize.width > 0 && item.badgeSize.height > 0 ? item.badgeSize : CGSize(width: 16, height: 16)
         var size = isDot ? CGSize(width: 8, height: 8) : minimum
         if !isDot {
@@ -2072,10 +2053,26 @@ private final class CYLSearchBarItemControl: UIControl {
             size.width = max(size.width, ceil(text.width) + item.badgeContentInsets.left + item.badgeContentInsets.right)
             size.height = max(size.height, ceil(text.height) + item.badgeContentInsets.top + item.badgeContentInsets.bottom)
         }
-        let anchor = imageView.isHidden ? titleLabel.frame : imageView.frame
-        badgeLabel.frame = CGRect(x: anchor.maxX - size.width / 2, y: anchor.minY - size.height / 2, width: size.width, height: size.height)
-            .offsetBy(dx: item.badgePositionAdjustment.horizontal, dy: item.badgePositionAdjustment.vertical)
+        let anchor: CGRect
+        if let animationView {
+            anchor = animationView.frame
+        } else if imageView.image != nil && imageView.bounds.width > 0 {
+            anchor = imageView.frame
+        } else {
+            anchor = titleLabel.frame
+        }
+        // Kept inside the tag, which clips its content.
+        let x = max(0, min(anchor.maxX - size.width / 2 + item.badgePositionAdjustment.horizontal, bounds.width - size.width))
+        let y = max(0, min(anchor.minY - size.height / 2 + item.badgePositionAdjustment.vertical, bounds.height - size.height))
+        badgeLabel.frame = CGRect(x: x, y: y, width: size.width, height: size.height)
         badgeLabel.layer.cornerRadius = size.height / 2
+    }
+
+    private var currentItemState: UIControl.State {
+        if !isEnabled {
+            return .disabled
+        }
+        return isSelected ? .selected : .normal
     }
 }
 

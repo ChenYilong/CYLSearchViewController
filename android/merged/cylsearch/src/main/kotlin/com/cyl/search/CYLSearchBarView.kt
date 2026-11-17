@@ -12,6 +12,7 @@ import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
+import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
 import android.text.Editable
@@ -41,6 +42,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
+import com.cyl.classifymenu.CYLControlState
+import com.cyl.classifymenu.CYLEdgeInsets
+import com.cyl.classifymenu.CYLFont
+import com.cyl.classifymenu.CYLMenuStyle
+import com.cyl.classifymenu.CYLOffset
+import com.cyl.classifymenu.CYLSize
+import com.cyl.classifymenu.CYLTagButton
+import com.cyl.classifymenu.CYLTagCornerRadiusSquare
 import kotlin.math.hypot
 import kotlin.math.max
 
@@ -502,9 +511,9 @@ class CYLSearchBarView @JvmOverloads constructor(
         get() = mutableItems.toList()
 
     /**
-     * The views of `items`, in the same order.
+     * The views of `items` (`CYLTagButton`s), in the same order.
      */
-    val itemViews: List<View>
+    val itemViews: List<CYLTagButton>
         get() = mutableItems.map { it.loadItemView(context) }
 
     /**
@@ -613,6 +622,10 @@ class CYLSearchBarView @JvmOverloads constructor(
         }
         if (item.isSelectable) {
             item.isSelected = !item.isSelected
+        }
+        if (item.animationURL != null) {
+            // An animated icon plays on each tap, as a tab icon does (after the selection, which resets it).
+            item.loadedItemView?.playAnimation()
         }
         delegate?.searchBarViewDidSelectItem(this, item)
         item.handler?.invoke(item)
@@ -1884,6 +1897,13 @@ class CYLSearchBarItem @JvmOverloads constructor(
         set(value) { field = value; itemChanged() }
 
     /**
+     * An animated icon file (Lottie .json, .pag, .riv, .svga, .gif), drawn by the item's `CYLTagButton` through
+     * CYLTabBarController's animation engine and played on each tap; `image` is shown without the engine.
+     */
+    var animationURL: Uri? = null
+        set(value) { field = value; itemChanged() }
+
+    /**
      * The icon size in dp; null uses 20 x 20 dp.
      */
     var imageSize: SizeF? = null
@@ -2014,26 +2034,27 @@ class CYLSearchBarItem @JvmOverloads constructor(
         this.selectedImage = selectedImage
     }
 
-    private var view: CYLSearchBarItemView? = null
+    private var view: CYLSearchBarItemButton? = null
     private val titleAttributes = mutableMapOf<CYLSearchBarItemState, CYLSearchBarItemTextAttributes>()
     private val badgeAttributes = mutableMapOf<CYLSearchBarItemState, CYLSearchBarItemTextAttributes>()
 
     /**
-     * The item's view, created on first use with the bar's context (or the given one).
+     * The item's view, a `CYLTagButton` (CollectionViewClassifyMenu), created on first use with the bar's context (or
+     * the given one).
      */
-    fun itemView(context: Context): View = loadItemView(context)
+    fun itemView(context: Context): CYLTagButton = loadItemView(context)
 
     /**
      * The item's view once created, or null.
      */
-    val itemView: View?
+    val itemView: CYLTagButton?
         get() = view
 
-    internal val loadedItemView: CYLSearchBarItemView?
+    internal val loadedItemView: CYLSearchBarItemButton?
         get() = view
 
-    internal fun loadItemView(context: Context): CYLSearchBarItemView =
-        view ?: CYLSearchBarItemView(context, this).also { view = it }
+    internal fun loadItemView(context: Context): CYLSearchBarItemButton =
+        view ?: CYLSearchBarItemButton(context, this).also { view = it }
 
     /**
      * The title attributes for a state.
@@ -2139,55 +2160,27 @@ class CYLSearchBarItem @JvmOverloads constructor(
 }
 
 /**
- * The view of a `CYLSearchBarItem` (a private helper; like `CYLFlatDesignTabBarButton`). Callers reach it as a `View`
- * through `CYLSearchBarItem.itemView` and `CYLSearchBarView.itemViews`.
+ * The view of a `CYLSearchBarItem`: CollectionViewClassifyMenu's `CYLTagButton` (the one icon + title + animated icon
+ * component), styled from the item for each state, plus what only a bar item has: the link to its item, the divider
+ * line, the 36 dp touch area and the item's badge metrics. Callers reach it as a `CYLTagButton` through
+ * `CYLSearchBarItem.itemView` and `CYLSearchBarView.itemViews`.
  */
-internal class CYLSearchBarItemView(context: Context, item: CYLSearchBarItem) : FrameLayout(context) {
+internal class CYLSearchBarItemButton(context: Context, item: CYLSearchBarItem) : CYLTagButton(context) {
 
     /**
      * The item this view draws.
      */
     val item: CYLSearchBarItem = item
 
-    /**
-     * The icon.
-     */
-    val imageView: ImageView = ImageView(context)
-
-    /**
-     * The title of a text item.
-     */
-    val titleLabel: TextView = TextView(context)
-
-    /**
-     * The badge (`badgeValue`).
-     */
-    val badgeLabel: TextView = TextView(context)
-
-    private val content = LinearLayout(context)
     private val divider = View(context)
     private val density = resources.displayMetrics.density
 
     init {
-        content.orientation = LinearLayout.HORIZONTAL
-        content.gravity = Gravity.CENTER
-        imageView.scaleType = ImageView.ScaleType.FIT_CENTER
         imageView.importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
-        titleLabel.setTypeface(titleLabel.typeface, Typeface.BOLD)
-        titleLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f)
-        titleLabel.maxLines = 1
         titleLabel.importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
-        badgeLabel.gravity = Gravity.CENTER
-        badgeLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
-        badgeLabel.setTextColor(Color.WHITE)
-        badgeLabel.importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
-        content.addView(imageView)
-        content.addView(titleLabel)
-        addView(content, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT, Gravity.CENTER))
-        addView(divider, LayoutParams(dp(1f), dp(18f), Gravity.CENTER))
-        addView(badgeLabel, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.TOP or Gravity.END))
-        clipChildren = false
-        clipToPadding = false
+        divider.importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
+        divider.setBackgroundColor(Color.argb(0x33, 0x3C, 0x3C, 0x43))
+        addView(divider)
         setOnClickListener { this.item.searchBarView?.itemTapped(this.item) }
         reload()
     }
@@ -2211,57 +2204,71 @@ internal class CYLSearchBarItemView(context: Context, item: CYLSearchBarItem) : 
         }
     }
 
-    private val currentImage: Drawable?
-        get() = item.animatedImage ?: if (item.isSelected) item.selectedImage ?: item.image else item.image
-
-    internal fun reload() {
-        val state = item.currentState
-        val tint = resolvedTint
-        isEnabled = item.isEnabled
-        isSelected = item.isSelected
-        alpha = if (item.isEnabled) 1f else 0.4f
-        val image = currentImage
-        imageView.setImageDrawable(image)
-        ImageViewCompat.setImageTintList(imageView, if (item.animatedImage != null) null else ColorStateList.valueOf(tint))
-        (image as? Animatable)?.start()
-        val imageW = item.imageSize?.width?.takeIf { it > 0 } ?: 20f
-        val imageH = item.imageSize?.height?.takeIf { it > 0 } ?: imageW
-        imageView.layoutParams = LinearLayout.LayoutParams(dp(imageW), dp(imageH)).apply {
-            marginEnd = if (item.style == CYLSearchBarItemStyle.Text) dp(4f) else 0
-        }
-        imageView.translationX = item.imagePositionAdjustment.getOrElse(0) { 0f } * density
-        imageView.translationY = item.imagePositionAdjustment.getOrElse(1) { 0f } * density
-        imageView.visibility = if (item.style != CYLSearchBarItemStyle.Divider && image != null) VISIBLE else GONE
-        val attributes = item.titleTextAttributes(state) ?: item.titleTextAttributes(CYLSearchBarItemState.Normal)
-        if (item.style == CYLSearchBarItemStyle.Text && item.title != null) {
-            titleLabel.text = item.title
-            titleLabel.setTextColor(attributes?.color ?: tint)
-            attributes?.sizeSp?.let { titleLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, it) }
-            attributes?.typeface?.let { titleLabel.typeface = it }
-            titleLabel.visibility = VISIBLE
-        } else {
-            titleLabel.text = null
-            titleLabel.visibility = GONE
-        }
-        titleLabel.translationX = item.titlePositionAdjustment.getOrElse(0) { 0f } * density
-        titleLabel.translationY = item.titlePositionAdjustment.getOrElse(1) { 0f } * density
-        val insets = item.contentInsets ?: when (item.style) {
+    private val resolvedInsets: FloatArray
+        get() = item.contentInsets ?: when (item.style) {
             CYLSearchBarItemStyle.Text -> floatArrayOf(4f, 0f, 4f, 0f)
             else -> floatArrayOf(0f, 0f, 0f, 0f)
         }
-        setPaddingRelative(dp(insets.getOrElse(0) { 0f }), dp(insets.getOrElse(1) { 0f }), dp(insets.getOrElse(2) { 0f }), dp(insets.getOrElse(3) { 0f }))
-        val minimum = if (item.style == CYLSearchBarItemStyle.Divider) 0 else dp(MINIMUM_TOUCH)
-        minimumWidth = minimum
-        minimumHeight = minimum
+
+    /**
+     * The tag style that draws the item: no border, the item's background (transparent by default), its tint for the
+     * title and icons, its title attributes per state, its icon size, insets and position adjustments.
+     */
+    private fun makeStyle(): CYLMenuStyle {
+        val style = CYLMenuStyle()
+        val tint = resolvedTint
+        val insets = resolvedInsets
+        val imageW = item.imageSize?.width?.takeIf { it > 0 } ?: DEFAULT_IMAGE_SIDE
+        val imageH = item.imageSize?.height?.takeIf { it > 0 } ?: imageW
+        style.imageSize = CYLSize(imageW, imageH)
+        style.animationSize = CYLSize(imageW, imageH)
+        style.imageTitleSpacing = IMAGE_TITLE_SPACING
+        style.itemHeight = if (item.style == CYLSearchBarItemStyle.Divider) DIVIDER_HEIGHT else MINIMUM_TOUCH
+        style.imagePositionAdjustment = CYLOffset(item.imagePositionAdjustment.getOrElse(0) { 0f }, item.imagePositionAdjustment.getOrElse(1) { 0f })
+        style.titlePositionAdjustment = CYLOffset(item.titlePositionAdjustment.getOrElse(0) { 0f }, item.titlePositionAdjustment.getOrElse(1) { 0f })
+        val hasBackground = item.backgroundColor != null || item.selectedBackgroundColor != null
         val background = if (item.isSelected) item.selectedBackgroundColor ?: item.backgroundColor else item.backgroundColor
-        this.background = background?.let { color ->
-            GradientDrawable().apply { setColor(color); cornerRadius = dp(10f).toFloat() }
+        val states = mapOf(
+            CYLControlState.NORMAL to CYLSearchBarItemState.Normal,
+            CYLControlState.SELECTED to CYLSearchBarItemState.Selected,
+            CYLControlState.DISABLED to CYLSearchBarItemState.Disabled,
+        )
+        for ((state, itemState) in states) {
+            val appearance = style.appearanceForState(state)
+            val attributes = item.titleTextAttributes(itemState) ?: item.titleTextAttributes(CYLSearchBarItemState.Normal)
+            appearance.font = CYLFont(attributes?.sizeSp ?: TITLE_SIZE, attributes?.typeface ?: Typeface.DEFAULT_BOLD)
+            appearance.textColor = attributes?.color ?: tint
+            appearance.iconColor = tint
+            appearance.backgroundColor = background ?: Color.TRANSPARENT
+            appearance.borderColor = null
+            appearance.borderWidth = 0f
+            appearance.contentInsets = CYLEdgeInsets(insets.getOrElse(1) { 0f }, insets.getOrElse(0) { 0f }, insets.getOrElse(3) { 0f }, insets.getOrElse(2) { 0f })
+            appearance.cornerRadius = if (hasBackground) BACKGROUND_CORNER_RADIUS else CYLTagCornerRadiusSquare
         }
-        divider.visibility = if (item.style == CYLSearchBarItemStyle.Divider) VISIBLE else GONE
-        divider.setBackgroundColor(Color.argb(0x33, 0x3C, 0x3C, 0x43))
-        content.visibility = if (item.style == CYLSearchBarItemStyle.Divider) GONE else VISIBLE
-        reloadBadge(state)
-        val accessible = item.style != CYLSearchBarItemStyle.Divider
+        return style
+    }
+
+    internal fun reload() {
+        val isDivider = item.style == CYLSearchBarItemStyle.Divider
+        style = makeStyle()
+        // A text item shows its title (and its icon before it); an icon item only its icon, the title is what TalkBack
+        // reads; a divider neither.
+        title = if (item.style == CYLSearchBarItemStyle.Text) item.title else null
+        image = if (isDivider) null else item.animatedImage ?: item.image
+        selectedImage = if (isDivider || item.animatedImage != null) null else item.selectedImage
+        animationURL = if (isDivider) null else item.animationURL
+        badgeValue = if (isDivider) null else item.badgeValue
+        badgeColor = item.badgeColor
+        isEnabled = item.isEnabled
+        isSelected = item.isSelected
+        alpha = if (item.isEnabled) 1f else DISABLED_ALPHA
+        (item.animatedImage as? Animatable)?.start()
+        val attributes = item.badgeTextAttributes(item.currentState) ?: item.badgeTextAttributes(CYLSearchBarItemState.Normal)
+        badgeLabel.setTextColor(attributes?.color ?: Color.WHITE)
+        badgeLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, attributes?.sizeSp ?: BADGE_SIZE)
+        badgeLabel.typeface = attributes?.typeface ?: Typeface.DEFAULT_BOLD
+        divider.visibility = if (isDivider) VISIBLE else GONE
+        val accessible = !isDivider
         importantForAccessibility = if (accessible) IMPORTANT_FOR_ACCESSIBILITY_YES else IMPORTANT_FOR_ACCESSIBILITY_NO
         contentDescription = item.itemAccessibilityLabel ?: item.title
         tag = item.itemAccessibilityIdentifier
@@ -2270,44 +2277,79 @@ internal class CYLSearchBarItemView(context: Context, item: CYLSearchBarItem) : 
         requestLayout()
     }
 
-    private fun reloadBadge(state: CYLSearchBarItemState) {
-        val value = item.badgeValue
-        if (value == null) {
-            badgeLabel.visibility = GONE
-            return
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED))
+        val insets = resolvedInsets
+        var width = measuredWidth
+        var height = measuredHeight
+        when (item.style) {
+            CYLSearchBarItemStyle.Divider -> {
+                width = dp(1f + insets.getOrElse(0) { 0f } + insets.getOrElse(2) { 0f })
+                height = dp(DIVIDER_HEIGHT)
+            }
+            CYLSearchBarItemStyle.Icon -> {
+                // An icon item is square, at least 36 dp.
+                val side = max(dp(MINIMUM_TOUCH), max(width, height))
+                width = side
+                height = side
+            }
+            CYLSearchBarItemStyle.Text -> {
+                width = max(dp(MINIMUM_TOUCH), width)
+                height = max(dp(MINIMUM_TOUCH), height)
+            }
         }
-        badgeLabel.visibility = VISIBLE
+        setMeasuredDimension(resolveSize(width, widthMeasureSpec), resolveSize(height, heightMeasureSpec))
+    }
+
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        super.onLayout(changed, l, t, r, b)
+        val width = r - l
+        val height = b - t
+        if (item.style == CYLSearchBarItemStyle.Divider) {
+            val lineHeight = minOf(dp(DIVIDER_HEIGHT), height)
+            val x = dp(resolvedInsets.getOrElse(0) { 0f })
+            val y = (height - lineHeight) / 2
+            divider.measure(MeasureSpec.makeMeasureSpec(dp(1f), MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(lineHeight, MeasureSpec.EXACTLY))
+            divider.layout(x, y, x + dp(1f), y + lineHeight)
+        }
+        // The whole item is dimmed while disabled; the animated icon is not dimmed a second time.
+        animationView?.alpha = 1f
+        layOutItemBadge(width, height)
+    }
+
+    /**
+     * The item's badge metrics on the tag's badge: its smallest size, text padding and position adjustment, from the
+     * corner the tag placed it at.
+     */
+    private fun layOutItemBadge(width: Int, height: Int) {
+        val value = item.badgeValue ?: return
+        if (item.style == CYLSearchBarItemStyle.Divider || badgeLabel.visibility != VISIBLE) return
         val isDot = value.isEmpty()
-        val side = if (isDot) 8f else if (item.badgeSize > 0) item.badgeSize else 16f
-        badgeLabel.text = value
-        val attributes = item.badgeTextAttributes(state) ?: item.badgeTextAttributes(CYLSearchBarItemState.Normal)
-        badgeLabel.setTextColor(attributes?.color ?: Color.WHITE)
-        attributes?.sizeSp?.let { badgeLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, it) }
-        attributes?.typeface?.let { badgeLabel.typeface = it }
-        badgeLabel.minWidth = dp(side)
-        badgeLabel.minHeight = dp(side)
-        badgeLabel.minimumWidth = dp(side)
-        badgeLabel.minimumHeight = dp(side)
+        val side = dp(if (isDot) 8f else if (item.badgeSize > 0) item.badgeSize else 16f)
         val insets = if (isDot) floatArrayOf(0f, 0f, 0f, 0f) else item.badgeContentInsets
-        badgeLabel.setPaddingRelative(dp(insets.getOrElse(0) { 0f }), dp(insets.getOrElse(1) { 0f }), dp(insets.getOrElse(2) { 0f }), dp(insets.getOrElse(3) { 0f }))
-        badgeLabel.background = GradientDrawable().apply {
-            setColor(item.badgeColor ?: Color.RED)
-            cornerRadius = dp(side).toFloat() / 2
-        }
+        badgeLabel.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED))
+        val textWidth = if (isDot) 0 else badgeLabel.measuredWidth
+        val textHeight = if (isDot) 0 else badgeLabel.measuredHeight
+        val badgeWidth = max(side, textWidth + dp(insets.getOrElse(0) { 0f } + insets.getOrElse(2) { 0f }))
+        val badgeHeight = max(side, textHeight + dp(insets.getOrElse(1) { 0f } + insets.getOrElse(3) { 0f }))
+        // Kept inside the tag, which clips its content.
+        val x = (badgeFrame.x * density).toInt().coerceIn(0, max(0, width - badgeWidth))
+        val y = (badgeFrame.y * density).toInt().coerceIn(0, max(0, height - badgeHeight))
+        badgeLabel.measure(MeasureSpec.makeMeasureSpec(badgeWidth, MeasureSpec.EXACTLY), MeasureSpec.makeMeasureSpec(badgeHeight, MeasureSpec.EXACTLY))
+        badgeLabel.layout(x, y, x + badgeWidth, y + badgeHeight)
+        (badgeLabel.background as? GradientDrawable)?.cornerRadius = badgeHeight / 2f
         badgeLabel.translationX = item.badgePositionAdjustment.getOrElse(0) { 0f } * density
         badgeLabel.translationY = item.badgePositionAdjustment.getOrElse(1) { 0f } * density
     }
 
-    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        if (item.style == CYLSearchBarItemStyle.Icon) {
-            // An icon item is square.
-            val side = max(measuredWidth, measuredHeight)
-            setMeasuredDimension(side, side)
-        }
-    }
-
     private companion object {
         const val MINIMUM_TOUCH = 36f
+        const val DIVIDER_HEIGHT = 18f
+        const val DEFAULT_IMAGE_SIDE = 20f
+        const val IMAGE_TITLE_SPACING = 4f
+        const val BACKGROUND_CORNER_RADIUS = 10f
+        const val TITLE_SIZE = 17f
+        const val BADGE_SIZE = 11f
+        const val DISABLED_ALPHA = 0.4f
     }
 }

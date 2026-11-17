@@ -1368,6 +1368,25 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     XCTAssertEqualObjects(camera.itemView.accessibilityLabel, @"Camera");
     XCTAssertEqualObjects(((UILabel *)[search.itemView valueForKey:@"titleLabel"]).text, @"Search");
 
+    // Each item is drawn by CollectionViewClassifyMenu's CYLTagButton: the item's title, icon, badge and animated icon.
+    XCTAssertTrue([camera.itemView isKindOfClass:[CYLTagButton class]]);
+    XCTAssertTrue([search.itemView isKindOfClass:[CYLTagButton class]]);
+    XCTAssertEqualObjects(search.itemView.title, @"Search");
+    XCTAssertNil(camera.itemView.title);
+    XCTAssertTrue(camera.itemView.image == camera.image);
+    camera.badgeValue = @"5";
+    camera.badgeColor = UIColor.systemOrangeColor;
+    XCTAssertEqualObjects(camera.itemView.badgeValue, @"5");
+    XCTAssertEqualObjects(camera.itemView.badgeColor, UIColor.systemOrangeColor);
+    XCTAssertEqualObjects(camera.itemView.accessibilityValue, @"5");
+    camera.badgeValue = nil;
+    camera.badgeColor = nil;
+    NSURL *animationURL = [NSURL fileURLWithPath:@"/nonexistent/CYLSearchBarItemIcon.json"];
+    camera.animationURL = animationURL;
+    XCTAssertEqualObjects(camera.itemView.animationURL, animationURL);
+    camera.animationURL = nil;
+    XCTAssertNil(camera.itemView.animationURL);
+
     // Events: the delegate first, then the handler; a disabled item ignores taps; a selectable item toggles.
     [camera.itemView sendActionsForControlEvents:UIControlEventTouchUpInside];
     XCTAssertEqual(cameraTaps, 1);

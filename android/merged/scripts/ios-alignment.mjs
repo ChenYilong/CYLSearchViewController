@@ -78,6 +78,9 @@ const MANUAL = {
   // B. CollectionViewClassifyMenu: Swift names of the Objective-C selectors the Android API mirrors
   Kind: '`CYLMenuIconDrawable.Kind` → the bundle images `cyl_fold_chevron` (CHEVRON_DOWN), `cyl_tag_plus` (PLUS), `cyl_more` (ELLIPSIS)',
   'CYLTag.styleWithBaseStyle': '`CYLTag.style(basedOn:)`',
+  'CYLTagImagePlacement.CYLTagImagePlacementTrailing': '`CYLTagImagePlacement.trailing`',
+  'CYLTagImagePlacement.CYLTagImagePlacementTop': '`CYLTagImagePlacement.top`',
+  'CYLTagImagePlacement.CYLTagImagePlacementBottom': '`CYLTagImagePlacement.bottom`',
   'CYLTagColors.styleByApplyingToStyle': '`CYLTagColors.styleByApplying(to:)`',
   'CYLTagListView.addTagsWithTitles': '`CYLTagListView.addTags(withTitles:)`',
   'CYLTagListView.removeTagAtIndex': '`CYLTagListView.removeTag(at:)`',

@@ -3,8 +3,11 @@ package com.cyl.search
 import android.app.Activity
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.view.View
 import android.widget.FrameLayout
+import com.cyl.classifymenu.CYLControlState
+import com.cyl.classifymenu.CYLTagButton
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -53,15 +56,15 @@ class CYLSearchBarItemTest {
         assertSame(bar, camera.searchBarView)
         assertTrue(bar.hasItem(CYLSearchBarItemStyle.Text))
         assertEquals(3, bar.itemViews.size)
-        assertSame(camera, (bar.itemViews[0] as CYLSearchBarItemView).item)
+        assertSame(camera, (bar.itemViews[0] as CYLSearchBarItemButton).item)
         assertSame(camera.itemView, camera.actualBadgeSuperView())
 
         // Layout: in order after the text, inside the field; a square 36 dp camera; TalkBack skips the divider.
         root.measure(View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(400, View.MeasureSpec.AT_MOST))
         root.layout(0, 0, 1080, 400)
-        val cameraView = bar.itemViews[0] as CYLSearchBarItemView
+        val cameraView = bar.itemViews[0]
         val dividerView = bar.itemViews[1]
-        val searchView = bar.itemViews[2] as CYLSearchBarItemView
+        val searchView = bar.itemViews[2]
         fun windowX(view: View): Int = IntArray(2).also { view.getLocationInWindow(it) }[0]
         assertTrue(windowX(bar.textField) + bar.textField.width <= windowX(cameraView))
         assertTrue(windowX(cameraView) + cameraView.width <= windowX(dividerView))
@@ -73,6 +76,23 @@ class CYLSearchBarItemTest {
         assertEquals(View.IMPORTANT_FOR_ACCESSIBILITY_NO, dividerView.importantForAccessibility)
         assertEquals("Camera", cameraView.contentDescription)
         assertEquals("Search", searchView.titleLabel.text.toString())
+
+        // Each item is drawn by CollectionViewClassifyMenu's CYLTagButton: the item's title, icon, badge and animated icon.
+        assertTrue(cameraView is CYLTagButton)
+        assertEquals("Search", searchView.title)
+        assertNull(cameraView.title)
+        assertSame(camera.image, cameraView.image)
+        camera.badgeValue = "5"
+        camera.badgeColor = Color.YELLOW
+        assertEquals("5", cameraView.badgeValue)
+        assertEquals(Color.YELLOW, cameraView.badgeColor)
+        camera.badgeValue = null
+        camera.badgeColor = null
+        val animationURL = Uri.parse("file:///nonexistent/CYLSearchBarItemIcon.json")
+        camera.animationURL = animationURL
+        assertEquals(animationURL, cameraView.animationURL)
+        camera.animationURL = null
+        assertNull(cameraView.animationURL)
 
         // Events: the delegate first, then the handler; a disabled item ignores taps; a selectable item toggles.
         cameraView.performClick()
@@ -100,7 +120,7 @@ class CYLSearchBarItemTest {
         assertEquals(Color.BLUE, search.titleTextAttributes(CYLSearchBarItemState.Normal)?.color)
         assertEquals(Color.BLUE, searchView.titleLabel.currentTextColor)
         bar.itemTintColor = Color.GREEN
-        assertEquals(Color.GREEN, cameraView.imageView.imageTintList?.defaultColor)
+        assertEquals(Color.GREEN, cameraView.style!!.iconColorForState(CYLControlState.SELECTED))
 
         // The fixed bordered style, and removal.
         bar.searchBarStyle = CYLSearchBarStyle.Bordered

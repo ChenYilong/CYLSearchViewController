@@ -50,7 +50,7 @@ messages, localized strings (English, Simplified Chinese, a missing key) and the
 ## Table
 
 <!-- api-alignment:begin -->
-Rows: 283; DONE 261, N/A 22, TODO 0; score 100/100.
+Rows: 284; DONE 262, N/A 22, TODO 0; score 100/100.
 
 | iOS API | Upstream counterpart (named in the iOS doc comment) | Android (`cylsearch`) | Status |
 | :--- | :--- | :--- | :--- |
@@ -120,7 +120,7 @@ Rows: 283; DONE 261, N/A 22, TODO 0; score 100/100.
 | `CYLSearchBarView.searchIconTintColor` | — | `CYLSearchBarView.searchIconTintColor` | DONE |
 | `CYLSearchBarView.trailingAccessoryViews` | — | `CYLSearchBarView.trailingAccessoryViews` | DONE |
 | `CYLSearchBarView.items` | like the FlatDesign tab bar's `items` | `CYLSearchBarView.items` | DONE |
-| `CYLSearchBarView.itemViews` | — | `CYLSearchBarView.itemViews` | DONE |
+| `CYLSearchBarView.itemViews` | `CYLTagButton`s | `CYLSearchBarView.itemViews` | DONE |
 | `CYLSearchBarView.itemTintColor` | — | `CYLSearchBarView.itemTintColor` | DONE |
 | `CYLSearchBarView.searchBarStyle` | — | `CYLSearchBarView.searchBarStyle` | DONE |
 | `CYLSearchBarView.fieldBackgroundImage` | — | `CYLSearchBarView.fieldBackgroundImage` | DONE |
@@ -203,6 +203,7 @@ Rows: 283; DONE 261, N/A 22, TODO 0; score 100/100.
 | `CYLSearchBarItem.image` | — | `CYLSearchBarItem.image` | DONE |
 | `CYLSearchBarItem.selectedImage` | — | `CYLSearchBarItem.selectedImage` | DONE |
 | `CYLSearchBarItem.animatedImage` | `+[UIImage animatedImageWithImages:duration:]` | `CYLSearchBarItem.animatedImage` | DONE |
+| `CYLSearchBarItem.animationURL` | — | `CYLSearchBarItem.animationURL` | DONE |
 | `CYLSearchBarItem.imageSize` | — | `CYLSearchBarItem.imageSize` | DONE |
 | `CYLSearchBarItem.itemAccessibilityLabel` | — | `CYLSearchBarItem.itemAccessibilityLabel` | DONE |
 | `CYLSearchBarItem.itemAccessibilityIdentifier` | — | `CYLSearchBarItem.itemAccessibilityIdentifier` | DONE |

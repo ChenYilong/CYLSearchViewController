@@ -224,7 +224,7 @@ DevEco Studio > Device Manager, then `hdc install` the HAP and run the hypium te
 sub-repositories' HarmonyOS libraries: run `python3 harmonyos/scripts/sync-sub-repositories.py` before building.
 
 <!-- harmonyos-score:begin -->
-Score: 100/100 (308 of 308 rows; API 283/283, demos 25/25; TODO left 0).
+Score: 99/100 (308 of 309 rows; API 283/284, demos 25/25; TODO left 1).
 <!-- harmonyos-score:end -->
 
 | Date | Change | Score |
@@ -389,6 +389,7 @@ Score: 100/100 (308 of 308 rows; API 283/283, demos 25/25; TODO left 0).
 | `CYLSearchBarItem.image` | `CYLSearchBarItem.image` |
 | `CYLSearchBarItem.selectedImage` | `CYLSearchBarItem.selectedImage` |
 | `CYLSearchBarItem.animatedImage` | `CYLSearchBarItem.animatedImage` |
+| `CYLSearchBarItem.animationURL` | TODO |
 | `CYLSearchBarItem.imageSize` | `CYLSearchBarItem.imageSize` |
 | `CYLSearchBarItem.itemAccessibilityLabel` | `CYLSearchBarItem.itemAccessibilityLabel` |
 | `CYLSearchBarItem.itemAccessibilityIdentifier` | `CYLSearchBarItem.itemAccessibilityIdentifier` |
