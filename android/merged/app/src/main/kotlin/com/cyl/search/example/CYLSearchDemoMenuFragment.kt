@@ -10,7 +10,15 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
+import android.net.Uri
 import androidx.core.content.ContextCompat
+import com.cyl.classifymenu.CYLControlState
+import com.cyl.classifymenu.CYLEdgeInsets
+import com.cyl.classifymenu.CYLFont
+import com.cyl.classifymenu.CYLMenuStyle
+import com.cyl.classifymenu.CYLSize
+import com.cyl.classifymenu.CYLTagButton
+import com.cyl.classifymenu.CYLTagContentAlignment
 import com.cyl.placeholder.CYLPlaceholderStyle
 import com.cyl.placeholder.CYLPlaceholderView
 
@@ -64,13 +72,73 @@ class CYLSearchDemoMenuFragment : CYLExamplePage() {
 
     override fun pageTitle(context: Context) = context.cylDemoText("demo.title")
 
-    override fun createContent(context: Context): View = context.cylMenuList(listOf(
-        Triple(context.cylDemoText("demo.reproduction"), null) { push(CYLSearchExampleFragment()) },
-        Triple(context.cylDemoText("demo.styles"), null) { push(CYLSearchPlaceholderGalleryFragment()) },
-        Triple(context.cylDemoText("demo.searchBar"), null) { push(CYLSearchBarDemoFragment()) },
-        Triple(context.cylDemoText("demo.ports"), null) { push(CYLSearchPortsFragment()) },
-        Triple(context.getString(R.string.example_originals), context.getString(R.string.example_originals_subtitle)) { push(CYLOriginalSamplesFragment()) },
-    ))
+    override fun createContent(context: Context): View {
+        val page = LinearLayout(context).apply { orientation = LinearLayout.VERTICAL }
+        page.addView(context.cylSVGADemoHeader(), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        page.addView(context.cylMenuList(listOf(
+            Triple(context.cylDemoText("demo.reproduction"), null) { push(CYLSearchExampleFragment()) },
+            Triple(context.cylDemoText("demo.styles"), null) { push(CYLSearchPlaceholderGalleryFragment()) },
+            Triple(context.cylDemoText("demo.searchBar"), null) { push(CYLSearchBarDemoFragment()) },
+            Triple(context.cylDemoText("demo.ports"), null) { push(CYLSearchPortsFragment()) },
+            Triple(context.getString(R.string.example_originals), context.getString(R.string.example_originals_subtitle)) { push(CYLOriginalSamplesFragment()) },
+        )), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
+        return page
+    }
+}
+
+/** The side of the SVGA demo's animated icon in dp (iOS `CYLSVGADemoTagButton.iconSide`). */
+private const val SVGA_ICON_SIDE = 64f
+
+/**
+ * The SVGA demo above the Examples list (iOS `CYLSVGADemoHeaderView`, HarmonyOS `svgaHeader`): a `CYLTagButton`
+ * (CollectionViewClassifyMenu, the one icon + title + animated icon component on CYLTabBarController's
+ * `CYLAnimatedItemView`) whose `animationURL` is the `tab_activity.svga` asset, drawn by the SVGA engine the app adds
+ * (SVGAPlayer), so the example has no SVGA player of its own. The icon comes before the title, at the leading edge,
+ * without a border. It plays once when shown and again on each tap.
+ */
+private fun Context.cylSVGADemoHeader(): View {
+    val density = resources.displayMetrics.density
+    val title = getString(R.string.svga_demo)
+    val button = CYLTagButton(this, title, null, Uri.parse("file:///android_asset/tab_activity.svga"))
+    button.style = CYLMenuStyle().apply {
+        imageSize = CYLSize(SVGA_ICON_SIDE, SVGA_ICON_SIDE)
+        animationSize = CYLSize(SVGA_ICON_SIDE, SVGA_ICON_SIDE)
+        imageTitleSpacing = 12f
+        contentAlignment = CYLTagContentAlignment.CYLTagContentAlignmentLeading
+        itemHeight = SVGA_ICON_SIDE
+        listOf(CYLControlState.NORMAL, CYLControlState.SELECTED, CYLControlState.DISABLED).forEach { state ->
+            appearanceForState(state).apply {
+                backgroundColor = Color.TRANSPARENT
+                borderColor = null
+                borderWidth = 0f
+                contentInsets = CYLEdgeInsets(0f, 0f, 0f, 0f)
+                cornerRadius = 0f
+                textColor = Color.GRAY
+                font = CYLFont(13f)
+            }
+        }
+    }
+    button.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+    val row = LinearLayout(this).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = Gravity.CENTER_VERTICAL
+        setPadding((16 * density).toInt(), (12 * density).toInt(), (16 * density).toInt(), (12 * density).toInt())
+        contentDescription = title
+        accessibilityDelegate = object : View.AccessibilityDelegate() {
+            override fun onInitializeAccessibilityNodeInfo(host: View, info: android.view.accessibility.AccessibilityNodeInfo) {
+                super.onInitializeAccessibilityNodeInfo(host, info)
+                info.hintText = getString(R.string.svga_demo_hint)
+            }
+        }
+        isClickable = true
+        isFocusable = true
+        setOnClickListener { button.playAnimation() }
+        tag = "CYLSVGADemoHeader"
+    }
+    row.addView(button, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+    // Plays once when shown, as the tab icons do when selected (iOS `didMoveToWindow`).
+    button.post { button.playAnimation() }
+    return row
 }
 
 /**
