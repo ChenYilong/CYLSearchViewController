@@ -162,7 +162,7 @@ started run completes and the next one tests the newest commit.
   for tabs 2 to 4 are now `tab2-search-bar`, `tab3-tag-style` and `tab4-discover`. Missing 5 points: the renamed files
   not yet seen in a run.
 
-![iOS CI: SVGA header of the examples tab and the SwiftUI host's SVGA tab bar](assets/ios-ci-animated-icons-svga.png)
+![iOS CI, iOS 26.5 SDK, iPhone 17 simulator, Xcode 26.6, commit 4346ede, 2026-11-17 21:46 UTC: SVGA header of the examples tab and the SwiftUI host's SVGA tab bar](assets/ios-ci-animated-icons-svga.png)
 
 iOS, iPhone 17 simulator, iOS SDK 26.5 (`iPhoneSimulator26.5.sdk`), Xcode 26.6, GitHub runner `macos-26`; commit
 [`4346ede`](https://github.com/ChenYilong/CYLSearchViewController/commit/4346eded702595c90f60aff11e986e8501e67854);
