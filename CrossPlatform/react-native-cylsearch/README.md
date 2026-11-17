@@ -50,6 +50,9 @@ package depends on no other search library.
   folder (`Filename longer than 260 characters`). A junction does not help, it resolves to the long path.
 - The Android SDK path must have no spaces (CMake would call the short `CLANG_~1.EXE`), and `JAVA_HOME` must be a JDK 17
   (React Native does not support 21).
+- After the pinned CYLTabBarController commit changes, delete `vendor/CYLTabBarController/CrossPlatform/react-native-cyltabbar/android/build`
+  (its path is long: `Remove-Item -LiteralPath \?C:...uild -Recurse`): stale classes there fail the build with
+  "Cannot access ...: it is internal in file" and unresolved references.
 
 ## Contributing
 
