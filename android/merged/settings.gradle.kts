@@ -63,6 +63,9 @@ project(":placeholder").projectDir = File(cylPlaceholderDir, "android/placeholde
 // Its Lottie animator: the placeholders play their animations (iOS: the CYLPlaceholderAnimation/Lottie subspec).
 include(":placeholder-lottie")
 project(":placeholder-lottie").projectDir = File(cylPlaceholderDir, "android/placeholder-lottie")
+// Its pull-to-refresh (package com.cyl.refresh, depends on :placeholder only): CYLSearchView's refresh API calls it.
+include(":placeholder-refresh")
+project(":placeholder-refresh").projectDir = File(cylPlaceholderDir, "android/merged/library")
 
 // The five translated projects, as library modules (each keeps its own resources and package).
 include(":search-lapism", ":search-materialsearchview", ":search-multisearchview")
