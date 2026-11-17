@@ -11,6 +11,15 @@ CYLTableViewPlaceHolder's `:placeholder-refresh`); HarmonyOS `harmonyos/cylsearc
 mini program components `cyl-search-bar` and `cyl-search`; React Native components `CYLSearchBarView` and `CYLSearchView`
 on the native cores, Flutter as well. Dated task entries below record the work in their own time and name the classes of that time.
 
+## IN PROGRESS (TODO 2026-11-17): React Native and Flutter environments on Windows, then test them and HarmonyOS
+
+- Prompt (verbatim): "检查RN flutter环境是否符合要求，如果是开始测试这两端，以及鸿蒙。如果环境不符合，继续配置到何时为止。"
+- Prompt (English): "Check whether the React Native and Flutter environments meet the requirements; if they do, start testing
+  those two platforms and HarmonyOS. If not, keep configuring until they do."
+- Plan: `flutter doctor` and `react-native doctor` until no blocking item (Android cmdline-tools and licenses; Visual Studio
+  only for Windows desktop apps); then build and run the Flutter and React Native examples on the Android emulator
+  (tab icons, raised plus button laid out by the core, search) and the HarmonyOS suite on its emulator, with screenshots.
+
 ## Open TODOs: Android, React Native, Flutter (2026-11-16)
 
 Collected from every cross-platform document. A row's TODO is removed when it is done; no TODO left = full score.
