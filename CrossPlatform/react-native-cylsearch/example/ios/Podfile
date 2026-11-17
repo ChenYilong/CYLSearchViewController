@@ -24,7 +24,7 @@ target 'CylsearchExample' do
 
   # The native core from this repository, and its sub-repositories at their pinned commits (docs/sub-repositories.md).
   pod 'CYLSearchViewController', :path => '../../../..'
-  pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => 'ec5248012ba6ee299dcfee84cc448cad060e11c3'
+  pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => 'a0c82323c60eebc4d870a10293cf2a5dcba84d2b'
   pod 'CYLTableViewPlaceHolder', :git => 'https://github.com/ChenYilong/CYLTableViewPlaceHolder.git', :commit => 'f488e2fb0ca175f96daabf5814739832a2cfd1ce'
 
   # CYLTabBarController for react-native-cyltabbar (the example's tab bar), from the pinned checkout
