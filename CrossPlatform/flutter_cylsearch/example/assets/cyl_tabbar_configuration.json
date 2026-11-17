@@ -26,9 +26,7 @@
     "CYLTabBarItemTitle": "Search bar",
     "CYLTabBarItemImage": "flutter-asset:assets/plus.png",
     "CYLTabBarItemIdentifier": "plus",
-    "CYLPlusButtonSize": "{55, 80}",
     "CYLPlusButtonImageSize": "{55, 55}",
-    "CYLPlusButtonCenterYOffset": -14,
     "CYLTabBarItemPageIdentifier": "plus",
     "CYLPlusButtonIndexInTabBar": 2
   }

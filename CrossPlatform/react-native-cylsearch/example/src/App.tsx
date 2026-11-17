@@ -85,7 +85,9 @@ function riveTab(item: CYLTabBarItem, artboard: string): CYLTabBarItem {
   return {
     ...item,
     CYLTabBarRiveFilePath: 'icons.riv',
-    CYLTabBarAnimationOptions: { artboard, stateMachine: `${artboard}_Interactivity`, input: 'active' },
+    // tint 'title': the icon takes the tab's title color (gray, the selected color when selected), as a template image;
+    // icons.riv draws light strokes for a dark bar (CYLTabBarController B12).
+    CYLTabBarAnimationOptions: { artboard, stateMachine: `${artboard}_Interactivity`, input: 'active', tint: 'title' },
     CYLTabBarRiveSize: '{28, 28}',
   };
 }
@@ -99,10 +101,7 @@ const PLUS_BUTTON: CYLTabBarPlusButton = {
   title: 'Search bar',
   // A 52 pt green PNG: `imageSize` would redraw an SF Symbol into a black bitmap.
   image: require('./assets/plus-button.png'),
-  size: [64, 84],
-  centerYMultiplier: 0.3,
-  // Keeps the title on the button: a title moved into the tab item (Liquid Glass) pins the button inside the item.
-  alignsTitle: false,
+  // No size, center or title alignment here: CYLTabBarController's core lays the raised plus button out (2026-11-17).
   identifier: 'plus',
   pageIdentifier: 'plus',
 };

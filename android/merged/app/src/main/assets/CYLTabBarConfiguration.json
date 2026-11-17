@@ -42,7 +42,6 @@
     "CYLTabBarItemIdentifier": "plus",
     "CYLTabBarItemPageIdentifier": "plus",
     "CYLPlusButtonSize": "{56, 56}",
-    "CYLPlusButtonCenterYMultiplier": 0.3,
     "CYLPlusButtonIndexInTabBar": 2
   }
 }

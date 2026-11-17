@@ -316,6 +316,28 @@ CYLTabBarController pin needed the plugin's platform views to be `@MainActor` (t
      CollectionViewClassifyMenu (`2 files found with path META-INF/cylanimateditem/LICENSE`). Sent to CYLTabBarController
      (its React Native bridge, published on npm); no packaging workaround in the example.
 
+- Progress (2026-11-17, CYLTabBarController `4635ef7b`): the example builds (its B9 fix: the React Native bridge depends on
+  the included build's `:cylanimateditem` instead of compiling a second copy) and the Rive tab icons load: the CHAT, BELL,
+  SEARCH and USER artboards of `icons.riv` draw and react to selection (`assets/android-medium-phone-api37-20261117-rn-rive-icons-faint.png`;
+  before, at `5682b9e`, only the pale fallback images: `…-rn-tab-icons-pale.png`).
+- Bug recorded, open (reported by the user too, 2026-11-17: "android tabbar item icon 显示失败", `assets/android-20261117-rn-tab-icons-user-report.png`): the icons are almost invisible and the selected one is not highlighted. `icons.riv` draws light
+  strokes (CYLTabBarController's Rive example has a dark bar), and the Android Rive player has no color API
+  (`applyColors` / `CYLTabBarAnimationColors` exist for Lottie only), so the tab's tint cannot reach the artboard. Asked
+  CYLTabBarController for a Rive tint API (the tab's normal and selected colors, as iOS template images); the example
+  will only set it.
+
+- Fixed (2026-11-17, checked on the Android emulator with CYLTabBarController `fe5c3ae3` in the build mirror): the Rive
+  icons take the tab's title color through CYLTabBarController's new tint option (its B12, `tint: 'title'` in
+  `CYLTabBarAnimationOptions`, set in `src/App.tsx`): gray when normal, blue when selected
+  (`assets/android-medium-phone-api37-20261117-rn-rive-tint-list-selected.png`, `…-rn-rive-tint-tag-selected.png`). The repository's
+  pin moves to `fe5c3ae3` once CollectionViewClassifyMenu re-vendors its animated item there (the mini program checks
+  that the two match); until then a fresh checkout builds at `4635ef7b`, which ignores `tint`.
+- Plus button (the user's request, 2026-11-17: the core lays out the plus button, so the examples stop adjusting it):
+  `size`, `centerYMultiplier` and `alignsTitle` removed from the React Native example; `CYLPlusButtonCenterYMultiplier`
+  from the native Android configurations; `CYLPlusButtonCenterYOffset` and the tall `CYLPlusButtonSize` from the Flutter
+  configurations. React Native on the emulator: the core raises the button and puts its title on the tab titles' line
+  (same screenshots). The mini program keeps its own `CYLPlusButtonCenterYMultiplier` (its tab bar core is separate).
+
 ## IN PROGRESS (TODO 2026-11-16): Rive tab icons in the Flutter and React Native examples, iOS and Android
 
 - Prompt (verbatim): "I call: 加上 Rive\" for  Flutter and React Native on iOS and Android should include Rive, so those tags animate there too. 至少tabbar需要加"
