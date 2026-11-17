@@ -314,3 +314,14 @@
   `cyl-tabbar-integration` skill.
 - **Pin `0a63bed`** (2026-11-17): CYLTabBarController moves to the #788 tip `0a63bed` (engine report, license notices,
   both #814 fixes kept); CollectionViewClassifyMenu to `edba997` (the same pin).
+
+## DONE (2026-11-17): the guide re-read at `0a63bed`
+
+- **Prompt (verbatim)**: "我已经更新了该文档地址 最新地址https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md 文档更新了一些描述 请重新阅读 调整"
+- **Prompt (English)**: "I updated the document, latest address …/docs/Animated-Item.md; some descriptions changed. Please read
+  it again and adjust."
+- **What changed**: the guide records the two CYLAnimatedItem bugs found by CollectionViewClassifyMenu's CI as fixed in
+  CYLTabBarController's core (`DEFINES_MODULE` in `CYLAnimatedItem.podspec`; the Lottie animator takes only a Lottie
+  document) and updates failure case (4) to match; the branch tip is still `0a63bed`, already pinned.
+- **Adjusted**: nothing in this repository needed the module workaround (its Podfiles build frameworks).
+  CollectionViewClassifyMenu dropped its `:modular_headers` workaround (`4171135`), pinned here. Pending CI.
