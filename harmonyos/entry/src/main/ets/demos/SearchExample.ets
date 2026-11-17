@@ -1,22 +1,20 @@
 import { common } from '@kit.AbilityKit';
 import {
   CYLSearchBarComponent,
-  CYLSearchController,
-  CYLSearchOverlayComponent,
-  CYLSearchPlaceholderComponent,
-  CYLSearchPlaceholderKind,
-  CYLSearchPlaceholderView,
-  CYLSearchResultsDataSource,
-  CYLSearchResultsViewController
+  CYLSearchBarView,
+  CYLSearchComponent,
+  CYLSearchRefreshComponent,
+  CYLSearchSuggestionCachePolicy,
+  CYLSearchView,
+  CYLSearchViewDataSource
 } from 'cylsearch';
-import { cylDemoText, CYLDemoNavBar, CYL_PLUS_OVERHANG } from '../common/DemoCommon';
-import { CYLRefreshContainer, CYLRefreshNormalHeaderModel, CYLRefreshScrollViewModel } from 'cylplaceholder';
+import { cylDemoText, CYLDemoNavBar, CYLDemoPlaceholderStack, CYL_PLUS_OVERHANG } from '../common/DemoCommon';
 
 /**
  * Forty localized sample results, filtered by the query; also the example's refresh provider (iOS
  * `CYLSearchExampleDataSource`).
  */
-export class CYLSearchExampleDataSource implements CYLSearchResultsDataSource {
+export class CYLSearchExampleDataSource implements CYLSearchViewDataSource {
   private items: string[] = [];
 
   constructor(context: common.Context) {
@@ -25,14 +23,21 @@ export class CYLSearchExampleDataSource implements CYLSearchResultsDataSource {
     }
   }
 
-  // All items for an empty query, else the items that contain the query (case-insensitive).
-  searchResultsViewControllerResultsForQuery = (_: CYLSearchResultsViewController, query: string): Object[] => {
+  /**
+   * All items for an empty query, else the items that contain the query (case-insensitive).
+   */
+  results(query: string): string[] {
     const lower = query.toLocaleLowerCase();
     return query.length === 0 ? this.items : this.items.filter((item: string) => item.toLocaleLowerCase().includes(lower));
+  }
+
+  // The results of the overlay's CYLSearchView.
+  searchViewResultsForQuery = (_: CYLSearchView, query: string): Object[] => {
+    return this.results(query);
   };
 
   // Shows the result's text.
-  searchResultsViewControllerConfigureCell = (_: CYLSearchResultsViewController, result: Object): string => {
+  searchViewConfigureResultCell = (_: CYLSearchView, result: Object): string => {
     return result as string;
   };
 
@@ -46,9 +51,10 @@ export class CYLSearchExampleDataSource implements CYLSearchResultsDataSource {
 
 /**
  * The Issue #1317 reproduction (iOS `CYLSearchExampleViewController`): a search bar under the navigation bar over a
- * list with pull to refresh (CYLTableViewPlaceHolder's `CYLRefreshNormalHeader`) and the empty state
- * CYLSearchPlaceholderView "No matching results". "Repro" switches `hidesSearchBarWhenScrolling` (the bar scrolls away
- * with the list); "Overlay" opens `CYLSearchController`.
+ * list with the core's pull to refresh (`CYLSearchView.setRefreshHandler` on the list's scroller, drawn by
+ * `CYLSearchRefreshComponent`) and CYLTableViewPlaceHolder's "No matching results" placeholder. "Repro" switches
+ * `hidesSearchBarWhenScrolling` (the bar scrolls away with the list); "Overlay" opens a `CYLSearchView` whose results
+ * come from the same data source, with the same refresh on its results (`refreshHandler`).
  */
 @ComponentV2
 export struct SearchExampleView {
@@ -56,36 +62,43 @@ export struct SearchExampleView {
   @Event onBack: () => void = () => {
   };
   @Local hidesSearchBarWhenScrolling: boolean = false;
-  // CYLTableViewPlaceHolder's CYLRefreshNormalHeader (its HarmonyOS library `cylplaceholder`), as `tableView.cyl_header`.
-  private scrollView: CYLRefreshScrollViewModel = new CYLRefreshScrollViewModel();
-  private header: CYLRefreshNormalHeaderModel = new CYLRefreshNormalHeaderModel();
+  @Local results: string[] = [];
   private scroller: Scroller = new Scroller();
   private context: common.Context = this.getUIContext().getHostContext() as common.Context;
   private source: CYLSearchExampleDataSource = new CYLSearchExampleDataSource(this.context);
-  private controller: CYLSearchResultsViewController = new CYLSearchResultsViewController(this.source);
-  private overlayController: CYLSearchController | undefined = undefined;
-  @Local overlayReady: boolean = false;
-  private empty: CYLSearchPlaceholderView = CYLSearchPlaceholderView.withKind(CYLSearchPlaceholderKind.noResults);
+  private searchBar: CYLSearchBarView = new CYLSearchBarView();
+  private overlay: CYLSearchView = new CYLSearchView();
 
   aboutToAppear(): void {
-    this.controller.searchController.placeholder = cylDemoText(this.context, 'search.placeholder');
-    this.controller.searchController.cancelButtonTitle = cylDemoText(this.context, 'search.cancel');
-    this.header.refreshingBlock = () => this.refresh();
-    this.scrollView.cyl_header = this.header;
+    this.searchBar.placeholder = cylDemoText(this.context, 'search.placeholder');
+    this.searchBar.cancelButtonTitle = cylDemoText(this.context, 'search.cancel');
+    this.searchBar.delegate = {
+      searchBarViewTextDidChange: (_: CYLSearchBarView, text: string) => {
+        this.results = this.source.results(text);
+      }
+    };
+    this.results = this.source.results('');
+    // The core's refresh API only (no CYLTableViewPlaceHolder call in the example). The handler is kept by the
+    // scroller's entry, which goes away with the scroller.
+    CYLSearchView.setRefreshHandler(() => this.refresh(() => CYLSearchView.endRefreshingIn(this.scroller)),
+      this.scroller);
+
+    this.overlay.suggestionCachePolicy = CYLSearchSuggestionCachePolicy.none;
+    this.overlay.showsEmptyResultsPlaceholder = true;
+    this.overlay.searchBarView.placeholder = cylDemoText(this.context, 'search.placeholder');
+    this.overlay.resultsDataSource = this.source;
+    this.overlay.refreshHandler = () => this.refresh(() => this.overlay.endRefreshing());
   }
 
-  private showOverlay(): void {
-    if (this.overlayController === undefined) {
-      this.overlayController = new CYLSearchController(this.source);
-      this.overlayController.resultsViewController.searchController.cancelButtonTitle = cylDemoText(this.context, 'search.cancel');
-      this.overlayReady = true;
-    }
-    this.overlayController.showInViewController();
+  aboutToDisappear(): void {
+    CYLSearchView.setRefreshHandler(undefined, this.scroller);
+    this.overlay.refreshHandler = undefined;
   }
 
-  private refresh(): void {
+  // Reloads the data source; `finish` stops the refresh on every path, before the results or the error are shown.
+  private refresh(finish: () => void): void {
     this.source.reload((error?: Error) => {
-      this.header.endRefreshing();
+      finish();
       if (error !== undefined) {
         this.getUIContext().showAlertDialog({
           title: cylDemoText(this.context, 'refresh.error'),
@@ -94,14 +107,15 @@ export struct SearchExampleView {
           } }
         });
       } else {
-        this.controller.reloadSearchResults();
+        this.results = this.source.results(this.searchBar.text);
+        this.overlay.reloadResults();
       }
     });
   }
 
   @Builder
   bar() {
-    CYLSearchBarComponent({ searchBarView: this.controller.searchController })
+    CYLSearchBarComponent({ searchBarView: this.searchBar })
   }
 
   build() {
@@ -114,7 +128,7 @@ export struct SearchExampleView {
           rightTitle: cylDemoText(this.context, this.hidesSearchBarWhenScrolling ? 'repro.on' : 'repro.off'),
           rightId: 'CYLIssueReproductionToggle',
           onBack: () => this.onBack(),
-          onLeft: () => this.showOverlay(),
+          onLeft: () => this.overlay.showSearchIn(this.context),
           onRight: () => {
             this.hidesSearchBarWhenScrolling = !this.hidesSearchBarWhenScrolling;
           }
@@ -123,37 +137,37 @@ export struct SearchExampleView {
           this.bar()
         }
         Column() {
-        CYLRefreshContainer({ scrollView: this.scrollView, scroller: this.scroller }) {
-          List({ scroller: this.scroller }) {
-            if (this.hidesSearchBarWhenScrolling) {
-              ListItem() {
-                this.bar()
+          CYLSearchRefreshComponent({ scroller: this.scroller }) {
+            List({ scroller: this.scroller }) {
+              if (this.hidesSearchBarWhenScrolling) {
+                ListItem() {
+                  this.bar()
+                }
               }
+              if (this.results.length === 0) {
+                ListItem() {
+                  CYLDemoPlaceholderStack()
+                    .height(360)
+                    .id('CYLSearchEmptyState')
+                }
+              }
+              ForEach(this.results, (result: string) => {
+                ListItem() {
+                  Text(result)
+                    .fontSize(17)
+                    .fontColor($r('sys.color.font_primary'))
+                    .width('100%')
+                    .constraintSize({ minHeight: 44 })
+                    .padding({ left: 16, right: 16, top: 8, bottom: 8 })
+                }
+              }, (result: string) => result)
             }
-            if (this.controller.searchResults.length === 0) {
-              ListItem() {
-                CYLSearchPlaceholderComponent({ placeholderView: this.empty })
-                  .height(360)
-                  .id('CYLSearchEmptyState')
-              }
-            }
-            ForEach(this.controller.searchResults, (result: Object) => {
-              ListItem() {
-                Text(result as string)
-                  .fontSize(17)
-                  .fontColor($r('sys.color.font_primary'))
-                  .width('100%')
-                  .constraintSize({ minHeight: 44 })
-                  .padding({ left: 16, right: 16, top: 8, bottom: 8 })
-              }
-            }, (result: Object) => result as string)
+            .contentEndOffset(CYL_PLUS_OVERHANG)
+            .width('100%')
+            .height('100%')
+            .divider({ strokeWidth: 0.5, color: $r('sys.color.comp_divider'), startMargin: 16 })
+            .edgeEffect(EdgeEffect.Spring, { alwaysEnabled: true })
           }
-          .contentEndOffset(CYL_PLUS_OVERHANG)
-          .width('100%')
-          .height('100%')
-          .divider({ strokeWidth: 0.5, color: $r('sys.color.comp_divider'), startMargin: 16 })
-          .edgeEffect(EdgeEffect.Spring, { alwaysEnabled: true })
-        }
         }
         .layoutWeight(1)
       }
@@ -161,9 +175,7 @@ export struct SearchExampleView {
       .height('100%')
       .backgroundColor($r('sys.color.background_primary'))
 
-      if (this.overlayReady && this.overlayController !== undefined) {
-        CYLSearchOverlayComponent({ controller: this.overlayController })
-      }
+      CYLSearchComponent({ searchView: this.overlay })
     }
     .width('100%')
     .height('100%')
@@ -184,4 +196,3 @@ export struct SearchExamplePage {
     .hideTitleBar(true)
   }
 }
-

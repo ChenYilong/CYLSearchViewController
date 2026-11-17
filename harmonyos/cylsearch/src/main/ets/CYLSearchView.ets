@@ -1,13 +1,167 @@
-import { display, UIContext, window } from '@kit.ArkUI';
-import { cylAnimate } from './CYLSearchAnimation';
-import { cylFilterSuggestions, cylFoldedTagCount, CYLSearchFilterResult, cylSuggestionMatches } from './CYLSearchLogic';
+import { display, LengthMetrics, UIContext, window } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
-import { LengthMetrics } from '@kit.ArkUI';
 import { accessibility } from '@kit.AccessibilityKit';
+import {
+  CYLPlaceholderScenario,
+  CYLPlaceholderStackView,
+  CYLPlaceholderStackViewModel,
+  CYLRefreshContainer,
+  CYLRefreshNormalHeaderModel,
+  CYLRefreshScrollViewModel
+} from 'cylplaceholder';
 import { CYLSearchBarComponent, CYLSearchBarNavigationIcon, CYLSearchBarView, CYLSearchBarViewDelegate } from './CYLSearchBarView';
-import { CYLSearchPlaceholderComponent, CYLSearchPlaceholderKind, CYLSearchPlaceholderView } from './CYLSearchPlaceholderView';
-import { CYLSearchSuggestionCache, CYLSearchSuggestionCachePolicy, CYLSearchSuggestionStore } from './CYLSearchSuggestionCache';
-import { CYLSearchResources } from './CYLSearchResources';
+import { CYLSearchResources, CYLSearchSuggestionCache, CYLSearchSuggestionCachePolicy } from './CYLSearchResources';
+
+// MARK: - Pure logic (begin): no ArkUI, no kit; harmonyos/scripts/host-logic-test.mjs runs it with Node.
+
+/**
+ * The text with its accents removed, lowercased, so "cafe" matches "café" (Android `CYLSearchView.fold`).
+ */
+function cylFoldSearchText(text: string): string {
+  return text.normalize('NFD').replace(new RegExp('[̀-ͯ]+', 'g'), '').toLowerCase();
+}
+
+/**
+ * Whether `suggestion` matches `query`: the trimmed, folded query is part of the folded suggestion (Android
+ * `CYLSearchView.matches` without a custom filter).
+ */
+function cylSuggestionMatches(suggestion: string, query: string): boolean {
+  return cylFoldSearchText(suggestion).includes(cylFoldSearchText(query.trim()));
+}
+
+/**
+ * The suggestions to show and whether they are the cached queries (Android `CYLSearchView.refilter`).
+ */
+interface CYLSearchFilterResult {
+  /**
+   * The suggestions to show, in order.
+   */
+  suggestions: string[];
+  /**
+   * True when the list is the cached queries (an empty query with a cache), so the cache header is shown.
+   */
+  showsCachedQueries: boolean;
+}
+
+/**
+ * Filters the suggestions for `query` (Android `CYLSearchView.refilter`): an empty or blank query shows the cached
+ * queries, or every suggestion with `showsAllForEmptyQuery`, or nothing; any other query shows the matching cached
+ * queries first, then the matching suggestions not already listed. `matches` replaces the default match.
+ */
+function cylFilterSuggestions(query: string, cached: string[], all: string[], showsAllForEmptyQuery: boolean,
+  matches?: (suggestion: string, query: string) => boolean): CYLSearchFilterResult {
+  const match = matches ?? cylSuggestionMatches;
+  if (query.trim().length === 0) {
+    if (cached.length > 0) {
+      const cachedResult: CYLSearchFilterResult = { suggestions: cached.slice(), showsCachedQueries: true };
+      return cachedResult;
+    }
+    const emptyResult: CYLSearchFilterResult = {
+      suggestions: showsAllForEmptyQuery ? all.slice() : [],
+      showsCachedQueries: false
+    };
+    return emptyResult;
+  }
+  const result: string[] = [];
+  cached.forEach((value: string) => {
+    if (match(value, query)) {
+      result.push(value);
+    }
+  });
+  all.forEach((value: string) => {
+    if (match(value, query) && !result.includes(value)) {
+      result.push(value);
+    }
+  });
+  const filtered: CYLSearchFilterResult = { suggestions: result, showsCachedQueries: false };
+  return filtered;
+}
+
+/**
+ * How many of the tags (`widths`, in vp) fit in `rows` rows of `width` with `spacing` between them, when a fold
+ * control of `controlWidth` must follow the last visible tag (0 for no control in the flow); all of them when they
+ * fit together without the control. Rows of 0 or less, or no width yet, show every tag (CollectionViewClassifyMenu
+ * `CYLTagListView` folding).
+ */
+function cylFoldedTagCount(widths: number[], width: number, rows: number, spacing: number,
+  controlWidth: number): number {
+  if (rows <= 0 || width <= 0) {
+    return widths.length;
+  }
+  const fits = (count: number, extra: number): boolean => {
+    let row = 1;
+    let x = 0;
+    const items = widths.slice(0, count).map((w: number) => Math.min(w, width));
+    if (extra > 0) {
+      items.push(Math.min(extra, width));
+    }
+    for (const w of items) {
+      if (x > 0 && x + spacing + w > width) {
+        row++;
+        x = w;
+      } else {
+        x = x > 0 ? x + spacing + w : w;
+      }
+      if (row > rows) {
+        return false;
+      }
+    }
+    return true;
+  };
+  if (fits(widths.length, 0)) {
+    return widths.length;
+  }
+  for (let count = widths.length - 1; count >= 0; count--) {
+    if (fits(count, controlWidth)) {
+      return count;
+    }
+  }
+  return 0;
+}
+
+// MARK: - Pure logic (end)
+
+/**
+ * Animates `change` with the UI context of the component that draws the model (`UIContext.animateTo`). Before any
+ * component has drawn the model there is nothing on screen to animate: the change is applied at once and `onFinish`
+ * is called.
+ */
+function cylAnimate(uiContext: UIContext | undefined, param: AnimateParam, change: () => void): void {
+  if (uiContext === undefined) {
+    change();
+    param.onFinish?.();
+    return;
+  }
+  uiContext.animateTo(param, change);
+}
+
+// MARK: - Pull to refresh (CYLTableViewPlaceHolder's CYLRefresh, from its HarmonyOS library `cylplaceholder`)
+
+/**
+ * The refresh state of each scroller (the iOS scroll view's `cyl_header`). A weak map: an entry, with its handler,
+ * goes away with its scroller, so a handler never keeps its page alive.
+ */
+const cylRefreshScrollViews: WeakMap<Scroller, CYLRefreshScrollViewModel> =
+  new WeakMap<Scroller, CYLRefreshScrollViewModel>();
+
+/**
+ * The refresh state of `scroller`, created the first time it is asked for.
+ */
+function cylRefreshScrollView(scroller: Scroller): CYLRefreshScrollViewModel {
+  let scrollView = cylRefreshScrollViews.get(scroller);
+  if (scrollView === undefined) {
+    scrollView = new CYLRefreshScrollViewModel();
+    cylRefreshScrollViews.set(scroller, scrollView);
+  }
+  return scrollView;
+}
+
+/**
+ * Nothing: the default content of `CYLSearchRefreshComponent`.
+ */
+@Builder
+function cylSearchEmptyContent() {
+}
 
 /**
  * How the suggestions are shown under the search bar (iOS `CYLSearchSuggestionStyle`).
@@ -116,12 +270,33 @@ export interface CYLSearchViewDelegate {
    * The navigation button (the back arrow by default) was tapped. Without this method it closes the search view.
    */
   searchViewNavigationButtonClicked?: (searchView: CYLSearchView) => void;
+  /**
+   * A result of `resultsDataSource` was tapped (iOS `-searchView:didSelectResult:`).
+   */
+  searchViewDidSelectResult?: (searchView: CYLSearchView, result: Object) => void;
+}
+
+/**
+ * Supplies the search results of a `CYLSearchView` and the text of their rows (iOS `CYLSearchViewDataSource`, was
+ * `CYLSearchResultsDataSource`).
+ */
+export interface CYLSearchViewDataSource {
+  /**
+   * The results for a query that is not empty (iOS `-searchView:resultsForQuery:`).
+   */
+  searchViewResultsForQuery: (searchView: CYLSearchView, query: string) => Object[];
+  /**
+   * The text a result shows in its row (iOS `-searchView:configureResultCell:withResult:`).
+   */
+  searchViewConfigureResultCell: (searchView: CYLSearchView, result: Object) => string;
 }
 
 /**
  * A search page that opens over its host (iOS `CYLSearchView`): a `CYLSearchBarView` at the top, a divider, then the
- * suggestions as a list or as tags, the cached queries first, and placeholders for an empty cache and for no
- * results. This class is the page's state and API; `CYLSearchComponent` draws it.
+ * suggestions as a list or as tags, the cached queries first, the results of `resultsDataSource` while a query is
+ * typed, CYLTableViewPlaceHolder's placeholders for an empty cache and for no results, and pull to refresh on the
+ * results (`refreshHandler`; the static methods give another scroller the same refresh). This class is the page's
+ * state and API; `CYLSearchComponent` draws it.
  *
  * Core behavior rule 1: focusing the field alone changes nothing below the search bar; that area changes only when
  * the text or the data changes.
@@ -153,7 +328,8 @@ export class CYLSearchView {
    */
   @Trace suggestionsFoldedRowCount: number = 2;
   /**
-   * Shows a placeholder under the search bar while a non-empty query matches no suggestion. False by default.
+   * Shows CYLTableViewPlaceHolder's placeholder for `emptyResultsScenario` under the search bar while a non-empty
+   * query matches no suggestion, or gives no result of `resultsDataSource`. False by default.
    */
   @Trace showsEmptyResultsPlaceholder: boolean = false;
   /**
@@ -242,17 +418,25 @@ export class CYLSearchView {
    */
   @Trace suggestionsFolded: boolean = true;
 
+  /**
+   * The scroller of the results list (iOS `resultsTableView`): scroll it, or pass it to the static refresh methods.
+   */
+  readonly resultsTableView: Scroller = new Scroller();
+
   @Trace private open: boolean = false;
-  @Trace private resultsScenario: CYLSearchPlaceholderKind = CYLSearchPlaceholderKind.noResults;
-  @Trace private suggestionsScenario: CYLSearchPlaceholderKind = CYLSearchPlaceholderKind.empty;
+  @Trace private resultsScenario: CYLPlaceholderScenario = CYLPlaceholderScenario.NoSearchResults;
+  @Trace private suggestionsScenario: CYLPlaceholderScenario = CYLPlaceholderScenario.NoContent;
+  @Trace private results: Object[] = [];
+  @Trace private dataSource: CYLSearchViewDataSource | undefined = undefined;
+  @Trace private refreshAction: (() => void) | undefined = undefined;
   @Trace private suggestionsShown: boolean = true;
   @Trace private allSuggestions: string[] = [];
   @Trace private showsAllForEmptyQuery: boolean = false;
   private cachePolicy: CYLSearchSuggestionCachePolicy = CYLSearchSuggestionCachePolicy.database;
   private cacheName: string = 'CYLSearchView';
   private context: common.Context | undefined = undefined;
-  private emptyResults: CYLSearchPlaceholderView | undefined = undefined;
-  private emptySuggestions: CYLSearchPlaceholderView | undefined = undefined;
+  private emptyResults: CYLPlaceholderStackViewModel | undefined = undefined;
+  private emptySuggestions: CYLPlaceholderStackViewModel | undefined = undefined;
 
   /**
    * A closed search view with the default look (iOS `-initWithFrame:`).
@@ -335,44 +519,94 @@ export class CYLSearchView {
   }
 
   /**
-   * The kind of the empty results placeholder. `noResults` by default. Setting it drops the placeholder made for the
-   * old kind (Android `emptyResultsScenario`).
+   * The CYLTableViewPlaceHolder scenario of the empty results placeholder. `NoSearchResults` by default. Setting it
+   * drops the placeholder made for the old scenario.
    */
-  get emptyResultsScenario(): CYLSearchPlaceholderKind {
+  get emptyResultsScenario(): CYLPlaceholderScenario {
     return this.resultsScenario;
   }
 
-  set emptyResultsScenario(value: CYLSearchPlaceholderKind) {
+  set emptyResultsScenario(value: CYLPlaceholderScenario) {
     this.resultsScenario = value;
     this.emptyResults = undefined;
     this.refilter();
   }
 
   /**
-   * The kind of the empty suggestions placeholder. `empty` by default; setting it drops the old placeholder.
+   * The CYLTableViewPlaceHolder scenario of the empty suggestions placeholder. `NoContent` by default; setting it
+   * drops the old placeholder.
    */
-  get emptySuggestionsScenario(): CYLSearchPlaceholderKind {
+  get emptySuggestionsScenario(): CYLPlaceholderScenario {
     return this.suggestionsScenario;
   }
 
-  set emptySuggestionsScenario(value: CYLSearchPlaceholderKind) {
+  set emptySuggestionsScenario(value: CYLPlaceholderScenario) {
     this.suggestionsScenario = value;
     this.emptySuggestions = undefined;
     this.refilter();
   }
 
   /**
-   * The placeholder shown for empty results, created the first time it is needed; undefined before.
+   * CYLTableViewPlaceHolder's placeholder shown for empty results, created the first time it is needed; undefined
+   * before. Style it after it appears, or change `emptyResultsScenario`.
    */
-  get emptyResultsView(): CYLSearchPlaceholderView | undefined {
+  get emptyResultsView(): CYLPlaceholderStackViewModel | undefined {
     return this.emptyResults;
   }
 
   /**
-   * The placeholder shown for an empty cache, created the first time it is needed; undefined before.
+   * CYLTableViewPlaceHolder's placeholder shown for an empty cache, created the first time it is needed; undefined
+   * before.
    */
-  get emptySuggestionsView(): CYLSearchPlaceholderView | undefined {
+  get emptySuggestionsView(): CYLPlaceholderStackViewModel | undefined {
     return this.emptySuggestions;
+  }
+
+  /**
+   * Supplies the results shown while a query is typed (iOS `resultsDataSource`); undefined shows the suggestions
+   * only. Setting it queries it for the current query.
+   */
+  get resultsDataSource(): CYLSearchViewDataSource | undefined {
+    return this.dataSource;
+  }
+
+  set resultsDataSource(value: CYLSearchViewDataSource | undefined) {
+    this.dataSource = value;
+    this.reloadResults();
+  }
+
+  /**
+   * The results of `resultsDataSource` for the current query; empty while the query is empty (iOS `searchResults`).
+   */
+  get searchResults(): Object[] {
+    return this.results;
+  }
+
+  /**
+   * True while the area below the bar shows the results: `resultsDataSource` is set and the query is not empty.
+   */
+  get showsResults(): boolean {
+    return this.dataSource !== undefined && this.query.trim().length > 0;
+  }
+
+  /**
+   * Called when the results list is pulled down (iOS `refreshHandler`): set, it adds CYLTableViewPlaceHolder's pull to
+   * refresh (its normal header) to the results; undefined removes it. Call `endRefreshing()` on every completion path.
+   */
+  get refreshHandler(): (() => void) | undefined {
+    return this.refreshAction;
+  }
+
+  set refreshHandler(value: (() => void) | undefined) {
+    this.refreshAction = value;
+    CYLSearchView.setRefreshHandler(value, this.resultsTableView);
+  }
+
+  /**
+   * True while the results list refreshes (iOS `isRefreshing`).
+   */
+  get isRefreshing(): boolean {
+    return CYLSearchView.isRefreshingIn(this.resultsTableView);
   }
 
   /**
@@ -401,11 +635,17 @@ export class CYLSearchView {
   }
 
   /**
-   * True while the query is not empty, nothing matches it and the empty results placeholder is on.
+   * True while the query is not empty, nothing matches it (no result of `resultsDataSource`, or no suggestion
+   * without one) and the empty results placeholder is on.
    */
   get showsEmptyResults(): boolean {
-    return this.suggestionsShown && this.showsEmptyResultsPlaceholder && this.query.trim().length > 0 &&
-      this.filteredSuggestions.length === 0;
+    if (!this.showsEmptyResultsPlaceholder || this.query.trim().length === 0) {
+      return false;
+    }
+    if (this.dataSource !== undefined) {
+      return this.results.length === 0;
+    }
+    return this.suggestionsShown && this.filteredSuggestions.length === 0;
   }
 
   /**
@@ -423,6 +663,17 @@ export class CYLSearchView {
   installInView(context: common.Context): void {
     this.context = context;
     this.rebuildCache();
+  }
+
+  /**
+   * Installs the search view with the context of the page when it has none yet, then opens it (iOS
+   * `-showSearchInViewController:animated:`, was `CYLSearchController.showInViewController`).
+   */
+  showSearchIn(context: common.Context, animated: boolean = true): void {
+    if (this.context !== context) {
+      this.installInView(context);
+    }
+    this.showSearch(animated);
   }
 
   /**
@@ -457,23 +708,96 @@ export class CYLSearchView {
   }
 
   /**
-   * Closes the search view and ends editing (iOS `-closeSearch:`).
+   * Closes the search view and ends editing (iOS `-closeSearch:completion:`, was `CYLSearchController.hide`).
+   * `completion` runs once it is closed, also when it was not open.
    */
-  closeSearch(animated: boolean = true): void {
+  closeSearch(animated: boolean = true, completion?: () => void): void {
     if (!this.open) {
+      completion?.();
       return;
     }
     this.searchBarView.hideKeyboard();
     if (animated && this.animationDuration > 0) {
       cylAnimate(this.uiContext, { duration: this.animationDuration * 1000, curve: Curve.EaseIn, onFinish: () => {
         this.delegate?.searchViewDidClose?.(this);
+        completion?.();
       } }, () => {
         this.open = false;
       });
     } else {
       this.open = false;
       this.delegate?.searchViewDidClose?.(this);
+      completion?.();
     }
+  }
+
+  /**
+   * Queries `resultsDataSource` for the current query and shows its results (iOS `-reloadResults`, was
+   * `reloadSearchResults` and `reloadResultsTableView`). Nothing is asked while the query is empty.
+   */
+  reloadResults(): void {
+    const source = this.dataSource;
+    const query = this.query;
+    this.results = source !== undefined && query.trim().length > 0 ? source.searchViewResultsForQuery(this, query) :
+      [];
+    this.updatePlaceholders();
+  }
+
+  /**
+   * Starts refreshing the results list, which calls `refreshHandler` (iOS `-beginRefreshing`).
+   */
+  beginRefreshing(): void {
+    CYLSearchView.beginRefreshingIn(this.resultsTableView);
+  }
+
+  /**
+   * Stops refreshing the results list (iOS `-endRefreshing`).
+   */
+  endRefreshing(): void {
+    CYLSearchView.endRefreshingIn(this.resultsTableView);
+  }
+
+  /**
+   * The same pull to refresh on another scroller (iOS `+setRefreshHandler:forScrollView:`); its list is drawn inside
+   * a `CYLSearchRefreshComponent` with that scroller. Undefined removes it.
+   */
+  static setRefreshHandler(handler: (() => void) | undefined, scroller: Scroller): void {
+    const scrollView = cylRefreshScrollView(scroller);
+    if (handler === undefined) {
+      scrollView.cyl_header = null;
+      return;
+    }
+    const header = new CYLRefreshNormalHeaderModel();
+    header.refreshingBlock = handler;
+    scrollView.cyl_header = header;
+  }
+
+  /**
+   * Starts refreshing that scroller, which calls its handler (iOS `+beginRefreshingInScrollView:`).
+   */
+  static beginRefreshingIn(scroller: Scroller): void {
+    cylRefreshScrollView(scroller).cyl_header?.beginRefreshing();
+  }
+
+  /**
+   * Stops refreshing that scroller (iOS `+endRefreshingInScrollView:`).
+   */
+  static endRefreshingIn(scroller: Scroller): void {
+    cylRefreshScrollView(scroller).cyl_header?.endRefreshing();
+  }
+
+  /**
+   * True while that scroller refreshes (iOS `+isRefreshingInScrollView:`).
+   */
+  static isRefreshingIn(scroller: Scroller): boolean {
+    return cylRefreshScrollView(scroller).cyl_header?.refreshing ?? false;
+  }
+
+  /**
+   * A result was tapped: the delegate is told.
+   */
+  resultSelected(result: Object): void {
+    this.delegate?.searchViewDidSelectResult?.(this, result);
   }
 
   /**
@@ -599,6 +923,7 @@ export class CYLSearchView {
 
   private queryChanged(text: string): void {
     this.refilter();
+    this.reloadResults();
     this.delegate?.searchViewTextDidChange?.(this, text);
   }
 
@@ -618,20 +943,17 @@ export class CYLSearchView {
     if (this.context === undefined) {
       return;
     }
-    const cache = CYLSearchSuggestionStore.cache(this.context, this.cachePolicy, this.cacheName);
-    if (cache !== undefined) {
-      // The database is read in the background: its queries are data that changed, so the list shows them.
-      cache.onLoad = () => {
-        if (this.suggestionCache === cache) {
-          this.refilter();
-        }
-      };
-    }
+    // The database is read in the background: its queries are data that changed, so the list shows them.
+    const cache = CYLSearchResources.suggestionCache(this.context, this.cachePolicy, this.cacheName, () => {
+      if (this.suggestionCache === cache) {
+        this.refilter();
+      }
+    });
     this.suggestionCache = cache;
     this.refilter();
   }
 
-  // The custom filter, or the folded match of `CYLSearchLogic` (Android `matches`).
+  // The custom filter, or the folded match (Android `matches`).
   private matches(suggestion: string, query: string): boolean {
     if (this.suggestionFilter !== undefined) {
       return this.suggestionFilter(suggestion, query);
@@ -646,12 +968,34 @@ export class CYLSearchView {
       this.showsAllForEmptyQuery, (suggestion: string, query: string) => this.matches(suggestion, query));
     this.showsCachedQueries = filtered.showsCachedQueries;
     this.filteredSuggestions = filtered.suggestions;
+    this.updatePlaceholders();
+  }
+
+  // CYLTableViewPlaceHolder's placeholders are made the first time they are shown (iOS `CYLPlaceholderStackView`).
+  private updatePlaceholders(): void {
     if (this.showsEmptyResults && this.emptyResults === undefined) {
-      this.emptyResults = CYLSearchPlaceholderView.withKind(this.resultsScenario);
+      this.emptyResults = CYLPlaceholderStackViewModel.initWithScenario(this.resultsScenario);
     }
     if (this.showsEmptySuggestions && this.emptySuggestions === undefined) {
-      this.emptySuggestions = CYLSearchPlaceholderView.withKind(this.suggestionsScenario);
+      this.emptySuggestions = CYLPlaceholderStackViewModel.initWithScenario(this.suggestionsScenario);
     }
+  }
+}
+
+/**
+ * Draws CYLTableViewPlaceHolder's placeholder (its V1 component `CYLPlaceholderStackView`, which links an `@Observed`
+ * model) inside the V2 components of this file: the model is held as V1 state, then linked.
+ */
+@Component
+struct CYLSearchPlaceholderHost {
+  /**
+   * The placeholder to draw.
+   */
+  @State model: CYLPlaceholderStackViewModel = CYLPlaceholderStackViewModel.initWithScenario(
+    CYLPlaceholderScenario.NoContent);
+
+  build() {
+    CYLPlaceholderStackView({ model: this.model })
   }
 }
 
@@ -932,6 +1276,32 @@ export struct CYLSearchComponent {
     .align(Alignment.Top)
   }
 
+  // The results of `resultsDataSource` (iOS `resultsTableView`, was `CYLSearchResultsViewController`): one row per
+  // result, each one element for screen readers with the result's text as its label.
+  @Builder
+  resultsList() {
+    List({ scroller: this.searchView.resultsTableView }) {
+      ForEach(this.searchView.searchResults, (result: Object) => {
+        ListItem() {
+          Text(this.searchView.resultsDataSource?.searchViewConfigureResultCell(this.searchView, result) ?? '')
+            .fontSize(17)
+            .fontColor(this.searchView.suggestionTextColor ?? $r('sys.color.font_primary'))
+            .width('100%')
+            .constraintSize({ minHeight: this.rowHeight() })
+            .padding({ left: 16, right: 16, top: 8, bottom: 8 })
+        }
+        .accessibilityGroup(true)
+        .onClick(() => {
+          this.searchView.resultSelected(result);
+        })
+      }, (result: Object, index: number) => `${index}`)
+    }
+    .width('100%')
+    .height('100%')
+    .divider({ strokeWidth: 0.5, color: $r('sys.color.comp_divider'), startMargin: 16 })
+    .edgeEffect(EdgeEffect.Spring, { alwaysEnabled: true })
+  }
+
   build() {
     Stack() {
       if (this.searchView.isSearchOpen) {
@@ -946,10 +1316,21 @@ export struct CYLSearchComponent {
             }
             Column() {
               if (this.searchView.showsEmptyResults && this.searchView.emptyResultsView !== undefined) {
-                CYLSearchPlaceholderComponent({ placeholderView: this.searchView.emptyResultsView })
+                CYLSearchPlaceholderHost({ model: this.searchView.emptyResultsView })
+              } else if (this.searchView.showsResults) {
+                if (this.searchView.refreshHandler !== undefined) {
+                  CYLRefreshContainer({
+                    scrollView: cylRefreshScrollView(this.searchView.resultsTableView),
+                    scroller: this.searchView.resultsTableView
+                  }) {
+                    this.resultsList()
+                  }
+                } else {
+                  this.resultsList()
+                }
               } else if (this.searchView.showsEmptySuggestions &&
                 this.searchView.emptySuggestionsView !== undefined) {
-                CYLSearchPlaceholderComponent({ placeholderView: this.searchView.emptySuggestionsView })
+                CYLSearchPlaceholderHost({ model: this.searchView.emptySuggestionsView })
               } else if (this.searchView.suggestionsVisible && this.searchView.filteredSuggestions.length > 0) {
                 if (this.searchView.showsCachedQueries) {
                   this.cacheHeader()
@@ -989,5 +1370,28 @@ export struct CYLSearchComponent {
     .backgroundColor(this.searchView.isSearchOpen ? (this.searchView.scrimColor ?? Color.Transparent) :
     Color.Transparent)
     .hitTestBehavior(this.searchView.isSearchOpen ? HitTestMode.Default : HitTestMode.None)
+  }
+}
+
+/**
+ * Gives a list of yours the pull to refresh of `CYLSearchView.setRefreshHandler(handler, scroller)` (iOS: the scroll
+ * view passed to `+setRefreshHandler:forScrollView:`): build the list inside it with the same scroller. Start and
+ * stop it with `CYLSearchView.beginRefreshingIn` / `endRefreshingIn`.
+ */
+@ComponentV2
+export struct CYLSearchRefreshComponent {
+  /**
+   * The scroller of the list inside.
+   */
+  @Require @Param scroller: Scroller;
+  /**
+   * The list, built with `scroller`.
+   */
+  @BuilderParam content: () => void = cylSearchEmptyContent;
+
+  build() {
+    CYLRefreshContainer({ scrollView: cylRefreshScrollView(this.scroller), scroller: this.scroller }) {
+      this.content()
+    }
   }
 }

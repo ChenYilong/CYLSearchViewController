@@ -1,15 +1,11 @@
 import { common } from '@kit.AbilityKit';
-import {
-  CYLSearchPlaceholderComponent,
-  CYLSearchPlaceholderMessage,
-  CYLSearchPlaceholderStyle,
-  CYLSearchPlaceholderView
-} from 'cylsearch';
+import { CYLPlaceholderMessage, CYLPlaceholderStyle, CYLPlaceholderViewModel } from 'cylplaceholder';
 import { CYLSVGAView } from 'cyltabbar';
 import {
   cylAppText,
   CYLDemoCell,
   CYLDemoNavBar,
+  CYLDemoPlaceholderItem,
   cylDemoText,
   CYLDemoRoute,
   CYLPlaceholderDetailParam,
@@ -19,10 +15,16 @@ import {
 } from '../common/DemoCommon';
 
 /**
- * The number of placeholder styles (iOS `CYLSearchPlaceholderStyleCount`).
+ * The number of placeholder styles shown: the 41 styles the search placeholder had, the first 41 of
+ * CYLTableViewPlaceHolder's `CYLPlaceholderStyle`, in the same order.
  */
 const STYLE_COUNT: number = 41;
 const MESSAGE_KEYS: string[] = ['placeholder.empty', 'placeholder.search', 'placeholder.error', 'placeholder.network'];
+/**
+ * The CYLTableViewPlaceHolder messages of the four rows of a style.
+ */
+const MESSAGES: CYLPlaceholderMessage[] = [CYLPlaceholderMessage.Empty, CYLPlaceholderMessage.NoResults,
+  CYLPlaceholderMessage.Error, CYLPlaceholderMessage.NoInternet];
 const CUSTOM_KEYS: string[] = ['demo.custom.textOnly', 'demo.custom.imageOnly', 'demo.custom.both'];
 
 /**
@@ -121,17 +123,19 @@ export struct ExamplesMenuView {
 /**
  * The placeholder of a row of the Placeholder styles page (iOS `-tableView:didSelectRowAtIndexPath:`).
  */
-export function cylPlaceholderForRow(context: common.Context, section: number, row: number): CYLSearchPlaceholderView {
+export function cylPlaceholderForRow(context: common.Context, section: number, row: number): CYLPlaceholderViewModel {
   if (section < STYLE_COUNT) {
-    return CYLSearchPlaceholderView.withStyleMessage(section as CYLSearchPlaceholderStyle, row as CYLSearchPlaceholderMessage);
+    return CYLPlaceholderViewModel.initWithStyleMessage(section as CYLPlaceholderStyle, MESSAGES[row]);
   }
   if (row === 0) {
-    return CYLSearchPlaceholderView.withStyleText(CYLSearchPlaceholderStyle.noResults, cylDemoText(context, 'demo.custom.text'));
+    return CYLPlaceholderViewModel.initWithStyleText(CYLPlaceholderStyle.NoResults,
+      cylDemoText(context, 'demo.custom.text'));
   }
-  const heart = $r('sys.symbol.heart_fill');
-  const placeholder = row === 1 ? CYLSearchPlaceholderView.withImageMessage(heart, CYLSearchPlaceholderMessage.network) :
-    new CYLSearchPlaceholderView(heart, cylDemoText(context, 'demo.custom.text'));
-  placeholder.imageTintColor = '#FF2D55';
+  const heart = CYLPlaceholderViewModel.imageForStyle(CYLPlaceholderStyle.Favorite);
+  const placeholder = CYLPlaceholderViewModel.initWithImageText(heart, row === 1 ?
+    CYLPlaceholderViewModel.localizedTextForMessage(CYLPlaceholderMessage.NoInternet) :
+    cylDemoText(context, 'demo.custom.text'));
+  placeholder.defaultIconColor = '#FF2D55';
   return placeholder;
 }
 
@@ -154,18 +158,18 @@ export struct PlaceholderGalleryPage {
     return cylDemoText(this.context, section === STYLE_COUNT ? CUSTOM_KEYS[row] : MESSAGE_KEYS[row]);
   }
 
-  private imageOf(section: number, row: number): Resource {
+  private imageOf(section: number, row: number): Resource | undefined {
     if (section === STYLE_COUNT) {
-      return row === 0 ? CYLSearchPlaceholderView.imageForStyle(CYLSearchPlaceholderStyle.noResults) :
-      $r('sys.symbol.heart_fill');
+      return row === 0 ? (CYLPlaceholderViewModel.imageForStyle(CYLPlaceholderStyle.NoResults) ?? undefined) :
+      (CYLPlaceholderViewModel.imageForStyle(CYLPlaceholderStyle.Favorite) ?? undefined);
     }
-    return CYLSearchPlaceholderView.imageForStyle(section as CYLSearchPlaceholderStyle);
+    return CYLPlaceholderViewModel.imageForStyle(section as CYLPlaceholderStyle) ?? undefined;
   }
 
   @Builder
   sectionHeader(section: number) {
     Text(section === STYLE_COUNT ? cylDemoText(this.context, 'demo.custom') :
-    CYLSearchPlaceholderView.imageNameForStyle(section as CYLSearchPlaceholderStyle))
+    (CYLPlaceholderViewModel.imageNameForStyle(section as CYLPlaceholderStyle) ?? ''))
       .fontSize(13)
       .fontColor($r('sys.color.font_secondary'))
       .width('100%')
@@ -190,7 +194,7 @@ export struct PlaceholderGalleryPage {
                   CYLDemoCell({
                     text: this.textOf(section, row),
                     image: this.imageOf(section, row),
-                    tintsImage: section !== CYLSearchPlaceholderStyle.empty,
+                    tintsImage: section !== CYLPlaceholderStyle.Empty,
                     showsDivider: row < this.rowsOf(section).length - 1
                   })
                 }
@@ -217,14 +221,14 @@ export struct PlaceholderGalleryPage {
 }
 
 /**
- * The detail page of a row: one CYLSearchPlaceholderView filling the page.
+ * The detail page of a row: one CYLTableViewPlaceHolder placeholder view (`CYLPlaceholderView`) filling the page.
  */
 @ComponentV2
 export struct PlaceholderDetailPage {
   @Require @Param stack: NavPathStack;
   @Require @Param param: CYLPlaceholderDetailParam;
   private context: common.Context = this.getUIContext().getHostContext() as common.Context;
-  private placeholder: CYLSearchPlaceholderView | undefined = undefined;
+  private placeholder: CYLPlaceholderViewModel | undefined = undefined;
 
   aboutToAppear(): void {
     this.placeholder = cylPlaceholderForRow(this.context, this.param.section, this.param.row);
@@ -235,7 +239,7 @@ export struct PlaceholderDetailPage {
       Column() {
         CYLDemoNavBar({ title: this.param.title, showsBack: true, onBack: () => this.stack.pop() })
         if (this.placeholder !== undefined) {
-          CYLSearchPlaceholderComponent({ placeholderView: this.placeholder }).layoutWeight(1)
+          CYLDemoPlaceholderItem({ placeholder: this.placeholder }).layoutWeight(1)
         }
       }
       .backgroundColor($r('sys.color.background_primary'))

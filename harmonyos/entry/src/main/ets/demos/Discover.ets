@@ -5,10 +5,50 @@ import {
   CYLSearchBarComponent,
   CYLSearchBarItem,
   CYLSearchBarStyle,
-  CYLSearchBarView,
-  cylFoldedTagCount
+  CYLSearchBarView
 } from 'cylsearch';
 import { cylAppText, CYL_PLUS_OVERHANG } from '../common/DemoCommon';
+
+/**
+ * How many tags (`widths`, in vp) fit in `rows` rows of `width`, leaving room for a control of `controlWidth` after
+ * the last visible tag; all of them when they fit without it (the folding of the recent searches, as iOS's
+ * CYLSearchDiscoverViewController; the core's own folding is private to CYLSearchView).
+ */
+function cylFoldedTagCount(widths: number[], width: number, rows: number, spacing: number,
+  controlWidth: number): number {
+  if (rows <= 0 || width <= 0) {
+    return widths.length;
+  }
+  const fits = (count: number, extra: number): boolean => {
+    let row = 1;
+    let x = 0;
+    const items = widths.slice(0, count).map((w: number) => Math.min(w, width));
+    if (extra > 0) {
+      items.push(Math.min(extra, width));
+    }
+    for (const w of items) {
+      if (x > 0 && x + spacing + w > width) {
+        row++;
+        x = w;
+      } else {
+        x = x > 0 ? x + spacing + w : w;
+      }
+      if (row > rows) {
+        return false;
+      }
+    }
+    return true;
+  };
+  if (fits(widths.length, 0)) {
+    return widths.length;
+  }
+  for (let count = widths.length - 1; count >= 0; count--) {
+    if (fits(count, controlWidth)) {
+      return count;
+    }
+  }
+  return 0;
+}
 
 /**
  * A discover topic of search-discover.json; `icon` "hot" adds the localized hot icon after the title.

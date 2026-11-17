@@ -1,7 +1,387 @@
 import { UIContext } from '@kit.ArkUI';
-import { cylAnimate } from './CYLSearchAnimation';
-import { cylSearchTextSubmittable } from './CYLSearchLogic';
-import { CYLSearchBarItem, CYLSearchBarItemOwner, CYLSearchBarItemStyle, CYLSearchBarItemView, CYLSearchBarStyle } from './CYLSearchBarItem';
+
+// MARK: - Pure logic (begin): no ArkUI, no kit; harmonyos/scripts/host-logic-test.mjs runs it with Node.
+
+/**
+ * The text cut to `maximumTextLength` characters; unchanged when the limit is 0 or less (Android
+ * `CYLMultiSearchView` text limit).
+ */
+function cylSearchTextLimited(text: string, maximumTextLength: number): string {
+  return maximumTextLength > 0 && text.length > maximumTextLength ? text.substring(0, maximumTextLength) : text;
+}
+
+/**
+ * Whether a typed search becomes a search of `searches` when completed: not empty and at least `minimumTextLength`
+ * characters, the text as typed, not trimmed (Android `CYLMultiSearchView.completeSearch`).
+ */
+function cylSearchTextCompletes(text: string, minimumTextLength: number): boolean {
+  return text.length > 0 && text.length >= minimumTextLength;
+}
+
+/**
+ * The selected index after the search at `removedIndex` was removed, with `countAfter` searches left: the next one
+ * when the selected one (or none) was removed, the previous one when the last went away, the same one shifted when an
+ * earlier one went away, -1 when none is left (Android `CYLMultiSearchView.remove`).
+ */
+function cylSelectionAfterRemoval(selectedIndex: number, removedIndex: number, countAfter: number): number {
+  if (countAfter <= 0) {
+    return -1;
+  }
+  if (selectedIndex === removedIndex || selectedIndex === -1) {
+    return Math.min(removedIndex, countAfter - 1);
+  }
+  if (selectedIndex > removedIndex) {
+    return selectedIndex - 1;
+  }
+  return selectedIndex;
+}
+
+/**
+ * Whether the search bar submits `text`: anything but blank text (Android `CYLSearchBarView.submit`; the delegate
+ * still receives the text untrimmed).
+ */
+function cylSearchTextSubmittable(text: string): boolean {
+  return text.trim().length > 0;
+}
+
+// MARK: - Pure logic (end)
+
+/**
+ * Animates `change` with the UI context of the component that draws the model (`UIContext.animateTo`). Before any
+ * component has drawn the model there is nothing on screen to animate: the change is applied at once and `onFinish`
+ * is called.
+ */
+function cylAnimate(uiContext: UIContext | undefined, param: AnimateParam, change: () => void): void {
+  if (uiContext === undefined) {
+    change();
+    param.onFinish?.();
+    return;
+  }
+  uiContext.animateTo(param, change);
+}
+
+/**
+ * What a `CYLSearchBarView` edits (iOS `CYLSearchBarMode`).
+ */
+export enum CYLSearchBarMode {
+  /**
+   * One search field (the default).
+   */
+  single = 0,
+  /**
+   * Several searches side by side (was `CYLMultiSearchView`): the new-search button starts a search; a completed
+   * search joins `searches`; a tap selects a search and its remove button removes it.
+   */
+  multiple = 1
+}
+
+/**
+ * How an item appended to a search bar looks (iOS `CYLSearchBarItemStyle`).
+ */
+export enum CYLSearchBarItemStyle {
+  /**
+   * An icon button with a 36 vp touch area (a camera, a filter).
+   */
+  icon = 0,
+  /**
+   * A thin vertical line between two items; it takes no taps and screen readers skip it.
+   */
+  divider = 1,
+  /**
+   * A text button (a "Search" button); an image, when set, comes before the title.
+   */
+  text = 2
+}
+
+/**
+ * The fixed look of the whole bar (iOS `CYLSearchBarStyle`): the field stays, the items are appended after its text.
+ */
+export enum CYLSearchBarStyle {
+  /**
+   * The field as configured by its own properties (the default; nothing is changed).
+   */
+  plain = 0,
+  /**
+   * A capsule with a 1 vp outline: the field and its items inside one outline.
+   */
+  bordered = 1
+}
+
+/**
+ * The item states for text attributes (iOS `UIControlState`).
+ */
+export enum CYLSearchBarItemState {
+  /**
+   * Enabled and not selected.
+   */
+  normal = 0,
+  /**
+   * Selected (`isSelected`).
+   */
+  selected = 1,
+  /**
+   * Disabled (`isEnabled` false).
+   */
+  disabled = 2
+}
+
+/**
+ * Title or badge text attributes (iOS `NSAttributedString` attributes).
+ */
+export class CYLSearchBarItemTextAttributes {
+  /**
+   * The text color.
+   */
+  color?: ResourceColor;
+  /**
+   * The font size in fp.
+   */
+  size?: number;
+  /**
+   * The font weight.
+   */
+  weight?: FontWeight;
+}
+
+/**
+ * One element after the text of a `CYLSearchBarView`: a model independent of its view (iOS `CYLSearchBarItem`, like
+ * `CYLFlatDesignTabBarItem`). Append it with `CYLSearchBarView.addItem`; the bar draws it.
+ */
+@ObservedV2
+export class CYLSearchBarItem {
+  /**
+   * How the item looks (icon, divider or text); set when the item is created.
+   */
+  readonly style: CYLSearchBarItemStyle;
+  /**
+   * The text of a text item, and the screen reader label of an icon item without `itemAccessibilityLabel`.
+   */
+  @Trace title: string | undefined = undefined;
+  /**
+   * The icon: a system symbol (`$r('sys.symbol.camera')`), tinted with `tintColor`.
+   */
+  @Trace image: Resource | undefined = undefined;
+  /**
+   * The icon while `isSelected` is true; undefined uses `image`.
+   */
+  @Trace selectedImage: Resource | undefined = undefined;
+  /**
+   * An animated icon (a GIF or animated WebP as an image source), drawn instead of `image` when set.
+   */
+  @Trace animatedImage: ResourceStr | undefined = undefined;
+  /**
+   * The icon side in vp; 0 uses 20.
+   */
+  @Trace imageSize: number = 0;
+  /**
+   * What screen readers read; undefined reads `title`.
+   */
+  @Trace itemAccessibilityLabel: string | undefined = undefined;
+  /**
+   * A test identifier for the item view (its component id).
+   */
+  @Trace itemAccessibilityIdentifier: string | undefined = undefined;
+  /**
+   * False dims the item and ignores taps. True by default.
+   */
+  @Trace isEnabled: boolean = true;
+  /**
+   * True makes each tap toggle `isSelected` (a filter that stays on). False by default.
+   */
+  isSelectable: boolean = false;
+  /**
+   * The selected state (drawn with `selectedImage`, `selectedBackgroundColor` and the selected title attributes).
+   */
+  @Trace isSelected: boolean = false;
+  /**
+   * The icon and title color; undefined uses the bar's `itemTintColor`.
+   */
+  @Trace tintColor: ResourceColor | undefined = undefined;
+  /**
+   * The item background; undefined is transparent.
+   */
+  @Trace backgroundColor: ResourceColor | undefined = undefined;
+  /**
+   * The item background while selected; undefined uses `backgroundColor`.
+   */
+  @Trace selectedBackgroundColor: ResourceColor | undefined = undefined;
+  /**
+   * Horizontal padding around the icon and title, in vp; negative uses the style's default (4 for text, 0 else).
+   */
+  @Trace contentInsets: number = -1;
+  /**
+   * Moves the icon, in vp, without changing the item's size.
+   */
+  @Trace imagePositionAdjustment: Position = { x: 0, y: 0 };
+  /**
+   * Moves the title, in vp, without changing the item's size.
+   */
+  @Trace titlePositionAdjustment: Position = { x: 0, y: 0 };
+  /**
+   * The badge text; undefined hides the badge, an empty string draws a dot.
+   */
+  @Trace badgeValue: string | undefined = undefined;
+  /**
+   * The badge background; undefined is red.
+   */
+  @Trace badgeColor: ResourceColor | undefined = undefined;
+  /**
+   * The smallest badge side in vp; 0 uses 16 (a dot is 8).
+   */
+  @Trace badgeSize: number = 0;
+  /**
+   * Horizontal padding around the badge text, in vp.
+   */
+  @Trace badgeContentInsets: number = 4;
+  /**
+   * Moves the badge from the icon's top end corner, in vp.
+   */
+  @Trace badgePositionAdjustment: Position = { x: 0, y: 0 };
+  /**
+   * Called on each tap, after `CYLSearchBarViewDelegate.searchBarViewDidSelectItem`.
+   */
+  handler: ((item: CYLSearchBarItem) => void) | undefined = undefined;
+  /**
+   * The bar the item was appended to; undefined before `addItem` and after `removeItem`.
+   */
+  searchBarView: CYLSearchBarView | undefined = undefined;
+
+  @Trace private attributesVersion: number = 0;
+  private titleAttributes: Map<CYLSearchBarItemState, CYLSearchBarItemTextAttributes> = new Map();
+  private badgeAttributes: Map<CYLSearchBarItemState, CYLSearchBarItemTextAttributes> = new Map();
+
+  /**
+   * An item of the given style with a title and an icon (iOS `-initWithStyle:title:image:`).
+   */
+  constructor(style: CYLSearchBarItemStyle, title?: string, image?: Resource) {
+    this.style = style;
+    this.title = title;
+    this.image = image;
+  }
+
+  /**
+   * The item's position in its bar's `items`; -1 when it is in no bar.
+   */
+  get index(): number {
+    return this.searchBarView === undefined ? -1 : this.searchBarView.items.indexOf(this);
+  }
+
+  /**
+   * The state the item is drawn in.
+   */
+  get currentState(): CYLSearchBarItemState {
+    if (!this.isEnabled) {
+      return CYLSearchBarItemState.disabled;
+    }
+    return this.isSelected ? CYLSearchBarItemState.selected : CYLSearchBarItemState.normal;
+  }
+
+  /**
+   * An icon item: the title is what screen readers read (iOS `+iconItemWithImage:title:handler:`).
+   */
+  static iconItem(image: Resource | undefined, title: string | undefined,
+    handler?: (item: CYLSearchBarItem) => void): CYLSearchBarItem {
+    const item = new CYLSearchBarItem(CYLSearchBarItemStyle.icon, title, image);
+    item.handler = handler;
+    return item;
+  }
+
+  /**
+   * A text item, a "Search" button (iOS `+textItemWithTitle:handler:`).
+   */
+  static textItem(title: string, handler?: (item: CYLSearchBarItem) => void): CYLSearchBarItem {
+    const item = new CYLSearchBarItem(CYLSearchBarItemStyle.text, title);
+    item.handler = handler;
+    return item;
+  }
+
+  /**
+   * A divider between two items (iOS `+dividerItem`).
+   */
+  static divider(): CYLSearchBarItem {
+    return new CYLSearchBarItem(CYLSearchBarItemStyle.divider);
+  }
+
+  /**
+   * An item from plain values, as the cross-platform wrappers send them (iOS `+itemWithDictionary:`): `style`
+   * (`icon`, `divider`, `text`), `title`, `image` (`camera`, `mic`, `search`, `back`), `accessibilityIdentifier`,
+   * `isEnabled`, `isSelectable`, `isSelected`, `badgeValue`.
+   */
+  static item(dictionary: Record<string, Object>): CYLSearchBarItem {
+    const styleName = dictionary['style'] as string | undefined;
+    let style = CYLSearchBarItemStyle.icon;
+    if (styleName === 'divider') {
+      style = CYLSearchBarItemStyle.divider;
+    } else if (styleName === 'text') {
+      style = CYLSearchBarItemStyle.text;
+    }
+    const item = new CYLSearchBarItem(style, dictionary['title'] as string | undefined,
+      CYLSearchBarItem.namedImage(dictionary['image'] as string | undefined));
+    item.itemAccessibilityIdentifier = dictionary['accessibilityIdentifier'] as string | undefined;
+    item.isEnabled = (dictionary['isEnabled'] as boolean | undefined) ?? true;
+    item.isSelectable = (dictionary['isSelectable'] as boolean | undefined) ?? false;
+    item.isSelected = (dictionary['isSelected'] as boolean | undefined) ?? false;
+    item.badgeValue = dictionary['badgeValue'] as string | undefined;
+    if (style === CYLSearchBarItemStyle.icon) {
+      item.imageSize = 22;
+    }
+    return item;
+  }
+
+  private static namedImage(name: string | undefined): Resource | undefined {
+    if (name === 'camera') {
+      return $r('sys.symbol.camera');
+    }
+    if (name === 'mic') {
+      return $r('sys.symbol.mic');
+    }
+    if (name === 'search') {
+      return $r('sys.symbol.magnifyingglass');
+    }
+    if (name === 'back') {
+      return $r('sys.symbol.chevron_backward');
+    }
+    return undefined;
+  }
+
+  /**
+   * The title attributes for a state (iOS `-setTitleTextAttributes:forState:`).
+   */
+  setTitleTextAttributes(attributes: CYLSearchBarItemTextAttributes | undefined, state: CYLSearchBarItemState): void {
+    if (attributes === undefined) {
+      this.titleAttributes.delete(state);
+    } else {
+      this.titleAttributes.set(state, attributes);
+    }
+    this.attributesVersion += 1;
+  }
+
+  /**
+   * The title attributes set for a state, or undefined (iOS `-titleTextAttributesForState:`).
+   */
+  titleTextAttributes(state: CYLSearchBarItemState): CYLSearchBarItemTextAttributes | undefined {
+    return this.attributesVersion >= 0 ? this.titleAttributes.get(state) : undefined;
+  }
+
+  /**
+   * The badge text attributes for a state (iOS `-setBadgeTextAttributes:forState:`).
+   */
+  setBadgeTextAttributes(attributes: CYLSearchBarItemTextAttributes | undefined, state: CYLSearchBarItemState): void {
+    if (attributes === undefined) {
+      this.badgeAttributes.delete(state);
+    } else {
+      this.badgeAttributes.set(state, attributes);
+    }
+    this.attributesVersion += 1;
+  }
+
+  /**
+   * The badge text attributes set for a state, or undefined (iOS `-badgeTextAttributesForState:`).
+   */
+  badgeTextAttributes(state: CYLSearchBarItemState): CYLSearchBarItemTextAttributes | undefined {
+    return this.attributesVersion >= 0 ? this.badgeAttributes.get(state) : undefined;
+  }
+}
 
 /**
  * The icon of the button before the field (iOS `CYLSearchBarNavigationIcon`).
@@ -106,15 +486,34 @@ export interface CYLSearchBarViewDelegate {
    * An appended item was tapped (iOS `-searchBarView:didSelectItem:`).
    */
   searchBarViewDidSelectItem?: (searchBarView: CYLSearchBarView, item: CYLSearchBarItem) => void;
+  /**
+   * `multiple` mode: the text of the new search changed; `index` is its place in `searches` (iOS
+   * `-searchBarView:textDidChange:atIndex:`). The `single` mode reports `searchBarViewTextDidChange` instead.
+   */
+  searchBarViewTextDidChangeAt?: (searchBarView: CYLSearchBarView, text: string, index: number) => void;
+  /**
+   * `multiple` mode: a search was completed and joined `searches` at `index` (iOS
+   * `-searchBarView:didCompleteSearch:atIndex:`).
+   */
+  searchBarViewDidCompleteSearch?: (searchBarView: CYLSearchBarView, text: string, index: number) => void;
+  /**
+   * `multiple` mode: the search at `index` was removed (iOS `-searchBarView:didRemoveSearchAtIndex:`).
+   */
+  searchBarViewDidRemoveSearchAt?: (searchBarView: CYLSearchBarView, index: number) => void;
+  /**
+   * `multiple` mode: the search at `index` was selected by a tap (iOS `-searchBarView:didSelectSearch:atIndex:`).
+   */
+  searchBarViewDidSelectSearch?: (searchBarView: CYLSearchBarView, text: string, index: number) => void;
 }
 
 /**
  * A configurable search bar (iOS `CYLSearchBarView`): a rounded field with a magnifier, text and clear button,
- * appended items after the text, a button before the field and an optional Cancel button. This class is the bar's
+ * appended items after the text, a button before the field and an optional Cancel button. With `mode` set to
+ * `multiple` it edits several searches side by side instead (was `CYLMultiSearchView`). This class is the bar's
  * state and API; `CYLSearchBarComponent` draws it. Sizes are in vp, durations in seconds, as on iOS.
  */
 @ObservedV2
-export class CYLSearchBarView implements CYLSearchBarItemOwner {
+export class CYLSearchBarView {
   /**
    * The UI context of the component that draws it, set by that component; animations use it.
    */
@@ -133,13 +532,18 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
    */
   readonly textField: TextInputController = new TextInputController();
   /**
-   * The text of the field.
+   * What the bar edits: one field (`single`, the default) or several searches (`multiple`).
+   */
+  @Trace mode: CYLSearchBarMode = CYLSearchBarMode.single;
+  /**
+   * The text of the field; in `multiple` mode, the text of the new search being typed.
    */
   @Trace text: string = '';
   /**
-   * The placeholder.
+   * The placeholder; undefined shows none in `single` mode and "Filter results" (iOS `search.placeholder`) for a new
+   * search in `multiple` mode.
    */
-  @Trace placeholder: string | undefined = undefined;
+  @Trace placeholder: ResourceStr | undefined = undefined;
   /**
    * The font size in fp. 17 by default.
    */
@@ -278,6 +682,35 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
    */
   @Trace maximumTextLength: number = 0;
   /**
+   * `multiple` mode: a new search shorter than this is dropped by `completeSearch()`. 3 by default.
+   */
+  minimumTextLength: number = 3;
+  /**
+   * `multiple` mode: the selected search of `searches`, or -1 when none is selected (iOS `NSNotFound`).
+   */
+  @Trace selectedSearchIndex: number = -1;
+  /**
+   * `multiple` mode: the color of the line under the selected search and of the buttons; undefined uses the system
+   * accent.
+   */
+  @Trace searchIndicatorColor: ResourceColor | undefined = undefined;
+  /**
+   * `multiple` mode: the opacity of the searches that are not selected. 0.5 by default.
+   */
+  @Trace unselectedSearchAlpha: number = 0.5;
+  /**
+   * `multiple` mode: the width of the field of a new search, in vp. 160 by default.
+   */
+  @Trace searchFieldWidth: number = 160;
+  /**
+   * `multiple` mode: the symbol of the new-search button. A magnifier by default.
+   */
+  @Trace newSearchImage: Resource = $r('sys.symbol.magnifyingglass');
+  /**
+   * `multiple` mode: the symbol of the remove button of the selected search.
+   */
+  @Trace removeSearchImage: Resource = $r('sys.symbol.xmark_circle_fill');
+  /**
    * The bar shows only its search button until it is tapped. False by default.
    */
   @Trace iconifiedByDefault: boolean = false;
@@ -323,6 +756,9 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
    */
   @Trace isEditing: boolean = false;
 
+  @Trace private completedSearches: string[] = [];
+  @Trace private editingNewSearch: boolean = false;
+
   /**
    * A bar with the default look (iOS `-initWithFrame:`).
    */
@@ -356,7 +792,7 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
   }
 
   /**
-   * The views of `items` are drawn by `CYLSearchBarItemView`; this is the list they draw, in order.
+   * The items as the bar draws them, in order (iOS `itemViews`; the item views are private to the bar).
    */
   get itemViews(): CYLSearchBarItem[] {
     return this.items;
@@ -388,8 +824,7 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
    */
   insertItem(item: CYLSearchBarItem, index: number): void {
     if (item.searchBarView !== undefined) {
-      const owner = item.searchBarView as CYLSearchBarView;
-      owner.removeItem(item);
+      item.searchBarView.removeItem(item);
     }
     const position = Math.min(Math.max(0, index), this.items.length);
     this.items.splice(position, 0, item);
@@ -456,11 +891,7 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
    */
   setText(text: string | undefined, submit: boolean): void {
     // Set silently: only typing reports `searchBarViewTextDidChange` (Android `text` / `setText`).
-    let next = text ?? '';
-    if (this.maximumTextLength > 0 && next.length > this.maximumTextLength) {
-      next = next.substring(0, this.maximumTextLength);
-    }
-    this.text = next;
+    this.text = cylSearchTextLimited(text ?? '', this.maximumTextLength);
     if (submit) {
       this.submit();
     }
@@ -573,25 +1004,144 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
   }
 
   /**
-   * The bar's height: the field and the insets above and below it (iOS `intrinsicContentSize`).
+   * `multiple` mode: the searches, the completed ones first, then the new one while it is typed (iOS `searches`).
+   */
+  get searches(): string[] {
+    return this.editingNewSearch ? this.completedSearches.concat([this.text]) : this.completedSearches.slice();
+  }
+
+  /**
+   * `multiple` mode: the completed searches, as the bar draws them.
+   */
+  get completedSearchTexts(): string[] {
+    return this.completedSearches;
+  }
+
+  /**
+   * `multiple` mode: true while a new search is being typed (iOS `isEditingNewSearch`).
+   */
+  get isEditingNewSearch(): boolean {
+    return this.editingNewSearch;
+  }
+
+  /**
+   * `multiple` mode: starts a new search and shows the keyboard, like the new-search button (iOS `-beginNewSearch`).
+   * Does nothing in `single` mode or while a new search is being typed.
+   */
+  beginNewSearch(): void {
+    if (this.mode !== CYLSearchBarMode.multiple || this.editingNewSearch) {
+      return;
+    }
+    this.text = '';
+    this.editingNewSearch = true;
+    // Nothing is selected while a search is typed (Android `selectedIndex = NO_SELECTION`).
+    this.selectedSearchIndex = -1;
+    this.showKeyboardWhenDrawn();
+  }
+
+  /**
+   * `multiple` mode: completes the new search: it joins `searches` and is selected, or is dropped when shorter than
+   * `minimumTextLength` (iOS `-completeSearch`).
+   */
+  completeSearch(): void {
+    if (!this.editingNewSearch) {
+      return;
+    }
+    // The text as typed, not trimmed (Android `completeSearch`).
+    const text = this.text;
+    this.editingNewSearch = false;
+    this.text = '';
+    if (!cylSearchTextCompletes(text, this.minimumTextLength)) {
+      this.selectedSearchIndex = this.completedSearches.length > 0 ? this.completedSearches.length - 1 : -1;
+      return;
+    }
+    this.completedSearches.push(text);
+    this.selectedSearchIndex = this.completedSearches.length - 1;
+    this.delegate?.searchBarViewDidCompleteSearch?.(this, text, this.selectedSearchIndex);
+  }
+
+  /**
+   * `multiple` mode: adds a completed search without typing it and selects it (iOS `-addSearch:`). A search being
+   * typed is completed first; the added search is not reported.
+   */
+  addSearch(text: string): void {
+    if (text.length === 0) {
+      return;
+    }
+    if (this.editingNewSearch) {
+      this.completeSearch();
+    }
+    this.completedSearches.push(cylSearchTextLimited(text, this.maximumTextLength));
+    this.selectedSearchIndex = this.completedSearches.length - 1;
+  }
+
+  /**
+   * `multiple` mode: selects a search, like a tap on it (iOS `-selectSearchAtIndex:`).
+   */
+  selectSearch(index: number): void {
+    if (index < 0 || index >= this.completedSearches.length) {
+      return;
+    }
+    if (this.editingNewSearch) {
+      this.completeSearch();
+    }
+    this.selectedSearchIndex = Math.min(index, this.completedSearches.length - 1);
+    this.delegate?.searchBarViewDidSelectSearch?.(this, this.completedSearches[this.selectedSearchIndex],
+      this.selectedSearchIndex);
+  }
+
+  /**
+   * `multiple` mode: removes a search, like a tap on its remove button (iOS `-removeSearchAtIndex:`).
+   */
+  removeSearch(index: number): void {
+    if (index < 0 || index >= this.completedSearches.length) {
+      return;
+    }
+    this.completedSearches.splice(index, 1);
+    // The next search is selected, or the previous one when the last went away (Android `remove`).
+    this.selectedSearchIndex = cylSelectionAfterRemoval(this.selectedSearchIndex, index,
+      this.completedSearches.length);
+    this.delegate?.searchBarViewDidRemoveSearchAt?.(this, index);
+  }
+
+  /**
+   * The system Back gesture: in `multiple` mode, completes the new search being typed and returns true; false
+   * otherwise. Call it from the page's `onBackPress()` and return its result.
+   */
+  handleBackPress(): boolean {
+    if (!this.editingNewSearch) {
+      return false;
+    }
+    this.completeSearch();
+    return true;
+  }
+
+  /**
+   * The bar's height: the field and the insets above and below it; one row of searches in `multiple` mode (iOS
+   * `intrinsicContentSize`).
    */
   get intrinsicContentSize(): number {
+    if (this.mode === CYLSearchBarMode.multiple) {
+      return 48;
+    }
     return this.fieldHeight + Number(this.contentInsets.top ?? 0) + Number(this.contentInsets.bottom ?? 0);
   }
 
   /**
-   * The component reports a new text; the delegate is told when it differs.
+   * The component reports a new text; the delegate is told when it differs (`searchBarViewTextDidChange`, or
+   * `searchBarViewTextDidChangeAt` in `multiple` mode).
    */
   textChanged(text: string): void {
-    let next = text;
-    if (this.maximumTextLength > 0 && next.length > this.maximumTextLength) {
-      next = next.substring(0, this.maximumTextLength);
-    }
+    const next = cylSearchTextLimited(text, this.maximumTextLength);
     if (next === this.text) {
       return;
     }
     this.text = next;
-    this.delegate?.searchBarViewTextDidChange?.(this, next);
+    if (this.mode === CYLSearchBarMode.multiple) {
+      this.delegate?.searchBarViewTextDidChangeAt?.(this, next, this.completedSearches.length);
+    } else {
+      this.delegate?.searchBarViewTextDidChange?.(this, next);
+    }
   }
 
   /**
@@ -662,8 +1212,252 @@ export class CYLSearchBarView implements CYLSearchBarItemOwner {
 }
 
 /**
+ * The view of a `CYLSearchBarItem` (was the public `CYLSearchBarItemView`; like `CYLFlatDesignTabBarButton`).
+ */
+@ComponentV2
+struct CYLSearchBarItemView {
+  /**
+   * The item this view draws.
+   */
+  @Require @Param item: CYLSearchBarItem;
+  /**
+   * The bar's tint, for an item without its own.
+   */
+  @Param itemTintColor: ResourceColor | undefined = undefined;
+  /**
+   * The item was tapped (the bar toggles a selectable item, then tells its delegate and the item's handler).
+   */
+  @Event onSelect: (item: CYLSearchBarItem) => void = () => {
+  };
+
+  private tint(): ResourceColor {
+    return this.item.tintColor ?? this.itemTintColor ?? $r('sys.color.font_primary');
+  }
+
+  private side(): number {
+    return this.item.imageSize > 0 ? this.item.imageSize : 20;
+  }
+
+  private currentImage(): Resource | undefined {
+    return this.item.isSelected ? (this.item.selectedImage ?? this.item.image) : this.item.image;
+  }
+
+  private titleAttributes(): CYLSearchBarItemTextAttributes | undefined {
+    return this.item.titleTextAttributes(this.item.currentState) ??
+    this.item.titleTextAttributes(CYLSearchBarItemState.normal);
+  }
+
+  private badgeAttributes(): CYLSearchBarItemTextAttributes | undefined {
+    return this.item.badgeTextAttributes(this.item.currentState) ??
+    this.item.badgeTextAttributes(CYLSearchBarItemState.normal);
+  }
+
+  private itemBackground(): ResourceColor {
+    const color = this.item.isSelected ? (this.item.selectedBackgroundColor ?? this.item.backgroundColor) :
+    this.item.backgroundColor;
+    return color ?? Color.Transparent;
+  }
+
+  private insets(): number {
+    if (this.item.contentInsets >= 0) {
+      return this.item.contentInsets;
+    }
+    return this.item.style === CYLSearchBarItemStyle.text ? 4 : 0;
+  }
+
+  build() {
+    if (this.item.style === CYLSearchBarItemStyle.divider) {
+      Divider()
+        .vertical(true)
+        .height(18)
+        .strokeWidth(1)
+        .color($r('sys.color.comp_divider'))
+        .accessibilityLevel('no')
+    } else {
+      Stack({ alignContent: Alignment.TopEnd }) {
+        Row({ space: 4 }) {
+          if (this.item.animatedImage !== undefined) {
+            Image(this.item.animatedImage)
+              .width(this.side())
+              .height(this.side())
+              .objectFit(ImageFit.Contain)
+              .offset(this.item.imagePositionAdjustment)
+          } else if (this.currentImage() !== undefined) {
+            SymbolGlyph(this.currentImage())
+              .fontSize(this.side())
+              .fontColor([this.tint()])
+              .offset(this.item.imagePositionAdjustment)
+          }
+          if (this.item.style === CYLSearchBarItemStyle.text && this.item.title !== undefined) {
+            Text(this.item.title)
+              .fontSize(this.titleAttributes()?.size ?? 17)
+              .fontWeight(this.titleAttributes()?.weight ?? FontWeight.Bold)
+              .fontColor(this.titleAttributes()?.color ?? this.tint())
+              .maxLines(1)
+              .offset(this.item.titlePositionAdjustment)
+          }
+        }
+        .justifyContent(FlexAlign.Center)
+        .constraintSize({ minWidth: 36, minHeight: 36 })
+        .padding({ left: this.insets(), right: this.insets() })
+
+        if (this.item.badgeValue !== undefined) {
+          Text(this.item.badgeValue)
+            .fontSize(this.badgeAttributes()?.size ?? 11)
+            .fontWeight(this.badgeAttributes()?.weight ?? FontWeight.Medium)
+            .fontColor(this.badgeAttributes()?.color ?? Color.White)
+            .textAlign(TextAlign.Center)
+            .constraintSize({
+              minWidth: this.item.badgeValue.length === 0 ? 8 : (this.item.badgeSize > 0 ? this.item.badgeSize : 16),
+              minHeight: this.item.badgeValue.length === 0 ? 8 : (this.item.badgeSize > 0 ? this.item.badgeSize : 16)
+            })
+            .padding({
+              left: this.item.badgeValue.length === 0 ? 0 : this.item.badgeContentInsets,
+              right: this.item.badgeValue.length === 0 ? 0 : this.item.badgeContentInsets
+            })
+            .backgroundColor(this.item.badgeColor ?? Color.Red)
+            .borderRadius(8)
+            .offset(this.item.badgePositionAdjustment)
+            .accessibilityLevel('no')
+        }
+      }
+      .backgroundColor(this.itemBackground())
+      .borderRadius(10)
+      .opacity(this.item.isEnabled ? 1 : 0.4)
+      .enabled(this.item.isEnabled)
+      .id(this.item.itemAccessibilityIdentifier ?? '')
+      .accessibilityGroup(true)
+      .accessibilityText(this.item.itemAccessibilityLabel ?? this.item.title ?? '')
+      .onClick(() => {
+        this.onSelect(this.item);
+      })
+    }
+  }
+}
+
+/**
+ * Draws a `CYLSearchBarView` in `multiple` mode (was `CYLMultiSearchComponent`): the searches in a row that scrolls,
+ * the field of the new search, and the new-search button at the trailing end.
+ */
+@ComponentV2
+struct CYLSearchBarSearchesView {
+  /**
+   * The bar to draw.
+   */
+  @Require @Param searchBarView: CYLSearchBarView;
+
+  // "Search 2 of 3" in the language the app shows (iOS `multisearch.item`).
+  private positionText(position: number, count: number): string {
+    try {
+      return this.getUIContext().getHostContext()?.resourceManager
+        .getStringSync($r('app.string.cyl_multisearch_item').id, position, count) ?? '';
+    } catch (error) {
+      return '';
+    }
+  }
+
+  private accent(): ResourceColor {
+    return this.searchBarView.searchIndicatorColor ?? $r('sys.color.brand');
+  }
+
+  build() {
+    Row({ space: 8 }) {
+      Scroll() {
+        Row({ space: 16 }) {
+          ForEach(this.searchBarView.completedSearchTexts, (text: string, index: number) => {
+            Column({ space: 4 }) {
+              Row({ space: 4 }) {
+                Text(text)
+                  .fontSize(this.searchBarView.font)
+                  .fontColor(this.searchBarView.textColor ?? $r('sys.color.font_primary'))
+                  .maxLines(1)
+                if (index === this.searchBarView.selectedSearchIndex) {
+                  SymbolGlyph(this.searchBarView.removeSearchImage)
+                    .fontSize(18)
+                    .fontColor([this.accent()])
+                    .accessibilityText($r('app.string.cyl_multisearch_remove'))
+                    // A 44 vp touch area around the 18 vp icon, without changing the layout.
+                    .responseRegion({ x: -13, y: -13, width: 44, height: 44 })
+                    .onClick(() => {
+                      this.searchBarView.removeSearch(index);
+                    })
+                }
+              }
+              Divider()
+                .strokeWidth(2)
+                .color(this.accent())
+                .opacity(index === this.searchBarView.selectedSearchIndex ? 1 : 0)
+            }
+            .opacity(index === this.searchBarView.selectedSearchIndex ? 1 : this.searchBarView.unselectedSearchAlpha)
+            // Screen readers hear the position and whether it is selected (iOS `multisearch.item`).
+            .accessibilityDescription(this.positionText(index + 1, this.searchBarView.completedSearchTexts.length))
+            .accessibilitySelected(index === this.searchBarView.selectedSearchIndex)
+            .onClick(() => {
+              this.searchBarView.selectSearch(index);
+            })
+          }, (text: string, index: number) => `${index}-${text}`)
+          if (this.searchBarView.isEditingNewSearch) {
+            TextInput({
+              text: this.searchBarView.text,
+              placeholder: this.searchBarView.placeholder ?? $r('app.string.cyl_search_placeholder'),
+              controller: this.searchBarView.textField
+            })
+              .id(this.searchBarView.textFieldId)
+              .width(this.searchBarView.searchFieldWidth)
+              .height(36)
+              .padding(0)
+              .backgroundColor(Color.Transparent)
+              .borderRadius(0)
+              .fontSize(this.searchBarView.font)
+              .fontColor(this.searchBarView.textColor ?? $r('sys.color.font_primary'))
+              .placeholderColor(this.searchBarView.placeholderColor ?? $r('sys.color.font_tertiary'))
+              .caretColor(this.searchBarView.cursorColor ?? $r('sys.color.brand'))
+              .type(this.searchBarView.keyboardType)
+              .enterKeyType(this.searchBarView.returnKeyType)
+              .maxLength(this.searchBarView.maximumTextLength > 0 ? this.searchBarView.maximumTextLength : 100000)
+              .onChange((value: string) => {
+                this.searchBarView.textChanged(value);
+              })
+              .onSubmit(() => {
+                this.searchBarView.completeSearch();
+              })
+          }
+        }
+        .padding({ left: 16, right: 8 })
+      }
+      .scrollable(ScrollDirection.Horizontal)
+      .scrollBar(BarState.Off)
+      .layoutWeight(1)
+      .align(Alignment.Start)
+
+      Row() {
+        SymbolGlyph(this.searchBarView.newSearchImage)
+          .fontSize(22)
+          .fontColor([this.accent()])
+      }
+      .width(44)
+      .height(44)
+      .justifyContent(FlexAlign.Center)
+      .accessibilityGroup(true)
+      .accessibilityText($r('app.string.cyl_multisearch_add'))
+      .id('CYLSearchBarNewSearch')
+      .onClick(() => {
+        if (this.searchBarView.isEditingNewSearch) {
+          this.searchBarView.completeSearch();
+        } else {
+          this.searchBarView.beginNewSearch();
+        }
+      })
+    }
+    .width('100%')
+    .height(this.searchBarView.intrinsicContentSize)
+  }
+}
+
+/**
  * Draws a `CYLSearchBarView`: the button before the field, the field (magnifier, text, clear button, voice or
- * submit button, appended items) and Cancel; while iconified, only the search button.
+ * submit button, appended items) and Cancel; while iconified, only the search button; in `multiple` mode, the
+ * searches side by side with the field of a new search and the new-search button.
  */
 @ComponentV2
 export struct CYLSearchBarComponent {
@@ -828,6 +1622,15 @@ export struct CYLSearchBarComponent {
   }
 
   build() {
+    if (this.searchBarView.mode === CYLSearchBarMode.multiple) {
+      CYLSearchBarSearchesView({ searchBarView: this.searchBarView })
+    } else {
+      this.singleBar()
+    }
+  }
+
+  @Builder
+  singleBar() {
     Row({ space: 8 }) {
       if (this.searchBarView.isIconified) {
         Row() {

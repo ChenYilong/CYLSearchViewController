@@ -1,11 +1,10 @@
 import { common } from '@kit.AbilityKit';
 import { display } from '@kit.ArkUI';
 import {
-  CYLMultiSearchComponent,
-  CYLMultiSearchView,
   CYLSearchBarComponent,
   CYLSearchBarExpansionAnimation,
   CYLSearchBarIconPosition,
+  CYLSearchBarMode,
   CYLSearchBarNavigationIcon,
   CYLSearchBarView,
   CYLSearchComponent,
@@ -272,8 +271,8 @@ export struct RevealPage {
 }
 
 /**
- * Port of iammert/MultiSearchView's sample `MainActivity` (iOS `CYLMultiSearchDemoViewController`): a multi-search
- * view styled like the README's `SearchTextStyle` (hint "Search", 18 vp text, at most 15 characters, the Search key,
+ * Port of iammert/MultiSearchView's sample `MainActivity` (iOS `CYLMultiSearchDemoViewController`): a search bar in
+ * `multiple` mode styled like the README's `SearchTextStyle` (hint "Search", 18 vp text, at most 15 characters, the Search key,
  * gray hint, primary text), 16 vp from the top, with every event logged (the sample's `Log.v`).
  */
 @ComponentV2
@@ -281,23 +280,24 @@ export struct MultiSearchDemoPage {
   @Require @Param stack: NavPathStack;
   @Local log: string = '';
   private context: common.Context = this.getUIContext().getHostContext() as common.Context;
-  private multiSearchView: CYLMultiSearchView = new CYLMultiSearchView();
+  private searchBar: CYLSearchBarView = new CYLSearchBarView();
 
   aboutToAppear(): void {
-    this.multiSearchView.placeholder = cylDemoText(this.context, 'search.field');
-    this.multiSearchView.font = 18;
-    this.multiSearchView.maximumTextLength = 15;
-    this.multiSearchView.returnKeyType = EnterKeyType.Search;
-    this.multiSearchView.placeholderColor = 'rgba(153, 153, 153, 0.5)';
-    this.multiSearchView.textColor = $r('sys.color.font_primary');
-    this.multiSearchView.delegate = {
-      multiSearchViewDidSelectItem: (_: CYLMultiSearchView, text: string, index: number) =>
+    this.searchBar.mode = CYLSearchBarMode.multiple;
+    this.searchBar.placeholder = cylDemoText(this.context, 'search.field');
+    this.searchBar.font = 18;
+    this.searchBar.maximumTextLength = 15;
+    this.searchBar.returnKeyType = EnterKeyType.Search;
+    this.searchBar.placeholderColor = 'rgba(153, 153, 153, 0.5)';
+    this.searchBar.textColor = $r('sys.color.font_primary');
+    this.searchBar.delegate = {
+      searchBarViewDidSelectSearch: (_: CYLSearchBarView, text: string, index: number) =>
       this.append(`onItemSelected: index: ${index}, query: ${text}`),
-      multiSearchViewTextDidChange: (_: CYLMultiSearchView, text: string, index: number) =>
+      searchBarViewTextDidChangeAt: (_: CYLSearchBarView, text: string, index: number) =>
       this.append(`changed: index: ${index}, query: ${text}`),
-      multiSearchViewDidCompleteSearch: (_: CYLMultiSearchView, text: string, index: number) =>
+      searchBarViewDidCompleteSearch: (_: CYLSearchBarView, text: string, index: number) =>
       this.append(`complete: index: ${index}, query: ${text}`),
-      multiSearchViewDidRemoveItemAtIndex: (_: CYLMultiSearchView, index: number) => this.append(`remove: index: ${index}`)
+      searchBarViewDidRemoveSearchAt: (_: CYLSearchBarView, index: number) => this.append(`remove: index: ${index}`)
     };
   }
 
@@ -309,7 +309,7 @@ export struct MultiSearchDemoPage {
     NavDestination() {
       Column() {
         CYLDemoNavBar({ title: 'MultiSearchView', showsBack: true, onBack: () => this.stack.pop() })
-        CYLMultiSearchComponent({ multiSearchView: this.multiSearchView })
+        CYLSearchBarComponent({ searchBarView: this.searchBar })
           .margin({ left: 8, right: 8, top: 16 })
         Scroll() {
           Text(this.log)
@@ -327,6 +327,6 @@ export struct MultiSearchDemoPage {
       .backgroundColor($r('sys.color.background_primary'))
     }
     .hideTitleBar(true)
-    .onBackPressed(() => this.multiSearchView.handleBackPress())
+    .onBackPressed(() => this.searchBar.handleBackPress())
   }
 }

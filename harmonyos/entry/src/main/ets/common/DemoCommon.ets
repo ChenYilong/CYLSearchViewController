@@ -2,6 +2,13 @@ import { common } from '@kit.AbilityKit';
 import { preferences } from '@kit.ArkData';
 import { CYLSearchResources } from 'cylsearch';
 import { cyl_plusButtonOverhang } from 'cyltabbar';
+import {
+  CYLPlaceholderScenario,
+  CYLPlaceholderStackView,
+  CYLPlaceholderStackViewModel,
+  CYLPlaceholderView,
+  CYLPlaceholderViewModel
+} from 'cylplaceholder';
 
 /**
  * Fills `%s`, `%d` and positional `%1$d` / `%1$s` in `format` with `args`, in order.
@@ -218,7 +225,8 @@ export struct CYLDemoCell {
   build() {
     Column() {
       Row({ space: 12 }) {
-        if (this.image !== undefined && this.image.type === 20000) {
+        // A media image (20000) or a rawfile image (30000, CYLTableViewPlaceHolder's bundled icons); else a symbol.
+        if (this.image !== undefined && (this.image.type === 20000 || this.image.type === 30000)) {
           if (this.tintsImage) {
             // fillColor tints SVG images only; the PNG placeholder images (CYLSearch<Name>@2x.png) get the same secondary grey
             // (iOS `secondaryLabelColor`, #8E8E93) through a color filter that keeps their alpha.
@@ -302,3 +310,35 @@ export const CYL_PLUS_IMAGE_SIZE: number = 56;
  * library (CYLTabBarController PR #811, rule "Fix issues in the core first"); the example only applies it.
  */
 export const CYL_PLUS_OVERHANG: number = cyl_plusButtonOverhang({ imageSize: CYL_PLUS_IMAGE_SIZE, title: '+' });
+
+/**
+ * Draws a CYLTableViewPlaceHolder placeholder stack (a scenario) inside the example's V2 pages: cylplaceholder's
+ * components are V1 and link an `@Observed` model, so the model is held here as V1 state.
+ */
+@Component
+export struct CYLDemoPlaceholderStack {
+  @State placeholder: CYLPlaceholderStackViewModel = CYLPlaceholderStackViewModel.initWithScenario(
+    CYLPlaceholderScenario.NoSearchResults);
+
+  build() {
+    CYLPlaceholderStackView({ model: this.placeholder })
+  }
+}
+
+/**
+ * Draws one CYLTableViewPlaceHolder placeholder view (an image above a text), centered, inside the example's V2 pages.
+ */
+@Component
+export struct CYLDemoPlaceholderItem {
+  @State placeholder: CYLPlaceholderViewModel = new CYLPlaceholderViewModel();
+
+  build() {
+    Column() {
+      CYLPlaceholderView({ model: this.placeholder })
+    }
+    .width('100%')
+    .height('100%')
+    .justifyContent(FlexAlign.Center)
+    .padding(16)
+  }
+}

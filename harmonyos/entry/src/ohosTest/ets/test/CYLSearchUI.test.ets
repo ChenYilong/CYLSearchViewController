@@ -95,7 +95,66 @@ export default function cylSearchUITest() {
       await tapLabel(driver, appString('tab_examples'));
       await assertLabel(driver, libString('demo.title'));
       await tapLabel(driver, libString('demo.styles'), 1000);
-      await assertLabel(driver, 'CYLSearchEmpty');
+      // The section headers are CYLTableViewPlaceHolder's image names (its CYLPlaceholderView styles).
+      await assertLabel(driver, 'CYLPlaceholderEmpty');
+      await driver.pressBack();
+      await driver.delayMs(800);
+    });
+
+    // The overlay is a CYLSearchView with a results data source: typing shows the matching results below the bar,
+    // a query with no result shows CYLTableViewPlaceHolder's placeholder, and Back closes it.
+    it('overlayShowsResultsOfTheDataSource', 0, async () => {
+      const driver = Driver.create();
+      await backToTabBar(driver);
+      await tapLabel(driver, appString('tab_search'));
+      await tapLabel(driver, libString('action.overlay'), 1000);
+      const fields = await driver.findComponents(ON.type('TextInput'));
+      expect(fields.length > 0).assertTrue();
+      const field = fields[fields.length - 1];
+      await field.inputText(libString('sample.result').replace('%d', '12'));
+      await driver.delayMs(800);
+      await assertLabel(driver, libString('sample.result').replace('%d', '12'));
+      await field.clearText();
+      await field.inputText('zzzz');
+      await driver.delayMs(800);
+      expect((await driver.findComponents(ON.text(libString('sample.result').replace('%d', '12')))).length)
+        .assertEqual(0);
+      await driver.pressBack();
+      await driver.delayMs(1000);
+      await assertLabel(driver, libString('repro.off'));
+    });
+
+    // The core's pull to refresh on the reproduction's list (CYLSearchView.setRefreshHandler): a pull down refreshes
+    // and the list is still there afterwards.
+    it('reproductionListPullsToRefresh', 0, async () => {
+      const driver = Driver.create();
+      await backToTabBar(driver);
+      await tapLabel(driver, appString('tab_search'));
+      const first = await findByLabel(driver, libString('sample.result').replace('%d', '1'));
+      const rect = await first.getBounds();
+      const x = Math.round((rect.left + rect.right) / 2);
+      await driver.swipe(x, rect.top + 10, x, rect.top + 600, 600);
+      await driver.delayMs(1500);
+      await assertLabel(driver, libString('sample.result').replace('%d', '1'));
+    });
+
+    // A search bar in multiple mode (the MultiSearchView port): the new-search button starts a search, the typed
+    // search becomes one of the searches when submitted.
+    it('multipleModeSearchBarAddsSearches', 0, async () => {
+      const driver = Driver.create();
+      await backToTabBar(driver);
+      await tapLabel(driver, appString('tab_examples'));
+      await tapLabel(driver, libString('demo.ports'), 1000);
+      await tapLabel(driver, 'iammert/MultiSearchView', 1000);
+      await tapLabel(driver, libString('multisearch.add'), 800, 'CYLSearchBarNewSearch');
+      const field = await driver.findComponent(ON.type('TextInput'));
+      await field.inputText('Swift');
+      await driver.delayMs(500);
+      await driver.triggerKey(2054);
+      await driver.delayMs(800);
+      await assertLabel(driver, 'Swift');
+      await driver.pressBack();
+      await driver.delayMs(800);
       await driver.pressBack();
       await driver.delayMs(800);
     });

@@ -1,9 +1,11 @@
 // Runs the pure logic of the HarmonyOS search core on the host, without an emulator or a device.
 // Usage (Node 22.18 or newer, which strips TypeScript types itself):
 //   node harmonyos/scripts/host-logic-test.mjs
-// It copies cylsearch/src/main/ets/CYLSearchLogic.ets (plain TypeScript, no kit import) to a temporary .ts file,
-// imports it and runs node:test cases that mirror the Android Kotlin tests of the same behaviour.
-import { copyFileSync, mkdtempSync, rmSync } from 'node:fs';
+// The logic is private to the three core files (CYLSearchBarView.ets, CYLSearchView.ets, CYLSearchResources.ets),
+// each between the lines "// MARK: - Pure logic (begin)" and "// MARK: - Pure logic (end)" (plain TypeScript, no kit
+// import). This script copies those parts to a temporary .ts file, exports their functions, imports it and runs
+// node:test cases that mirror the Android Kotlin tests of the same behaviour.
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -11,10 +13,17 @@ import { after, describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const source = join(here, '..', 'cylsearch', 'src', 'main', 'ets', 'CYLSearchLogic.ets');
+const core = join(here, '..', 'cylsearch', 'src', 'main', 'ets');
+const parts = ['CYLSearchBarView.ets', 'CYLSearchView.ets', 'CYLSearchResources.ets'].map((name) => {
+  const text = readFileSync(join(core, name), 'utf8');
+  const begin = text.indexOf('// MARK: - Pure logic (begin)');
+  const end = text.indexOf('// MARK: - Pure logic (end)');
+  assert.ok(begin >= 0 && end > begin, `${name} has no pure logic part`);
+  return text.slice(begin, end).replace(/^function /gm, 'export function ');
+});
 const folder = mkdtempSync(join(tmpdir(), 'cyl-logic-'));
 const target = join(folder, 'CYLSearchLogic.ts');
-copyFileSync(source, target);
+writeFileSync(target, parts.join('\n'));
 const logic = await import(pathToFileURL(target).href);
 after(() => rmSync(folder, { recursive: true, force: true }));
 

@@ -1,66 +1,33 @@
-export {
-  CYLSearchBarItem,
-  CYLSearchBarItemOwner,
-  CYLSearchBarItemState,
-  CYLSearchBarItemStyle,
-  CYLSearchBarItemTextAttributes,
-  CYLSearchBarItemView,
-  CYLSearchBarStyle
-} from './src/main/ets/CYLSearchBarItem';
+// cylsearch: the search core of CYLSearchViewController in ArkTS, with the iOS names (docs/search-core-merge.md,
+// "Target design"): three files, four public classes (CYLSearchBarView, CYLSearchBarItem, CYLSearchView,
+// CYLSearchResources), the components that draw them, and their interfaces and enums.
 export {
   CYLSearchBarComponent,
   CYLSearchBarExpansionAnimation,
   CYLSearchBarIconPosition,
+  CYLSearchBarItem,
+  CYLSearchBarItemState,
+  CYLSearchBarItemStyle,
+  CYLSearchBarItemTextAttributes,
+  CYLSearchBarMode,
   CYLSearchBarNavigationIcon,
+  CYLSearchBarStyle,
   CYLSearchBarView,
   CYLSearchBarViewDelegate
 } from './src/main/ets/CYLSearchBarView';
-export {
-  CYLSearchSuggestionCache,
-  CYLSearchSuggestionCachePolicy,
-  CYLSearchSuggestionStore
-} from './src/main/ets/CYLSearchSuggestionCache';
-export { CYLSearchResources } from './src/main/ets/CYLSearchResources';
-export {
-  CYLSearchPlaceholderComponent,
-  CYLSearchPlaceholderKind,
-  CYLSearchPlaceholderMessage,
-  CYLSearchPlaceholderStyle,
-  CYLSearchPlaceholderView
-} from './src/main/ets/CYLSearchPlaceholderView';
 export {
   CYLMenuFoldControl,
   CYLMenuFoldControlContent,
   CYLMenuFoldControlPosition,
   CYLSearchComponent,
+  CYLSearchRefreshComponent,
   CYLSearchSuggestionStyle,
   CYLSearchView,
+  CYLSearchViewDataSource,
   CYLSearchViewDelegate
 } from './src/main/ets/CYLSearchView';
 export {
-  CYLMultiSearchComponent,
-  CYLMultiSearchView,
-  CYLMultiSearchViewDelegate
-} from './src/main/ets/CYLMultiSearchView';
-export {
-  CYLSearchResultsComponent,
-  CYLSearchResultsDataSource,
-  CYLSearchResultsViewController
-} from './src/main/ets/CYLSearchResultsViewController';
-export {
-  CYLSearchController,
-  CYLSearchControllerDelegate,
-  CYLSearchOverlayComponent
-} from './src/main/ets/CYLSearchController';
-export {
-  cylFilterSuggestions,
-  cylFoldedTagCount,
-  cylFoldSearchText,
-  cylQueriesAdding,
-  CYLSearchFilterResult,
-  cylSearchTextCompletes,
-  cylSearchTextLimited,
-  cylSearchTextSubmittable,
-  cylSelectionAfterRemoval,
-  cylSuggestionMatches
-} from './src/main/ets/CYLSearchLogic';
+  CYLSearchResources,
+  CYLSearchSuggestionCache,
+  CYLSearchSuggestionCachePolicy
+} from './src/main/ets/CYLSearchResources';
