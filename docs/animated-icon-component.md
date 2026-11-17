@@ -348,3 +348,4 @@
   again and adjust."
 - **Status**: started. Pins `57a527e`; HarmonyOS and mini program migrations next (not buildable here: no DevEco, no WeChat
   DevTools).
+- **Pin** (2026-11-17): CollectionViewClassifyMenu `71562ca` (HarmonyOS `CYLTagButton` on `cylanimateditem`, mini program tags on `cyl-animated-item`, both by commit `57a527e`). The HarmonyOS vendor copy and the mini program search bar follow next.
