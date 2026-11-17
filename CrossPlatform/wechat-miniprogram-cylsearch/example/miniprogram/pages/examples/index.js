@@ -10,10 +10,32 @@ const ROWS = [
   { key: 'demo.ports', url: '/pages/ports/index' },
 ];
 
+// The SVGA demo's icon side (iOS CYLSVGADemoTagButton.iconSide) and style: icon before the title, no border, grey 13 pt.
+const SVGA_ICON_SIDE = 64;
+const SVGA_STYLE = {
+  imageSize: SVGA_ICON_SIDE, animationSize: SVGA_ICON_SIDE, imageTitleSpacing: 12, contentAlignment: 'leading',
+  itemHeight: SVGA_ICON_SIDE, allowsTransparentBackground: true, font: 13,
+  normal: { backgroundColor: 'transparent', textColor: '#8E8E93', borderWidth: 0, cornerRadius: 0, contentInsets: '0,0,0,0' },
+};
+
 Page({
-  data: { title: '', rows: [] },
+  data: { title: '', rows: [], svgaTitle: '', svgaURL: '/assets/tab/svga/tab_activity.svga.bin', svgaStyle: SVGA_STYLE },
   onLoad() {
-    this.setData({ title: cylDemoText('demo.title'), rows: ROWS.map((row) => ({ title: cylDemoText(row.key), url: row.url })) });
+    this.setData({
+      title: cylDemoText('demo.title'), svgaTitle: cylDemoText('svga.demo'),
+      rows: ROWS.map((row) => ({ title: cylDemoText(row.key), url: row.url })),
+    });
+  },
+  onReady() {
+    // Plays once when shown, as the tab icons do when selected (iOS didMoveToWindow).
+    this.playSVGA();
+  },
+  onSVGATap() {
+    this.playSVGA();
+  },
+  playSVGA() {
+    const tag = this.selectComponent('#svga-demo-tag');
+    if (tag) tag.playAnimation();
   },
   onShow() {
     cylSelectTab(this, 'examples');
