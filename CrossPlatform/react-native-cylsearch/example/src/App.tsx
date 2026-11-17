@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Platform, Pressable, ScrollView, Settings, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { CYLSearchBarView, CYLSearchView, CYLTagListView } from 'react-native-cylsearch';
@@ -21,6 +21,10 @@ type Demo = {
   query?: string;
   scenario?: 'noSearchResults' | 'noContent';
   focuses?: boolean;
+  /**
+   * Lists the matching languages as results (the core's `resultsDataSource`) with pull-to-refresh.
+   */
+  results?: boolean;
 };
 
 type Tab = { key: string; title: string; description: string; demos: Demo[] };
@@ -29,7 +33,12 @@ type Tab = { key: string; title: string; description: string; demos: Demo[] };
  * One tab per kind of demo, as the Flutter example (the plus button's search bar demo and Discover are their own).
  */
 const TABS: Tab[] = [
-  { key: 'list', title: 'List style', description: 'Suggestions as a list, filtered as you type.', demos: [{ label: 'Open search' }] },
+  {
+    key: 'list',
+    title: 'List style',
+    description: 'Suggestions as a list, filtered as you type; or results of each query, pulled down to refresh.',
+    demos: [{ label: 'Open search' }, { label: 'Results with pull to refresh', results: true }],
+  },
   {
     key: 'tags',
     title: 'Tag style',
@@ -103,6 +112,13 @@ function Screens() {
   // `-initialTab discover` (an iOS launch argument, read through Settings) opens a tab directly, for screenshots.
   const [tab, setTab] = useState<string>(() => (Platform.OS === 'ios' && typeof Settings.get('initialTab') === 'string' ? Settings.get('initialTab') : 'list'));
   const [open, setOpen] = useState<Demo | null>(null);
+  if (open?.results) {
+    return (
+      <SafeAreaView style={[styles.fill, { backgroundColor: palette.background }]} edges={['top', 'bottom']}>
+        <ResultsDemo onClose={() => setOpen(null)} />
+      </SafeAreaView>
+    );
+  }
   if (open) {
     return (
       <SafeAreaView style={[styles.fill, { backgroundColor: palette.background }]} edges={['top', 'bottom']}>
@@ -155,11 +171,59 @@ function Screens() {
 }
 
 /**
- * The native search bar inline, its text and search shown below.
+ * The search page with results: each query lists the matching languages through the core's results list (instead of
+ * the suggestions); pulling the list down refreshes it (the core's refresh API, CYLTableViewPlaceHolder's header).
+ */
+function ResultsDemo({ onClose }: { onClose: () => void }) {
+  const [query, setQuery] = useState('');
+  const [refreshCount, setRefreshCount] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const results = useMemo(() => {
+    const text = query.trim().toLowerCase();
+    if (!text) return [];
+    const matches = SUGGESTIONS.filter((item) => item.toLowerCase().includes(text));
+    // Each refresh rotates the list, so the reload is visible.
+    const shift = matches.length > 0 ? refreshCount % matches.length : 0;
+    return [...matches.slice(shift), ...matches.slice(0, shift)];
+  }, [query, refreshCount]);
+  const refresh = useCallback(() => {
+    setRefreshing(true);
+    if (timer.current) clearTimeout(timer.current);
+    timer.current = setTimeout(() => {
+      setRefreshCount((count) => count + 1);
+      // Every completion path ends the refresh.
+      setRefreshing(false);
+    }, 1000);
+  }, []);
+  useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+  return (
+    <CYLSearchView
+      style={styles.fill}
+      suggestions={SUGGESTIONS}
+      placeholder="Search"
+      showsEmptyResultsPlaceholder
+      suggestionCachePolicy="none"
+      results={results}
+      refreshEnabled
+      refreshing={refreshing}
+      onRefresh={refresh}
+      onTextChange={(event) => setQuery(event.nativeEvent.text)}
+      onSelectResult={(event) => setQuery(event.nativeEvent.result)}
+      onClose={onClose}
+    />
+  );
+}
+
+/**
+ * The native search bar inline, its text and search shown below; then the same bar in multiple mode, several searches
+ * side by side.
  */
 function SearchBarDemo() {
   const palette = usePalette();
   const [status, setStatus] = useState('Text: ');
+  const [searches, setSearches] = useState<string[]>(['Swift', 'Kotlin']);
+  const [multipleStatus, setMultipleStatus] = useState('Searches: Swift, Kotlin');
   return (
     <View style={styles.page}>
       <Text style={[styles.title, { color: palette.text }]}>Search bar</Text>
@@ -173,6 +237,27 @@ function SearchBarDemo() {
         onCancel={() => setStatus('Text: ')}
       />
       <Text style={[styles.body, { color: palette.text }]}>{status}</Text>
+      <Text accessibilityRole="header" style={[styles.section, { color: palette.text }]}>Multiple searches</Text>
+      {/* mode="multiple": the magnifier starts a search, a completed search becomes an entry; tap one to select it. */}
+      <CYLSearchBarView
+        style={styles.bar}
+        mode="multiple"
+        placeholder="Search"
+        searches={searches}
+        onTextChange={(event) => setMultipleStatus(`Typing search ${event.nativeEvent.index + 1}: ${event.nativeEvent.text}`)}
+        onCompleteSearch={(event) => {
+          const { text } = event.nativeEvent;
+          setMultipleStatus(`Completed: ${text}`);
+          setSearches((items) => [...items, text]);
+        }}
+        onSelectSearch={(event) => setMultipleStatus(`Selected: ${event.nativeEvent.text}`)}
+        onRemoveSearch={(event) => {
+          const { index } = event.nativeEvent;
+          setMultipleStatus(`Removed search ${index + 1}`);
+          setSearches((items) => items.filter((_, i) => i !== index));
+        }}
+      />
+      <Text style={[styles.body, { color: palette.text }]}>{multipleStatus}</Text>
     </View>
   );
 }

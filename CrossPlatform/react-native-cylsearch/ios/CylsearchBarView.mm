@@ -17,6 +17,8 @@ using namespace facebook::react;
 @implementation CylsearchBarView {
   CYLSearchBarView *_bar;
   NSString *_itemsJSON;
+  NSArray<NSString *> *_searches;
+  BOOL _applyingSearches;
 }
 
 + (ComponentDescriptorProvider)componentDescriptorProvider
@@ -62,7 +64,46 @@ using namespace facebook::react;
       }
     }
   }
+  CYLSearchBarMode mode = [CYLRNString(p.mode) isEqualToString:@"multiple"] ? CYLSearchBarModeMultiple : CYLSearchBarModeSingle;
+  BOOL modeChanged = mode != _bar.mode;
+  _bar.mode = mode;
+  _bar.minimumTextLength = (NSUInteger)MAX(0, p.minimumTextLength);
+  // Replaced only when JavaScript sends another list (or turns "multiple" on), so a re-render keeps the searches
+  // typed natively.
+  NSArray<NSString *> *searches = CYLRNStrings(p.searches);
+  if (modeChanged || ![searches isEqualToArray:_searches ?: @[]]) {
+    _searches = searches;
+    [self applySearches:searches];
+  }
   [super updateProps:props oldProps:oldProps];
+}
+
+/*!
+ * Replaces the native searches ("multiple" mode) without sending remove events back to JavaScript.
+ */
+- (void)applySearches:(NSArray<NSString *> *)searches
+{
+  // The list JavaScript keeps from the events is already on screen: nothing to rebuild.
+  if (_bar.mode != CYLSearchBarModeMultiple || [searches isEqualToArray:_bar.searches]) {
+    return;
+  }
+  _applyingSearches = YES;
+  for (NSInteger index = (NSInteger)_bar.searches.count - 1; index >= 0; index--) {
+    [_bar removeSearchAtIndex:index];
+  }
+  for (NSString *search in searches) {
+    [_bar addSearch:search];
+  }
+  _applyingSearches = NO;
+}
+
+- (void)prepareForRecycle
+{
+  [super prepareForRecycle];
+  _searches = nil;
+  _itemsJSON = nil;
+  [self applySearches:@[]];
+  [_bar removeAllItems];
 }
 
 #pragma mark - CYLSearchBarViewDelegate
@@ -77,9 +118,46 @@ using namespace facebook::react;
 
 - (void)searchBarView:(CYLSearchBarView *)searchBarView textDidChange:(NSString *)text
 {
+  [self emitTextChange:text index:-1];
+}
+
+- (void)searchBarView:(CYLSearchBarView *)searchBarView textDidChange:(NSString *)text atIndex:(NSInteger)index
+{
+  [self emitTextChange:text index:index];
+}
+
+/*!
+ * `onTextChange` with the index of the search being typed, -1 in "single" mode.
+ */
+- (void)emitTextChange:(NSString *)text index:(NSInteger)index
+{
   if (_eventEmitter) {
     std::static_pointer_cast<CylsearchBarViewEventEmitter const>(_eventEmitter)
-        ->onTextChange(CylsearchBarViewEventEmitter::OnTextChange{.text = std::string(text.UTF8String ?: "")});
+        ->onTextChange(CylsearchBarViewEventEmitter::OnTextChange{.text = std::string(text.UTF8String ?: ""), .index = (int)index});
+  }
+}
+
+- (void)searchBarView:(CYLSearchBarView *)searchBarView didCompleteSearch:(NSString *)text atIndex:(NSInteger)index
+{
+  if (_eventEmitter && !_applyingSearches) {
+    std::static_pointer_cast<CylsearchBarViewEventEmitter const>(_eventEmitter)
+        ->onCompleteSearch(CylsearchBarViewEventEmitter::OnCompleteSearch{.text = std::string(text.UTF8String ?: ""), .index = (int)index});
+  }
+}
+
+- (void)searchBarView:(CYLSearchBarView *)searchBarView didRemoveSearchAtIndex:(NSInteger)index
+{
+  if (_eventEmitter && !_applyingSearches) {
+    std::static_pointer_cast<CylsearchBarViewEventEmitter const>(_eventEmitter)
+        ->onRemoveSearch(CylsearchBarViewEventEmitter::OnRemoveSearch{.index = (int)index});
+  }
+}
+
+- (void)searchBarView:(CYLSearchBarView *)searchBarView didSelectSearch:(NSString *)text atIndex:(NSInteger)index
+{
+  if (_eventEmitter && !_applyingSearches) {
+    std::static_pointer_cast<CylsearchBarViewEventEmitter const>(_eventEmitter)
+        ->onSelectSearch(CylsearchBarViewEventEmitter::OnSelectSearch{.text = std::string(text.UTF8String ?: ""), .index = (int)index});
   }
 }
 

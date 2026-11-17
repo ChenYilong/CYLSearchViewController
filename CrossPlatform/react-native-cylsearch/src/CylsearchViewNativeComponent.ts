@@ -16,6 +16,13 @@ type SuggestionSelectEvent = Readonly<{
 
 type CloseEvent = Readonly<{}>;
 
+type ResultSelectEvent = Readonly<{
+  result: string;
+  index: CodegenTypes.Int32;
+}>;
+
+type RefreshEvent = Readonly<{}>;
+
 export interface NativeProps extends ViewProps {
   /**
    * The suggestions to filter as the text changes (iOS `suggestions`).
@@ -77,6 +84,24 @@ export interface NativeProps extends ViewProps {
    * "light" or "dark": the native view follows the app's color scheme.
    */
   colorScheme?: string;
+  /**
+   * The results of the current query (the core's `resultsDataSource`): listed under the bar instead of the
+   * suggestions while the query is not empty. Update them in `onTextChange` / `onSubmit`.
+   */
+  results?: ReadonlyArray<string>;
+  /**
+   * Lists `results` (sets the core's `resultsDataSource`); false keeps the suggestions only.
+   */
+  showsResults?: boolean;
+  /**
+   * Adds pull-to-refresh to the results list (the core's `refreshHandler`, CYLTableViewPlaceHolder's header).
+   */
+  refreshEnabled?: boolean;
+  /**
+   * True starts the refresh indicator (`beginRefreshing`), false stops it (`endRefreshing`); set it to false on
+   * every completion path of `onRefresh`.
+   */
+  refreshing?: boolean;
   onTextChange?: CodegenTypes.DirectEventHandler<TextEvent>;
   onSubmit?: CodegenTypes.DirectEventHandler<TextEvent>;
   onSuggestionSelect?: CodegenTypes.DirectEventHandler<SuggestionSelectEvent>;
@@ -84,6 +109,14 @@ export interface NativeProps extends ViewProps {
    * The back arrow or Cancel closed the search: pop the screen here.
    */
   onClose?: CodegenTypes.DirectEventHandler<CloseEvent>;
+  /**
+   * A row of the results list was tapped (`searchView:didSelectResult:`).
+   */
+  onSelectResult?: CodegenTypes.DirectEventHandler<ResultSelectEvent>;
+  /**
+   * The person pulled the results list: refresh `results`, then set `refreshing` to false.
+   */
+  onRefresh?: CodegenTypes.DirectEventHandler<RefreshEvent>;
 }
 
 export default codegenNativeComponent<NativeProps>('CylsearchView') as HostComponent<NativeProps>;

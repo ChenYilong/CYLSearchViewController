@@ -93,6 +93,18 @@ class CylsearchViewManager : SimpleViewManager<CylsearchView>(), CylsearchViewMa
     view.searchView.suggestionsFoldedRowCount = maxOf(0, value)
   }
 
+  @ReactProp(name = "results")
+  override fun setResults(view: CylsearchView, value: ReadableArray?) = view.setResults(value.cylStrings())
+
+  @ReactProp(name = "showsResults")
+  override fun setShowsResults(view: CylsearchView, value: Boolean) = view.setShowsResults(value)
+
+  @ReactProp(name = "refreshEnabled")
+  override fun setRefreshEnabled(view: CylsearchView, value: Boolean) = view.setRefreshEnabled(value)
+
+  @ReactProp(name = "refreshing")
+  override fun setRefreshing(view: CylsearchView, value: Boolean) = view.setRefreshing(value)
+
   /**
    * The views use the activity's theme (DayNight), which follows the system like React Native's color scheme.
    */

@@ -7,75 +7,75 @@ import CylsearchTagListViewNative, {
   type NativeProps as TagListProps,
 } from './CylsearchTagListViewNativeComponent';
 import CylsearchViewNative, {
-  type NativeProps as SearchViewProps,
+  type NativeProps as NativeSearchViewProps,
 } from './CylsearchViewNativeComponent';
 
-export type { SearchViewProps, TagListProps };
+import {
+  cylSearchBarItemsJSON,
+  cylSearchBarSelectedItem,
+  cylSearchViewShowsResults,
+  type CYLSearchBarItem,
+  type CYLSearchBarMode,
+} from './CYLSearchProps';
+
+export type { TagListProps, CYLSearchBarItem, CYLSearchBarMode };
 
 /**
- * One element after the text of a search bar (iOS and Android `CYLSearchBarItem`, like the FlatDesign tab bar's
- * items). The field stays; the bar only appends items.
+ * The search page's props: the native props, `showsResults` defaulting to whether `results` is given.
  */
-export type CYLSearchBarItem = {
-  /** "icon" (36-point touch area), "divider" (skipped by screen readers) or "text" (a "Search" button). */
-  style: 'icon' | 'divider' | 'text';
-  /** The text of a text item, and the screen reader label of an icon item. */
-  title?: string;
-  /** `camera`, `mic`, `search` or `back` (drawn by the core), else an app image (iOS asset or SF Symbol, Android drawable). */
-  image?: string;
-  /** A test identifier of the item view. */
-  accessibilityIdentifier?: string;
-  /** False dims the item and ignores taps. */
-  isEnabled?: boolean;
-  /** Each tap toggles the selected state on the native side. */
-  isSelectable?: boolean;
-  /** The selected state. */
-  isSelected?: boolean;
-  /** The badge text; "" draws a dot. */
-  badgeValue?: string;
-  /** Called on each tap with the selected state after the tap. */
-  onPress?: (selected: boolean) => void;
-};
+export type SearchViewProps = NativeSearchViewProps;
 
 /**
  * The search bar's props: the native props, with `items` in place of their JSON.
  */
-export type SearchBarProps = Omit<NativeSearchBarProps, 'itemsJSON' | 'onItemSelect'> & {
-  /** The items appended after the text, in order. */
+export type SearchBarProps = Omit<NativeSearchBarProps, 'itemsJSON' | 'onItemSelect' | 'mode'> & {
+  /**
+   * One field (`single`, the default) or several searches side by side (`multiple`).
+   */
+  mode?: CYLSearchBarMode;
+  /**
+   * The items appended after the text, in order.
+   */
   items?: CYLSearchBarItem[];
-  /** An item was tapped, with its index, after the item's own `onPress`. */
+  /**
+   * An item was tapped, with its index, after the item's own `onPress`.
+   */
   onItemSelect?: (item: CYLSearchBarItem, index: number, selected: boolean) => void;
 };
 
 /**
  * The search page of CYLSearchViewController (iOS `CYLSearchView`, Android `CYLSearchView`): its search bar at the top,
- * the suggestions (a list or tags, the cached queries first) and CYLTableViewPlaceHolder's placeholders. Show it as a
- * full screen and leave it in `onClose`.
+ * the suggestions (a list or tags, the cached queries first), the `results` of the current query with pull-to-refresh
+ * (`refreshEnabled`, `onRefresh`, `refreshing`) and CYLTableViewPlaceHolder's placeholders. Show it as a full screen
+ * and leave it in `onClose`.
  */
-export function CYLSearchView(props: SearchViewProps) {
+export function CYLSearchView({ showsResults, ...props }: SearchViewProps) {
   const scheme = useColorScheme();
-  return <CylsearchViewNative colorScheme={scheme === 'dark' ? 'dark' : 'light'} {...props} />;
+  return (
+    <CylsearchViewNative
+      colorScheme={scheme === 'dark' ? 'dark' : 'light'}
+      {...props}
+      showsResults={cylSearchViewShowsResults(showsResults, props.results)}
+    />
+  );
 }
 
 /**
  * The search bar of CYLSearchViewController (iOS and Android `CYLSearchBarView`): the field, then the appended
- * `items`. Give it a height (about 48).
+ * `items`, or several searches side by side with `mode="multiple"` (`searches`, `onCompleteSearch`, `onRemoveSearch`,
+ * `onSelectSearch`). Give it a height (about 48).
  */
 export function CYLSearchBarView({ items = [], onItemSelect, ...props }: SearchBarProps) {
   const scheme = useColorScheme();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const itemsJSON = JSON.stringify(items.map(({ onPress, ...values }) => values));
   return (
     <CylsearchBarViewNative
       colorScheme={scheme === 'dark' ? 'dark' : 'light'}
       {...props}
-      itemsJSON={itemsJSON}
+      itemsJSON={cylSearchBarItemsJSON(items)}
       onItemSelect={(event) => {
         const { index, selected } = event.nativeEvent;
-        const item = items[index];
-        if (!item) return;
-        item.onPress?.(selected);
-        onItemSelect?.(item, index, selected);
+        const item = cylSearchBarSelectedItem(items, index, selected);
+        if (item) onItemSelect?.(item, index, selected);
       }}
     />
   );

@@ -2,6 +2,7 @@ package com.cylsearch
 
 import androidx.core.content.ContextCompat
 import com.cyl.search.CYLSearchBarStyle
+import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
@@ -53,6 +54,17 @@ class CylsearchBarViewManager : SimpleViewManager<CylsearchBarView>(), Cylsearch
 
   @ReactProp(name = "itemsJSON")
   override fun setItemsJSON(view: CylsearchBarView, value: String?) = view.setItemsJSON(value)
+
+  @ReactProp(name = "mode")
+  override fun setMode(view: CylsearchBarView, value: String?) = view.setMode(value)
+
+  @ReactProp(name = "searches")
+  override fun setSearches(view: CylsearchBarView, value: ReadableArray?) = view.setSearches(value.cylStrings())
+
+  @ReactProp(name = "minimumTextLength", defaultInt = 3)
+  override fun setMinimumTextLength(view: CylsearchBarView, value: Int) {
+    view.bar.minimumTextLength = maxOf(0, value)
+  }
 
   /**
    * The views use the activity's theme (DayNight), which follows the system like React Native's color scheme.
