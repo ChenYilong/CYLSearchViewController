@@ -336,7 +336,8 @@ CYLTabBarController pin needed the plugin's platform views to be `@MainActor` (t
   `size`, `centerYMultiplier` and `alignsTitle` removed from the React Native example; `CYLPlusButtonCenterYMultiplier`
   from the native Android configurations; `CYLPlusButtonCenterYOffset` and the tall `CYLPlusButtonSize` from the Flutter
   configurations. React Native on the emulator: the core raises the button and puts its title on the tab titles' line
-  (same screenshots). The mini program keeps its own `CYLPlusButtonCenterYMultiplier` (its tab bar core is separate).
+  (same screenshots); native Android likewise (`assets/android-medium-phone-api37-20261117-plus-button-core-layout.png`): raised, its
+  title on the tab titles' line, no CYLTabBarController change needed. Flutter is not rebuilt here yet. The mini program keeps its own `CYLPlusButtonCenterYMultiplier` (its tab bar core is separate).
 
 ## IN PROGRESS (TODO 2026-11-16): Rive tab icons in the Flutter and React Native examples, iOS and Android
 
