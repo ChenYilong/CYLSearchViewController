@@ -34,13 +34,13 @@ target 'Runner' do
   pod 'CYLSearchViewController', :path => '../../../..'
   # flutter_cyltabbar's native tab bar, at the newest CYLTabBarController commit (as its git dependency in pubspec.yaml).
   # Rive tab icons (the default icon source): CYLTabBarController's Rive subspec brings RiveRuntime.
-  pod 'CYLTabBarController', :subspecs => ['Core', 'SVGA', 'Rive'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '1f0fccec2efce25c92fe30e1ccd1cb9cd68348d3'
+  pod 'CYLTabBarController', :subspecs => ['Core', 'SVGA', 'Rive'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => 'fbd05d594016d2bdc553953899d6488d83f684f8'
   # CYLAnimatedItem: its own pod in CYLTabBarController's repository, not on the trunk yet; the engines the example plays.
-  pod 'CYLAnimatedItem', :subspecs => ['Core', 'SVGA', 'Rive'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '1f0fccec2efce25c92fe30e1ccd1cb9cd68348d3'
+  pod 'CYLAnimatedItem', :subspecs => ['Core', 'SVGA', 'Rive'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => 'fbd05d594016d2bdc553953899d6488d83f684f8'
   # SVGA tab icons (SVGAPlayer); static linking needs module maps for these two Objective-C pods.
   pod 'SVGAPlayer', :modular_headers => true
   pod 'Protobuf', :modular_headers => true
-  pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => '7183711cb7358f1152a4df2f52247cb5933748c5'
+  pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => '98182e8240b1dc2c2580e268b53a2cf4e30c197a'
   pod 'CYLTableViewPlaceHolder', :subspecs => ['Core', 'Lottie'], :git => 'https://github.com/ChenYilong/CYLTableViewPlaceHolder.git', :commit => 'f488e2fb0ca175f96daabf5814739832a2cfd1ce'
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))

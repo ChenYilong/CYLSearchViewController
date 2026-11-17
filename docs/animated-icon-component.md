@@ -266,3 +266,6 @@
   - Parity tables regenerated (descriptions only, all at 100); HarmonyOS scorecard 309/309.
   - Still TODO, as before: HarmonyOS and the mini program wait for the component upstream (guide TODO 5); the
     CYLTableViewPlaceHolder pin `f488e2f` predates its own migration.
+- **Pins moved again** (2026-11-17): CYLTabBarController `fbd05d5` (PR #814: `CYLAnimatedItem.podspec` defines its
+  module; the Lottie animator takes no file Lottie cannot play) and CollectionViewClassifyMenu `98182e8` (static-library
+  Podfiles, test wait, the same pin). Pending CI.
