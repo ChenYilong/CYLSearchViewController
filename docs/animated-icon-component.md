@@ -35,4 +35,68 @@
   where one does not, change its internal implementation so that it does, so that refactoring that component applies
   the change to all of them. My requirement: in the future, adding a new animation type only needs a change to this
   component, and every component that shows animations supports the new type with no change in a second place."
-- **Status**: logged; step 1 next.
+- **Status (2026-11-17)**: step 1 DONE, step 2 DONE on iOS and Android (TODO on HarmonyOS and the mini program, waiting
+  for CollectionViewClassifyMenu, below), step 3 TODO. Nothing is compiled or run here (no Xcode, no Android SDK, no
+  DevEco Studio): see "Unverified".
+
+### Step 1: DONE (2026-11-17), CollectionViewClassifyMenu `1e43253` + `a0c8232`
+
+- `CYLTagButton` gained a badge (`badgeValue`, `badgeColor`, `badgeLabel`), the icon above or below the title
+  (`CYLTagImagePlacement.top` / `.bottom`), `height(forTitle:iconSize:style:traitCollection:)` and the standalone
+  initializers `init(title:image:)` / `init(title:image:animationURL:)`, on iOS, Android, HarmonyOS and the mini program
+  (`cyl-tag-button`), branch `feat/harmony`.
+- Pinned here at `a0c82323c60eebc4d870a10293cf2a5dcba84d2b`: `Podfile`, the React Native and Flutter example
+  Podfiles, `android/merged/gradle.properties` (`cyl.classifymenu.commit`; `.cyl-deps` checked out at it). HarmonyOS
+  and the mini program do not depend on CollectionViewClassifyMenu yet (no pin to change).
+
+### Step 2: DONE on iOS and Android (2026-11-17); TODO on HarmonyOS and the mini program
+
+- iOS (`Sources/CYLSearchBar/CYLSearchBarView.swift`): every `CYLSearchBarItem` is drawn by a `CYLTagButton`
+  (a private subclass that adds only the link to its item, the divider line, the 36 pt touch area and the item's badge
+  metrics), styled from the item for each state; `itemView` / `itemViews` are typed `CYLTagButton`;
+  `CYLSearchBarItem.animationURL` is forwarded to the button and played on each tap.
+- Android (`CYLSearchBarView.kt`): the same with `com.cyl.classifymenu.CYLTagButton` (`CYLSearchBarItemButton`);
+  `itemView` / `itemView(context)` / `itemViews` are typed `CYLTagButton`; `CYLSearchBarItem.animationURL: Uri?`.
+- Example (iOS): the SVGA demo above the Examples list is a `CYLTagButton` with `tab_activity.svga` as its
+  `animationURL` (`CYLSearchExample/CYLSVGADemoTagButton.swift`, used by `CYLSVGADemoHeaderView`); the example no
+  longer uses `SVGAPlayer` itself (the SVGA tab icons go through CYLTabBarController). Searched every example for
+  other direct animation players or hand-made icon + title views (LottieAnimationView, PAGView, RiveView,
+  SVGAPlayer, SVGAImageView, badge views): none left on iOS, Android, React Native and Flutter; the Android and mini
+  program examples have no SVGA demo header (only SVGA tab icons through CYLTabBarController).
+- Tests: iOS `testSearchBarItemsAreAppendedLikeFlatDesignTabBarItems` and Android `CYLSearchBarItemTest` check that
+  an item's view is a `CYLTagButton` showing the item's title, image and badge, and forwarding `animationURL`.
+- TODO, HarmonyOS (`harmonyos/cylsearch`, and the example's SVGA header, `CYLSVGAView` of cyltabbar): waits for
+  CollectionViewClassifyMenu's ArkTS `CYLTagButton`, which cannot draw a bar item yet:
+  1. it draws its icon with `Image`, which does not draw the items' system symbols (`$r('sys.symbol.camera')`,
+     drawn with `SymbolGlyph` today);
+  2. its colors are strings, while the items use theme colors (`ResourceColor`, `$r('sys.color.font_primary')`)
+     that follow the color mode;
+  3. `CYLTagButtonComponent` is a V1 `@Component` with an `@ObjectLink`; the bar is a V2 `@ComponentV2`, and passing
+     the model across needs a check in DevEco Studio;
+  4. adding it as a sub-repository here (`harmonyos/scripts/sync-sub-repositories.py`, `oh-package.json5`) pulls
+     `@ohos/lottie 2.0.38` and `@tencent/libpag 4.4.31` next to cylplaceholder's `2.0.28` / `4.5.102`.
+  Until then `CYLSearchBarItem.animationURL` is TODO in `docs/harmonyos-api-alignment.md` (score 99).
+- TODO, mini program (`src/cyl-search-bar`): waits for CollectionViewClassifyMenu's `cyl-tag-button`, whose tag box
+  cannot be transparent (`opaqueBackground` turns `transparent` and alpha 0 into `#F2F2F7`), so the items would sit
+  on gray boxes inside the field. Then: add `cyl-tag-list-miniprogram` as an optional peer dependency (as
+  `cyl-placeholder-miniprogram`), install it in `scripts/sync-example.js` at the pinned commit, and draw each item
+  with `<cyl-tag-button>`. Until then `CYLSearchBarItem.animationURL` is TODO in `docs/miniprogram-api-alignment.md`
+  (score 99).
+
+### Step 3: TODO
+
+- CYLTableViewPlaceHolder: `CYLPlaceholderView`'s animated icon becomes a `CYLTagButton` (CYLTableViewPlaceHolder
+  depends on CollectionViewClassifyMenu and drops `CYLPlaceholderItemAnimationEngine`); waits for that repository's
+  own session (PR #31).
+
+### Unverified
+
+- Nothing was compiled here: the Swift core and example (`CYLSearchBarView.swift`, `CYLSVGADemoTagButton.swift`,
+  `CYLSearchDemoMenuViewController.m`, the project file entry), the Objective-C test, the Kotlin core and its
+  Robolectric test. To check: `pod install`, build and test the shared scheme; `./gradlew :cylsearch:testDebugUnitTest`.
+- Not seen on a simulator: the items' look (no border, the field's background behind them, the 36 pt / dp touch
+  area, the badge on the icon's corner), an animated bar item, and the SVGA demo header playing `tab_activity.svga`
+  through the engine (whether `playAnimation()` before the SVGA file is parsed plays it once it is loaded).
+- Checks run here: the parity generators (Android 100, iOS 100, HarmonyOS 99, mini program 99: the `animationURL`
+  rows above), `check-public-api-comments.sh`, the HarmonyOS host logic, iOS parity and accessibility checks, the mini
+  program `npm test`.

@@ -58,7 +58,7 @@
 What each platform did differently from the target design below.
 
 - **iOS**: indices are `Int` with `NSNotFound` for none; `CYLSearchBarItem.itemView` / `itemViews` are typed
-  `UIControl` (the item view class is private); `closeSearch(animated:completion:)` has no default values
+  `CYLTagButton` (CollectionViewClassifyMenu; the item view is a private subclass of it); `closeSearch(animated:completion:)` has no default values
   (`closeSearch()` and `closeSearch(animated:)` stay as the short forms); the default suggestion store is `internal`;
   `mode = .multiple` APIs do nothing in `.single`, the multiple mode animates with the bar's `animationDuration`
   (0.3 s) and is inset by `contentInsets`; no new localized strings.

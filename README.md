@@ -100,7 +100,7 @@ three Swift files and four public classes.
 
 | File | Public API |
 |:---|:---|
-| `CYLSearchBarView.swift` | `CYLSearchBarView` (one field, or several searches with `mode = CYLSearchBarModeMultiple`), `CYLSearchBarItem`, `CYLSearchBarViewDelegate` |
+| `CYLSearchBarView.swift` | `CYLSearchBarView` (one field, or several searches with `mode = CYLSearchBarModeMultiple`), `CYLSearchBarItem` (drawn by CollectionViewClassifyMenu's `CYLTagButton`; `animationURL` shows an animated icon), `CYLSearchBarViewDelegate` |
 | `CYLSearchView.swift` | `CYLSearchView` (suggestions, results, empty placeholders, pull-to-refresh), `CYLSearchViewDelegate`, `CYLSearchViewDataSource` |
 | `CYLSearchResources.swift` | `CYLSearchResources` (bundle images and strings), `CYLSearchSuggestionCache`, `CYLSearchSuggestionCachePolicy` |
 

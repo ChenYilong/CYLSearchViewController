@@ -203,13 +203,13 @@ text size.
 | `backgroundColor` | item background | `backgroundColor` |
 | `selectedBackgroundColor` | selected item background | `selectedBackgroundColor` |
 | `imageInsets` | icon insets | `contentInsets` |
-| `lottieURL` | animated icon URL | N/A: the core loads no network resources; pass the frames as `animatedImage` |
-| `lottieFilePath` | animated icon file | `animatedImage` |
+| `lottieURL` | animated icon URL | `animationURL` (a file URL; Lottie, PAG, Rive, SVGA or GIF, drawn by the item's `CYLTagButton`) |
+| `lottieFilePath` | animated icon file | `animationURL`; frames as `animatedImage` |
 | `lottieSizeValue` | animated icon size | `imageSize` |
 | `-actualBadgeSuperView` | where the badge is drawn | `-actualBadgeSuperView` |
-| **class `CYLFlatDesignTabBarButton`** | the item's view (a control) | **class `CYLSearchBarItemView`** (a `UIControl`) |
-| `-initWithTabBarItem:` | the view for an item | `-initWithItem:` |
-| `tabBarItem` | its item | `item` |
+| **class `CYLFlatDesignTabBarButton`** | the item's view (a control) | **class `CYLTagButton`** (CollectionViewClassifyMenu's icon + title + animated icon control; `itemView` / `itemViews` are typed `CYLTagButton`) |
+| `-initWithTabBarItem:` | the view for an item | created by the item (`itemView`, on first use) |
+| `tabBarItem` | its item | the bar keeps the link (`item`, private) |
 | `imageView` | its icon view | `imageView` |
 | `titleLabel` | its title label | `titleLabel` |
 | `-actualBadgeSuperView` (button) | where the badge is drawn | `-actualBadgeSuperView` |
@@ -220,6 +220,13 @@ text size.
   `Disabled`); sizes in dp (`imageSize: SizeF?`, `badgeSize`), insets and offsets as `FloatArray`s; `index` and
   `selectedIndex` are -1 when absent; the view is `itemView(context)` (created on first use) and `itemView` once
   created; `delegate.searchBarViewDidSelectItem(bar, item)`.
+- Item views (iOS and Android): every item is drawn by CollectionViewClassifyMenu's `CYLTagButton`, the one icon + title +
+  animated icon component, styled from the item for each state (no border, the item's background, its tint and title
+  attributes, its icon size, insets and badge metrics); a text item shows its title (and its icon before it), an icon
+  item only its icon (its title is what VoiceOver / TalkBack read), a divider draws its line. `animationURL` (iOS
+  `URL`, Android `Uri`) shows an animated icon (Lottie, PAG, Rive, SVGA, GIF) through CYLTabBarController's animation
+  engine, played on each tap; a new animation type is added in `CYLTagButton` only. HarmonyOS and the mini program
+  still draw their items themselves: `docs/animated-icon-component.md`, TODO.
 - Usage (both platforms): `bar.searchBarStyle = .bordered`, then `addItem(iconItem(camera))`, `addItem(divider())`,
   `addItem(textItem("Search"))`. The examples' Discover pages (iOS `CYLSearchDiscoverViewController`, Android
   `CYLSearchDiscoverFragment`) now build their camera, divider and Search button this way instead of hand-made views
