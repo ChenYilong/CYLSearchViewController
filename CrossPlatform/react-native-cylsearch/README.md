@@ -43,6 +43,14 @@ import { CYLSearchBarView, CYLSearchView } from 'react-native-cylsearch';
 The empty-results placeholder and the pull-to-refresh header come from CYLTableViewPlaceHolder through the core; the
 package depends on no other search library.
 
+## Building the example on Windows
+
+- Clone to a short path (for example `C:s`) or enable long paths (`LongPathsEnabled`): the Android build
+  compiles native code under `node_modules` with CMake and ninja, whose object paths pass 260 characters from a deep
+  folder (`Filename longer than 260 characters`). A junction does not help, it resolves to the long path.
+- The Android SDK path must have no spaces (CMake would call the short `CLANG_~1.EXE`), and `JAVA_HOME` must be a JDK 17
+  (React Native does not support 21).
+
 ## Contributing
 
 - [Development workflow](CONTRIBUTING.md#development-workflow)

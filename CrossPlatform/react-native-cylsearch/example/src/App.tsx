@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Platform, Pressable, ScrollView, Settings, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { Platform, Pressable, ScrollView, Settings, StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { CYLSearchBarView, CYLSearchView, CYLTagListView } from 'react-native-cylsearch';
 import { CYLTabBar, type CYLTabBarItem, type CYLTabBarPlusButton } from 'react-native-cyltabbar';
@@ -65,8 +65,12 @@ function usePalette() {
 }
 
 export default function App() {
+  const dark = useColorScheme() === 'dark';
   return (
     <SafeAreaProvider>
+      {/* Dark status bar icons on the light pages (light ones in dark mode): the app draws edge to edge, so the status
+          bar is transparent over the page; the theme alone left white icons on white (Android). */}
+      <StatusBar barStyle={dark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
       <Screens />
     </SafeAreaProvider>
   );

@@ -34,7 +34,11 @@ on the native cores, Flutter as well. Dated task entries below record the work i
     flutter test 13 of 13 and analyze with 3 infos only (clean clone). The search check on the device waits for the
     shared emulator.
   - Bug recorded: the React Native example's status bar icons are white on its white page (as row 26 was on native
-    Android); fixed in `src/App.tsx` with a `StatusBar` that follows light and dark mode, check pending.
+    Android); fixed in `src/App.tsx` with a `StatusBar` that follows light and dark mode; checked, dark icons now
+    (`assets/android-medium-phone-api37-20261118-rn-status-bar-fixed.png`). Example-only: the core has no status bar code.
+  - Flutter search on the device: opens and filters as you type ("sw" shows Swift; `…-flutter-search-filter.png`).
+  - Windows build note (from CYLTableViewPlaceHolder's session): a clone at a deep path fails React Native's CMake step on
+    260 characters; written into the React Native README ("Building the example on Windows").
 
 ## Open TODOs: Android, React Native, Flutter (2026-11-16)
 
