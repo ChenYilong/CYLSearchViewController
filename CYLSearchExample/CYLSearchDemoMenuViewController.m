@@ -38,7 +38,12 @@ static NSString *CYLExampleText(NSString *key)
 {
     if (!(self = [super initWithFrame:frame])) return nil;
     NSURL *url = [NSBundle.mainBundle URLForResource:@"tab_activity" withExtension:@"svga"];
-    self.animationButton = [CYLSVGADemoTagButton buttonWithTitle:CYLExampleText(@"svga.demo") animationURL:url];
+    // Through the runtime, as the SwiftUI row below calls CYLSVGASwiftUIDemo: the generated CYLSearchExample-Swift.h
+    // leaves CYLSVGADemoTagButton out (CI runs 271 and on 9f9c3d7: "use of undeclared identifier"), even with the
+    // CYLAnimatedItem imports, since its factory returns a CYLTagButton, a class built on another module's base class.
+    self.animationButton = [NSClassFromString(@"CYLSVGADemoTagButton") performSelector:@selector(buttonWithTitle:animationURL:)
+                                                                       withObject:CYLExampleText(@"svga.demo")
+                                                                       withObject:url];
     self.animationButton.accessibilityHint = CYLExampleText(@"svga.demo.hint");
     self.animationButton.accessibilityIdentifier = @"CYLSVGADemoTagButton";
     [self addSubview:self.animationButton];
