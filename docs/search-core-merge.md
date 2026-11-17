@@ -36,3 +36,112 @@
   other search kernels; the collection view is excluded, it is not search-related. Example code may change freely,
   regardless of its current usage."
 - **Status**: logged; design next (section "Target design").
+
+## Target design
+
+The single source of truth for every platform. Names are the iOS (Swift, with `@objc` Objective-C names) names;
+the other platforms use the same names in their language's conventions, as their ports already do.
+
+### Files and public classes (iOS: `Sources/CYLSearchBar/`, 3 files, 4 public classes)
+
+| File | Public classes | Also public (not classes) | Private helpers (implementation only) |
+| :--- | :--- | :--- | :--- |
+| `CYLSearchBarView.swift` | `CYLSearchBarView`, `CYLSearchBarItem` | `CYLSearchBarViewDelegate`; enums `CYLSearchBarMode` (new), `CYLSearchBarItemStyle`, `CYLSearchBarStyle`, `CYLSearchBarNavigationIcon`, `CYLSearchBarIconPosition`, `CYLSearchBarExpansionAnimation` | the item view (was `CYLSearchBarItemView`), the multi-search content (was `CYLMultiSearchView`) |
+| `CYLSearchView.swift` | `CYLSearchView` | `CYLSearchViewDelegate`, `CYLSearchViewDataSource` (new, was `CYLSearchResultsDataSource`); enum `CYLSearchSuggestionStyle` | the results list (was `CYLSearchResultsViewController`) |
+| `CYLSearchResources.swift` | `CYLSearchResources` | `CYLSearchSuggestionCache` (protocol), enum `CYLSearchSuggestionCachePolicy` | the default cache store (was `CYLSearchSuggestionStore`) |
+
+The podspec reads `Sources/CYLSearchBar/**/*.swift`; the module stays `CYLSearchViewController`. Removed public
+types: `CYLMultiSearchView`, `CYLMultiSearchViewDelegate`, `CYLSearchBarItemView`, `CYLSearchController`,
+`CYLSearchControllerDelegate`, `CYLSearchResultsViewController`, `CYLSearchResultsDataSource`,
+`CYLSearchPlaceholderView` and its enums (`CYLSearchPlaceholderKind`, `CYLSearchPlaceholderStyle`,
+`CYLSearchPlaceholderMessage`), `CYLSearchSuggestionStore`. The bundle `CYLSearchViewController.bundle` keeps all its
+files (the other platforms import its images and strings).
+
+### Old API → new API
+
+Rule of the merge: an API that duplicates another is kept once (the kept one is named in the right column); an API
+that differs only by a parameter is copied with the new parameter (default value where the language has them).
+
+**Multi-search → `CYLSearchBarView` with `mode = .multiple`**
+
+| Old (`CYLMultiSearchView`) | New (`CYLSearchBarView`) |
+| :--- | :--- |
+| the class | `mode: CYLSearchBarMode` (`.single` default, `.multiple`) |
+| `delegate` (`CYLMultiSearchViewDelegate`) | `delegate` (`CYLSearchBarViewDelegate`) |
+| `multiSearchView(_:textDidChange:at:)` | `searchBarView(_:textDidChange:at:)` (new, optional; `.multiple` only; `.single` keeps `searchBarView(_:textDidChange:)`) |
+| `multiSearchView(_:didCompleteSearch:at:)` | `searchBarView(_:didCompleteSearch:at:)` (new, optional) |
+| `multiSearchView(_:didRemoveItemAt:)` | `searchBarView(_:didRemoveSearchAt:)` (new, optional) |
+| `multiSearchView(_:didSelectItem:at:)` | `searchBarView(_:didSelectSearch:at:)` (new, optional) |
+| `searchTexts` | `searches: [String]` |
+| `selectedIndex`, `noSelection` | `selectedSearchIndex` (`NSNotFound` / Android `-1` when none) |
+| `isInSearchMode` | `isEditingNewSearch` |
+| `searchButton` | `newSearchButton` |
+| `search()` | `beginNewSearch()` |
+| `completeSearch()` | `completeSearch()` |
+| `addSearchText(_:)` | `addSearch(_:)` |
+| `selectItem(at:)` | `selectSearch(at:)` |
+| `removeItem(at:)` | `removeSearch(at:)` |
+| `placeholder`, `font`, `textColor`, `placeholderColor`, `returnKeyType`, `keyboardType`, `autocapitalizationType` | the bar's own properties of the same name (duplicates; added to the bar where it lacks one) |
+| `maximumTextLength`, `minimumTextLength` | same names on the bar (`minimumTextLength` applies to `completeSearch()`) |
+| `indicatorColor`, `unselectedItemAlpha`, `searchFieldWidth`, `searchImage`, `removeImage`, `animationDuration` | `searchIndicatorColor`, `unselectedSearchAlpha`, `searchFieldWidth`, `newSearchImage`, `removeSearchImage`, `animationDuration` (bar) |
+
+**Overlay and results list → `CYLSearchView`**
+
+| Old | New (`CYLSearchView`) |
+| :--- | :--- |
+| `CYLSearchController(searchDataSource:)` | `CYLSearchView()` + `resultsDataSource` |
+| `CYLSearchController.show(in: UIViewController)` | `showSearch(in: UIViewController, animated: Bool = true)` (copy of `showSearch(animated:)` with the controller; installs the view in the controller's view when needed) |
+| `CYLSearchController.hide(_ completion:)` | `closeSearch(animated: Bool = true, completion: (() -> Void)? = nil)` (copy of `closeSearch(animated:)` with the completion) |
+| `CYLSearchController.isPresented` | `isSearchOpen` |
+| `CYLSearchControllerDelegate.searchControllerDidCancel(_:)` | `CYLSearchViewDelegate.searchViewDidClose(_:)` |
+| `CYLSearchController.resultsViewController` | `resultsTableView` (public, read-only `UITableView`) |
+| `CYLSearchResultsDataSource` | `CYLSearchViewDataSource`: `searchView(_:resultsForQuery:) -> [Any]`, `searchView(_:configureResultCell:withResult:)` |
+| `searchResultsViewController(_:didSelectResult:)` | `CYLSearchViewDelegate.searchView(_:didSelectResult:)` (optional) |
+| `searchDataSource` | `resultsDataSource` (weak) |
+| `searchResults` | `searchResults: [Any]` (read-only) |
+| `reloadSearchResults()`, `reloadResultsTableView()` | `reloadResults()` (one API: queries the data source for the current query and reloads `resultsTableView`) |
+| `searchController` (`UISearchController`) | removed from the core; a navigation-item search is plain UIKit in the example |
+
+Results behavior: when `resultsDataSource` is set and the query is not empty, `resultsTableView` shows the results
+in the area below the bar (the suggestions are hidden); otherwise the suggestions behave as before. The empty-results
+placeholder (`showsEmptyResultsPlaceholder`, `emptyResultsScenario`, `emptyResultsView`) also covers an empty result
+list. The rule "focus alone changes nothing below the search bar" still holds.
+
+**Refresh → `CYLSearchView` (the only refresh API; CYLTableViewPlaceHolder's pull-to-refresh inside)**
+
+| API | What it does |
+| :--- | :--- |
+| `refreshHandler: (() -> Void)?` | Non-nil adds pull-to-refresh to `resultsTableView` (CYLTableViewPlaceHolder's normal header); nil removes it. |
+| `beginRefreshing()`, `endRefreshing()`, `isRefreshing` | Start, stop and read the refresh of `resultsTableView`; `endRefreshing()` must be called on every completion path. |
+| `static setRefreshHandler(_:for: UIScrollView)` | The same pull-to-refresh on another scroll view (copy of `refreshHandler` with the scroll view), e.g. the Issue #1317 page's table. |
+| `static beginRefreshing(in:)`, `static endRefreshing(in:)`, `static isRefreshing(in:)` | The same calls for that scroll view. |
+
+The example calls only these: no `CYLRefreshNormalHeader`, `cyl_header` or `endRefreshing` of CYLTableViewPlaceHolder
+in example code. Handlers must not retain their controller strongly.
+
+**Placeholder and cache**
+
+| Old | New |
+| :--- | :--- |
+| `CYLSearchPlaceholderView` (+ kind, style, message enums) | removed: duplicate of CYLTableViewPlaceHolder's placeholder, already exposed by `CYLSearchView.emptyResultsView` / `emptySuggestionsView` and their scenarios |
+| `CYLSearchSuggestionStore` | private default store; `CYLSearchView.suggestionCachePolicy` / `suggestionCacheName` create it, `suggestionCache` takes a custom `CYLSearchSuggestionCache` |
+
+### The only search kernel
+
+- iOS: the pod depends on CollectionViewClassifyMenu (tags, not search) and CYLTableViewPlaceHolder (placeholder and
+  refresh, not search) only.
+- Android: `cylsearch` drops its `api(project(":search-lapism"))`, `api(project(":search-materialsearchview"))` and
+  `api(project(":search-multisearchview"))` (unused by its code). The sample modules that show those upstream
+  libraries are example code and keep them.
+- Every other platform: its search package depends on no other search library.
+
+### Per platform
+
+| Platform | Core | Files after the merge |
+| :--- | :--- | :--- |
+| iOS | `Sources/CYLSearchBar` | `CYLSearchBarView.swift`, `CYLSearchView.swift`, `CYLSearchResources.swift` |
+| Android | `android/merged/cylsearch` (`com.cyl.search`) | `CYLSearchBarView.kt`, `CYLSearchView.kt`, `CYLSearchResources.kt` |
+| React Native | `CrossPlatform/react-native-cylsearch` (`src/`, `ios/`, `android/`) | components follow the classes: a search bar (with `mode`), a search view (with results and refresh), the tag list (CollectionViewClassifyMenu, unchanged) |
+| Flutter | `CrossPlatform/flutter_cylsearch` (`lib/`, `ios/`, `android/`) | same as React Native |
+| HarmonyOS | `harmonyos/cylsearch` | `CYLSearchBarView.ets`, `CYLSearchView.ets`, `CYLSearchResources.ets` |
+| Mini program | `CrossPlatform/wechat-miniprogram-cylsearch` packages | a search bar component (with `mode`), a search view component (with results and refresh), the resources module |
