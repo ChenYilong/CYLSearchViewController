@@ -65,9 +65,8 @@ val cylPlaceholderDir = pinnedCheckout("CYLTableViewPlaceHolder", "https://githu
     "cyl.placeholder.commit", "cyl.placeholder.dir", "CYL_PLACEHOLDER_DIR")
 include(":placeholder")
 project(":placeholder").projectDir = File(cylPlaceholderDir, "android/placeholder")
-// Its Lottie animator: the placeholders play their animations (iOS: the CYLPlaceholderAnimation/Lottie subspec).
-include(":placeholder-lottie")
-project(":placeholder-lottie").projectDir = File(cylPlaceholderDir, "android/placeholder-lottie")
+// Its animations play through CYLTabBarController's :cylanimateditem engine (included above); since CYLTableViewPlaceHolder
+// moved onto CYLAnimatedItem it has no Lottie module of its own: the app adds the Lottie library.
 // Its pull-to-refresh (package com.cyl.refresh, depends on :placeholder only): CYLSearchView's refresh API calls it.
 include(":placeholder-refresh")
 project(":placeholder-refresh").projectDir = File(cylPlaceholderDir, "android/merged/library")

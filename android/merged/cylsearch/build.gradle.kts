@@ -44,7 +44,7 @@ dependencies {
     // The empty search results placeholder (CYLSearchView.emptyResultsScenario) is CYLTableViewPlaceHolder's.
     api(project(":placeholder"))
     // No animation engine in the core (docs/animated-icon-component.md): the placeholders' Lottie animator
-    // (:placeholder-lottie) and the animation libraries are added by the app; the still images show otherwise.
+    // (through :cylanimateditem) and the animation libraries are added by the app; the still images show otherwise.
     implementation(libs.androidx.appcompat)
     api(libs.androidx.fragment.ktx)
     api(libs.androidx.recyclerview)

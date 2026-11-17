@@ -204,7 +204,7 @@ Adapted from CYLTabBarController's instruction files at its latest commit
 - CollectionViewClassifyMenu: suggestions as tags (`docs/tag-view-suggestions.md`).
 - CYLTableViewPlaceHolder is integrated as a sub-repository under all the requirements above: when a search has no
   results, show its empty-content placeholder style, on every platform (iOS, Android, React Native, Flutter,
-  HarmonyOS, mini programs). It is the placeholder sub-dependency, pinned at `f488e2f` on every platform:
+  HarmonyOS, mini programs). It is the placeholder sub-dependency, pinned at `62e40c0` (its newest commit, on `CYLAnimatedItem`) on every platform:
   `CYLSearchView` shows its `CYLPlaceholderView` scenarios and wraps its pull-to-refresh header. Done on iOS, Android, HarmonyOS, the mini program, React Native and Flutter
   (`docs/sub-repositories.md`). Full rule: `AGENTS.md`, same section; skill `cyl-sub-repositories`.
 

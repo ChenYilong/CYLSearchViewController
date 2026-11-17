@@ -38,11 +38,11 @@ dependencies {
     implementation(project(":cyltabbar"))
     // CYLTabBarController plays SVGA tab icons through SVGAPlayer-Android, found by reflection.
     implementation(libs.svgaplayer)
-    // The animation engines the example plays, never in the core (docs/animated-icon-component.md): the placeholders'
-    // Lottie animator (CYLTableViewPlaceHolder; iOS: the example's CYLTableViewPlaceHolder/Lottie subspec). The animated
-    // icon + title component (cyltabbarcontroller-animateditem, under CYLTagButton) reaches SVGAPlayer above by
-    // reflection.
-    implementation(project(":placeholder-lottie"))
+    // The animation libraries the example plays, never in the core (docs/animated-icon-component.md): the shared
+    // animated icon + title engine (cyltabbarcontroller-animateditem, under CYLTagButton and CYLTableViewPlaceHolder's
+    // placeholders) reaches Lottie and SVGAPlayer above by reflection (iOS: the CYLAnimatedItem/LottieSwift and /SVGA
+    // subspecs).
+    implementation(libs.lottie)
     implementation(project(":cylsearch"))
     implementation(project(":sample-materialsearchview"))
     implementation(project(":sample-multisearchview"))

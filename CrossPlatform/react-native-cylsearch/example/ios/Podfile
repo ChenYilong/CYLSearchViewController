@@ -25,7 +25,7 @@ target 'CylsearchExample' do
   # The native core from this repository, and its sub-repositories at their pinned commits (docs/sub-repositories.md).
   pod 'CYLSearchViewController', :path => '../../../..'
   pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => 'b4d0e5142c242c3f628932c0f4f69d746e88023f'
-  pod 'CYLTableViewPlaceHolder', :subspecs => ['Core', 'Lottie'], :git => 'https://github.com/ChenYilong/CYLTableViewPlaceHolder.git', :commit => 'f488e2fb0ca175f96daabf5814739832a2cfd1ce'
+  pod 'CYLTableViewPlaceHolder', :subspecs => ['Core', 'Lottie'], :git => 'https://github.com/ChenYilong/CYLTableViewPlaceHolder.git', :commit => '62e40c0530f74e8fe8a8e6d8b98cf42d5ac7ada1'
 
   # CYLTabBarController for react-native-cyltabbar (the example's tab bar), from the pinned checkout
   # (scripts/fetch-cyltabbar.sh; the commit is `cyl.tabbar.commit` in android/merged/gradle.properties).

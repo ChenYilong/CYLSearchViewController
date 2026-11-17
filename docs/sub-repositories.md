@@ -6,7 +6,7 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
 | Sub-repository | What it adds | Status |
 |:---|:---|:---|
 | CollectionViewClassifyMenu | Suggestions as tags (`CYLSearchSuggestionStyle`); `CYLTagButton`, which draws every search bar item and the example's SVGA demo | Tags: Android done (`eb3590e`); iOS `TODO` ([tag-view-suggestions.md](tag-view-suggestions.md)). `CYLTagButton`: every platform, pinned at `15877a4` on HarmonyOS (`harmonyos/oh-package.json5` `collectionViewClassifyMenuCommit`, `harmonyos/vendor/classifymenu`) and the mini program (`package.json` `collectionViewClassifyMenuCommit`) ([animated-icon-component.md](animated-icon-component.md)) |
-| CYLTableViewPlaceHolder | The placeholder sub-dependency: the empty-content placeholder (`CYLPlaceholderView` scenarios shown by `CYLSearchView`) when a search has no results, and the pull-to-refresh header inside `CYLSearchView`'s refresh API; pinned at `f488e2f` on every platform | Done on iOS, Android, HarmonyOS, the mini program, React Native and Flutter ([search-core-merge.md](search-core-merge.md)) |
+| CYLTableViewPlaceHolder | The placeholder sub-dependency: the empty-content placeholder (`CYLPlaceholderView` scenarios shown by `CYLSearchView`) when a search has no results, and the pull-to-refresh header inside `CYLSearchView`'s refresh API; pinned at `62e40c0` (its newest commit, on `CYLAnimatedItem`) on every platform | Done on iOS, Android, HarmonyOS, the mini program, React Native and Flutter ([search-core-merge.md](search-core-merge.md)) |
 
 ## DONE (2026-11-16; TODO 2026-11-12): CYLTableViewPlaceHolder as a sub-repository, empty search results on every platform (iOS, Android, Flutter, React Native, mini programs; HarmonyOS through `cylplaceholder`, run on the Mate 70 Pro emulator: the empty placeholder in `harmonyos-search-empty-cache-emulator-unsigned.jpeg`, touches checked 2026-11-16)
 
@@ -149,3 +149,10 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
 - **Status**: started. CYLTableViewPlaceHolder → its newest commit `62e40c0` (branch
   `feat/android-refresh-port-followup`, on `CYLAnimatedItem`); HarmonyOS and mini program component requested from the
   CYLTabBarController session (no upstream code at any commit yet).
+- **CYLTableViewPlaceHolder `62e40c0` pinned**: every platform (Podfiles, Gradle, ohpm, mini program `package.json`,
+  React Native and Flutter Podfiles). Checked before pinning: the iOS API this core uses is unchanged
+  (`CYLPlaceholderStackView(scenario:actions:)`, `CYLPlaceholderScenario`, `CYLRefreshNormalHeader`, `cyl_header`);
+  its `Core` depends on `CYLAnimatedItem/Core` and its `Lottie` subspec on `CYLAnimatedItem/LottieSwift`, which the
+  Podfiles already name by commit. Android: its `:placeholder-lottie` module is gone (the Lottie animator lives in
+  CYLTabBarController's `:cylanimateditem`, already included and substituted), so the build no longer includes it and the
+  app adds `libs.lottie` instead. Not compiled here (no Xcode, Android SDK or DevEco): CI is the check.
