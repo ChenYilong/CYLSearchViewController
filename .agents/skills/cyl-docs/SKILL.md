@@ -76,6 +76,9 @@ Before any task, log it as `TODO` in the most suitable document in `docs/`
 (verbatim plus English translation) and a status line. Commit and push it,
 then start; mark it `DONE (YYYY-MM-DD)` with the result when the task ends.
 Full rule: `AGENTS.md`, "Task log before every task".
+Also before any task: check other sessions, mark `TODO` and the branch at the top of the session, write
+acceptance criteria (full marks, pass), score until it passes, end with the missing points as `TODO`s
+(`cyl-task-start`).
 
 - Pick the document by subject: a feature's document first; `task-log.md`
   only when no document fits. Never start a second tracker for the same task.

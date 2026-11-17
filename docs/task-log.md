@@ -352,3 +352,38 @@ begins and becomes `DONE` when it ends.
   asking: the code is always on a branch and never pushed to master / main, so it is safe; no need to worry about any
   risk after pushing."
 - 2026-11-16 DONE: HarmonyOS Rive crash fix via pins (CYLTableViewPlaceHolder 76762c6, CYLTabBarController c795d08); every platform checked. Prompt: "...learn from it update our 鸿蒙os core component library to fix crash..."
+
+## DONE (2026-11-18; TODO 2026-11-18): rules for starting a task, scoring it, other sessions and hung emulators
+
+- **Branch**: `feat/harmonyos-parity`.
+- **Context**: `AGENTS.md` and `instructions.md` already have "Task log before every task", and four skills point to it
+  (`cyl-api-map`, `cyl-docs`, `cyl-new-project`, `cyl-plus-button`). No rule yet for the session's TODO header,
+  acceptance scores, checking other sessions or restarting hung emulators.
+- **Requirements**:
+  1. Before a task: mark `TODO` and the current branch at the top of the session; write the task into the most
+     suitable `docs/` document with acceptance criteria (what full marks are, what a pass is).
+  2. Score the work; do not stop before a pass; keep scoring until it passes. Say why it is not full marks, print the
+     missing points as `TODO`s at the end of the session, and update the document written at the start.
+  3. Check other sessions first (read their tasks, usually marked `TODO` at the top of their session): if none is
+     editing the same branch, go on; if one is, check whether the task is a duplicate.
+  4. An emulator that stays hung until restarted: tell the other sessions first, then restart it. An emulator that
+     does not open: restart first. Restart from the command line without asking.
+  5. Written in English, in the instructions files and the skills; create files where none exist.
+- **Acceptance**: full marks (100) = the rules in `AGENTS.md`, `instructions.md`, a skill of their own, the skills
+  table and the four skills' task-log sections, all consistent, committed and pushed. Pass (60) = the rules in
+  `AGENTS.md`, `instructions.md` and a skill, committed and pushed.
+- **Prompt** (verbatim): 找到本项目instructions 相关文件以及skills相关文件，如果没有就新增文件保证写入成功，全英文写入：找到开始任务先标注todo写入文档的相关描述没有就新建该规则，如果有就插入以下规则：开始任务前总是在任务顶部标注TODO 以及当前分支，并找到合适的文档将任务写进docs文档以及验收评分标准什么是满分，什么什么是及格，不达到及格不允许中断任务，一直打分到及格为止。并标注为什么打不到满分，并将缺失的分数以TODO的形式打印在会话结束末端。并更新任务开始时写入的文档。看看 check other sessions first read their task ，第一步看看有没有session在编辑相同分支，如果没有就继续，如果有继续坚持任务是否重复。usually marked as TODO at top of 会话， 遇到 emulator stays hung until it's restarted,  please tell the other sessions first, then restart it. 遇到模拟器打不开的情况优先使用重启策略。无须询问是否重启直接命令行执行重启。
+- **Prompt** (English): Find this project's instructions files and skills files; create them if missing so the write
+  succeeds; write in English. Find the rule about marking a task TODO in a document before starting; create it if
+  missing, else insert: before a task, always mark TODO and the current branch at the top; write the task into a
+  suitable docs document with acceptance criteria (what is full marks, what is a pass); do not stop before a pass,
+  keep scoring until it passes; say why it is not full marks and print the missing points as TODOs at the end of the
+  session; update the document written at the start. Check other sessions first and read their tasks: first see
+  whether a session edits the same branch; if not, go on; if so, check whether the task is a duplicate (usually
+  marked TODO at the top of a session). An emulator that stays hung until restarted: tell the other sessions first,
+  then restart it. An emulator that will not open: prefer restarting. Restart from the command line without asking.
+- **Status**: done. Other sessions checked (none busy on this repository). Written: `AGENTS.md` ("Start, score and
+  finish every task" under "Task log before every task"; "Emulators and simulators: restart when hung"; the skills
+  table), `instructions.md` (both rules), the new skill `.agents/skills/cyl-task-start/SKILL.md` (also seen through
+  `.claude/skills`), and a pointer in `cyl-docs`, `cyl-api-map`, `cyl-new-project` and `cyl-plus-button`.
+- **Score**: 100 of 100 (every acceptance item done, committed and pushed); pass mark 60.

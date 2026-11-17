@@ -248,6 +248,28 @@ and push it, then start. When the task ends, change `TODO` to
 interrupted task never loses its context. Full rule: `AGENTS.md`, "Task log
 before every task".
 
+Start, score and finish every task (added 2026-11-18; skill `cyl-task-start`):
+
+1. Check other sessions first: read their tasks (usually `TODO` at the top of
+   each session). No session on the same branch: go on. One on the same
+   branch: check whether the task is a duplicate before going on.
+2. Mark `TODO`, the task and the current branch at the top of the session.
+3. In the `docs/` entry, write the acceptance criteria: what full marks (100)
+   and a pass (60) are.
+4. Score after each milestone; below a pass, do not interrupt the task: keep
+   working and scoring until it passes.
+5. Say why it is not 100; end the session with each missing point as a `TODO`;
+   update the `docs/` entry (score, reasons, remaining `TODO`s).
+
+## Emulators and simulators: restart when hung (added 2026-11-18)
+
+- An emulator that stays hung until restarted: tell the other sessions first,
+  then restart it.
+- An emulator or simulator that does not open: restart it first.
+- Restart from the command line without asking the user (`adb -s <serial>
+  reboot`, `hdc -t <target> shell reboot`, `xcrun simctl shutdown` + `boot`).
+  Full rule: `AGENTS.md`, "Emulators and simulators: restart when hung".
+
 ## Screenshots of builds and CI/CD
 
 - Commit every screenshot (local builds and runs, CI/CD runs) and show it in the related `docs/` document (images in

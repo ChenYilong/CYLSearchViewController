@@ -24,6 +24,7 @@ WeChat DevTools Skills (<https://developers.weixin.qq.com/miniprogram/dev/devtoo
 | `cyl-xcode-compat` | Touching the `.xcodeproj`, Podfile or deployment targets |
 | `cyl-sub-repositories` | Adding or updating a sibling project as a sub-repository (CollectionViewClassifyMenu, CYLTableViewPlaceHolder): commit pin, core option, example, every platform |
 | `cyl-license` | Any package published to a registry (CocoaPods, Maven/Gradle, npm, pub, ohpm): the MIT `LICENSE` inside its resource bundle, the manifest field, the check |
+| `cyl-task-start` | Starting, scoring and finishing any task: check other sessions, `TODO` and branch at the top, the `docs/` entry with acceptance criteria, scoring until it passes, missing points as `TODO`s at the end; restarting a hung emulator |
 | `cyl-docs` | Editing `README.md` or `docs/` |
 | `cyl-verify` | Building, testing, running the simulator |
 | `cyl-api-parity` | Comparing two platforms' APIs: the parity table (source API, description, target counterpart, `TODO` by default), its score, and the loop to 100 |
@@ -410,6 +411,55 @@ pick the task up, every task is written down in `docs/` before any work starts:
 An open `TODO` of a task in progress is not a stale note: the "stale notes
 before every commit" search skips it, and the session that finishes the task
 marks it `DONE`.
+
+### Start, score and finish every task (added 2026-11-18)
+
+User's rule (2026-11-18): every task starts with a visible `TODO`, is scored
+against acceptance criteria written before the work, and does not stop before
+it passes. Checklist: the `cyl-task-start` skill.
+
+1. **Check other sessions first.** List the other sessions (for example
+   `ListAgents`) and read their tasks, usually marked `TODO` at the top of each
+   session. If no session is editing the same branch, go on. If one is, check
+   whether its task is the same as yours: when it is, do not duplicate it (ask
+   that session or the user how to split the work); when it is not, go on and
+   keep out of its files.
+2. **Mark the task at the top of the session**: the first lines of the session's
+   reply are `TODO` with the task in one line and the current branch
+   (`git branch --show-current`), for example
+   `TODO (branch feat/harmonyos-parity): pin CYLTabBarController 6a9ede85`.
+3. **Write the task into `docs/`** as in the steps above, adding
+   **Acceptance**: what full marks (100) are and what a pass (60) is, as
+   checkable items (builds, tests, screenshots, documents, commits pushed).
+4. **Score until it passes.** Score the work against the acceptance criteria
+   after each milestone. Below the pass mark the task must not be interrupted
+   or handed back: keep working and scoring until it passes.
+5. **Explain the missing points.** When the score is below 100, say why each
+   missing point could not be earned (for example no arm64 device, a peer's
+   pending change).
+6. **End the session with the missing points as `TODO`s**: the last lines of
+   the final reply list every missing point as `TODO (n points): <what is
+   missing>`.
+7. **Update the document written at the start**: the score, the reasons, the
+   remaining `TODO`s, and `DONE (YYYY-MM-DD)` once it reaches 100 (or a pass
+   with the missing points listed).
+
+## Emulators and simulators: restart when hung (added 2026-11-18)
+
+User's rule (2026-11-18): restarting is the first remedy, and needs no
+question to the user.
+
+- **An emulator that stays hung until it is restarted** (for example `adb`
+  answers `shell echo` but `pm`, `am` and installs time out; `hdc` commands
+  hang): tell the other sessions first (a message to each session that uses it:
+  what hangs, that you restart it now), then restart it.
+- **An emulator or simulator that does not open, or does not finish booting**:
+  restart it first, before any other diagnosis.
+- **Restart from the command line, without asking the user**, for example
+  `adb -s emulator-5556 reboot` (or `adb -s emulator-5556 emu kill`, then
+  `emulator -avd <name> -no-snapshot-load`), `hdc -t 127.0.0.1:5555 shell reboot`,
+  `xcrun simctl shutdown <udid> && xcrun simctl boot <udid>`. Tell the other
+  sessions again when it is back.
 
 ## Commit readiness
 
