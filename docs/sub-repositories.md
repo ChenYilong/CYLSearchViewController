@@ -134,3 +134,18 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   `CYLPlaceholderStackView`. The Lottie paths are gone. Android
   animated too (`docs/core-todo.md`, CYLTableViewPlaceHolder `6d8b264`). Left: HarmonyOS on the emulator (no signing needed, rule 2026-11-16; waits for the emulator instance, Scorecard 2 rows
   7 to 9 in [harmonyos-cross-platform.md](harmonyos-cross-platform.md)).
+
+## TODO (2026-11-17): continue the TODOs, unreleased components by commit
+
+- **Context**: branch `feat/harmonyos-parity` (PR #11). Open items from the CYLAnimatedItem migration
+  (`docs/animated-icon-component.md`): CYLTableViewPlaceHolder still pinned at `f488e2f`, before its own move to
+  `CYLAnimatedItem`; HarmonyOS and the mini program wait for the component upstream; ClassifyMenu's Android
+  `CYLIndexPathButton`, `CYLRightImageButton` and `CYLMultipleFilterHeaderView` are not on `CYLTagButton`.
+- **Requirements**: continue fixing the TODOs; import components that are not released yet by commit; do not let
+  anything block progress.
+- **Prompt (verbatim)**: "continue fix todo还没发布的组件尝试使用commit方式导入。不要阻碍进度"
+- **Prompt (English)**: "Continue fixing the TODOs. Try to import components that are not released yet by commit. Do not
+  block progress."
+- **Status**: started. CYLTableViewPlaceHolder → its newest commit `62e40c0` (branch
+  `feat/android-refresh-port-followup`, on `CYLAnimatedItem`); HarmonyOS and mini program component requested from the
+  CYLTabBarController session (no upstream code at any commit yet).
