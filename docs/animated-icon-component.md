@@ -142,3 +142,36 @@
 - Checks run here: the parity generators (Android 100, iOS 100, HarmonyOS 100, mini program 100),
   `harmonyos-scorecard.py` 100, `check-public-api-comments.sh`, the HarmonyOS host logic tests (30 pass), iOS parity
   (397 match) and accessibility checks (0 problems), the mini program `npm test` (48 pass, with the example synced).
+
+## TODO (2026-11-17): depend on CYLTabBarController's CYLAnimatedItem; no animation engine in the core
+
+- **Context**: CYLTabBarController (`feat/cross-platform-components`, guide `docs/Animated-Item.md` at `13e717c9`, newest
+  commit `35aa757`) ships the shared animated icon + title component `CYLAnimatedItem`: the component's core
+  (`CYLTabBarController/CYLAnimatedItem`, CYLUtils only, static images, `CYL_ANIMATION_ENGINE_AVAILABLE` = 0 without an
+  engine; Android module `:cylanimateditem`, Maven `io.github.chenyilong:cyltabbarcontroller-animateditem`) and one
+  Core-free engine subspec per type (`CYLAnimatedItemLottieSwift`, `…LottieObjectiveC`, `…PAG`, `…PAGEnterprise`,
+  `…Rive`, `…SVGA`, `…GIF`). Its migration row for `CYLTagButton`: subclass `CYLAnimatedItemView`, delete
+  `CYLTagAnimationEngine` (the run-time lookup) and the own icon / title / animation properties, the delete indicator
+  becomes `accessoryView`, the per-state look goes to `itemStateDidChange` / `onItemStateChanged`, the indicator's side to
+  `accessoryPlacement`, static measuring stays. HarmonyOS and the mini program have no `CYLAnimatedItem` yet (TODO in
+  CYLTabBarController). CYLTableViewPlaceHolder's own session migrates `CYLPlaceholderView` (its task `eb03683`).
+- **Requirements**:
+  1. Change the CocoaPods, Gradle / Maven and npm configuration as the guide says; the core code depends on the new
+     component.
+  2. Rework the core so that it shows the same animations through it.
+  3. The core does not depend on an animation engine; animated icons show only when the example layer adds an engine.
+  4. The components concerned: the packaged animated icon + title core components (CollectionViewClassifyMenu's
+     `CYLTagButton` and this repository's search bar items built on it).
+- **Plan**: (1) CollectionViewClassifyMenu: `CYLTagButton` subclasses `CYLAnimatedItemView` on iOS and Android; podspec
+  `s.dependency 'CYLTabBarController/CYLAnimatedItem'`, Gradle dependency on the animated item module; examples add the
+  engine subspecs / animation libraries. (2) This repository: pin CYLTabBarController `35aa757` and the new
+  CollectionViewClassifyMenu commit; the core depends on `CYLTabBarController/CYLAnimatedItem` (no engine); the
+  example's Podfile adds the engines it plays (SVGA and the others it uses); Android includes `:cylanimateditem`.
+  (3) HarmonyOS and the mini program: blocked until CYLTabBarController ships the component there.
+- **Prompt (verbatim)**: "https://github.com/ChenYilong/CYLTabBarController/blob/13e717c9/docs/Animated-Item.md 根据文档链接，根据该文档，修改cocoapods gradle maven npm等配置，要求更新core核心代码 ，依赖该新组件。改造core核心代码，要求实现同等动效效果。core核心代码不依赖于动效引擎，仅仅在example层引入动效引擎时才展示动效icon。涉及的组件为本仓库中已经封装好的动效icon加title的核心组件代码。"
+- **Prompt (English)**: "Following the linked document, change the CocoaPods, Gradle, Maven, npm and similar
+  configuration; update the core code to depend on the new component. Rework the core code to achieve the same
+  animation effects. The core code does not depend on the animation engine; animated icons show only when the example
+  layer adds the animation engine. The components concerned are this repository's packaged animated icon + title
+  core components."
+- **Status**: logged; plan step 1 next.
