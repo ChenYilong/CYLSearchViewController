@@ -18,12 +18,13 @@ Pod::Spec.new do |s|
   # The tag suggestion style (CYLSearchSuggestionStyle.tags) shows suggestions in CollectionViewClassifyMenu's
   # CYLTagListView. Not on CocoaPods trunk: apps pin it by commit in their Podfile (AGENTS.md, "Sub-repositories").
   s.dependency 'CollectionViewClassifyMenu'
-  # The search bar items subclass CollectionViewClassifyMenu's CYLTagButton, a CYLAnimatedItemView: CYLTabBarController's
-  # shared animated icon + title component, its core only (static images, no tab bar, no animation engine; guide:
-  # https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md). An app
-  # that plays animated icons adds the engine subspecs (CYLTabBarController/CYLAnimatedItemLottieSwift, ...PAG, ...Rive,
-  # ...SVGA, ...GIF). The subspec is in no CocoaPods release yet: Podfiles pin CYLTabBarController by commit.
-  s.dependency 'CYLTabBarController/CYLAnimatedItem'
+  # The search bar items subclass CollectionViewClassifyMenu's CYLTagButton, a CYLAnimatedItemView from the pod and module
+  # CYLAnimatedItem (in CYLTabBarController's repository, with no dependency on CYLTabBarController; guide:
+  # https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md). Its
+  # Core shows static images and plays nothing; an app that plays animated icons adds the engine subspecs
+  # (CYLAnimatedItem/LottieSwift, .../PAG, .../Rive, .../SVGA, .../GIF). The pod is not on the trunk yet: Podfiles name it
+  # by :git and :commit.
+  s.dependency 'CYLAnimatedItem'
   # The empty search results placeholder (CYLSearchView.emptyResultsScenario) is CYLTableViewPlaceHolder's
   # CYLPlaceholderStackView, and the refresh API of CYLSearchView (refreshHandler, +setRefreshHandler:forScrollView:)
   # wraps its pull-to-refresh (CYLRefreshNormalHeader). Also pinned by commit in the Podfile. No other search library:

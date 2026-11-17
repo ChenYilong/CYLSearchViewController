@@ -105,8 +105,8 @@ three Swift files and four public classes.
 | `CYLSearchResources.swift` | `CYLSearchResources` (bundle images and strings), `CYLSearchSuggestionCache`, `CYLSearchSuggestionCachePolicy` |
 
 It depends only on CollectionViewClassifyMenu (tag suggestions), CYLTableViewPlaceHolder (placeholders and
-pull-to-refresh, its `Core` subspec) and CYLTabBarController's shared animated icon + title component
-`CYLTabBarController/CYLAnimatedItem`; no other search library and no animation engine. Use these APIs on the main
+pull-to-refresh, its `Core` subspec) and the shared animated icon + title component, the pod `CYLAnimatedItem`
+(from CYLTabBarController's repository, without CYLTabBarController); no other search library and no animation engine. Use these APIs on the main
 thread.
 
 Animated icons. The search bar items are CollectionViewClassifyMenu's `CYLTagButton`, a subclass of

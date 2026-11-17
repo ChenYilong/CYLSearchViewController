@@ -231,7 +231,7 @@
   `io.github.chenyilong:cyltabbarcontroller-animateditem` from the app's runtime classpath there); (4) screenshots of
   the SVGA demo tag and the animated placeholders against the previous ones.
 
-## TODO (2026-11-17): CYLAnimatedItem is its own pod and module
+## DONE (2026-11-17, pending CI): CYLAnimatedItem is its own pod and module
 
 - **Context**: branch `feat/harmonyos-parity` (PR #11). The guide
   ([docs/Animated-Item.md](https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md))
@@ -247,4 +247,22 @@
 - **Prompt (verbatim)**: "更新了该文档地址 最新地址https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md 文档更新了一些描述 请重新阅读 调整"
 - **Prompt (English)**: "The document was updated, latest address …/docs/Animated-Item.md; some descriptions changed. Please
   read it again and adjust."
-- **Status**: started.
+- **Status**: adjusted, pending CI (nothing compiles here: no Xcode, Android SDK or DevEco).
+  - Podspec: `s.dependency 'CYLAnimatedItem'` (its default subspec `Core`: static images, no engine) instead of
+    `CYLTabBarController/CYLAnimatedItem`.
+  - `CYLSearchBarView.swift` imports `CYLAnimatedItem` where the module exists (CocoaPods); Swift Package Manager still
+    compiles the component into CYLTabBarController and reaches it through CollectionViewClassifyMenu.
+  - Example Podfile: `pod 'CYLAnimatedItem', :subspecs => ['Core', 'SVGA', 'LottieSwift']` by `:git` + `:commit`;
+    CYLTabBarController keeps only its own subspecs (`Core`, `SVGA`, `CYLFlatDesignTabBar`). Flutter example: the
+    `CYLAnimatedItem` pod with `SVGA` and `Rive`; React Native example: `pod 'CYLAnimatedItem'` from the same vendored
+    checkout as CYLTabBarController.
+  - Tests: `#import <CYLAnimatedItem/CYLAnimatedItemView.h>`.
+  - `scripts/pod-lint.sh lib` checks out `CYLAnimatedItem` (CYLTabBarController's repository at the pinned commit)
+    instead of CYLTabBarController: neither this podspec nor CollectionViewClassifyMenu's depends on the tab bar any
+    more.
+  - Pins: CYLTabBarController `1f0fcce` (Podfiles, Gradle, ohpm, npm, pub), CollectionViewClassifyMenu `7183711`.
+  - Android: CollectionViewClassifyMenu's `CYLTagButton` imports from `com.cyl.animateditem`; `cylsearch` imports
+    nothing from `com.cyl.tabbar`, so it needed no change.
+  - Parity tables regenerated (descriptions only, all at 100); HarmonyOS scorecard 309/309.
+  - Still TODO, as before: HarmonyOS and the mini program wait for the component upstream (guide TODO 5); the
+    CYLTableViewPlaceHolder pin `f488e2f` predates its own migration.

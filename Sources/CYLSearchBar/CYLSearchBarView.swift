@@ -1,3 +1,8 @@
+// CYLAnimatedItemView, the base class of the bar items (through CollectionViewClassifyMenu's CYLTagButton). Swift Package
+// Manager still compiles it into the CYLTabBarController module, where it is reached through CollectionViewClassifyMenu.
+#if canImport(CYLAnimatedItem)
+import CYLAnimatedItem
+#endif
 import CollectionViewClassifyMenu
 import UIKit
 
@@ -1584,7 +1589,7 @@ public final class CYLSearchBarItem: NSObject {
 
     /**
      * An animated icon file (Lottie .json, .pag, .riv, .svga, .gif), drawn by the item's `CYLTagButton` (a
-     * `CYLAnimatedItemView`) when the app adds the engine of its type (`CYLTabBarController/CYLAnimatedItem<Type>`;
+     * `CYLAnimatedItemView`) when the app adds the engine of its type (`CYLAnimatedItem/<Type>`;
      * the core adds none) and played on each tap. Otherwise `image` shows, or the component's placeholder when there
      * is no `image`.
      */

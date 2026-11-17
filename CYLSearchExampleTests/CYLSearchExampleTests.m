@@ -4,7 +4,7 @@
 #import "CYLSearchBarDemoViewController.h"
 #import "CYLSearchExampleAppDelegate.h"
 #import <CYLTabBarController/CYLTabBarController.h>
-#import <CYLTabBarController/CYLAnimatedItemView.h>
+#import <CYLAnimatedItem/CYLAnimatedItemView.h>
 #import <CYLSearchViewController/CYLSearchViewController-Swift.h>
 #import <CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.h>
 #import <CollectionViewClassifyMenu/CollectionViewClassifyMenu-umbrella.h>

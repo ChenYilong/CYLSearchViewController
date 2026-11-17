@@ -15,8 +15,9 @@ version() {
 sub_repository_specs() {
   mkdir -p build/lint-specs
   # One name per sub-repository the podspec depends on.
-  # CYLTabBarController: the podspec depends on its CYLAnimatedItem subspec, which no trunk release has yet.
-  set -- CollectionViewClassifyMenu CYLTableViewPlaceHolder CYLTabBarController
+  # CYLAnimatedItem: the pod in CYLTabBarController's repository that the search bar items' base class comes from; not on
+  # the trunk yet.
+  set -- CollectionViewClassifyMenu CYLTableViewPlaceHolder CYLAnimatedItem
   for name in "$@"; do
     url=$(sed -n "s/.*pod '$name',.*:git => '\([^']*\)'.*/\1/p" Podfile | head -n 1)
     commit=$(sed -n "s/.*pod '$name',.*:git => '[^']*', :commit => '\([0-9a-f]*\)'.*/\1/p" Podfile | head -n 1)
