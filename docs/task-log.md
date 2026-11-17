@@ -387,3 +387,20 @@ begins and becomes `DONE` when it ends.
   table), `instructions.md` (both rules), the new skill `.agents/skills/cyl-task-start/SKILL.md` (also seen through
   `.claude/skills`), and a pointer in `cyl-docs`, `cyl-api-map`, `cyl-new-project` and `cyl-plus-button`.
 - **Score**: 100 of 100 (every acceptance item done, committed and pushed); pass mark 60.
+
+## TODO (2026-11-18): stitched screenshot layout, header and footer
+
+- **Context**: the user attached a stitched screenshot (red header "iOS 27.2, iPhone 17 Pro sim, Xcode 27.2,
+  CYLTabBarController dcbfdec6 (ef1d0313), feat/harmony, 2026-11-18. Rive tags at rest (no play)"; one caption above
+  each panel: "launch, no play", "11 s later, 0 changed pixels") as the example of the style to follow.
+- **Prompt, verbatim**: "找到本项目instructions 相关文件以及skills相关文件，如果没有就新增文件保证写入成功，全英文写入：找到截图相关规范，如果没有就新建保证写入成功，截图除了 优先选用竖版排列风格。优先两列，多行。且给拼接好的图增加header，footer，header，footer不能与截图区域重叠 覆盖，标注关键信息：关键信息也是英文，测试模拟器平台，模拟器系统版本，操作系统版本，ide 版本，以及测试目的等等。以附带的截图为例。提取截图的附带信息以及风格 完善我的描述规则。 更新截图规则，优选一列多行 如果一列拼接后长度超过普通手机的一屏幕 则两列多行"
+- **Prompt, English**: find this project's instruction files and skill files (create them if missing, make sure the
+  write succeeds), all in English: find the screenshot rules (create them if missing). Stitched screenshots use a
+  vertical layout; give the stitched image a header and a footer that never overlap or cover the screenshots, with the
+  key information in English: simulator platform, simulator OS version, host OS version, IDE version, the purpose of
+  the test, and so on. Take the attached screenshot as the example: extract its information and style and refine the
+  rule. Update: prefer one column over several rows; if the one-column image is taller than one screen of an ordinary
+  phone, use two columns over several rows.
+- **Acceptance**: the rule in `AGENTS.md`, `instructions.md`, `cyl-verify` and `cyl-docs`; `scripts/stitch-screenshots.swift`
+  draws the header, the captions and the footer outside the screenshots and picks one or two columns by that height.
+- **Status**: TODO.
