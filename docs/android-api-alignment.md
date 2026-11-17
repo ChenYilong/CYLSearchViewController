@@ -50,106 +50,13 @@ messages, localized strings (English, Simplified Chinese, a missing key) and the
 ## Table
 
 <!-- api-alignment:begin -->
-Rows: 397; DONE 357, N/A 40, TODO 0; score 100/100.
+Rows: 283; DONE 261, N/A 22, TODO 0; score 100/100.
 
 | iOS API | Upstream counterpart (named in the iOS doc comment) | Android (`cylsearch`) | Status |
 | :--- | :--- | :--- | :--- |
-| **protocol `CYLMultiSearchViewDelegate`** | iammert `MultiSearchViewListener` | CYLMultiSearchViewDelegate | DONE |
-| `CYLMultiSearchViewDelegate.-multiSearchView:textDidChange:atIndex:` | `onTextChanged` | `CYLMultiSearchViewDelegate.multiSearchViewTextDidChange` | DONE |
-| `CYLMultiSearchViewDelegate.-multiSearchView:didCompleteSearch:atIndex:` | `onSearchComplete` | `CYLMultiSearchViewDelegate.multiSearchViewDidCompleteSearch` | DONE |
-| `CYLMultiSearchViewDelegate.-multiSearchView:didRemoveItemAtIndex:` | `onSearchItemRemoved` | `CYLMultiSearchViewDelegate.multiSearchViewDidRemoveItemAtIndex` | DONE |
-| `CYLMultiSearchViewDelegate.-multiSearchView:didSelectItem:atIndex:` | `onItemSelected` | `CYLMultiSearchViewDelegate.multiSearchViewDidSelectItem` | DONE |
-| **class `CYLMultiSearchView`** | iammert `MultiSearchView` | CYLMultiSearchView | DONE |
-| `CYLMultiSearchView.delegate` | — | `CYLMultiSearchView.delegate` | DONE |
-| `CYLMultiSearchView.selectedIndex` | — | `CYLMultiSearchView.selectedIndex` | DONE |
-| `CYLMultiSearchView.inSearchMode` | `isInSearchMode` | `CYLMultiSearchView.isInSearchMode` | DONE |
-| `CYLMultiSearchView.searchButton` | — | `CYLMultiSearchView.searchButton` | DONE |
-| `CYLMultiSearchView.placeholder` | `android:hint` | `CYLMultiSearchView.placeholder` | DONE |
-| `CYLMultiSearchView.font` | `android:textSize` | `CYLMultiSearchView.font` | DONE |
-| `CYLMultiSearchView.textColor` | `android:textColor` | `CYLMultiSearchView.textColor` | DONE |
-| `CYLMultiSearchView.placeholderColor` | `android:textColorHint` | `CYLMultiSearchView.placeholderColor` | DONE |
-| `CYLMultiSearchView.maximumTextLength` | `android:maxLength` | `CYLMultiSearchView.maximumTextLength` | DONE |
-| `CYLMultiSearchView.minimumTextLength` | — | `CYLMultiSearchView.minimumTextLength` | DONE |
-| `CYLMultiSearchView.returnKeyType` | `android:imeOptions` | `CYLMultiSearchView.returnKeyType` | DONE |
-| `CYLMultiSearchView.keyboardType` | `android:inputType` | `CYLMultiSearchView.keyboardType` | DONE |
-| `CYLMultiSearchView.autocapitalizationType` | `textCapSentences` | `CYLMultiSearchView.autocapitalizationType` | DONE |
-| `CYLMultiSearchView.indicatorColor` | — | `CYLMultiSearchView.indicatorColor` | DONE |
-| `CYLMultiSearchView.unselectedItemAlpha` | — | `CYLMultiSearchView.unselectedItemAlpha` | DONE |
-| `CYLMultiSearchView.searchFieldWidth` | — | `CYLMultiSearchView.searchFieldWidth` | DONE |
-| `CYLMultiSearchView.animationDuration` | — | `CYLMultiSearchView.animationDuration` | DONE |
-| `CYLMultiSearchView.searchImage` | — | `CYLMultiSearchView.searchImage` | DONE |
-| `CYLMultiSearchView.removeImage` | — | `CYLMultiSearchView.removeImage` | DONE |
-| `CYLMultiSearchView.searchTexts` | — | `CYLMultiSearchView.searchTexts` | DONE |
-| `CYLMultiSearchView.init(frame:)` | — | constructor(context) | DONE |
-| `CYLMultiSearchView.init(coder:)` | — | constructor(context, attrs) (XML) | DONE |
-| `CYLMultiSearchView.tintColorDidChange()` | — | framework override (Android has no inherited tint) | N/A |
-| `CYLMultiSearchView.traitCollectionDidChange(_:)` | — | framework override (Android recreates views on configuration changes) | N/A |
-| `CYLMultiSearchView.intrinsicContentSize` | — | framework override (Android: measured height, `minimumHeight`) | N/A |
-| `CYLMultiSearchView.layoutSubviews()` | — | framework override (Android lays out with its layout classes) | N/A |
-| `CYLMultiSearchView.search()` | `search` | `CYLMultiSearchView.search` | DONE |
-| `CYLMultiSearchView.completeSearch()` | `completeSearch` | `CYLMultiSearchView.completeSearch` | DONE |
-| `CYLMultiSearchView.addSearchText(_:)` | — | `CYLMultiSearchView.addSearchText` | DONE |
-| `CYLMultiSearchView.selectItem(at:)` | — | `CYLMultiSearchView.selectItemAtIndex` | DONE |
-| `CYLMultiSearchView.removeItem(at:)` | — | `CYLMultiSearchView.removeItemAtIndex` | DONE |
-| `CYLMultiSearchView.textFieldShouldBeginEditing(_:)` | — | internal listener (UIKit protocol conformance) | N/A |
-| `CYLMultiSearchView.textFieldShouldReturn(_:)` | — | internal listener (UIKit protocol conformance) | N/A |
-| `CYLMultiSearchView.textField(_:shouldChangeCharactersIn:replacementString:)` | — | internal listener (UIKit protocol conformance) | N/A |
-| **enum `CYLSearchBarItemStyle`** | — | CYLSearchBarItemStyle | DONE |
-| `CYLSearchBarItemStyle.icon` | — | `CYLSearchBarItemStyle.Icon` | DONE |
-| `CYLSearchBarItemStyle.divider` | — | `CYLSearchBarItemStyle.Divider` | DONE |
-| `CYLSearchBarItemStyle.text` | — | `CYLSearchBarItemStyle.Text` | DONE |
-| **enum `CYLSearchBarStyle`** | — | CYLSearchBarStyle | DONE |
-| `CYLSearchBarStyle.plain` | — | `CYLSearchBarStyle.Plain` | DONE |
-| `CYLSearchBarStyle.bordered` | — | `CYLSearchBarStyle.Bordered` | DONE |
-| **class `CYLSearchBarItem`** | — | CYLSearchBarItem | DONE |
-| `CYLSearchBarItem.style` | — | `CYLSearchBarItem.style` | DONE |
-| `CYLSearchBarItem.title` | — | `CYLSearchBarItem.title` | DONE |
-| `CYLSearchBarItem.image` | — | `CYLSearchBarItem.image` | DONE |
-| `CYLSearchBarItem.selectedImage` | — | `CYLSearchBarItem.selectedImage` | DONE |
-| `CYLSearchBarItem.animatedImage` | `+[UIImage animatedImageWithImages:duration:]` | `CYLSearchBarItem.animatedImage` | DONE |
-| `CYLSearchBarItem.imageSize` | — | `CYLSearchBarItem.imageSize` | DONE |
-| `CYLSearchBarItem.itemAccessibilityLabel` | — | `CYLSearchBarItem.itemAccessibilityLabel` | DONE |
-| `CYLSearchBarItem.itemAccessibilityIdentifier` | — | `CYLSearchBarItem.itemAccessibilityIdentifier` | DONE |
-| `CYLSearchBarItem.isEnabled` | — | `CYLSearchBarItem.isEnabled` | DONE |
-| `CYLSearchBarItem.isSelectable` | — | `CYLSearchBarItem.isSelectable` | DONE |
-| `CYLSearchBarItem.isSelected` | drawn with `selectedImage`, `selectedBackgroundColor` and the selected title attributes | `CYLSearchBarItem.isSelected` | DONE |
-| `CYLSearchBarItem.tintColor` | — | `CYLSearchBarItem.tintColor` | DONE |
-| `CYLSearchBarItem.backgroundColor` | — | `CYLSearchBarItem.backgroundColor` | DONE |
-| `CYLSearchBarItem.selectedBackgroundColor` | — | `CYLSearchBarItem.selectedBackgroundColor` | DONE |
-| `CYLSearchBarItem.contentInsets` | — | `CYLSearchBarItem.contentInsets` | DONE |
-| `CYLSearchBarItem.imagePositionAdjustment` | — | `CYLSearchBarItem.imagePositionAdjustment` | DONE |
-| `CYLSearchBarItem.titlePositionAdjustment` | — | `CYLSearchBarItem.titlePositionAdjustment` | DONE |
-| `CYLSearchBarItem.badgeValue` | — | `CYLSearchBarItem.badgeValue` | DONE |
-| `CYLSearchBarItem.badgeColor` | — | `CYLSearchBarItem.badgeColor` | DONE |
-| `CYLSearchBarItem.badgeSize` | — | `CYLSearchBarItem.badgeSize` | DONE |
-| `CYLSearchBarItem.badgeContentInsets` | — | `CYLSearchBarItem.badgeContentInsets` | DONE |
-| `CYLSearchBarItem.badgePositionAdjustment` | — | `CYLSearchBarItem.badgePositionAdjustment` | DONE |
-| `CYLSearchBarItem.handler` | — | `CYLSearchBarItem.handler` | DONE |
-| `CYLSearchBarItem.index` | — | `CYLSearchBarItem.index` | DONE |
-| `CYLSearchBarItem.init(style:title:image:)` | — | constructor(style, title, image) | DONE |
-| `CYLSearchBarItem.init(title:image:)` | — | constructor(title, image) | DONE |
-| `CYLSearchBarItem.init(title:image:selectedImage:)` | — | constructor(title, image, selectedImage) | DONE |
-| `CYLSearchBarItem.iconItem(image:title:handler:)` | — | `CYLSearchBarItem.iconItem` | DONE |
-| `CYLSearchBarItem.textItem(title:handler:)` | — | `CYLSearchBarItem.textItem` | DONE |
-| `CYLSearchBarItem.divider()` | — | `CYLSearchBarItem.divider` | DONE |
-| `CYLSearchBarItem.item(dictionary:)` | `icon`, `divider`, `text`; `camera`, `mic`, `search`, `back`, else an asset or SF Symbol name | `CYLSearchBarItem.fromMap` | DONE |
-| `CYLSearchBarItem.setTitleTextAttributes(_:for:)` | `UIControlStateNormal`, `UIControlStateSelected`, `UIControlStateDisabled` | `CYLSearchBarItem.setTitleTextAttributes` | DONE |
-| `CYLSearchBarItem.titleTextAttributes(for:)` | — | `CYLSearchBarItem.titleTextAttributes` | DONE |
-| `CYLSearchBarItem.setBadgeTextAttributes(_:for:)` | — | `CYLSearchBarItem.setBadgeTextAttributes` | DONE |
-| `CYLSearchBarItem.badgeTextAttributes(for:)` | — | `CYLSearchBarItem.badgeTextAttributes` | DONE |
-| `CYLSearchBarItem.actualBadgeSuperView()` | — | `CYLSearchBarItem.actualBadgeSuperView` | DONE |
-| **class `CYLSearchBarItemView`** | — | CYLSearchBarItemView | DONE |
-| `CYLSearchBarItemView.item` | — | `CYLSearchBarItemView.item` | DONE |
-| `CYLSearchBarItemView.imageView` | — | `CYLSearchBarItemView.imageView` | DONE |
-| `CYLSearchBarItemView.titleLabel` | — | `CYLSearchBarItemView.titleLabel` | DONE |
-| `CYLSearchBarItemView.badgeLabel` | `badgeValue` | `CYLSearchBarItemView.badgeLabel` | DONE |
-| `CYLSearchBarItemView.init(item:)` | — | constructor(context, item) | DONE |
-| `CYLSearchBarItemView.init(coder:)` | — | none: created from its item (iOS returns nil too) | N/A |
-| `CYLSearchBarItemView.actualBadgeSuperView()` | — | `CYLSearchBarItemView.actualBadgeSuperView` | DONE |
-| `CYLSearchBarItemView.traitCollectionDidChange(_:)` | — | framework override (Android recreates views on configuration changes) | N/A |
-| `CYLSearchBarItemView.intrinsicContentSize` | — | framework override (Android: measured height, `minimumHeight`) | N/A |
-| `CYLSearchBarItemView.sizeThatFits(_:)` | — | framework override (Android: `onMeasure`) | N/A |
-| `CYLSearchBarItemView.layoutSubviews()` | — | framework override (Android lays out with its layout classes) | N/A |
+| **enum `CYLSearchBarMode`** | — | CYLSearchBarMode | DONE |
+| `CYLSearchBarMode.single` | — | `CYLSearchBarMode.Single` | DONE |
+| `CYLSearchBarMode.multiple` | iammert `MultiSearchView` | `CYLSearchBarMode.Multiple` | DONE |
 | **enum `CYLSearchBarNavigationIcon`** | lapism `NavigationIconCompat` | CYLSearchBarNavigationIcon | DONE |
 | `CYLSearchBarNavigationIcon.none` | — | `CYLSearchBarNavigationIcon.None` | DONE |
 | `CYLSearchBarNavigationIcon.arrow` | `chevron.backward` | `CYLSearchBarNavigationIcon.Arrow` | DONE |
@@ -161,6 +68,13 @@ Rows: 397; DONE 357, N/A 40, TODO 0; score 100/100.
 | **enum `CYLSearchBarExpansionAnimation`** | — | CYLSearchBarExpansionAnimation | DONE |
 | `CYLSearchBarExpansionAnimation.fade` | — | `CYLSearchBarExpansionAnimation.Fade` | DONE |
 | `CYLSearchBarExpansionAnimation.circularReveal` | — | `CYLSearchBarExpansionAnimation.CircularReveal` | DONE |
+| **enum `CYLSearchBarItemStyle`** | — | CYLSearchBarItemStyle | DONE |
+| `CYLSearchBarItemStyle.icon` | — | `CYLSearchBarItemStyle.Icon` | DONE |
+| `CYLSearchBarItemStyle.divider` | — | `CYLSearchBarItemStyle.Divider` | DONE |
+| `CYLSearchBarItemStyle.text` | — | `CYLSearchBarItemStyle.Text` | DONE |
+| **enum `CYLSearchBarStyle`** | — | CYLSearchBarStyle | DONE |
+| `CYLSearchBarStyle.plain` | — | `CYLSearchBarStyle.Plain` | DONE |
+| `CYLSearchBarStyle.bordered` | — | `CYLSearchBarStyle.Bordered` | DONE |
 | **protocol `CYLSearchBarViewDelegate`** | — | CYLSearchBarViewDelegate | DONE |
 | `CYLSearchBarViewDelegate.-searchBarViewShouldBeginEditing:` | lapism `MaterialSearchBar.setOnClickListener` | `CYLSearchBarViewDelegate.searchBarViewShouldBeginEditing` | DONE |
 | `CYLSearchBarViewDelegate.-searchBarViewDidTapWhileNotEditable:` | — | `CYLSearchBarViewDelegate.searchBarViewDidTapWhileNotEditable` | DONE |
@@ -174,7 +88,11 @@ Rows: 397; DONE 357, N/A 40, TODO 0; score 100/100.
 | `CYLSearchBarViewDelegate.-searchBarView:shouldSubmitText:` | — | `CYLSearchBarViewDelegate.searchBarViewShouldSubmitText` | DONE |
 | `CYLSearchBarViewDelegate.-searchBarView:didChangeIconified:` | `iconified` | `CYLSearchBarViewDelegate.searchBarViewDidChangeIconified` | DONE |
 | `CYLSearchBarViewDelegate.-searchBarView:didSelectItem:` | — | `CYLSearchBarViewDelegate.searchBarViewDidSelectItem` | DONE |
-| **class `CYLSearchBarView`** | — | CYLSearchBarView | DONE |
+| `CYLSearchBarViewDelegate.-searchBarView:textDidChange:atIndex:` | MultiSearchView `onTextChanged` | `CYLSearchBarViewDelegate.searchBarViewTextDidChange` | DONE |
+| `CYLSearchBarViewDelegate.-searchBarView:didCompleteSearch:atIndex:` | `onSearchComplete` | `CYLSearchBarViewDelegate.searchBarViewDidCompleteSearch` | DONE |
+| `CYLSearchBarViewDelegate.-searchBarView:didRemoveSearchAtIndex:` | `onSearchItemRemoved` | `CYLSearchBarViewDelegate.searchBarViewDidRemoveSearchAtIndex` | DONE |
+| `CYLSearchBarViewDelegate.-searchBarView:didSelectSearch:atIndex:` | `onItemSelected` | `CYLSearchBarViewDelegate.searchBarViewDidSelectSearch` | DONE |
+| **class `CYLSearchBarView`** | iammert `MultiSearchView` | CYLSearchBarView | DONE |
 | `CYLSearchBarView.delegate` | — | `CYLSearchBarView.delegate` | DONE |
 | `CYLSearchBarView.textField` | — | `CYLSearchBarView.textField` | DONE |
 | `CYLSearchBarView.fieldView` | — | `CYLSearchBarView.fieldView` | DONE |
@@ -242,6 +160,22 @@ Rows: 397; DONE 357, N/A 40, TODO 0; score 100/100.
 | `CYLSearchBarView.expansionAnimation` | — | `CYLSearchBarView.expansionAnimation` | DONE |
 | `CYLSearchBarView.iconPosition` | — | `CYLSearchBarView.iconPosition` | DONE |
 | `CYLSearchBarView.animationDuration` | — | `CYLSearchBarView.animationDuration` | DONE |
+| `CYLSearchBarView.mode` | `CYLSearchBarModeSingle`, the default; `CYLSearchBarModeMultiple`, iammert `MultiSearchView`; `placeholder`, `font`, `textColor`, `placeholderColor`, the keyboard options, `maximumTextLength` | `CYLSearchBarView.mode` | DONE |
+| `CYLSearchBarView.searches` | — | `CYLSearchBarView.searches` | DONE |
+| `CYLSearchBarView.selectedSearchIndex` | — | `CYLSearchBarView.selectedSearchIndex` | DONE |
+| `CYLSearchBarView.isEditingNewSearch` | MultiSearchView `isInSearchMode` | `CYLSearchBarView.isEditingNewSearch` | DONE |
+| `CYLSearchBarView.newSearchButton` | — | `CYLSearchBarView.newSearchButton` | DONE |
+| `CYLSearchBarView.minimumTextLength` | — | `CYLSearchBarView.minimumTextLength` | DONE |
+| `CYLSearchBarView.searchIndicatorColor` | — | `CYLSearchBarView.searchIndicatorColor` | DONE |
+| `CYLSearchBarView.unselectedSearchAlpha` | — | `CYLSearchBarView.unselectedSearchAlpha` | DONE |
+| `CYLSearchBarView.searchFieldWidth` | — | `CYLSearchBarView.searchFieldWidth` | DONE |
+| `CYLSearchBarView.newSearchImage` | — | `CYLSearchBarView.newSearchImage` | DONE |
+| `CYLSearchBarView.removeSearchImage` | — | `CYLSearchBarView.removeSearchImage` | DONE |
+| `CYLSearchBarView.beginNewSearch()` | MultiSearchView `search` | `CYLSearchBarView.beginNewSearch` | DONE |
+| `CYLSearchBarView.completeSearch()` | `completeSearch` | `CYLSearchBarView.completeSearch` | DONE |
+| `CYLSearchBarView.addSearch(_:)` | — | `CYLSearchBarView.addSearch` | DONE |
+| `CYLSearchBarView.selectSearch(at:)` | — | `CYLSearchBarView.selectSearch` | DONE |
+| `CYLSearchBarView.removeSearch(at:)` | — | `CYLSearchBarView.removeSearch` | DONE |
 | `CYLSearchBarView.init(frame:)` | — | constructor(context) | DONE |
 | `CYLSearchBarView.init(coder:)` | — | constructor(context, attrs) (XML) | DONE |
 | `CYLSearchBarView.setText(_:submit:)` | MaterialSearchView `setQuery`, lapism `setTextQuery` | `CYLSearchBarView.setText` | DONE |
@@ -252,6 +186,7 @@ Rows: 397; DONE 357, N/A 40, TODO 0; score 100/100.
 | `CYLSearchBarView.encodeRestorableState(with:)` | `onSaveInstanceState` | `onSaveInstanceState()` | DONE |
 | `CYLSearchBarView.decodeRestorableState(with:)` | `onRestoreInstanceState` | `onRestoreInstanceState(state)` | DONE |
 | `CYLSearchBarView.traitCollectionDidChange(_:)` | — | framework override (Android recreates views on configuration changes) | N/A |
+| `CYLSearchBarView.tintColorDidChange()` | — | framework override (Android has no inherited tint) | N/A |
 | `CYLSearchBarView.intrinsicContentSize` | — | framework override (Android: measured height, `minimumHeight`) | N/A |
 | `CYLSearchBarView.sizeThatFits(_:)` | — | framework override (Android: `onMeasure`) | N/A |
 | `CYLSearchBarView.layoutSubviews()` | — | framework override (Android lays out with its layout classes) | N/A |
@@ -262,115 +197,49 @@ Rows: 397; DONE 357, N/A 40, TODO 0; score 100/100.
 | `CYLSearchBarView.textFieldDidEndEditing(_:)` | — | internal listener (UIKit protocol conformance) | N/A |
 | `CYLSearchBarView.becomeFirstResponder()` | — | `requestFocus()` | DONE |
 | `CYLSearchBarView.resignFirstResponder()` | — | `clearFocus()` | DONE |
-| **protocol `CYLSearchControllerDelegate`** | — | CYLSearchControllerDelegate | DONE |
-| `CYLSearchControllerDelegate.-searchControllerDidCancel:` | — | `CYLSearchControllerDelegate.searchControllerDidCancel` | DONE |
-| **class `CYLSearchController`** | — | CYLSearchController | DONE |
-| `CYLSearchController.delegate` | — | `CYLSearchController.delegate` | DONE |
-| `CYLSearchController.resultsViewController` | — | `CYLSearchController.resultsViewController` | DONE |
-| `CYLSearchController.presented` | — | `CYLSearchController.isPresented` | DONE |
-| `CYLSearchController.init(searchDataSource:)` | — | constructor(searchDataSource) | DONE |
-| `CYLSearchController.init(nibName:bundle:)` | — | not available on iOS either (`@available(*, unavailable)`) | N/A |
-| `CYLSearchController.init(coder:)` | — | no-argument constructor (fragment recreation) | DONE |
-| `CYLSearchController.viewDidLayoutSubviews()` | — | framework override (Android lays out with its layout classes) | N/A |
-| `CYLSearchController.viewDidLoad()` | — | framework override (Android: `onViewCreated`) | N/A |
-| `CYLSearchController.show(in:)` | — | `CYLSearchController.showInViewController` | DONE |
-| `CYLSearchController.hide(_:)` | — | `CYLSearchController.hide` | DONE |
-| **enum `CYLSearchPlaceholderKind`** | — | CYLSearchPlaceholderKind | DONE |
-| `CYLSearchPlaceholderKind.empty` | — | `CYLSearchPlaceholderKind.Empty` | DONE |
-| `CYLSearchPlaceholderKind.noResults` | — | `CYLSearchPlaceholderKind.NoResults` | DONE |
-| `CYLSearchPlaceholderKind.error` | — | `CYLSearchPlaceholderKind.Error` | DONE |
-| **enum `CYLSearchPlaceholderStyle`** | — | CYLSearchPlaceholderStyle | DONE |
-| `CYLSearchPlaceholderStyle.empty` | — | `CYLSearchPlaceholderStyle.Empty` | DONE |
-| `CYLSearchPlaceholderStyle.noResults` | — | `CYLSearchPlaceholderStyle.NoResults` | DONE |
-| `CYLSearchPlaceholderStyle.error` | — | `CYLSearchPlaceholderStyle.Error` | DONE |
-| `CYLSearchPlaceholderStyle.wifiOff` | — | `CYLSearchPlaceholderStyle.WifiOff` | DONE |
-| `CYLSearchPlaceholderStyle.signalWifiOff` | — | `CYLSearchPlaceholderStyle.SignalWifiOff` | DONE |
-| `CYLSearchPlaceholderStyle.noInternet` | — | `CYLSearchPlaceholderStyle.NoInternet` | DONE |
-| `CYLSearchPlaceholderStyle.cloudOff` | — | `CYLSearchPlaceholderStyle.CloudOff` | DONE |
-| `CYLSearchPlaceholderStyle.syncProblem` | — | `CYLSearchPlaceholderStyle.SyncProblem` | DONE |
-| `CYLSearchPlaceholderStyle.syncDisabled` | — | `CYLSearchPlaceholderStyle.SyncDisabled` | DONE |
-| `CYLSearchPlaceholderStyle.networkLocked` | — | `CYLSearchPlaceholderStyle.NetworkLocked` | DONE |
-| `CYLSearchPlaceholderStyle.bluetoothDisabled` | — | `CYLSearchPlaceholderStyle.BluetoothDisabled` | DONE |
-| `CYLSearchPlaceholderStyle.locationOff` | — | `CYLSearchPlaceholderStyle.LocationOff` | DONE |
-| `CYLSearchPlaceholderStyle.publicOff` | — | `CYLSearchPlaceholderStyle.PublicOff` | DONE |
-| `CYLSearchPlaceholderStyle.errorOutline` | — | `CYLSearchPlaceholderStyle.ErrorOutline` | DONE |
-| `CYLSearchPlaceholderStyle.warning` | — | `CYLSearchPlaceholderStyle.Warning` | DONE |
-| `CYLSearchPlaceholderStyle.reportProblem` | — | `CYLSearchPlaceholderStyle.ReportProblem` | DONE |
-| `CYLSearchPlaceholderStyle.blocked` | — | `CYLSearchPlaceholderStyle.Blocked` | DONE |
-| `CYLSearchPlaceholderStyle.help` | — | `CYLSearchPlaceholderStyle.Help` | DONE |
-| `CYLSearchPlaceholderStyle.hourglass` | — | `CYLSearchPlaceholderStyle.Hourglass` | DONE |
-| `CYLSearchPlaceholderStyle.locked` | — | `CYLSearchPlaceholderStyle.Locked` | DONE |
-| `CYLSearchPlaceholderStyle.visibilityOff` | — | `CYLSearchPlaceholderStyle.VisibilityOff` | DONE |
-| `CYLSearchPlaceholderStyle.searchOff` | — | `CYLSearchPlaceholderStyle.SearchOff` | DONE |
-| `CYLSearchPlaceholderStyle.folderOff` | — | `CYLSearchPlaceholderStyle.FolderOff` | DONE |
-| `CYLSearchPlaceholderStyle.folderOpen` | — | `CYLSearchPlaceholderStyle.FolderOpen` | DONE |
-| `CYLSearchPlaceholderStyle.downloadOff` | — | `CYLSearchPlaceholderStyle.DownloadOff` | DONE |
-| `CYLSearchPlaceholderStyle.uploadOff` | — | `CYLSearchPlaceholderStyle.UploadOff` | DONE |
-| `CYLSearchPlaceholderStyle.inbox` | — | `CYLSearchPlaceholderStyle.Inbox` | DONE |
-| `CYLSearchPlaceholderStyle.brokenImage` | — | `CYLSearchPlaceholderStyle.BrokenImage` | DONE |
-| `CYLSearchPlaceholderStyle.imageUnavailable` | — | `CYLSearchPlaceholderStyle.ImageUnavailable` | DONE |
-| `CYLSearchPlaceholderStyle.photoLibrary` | — | `CYLSearchPlaceholderStyle.PhotoLibrary` | DONE |
-| `CYLSearchPlaceholderStyle.musicOff` | — | `CYLSearchPlaceholderStyle.MusicOff` | DONE |
-| `CYLSearchPlaceholderStyle.videoOff` | — | `CYLSearchPlaceholderStyle.VideoOff` | DONE |
-| `CYLSearchPlaceholderStyle.personOff` | — | `CYLSearchPlaceholderStyle.PersonOff` | DONE |
-| `CYLSearchPlaceholderStyle.groupOff` | — | `CYLSearchPlaceholderStyle.GroupOff` | DONE |
-| `CYLSearchPlaceholderStyle.eventBusy` | — | `CYLSearchPlaceholderStyle.EventBusy` | DONE |
-| `CYLSearchPlaceholderStyle.emptyCart` | — | `CYLSearchPlaceholderStyle.EmptyCart` | DONE |
-| `CYLSearchPlaceholderStyle.favorite` | — | `CYLSearchPlaceholderStyle.Favorite` | DONE |
-| `CYLSearchPlaceholderStyle.batteryAlert` | — | `CYLSearchPlaceholderStyle.BatteryAlert` | DONE |
-| `CYLSearchPlaceholderStyle.unknownDevice` | — | `CYLSearchPlaceholderStyle.UnknownDevice` | DONE |
-| `CYLSearchPlaceholderStyle.phoneDisabled` | — | `CYLSearchPlaceholderStyle.PhoneDisabled` | DONE |
-| `CYLSearchPlaceholderStyle.wrongLocation` | — | `CYLSearchPlaceholderStyle.WrongLocation` | DONE |
-| `CYLSearchPlaceholderStyle.count` | — | `CYLSearchPlaceholderStyle.Count` | DONE |
-| **enum `CYLSearchPlaceholderMessage`** | — | CYLSearchPlaceholderMessage | DONE |
-| `CYLSearchPlaceholderMessage.empty` | — | `CYLSearchPlaceholderMessage.Empty` | DONE |
-| `CYLSearchPlaceholderMessage.noResults` | — | `CYLSearchPlaceholderMessage.NoResults` | DONE |
-| `CYLSearchPlaceholderMessage.error` | — | `CYLSearchPlaceholderMessage.Error` | DONE |
-| `CYLSearchPlaceholderMessage.network` | — | `CYLSearchPlaceholderMessage.Network` | DONE |
-| **class `CYLSearchPlaceholderView`** | — | CYLSearchPlaceholderView | DONE |
-| `CYLSearchPlaceholderView.imageView` | — | `CYLSearchPlaceholderView.imageView` | DONE |
-| `CYLSearchPlaceholderView.textLabel` | — | `CYLSearchPlaceholderView.textLabel` | DONE |
-| `CYLSearchPlaceholderView.imageName(for:)` | — | `CYLSearchPlaceholderView.imageNameForStyle` | DONE |
-| `CYLSearchPlaceholderView.init(kind:)` | — | constructor(context, kind) | DONE |
-| `CYLSearchPlaceholderView.init(style:message:)` | — | constructor(context, style, message) | DONE |
-| `CYLSearchPlaceholderView.init(style:text:)` | — | constructor(context, style, text) | DONE |
-| `CYLSearchPlaceholderView.init(image:message:)` | — | constructor(context, image, message) | DONE |
-| `CYLSearchPlaceholderView.init(image:text:)` | — | constructor(context, image, text) | DONE |
+| **class `CYLSearchBarItem`** | — | CYLSearchBarItem | DONE |
+| `CYLSearchBarItem.style` | — | `CYLSearchBarItem.style` | DONE |
+| `CYLSearchBarItem.title` | — | `CYLSearchBarItem.title` | DONE |
+| `CYLSearchBarItem.image` | — | `CYLSearchBarItem.image` | DONE |
+| `CYLSearchBarItem.selectedImage` | — | `CYLSearchBarItem.selectedImage` | DONE |
+| `CYLSearchBarItem.animatedImage` | `+[UIImage animatedImageWithImages:duration:]` | `CYLSearchBarItem.animatedImage` | DONE |
+| `CYLSearchBarItem.imageSize` | — | `CYLSearchBarItem.imageSize` | DONE |
+| `CYLSearchBarItem.itemAccessibilityLabel` | — | `CYLSearchBarItem.itemAccessibilityLabel` | DONE |
+| `CYLSearchBarItem.itemAccessibilityIdentifier` | — | `CYLSearchBarItem.itemAccessibilityIdentifier` | DONE |
+| `CYLSearchBarItem.isEnabled` | — | `CYLSearchBarItem.isEnabled` | DONE |
+| `CYLSearchBarItem.isSelectable` | — | `CYLSearchBarItem.isSelectable` | DONE |
+| `CYLSearchBarItem.isSelected` | drawn with `selectedImage`, `selectedBackgroundColor` and the selected title attributes | `CYLSearchBarItem.isSelected` | DONE |
+| `CYLSearchBarItem.tintColor` | — | `CYLSearchBarItem.tintColor` | DONE |
+| `CYLSearchBarItem.backgroundColor` | — | `CYLSearchBarItem.backgroundColor` | DONE |
+| `CYLSearchBarItem.selectedBackgroundColor` | — | `CYLSearchBarItem.selectedBackgroundColor` | DONE |
+| `CYLSearchBarItem.contentInsets` | — | `CYLSearchBarItem.contentInsets` | DONE |
+| `CYLSearchBarItem.imagePositionAdjustment` | — | `CYLSearchBarItem.imagePositionAdjustment` | DONE |
+| `CYLSearchBarItem.titlePositionAdjustment` | — | `CYLSearchBarItem.titlePositionAdjustment` | DONE |
+| `CYLSearchBarItem.badgeValue` | — | `CYLSearchBarItem.badgeValue` | DONE |
+| `CYLSearchBarItem.badgeColor` | — | `CYLSearchBarItem.badgeColor` | DONE |
+| `CYLSearchBarItem.badgeSize` | — | `CYLSearchBarItem.badgeSize` | DONE |
+| `CYLSearchBarItem.badgeContentInsets` | — | `CYLSearchBarItem.badgeContentInsets` | DONE |
+| `CYLSearchBarItem.badgePositionAdjustment` | — | `CYLSearchBarItem.badgePositionAdjustment` | DONE |
+| `CYLSearchBarItem.handler` | — | `CYLSearchBarItem.handler` | DONE |
+| `CYLSearchBarItem.index` | — | `CYLSearchBarItem.index` | DONE |
+| `CYLSearchBarItem.itemView` | — | `CYLSearchBarItem.itemView` | DONE |
+| `CYLSearchBarItem.init(style:title:image:)` | — | constructor(style, title, image) | DONE |
+| `CYLSearchBarItem.init(title:image:)` | — | constructor(title, image) | DONE |
+| `CYLSearchBarItem.init(title:image:selectedImage:)` | — | constructor(title, image, selectedImage) | DONE |
+| `CYLSearchBarItem.iconItem(image:title:handler:)` | — | `CYLSearchBarItem.iconItem` | DONE |
+| `CYLSearchBarItem.textItem(title:handler:)` | — | `CYLSearchBarItem.textItem` | DONE |
+| `CYLSearchBarItem.divider()` | — | `CYLSearchBarItem.divider` | DONE |
+| `CYLSearchBarItem.item(dictionary:)` | `icon`, `divider`, `text`; `camera`, `mic`, `search`, `back`, else an asset or SF Symbol name | `CYLSearchBarItem.fromMap` | DONE |
+| `CYLSearchBarItem.setTitleTextAttributes(_:for:)` | `UIControlStateNormal`, `UIControlStateSelected`, `UIControlStateDisabled` | `CYLSearchBarItem.setTitleTextAttributes` | DONE |
+| `CYLSearchBarItem.titleTextAttributes(for:)` | — | `CYLSearchBarItem.titleTextAttributes` | DONE |
+| `CYLSearchBarItem.setBadgeTextAttributes(_:for:)` | — | `CYLSearchBarItem.setBadgeTextAttributes` | DONE |
+| `CYLSearchBarItem.badgeTextAttributes(for:)` | — | `CYLSearchBarItem.badgeTextAttributes` | DONE |
+| `CYLSearchBarItem.actualBadgeSuperView()` | — | `CYLSearchBarItem.actualBadgeSuperView` | DONE |
 | **class `CYLSearchResources`** | — | CYLSearchResources | DONE |
 | `CYLSearchResources.resourceBundle` | — | `CYLSearchResources.resourceBundle` | DONE |
 | `CYLSearchResources.image(named:)` | — | `CYLSearchResources.imageNamed` | DONE |
 | `CYLSearchResources.localizedString(forKey:)` | — | `CYLSearchResources.localizedString` | DONE |
 | `CYLSearchResources.localizedString(forKey:language:)` | — | `CYLSearchResources.localizedString` | DONE |
-| **protocol `CYLSearchResultsDataSource`** | — | CYLSearchResultsDataSource | DONE |
-| `CYLSearchResultsDataSource.-searchResultsViewController:resultsForQuery:` | — | `CYLSearchResultsDataSource.searchResultsViewControllerResultsForQuery` | DONE |
-| `CYLSearchResultsDataSource.-searchResultsViewController:configureCell:withResult:` | — | `CYLSearchResultsDataSource.searchResultsViewControllerConfigureCell` | DONE |
-| `CYLSearchResultsDataSource.-searchResultsViewController:didSelectResult:` | — | `CYLSearchResultsDataSource.searchResultsViewControllerDidSelectResult` | DONE |
-| **class `CYLSearchResultsViewController`** | — | CYLSearchResultsViewController | DONE |
-| `CYLSearchResultsViewController.searchDataSource` | — | `CYLSearchResultsViewController.searchDataSource` | DONE |
-| `CYLSearchResultsViewController.searchController` | — | `CYLSearchResultsViewController.searchController` | DONE |
-| `CYLSearchResultsViewController.searchResults` | — | `CYLSearchResultsViewController.searchResults` | DONE |
-| `CYLSearchResultsViewController.init(searchDataSource:)` | — | constructor(searchDataSource) | DONE |
-| `CYLSearchResultsViewController.init(style:)` | — | not available on iOS either (`@available(*, unavailable)`) | N/A |
-| `CYLSearchResultsViewController.init(nibName:bundle:)` | — | not available on iOS either (`@available(*, unavailable)`) | N/A |
-| `CYLSearchResultsViewController.init(coder:)` | — | no-argument constructor (fragment recreation) | DONE |
-| `CYLSearchResultsViewController.viewDidLayoutSubviews()` | — | framework override (Android lays out with its layout classes) | N/A |
-| `CYLSearchResultsViewController.viewDidLoad()` | — | framework override (Android: `onViewCreated`) | N/A |
-| `CYLSearchResultsViewController.reloadSearchResults()` | — | `CYLSearchResultsViewController.reloadSearchResults` | DONE |
-| `CYLSearchResultsViewController.reloadResultsTableView()` | — | `CYLSearchResultsViewController.reloadResultsTableView` | DONE |
-| `CYLSearchResultsViewController.updateSearchResults(for:)` | — | `CYLSearchResultsViewController.updateSearchResults` | DONE |
-| `CYLSearchResultsViewController.tableView(_:numberOfRowsInSection:)` | — | `CYLSearchResultsViewController.tableView` | DONE |
-| `CYLSearchResultsViewController.tableView(_:cellForRowAt:)` | — | `CYLSearchResultsViewController.tableView` | DONE |
-| `CYLSearchResultsViewController.tableView(_:didSelectRowAt:)` | — | `CYLSearchResultsViewController.tableView` | DONE |
-| **class `CYLSearchSuggestionStore`** | — | CYLSearchSuggestionStore | DONE |
-| `CYLSearchSuggestionStore.policy` | — | `CYLSearchSuggestionStore.policy` | DONE |
-| `CYLSearchSuggestionStore.name` | — | `CYLSearchSuggestionStore.name` | DONE |
-| `CYLSearchSuggestionStore.maximumCount` | — | `CYLSearchSuggestionStore.maximumCount` | DONE |
-| `CYLSearchSuggestionStore.cache(policy:name:)` | — | `CYLSearchSuggestionStore.cacheWithPolicy` | DONE |
-| `CYLSearchSuggestionStore.init(policy:name:)` | not `none` | constructor(context, policy, name) | DONE |
-| `CYLSearchSuggestionStore.cachedQueries()` | — | `CYLSearchSuggestionStore.cachedQueries` | DONE |
-| `CYLSearchSuggestionStore.addQuery(_:)` | — | `CYLSearchSuggestionStore.addQuery` | DONE |
-| `CYLSearchSuggestionStore.removeQuery(_:)` | — | `CYLSearchSuggestionStore.removeQuery` | DONE |
-| `CYLSearchSuggestionStore.removeAllQueries()` | — | `CYLSearchSuggestionStore.removeAllQueries` | DONE |
 | **enum `CYLSearchSuggestionStyle`** | `CYLSearchView.suggestionStyle` | CYLSearchSuggestionStyle | DONE |
 | `CYLSearchSuggestionStyle.list` | — | `CYLSearchSuggestionStyle.List` | DONE |
 | `CYLSearchSuggestionStyle.tags` | CollectionViewClassifyMenu's `CYLTagListView` | `CYLSearchSuggestionStyle.Tags` | DONE |
@@ -383,7 +252,11 @@ Rows: 397; DONE 357, N/A 40, TODO 0; score 100/100.
 | `CYLSearchViewDelegate.-searchView:didSelectSuggestion:atIndex:` | MaterialSearchView `setOnItemClickListener` | `CYLSearchViewDelegate.searchViewDidSelectSuggestion` | DONE |
 | `CYLSearchViewDelegate.-searchViewVoiceButtonClicked:` | — | `CYLSearchViewDelegate.searchViewVoiceButtonClicked` | DONE |
 | `CYLSearchViewDelegate.-searchViewNavigationButtonClicked:` | — | `CYLSearchViewDelegate.searchViewNavigationButtonClicked` | DONE |
-| **class `CYLSearchView`** | MiguelCatalan and lapism `MaterialSearchView` | CYLSearchView | DONE |
+| `CYLSearchViewDelegate.-searchView:didSelectResult:` | was `-searchResultsViewController:didSelectResult:` | `CYLSearchViewDelegate.searchViewDidSelectResult` | DONE |
+| **protocol `CYLSearchViewDataSource`** | was `CYLSearchResultsDataSource` | CYLSearchViewDataSource | DONE |
+| `CYLSearchViewDataSource.-searchView:resultsForQuery:` | — | `CYLSearchViewDataSource.searchViewResultsForQuery` | DONE |
+| `CYLSearchViewDataSource.-searchView:configureResultCell:withResult:` | — | `CYLSearchViewDataSource.searchViewConfigureResultCell` | DONE |
+| **class `CYLSearchView`** | MiguelCatalan and lapism `MaterialSearchView`; `refreshHandler`, and the class methods for a scroll view of yours | CYLSearchView | DONE |
 | `CYLSearchView.delegate` | — | `CYLSearchView.delegate` | DONE |
 | `CYLSearchView.searchBarView` | — | `CYLSearchView.searchBarView` | DONE |
 | `CYLSearchView.dividerView` | — | `CYLSearchView.dividerView` | DONE |
@@ -395,6 +268,17 @@ Rows: 397; DONE 357, N/A 40, TODO 0; score 100/100.
 | `CYLSearchView.showsEmptyResultsPlaceholder` | — | `CYLSearchView.showsEmptyResultsPlaceholder` | DONE |
 | `CYLSearchView.emptyResultsScenario` | — | `CYLSearchView.emptyResultsScenario` | DONE |
 | `CYLSearchView.emptyResultsView` | CYLTableViewPlaceHolder's `CYLPlaceholderStackView` | `CYLSearchView.emptyResultsView` | DONE |
+| `CYLSearchView.resultsDataSource` | was `CYLSearchController`'s and `CYLSearchResultsViewController`'s `searchDataSource` | `CYLSearchView.resultsDataSource` | DONE |
+| `CYLSearchView.resultsTableView` | was `CYLSearchResultsViewController.tableView` | `CYLSearchView.resultsTableView` | DONE |
+| `CYLSearchView.searchResults` | — | `CYLSearchView.searchResults` | DONE |
+| `CYLSearchView.refreshHandler` | — | `CYLSearchView.refreshHandler` | DONE |
+| `CYLSearchView.isRefreshing` | — | `CYLSearchView.isRefreshing` | DONE |
+| `CYLSearchView.beginRefreshing()` | — | `CYLSearchView.beginRefreshing` | DONE |
+| `CYLSearchView.endRefreshing()` | — | `CYLSearchView.endRefreshing` | DONE |
+| `CYLSearchView.setRefreshHandler(_:)` | — | `CYLSearchView.setRefreshHandler` | DONE |
+| `CYLSearchView.beginRefreshing(in:)` | — | `CYLSearchView.beginRefreshing` | DONE |
+| `CYLSearchView.endRefreshing(in:)` | — | `CYLSearchView.endRefreshing` | DONE |
+| `CYLSearchView.isRefreshing(in:)` | — | `CYLSearchView.isRefreshing` | DONE |
 | `CYLSearchView.dividerColor` | lapism `setDividerColor` | `CYLSearchView.dividerColor` | DONE |
 | `CYLSearchView.contentView` | lapism `addView` | `CYLSearchView.contentView` | DONE |
 | `CYLSearchView.scrimColor` | lapism `setScrimColor` | `CYLSearchView.scrimColor` | DONE |
@@ -433,12 +317,14 @@ Rows: 397; DONE 357, N/A 40, TODO 0; score 100/100.
 | `CYLSearchView.showSearch(animated:)` | — | `CYLSearchView.showSearch` | DONE |
 | `CYLSearchView.closeSearch()` | `closeSearch` | `CYLSearchView.closeSearch` | DONE |
 | `CYLSearchView.closeSearch(animated:)` | — | `CYLSearchView.closeSearch` | DONE |
+| `CYLSearchView.closeSearch(animated:completion:)` | was `-[CYLSearchController hide:]` | `CYLSearchView.closeSearch` | DONE |
 | `CYLSearchView.encodeRestorableState(with:)` | `onSaveInstanceState` | `onSaveInstanceState()` | DONE |
 | `CYLSearchView.decodeRestorableState(with:)` | `onRestoreInstanceState` | `onRestoreInstanceState(state)` | DONE |
 | `CYLSearchView.accessibilityPerformEscape()` | — | the back key closes the search (`OnBackPressedCallback`) | DONE |
 | `CYLSearchView.attach(to:)` | `setMenuItem` | `CYLSearchView.attachToMenuItem` | DONE |
 | `CYLSearchView.setQuery(_:submit:)` | `setQuery`, `setTextQuery` | `CYLSearchView.setQuery` | DONE |
 | `CYLSearchView.showSuggestions()` | `showSuggestions` | `CYLSearchView.showSuggestions` | DONE |
+| `CYLSearchView.reloadResults()` | was `reloadSearchResults` and `reloadResultsTableView` | `CYLSearchView.reloadResults` | DONE |
 | `CYLSearchView.dismissSuggestions()` | `dismissSuggestions` | `CYLSearchView.dismissSuggestions` | DONE |
 | `CYLSearchView.clearSuggestionCache()` | — | `CYLSearchView.clearSuggestionCache` | DONE |
 | `CYLSearchView.searchBarView(_:textDidChange:)` | — | internal listener (UIKit protocol conformance) | N/A |

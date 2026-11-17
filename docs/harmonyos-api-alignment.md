@@ -28,106 +28,13 @@ Score = rows whose third column is not `TODO` / rows × 100.
 ## Table
 
 <!-- harmonyos-api-alignment:begin -->
-Rows: 397; implemented or N/A 397, TODO 0; score 100/100.
+Rows: 283; implemented or N/A 283, TODO 0; score 100/100.
 
 | iOS public API | Doc comment | HarmonyOS |
 | :--- | :--- | :--- |
-| **protocol `CYLMultiSearchViewDelegate`** | Events of a `CYLMultiSearchView` (iammert `MultiSearchViewListener`). | `CYLMultiSearchViewDelegate` |
-| `CYLMultiSearchViewDelegate.-multiSearchView:textDidChange:atIndex:` | The text of the search being typed changed (`onTextChanged`). | `CYLMultiSearchViewDelegate.multiSearchViewTextDidChange` |
-| `CYLMultiSearchViewDelegate.-multiSearchView:didCompleteSearch:atIndex:` | A search was completed and became an item (`onSearchComplete`). | `CYLMultiSearchViewDelegate.multiSearchViewDidCompleteSearch` |
-| `CYLMultiSearchViewDelegate.-multiSearchView:didRemoveItemAtIndex:` | An item was removed (`onSearchItemRemoved`). | `CYLMultiSearchViewDelegate.multiSearchViewDidRemoveItemAtIndex` |
-| `CYLMultiSearchViewDelegate.-multiSearchView:didSelectItem:atIndex:` | An item was selected by a tap (`onItemSelected`). | `CYLMultiSearchViewDelegate.multiSearchViewDidSelectItem` |
-| **class `CYLMultiSearchView`** | Several searches side by side (iammert `MultiSearchView`): the search button starts a new search; a completed search becomes an item in a horizontally scrolling row, with an indicator under the selected item and a remove button on it. Us… | `CYLMultiSearchView` |
-| `CYLMultiSearchView.delegate` | Receives the events. | `CYLMultiSearchView.delegate` |
-| `CYLMultiSearchView.selectedIndex` | The selected item, or `NSNotFound` when there is none. | `CYLMultiSearchView.selectedIndex` |
-| `CYLMultiSearchView.inSearchMode` | YES while a new search is being typed (`isInSearchMode`). | `CYLMultiSearchView.isInSearchMode` |
-| `CYLMultiSearchView.searchButton` | The button at the trailing end: it starts a search, or completes the one being typed. | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLMultiSearchComponent` draws it (`searchImage`) |
-| `CYLMultiSearchView.placeholder` | The placeholder of a new search (`android:hint`). "Search" by default. | `CYLMultiSearchView.placeholder` |
-| `CYLMultiSearchView.font` | The font of the items (`android:textSize`). The body text style by default, following Dynamic Type. | `CYLMultiSearchView.font` |
-| `CYLMultiSearchView.textColor` | The text color (`android:textColor`). `labelColor` by default. | `CYLMultiSearchView.textColor` |
-| `CYLMultiSearchView.placeholderColor` | The placeholder color (`android:textColorHint`). `placeholderTextColor` by default. | `CYLMultiSearchView.placeholderColor` |
-| `CYLMultiSearchView.maximumTextLength` | The longest search a person can type (`android:maxLength`); 0 means no limit. 0 by default. | `CYLMultiSearchView.maximumTextLength` |
-| `CYLMultiSearchView.minimumTextLength` | A search shorter than this is dropped when it is completed. 3 by default, as in MultiSearchView. | `CYLMultiSearchView.minimumTextLength` |
-| `CYLMultiSearchView.returnKeyType` | The return key (`android:imeOptions`). `UIReturnKeySearch` by default. | `CYLMultiSearchView.returnKeyType` |
-| `CYLMultiSearchView.keyboardType` | The keyboard (`android:inputType`). `UIKeyboardTypeDefault` by default. | `CYLMultiSearchView.keyboardType` |
-| `CYLMultiSearchView.autocapitalizationType` | Capitalization (`textCapSentences`). `UITextAutocapitalizationTypeSentences` by default. | TODO: N/A on HarmonyOS: ArkUI `TextInput` has no capitalization trait |
-| `CYLMultiSearchView.indicatorColor` | The color of the indicator under the selected item and of the buttons. `tintColor` by default. | `CYLMultiSearchView.indicatorColor` |
-| `CYLMultiSearchView.unselectedItemAlpha` | The opacity of items that are not selected. 0.5 by default. | `CYLMultiSearchView.unselectedItemAlpha` |
-| `CYLMultiSearchView.searchFieldWidth` | The width of the field for a new search, in points. 160 by default. | `CYLMultiSearchView.searchFieldWidth` |
-| `CYLMultiSearchView.animationDuration` | The length of the animations, in seconds. 0.25 by default. | `CYLMultiSearchView.animationDuration` |
-| `CYLMultiSearchView.searchImage` | The search button's icon. `magnifyingglass` by default. | `CYLMultiSearchView.searchImage` |
-| `CYLMultiSearchView.removeImage` | The remove button's icon. `xmark.circle.fill` by default. | `CYLMultiSearchView.removeImage` |
-| `CYLMultiSearchView.searchTexts` | The texts of the items, completed searches first, then the one being typed. | `CYLMultiSearchView.searchTexts` |
-| `CYLMultiSearchView.init(frame:)` | — | `new CYLMultiSearchView(…)` |
-| `CYLMultiSearchView.init(coder:)` | — | TODO: N/A on HarmonyOS: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
-| `CYLMultiSearchView.tintColorDidChange()` | — | TODO: N/A on HarmonyOS: system colors follow the theme by themselves (`indicatorColor` overrides) |
-| `CYLMultiSearchView.traitCollectionDidChange(_:)` | — | TODO: N/A on HarmonyOS: system colors (`sys.color.*`) follow the color mode by themselves |
-| `CYLMultiSearchView.intrinsicContentSize` | — | `CYLMultiSearchView.intrinsicContentSize` |
-| `CYLMultiSearchView.layoutSubviews()` | — | TODO: N/A on HarmonyOS: ArkUI lays a component out from its declaration |
-| `CYLMultiSearchView.search()` | Starts a new search and shows the keyboard (`search`). Does nothing while a search is being typed. | `CYLMultiSearchView.search` |
-| `CYLMultiSearchView.completeSearch()` | Completes the search being typed (`completeSearch`): it becomes the selected item, or is dropped when shorter than `minimumTextLength`. | `CYLMultiSearchView.completeSearch` |
-| `CYLMultiSearchView.addSearchText(_:)` | Adds a completed search without typing it and selects it. | `CYLMultiSearchView.addSearchText` |
-| `CYLMultiSearchView.selectItem(at:)` | Selects an item, like a tap on it. | `CYLMultiSearchView.selectItemAtIndex` |
-| `CYLMultiSearchView.removeItem(at:)` | Removes an item, like a tap on its remove button. | `CYLMultiSearchView.removeItemAtIndex` |
-| `CYLMultiSearchView.textFieldShouldBeginEditing(_:)` | Only the search being typed is editable; a tap on a completed one selects it. | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLMultiSearchView.textFieldShouldReturn(_:)` | The return key completes the search. | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLMultiSearchView.textField(_:shouldChangeCharactersIn:replacementString:)` | Enforces `maximumTextLength`. | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| **enum `CYLSearchBarItemStyle`** | How an item appended to a search bar looks, like the FlatDesign tab bar's item appearance. | `CYLSearchBarItemStyle` |
-| `CYLSearchBarItemStyle.icon` | An icon button with a 36 pt touch area (a camera, a filter). | `CYLSearchBarItemStyle.icon` |
-| `CYLSearchBarItemStyle.divider` | A thin vertical line between two items; it takes no taps and VoiceOver skips it. | `CYLSearchBarItemStyle.divider` |
-| `CYLSearchBarItemStyle.text` | A text button (a "Search" button); an image, when set, comes before the title. | `CYLSearchBarItemStyle.text` |
-| **enum `CYLSearchBarStyle`** | The fixed look of the whole bar: the field on the left stays, the items are appended after its text. | `CYLSearchBarStyle` |
-| `CYLSearchBarStyle.plain` | The field as configured by its own properties (the default; nothing is changed). | `CYLSearchBarStyle.plain` |
-| `CYLSearchBarStyle.bordered` | A capsule with a 1 pt separator-colored border on the system background, the field and its items inside one outline (the Discover search bar). | `CYLSearchBarStyle.bordered` |
-| **class `CYLSearchBarItem`** | One element after the text of a `CYLSearchBarView`: a model independent of its view, like `CYLFlatDesignTabBarItem`. Append it with `-[CYLSearchBarView addItem:]`; its view is `itemView`. | `CYLSearchBarItem` |
-| `CYLSearchBarItem.style` | How the item looks (icon, divider or text); set when the item is created. | `CYLSearchBarItem.style` |
-| `CYLSearchBarItem.title` | The text of a text item, and the VoiceOver label of an icon item without `accessibilityLabel`. | `CYLSearchBarItem.title` |
-| `CYLSearchBarItem.image` | The icon (a template image is tinted with `tintColor`). | `CYLSearchBarItem.image` |
-| `CYLSearchBarItem.selectedImage` | The icon while `selected` is YES; nil uses `image`. | `CYLSearchBarItem.selectedImage` |
-| `CYLSearchBarItem.animatedImage` | An animated icon (`+[UIImage animatedImageWithImages:duration:]`), drawn instead of `image` when set. | `CYLSearchBarItem.animatedImage` |
-| `CYLSearchBarItem.imageSize` | The icon size; zero uses 20 x 20 pt. | `CYLSearchBarItem.imageSize` |
-| `CYLSearchBarItem.itemAccessibilityLabel` | What VoiceOver reads; nil reads `title`. | `CYLSearchBarItem.itemAccessibilityLabel` |
-| `CYLSearchBarItem.itemAccessibilityIdentifier` | A test identifier for the item view. | `CYLSearchBarItem.itemAccessibilityIdentifier` |
-| `CYLSearchBarItem.isEnabled` | NO dims the item and ignores taps. YES by default. | `CYLSearchBarItem.isEnabled` |
-| `CYLSearchBarItem.isSelectable` | YES makes each tap toggle `selected` (a filter that stays on). NO by default. | `CYLSearchBarItem.isSelectable` |
-| `CYLSearchBarItem.isSelected` | The selected state (drawn with `selectedImage`, `selectedBackgroundColor` and the selected title attributes). | `CYLSearchBarItem.isSelected` |
-| `CYLSearchBarItem.tintColor` | The icon and title color; nil uses the bar's `itemTintColor`. | `CYLSearchBarItem.tintColor` |
-| `CYLSearchBarItem.backgroundColor` | The item background; nil is clear. | `CYLSearchBarItem.backgroundColor` |
-| `CYLSearchBarItem.selectedBackgroundColor` | The item background while selected; nil uses `backgroundColor`. | `CYLSearchBarItem.selectedBackgroundColor` |
-| `CYLSearchBarItem.contentInsets` | Space around the icon and title inside the item; `UIEdgeInsetsZero` uses the style's default. | `CYLSearchBarItem.contentInsets` |
-| `CYLSearchBarItem.imagePositionAdjustment` | Moves the icon without changing the item's size. | `CYLSearchBarItem.imagePositionAdjustment` |
-| `CYLSearchBarItem.titlePositionAdjustment` | Moves the title without changing the item's size. | `CYLSearchBarItem.titlePositionAdjustment` |
-| `CYLSearchBarItem.badgeValue` | The badge text; nil hides the badge, an empty string draws a dot. | `CYLSearchBarItem.badgeValue` |
-| `CYLSearchBarItem.badgeColor` | The badge background; nil is system red. | `CYLSearchBarItem.badgeColor` |
-| `CYLSearchBarItem.badgeSize` | The smallest badge size; zero uses 16 x 16 pt (a dot is 8 x 8 pt). | `CYLSearchBarItem.badgeSize` |
-| `CYLSearchBarItem.badgeContentInsets` | Space around the badge text. | `CYLSearchBarItem.badgeContentInsets` |
-| `CYLSearchBarItem.badgePositionAdjustment` | Moves the badge from the icon's top trailing corner. | `CYLSearchBarItem.badgePositionAdjustment` |
-| `CYLSearchBarItem.handler` | Called on each tap, after `-searchBarView:didSelectItem:`. | `CYLSearchBarItem.handler` |
-| `CYLSearchBarItem.index` | The item's position in its bar's `items`; `NSNotFound` when it is in no bar. | `CYLSearchBarItem.index` |
-| `CYLSearchBarItem.init(style:title:image:)` | An item of the given style with a title and an icon. | `new CYLSearchBarItem(…)` |
-| `CYLSearchBarItem.init(title:image:)` | An icon item, or a text item when the title is set and the image is nil. | `new CYLSearchBarItem(…)` |
-| `CYLSearchBarItem.init(title:image:selectedImage:)` | Like `-initWithTitle:image:`, with an icon for the selected state. | `new CYLSearchBarItem(…)` |
-| `CYLSearchBarItem.iconItem(image:title:handler:)` | An icon item: the title is what VoiceOver reads. | `CYLSearchBarItem.iconItem` |
-| `CYLSearchBarItem.textItem(title:handler:)` | A text item (a "Search" button). | `CYLSearchBarItem.textItem` |
-| `CYLSearchBarItem.divider()` | A divider between two items. | `CYLSearchBarItem.divider` |
-| `CYLSearchBarItem.item(dictionary:)` | An item from plain values, for the cross-platform wrappers (Flutter, React Native): `style` (`icon`, `divider`, `text`), `title`, `image` (`camera`, `mic`, `search`, `back`, else an asset or SF Symbol name), `accessibilityIdentifier`, `i… | `CYLSearchBarItem.item` |
-| `CYLSearchBarItem.setTitleTextAttributes(_:for:)` | The title attributes for a state (`UIControlStateNormal`, `UIControlStateSelected`, `UIControlStateDisabled`). | `CYLSearchBarItem.setTitleTextAttributes` |
-| `CYLSearchBarItem.titleTextAttributes(for:)` | The title attributes set for a state, or nil. | `CYLSearchBarItem.titleTextAttributes` |
-| `CYLSearchBarItem.setBadgeTextAttributes(_:for:)` | The badge text attributes for a state. | `CYLSearchBarItem.setBadgeTextAttributes` |
-| `CYLSearchBarItem.badgeTextAttributes(for:)` | The badge text attributes set for a state, or nil. | `CYLSearchBarItem.badgeTextAttributes` |
-| `CYLSearchBarItem.actualBadgeSuperView()` | The view the badge is drawn in (the item view). | TODO: N/A on HarmonyOS: ArkUI has no view objects; the badge is drawn by `CYLSearchBarItemView` |
-| **class `CYLSearchBarItemView`** | The view of a `CYLSearchBarItem` (a control), like `CYLFlatDesignTabBarButton`. | `CYLSearchBarItemView` |
-| `CYLSearchBarItemView.item` | The item this view draws. | `CYLSearchBarItemView.item` |
-| `CYLSearchBarItemView.imageView` | The icon. | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
-| `CYLSearchBarItemView.titleLabel` | The title of a text item. | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
-| `CYLSearchBarItemView.badgeLabel` | The badge (`badgeValue`). | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
-| `CYLSearchBarItemView.init(item:)` | The view for an item; the item's `itemView` is the one the bar shows. | `CYLSearchBarItemView({ item })` (the `@Param item`) |
-| `CYLSearchBarItemView.init(coder:)` | Not supported: an item view is created from its item. | TODO: N/A on HarmonyOS: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
-| `CYLSearchBarItemView.actualBadgeSuperView()` | The view the badge is drawn in (this view). | TODO: N/A on HarmonyOS: ArkUI has no view objects; the badge is drawn by `CYLSearchBarItemView` |
-| `CYLSearchBarItemView.traitCollectionDidChange(_:)` | — | TODO: N/A on HarmonyOS: system colors (`sys.color.*`) follow the color mode by themselves |
-| `CYLSearchBarItemView.intrinsicContentSize` | — | TODO: N/A on HarmonyOS: ArkUI measures `CYLSearchBarItemView` from its content (36 vp minimum) |
-| `CYLSearchBarItemView.sizeThatFits(_:)` | — | TODO: N/A on HarmonyOS: ArkUI measures a component from its declaration (`intrinsicContentSize` gives the height) |
-| `CYLSearchBarItemView.layoutSubviews()` | — | TODO: N/A on HarmonyOS: ArkUI lays a component out from its declaration |
+| **enum `CYLSearchBarMode`** | What a `CYLSearchBarView` holds: one field, or several searches side by side. | `CYLSearchBarMode` |
+| `CYLSearchBarMode.single` | One search field (the default). | `CYLSearchBarMode.single` |
+| `CYLSearchBarMode.multiple` | Several searches side by side (iammert `MultiSearchView`): `newSearchButton` starts a new search, a completed search becomes an entry of `searches` in a horizontally scrolling row, with an indicator under the selected one and a remove bu… | `CYLSearchBarMode.multiple` |
 | **enum `CYLSearchBarNavigationIcon`** | The icon of the navigation button before the field (lapism `NavigationIconCompat`). | `CYLSearchBarNavigationIcon` |
 | `CYLSearchBarNavigationIcon.none` | No navigation button. | `CYLSearchBarNavigationIcon.none` |
 | `CYLSearchBarNavigationIcon.arrow` | A back arrow (`chevron.backward`). | `CYLSearchBarNavigationIcon.arrow` |
@@ -139,6 +46,13 @@ Rows: 397; implemented or N/A 397, TODO 0; score 100/100.
 | **enum `CYLSearchBarExpansionAnimation`** | How the field opens and closes when `iconified` changes with animation. | `CYLSearchBarExpansionAnimation` |
 | `CYLSearchBarExpansionAnimation.fade` | The field grows from the icon and fades in. | `CYLSearchBarExpansionAnimation.fade` |
 | `CYLSearchBarExpansionAnimation.circularReveal` | A circle grows from the icon until it uncovers the whole field (Material circular reveal). | `CYLSearchBarExpansionAnimation.circularReveal` |
+| **enum `CYLSearchBarItemStyle`** | How an item appended to a search bar looks, like the FlatDesign tab bar's item appearance. | `CYLSearchBarItemStyle` |
+| `CYLSearchBarItemStyle.icon` | An icon button with a 36 pt touch area (a camera, a filter). | `CYLSearchBarItemStyle.icon` |
+| `CYLSearchBarItemStyle.divider` | A thin vertical line between two items; it takes no taps and VoiceOver skips it. | `CYLSearchBarItemStyle.divider` |
+| `CYLSearchBarItemStyle.text` | A text button (a "Search" button); an image, when set, comes before the title. | `CYLSearchBarItemStyle.text` |
+| **enum `CYLSearchBarStyle`** | The fixed look of the whole bar: the field on the left stays, the items are appended after its text. | `CYLSearchBarStyle` |
+| `CYLSearchBarStyle.plain` | The field as configured by its own properties (the default; nothing is changed). | `CYLSearchBarStyle.plain` |
+| `CYLSearchBarStyle.bordered` | A capsule with a 1 pt separator-colored border on the system background, the field and its items inside one outline (the Discover search bar). | `CYLSearchBarStyle.bordered` |
 | **protocol `CYLSearchBarViewDelegate`** | Events of a `CYLSearchBarView`. | `CYLSearchBarViewDelegate` |
 | `CYLSearchBarViewDelegate.-searchBarViewShouldBeginEditing:` | Asks whether a tap may start editing. Return NO to use the bar as a button that opens another search page (lapism `MaterialSearchBar.setOnClickListener`); `-searchBarViewDidTapWhileNotEditable:` is called instead. | `CYLSearchBarViewDelegate.searchBarViewShouldBeginEditing` |
 | `CYLSearchBarViewDelegate.-searchBarViewDidTapWhileNotEditable:` | The bar was tapped while `-searchBarViewShouldBeginEditing:` refused editing. | `CYLSearchBarViewDelegate.searchBarViewDidTapWhileNotEditable` |
@@ -152,6 +66,10 @@ Rows: 397; implemented or N/A 397, TODO 0; score 100/100.
 | `CYLSearchBarViewDelegate.-searchBarView:shouldSubmitText:` | Asks whether the query may be submitted (the Search key, the submit button or `-setText:submit:` with YES). Return NO to keep it. Without this method, every non-empty query is submitted. | `CYLSearchBarViewDelegate.searchBarViewShouldSubmitText` |
 | `CYLSearchBarViewDelegate.-searchBarView:didChangeIconified:` | The field opened or closed (`iconified`). | `CYLSearchBarViewDelegate.searchBarViewDidChangeIconified` |
 | `CYLSearchBarViewDelegate.-searchBarView:didSelectItem:` | An appended item was tapped (`-[CYLSearchBarView addItem:]`), like `-tabBar:didSelectItem:`. | `CYLSearchBarViewDelegate.searchBarViewDidSelectItem` |
+| `CYLSearchBarViewDelegate.-searchBarView:textDidChange:atIndex:` | `CYLSearchBarModeMultiple`: the text of the search being typed changed (MultiSearchView `onTextChanged`). `CYLSearchBarModeSingle` reports `-searchBarView:textDidChange:` instead. | `CYLSearchBarViewDelegate.searchBarViewTextDidChange` |
+| `CYLSearchBarViewDelegate.-searchBarView:didCompleteSearch:atIndex:` | `CYLSearchBarModeMultiple`: a search was completed and became an entry of `searches` (`onSearchComplete`). | `CYLSearchBarViewDelegate.searchBarViewDidCompleteSearch` |
+| `CYLSearchBarViewDelegate.-searchBarView:didRemoveSearchAtIndex:` | `CYLSearchBarModeMultiple`: a search was removed by its remove button or `-removeSearchAtIndex:` (`onSearchItemRemoved`). | `CYLSearchBarViewDelegate.searchBarViewDidRemoveSearchAtIndex` |
+| `CYLSearchBarViewDelegate.-searchBarView:didSelectSearch:atIndex:` | `CYLSearchBarModeMultiple`: a search was selected by a tap or `-selectSearchAtIndex:` (`onItemSelected`). | `CYLSearchBarViewDelegate.searchBarViewDidSelectSearch` |
 | **class `CYLSearchBarView`** | A configurable search bar: a rounded field with a magnifier, text and clear button, views of the host inside the field after the text (a camera, a "Search" button) or before the field (a back button), and an optional Cancel button. Use i… | `CYLSearchBarView` |
 | `CYLSearchBarView.delegate` | Receives the events. | `CYLSearchBarView.delegate` |
 | `CYLSearchBarView.textField` | The text field inside the field. | `CYLSearchBarView.textField` |
@@ -220,8 +138,24 @@ Rows: 397; implemented or N/A 397, TODO 0; score 100/100.
 | `CYLSearchBarView.expansionAnimation` | How the field opens and closes. `CYLSearchBarExpansionAnimationFade` by default. | `CYLSearchBarView.expansionAnimation` |
 | `CYLSearchBarView.iconPosition` | Where `iconButton` sits while iconified; the field opens from there. `CYLSearchBarIconPositionTrailing` by default. | `CYLSearchBarView.iconPosition` |
 | `CYLSearchBarView.animationDuration` | The length of the opening and closing animations, in seconds. 0.3 by default. | `CYLSearchBarView.animationDuration` |
+| `CYLSearchBarView.mode` | One field (`CYLSearchBarModeSingle`, the default) or several searches side by side (`CYLSearchBarModeMultiple`, iammert `MultiSearchView`). The text style (`placeholder`, `font`, `textColor`, `placeholderColor`, the keyboard options, `ma… | `CYLSearchBarView.mode` |
+| `CYLSearchBarView.searches` | `CYLSearchBarModeMultiple`: the texts of the searches, completed searches first, then the one being typed. | `CYLSearchBarView.searches` |
+| `CYLSearchBarView.selectedSearchIndex` | `CYLSearchBarModeMultiple`: the index of the selected search in `searches`, or `NSNotFound` when none is selected. | `CYLSearchBarView.selectedSearchIndex` |
+| `CYLSearchBarView.isEditingNewSearch` | `CYLSearchBarModeMultiple`: YES while a new search is being typed (MultiSearchView `isInSearchMode`). | `CYLSearchBarView.isEditingNewSearch` |
+| `CYLSearchBarView.newSearchButton` | `CYLSearchBarModeMultiple`: the button at the trailing end; it starts a new search, or completes the one being typed. VoiceOver reads it as "New search". | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchBarComponent` draws it in `CYLSearchBarModeMultiple` (`newSearchImage`) |
+| `CYLSearchBarView.minimumTextLength` | `CYLSearchBarModeMultiple`: a search shorter than this is dropped by `-completeSearch`. 3 by default, as in MultiSearchView. | `CYLSearchBarView.minimumTextLength` |
+| `CYLSearchBarView.searchIndicatorColor` | `CYLSearchBarModeMultiple`: the color of the indicator under the selected search and of `newSearchButton`; the tint color when nil. | `CYLSearchBarView.searchIndicatorColor` |
+| `CYLSearchBarView.unselectedSearchAlpha` | `CYLSearchBarModeMultiple`: the opacity of the searches that are not selected, 0 to 1. 0.5 by default. | `CYLSearchBarView.unselectedSearchAlpha` |
+| `CYLSearchBarView.searchFieldWidth` | `CYLSearchBarModeMultiple`: the width of the field of a new search, in points (at least 44). 160 by default. | `CYLSearchBarView.searchFieldWidth` |
+| `CYLSearchBarView.newSearchImage` | `CYLSearchBarModeMultiple`: the icon of `newSearchButton`. `magnifyingglass` by default. | `CYLSearchBarView.newSearchImage` |
+| `CYLSearchBarView.removeSearchImage` | `CYLSearchBarModeMultiple`: the icon of the remove button on the selected search. `xmark.circle.fill` by default. | `CYLSearchBarView.removeSearchImage` |
+| `CYLSearchBarView.beginNewSearch()` | `CYLSearchBarModeMultiple`: starts a new search and shows the keyboard (MultiSearchView `search`). Does nothing while a search is being typed, or in `CYLSearchBarModeSingle`. | `CYLSearchBarView.beginNewSearch` |
+| `CYLSearchBarView.completeSearch()` | `CYLSearchBarModeMultiple`: completes the search being typed (`completeSearch`). It becomes the selected search, or is dropped when shorter than `minimumTextLength`. | `CYLSearchBarView.completeSearch` |
+| `CYLSearchBarView.addSearch(_:)` | `CYLSearchBarModeMultiple`: adds a completed search without typing it, and selects it. An empty text is ignored. | `CYLSearchBarView.addSearch` |
+| `CYLSearchBarView.selectSearch(at:)` | `CYLSearchBarModeMultiple`: selects a search, like a tap on it. | `CYLSearchBarView.selectSearch` |
+| `CYLSearchBarView.removeSearch(at:)` | `CYLSearchBarModeMultiple`: removes a search, like a tap on its remove button. The next search is selected, or the previous one when the last search went away. | `CYLSearchBarView.removeSearch` |
 | `CYLSearchBarView.init(frame:)` | — | `new CYLSearchBarView(…)` |
-| `CYLSearchBarView.init(coder:)` | — | TODO: N/A on HarmonyOS: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
+| `CYLSearchBarView.init(coder:)` | Creates the bar from an archive (a storyboard or a XIB). | TODO: N/A on HarmonyOS: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
 | `CYLSearchBarView.setText(_:submit:)` | Sets the text and, when `submit` is YES and the text is not empty, submits it as if the Search key were tapped (MaterialSearchView `setQuery`, lapism `setTextQuery`). | `CYLSearchBarView.setText` |
 | `CYLSearchBarView.submit()` | Submits the current text: asks `-searchBarView:shouldSubmitText:`, then calls `-searchBarViewSearchButtonClicked:`. Returns NO when the text is empty or the delegate refused it. | `CYLSearchBarView.submit` |
 | `CYLSearchBarView.showKeyboard()` | Starts editing and shows the keyboard. | `CYLSearchBarView.showKeyboard` |
@@ -230,6 +164,7 @@ Rows: 397; implemented or N/A 397, TODO 0; score 100/100.
 | `CYLSearchBarView.encodeRestorableState(with:)` | Saves the text, whether it is editing and whether it is iconified (`onSaveInstanceState`). | `CYLSearchBarView.encodeRestorableState` |
 | `CYLSearchBarView.decodeRestorableState(with:)` | Restores the text, the iconified state and editing (`onRestoreInstanceState`). | `CYLSearchBarView.decodeRestorableState` |
 | `CYLSearchBarView.traitCollectionDidChange(_:)` | — | TODO: N/A on HarmonyOS: system colors (`sys.color.*`) follow the color mode by themselves |
+| `CYLSearchBarView.tintColorDidChange()` | — | TODO: N/A on HarmonyOS: system colors follow the theme by themselves (`searchIndicatorColor` overrides) |
 | `CYLSearchBarView.intrinsicContentSize` | — | `CYLSearchBarView.intrinsicContentSize` |
 | `CYLSearchBarView.sizeThatFits(_:)` | — | TODO: N/A on HarmonyOS: ArkUI measures a component from its declaration (`intrinsicContentSize` gives the height) |
 | `CYLSearchBarView.layoutSubviews()` | — | TODO: N/A on HarmonyOS: ArkUI lays a component out from its declaration |
@@ -240,115 +175,49 @@ Rows: 397; implemented or N/A 397, TODO 0; score 100/100.
 | `CYLSearchBarView.textFieldDidEndEditing(_:)` | Clears the text and closes to the icon when configured, then reports the end of editing. | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
 | `CYLSearchBarView.becomeFirstResponder()` | Starts editing in the text field. | `CYLSearchBarView.becomeFirstResponder` |
 | `CYLSearchBarView.resignFirstResponder()` | Ends editing; the bar itself also gives up first responder as UIKit expects. | `CYLSearchBarView.resignFirstResponder` |
-| **protocol `CYLSearchControllerDelegate`** | Events of a `CYLSearchController`. | `CYLSearchControllerDelegate` |
-| `CYLSearchControllerDelegate.-searchControllerDidCancel:` | Cancel was tapped and the overlay is gone. | `CYLSearchControllerDelegate.searchControllerDidCancel` |
-| **class `CYLSearchController`** | An animated search overlay that uses the same injectable result source as `CYLSearchResultsViewController`. Keep the controller while it is presented. | `CYLSearchController` |
-| `CYLSearchController.delegate` | Receives the cancel event. | `CYLSearchController.delegate` |
-| `CYLSearchController.resultsViewController` | The results controller shown inside the overlay. | `CYLSearchController.resultsViewController` |
-| `CYLSearchController.presented` | YES while the overlay is on screen or animating in. | `CYLSearchController.isPresented` |
-| `CYLSearchController.init(searchDataSource:)` | Creates the overlay with the data source of its results. | `new CYLSearchController(…)` |
-| `CYLSearchController.init(nibName:bundle:)` | Not available: use `init(searchDataSource:)`. | TODO: N/A on HarmonyOS: not available on iOS either (`@available(*, unavailable)`) |
-| `CYLSearchController.init(coder:)` | Not available: use `init(searchDataSource:)`. | TODO: N/A on HarmonyOS: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
-| `CYLSearchController.viewDidLayoutSubviews()` | Keeps the view below the navigation bar and its search bar after every layout (a search bar never covers a view). | TODO: N/A on HarmonyOS: the overlay is laid out below the safe area by ArkUI, never over the page it hides |
-| `CYLSearchController.viewDidLoad()` | — | TODO: N/A on HarmonyOS: ArkUI components have no load phase (`CYLSearchOverlayComponent.build`) |
-| `CYLSearchController.show(in:)` | Adds a child navigation controller to the host and animates it into view. | `CYLSearchController.showInViewController` |
-| `CYLSearchController.hide(_:)` | Completion is called after the overlay is removed, including when not presented. | `CYLSearchController.hide` |
-| **enum `CYLSearchPlaceholderKind`** | The common placeholder kinds: an empty list, no search results, or an error. | `CYLSearchPlaceholderKind` |
-| `CYLSearchPlaceholderKind.empty` | Nothing to show yet. | `CYLSearchPlaceholderKind.empty` |
-| `CYLSearchPlaceholderKind.noResults` | The search found nothing. | `CYLSearchPlaceholderKind.noResults` |
-| `CYLSearchPlaceholderKind.error` | Loading failed. | `CYLSearchPlaceholderKind.error` |
-| **enum `CYLSearchPlaceholderStyle`** | The image of a placeholder; each style has an image in the resource bundle. | `CYLSearchPlaceholderStyle` |
-| `CYLSearchPlaceholderStyle.empty` | The Empty placeholder image. | `CYLSearchPlaceholderStyle.empty` |
-| `CYLSearchPlaceholderStyle.noResults` | The NoResults placeholder image. | `CYLSearchPlaceholderStyle.noResults` |
-| `CYLSearchPlaceholderStyle.error` | The Error placeholder image. | `CYLSearchPlaceholderStyle.error` |
-| `CYLSearchPlaceholderStyle.wifiOff` | The WifiOff placeholder image. | `CYLSearchPlaceholderStyle.wifiOff` |
-| `CYLSearchPlaceholderStyle.signalWifiOff` | The SignalWifiOff placeholder image. | `CYLSearchPlaceholderStyle.signalWifiOff` |
-| `CYLSearchPlaceholderStyle.noInternet` | The NoInternet placeholder image. | `CYLSearchPlaceholderStyle.noInternet` |
-| `CYLSearchPlaceholderStyle.cloudOff` | The CloudOff placeholder image. | `CYLSearchPlaceholderStyle.cloudOff` |
-| `CYLSearchPlaceholderStyle.syncProblem` | The SyncProblem placeholder image. | `CYLSearchPlaceholderStyle.syncProblem` |
-| `CYLSearchPlaceholderStyle.syncDisabled` | The SyncDisabled placeholder image. | `CYLSearchPlaceholderStyle.syncDisabled` |
-| `CYLSearchPlaceholderStyle.networkLocked` | The NetworkLocked placeholder image. | `CYLSearchPlaceholderStyle.networkLocked` |
-| `CYLSearchPlaceholderStyle.bluetoothDisabled` | The BluetoothDisabled placeholder image. | `CYLSearchPlaceholderStyle.bluetoothDisabled` |
-| `CYLSearchPlaceholderStyle.locationOff` | The LocationOff placeholder image. | `CYLSearchPlaceholderStyle.locationOff` |
-| `CYLSearchPlaceholderStyle.publicOff` | The PublicOff placeholder image. | `CYLSearchPlaceholderStyle.publicOff` |
-| `CYLSearchPlaceholderStyle.errorOutline` | The ErrorOutline placeholder image. | `CYLSearchPlaceholderStyle.errorOutline` |
-| `CYLSearchPlaceholderStyle.warning` | The Warning placeholder image. | `CYLSearchPlaceholderStyle.warning` |
-| `CYLSearchPlaceholderStyle.reportProblem` | The ReportProblem placeholder image. | `CYLSearchPlaceholderStyle.reportProblem` |
-| `CYLSearchPlaceholderStyle.blocked` | The Blocked placeholder image. | `CYLSearchPlaceholderStyle.blocked` |
-| `CYLSearchPlaceholderStyle.help` | The Help placeholder image. | `CYLSearchPlaceholderStyle.help` |
-| `CYLSearchPlaceholderStyle.hourglass` | The Hourglass placeholder image. | `CYLSearchPlaceholderStyle.hourglass` |
-| `CYLSearchPlaceholderStyle.locked` | The Locked placeholder image. | `CYLSearchPlaceholderStyle.locked` |
-| `CYLSearchPlaceholderStyle.visibilityOff` | The VisibilityOff placeholder image. | `CYLSearchPlaceholderStyle.visibilityOff` |
-| `CYLSearchPlaceholderStyle.searchOff` | The SearchOff placeholder image. | `CYLSearchPlaceholderStyle.searchOff` |
-| `CYLSearchPlaceholderStyle.folderOff` | The FolderOff placeholder image. | `CYLSearchPlaceholderStyle.folderOff` |
-| `CYLSearchPlaceholderStyle.folderOpen` | The FolderOpen placeholder image. | `CYLSearchPlaceholderStyle.folderOpen` |
-| `CYLSearchPlaceholderStyle.downloadOff` | The DownloadOff placeholder image. | `CYLSearchPlaceholderStyle.downloadOff` |
-| `CYLSearchPlaceholderStyle.uploadOff` | The UploadOff placeholder image. | `CYLSearchPlaceholderStyle.uploadOff` |
-| `CYLSearchPlaceholderStyle.inbox` | The Inbox placeholder image. | `CYLSearchPlaceholderStyle.inbox` |
-| `CYLSearchPlaceholderStyle.brokenImage` | The BrokenImage placeholder image. | `CYLSearchPlaceholderStyle.brokenImage` |
-| `CYLSearchPlaceholderStyle.imageUnavailable` | The ImageUnavailable placeholder image. | `CYLSearchPlaceholderStyle.imageUnavailable` |
-| `CYLSearchPlaceholderStyle.photoLibrary` | The PhotoLibrary placeholder image. | `CYLSearchPlaceholderStyle.photoLibrary` |
-| `CYLSearchPlaceholderStyle.musicOff` | The MusicOff placeholder image. | `CYLSearchPlaceholderStyle.musicOff` |
-| `CYLSearchPlaceholderStyle.videoOff` | The VideoOff placeholder image. | `CYLSearchPlaceholderStyle.videoOff` |
-| `CYLSearchPlaceholderStyle.personOff` | The PersonOff placeholder image. | `CYLSearchPlaceholderStyle.personOff` |
-| `CYLSearchPlaceholderStyle.groupOff` | The GroupOff placeholder image. | `CYLSearchPlaceholderStyle.groupOff` |
-| `CYLSearchPlaceholderStyle.eventBusy` | The EventBusy placeholder image. | `CYLSearchPlaceholderStyle.eventBusy` |
-| `CYLSearchPlaceholderStyle.emptyCart` | The EmptyCart placeholder image. | `CYLSearchPlaceholderStyle.emptyCart` |
-| `CYLSearchPlaceholderStyle.favorite` | The Favorite placeholder image. | `CYLSearchPlaceholderStyle.favorite` |
-| `CYLSearchPlaceholderStyle.batteryAlert` | The BatteryAlert placeholder image. | `CYLSearchPlaceholderStyle.batteryAlert` |
-| `CYLSearchPlaceholderStyle.unknownDevice` | The UnknownDevice placeholder image. | `CYLSearchPlaceholderStyle.unknownDevice` |
-| `CYLSearchPlaceholderStyle.phoneDisabled` | The PhoneDisabled placeholder image. | `CYLSearchPlaceholderStyle.phoneDisabled` |
-| `CYLSearchPlaceholderStyle.wrongLocation` | The WrongLocation placeholder image. | `CYLSearchPlaceholderStyle.wrongLocation` |
-| `CYLSearchPlaceholderStyle.count` | The Count placeholder image. | `CYLSearchPlaceholderStyle.count` |
-| **enum `CYLSearchPlaceholderMessage`** | The localized message of a placeholder. | `CYLSearchPlaceholderMessage` |
-| `CYLSearchPlaceholderMessage.empty` | "No data". | `CYLSearchPlaceholderMessage.empty` |
-| `CYLSearchPlaceholderMessage.noResults` | "No matching results". | `CYLSearchPlaceholderMessage.noResults` |
-| `CYLSearchPlaceholderMessage.error` | "Something went wrong". | `CYLSearchPlaceholderMessage.error` |
-| `CYLSearchPlaceholderMessage.network` | "Check your internet connection". | `CYLSearchPlaceholderMessage.network` |
-| **class `CYLSearchPlaceholderView`** | An image above a message, centered in its bounds: the empty, no-result and error states of a list. | `CYLSearchPlaceholderView` |
-| `CYLSearchPlaceholderView.imageView` | The image, 80 × 80 points, tinted with `secondaryLabelColor` (except the colored empty image). | `CYLSearchPlaceholderView.image` |
-| `CYLSearchPlaceholderView.textLabel` | The message, in the body text style with Dynamic Type. | `CYLSearchPlaceholderView.text` |
-| `CYLSearchPlaceholderView.imageName(for:)` | The name of the image of `style` in the resource bundle. | `CYLSearchPlaceholderView.imageNameForStyle` |
-| `CYLSearchPlaceholderView.init(kind:)` | A placeholder of a common kind with its built-in image and message. | `new CYLSearchPlaceholderView(…)` |
-| `CYLSearchPlaceholderView.init(style:message:)` | A built-in image with a built-in message. | `new CYLSearchPlaceholderView(…)` |
-| `CYLSearchPlaceholderView.init(style:text:)` | A built-in image with your own text. | `new CYLSearchPlaceholderView(…)` |
-| `CYLSearchPlaceholderView.init(image:message:)` | Your own image with a built-in message. | `new CYLSearchPlaceholderView(…)` |
-| `CYLSearchPlaceholderView.init(image:text:)` | Your own image and text. | `new CYLSearchPlaceholderView(…)` |
+| **class `CYLSearchBarItem`** | One element after the text of a `CYLSearchBarView`: a model independent of its view, like `CYLFlatDesignTabBarItem`. Append it with `-[CYLSearchBarView addItem:]`; its view is `itemView`. | `CYLSearchBarItem` |
+| `CYLSearchBarItem.style` | How the item looks (icon, divider or text); set when the item is created. | `CYLSearchBarItem.style` |
+| `CYLSearchBarItem.title` | The text of a text item, and the VoiceOver label of an icon item without `accessibilityLabel`. | `CYLSearchBarItem.title` |
+| `CYLSearchBarItem.image` | The icon (a template image is tinted with `tintColor`). | `CYLSearchBarItem.image` |
+| `CYLSearchBarItem.selectedImage` | The icon while `selected` is YES; nil uses `image`. | `CYLSearchBarItem.selectedImage` |
+| `CYLSearchBarItem.animatedImage` | An animated icon (`+[UIImage animatedImageWithImages:duration:]`), drawn instead of `image` when set. | `CYLSearchBarItem.animatedImage` |
+| `CYLSearchBarItem.imageSize` | The icon size; zero uses 20 x 20 pt. | `CYLSearchBarItem.imageSize` |
+| `CYLSearchBarItem.itemAccessibilityLabel` | What VoiceOver reads; nil reads `title`. | `CYLSearchBarItem.itemAccessibilityLabel` |
+| `CYLSearchBarItem.itemAccessibilityIdentifier` | A test identifier for the item view. | `CYLSearchBarItem.itemAccessibilityIdentifier` |
+| `CYLSearchBarItem.isEnabled` | NO dims the item and ignores taps. YES by default. | `CYLSearchBarItem.isEnabled` |
+| `CYLSearchBarItem.isSelectable` | YES makes each tap toggle `selected` (a filter that stays on). NO by default. | `CYLSearchBarItem.isSelectable` |
+| `CYLSearchBarItem.isSelected` | The selected state (drawn with `selectedImage`, `selectedBackgroundColor` and the selected title attributes). | `CYLSearchBarItem.isSelected` |
+| `CYLSearchBarItem.tintColor` | The icon and title color; nil uses the bar's `itemTintColor`. | `CYLSearchBarItem.tintColor` |
+| `CYLSearchBarItem.backgroundColor` | The item background; nil is clear. | `CYLSearchBarItem.backgroundColor` |
+| `CYLSearchBarItem.selectedBackgroundColor` | The item background while selected; nil uses `backgroundColor`. | `CYLSearchBarItem.selectedBackgroundColor` |
+| `CYLSearchBarItem.contentInsets` | Space around the icon and title inside the item; `UIEdgeInsetsZero` uses the style's default. | `CYLSearchBarItem.contentInsets` |
+| `CYLSearchBarItem.imagePositionAdjustment` | Moves the icon without changing the item's size. | `CYLSearchBarItem.imagePositionAdjustment` |
+| `CYLSearchBarItem.titlePositionAdjustment` | Moves the title without changing the item's size. | `CYLSearchBarItem.titlePositionAdjustment` |
+| `CYLSearchBarItem.badgeValue` | The badge text; nil hides the badge, an empty string draws a dot. | `CYLSearchBarItem.badgeValue` |
+| `CYLSearchBarItem.badgeColor` | The badge background; nil is system red. | `CYLSearchBarItem.badgeColor` |
+| `CYLSearchBarItem.badgeSize` | The smallest badge size; zero uses 16 x 16 pt (a dot is 8 x 8 pt). | `CYLSearchBarItem.badgeSize` |
+| `CYLSearchBarItem.badgeContentInsets` | Space around the badge text. | `CYLSearchBarItem.badgeContentInsets` |
+| `CYLSearchBarItem.badgePositionAdjustment` | Moves the badge from the icon's top trailing corner. | `CYLSearchBarItem.badgePositionAdjustment` |
+| `CYLSearchBarItem.handler` | Called on each tap, after `-searchBarView:didSelectItem:`. | `CYLSearchBarItem.handler` |
+| `CYLSearchBarItem.index` | The item's position in its bar's `items`; `NSNotFound` when it is in no bar. | `CYLSearchBarItem.index` |
+| `CYLSearchBarItem.itemView` | The item's view (a control), created on first use. The bar adds it inside its field and sends its taps to `-searchBarView:didSelectItem:` and `handler`. | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
+| `CYLSearchBarItem.init(style:title:image:)` | An item of the given style with a title and an icon. | `new CYLSearchBarItem(…)` |
+| `CYLSearchBarItem.init(title:image:)` | An icon item, or a text item when the title is set and the image is nil. | `new CYLSearchBarItem(…)` |
+| `CYLSearchBarItem.init(title:image:selectedImage:)` | Like `-initWithTitle:image:`, with an icon for the selected state. | `new CYLSearchBarItem(…)` |
+| `CYLSearchBarItem.iconItem(image:title:handler:)` | An icon item: the title is what VoiceOver reads. | `CYLSearchBarItem.iconItem` |
+| `CYLSearchBarItem.textItem(title:handler:)` | A text item (a "Search" button). | `CYLSearchBarItem.textItem` |
+| `CYLSearchBarItem.divider()` | A divider between two items. | `CYLSearchBarItem.divider` |
+| `CYLSearchBarItem.item(dictionary:)` | An item from plain values, for the cross-platform wrappers (Flutter, React Native): `style` (`icon`, `divider`, `text`), `title`, `image` (`camera`, `mic`, `search`, `back`, else an asset or SF Symbol name), `accessibilityIdentifier`, `i… | `CYLSearchBarItem.item` |
+| `CYLSearchBarItem.setTitleTextAttributes(_:for:)` | The title attributes for a state (`UIControlStateNormal`, `UIControlStateSelected`, `UIControlStateDisabled`). | `CYLSearchBarItem.setTitleTextAttributes` |
+| `CYLSearchBarItem.titleTextAttributes(for:)` | The title attributes set for a state, or nil. | `CYLSearchBarItem.titleTextAttributes` |
+| `CYLSearchBarItem.setBadgeTextAttributes(_:for:)` | The badge text attributes for a state. | `CYLSearchBarItem.setBadgeTextAttributes` |
+| `CYLSearchBarItem.badgeTextAttributes(for:)` | The badge text attributes set for a state, or nil. | `CYLSearchBarItem.badgeTextAttributes` |
+| `CYLSearchBarItem.actualBadgeSuperView()` | The view the badge is drawn in (the item view). | TODO: N/A on HarmonyOS: ArkUI has no view objects; the badge is drawn by `CYLSearchBarItemView` |
 | **class `CYLSearchResources`** | Images and localized strings of `CYLSearchViewController.bundle`, the resource bundle of this pod. | `CYLSearchResources` |
 | `CYLSearchResources.resourceBundle` | The resource bundle, found next to this class's framework or in the main bundle; nil when it is missing. | `CYLSearchResources.resourceBundle` |
 | `CYLSearchResources.image(named:)` | An image of the resource bundle, or nil (logged) when it is missing. | `CYLSearchResources.imageNamed` |
 | `CYLSearchResources.localizedString(forKey:)` | The text of `key` in the language the app shows (the preferred languages), English when the key has no translation, or the key itself (logged) when it is missing everywhere. | `CYLSearchResources.localizedString` |
 | `CYLSearchResources.localizedString(forKey:language:)` | The text of `key` in `language` (for example "zh-Hans"), or in the preferred languages when `language` is nil. | `CYLSearchResources.localizedString` |
-| **protocol `CYLSearchResultsDataSource`** | Supplies the results of a `CYLSearchResultsViewController` and configures their cells. | `CYLSearchResultsDataSource` |
-| `CYLSearchResultsDataSource.-searchResultsViewController:resultsForQuery:` | The results for `query` (an empty string while nothing is typed). | `CYLSearchResultsDataSource.searchResultsViewControllerResultsForQuery` |
-| `CYLSearchResultsDataSource.-searchResultsViewController:configureCell:withResult:` | Shows `result` in `cell`. | `CYLSearchResultsDataSource.searchResultsViewControllerConfigureCell` |
-| `CYLSearchResultsDataSource.-searchResultsViewController:didSelectResult:` | A result was tapped. | `CYLSearchResultsDataSource.searchResultsViewControllerDidSelectResult` |
-| **class `CYLSearchResultsViewController`** | A table of search results with a search bar in its navigation item, driven by a `CYLSearchResultsDataSource`. The search bar stays pinned under the title, and the view starts below it, so the bar never covers the list. | `CYLSearchResultsViewController` |
-| `CYLSearchResultsViewController.searchDataSource` | The data source given at creation. | `CYLSearchResultsViewController.searchDataSource` |
-| `CYLSearchResultsViewController.searchController` | The search controller installed in the navigation item. | `CYLSearchResultsViewController.searchController` |
-| `CYLSearchResultsViewController.searchResults` | The results of the last query. | `CYLSearchResultsViewController.searchResults` |
-| `CYLSearchResultsViewController.init(searchDataSource:)` | Creates the controller with its data source (plain table style). | `new CYLSearchResultsViewController(…)` |
-| `CYLSearchResultsViewController.init(style:)` | Not available: use `init(searchDataSource:)`. | TODO: N/A on HarmonyOS: not available on iOS either (`@available(*, unavailable)`) |
-| `CYLSearchResultsViewController.init(nibName:bundle:)` | Not available: use `init(searchDataSource:)`. | TODO: N/A on HarmonyOS: not available on iOS either (`@available(*, unavailable)`) |
-| `CYLSearchResultsViewController.init(coder:)` | Not available: use `init(searchDataSource:)`. | TODO: N/A on HarmonyOS: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
-| `CYLSearchResultsViewController.viewDidLayoutSubviews()` | Keeps the view below the navigation bar and its search bar after every layout (a search bar never covers a view): on some devices ("iPhone Duo") UIKit places the view 10 pt under the stacked search bar. | TODO: N/A on HarmonyOS: `CYLSearchResultsComponent` lays the bar above the list in one column, never over it |
-| `CYLSearchResultsViewController.viewDidLoad()` | — | TODO: N/A on HarmonyOS: ArkUI components have no load phase (`CYLSearchResultsComponent.build`) |
-| `CYLSearchResultsViewController.reloadSearchResults()` | Requeries the data source using the current search text and reloads the table. | `CYLSearchResultsViewController.reloadSearchResults` |
-| `CYLSearchResultsViewController.reloadResultsTableView()` | Override to integrate a custom table reload, such as an empty-state provider. | `CYLSearchResultsViewController.reloadResultsTableView` |
-| `CYLSearchResultsViewController.updateSearchResults(for:)` | Requeries the results when the search text changes. | `CYLSearchResultsViewController.updateSearchResults` |
-| `CYLSearchResultsViewController.tableView(_:numberOfRowsInSection:)` | — | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchResultsViewController.tableView(_:cellForRowAt:)` | — | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchResultsViewController.tableView(_:didSelectRowAt:)` | — | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| **class `CYLSearchSuggestionStore`** | The built-in caches: a database, `NSUserDefaults` or a file, behind one class. | `CYLSearchSuggestionStore` |
-| `CYLSearchSuggestionStore.policy` | The policy of this store. | `CYLSearchSuggestionStore.policy` |
-| `CYLSearchSuggestionStore.name` | Separates the caches of different search screens: the database table key, the defaults key or the file name. | `CYLSearchSuggestionStore.name` |
-| `CYLSearchSuggestionStore.maximumCount` | The largest number of queries kept; the oldest go first. 20 by default. | `CYLSearchSuggestionStore.maximumCount` |
-| `CYLSearchSuggestionStore.cache(policy:name:)` | Makes the store for `policy` and `name`; nil for `CYLSearchSuggestionCachePolicyNone`. | `CYLSearchSuggestionStore.cache` |
-| `CYLSearchSuggestionStore.init(policy:name:)` | Makes the store for `policy` (not `none`) and `name`. | `new CYLSearchSuggestionStore(…)` |
-| `CYLSearchSuggestionStore.cachedQueries()` | The cached queries, newest first. | `CYLSearchSuggestionStore.cachedQueries` |
-| `CYLSearchSuggestionStore.addQuery(_:)` | Adds `query` at the front, without repeating it. | `CYLSearchSuggestionStore.addQuery` |
-| `CYLSearchSuggestionStore.removeQuery(_:)` | Removes `query`. | `CYLSearchSuggestionStore.removeQuery` |
-| `CYLSearchSuggestionStore.removeAllQueries()` | Removes every cached query. | `CYLSearchSuggestionStore.removeAllQueries` |
 | **enum `CYLSearchSuggestionStyle`** | How the suggestions are shown under the search bar (`CYLSearchView.suggestionStyle`). | `CYLSearchSuggestionStyle` |
 | `CYLSearchSuggestionStyle.list` | One suggestion per row with its icon, in `suggestionsTableView`. | `CYLSearchSuggestionStyle.list` |
 | `CYLSearchSuggestionStyle.tags` | Tags that wrap like words, in `suggestionsTagView` (CollectionViewClassifyMenu's `CYLTagListView`). | `CYLSearchSuggestionStyle.tags` |
@@ -361,7 +230,11 @@ Rows: 397; implemented or N/A 397, TODO 0; score 100/100.
 | `CYLSearchViewDelegate.-searchView:didSelectSuggestion:atIndex:` | A suggestion was tapped (MaterialSearchView `setOnItemClickListener`). The field shows it first, and it is submitted when `submitsOnSuggestionSelection` is YES. | `CYLSearchViewDelegate.searchViewDidSelectSuggestion` |
 | `CYLSearchViewDelegate.-searchViewVoiceButtonClicked:` | The voice button was tapped. Start speech recognition and pass the result to `-setQuery:submit:`. | `CYLSearchViewDelegate.searchViewVoiceButtonClicked` |
 | `CYLSearchViewDelegate.-searchViewNavigationButtonClicked:` | The navigation button (the back arrow by default) was tapped. Without this method it closes the search view. | `CYLSearchViewDelegate.searchViewNavigationButtonClicked` |
-| **class `CYLSearchView`** | A search page that opens over its host view: a `CYLSearchBarView` at the top of the safe area, a divider, a list of suggestions filtered as you type, and an optional content view of yours below (MiguelCatalan and lapism `MaterialSearchVi… | `CYLSearchView` |
+| `CYLSearchViewDelegate.-searchView:didSelectResult:` | A row of `resultsTableView` was tapped (was `-searchResultsViewController:didSelectResult:`). | `CYLSearchViewDelegate.searchViewDidSelectResult` |
+| **protocol `CYLSearchViewDataSource`** | Supplies the results of a `CYLSearchView` and configures their cells (was `CYLSearchResultsDataSource`). While it is set and the query is not empty, `resultsTableView` lists the results under the search bar instead of the suggestions. | `CYLSearchViewDataSource` |
+| `CYLSearchViewDataSource.-searchView:resultsForQuery:` | The results for `query` (never empty: an empty query shows the suggestions instead). | `CYLSearchViewDataSource.searchViewResultsForQuery` |
+| `CYLSearchViewDataSource.-searchView:configureResultCell:withResult:` | Shows `result` in `cell`, a row of `resultsTableView`. | `CYLSearchViewDataSource.searchViewConfigureResultCell` |
+| **class `CYLSearchView`** | A search page that opens over its host view: a `CYLSearchBarView` at the top of the safe area, a divider, a list of suggestions filtered as you type, the results of `resultsDataSource`, and an optional content view of yours below (Miguel… | `CYLSearchView` |
 | `CYLSearchView.delegate` | Receives the events of the search view. | `CYLSearchView.delegate` |
 | `CYLSearchView.searchBarView` | The search bar at the top. Style it directly (placeholder, colors, icons, keyboard, voice button). | `CYLSearchView.searchBarView` |
 | `CYLSearchView.dividerView` | The line under the search bar. | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchComponent` draws the divider (`dividerColor`) |
@@ -370,9 +243,20 @@ Rows: 397; implemented or N/A 397, TODO 0; score 100/100.
 | `CYLSearchView.suggestionsFoldControl` | The fold control of the tag suggestions (CollectionViewClassifyMenu's `CYLMenuFoldControl`). An inline chevron as the last tag by default, as in the example's Discover page: tap it to show every row, again to fold. Position `CYLMenuFoldC… | `CYLSearchView.suggestionsFoldControl` |
 | `CYLSearchView.suggestionsFoldedRowCount` | The rows of tag suggestions shown while folded. 2 by default; 0 shows every row. | `CYLSearchView.suggestionsFoldedRowCount` |
 | `CYLSearchView.suggestionStyle` | How the suggestions are shown: a list (`CYLSearchSuggestionStyleList`, the default) or tags (`CYLSearchSuggestionStyleTags`). A tapped tag works like a tapped row. | `CYLSearchView.suggestionStyle` |
-| `CYLSearchView.showsEmptyResultsPlaceholder` | Shows CYLTableViewPlaceHolder's placeholder for `emptyResultsScenario` under the search bar while a non-empty query matches no suggestion, in both suggestion styles. NO by default. | `CYLSearchView.showsEmptyResultsPlaceholder` |
+| `CYLSearchView.showsEmptyResultsPlaceholder` | Shows CYLTableViewPlaceHolder's placeholder for `emptyResultsScenario` under the search bar while a non-empty query matches no suggestion, in both suggestion styles, or `resultsDataSource` returns no result. NO by default. | `CYLSearchView.showsEmptyResultsPlaceholder` |
 | `CYLSearchView.emptyResultsScenario` | The CYLTableViewPlaceHolder scenario of that placeholder. `CYLPlaceholderScenarioNoSearchResults` (an icon, a title and a hint) by default; `CYLPlaceholderScenarioNoContent` shows the plain empty state. | `CYLSearchView.emptyResultsScenario` |
 | `CYLSearchView.emptyResultsView` | The placeholder shown for empty results (CYLTableViewPlaceHolder's `CYLPlaceholderStackView`), created the first time it is shown; nil before. Style it after it appears, or change `emptyResultsScenario`. | `CYLSearchView.emptyResultsView` |
+| `CYLSearchView.resultsDataSource` | Supplies the results (was `CYLSearchController`'s and `CYLSearchResultsViewController`'s `searchDataSource`). While it is set and the query is not empty, `resultsTableView` lists them under the search bar and the suggestions are hidden;… | `CYLSearchView.resultsDataSource` |
+| `CYLSearchView.resultsTableView` | The table that lists `searchResults` (was `CYLSearchResultsViewController.tableView`). Style it directly; its data source and delegate are the search view. | `CYLSearchView.resultsTableView` |
+| `CYLSearchView.searchResults` | The results of the current query, from `resultsDataSource`; empty while the suggestions are shown. | `CYLSearchView.searchResults` |
+| `CYLSearchView.refreshHandler` | Pull-to-refresh of `resultsTableView` (CYLTableViewPlaceHolder's normal header inside): non-nil adds it, nil removes it. Call `-endRefreshing` on every completion path, and do not capture the view controller strongly. | `CYLSearchView.refreshHandler` |
+| `CYLSearchView.isRefreshing` | YES while `resultsTableView` refreshes. | `CYLSearchView.isRefreshing` |
+| `CYLSearchView.beginRefreshing()` | Starts the refresh of `resultsTableView`, as a pull would; calls `refreshHandler`. | `CYLSearchView.beginRefreshing` |
+| `CYLSearchView.endRefreshing()` | Stops the refresh of `resultsTableView`. | `CYLSearchView.endRefreshing` |
+| `CYLSearchView.setRefreshHandler(_:)` | The same pull-to-refresh on a scroll view of yours, such as the table of a screen whose navigation item holds a `UISearchController` (the Issue #1317 page): non-nil adds CYLTableViewPlaceHolder's normal header with the handler, nil remov… | `CYLSearchView.setRefreshHandler` |
+| `CYLSearchView.beginRefreshing(in:)` | Starts the refresh of a scroll view set up with `+setRefreshHandler:forScrollView:`. | `CYLSearchView.beginRefreshing` |
+| `CYLSearchView.endRefreshing(in:)` | Stops the refresh of a scroll view set up with `+setRefreshHandler:forScrollView:`. Call it on every completion path of the handler. | `CYLSearchView.endRefreshing` |
+| `CYLSearchView.isRefreshing(in:)` | YES while a scroll view set up with `+setRefreshHandler:forScrollView:` refreshes. | `CYLSearchView.isRefreshing` |
 | `CYLSearchView.dividerColor` | The color of `dividerView` (lapism `setDividerColor`). `separatorColor` by default; clear hides it. | `CYLSearchView.dividerColor` |
 | `CYLSearchView.contentView` | A view of yours shown under the divider, behind the suggestions (lapism `addView`): a results list, a history, anything. Nil by default. | `CYLSearchView.contentView` |
 | `CYLSearchView.scrimColor` | The color behind the page while it is open (lapism `setScrimColor`). Nil (none) by default; the page itself uses `backgroundColor`, `systemBackgroundColor` by default. | `CYLSearchView.scrimColor` |
@@ -403,7 +287,7 @@ Rows: 397; implemented or N/A 397, TODO 0; score 100/100.
 | `CYLSearchView.query` | The current query (lapism `getTextQuery`). | `CYLSearchView.query` |
 | `CYLSearchView.backgroundColor` | The page background (the view itself only shows the scrim). `systemBackgroundColor` by default. | `CYLSearchView.backgroundColor` |
 | `CYLSearchView.init(frame:)` | — | `new CYLSearchView(…)` |
-| `CYLSearchView.init(coder:)` | — | TODO: N/A on HarmonyOS: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
+| `CYLSearchView.init(coder:)` | Creates the search view from an archive (a storyboard or a XIB). | TODO: N/A on HarmonyOS: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
 | `CYLSearchView.layoutSubviews()` | — | TODO: N/A on HarmonyOS: ArkUI lays a component out from its declaration |
 | `CYLSearchView.safeAreaInsetsDidChange()` | — | TODO: N/A on HarmonyOS: ArkUI keeps the page inside the safe area by itself |
 | `CYLSearchView.install(in:)` | Adds the search view over `view` (pinned to its edges) without opening it. `-showSearch` calls it with the key window's root view when the search view has no superview. | `CYLSearchView.installInView` |
@@ -411,13 +295,15 @@ Rows: 397; implemented or N/A 397, TODO 0; score 100/100.
 | `CYLSearchView.showSearch(animated:)` | Opens the search view and starts editing (`showSearch(animate)`). | `CYLSearchView.showSearch` |
 | `CYLSearchView.closeSearch()` | Closes the search view with animation and ends editing (`closeSearch`). | `CYLSearchView.closeSearch` |
 | `CYLSearchView.closeSearch(animated:)` | Closes the search view and ends editing. | `CYLSearchView.closeSearch` |
+| `CYLSearchView.closeSearch(animated:completion:)` | Closes the search view and ends editing, then calls `completion` once the view is hidden; at once when it is already closed (was `-[CYLSearchController hide:]`). | `CYLSearchView.closeSearch` |
 | `CYLSearchView.encodeRestorableState(with:)` | Saves whether the search view is open and its query (`onSaveInstanceState`). UIKit calls it for a view with a `restorationIdentifier` inside a restored view controller. | `CYLSearchView.encodeRestorableState` |
 | `CYLSearchView.decodeRestorableState(with:)` | Restores the query and reopens the search view when it was open (`onRestoreInstanceState`). | `CYLSearchView.decodeRestorableState` |
 | `CYLSearchView.accessibilityPerformEscape()` | — | `CYLSearchView.accessibilityPerformEscape` |
 | `CYLSearchView.attach(to:)` | Makes a bar button item open the search view (`setMenuItem`). | `CYLSearchView.attachToMenuItem` |
 | `CYLSearchView.setQuery(_:submit:)` | Sets the query and submits it when `submit` is YES (`setQuery`, `setTextQuery`). | `CYLSearchView.setQuery` |
 | `CYLSearchView.showSuggestions()` | Lists the suggestions that match the current query (`showSuggestions`). | `CYLSearchView.showSuggestions` |
-| `CYLSearchView.dismissSuggestions()` | Hides the suggestions (`dismissSuggestions`). | `CYLSearchView.dismissSuggestions` |
+| `CYLSearchView.reloadResults()` | Queries `resultsDataSource` again for the current query and reloads `resultsTableView` (was `reloadSearchResults` and `reloadResultsTableView`). Call it when the results changed, for example after a refresh. | `CYLSearchView.reloadResults` |
+| `CYLSearchView.dismissSuggestions()` | Hides the suggestions and the results (`dismissSuggestions`). | `CYLSearchView.dismissSuggestions` |
 | `CYLSearchView.clearSuggestionCache()` | Removes every cached query (the delete button of `suggestionCacheHeaderView`) and shows the list again. | `CYLSearchView.clearSuggestionCache` |
 | `CYLSearchView.searchBarView(_:textDidChange:)` | Filters the suggestions and reports the change. | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
 | `CYLSearchView.searchBarViewSearchButtonClicked(_:)` | Reports the submitted query and closes unless the delegate handled it. | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
@@ -426,7 +312,7 @@ Rows: 397; implemented or N/A 397, TODO 0; score 100/100.
 | `CYLSearchView.searchBarViewCancelButtonClicked(_:)` | Cancel closes the search view. | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
 | `CYLSearchView.searchBarViewDidBeginEditing(_:)` | Reports focus. | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
 | `CYLSearchView.searchBarViewDidEndEditing(_:)` | Reports the loss of focus. | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchView.tableView(_:numberOfRowsInSection:)` | One row per matching suggestion while the suggestions are shown. | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchView.tableView(_:cellForRowAt:)` | A suggestion row: icon, text, background, then `suggestionCellConfiguration`. | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchView.tableView(_:didSelectRowAt:)` | Fills the field with the suggestion, reports it, and submits it when `submitsOnSuggestionSelection` is YES. | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
+| `CYLSearchView.tableView(_:numberOfRowsInSection:)` | One row per result in `resultsTableView`, one row per matching suggestion while the suggestions are shown. | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
+| `CYLSearchView.tableView(_:cellForRowAt:)` | A result row configured by `resultsDataSource`, or a suggestion row: icon, text, background, then `suggestionCellConfiguration`. | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
+| `CYLSearchView.tableView(_:didSelectRowAt:)` | Reports a tapped result (`-searchView:didSelectResult:`); for a suggestion, fills the field with it, reports it, and submits it when `submitsOnSuggestionSelection` is YES. | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
 <!-- harmonyos-api-alignment:end -->

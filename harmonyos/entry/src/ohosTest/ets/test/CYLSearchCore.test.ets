@@ -199,7 +199,7 @@ export default function cylSearchCoreTest() {
         searchBarViewDidSelectSearch: (_: CYLSearchBarView, text: string, index: number) => {
           events.push(`select ${index} ${text}`);
         },
-        searchBarViewDidRemoveSearchAt: (_: CYLSearchBarView, index: number) => {
+        searchBarViewDidRemoveSearchAtIndex: (_: CYLSearchBarView, index: number) => {
           events.push(`remove ${index}`);
         }
       };

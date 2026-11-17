@@ -499,7 +499,7 @@ export interface CYLSearchBarViewDelegate {
   /**
    * `multiple` mode: the search at `index` was removed (iOS `-searchBarView:didRemoveSearchAtIndex:`).
    */
-  searchBarViewDidRemoveSearchAt?: (searchBarView: CYLSearchBarView, index: number) => void;
+  searchBarViewDidRemoveSearchAtIndex?: (searchBarView: CYLSearchBarView, index: number) => void;
   /**
    * `multiple` mode: the search at `index` was selected by a tap (iOS `-searchBarView:didSelectSearch:atIndex:`).
    */
@@ -1101,7 +1101,7 @@ export class CYLSearchBarView {
     // The next search is selected, or the previous one when the last went away (Android `remove`).
     this.selectedSearchIndex = cylSelectionAfterRemoval(this.selectedSearchIndex, index,
       this.completedSearches.length);
-    this.delegate?.searchBarViewDidRemoveSearchAt?.(this, index);
+    this.delegate?.searchBarViewDidRemoveSearchAtIndex?.(this, index);
   }
 
   /**

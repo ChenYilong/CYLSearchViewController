@@ -297,7 +297,7 @@ export struct MultiSearchDemoPage {
       this.append(`changed: index: ${index}, query: ${text}`),
       searchBarViewDidCompleteSearch: (_: CYLSearchBarView, text: string, index: number) =>
       this.append(`complete: index: ${index}, query: ${text}`),
-      searchBarViewDidRemoveSearchAt: (_: CYLSearchBarView, index: number) => this.append(`remove: index: ${index}`)
+      searchBarViewDidRemoveSearchAtIndex: (_: CYLSearchBarView, index: number) => this.append(`remove: index: ${index}`)
     };
   }
 

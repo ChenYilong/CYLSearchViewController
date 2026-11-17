@@ -216,7 +216,7 @@ DevEco Studio > Device Manager, then `hdc install` the HAP and run the hypium te
 sub-repositories' HarmonyOS libraries: run `python3 harmonyos/scripts/sync-sub-repositories.py` before building.
 
 <!-- harmonyos-score:begin -->
-Score: 100/100 (422 of 422 rows; API 397/397, demos 25/25; TODO left 0).
+Score: 99/100 (305 of 308 rows; API 283/283, demos 22/25; TODO left 3).
 <!-- harmonyos-score:end -->
 
 | Date | Change | Score |
@@ -232,102 +232,9 @@ Score: 100/100 (422 of 422 rows; API 397/397, demos 25/25; TODO left 0).
 <!-- harmonyos-api:begin -->
 | iOS public API | HarmonyOS implementation |
 | :--- | :--- |
-| **protocol `CYLMultiSearchViewDelegate`** | `CYLMultiSearchViewDelegate` |
-| `CYLMultiSearchViewDelegate.-multiSearchView:textDidChange:atIndex:` | `CYLMultiSearchViewDelegate.multiSearchViewTextDidChange` |
-| `CYLMultiSearchViewDelegate.-multiSearchView:didCompleteSearch:atIndex:` | `CYLMultiSearchViewDelegate.multiSearchViewDidCompleteSearch` |
-| `CYLMultiSearchViewDelegate.-multiSearchView:didRemoveItemAtIndex:` | `CYLMultiSearchViewDelegate.multiSearchViewDidRemoveItemAtIndex` |
-| `CYLMultiSearchViewDelegate.-multiSearchView:didSelectItem:atIndex:` | `CYLMultiSearchViewDelegate.multiSearchViewDidSelectItem` |
-| **class `CYLMultiSearchView`** | `CYLMultiSearchView` |
-| `CYLMultiSearchView.delegate` | `CYLMultiSearchView.delegate` |
-| `CYLMultiSearchView.selectedIndex` | `CYLMultiSearchView.selectedIndex` |
-| `CYLMultiSearchView.inSearchMode` | `CYLMultiSearchView.isInSearchMode` |
-| `CYLMultiSearchView.searchButton` | N/A: ArkUI has no view objects; `CYLMultiSearchComponent` draws it (`searchImage`) |
-| `CYLMultiSearchView.placeholder` | `CYLMultiSearchView.placeholder` |
-| `CYLMultiSearchView.font` | `CYLMultiSearchView.font` |
-| `CYLMultiSearchView.textColor` | `CYLMultiSearchView.textColor` |
-| `CYLMultiSearchView.placeholderColor` | `CYLMultiSearchView.placeholderColor` |
-| `CYLMultiSearchView.maximumTextLength` | `CYLMultiSearchView.maximumTextLength` |
-| `CYLMultiSearchView.minimumTextLength` | `CYLMultiSearchView.minimumTextLength` |
-| `CYLMultiSearchView.returnKeyType` | `CYLMultiSearchView.returnKeyType` |
-| `CYLMultiSearchView.keyboardType` | `CYLMultiSearchView.keyboardType` |
-| `CYLMultiSearchView.autocapitalizationType` | N/A: ArkUI `TextInput` has no capitalization trait |
-| `CYLMultiSearchView.indicatorColor` | `CYLMultiSearchView.indicatorColor` |
-| `CYLMultiSearchView.unselectedItemAlpha` | `CYLMultiSearchView.unselectedItemAlpha` |
-| `CYLMultiSearchView.searchFieldWidth` | `CYLMultiSearchView.searchFieldWidth` |
-| `CYLMultiSearchView.animationDuration` | `CYLMultiSearchView.animationDuration` |
-| `CYLMultiSearchView.searchImage` | `CYLMultiSearchView.searchImage` |
-| `CYLMultiSearchView.removeImage` | `CYLMultiSearchView.removeImage` |
-| `CYLMultiSearchView.searchTexts` | `CYLMultiSearchView.searchTexts` |
-| `CYLMultiSearchView.init(frame:)` | `new CYLMultiSearchView(…)` |
-| `CYLMultiSearchView.init(coder:)` | N/A: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
-| `CYLMultiSearchView.tintColorDidChange()` | N/A: system colors follow the theme by themselves (`indicatorColor` overrides) |
-| `CYLMultiSearchView.traitCollectionDidChange(_:)` | N/A: system colors (`sys.color.*`) follow the color mode by themselves |
-| `CYLMultiSearchView.intrinsicContentSize` | `CYLMultiSearchView.intrinsicContentSize` |
-| `CYLMultiSearchView.layoutSubviews()` | N/A: ArkUI lays a component out from its declaration |
-| `CYLMultiSearchView.search()` | `CYLMultiSearchView.search` |
-| `CYLMultiSearchView.completeSearch()` | `CYLMultiSearchView.completeSearch` |
-| `CYLMultiSearchView.addSearchText(_:)` | `CYLMultiSearchView.addSearchText` |
-| `CYLMultiSearchView.selectItem(at:)` | `CYLMultiSearchView.selectItemAtIndex` |
-| `CYLMultiSearchView.removeItem(at:)` | `CYLMultiSearchView.removeItemAtIndex` |
-| `CYLMultiSearchView.textFieldShouldBeginEditing(_:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLMultiSearchView.textFieldShouldReturn(_:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLMultiSearchView.textField(_:shouldChangeCharactersIn:replacementString:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| **enum `CYLSearchBarItemStyle`** | `CYLSearchBarItemStyle` |
-| `CYLSearchBarItemStyle.icon` | `CYLSearchBarItemStyle.icon` |
-| `CYLSearchBarItemStyle.divider` | `CYLSearchBarItemStyle.divider` |
-| `CYLSearchBarItemStyle.text` | `CYLSearchBarItemStyle.text` |
-| **enum `CYLSearchBarStyle`** | `CYLSearchBarStyle` |
-| `CYLSearchBarStyle.plain` | `CYLSearchBarStyle.plain` |
-| `CYLSearchBarStyle.bordered` | `CYLSearchBarStyle.bordered` |
-| **class `CYLSearchBarItem`** | `CYLSearchBarItem` |
-| `CYLSearchBarItem.style` | `CYLSearchBarItem.style` |
-| `CYLSearchBarItem.title` | `CYLSearchBarItem.title` |
-| `CYLSearchBarItem.image` | `CYLSearchBarItem.image` |
-| `CYLSearchBarItem.selectedImage` | `CYLSearchBarItem.selectedImage` |
-| `CYLSearchBarItem.animatedImage` | `CYLSearchBarItem.animatedImage` |
-| `CYLSearchBarItem.imageSize` | `CYLSearchBarItem.imageSize` |
-| `CYLSearchBarItem.itemAccessibilityLabel` | `CYLSearchBarItem.itemAccessibilityLabel` |
-| `CYLSearchBarItem.itemAccessibilityIdentifier` | `CYLSearchBarItem.itemAccessibilityIdentifier` |
-| `CYLSearchBarItem.isEnabled` | `CYLSearchBarItem.isEnabled` |
-| `CYLSearchBarItem.isSelectable` | `CYLSearchBarItem.isSelectable` |
-| `CYLSearchBarItem.isSelected` | `CYLSearchBarItem.isSelected` |
-| `CYLSearchBarItem.tintColor` | `CYLSearchBarItem.tintColor` |
-| `CYLSearchBarItem.backgroundColor` | `CYLSearchBarItem.backgroundColor` |
-| `CYLSearchBarItem.selectedBackgroundColor` | `CYLSearchBarItem.selectedBackgroundColor` |
-| `CYLSearchBarItem.contentInsets` | `CYLSearchBarItem.contentInsets` |
-| `CYLSearchBarItem.imagePositionAdjustment` | `CYLSearchBarItem.imagePositionAdjustment` |
-| `CYLSearchBarItem.titlePositionAdjustment` | `CYLSearchBarItem.titlePositionAdjustment` |
-| `CYLSearchBarItem.badgeValue` | `CYLSearchBarItem.badgeValue` |
-| `CYLSearchBarItem.badgeColor` | `CYLSearchBarItem.badgeColor` |
-| `CYLSearchBarItem.badgeSize` | `CYLSearchBarItem.badgeSize` |
-| `CYLSearchBarItem.badgeContentInsets` | `CYLSearchBarItem.badgeContentInsets` |
-| `CYLSearchBarItem.badgePositionAdjustment` | `CYLSearchBarItem.badgePositionAdjustment` |
-| `CYLSearchBarItem.handler` | `CYLSearchBarItem.handler` |
-| `CYLSearchBarItem.index` | `CYLSearchBarItem.index` |
-| `CYLSearchBarItem.init(style:title:image:)` | `new CYLSearchBarItem(…)` |
-| `CYLSearchBarItem.init(title:image:)` | `new CYLSearchBarItem(…)` |
-| `CYLSearchBarItem.init(title:image:selectedImage:)` | `new CYLSearchBarItem(…)` |
-| `CYLSearchBarItem.iconItem(image:title:handler:)` | `CYLSearchBarItem.iconItem` |
-| `CYLSearchBarItem.textItem(title:handler:)` | `CYLSearchBarItem.textItem` |
-| `CYLSearchBarItem.divider()` | `CYLSearchBarItem.divider` |
-| `CYLSearchBarItem.item(dictionary:)` | `CYLSearchBarItem.item` |
-| `CYLSearchBarItem.setTitleTextAttributes(_:for:)` | `CYLSearchBarItem.setTitleTextAttributes` |
-| `CYLSearchBarItem.titleTextAttributes(for:)` | `CYLSearchBarItem.titleTextAttributes` |
-| `CYLSearchBarItem.setBadgeTextAttributes(_:for:)` | `CYLSearchBarItem.setBadgeTextAttributes` |
-| `CYLSearchBarItem.badgeTextAttributes(for:)` | `CYLSearchBarItem.badgeTextAttributes` |
-| `CYLSearchBarItem.actualBadgeSuperView()` | N/A: ArkUI has no view objects; the badge is drawn by `CYLSearchBarItemView` |
-| **class `CYLSearchBarItemView`** | `CYLSearchBarItemView` |
-| `CYLSearchBarItemView.item` | `CYLSearchBarItemView.item` |
-| `CYLSearchBarItemView.imageView` | N/A: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
-| `CYLSearchBarItemView.titleLabel` | N/A: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
-| `CYLSearchBarItemView.badgeLabel` | N/A: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
-| `CYLSearchBarItemView.init(item:)` | `CYLSearchBarItemView({ item })` (the `@Param item`) |
-| `CYLSearchBarItemView.init(coder:)` | N/A: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
-| `CYLSearchBarItemView.actualBadgeSuperView()` | N/A: ArkUI has no view objects; the badge is drawn by `CYLSearchBarItemView` |
-| `CYLSearchBarItemView.traitCollectionDidChange(_:)` | N/A: system colors (`sys.color.*`) follow the color mode by themselves |
-| `CYLSearchBarItemView.intrinsicContentSize` | N/A: ArkUI measures `CYLSearchBarItemView` from its content (36 vp minimum) |
-| `CYLSearchBarItemView.sizeThatFits(_:)` | N/A: ArkUI measures a component from its declaration (`intrinsicContentSize` gives the height) |
-| `CYLSearchBarItemView.layoutSubviews()` | N/A: ArkUI lays a component out from its declaration |
+| **enum `CYLSearchBarMode`** | `CYLSearchBarMode` |
+| `CYLSearchBarMode.single` | `CYLSearchBarMode.single` |
+| `CYLSearchBarMode.multiple` | `CYLSearchBarMode.multiple` |
 | **enum `CYLSearchBarNavigationIcon`** | `CYLSearchBarNavigationIcon` |
 | `CYLSearchBarNavigationIcon.none` | `CYLSearchBarNavigationIcon.none` |
 | `CYLSearchBarNavigationIcon.arrow` | `CYLSearchBarNavigationIcon.arrow` |
@@ -339,6 +246,13 @@ Score: 100/100 (422 of 422 rows; API 397/397, demos 25/25; TODO left 0).
 | **enum `CYLSearchBarExpansionAnimation`** | `CYLSearchBarExpansionAnimation` |
 | `CYLSearchBarExpansionAnimation.fade` | `CYLSearchBarExpansionAnimation.fade` |
 | `CYLSearchBarExpansionAnimation.circularReveal` | `CYLSearchBarExpansionAnimation.circularReveal` |
+| **enum `CYLSearchBarItemStyle`** | `CYLSearchBarItemStyle` |
+| `CYLSearchBarItemStyle.icon` | `CYLSearchBarItemStyle.icon` |
+| `CYLSearchBarItemStyle.divider` | `CYLSearchBarItemStyle.divider` |
+| `CYLSearchBarItemStyle.text` | `CYLSearchBarItemStyle.text` |
+| **enum `CYLSearchBarStyle`** | `CYLSearchBarStyle` |
+| `CYLSearchBarStyle.plain` | `CYLSearchBarStyle.plain` |
+| `CYLSearchBarStyle.bordered` | `CYLSearchBarStyle.bordered` |
 | **protocol `CYLSearchBarViewDelegate`** | `CYLSearchBarViewDelegate` |
 | `CYLSearchBarViewDelegate.-searchBarViewShouldBeginEditing:` | `CYLSearchBarViewDelegate.searchBarViewShouldBeginEditing` |
 | `CYLSearchBarViewDelegate.-searchBarViewDidTapWhileNotEditable:` | `CYLSearchBarViewDelegate.searchBarViewDidTapWhileNotEditable` |
@@ -352,17 +266,21 @@ Score: 100/100 (422 of 422 rows; API 397/397, demos 25/25; TODO left 0).
 | `CYLSearchBarViewDelegate.-searchBarView:shouldSubmitText:` | `CYLSearchBarViewDelegate.searchBarViewShouldSubmitText` |
 | `CYLSearchBarViewDelegate.-searchBarView:didChangeIconified:` | `CYLSearchBarViewDelegate.searchBarViewDidChangeIconified` |
 | `CYLSearchBarViewDelegate.-searchBarView:didSelectItem:` | `CYLSearchBarViewDelegate.searchBarViewDidSelectItem` |
+| `CYLSearchBarViewDelegate.-searchBarView:textDidChange:atIndex:` | `CYLSearchBarViewDelegate.searchBarViewTextDidChange` |
+| `CYLSearchBarViewDelegate.-searchBarView:didCompleteSearch:atIndex:` | `CYLSearchBarViewDelegate.searchBarViewDidCompleteSearch` |
+| `CYLSearchBarViewDelegate.-searchBarView:didRemoveSearchAtIndex:` | `CYLSearchBarViewDelegate.searchBarViewDidRemoveSearchAtIndex` |
+| `CYLSearchBarViewDelegate.-searchBarView:didSelectSearch:atIndex:` | `CYLSearchBarViewDelegate.searchBarViewDidSelectSearch` |
 | **class `CYLSearchBarView`** | `CYLSearchBarView` |
 | `CYLSearchBarView.delegate` | `CYLSearchBarView.delegate` |
 | `CYLSearchBarView.textField` | `CYLSearchBarView.textField` |
-| `CYLSearchBarView.fieldView` | N/A: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
-| `CYLSearchBarView.searchIconView` | N/A: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
-| `CYLSearchBarView.cancelButton` | N/A: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
-| `CYLSearchBarView.placeholderLabel` | N/A: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
-| `CYLSearchBarView.navigationButton` | N/A: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
-| `CYLSearchBarView.voiceButton` | N/A: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
-| `CYLSearchBarView.submitButton` | N/A: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
-| `CYLSearchBarView.iconButton` | N/A: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
+| `CYLSearchBarView.fieldView` | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
+| `CYLSearchBarView.searchIconView` | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
+| `CYLSearchBarView.cancelButton` | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
+| `CYLSearchBarView.placeholderLabel` | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
+| `CYLSearchBarView.navigationButton` | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
+| `CYLSearchBarView.voiceButton` | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
+| `CYLSearchBarView.submitButton` | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
+| `CYLSearchBarView.iconButton` | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
 | `CYLSearchBarView.text` | `CYLSearchBarView.text` |
 | `CYLSearchBarView.placeholder` | `CYLSearchBarView.placeholder` |
 | `CYLSearchBarView.font` | `CYLSearchBarView.font` |
@@ -411,8 +329,8 @@ Score: 100/100 (422 of 422 rows; API 397/397, demos 25/25; TODO left 0).
 | `CYLSearchBarView.clearImage` | `CYLSearchBarView.clearImage` |
 | `CYLSearchBarView.keyboardType` | `CYLSearchBarView.keyboardType` |
 | `CYLSearchBarView.returnKeyType` | `CYLSearchBarView.returnKeyType` |
-| `CYLSearchBarView.autocapitalizationType` | N/A: ArkUI `TextInput` has no capitalization trait |
-| `CYLSearchBarView.autocorrectionType` | N/A: ArkUI `TextInput` has no autocorrection trait |
+| `CYLSearchBarView.autocapitalizationType` | TODO: N/A on HarmonyOS: ArkUI `TextInput` has no capitalization trait |
+| `CYLSearchBarView.autocorrectionType` | TODO: N/A on HarmonyOS: ArkUI `TextInput` has no autocorrection trait |
 | `CYLSearchBarView.isSecureTextEntry` | `CYLSearchBarView.isSecureTextEntry` |
 | `CYLSearchBarView.maximumTextLength` | `CYLSearchBarView.maximumTextLength` |
 | `CYLSearchBarView.isIconified` | `CYLSearchBarView.isIconified` |
@@ -420,8 +338,24 @@ Score: 100/100 (422 of 422 rows; API 397/397, demos 25/25; TODO left 0).
 | `CYLSearchBarView.expansionAnimation` | `CYLSearchBarView.expansionAnimation` |
 | `CYLSearchBarView.iconPosition` | `CYLSearchBarView.iconPosition` |
 | `CYLSearchBarView.animationDuration` | `CYLSearchBarView.animationDuration` |
+| `CYLSearchBarView.mode` | `CYLSearchBarView.mode` |
+| `CYLSearchBarView.searches` | `CYLSearchBarView.searches` |
+| `CYLSearchBarView.selectedSearchIndex` | `CYLSearchBarView.selectedSearchIndex` |
+| `CYLSearchBarView.isEditingNewSearch` | `CYLSearchBarView.isEditingNewSearch` |
+| `CYLSearchBarView.newSearchButton` | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchBarComponent` draws it in `CYLSearchBarModeMultiple` (`newSearchImage`) |
+| `CYLSearchBarView.minimumTextLength` | `CYLSearchBarView.minimumTextLength` |
+| `CYLSearchBarView.searchIndicatorColor` | `CYLSearchBarView.searchIndicatorColor` |
+| `CYLSearchBarView.unselectedSearchAlpha` | `CYLSearchBarView.unselectedSearchAlpha` |
+| `CYLSearchBarView.searchFieldWidth` | `CYLSearchBarView.searchFieldWidth` |
+| `CYLSearchBarView.newSearchImage` | `CYLSearchBarView.newSearchImage` |
+| `CYLSearchBarView.removeSearchImage` | `CYLSearchBarView.removeSearchImage` |
+| `CYLSearchBarView.beginNewSearch()` | `CYLSearchBarView.beginNewSearch` |
+| `CYLSearchBarView.completeSearch()` | `CYLSearchBarView.completeSearch` |
+| `CYLSearchBarView.addSearch(_:)` | `CYLSearchBarView.addSearch` |
+| `CYLSearchBarView.selectSearch(at:)` | `CYLSearchBarView.selectSearch` |
+| `CYLSearchBarView.removeSearch(at:)` | `CYLSearchBarView.removeSearch` |
 | `CYLSearchBarView.init(frame:)` | `new CYLSearchBarView(…)` |
-| `CYLSearchBarView.init(coder:)` | N/A: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
+| `CYLSearchBarView.init(coder:)` | TODO: N/A on HarmonyOS: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
 | `CYLSearchBarView.setText(_:submit:)` | `CYLSearchBarView.setText` |
 | `CYLSearchBarView.submit()` | `CYLSearchBarView.submit` |
 | `CYLSearchBarView.showKeyboard()` | `CYLSearchBarView.showKeyboard` |
@@ -429,126 +363,61 @@ Score: 100/100 (422 of 422 rows; API 397/397, demos 25/25; TODO left 0).
 | `CYLSearchBarView.setIconified(_:animated:)` | `CYLSearchBarView.setIconified` |
 | `CYLSearchBarView.encodeRestorableState(with:)` | `CYLSearchBarView.encodeRestorableState` |
 | `CYLSearchBarView.decodeRestorableState(with:)` | `CYLSearchBarView.decodeRestorableState` |
-| `CYLSearchBarView.traitCollectionDidChange(_:)` | N/A: system colors (`sys.color.*`) follow the color mode by themselves |
+| `CYLSearchBarView.traitCollectionDidChange(_:)` | TODO: N/A on HarmonyOS: system colors (`sys.color.*`) follow the color mode by themselves |
+| `CYLSearchBarView.tintColorDidChange()` | TODO: N/A on HarmonyOS: system colors follow the theme by themselves (`searchIndicatorColor` overrides) |
 | `CYLSearchBarView.intrinsicContentSize` | `CYLSearchBarView.intrinsicContentSize` |
-| `CYLSearchBarView.sizeThatFits(_:)` | N/A: ArkUI measures a component from its declaration (`intrinsicContentSize` gives the height) |
-| `CYLSearchBarView.layoutSubviews()` | N/A: ArkUI lays a component out from its declaration |
-| `CYLSearchBarView.textFieldShouldBeginEditing(_:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchBarView.textFieldShouldReturn(_:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchBarView.textField(_:shouldChangeCharactersIn:replacementString:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchBarView.textFieldDidBeginEditing(_:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchBarView.textFieldDidEndEditing(_:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
+| `CYLSearchBarView.sizeThatFits(_:)` | TODO: N/A on HarmonyOS: ArkUI measures a component from its declaration (`intrinsicContentSize` gives the height) |
+| `CYLSearchBarView.layoutSubviews()` | TODO: N/A on HarmonyOS: ArkUI lays a component out from its declaration |
+| `CYLSearchBarView.textFieldShouldBeginEditing(_:)` | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
+| `CYLSearchBarView.textFieldShouldReturn(_:)` | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
+| `CYLSearchBarView.textField(_:shouldChangeCharactersIn:replacementString:)` | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
+| `CYLSearchBarView.textFieldDidBeginEditing(_:)` | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
+| `CYLSearchBarView.textFieldDidEndEditing(_:)` | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
 | `CYLSearchBarView.becomeFirstResponder()` | `CYLSearchBarView.becomeFirstResponder` |
 | `CYLSearchBarView.resignFirstResponder()` | `CYLSearchBarView.resignFirstResponder` |
-| **protocol `CYLSearchControllerDelegate`** | `CYLSearchControllerDelegate` |
-| `CYLSearchControllerDelegate.-searchControllerDidCancel:` | `CYLSearchControllerDelegate.searchControllerDidCancel` |
-| **class `CYLSearchController`** | `CYLSearchController` |
-| `CYLSearchController.delegate` | `CYLSearchController.delegate` |
-| `CYLSearchController.resultsViewController` | `CYLSearchController.resultsViewController` |
-| `CYLSearchController.presented` | `CYLSearchController.isPresented` |
-| `CYLSearchController.init(searchDataSource:)` | `new CYLSearchController(…)` |
-| `CYLSearchController.init(nibName:bundle:)` | N/A: not available on iOS either (`@available(*, unavailable)`) |
-| `CYLSearchController.init(coder:)` | N/A: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
-| `CYLSearchController.viewDidLayoutSubviews()` | N/A: the overlay is laid out below the safe area by ArkUI, never over the page it hides |
-| `CYLSearchController.viewDidLoad()` | N/A: ArkUI components have no load phase (`CYLSearchOverlayComponent.build`) |
-| `CYLSearchController.show(in:)` | `CYLSearchController.showInViewController` |
-| `CYLSearchController.hide(_:)` | `CYLSearchController.hide` |
-| **enum `CYLSearchPlaceholderKind`** | `CYLSearchPlaceholderKind` |
-| `CYLSearchPlaceholderKind.empty` | `CYLSearchPlaceholderKind.empty` |
-| `CYLSearchPlaceholderKind.noResults` | `CYLSearchPlaceholderKind.noResults` |
-| `CYLSearchPlaceholderKind.error` | `CYLSearchPlaceholderKind.error` |
-| **enum `CYLSearchPlaceholderStyle`** | `CYLSearchPlaceholderStyle` |
-| `CYLSearchPlaceholderStyle.empty` | `CYLSearchPlaceholderStyle.empty` |
-| `CYLSearchPlaceholderStyle.noResults` | `CYLSearchPlaceholderStyle.noResults` |
-| `CYLSearchPlaceholderStyle.error` | `CYLSearchPlaceholderStyle.error` |
-| `CYLSearchPlaceholderStyle.wifiOff` | `CYLSearchPlaceholderStyle.wifiOff` |
-| `CYLSearchPlaceholderStyle.signalWifiOff` | `CYLSearchPlaceholderStyle.signalWifiOff` |
-| `CYLSearchPlaceholderStyle.noInternet` | `CYLSearchPlaceholderStyle.noInternet` |
-| `CYLSearchPlaceholderStyle.cloudOff` | `CYLSearchPlaceholderStyle.cloudOff` |
-| `CYLSearchPlaceholderStyle.syncProblem` | `CYLSearchPlaceholderStyle.syncProblem` |
-| `CYLSearchPlaceholderStyle.syncDisabled` | `CYLSearchPlaceholderStyle.syncDisabled` |
-| `CYLSearchPlaceholderStyle.networkLocked` | `CYLSearchPlaceholderStyle.networkLocked` |
-| `CYLSearchPlaceholderStyle.bluetoothDisabled` | `CYLSearchPlaceholderStyle.bluetoothDisabled` |
-| `CYLSearchPlaceholderStyle.locationOff` | `CYLSearchPlaceholderStyle.locationOff` |
-| `CYLSearchPlaceholderStyle.publicOff` | `CYLSearchPlaceholderStyle.publicOff` |
-| `CYLSearchPlaceholderStyle.errorOutline` | `CYLSearchPlaceholderStyle.errorOutline` |
-| `CYLSearchPlaceholderStyle.warning` | `CYLSearchPlaceholderStyle.warning` |
-| `CYLSearchPlaceholderStyle.reportProblem` | `CYLSearchPlaceholderStyle.reportProblem` |
-| `CYLSearchPlaceholderStyle.blocked` | `CYLSearchPlaceholderStyle.blocked` |
-| `CYLSearchPlaceholderStyle.help` | `CYLSearchPlaceholderStyle.help` |
-| `CYLSearchPlaceholderStyle.hourglass` | `CYLSearchPlaceholderStyle.hourglass` |
-| `CYLSearchPlaceholderStyle.locked` | `CYLSearchPlaceholderStyle.locked` |
-| `CYLSearchPlaceholderStyle.visibilityOff` | `CYLSearchPlaceholderStyle.visibilityOff` |
-| `CYLSearchPlaceholderStyle.searchOff` | `CYLSearchPlaceholderStyle.searchOff` |
-| `CYLSearchPlaceholderStyle.folderOff` | `CYLSearchPlaceholderStyle.folderOff` |
-| `CYLSearchPlaceholderStyle.folderOpen` | `CYLSearchPlaceholderStyle.folderOpen` |
-| `CYLSearchPlaceholderStyle.downloadOff` | `CYLSearchPlaceholderStyle.downloadOff` |
-| `CYLSearchPlaceholderStyle.uploadOff` | `CYLSearchPlaceholderStyle.uploadOff` |
-| `CYLSearchPlaceholderStyle.inbox` | `CYLSearchPlaceholderStyle.inbox` |
-| `CYLSearchPlaceholderStyle.brokenImage` | `CYLSearchPlaceholderStyle.brokenImage` |
-| `CYLSearchPlaceholderStyle.imageUnavailable` | `CYLSearchPlaceholderStyle.imageUnavailable` |
-| `CYLSearchPlaceholderStyle.photoLibrary` | `CYLSearchPlaceholderStyle.photoLibrary` |
-| `CYLSearchPlaceholderStyle.musicOff` | `CYLSearchPlaceholderStyle.musicOff` |
-| `CYLSearchPlaceholderStyle.videoOff` | `CYLSearchPlaceholderStyle.videoOff` |
-| `CYLSearchPlaceholderStyle.personOff` | `CYLSearchPlaceholderStyle.personOff` |
-| `CYLSearchPlaceholderStyle.groupOff` | `CYLSearchPlaceholderStyle.groupOff` |
-| `CYLSearchPlaceholderStyle.eventBusy` | `CYLSearchPlaceholderStyle.eventBusy` |
-| `CYLSearchPlaceholderStyle.emptyCart` | `CYLSearchPlaceholderStyle.emptyCart` |
-| `CYLSearchPlaceholderStyle.favorite` | `CYLSearchPlaceholderStyle.favorite` |
-| `CYLSearchPlaceholderStyle.batteryAlert` | `CYLSearchPlaceholderStyle.batteryAlert` |
-| `CYLSearchPlaceholderStyle.unknownDevice` | `CYLSearchPlaceholderStyle.unknownDevice` |
-| `CYLSearchPlaceholderStyle.phoneDisabled` | `CYLSearchPlaceholderStyle.phoneDisabled` |
-| `CYLSearchPlaceholderStyle.wrongLocation` | `CYLSearchPlaceholderStyle.wrongLocation` |
-| `CYLSearchPlaceholderStyle.count` | `CYLSearchPlaceholderStyle.count` |
-| **enum `CYLSearchPlaceholderMessage`** | `CYLSearchPlaceholderMessage` |
-| `CYLSearchPlaceholderMessage.empty` | `CYLSearchPlaceholderMessage.empty` |
-| `CYLSearchPlaceholderMessage.noResults` | `CYLSearchPlaceholderMessage.noResults` |
-| `CYLSearchPlaceholderMessage.error` | `CYLSearchPlaceholderMessage.error` |
-| `CYLSearchPlaceholderMessage.network` | `CYLSearchPlaceholderMessage.network` |
-| **class `CYLSearchPlaceholderView`** | `CYLSearchPlaceholderView` |
-| `CYLSearchPlaceholderView.imageView` | `CYLSearchPlaceholderView.image` |
-| `CYLSearchPlaceholderView.textLabel` | `CYLSearchPlaceholderView.text` |
-| `CYLSearchPlaceholderView.imageName(for:)` | `CYLSearchPlaceholderView.imageNameForStyle` |
-| `CYLSearchPlaceholderView.init(kind:)` | `new CYLSearchPlaceholderView(…)` |
-| `CYLSearchPlaceholderView.init(style:message:)` | `new CYLSearchPlaceholderView(…)` |
-| `CYLSearchPlaceholderView.init(style:text:)` | `new CYLSearchPlaceholderView(…)` |
-| `CYLSearchPlaceholderView.init(image:message:)` | `new CYLSearchPlaceholderView(…)` |
-| `CYLSearchPlaceholderView.init(image:text:)` | `new CYLSearchPlaceholderView(…)` |
+| **class `CYLSearchBarItem`** | `CYLSearchBarItem` |
+| `CYLSearchBarItem.style` | `CYLSearchBarItem.style` |
+| `CYLSearchBarItem.title` | `CYLSearchBarItem.title` |
+| `CYLSearchBarItem.image` | `CYLSearchBarItem.image` |
+| `CYLSearchBarItem.selectedImage` | `CYLSearchBarItem.selectedImage` |
+| `CYLSearchBarItem.animatedImage` | `CYLSearchBarItem.animatedImage` |
+| `CYLSearchBarItem.imageSize` | `CYLSearchBarItem.imageSize` |
+| `CYLSearchBarItem.itemAccessibilityLabel` | `CYLSearchBarItem.itemAccessibilityLabel` |
+| `CYLSearchBarItem.itemAccessibilityIdentifier` | `CYLSearchBarItem.itemAccessibilityIdentifier` |
+| `CYLSearchBarItem.isEnabled` | `CYLSearchBarItem.isEnabled` |
+| `CYLSearchBarItem.isSelectable` | `CYLSearchBarItem.isSelectable` |
+| `CYLSearchBarItem.isSelected` | `CYLSearchBarItem.isSelected` |
+| `CYLSearchBarItem.tintColor` | `CYLSearchBarItem.tintColor` |
+| `CYLSearchBarItem.backgroundColor` | `CYLSearchBarItem.backgroundColor` |
+| `CYLSearchBarItem.selectedBackgroundColor` | `CYLSearchBarItem.selectedBackgroundColor` |
+| `CYLSearchBarItem.contentInsets` | `CYLSearchBarItem.contentInsets` |
+| `CYLSearchBarItem.imagePositionAdjustment` | `CYLSearchBarItem.imagePositionAdjustment` |
+| `CYLSearchBarItem.titlePositionAdjustment` | `CYLSearchBarItem.titlePositionAdjustment` |
+| `CYLSearchBarItem.badgeValue` | `CYLSearchBarItem.badgeValue` |
+| `CYLSearchBarItem.badgeColor` | `CYLSearchBarItem.badgeColor` |
+| `CYLSearchBarItem.badgeSize` | `CYLSearchBarItem.badgeSize` |
+| `CYLSearchBarItem.badgeContentInsets` | `CYLSearchBarItem.badgeContentInsets` |
+| `CYLSearchBarItem.badgePositionAdjustment` | `CYLSearchBarItem.badgePositionAdjustment` |
+| `CYLSearchBarItem.handler` | `CYLSearchBarItem.handler` |
+| `CYLSearchBarItem.index` | `CYLSearchBarItem.index` |
+| `CYLSearchBarItem.itemView` | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchBarComponent` / `CYLSearchBarItemView` draw it from the properties |
+| `CYLSearchBarItem.init(style:title:image:)` | `new CYLSearchBarItem(…)` |
+| `CYLSearchBarItem.init(title:image:)` | `new CYLSearchBarItem(…)` |
+| `CYLSearchBarItem.init(title:image:selectedImage:)` | `new CYLSearchBarItem(…)` |
+| `CYLSearchBarItem.iconItem(image:title:handler:)` | `CYLSearchBarItem.iconItem` |
+| `CYLSearchBarItem.textItem(title:handler:)` | `CYLSearchBarItem.textItem` |
+| `CYLSearchBarItem.divider()` | `CYLSearchBarItem.divider` |
+| `CYLSearchBarItem.item(dictionary:)` | `CYLSearchBarItem.item` |
+| `CYLSearchBarItem.setTitleTextAttributes(_:for:)` | `CYLSearchBarItem.setTitleTextAttributes` |
+| `CYLSearchBarItem.titleTextAttributes(for:)` | `CYLSearchBarItem.titleTextAttributes` |
+| `CYLSearchBarItem.setBadgeTextAttributes(_:for:)` | `CYLSearchBarItem.setBadgeTextAttributes` |
+| `CYLSearchBarItem.badgeTextAttributes(for:)` | `CYLSearchBarItem.badgeTextAttributes` |
+| `CYLSearchBarItem.actualBadgeSuperView()` | TODO: N/A on HarmonyOS: ArkUI has no view objects; the badge is drawn by `CYLSearchBarItemView` |
 | **class `CYLSearchResources`** | `CYLSearchResources` |
 | `CYLSearchResources.resourceBundle` | `CYLSearchResources.resourceBundle` |
 | `CYLSearchResources.image(named:)` | `CYLSearchResources.imageNamed` |
 | `CYLSearchResources.localizedString(forKey:)` | `CYLSearchResources.localizedString` |
 | `CYLSearchResources.localizedString(forKey:language:)` | `CYLSearchResources.localizedString` |
-| **protocol `CYLSearchResultsDataSource`** | `CYLSearchResultsDataSource` |
-| `CYLSearchResultsDataSource.-searchResultsViewController:resultsForQuery:` | `CYLSearchResultsDataSource.searchResultsViewControllerResultsForQuery` |
-| `CYLSearchResultsDataSource.-searchResultsViewController:configureCell:withResult:` | `CYLSearchResultsDataSource.searchResultsViewControllerConfigureCell` |
-| `CYLSearchResultsDataSource.-searchResultsViewController:didSelectResult:` | `CYLSearchResultsDataSource.searchResultsViewControllerDidSelectResult` |
-| **class `CYLSearchResultsViewController`** | `CYLSearchResultsViewController` |
-| `CYLSearchResultsViewController.searchDataSource` | `CYLSearchResultsViewController.searchDataSource` |
-| `CYLSearchResultsViewController.searchController` | `CYLSearchResultsViewController.searchController` |
-| `CYLSearchResultsViewController.searchResults` | `CYLSearchResultsViewController.searchResults` |
-| `CYLSearchResultsViewController.init(searchDataSource:)` | `new CYLSearchResultsViewController(…)` |
-| `CYLSearchResultsViewController.init(style:)` | N/A: not available on iOS either (`@available(*, unavailable)`) |
-| `CYLSearchResultsViewController.init(nibName:bundle:)` | N/A: not available on iOS either (`@available(*, unavailable)`) |
-| `CYLSearchResultsViewController.init(coder:)` | N/A: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
-| `CYLSearchResultsViewController.viewDidLayoutSubviews()` | N/A: `CYLSearchResultsComponent` lays the bar above the list in one column, never over it |
-| `CYLSearchResultsViewController.viewDidLoad()` | N/A: ArkUI components have no load phase (`CYLSearchResultsComponent.build`) |
-| `CYLSearchResultsViewController.reloadSearchResults()` | `CYLSearchResultsViewController.reloadSearchResults` |
-| `CYLSearchResultsViewController.reloadResultsTableView()` | `CYLSearchResultsViewController.reloadResultsTableView` |
-| `CYLSearchResultsViewController.updateSearchResults(for:)` | `CYLSearchResultsViewController.updateSearchResults` |
-| `CYLSearchResultsViewController.tableView(_:numberOfRowsInSection:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchResultsViewController.tableView(_:cellForRowAt:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchResultsViewController.tableView(_:didSelectRowAt:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| **class `CYLSearchSuggestionStore`** | `CYLSearchSuggestionStore` |
-| `CYLSearchSuggestionStore.policy` | `CYLSearchSuggestionStore.policy` |
-| `CYLSearchSuggestionStore.name` | `CYLSearchSuggestionStore.name` |
-| `CYLSearchSuggestionStore.maximumCount` | `CYLSearchSuggestionStore.maximumCount` |
-| `CYLSearchSuggestionStore.cache(policy:name:)` | `CYLSearchSuggestionStore.cache` |
-| `CYLSearchSuggestionStore.init(policy:name:)` | `new CYLSearchSuggestionStore(…)` |
-| `CYLSearchSuggestionStore.cachedQueries()` | `CYLSearchSuggestionStore.cachedQueries` |
-| `CYLSearchSuggestionStore.addQuery(_:)` | `CYLSearchSuggestionStore.addQuery` |
-| `CYLSearchSuggestionStore.removeQuery(_:)` | `CYLSearchSuggestionStore.removeQuery` |
-| `CYLSearchSuggestionStore.removeAllQueries()` | `CYLSearchSuggestionStore.removeAllQueries` |
 | **enum `CYLSearchSuggestionStyle`** | `CYLSearchSuggestionStyle` |
 | `CYLSearchSuggestionStyle.list` | `CYLSearchSuggestionStyle.list` |
 | `CYLSearchSuggestionStyle.tags` | `CYLSearchSuggestionStyle.tags` |
@@ -561,18 +430,33 @@ Score: 100/100 (422 of 422 rows; API 397/397, demos 25/25; TODO left 0).
 | `CYLSearchViewDelegate.-searchView:didSelectSuggestion:atIndex:` | `CYLSearchViewDelegate.searchViewDidSelectSuggestion` |
 | `CYLSearchViewDelegate.-searchViewVoiceButtonClicked:` | `CYLSearchViewDelegate.searchViewVoiceButtonClicked` |
 | `CYLSearchViewDelegate.-searchViewNavigationButtonClicked:` | `CYLSearchViewDelegate.searchViewNavigationButtonClicked` |
+| `CYLSearchViewDelegate.-searchView:didSelectResult:` | `CYLSearchViewDelegate.searchViewDidSelectResult` |
+| **protocol `CYLSearchViewDataSource`** | `CYLSearchViewDataSource` |
+| `CYLSearchViewDataSource.-searchView:resultsForQuery:` | `CYLSearchViewDataSource.searchViewResultsForQuery` |
+| `CYLSearchViewDataSource.-searchView:configureResultCell:withResult:` | `CYLSearchViewDataSource.searchViewConfigureResultCell` |
 | **class `CYLSearchView`** | `CYLSearchView` |
 | `CYLSearchView.delegate` | `CYLSearchView.delegate` |
 | `CYLSearchView.searchBarView` | `CYLSearchView.searchBarView` |
-| `CYLSearchView.dividerView` | N/A: ArkUI has no view objects; `CYLSearchComponent` draws the divider (`dividerColor`) |
-| `CYLSearchView.suggestionsTableView` | N/A: ArkUI has no view objects; `CYLSearchComponent` draws the list (`suggestionCellConfiguration`) |
-| `CYLSearchView.suggestionsTagView` | N/A: ArkUI has no view objects; `CYLSearchComponent` draws the tags (`suggestionsFoldControl`) |
+| `CYLSearchView.dividerView` | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchComponent` draws the divider (`dividerColor`) |
+| `CYLSearchView.suggestionsTableView` | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchComponent` draws the list (`suggestionCellConfiguration`) |
+| `CYLSearchView.suggestionsTagView` | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchComponent` draws the tags (`suggestionsFoldControl`) |
 | `CYLSearchView.suggestionsFoldControl` | `CYLSearchView.suggestionsFoldControl` |
 | `CYLSearchView.suggestionsFoldedRowCount` | `CYLSearchView.suggestionsFoldedRowCount` |
 | `CYLSearchView.suggestionStyle` | `CYLSearchView.suggestionStyle` |
 | `CYLSearchView.showsEmptyResultsPlaceholder` | `CYLSearchView.showsEmptyResultsPlaceholder` |
 | `CYLSearchView.emptyResultsScenario` | `CYLSearchView.emptyResultsScenario` |
 | `CYLSearchView.emptyResultsView` | `CYLSearchView.emptyResultsView` |
+| `CYLSearchView.resultsDataSource` | `CYLSearchView.resultsDataSource` |
+| `CYLSearchView.resultsTableView` | `CYLSearchView.resultsTableView` |
+| `CYLSearchView.searchResults` | `CYLSearchView.searchResults` |
+| `CYLSearchView.refreshHandler` | `CYLSearchView.refreshHandler` |
+| `CYLSearchView.isRefreshing` | `CYLSearchView.isRefreshing` |
+| `CYLSearchView.beginRefreshing()` | `CYLSearchView.beginRefreshing` |
+| `CYLSearchView.endRefreshing()` | `CYLSearchView.endRefreshing` |
+| `CYLSearchView.setRefreshHandler(_:)` | `CYLSearchView.setRefreshHandler` |
+| `CYLSearchView.beginRefreshing(in:)` | `CYLSearchView.beginRefreshing` |
+| `CYLSearchView.endRefreshing(in:)` | `CYLSearchView.endRefreshing` |
+| `CYLSearchView.isRefreshing(in:)` | `CYLSearchView.isRefreshing` |
 | `CYLSearchView.dividerColor` | `CYLSearchView.dividerColor` |
 | `CYLSearchView.contentView` | `CYLSearchView.contentView` |
 | `CYLSearchView.scrimColor` | `CYLSearchView.scrimColor` |
@@ -590,7 +474,7 @@ Score: 100/100 (422 of 422 rows; API 397/397, demos 25/25; TODO left 0).
 | `CYLSearchView.suggestionCachePolicy` | `CYLSearchView.suggestionCachePolicy` |
 | `CYLSearchView.suggestionCacheName` | `CYLSearchView.suggestionCacheName` |
 | `CYLSearchView.suggestionCache` | `CYLSearchView.suggestionCache` |
-| `CYLSearchView.suggestionCacheHeaderView` | N/A: ArkUI has no view objects; `CYLSearchComponent.cacheHeader` draws it |
+| `CYLSearchView.suggestionCacheHeaderView` | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchComponent.cacheHeader` draws it |
 | `CYLSearchView.suggestionCacheTitleLabel` | `CYLSearchView.suggestionCacheTitle` |
 | `CYLSearchView.clearSuggestionCacheButton` | `CYLSearchView.clearSuggestionCache()` (the header button calls it) |
 | `CYLSearchView.showsEmptySuggestionsPlaceholder` | `CYLSearchView.showsEmptySuggestionsPlaceholder` |
@@ -603,32 +487,34 @@ Score: 100/100 (422 of 422 rows; API 397/397, demos 25/25; TODO left 0).
 | `CYLSearchView.query` | `CYLSearchView.query` |
 | `CYLSearchView.backgroundColor` | `CYLSearchView.backgroundColor` |
 | `CYLSearchView.init(frame:)` | `new CYLSearchView(…)` |
-| `CYLSearchView.init(coder:)` | N/A: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
-| `CYLSearchView.layoutSubviews()` | N/A: ArkUI lays a component out from its declaration |
-| `CYLSearchView.safeAreaInsetsDidChange()` | N/A: ArkUI keeps the page inside the safe area by itself |
+| `CYLSearchView.init(coder:)` | TODO: N/A on HarmonyOS: no archives in ArkUI (the state is restored with `decodeRestorableState`) |
+| `CYLSearchView.layoutSubviews()` | TODO: N/A on HarmonyOS: ArkUI lays a component out from its declaration |
+| `CYLSearchView.safeAreaInsetsDidChange()` | TODO: N/A on HarmonyOS: ArkUI keeps the page inside the safe area by itself |
 | `CYLSearchView.install(in:)` | `CYLSearchView.installInView` |
 | `CYLSearchView.showSearch()` | `CYLSearchView.showSearch` |
 | `CYLSearchView.showSearch(animated:)` | `CYLSearchView.showSearch` |
 | `CYLSearchView.closeSearch()` | `CYLSearchView.closeSearch` |
 | `CYLSearchView.closeSearch(animated:)` | `CYLSearchView.closeSearch` |
+| `CYLSearchView.closeSearch(animated:completion:)` | `CYLSearchView.closeSearch` |
 | `CYLSearchView.encodeRestorableState(with:)` | `CYLSearchView.encodeRestorableState` |
 | `CYLSearchView.decodeRestorableState(with:)` | `CYLSearchView.decodeRestorableState` |
 | `CYLSearchView.accessibilityPerformEscape()` | `CYLSearchView.accessibilityPerformEscape` |
 | `CYLSearchView.attach(to:)` | `CYLSearchView.attachToMenuItem` |
 | `CYLSearchView.setQuery(_:submit:)` | `CYLSearchView.setQuery` |
 | `CYLSearchView.showSuggestions()` | `CYLSearchView.showSuggestions` |
+| `CYLSearchView.reloadResults()` | `CYLSearchView.reloadResults` |
 | `CYLSearchView.dismissSuggestions()` | `CYLSearchView.dismissSuggestions` |
 | `CYLSearchView.clearSuggestionCache()` | `CYLSearchView.clearSuggestionCache` |
-| `CYLSearchView.searchBarView(_:textDidChange:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchView.searchBarViewSearchButtonClicked(_:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchView.searchBarViewNavigationButtonClicked(_:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchView.searchBarViewVoiceButtonClicked(_:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchView.searchBarViewCancelButtonClicked(_:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchView.searchBarViewDidBeginEditing(_:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchView.searchBarViewDidEndEditing(_:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchView.tableView(_:numberOfRowsInSection:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchView.tableView(_:cellForRowAt:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
-| `CYLSearchView.tableView(_:didSelectRowAt:)` | N/A: a UIKit protocol conformance (ArkUI reports the same events to the model) |
+| `CYLSearchView.searchBarView(_:textDidChange:)` | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
+| `CYLSearchView.searchBarViewSearchButtonClicked(_:)` | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
+| `CYLSearchView.searchBarViewNavigationButtonClicked(_:)` | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
+| `CYLSearchView.searchBarViewVoiceButtonClicked(_:)` | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
+| `CYLSearchView.searchBarViewCancelButtonClicked(_:)` | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
+| `CYLSearchView.searchBarViewDidBeginEditing(_:)` | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
+| `CYLSearchView.searchBarViewDidEndEditing(_:)` | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
+| `CYLSearchView.tableView(_:numberOfRowsInSection:)` | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
+| `CYLSearchView.tableView(_:cellForRowAt:)` | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
+| `CYLSearchView.tableView(_:didSelectRowAt:)` | TODO: N/A on HarmonyOS: a UIKit protocol conformance (ArkUI reports the same events to the model) |
 <!-- harmonyos-api:end -->
 
 ## Table 2: iOS example demos
@@ -637,12 +523,12 @@ Score: 100/100 (422 of 422 rows; API 397/397, demos 25/25; TODO left 0).
 | iOS example demo | HarmonyOS implementation |
 | :--- | :--- |
 | Tab bar: CYLTabBarController with Search, Examples, Tag style, Discover and the plus button (CYLTabBarConfiguration.json) (`CYLSearchExampleAppDelegate.m`) | `pages/Index.ets` on CYLTabBarController's HarmonyOS library `cyltabbar` (commit 94eb7b1), configured by the iOS CYLTabBarConfiguration.json |
-| Search tab: Issue #1317 reproduction, the search bar in the navigation bar over a list (CYLSearchController + CYLSearchResultsViewController) (`CYLSearchExampleViewController.swift`) | `demos/SearchExample.ets` `SearchExampleView` (Repro, Overlay with `CYLSearchController`) |
+| Search tab: Issue #1317 reproduction, the search bar in the navigation bar over a list (CYLSearchController + CYLSearchResultsViewController) (`CYLSearchExampleViewController.swift`) | TODO |
 | Search tab: pull to refresh with CYLTableViewPlaceHolder's CYLRefreshNormalHeader (`CYLSearchExampleViewController.swift`) | `SearchExampleView` with CYLTableViewPlaceHolder's HarmonyOS library `cylplaceholder` (commit 5bcbdb5): `CYLRefreshContainer` + `CYLRefreshNormalHeaderModel` |
-| Search tab: the empty state, CYLSearchPlaceholderView "No matching results" (`CYLSearchExampleViewController.swift`) | `SearchExampleView` with `CYLSearchPlaceholderView.withKind(noResults)` |
+| Search tab: the empty state, CYLSearchPlaceholderView "No matching results" (`CYLSearchExampleViewController.swift`) | TODO |
 | Examples tab: the menu (Search and refresh, Placeholder styles, Search bar, Ports) (`CYLSearchDemoMenuViewController.m`) | `demos/ExamplesMenu.ets` `ExamplesMenuView` |
 | Placeholder styles: the 41 styles x 4 messages and the Custom section (text only, image only, both) (`CYLSearchDemoMenuViewController.m`) | `PlaceholderGalleryPage` (the iOS images, `imageForStyle`) |
-| Placeholder styles: the detail page with one CYLSearchPlaceholderView (`CYLSearchDemoMenuViewController.m`) | `PlaceholderDetailPage` |
+| Placeholder styles: the detail page with one CYLSearchPlaceholderView (`CYLSearchDemoMenuViewController.m`) | TODO |
 | Search bar page (plus button and Examples): CYLSearchBarView styles and appended items (`CYLSearchBarDemoViewController.m`) | `demos/SearchBarDemo.ets` `SearchBarDemoView` |
 | Ports: the menu of five search libraries (`CYLSearchPortsViewController.swift`) | `PortsMenuPage` |
 | Port: lapism/search (MaterialSearchBar + MaterialSearchView) (`CYLLapismSearchViewController.swift`) | `demos/Ports.ets` `LapismPage` |
