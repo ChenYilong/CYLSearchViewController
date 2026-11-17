@@ -28,16 +28,16 @@ on the native cores, Flutter as well. Dated task entries below record the work i
   - HarmonyOS: ohosTest 29 of 29; 2026-11-17 23:30 +13:00, CYLTabBarController fe5c3ae3 (`assets/harmonyos-mate70pro-api21-20261117-examples-at-fe5c3ae3.png`:
     HarmonyOS API 21, Mate 70 Pro emulator, DevEco Studio 6.0.1.251, Windows 11).
   - React Native: builds; Rive tab icons tinted (selected blue), plus button raised by the core
-    (`assets/android-medium-phone-api37-20261118-rn-rive-tint-plus.png`); search opens and filters as you type
-    (`…-rn-search-filter.png`). Unit tests on a clean clone (CYLTableViewPlaceHolder's session): jest 5 of 5, tsc 0 errors.
+    (`assets/android-medium-phone-api37-20261118-rn-rive-tint-plus.png` (2026-11-18 00:05 +13:00, CYLTabBarController fe5c3ae3, Android API 37 Medium Phone emulator, Windows 11));
+    search opens and filters as you type (`assets/android-medium-phone-api37-20261118-rn-search-filter.png` (2026-11-18 00:10 +13:00, CYLTabBarController fe5c3ae3, Android API 37 Medium Phone emulator, Windows 11)). Unit tests on a clean clone (CYLTableViewPlaceHolder's session): jest 5 of 5, tsc 0 errors.
   - Flutter: builds; after adding `tint: "title"` to its Rive tabs the icons are tinted and the plus button is raised by the
-    core (`…-flutter-rive-tint-plus.png`); in this debug build the native tab bar appears about a minute after launch.
+    core (`assets/android-medium-phone-api37-20261118-flutter-rive-tint-plus.png` (2026-11-18 00:01 +13:00, CYLTabBarController fe5c3ae3, Android API 37 Medium Phone emulator, Windows 11)); in this debug build the native tab bar appears about a minute after launch.
     flutter test 13 of 13 and analyze with 3 infos only (clean clone). The search check on the device waits for the
     shared emulator.
   - Bug recorded: the React Native example's status bar icons are white on its white page (as row 26 was on native
     Android); fixed in `src/App.tsx` with a `StatusBar` that follows light and dark mode; checked, dark icons now
-    (`assets/android-medium-phone-api37-20261118-rn-status-bar-fixed.png`). Example-only: the core has no status bar code.
-  - Flutter search on the device: opens and filters as you type ("sw" shows Swift; `…-flutter-search-filter.png`).
+    (`assets/android-medium-phone-api37-20261118-rn-status-bar-fixed.png` (2026-11-18 00:20 +13:00, CYLTabBarController fe5c3ae3, Android API 37 Medium Phone emulator, Windows 11)). Example-only: the core has no status bar code.
+  - Flutter search on the device: opens and filters as you type ("sw" shows Swift; `assets/android-medium-phone-api37-20261118-flutter-search-filter.png` (2026-11-18 00:17 +13:00, CYLTabBarController fe5c3ae3, Android API 37 Medium Phone emulator, Windows 11)).
   - Windows build note (from CYLTableViewPlaceHolder's session): a clone at a deep path fails React Native's CMake step on
     260 characters; written into the React Native README ("Building the example on Windows").
 

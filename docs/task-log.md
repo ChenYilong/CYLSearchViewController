@@ -438,6 +438,9 @@ begins and becomes `DONE` when it ends.
   ("Screenshot labels are enforced", commit readiness, step 0 of the task start), `instructions.md`, `cyl-verify`,
   `cyl-docs`, `cyl-commit`, `cyl-task-start`. The 12 screenshots this session took on 2026-11-17/18 are relabelled
   (originals in `docs/assets/raw/`); the check passes on them.
-- **Score**: 95 of 100. Missing 5: the Swift tool change (required header / footer, the PNG text) is untested, since
-  Swift does not run on this Windows host; the Mac session is asked to run it. The iOS session's
-  `flutter-ios27.2-iphone18pro-20261118-rive-tint-fe5c3ae-vs-6a9ede85.png` predates the check and is theirs to relabel.
+- **Score**: 100 of 100. The Swift tool was checked on macOS 27.3 + Xcode 27.2 by the Mac session (compiles; the PNG
+  carries "CYL header:"; without --header / --footer it writes nothing), and that session relabelled its two iOS
+  screenshots of the day (`f8df045`). Running the check over every image added since 2026-11-18 00:00 (`4e212ed~1..HEAD`) also found
+  abbreviated file names (`…-rn-search-filter.png`, `{rn,flutter}-rive-at-…`) in this session's documents; they are written
+  in full with their labels now. Left to the iOS session: `docs/assets/ios-ci-animated-icons-svga.png` (`261673f`, a
+  stitched iOS CI capture without header, footer or label line).
