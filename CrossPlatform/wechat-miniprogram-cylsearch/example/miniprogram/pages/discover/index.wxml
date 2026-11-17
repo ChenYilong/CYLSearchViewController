@@ -2,7 +2,8 @@
   <!-- The search bar in place of the navigation bar; the back button only when the page was pushed. -->
   <view class="top" style="top: {{barTop}}px; right: {{barRight}}px; left: {{showsBack ? 6 : 4}}px">
     <view wx:if="{{showsBack}}" class="back" role="button" aria-label="{{texts.back}}" bindtap="onBack"><view class="icon icon-back" aria-hidden="true" /></view>
-    <cyl-search-bar id="bar" class="bar" value="{{query}}" placeholder="{{placeholder}}" showsSearchIcon="{{false}}" contentInsets="0"
+    <cyl-search-bar generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
+      id="bar" class="bar" value="{{query}}" placeholder="{{placeholder}}" showsSearchIcon="{{false}}" contentInsets="0"
       fieldHeight="{{46}}" fieldCornerRadius="{{22}}" fieldShadowOpacity="{{0.06}}" fieldBorderColor="#c6c6c8" fieldBorderWidth="{{1}}"
       fieldBackgroundColor="#ffffff" searchBarStyle="bordered" fontSize="{{16}}" items="{{items}}"
       bind:textchange="onTextChange" bind:submit="onSubmit" bind:itemselect="onItemSelect" />

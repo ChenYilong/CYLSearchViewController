@@ -7,7 +7,9 @@
 <view class="cyl-page {{inline ? 'cyl-page-inline' : ''}} {{entered || inline ? 'cyl-page-entered' : ''}}" wx:if="{{visible || inline}}"
   style="{{pageStyle}} {{backgroundColor ? 'background: ' + backgroundColor + ';' : ''}}">
   <block wx:if="{{!(showsResults && hidesSearchBarWhenScrolling)}}">
-    <cyl-search-bar value="{{query}}" placeholder="{{placeholder}}" focus="{{focus}}" searchBarStyle="{{searchBarStyle}}"
+    <cyl-search-bar generic:cyl-lottie-view="cyl-lottie-view" generic:cyl-pag-view="cyl-pag-view"
+      generic:cyl-rive-view="cyl-rive-view" generic:cyl-svga-view="cyl-svga-view"
+      value="{{query}}" placeholder="{{placeholder}}" focus="{{focus}}" searchBarStyle="{{searchBarStyle}}"
       items="{{items}}" navigationIcon="{{navigationIcon}}" navigationColor="{{navigationColor || textColor}}"
       showsCancelButton="{{showsCancelButton}}" cancelButtonTitle="{{cancelButtonTitle}}" showsVoiceButton="{{showsVoiceButton}}"
       showsSearchIcon="{{showsSearchIcon}}" secure="{{secure}}" cursorColor="{{cursorColor}}" textColor="{{textColor}}"
@@ -22,7 +24,9 @@
   <cyl-refresh wx:elif="{{showsResults}}" id="cyl-refresh" class="cyl-results" header="{{refreshes ? 'normal' : 'none'}}" footer="none"
     bind:refresh="onRefresh">
     <block wx:if="{{hidesSearchBarWhenScrolling}}">
-      <cyl-search-bar value="{{query}}" placeholder="{{placeholder}}" focus="{{focus}}" searchBarStyle="{{searchBarStyle}}"
+      <cyl-search-bar generic:cyl-lottie-view="cyl-lottie-view" generic:cyl-pag-view="cyl-pag-view"
+        generic:cyl-rive-view="cyl-rive-view" generic:cyl-svga-view="cyl-svga-view"
+        value="{{query}}" placeholder="{{placeholder}}" focus="{{focus}}" searchBarStyle="{{searchBarStyle}}"
         items="{{items}}" navigationIcon="{{navigationIcon}}" navigationColor="{{navigationColor || textColor}}"
         showsCancelButton="{{showsCancelButton}}" cancelButtonTitle="{{cancelButtonTitle}}" showsVoiceButton="{{showsVoiceButton}}"
         showsSearchIcon="{{showsSearchIcon}}" secure="{{secure}}" cursorColor="{{cursorColor}}" textColor="{{textColor}}"

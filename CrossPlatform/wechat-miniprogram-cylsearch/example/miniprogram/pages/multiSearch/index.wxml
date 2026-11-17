@@ -1,7 +1,8 @@
 <view class="screen">
   <cyl-demo-nav title="MultiSearchView" />
   <!-- iammert/MultiSearchView: the core's search bar with mode "multiple" (iOS CYLSearchBarView.mode = .multiple). -->
-  <cyl-search-bar id="multi" class="multi" mode="multiple" placeholder="{{hint}}" fontSize="{{18}}" maximumTextLength="{{15}}" returnKeyType="search"
+  <cyl-search-bar generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
+    id="multi" class="multi" mode="multiple" placeholder="{{hint}}" fontSize="{{18}}" maximumTextLength="{{15}}" returnKeyType="search"
     placeholderColor="rgba(153, 153, 153, 0.5)" bind:selectsearch="onSelect" bind:textchange="onTextChange"
     bind:completesearch="onComplete" bind:removesearch="onRemove" />
   <scroll-view scroll-y class="log" aria-label="{{eventsLabel}}"><text class="log-text" user-select>{{log}}</text></scroll-view>

@@ -12,7 +12,9 @@
 //      CYL_PLACEHOLDER_DIR=<checkout> uses a local checkout instead;
 //    - CollectionViewClassifyMenu (`collectionViewClassifyMenuCommit`), the other sub-dependency of the core:
 //      cyl-tag-button (the one icon + title + animated icon component, which draws the search bar items) with the rest
-//      of its package, as cyl-tag-list-miniprogram; CYL_CLASSIFYMENU_DIR=<checkout> uses a local checkout instead.
+//      of its package, as cyl-tag-list-miniprogram, including cyl-animated-item (CYLTabBarController's shared animated
+//      icon + title component, vendored there by commit, see its COMMIT file) and cyl-animation-placeholder (the default
+//      engine); CYL_CLASSIFYMENU_DIR=<checkout> uses a local checkout instead.
 // Runs from `npm run sync-example` and from the DevTools beforeCompile / beforePreview / beforeUpload hooks of
 // project.config.json. The outputs are git-ignored.
 'use strict';
@@ -102,10 +104,17 @@ for (const component of ['cyl-placeholder', 'cyl-refresh']) {
 copyLicenses([placeholderPackage], placeholderTo);
 
 // CollectionViewClassifyMenu: its mini program package (cyl-tag-button draws the search bar items; it needs the rest of
-// the package: cyl-tag-list's model and animations, cyl-animation-icon, the strings).
+// the package: cyl-tag-list's model and animations, cyl-animated-item, cyl-animation-placeholder, the strings).
+// cyl-animated-item draws the icon with the engines the app passes through cyl-search-bar's abstract nodes.
 const classifyMenuRoot = process.env.CYL_CLASSIFYMENU_DIR || checkout('CollectionViewClassifyMenu', pkg.collectionViewClassifyMenuCommit,
   ['CrossPlatform/wechat-miniprogram/packages/cyl-tag-list-miniprogram']);
 const tagListPackage = path.join(classifyMenuRoot, 'CrossPlatform', 'wechat-miniprogram', 'packages', 'cyl-tag-list-miniprogram');
 const tagListTo = path.join(miniprogram, 'miniprogram_npm', 'cyl-tag-list-miniprogram');
 sync(path.join(tagListPackage, 'miniprogram_dist'), tagListTo);
 copyLicenses([classifyMenuRoot, tagListPackage], tagListTo);
+// cyl-animated-item keeps its own LICENSE in its folder (copied with miniprogram_dist).
+for (const folder of ['cyl-animated-item', 'cyl-animation-placeholder', 'cyl-tag-button']) {
+  if (!fs.existsSync(path.join(tagListTo, folder))) {
+    throw new Error(`cyl-tag-list-miniprogram at ${pkg.collectionViewClassifyMenuCommit} has no ${folder}: pin a commit with CYLAnimatedItem`);
+  }
+}

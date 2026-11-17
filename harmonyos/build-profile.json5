@@ -39,6 +39,10 @@
     {
       "name": "classifymenu",
       "srcPath": "./vendor/classifymenu"
+    },
+    {
+      "name": "cylanimateditem",
+      "srcPath": "./vendor/cylanimateditem"
     }
   ]
 }

@@ -1,7 +1,8 @@
 <view class="screen">
   <cyl-demo-nav title="{{expanded ? '' : 'SearchView'}}">
     <view slot="right" class="toolbar-search" style="width: {{expanded ? expandedWidth : 44}}px">
-      <cyl-search-bar id="toolbarSearch" iconifiedByDefault showsSubmitButton returnKeyType="search" placeholder="{{keyword}}" placeholderColor="#dcdcdc"
+      <cyl-search-bar generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
+        id="toolbarSearch" iconifiedByDefault showsSubmitButton returnKeyType="search" placeholder="{{keyword}}" placeholderColor="#dcdcdc"
         contentInsets="0" fieldBackgroundColor="transparent" iconPosition="trailing"
         bind:submit="onSubmit" bind:textchange="onTextChange" bind:iconifiedchange="onIconifiedChange" />
     </view>

@@ -2,11 +2,15 @@ import { AbilityConstant, ConfigurationConstant, UIAbility, Want } from '@kit.Ab
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
 import { CYL_TAB_ICON_SOURCE_KEY, cylStoredTabIconSource } from '../common/DemoCommon';
+import { cylRegisterExampleAnimationEngines } from '../animation/CYLExampleAnimationViews';
 
 const DOMAIN = 0x0000;
 
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
+    // cylsearch and CollectionViewClassifyMenu play no animation by themselves: the example registers the engines it
+    // bundles (Lottie, PAG, Rive, SVGA, GIF) and the views that play them, before any search bar item is shown.
+    cylRegisterExampleAnimationEngines();
     // The tab icon source chosen last time (the Examples page's "Tab icons: …" button), before any page is built.
     AppStorage.setOrCreate<number>(CYL_TAB_ICON_SOURCE_KEY, cylStoredTabIconSource(this.context));
     this.storeLaunchParameters(want);

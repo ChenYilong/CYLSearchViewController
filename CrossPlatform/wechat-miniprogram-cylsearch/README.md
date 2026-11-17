@@ -27,7 +27,13 @@ CYLTableViewPlaceHolder's mini program package, `cyl-placeholder-miniprogram` (p
    peer dependency; the search view needs it. In the same way, the folder
    `CrossPlatform/wechat-miniprogram/packages/cyl-tag-list-miniprogram/miniprogram_dist` of
    [CollectionViewClassifyMenu](https://github.com/ChenYilong/CollectionViewClassifyMenu) goes into
-   `miniprogram_npm/cyl-tag-list-miniprogram/`: the search bar draws its items with its `cyl-tag-button`.
+   `miniprogram_npm/cyl-tag-list-miniprogram/`: the search bar draws its items with its `cyl-tag-button`, whose icon is
+   CYLTabBarController's `cyl-animated-item` (vendored in that folder by commit).
+   The package links no animation engine: an item's `animationURL` plays through the abstract nodes
+   `cyl-lottie-view`, `cyl-pag-view`, `cyl-rive-view` and `cyl-svga-view` of `cyl-search-bar` and `cyl-search`, which
+   forward them to `cyl-tag-button`. Pass the players you install, for example
+   `<cyl-search-bar generic:cyl-lottie-view="cyl-lottie" generic:cyl-svga-view="cyl-svga" …>`; without one, the item
+   shows its `image`.
 3. DevTools > Tools > Build npm (构建 npm). The components are then `cyl-search-miniprogram/<component>/index`:
 
 ```json

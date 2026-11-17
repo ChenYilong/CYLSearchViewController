@@ -349,3 +349,39 @@
 - **Status**: started. Pins `57a527e`; HarmonyOS and mini program migrations next (not buildable here: no DevEco, no WeChat
   DevTools).
 - **Pin** (2026-11-17): CollectionViewClassifyMenu `71562ca` (HarmonyOS `CYLTagButton` on `cylanimateditem`, mini program tags on `cyl-animated-item`, both by commit `57a527e`). The HarmonyOS vendor copy and the mini program search bar follow next.
+- **Status** (2026-11-17, HarmonyOS and mini program on the pinned CollectionViewClassifyMenu `71562ca`): done in code, not
+  compiled or run (no DevEco Studio, no WeChat DevTools here), so the heading stays `TODO`.
+  - **How the component arrives, by commit.** Both platforms take CYLTabBarController's component through
+    CollectionViewClassifyMenu's vendored copy at `57a527e` (checked here: the same files as CYLTabBarController
+    `57a527e`, plus ClassifyMenu's `README.md` / `COMMIT` / `LICENSE`).
+    - HarmonyOS: `harmonyos/scripts/sync-sub-repositories.py` now also copies ClassifyMenu `harmony/cylanimateditem`
+      (at `collectionViewClassifyMenuCommit`) into `harmonyos/vendor/cylanimateditem`, next to `vendor/classifymenu`,
+      so the vendored `"cylanimateditem": "file:../cylanimateditem"` resolves; `harmonyos/build-profile.json5`
+      registers the module. `cylsearch` still depends only on `cylplaceholder` and `@cyl/classifymenu`: no animation
+      library. The example `harmonyos/entry` registers the engines (`cylRegisterExampleAnimationEngines()` in
+      `EntryAbility.onCreate`: `CYLAnimatedItemEngines.register('Lottie' | 'PAG' | 'Rive' | 'SVGA' | 'GIF')` and
+      `CYLTagAnimationBuilder.register(...)`) with the players and views ported unchanged from ClassifyMenu's example
+      (`entry/src/main/ets/animation/`, SVGA decoder included), and adds `@ohos/lottie`, `@tencent/libpag` (4.5.102,
+      the root override) and `@ohos/rive` to its own `oh-package.json5`.
+    - Mini program: `scripts/sync-example.js` copies ClassifyMenu's `cyl-tag-list-miniprogram/miniprogram_dist`, which
+      now holds `cyl-animated-item` (with its `COMMIT` = `57a527e` and `LICENSE`) and `cyl-animation-placeholder`; the
+      script fails when either is missing. `src/cyl-search-bar` declares the abstract nodes `cyl-lottie-view`,
+      `cyl-pag-view`, `cyl-rive-view`, `cyl-svga-view` (default: ClassifyMenu's `cyl-animation-placeholder`) and
+      forwards them to `cyl-tag-button`; `src/cyl-search` declares and forwards them to its `cyl-search-bar`s. The
+      package links no engine. Every search bar of the example passes `generic:cyl-lottie-view="cyl-lottie"` and
+      `generic:cyl-svga-view="cyl-svga"` (CYLTabBarController's players, already installed for the tab bar) and the
+      placeholder for PAG and Rive (the example installs no PAG or Rive player).
+  - **API.** HarmonyOS `CYLSearchBarView` / `CYLSearchBarItem` unchanged: the fields it sets on `CYLTagButton`
+    (`image`, `selectedImage`, `animationURL`, `style.animationSize`, badge, `playAnimation()`) are unchanged at `71562ca`.
+    One behavior change from ClassifyMenu: while the animation loads (or with no engine registered), the static image
+    under it is the item's `image` when it is a resource or a path; a system symbol cannot be drawn there, so the
+    component's placeholder shows. Mini program: added the four abstract nodes on `cyl-search-bar` and `cyl-search`.
+  - **Checks.** Mini program `npm test`: 51 of 51 (3 new tests: the slots are declared and forwarded, the synced
+    `cyl-animated-item` is at the pinned commit, every example search bar passes its engines);
+    `node harmonyos/scripts/host-logic-test.mjs` 30 of 30; `check-ios-parity.mjs` 397 match;
+    `check-accessibility-i18n.mjs` 0 problems; `harmonyos-scorecard.py` 100/100; `miniprogram-api-alignment.py`
+    100/100 (no change); `check-licenses.sh` OK; `check-public-api-comments.sh` OK.
+  - **TODO.** Build the HAP with DevEco Studio (ohpm install of the `file:` modules and the three animation libraries;
+    `PAGFile.LoadFromAssets` and the Rive view against `@tencent/libpag` 4.5.102 and `@ohos/rive` 1.0.4) and run the
+    ohosTest suite on the emulator; run the mini program in WeChat DevTools and check an animated search bar item
+    (SVGA / Lottie) plays on tap and falls back to its image; screenshots for both (AGENTS.md, "Screenshots").

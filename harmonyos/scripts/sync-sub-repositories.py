@@ -5,7 +5,11 @@
 - CYLTableViewPlaceHolder `CrossPlatform/harmonyos-cylplaceholder/cylplaceholder` -> harmonyos/vendor/cylplaceholder
   (CYLRefreshNormalHeader and the placeholder scenarios);
 - CollectionViewClassifyMenu `harmony/classifymenu` -> harmonyos/vendor/classifymenu (`CYLTagButton`, the one icon +
-  title + animated icon component that draws the search bar items).
+  title + animated icon component that draws the search bar items);
+- CollectionViewClassifyMenu `harmony/cylanimateditem` -> harmonyos/vendor/cylanimateditem (CYLTabBarController's shared
+  animated icon + title component, `CYLAnimatedItemView`, vendored by CollectionViewClassifyMenu at CYLTabBarController
+  commit 57a527e; the vendored classifymenu names it `file:../cylanimateditem`, so the two stay side by side). It
+  depends on no animation library: the example registers the engines it plays (entry/src/main/ets/animation).
 
 The commits are in harmonyos/oh-package.json5 (`cylTabBarControllerCommit`, `cylTableViewPlaceHolderCommit`,
 `collectionViewClassifyMenuCommit`; the newest commit on any branch that has the HarmonyOS library,
@@ -24,6 +28,8 @@ REPOS = [
      'CrossPlatform/harmonyos-cylplaceholder/cylplaceholder', 'CYL_PLACEHOLDER_DIR', ['LICENSE']),
     ('classifymenu', 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', 'collectionViewClassifyMenuCommit',
      'harmony/classifymenu', 'CYL_CLASSIFYMENU_DIR', []),
+    ('cylanimateditem', 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', 'collectionViewClassifyMenuCommit',
+     'harmony/cylanimateditem', 'CYL_CLASSIFYMENU_DIR', []),
 ]
 
 
@@ -47,7 +53,9 @@ def main():
         if local:
             repo_dir = local
         else:
-            repo_dir = os.path.join(tempfile.gettempdir(), 'cyl-harmony-' + name + '.git')
+            # One cache per repository: classifymenu and cylanimateditem come from the same commit of the same one.
+            cache = os.path.basename(url)[:-len('.git')].lower()
+            repo_dir = os.path.join(tempfile.gettempdir(), 'cyl-harmony-' + cache + '.git')
             if not os.path.isdir(repo_dir):
                 subprocess.run(['git', 'init', '--bare', '-q', repo_dir], check=True)
             subprocess.run(['git', '-C', repo_dir, 'fetch', '-q', '--filter=blob:none', url, commit], check=True)

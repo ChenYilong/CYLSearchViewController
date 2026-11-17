@@ -58,12 +58,16 @@
       </view>
       <slot name="trailing" />
       <!-- The appended items (iOS CYLSearchBarItem): a divider, or CollectionViewClassifyMenu's cyl-tag-button (the one
-           icon + title + animated icon component, with the badge), at least 36 px square; it reads the item's label. -->
+           icon + title + animated icon component, with the badge), at least 36 px square; it reads the item's label.
+           The four engine slots go on to cyl-tag-button, which hands them to CYLTabBarController's cyl-animated-item:
+           the package plays no animation itself (the app passes its engines with generic:cyl-*-view). -->
       <block wx:for="{{shownItems}}" wx:key="index">
         <view wx:if="{{item.style === 'divider'}}" class="cyl-divider" aria-hidden="true" />
         <view wx:else class="cyl-item {{item.isEnabled === false ? 'cyl-item-disabled' : ''}}" id="{{item.accessibilityIdentifier}}"
           data-index="{{index}}" bindtap="onItemTap">
-          <cyl-tag-button id="cyl-bar-item-{{index}}" title="{{item.button.title}}" image="{{item.button.image}}"
+          <cyl-tag-button id="cyl-bar-item-{{index}}" generic:cyl-lottie-view="cyl-lottie-view" generic:cyl-pag-view="cyl-pag-view"
+            generic:cyl-rive-view="cyl-rive-view" generic:cyl-svga-view="cyl-svga-view"
+            title="{{item.button.title}}" image="{{item.button.image}}"
             selectedImage="{{item.button.selectedImage}}" animationURL="{{item.button.animationURL}}"
             badgeValue="{{item.button.badgeValue}}" badgeColor="{{item.button.badgeColor}}"
             accessibilityLabel="{{item.button.accessibilityLabel}}" selected="{{item.button.selected}}"

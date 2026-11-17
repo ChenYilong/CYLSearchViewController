@@ -2,5 +2,19 @@
   "component": true,
   "usingComponents": {
     "cyl-tag-button": "cyl-tag-list-miniprogram/cyl-tag-button/cyl-tag-button"
+  },
+  "componentGenerics": {
+    "cyl-lottie-view": {
+      "default": "cyl-tag-list-miniprogram/cyl-animation-placeholder/index"
+    },
+    "cyl-pag-view": {
+      "default": "cyl-tag-list-miniprogram/cyl-animation-placeholder/index"
+    },
+    "cyl-rive-view": {
+      "default": "cyl-tag-list-miniprogram/cyl-animation-placeholder/index"
+    },
+    "cyl-svga-view": {
+      "default": "cyl-tag-list-miniprogram/cyl-animation-placeholder/index"
+    }
   }
 }

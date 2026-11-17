@@ -104,3 +104,49 @@ test('no file of the package or the example names a removed component', () => {
     assert.ok(!removed.test(code), path.relative(root, file));
   }
 });
+
+// The bar items' animated icons are CYLTabBarController's cyl-animated-item, inside CollectionViewClassifyMenu's
+// cyl-tag-button: the package links no animation engine; it declares the four engine slots and forwards them.
+const ENGINE_SLOTS = ['cyl-lottie-view', 'cyl-pag-view', 'cyl-rive-view', 'cyl-svga-view'];
+
+test('cyl-search-bar and cyl-search declare the four engine slots and forward them, with no engine of their own', () => {
+  const forwards = { 'cyl-search-bar': 'cyl-tag-button', 'cyl-search': 'cyl-search-bar' };
+  for (const [name, child] of Object.entries(forwards)) {
+    const json = JSON.parse(fs.readFileSync(path.join(src, name, 'index.json'), 'utf8'));
+    for (const slot of ENGINE_SLOTS) {
+      assert.strictEqual(json.componentGenerics[slot].default, 'cyl-tag-list-miniprogram/cyl-animation-placeholder/index', `${name} ${slot}`);
+    }
+    const wxml = fs.readFileSync(path.join(src, name, 'index.wxml'), 'utf8').replace(/<!--[\s\S]*?-->/g, '');
+    const tags = wxml.match(new RegExp(`<${child}\\s[^>]*>`, 'g')) || [];
+    assert.ok(tags.length > 0, `${name} draws ${child}`);
+    for (const tag of tags) {
+      for (const slot of ENGINE_SLOTS) assert.ok(tag.includes(`generic:${slot}="${slot}"`), `${name} forwards ${slot} to ${child}`);
+    }
+    const used = Object.values(json.usingComponents || {}).join(' ');
+    assert.ok(!/lottie|pag|rive|svga/i.test(used), `${name} uses no engine: ${used}`);
+  }
+});
+
+test('the synced CollectionViewClassifyMenu package has cyl-animated-item at the pinned CYLTabBarController commit', { skip: !fs.existsSync(path.join(synced, 'cyl-tag-list-miniprogram')) && 'run scripts/sync-example.js first' }, () => {
+  const tagList = path.join(synced, 'cyl-tag-list-miniprogram');
+  assert.ok(fs.existsSync(path.join(tagList, 'cyl-animated-item', 'index.json')));
+  assert.ok(fs.existsSync(path.join(tagList, 'cyl-animated-item', 'LICENSE')));
+  assert.strictEqual(fs.readFileSync(path.join(tagList, 'cyl-animated-item', 'COMMIT'), 'utf8').trim(), pkg.cylTabBarControllerCommit);
+  const button = JSON.parse(fs.readFileSync(path.join(tagList, 'cyl-tag-button', 'cyl-tag-button.json'), 'utf8'));
+  assert.deepStrictEqual(Object.keys(button.componentGenerics).sort(), ENGINE_SLOTS);
+});
+
+test('every search bar of the example passes its engines: cyl-lottie and cyl-svga, placeholders for PAG and Rive', () => {
+  const example = path.join(root, 'example', 'miniprogram');
+  const files = walk(example).filter((file) => file.endsWith('.wxml') && !file.includes(`${path.sep}miniprogram_npm${path.sep}`)
+    && !file.includes(`${path.sep}components${path.sep}`));
+  let count = 0;
+  for (const file of files) {
+    for (const tag of fs.readFileSync(file, 'utf8').match(/<cyl-search(-bar)?\s[^>]*>/g) || []) {
+      count += 1;
+      assert.ok(tag.includes('generic:cyl-lottie-view="cyl-lottie"') && tag.includes('generic:cyl-svga-view="cyl-svga"'),
+        `${path.relative(root, file)}: ${tag.slice(0, 60)}`);
+    }
+  }
+  assert.ok(count >= 10, `${count} search bars`);
+});

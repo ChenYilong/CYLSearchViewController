@@ -14,7 +14,8 @@
   </view>
   <view wx:else class="center"><view class="title2">{{title}}</view></view>
 
-  <cyl-search id="search" generic:cyl-empty-view="cyl-demo-empty-view" coversNavigationBar
+  <cyl-search generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
+    id="search" generic:cyl-empty-view="cyl-demo-empty-view" coversNavigationBar
     suggestions="{{configuration.suggestions}}" suggestionStyle="{{suggestionStyle}}" foldedRowCount="{{2}}"
     showsEmptyResultsPlaceholder="{{true}}" cacheName="MaterialSearchView" focusesSearchFieldOnShow="{{focusesSearchFieldOnShow}}"
     placeholder="{{placeholder}}" showsVoiceButton="{{configuration.showsVoiceButton}}" cursorColor="{{configuration.cursorColor}}"

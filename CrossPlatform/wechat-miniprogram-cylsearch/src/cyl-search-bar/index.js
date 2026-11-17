@@ -28,6 +28,12 @@ function defaultItemTint() {
  * Methods: `setText(text, submit)`, `setIconified(iconified)`, `showKeyboard()`, `hideKeyboard()`; "multiple" mode:
  * `beginNewSearch()`, `completeSearch()`, `addSearch(text)`, `selectSearch(index)`, `removeSearch(index)`,
  * `searches()`.
+ *
+ * Abstract nodes (`componentGenerics`): `cyl-lottie-view`, `cyl-pag-view`, `cyl-rive-view` and `cyl-svga-view`, the
+ * animation engines of the items' animated icons. The bar forwards them to CollectionViewClassifyMenu's
+ * `<cyl-tag-button>`, which hands them to CYLTabBarController's `<cyl-animated-item>`; the package links no engine (the
+ * default, `cyl-animation-placeholder`, plays nothing, so the item's `image` shows). Pass yours with
+ * `generic:cyl-svga-view="cyl-svga"` and so on.
  */
 Component({
   options: { multipleSlots: true },

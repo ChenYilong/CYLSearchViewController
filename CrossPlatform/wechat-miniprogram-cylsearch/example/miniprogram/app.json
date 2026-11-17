@@ -56,6 +56,8 @@
     "cyl-search-bar": "/components/cyl-search-bar/index",
     "cyl-search": "/components/cyl-search/index",
     "cyl-lottie": "cyl-lottie-miniprogram/cyl-lottie/index",
+    "cyl-svga": "cyl-svga-miniprogram/cyl-svga/index",
+    "cyl-animation-placeholder": "cyl-tag-list-miniprogram/cyl-animation-placeholder/index",
     "cyl-demo-nav": "/demo-components/cyl-demo-nav/index",
     "cyl-demo-snackbar": "/demo-components/cyl-demo-snackbar/index",
     "cyl-demo-reproduction": "/demo-components/cyl-demo-reproduction/index",

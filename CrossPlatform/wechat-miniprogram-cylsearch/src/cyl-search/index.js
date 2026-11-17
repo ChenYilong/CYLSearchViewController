@@ -47,6 +47,8 @@ Component({
     // (iOS emptyResultsScenario) and while the query and the cache are empty (iOS emptySuggestionsScenario). The
     // abstract node cyl-empty-view draws it: cyl-placeholder-miniprogram's <cyl-placeholder> by default; pass a view
     // of yours (for example one that gives <cyl-placeholder> a Lottie player) with generic:cyl-empty-view.
+    // The abstract nodes cyl-lottie-view, cyl-pag-view, cyl-rive-view and cyl-svga-view are the animation engines of
+    // the bar items' animated icons, forwarded to <cyl-search-bar> (see there); the package links no engine.
     emptyResultsScenario: { type: String, value: 'NoSearchResults' },
     emptySuggestionsScenario: { type: String, value: 'NoContent' },
     // YES asks cyl-empty-view to play the scenario's animation (NO on iOS: CYLPlaceholderStackView is static).
