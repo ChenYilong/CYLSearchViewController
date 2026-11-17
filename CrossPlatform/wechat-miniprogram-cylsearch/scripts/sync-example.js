@@ -90,14 +90,18 @@ for (const library of [
   copyLicenses([tabBarRoot, libraryRoot], to);
 }
 
-// CYLTableViewPlaceHolder: the scenario placeholders and the pull-to-refresh header, kept side by side (cyl-refresh
-// uses ../cyl-placeholder/no-animation). The locale .json tables stay out: the code loads their generated .js twins.
+// CYLTableViewPlaceHolder: the scenario placeholders, the HUD, the status views and the pull-to-refresh header, kept side
+// by side as in the package (cyl-refresh uses ../cyl-placeholder and ../cyl-placeholder-hud). The locale .json tables stay out: the code loads their generated .js twins.
 const placeholderRoot = process.env.CYL_PLACEHOLDER_DIR || checkout('CYLTableViewPlaceHolder', pkg.cylTableViewPlaceHolderCommit,
   ['CrossPlatform/wechat-miniprogram-cylplaceholder']);
 const placeholderPackage = path.join(placeholderRoot, 'CrossPlatform', 'wechat-miniprogram-cylplaceholder');
 const placeholderTo = path.join(miniprogram, 'miniprogram_npm', 'cyl-placeholder-miniprogram');
 fs.rmSync(placeholderTo, { recursive: true, force: true });
-for (const component of ['cyl-placeholder', 'cyl-refresh']) {
+// Every component of the package: they require one another (cyl-refresh uses cyl-placeholder-hud since 62e40c0), so a
+// fixed list broke the example when one was added (WeChat DevTools: "module …/cyl-placeholder-hud/… is not defined").
+const placeholderComponents = fs.readdirSync(path.join(placeholderPackage, 'src'), { withFileTypes: true })
+  .filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+for (const component of placeholderComponents) {
   sync(path.join(placeholderPackage, 'src', component), path.join(placeholderTo, component),
     (file) => !(file.endsWith('.json') && file.includes(`${path.sep}locales${path.sep}`)));
 }
