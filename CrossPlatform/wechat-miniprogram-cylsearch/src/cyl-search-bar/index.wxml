@@ -69,6 +69,8 @@
             generic:cyl-rive-view="cyl-rive-view" generic:cyl-svga-view="cyl-svga-view"
             title="{{item.button.title}}" image="{{item.button.image}}"
             selectedImage="{{item.button.selectedImage}}" animationURL="{{item.button.animationURL}}"
+            gifFirstFrame="{{item.button.gifFirstFrame}}" gifLastFrame="{{item.button.gifLastFrame}}"
+            gifDuration="{{item.button.gifDuration}}" autoplay="{{item.button.autoplay}}" embedded="{{item.button.embedded}}"
             badgeValue="{{item.button.badgeValue}}" badgeColor="{{item.button.badgeColor}}"
             accessibilityLabel="{{item.button.accessibilityLabel}}" selected="{{item.button.selected}}"
             enabled="{{item.isEnabled !== false}}"

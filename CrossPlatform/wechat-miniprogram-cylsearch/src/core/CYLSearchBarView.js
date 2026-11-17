@@ -136,6 +136,18 @@ class CYLSearchBarItem {
      * the item's `cyl-tag-button` (CollectionViewClassifyMenu) and played on each tap; `image` is shown without it.
      */
     this.animationURL = undefined;
+    /**
+     * A GIF `animationURL`'s still frames (image paths): the first one rests while it does not play, the last one
+     * after it played; and its length of one pass in milliseconds (0: the registered GIF's, else 1000). Passed on to
+     * `cyl-tag-button`'s `gifFirstFrame`, `gifLastFrame`, `gifDuration` (CYLTabBarController's `cyl-animated-item`).
+     */
+    this.gifFirstFrame = undefined;
+    this.gifLastFrame = undefined;
+    this.gifDuration = 0;
+    /** Whether the animated icon plays once when it appears (`cyl-tag-button` `autoplay`, default true). */
+    this.animationAutoplay = true;
+    /** Whether the animated icon is drawn without its own frame, inside the item (`cyl-tag-button` `embedded`). */
+    this.animationEmbedded = false;
     this.imageSize = 0;
     this.itemAccessibilityLabel = undefined;
     this.itemAccessibilityIdentifier = undefined;
@@ -202,7 +214,7 @@ class CYLSearchBarItem {
   /**
    * An item from plain values, as `<cyl-search-bar items>` takes them (iOS `+itemWithDictionary:`): `style` (`icon`,
    * `divider`, `text`), `title`, `image` (a path, or `camera`, `mic`, `search`, `back`), `selectedImage`,
-   * `animationURL`, `accessibilityLabel`, `accessibilityIdentifier`, `isEnabled`, `isSelectable`, `isSelected`,
+   * `animationURL`, `gifFirstFrame`, `gifLastFrame`, `gifDuration`, `animationAutoplay`, `animationEmbedded`, `accessibilityLabel`, `accessibilityIdentifier`, `isEnabled`, `isSelectable`, `isSelected`,
    * `badgeValue`, `badgeColor`.
    */
   static item(values) {
@@ -213,6 +225,11 @@ class CYLSearchBarItem {
     const item = new CYLSearchBarItem(style, dictionary.title, named ? $r(`sys.symbol.${named}`) : dictionary.image);
     item.selectedImage = dictionary.selectedImage;
     item.animationURL = dictionary.animationURL || undefined;
+    item.gifFirstFrame = dictionary.gifFirstFrame || undefined;
+    item.gifLastFrame = dictionary.gifLastFrame || undefined;
+    item.gifDuration = Number(dictionary.gifDuration) || 0;
+    item.animationAutoplay = dictionary.animationAutoplay !== false;
+    item.animationEmbedded = dictionary.animationEmbedded === true;
     item.badgeColor = dictionary.badgeColor || undefined;
     item.itemAccessibilityLabel = dictionary.accessibilityLabel || dictionary.itemAccessibilityLabel;
     item.itemAccessibilityIdentifier = dictionary.accessibilityIdentifier;
@@ -234,6 +251,11 @@ class CYLSearchBarItem {
       image: this.image,
       selectedImage: this.selectedImage,
       animationURL: this.animationURL,
+      gifFirstFrame: this.gifFirstFrame,
+      gifLastFrame: this.gifLastFrame,
+      gifDuration: this.gifDuration,
+      animationAutoplay: this.animationAutoplay,
+      animationEmbedded: this.animationEmbedded,
       accessibilityLabel: this.itemAccessibilityLabel,
       accessibilityIdentifier: this.itemAccessibilityIdentifier,
       isEnabled: this.isEnabled,
@@ -276,6 +298,11 @@ class CYLSearchBarItem {
       image: divider ? '' : (this.animatedImage || this.image || ''),
       selectedImage: divider || this.animatedImage ? '' : (this.selectedImage || ''),
       animationURL: divider ? '' : (this.animationURL || ''),
+      gifFirstFrame: divider ? '' : (this.gifFirstFrame || ''),
+      gifLastFrame: divider ? '' : (this.gifLastFrame || ''),
+      gifDuration: Number(this.gifDuration) || 0,
+      autoplay: this.animationAutoplay !== false,
+      embedded: this.animationEmbedded === true,
       badgeValue: divider || this.badgeValue === undefined ? null : this.badgeValue,
       badgeColor: this.badgeColor || '',
       accessibilityLabel: this.itemAccessibilityLabel || this.title || '',
