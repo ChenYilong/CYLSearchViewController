@@ -1,6 +1,6 @@
 # Search Core Merge (CYLSearchBar)
 
-## TODO (2026-11-17): merge the search core into the fewest classes, on every platform (DONE (2026-11-17): iOS, Android, HarmonyOS, mini program, React Native, placeholder pins, parity tables; Flutter in progress)
+## DONE (2026-11-17): merge the search core into the fewest classes, on every platform
 
 - **Context**: branch `feat/harmonyos-parity` (PR #11). The iOS core (`Sources/CYLSearchViewController`, Swift) has 9
   files and 15 public types: three search screens with overlapping roles (`CYLSearchView` suggestions page,
@@ -50,6 +50,7 @@
   | Parity tables regenerated on the merged API, all 100 | DONE | `bf20104`, `21eca39` |
   | Documentation on the merged API (README, AGENTS.md, instructions, skills, docs) | DONE | this commit |
   | React Native (`CrossPlatform/react-native-cylsearch`): the components follow the classes on the native cores | DONE | `8c425de` |
+  | Flutter (`CrossPlatform/flutter_cylsearch`): the widgets follow the classes on the native cores | DONE | `80c66ae`, `5126cb7` |
   | Flutter (`CrossPlatform/flutter_cylsearch`) | TODO: in progress | |
 
 ### Deviations by platform
@@ -85,6 +86,15 @@ What each platform did differently from the target design below.
   whether `results` is given), `refreshEnabled`, `refreshing` (`true` calls `beginRefreshing`, `false`
   `endRefreshing`) and events `onSelectResult {result, index}`, `onRefresh` (only when the person pulls);
   `CYLTagListView` (CollectionViewClassifyMenu) as before.
+- **Flutter**: widgets on the native cores: `CYLSearchView` gains `results` (`null` means suggestions only),
+  `onSelectResult(result, index)`, `refreshEnabled`, `onRefresh` and a `controller`
+  (`CYLSearchViewWidgetController`: `beginRefreshing()`, `endRefreshing()`, `isRefreshing()`, `reloadResults()`);
+  `CYLSearchBarView` gains `mode` (`CYLSearchBarMode`), `searches`, `onTextChange(text, index)`,
+  `onCompleteSearch(text, index)`, `onRemoveSearch(index)`, `onSelectSearch(text, index)` (multiple mode;
+  `onTextChanged` stays for single mode) and a `controller` (`CYLSearchBarWidgetController`: `beginNewSearch`,
+  `completeSearch`, `addSearch`, `selectSearch`, `removeSearch`, `searches()`, `selectedSearchIndex()`, -1 when none).
+  The two controllers are Dart-only classes for the imperative calls of the native views. The iOS plugin imports
+  CYLTableViewPlaceHolder for `CYLPlaceholderScenario` (the core does not re-export it).
 - **Naming of the multi-search callbacks across platforms**: Android, HarmonyOS and the mini program use
   `searchBarViewDidCompleteSearch`, `searchBarViewDidSelectSearch` and `searchBarViewDidRemoveSearchAtIndex`; the
   text callback is an overload of `searchBarViewTextDidChange` on Android and `searchBarViewTextDidChangeAtIndex` on
@@ -103,7 +113,8 @@ What each platform did differently from the target design below.
 - Android: the timing of the refresh tests under Robolectric is unverified.
 - React Native: the native code (iOS and Android bridges) was not compiled (no Xcode, no Android SDK); TypeScript
   type-checks and its 5 jest tests pass.
-- Flutter: in progress (table above).
+- Flutter: the native code (iOS and Android plugins) was not compiled; `flutter analyze` (3 existing deprecation
+  notices) and `flutter test` (13 plugin tests, 3 example tests) pass.
 
 ## Target design
 
@@ -227,6 +238,6 @@ in example code. Handlers must not retain their controller strongly.
 | iOS | `Sources/CYLSearchBar` | `CYLSearchBarView.swift`, `CYLSearchView.swift`, `CYLSearchResources.swift` |
 | Android | `android/merged/cylsearch` (`com.cyl.search`) | `CYLSearchBarView.kt`, `CYLSearchView.kt`, `CYLSearchResources.kt` |
 | React Native | `CrossPlatform/react-native-cylsearch` (`src/`, `ios/`, `android/`) | done; components follow the classes: a search bar (with `mode`), a search view (with results and refresh), the tag list (CollectionViewClassifyMenu, unchanged) |
-| Flutter | `CrossPlatform/flutter_cylsearch` (`lib/`, `ios/`, `android/`) | in progress; the same component split as React Native |
+| Flutter | `CrossPlatform/flutter_cylsearch` (`lib/`, `ios/`, `android/`) | done; the same split as React Native: a search bar widget (with `mode`), a search view widget (with results and refresh), the tag list widget (CollectionViewClassifyMenu, unchanged) |
 | HarmonyOS | `harmonyos/cylsearch` | `CYLSearchBarView.ets`, `CYLSearchView.ets`, `CYLSearchResources.ets` |
 | Mini program | `CrossPlatform/wechat-miniprogram-cylsearch` (`src/`) | components `cyl-search-bar` (with `mode`) and `cyl-search` (with results and refresh); core modules `src/core/CYLSearchBarView.js`, `CYLSearchView.js`, `CYLSearchResources.js` |
