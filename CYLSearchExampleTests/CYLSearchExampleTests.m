@@ -311,7 +311,7 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     CYLSearchTestNavigationController *navigation = [[CYLSearchTestNavigationController alloc] initWithRootViewController:menu];
     [menu loadViewIfNeeded];
     XCTAssertEqual(menu.navigationController, navigation);
-    XCTAssertEqual([menu tableView:menu.tableView numberOfRowsInSection:0], 4, @"reproduction, styles, search bar, ports of other libraries");
+    XCTAssertEqual([menu tableView:menu.tableView numberOfRowsInSection:0], 5, @"reproduction, styles, search bar, ports of other libraries, the SVGA tab bar in SwiftUI");
     [menu tableView:menu.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
     UITableViewController *gallery = (UITableViewController *)navigation.lastPushedController;
     XCTAssertNotEqual(gallery, menu);
@@ -678,10 +678,16 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
         XCTAssertTrue([titles containsObject:@"Discover"], @"%@", titles);
         XCTAssertEqualObjects(CYLExternPlusButton.accessibilityLabel, @"Search bar");
     }
+    // Every language has exactly the keys of en (the tab titles, then the SVGA demo's texts), not a fixed count.
+    NSString *(^tablePath)(NSString *) = ^NSString *(NSString *code) {
+        return [NSBundle.mainBundle pathForResource:@"CYLSearchTabs" ofType:@"strings" inDirectory:[NSString stringWithFormat:@"CYLSearchTabs.bundle/%@.lproj", code]];
+    };
+    NSDictionary *english = [NSDictionary dictionaryWithContentsOfFile:tablePath(@"en")];
+    XCTAssertNotNil(english[@"tab.search"]);
     for (NSString *code in @[@"en", @"zh-Hans", @"zh-Hant", @"ja"]) {
-        NSString *path = [NSBundle.mainBundle pathForResource:@"CYLSearchTabs" ofType:@"strings" inDirectory:[NSString stringWithFormat:@"CYLSearchTabs.bundle/%@.lproj", code]];
+        NSString *path = tablePath(code);
         NSDictionary *table = path ? [NSDictionary dictionaryWithContentsOfFile:path] : nil;
-        XCTAssertEqual(table.count, 5, @"%@ has every key", code);
+        XCTAssertEqualObjects([NSSet setWithArray:table.allKeys], [NSSet setWithArray:english.allKeys], @"%@ has every key", code);
     }
 }
 
