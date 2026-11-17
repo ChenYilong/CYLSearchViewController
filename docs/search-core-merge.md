@@ -123,8 +123,25 @@ in example code. Handlers must not retain their controller strongly.
 
 | Old | New |
 | :--- | :--- |
-| `CYLSearchPlaceholderView` (+ kind, style, message enums) | removed: duplicate of CYLTableViewPlaceHolder's placeholder, already exposed by `CYLSearchView.emptyResultsView` / `emptySuggestionsView` and their scenarios |
+| `CYLSearchPlaceholderView` (+ kind, style, message enums) | removed from the core: CYLTableViewPlaceHolder already contains it as `CYLPlaceholderView` (`CYLPlaceholderStyle`: the same styles, `WifiOff`, `SignalWifiOff`, `CloudOff`…, and the same images), on iOS, Android, HarmonyOS (`cylplaceholder`) and the mini program (`cyl-placeholder`). The core shows it through `CYLSearchView.emptyResultsView` / `emptySuggestionsView`; apps and the example use `CYLPlaceholderView` directly |
 | `CYLSearchSuggestionStore` | private default store; `CYLSearchView.suggestionCachePolicy` / `suggestionCacheName` create it, `suggestionCache` takes a custom `CYLSearchSuggestionCache` |
+
+### CYLTableViewPlaceHolder: the placeholder sub-dependency (user, 2026-11-17)
+
+- Prompt (verbatim): "fix placeholder duplicates our CYLSearchPlaceholderView. 将CYLSearchPlaceholderView作为子依赖库。处理所有平台的依赖，增加子依赖，与CollectionView 的子依赖项一致。并修改内置刷新方法，使用调用CYLSearchPlaceholderView的方法。该修改适用于所有平台的core代码。如有必要修改example调用演示"
+- Prompt (English): "Fix: the placeholder duplicates our CYLSearchPlaceholderView. Make CYLSearchPlaceholderView a
+  sub-dependency library. Handle the dependencies on every platform and add the sub-dependency, consistent with the
+  CollectionView (CollectionViewClassifyMenu) sub-dependency. Change the built-in refresh methods to call
+  CYLSearchPlaceholderView's methods. This applies to the core of every platform; change the example demos if needed."
+- Reading: CYLTableViewPlaceHolder is the library that contains CYLSearchPlaceholderView (as `CYLPlaceholderView`) and the
+  pull-to-refresh headers, so it is the placeholder sub-dependency. Like CollectionViewClassifyMenu, every platform pins
+  the same commit, its newest on any branch: `f488e2fb0ca175f96daabf5814739832a2cfd1ce` (2026-11-17,
+  `feat/android-refresh-port-followup`). Before: iOS, React Native and Flutter `c202b8c`, Android `6d8b264`, HarmonyOS
+  `76762c6`, mini program `8ee7013`.
+- Pins: `Podfile`, both CrossPlatform example Podfiles (`:git` + `:commit`), the podspec's `s.dependency
+  'CYLTableViewPlaceHolder/Lottie'`; `android/merged/gradle.properties` `cyl.placeholder.commit` (`pinnedCheckout`);
+  `harmonyos/oh-package.json5` and the mini program `package.json` `cylTableViewPlaceHolderCommit`.
+- The core's refresh API (above) calls CYLTableViewPlaceHolder's refresh header on every platform.
 
 ### The only search kernel
 
