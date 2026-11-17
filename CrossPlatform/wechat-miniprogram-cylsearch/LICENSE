@@ -19,8 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
-The placeholder images in src/images/placeholder come unchanged from the iOS bundle
-(Resources/CYLSearchViewController.bundle) and keep their licenses, in the same folder:
-the Material Design icons are Apache 2.0 (LICENSE.material-design-icons, listed in NOTICE
-and ICON-SOURCES); LICENSE.placeholder-third-party covers the other images.

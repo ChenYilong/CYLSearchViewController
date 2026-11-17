@@ -28,7 +28,7 @@ Page({
   // The search item: the search bar takes the navigation bar's place.
   openSearch() {
     this.setData({ searchOpen: true });
-    this.selectComponent('#search').show();
+    this.selectComponent('#search').showSearch();
   },
   onSearchClose() {
     this.setData({ searchOpen: false, placeholder: '' });
@@ -50,6 +50,6 @@ Page({
   },
   onUnload() {
     const search = this.selectComponent('#search');
-    if (search) search.close();
+    if (search) search.closeSearch();
   },
 });

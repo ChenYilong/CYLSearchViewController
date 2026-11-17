@@ -1,37 +1,21 @@
-// The placeholder gallery (iOS CYLSearchPlaceholderGalleryViewController): one section per CYLSearchPlaceholderStyle,
-// headed by its image name, with the four built-in messages; then the custom section (a built-in image with your own
-// text, your own image with a built-in message, your own image and text). A row opens the placeholder full screen.
+// The placeholder gallery: every scenario of CYLTableViewPlaceHolder's CYLPlaceholderScenarioCatalog, the placeholders
+// the core's <cyl-search> shows (its emptyResultsScenario / emptySuggestionsScenario). The search core's own
+// CYLSearchPlaceholderView and its 41 styles were removed as a duplicate of these (docs/search-core-merge.md). A row
+// opens the scenario full screen.
 const { cylDemoText } = require('../../utils/cyl_demo_text');
-const { CYLSearchPlaceholderView } = require('../../components/core/CYLSearchPlaceholderView');
-
-const STYLE_COUNT = 41;
-const MESSAGE_KEYS = ['placeholder.empty', 'placeholder.search', 'placeholder.error', 'placeholder.network'];
-const CUSTOM_KEYS = ['demo.custom.textOnly', 'demo.custom.imageOnly', 'demo.custom.both'];
-const IMAGE_ROOT = '/components/images/placeholder/';
+// The sub-dependency synced by scripts/sync-example.js (miniprogram_npm), named by its path: a mini program resolves
+// no folder to its index.js.
+const { CYLPlaceholderScenarioCatalog } = require('../../miniprogram_npm/cyl-placeholder-miniprogram/cyl-placeholder/cyl_scenario_catalog');
 
 Page({
-  data: { title: '', sections: [] },
+  data: { title: '', rows: [] },
   onLoad() {
-    const messages = MESSAGE_KEYS.map((key) => cylDemoText(key));
-    const sections = [];
-    for (let style = 0; style < STYLE_COUNT; style += 1) {
-      const name = CYLSearchPlaceholderView.imageNameForStyle(style);
-      sections.push({
-        header: name,
-        rows: messages.map((text, message) => ({
-          text, url: `/pages/placeholderDetail/index?style=${style}&message=${message}`,
-          image: `${IMAGE_ROOT}${name}.png`, template: style !== 0,
-        })),
-      });
-    }
-    sections.push({
-      header: cylDemoText('demo.custom'),
-      rows: CUSTOM_KEYS.map((key, row) => ({
-        text: cylDemoText(key), url: `/pages/placeholderDetail/index?custom=${row}`,
-        image: row === 0 ? `${IMAGE_ROOT}CYLSearchNoResults.png` : '/assets/heart.fill.svg', template: true,
-      })),
-    });
-    this.setData({ title: cylDemoText('demo.styles'), sections });
+    const rows = CYLPlaceholderScenarioCatalog.allScenarios.map((scenario) => ({
+      scenario,
+      text: CYLPlaceholderScenarioCatalog.localizedNameForScenario(scenario),
+      url: `/pages/placeholderDetail/index?scenario=${scenario}`,
+    }));
+    this.setData({ title: cylDemoText('demo.styles'), rows });
   },
   onRow(event) {
     wx.navigateTo({ url: event.currentTarget.dataset.url });

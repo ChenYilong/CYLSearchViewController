@@ -1,5 +1,6 @@
 // Imports the resources of the iOS library and example, so the mini program shows the same texts, data and images:
-// 1. the placeholder images of Resources/CYLSearchViewController.bundle into src/images/placeholder/ (the core);
+// 1. (none: the placeholder images are CYLTableViewPlaceHolder's, from cyl-placeholder-miniprogram; the search core has no
+//    placeholder view of its own any more);
 // 2. the texts of CYLSearchViewController.bundle, CYLSearchTabs.bundle and CYLSearchDiscover.bundle (en, ja,
 //    zh-Hans, zh-Hant) and the discover data (search-discover.json) into
 //    example/miniprogram/utils/cyl_demo_resources.js;
@@ -24,19 +25,6 @@ function readStrings(file) {
     strings[JSON.parse(`"${match[1]}"`)] = JSON.parse(`"${match[2]}"`);
   }
   return strings;
-}
-
-// 1. Placeholder images: CYLSearchNoResults@2x.png -> src/images/placeholder/CYLSearchNoResults.png.
-const imageDir = path.join(root, 'src', 'images', 'placeholder');
-fs.rmSync(imageDir, { recursive: true, force: true });
-fs.mkdirSync(imageDir, { recursive: true });
-for (const name of fs.readdirSync(libraryBundle)) {
-  if (!name.endsWith('.png') || name.startsWith('._')) continue;
-  fs.copyFileSync(path.join(libraryBundle, name), path.join(imageDir, name.replace('@2x', '')));
-}
-for (const notice of ['LICENSE.material-design-icons', 'LICENSE.placeholder-third-party', 'NOTICE', 'ICON-SOURCES']) {
-  const source = path.join(libraryBundle, notice);
-  if (fs.existsSync(source)) fs.copyFileSync(source, path.join(imageDir, notice));
 }
 
 // 2. Texts and discover data, one table per language.
@@ -65,4 +53,4 @@ for (const language of languages) {
   fs.copyFileSync(path.join(exampleDir, 'CYLSearchDiscover.bundle', `${language}.lproj`, 'discover-hot@3x.png'),
     path.join(hotDir, `discover-hot-${language}.png`));
 }
-console.log('imported', languages.length, 'languages,', fs.readdirSync(imageDir).filter((n) => n.endsWith('.png')).length, 'placeholder images');
+console.log('imported', languages.length, 'languages');

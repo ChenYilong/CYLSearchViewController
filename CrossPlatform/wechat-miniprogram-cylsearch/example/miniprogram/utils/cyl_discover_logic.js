@@ -1,4 +1,4 @@
-// The rules of the Discover page without views (the tag fold is the core's cyl_tag_fold.js) (iOS CYLSearchDiscoverData and CYLSearchDiscoverViewController), tested
+// The rules of the Discover page without views (the tag fold is the core's cylFoldTags, core/CYLSearchView.js) (iOS CYLSearchDiscoverData and CYLSearchDiscoverViewController), tested
 // with Node.
 
 /**

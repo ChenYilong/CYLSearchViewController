@@ -4,7 +4,7 @@ const {
   CYLSearchAnimationSpeed,
   cylClampAnimationSpeed,
   cylAnimationPlaybackDescription,
-} = require('../src/cyl-search/cyl_search_animation_playback');
+} = require('../src/core/CYLSearchView');
 
 test('a speed is clamped to the slider range and rounded to its step', () => {
   assert.strictEqual(cylClampAnimationSpeed(1), 1);

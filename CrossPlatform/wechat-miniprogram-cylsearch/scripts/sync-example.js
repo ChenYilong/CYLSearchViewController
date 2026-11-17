@@ -5,8 +5,10 @@
 //    package.json, cloned into example/vendor/:
 //    - CYLTabBarController (`cylTabBarControllerCommit`): its tab bar (cyl-tabbar-miniprogram), Lottie player
 //      (cyl-lottie-miniprogram) and SVGA player (cyl-svga-miniprogram, the SVGA tab icons); CYL_TABBAR_DIR=<checkout> uses a local checkout instead;
-//    - CYLTableViewPlaceHolder (`cylTableViewPlaceHolderCommit`): cyl-placeholder (the scenario placeholders of the
-//      search page) and cyl-refresh (CYLRefreshNormalHeader), as cyl-placeholder-miniprogram;
+//    - CYLTableViewPlaceHolder (`cylTableViewPlaceHolderCommit`), the sub-dependency of the core: cyl-placeholder (the
+//      empty placeholders of cyl-search, the default of its cyl-empty-view node) and cyl-refresh (the pull-to-refresh of
+//      its results, CYLRefreshNormalHeader), as cyl-placeholder-miniprogram; an app that installs the package from
+//      npm installs these two folders at the same commit (the package is not on the npm registry);
 //      CYL_PLACEHOLDER_DIR=<checkout> uses a local checkout instead.
 // Runs from `npm run sync-example` and from the DevTools beforeCompile / beforePreview / beforeUpload hooks of
 // project.config.json. The outputs are git-ignored.

@@ -11,7 +11,7 @@ Page({
     this.setData({ hint: cylDemoText('search.field') });
   },
   openSearch() {
-    this.selectComponent('#search').show();
+    this.selectComponent('#search').showSearch();
   },
   // adapter.filter(newText)
   onTextChange(event) {

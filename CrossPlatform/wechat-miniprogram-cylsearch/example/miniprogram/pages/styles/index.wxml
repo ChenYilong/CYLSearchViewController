@@ -1,14 +1,10 @@
 <view class="screen">
   <cyl-demo-nav title="{{title}}" />
-  <block wx:for="{{sections}}" wx:for-item="section" wx:key="header">
-    <view class="group-header" role="heading">{{section.header}}</view>
-    <view class="group">
-      <view wx:for="{{section.rows}}" wx:key="url" class="cell cell-with-image" role="button" aria-label="{{item.text}}" data-url="{{item.url}}" bindtap="onRow">
-        <view wx:if="{{item.template}}" class="cell-image template" style="-webkit-mask-image: url({{item.image}}); mask-image: url({{item.image}})" aria-hidden="true" />
-        <image wx:else class="cell-image" src="{{item.image}}" mode="aspectFit" aria-hidden="true" />
-        <text class="cell-title">{{item.text}}</text>
-        <view class="chevron" aria-hidden="true" />
-      </view>
+  <view class="group-header" role="heading">CYLPlaceholderScenarioCatalog</view>
+  <view class="group">
+    <view wx:for="{{rows}}" wx:key="scenario" class="cell" role="button" aria-label="{{item.text}}" data-url="{{item.url}}" bindtap="onRow">
+      <text class="cell-title">{{item.text}}</text>
+      <view class="chevron" aria-hidden="true" />
     </view>
-  </block>
+  </view>
 </view>

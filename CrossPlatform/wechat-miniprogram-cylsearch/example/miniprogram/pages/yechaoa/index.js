@@ -2,7 +2,7 @@
 // the toolbar with a submit button, the Search return key, a hint and custom colors; a submitted query shows a snackbar
 // and a search result, and clearing the text hides the result again.
 const { cylDemoText } = require('../../utils/cyl_demo_text');
-const { cylNavigationMetrics } = require('../../components/cyl-search/cyl_navigation_metrics');
+const { cylNavigationMetrics } = require('../../components/core/CYLSearchResources');
 
 Page({
   data: { keyword: '', result: '', showsResult: false, expanded: false, expandedWidth: 200 },

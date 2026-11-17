@@ -14,6 +14,19 @@
 .cyl-divider { width: 1px; height: 18px; margin: 0 4px; background: #c6c6c8; }
 .cyl-badge { position: absolute; top: 2px; right: 2px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; background: #ff3b30; color: #fff; font-size: 11px; line-height: 16px; text-align: center; }
 .cyl-badge-dot { min-width: 8px; width: 8px; height: 8px; padding: 0; }
+.cyl-item-title { color: #000; }
+
+/* mode "multiple" (was cyl-multi-search): the searches in a row, the selected one underlined, the new-search button. */
+.cyl-multi { display: flex; align-items: center; height: 48px; }
+.cyl-multi-row { flex: 1; min-width: 0; height: 48px; white-space: nowrap; }
+.cyl-multi-items { display: inline-flex; align-items: center; height: 48px; }
+.cyl-multi-item { position: relative; display: inline-flex; align-items: center; height: 48px; margin-right: 16px; transition: opacity 0.25s; }
+.cyl-multi-text { color: #000; line-height: 48px; }
+.cyl-multi-input { width: 100%; height: 48px; color: #000; }
+.cyl-multi-indicator { position: absolute; left: 0; right: 0; bottom: 6px; height: 2px; border-radius: 1px; background: #007aff; }
+.cyl-multi-remove, .cyl-multi-button { flex: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
+.cyl-multi-remove { width: 32px; }
+.cyl-multi-remove .cyl-mask-clear { background-color: #007aff; }
 .cyl-cancel { flex: none; padding: 0 0 0 12px; color: #007aff; font-size: 17px; }
 
 /* The expansion animations: the field fades in from the icon, or a circle grows from the icon until it uncovers it. */
@@ -44,4 +57,6 @@
   .cyl-bar-bordered .cyl-field { background: #1c1c1e; border-color: #38383a; }
   .cyl-input { color: #fff; }
   .cyl-mask-icon { background-color: #0a84ff; }
+  .cyl-item-title, .cyl-multi-text, .cyl-multi-input { color: #fff; }
+  .cyl-divider { background: #38383a; }
 }

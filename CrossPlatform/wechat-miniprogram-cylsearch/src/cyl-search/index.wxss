@@ -1,4 +1,13 @@
-.cyl-page { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 100; display: flex; flex-direction: column; background: #fff; }
+:host { display: block; }
+.cyl-page { position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 100; display: flex; flex-direction: column; background: #fff;
+  opacity: 0; transform: translateY(44px); transition: opacity 0.25s ease-out, transform 0.25s ease-out; }
+/* Open: the page slides up 44px and fades in over 0.25 s (iOS animationDuration), the overlay's animation. */
+.cyl-page-entered { opacity: 1; transform: none; }
+/* Inline: drawn in place, filling its container, always open. */
+.cyl-page-inline { position: relative; z-index: auto; height: 100%; transition: none; }
+.cyl-results { flex: 1; min-height: 0; }
+.cyl-result { padding: 0 16px; flex-direction: column; align-items: stretch; justify-content: center; }
+.cyl-row-subtitle { padding-bottom: 10px; color: rgba(60, 60, 67, 0.6); font-size: 13px; }
 .cyl-line { flex: none; height: 1px; background: #c6c6c8; transform: scaleY(0.5); }
 .cyl-content { flex: 1; min-height: 0; overflow: hidden; }
 .cyl-empty { margin-top: 48px; }
@@ -25,5 +34,6 @@
   .cyl-page { background: #000; }
   .cyl-row-text, .cyl-tag { color: #fff; }
   .cyl-row { border-color: #38383a; }
+  .cyl-row-subtitle { color: rgba(235, 235, 245, 0.6); }
   .cyl-tag { border-color: #38383a; }
 }

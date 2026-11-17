@@ -1,9 +1,0 @@
-<!-- One appended item of the search bar (iOS CYLSearchBarItemView): a divider, or a button with an icon or a title and a badge. -->
-<view wx:if="{{item.style === 'divider'}}" class="cyl-divider" aria-hidden="true" />
-<view wx:else class="cyl-item {{item.isEnabled === false ? 'cyl-item-disabled' : ''}}" id="{{item.accessibilityIdentifier}}"
-  role="button" aria-label="{{label}}" aria-selected="{{item.isSelected}}" aria-disabled="{{item.isEnabled === false}}" bindtap="onTap">
-  <image wx:if="{{item.image}}" class="cyl-item-icon" src="{{item.isSelected && item.selectedImage ? item.selectedImage : item.image}}" aria-hidden="true" />
-  <text wx:if="{{item.style === 'text'}}" class="cyl-item-title" aria-hidden="true">{{item.title}}</text>
-  <view wx:if="{{item.badgeValue !== undefined && item.badgeValue !== null}}" aria-hidden="true"
-    class="cyl-badge {{item.badgeValue === '' ? 'cyl-badge-dot' : ''}}">{{item.badgeValue}}</view>
-</view>

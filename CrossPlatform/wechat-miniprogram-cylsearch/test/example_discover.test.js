@@ -2,8 +2,8 @@
 const test = require('node:test');
 const assert = require('node:assert');
 const { cylRandomTopics, cylSearchedRecent } = require('../example/miniprogram/utils/cyl_discover_logic');
-const { cylFoldTags } = require('../src/cyl-search/cyl_tag_fold');
-const { cylNavigationMetricsFrom } = require('../src/cyl-search/cyl_navigation_metrics');
+const { cylFoldTags } = require('../src/core/CYLSearchView');
+const { cylNavigationMetricsFrom } = require('../src/core/CYLSearchResources');
 
 test('tags that fit in two rows are not folded', () => {
   assert.deepStrictEqual(cylFoldTags([100, 100, 100], 400, 12, 40, 2), { visibleCount: 3, needsFold: false });

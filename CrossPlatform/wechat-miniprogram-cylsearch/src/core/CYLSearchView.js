@@ -1,559 +1,606 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.CYLSearchView = exports.CYLSearchViewDelegate = exports.CYLMenuFoldControl = exports.CYLMenuFoldControlContent = exports.CYLMenuFoldControlPosition = exports.CYLSearchSuggestionStyle = void 0;
-const { InputType, EnterKeyType, TextOverflow } = require("./CYLSearchPlatform");
-const { $r } = require("./CYLSearchResourceReference");
-const { animateTo, Curve } = require("./CYLSearchPlatform");
-const CYLSearchBarView_1 = require("./CYLSearchBarView");
-const CYLSearchPlaceholderView_1 = require("./CYLSearchPlaceholderView");
-const CYLSearchSuggestionCache_1 = require("./CYLSearchSuggestionCache");
+// The search view module of cyl-search-miniprogram (iOS `CYLSearchView.swift`): `CYLSearchView` (the search page:
+// the bar, the suggestions or the results of `resultsDataSource`, the empty placeholders, the pull-to-refresh of the
+// results), its delegate and data source, `CYLSearchSuggestionStyle`, the fold control of the tag suggestions, and
+// the playback strategy of the animated placeholders. The `<cyl-search>` component draws a `CYLSearchView`. Merged
+// from CYLSearchView.js, CYLSearchController.js (the overlay), CYLSearchResultsViewController.js (the results list)
+// and the component helpers cyl_search_view_model.js, cyl_tag_fold.js and cyl_search_animation_playback.js.
+'use strict';
+
+const { $r, animateTo, Curve, TextOverflow, CYLSearchSuggestionCachePolicy, cylSuggestionCache } = require('./CYLSearchResources');
+const { CYLSearchBarView, CYLSearchBarNavigationIcon } = require('./CYLSearchBarView');
+
 /**
- * How the suggestions are shown under the search bar (iOS `CYLSearchSuggestionStyle`).
+ * How the suggestions are shown under the search bar (iOS `CYLSearchSuggestionStyle`): one per row, or tags.
  */
-var CYLSearchSuggestionStyle;
-(function (CYLSearchSuggestionStyle) {
-    /**
-     * One suggestion per row with its icon.
-     */
-    CYLSearchSuggestionStyle[CYLSearchSuggestionStyle["list"] = 0] = "list";
-    /**
-     * Tags that wrap like words.
-     */
-    CYLSearchSuggestionStyle[CYLSearchSuggestionStyle["tags"] = 1] = "tags";
-})(CYLSearchSuggestionStyle || (exports.CYLSearchSuggestionStyle = CYLSearchSuggestionStyle = {}));
+const CYLSearchSuggestionStyle = Object.freeze({
+  list: 'list',
+  tags: 'tags',
+});
+
 /**
  * Where the fold control of the tag suggestions sits (CollectionViewClassifyMenu's `CYLMenuFoldControlPosition`).
  */
-var CYLMenuFoldControlPosition;
-(function (CYLMenuFoldControlPosition) {
-    /**
-     * After the last visible tag.
-     */
-    CYLMenuFoldControlPosition[CYLMenuFoldControlPosition["inline"] = 0] = "inline";
-    /**
-     * On a row of its own under the tags.
-     */
-    CYLMenuFoldControlPosition[CYLMenuFoldControlPosition["bottom"] = 1] = "bottom";
-})(CYLMenuFoldControlPosition || (exports.CYLMenuFoldControlPosition = CYLMenuFoldControlPosition = {}));
+const CYLMenuFoldControlPosition = Object.freeze({
+  inline: 'inline',
+  bottom: 'bottom',
+});
+
 /**
- * What the fold control shows (CollectionViewClassifyMenu's `CYLMenuFoldControlContent`).
+ * What the fold control shows (CollectionViewClassifyMenu's `CYLMenuFoldControlContent`): a chevron, or a title.
  */
-var CYLMenuFoldControlContent;
-(function (CYLMenuFoldControlContent) {
-    /**
-     * A chevron.
-     */
-    CYLMenuFoldControlContent[CYLMenuFoldControlContent["icon"] = 0] = "icon";
-    /**
-     * "More" / "Less".
-     */
-    CYLMenuFoldControlContent[CYLMenuFoldControlContent["title"] = 1] = "title";
-})(CYLMenuFoldControlContent || (exports.CYLMenuFoldControlContent = CYLMenuFoldControlContent = {}));
+const CYLMenuFoldControlContent = Object.freeze({
+  icon: 'icon',
+  title: 'title',
+});
+
 /**
  * The fold control of the tag suggestions (CollectionViewClassifyMenu's `CYLMenuFoldControl`).
  */
 class CYLMenuFoldControl {
-    /**
-     * A fold control (iOS `+foldControlWithPosition:content:`).
-     */
-    constructor(position = CYLMenuFoldControlPosition.inline, content = CYLMenuFoldControlContent.icon) {
-        this.position = position;
-        this.content = content;
-    }
+  /**
+   * A fold control (iOS `+foldControlWithPosition:content:`).
+   */
+  constructor(position = CYLMenuFoldControlPosition.inline, content = CYLMenuFoldControlContent.icon) {
+    this.position = position;
+    this.content = content;
+  }
 }
-exports.CYLMenuFoldControl = CYLMenuFoldControl;
+
 /**
- * Events of a `CYLSearchView` (iOS `CYLSearchViewDelegate`); every method is optional.
+ * The events of a `CYLSearchView` (iOS `CYLSearchViewDelegate`); every method is optional.
+ * `searchViewDidSubmitText` returns true when it handled the query and the search view stays open.
  */
 class CYLSearchViewDelegate {
-    constructor() {
-        /**
-         * The search view finished opening.
-         */
-        this.searchViewDidShow = undefined;
-        /**
-         * The search view finished closing.
-         */
-        this.searchViewDidClose = undefined;
-        /**
-         * The query changed (iOS `-searchView:textDidChange:`).
-         */
-        this.searchViewTextDidChange = undefined;
-        /**
-         * The query was submitted (iOS `-searchView:didSubmitText:`). Return true when you handled it and the search view
-         * stays open; false lets `closesOnSubmit` close it.
-         */
-        this.searchViewDidSubmitText = undefined;
-        /**
-         * The field started or stopped editing (iOS `-searchView:didChangeFocus:`).
-         */
-        this.searchViewDidChangeFocus = undefined;
-        /**
-         * A suggestion was tapped (iOS `-searchView:didSelectSuggestion:atIndex:`).
-         */
-        this.searchViewDidSelectSuggestion = undefined;
-        /**
-         * The voice button was tapped.
-         */
-        this.searchViewVoiceButtonClicked = undefined;
-        /**
-         * The navigation button (the back arrow by default) was tapped. Without this method it closes the search view.
-         */
-        this.searchViewNavigationButtonClicked = undefined;
-    }
+  /**
+   * An empty delegate: set the methods you need.
+   */
+  constructor() {
+    this.searchViewDidShow = undefined;
+    this.searchViewDidClose = undefined;
+    this.searchViewTextDidChange = undefined;
+    this.searchViewDidSubmitText = undefined;
+    this.searchViewDidChangeFocus = undefined;
+    this.searchViewDidSelectSuggestion = undefined;
+    this.searchViewDidSelectResult = undefined;
+    this.searchViewVoiceButtonClicked = undefined;
+    this.searchViewNavigationButtonClicked = undefined;
+  }
 }
-exports.CYLSearchViewDelegate = CYLSearchViewDelegate;
+
 /**
- * A search page that opens over its host (iOS `CYLSearchView`): a `CYLSearchBarView` at the top, a divider, then the
- * suggestions as a list or as tags, the cached queries first, and placeholders for an empty cache and for no
- * results. This class is the page's state and API; `CYLSearchComponent` draws it.
+ * Supplies the results of a `CYLSearchView` and describes their rows (iOS `CYLSearchViewDataSource`, was
+ * `CYLSearchResultsDataSource`): `searchViewResultsForQuery(searchView, query)` returns an array;
+ * `searchViewConfigureResultCell(searchView, cell, result)` (optional) fills the row's plain `cell`
+ * (`title`, `subtitle`, `accessibilityLabel`).
+ */
+class CYLSearchViewDataSource {
+  /**
+   * An empty data source: set `searchViewResultsForQuery`, and `searchViewConfigureResultCell` when needed.
+   */
+  constructor() {
+    this.searchViewResultsForQuery = undefined;
+    this.searchViewConfigureResultCell = undefined;
+  }
+}
+
+// Calls an optional delegate method.
+function tell(delegate, method, ...args) {
+  if (delegate && typeof delegate[method] === 'function') return delegate[method](...args);
+  return undefined;
+}
+
+// The refresh state of a target of the static refresh API that is not a search view (a component or a model).
+function refreshTarget(target) {
+  if (!target) throw new TypeError('CYLSearchView: a refresh target is needed (a <cyl-search> instance or a CYLSearchView).');
+  return target;
+}
+
+/**
+ * A search page that opens over its host (iOS `CYLSearchView`): a `CYLSearchBarView` at the top, a divider, then
+ * either the results of `resultsDataSource` (while it is set and the query is not empty) or the suggestions as a list
+ * or as tags, the cached queries first; CYLTableViewPlaceHolder's placeholders for no results and for an empty cache;
+ * and CYLTableViewPlaceHolder's pull-to-refresh on the results (`refreshHandler`). This class is the page's state and
+ * API; `<cyl-search>` draws it.
  *
  * Core behavior rule 1: focusing the field alone changes nothing below the search bar; that area changes only when
  * the text or the data changes.
  */
 class CYLSearchView {
-    /**
-     * A closed search view with the default look (iOS `-initWithFrame:`).
-     */
-    constructor() {
-        /**
-         * Receives the events of the search view.
-         */
-        this.delegate = undefined;
-        /**
-         * The search bar at the top. Style it directly (placeholder, colors, icons, keyboard, voice button, items).
-         */
-        this.searchBarView = new CYLSearchBarView_1.CYLSearchBarView();
-        /**
-         * How the suggestions are shown: a list (the default) or tags.
-         */
-        this.suggestionStyle = CYLSearchSuggestionStyle.list;
-        /**
-         * The fold control of the tag suggestions. An inline chevron by default.
-         */
-        this.suggestionsFoldControl = new CYLMenuFoldControl();
-        /**
-         * The rows of tag suggestions shown while folded. 2 by default; 0 shows every row.
-         */
-        this.suggestionsFoldedRowCount = 2;
-        /**
-         * Shows a placeholder under the search bar while a non-empty query matches no suggestion. False by default.
-         */
-        this.showsEmptyResultsPlaceholder = false;
-        /**
-         * The kind of that placeholder. `noResults` by default.
-         */
-        this.emptyResultsScenario = CYLSearchPlaceholderView_1.CYLSearchPlaceholderKind.noResults;
-        /**
-         * The color of the line under the search bar; undefined uses the system divider color.
-         */
-        this.dividerColor = undefined;
-        /**
-         * A view of yours shown under the divider, behind the suggestions: a results list, a history.
-         */
-        this.contentView = undefined;
-        /**
-         * The color behind the page while it is open; undefined draws none.
-         */
-        this.scrimColor = undefined;
-        /**
-         * The page background; undefined uses the system background.
-         */
-        this.backgroundColor = undefined;
-        /**
-         * Decides whether a suggestion matches the query. Undefined uses a case-insensitive "contains" test.
-         */
-        this.suggestionFilter = undefined;
-        /**
-         * The suggestions that match the current query: cached queries first, then `suggestions`, without repeats.
-         */
-        this.filteredSuggestions = [];
-        /**
-         * The icon before each suggestion; undefined shows none. A magnifier by default.
-         */
-        this.suggestionImage = $r('sys.symbol.magnifyingglass');
-        /**
-         * The tint of `suggestionImage`; undefined uses the secondary text color.
-         */
-        this.suggestionImageTintColor = undefined;
-        /**
-         * The background of the suggestion rows; undefined keeps the page background.
-         */
-        this.suggestionBackgroundColor = undefined;
-        /**
-         * The color of the suggestion text; undefined uses the primary text color.
-         */
-        this.suggestionTextColor = undefined;
-        /**
-         * How a long suggestion is cut. `TextOverflow.None` (whole text, wrapped) by default.
-         */
-        this.suggestionLineBreakMode = TextOverflow.None;
-        /**
-         * Submits a suggestion as soon as it is tapped. False by default: the field shows it and waits.
-         */
-        this.submitsOnSuggestionSelection = false;
-        /**
-         * Draws each suggestion row yourself, from the suggestion and its index (iOS `suggestionCellConfiguration`).
-         */
-        this.suggestionCellConfiguration = undefined;
-        /**
-         * The cache in use: the built-in store of `suggestionCachePolicy`, or a store of yours (set it after the policy).
-         */
-        this.suggestionCache = undefined;
-        /**
-         * The title of the header above the cached queries ("Recent searches").
-         */
-        this.suggestionCacheTitle = $r('app.string.cyl_search_recent');
-        /**
-         * Shows a placeholder while the query is empty and there is nothing to list. True by default.
-         */
-        this.showsEmptySuggestionsPlaceholder = true;
-        /**
-         * The kind of that placeholder. `empty` by default.
-         */
-        this.emptySuggestionsScenario = CYLSearchPlaceholderView_1.CYLSearchPlaceholderKind.empty;
-        /**
-         * Focuses the search field when the search opens, which raises the keyboard. True by default. False opens the
-         * search with the suggestion list only; the field is focused when the user taps it.
-         */
-        this.focusesSearchFieldOnShow = true;
-        /**
-         * The length of the open and close animations, in seconds. 0.25 by default.
-         */
-        this.animationDuration = 0.25;
-        /**
-         * Closes the search view after a submitted query that the delegate did not handle. True by default.
-         */
-        this.closesOnSubmit = true;
-        /**
-         * Whether the list currently shows cached queries (it then has the "Recent searches" header).
-         */
-        this.showsCachedQueries = false;
-        /**
-         * Whether the tag suggestions are folded.
-         */
-        this.suggestionsFolded = true;
-        this.open = false;
-        this.suggestionsShown = true;
-        this.allSuggestions = [];
-        this.showsAllForEmptyQuery = false;
-        this.cachePolicy = CYLSearchSuggestionCache_1.CYLSearchSuggestionCachePolicy.database;
-        this.cacheName = 'CYLSearchView';
-        this.context = undefined;
-        this.emptyResults = undefined;
-        this.emptySuggestions = undefined;
-        this.searchBarView.navigationIcon = CYLSearchBarView_1.CYLSearchBarNavigationIcon.arrow;
-        const barDelegate = {
-            searchBarViewTextDidChange: (_, text) => {
-                var _a, _b;
-                this.refilter();
-                (_b = (_a = this.delegate) === null || _a === void 0 ? void 0 : _a.searchViewTextDidChange) === null || _b === void 0 ? void 0 : _b.call(_a, this, text);
-            },
-            searchBarViewSearchButtonClicked: (_) => {
-                this.submitted();
-            },
-            searchBarViewDidBeginEditing: (_) => {
-                var _a, _b;
-                (_b = (_a = this.delegate) === null || _a === void 0 ? void 0 : _a.searchViewDidChangeFocus) === null || _b === void 0 ? void 0 : _b.call(_a, this, true);
-            },
-            searchBarViewDidEndEditing: (_) => {
-                var _a, _b;
-                (_b = (_a = this.delegate) === null || _a === void 0 ? void 0 : _a.searchViewDidChangeFocus) === null || _b === void 0 ? void 0 : _b.call(_a, this, false);
-            },
-            searchBarViewVoiceButtonClicked: (_) => {
-                var _a, _b;
-                (_b = (_a = this.delegate) === null || _a === void 0 ? void 0 : _a.searchViewVoiceButtonClicked) === null || _b === void 0 ? void 0 : _b.call(_a, this);
-            },
-            searchBarViewNavigationButtonClicked: (_) => {
-                var _a;
-                if (((_a = this.delegate) === null || _a === void 0 ? void 0 : _a.searchViewNavigationButtonClicked) !== undefined) {
-                    this.delegate.searchViewNavigationButtonClicked(this);
-                }
-                else {
-                    this.closeSearch(true);
-                }
-            }
-        };
-        this.searchBarView.delegate = barDelegate;
-    }
-    /**
-     * The suggestions to filter as the text changes.
-     */
-    get suggestions() {
-        return this.allSuggestions;
-    }
-    set suggestions(value) {
-        this.allSuggestions = value;
+  /**
+   * A closed search view with the default look (iOS `-initWithFrame:`). `storage` is the suggestion cache's storage
+   * (`{ getSync(key), setSync(key, value) }`; wx storage by default).
+   */
+  constructor(storage) {
+    this.delegate = undefined;
+    this.resultsDataSource = undefined;
+    this.refreshHandler = undefined;
+    this.searchBarView = new CYLSearchBarView();
+    this.searchBarView.navigationIcon = CYLSearchBarNavigationIcon.arrow;
+    this.suggestionStyle = CYLSearchSuggestionStyle.list;
+    this.suggestionsFoldControl = new CYLMenuFoldControl();
+    this.suggestionsFoldedRowCount = 2;
+    this.showsEmptyResultsPlaceholder = false;
+    this.emptyResultsScenario = 'NoSearchResults';
+    this.showsEmptySuggestionsPlaceholder = true;
+    this.emptySuggestionsScenario = 'NoContent';
+    this.showsResultsForEmptyQuery = false;
+    this.dividerColor = undefined;
+    this.contentView = undefined;
+    this.scrimColor = undefined;
+    this.backgroundColor = undefined;
+    this.suggestionFilter = undefined;
+    this.filteredSuggestions = [];
+    this.suggestionImage = $r('sys.symbol.magnifyingglass');
+    this.suggestionImageTintColor = undefined;
+    this.suggestionBackgroundColor = undefined;
+    this.suggestionTextColor = undefined;
+    this.suggestionLineBreakMode = TextOverflow.None;
+    this.submitsOnSuggestionSelection = false;
+    this.suggestionCellConfiguration = undefined;
+    this.suggestionCacheTitle = $r('app.string.cyl_search_recent');
+    this.focusesSearchFieldOnShow = true;
+    this.animationDuration = 0.25;
+    this.closesOnSubmit = true;
+    this.showsCachedQueries = false;
+    this.suggestionsFolded = true;
+    this.storage = storage;
+    this.open = false;
+    this.suggestionsShown = true;
+    this.allSuggestions = [];
+    this.showsAllForEmptyQuery = false;
+    this.results = [];
+    this.refreshing = false;
+    this.cachePolicy = CYLSearchSuggestionCachePolicy.database;
+    this.cacheName = 'CYLSearchView';
+    this.suggestionCache = cylSuggestionCache(this.cachePolicy, this.cacheName, storage);
+    this.searchBarView.delegate = {
+      searchBarViewTextDidChange: (_, text) => {
         this.refilter();
-    }
-    /**
-     * Lists every suggestion while the query is empty. False by default.
-     */
-    get showsSuggestionsForEmptyQuery() {
-        return this.showsAllForEmptyQuery;
-    }
-    set showsSuggestionsForEmptyQuery(value) {
-        this.showsAllForEmptyQuery = value;
-        this.refilter();
-    }
-    /**
-     * Where submitted queries are cached for the suggestion list. `database` by default.
-     */
-    get suggestionCachePolicy() {
-        return this.cachePolicy;
-    }
-    set suggestionCachePolicy(value) {
-        this.cachePolicy = value;
-        this.rebuildCache();
-    }
-    /**
-     * Separates the caches of different search screens. "CYLSearchView" by default.
-     */
-    get suggestionCacheName() {
-        return this.cacheName;
-    }
-    set suggestionCacheName(value) {
-        this.cacheName = value;
-        this.rebuildCache();
-    }
-    /**
-     * The placeholder shown for empty results, created the first time it is needed; undefined before.
-     */
-    get emptyResultsView() {
-        return this.emptyResults;
-    }
-    /**
-     * The placeholder shown for an empty cache, created the first time it is needed; undefined before.
-     */
-    get emptySuggestionsView() {
-        return this.emptySuggestions;
-    }
-    /**
-     * True while the search view is open (iOS `searchOpen`).
-     */
-    get isSearchOpen() {
-        return this.open;
-    }
-    /**
-     * The current query.
-     */
-    get query() {
-        return this.searchBarView.text;
-    }
-    set query(value) {
-        this.setQuery(value, false);
-    }
-    /**
-     * True while the suggestions are listed (`showSuggestions` / `dismissSuggestions`).
-     */
-    get suggestionsVisible() {
-        return this.suggestionsShown;
-    }
-    /**
-     * True while the query is not empty, nothing matches it and the empty results placeholder is on.
-     */
-    get showsEmptyResults() {
-        return this.showsEmptyResultsPlaceholder && this.query.length > 0 && this.filteredSuggestions.length === 0;
-    }
-    /**
-     * True while the query is empty, there is nothing to list and the empty suggestions placeholder is on.
-     */
-    get showsEmptySuggestions() {
-        return this.showsEmptySuggestionsPlaceholder && this.query.length === 0 &&
-            this.filteredSuggestions.length === 0 && this.suggestionCache !== undefined;
-    }
-    /**
-     * Gives the search view the app's context (for the suggestion cache) without opening it (iOS `-installInView:`).
-     * Put a `CYLSearchComponent` for this search view over the page it covers.
-     */
-    installInView(context) {
-        this.context = context;
-        this.rebuildCache();
-    }
-    /**
-     * Opens the search view and, with `focusesSearchFieldOnShow`, starts editing (iOS `-showSearch:`).
-     */
-    showSearch(animated = true) {
-        var _a, _b;
-        if (this.open) {
-            return;
+        this.reloadResults();
+        tell(this.delegate, 'searchViewTextDidChange', this, text);
+      },
+      searchBarViewSearchButtonClicked: () => this.submitted(),
+      searchBarViewDidBeginEditing: () => tell(this.delegate, 'searchViewDidChangeFocus', this, true),
+      searchBarViewDidEndEditing: () => tell(this.delegate, 'searchViewDidChangeFocus', this, false),
+      searchBarViewVoiceButtonClicked: () => tell(this.delegate, 'searchViewVoiceButtonClicked', this),
+      searchBarViewCancelButtonClicked: () => this.closeSearch(true),
+      searchBarViewNavigationButtonClicked: () => {
+        if (this.delegate && typeof this.delegate.searchViewNavigationButtonClicked === 'function') {
+          this.delegate.searchViewNavigationButtonClicked(this);
+        } else {
+          this.closeSearch(true);
         }
-        this.refilter();
-        if (animated && this.animationDuration > 0) {
-            animateTo({ duration: this.animationDuration * 1000, curve: Curve.EaseOut }, () => {
-                this.open = true;
-            });
-        }
-        else {
-            this.open = true;
-        }
-        if (this.focusesSearchFieldOnShow) {
-            setTimeout(() => {
-                this.searchBarView.showKeyboard();
-            }, animated ? this.animationDuration * 1000 : 0);
-        }
-        (_b = (_a = this.delegate) === null || _a === void 0 ? void 0 : _a.searchViewDidShow) === null || _b === void 0 ? void 0 : _b.call(_a, this);
+      },
+    };
+  }
+
+  /**
+   * The suggestions to filter as the text changes.
+   */
+  get suggestions() {
+    return this.allSuggestions;
+  }
+
+  set suggestions(value) {
+    this.allSuggestions = Array.isArray(value) ? value : [];
+    this.refilter();
+  }
+
+  /**
+   * Lists every suggestion while the query is empty. False by default.
+   */
+  get showsSuggestionsForEmptyQuery() {
+    return this.showsAllForEmptyQuery;
+  }
+
+  set showsSuggestionsForEmptyQuery(value) {
+    this.showsAllForEmptyQuery = !!value;
+    this.refilter();
+  }
+
+  /**
+   * Where submitted queries are cached for the suggestion list (`CYLSearchSuggestionCachePolicy`). `database` by
+   * default; it replaces `suggestionCache` with the default store of that policy.
+   */
+  get suggestionCachePolicy() {
+    return this.cachePolicy;
+  }
+
+  set suggestionCachePolicy(value) {
+    this.cachePolicy = value;
+    this.suggestionCache = cylSuggestionCache(value, this.cacheName, this.storage);
+    this.refilter();
+  }
+
+  /**
+   * Separates the caches of different search screens. "CYLSearchView" by default.
+   */
+  get suggestionCacheName() {
+    return this.cacheName;
+  }
+
+  set suggestionCacheName(value) {
+    this.cacheName = value;
+    this.suggestionCache = cylSuggestionCache(this.cachePolicy, value, this.storage);
+    this.refilter();
+  }
+
+  /**
+   * True while the search view is open (iOS `isSearchOpen`).
+   */
+  get isSearchOpen() {
+    return this.open;
+  }
+
+  /**
+   * The current query.
+   */
+  get query() {
+    return this.searchBarView.text;
+  }
+
+  set query(value) {
+    this.setQuery(value, false);
+  }
+
+  /**
+   * True while the suggestions are listed (`showSuggestions` / `dismissSuggestions`).
+   */
+  get suggestionsVisible() {
+    return this.suggestionsShown;
+  }
+
+  /**
+   * The results of the current query from `resultsDataSource` (iOS `searchResults`, read-only).
+   */
+  get searchResults() {
+    return this.results.slice();
+  }
+
+  /**
+   * True while the results take the place of the suggestions: `resultsDataSource` is set and the query is not empty
+   * (or `showsResultsForEmptyQuery` is true).
+   */
+  get showsResults() {
+    return !!this.resultsDataSource && (this.query.length > 0 || this.showsResultsForEmptyQuery);
+  }
+
+  /**
+   * True while the empty results placeholder shows: it is on, and the results (or, without results, the suggestions
+   * of a non-empty query) are empty.
+   */
+  get showsEmptyResults() {
+    if (!this.showsEmptyResultsPlaceholder) return false;
+    if (this.showsResults) return this.results.length === 0;
+    return this.query.length > 0 && this.filteredSuggestions.length === 0;
+  }
+
+  /**
+   * True while the query is empty, there is nothing to list and the empty suggestions placeholder is on.
+   */
+  get showsEmptySuggestions() {
+    return this.showsEmptySuggestionsPlaceholder && !this.showsResults && this.query.length === 0
+      && this.filteredSuggestions.length === 0 && this.suggestionCache !== undefined;
+  }
+
+  /**
+   * True while the results are refreshing (iOS `isRefreshing`).
+   */
+  get isRefreshing() {
+    return this.refreshing;
+  }
+
+  /**
+   * Opens the search view and, with `focusesSearchFieldOnShow`, starts editing (iOS `showSearch(animated:)`);
+   * `completion` runs once it is open, also when it already was.
+   */
+  showSearch(animated = true, completion = undefined) {
+    if (this.open) {
+      if (completion) completion();
+      return;
     }
-    /**
-     * Closes the search view and ends editing (iOS `-closeSearch:`).
-     */
-    closeSearch(animated = true) {
-        var _a, _b;
-        if (!this.open) {
-            return;
-        }
-        this.searchBarView.hideKeyboard();
-        if (animated && this.animationDuration > 0) {
-            animateTo({ duration: this.animationDuration * 1000, curve: Curve.EaseIn }, () => {
-                this.open = false;
-            });
-        }
-        else {
-            this.open = false;
-        }
-        (_b = (_a = this.delegate) === null || _a === void 0 ? void 0 : _a.searchViewDidClose) === null || _b === void 0 ? void 0 : _b.call(_a, this);
+    this.refilter();
+    this.reloadResults();
+    const duration = animated ? this.animationDuration * 1000 : 0;
+    animateTo({ duration, curve: Curve.EaseOut, onFinish: completion }, () => {
+      this.open = true;
+    });
+    if (this.focusesSearchFieldOnShow) this.searchBarView.showKeyboard();
+    tell(this.delegate, 'searchViewDidShow', this);
+  }
+
+  /**
+   * Closes the search view and ends editing (iOS `closeSearch(animated:completion:)`); `completion` runs once it is
+   * closed, also when it was not open.
+   */
+  closeSearch(animated = true, completion = undefined) {
+    if (!this.open) {
+      if (completion) completion();
+      return;
     }
-    /**
-     * The state to keep across a restart: whether the search view is open and its query.
-     */
-    encodeRestorableState() {
-        const state = { 'open': this.open, 'query': this.query };
-        return state;
+    this.searchBarView.hideKeyboard();
+    const duration = animated ? this.animationDuration * 1000 : 0;
+    animateTo({ duration, curve: Curve.EaseIn, onFinish: completion }, () => {
+      this.open = false;
+    });
+    tell(this.delegate, 'searchViewDidClose', this);
+  }
+
+  /**
+   * The state to keep across a restart: whether the search view is open and its query.
+   */
+  encodeRestorableState() {
+    return { open: this.open, query: this.query };
+  }
+
+  /**
+   * Restores the query and reopens the search view when it was open.
+   */
+  decodeRestorableState(state) {
+    const values = state || {};
+    this.setQuery(values.query || '', false);
+    if (values.open === true) this.showSearch(false);
+  }
+
+  /**
+   * The back gesture or key: closes an open search view and returns true (iOS `-accessibilityPerformEscape`).
+   */
+  accessibilityPerformEscape() {
+    if (!this.open) return false;
+    this.closeSearch(true);
+    return true;
+  }
+
+  /**
+   * A tap handler that opens the search view, for a menu item or a button (iOS `-attachToBarButtonItem:`).
+   */
+  attachToMenuItem() {
+    return () => this.showSearch(true);
+  }
+
+  /**
+   * Sets the query and submits it when `submit` is true (iOS `-setQuery:submit:`).
+   */
+  setQuery(text, submit = false) {
+    this.searchBarView.setText(text, false);
+    this.refilter();
+    this.reloadResults();
+    if (submit) this.submitted();
+  }
+
+  /**
+   * The component reports the text of the field.
+   */
+  textChanged(text) {
+    const before = this.query;
+    this.searchBarView.textChanged(text);
+    if (before === this.query) {
+      this.refilter();
+      this.reloadResults();
     }
-    /**
-     * Restores the query and reopens the search view when it was open.
-     */
-    decodeRestorableState(state) {
-        var _a, _b;
-        this.setQuery((_a = state['query']) !== null && _a !== void 0 ? _a : '', false);
-        if ((_b = state['open']) !== null && _b !== void 0 ? _b : false) {
-            this.showSearch(false);
-        }
+  }
+
+  /**
+   * The component reports that the field started or stopped editing. Nothing below the search bar changes.
+   */
+  focusChanged(focused) {
+    this.searchBarView.editingChanged(!!focused);
+  }
+
+  /**
+   * Lists the suggestions that match the current query.
+   */
+  showSuggestions() {
+    this.suggestionsShown = true;
+    this.refilter();
+  }
+
+  /**
+   * Hides the suggestions.
+   */
+  dismissSuggestions() {
+    this.suggestionsShown = false;
+  }
+
+  /**
+   * Clears the whole cache, as the trash button of the header does (iOS `-clearSuggestionCache`).
+   */
+  clearSuggestionCache() {
+    if (this.suggestionCache) this.suggestionCache.removeAllQueries();
+    this.refilter();
+  }
+
+  /**
+   * A suggestion was tapped: the field shows it, the delegate is told, and it is submitted with
+   * `submitsOnSuggestionSelection`.
+   */
+  suggestionSelected(suggestion, index) {
+    this.searchBarView.setText(suggestion, false);
+    this.refilter();
+    this.reloadResults();
+    tell(this.delegate, 'searchViewDidSelectSuggestion', this, suggestion, index);
+    if (this.submitsOnSuggestionSelection) this.submitted();
+  }
+
+  /**
+   * Queries `resultsDataSource` for the current query and reloads the results (iOS `reloadResults()`). Without a data
+   * source, or while the results do not show, the results are empty.
+   */
+  reloadResults() {
+    const source = this.resultsDataSource;
+    if (!source || !this.showsResults || typeof source.searchViewResultsForQuery !== 'function') {
+      this.results = [];
+      return this.searchResults;
     }
-    /**
-     * The back gesture or key: closes an open search view and returns true (iOS `-accessibilityPerformEscape`).
-     */
-    accessibilityPerformEscape() {
-        if (!this.open) {
-            return false;
-        }
-        this.closeSearch(true);
-        return true;
+    const results = source.searchViewResultsForQuery(this, this.query);
+    this.results = Array.isArray(results) ? results.slice() : [];
+    return this.searchResults;
+  }
+
+  /**
+   * The row of a result: `{ title, subtitle, accessibilityLabel }`, `title` being the result's text unless
+   * `resultsDataSource.searchViewConfigureResultCell` fills it.
+   */
+  resultCell(result) {
+    const cell = { title: result === null || result === undefined ? '' : String(result), subtitle: '', accessibilityLabel: '' };
+    tell(this.resultsDataSource, 'searchViewConfigureResultCell', this, cell, result);
+    if (!cell.accessibilityLabel) cell.accessibilityLabel = cell.subtitle ? `${cell.title}, ${cell.subtitle}` : cell.title;
+    return cell;
+  }
+
+  /**
+   * A result was tapped: the delegate is told (iOS `searchView(_:didSelectResult:)`).
+   */
+  resultSelected(result, index) {
+    tell(this.delegate, 'searchViewDidSelectResult', this, result, index);
+  }
+
+  /**
+   * Starts refreshing the results, as a pull does: `refreshHandler` is called (iOS `beginRefreshing()`). Does
+   * nothing without a handler or while refreshing.
+   */
+  beginRefreshing() {
+    if (this.refreshing || typeof this.refreshHandler !== 'function') return;
+    this.refreshing = true;
+    this.refreshHandler();
+  }
+
+  /**
+   * Ends refreshing (iOS `endRefreshing()`); call it on every completion path of `refreshHandler`.
+   */
+  endRefreshing() {
+    this.refreshing = false;
+  }
+
+  /**
+   * Sets the pull-to-refresh handler of another target (iOS `static setRefreshHandler(_:for:)`): a `<cyl-search>`
+   * instance (its `setRefreshHandler`) or a `CYLSearchView`; undefined removes it.
+   */
+  static setRefreshHandler(handler, target) {
+    const view = refreshTarget(target);
+    if (typeof view.setRefreshHandler === 'function') view.setRefreshHandler(handler);
+    else view.refreshHandler = handler;
+  }
+
+  /**
+   * Starts refreshing that target (iOS `static beginRefreshing(in:)`).
+   */
+  static beginRefreshing(target) {
+    refreshTarget(target).beginRefreshing();
+  }
+
+  /**
+   * Ends refreshing that target (iOS `static endRefreshing(in:)`).
+   */
+  static endRefreshing(target) {
+    refreshTarget(target).endRefreshing();
+  }
+
+  /**
+   * Whether that target is refreshing (iOS `static isRefreshing(in:)`).
+   */
+  static isRefreshing(target) {
+    const view = refreshTarget(target);
+    return typeof view.isRefreshing === 'function' ? view.isRefreshing() : !!view.isRefreshing;
+  }
+
+  submitted() {
+    const text = this.query.trim();
+    if (text.length === 0) return;
+    if (this.suggestionCache) this.suggestionCache.addQuery(text);
+    this.searchBarView.hideKeyboard();
+    const handled = tell(this.delegate, 'searchViewDidSubmitText', this, text) === true;
+    if (!handled && this.closesOnSubmit) this.closeSearch(true);
+    this.refilter();
+  }
+
+  matches(suggestion, query) {
+    if (this.suggestionFilter) return this.suggestionFilter(suggestion, query);
+    return String(suggestion).toLocaleLowerCase().includes(query.toLocaleLowerCase());
+  }
+
+  /**
+   * Recomputes `filteredSuggestions`: the cached queries first, then `suggestions`, without repeats.
+   */
+  refilter() {
+    const query = this.query;
+    const cached = this.suggestionCache ? this.suggestionCache.cachedQueries() : [];
+    let result = [];
+    if (query.length === 0) {
+      this.showsCachedQueries = cached.length > 0;
+      if (cached.length > 0) result = cached.slice();
+      else result = this.showsAllForEmptyQuery ? this.allSuggestions.slice() : [];
+    } else {
+      this.showsCachedQueries = false;
+      cached.forEach((value) => {
+        if (this.matches(value, query)) result.push(value);
+      });
+      this.allSuggestions.forEach((value) => {
+        if (this.matches(value, query) && !result.includes(value)) result.push(value);
+      });
     }
-    /**
-     * A click handler that opens the search view, for a menu item or a button (iOS `-attachToBarButtonItem:`).
-     */
-    attachToMenuItem() {
-        return () => {
-            this.showSearch(true);
-        };
-    }
-    /**
-     * Sets the query and submits it when `submit` is true (iOS `-setQuery:submit:`).
-     */
-    setQuery(text, submit) {
-        this.searchBarView.setText(text, false);
-        this.refilter();
-        if (submit) {
-            this.submitted();
-        }
-    }
-    /**
-     * Lists the suggestions that match the current query.
-     */
-    showSuggestions() {
-        this.suggestionsShown = true;
-        this.refilter();
-    }
-    /**
-     * Hides the suggestions.
-     */
-    dismissSuggestions() {
-        this.suggestionsShown = false;
-    }
-    /**
-     * Clears the whole cache, as the trash button of the header does (iOS `-clearSuggestionCache`).
-     */
-    clearSuggestionCache() {
-        var _a;
-        (_a = this.suggestionCache) === null || _a === void 0 ? void 0 : _a.removeAllQueries();
-        this.refilter();
-    }
-    /**
-     * A suggestion was tapped: the field shows it, the delegate is told, and it is submitted with
-     * `submitsOnSuggestionSelection`.
-     */
-    suggestionSelected(suggestion, index) {
-        var _a, _b;
-        this.searchBarView.setText(suggestion, false);
-        this.refilter();
-        (_b = (_a = this.delegate) === null || _a === void 0 ? void 0 : _a.searchViewDidSelectSuggestion) === null || _b === void 0 ? void 0 : _b.call(_a, this, suggestion, index);
-        if (this.submitsOnSuggestionSelection) {
-            this.submitted();
-        }
-    }
-    submitted() {
-        var _a, _b, _c, _d;
-        const text = this.query.trim();
-        if (text.length === 0) {
-            return;
-        }
-        (_a = this.suggestionCache) === null || _a === void 0 ? void 0 : _a.addQuery(text);
-        this.searchBarView.hideKeyboard();
-        const handled = (_d = (_c = (_b = this.delegate) === null || _b === void 0 ? void 0 : _b.searchViewDidSubmitText) === null || _c === void 0 ? void 0 : _c.call(_b, this, text)) !== null && _d !== void 0 ? _d : false;
-        if (!handled && this.closesOnSubmit) {
-            this.closeSearch(true);
-        }
-        this.refilter();
-    }
-    rebuildCache() {
-        if (this.context === undefined) {
-            return;
-        }
-        this.suggestionCache = CYLSearchSuggestionCache_1.CYLSearchSuggestionStore.cache(this.context, this.cachePolicy, this.cacheName);
-        this.refilter();
-    }
-    matches(suggestion, query) {
-        if (this.suggestionFilter !== undefined) {
-            return this.suggestionFilter(suggestion, query);
-        }
-        return suggestion.toLocaleLowerCase().includes(query.toLocaleLowerCase());
-    }
-    refilter() {
-        var _a, _b;
-        const query = this.query;
-        const cached = (_b = (_a = this.suggestionCache) === null || _a === void 0 ? void 0 : _a.cachedQueries()) !== null && _b !== void 0 ? _b : [];
-        let result = [];
-        if (query.length === 0) {
-            if (cached.length > 0) {
-                result = cached;
-                this.showsCachedQueries = true;
-            }
-            else {
-                result = this.showsAllForEmptyQuery ? this.allSuggestions.slice() : [];
-                this.showsCachedQueries = false;
-            }
-        }
-        else {
-            this.showsCachedQueries = false;
-            cached.forEach((value) => {
-                if (this.matches(value, query)) {
-                    result.push(value);
-                }
-            });
-            this.allSuggestions.forEach((value) => {
-                if (this.matches(value, query) && !result.includes(value)) {
-                    result.push(value);
-                }
-            });
-        }
-        this.filteredSuggestions = result;
-        if (this.showsEmptyResults && this.emptyResults === undefined) {
-            this.emptyResults = CYLSearchPlaceholderView_1.CYLSearchPlaceholderView.withKind(this.emptyResultsScenario);
-        }
-        if (this.showsEmptySuggestions && this.emptySuggestions === undefined) {
-            this.emptySuggestions = CYLSearchPlaceholderView_1.CYLSearchPlaceholderView.withKind(this.emptySuggestionsScenario);
-        }
-    }
+    this.filteredSuggestions = result;
+  }
 }
-exports.CYLSearchView = CYLSearchView;
+
+/**
+ * How many tags fit in `rows` rows of width `available` when the fold chevron must follow the last visible tag
+ * (CollectionViewClassifyMenu `CYLMenuFoldControlPositionInline`): `{ visibleCount, needsFold }`.
+ */
+function cylFoldTags(widths, available, spacing, chevronWidth, rows) {
+  const place = (count, extra) => {
+    let row = 1;
+    let x = 0;
+    for (const width of widths.slice(0, count).concat(extra ? [extra] : [])) {
+      const needed = x === 0 ? width : x + spacing + width;
+      if (needed > available && x > 0) {
+        row += 1;
+        x = width;
+      } else {
+        x = needed;
+      }
+    }
+    return row;
+  };
+  if (widths.length === 0) return { visibleCount: 0, needsFold: false };
+  if (place(widths.length, 0) <= rows) return { visibleCount: widths.length, needsFold: false };
+  let count = widths.length;
+  while (count > 0 && place(count, chevronWidth) > rows) count -= 1;
+  return { visibleCount: count, needsFold: true };
+}
+
+/**
+ * The speeds the playback slider of the animated placeholders offers, as multiples of the animation's own speed.
+ */
+const CYLSearchAnimationSpeed = Object.freeze({ minimum: 0.25, maximum: 3, step: 0.25, standard: 1 });
+
+/**
+ * Clamps a speed to the slider's range and rounds it to its step; anything that is not a number is 1.
+ */
+function cylClampAnimationSpeed(speed) {
+  const value = Number(speed);
+  if (!Number.isFinite(value)) return CYLSearchAnimationSpeed.standard;
+  const { minimum, maximum, step } = CYLSearchAnimationSpeed;
+  return Math.min(maximum, Math.max(minimum, Math.round(value / step) * step));
+}
+
+/**
+ * What a screen reader says for the playback strategy, e.g. "1.5x, looping" or "0.25x, plays once".
+ */
+function cylAnimationPlaybackDescription(speed, loops) {
+  return `${cylClampAnimationSpeed(speed)}x, ${loops ? 'looping' : 'plays once'}`;
+}
+
+module.exports = {
+  CYLSearchSuggestionStyle,
+  CYLMenuFoldControlPosition,
+  CYLMenuFoldControlContent,
+  CYLMenuFoldControl,
+  CYLSearchViewDelegate,
+  CYLSearchViewDataSource,
+  CYLSearchView,
+  cylFoldTags,
+  CYLSearchAnimationSpeed,
+  cylClampAnimationSpeed,
+  cylAnimationPlaybackDescription,
+};

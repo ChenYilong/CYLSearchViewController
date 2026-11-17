@@ -7,8 +7,8 @@
 const { cylSelectTab } = require('../../utils/cyl_tab_page');
 const { cylDemoText, cylDemoLanguage, cylDiscoverData, cylHotIcon } = require('../../utils/cyl_demo_text');
 const { cylRandomTopics, cylSearchedRecent } = require('../../utils/cyl_discover_logic');
-const { cylFoldTags } = require('../../components/cyl-search/cyl_tag_fold');
-const { cylNavigationMetrics } = require('../../components/cyl-search/cyl_navigation_metrics');
+const { cylFoldTags } = require('../../components/core/CYLSearchView');
+const { cylNavigationMetrics } = require('../../components/core/CYLSearchResources');
 
 const TAG_SPACING = 12;
 const SIDE_INSET = 16;

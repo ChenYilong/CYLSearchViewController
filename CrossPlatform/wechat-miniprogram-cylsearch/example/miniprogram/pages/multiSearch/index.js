@@ -1,4 +1,4 @@
-// Port of iammert/MultiSearchView's sample MainActivity (iOS CYLMultiSearchDemoViewController): a multi-search view
+// Port of iammert/MultiSearchView's sample MainActivity (iOS CYLMultiSearchDemoViewController): a search bar in "multiple" mode
 // styled like the README's SearchTextStyle (hint "Search", 18 pt text, at most 15 characters, the Search key, gray hint,
 // black text), 16 pt from the top, with every event logged (the sample's Log.v), newest first.
 const { cylDemoText } = require('../../utils/cyl_demo_text');

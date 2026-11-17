@@ -48,7 +48,7 @@ function callComponent(mp, selectors, method, args) {
     await shot('01-search-tab');
     await callComponent(mp, ['#reproduction'], 'onShowOverlay');
     await wait(500);
-    await callComponent(mp, ['#reproduction', '#overlay'], 'onTextChange', [{ detail: { text: '1' } }]);
+    await callComponent(mp, ['#reproduction', '#overlay'], 'setQuery', ['1', false]);
     await shot('02-search-overlay');
 
     page = await mp.switchTab('/pages/examples/index');

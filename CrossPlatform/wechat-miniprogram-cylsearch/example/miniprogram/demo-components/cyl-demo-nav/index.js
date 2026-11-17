@@ -1,7 +1,7 @@
 // The navigation bar of the example's pages ("navigationStyle": "custom"), like a UINavigationBar: the back button
 // when the page was pushed, an optional leading text button, the title, then trailing text or icon buttons, clear of
 // WeChat's menu button. It reserves its own height, so the page content starts below it.
-const { cylNavigationMetrics } = require('../../components/cyl-search/cyl_navigation_metrics');
+const { cylNavigationMetrics } = require('../../components/core/CYLSearchResources');
 const { cylDemoText } = require('../../utils/cyl_demo_text');
 
 Component({

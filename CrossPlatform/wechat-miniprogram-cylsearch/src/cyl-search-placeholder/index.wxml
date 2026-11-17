@@ -1,7 +1,0 @@
-<!-- The placeholder view (iOS CYLSearchPlaceholderView): the image 80 high, then the message, centered; read as one status. -->
-<view class="cyl-placeholder" role="status" aria-label="{{shownText}}">
-  <view wx:if="{{templateImage}}" class="cyl-placeholder-image cyl-placeholder-template"
-    style="-webkit-mask-image: url({{imagePath}}); mask-image: url({{imagePath}}); {{imageTintColor ? 'background-color: ' + imageTintColor + ';' : ''}}" aria-hidden="true" />
-  <image wx:else class="cyl-placeholder-image" src="{{imagePath}}" mode="aspectFit" aria-hidden="true" />
-  <view class="cyl-placeholder-text">{{shownText}}</view>
-</view>

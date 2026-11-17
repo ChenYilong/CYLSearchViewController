@@ -1,7 +1,7 @@
 {
   "name": "cyl-search-miniprogram",
   "version": "0.1.0",
-  "description": "CYLSearchViewController for WeChat Mini Program: the cyl-search-bar, cyl-search, cyl-search-controller, cyl-multi-search and cyl-search-placeholder components with the iOS API (suggestion cache, items, overlay, several searches, 41 placeholder styles), localized in 4 languages",
+  "description": "CYLSearchViewController for WeChat Mini Program: the cyl-search-bar (one search, or several with mode \"multiple\") and cyl-search (suggestions, results, pull-to-refresh, overlay or inline) components with the iOS API and the resources module (strings, suggestion cache), localized in 4 languages; placeholders and refresh from CYLTableViewPlaceHolder",
   "license": "MIT",
   "author": "ChenYilong <luohanchenyilong@163.com>",
   "homepage": "https://github.com/ChenYilong/CYLSearchViewController/tree/master/CrossPlatform/wechat-miniprogram-cylsearch",
@@ -19,6 +19,14 @@
     "sync-example": "node scripts/sync-example.js",
     "test": "node --test \"test/*.test.js\""
   },
+  "peerDependencies": {
+    "cyl-placeholder-miniprogram": "^0.1.0"
+  },
+  "peerDependenciesMeta": {
+    "cyl-placeholder-miniprogram": {
+      "optional": true
+    }
+  },
   "cylTabBarControllerCommit": "c72323fa14db43240f19da9fc4adde9a21b40c46",
-  "cylTableViewPlaceHolderCommit": "8ee70138c661e4ebf89108ea14e2fb9859544501"
+  "cylTableViewPlaceHolderCommit": "f488e2fb0ca175f96daabf5814739832a2cfd1ce"
 }

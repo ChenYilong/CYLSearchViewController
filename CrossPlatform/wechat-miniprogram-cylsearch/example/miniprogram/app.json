@@ -55,9 +55,6 @@
   "usingComponents": {
     "cyl-search-bar": "/components/cyl-search-bar/index",
     "cyl-search": "/components/cyl-search/index",
-    "cyl-search-placeholder": "/components/cyl-search-placeholder/index",
-    "cyl-search-controller": "/components/cyl-search-controller/index",
-    "cyl-multi-search": "/components/cyl-multi-search/index",
     "cyl-lottie": "cyl-lottie-miniprogram/cyl-lottie/index",
     "cyl-demo-nav": "/demo-components/cyl-demo-nav/index",
     "cyl-demo-snackbar": "/demo-components/cyl-demo-snackbar/index",
