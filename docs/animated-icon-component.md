@@ -269,3 +269,20 @@
 - **Pins moved again** (2026-11-17): CYLTabBarController `fbd05d5` (PR #814: `CYLAnimatedItem.podspec` defines its
   module; the Lottie animator takes no file Lottie cannot play) and CollectionViewClassifyMenu `98182e8` (static-library
   Podfiles, test wait, the same pin). Pending CI.
+
+## DONE (2026-11-17): the guide re-read at `caf0a38` / `ee106e8`
+
+- **Prompt (verbatim)**: "我已更新了该文档地址 最新地址https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md 文档更新了一些描述 请重新阅读 调整"
+- **Prompt (English)**: "I updated the document, latest address …/docs/Animated-Item.md; some descriptions changed. Please read
+  it again and adjust."
+- **What changed in the guide** since `1f0fcce`: the text now describes the `CYLAnimatedItem` pod throughout
+  (`b53011f`); per-type animation guards in `CYLAnimatedItem/Core` (`d1c2418`); type keys compile without their
+  engine and fall back to the static image (`caf0a38`); subclasses guard engine-only API (`animationPlayer`,
+  `animationSource`) with `CYL_ANIMATION_ENGINE_AVAILABLE`; downstream rows: `pod 'CYLAnimatedItem'` plus
+  `CYLAnimatedItem/<Type>`, `import CYLAnimatedItem`, Android `com.cyl.animateditem`.
+- **Result**: already followed, no code change. The core uses only API declared without an engine
+  (`animationURL`, `playAnimation`, the hooks) and checks the engine at run time; tests read `animationPlayer` by key.
+- **Pin kept at `fbd05d5`, not the branch tip `ee106e8`** (05:18 UTC, "license notice in every published package"):
+  the tip does not contain PR #814 (`CYLAnimatedItem.podspec` `DEFINES_MODULE`, no Lottie view for an unplayable
+  file), so pinning it would bring back two CI failures. TODO: move the pin to the branch once PR #814 is merged into
+  it.
