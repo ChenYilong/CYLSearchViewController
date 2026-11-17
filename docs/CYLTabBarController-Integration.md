@@ -296,6 +296,12 @@ CYLTabBarController pin needed the plugin's platform views to be `@MainActor` (t
   its Rive (and SVGA) tab icons were never seen. Plan: make the APK build, run it on an Android emulator, check the tab
   icons animate, fix what does not (in the core first: `react-native-cyltabbar` / CYLTabBarController, then the
   example), screenshot.
+- Progress (2026-11-17): the APK builds. Cause of the libappmodules link failure: the Android SDK path has a space
+  (`C:UsersChen Yilong…`), so CMake calls clang++ by its 8.3 short name `CLANG_~1.EXE`; clang picks its driver
+  from its file name, sees no `++`, links as C and leaves out libc++ (40 undefined `__cxa_*` / `std::__ndk1` symbols).
+  Fix on such machines: point `sdk.dir` in `android/local.properties` at a path without spaces (here a junction,
+  `mklink /J C:cylbuildandroid-sdk %LOCALAPPDATA%AndroidSdk`). Not a code change. Left: run it on the Android
+  emulator and check the tab icons (the debug APK could not reach Metro; a release build bundles the JavaScript).
 
 ## IN PROGRESS (TODO 2026-11-16): Rive tab icons in the Flutter and React Native examples, iOS and Android
 
