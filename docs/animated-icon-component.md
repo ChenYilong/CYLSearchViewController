@@ -3,7 +3,7 @@
 ## Progress against the guide (CYLTabBarController `docs/Animated-Item.md`)
 
 Guide: <https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md>,
-read at `e3ebc24` (2026-11-17, docs only after `57a527e`). Updated 2026-11-17 07:30 UTC. Score: 26 of 30 rows done (86);
+read at `e3ebc24` (2026-11-17, docs only after `57a527e`). Updated 2026-11-17 11:12 UTC. Score: 27 of 31 rows done (87);
 the 4 open rows wait on CI, a device or upstream. Every row with "unverified" is written but has not been compiled or run
 (no Xcode, Android SDK, DevEco or WeChat DevTools in the container that wrote it).
 
