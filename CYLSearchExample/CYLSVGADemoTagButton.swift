@@ -4,7 +4,8 @@ import UIKit
 /**
  * The animated icon and title of the SVGA demo above the Examples list: a `CYLTagButton` (CollectionViewClassifyMenu,
  * the one icon + title + animated icon component) whose `animationURL` is an `.svga` file, drawn by
- * CYLTabBarController's animation engine (its SVGA subspec), so the example uses no SVGA player itself.
+ * CYLTabBarController's animation engine (the `CYLTabBarController/CYLAnimatedItemSVGA` engine subspec the example's Podfile
+ * adds; the core adds none), so the example uses no SVGA player itself.
  */
 @objc(CYLSVGADemoTagButton)
 final class CYLSVGADemoTagButton: NSObject {

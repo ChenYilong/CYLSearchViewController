@@ -15,10 +15,11 @@ version() {
 sub_repository_specs() {
   mkdir -p build/lint-specs
   # One name per sub-repository the podspec depends on.
-  set -- CollectionViewClassifyMenu CYLTableViewPlaceHolder
+  # CYLTabBarController: the podspec depends on its CYLAnimatedItem subspec, which no trunk release has yet.
+  set -- CollectionViewClassifyMenu CYLTableViewPlaceHolder CYLTabBarController
   for name in "$@"; do
-    url=$(sed -n "s/.*pod '$name', :git => '\([^']*\)'.*/\1/p" Podfile | head -n 1)
-    commit=$(sed -n "s/.*pod '$name', :git => '[^']*', :commit => '\([0-9a-f]*\)'.*/\1/p" Podfile | head -n 1)
+    url=$(sed -n "s/.*pod '$name',.*:git => '\([^']*\)'.*/\1/p" Podfile | head -n 1)
+    commit=$(sed -n "s/.*pod '$name',.*:git => '[^']*', :commit => '\([0-9a-f]*\)'.*/\1/p" Podfile | head -n 1)
     test -n "$url" && test -n "$commit" || { echo "Podfile does not pin $name by :git and :commit" >&2; exit 1; }
     dir="build/lint-specs/$name"
     if [ ! -d "$dir/.git" ]; then

@@ -18,11 +18,19 @@ Pod::Spec.new do |s|
   # The tag suggestion style (CYLSearchSuggestionStyle.tags) shows suggestions in CollectionViewClassifyMenu's
   # CYLTagListView. Not on CocoaPods trunk: apps pin it by commit in their Podfile (AGENTS.md, "Sub-repositories").
   s.dependency 'CollectionViewClassifyMenu'
+  # The search bar items subclass CollectionViewClassifyMenu's CYLTagButton, a CYLAnimatedItemView: CYLTabBarController's
+  # shared animated icon + title component, its core only (static images, no tab bar, no animation engine; guide:
+  # https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md). An app
+  # that plays animated icons adds the engine subspecs (CYLTabBarController/CYLAnimatedItemLottieSwift, ...PAG, ...Rive,
+  # ...SVGA, ...GIF). The subspec is in no CocoaPods release yet: Podfiles pin CYLTabBarController by commit.
+  s.dependency 'CYLTabBarController/CYLAnimatedItem'
   # The empty search results placeholder (CYLSearchView.emptyResultsScenario) is CYLTableViewPlaceHolder's
   # CYLPlaceholderStackView, and the refresh API of CYLSearchView (refreshHandler, +setRefreshHandler:forScrollView:)
   # wraps its pull-to-refresh (CYLRefreshNormalHeader). Also pinned by commit in the Podfile. No other search library:
   # CYLSearchBar is the only search kernel.
   # CYLTableViewPlaceHolder's placeholders prefer an animated icon (their bundled Lottie files) over the still image
-  # (docs/core-todo.md): the Lottie engine is part of the core, the still image stays the fallback.
-  s.dependency 'CYLTableViewPlaceHolder/Lottie'
+  # (docs/core-todo.md). The core depends on no animation engine (docs/animated-icon-component.md): the placeholder's
+  # core only, and the app adds the engine (the example adds CYLTableViewPlaceHolder/Lottie); the still image shows
+  # otherwise.
+  s.dependency 'CYLTableViewPlaceHolder/Core'
 end
