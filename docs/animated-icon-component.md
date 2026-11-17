@@ -3,8 +3,8 @@
 ## Progress against the guide (CYLTabBarController `docs/Animated-Item.md`)
 
 Guide: <https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md>,
-read at `e3ebc24` (2026-11-17, docs only after `57a527e`). Updated 2026-11-17 07:30 UTC. Score: 19 of 25 rows done (76);
-the 6 open rows wait on CI, a device or upstream. Every row with "unverified" is written but has not been compiled or run
+read at `e3ebc24` (2026-11-17, docs only after `57a527e`). Updated 2026-11-17 07:30 UTC. Score: 20 of 25 rows done (80);
+the 5 open rows wait on CI, a device or upstream. Every row with "unverified" is written but has not been compiled or run
 (no Xcode, Android SDK, DevEco or WeChat DevTools in the container that wrote it).
 
 Prompt (verbatim): "告诉我 你遵循文档改造的进度，并在本仓库合适地方标注进度以及todo。这个文档是与动效组件相关的。告诉我 你遵循文档改造的进度https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md"
@@ -34,6 +34,7 @@ this repository. The document is about the animated component.")
 | 17 | Pin the newest commit of the newest branch (a merged pull request branch does not count) | all | `AGENTS.md`, `instructions.md`, `cyl-tabbar-integration` skill | DONE |
 | 18 | Every iOS failure of the migration fixed in the core first | iOS | ClassifyMenu re-export of `CYLAnimatedItem` (`b15b822`); this repository's only example-layer fix is row 5, recorded as example-only | DONE |
 | 21 | HarmonyOS build and run | HarmonyOS | Mate 70 Pro emulator (HarmonyOS 6.0.1, API 21), Windows with DevEco, 2026-11-17: the HAP builds (two example-only compile fixes, `9f9c3d7`); ohosTest 29 of 29 pass at CollectionViewClassifyMenu `232878a` (`b210a1e` for three test fixes). On screen: the SVGA header plays when shown and again on each tap, with its full title (`assets/harmonyos-mate70pro-api21-20261117-svga-tagbutton-title.jpeg`, `…-svga-tagbutton-playing.jpeg`; before: `…-title-cut-before.jpeg`); the search bar's items keep the tint (`…-searchbar-item-tint.jpeg`). The two core bugs found here (a standalone tag measured its title without the UI context; it always took the tap) were fixed in CollectionViewClassifyMenu `232878a` and pinned on every platform. PAG and Rive stay arm64-only on the x86_64 emulator (Scorecard 3 row 25) | DONE |
+| 25 | Android build at the CollectionViewClassifyMenu pin | Android | 2026-11-17, Windows (JDK 21, Android SDK): `:app:assembleDebug` and `:cylsearch:testDebugUnitTest` pass (25 tests, 0 failures) at CollectionViewClassifyMenu `c2caa24`, pinned on every platform. Before, its `CYLTagButton.kt` named `com.cyl.tabbar.CYLSize` (fails at `71562ca` and `232878a`); fixed in that repository after this report (`com.cyl.animateditem.CYLSize`) | DONE |
 
 ### TODO
 
@@ -43,7 +44,6 @@ this repository. The document is about the animated component.")
 | 20 | Animated icons seen playing in the example | iOS, Android | no screenshot of an animated search bar item yet | screenshots from CI (iOS) and an emulator (Android) |
 | 22 | Mini program run | Mini program | no WeChat DevTools here; `generic:` resolution through `app.json` and the npm default path untested | run in DevTools, screenshots |
 | 23 | Upstream gaps of the component | HarmonyOS, mini program | mini program: GIF without stills, speed or loop and always-on autoplay (fixed by CYLTabBarController PR #815, not merged); HarmonyOS: square icon only, no PixelMap or symbol as the static image (a symbol item shows the placeholder while loading), type by extension only, fixed 4 vp padding and 44 vp minimum height (asked, waiting on the owner) | after #815 is merged: pin its merge and pass `gif-first-frame` / `gif-last-frame` / `gif-duration`, `embedded`, `autoplay` in `cyl-search-bar` |
-| 25 | Android build at the CollectionViewClassifyMenu pin | Android | 2026-11-17, Windows: `:classifymenu:compileDebugKotlin` fails at `232878a` and at the previous pin `71562ca`: its `CYLTagButton.kt:297` names `com.cyl.tabbar.CYLSize`, but CYLTabBarController's `:cylanimateditem` has it in `com.cyl.animateditem` (at `57a527e` and at its newest `357c314`). A core bug of CollectionViewClassifyMenu, sent to its session | pin its fix, then `./gradlew :app:assembleDebug :cylsearch:testDebugUnitTest` and the animated search bar item on the Android emulator (row 20) |
 | 24 | Pin the guide's newest commit `e3ebc24` | all | docs only after `57a527e`; held during the CI push freeze | move the pins with the next code change |
 
 ## TODO (2026-11-17): one icon + title / animated icon component everywhere
