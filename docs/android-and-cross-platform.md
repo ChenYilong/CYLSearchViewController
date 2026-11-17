@@ -19,6 +19,22 @@ on the native cores, Flutter as well. Dated task entries below record the work i
 - Plan: `flutter doctor` and `react-native doctor` until no blocking item (Android cmdline-tools and licenses; Visual Studio
   only for Windows desktop apps); then build and run the Flutter and React Native examples on the Android emulator
   (tab icons, raised plus button laid out by the core, search) and the HarmonyOS suite on its emulator, with screenshots.
+- Environments (2026-11-18): React Native `react-native doctor` 0 errors (yarn 1.22.22 through corepack; JDK 17 from Gradle's
+  toolchain folder as `JAVA_HOME`, 21 is above its supported range); Flutter 3.50.0 `flutter doctor`: Android toolchain
+  complete (cmdline-tools, JDK 17, licenses accepted); Visual Studio missing, needed only for Windows desktop apps. The
+  user confirmed both set.
+- Results (pins CYLTabBarController `fe5c3ae3`, CollectionViewClassifyMenu `333b349`; Android emulator Medium Phone API 37,
+  HarmonyOS emulator Mate 70 Pro API 21):
+  - HarmonyOS: ohosTest 29 of 29 (`assets/harmonyos-mate70pro-api21-20261117-examples-at-fe5c3ae3.jpeg`).
+  - React Native: builds; Rive tab icons tinted (selected blue), plus button raised by the core
+    (`assets/android-medium-phone-api37-20261118-rn-rive-tint-plus.png`); search opens and filters as you type
+    (`…-rn-search-filter.png`). Unit tests on a clean clone (CYLTableViewPlaceHolder's session): jest 5 of 5, tsc 0 errors.
+  - Flutter: builds; after adding `tint: "title"` to its Rive tabs the icons are tinted and the plus button is raised by the
+    core (`…-flutter-rive-tint-plus.png`); in this debug build the native tab bar appears about a minute after launch.
+    flutter test 13 of 13 and analyze with 3 infos only (clean clone). The search check on the device waits for the
+    shared emulator.
+  - Bug recorded: the React Native example's status bar icons are white on its white page (as row 26 was on native
+    Android); fixed in `src/App.tsx` with a `StatusBar` that follows light and dark mode, check pending.
 
 ## Open TODOs: Android, React Native, Flutter (2026-11-16)
 

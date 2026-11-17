@@ -9,7 +9,8 @@
       "CYLTabBarAnimationOptions": {
         "artboard": "CHAT",
         "stateMachine": "CHAT_Interactivity",
-        "input": "active"
+        "input": "active",
+        "tint": "title"
       },
       "CYLTabBarRiveSize": "{28, 28}"
     },
@@ -21,7 +22,8 @@
       "CYLTabBarAnimationOptions": {
         "artboard": "BELL",
         "stateMachine": "BELL_Interactivity",
-        "input": "active"
+        "input": "active",
+        "tint": "title"
       },
       "CYLTabBarRiveSize": "{28, 28}"
     },
@@ -33,7 +35,8 @@
       "CYLTabBarAnimationOptions": {
         "artboard": "SEARCH",
         "stateMachine": "SEARCH_Interactivity",
-        "input": "active"
+        "input": "active",
+        "tint": "title"
       },
       "CYLTabBarRiveSize": "{28, 28}"
     },
@@ -45,7 +48,8 @@
       "CYLTabBarAnimationOptions": {
         "artboard": "USER",
         "stateMachine": "USER_Interactivity",
-        "input": "active"
+        "input": "active",
+        "tint": "title"
       },
       "CYLTabBarRiveSize": "{28, 28}"
     }
