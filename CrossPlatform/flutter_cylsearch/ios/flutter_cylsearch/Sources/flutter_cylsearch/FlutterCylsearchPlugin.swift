@@ -393,7 +393,7 @@ final class CYLFlutterTagListView: NSObject, @preconcurrency FlutterPlatformView
     private func apply(_ arguments: [String: Any]) {
         container.overrideUserInterfaceStyle = (arguments["brightness"] as? String) == "dark" ? .dark : .light
         container.tagListView.foldControl = cylFoldControl(arguments["foldControlPosition"], arguments["foldControlContent"])
-        container.tagListView.defaultVisibleRows = UInt(max(0, arguments["foldedRowCount"] as? Int ?? 2))
+        container.tagListView.defaultVisibleRows = max(0, arguments["foldedRowCount"] as? Int ?? 2)
         container.tagListView.setTags(withTitles: arguments["tags"] as? [String] ?? [])
         container.setNeedsLayout()
     }
