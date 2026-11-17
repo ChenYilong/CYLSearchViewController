@@ -64,8 +64,10 @@ the work to reach full parity (100/100 for each project).
 
 - First column: the project's public API (classes, constructors, methods, listeners, XML attributes and, for the
   two projects that ship only a sample app, the platform API the sample uses). Second column: our counterpart.
-- Our types: `CYLSearchBarView` (bar), `CYLSearchView` (search page with suggestions), `CYLMultiSearchView`,
-  `CYLSearchResultsViewController`, `CYLSearchController` (overlay), `CYLSearchPlaceholderView`.
+- Our types: the CYLSearchBar core, `Sources/CYLSearchBar`: `CYLSearchBarView` (the bar; `mode = .multiple` holds
+  several searches side by side), `CYLSearchBarItem` (buttons in the bar), `CYLSearchView` (the search page:
+  suggestions, results from `resultsDataSource`, empty placeholders from CYLTableViewPlaceHolder, pull-to-refresh)
+  and `CYLSearchResources` (images, strings, suggestion cache).
 - Android XML attributes map to properties: iOS views are configured in code (or Interface Builder through the
   same properties).
 - Score = matched APIs / all APIs of the project × 100. Read from each project's latest commit (2026-11-12).
@@ -91,7 +93,7 @@ Kotlin; `MaterialSearchBar`, `MaterialSearchView`, `MaterialSearchToolbar`, `Nav
 | `setNavigationElevation(elevation)`, `search_navigationElevation` | `navigationShadowOpacity` |
 | `setNavigationBackgroundColor(color)`, `search_navigationBackgroundColor` | `navigationBackgroundColor` |
 | `setOnClickListener(listener)` (the bar opens the search view) | `-searchBarViewShouldBeginEditing:` returning NO + `-searchBarViewDidTapWhileNotEditable:` |
-| `ScrollingViewBehavior` (the bar scrolls away) | `navigationItem.hidesSearchBarWhenScrolling` of `CYLSearchResultsViewController` |
+| `ScrollingViewBehavior` (the bar scrolls away) | `navigationItem.hidesSearchBarWhenScrolling` of the hosting view controller (UIKit) |
 | margins (`search_margins*` dimensions) | `contentInsets` |
 | `MaterialSearchView(context, attrs)` | `-[CYLSearchView initWithFrame:]` / `initWithCoder:` |
 | `addView(child)` | `CYLSearchView.contentView` |
@@ -189,7 +191,7 @@ the table lists the API it uses.
 | search text `setTextColor(color)` | `textColor` |
 | `setOnQueryTextListener` → `onQueryTextSubmit(query)` | `-searchBarViewSearchButtonClicked:` (with `-searchBarView:shouldSubmitText:`) |
 | `setOnQueryTextListener` → `onQueryTextChange(newText)` | `-searchBarView:textDidChange:` |
-| clearing the result when the text is empty | `textDidChange` with `@""`; `CYLSearchPlaceholderView` for the empty state |
+| clearing the result when the text is empty | `textDidChange` with `@""`; `CYLSearchView.showsEmptyResultsPlaceholder` (CYLTableViewPlaceHolder's `CYLPlaceholderView`) for the empty state |
 
 Missing: none. Score: **100/100** (before, estimated: 58/100; iconified state and submit button were missing).
 
@@ -222,19 +224,19 @@ Kotlin; `MultiSearchView`, `MultiSearchContainerView`, `searchTextStyle`.
 
 | iammert/MultiSearchView | CYLSearchViewController |
 |:---|:---|
-| `MultiSearchView(context, attrs)` | `-[CYLMultiSearchView initWithFrame:]` / `initWithCoder:` |
-| `setSearchViewListener(listener)` | `delegate` |
-| `onTextChanged(index, s)` | `-multiSearchView:textDidChange:atIndex:` |
-| `onSearchComplete(index, s)` | `-multiSearchView:didCompleteSearch:atIndex:` |
-| `onSearchItemRemoved(index)` | `-multiSearchView:didRemoveItemAtIndex:` |
-| `onItemSelected(index, s)` | `-multiSearchView:didSelectItem:atIndex:` |
-| `search()` | `-search` |
+| `MultiSearchView(context, attrs)` | `-[CYLSearchBarView initWithFrame:]` / `initWithCoder:` with `mode = CYLSearchBarModeMultiple` |
+| `setSearchViewListener(listener)` | `delegate` (`CYLSearchBarViewDelegate`) |
+| `onTextChanged(index, s)` | `-searchBarView:textDidChange:atIndex:` |
+| `onSearchComplete(index, s)` | `-searchBarView:didCompleteSearch:atIndex:` |
+| `onSearchItemRemoved(index)` | `-searchBarView:didRemoveSearchAtIndex:` |
+| `onItemSelected(index, s)` | `-searchBarView:didSelectSearch:atIndex:` |
+| `search()` | `-beginNewSearch` |
 | `completeSearch()` (drops a search shorter than 3 characters) | `-completeSearch`, `minimumTextLength` (3) |
-| `isInSearchMode()` | `isInSearchMode` |
-| search icon (start / complete) | `searchButton`, `searchImage` |
-| remove icon on the selected item | the item's remove button, `removeImage`, `-removeItemAtIndex:` |
-| indicator under the selected item | indicator, `indicatorColor` |
-| unselected items at half opacity | `unselectedItemAlpha` (0.5) |
+| `isInSearchMode()` | `isEditingNewSearch` |
+| search icon (start / complete) | `newSearchButton`, `newSearchImage` |
+| remove icon on the selected item | the search's remove button, `removeSearchImage`, `-removeSearchAtIndex:` |
+| indicator under the selected item | indicator, `searchIndicatorColor` |
+| unselected items at half opacity | `unselectedSearchAlpha` (0.5) |
 | `searchTextStyle`: `android:hint` | `placeholder` |
 | `searchTextStyle`: `android:textSize` | `font` |
 | `searchTextStyle`: `android:textColor` | `textColor` |
@@ -248,8 +250,9 @@ Missing: none. Score: **100/100** (before, estimated: 0/100; there was no multi-
 
 ## What we have that none of them has
 
-`CYLSearchResultsViewController` (results driven by a data source, pull to refresh, placeholders),
-`CYLSearchPlaceholderView` (45 placeholder styles, localized messages), trailing accessory views and a leading view
+`CYLSearchView`'s results (driven by `resultsDataSource`, in `resultsTableView`), its pull-to-refresh API (for its
+results and for any scroll view), the empty placeholders of CYLTableViewPlaceHolder (`CYLPlaceholderView`
+styles and scenarios, localized messages), the suggestion cache with its policies, trailing accessory views and a leading view
 in the field, a localized Cancel button, Dynamic Type with a growing field, the large content viewer, VoiceOver
 labels for every button and item, localized strings in four languages, and `-searchBarView:shouldSubmitText:`.
 

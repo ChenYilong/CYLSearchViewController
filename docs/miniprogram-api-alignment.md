@@ -1,5 +1,12 @@
 # WeChat Mini Program API alignment
 
+The mini program core (`CrossPlatform/wechat-miniprogram-cylsearch`) is CYLSearchBar, like iOS
+([search-core-merge.md](search-core-merge.md)): the components `cyl-search-bar` (`mode` single or multiple) and
+`cyl-search` (suggestions, results through `setResultsDataSource` or `results`, empty placeholders from
+CYLTableViewPlaceHolder's `cyl-placeholder`, pull-to-refresh through `setRefreshHandler`, `refresherEnabled` and
+`bind:refresh`), on the core modules `src/core/CYLSearchBarView.js`, `CYLSearchView.js` and `CYLSearchResources.js`.
+Dated task entries below record the work in their own time and name the components of that time.
+
 ## DONE (2026-11-15; TODO 2026-11-15): mini program core aligned with every iOS public API; example with CYLTabBarController's mini program tab bar
 
 - Branch: `feat/swift-core` (PR #8). Package: `CrossPlatform/wechat-miniprogram-cylsearch`.

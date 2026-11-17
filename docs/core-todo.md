@@ -1,6 +1,6 @@
 # Core TODO
 
-Features of the core (`Sources/CYLSearchViewController`, Swift; mirrored in `android/merged/cylsearch` and wrapped by
+Features of the core (`Sources/CYLSearchBar`, Swift; mirrored in `android/merged/cylsearch` and wrapped by
 the cross-platform packages) that are planned but not built yet. Implement them in the core first; the examples only
 pass parameters.
 

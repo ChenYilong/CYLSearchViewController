@@ -1,7 +1,8 @@
 # Swift Migration of the Core
 
-This document tracks the translation of the core (`Sources/CYLSearchViewController/`) from Objective-C to Swift,
-with a score after every commit.
+This document is the record of the translation of the iOS core from Objective-C to Swift, with a score after every
+commit. The core is all Swift: `Sources/CYLSearchBar/` (`docs/search-core-merge.md`). The class names in the log
+below are those of the time.
 
 ## DONE (2026-11-12): translate the core to Swift, with a Swift coding standard
 

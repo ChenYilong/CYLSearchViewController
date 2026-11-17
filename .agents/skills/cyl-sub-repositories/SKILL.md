@@ -31,4 +31,4 @@ them. Full rule: `AGENTS.md`, "Sub-repositories".
 | Sub-repository | What it adds | Status |
 |:---|:---|:---|
 | CollectionViewClassifyMenu | Suggestions under the search bar as tags (`CYLSearchSuggestionStyle`) | Android done; iOS `TODO` (`docs/tag-view-suggestions.md`) |
-| CYLTableViewPlaceHolder | When a search has no results, its empty-content placeholder style | `TODO` on every platform: iOS, Android, React Native, Flutter, HarmonyOS, mini programs (`docs/sub-repositories.md`) |
+| CYLTableViewPlaceHolder | The placeholder sub-dependency: its empty-content placeholder (`CYLPlaceholderView` scenarios) when a search has no results, and the pull-to-refresh header wrapped by `CYLSearchView`'s refresh API; pinned at `f488e2f` on every platform | Done on iOS, Android, HarmonyOS and the mini program; React Native and Flutter moving to the merged core (in progress) (`docs/sub-repositories.md`, `docs/search-core-merge.md`) |

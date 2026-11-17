@@ -59,24 +59,21 @@ rules win over both:
   (Effective Go), C# `///` with XML tags (Microsoft Learn), Rust `///` (Rust
   Style Guide), Dart `///` (Effective Dart).
 
-Status (2026-11-11): the four public headers in `Sources/CYLSearchViewController/`
-pass the check in the `cyl-verify` skill (the grep prints nothing). This
-repository has no Swift, Kotlin, Java, TypeScript, Dart, Python, Go, C# or Rust
-sources yet.
+Status: the iOS core is Swift, the three files of `Sources/CYLSearchBar/`
+(`CYLSearchBarView.swift`, `CYLSearchView.swift`, `CYLSearchResources.swift`);
+every public declaration has a three-line `/** */` block, checked by
+`scripts/check-public-api-comments.sh` (the `cyl-verify` skill). The Kotlin,
+ArkTS and JavaScript ports follow the same table.
 
 ## Status
 
-- Public API comments (2026-11-11): every documentation comment in the
-  public headers is a `/*! … */` block. 2026-11-12: `CYLSearchBarView.h`
-  converted too; `scripts/check-public-api-comments.sh` (run in CI) is the
-  checker for `Sources/CYLSearchViewController/*.h`.
-- Quick Help and the Swift interface (2026-11-12, Xcode 27.2): the clang AST
-  of each header attaches a `FullComment` to every documented declaration,
-  and `xcrun swift-synthesize-interface` shows each block in the generated
-  Swift interface (header blocks / Swift blocks: `CYLSearchBarView` 15/15,
-  `CYLSearchController` 3/4, `CYLSearchPlaceholderView` 10/10,
-  `CYLSearchResources` 4/4, `CYLSearchResultsViewController` 2/2;
-  `CYLSearchController` shows one block twice).
+- Public API comments: every documentation comment in the core's Swift
+  files is a three-line `/** … */` block; `scripts/check-public-api-comments.sh`
+  (run in CI) is the checker for `Sources/CYLSearchBar`.
+- Quick Help and the Swift interface: Xcode reads the `/** */` blocks of the
+  Swift core directly, and the generated Objective-C header carries the
+  `@objc` names. Not yet measured on Xcode for `Sources/CYLSearchBar`
+  (`TODO`: needs a Mac; the first compile is iOS CI on PR #11).
 - Example integration (2026-11-12, 10/10):
   - `Podfile` pins `d36c7080157c49c552a3a352d72a9d00a2be11a9`, the newest
     commit on any branch (`feat/cross-platform-components`) when it was read.
@@ -109,18 +106,19 @@ sources yet.
   ("Search bar"). The screenshots below come from launching the app.
 
 - A search bar never covers any view (2026-11-12):
-  - `CYLSearchResultsViewController` and `CYLSearchController` do not extend
-    their views under the top bar (`edgesForExtendedLayout` without
-    `UIRectEdgeTop`). Before, the table view extended under the search bar
-    and the refresh header's text showed through it.
-  - Both keep the search bar in the navigation bar, under the title
+  - The Issue #1317 results screen (`CYLSearchExampleViewController`) does
+    not extend its view under the top bar (`edgesForExtendedLayout` without
+    `UIRectEdgeTop`), so the table view and the refresh header's text never
+    show through the search bar. `CYLSearchView` lays its own bar out against
+    the safe area, on an opaque page, with the suggestions and results below.
+  - The results screen keeps the search bar in the navigation bar, under the title
     (`preferredSearchBarPlacement` stacked; on iOS 26
     `searchBarPlacementAllowsToolbarIntegration = NO`). Without a tab bar,
     iOS 26 on iPhone floated the field at the bottom of the screen, over the
     last rows of the list.
   - `testSearchBarsCoverNoView` checks the results screen (bar pinned and
     hiding on scroll), the search bar demo at the default and the largest
-    text size, and the overlay, with `CYLViewsCoveredByView`: every visible
+    text size, and the `CYLSearchView` overlay, with `CYLViewsCoveredByView`: every visible
     view of the window except the bar's own subviews and containers, system
     bar backgrounds, views that draw nothing and parts clipped away.
     `testSearchBarNeverCoversTheViewControllersView` checks the view's frame.

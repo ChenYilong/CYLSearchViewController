@@ -76,6 +76,12 @@ Every new integration rule updates, in the same change, `AGENTS.md`,
 
 ## Project rules
 
+- The search core is `CYLSearchBar`: three files and four public classes on iOS
+  (`Sources/CYLSearchBar`: `CYLSearchBarView`, `CYLSearchBarItem`, `CYLSearchView`, `CYLSearchResources`), the same
+  on every platform (Android `android/merged/cylsearch`, HarmonyOS `harmonyos/cylsearch`, the mini program's
+  `cyl-search-bar` and `cyl-search`). Refresh lives only in `CYLSearchView`. CYLSearch depends on no other search
+  kernel (CollectionViewClassifyMenu and CYLTableViewPlaceHolder are not search kernels). A new feature goes into the
+  class it belongs to (a parameter or a mode), not into a new public class. Design: `docs/search-core-merge.md`.
 - New project-owned types and identifiers use the `CYL` prefix. New UIKit
   category files use `+CYL`; category methods and properties use `cyl_`.
 - Do not rename existing APIs or vendor symbols in a task that does not require
@@ -89,7 +95,7 @@ Every new integration rule updates, in the same change, `AGENTS.md`,
 
 ## Swift
 
-The core moves from Objective-C to Swift (`docs/swift-migration.md`, scored after every commit). All Swift code
+The core is Swift (`Sources/CYLSearchBar`; the translation record and its score: `docs/swift-migration.md`). All Swift code
 follows `docs/swift-coding-standard.md` and the Swift skills in `.agents/skills` (`swift-api-design-guidelines`,
 `swift-language`, `swift-concurrency`, `swift-testing`, `swift-architecture`, `uikit`, `uikit-layouting`; third-party,
 pinned in `.agents/skills.json`, never edited by hand). Public Swift API keeps the Objective-C class names and
@@ -182,10 +188,13 @@ from CYLTabBarController's `AGENTS.md`, "Comments on public API" (commit
 ## Issue #1317
 
 The reproduction uses `UISearchController` in `navigationItem.searchController`
-and a `CYLRefreshNormalHeader`. Pinning the search bar with
+and pull-to-refresh on its table through the core's refresh API:
+`CYLSearchView.setRefreshHandler(_:for:)` adds it and `CYLSearchView.endRefreshing(in:)` stops it
+(CYLTableViewPlaceHolder's normal header inside; the example never calls CYLTableViewPlaceHolder's refresh API
+directly). Pinning the search bar with
 `hidesSearchBarWhenScrolling = NO` is the known workaround for repeated inset
-updates on affected iOS versions. Refresh callbacks must not retain their
-controller strongly and must always stop the refresh control.
+updates on affected iOS versions. Refresh handlers must not retain their
+controller strongly and must always end the refresh (`endRefreshing(in:)` on every completion path).
 
 ## CYLTabBarController
 
@@ -266,8 +275,12 @@ CollectionViewClassifyMenu shows the suggestions under the search bar as tags in
 
 CYLTableViewPlaceHolder is integrated as a sub-repository under all the requirements above. Requirement: when a search
 has no results (the content is empty), show CYLTableViewPlaceHolder's empty-content placeholder style. This applies to
-every platform: iOS, Android, React Native, Flutter, HarmonyOS and mini programs. Status: `TODO`, tracked in
-`docs/sub-repositories.md`. Use the `cyl-sub-repositories` skill.
+every platform: iOS, Android, React Native, Flutter, HarmonyOS and mini programs. CYLTableViewPlaceHolder is the
+placeholder sub-dependency: `CYLSearchView` shows its `CYLPlaceholderView` / `CYLPlaceholderStackView` for empty
+results and empty suggestions, and wraps its pull-to-refresh header in the refresh API; every platform pins the
+same commit, `f488e2f`. Status: done on iOS, Android, HarmonyOS and the mini program; React Native and Flutter are
+moving to the merged core (in progress). Tracked in `docs/sub-repositories.md` and `docs/search-core-merge.md`. Use
+the `cyl-sub-repositories` skill.
 
 ## Verification
 

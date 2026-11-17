@@ -1,6 +1,6 @@
 # Search Core Merge (CYLSearchBar)
 
-## TODO (2026-11-17): merge the search core into the fewest classes, on every platform
+## TODO (2026-11-17): merge the search core into the fewest classes, on every platform (DONE (2026-11-17): iOS, Android, HarmonyOS, mini program, placeholder pins, parity tables; React Native and Flutter in progress)
 
 - **Context**: branch `feat/harmonyos-parity` (PR #11). The iOS core (`Sources/CYLSearchViewController`, Swift) has 9
   files and 15 public types: three search screens with overlapping roles (`CYLSearchView` suggestions page,
@@ -35,7 +35,66 @@
   interfaces are aggregated in the CYLSearchBar component. CYLSearch must be the only kernel and must not depend on
   other search kernels; the collection view is excluded, it is not search-related. Example code may change freely,
   regardless of its current usage."
-- **Status**: logged; design next (section "Target design").
+- **Status** (2026-11-17): merged on iOS, Android, HarmonyOS and the mini program; React Native and Flutter are
+  being moved onto the merged core (in progress), so the task stays `TODO`.
+
+  | Part | State | Commits |
+  | :--- | :--- | :--- |
+  | Design | DONE: "Target design" below | `d2ed553` |
+  | Generators and CI on `Sources/CYLSearchBar` | DONE | `f5f1775` |
+  | Placeholder sub-dependency: CYLTableViewPlaceHolder `f488e2f` on every platform | DONE | `d01d290` |
+  | iOS: `Sources/CYLSearchBar`, 3 files, 4 public classes; the example refreshes only through `CYLSearchView` | DONE | `40c22c6` |
+  | Android: `android/merged/cylsearch`, 3 files; no `search-*` dependency; refresh from `:placeholder-refresh` | DONE | `28fdfc7`, `14fedf9` |
+  | HarmonyOS: `harmonyos/cylsearch`, 3 files | DONE | `f6f5af8` |
+  | Mini program: `cyl-search-bar`, `cyl-search`, `src/core/` 3 modules | DONE | `457a21d` |
+  | Parity tables regenerated on the merged API, all 100 | DONE | `bf20104`, `21eca39` |
+  | Documentation on the merged API (README, AGENTS.md, instructions, skills, docs) | DONE | this commit |
+  | React Native (`CrossPlatform/react-native-cylsearch`) | TODO: in progress | |
+  | Flutter (`CrossPlatform/flutter_cylsearch`) | TODO: in progress | |
+
+### Deviations by platform
+
+What each platform did differently from the target design below.
+
+- **iOS**: indices are `Int` with `NSNotFound` for none; `CYLSearchBarItem.itemView` / `itemViews` are typed
+  `UIControl` (the item view class is private); `closeSearch(animated:completion:)` has no default values
+  (`closeSearch()` and `closeSearch(animated:)` stay as the short forms); the default suggestion store is `internal`;
+  `mode = .multiple` APIs do nothing in `.single`, the multiple mode animates with the bar's `animationDuration`
+  (0.3 s) and is inset by `contentInsets`; no new localized strings.
+- **Android**: `CYLSearchSuggestionCell`, `CYLLineBreakMode`, `CYLTextAutocapitalizationType`,
+  `CYLTextAutocorrectionType`, `CYLSearchBarItemState` and `CYLSearchBarItemTextAttributes` stay public as stand-ins
+  for UIKit types; `showSearch(activity | viewGroup, animated)`; `closeSearch(animated = true, completion = null)`
+  replaces `closeSearch()` / `closeSearch(animated)`; `resultsDataSource` is a strong reference; the multi-search text
+  callback is an overload, `searchBarViewTextDidChange(bar, text, index)`; `setRefreshHandler` needs the scroll view
+  to have a parent; the results list has no `contentDescription`.
+- **HarmonyOS**: the static refresh helpers are `beginRefreshingIn` / `endRefreshingIn` / `isRefreshingIn`;
+  `resultsTableView` is the results list's `Scroller`, and other lists get pull-to-refresh inside
+  `CYLSearchRefreshComponent`; `showSearchIn(context, animated)`; the drawing components `CYLSearchBarComponent` and
+  `CYLSearchComponent` stay exported; no `newSearchButton` and no `autocapitalizationType`; the suggestion store
+  through the static `CYLSearchResources.suggestionCache(...)`; CYLTableViewPlaceHolder's V1 `cylplaceholder`
+  components are hosted inside V2 components; the multi-search text callback is `searchBarViewTextDidChangeAtIndex`.
+- **Mini program**: the data source and the refresh handler are set by methods (`setResultsDataSource`,
+  `setRefreshHandler`), next to the properties `results` and `refresherEnabled` and the event `bind:refresh`;
+  `isRefreshing()` and `isSearchOpen()` are component methods; additions `inline`, `showsResultsForEmptyQuery` and
+  `hidesSearchBarWhenScrolling`; enums are string-valued; the placeholder gallery lists CYLTableViewPlaceHolder's 35
+  scenarios; `cyl-placeholder-miniprogram` is an optional peer dependency.
+- **Naming of the multi-search callbacks across platforms**: Android, HarmonyOS and the mini program use
+  `searchBarViewDidCompleteSearch`, `searchBarViewDidSelectSearch` and `searchBarViewDidRemoveSearchAtIndex`; the
+  text callback is an overload of `searchBarViewTextDidChange` on Android and `searchBarViewTextDidChangeAtIndex` on
+  HarmonyOS and the mini program.
+
+### TODO: not verified yet
+
+- Nothing was compiled in this session: no Xcode, no Android SDK, no DevEco Studio, no WeChat DevTools (Linux).
+- iOS CI on PR #11 is the first compile of `Sources/CYLSearchBar` and the example.
+- The three `Podfile.lock` files still name the old commits (the CocoaPods CDN is unreachable here); CI's
+  `pod install` resolves them again.
+- iOS read CYLTableViewPlaceHolder from a cached copy; its API was not checked at `f488e2f`.
+- HarmonyOS: mixing V1 `cylplaceholder` components into V2 components, and the `WeakMap` used by the refresh
+  helpers, are untested on a device or emulator.
+- Mini program: the default path of the component generics (no `cyl-placeholder-miniprogram` installed) is untested.
+- Android: the timing of the refresh tests under Robolectric is unverified.
+- React Native and Flutter: in progress (table above).
 
 ## Target design
 
@@ -158,7 +217,7 @@ in example code. Handlers must not retain their controller strongly.
 | :--- | :--- | :--- |
 | iOS | `Sources/CYLSearchBar` | `CYLSearchBarView.swift`, `CYLSearchView.swift`, `CYLSearchResources.swift` |
 | Android | `android/merged/cylsearch` (`com.cyl.search`) | `CYLSearchBarView.kt`, `CYLSearchView.kt`, `CYLSearchResources.kt` |
-| React Native | `CrossPlatform/react-native-cylsearch` (`src/`, `ios/`, `android/`) | components follow the classes: a search bar (with `mode`), a search view (with results and refresh), the tag list (CollectionViewClassifyMenu, unchanged) |
-| Flutter | `CrossPlatform/flutter_cylsearch` (`lib/`, `ios/`, `android/`) | same as React Native |
+| React Native | `CrossPlatform/react-native-cylsearch` (`src/`, `ios/`, `android/`) | in progress; components follow the classes: a search bar (with `mode`), a search view (with results and refresh), the tag list (CollectionViewClassifyMenu, unchanged) |
+| Flutter | `CrossPlatform/flutter_cylsearch` (`lib/`, `ios/`, `android/`) | in progress; same as React Native |
 | HarmonyOS | `harmonyos/cylsearch` | `CYLSearchBarView.ets`, `CYLSearchView.ets`, `CYLSearchResources.ets` |
-| Mini program | `CrossPlatform/wechat-miniprogram-cylsearch` packages | a search bar component (with `mode`), a search view component (with results and refresh), the resources module |
+| Mini program | `CrossPlatform/wechat-miniprogram-cylsearch` (`src/`) | components `cyl-search-bar` (with `mode`) and `cyl-search` (with results and refresh); core modules `src/core/CYLSearchBarView.js`, `CYLSearchView.js`, `CYLSearchResources.js` |

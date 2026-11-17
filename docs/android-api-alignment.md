@@ -1,7 +1,7 @@
 # Android API Alignment
 
 Step 4 and 5 of [android-and-cross-platform.md](android-and-cross-platform.md): every public API of the iOS library
-(`Sources/CYLSearchViewController`) next to its counterpart in `android/merged`. The second column names the
+(`Sources/CYLSearchBar`) next to its counterpart in `android/merged`. The second column names the
 upstream API (one of the projects merged in `android/merged`) that the iOS doc comment cites; the third column is
 the Kotlin API of the `cylsearch` module, which keeps the iOS names (Kotlin conventions: `isSearchOpen` for
 `isSearchOpen`, delegate methods named after the Objective-C selector, such as `searchBarViewTextDidChange` for

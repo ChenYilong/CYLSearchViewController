@@ -5,15 +5,31 @@ description: "Find the public CYLTableViewPlaceHolder and CYLTabBarController AP
 
 # Public API map
 
-Use the dependency's public headers only:
+## CYLSearchBar (this repository's core)
+
+`Sources/CYLSearchBar`, module `CYLSearchViewController` (`@import CYLSearchViewController;` /
+`import CYLSearchViewController`): three files, four public classes. Design: `docs/search-core-merge.md`.
 
 | Need | Public API |
 |:---|:---|
-| Refresh and empty-state umbrella | `CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.h` |
+| A search bar (one field) | `CYLSearchBarView` (`mode = .single`, the default), `CYLSearchBarViewDelegate` |
+| Several searches side by side | `CYLSearchBarView.mode = .multiple`; `searches`, `selectedSearchIndex` (`NSNotFound` when none), `isEditingNewSearch`, `newSearchButton`, `beginNewSearch()`, `completeSearch()`, `addSearch(_:)`, `selectSearch(at:)`, `removeSearch(at:)`; delegate `searchBarView(_:textDidChange:at:)`, `searchBarView(_:didCompleteSearch:at:)`, `searchBarView(_:didRemoveSearchAt:)`, `searchBarView(_:didSelectSearch:at:)` |
+| Buttons inside the bar | `CYLSearchBarItem` |
+| Search page: suggestions, results, empty placeholders | `CYLSearchView`, `CYLSearchViewDelegate`; `showSearch(in:animated:)`, `closeSearch(animated:completion:)`, `searchOpen` (Objective-C `isSearchOpen`) |
+| Results | `CYLSearchView.resultsDataSource` (`CYLSearchViewDataSource`), `resultsTableView`, `searchResults`, `reloadResults()`; delegate `searchView(_:didSelectResult:)` |
+| Pull-to-refresh (the only refresh API) | `CYLSearchView.refreshHandler`, `beginRefreshing()`, `endRefreshing()`, `isRefreshing`; for any scroll view `CYLSearchView.setRefreshHandler(_:for:)`, `beginRefreshing(in:)`, `endRefreshing(in:)`, `isRefreshing(in:)` |
+| Images, strings, suggestion cache | `CYLSearchResources`, `CYLSearchSuggestionCache`, `CYLSearchSuggestionCachePolicy` |
+
+## CYLTableViewPlaceHolder
+
+Use the dependency's public headers only (umbrella `CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.h`):
+
+| Need | Public API |
+|:---|:---|
+| Empty-state view | `CYLPlaceholderView`, `CYLPlaceholderStyle`, `CYLPlaceholderStackView` scenarios (`CYLSearchView.emptyResultsScenario`, `emptySuggestionsScenario`) |
 | Empty-state callback | `CYLTableViewPlaceHolderDelegate` |
 | Reload and placeholder update | `UITableView (CYLTableViewPlaceHolder)`, `-cyl_reloadData` |
-| Pull-to-refresh | `CYLRefreshNormalHeader` and `UIScrollView (CYLRefresh)`, `cyl_header` |
-| Refresh completion | `-endRefreshing` on the public refresh component |
+| Pull-to-refresh | not called directly: `CYLSearchView`'s refresh API wraps CYLTableViewPlaceHolder's normal header |
 
 Keep the sample independent of the pod's private implementation. Put search
 data access behind a project-owned protocol if it grows beyond local demo data.

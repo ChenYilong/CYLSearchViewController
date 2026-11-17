@@ -1,5 +1,13 @@
 # HarmonyOS (cross-platform)
 
+The search core on every platform is CYLSearchBar ([search-core-merge.md](search-core-merge.md); HarmonyOS exports in `harmonyos/cylsearch/Index.ets`): four public
+classes, `CYLSearchBarView` (with `mode` single or multiple), `CYLSearchBarItem`, `CYLSearchView` (suggestions,
+results, empty placeholders, the only refresh API) and `CYLSearchResources`. iOS `Sources/CYLSearchBar`; Android
+`android/merged/cylsearch` (`CYLSearchBarView.kt`, `CYLSearchView.kt`, `CYLSearchResources.kt`, refresh from
+CYLTableViewPlaceHolder's `:placeholder-refresh`); HarmonyOS `harmonyos/cylsearch` (`.ets`, the same three files);
+mini program components `cyl-search-bar` and `cyl-search`. React Native and Flutter are moving to the merged core (in
+progress). Dated task entries below record the work in their own time and name the classes of that time.
+
 The HarmonyOS port of CYLSearchViewController: the ArkTS library `harmonyos/cylsearch` and the example app
 `harmonyos/entry`. Other platforms: [android-and-cross-platform.md](android-and-cross-platform.md).
 
@@ -151,10 +159,10 @@ The ArkTS core was compared with `android/merged/cylsearch` file by file; these 
   `emptyResultsScenario` / `emptySuggestionsScenario` replaces the placeholder.
 - `CYLSearchBarView`: `setText` is silent, `submit` refuses whitespace, and with `iconifiedByDefault` an empty field
   folds back to the search button when editing ends.
-- `CYLSearchSuggestionStore`: keeps at least one query, an empty name is `CYLSearchView`, the file name is made safe,
-  `none` keeps nothing.
-- `CYLMultiSearchView`: nothing is selected while typing, the typed text is not trimmed, `addSearchText` completes the
-  search being typed and reports nothing, and removing an item selects the next one as Kotlin does.
+- The default suggestion store (`CYLSearchResources.suggestionCache(...)`): keeps at least one query, an empty name
+  is `CYLSearchView`, the file name is made safe, `none` keeps nothing.
+- `CYLSearchBarView` in `multiple` mode: nothing is selected while typing, the typed text is not trimmed, `addSearch`
+  completes the search being typed and reports nothing, and removing a search selects the next one as Kotlin does.
 - The four items left open here are done (2026-11-16); see "Scorecard 2" below.
 
 ## DONE (2026-11-16; TODO 2026-11-16): Scorecard 2, the remaining HarmonyOS work, scored to 100

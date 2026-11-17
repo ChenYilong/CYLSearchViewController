@@ -8,8 +8,8 @@
 
 Key details of the current example, stacked top to bottom: `CYLSearchBarView` with text, a camera accessory and
 Cancel (plus page); the Issue #1317 screen with its pinned search bar; `CYLSearchView` suggestions (the
-MaterialSearchView "Default" port); `CYLSearchBarView` in its multiple mode (formerly `CYLMultiSearchView`) with
-two searches and its event log.
+MaterialSearchView "Default" port); `CYLSearchBarView` in its multiple mode (`mode = .multiple`)
+with two searches and its event log.
 
 ![Key details of the iOS example](docs/assets/readme-ios-key-details.png)
 
@@ -46,8 +46,9 @@ examples) and `docs/CYLTabBarController-Integration.md`.
 ## Android
 
 `android/` holds the Kotlin translations of the five search libraries and `android/merged`, one Gradle project with
-all of them, the `cylsearch` module (the iOS API in Kotlin, under the same names) and an example app that ports the
-iOS example. The app uses CYLTabBarController's Android tab bar from a configuration file, with a raised plus
+all of them, the `cylsearch` module (`com.cyl.search`: the same CYLSearchBar core as iOS in Kotlin, under the same
+names, in `CYLSearchBarView.kt`, `CYLSearchView.kt` and `CYLSearchResources.kt`; pull-to-refresh from
+CYLTableViewPlaceHolder's `:placeholder-refresh` module) and an example app that ports the iOS example. The app uses CYLTabBarController's Android tab bar from a configuration file, with a raised plus
 button; CYLTabBarController and CollectionViewClassifyMenu are pinned by commit. Build:
 `cd android/merged && ./gradlew assembleDebug` (JDK 17). Details: `docs/android-and-cross-platform.md`, the API
 table `docs/android-api-alignment.md`.
@@ -175,9 +176,9 @@ only performed when `scripts/pod-lint.sh push` is explicitly invoked.
 
 The empty states come from CYLTableViewPlaceHolder: `CYLPlaceholderView` (a style, a message, or your own image and
 text) and `CYLPlaceholderStackView` scenarios, which `CYLSearchView` shows through `emptyResultsScenario` and
-`emptySuggestionsScenario` (`emptyResultsView`, `emptySuggestionsView`). The core's former
-`CYLSearchPlaceholderView` was a duplicate of `CYLPlaceholderView` and is removed. `CYLSearchViewController.bundle`
-keeps its offline images and strings for the other platforms.
+`emptySuggestionsScenario` (`emptyResultsView`, `emptySuggestionsView`). Apps that need a placeholder of their own
+use `CYLPlaceholderView` directly. `CYLSearchViewController.bundle` holds the core's offline images and strings,
+which the other platforms import too.
 
 ```objc
 CYLPlaceholderView *view =

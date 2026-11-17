@@ -1,6 +1,6 @@
 # HarmonyOS API Alignment
 
-Every public API of the iOS library (`Sources/CYLSearchViewController`) next to its HarmonyOS (ArkTS) counterpart,
+Every public API of the iOS library (`Sources/CYLSearchBar`) next to its HarmonyOS (ArkTS) counterpart,
 made as the [Android table](android-api-alignment.md) was. Rules and prompt: the HarmonyOS TODO in
 [android-and-cross-platform.md](android-and-cross-platform.md).
 

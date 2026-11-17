@@ -1,6 +1,7 @@
 # Swift Coding Standard
 
-The rules for Swift code in this repository: the core (`Sources/CYLSearchViewController/`) and the example
+The rules for Swift code in this repository: the core (`Sources/CYLSearchBar/`: `CYLSearchBarView.swift`, `CYLSearchView.swift`,
+`CYLSearchResources.swift`) and the example
 (`CYLSearchExample/`). They build on the official [Swift API Design Guidelines](https://www.swift.org/documentation/api-design-guidelines/)
 and the installed skills `swift-api-design-guidelines`, `swift-language`, `swift-concurrency`, `swift-testing`,
 `swift-architecture`, `uikit` and `uikit-layouting` (`.agents/skills`, pinned in `.agents/skills.json`). Where a
@@ -46,11 +47,13 @@ while the core moves to Swift.
 
 ## Access control and structure
 
-- `public` for the API, `open` only for classes meant to be subclassed by apps (`CYLSearchResultsViewController`
-  is subclassed by the example, so it is `open`, with `open` overridable methods); everything else `private` or
-  `internal`. Final by default: `public final class` unless subclassing is part of the API.
-- Objective-C cannot subclass a Swift class. When a core class that the example subclasses in Objective-C moves to
-  Swift, that example subclass moves to Swift in the same commit (a necessary example change).
+- `public` for the API, `open` only for classes meant to be subclassed by apps; everything else `private` or
+  `internal`. Final by default: `public final class` unless subclassing is part of the API. The core's four public
+  classes (`CYLSearchBarView`, `CYLSearchBarItem`, `CYLSearchView`, `CYLSearchResources`) are `public final`; apps
+  configure them through properties, modes, delegates and data sources, and helpers that implement them (the item
+  view, the multiple-search content, the results list, the default suggestion store) are `private` or `internal`.
+- Objective-C cannot subclass a Swift class: an example that needs a core class's behavior uses it through its
+  public API (or is written in Swift), never by subclassing it in Objective-C.
 - Objective-C callers import the module (`@import CYLSearchViewController;`), not single headers: a Swift class has
   no header of its own, only the generated `CYLSearchViewController-Swift.h`.
 - Group code with `// MARK: -` sections: properties, initializers, public API, layout, events, private helpers.

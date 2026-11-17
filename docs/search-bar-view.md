@@ -8,6 +8,14 @@ views inside the field after the text (a camera, a "Search" button), a view
 before the field (a back button), and an optional localized Cancel button.
 CollectionViewClassifyMenu's examples use it for every search box.
 
+It is one of the four public classes of the CYLSearchBar core
+(`Sources/CYLSearchBar/CYLSearchBarView.swift`, with `CYLSearchBarItem`).
+`mode` chooses one field (`.single`, the default) or several searches side by
+side (`.multiple`: `searches`, `selectedSearchIndex`, `beginNewSearch()`,
+`completeSearch()`, `addSearch(_:)`, `selectSearch(at:)`, `removeSearch(at:)`).
+`CYLSearchView` hosts the bar on a full search page with suggestions, results
+and pull-to-refresh.
+
 ## Completed
 
 - Public API: text, placeholder, font, colors; field height, insets, corner
@@ -62,9 +70,15 @@ text size.
 
 - Status: 100/100 for the scope above: the bar is shown, localized and
   tested in this repository's example and in CollectionViewClassifyMenu's.
-- Constraints: the bar does not manage a results controller; hosts connect
-  `searchBarView:textDidChange:` to `CYLSearchResultsViewController` or their
-  own list. It is unreleased, so the API has no compatibility promise yet.
+- Constraints: the bar does not manage results; hosts connect
+  `searchBarView:textDidChange:` to a `CYLSearchView` (its `resultsDataSource`
+  and `resultsTableView`) or their own list. In `mode = .multiple` the bar
+  holds several searches (`searches`, `selectedSearchIndex`) and reports them
+  with `searchBarView:textDidChange:atIndex:`,
+  `searchBarView:didCompleteSearch:atIndex:`,
+  `searchBarView:didSelectSearch:atIndex:` and
+  `searchBarView:didRemoveSearchAtIndex:`. It is unreleased, so the API has
+  no compatibility promise yet.
 - Checked on the simulator by launching the app at the default and the
   largest text size. VoiceOver labels are checked in unit tests; no session
   with VoiceOver running on a device has been recorded.

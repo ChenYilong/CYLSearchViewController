@@ -3,6 +3,14 @@
 This document tracks support for Android, HarmonyOS NEXT and the cross-platform frameworks (Flutter, then React
 Native) for the CYLSearchViewController components.
 
+The search core on every platform is CYLSearchBar ([search-core-merge.md](search-core-merge.md)): four public
+classes, `CYLSearchBarView` (with `mode` single or multiple), `CYLSearchBarItem`, `CYLSearchView` (suggestions,
+results, empty placeholders, the only refresh API) and `CYLSearchResources`. iOS `Sources/CYLSearchBar`; Android
+`android/merged/cylsearch` (`CYLSearchBarView.kt`, `CYLSearchView.kt`, `CYLSearchResources.kt`, refresh from
+CYLTableViewPlaceHolder's `:placeholder-refresh`); HarmonyOS `harmonyos/cylsearch` (`.ets`, the same three files);
+mini program components `cyl-search-bar` and `cyl-search`. React Native and Flutter are moving to the merged core (in
+progress). Dated task entries below record the work in their own time and name the classes of that time.
+
 ## Open TODOs: Android, React Native, Flutter (2026-11-16)
 
 Collected from every cross-platform document. A row's TODO is removed when it is done; no TODO left = full score.

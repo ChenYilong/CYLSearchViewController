@@ -11,13 +11,19 @@ Full rule: `AGENTS.md`, "Fix issues in the core first" (2026-11-17).
 
 | Platform | Core (published) | Example layer (not published) |
 | :--- | :--- | :--- |
-| iOS | `Sources/CYLSearchViewController`, `CYLSearchViewController.podspec` (CocoaPods) | `CYLSearchExample` |
+| iOS | `Sources/CYLSearchBar` (the search core, CYLSearchBar), `CYLSearchViewController.podspec` (CocoaPods) | `CYLSearchExample` |
 | Android | `android/merged/cylsearch` (Maven / Gradle) | `android/merged/app` and the samples |
 | React Native | `CrossPlatform/react-native-cylsearch/src`, `android/`, `ios/` (npm) | its `example` |
 | Flutter | `CrossPlatform/flutter_cylsearch` `lib/`, `android/`, `ios/` (pub) | its `example` |
-| Mini program | `CrossPlatform/wechat-miniprogram-cylsearch/src` (npm) | its `example` |
+| Mini program | `CrossPlatform/wechat-miniprogram-cylsearch/src` (npm; components `cyl-search-bar`, `cyl-search`) | its `example` |
 | HarmonyOS | `harmonyos/cylsearch` (ohpm) | `harmonyos/entry` |
 | Sub-repositories | CYLTabBarController, CYLTableViewPlaceHolder, CollectionViewClassifyMenu libraries | their demos |
+
+The search core is CYLSearchBar on every platform: on iOS three files (`CYLSearchBarView.swift`,
+`CYLSearchView.swift`, `CYLSearchResources.swift`) and four public classes (`CYLSearchBarView`, `CYLSearchBarItem`,
+`CYLSearchView`, `CYLSearchResources`); the same three files on Android (`.kt`) and HarmonyOS (`.ets`). A fix goes
+into the class that owns the feature (a parameter or a mode), never into a new public class. Refresh fixes go into
+`CYLSearchView`'s refresh API, the only refresh API of the core.
 
 ## Steps
 

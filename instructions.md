@@ -21,6 +21,15 @@ Read this file and `AGENTS.md` before changing project files.
   could not solve it and why the example layer did.
 - Full rule: `AGENTS.md`, "Fix issues in the core first"; skill `cyl-fix-in-core`.
 
+## Search core
+
+- The search core is `CYLSearchBar`: three files and four public classes on iOS
+  (`Sources/CYLSearchBar`: `CYLSearchBarView`, `CYLSearchBarItem`, `CYLSearchView`, `CYLSearchResources`), the same
+  on every platform (Android `android/merged/cylsearch`, HarmonyOS `harmonyos/cylsearch`, the mini program's
+  `cyl-search-bar` and `cyl-search`). Refresh lives only in `CYLSearchView`. CYLSearch depends on no other search
+  kernel (CollectionViewClassifyMenu and CYLTableViewPlaceHolder are not search kernels). A new feature goes into the
+  class it belongs to (a parameter or a mode), not into a new public class. Design: `docs/search-core-merge.md`.
+
 ## Naming
 
 - Write all instruction and skill files in English.
@@ -37,7 +46,7 @@ Read this file and `AGENTS.md` before changing project files.
 
 - Write Swift by `docs/swift-coding-standard.md` and the Swift skills in `.agents/skills` (pinned third-party
   copies listed in `.agents/skills.json`; do not edit them).
-- The core is being translated to Swift; record each step and its score in `docs/swift-migration.md`.
+- The core (`Sources/CYLSearchBar`) is Swift; record each step and its score in `docs/swift-migration.md`.
 - Keep Objective-C class names and selectors with `@objc(...)`; change the example only where Objective-C cannot use
   the Swift class directly (for example an Objective-C subclass of a core class).
 
@@ -122,8 +131,10 @@ Read this file and `AGENTS.md` before changing project files.
 
 ## Issue #1317 reproduction
 
-- The sample combines a navigation-item `UISearchController` with a
-  `CYLRefreshNormalHeader`.
+- The sample combines a navigation-item `UISearchController` with pull-to-refresh
+  added through the core: `CYLSearchView.setRefreshHandler(_:for:)` on the table and
+  `CYLSearchView.endRefreshing(in:)` to stop it. The example never calls CYLTableViewPlaceHolder's refresh API
+  directly.
 - Keep `navigationItem.hidesSearchBarWhenScrolling = NO` in the safe default
   reproduction. Setting it to `YES` is the documented trigger to investigate;
   it may cause repeated inset updates on affected UIKit versions.
@@ -171,8 +182,10 @@ Adapted from CYLTabBarController's instruction files at its latest commit
 - CollectionViewClassifyMenu: suggestions as tags (`docs/tag-view-suggestions.md`).
 - CYLTableViewPlaceHolder is integrated as a sub-repository under all the requirements above: when a search has no
   results, show its empty-content placeholder style, on every platform (iOS, Android, React Native, Flutter,
-  HarmonyOS, mini programs). Status `TODO` in `docs/sub-repositories.md`. Full rule: `AGENTS.md`, same section;
-  skill `cyl-sub-repositories`.
+  HarmonyOS, mini programs). It is the placeholder sub-dependency, pinned at `f488e2f` on every platform:
+  `CYLSearchView` shows its `CYLPlaceholderView` scenarios and wraps its pull-to-refresh header. Done on iOS,
+  Android, HarmonyOS and the mini program; React Native and Flutter are moving to the merged core (in progress)
+  (`docs/sub-repositories.md`). Full rule: `AGENTS.md`, same section; skill `cyl-sub-repositories`.
 
 ## Verification
 
