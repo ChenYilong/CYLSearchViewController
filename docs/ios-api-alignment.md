@@ -4,7 +4,7 @@ The reverse of [android-api-alignment.md](android-api-alignment.md): every publi
 (the code published to Maven / Gradle: `android/merged/cylsearch`, and the Android libraries of the sub-repositories
 this project ships with, such as CollectionViewClassifyMenu's tag views) next to its iOS counterpart.
 
-## IN PROGRESS (TODO 2026-11-17): Android core → iOS table, score to 100, then iOS → Android
+## DONE (2026-11-17): Android core → iOS table, score to 100, then iOS → Android
 
 - Prompt (verbatim): "找到下面描述中相关的文档，如果没有就新建，如果有就插入：将iOS端与Android的core核心代码，制作一个表格，第一列为Android 端core核心代码的API以及功能列表，第二列为功能描述，第三列为iOS端对应的api或者功能。第三列默认为TODO。制作评分系统，第三列没有TODO 为满分，全部是TODO为0分。制作表格完成后，第一步 寻找iOS端对应的api和功能。第二：打分。第三步：开始实现iOS端没有的功能。和api。第三步：更新iOS端example 使用新增api 和功能，复刻Android的对应的example。我举例说明：android端有一个拖拽tag 的功能，以及诸多API。iOS端则完全没有。你需要标记todo，然后先实现core核心代码，然后复刻example。第二个例子，第一个的例子中其中的tag 结构比iOS端丰富。左侧为icon中间为title，右侧为总是固定保留的删除icon。iOS端缺少删除icon。你应该首选修改core核心代码，将iOS端的封装好的icon加title的组合再merge进android的逻辑，新增删除icon。并支持点击事件 允许拖拽事件。并保持iOS端与android的核心空间代码逻辑一致，API一致。并且taglist也应展示删除tag的演示。删除后更新list数据源后展示是否重新布局。100分后，再制作一个表格格式类似，第一列为iOS端api与功能，第二列描述，第三列为android端的对应，默认TODO，制作评分系统. 找到下面描述中相关的文档，如果没有就新建，如果有就插入：全英文写入：制作一个表格，第一列为，第二列为功能描述，第三列为 对应的api或者功能。第三列默认为TODO。制作评分系统，第三列没有TODO 为满分，全部是TODO为0分。制作表格以及评分系统完成后，第一步 尝试搜索现有代码，尝试匹配TODO项，寻找对应的api和功能。第二：打分。第三：。开始逐一处理TODO。并更新TODO为对应实现。第四步骤：打分。如此循环往复一直到满分为止。同样优先更新核心组件，使用example展示用法。"
 - Prompt (English): "Find the related documents (create one if none) and insert: a table of the iOS and Android core
@@ -48,23 +48,17 @@ this project ships with, such as CollectionViewClassifyMenu's tag views) next to
   and 6 were removed from iOS (below). Rows matched only by name were reviewed (114): 2 were wrong
   (`CYLSearchSuggestionCell.imageView` / `textLabel` had matched `CYLSearchPlaceholderView`) and now name the
   suggestion row's `UIListContentConfiguration.image` / `.text`. Cells with prose are no longer wrapped in backticks.
+- Result (2026-11-17, fourth pass): Android core → iOS 100 (924 of 924, CollectionViewClassifyMenu measured at
+  `652e084`); iOS → Android 100 ([android-api-alignment.md](android-api-alignment.md), 397 rows). Follow-up, still
+  open: the CollectionViewClassifyMenu pin bump (TODO items below), blocked by its Objective-C API.
 - DONE (generator review): see the third pass above.
-- TODO (blocked: no push access to CollectionViewClassifyMenu from this session; two attempts denied): the
-  multiple filter's state object. Android `CYLFilterParamsTool` (`dataSources`, `filterParamsDictionary`,
-  `filterParamsContentDictionary`, `filename`: titles, settings with a modified flag, free-form content, saved to a
-  file) and `CYLFilterBaseController.settingArray` have no iOS counterpart since the sub-repository's Swift migration
-  step 5 (`70dcc816`), which removed `CYLFilterParamsTool` and keeps the titles and selection private in
-  `CYLMultipleFilterController`. Either bring the state object back on iOS with the Android names (core first,
-  then the filter example), or remove it from Android; decide in that repository, then pin and regenerate. Its own
-  table still claims these rows (611 / 611): fix its generator to check names against the Swift sources.
-- TODO (blocked, same reason): `CYLTag.resetColors()` is missing
-  on iOS. Android: `fun resetColors() { colors = CYLTagColors() }` (`CYLTag.kt:85`), all four colors back to the
-  list's. iOS today: `tag.colors = CYLTagColors()` does the same, without the method. Add to
-  `CollectionViewClassifyMenu/Class/TagList/CYLTag.swift`, with a `/** … */` comment:
-  `public func resetColors() { colors = CYLTagColors() }`. Then pin that commit here and rerun
-  `node android/merged/scripts/ios-alignment.mjs` (score 100). No example on any platform calls it, so no example
-  change is needed. That repository's own table missed the row too (its generator did not list `CYLTag.resetColors`
-  or `CYLTagListView.scrollToSection`); fix its generator in the same change.
+- DONE (2026-11-17): the multiple filter's state object. Restored on iOS by CollectionViewClassifyMenu `a3c2e1f`
+  (`CYLFilterParamsTool`, `CYLFilterBaseController.settingArray`, Swift, Android logic); the rows match again.
+- DONE (2026-11-17): `CYLTag.resetColors()` on iOS, by CollectionViewClassifyMenu `f77cd48` (same logic as Android,
+  `colors = CYLTagColors()`, tested in `CYLGeneralHelpersTests`). That commit also fixed its generator, which skipped
+  every Kotlin class with a primary constructor over several lines (122 missing rows); its tables are now 733 / 733
+  (Android → iOS) and 762 / 762 (iOS → Android). This session found and fixed the same parser bug in parallel; the
+  other session's commit landed first, so this session's duplicate was dropped.
 - TODO (pin): this repository still pins CollectionViewClassifyMenu `f972416` (2026-11-12, Objective-C iOS core) in
   `Podfile` and `android/merged/gradle.properties`; the table measures `41aec0d` (newest, Swift iOS core). The rule
   "Sub-repositories" asks for the newest commit. Details of the bump in the next item.
@@ -113,11 +107,12 @@ Score = rows whose iOS column is not `TODO` / rows × 100 (no `TODO` = 100, all 
 | 2026-11-17 | Step 1: `MANUAL` map (UIKit types for the Android stand-ins, Swift selector renames) and case-insensitive enum cases; A 100, B 99 | 99 (923 of 924) |
 | 2026-11-17 | Review: sub-repository table names checked against the Swift sources (38 missing, 15 after adding `TagCollectionView/`) | 98 (908 of 924) |
 | 2026-11-17 | Step 3: 9 Swift replacements mapped; 2 wrong name matches corrected; 7 rows left that need the sub-repository | 99 (917 of 924) |
+| 2026-11-17 | Measured at CollectionViewClassifyMenu `652e084`: `CYLTag.resetColors()` and the filter state object exist on iOS | 100 (924 of 924) |
 
 ## Table
 
 <!-- ios-alignment:begin -->
-Rows: 924; matched 917, TODO 7; score 99/100 (generated by `android/merged/scripts/ios-alignment.mjs`).
+Rows: 924; matched 924, TODO 0; score 100/100 (generated by `android/merged/scripts/ios-alignment.mjs`).
 
 ### A. CYLSearchViewController: `android/merged/cylsearch` → `Sources/CYLSearchViewController`
 
@@ -446,17 +441,17 @@ Rows: 320; matched 320, TODO 0; score 100/100.
 | `CYLSearchView.dismissSuggestions` | Hides the suggestions (`dismissSuggestions`). | `CYLSearchView.dismissSuggestions()` |
 | `CYLSearchView.clearSuggestionCache` | Removes every cached query (the delete button of `suggestionCacheHeaderView`) and shows the list again (iOS `clearSuggestionCache`). | `CYLSearchView.clearSuggestionCache()` |
 
-### B. CollectionViewClassifyMenu (tag views): `com.cyl.classifymenu` → its iOS library (measured at `41aec0d 2026-11-17`)
+### B. CollectionViewClassifyMenu (tag views): `com.cyl.classifymenu` → its iOS library (measured at `652e084 2026-11-17`)
 
-Rows: 604; matched 597, TODO 7; score 98/100.
+Rows: 604; matched 604, TODO 0; score 100/100.
 
 | Android API or feature | Description | iOS counterpart |
 | :--- | :--- | :--- |
 | **class `CYLIndexPathButton`** | `CYLIndexPathButton`: a button that knows its item (section, row), with spacing between its image and title and an inset before the title (dp). | `CYLIndexPathButton` |
 | `CYLIndexPathButton.section` | — | `CYLIndexPathButton.section` |
 | `CYLIndexPathButton.row` | — | `CYLIndexPathButton.row` |
-| `CYLIndexPathButton.cyl_imageTitleSpacing` | The space between the image and the title, dp. | `CYLIndexPathButton.cyl_imageTitleSpacing` |
-| `CYLIndexPathButton.cyl_titleLeadingInset` | Extra space before the title, dp. | `CYLIndexPathButton.cyl_titleLeadingInset` |
+| `CYLIndexPathButton.cyl_imageTitleSpacing` | The space between the image and the title, dp. | `CYLIndexPathButton.imageTitleSpacing` |
+| `CYLIndexPathButton.cyl_titleLeadingInset` | Extra space before the title, dp. | `CYLIndexPathButton.titleLeadingInset` |
 | `CYLIndexPathButton.setImage` | `setImage:forState:` for the normal state: the image before the title. | `UIButton.setImage(_:for: .normal)` (`CYLIndexPathButton` is a `UIButton`) |
 | `CYLIndexPathButton.currentImage` | `currentImage`. | `UIButton.currentImage` |
 | **class `CYLRightImageButton`** | `CYLRightImageButton`: the "Expand / Collapse" button of a section header: the title, then the arrow image after it (7 dp apart); selected means expanded. | `CYLRightImageButton` |
@@ -466,12 +461,12 @@ Rows: 604; matched 597, TODO 7; score 98/100.
 | `CYLCollectionViewCell.row` | — | `CYLCollectionViewCell.row` |
 | `CYLCollectionViewCell.shouldShow` | — | `CYLCollectionViewCell.shouldShow` |
 | **interface `CYLFilterHeaderViewDelegate`** | `CYLFilterHeaderViewDelegate`: the More button of a section header was tapped. | `CYLFilterHeaderViewDelegate` |
-| `CYLFilterHeaderViewDelegate.filterHeaderViewDidTapMoreButton` | `-filterHeaderViewDidTapMoreButton:`: `sender` is the header's More button. | `CYLFilterHeaderViewDelegate -filterHeaderViewDidTapMoreButton:` |
+| `CYLFilterHeaderViewDelegate.filterHeaderViewDidTapMoreButton` | `-filterHeaderViewDidTapMoreButton:`: `sender` is the header's More button. | `CYLFilterHeaderViewDelegate.filterHeaderView(_:didTapMoreButton:)` |
 | **class `CYLFilterHeaderView`** | `CYLFilterHeaderView`: a section header of the classify menu: the title (with the section's image), the More button at the trailing edge (hidden unless the section folds) and a sep | `CYLFilterHeaderView` |
 | `CYLFilterHeaderView.titleButton` | — | `CYLFilterHeaderView.titleButton` |
 | `CYLFilterHeaderView.moreButton` | — | `CYLFilterHeaderView.moreButton` |
 | `CYLFilterHeaderView.delegate` | — | `CYLFilterHeaderView.delegate` |
-| `CYLFilterHeaderView.moreButtonTapped` | `-moreButtonTapped:`: tells the delegate. | `CYLFilterHeaderView -moreButtonTapped:` |
+| `CYLFilterHeaderView.moreButtonTapped` | `-moreButtonTapped:`: tells the delegate. | `moreButtonTapped` (same name in the iOS core) |
 | **class `CYLClassifyMenuViewController`** | `CYLClassifyMenuViewController`: the original classify menu: sections of tags in left-aligned rows, folded to `defaultVisibleRows` with an Expand / Collapse button per section, a h | `CYLClassifyMenuViewController` |
 | `CYLClassifyMenuViewController.menuDataSource` | — | `CYLClassifyMenuViewController.menuDataSource` |
 | `CYLClassifyMenuViewController.menuDelegate` | — | `CYLClassifyMenuViewController.menuDelegate` |
@@ -480,8 +475,8 @@ Rows: 604; matched 597, TODO 7; score 98/100.
 | `CYLClassifyMenuViewController.selectedIndexPath` | The selected item, shown selected. | `CYLClassifyMenuViewController.selectedIndexPath` |
 | `CYLClassifyMenuViewController.defaultVisibleRows` | Rows a folded section shows, at least 1. | `CYLClassifyMenuViewController.defaultVisibleRows` |
 | `CYLClassifyMenuViewController.menuTitle` | The menu's title ("Categories", localized): `self.title` on iOS. | `menuTitle` (same name in the iOS core) |
-| `CYLClassifyMenuViewController.reloadMenuData` | `-reloadMenuData`: reads the data source again; every section folds again. | `CYLClassifyMenuViewController -reloadMenuData` |
-| `CYLClassifyMenuViewController.updateMenuLayout` | `-updateMenuLayout`: lays the menu out again (after the header or footer changed size). | `CYLClassifyMenuViewController -updateMenuLayout` |
+| `CYLClassifyMenuViewController.reloadMenuData` | `-reloadMenuData`: reads the data source again; every section folds again. | `CYLClassifyMenuViewController.reloadMenuData()` |
+| `CYLClassifyMenuViewController.updateMenuLayout` | `-updateMenuLayout`: lays the menu out again (after the header or footer changed size). | `CYLClassifyMenuViewController.updateMenuLayout()` |
 | `CYLClassifyMenuViewController.numberOfVisibleItemsInSection` | The number of items a section shows now, and whether its More button shows (for tests and the example). | `CYLClassifyMenuViewController.numberOfVisibleItems(inSection:)` (`-numberOfVisibleItemsInSection:`) |
 | `CYLClassifyMenuViewController.isSectionExpanded` | Whether a section is expanded. | `isSectionExpanded` (same name in the iOS core) |
 | `CYLClassifyMenuViewController.setSectionExpanded` | Expands or folds a section, as its More button does. | `CYLClassifyMenuViewController.setSection(_:expanded:)` (`-setSection:expanded:`; the More button calls it) |
@@ -489,67 +484,67 @@ Rows: 604; matched 597, TODO 7; score 98/100.
 | `CYLCollectionViewLeftAlignedLayout.rowAlignment` | A `CYLTagRowAlignment` raw value: 0 leading, 1 center, 2 trailing. | `CYLCollectionViewLeftAlignedLayout.rowAlignment` |
 | `CYLCollectionViewLeftAlignedLayout.frames` | The frames of items of `sizes` in a section that starts at `top`, `width` wide, with `insets`, the spacing between items and between rows. | `CYLCollectionViewLeftAlignedLayout.layoutAttributesForElements(in:)` (UIKit computes the frames; Android's helper returns them for its own list view) |
 | **interface `UICollectionViewDelegateLeftAlignedLayout`** | `UICollectionViewDelegateLeftAlignedLayout`: the delegate protocol of the left-aligned layout; on Android the list view computes the sizes itself, so it declares nothing. | `UICollectionViewDelegateLeftAlignedLayout` |
-| `cyl_setWidth` | `-cyl_setWidth:`, dp. | `UIView (CYLGeneral) -cyl_setWidth:` |
-| `cyl_setHeight` | `-cyl_setHeight:`, dp. | `UIView (CYLGeneral) -cyl_setHeight:` |
-| `cyl_setX` | `-cyl_setX:`, dp. | `UIView (CYLGeneral) -cyl_setX:` |
-| `cyl_setY` | `-cyl_setY:`, dp. | `UIView (CYLGeneral) -cyl_setY:` |
-| `cyl_setSize` | `-cyl_setSize:`, dp. | `UIView (CYLGeneral) -cyl_setSize:` |
-| `cyl_height` | `-cyl_height`, dp. | `UIView (CYLGeneral) -cyl_height` |
-| `cyl_width` | `-cyl_width`, dp. | `UIView (CYLGeneral) -cyl_width` |
-| `cyl_x` | `-cyl_x`, dp. | `UIView (CYLGeneral) -cyl_x` |
-| `cyl_y` | `-cyl_y`, dp. | `UIView (CYLGeneral) -cyl_y` |
-| `cyl_maxY` | `-cyl_maxY`, dp. | `UIView (CYLGeneral) -cyl_maxY` |
-| `cyl_maxX` | `-cyl_maxX`, dp. | `UIView (CYLGeneral) -cyl_maxX` |
-| `cyl_horizontalCenterWithWidth` | `-cyl_horizontalCenterWithWidth:`: centers the view in `width` dp. | `UIView (CYLGeneral) -cyl_horizontalCenterWithWidth:` |
-| `cyl_verticalCenterWithHeight` | `-cyl_verticalCenterWithHeight:`: centers the view in `height` dp. | `UIView (CYLGeneral) -cyl_verticalCenterWithHeight:` |
-| `cyl_verticalCenterInSuperView` | `-cyl_verticalCenterInSuperView`. | `UIView (CYLGeneral) -cyl_verticalCenterInSuperView` |
-| `cyl_horizontalCenterInSuperView` | `-cyl_horizontalCenterInSuperView`. | `UIView (CYLGeneral) -cyl_horizontalCenterInSuperView` |
-| `cyl_setBorderWidth` | `-cyl_setBorderWidth:color:`: a border of `width` dp in `color`. | `UIView (CYLGeneral) -cyl_setBorderWidth:color:` |
-| `cyl_setCornerRadius` | `-cyl_setCornerRadius:`: rounds the view (and clips it) with `radius` dp. | `UIView (CYLGeneral) -cyl_setCornerRadius:` |
-| `cyl_addSubLayerWithFrame` | `-cyl_addSubLayerWithFrame:color:`: a colored rectangle drawn over the view (its overlay), at `frame` dp; change its bounds later to move it, as iOS changes the layer's frame. | `UIView (CYLGeneral) -cyl_addSubLayerWithFrame:color:` |
-| `cyl_setTarget` | `-cyl_setTarget:action:`: runs `action` when the view is tapped. | `UIView (CYLGeneral) -cyl_setTarget:action:` |
-| `cyl_capture` | `-cyl_capture`: the view drawn into a bitmap 270 dp wide. | `UIView (CYLGeneral) -cyl_capture` |
-| `cyl_captureWithWidth` | `-cyl_captureWithWidth:`: the view drawn into a bitmap `width` dp wide and as high as the view. | `UIView (CYLGeneral) -cyl_captureWithWidth:` |
-| `cyl_blurredImageWithRadius` | `-cyl_blurredImageWithRadius:iterations:tintColor:`: `iterations` box blurs of `radius` px (made odd, as vImage), then the tint at 25 % added on top; an empty bitmap is returned as | `UIImage (CYLBlur) -cyl_blurredImageWithRadius:iterations:tintColor:` |
+| `cyl_setWidth` | `-cyl_setWidth:`, dp. | `UIView.cylSetWidth(_:)` |
+| `cyl_setHeight` | `-cyl_setHeight:`, dp. | `UIView.cylSetHeight(_:)` |
+| `cyl_setX` | `-cyl_setX:`, dp. | `UIView.cylSetX(_:)` |
+| `cyl_setY` | `-cyl_setY:`, dp. | `UIView.cylSetY(_:)` |
+| `cyl_setSize` | `-cyl_setSize:`, dp. | `UIView.cylSetSize(_:)` |
+| `cyl_height` | `-cyl_height`, dp. | `UIView (CYLGeneral).cylHeight` |
+| `cyl_width` | `-cyl_width`, dp. | `UIView (CYLGeneral).cylWidth` |
+| `cyl_x` | `-cyl_x`, dp. | `UIView (CYLGeneral).cylX` |
+| `cyl_y` | `-cyl_y`, dp. | `UIView (CYLGeneral).cylY` |
+| `cyl_maxY` | `-cyl_maxY`, dp. | `UIView (CYLGeneral).cylMaxY` |
+| `cyl_maxX` | `-cyl_maxX`, dp. | `UIView (CYLGeneral).cylMaxX` |
+| `cyl_horizontalCenterWithWidth` | `-cyl_horizontalCenterWithWidth:`: centers the view in `width` dp. | `UIView.cylHorizontalCenter(withWidth:)` |
+| `cyl_verticalCenterWithHeight` | `-cyl_verticalCenterWithHeight:`: centers the view in `height` dp. | `UIView.cylVerticalCenter(withHeight:)` |
+| `cyl_verticalCenterInSuperView` | `-cyl_verticalCenterInSuperView`. | `UIView.cylVerticalCenterInSuperview()` |
+| `cyl_horizontalCenterInSuperView` | `-cyl_horizontalCenterInSuperView`. | `UIView.cylHorizontalCenterInSuperview()` |
+| `cyl_setBorderWidth` | `-cyl_setBorderWidth:color:`: a border of `width` dp in `color`. | `UIView.cylSetBorderWidth(_:color:)` |
+| `cyl_setCornerRadius` | `-cyl_setCornerRadius:`: rounds the view (and clips it) with `radius` dp. | `UIView.cylSetCornerRadius(_:)` |
+| `cyl_addSubLayerWithFrame` | `-cyl_addSubLayerWithFrame:color:`: a colored rectangle drawn over the view (its overlay), at `frame` dp; change its bounds later to move it, as iOS changes the layer's frame. | `UIView.cylAddLineLayer(frame:color:)` |
+| `cyl_setTarget` | `-cyl_setTarget:action:`: runs `action` when the view is tapped. | `UIView.cylAddTapTarget(_:action:)` |
+| `cyl_capture` | `-cyl_capture`: the view drawn into a bitmap 270 dp wide. | `UIView.cylSnapshot()` |
+| `cyl_captureWithWidth` | `-cyl_captureWithWidth:`: the view drawn into a bitmap `width` dp wide and as high as the view. | `UIView.cylSnapshot(width:)` |
+| `cyl_blurredImageWithRadius` | `-cyl_blurredImageWithRadius:iterations:tintColor:`: `iterations` box blurs of `radius` px (made odd, as vImage), then the tint at 25 % added on top; an empty bitmap is returned as | `UIImage.cylBlurred(radius:iterations:tintColor:)` |
 | `List` | `-cyl_descriptionWithLocale:`: "count (" then one tab-indented item per line, then ")". | `List` (same name in the iOS core) |
 | `Map` | `-cyl_descriptionWithLocale:`: "{" then one tab-indented "key = value;" per line, then "}". | `NSDictionary.cyl_descriptionWithLocale(_:)` (`NSDictionary+CYLLog.swift`; the Android row is the `Map<*, *>.cyl_descriptionWithLocale` extension) |
-| `cyl_generalStyle` | `-cyl_generalStyle`: white, 1 dp border, 5 dp corners. | `UIButton (CYLCollectionCellStyle) -cyl_generalStyle` |
-| `cyl_homeStyle` | `-cyl_homeStyle`: green title (lighter when selected, white when pressed on green) and a green border. | `UIButton (CYLCollectionCellStyle) -cyl_homeStyle` |
-| `cyl_redStyle` | `-cyl_redStyle`: red title (white when pressed on green) and a red border. | `UIButton (CYLCollectionCellStyle) -cyl_redStyle` |
-| `cyl_chengNiStyle` | `-cyl_chengNiStyle`: the classify menu's tag: a light green pill with the tint color, the highlighted background and white title when pressed or selected. | `UIButton (CYLCollectionCellStyle) -cyl_chengNiStyle` |
+| `cyl_generalStyle` | `-cyl_generalStyle`: white, 1 dp border, 5 dp corners. | `CYLCollectionCellButtonStyle` |
+| `cyl_homeStyle` | `-cyl_homeStyle`: green title (lighter when selected, white when pressed on green) and a green border. | `CYLCollectionCellButtonStyle` |
+| `cyl_redStyle` | `-cyl_redStyle`: red title (white when pressed on green) and a red border. | `CYLCollectionCellButtonStyle` |
+| `cyl_chengNiStyle` | `-cyl_chengNiStyle`: the classify menu's tag: a light green pill with the tint color, the highlighted background and white title when pressed or selected. | `CYLCollectionCellButtonStyle` |
 | **enum `CYLImageTagDirection`** | `CYLImageTagDirection`: where a tag sits around its group's dot (TagViewGroup's DIRECTION). | `CYLImageTagDirection` |
-| `CYLImageTagDirection.CYLImageTagDirectionLeftCenter` | — | `CYLImageTagDirectionLeftCenter` (same name in the iOS core) |
-| `CYLImageTagDirection.CYLImageTagDirectionLeftTop` | — | `CYLImageTagDirectionLeftTop` (same name in the iOS core) |
-| `CYLImageTagDirection.CYLImageTagDirectionLeftTopStraight` | — | `CYLImageTagDirectionLeftTopStraight` (same name in the iOS core) |
-| `CYLImageTagDirection.CYLImageTagDirectionLeftBottom` | — | `CYLImageTagDirectionLeftBottom` (same name in the iOS core) |
-| `CYLImageTagDirection.CYLImageTagDirectionLeftBottomStraight` | — | `CYLImageTagDirectionLeftBottomStraight` (same name in the iOS core) |
-| `CYLImageTagDirection.CYLImageTagDirectionRightCenter` | — | `CYLImageTagDirectionRightCenter` (same name in the iOS core) |
-| `CYLImageTagDirection.CYLImageTagDirectionRightTop` | — | `CYLImageTagDirectionRightTop` (same name in the iOS core) |
-| `CYLImageTagDirection.CYLImageTagDirectionRightTopStraight` | — | `CYLImageTagDirectionRightTopStraight` (same name in the iOS core) |
-| `CYLImageTagDirection.CYLImageTagDirectionRightBottom` | — | `CYLImageTagDirectionRightBottom` (same name in the iOS core) |
-| `CYLImageTagDirection.CYLImageTagDirectionRightBottomStraight` | — | `CYLImageTagDirectionRightBottomStraight` (same name in the iOS core) |
-| `CYLImageTagDirection.CYLImageTagDirectionCenter` | — | `CYLImageTagDirectionCenter` (same name in the iOS core) |
-| `CYLImageTagDirectionNext` | `CYLImageTagDirectionNext`: the next direction, the last one (and Center) wrapping to LeftCenter. | `CYLImageTagDirectionNext` |
+| `CYLImageTagDirection.CYLImageTagDirectionLeftCenter` | — | `CYLImageTagDirection.leftCenter` |
+| `CYLImageTagDirection.CYLImageTagDirectionLeftTop` | — | `CYLImageTagDirection.leftTop` |
+| `CYLImageTagDirection.CYLImageTagDirectionLeftTopStraight` | — | `CYLImageTagDirection.leftTopStraight` |
+| `CYLImageTagDirection.CYLImageTagDirectionLeftBottom` | — | `CYLImageTagDirection.leftBottom` |
+| `CYLImageTagDirection.CYLImageTagDirectionLeftBottomStraight` | — | `CYLImageTagDirection.leftBottomStraight` |
+| `CYLImageTagDirection.CYLImageTagDirectionRightCenter` | — | `CYLImageTagDirection.rightCenter` |
+| `CYLImageTagDirection.CYLImageTagDirectionRightTop` | — | `CYLImageTagDirection.rightTop` |
+| `CYLImageTagDirection.CYLImageTagDirectionRightTopStraight` | — | `CYLImageTagDirection.rightTopStraight` |
+| `CYLImageTagDirection.CYLImageTagDirectionRightBottom` | — | `CYLImageTagDirection.rightBottom` |
+| `CYLImageTagDirection.CYLImageTagDirectionRightBottomStraight` | — | `CYLImageTagDirection.rightBottomStraight` |
+| `CYLImageTagDirection.CYLImageTagDirectionCenter` | — | `CYLImageTagDirection.center` |
+| `CYLImageTagDirectionNext` | `CYLImageTagDirectionNext`: the next direction, the last one (and Center) wrapping to LeftCenter. | `CYLImageTagDirection.next` |
 | **interface `CYLImageTagItem`** | `CYLImageTagItem`: a view shown as a tag of a group. | `CYLImageTagItem` |
 | `CYLImageTagItem.tagDirection` | Where the view sits around the dot. | `CYLImageTagItem.tagDirection` |
 | **class `CYLImageTag`** | `CYLImageTag`: a tag of a picture: its title, direction, link and user info. | `CYLImageTag` |
 | `CYLImageTag.link` | A link the tag opens, if any. | `CYLImageTag.link` |
 | `CYLImageTag.userInfo` | Anything the app attaches. | `CYLImageTag.userInfo` |
-| `CYLImageTag.copy` | `-copy`. | `copy` (same name in the iOS core) |
+| `CYLImageTag.copy` | `-copy`. | `CYLImageTag.copy()` |
 | **class `CYLImageTagGroup`** | `CYLImageTagGroup`: the tags around one dot, at a position given in fractions of the picture (0…1). | `CYLImageTagGroup` |
-| `CYLImageTagGroup.copy` | `-copy`: the tags are copied too. | `copy` (same name in the iOS core) |
+| `CYLImageTagGroup.copy` | `-copy`: the tags are copied too. | `CYLImageTagGroup.copy()` |
 | **class `CYLImageTagLabel`** | `CYLImageTagLabel`: the default tag view: white 13 sp text with a shadow, inside `contentInsets`. | `CYLImageTagLabel` |
 | `CYLImageTagLabel.contentInsets` | The space around the text, dp (4, 12, 4, 12 by default). | `CYLImageTagLabel.contentInsets` |
 | **class `CYLImageTagRippleView`** | `CYLImageTagRippleView`: a circle growing and fading from the dot, repeated every second (not with Reduce Motion). | `CYLImageTagRippleView` |
 | `CYLImageTagRippleView.maximumRadius` | The radius the ripple grows to, dp. | `CYLImageTagRippleView.maximumRadius` |
 | `CYLImageTagRippleView.startAlpha` | The opacity the ripple starts with (100 / 255 by default). | `CYLImageTagRippleView.startAlpha` |
 | `CYLImageTagRippleView.color` | The ripple's color (white by default). | `CYLImageTagRippleView.color` |
-| `CYLImageTagRippleView.startAnimating` | `-startAnimating`. | `CYLImageTagRippleView -startAnimating` |
-| `CYLImageTagRippleView.stopAnimating` | `-stopAnimating`. | `CYLImageTagRippleView -stopAnimating` |
-| `CYLImageTagRippleView.isAnimating` | Whether the ripple is animating. | `isAnimating` (same name in the iOS core) |
+| `CYLImageTagRippleView.startAnimating` | `-startAnimating`. | `CYLImageTagRippleView.startAnimating()` |
+| `CYLImageTagRippleView.stopAnimating` | `-stopAnimating`. | `CYLImageTagRippleView.stopAnimating()` |
+| `CYLImageTagRippleView.isAnimating` | Whether the ripple is animating. | `CYLImageTagRippleView.isAnimating` |
 | **interface `CYLImageTagGroupViewDataSource`** | `CYLImageTagGroupViewDataSource`: custom tag views instead of `tags`. | `CYLImageTagGroupViewDataSource` |
-| `CYLImageTagGroupViewDataSource.numberOfTagsInGroupView` | The number of tags (at most `CYLImageTagGroupMaximumTagCount` are shown). | `CYLImageTagGroupViewDataSource -numberOfTagsInGroupView:` |
-| `CYLImageTagGroupViewDataSource.groupViewViewForTagAtIndex` | The view of a tag. | `CYLImageTagGroupViewDataSource -groupView:viewForTagAtIndex:` |
+| `CYLImageTagGroupViewDataSource.numberOfTagsInGroupView` | The number of tags (at most `CYLImageTagGroupMaximumTagCount` are shown). | `CYLImageTagGroupViewDataSource.numberOfTags(in:)` |
+| `CYLImageTagGroupViewDataSource.groupViewViewForTagAtIndex` | The view of a tag. | `CYLImageTagGroupViewDataSource.groupView(_:viewForTagAt:)` |
 | **interface `CYLImageTagGroupViewDelegate`** | `CYLImageTagGroupViewDelegate`: taps, long press and drags of a group; every method is optional. | `CYLImageTagGroupViewDelegate` |
 | `CYLImageTagGroupViewDelegate.groupViewDidTapCircle` | `-groupViewDidTapCircle:`. | `groupViewDidTapCircle` (same name in the iOS core) |
 | `CYLImageTagGroupViewDelegate.groupViewDidTapTagAtIndex` | `-groupView:didTapTagAtIndex:`. | `CYLImageTagGroupViewDelegate.groupView(_:didTapTagAt:)` |
@@ -566,37 +561,37 @@ Rows: 604; matched 597, TODO 7; score 98/100.
 | `CYLImageTagGroupView.circleInnerColor` | — | `CYLImageTagGroupView.circleInnerColor` |
 | `CYLImageTagGroupView.lineColor` | — | `CYLImageTagGroupView.lineColor` |
 | `CYLImageTagGroupView.percentPosition` | The dot's position in fractions of the view, each clamped to 0…1. | `CYLImageTagGroupView.percentPosition` |
-| `CYLImageTagGroupView.setPercentX` | `-setPercentX:percentY:`. | `CYLImageTagGroupView -setPercentX:percentY:` |
+| `CYLImageTagGroupView.setPercentX` | `-setPercentX:percentY:`. | `CYLImageTagGroupView.setPercentPosition(x:y:)` |
 | `CYLImageTagGroupView.centerPoint` | The dot's center after layout, dp. | `CYLImageTagGroupView.centerPoint` |
 | `CYLImageTagGroupView.displayOffset` | An offset added to the dot (the picture view moves groups apart with it), dp. | `CYLImageTagGroupView.displayOffset` |
 | `CYLImageTagGroupView.occupiedFrame` | The dot and the tags' frames together, dp. | `CYLImageTagGroupView.occupiedFrame` |
 | `CYLImageTagGroupView.tags` | The tags (a copy); setting them rebuilds the tag views. | `CYLImageTagGroupView.tags` |
 | `CYLImageTagGroupView.dataSource` | — | `CYLImageTagGroupView.dataSource` |
 | `CYLImageTagGroupView.tagViews` | The tag views, in order. | `CYLImageTagGroupView.tagViews` |
-| `CYLImageTagGroupView.tagLabelConfiguration` | Called for every default label, to style it. | `tagLabelConfiguration` (same name in the iOS core) |
-| `CYLImageTagGroupView.reloadData` | `-reloadData`: rebuilds the tag views from the data source or from `tags`. | `CYLImageTagGroupView -reloadData` |
+| `CYLImageTagGroupView.tagLabelConfiguration` | Called for every default label, to style it. | `CYLImageTagGroupView.tagLabelConfiguration` |
+| `CYLImageTagGroupView.reloadData` | `-reloadData`: rebuilds the tag views from the data source or from `tags`. | `CYLImageTagGroupView.reloadData()` |
 | `CYLImageTagGroupView.showsRipple` | — | `CYLImageTagGroupView.showsRipple` |
 | `CYLImageTagGroupView.rippleMaxRadius` | — | `CYLImageTagGroupView.rippleMaxRadius` |
 | `CYLImageTagGroupView.rippleAlpha` | — | `CYLImageTagGroupView.rippleAlpha` |
 | `CYLImageTagGroupView.rippleView` | — | `CYLImageTagGroupView.rippleView` |
 | `CYLImageTagGroupView.linesProgress` | How much of each line is drawn, 0…1. | `CYLImageTagGroupView.linesProgress` |
 | `CYLImageTagGroupView.tagAlpha` | The tags' opacity, 0…1. | `CYLImageTagGroupView.tagAlpha` |
-| `CYLImageTagGroupView.animateValueForKey` | `-animateValueForKey:values:duration:completion:`: animates one of the `CYLImageTagGroupKey…` values through `values` (eased out); with Reduce Motion, or no duration, it jumps to t | `CYLImageTagGroupView -animateValueForKey:values:duration:completion:` |
+| `CYLImageTagGroupView.animateValueForKey` | `-animateValueForKey:values:duration:completion:`: animates one of the `CYLImageTagGroupKey…` values through `values` (eased out); with Reduce Motion, or no duration, it jumps to t | `CYLImageTagGroupView.animate(_:values:duration:completion:)` (the key is the `AnimatableValue` case) |
 | `CYLImageTagGroupView.isGroupHidden` | Whether the group is hidden by `hideAnimated`. | `isGroupHidden` (same name in the iOS core) |
-| `CYLImageTagGroupView.groupHidden` | `groupHidden`. | `CYLImageTagGroupView.groupHidden` |
-| `CYLImageTagGroupView.showAnimation` | — | `showAnimation` (same name in the iOS core) |
-| `CYLImageTagGroupView.hideAnimation` | — | `hideAnimation` (same name in the iOS core) |
-| `CYLImageTagGroupView.showAnimated` | `-showAnimated:completion:`: the dot bounces, the lines draw, then the tags fade in. | `CYLImageTagGroupView -showAnimated:completion:` |
-| `CYLImageTagGroupView.hideAnimated` | `-hideAnimated:completion:`: the dot bounces, the tags fade and the lines retract, then the group hides. | `CYLImageTagGroupView -hideAnimated:completion:` |
+| `CYLImageTagGroupView.groupHidden` | `groupHidden`. | `CYLImageTagGroupView.isGroupHidden` |
+| `CYLImageTagGroupView.showAnimation` | — | `CYLImageTagGroupView.showAnimation` |
+| `CYLImageTagGroupView.hideAnimation` | — | `CYLImageTagGroupView.hideAnimation` |
+| `CYLImageTagGroupView.showAnimated` | `-showAnimated:completion:`: the dot bounces, the lines draw, then the tags fade in. | `CYLImageTagGroupView.show(animated:completion:)` |
+| `CYLImageTagGroupView.hideAnimated` | `-hideAnimated:completion:`: the dot bounces, the tags fade and the lines retract, then the group hides. | `CYLImageTagGroupView.hide(animated:completion:)` |
 | `CYLImageTagGroupView.delegate` | — | `CYLImageTagGroupView.delegate` |
-| `CYLImageTagGroupView.draggable` | — | `CYLImageTagGroupView.draggable` |
+| `CYLImageTagGroupView.draggable` | — | `CYLImageTagGroupView.isDraggable` |
 | `CYLImageTagGroupView.isDraggable` | `isDraggable`. | `isDraggable` (same name in the iOS core) |
 | `CYLImageTagGroupView.circleAccessibilityElement` | The dot as an accessibility element ("Tag group: …"), with the long press and move actions. | `CYLImageTagGroupView.circleAccessibilityElement` |
 | `CYLImageTagGroupView.longPressAccessibilityActionName` | — | `CYLImageTagGroupView.longPressAccessibilityActionName` |
 | `CYLImageTagGroupView.tagAccessibilityHint` | — | `CYLImageTagGroupView.tagAccessibilityHint` |
 | `CYLImageTagGroupView.accessibilityMoveStep` | How far a move action moves the dot, in fractions of the view (0.05). | `CYLImageTagGroupView.accessibilityMoveStep` |
-| `CYLImageTagGroupView.tagSpaceUsed` | `-tagSpaceUsed`: how far the tags reach from the dot on each side, dp. | `CYLImageTagGroupView -tagSpaceUsed` |
-| `CYLImageTagGroupView.originForTagOfSize` | `-originForTagOfSize:direction:`: the top-left corner of a tag of `size` in `direction`, dp. | `CYLImageTagGroupView -originForTagOfSize:direction:` |
+| `CYLImageTagGroupView.tagSpaceUsed` | `-tagSpaceUsed`: how far the tags reach from the dot on each side, dp. | `CYLImageTagGroupView.tagSpaceUsed()` |
+| `CYLImageTagGroupView.originForTagOfSize` | `-originForTagOfSize:direction:`: the top-left corner of a tag of `size` in `direction`, dp. | `CYLImageTagGroupView.originForTag(of:direction:)` |
 | `CYLImageTagGroupView.layoutGroup` | Lays the dot and the tags out now (`-layoutIfNeeded` on iOS); the picture view calls it to move groups apart. | `UIView.layoutIfNeeded()` on the group view |
 | `CYLImageTagGroupView.frameOfTagView` | The frame of a tag view after layout, dp. | `UIView.frame` of the tag view (after `layoutIfNeeded()`) |
 | `CYLImageTagGroupView.pointInside` | `-pointInside:withEvent:`: only the dot and the tags take touches (dp). | `CYLImageTagGroupView.point(inside:with:)` (only the dot and the tags take touches) |
@@ -604,61 +599,61 @@ Rows: 604; matched 597, TODO 7; score 98/100.
 | `CYLImageTagView.imageView` | The picture, filling the view (center crop). | `CYLImageTagView.imageView` |
 | `CYLImageTagView.image` | The picture (`imageView`'s drawable). | `CYLImageTagView.image` |
 | `CYLImageTagView.tagGroups` | The groups (copies); setting them replaces every group. | `CYLImageTagView.tagGroups` |
-| `CYLImageTagView.addTagGroup` | `-addTagGroup:`: adds a copy of the group and its view. | `CYLImageTagView -addTagGroup:` |
-| `CYLImageTagView.removeTagGroupAtIndex` | `-removeTagGroupAtIndex:`. | `CYLImageTagView -removeTagGroupAtIndex:` |
-| `CYLImageTagView.removeAllTagGroups` | `-removeAllTagGroups`. | `CYLImageTagView -removeAllTagGroups` |
+| `CYLImageTagView.addTagGroup` | `-addTagGroup:`: adds a copy of the group and its view. | `CYLImageTagView.addTagGroup(_:)` |
+| `CYLImageTagView.removeTagGroupAtIndex` | `-removeTagGroupAtIndex:`. | `CYLImageTagView.removeTagGroup(at:)` |
+| `CYLImageTagView.removeAllTagGroups` | `-removeAllTagGroups`. | `CYLImageTagView.removeAllTagGroups()` |
 | `CYLImageTagView.groupViews` | The group views, in order. | `CYLImageTagView.groupViews` |
-| `CYLImageTagView.editing` | Edit mode: dots can be dragged and a tap turns a tag; no ripple. | `CYLImageTagView.editing` |
+| `CYLImageTagView.editing` | Edit mode: dots can be dragged and a tap turns a tag; no ripple. | `CYLImageTagView.isEditing` |
 | `CYLImageTagView.isEditing` | `isEditing`. | `isEditing` (same name in the iOS core) |
-| `CYLImageTagView.toggleTagGroupsAnimated` | `-toggleTagGroupsAnimated:`: shows hidden groups and hides shown ones. | `CYLImageTagView -toggleTagGroupsAnimated:` |
-| `CYLImageTagView.groupConfiguration` | Called for every new group view, to style it. | `groupConfiguration` (same name in the iOS core) |
-| `CYLImageTagView.imageTapHandler` | — | `imageTapHandler` (same name in the iOS core) |
-| `CYLImageTagView.circleTapHandler` | — | `circleTapHandler` (same name in the iOS core) |
-| `CYLImageTagView.tagTapHandler` | — | `tagTapHandler` (same name in the iOS core) |
-| `CYLImageTagView.longPressHandler` | — | `longPressHandler` (same name in the iOS core) |
-| `CYLImageTagView.dragHandler` | — | `dragHandler` (same name in the iOS core) |
+| `CYLImageTagView.toggleTagGroupsAnimated` | `-toggleTagGroupsAnimated:`: shows hidden groups and hides shown ones. | `CYLImageTagView.toggleTagGroups(animated:)` |
+| `CYLImageTagView.groupConfiguration` | Called for every new group view, to style it. | `CYLImageTagView.groupConfiguration` |
+| `CYLImageTagView.imageTapHandler` | — | `CYLImageTagView.imageTapHandler` |
+| `CYLImageTagView.circleTapHandler` | — | `CYLImageTagView.circleTapHandler` |
+| `CYLImageTagView.tagTapHandler` | — | `CYLImageTagView.tagTapHandler` |
+| `CYLImageTagView.longPressHandler` | — | `CYLImageTagView.longPressHandler` |
+| `CYLImageTagView.dragHandler` | — | `CYLImageTagView.dragHandler` |
 | `CYLImageTagView.imageAccessibilityHint` | — | `CYLImageTagView.imageAccessibilityHint` |
 | `CYLImageTagView.longPressAccessibilityActionName` | — | `CYLImageTagView.longPressAccessibilityActionName` |
 | `CYLMenuColorFromString` | `CYLMenuColorFromString`: "#RGB", "#RRGGBB", "#RRGGBBAA" (alpha last, as on iOS), or the name of a UIColor class property ("systemBlue", "systemBlueColor", "red"…); null when it is | `UIColor.cylMenuColor(from:)` |
 | **enum `CYLMenuItemType`** | `CYLMenuItemType`: a tag, or the "+ New tag" item that asks for a name. | `CYLMenuItemType` |
 | **interface `CYLMenuDataSource`** | `CYLMenuDataSource`: the sections and items of a tag list. | `CYLMenuDataSource` |
-| `CYLMenuDataSource.numberOfSectionsInMenu` | — | `CYLMenuDataSource -numberOfSectionsInMenu` |
-| `CYLMenuDataSource.menuNumberOfItemsInSection` | — | `CYLMenuDataSource -menuNumberOfItemsInSection:` |
-| `CYLMenuDataSource.menuTitleForSection` | — | `CYLMenuDataSource -menuTitleForSection:` |
-| `CYLMenuDataSource.menuTitleForItemAtIndexPath` | — | `CYLMenuDataSource -menuTitleForItemAtIndexPath:` |
-| `CYLMenuDataSource.menuImageForItemAtIndexPath` | — | `CYLMenuDataSource -menuImageForItemAtIndexPath:` |
-| `CYLMenuDataSource.menuSelectedImageForItemAtIndexPath` | — | `CYLMenuDataSource -menuSelectedImageForItemAtIndexPath:` |
-| `CYLMenuDataSource.menuAnimationURLForItemAtIndexPath` | — | `CYLMenuDataSource -menuAnimationURLForItemAtIndexPath:` |
-| `CYLMenuDataSource.menuAnimationRestingProgressForItemAtIndexPath` | — | `CYLMenuDataSource -menuAnimationRestingProgressForItemAtIndexPath:` |
-| `CYLMenuDataSource.menuStyleForSection` | — | `CYLMenuDataSource -menuStyleForSection:` |
-| `CYLMenuDataSource.menuStyleForItemAtIndexPath` | — | `CYLMenuDataSource -menuStyleForItemAtIndexPath:` |
-| `CYLMenuDataSource.menuImageForSection` | — | `CYLMenuDataSource -menuImageForSection:` |
-| `CYLMenuDataSource.menuAccessoryViewForSection` | — | `CYLMenuDataSource -menuAccessoryViewForSection:` |
-| `CYLMenuDataSource.menuItemIsEnabledAtIndexPath` | — | `CYLMenuDataSource -menuItemIsEnabledAtIndexPath:` |
-| `CYLMenuDataSource.menuItemIsExclusiveAtIndexPath` | — | `CYLMenuDataSource -menuItemIsExclusiveAtIndexPath:` |
-| `CYLMenuDataSource.menuItemIsSelectableAtIndexPath` | — | `CYLMenuDataSource -menuItemIsSelectableAtIndexPath:` |
-| `CYLMenuDataSource.menuItemTypeAtIndexPath` | — | `CYLMenuDataSource -menuItemTypeAtIndexPath:` |
-| `CYLMenuDataSource.menuAccessibilityHintForItemAtIndexPath` | — | `CYLMenuDataSource -menuAccessibilityHintForItemAtIndexPath:` |
-| `CYLMenuDataSource.menuShowsMoreButtonInSection` | — | `CYLMenuDataSource -menuShowsMoreButtonInSection:` |
-| `CYLMenuDataSource.menuAccessibilityLabelForMoreButtonInSection` | — | `CYLMenuDataSource -menuAccessibilityLabelForMoreButtonInSection:` |
-| `CYLMenuDataSource.menuItemIsDeletableAtIndexPath` | — | `CYLMenuDataSource -menuItemIsDeletableAtIndexPath:` |
-| `CYLMenuDataSource.menuRemoveItemAtIndexPath` | — | `CYLMenuDataSource -menuRemoveItemAtIndexPath:` |
-| `CYLMenuDataSource.menuMoveItemAtIndexPath` | Optional on iOS: a list may only reorder items when its data source moves them. | `CYLMenuDataSource -menuMoveItemAtIndexPath:toIndexPath:` |
+| `CYLMenuDataSource.numberOfSectionsInMenu` | — | `CYLMenuDataSource.numberOfSectionsInMenu()` |
+| `CYLMenuDataSource.menuNumberOfItemsInSection` | — | `CYLMenuDataSource.menuNumberOfItems(inSection:)` |
+| `CYLMenuDataSource.menuTitleForSection` | — | `CYLMenuDataSource.menuTitle(forSection:)` |
+| `CYLMenuDataSource.menuTitleForItemAtIndexPath` | — | `CYLMenuDataSource.menuTitleForItem(at:)` |
+| `CYLMenuDataSource.menuImageForItemAtIndexPath` | — | `CYLMenuDataSource.menuImageForItem(at:)` |
+| `CYLMenuDataSource.menuSelectedImageForItemAtIndexPath` | — | `CYLMenuDataSource.menuSelectedImageForItem(at:)` |
+| `CYLMenuDataSource.menuAnimationURLForItemAtIndexPath` | — | `CYLMenuDataSource.menuAnimationURLForItem(at:)` |
+| `CYLMenuDataSource.menuAnimationRestingProgressForItemAtIndexPath` | — | `CYLMenuDataSource.menuAnimationRestingProgressForItem(at:)` |
+| `CYLMenuDataSource.menuStyleForSection` | — | `CYLMenuDataSource.menuStyle(forSection:)` |
+| `CYLMenuDataSource.menuStyleForItemAtIndexPath` | — | `CYLMenuDataSource.menuStyleForItem(at:)` |
+| `CYLMenuDataSource.menuImageForSection` | — | `CYLMenuDataSource.menuImage(forSection:)` |
+| `CYLMenuDataSource.menuAccessoryViewForSection` | — | `CYLMenuDataSource.menuAccessoryView(forSection:)` |
+| `CYLMenuDataSource.menuItemIsEnabledAtIndexPath` | — | `CYLMenuDataSource.menuItemIsEnabled(at:)` |
+| `CYLMenuDataSource.menuItemIsExclusiveAtIndexPath` | — | `CYLMenuDataSource.menuItemIsExclusive(at:)` |
+| `CYLMenuDataSource.menuItemIsSelectableAtIndexPath` | — | `CYLMenuDataSource.menuItemIsSelectable(at:)` |
+| `CYLMenuDataSource.menuItemTypeAtIndexPath` | — | `CYLMenuDataSource.menuItemType(at:)` |
+| `CYLMenuDataSource.menuAccessibilityHintForItemAtIndexPath` | — | `CYLMenuDataSource.menuAccessibilityHintForItem(at:)` |
+| `CYLMenuDataSource.menuShowsMoreButtonInSection` | — | `CYLMenuDataSource.menuShowsMoreButton(inSection:)` |
+| `CYLMenuDataSource.menuAccessibilityLabelForMoreButtonInSection` | — | `CYLMenuDataSource.menuAccessibilityLabelForMoreButton(inSection:)` |
+| `CYLMenuDataSource.menuItemIsDeletableAtIndexPath` | — | `CYLMenuDataSource.menuItemIsDeletable(at:)` |
+| `CYLMenuDataSource.menuRemoveItemAtIndexPath` | — | `CYLMenuDataSource.menuRemoveItem(at:)` |
+| `CYLMenuDataSource.menuMoveItemAtIndexPath` | Optional on iOS: a list may only reorder items when its data source moves them. | `CYLMenuDataSource.menuMoveItem(at:to:)` |
 | `CYLMenuDataSource.supportsMovingItems` | Whether `menuMoveItemAtIndexPath` is implemented (`respondsToSelector:` on iOS). | `responds(to: #selector(CYLMenuDataSource.menuMoveItem(at:to:)))` (optional Objective-C method; `CYLTagListView` checks it) |
 | **interface `CYLMenuDelegate`** | `CYLMenuDelegate`: selection, new items, folding, height, the More button, deletion, long press, reordering and dragging of a tag list. | `CYLMenuDelegate` |
-| `CYLMenuDelegate.menuShouldSelectItemAtIndexPath` | — | `CYLMenuDelegate -menu:shouldSelectItemAtIndexPath:` |
-| `CYLMenuDelegate.menuDidSelectItemAtIndexPath` | — | `CYLMenuDelegate -menu:didSelectItemAtIndexPath:` |
-| `CYLMenuDelegate.menuDidRequestNewItemWithName` | — | `CYLMenuDelegate -menu:didRequestNewItemWithName:atIndexPath:` |
-| `CYLMenuDelegate.menuDidDeselectItemAtIndexPath` | — | `CYLMenuDelegate -menu:didDeselectItemAtIndexPath:` |
-| `CYLMenuDelegate.menuDidChangeSelectedItems` | — | `CYLMenuDelegate -menu:didChangeSelectedItems:` |
-| `CYLMenuDelegate.menuDidConfirmSelectedItems` | — | `CYLMenuDelegate -menu:didConfirmSelectedItems:` |
-| `CYLMenuDelegate.menuDidChangeExpanded` | — | `CYLMenuDelegate -menu:didChangeExpanded:inSection:` |
-| `CYLMenuDelegate.menuDidChangeContentHeight` | — | `CYLMenuDelegate -menu:didChangeContentHeight:` |
-| `CYLMenuDelegate.menuDidTapMoreButtonInSection` | — | `CYLMenuDelegate -menu:didTapMoreButtonInSection:` |
-| `CYLMenuDelegate.menuDidDeleteItemAtIndexPath` | — | `CYLMenuDelegate -menu:didDeleteItemAtIndexPath:` |
-| `CYLMenuDelegate.menuDidLongPressItemAtIndexPath` | — | `CYLMenuDelegate -menu:didLongPressItemAtIndexPath:` |
-| `CYLMenuDelegate.menuDidMoveItemAtIndexPath` | — | `CYLMenuDelegate -menu:didMoveItemAtIndexPath:toIndexPath:` |
-| `CYLMenuDelegate.menuDidBeginDraggingSelectedItemAtIndexPath` | — | `CYLMenuDelegate -menu:didBeginDraggingSelectedItemAtIndexPath:` |
+| `CYLMenuDelegate.menuShouldSelectItemAtIndexPath` | — | `CYLMenuDelegate.menu(_:shouldSelectItemAt:)` |
+| `CYLMenuDelegate.menuDidSelectItemAtIndexPath` | — | `CYLMenuDelegate.menu(_:didSelectItemAt:)` |
+| `CYLMenuDelegate.menuDidRequestNewItemWithName` | — | `CYLMenuDelegate.menu(_:didRequestNewItemWithName:at:)` |
+| `CYLMenuDelegate.menuDidDeselectItemAtIndexPath` | — | `CYLMenuDelegate.menu(_:didDeselectItemAt:)` |
+| `CYLMenuDelegate.menuDidChangeSelectedItems` | — | `CYLMenuDelegate.menu(_:didChangeSelectedItems:)` |
+| `CYLMenuDelegate.menuDidConfirmSelectedItems` | — | `CYLMenuDelegate.menu(_:didConfirmSelectedItems:)` |
+| `CYLMenuDelegate.menuDidChangeExpanded` | — | `CYLMenuDelegate.menu(_:didChangeExpanded:inSection:)` |
+| `CYLMenuDelegate.menuDidChangeContentHeight` | — | `CYLMenuDelegate.menu(_:didChangeContentHeight:)` |
+| `CYLMenuDelegate.menuDidTapMoreButtonInSection` | — | `CYLMenuDelegate.menu(_:didTapMoreButtonInSection:)` |
+| `CYLMenuDelegate.menuDidDeleteItemAtIndexPath` | — | `CYLMenuDelegate.menu(_:didDeleteItemAt:)` |
+| `CYLMenuDelegate.menuDidLongPressItemAtIndexPath` | — | `CYLMenuDelegate.menu(_:didLongPressItemAt:)` |
+| `CYLMenuDelegate.menuDidMoveItemAtIndexPath` | — | `CYLMenuDelegate.menu(_:didMoveItemAt:to:)` |
+| `CYLMenuDelegate.menuDidBeginDraggingSelectedItemAtIndexPath` | — | `CYLMenuDelegate.menu(_:didBeginDraggingSelectedItemAt:)` |
 | `CYLMenuDelegate.handlesLongPress` | Whether the long press is handled (`respondsToSelector:` of `menu:didLongPressItemAtIndexPath:`). | `responds(to: #selector(CYLMenuDelegate.menu(_:didLongPressItemAt:)))` (optional Objective-C method; `CYLTagListView` checks it) |
 | **enum `CYLMenuFoldControlPosition`** | `CYLMenuFoldControlPosition`: where a section's fold control sits. | `CYLMenuFoldControlPosition` |
 | `CYLMenuFoldControlPosition.NONE` | — | `CYLMenuFoldControlPositionNone` |
@@ -667,9 +662,9 @@ Rows: 604; matched 597, TODO 7; score 98/100.
 | `CYLMenuFoldControlPosition.HEADER_LEADING` | — | `CYLMenuFoldControlPositionHeaderLeading` |
 | `CYLMenuFoldControlPosition.TAIL` | — | `CYLMenuFoldControlPositionTail` |
 | **enum `CYLMenuFoldControlContent`** | `CYLMenuFoldControlContent`: what a fold control shows. | `CYLMenuFoldControlContent` |
-| `CYLMenuFoldControlContent.CYLMenuFoldControlContentIconAndTitle` | — | `CYLMenuFoldControlContentIconAndTitle` (same name in the iOS core) |
-| `CYLMenuFoldControlContent.CYLMenuFoldControlContentTitle` | — | `CYLMenuFoldControlContentTitle` (same name in the iOS core) |
-| `CYLMenuFoldControlContent.CYLMenuFoldControlContentIcon` | — | `CYLMenuFoldControlContentIcon` (same name in the iOS core) |
+| `CYLMenuFoldControlContent.CYLMenuFoldControlContentIconAndTitle` | — | `CYLMenuFoldControlContentIconAndTitle` |
+| `CYLMenuFoldControlContent.CYLMenuFoldControlContentTitle` | — | `CYLMenuFoldControlContentTitle` |
+| `CYLMenuFoldControlContent.CYLMenuFoldControlContentIcon` | — | `CYLMenuFoldControlContentIcon` |
 | **class `CYLMenuFoldControl`** | `CYLMenuFoldControl`: the control that expands or collapses a folded section: its position, content, titles, image (a chevron by default, turned when expanded), color and font. | `CYLMenuFoldControl` |
 | `CYLMenuFoldControl.position` | — | `CYLMenuFoldControl.position` |
 | `CYLMenuFoldControl.content` | — | `CYLMenuFoldControl.content` |
@@ -680,19 +675,19 @@ Rows: 604; matched 597, TODO 7; score 98/100.
 | `CYLMenuFoldControl.color` | — | `CYLMenuFoldControl.color` |
 | `CYLMenuFoldControl.font` | — | `CYLMenuFoldControl.font` |
 | `CYLMenuFoldControl.rotatesImageWhenExpanded` | — | `CYLMenuFoldControl.rotatesImageWhenExpanded` |
-| `CYLMenuFoldControl.showsImageWhenExpanded` | — | `CYLMenuFoldControl -showsImageWhenExpanded:` |
-| `CYLMenuFoldControl.showsTitleWhenExpanded` | — | `CYLMenuFoldControl -showsTitleWhenExpanded:` |
-| `CYLMenuFoldControl.titleWhenExpanded` | — | `CYLMenuFoldControl -titleWhenExpanded:` |
-| `CYLMenuFoldControl.copy` | NSCopying. | `CYLMenuFoldControl -copyWith:` |
+| `CYLMenuFoldControl.showsImageWhenExpanded` | — | `CYLMenuFoldControl.showsImage(whenExpanded:)` |
+| `CYLMenuFoldControl.showsTitleWhenExpanded` | — | `CYLMenuFoldControl.showsTitle(whenExpanded:)` |
+| `CYLMenuFoldControl.titleWhenExpanded` | — | `CYLMenuFoldControl.title(whenExpanded:)` |
+| `CYLMenuFoldControl.copy` | NSCopying. | `CYLMenuFoldControl.copy(with:)` |
 | **class `CYLMenuIconDrawable`** | The core's default icons, drawn in code (SF Symbols on iOS): the fold chevron ("chevron.down"), the plus of the "+ New tag" item ("plus") and the More button ("ellipsis"). | the bundle images `cyl_fold_chevron`, `cyl_tag_plus`, `cyl_more` (`CYLMenuResources.image(named:)`, SF Symbol fallback); Android draws them |
 | **enum `Kind`** | — | `CYLMenuIconDrawable.Kind` → the bundle images `cyl_fold_chevron` (CHEVRON_DOWN), `cyl_tag_plus` (PLUS), `cyl_more` (ELLIPSIS) |
 | **object `CYLMenuResources`** | The core's localized strings and images: the same `<language>.lproj/CYLClassifyMenu.strings` tables as iOS (`CYLClassifyMenuResources.bundle`), packaged as Java resources under `CY | `CYLMenuResources` |
-| `CYLMenuResources.bundle` | `+bundle`: the resource folder's name in the library's Java resources. | `CYLMenuResources +bundle` |
-| `CYLMenuResources.imageNamed` | `+imageNamed:`: a drawable of the bundle's images (`CYLClassifyMenuResources/<name>@3x.png`, `@2x` or 1x, copied from the iOS asset catalog), scaled like the iOS image (3x as xxhdp | `CYLMenuResources +imageNamed:` |
-| `CYLMenuResources.availableLanguages` | `+availableLanguages`, sorted. | `CYLMenuResources +availableLanguages` |
+| `CYLMenuResources.bundle` | `+bundle`: the resource folder's name in the library's Java resources. | `CYLMenuResources.bundle` |
+| `CYLMenuResources.imageNamed` | `+imageNamed:`: a drawable of the bundle's images (`CYLClassifyMenuResources/<name>@3x.png`, `@2x` or 1x, copied from the iOS asset catalog), scaled like the iOS image (3x as xxhdp | `CYLMenuResources.image(named:)` |
+| `CYLMenuResources.availableLanguages` | `+availableLanguages`, sorted. | `CYLMenuResources.availableLanguages` |
 | `CYLMenuResources.preferredLanguage` | `preferredLanguage`: a language of `availableLanguages()` used instead of the system's; null for the system's. | `CYLMenuResources.preferredLanguage` |
-| `CYLMenuResources.currentLanguage` | `+currentLanguage`: the preferred language when set, else the system language, else English. | `CYLMenuResources +currentLanguage` |
-| `CYLMenuResources.localizedStringForKey` | `+localizedStringForKey:`. | `CYLMenuResources +localizedStringForKey:` |
+| `CYLMenuResources.currentLanguage` | `+currentLanguage`: the preferred language when set, else the system language, else English. | `CYLMenuResources.currentLanguage` |
+| `CYLMenuResources.localizedStringForKey` | `+localizedStringForKey:`. | `CYLMenuResources.localizedString(forKey:)` |
 | `CYLMenuLocalizedStringForKey` | `CYLMenuLocalizedStringForKey` / the macro `CYLMenuLocalizedString(key, comment)`. | `CYLMenuLocalizedString(_:)` |
 | `CYLMenuLocalizedString` | The macro `CYLMenuLocalizedString(key, comment)`: the comment only documents the key. | `CYLMenuLocalizedString` |
 | `CYLMenuImage` | The macro `CYLMenuImage(name)`. | `CYLMenuResources.image(named:)` |
@@ -749,22 +744,22 @@ Rows: 604; matched 597, TODO 7; score 98/100.
 | `CYLMenuStyle.moreButtonImage` | — | `CYLMenuStyle.moreButtonImage` |
 | `CYLMenuStyle.moreButtonColor` | — | `CYLMenuStyle.moreButtonColor` |
 | `CYLMenuStyle.tagContentInsets` | The content insets of every state; reads the normal state's. | `CYLMenuStyle.tagContentInsets` |
-| `CYLMenuStyle.appearanceForState` | `-appearanceForState:`: disabled wins over selected, which wins over normal. | `CYLMenuStyle -appearanceForState:` |
-| `CYLMenuStyle.displayedTitleForTitle` | `-displayedTitleForTitle:`: at most `maximumTitleLength` characters (whole grapheme clusters) then "...", and reversed character by character when `reversesTitleCharacters`. | `CYLMenuStyle -displayedTitleForTitle:` |
-| `CYLMenuStyle.setTitleTextAttributes` | `-setTitleTextAttributes:forState:`: the font and text color of `state` (null resets them). | `CYLMenuStyle -setTitleTextAttributes:forState:` |
-| `CYLMenuStyle.titleTextAttributesForState` | `-titleTextAttributesForState:`: the font and text color of `state`. | `CYLMenuStyle -titleTextAttributesForState:` |
-| `CYLMenuStyle.setIconColor` | `-setIconColor:forState:`. | `CYLMenuStyle -setIconColor:forState:` |
-| `CYLMenuStyle.iconColorForState` | `-iconColorForState:`: the icon color, else the text color. | `CYLMenuStyle -iconColorForState:` |
-| `CYLMenuStyle.titleFontForState` | `-titleFontForState:traitCollection:`; the trait collection is the font scale and Bold Text. | `CYLMenuStyle -titleFontForState:traitCollection:` |
-| `CYLMenuStyle.deleteIndicatorFontForState` | `-deleteIndicatorFontForState:traitCollection:`: `deleteIndicatorFont`, else the title font. | `CYLMenuStyle -deleteIndicatorFontForState:traitCollection:` |
-| `CYLMenuStyle.headerFontForTraitCollection` | `-headerFontForTraitCollection:`. | `CYLMenuStyle -headerFontForTraitCollection:` |
-| `CYLMenuStyle.copy` | NSCopying. | `CYLMenuStyle -copyWith:` |
-| **class `CYLFilterParamsTool`** | `CYLFilterParamsTool`: the state of the multiple filter: the titles per section (`dataSources`) and a selected flag per item (`filterParamsArray`, the first item of each section se | TODO |
-| `CYLFilterParamsTool.dataSources` | The titles, one list per section. | TODO |
+| `CYLMenuStyle.appearanceForState` | `-appearanceForState:`: disabled wins over selected, which wins over normal. | `CYLMenuStyle.appearance(for:)` |
+| `CYLMenuStyle.displayedTitleForTitle` | `-displayedTitleForTitle:`: at most `maximumTitleLength` characters (whole grapheme clusters) then "...", and reversed character by character when `reversesTitleCharacters`. | `CYLMenuStyle.displayedTitle(forTitle:)` |
+| `CYLMenuStyle.setTitleTextAttributes` | `-setTitleTextAttributes:forState:`: the font and text color of `state` (null resets them). | `CYLMenuStyle.setTitleTextAttributes(_:for:)` |
+| `CYLMenuStyle.titleTextAttributesForState` | `-titleTextAttributesForState:`: the font and text color of `state`. | `CYLMenuStyle.titleTextAttributes(for:)` |
+| `CYLMenuStyle.setIconColor` | `-setIconColor:forState:`. | `CYLMenuStyle.setIconColor(_:for:)` |
+| `CYLMenuStyle.iconColorForState` | `-iconColorForState:`: the icon color, else the text color. | `CYLMenuStyle.iconColor(for:)` |
+| `CYLMenuStyle.titleFontForState` | `-titleFontForState:traitCollection:`; the trait collection is the font scale and Bold Text. | `CYLMenuStyle.titleFont(for:traitCollection:)` |
+| `CYLMenuStyle.deleteIndicatorFontForState` | `-deleteIndicatorFontForState:traitCollection:`: `deleteIndicatorFont`, else the title font. | `CYLMenuStyle.deleteIndicatorFont(for:traitCollection:)` |
+| `CYLMenuStyle.headerFontForTraitCollection` | `-headerFontForTraitCollection:`. | `CYLMenuStyle.headerFont(for:)` |
+| `CYLMenuStyle.copy` | NSCopying. | `CYLMenuStyle.copy(with:)` |
+| **class `CYLFilterParamsTool`** | `CYLFilterParamsTool`: the state of the multiple filter: the titles per section (`dataSources`) and a selected flag per item (`filterParamsArray`, the first item of each section se | `CYLFilterParamsTool` |
+| `CYLFilterParamsTool.dataSources` | The titles, one list per section. | `CYLFilterParamsTool.dataSources` |
 | `CYLFilterParamsTool.filterParamsArray` | One selected flag per item; made from `dataSources` (first item selected) on first use. | `CYLMultipleFilterController.selectedIndexPaths()` / `setSelectedIndexPaths(_:)` (index paths instead of flags) |
-| `CYLFilterParamsTool.filterParamsDictionary` | The settings and the modified flag. | TODO |
-| `CYLFilterParamsTool.filterParamsContentDictionary` | Free-form content of the filter ("skilled" by default, as on iOS). | TODO |
-| `CYLFilterParamsTool.filename` | Where the settings are saved: `kMultipleFilterSetting` in the app's files folder (the documents folder on iOS), once `filesDir` is known; set it to choose another file. | TODO |
+| `CYLFilterParamsTool.filterParamsDictionary` | The settings and the modified flag. | `CYLFilterParamsTool.filterParamsDictionary` |
+| `CYLFilterParamsTool.filterParamsContentDictionary` | Free-form content of the filter ("skilled" by default, as on iOS). | `CYLFilterParamsTool.filterParamsContentDictionary` |
+| `CYLFilterParamsTool.filename` | Where the settings are saved: `kMultipleFilterSetting` in the app's files folder (the documents folder on iOS), once `filesDir` is known; set it to choose another file. | `CYLFilterParamsTool.filename` |
 | `CYLFilterParamsTool.filesDir` | The folder `filename` defaults to (an app sets `context.filesDir`). | N/A on iOS: `CYLFilterParamsTool` was removed in the Swift migration (`70dcc816`); `CYLMultipleFilterController` keeps its state (`selectedIndexPaths()` / `setSelectedIndexPaths(_:)`) |
 | **class `CYLFilterCollectionCell`** | `CYLFilterCollectionCell`: an item of the multiple filter: a button with the slide backgrounds (green title, white when selected), not touchable itself (the cell is). | `CYLFilterCollectionCell` |
 | `CYLFilterCollectionCell.titleButton` | — | `CYLFilterCollectionCell.titleButton` |
@@ -772,28 +767,28 @@ Rows: 604; matched 597, TODO 7; score 98/100.
 | `CYLMultipleFilterHeaderView.imageView` | — | `CYLMultipleFilterHeaderView.imageView` |
 | `CYLMultipleFilterHeaderView.titleLabel` | — | `CYLMultipleFilterHeaderView.titleLabel` |
 | **interface `CYLFilterControllerDelegate`** | `CYLFilterControllerDelegate`: the filter panel closed after Apply or Reset. | `CYLFilterControllerDelegate` |
-| `CYLFilterControllerDelegate.filterControllerDidComplete` | `-filterControllerDidComplete:`. | `CYLFilterControllerDelegate -filterControllerDidComplete:` |
+| `CYLFilterControllerDelegate.filterControllerDidComplete` | `-filterControllerDidComplete:`. | `CYLFilterControllerDelegate.filterControllerDidComplete(_:)` |
 | **class `CYLFilterBaseController`** | `CYLFilterBaseController`: a panel that slides in from the leading edge over a dimmed screen, on a blurred capture of the screen, with Reset and Apply buttons at the bottom; tappin | `CYLFilterBaseController` |
 | `CYLFilterBaseController.collectionView` | The panel's scrolling content (the collection view on iOS). | `CYLFilterBaseController.collectionView` |
 | `CYLFilterBaseController.contentView` | The dimmed area beside the panel. | `CYLFilterBaseController.contentView` |
 | `CYLFilterBaseController.restoreButton` | — | `CYLFilterBaseController.restoreButton` |
 | `CYLFilterBaseController.okButton` | — | `CYLFilterBaseController.okButton` |
-| `CYLFilterBaseController.dataSource` | Free-form data of a subclass. | `CYLFilterBaseController.dataSource` |
-| `CYLFilterBaseController.settingArray` | Free-form settings of a subclass. | TODO |
+| `CYLFilterBaseController.dataSource` | Free-form data of a subclass. | `dataSource` (same name in the iOS core) |
+| `CYLFilterBaseController.settingArray` | Free-form settings of a subclass. | `CYLFilterBaseController.settingArray` |
 | `CYLFilterBaseController.delegate` | — | `CYLFilterBaseController.delegate` |
-| `CYLFilterBaseController.showInView` | `-showInView:`: captures and blurs `view` as the panel's background, adds the panel over it and slides it in. | `CYLFilterBaseController -showInView:` |
+| `CYLFilterBaseController.showInView` | `-showInView:`: captures and blurs `view` as the panel's background, adds the panel over it and slides it in. | `CYLFilterBaseController.show(in:)` |
 | `CYLFilterBaseController.hide` | Closes the panel without applying (a tap on the dimmed area). | `hide` (same name in the iOS core) |
-| `CYLFilterBaseController.itemButtonClicked` | `-itemButtonClicked:`: a subclass's item was tapped (nothing in the base class). | `CYLFilterBaseController -itemButtonClicked:` |
-| `CYLFilterBaseController.confirmButtonClicked` | `-confirmButtonClicked:`: closes the panel, then tells the delegate. | `CYLFilterBaseController -confirmButtonClicked:` |
-| `CYLFilterBaseController.restoreButtonClicked` | `-restoreButtonClicked:`: closes like Apply (a subclass resets first). | `CYLFilterBaseController -restoreButtonClicked:` |
-| `CYLFilterBaseController.isShowing` | Whether the panel is on screen. | `isShowing` (same name in the iOS core) |
+| `CYLFilterBaseController.itemButtonClicked` | `-itemButtonClicked:`: a subclass's item was tapped (nothing in the base class). | `itemButtonClicked` (same name in the iOS core) |
+| `CYLFilterBaseController.confirmButtonClicked` | `-confirmButtonClicked:`: closes the panel, then tells the delegate. | `CYLFilterBaseController.confirmButtonClicked(_:)` |
+| `CYLFilterBaseController.restoreButtonClicked` | `-restoreButtonClicked:`: closes like Apply (a subclass resets first). | `CYLFilterBaseController.restoreButtonClicked(_:)` |
+| `CYLFilterBaseController.isShowing` | Whether the panel is on screen. | `CYLFilterBaseController.isShowing` |
 | **class `CYLMultipleFilterController`** | `CYLMultipleFilterController`: the multiple-choice filter: sections of items from a `CYLMenuDataSource`, one or more selected per section, an exclusive item ("All") selected alone; | `CYLMultipleFilterController` |
 | `CYLMultipleFilterController.menuDataSource` | — | `CYLMultipleFilterController.menuDataSource` |
 | `CYLMultipleFilterController.menuDelegate` | — | `CYLMultipleFilterController.menuDelegate` |
-| `CYLMultipleFilterController.refreshFilterParams` | `-refreshFilterParams`: shows the current selection again. | `CYLMultipleFilterController -refreshFilterParams` |
-| `CYLMultipleFilterController.reloadMenuData` | `-reloadMenuData`: reads the data source again; each section selects its first exclusive item. | `CYLMultipleFilterController -reloadMenuData` |
-| `CYLMultipleFilterController.selectedIndexPaths` | `-selectedIndexPaths`. | `CYLMultipleFilterController -selectedIndexPaths` |
-| `CYLMultipleFilterController.setSelectedIndexPaths` | `-setSelectedIndexPaths:`: throws for an invalid item, or an exclusive item selected with another in its section. | `CYLMultipleFilterController -setSelectedIndexPaths:` |
+| `CYLMultipleFilterController.refreshFilterParams` | `-refreshFilterParams`: shows the current selection again. | `CYLMultipleFilterController.refreshFilterParams()` |
+| `CYLMultipleFilterController.reloadMenuData` | `-reloadMenuData`: reads the data source again; each section selects its first exclusive item. | `CYLMultipleFilterController.reloadMenuData()` |
+| `CYLMultipleFilterController.selectedIndexPaths` | `-selectedIndexPaths`. | `CYLMultipleFilterController.selectedIndexPaths()` |
+| `CYLMultipleFilterController.setSelectedIndexPaths` | `-setSelectedIndexPaths:`: throws for an invalid item, or an exclusive item selected with another in its section. | `CYLMultipleFilterController.setSelectedIndexPaths(_:)` |
 | `CYLMultipleFilterController.selectItemAtIndexPath` | Selects or deselects an item as a tap does (the collection view's `didSelectItemAtIndexPath:`). | `CYLMultipleFilterController.collectionView(_:didSelectItemAt:)` (a tap) |
 | `CYLScaledSystemFont` | `CYLScaledSystemFont`: the system font of `pointSize` scaled by `fontScale` (the system font scale, 1 by default), at most `CYLMaximumFontScale` times. | `CYLTagMetrics.scaledSystemFont(ofSize:traitCollection:)` |
 | `CYLTagHeightForFont` | `CYLTagHeightForFont`: at least `minimumHeight`, else the font's line height plus 10. | `CYLTagMetrics.tagHeight(for:minimumHeight:)` |
@@ -823,10 +818,10 @@ Rows: 604; matched 597, TODO 7; score 98/100.
 | `CYLTag.deleteIndicatorColor` | — | `CYLTag.deleteIndicatorColor` |
 | `CYLTag.deleteIndicatorSize` | — | `CYLTag.deleteIndicatorSize` |
 | `CYLTag.colors` | The four colors of the tag; setting it sets them. | `CYLTag.colors` |
-| `CYLTag.resetColors` | Resets `colors` (null_resettable): all four colors to the list's. | TODO |
+| `CYLTag.resetColors` | Resets `colors` (null_resettable): all four colors to the list's. | `CYLTag.resetColors()` |
 | `CYLTag.hasCustomStyle` | Whether the tag changes anything of the list's style. | `CYLTag.hasCustomStyle` |
 | `CYLTag.styleWithBaseStyle` | `-styleWithBaseStyle:`: the tag's style over `baseStyle` (its own `style` when set). | `CYLTag.style(basedOn:)` |
-| `CYLTag.copy` | NSCopying. | `CYLTag.copy` |
+| `CYLTag.copy` | NSCopying. | `CYLTag.copy()` |
 | **class `CYLBadgeDrawable`** | A badge image with the label VoiceOver/TalkBack reads (`UIImage.accessibilityLabel` on iOS). | `UIImage` with `accessibilityLabel` (`CYLTag.swift` badge images) |
 | **class `CYLOriginalImageDrawable`** | `-[UIImage imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal]` for tags: `drawable` drawn in its own colors. | `UIImage.withRenderingMode(.alwaysOriginal)` |
 | `cyl_imageWithRenderingModeAlwaysOriginal` | `imageWithRenderingMode(.alwaysOriginal)`: this drawable, drawn in its own colors by tags (see `CYLOriginalImageDrawable`). | `UIImage.withRenderingMode(.alwaysOriginal)` (`-imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal`) |
@@ -834,13 +829,13 @@ Rows: 604; matched 597, TODO 7; score 98/100.
 | `CYLTagDataSource.tags` | The tags, a copy; setting it replaces them and clears the cached styles. | `CYLTagDataSource.tags` |
 | `CYLTagDataSource.sectionTitle` | — | `CYLTagDataSource.sectionTitle` |
 | `CYLTagDataSource.baseStyle` | The list's style the tags change; the default style when null (null_resettable). | `CYLTagDataSource.baseStyle` |
-| `CYLTagDataSource.addTag` | — | `CYLTagDataSource -addTag:` |
-| `CYLTagDataSource.addTags` | — | `CYLTagDataSource -addTags:` |
-| `CYLTagDataSource.insertTag` | — | `CYLTagDataSource -insertTag:atIndex:` |
-| `CYLTagDataSource.removeTagAtIndex` | — | `CYLTagDataSource -removeTagAtIndex:` |
-| `CYLTagDataSource.removeAllTags` | — | `CYLTagDataSource -removeAllTags` |
-| `CYLTagDataSource.moveTagAtIndex` | — | `CYLTagDataSource -moveTagAtIndex:toIndex:` |
-| `CYLTagDataSource.invalidateStyles` | — | `CYLTagDataSource -invalidateStyles` |
+| `CYLTagDataSource.addTag` | — | `CYLTagDataSource.addTag(_:)` |
+| `CYLTagDataSource.addTags` | — | `CYLTagDataSource.addTags(_:)` |
+| `CYLTagDataSource.insertTag` | — | `CYLTagDataSource.insertTag(_:at:)` |
+| `CYLTagDataSource.removeTagAtIndex` | — | `CYLTagDataSource.removeTag(at:)` |
+| `CYLTagDataSource.removeAllTags` | — | `CYLTagDataSource.removeAllTags()` |
+| `CYLTagDataSource.moveTagAtIndex` | — | `CYLTagDataSource.moveTag(at:to:)` |
+| `CYLTagDataSource.invalidateStyles` | — | `CYLTagDataSource.invalidateStyles()` |
 | **class `CYLTagAppearance`** | `CYLTagAppearance`: the box and text of a tag in one state (normal, selected, disabled). | `CYLTagAppearance` |
 | `CYLTagAppearance.backgroundColor` | null_resettable: white by default. | `CYLTagAppearance.backgroundColor` |
 | `CYLTagAppearance.textColor` | null_resettable: dark gray (white 0.25) by default. | `CYLTagAppearance.textColor` |
@@ -852,7 +847,7 @@ Rows: 604; matched 597, TODO 7; score 98/100.
 | `CYLTagAppearance.margin` | The larger of the left and right content insets; setting it sets both. | `CYLTagAppearance.margin` |
 | `CYLTagAppearance.contentInsets` | — | `CYLTagAppearance.contentInsets` |
 | `CYLTagAppearance.backgroundImage` | — | `CYLTagAppearance.backgroundImage` |
-| `CYLTagAppearance.reset` | Resets the colors and font to null (the defaults) and the lengths to their defaults. | `CYLTagAppearance -reset` |
+| `CYLTagAppearance.reset` | Resets the colors and font to null (the defaults) and the lengths to their defaults. | `CYLTagAppearance.reset()` |
 | `CYLTagAppearance.resetBackgroundColor` | Resets the background color to its default (null_resettable). | `CYLTagAppearance.defaultBackgroundColor` |
 | `CYLTagAppearance.resetTextColor` | Resets the text color to its default (null_resettable). | `CYLTagAppearance.defaultTextColor` |
 | `CYLTagAppearance.resetFont` | Resets the font to its default (null_resettable). | `CYLTagAppearance.defaultFont` |
@@ -870,42 +865,42 @@ Rows: 604; matched 597, TODO 7; score 98/100.
 | `CYLTagButton.animationURL` | An animation file for the engine (Lottie, PAG, Rive, GIF); ignored when the engine is not linked. | `CYLTagButton.animationURL` |
 | `CYLTagButton.animationRestingProgress` | Where an unselected animation rests, 0…1 (0: the first frame). | `CYLTagButton.animationRestingProgress` |
 | `CYLTagButton.showsDeleteIndicator` | — | `CYLTagButton.showsDeleteIndicator` |
-| `CYLTagButton.isHighlighted` | `isHighlighted`: pressed. | `CYLTagButton.isHighlighted` |
+| `CYLTagButton.isHighlighted` | `isHighlighted`: pressed. | `isHighlighted` (same name in the iOS core) |
 | `CYLTagButton.animationSpeed` | `animationSpeed`: the playback speed of the animated icon, applied at once, also to an animation that is playing. | `CYLTagButton.animationSpeed` |
 | `CYLTagButton.animationLoops` | `animationLoops`: true repeats the animated icon after `playAnimation()` until it is false, the selection changes or the file changes; false (the default) plays once. | `CYLTagButton.animationLoops` |
-| `CYLTagButton.playAnimation` | Plays the animated icon from its start (not with Remove animations / Reduce Motion); with `animationLoops`, it repeats. | `CYLTagButton.playAnimation` |
+| `CYLTagButton.playAnimation` | Plays the animated icon from its start (not with Remove animations / Reduce Motion); with `animationLoops`, it repeats. | `CYLTagButton.playAnimation()` |
 | **object `CYLAccessibility`** | The system accessibility settings the core follows: Reduce Motion (Remove animations) and Increase Contrast (High contrast text). | `UIAccessibility` (UIKit) |
 | `CYLAccessibility.isReduceMotionEnabled` | `UIAccessibilityIsReduceMotionEnabled()`: the animator duration scale is 0. | `UIAccessibility.isReduceMotionEnabled` (`UIAccessibilityIsReduceMotionEnabled()`) |
 | `CYLAccessibility.isIncreaseContrastEnabled` | `UIAccessibilityDarkerSystemColorsEnabled()`: High contrast text. | `UIAccessibility.isDarkerSystemColorsEnabled` (`UIAccessibilityDarkerSystemColorsEnabled()`) |
 | **enum `CYLTagColorTheme`** | `CYLTagColorTheme`: AndroidTagView's `tag_theme`. | `CYLTagColorTheme` |
-| `CYLTagColorTheme.CYLTagColorThemeNone` | — | `CYLTagColorThemeNone` (same name in the iOS core) |
-| `CYLTagColorTheme.CYLTagColorThemeRandom` | — | `CYLTagColorThemeRandom` (same name in the iOS core) |
-| `CYLTagColorTheme.CYLTagColorThemePureCyan` | — | `CYLTagColorThemePureCyan` (same name in the iOS core) |
-| `CYLTagColorTheme.CYLTagColorThemePureTeal` | — | `CYLTagColorThemePureTeal` (same name in the iOS core) |
+| `CYLTagColorTheme.CYLTagColorThemeNone` | — | `CYLTagColorThemeNone` |
+| `CYLTagColorTheme.CYLTagColorThemeRandom` | — | `CYLTagColorThemeRandom` |
+| `CYLTagColorTheme.CYLTagColorThemePureCyan` | — | `CYLTagColorThemePureCyan` |
+| `CYLTagColorTheme.CYLTagColorThemePureTeal` | — | `CYLTagColorThemePureTeal` |
 | **class `CYLTagColors`** | `CYLTagColors`: the four colors of a tag (background, border, text, selected background), AndroidTagView's ColorFactory: a theme, a random palette color, or your own. | `CYLTagColors` |
 | `CYLTagColors.styleByApplyingToStyle` | `-styleByApplyingToStyle:`: a copy of `style` (the default style when null) with these colors. | `CYLTagColors.styleByApplying(to:)` |
 | **class `CYLTagCreateCell`** | `CYLTagCreateCell`: the "+ New tag" item: an outlined tag with a plus; it shows the typed name ("+ New tag "name""). | `CYLTagCreateCell` |
-| `CYLTagCreateCell.configureWithName` | `-configureWithName:style:enabled:`. | `CYLTagCreateCell -configureWithName:style:enabled:` |
+| `CYLTagCreateCell.configureWithName` | `-configureWithName:style:enabled:`. | `CYLTagCreateCell.configure(name:style:isEnabled:)` |
 | **class `CYLTagFoldButton`** | `CYLTagFoldButton`: a section's fold control as a tag button: its title and chevron, turned when expanded. | `CYLTagFoldButton` |
 | `CYLTagFoldButton.foldControl` | — | `CYLTagFoldButton.foldControl` |
-| `CYLTagFoldButton.isExpanded` | — | `CYLTagFoldButton.expanded` |
-| `CYLTagFoldButton.applyInlineFoldControl` | — | `CYLTagFoldButton -applyInlineFoldControl:itemStyle:expanded:animated:` |
-| `CYLTagFoldButton.applyFoldControl` | — | `CYLTagFoldButton -applyFoldControl:color:expanded:animated:` |
+| `CYLTagFoldButton.isExpanded` | — | `CYLTagFoldButton.isExpanded` |
+| `CYLTagFoldButton.applyInlineFoldControl` | — | `applyInlineFoldControl` (same name in the iOS core) |
+| `CYLTagFoldButton.applyFoldControl` | — | `CYLTagFoldButton.applyFoldControl(_:color:expanded:animated:)` |
 | **class `CYLTagFoldCell`** | `CYLTagFoldCell`: the inline fold control of a section, as the last item of its folded rows. | `CYLTagFoldCell` |
 | `CYLTagFoldCell.foldButton` | — | `CYLTagFoldCell.foldButton` |
-| `CYLTagFoldCell.configureWithFoldControl` | `-configureWithFoldControl:itemStyle:expanded:animated:`. | `CYLTagFoldCell -configureWithFoldControl:itemStyle:expanded:animated:` |
+| `CYLTagFoldCell.configureWithFoldControl` | `-configureWithFoldControl:itemStyle:expanded:animated:`. | `CYLTagFoldCell.configure(foldControl:itemStyle:expanded:animated:)` |
 | **class `CYLAccessibilityAction`** | `UIAccessibilityCustomAction`: a named action TalkBack, Switch Access and Voice Access offer on a view. | `UIAccessibilityCustomAction` |
-| `cyl_viewsWithAccessibilityIdentifier` | Finds the descendants (and this view) whose `cyl_accessibilityIdentifier` is `identifier`. | `UIView (CYLGeneral) -cyl_viewsWithAccessibilityIdentifier:` |
+| `cyl_viewsWithAccessibilityIdentifier` | Finds the descendants (and this view) whose `cyl_accessibilityIdentifier` is `identifier`. | `UIView.cyl_viewsWithAccessibilityIdentifier(_:)` |
 | **class `CYLTagListCell`** | `CYLTagListCell`: the cell of a tag in a `CYLTagListView`: a `CYLTagButton` filling it, a delete control over the button's delete indicator, the touch ripple of the style (AndroidT | `CYLTagListCell` |
 | `CYLTagListCell.button` | — | `CYLTagListCell.button` |
 | `CYLTagListCell.appliedStyle` | The style last applied to `button` (held weakly on iOS: compared by identity only). | `CYLTagListCell.appliedStyle` |
-| `CYLTagListCell.deletable` | — | `CYLTagListCell.deletable` |
-| `CYLTagListCell.deleteHandler` | — | `deleteHandler` (same name in the iOS core) |
+| `CYLTagListCell.deletable` | — | `CYLTagListCell.isDeletable` |
+| `CYLTagListCell.deleteHandler` | — | `CYLTagListCell.deleteHandler` |
 | `CYLTagListCell.additionalAccessibilityActions` | — | `CYLTagListCell.additionalAccessibilityActions` |
 | `CYLTagListCell.accessibilityHint` | `accessibilityHint` of the cell. | `UIView.accessibilityHint` of the cell |
-| `CYLTagListCell.showRippleAtPoint` | `-showRippleAtPoint:`: the style's ripple from `point` (dp), unless there is no ripple color or Reduce Motion. | `CYLTagListCell -showRippleAtPoint:` |
+| `CYLTagListCell.showRippleAtPoint` | `-showRippleAtPoint:`: the style's ripple from `point` (dp), unless there is no ripple color or Reduce Motion. | `CYLTagListCell.showRipple(at:)` |
 | `CYLTagListCell.prepareForReuse` | `-prepareForReuse`. | `prepareForReuse` (same name in the iOS core) |
-| `CYLTagListCell.configureWithTitle` | `-configureWithTitle:image:selectedImage:animationURL:style:selected:enabled:`. | `CYLTagListCell -configureWithTitle:image:selectedImage:animationURL:style:selected:enabled:` |
+| `CYLTagListCell.configureWithTitle` | `-configureWithTitle:image:selectedImage:animationURL:style:selected:enabled:`. | `CYLTagListCell.configure(title:image:selectedImage:animationURL:style:isSelected:isEnabled:)` |
 | **enum `CYLMenuSelectionMode`** | `CYLMenuSelectionMode`. | `CYLMenuSelectionMode` |
 | **enum `CYLMenuTitlePosition`** | `CYLMenuTitlePosition`: where the list's title sits. | `CYLMenuTitlePosition` |
 | **enum `CYLMenuFoldStyle`** | `CYLMenuFoldStyle`: the older form of `CYLMenuFoldControl`, and truncation (AndroidTagView's max lines). | `CYLMenuFoldStyle` |
@@ -927,8 +922,8 @@ Rows: 604; matched 597, TODO 7; score 98/100.
 | `CYLTagListView.defaultVisibleRows` | Rows a folded section shows (1 by default). | `CYLTagListView.defaultVisibleRows` |
 | `CYLTagListView.isScrollEnabled` | Whether the list scrolls (off inside another scrolling container: it then reports its height). | `CYLTagListView.isScrollEnabled` |
 | `CYLTagListView.contentHeight` | The height of all sections and the title for the current width, dp. | `CYLTagListView.contentHeight` |
-| `CYLTagListView.reloadMenuData` | `-reloadMenuData`: reads the data source again and lays the list out. | `CYLTagListView.reloadMenuData` |
-| `CYLTagListView.heightThatFitsWidth` | `-heightThatFitsWidth:`: the height of the title and every section at `width` dp. | `CYLTagListView.heightThatFitsWidth` |
+| `CYLTagListView.reloadMenuData` | `-reloadMenuData`: reads the data source again and lays the list out. | `CYLTagListView.reloadMenuData()` |
+| `CYLTagListView.heightThatFitsWidth` | `-heightThatFitsWidth:`: the height of the title and every section at `width` dp. | `CYLTagListView.heightThatFitsWidth(_:)` |
 | `CYLTagListView.lineSpacing` | — | `CYLTagListView.lineSpacing` |
 | `CYLTagListView.interitemSpacing` | — | `CYLTagListView.interitemSpacing` |
 | `CYLTagListView.tagContentInsets` | — | `CYLTagListView.tagContentInsets` |
@@ -938,12 +933,12 @@ Rows: 604; matched 597, TODO 7; score 98/100.
 | `CYLTagListView.tagContentInsetRight` | — | `CYLTagListView.tagContentInsetRight` |
 | `CYLTagListView.tagDataSource` | The `CYLTagDataSource` the `addTag…` methods fill (made on first use). | `CYLTagListView.tagDataSource` |
 | `CYLTagListView.tags` | The tags of `tagDataSource`. | `CYLTagListView.tags` |
-| `CYLTagListView.addTag` | — | `CYLTagListView.addTag` |
-| `CYLTagListView.addTags` | — | `CYLTagListView.addTags` |
+| `CYLTagListView.addTag` | — | `CYLTagListView.addTag(_:)` |
+| `CYLTagListView.addTags` | — | `CYLTagListView.addTags(_:)` |
 | `CYLTagListView.addTagsWithTitles` | — | `CYLTagListView.addTags(withTitles:)` |
-| `CYLTagListView.insertTag` | — | `CYLTagListView.insertTag` |
+| `CYLTagListView.insertTag` | — | `CYLTagListView.insertTag(_:at:)` |
 | `CYLTagListView.removeTagAtIndex` | — | `CYLTagListView.removeTag(at:)` |
-| `CYLTagListView.removeAllTags` | — | `CYLTagListView.removeAllTags` |
+| `CYLTagListView.removeAllTags` | — | `CYLTagListView.removeAllTags()` |
 | `CYLTagListView.tagClickHandler` | — | `CYLTagListView.tagClickHandler` |
 | `CYLTagListView.tagDeleteHandler` | — | `CYLTagListView.tagDeleteHandler` |
 | `CYLTagListView.deleteItemAtIndexPath` | `-deleteItemAtIndexPath:`: removes it (when `removesItemsOnDelete`) and tells the delegate. | `CYLTagListView.deleteItem(at:)` |
@@ -958,16 +953,16 @@ Rows: 604; matched 597, TODO 7; score 98/100.
 | `CYLTagListView.tagButtonAtIndexPath` | `-tagButtonAtIndexPath:`: the button of a visible tag, or null. | `CYLTagListView.tagButton(at:)` |
 | `CYLTagListView.animationSpeed` | `animationSpeed`: the playback speed of every animated icon, applied at once, also to animations that are playing, without reloading the list. | `CYLTagListView.animationSpeed` |
 | `CYLTagListView.animationLoops` | `animationLoops`: true repeats the animated icons after they start playing (a tap, `playAllAnimations()`) until it is false; false (the default) plays them once. | `CYLTagListView.animationLoops` |
-| `CYLTagListView.playAllAnimations` | `-playAllAnimations`: plays the animated icon of every tag from its start (progress 0), whatever its selection. | `CYLTagListView.playAllAnimations` |
+| `CYLTagListView.playAllAnimations` | `-playAllAnimations`: plays the animated icon of every tag from its start (progress 0), whatever its selection. | `CYLTagListView.playAllAnimations()` |
 | `CYLTagListView.tagLongPressHandler` | — | `CYLTagListView.tagLongPressHandler` |
 | `CYLTagListView.longPressAccessibilityActionName` | — | `CYLTagListView.longPressAccessibilityActionName` |
 | `CYLTagListView.allowsReordering` | — | `CYLTagListView.allowsReordering` |
 | `CYLTagListView.reorderingSensitivity` | Higher is quicker: the long press before a drag lasts 0.5 s / sensitivity. | `CYLTagListView.reorderingSensitivity` |
 | `CYLTagListView.reordering` | — | `CYLTagListView.isReordering` |
-| `CYLTagListView.isReordering` | `isReordering`. | `CYLTagListView.isReordering` |
+| `CYLTagListView.isReordering` | `isReordering`. | `isReordering` (same name in the iOS core) |
 | `CYLTagListView.tagMoveHandler` | — | `CYLTagListView.tagMoveHandler` |
 | `CYLTagListView.selectedTagDragHandler` | — | `CYLTagListView.selectedTagDragHandler` |
-| `CYLTagListView.replaceTags` | — | `CYLTagListView.replaceTags` |
+| `CYLTagListView.replaceTags` | — | `CYLTagListView.replaceTags(_:)` |
 | `CYLTagListView.setTagsWithTitles` | — | `CYLTagListView.setTags(withTitles:colors:)` |
 | `CYLTagListView.addTagWithTitle` | — | `CYLTagListView.addTag(withTitle:)` |
 | `CYLTagListView.insertTagWithTitle` | — | `CYLTagListView.insertTag(withTitle:at:)` |
@@ -977,59 +972,59 @@ Rows: 604; matched 597, TODO 7; score 98/100.
 | `CYLTagListView.selectedIndexPaths` | The selected items, sorted; setting an invalid one throws, as on iOS. | `CYLTagListView.selectedIndexPaths` |
 | `CYLTagListView.selectItemAtIndexPath` | — | `CYLTagListView.selectItem(at:)` |
 | `CYLTagListView.deselectItemAtIndexPath` | — | `CYLTagListView.deselectItem(at:)` |
-| `CYLTagListView.deselectAllItems` | — | `CYLTagListView.deselectAllItems` |
-| `CYLTagListView.canFoldSection` | — | `CYLTagListView.canFoldSection` |
+| `CYLTagListView.deselectAllItems` | — | `CYLTagListView.deselectAllItems()` |
+| `CYLTagListView.canFoldSection` | — | `CYLTagListView.canFoldSection(_:)` |
 | `CYLTagListView.numberOfRowsInSection` | — | `CYLTagListView.numberOfRows(inSection:)` |
-| `CYLTagListView.isSectionExpanded` | — | `CYLTagListView.isSectionExpanded` |
+| `CYLTagListView.isSectionExpanded` | — | `CYLTagListView.isSectionExpanded(_:)` |
 | `CYLTagListView.numberOfVisibleItemsInSection` | — | `CYLTagListView.numberOfVisibleItems(inSection:)` |
-| `CYLTagListView.setExpanded` | — | `CYLTagListView.setExpanded` |
+| `CYLTagListView.setExpanded` | — | `CYLTagListView.setExpanded(_:forSection:animated:)` |
 | `CYLTagListView.scrollToSection` | `-scrollToSection:animated:`. | `CYLTagListView.scroll(toSection:animated:)` |
 | `CYLTagListView.scrollToItemAtIndexPath` | `-scrollToItemAtIndexPath:animated:`: centers a visible item. | `CYLTagListView.scrollToItem(at:animated:)` |
-| **enum `CYLMenuConfigurationError`** | `CYLMenuConfigurationError`: why a configuration file could not be read. | `Code` |
+| **enum `CYLMenuConfigurationError`** | `CYLMenuConfigurationError`: why a configuration file could not be read. | `CYLMenuConfigurationError` |
 | `CYLMenuConfigurationError.CYLMenuConfigurationErrorFileNotFound` | — | `Code.fileNotFound` |
 | `CYLMenuConfigurationError.CYLMenuConfigurationErrorInvalidContents` | — | `Code.invalidContents` |
 | `CYLMenuConfigurationError.CYLMenuConfigurationErrorUnsupportedFormat` | — | `Code.unsupportedFormat` |
 | **class `CYLMenuConfigurationException`** | The exception thrown where iOS returns an `NSError` of `CYLMenuConfigurationErrorDomain`. | `CYLMenuConfigurationError` thrown as `NSError` (domain `CYLMenuConfigurationErrorDomain`) |
 | `CYLMenuConfigurationException.domain` | Always `CYLMenuConfigurationErrorDomain`. | `CYLMenuConfigurationError.errorDomain` (`"CYLMenuConfigurationErrorDomain"`) |
 | `CYLMenuAnimationURLWithOptions` | `CYLMenuAnimationURLWithOptions`: `fileURL` with `options` as its fragment ("name=value&…", names sorted, percent encoded), which the animation engine reads (Rive's artboard and st | `URL.cylAddingAnimationOptions(_:)` |
-| `foldControlWithConfiguration` | `CYLMenuFoldControl (CYLConfiguration) +foldControlWithConfiguration:`: a copy of a fold control, a control for a position name (with the position's usual content), or one built fr | `CYLMenuFoldControl (CYLConfiguration) +foldControlWithConfiguration:` |
-| `applyConfiguration` | `CYLMenuFoldControl (CYLConfiguration) -applyConfiguration:`: sets the values the dictionary holds. | `CYLTagListView (CYLConfiguration) -applyConfiguration:` |
-| `styleWithConfiguration` | `CYLMenuStyle (CYLConfiguration) +styleWithConfiguration:`: the default style with the dictionary applied. | `CYLMenuStyle (CYLConfiguration) +styleWithConfiguration:` |
-| `tagWithConfiguration` | `CYLTag (CYLConfiguration) +tagWithConfiguration:`: a tag from an item dictionary (id, title, images, animation, enabled, deletable, style). | `CYLTag (CYLConfiguration) +tagWithConfiguration:` |
-| `tagListViewWithConfiguration` | `-initWithConfiguration:` / `+tagListViewWithConfiguration:`: a list with the configuration applied. | `CYLTagListView (CYLConfiguration) +tagListViewWithConfiguration:` |
-| `configurationWithContentsOfFile` | `+configurationWithContentsOfFile:error:`: reads a JSON file or an XML property list (a path, a `file:` / `content:` URI, or a path inside the app's assets). | `CYLTagListView (CYLConfiguration) +configurationWithContentsOfFile:error:` |
+| `foldControlWithConfiguration` | `CYLMenuFoldControl (CYLConfiguration) +foldControlWithConfiguration:`: a copy of a fold control, a control for a position name (with the position's usual content), or one built fr | `CYLMenuFoldControl(configuration:)` |
+| `applyConfiguration` | `CYLMenuFoldControl (CYLConfiguration) -applyConfiguration:`: sets the values the dictionary holds. | `CYLMenuFoldControl.applyConfiguration(_:)` |
+| `styleWithConfiguration` | `CYLMenuStyle (CYLConfiguration) +styleWithConfiguration:`: the default style with the dictionary applied. | `CYLMenuStyle(configuration:)` |
+| `tagWithConfiguration` | `CYLTag (CYLConfiguration) +tagWithConfiguration:`: a tag from an item dictionary (id, title, images, animation, enabled, deletable, style). | `CYLTag(configuration:)` |
+| `tagListViewWithConfiguration` | `-initWithConfiguration:` / `+tagListViewWithConfiguration:`: a list with the configuration applied. | `CYLTagListView(configuration:)` |
+| `configurationWithContentsOfFile` | `+configurationWithContentsOfFile:error:`: reads a JSON file or an XML property list (a path, a `file:` / `content:` URI, or a path inside the app's assets). | `CYLTagListView.configuration(contentsOfFile:)` |
 | `tagListViewWithConfigurationFile` | `-initWithConfigurationFile:error:` / `+tagListViewWithConfigurationFile:error:`. | `CYLTagListView(configurationFile:)` (`throws`) |
 | **class `CYLTagModel`** | `CYLTagModel`: a tag's title and its size: the title's width at 17 sp plus 50, and the height of that font (at least 35), dp. | `CYLTagModel` |
 | `CYLTagModel.title` | The title; setting it measures the tag again. | `CYLTagModel.title` |
 | `CYLTagModel.width` | — | `CYLTagModel.width` |
 | `CYLTagModel.height` | — | `CYLTagModel.height` |
-| `CYLTagModel.updateSizeForTraitCollection` | `-updateSizeForTraitCollection:`: measures the tag at `fontScale` (null: the system's text size). | `CYLTagModel -updateSizeForTraitCollection:` |
+| `CYLTagModel.updateSizeForTraitCollection` | `-updateSizeForTraitCollection:`: measures the tag at `fontScale` (null: the system's text size). | `CYLTagModel.updateSize(for:)` |
 | **class `CYLTagGroup`** | `CYLTagGroup`: a section of a `CYLTagView`: its name, its tags, whether it is opened, and how many tags fit on its first row (dp). | `CYLTagGroup` |
 | `CYLTagGroup.groupName` | — | `CYLTagGroup.groupName` |
 | `CYLTagGroup.width` | The width of the view, dp (0 until laid out: then the screen's width). | `CYLTagGroup.width` |
 | `CYLTagGroup.height` | The header's height, dp (38). | `CYLTagGroup.height` |
-| `CYLTagGroup.opened` | Whether every tag shows (`isOpened`). | `CYLTagGroup.opened` |
+| `CYLTagGroup.opened` | Whether every tag shows (`isOpened`). | `CYLTagGroup.isOpened` |
 | `CYLTagGroup.isOpened` | `isOpened`. | `isOpened` (same name in the iOS core) |
 | `CYLTagGroup.section` | — | `CYLTagGroup.section` |
-| `CYLTagGroup.itemArr` | The tags; setting them computes the rows again. | `CYLTagGroup.itemArr` |
+| `CYLTagGroup.itemArr` | The tags; setting them computes the rows again. | `CYLTagGroup.items` |
 | `CYLTagGroup.firstRowCount` | — | `CYLTagGroup.cellCountsPerRow.first` (computed on iOS, stored on Android) |
-| `CYLTagGroup.cellsCountArrayPerRowInSections` | The number of tags of each row at the view's width. | `CYLTagGroup.cellsCountArrayPerRowInSections` |
-| `CYLTagGroup.firstRowCellCountForContentWidth` | `-firstRowCellCountForContentWidth:`: how many tags fit on the first row of `contentWidth` dp. | `CYLTagGroup -firstRowCellCountForContentWidth:` |
+| `CYLTagGroup.cellsCountArrayPerRowInSections` | The number of tags of each row at the view's width. | `CYLTagGroup.cellCountsPerRow` |
+| `CYLTagGroup.firstRowCellCountForContentWidth` | `-firstRowCellCountForContentWidth:`: how many tags fit on the first row of `contentWidth` dp. | `CYLTagGroup.firstRowCellCount(forContentWidth:)` |
 | **class `CYLTagCell`** | `CYLTagCell`: a tag: white text on a blue pill (the XIB's label). | `CYLTagCell` |
 | `CYLTagCell.model` | The tag shown. | `CYLTagCell.model` |
 | **interface `CYLTagHeaderCellDelegate`** | `CYLTagHeaderCellDelegate`: the header's button was tapped. | `CYLTagHeaderCellDelegate` |
-| `CYLTagHeaderCellDelegate.headerViewDidTapNameView` | `-headerViewDidTapNameView:index:`. | `CYLTagHeaderCellDelegate -headerViewDidTapNameView:index:` |
+| `CYLTagHeaderCellDelegate.headerViewDidTapNameView` | `-headerViewDidTapNameView:index:`. | `CYLTagHeaderCellDelegate.tagHeaderCell(_:didToggleGroupInSection:)` |
 | **class `CYLTagHeaderCell`** | `CYLTagHeaderCell`: a section header: the group's name and a More / Less button that opens or closes the group. | `CYLTagHeaderCell` |
 | `CYLTagHeaderCell.delegate` | — | `CYLTagHeaderCell.delegate` |
 | `CYLTagHeaderCell.group` | The group shown. | `CYLTagHeaderCell.group` |
 | `CYLTagHeaderCell.btnClick` | `-btnClick`: opens or closes the group and tells the delegate. | `btnClick` (same name in the iOS core) |
 | **class `CYLTagView`** | `CYLTagView`: the sections of a `CYLMenuDataSource` as blue tags in left-aligned rows, each section showing its first row until its header's More button opens it. | `CYLTagView` |
-| `CYLTagView.showHeader` | Whether the section headers show (`isShowHeader`). | `CYLTagView.showHeader` |
+| `CYLTagView.showHeader` | Whether the section headers show (`isShowHeader`). | `CYLTagView.isShowHeader` |
 | `CYLTagView.isShowHeader` | `isShowHeader`. | `isShowHeader` (same name in the iOS core) |
 | `CYLTagView.groups` | The sections, made by `reloadMenuData`. | `CYLTagView.groups` |
 | `CYLTagView.menuDataSource` | — | `CYLTagView.menuDataSource` |
 | `CYLTagView.menuDelegate` | — | `CYLTagView.menuDelegate` |
-| `CYLTagView.reloadMenuData` | `-reloadMenuData`: reads the data source again. | `CYLTagView -reloadMenuData` |
+| `CYLTagView.reloadMenuData` | `-reloadMenuData`: reads the data source again. | `CYLTagView.reloadMenuData()` |
 | `CYLTagView.numberOfVisibleItemsInSection` | The number of tags a section shows now (for tests). | `CYLTagView.numberOfVisibleItems(inSection:)` (`-numberOfVisibleItemsInSection:`) |
 | **class `CYLEdgeInsets`** | The Android forms of the UIKit value types the iOS API uses. | `UIEdgeInsets` (UIKit; Android stand-in) |
 | **class `CYLSize`** | `CGSize` in dp. | `CGSize` (Core Graphics; Android stand-in) |
