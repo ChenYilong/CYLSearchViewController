@@ -19,6 +19,7 @@ Pod::Spec.new do |s|
   # The native core: CYLSearchViewController (Swift, it brings CollectionViewClassifyMenu and CYLTableViewPlaceHolder).
   s.dependency "CYLSearchViewController"
   s.dependency "CollectionViewClassifyMenu"
+  s.dependency "CYLAnimatedItem"
   s.static_framework = true
 
   install_modules_dependencies(s)

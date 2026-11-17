@@ -10,23 +10,6 @@
 using namespace facebook::react;
 
 @interface CylsearchView () <CYLSearchViewDelegate, CYLSearchViewDataSource>
-#pragma mark - CYLSearchViewDataSource
-
-- (NSArray *)searchView:(CYLSearchView *)searchView resultsForQuery:(NSString *)query
-{
-  // JavaScript filters: the `results` prop already belongs to the current query.
-  return _results ?: @[];
-}
-
-- (void)searchView:(CYLSearchView *)searchView configureResultCell:(UITableViewCell *)cell withResult:(id)result
-{
-  UIListContentConfiguration *configuration = [cell defaultContentConfiguration];
-  configuration.text = [result isKindOfClass:[NSString class]] ? result : [result description];
-  configuration.textProperties.numberOfLines = 0;
-  cell.contentConfiguration = configuration;
-  cell.accessibilityTraits |= UIAccessibilityTraitButton;
-}
-
 @end
 
 /*!
@@ -235,5 +218,6 @@ using namespace facebook::react;
   cell.contentConfiguration = configuration;
   cell.accessibilityTraits |= UIAccessibilityTraitButton;
 }
+
 
 @end

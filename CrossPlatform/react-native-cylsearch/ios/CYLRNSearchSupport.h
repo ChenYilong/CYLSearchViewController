@@ -1,4 +1,6 @@
 #import <UIKit/UIKit.h>
+// CYLTagButton's superclass, CYLAnimatedItemView: Objective-C++ cannot use the Swift header's @import, so it comes first.
+#import <CYLAnimatedItem/CYLAnimatedItem.h>
 #import <CollectionViewClassifyMenu/CollectionViewClassifyMenu-Swift.h>
 // The types the generated Swift header uses (CYLPlaceholderScenario, CYLTagListView) come first.
 #import <CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.h>

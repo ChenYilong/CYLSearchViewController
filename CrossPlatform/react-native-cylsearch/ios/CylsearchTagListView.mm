@@ -35,9 +35,9 @@ using namespace facebook::react;
     _tagListView.showsSectionHeaders = NO;
     _tagListView.menuDelegate = self;
     // The React Native screen shows through, as around any other view.
-    CYLMenuStyle *style = [_tagListView.style copy];
-    style.backgroundColor = UIColor.clearColor;
-    _tagListView.style = style;
+    // CYLMenuStyle's backgroundColor is Swift-only since CollectionViewClassifyMenu's Swift core (27e17e7): set it
+    // through the configuration keys, which Objective-C can reach.
+    [_tagListView applyConfiguration:@{@"style": @{@"backgroundColor": UIColor.clearColor}}];
     __weak __typeof(self) weakSelf = self;
     // Objective-C's tagClickHandler (index and title; the Swift one passes a CYLTag): every accepted tap, as on Android.
     _tagListView.tagClickHandler = ^(NSInteger index, NSString *title) {
@@ -53,7 +53,7 @@ using namespace facebook::react;
   const auto &p = *std::static_pointer_cast<CylsearchTagListViewProps const>(props);
   _tagListView.overrideUserInterfaceStyle = CYLRNInterfaceStyle(CYLRNString(p.colorScheme));
   _tagListView.foldControl = CYLRNFoldControl(CYLRNString(p.foldControlPosition), CYLRNString(p.foldControlContent));
-  _tagListView.defaultVisibleRows = (NSUInteger)MAX(0, p.foldedRowCount);
+  _tagListView.defaultVisibleRows = MAX(0, p.foldedRowCount);
   [_tagListView setTagsWithTitles:CYLRNStrings(p.tags)];
   [super updateProps:props oldProps:oldProps];
   [self setNeedsLayout];
