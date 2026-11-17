@@ -305,3 +305,6 @@
 - **Pin update** (2026-11-17): CollectionViewClassifyMenu `98182e8` → `4622434` (its newest commit: MIT license in
   every package, `d0c82cb` / `f752b6c`; CYLTabBarController pins back at `fbd05d5` until PR #814 is merged, recorded in
   its AGENTS.md). CYLTabBarController stays `fbd05d5` here too.
+- **PR #814 merged** (2026-11-17): the owner merged it into `feat/cross-platform-components` (PR #788, `9a54e26`), so
+  CYLTabBarController moves from `fbd05d5` to `9a54e26`, the branch tip, and CollectionViewClassifyMenu to `6ee254c`
+  (the same pin). `47aec88` (engine report, on the merged PR's branch, not in #788) waits until it is merged.
