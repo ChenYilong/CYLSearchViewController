@@ -326,3 +326,4 @@
 - **Adjusted**: nothing in this repository needed the module workaround (its Podfiles build frameworks).
   CollectionViewClassifyMenu dropped its `:modular_headers` workaround (`4171135`), pinned here. Pending CI.
 - **Pin** (2026-11-17): CollectionViewClassifyMenu `b4d0e51` (its example's engine report; no core change).
+- **Pins** (2026-11-17): CYLTabBarController `d875dd1` (#788 tip: remote GIF/PAG downloads, late-failure fallback); CollectionViewClassifyMenu `320c3eb` (re-export of `CYLAnimatedItem`, the Android menu buttons and filter header on `CYLTagButton`, the same pin).
