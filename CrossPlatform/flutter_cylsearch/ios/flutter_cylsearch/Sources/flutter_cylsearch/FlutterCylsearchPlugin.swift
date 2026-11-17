@@ -1,6 +1,7 @@
 import CollectionViewClassifyMenu
-// CYLTableViewPlaceHolder (the empty results placeholder and the refresh header) comes only through the core: its
-// types are used through `CYLSearchView`'s API, never imported here.
+// CYLTableViewPlaceHolder: the core's placeholder sub-dependency; imported for `CYLPlaceholderScenario`, the type of
+// `CYLSearchView.emptyResultsScenario` (Swift does not see a dependency's types through the core).
+import CYLTableViewPlaceHolder
 import CYLSearchViewController
 import Flutter
 import UIKit
