@@ -325,3 +325,4 @@
   document) and updates failure case (4) to match; the branch tip is still `0a63bed`, already pinned.
 - **Adjusted**: nothing in this repository needed the module workaround (its Podfiles build frameworks).
   CollectionViewClassifyMenu dropped its `:modular_headers` workaround (`4171135`), pinned here. Pending CI.
+- **Pin** (2026-11-17): CollectionViewClassifyMenu `b4d0e51` (its example's engine report; no core change).
