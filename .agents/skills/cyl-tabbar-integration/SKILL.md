@@ -29,6 +29,8 @@ scripts/latest-cyl-commit.sh            # <sha> <date> <branch>, newest on any b
 scripts/latest-cyl-commit.sh --podfile  # the Podfile line
 ```
 
+A pull request branch that is already merged into the newest branch does not count, even when it gets a newer commit afterwards: pin the newest branch's tip, and move once that newer commit is merged there (owner's decision, 2026-11-17: `9a54e26`, the merge of PR #814 into PR #788, not `47aec88`). CYLSearchViewController and CollectionViewClassifyMenu pin the same commit.
+
 ```ruby
 target 'CYLSearchExample' do
   use_frameworks!

@@ -253,6 +253,7 @@ CYLTabBarController's `AGENTS.md` and `cyl-*` skills at its latest commit
   Never a version number, branch or tag. Run `pod install`, then build. Name
   the commit (sha, date, branch) in the report; if it cannot be fetched, say
   so and keep the sha already in the Podfile.
+  Exception: A pull request branch that is already merged into the newest branch does not count, even when it gets a newer commit afterwards: pin the newest branch's tip, and move once that newer commit is merged there (owner's decision, 2026-11-17: `9a54e26`, the merge of PR #814 into PR #788, not `47aec88`). CYLSearchViewController and CollectionViewClassifyMenu pin the same commit.
 - **Imports.** The example imports only
   `#import <CYLTabBarController/CYLTabBarController.h>`, like the other pods'
   umbrella headers.

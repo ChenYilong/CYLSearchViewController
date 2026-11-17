@@ -308,3 +308,7 @@
 - **PR #814 merged** (2026-11-17): the owner merged it into `feat/cross-platform-components` (PR #788, `9a54e26`), so
   CYLTabBarController moves from `fbd05d5` to `9a54e26`, the branch tip, and CollectionViewClassifyMenu to `6ee254c`
   (the same pin). `47aec88` (engine report, on the merged PR's branch, not in #788) waits until it is merged.
+- **Pin settled** (2026-11-17): the owner chose `9a54e26` (the #788 merge) over `47aec88` (a newer commit on the
+  merged PR #814 branch). CollectionViewClassifyMenu `3ccf775` pins it again; this repository pins CollectionViewClassifyMenu
+  `3ccf775`. The rule (a merged pull request branch does not count) is in AGENTS.md, instructions.md and the
+  `cyl-tabbar-integration` skill.

@@ -167,6 +167,8 @@ Adapted from CYLTabBarController's instruction files at its latest commit
 (`caf3c92`, branch `feat/cross-platform-components`). Details and the status
 (the example integration is done): `docs/CYLTabBarController-Integration.md`.
 
+- Pin: the newest commit on any branch, by timestamp. A pull request branch that is already merged into the newest branch does not count, even when it gets a newer commit afterwards: pin the newest branch's tip, and move once that newer commit is merged there (owner's decision, 2026-11-17: `9a54e26`, the merge of PR #814 into PR #788, not `47aec88`). CYLSearchViewController and CollectionViewClassifyMenu pin the same commit.
+
 - This project integrates CYLTabBarController by default. Unless a task says
   otherwise, every `CYLTabBarController` in the example layer:
   1. is created from a local configuration file shipped in the app bundle,
