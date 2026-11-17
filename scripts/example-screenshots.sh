@@ -72,9 +72,9 @@ capture() {
 
 capture tab0-search -CYLDemoTab 0
 capture tab1-examples -CYLDemoTab 1
-capture tab2-tag-style -CYLDemoTab 2
-capture tab3-discover -CYLDemoTab 3
-capture tab4-plus -CYLDemoTab 4
+capture tab2-search-bar -CYLDemoTab 2
+capture tab3-tag-style -CYLDemoTab 3
+capture tab4-discover -CYLDemoTab 4
 capture menu0-reproduction -CYLDemoTab 1 -CYLDemoRow 0
 capture menu1-styles -CYLDemoTab 1 -CYLDemoRow 1
 capture menu2-search-bar -CYLDemoTab 1 -CYLDemoRow 2

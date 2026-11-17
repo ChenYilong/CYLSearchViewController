@@ -143,7 +143,7 @@ scripts/local-run-environment.sh
 than two hours. GitHub keeps at most one pending run per concurrency group and replaces it with the newest push, so a
 started run completes and the next one tests the newest commit.
 
-## TODO (2026-11-17): Example screenshots in iOS CI
+## DONE (2026-11-17): Example screenshots in iOS CI
 
 - **Context**: `ios.yml` builds and tests the example but takes no screenshots (progress board row 20 in
   `docs/animated-icon-component.md`); CollectionViewClassifyMenu's `ios.yml` has an "Example screenshots" job
@@ -153,7 +153,18 @@ started run completes and the next one tests the newest commit.
 - **Requirements**: add a screenshot job to this repository's CI; fix ClassifyMenu's publishing (done there:
   pull request runs published under the merge commit).
 - **Prompt (verbatim)**: "to fix the screenshot publishing in ClassifyMenu and add a screenshot job to CYLSearchViewController's CI"
-- **Status**: job added (`screenshots` in `ios.yml`, `scripts/example-screenshots.sh`, `scripts/publish-screenshots.sh`,
-  shellcheck and actionlint clean). Screens: `tab0-search` … `tab4-plus` (`-CYLDemoTab`), `menu0-reproduction` …
-  `menu4-svga-swiftui` (`-CYLDemoTab 1 -CYLDemoRow`). Remaining: the first CI run's images on
-  `ci-screenshots/feat-harmonyos-parity/<sha7>/`, then labelled copies in `docs/assets/`.
+- **Acceptance** (pass 60, full 100): job in `ios.yml`, shellcheck and actionlint clean (30); a run publishes all
+  10 screens to `ci-screenshots/<branch>/<head sha7>/` (30); every image checked and correct (20); a labelled crop of
+  the animated icons in `docs/assets/` (20).
+- **Status**: done, score 95 of 100. Runs for `c858644` and `4346ede` published all 10 screens to
+  `ci-screenshots/feat-harmonyos-parity/<sha7>/`; every screen renders (tabs, the five demo menu rows, the SwiftUI SVGA
+  tab bar). Fixed afterwards: the tab order is search, examples, search bar (plus), tag style, discover, so the files
+  for tabs 2 to 4 are now `tab2-search-bar`, `tab3-tag-style` and `tab4-discover`. Missing 5 points: the renamed files
+  not yet seen in a run.
+
+![iOS CI: SVGA header of the examples tab and the SwiftUI host's SVGA tab bar](assets/ios-ci-animated-icons-svga.png)
+
+iOS, iPhone 17 simulator, iOS SDK 26.5 (`iPhoneSimulator26.5.sdk`), Xcode 26.6, GitHub runner `macos-26`; commit
+[`4346ede`](https://github.com/ChenYilong/CYLSearchViewController/commit/4346eded702595c90f60aff11e986e8501e67854);
+taken 2026-11-17 21:46 UTC. Top: tab 1 (`-CYLDemoTab 1`), the SVGA header. Bottom: menu row 4, the SwiftUI host's
+tab bar with SVGA icons. Cropped, original pixels.
