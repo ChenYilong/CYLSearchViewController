@@ -1,5 +1,50 @@
 # Animated Icon Component (CYLTagButton)
 
+## Progress against the guide (CYLTabBarController `docs/Animated-Item.md`)
+
+Guide: <https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md>,
+read at `e3ebc24` (2026-11-17, docs only after `57a527e`). Updated 2026-11-17 07:30 UTC. Score: 18 of 24 rows done (75);
+the 6 open rows wait on CI, a device or upstream. Every row with "unverified" is written but has not been compiled or run
+(no Xcode, Android SDK, DevEco or WeChat DevTools in the container that wrote it).
+
+Prompt (verbatim): "告诉我 你遵循文档改造的进度，并在本仓库合适地方标注进度以及todo。这个文档是与动效组件相关的。告诉我 你遵循文档改造的进度https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md"
+(English: "Tell me your progress in following the document, and mark the progress and the TODOs in a suitable place in
+this repository. The document is about the animated component.")
+
+### Done
+
+| # | Guide requirement | Platform | Where in this repository | Status |
+|:--|:---|:---|:---|:---|
+| 1 | Search bar items are the one icon + title component (`CYLTagButton`, a `CYLAnimatedItemView`) | iOS | `CYLSearchBarItemButton: CYLTagButton` in `Sources/CYLSearchBar/CYLSearchBarView.swift` | DONE |
+| 2 | The core depends on `CYLAnimatedItem` (Core, static images), never on an engine or CYLTabBarController | iOS | podspec `s.dependency 'CYLAnimatedItem'`; `import CYLAnimatedItem` | DONE, `pod lib lint` passes (run 265) |
+| 3 | Only the example adds engines (`CYLAnimatedItem/<Type>`) | iOS | Podfile: `CYLAnimatedItem` `Core`, `SVGA`, `LottieSwift`; Flutter example `SVGA`, `Rive`; React Native example from the vendored checkout | DONE |
+| 4 | Pods not on the trunk are named by `:git` + `:commit` | iOS | Podfiles pin CYLTabBarController and `CYLAnimatedItem` at `57a527e` | DONE |
+| 5 | Example imports engine headers from the `CYLAnimatedItem` pod | iOS | `CYLSearchExampleAppDelegate.m` imports `<CYLAnimatedItem/CYLSVGATabBarItemAnimator.h>` (`7ee53de`) | DONE, CI pending |
+| 6 | Engine-only API guarded or read without the engine | iOS | the core uses only `animationURL`, `playAnimation` and the hooks; tests read `animationPlayer` by key | DONE |
+| 7 | Android: depend on `cyltabbarcontroller-animateditem`, package `com.cyl.animateditem` | Android | `android/merged/settings.gradle.kts` includes `:cylanimateditem` and substitutes the Maven coordinate | DONE, unverified |
+| 8 | Android: the core links no engine; the app adds the libraries | Android | `cylsearch` has none; `app` adds `libs.lottie` and SVGAPlayer (`:placeholder-lottie` removed with CYLTableViewPlaceHolder `62e40c0`) | DONE, unverified |
+| 9 | HarmonyOS: the component by commit (`cylanimateditem` module) | HarmonyOS | `harmonyos/scripts/sync-sub-repositories.py` vendors it next to `vendor/classifymenu`; `build-profile.json5` registers it (`68b5a52`) | DONE, unverified |
+| 10 | HarmonyOS: the core links no engine; the app registers engines and the animation builder | HarmonyOS | `cylsearch` depends on no animation library; `entry` registers Lottie, PAG, Rive, SVGA, GIF in `EntryAbility.onCreate` | DONE, unverified |
+| 11 | Mini program: `cyl-animated-item` by commit, engines through abstract nodes | Mini program | `cyl-search-bar` / `cyl-search` forward `cyl-lottie-view`, `-pag-`, `-rive-`, `-svga-` to `cyl-tag-button`; the example passes `cyl-lottie` and `cyl-svga` (`68b5a52`) | DONE, `npm test` 51/51, not run in DevTools |
+| 12 | Sub-repositories on the component, pinned by commit | all | CollectionViewClassifyMenu `71562ca` (every platform on the component), CYLTableViewPlaceHolder `62e40c0` (placeholders on it) | DONE |
+| 13 | The two CYLAnimatedItem bugs found by our CI fixed in the core (module, Lottie only for Lottie files) | all | CYLTabBarController PR #814, merged into #788 (`9a54e26`), pinned since | DONE |
+| 14 | A license in every published package (the guide's "license notice in every published package") | all | MIT `LICENSE` in every package bundle; `scripts/check-licenses.sh` in CI (`docs/licenses.md`) | DONE |
+| 15 | Parity tables follow the merged API | all | Android, HarmonyOS and mini program tables regenerated, all 100 | DONE |
+| 16 | Docs describe the component and the pins | all | this document, `docs/sub-repositories.md`, `README.md` License section | DONE |
+| 17 | Pin the newest commit of the newest branch (a merged pull request branch does not count) | all | `AGENTS.md`, `instructions.md`, `cyl-tabbar-integration` skill | DONE |
+| 18 | Every iOS failure of the migration fixed in the core first | iOS | ClassifyMenu re-export of `CYLAnimatedItem` (`b15b822`); this repository's only example-layer fix is row 5, recorded as example-only | DONE |
+
+### TODO
+
+| # | Item | Platform | Why it is open | Next step |
+|:--|:---|:---|:---|:---|
+| 19 | A complete iOS CI run of the current tip | iOS | every run since 06:02 UTC was cancelled by the next push; run 271 (`bb261ce`) is the first left to finish | read its jobs and the example screenshots; fix failures in the core first |
+| 20 | Animated icons seen playing in the example | iOS, Android | no screenshot of an animated search bar item yet | screenshots from CI (iOS) and an emulator (Android) |
+| 21 | HarmonyOS build and run | HarmonyOS | no DevEco here; ArkTS not compiled; `@tencent/libpag` 4.5.102 (root override) vs ClassifyMenu's 4.4.31 | build the HAP, run ohosTest, emulator screenshots |
+| 22 | Mini program run | Mini program | no WeChat DevTools here; `generic:` resolution through `app.json` and the npm default path untested | run in DevTools, screenshots |
+| 23 | Upstream gaps of the component | HarmonyOS, mini program | mini program: GIF without stills, speed or loop and always-on autoplay (fixed by CYLTabBarController PR #815, not merged); HarmonyOS: square icon only, no PixelMap or symbol as the static image (a symbol item shows the placeholder while loading), type by extension only, fixed 4 vp padding and 44 vp minimum height (asked, waiting on the owner) | after #815 is merged: pin its merge and pass `gif-first-frame` / `gif-last-frame` / `gif-duration`, `embedded`, `autoplay` in `cyl-search-bar` |
+| 24 | Pin the guide's newest commit `e3ebc24` | all | docs only after `57a527e`; held during the CI push freeze | move the pins with the next code change |
+
 ## TODO (2026-11-17): one icon + title / animated icon component everywhere
 
 - **Context**: branch `feat/harmonyos-parity` (PR #11). The packaged icon + title component that also plays animated
