@@ -312,3 +312,5 @@
   merged PR #814 branch). CollectionViewClassifyMenu `3ccf775` pins it again; this repository pins CollectionViewClassifyMenu
   `3ccf775`. The rule (a merged pull request branch does not count) is in AGENTS.md, instructions.md and the
   `cyl-tabbar-integration` skill.
+- **Pin `0a63bed`** (2026-11-17): CYLTabBarController moves to the #788 tip `0a63bed` (engine report, license notices,
+  both #814 fixes kept); CollectionViewClassifyMenu to `edba997` (the same pin).
