@@ -119,6 +119,10 @@ private fun Context.cylSVGADemoHeader(): View {
         }
     }
     button.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+    // The row handles the tap (as HarmonyOS passes `interactive: false`): a tag that is not clickable leaves the touches
+    // to its parent (CYLTagButton.onTouchEvent).
+    button.isClickable = false
+    button.isLongClickable = false
     val row = LinearLayout(this).apply {
         orientation = LinearLayout.HORIZONTAL
         gravity = Gravity.CENTER_VERTICAL
@@ -137,6 +141,7 @@ private fun Context.cylSVGADemoHeader(): View {
     }
     row.addView(button, LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT))
     // Plays once when shown, as the tab icons do when selected (iOS `didMoveToWindow`).
+    // The SVGA player plays once the file is parsed when asked before (CYLSVGATabBarItemAnimator).
     button.post { button.playAnimation() }
     return row
 }
