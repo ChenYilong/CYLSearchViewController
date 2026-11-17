@@ -34,6 +34,9 @@ import com.cyl.classifymenu.CYLMenuFoldControlContent
 import com.cyl.classifymenu.CYLTagListView
 import com.cyl.placeholder.CYLPlaceholderScenario
 import com.cyl.placeholder.CYLPlaceholderStackView
+import com.cyl.refresh.CYLRefreshNormalHeader
+import com.cyl.refresh.cyl_header
+import com.cyl.refresh.layout.CYLRefreshLayout
 import java.text.Normalizer
 import java.util.Locale
 
@@ -137,6 +140,29 @@ interface CYLSearchViewDelegate {
     fun searchViewNavigationButtonClicked(searchView: CYLSearchView) {
         searchView.closeSearch()
     }
+
+    /**
+     * A result of `resultsDataSource` was tapped in `resultsTableView`.
+     */
+    fun searchViewDidSelectResult(searchView: CYLSearchView, result: Any) {}
+}
+
+/**
+ * Supplies the results a `CYLSearchView` lists in `resultsTableView` and configures their cells (was
+ * `CYLSearchResultsDataSource`).
+ */
+interface CYLSearchViewDataSource {
+
+    /**
+     * The results for `query`, the current text of the search bar (never blank: a blank query shows the
+     * suggestions).
+     */
+    fun searchViewResultsForQuery(searchView: CYLSearchView, query: String): List<Any>
+
+    /**
+     * Shows `result` in `cell`, a row of `resultsTableView` (its icon is hidden by default).
+     */
+    fun searchViewConfigureResultCell(searchView: CYLSearchView, cell: CYLSearchSuggestionCell, result: Any)
 }
 
 /**
@@ -178,7 +204,10 @@ class CYLSearchSuggestionCell(context: Context) : LinearLayout(context) {
 /**
  * A search page that opens over its host view (iOS `CYLSearchView`; MiguelCatalan and lapism
  * `MaterialSearchView`): a `CYLSearchBarView` below the status bar, a divider, a list of suggestions filtered as you
- * type, and an optional content view of yours below. The page is opaque, so the bar never covers a view of the host.
+ * type, the results of `resultsDataSource` in `resultsTableView` (with an optional pull-to-refresh), and an optional
+ * content view of yours below. The page is opaque, so the bar never covers a view of the host. It replaces the former
+ * fragments `CYLSearchController` and `CYLSearchResultsViewController`: `showSearch(activity)` or
+ * `showSearch(viewGroup)` installs it over a host and opens it, `closeSearch(animated, completion)` closes it.
  */
 class CYLSearchView @JvmOverloads constructor(
     context: Context,
@@ -191,6 +220,11 @@ class CYLSearchView @JvmOverloads constructor(
     private val bodyView = FrameLayout(context)
     private val scrimView = View(context)
     private val adapter = SuggestionAdapter()
+    private val resultsAdapter = ResultsAdapter()
+    private val resultsRefreshLayout = CYLRefreshContainer(context)
+    private var resultsVisible = false
+    private var closing = false
+    private val closeCompletions = mutableListOf<() -> Unit>()
     private var suggestionsVisible = false
     private var topInset = 0
     private var keyboardInset = 0
@@ -516,6 +550,66 @@ class CYLSearchView @JvmOverloads constructor(
             reloadSuggestions()
         }
 
+    // Results
+
+    /**
+     * Supplies the results (was `CYLSearchController(searchDataSource:)` and `searchDataSource`). While it is set and
+     * the query is not blank, `resultsTableView` lists its results below the bar instead of the suggestions; null (the
+     * default) keeps the suggestions only.
+     */
+    var resultsDataSource: CYLSearchViewDataSource? = null
+        set(value) {
+            field = value
+            refilter()
+        }
+
+    /**
+     * The list of results (was the results controller's `tableView`). Style it directly; its rows are
+     * `CYLSearchSuggestionCell`s configured by `resultsDataSource`.
+     */
+    val resultsTableView: RecyclerView = RecyclerView(context)
+
+    /**
+     * The results of the current query, as `resultsDataSource` returned them; empty while the query is blank.
+     */
+    var searchResults: List<Any> = emptyList()
+        private set
+
+    /**
+     * Queries `resultsDataSource` again for the current query and reloads `resultsTableView` (was
+     * `reloadSearchResults()` and `reloadResultsTableView()`).
+     */
+    fun reloadResults() = refilter()
+
+    // Refresh
+
+    /**
+     * Non-null adds pull-to-refresh to `resultsTableView` (CYLTableViewPlaceHolder's `CYLRefreshNormalHeader`); null
+     * removes it. Call `endRefreshing()` on every
+     * completion path, and do not capture the screen that owns the search view strongly.
+     */
+    var refreshHandler: (() -> Unit)?
+        get() = resultsRefreshLayout.refreshAction
+        set(value) {
+            resultsRefreshLayout.refreshAction = value
+        }
+
+    /**
+     * True while `resultsTableView` shows its refresh indicator.
+     */
+    val isRefreshing: Boolean
+        get() = resultsRefreshLayout.isHeaderRefreshing
+
+    /**
+     * Shows the refresh indicator of `resultsTableView` and calls `refreshHandler`, like a pull.
+     */
+    fun beginRefreshing() = resultsRefreshLayout.beginHeaderRefreshing()
+
+    /**
+     * Hides the refresh indicator of `resultsTableView`.
+     */
+    fun endRefreshing() = resultsRefreshLayout.endHeaderRefreshing()
+
     // Opening and closing
 
     /**
@@ -605,12 +699,26 @@ class CYLSearchView @JvmOverloads constructor(
         val padding = (12 * density).toInt()
         suggestionsTagView.setPadding(padding, padding, padding, padding)
         bodyView.addView(suggestionsTagView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
+        resultsTableView.layoutManager = LinearLayoutManager(context)
+        resultsTableView.adapter = resultsAdapter
+        resultsTableView.clipToPadding = false
+        resultsTableView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                    searchBarView.hideKeyboard()
+                }
+            }
+        })
+        resultsRefreshLayout.setRefreshContent(resultsTableView)
+        resultsRefreshLayout.visibility = GONE
+        bodyView.addView(resultsRefreshLayout, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
             val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
             topInset = bars.top
             keyboardInset = maxOf(insets.getInsets(WindowInsetsCompat.Type.ime()).bottom, bars.bottom)
             pageView.setPadding(bars.left, topInset, bars.right, 0)
             suggestionsTableView.setPadding(0, 0, 0, keyboardInset)
+            resultsTableView.setPadding(0, 0, 0, keyboardInset)
             insets
         }
         applyStyle()
@@ -687,6 +795,11 @@ class CYLSearchView @JvmOverloads constructor(
             installInView(host)
         }
         bringToFront()
+        if (closing) {
+            // Opening again interrupts the close: the close completions run now, without `searchViewDidClose`.
+            closing = false
+            runCloseCompletions()
+        }
         if (isSearchOpen) {
             if (focusesSearchFieldOnShow) searchBarView.showKeyboard()
             return
@@ -717,25 +830,51 @@ class CYLSearchView @JvmOverloads constructor(
     }
 
     /**
-     * Closes the search view with animation and ends editing (`closeSearch`).
+     * Installs the search view over the content of `activity` (its `android.R.id.content`, filling it) and opens it
+     * (iOS `showSearch(in: UIViewController, animated:)`; was `CYLSearchController.showInViewController`). An
+     * activity is the Android host of a whole screen, as a view controller is on iOS.
      */
-    fun closeSearch() = closeSearch(true)
+    @JvmOverloads
+    fun showSearch(activity: Activity, animated: Boolean = true) {
+        installInView(activity.findViewById(android.R.id.content))
+        showSearch(animated)
+    }
 
     /**
-     * Closes the search view and ends editing.
+     * Installs the search view over `view` (filling it) and opens it: the host for a search inside part of a screen,
+     * such as a fragment's root view.
      */
-    fun closeSearch(animated: Boolean) {
+    @JvmOverloads
+    fun showSearch(view: ViewGroup, animated: Boolean = true) {
+        installInView(view)
+        showSearch(animated)
+    }
+
+    /**
+     * Closes the search view and ends editing; `completion` runs once it is gone, after `searchViewDidClose`, and right
+     * away when it is not open (was `CYLSearchController.hide(completion)`).
+     */
+    @JvmOverloads
+    fun closeSearch(animated: Boolean = true, completion: (() -> Unit)? = null) {
+        completion?.let { closeCompletions.add(it) }
+        if (closing) {
+            return
+        }
         if (!isSearchOpen) {
+            runCloseCompletions()
             return
         }
         isSearchOpen = false
+        closing = true
         backCallback.isEnabled = false
         searchBarView.hideKeyboard()
         val finish = {
             visibility = GONE
             alpha = 1f
             pageView.translationY = 0f
+            closing = false
             delegate?.searchViewDidClose(this)
+            runCloseCompletions()
         }
         animate().cancel()
         if (!animated || animationDuration <= 0) {
@@ -745,6 +884,12 @@ class CYLSearchView @JvmOverloads constructor(
         val duration = (animationDuration * 1000).toLong()
         pageView.animate().translationY(-12 * density).setDuration(duration).start()
         animate().alpha(0f).setDuration(duration).withEndAction { finish() }.start()
+    }
+
+    private fun runCloseCompletions() {
+        val completions = closeCompletions.toList()
+        closeCompletions.clear()
+        completions.forEach { it() }
     }
 
     /**
@@ -822,9 +967,20 @@ class CYLSearchView @JvmOverloads constructor(
                 else -> fold(suggestion).contains(folded)
             }
         }
-        suggestionsVisible = filteredSuggestions.isNotEmpty()
-        emptyResultsVisible = showsEmptyResultsPlaceholder && trimmed.isNotEmpty() && filteredSuggestions.isEmpty()
-        emptySuggestionsVisible = showsEmptySuggestionsPlaceholder && suggestionCache != null && trimmed.isEmpty() && filteredSuggestions.isEmpty()
+        // With a results data source, a non-blank query lists its results instead of the suggestions.
+        val source = resultsDataSource
+        resultsVisible = source != null && trimmed.isNotEmpty()
+        searchResults = if (source != null && resultsVisible) source.searchViewResultsForQuery(this, query) else emptyList()
+        if (resultsVisible) {
+            suggestionsVisible = false
+            showsCachedQueries = false
+            emptyResultsVisible = showsEmptyResultsPlaceholder && searchResults.isEmpty()
+            emptySuggestionsVisible = false
+        } else {
+            suggestionsVisible = filteredSuggestions.isNotEmpty()
+            emptyResultsVisible = showsEmptyResultsPlaceholder && trimmed.isNotEmpty() && filteredSuggestions.isEmpty()
+            emptySuggestionsVisible = showsEmptySuggestionsPlaceholder && suggestionCache != null && trimmed.isEmpty() && filteredSuggestions.isEmpty()
+        }
         updateSuggestionsVisibility()
     }
 
@@ -838,7 +994,8 @@ class CYLSearchView @JvmOverloads constructor(
      */
     fun dismissSuggestions() {
         suggestionsVisible = false
-        emptyResultsVisible = false
+        // The results of a submitted query stay, with their empty placeholder.
+        emptyResultsVisible = emptyResultsVisible && resultsVisible
         emptySuggestionsVisible = false
         showsCachedQueries = false
         updateSuggestionsVisibility()
@@ -864,8 +1021,17 @@ class CYLSearchView @JvmOverloads constructor(
         }
         emptySuggestionsView?.visibility = if (emptySuggestionsVisible) VISIBLE else GONE
         suggestionCacheHeaderView.visibility = if (suggestionsVisible && showsCachedQueries) VISIBLE else GONE
+        // The results list sits under the empty results placeholder, so the list (and its pull-to-refresh) stays.
+        resultsRefreshLayout.visibility = if (resultsVisible) VISIBLE else GONE
+        if (emptyResultsVisible) {
+            emptyResultsView?.bringToFront()
+        }
         reloadSuggestions()
+        reloadResultsTableView()
     }
+
+    @Suppress("NotifyDataSetChanged")
+    private fun reloadResultsTableView() = resultsAdapter.notifyDataSetChanged()
 
     @Suppress("NotifyDataSetChanged")
     private fun reloadSuggestions() = adapter.notifyDataSetChanged()
@@ -962,12 +1128,151 @@ class CYLSearchView @JvmOverloads constructor(
         }
     }
 
-    private companion object {
-        const val STATE_SUPER = "CYLSearchViewSuper"
-        const val STATE_QUERY = "CYLSearchViewQuery"
-        const val STATE_OPEN = "CYLSearchViewOpen"
+    private inner class ResultsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+        override fun getItemCount(): Int = if (resultsVisible) searchResults.size else 0
 
-        fun fold(text: String): String =
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
+            object : RecyclerView.ViewHolder(CYLSearchSuggestionCell(parent.context).apply {
+                layoutParams = RecyclerView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+            }) {}
+
+        override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+            val cell = holder.itemView as CYLSearchSuggestionCell
+            val result = searchResults[position]
+            cell.imageView.visibility = GONE
+            cell.textLabel.setTextColor(themeColor(android.R.attr.textColorPrimary))
+            resultsDataSource?.searchViewConfigureResultCell(this@CYLSearchView, cell, result)
+            cell.setOnClickListener {
+                searchResults.getOrNull(holder.bindingAdapterPosition)?.let {
+                    delegate?.searchViewDidSelectResult(this@CYLSearchView, it)
+                }
+            }
+        }
+    }
+
+    /**
+     * The pull-to-refresh around a scroll view (a private helper): CYLTableViewPlaceHolder's `CYLRefreshLayout` with a
+     * `CYLRefreshNormalHeader` (its `cyl_header`) while an action is set.
+     */
+    private class CYLRefreshContainer(context: Context) : CYLRefreshLayout(context) {
+
+        /**
+         * Called on each pull and by `beginHeaderRefreshing()`; null removes the header and turns the pull off.
+         */
+        var refreshAction: (() -> Unit)? = null
+            set(value) {
+                field = value
+                if (value == null) {
+                    cyl_header?.endRefreshing()
+                    cyl_header = null
+                } else if (cyl_header == null) {
+                    cyl_header = CYLRefreshNormalHeader(context).apply { refreshingBlock = { refreshAction?.invoke() } }
+                }
+            }
+
+        /**
+         * True when `setRefreshHandler` created this container around a view of the app.
+         */
+        var wrapsAppView = false
+
+        /**
+         * True while the header refreshes (or is about to, before the layout is on screen).
+         */
+        val isHeaderRefreshing: Boolean
+            get() = cyl_header?.isRefreshing == true
+
+        init {
+            setEnableRefresh(false)
+            setEnableLoadMore(false)
+        }
+
+        /**
+         * Starts the header's refresh, like a pull; the header then calls the action.
+         */
+        fun beginHeaderRefreshing() {
+            val header = cyl_header ?: return
+            if (!header.isRefreshing) {
+                header.beginRefreshing()
+            }
+        }
+
+        /**
+         * Ends the header's refresh.
+         */
+        fun endHeaderRefreshing() {
+            cyl_header?.endRefreshing()
+        }
+    }
+
+    /**
+     * The refresh API for any scroll view of the app (iOS `static` methods), and private constants.
+     */
+    companion object {
+        private const val STATE_SUPER = "CYLSearchViewSuper"
+        private const val STATE_QUERY = "CYLSearchViewQuery"
+        private const val STATE_OPEN = "CYLSearchViewOpen"
+
+        private fun fold(text: String): String =
             Normalizer.normalize(text, Normalizer.Form.NFD).replace(Regex("\\p{Mn}+"), "").lowercase(Locale.ROOT)
+
+        /**
+         * Adds pull-to-refresh to `scrollView` (a `RecyclerView`, `ScrollView`, `ListView` or `NestedScrollView` that
+         * already has a parent), calling `handler` on each pull; null removes it. The view moves into a
+         * CYLTableViewPlaceHolder `CYLRefreshLayout` (with a `CYLRefreshNormalHeader`) that takes its place and layout
+         * parameters in its parent.
+         */
+        @JvmStatic
+        fun setRefreshHandler(handler: (() -> Unit)?, scrollView: View) {
+            val existing = scrollView.parent as? CYLRefreshContainer
+            if (handler == null) {
+                existing ?: return
+                existing.refreshAction = null
+                val host = existing.parent as? ViewGroup
+                if (existing.wrapsAppView && host != null) {
+                    val index = host.indexOfChild(existing)
+                    val params = existing.layoutParams
+                    existing.removeView(scrollView)
+                    host.removeView(existing)
+                    host.addView(scrollView, index, params)
+                }
+                return
+            }
+            if (existing != null) {
+                existing.refreshAction = handler
+                return
+            }
+            val host = scrollView.parent as? ViewGroup ?: return
+            val index = host.indexOfChild(scrollView)
+            val params = scrollView.layoutParams
+            val container = CYLRefreshContainer(scrollView.context)
+            container.wrapsAppView = true
+            container.id = View.generateViewId()
+            host.removeView(scrollView)
+            container.setRefreshContent(scrollView)
+            host.addView(container, index, params)
+            container.refreshAction = handler
+        }
+
+        /**
+         * Shows the refresh indicator of `scrollView` and calls its handler, like a pull.
+         */
+        @JvmStatic
+        fun beginRefreshing(scrollView: View) {
+            (scrollView.parent as? CYLRefreshContainer)?.beginHeaderRefreshing()
+        }
+
+        /**
+         * Hides the refresh indicator of `scrollView`.
+         */
+        @JvmStatic
+        fun endRefreshing(scrollView: View) {
+            (scrollView.parent as? CYLRefreshContainer)?.endHeaderRefreshing()
+        }
+
+        /**
+         * True while `scrollView` shows its refresh indicator.
+         */
+        @JvmStatic
+        fun isRefreshing(scrollView: View): Boolean = (scrollView.parent as? CYLRefreshContainer)?.isHeaderRefreshing == true
     }
 }

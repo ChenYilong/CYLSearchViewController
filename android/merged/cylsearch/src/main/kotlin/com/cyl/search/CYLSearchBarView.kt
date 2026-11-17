@@ -3,10 +3,12 @@ package com.cyl.search
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.Typeface
+import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
@@ -18,6 +20,7 @@ import android.text.InputType
 import android.text.TextUtils
 import android.text.TextWatcher
 import android.util.AttributeSet
+import android.util.SizeF
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.KeyEvent
@@ -29,10 +32,13 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.FrameLayout
+import android.widget.HorizontalScrollView
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
 import kotlin.math.hypot
@@ -91,6 +97,22 @@ enum class CYLSearchBarExpansionAnimation {
      * A circle grows from the icon until it uncovers the whole field (Material circular reveal).
      */
     CircularReveal,
+}
+
+/**
+ * Whether a `CYLSearchBarView` edits one query or several searches side by side.
+ */
+enum class CYLSearchBarMode {
+    /**
+     * One query in the field (the default).
+     */
+    Single,
+
+    /**
+     * Several searches side by side (iammert `MultiSearchView`): `newSearchButton` starts a search, a completed search
+     * becomes an entry in a horizontally scrolling row, with an indicator under the selected one and a remove button.
+     */
+    Multiple,
 }
 
 /**
@@ -206,12 +228,34 @@ interface CYLSearchBarViewDelegate {
      * `-searchBarView:didSelectItem:`).
      */
     fun searchBarViewDidSelectItem(searchBarView: CYLSearchBarView, item: CYLSearchBarItem) {}
+
+    /**
+     * `Multiple` mode: the text of the search being typed changed (MultiSearchView `onTextChanged`). `Single` mode
+     * calls `searchBarViewTextDidChange(searchBarView, text)` instead.
+     */
+    fun searchBarViewTextDidChange(searchBarView: CYLSearchBarView, text: String, index: Int) {}
+
+    /**
+     * `Multiple` mode: a search was completed and became an entry (MultiSearchView `onSearchComplete`).
+     */
+    fun searchBarViewDidCompleteSearch(searchBarView: CYLSearchBarView, text: String, index: Int) {}
+
+    /**
+     * `Multiple` mode: a search was removed (MultiSearchView `onSearchItemRemoved`).
+     */
+    fun searchBarViewDidRemoveSearchAtIndex(searchBarView: CYLSearchBarView, index: Int) {}
+
+    /**
+     * `Multiple` mode: a search was selected by a tap (MultiSearchView `onItemSelected`).
+     */
+    fun searchBarViewDidSelectSearch(searchBarView: CYLSearchBarView, text: String, index: Int) {}
 }
 
 /**
  * A configurable search bar (iOS `CYLSearchBarView`): a rounded field with a magnifier, text and clear button, views
  * of the host inside the field after the text (a camera, a "Search" button) or before the field (a back button), and
- * an optional Cancel button. Sizes are in dp, durations in seconds, as on iOS.
+ * an optional Cancel button. `mode = Multiple` turns it into several searches side by side. Sizes are in dp,
+ * durations in seconds, as on iOS.
  */
 class CYLSearchBarView @JvmOverloads constructor(
     context: Context,
@@ -460,8 +504,8 @@ class CYLSearchBarView @JvmOverloads constructor(
     /**
      * The views of `items`, in the same order.
      */
-    val itemViews: List<CYLSearchBarItemView>
-        get() = mutableItems.map { it.itemView(context) }
+    val itemViews: List<View>
+        get() = mutableItems.map { it.loadItemView(context) }
 
     /**
      * The icon and title color of every item without its own `tintColor`; null uses the primary text color.
@@ -469,7 +513,7 @@ class CYLSearchBarView @JvmOverloads constructor(
     var itemTintColor: Int? = null
         set(value) {
             field = value
-            mutableItems.forEach { it.itemView?.reload() }
+            mutableItems.forEach { it.loadedItemView?.reload() }
         }
 
     /**
@@ -517,7 +561,7 @@ class CYLSearchBarView @JvmOverloads constructor(
         item.searchBarView?.removeItem(item)
         mutableItems.add(index.coerceIn(0, mutableItems.size), item)
         item.searchBarView = this
-        item.itemView(context).reload()
+        item.loadItemView(context).reload()
         updateAccessories()
     }
 
@@ -756,6 +800,7 @@ class CYLSearchBarView @JvmOverloads constructor(
         set(value) {
             field = value
             textField.imeOptions = value or EditorInfo.IME_FLAG_NO_EXTRACT_UI
+            multiSearchContent.applyStyle()
         }
 
     /**
@@ -797,6 +842,7 @@ class CYLSearchBarView @JvmOverloads constructor(
             if (field > 0 && current.length > field) {
                 text = current.substring(0, field)
             }
+            multiSearchContent.applyStyle()
         }
 
     // Iconified
@@ -841,6 +887,147 @@ class CYLSearchBarView @JvmOverloads constructor(
      * The length of the opening and closing animations, in seconds. 0.3 by default.
      */
     var animationDuration: Double = 0.3
+
+    // Multiple searches (mode = Multiple; iammert MultiSearchView)
+
+    /**
+     * Whether the bar edits one query (`Single`, the default) or several searches side by side (`Multiple`).
+     */
+    var mode: CYLSearchBarMode = CYLSearchBarMode.Single
+        set(value) {
+            field = value
+            applyMode()
+        }
+
+    /**
+     * In `Multiple` mode, the button at the end: it starts a new search, or completes the one being typed.
+     */
+    val newSearchButton: ImageButton = ImageButton(context)
+
+    private val multiSearchContent = MultiSearchContent(context)
+
+    // The system Back gesture ends the search being typed, like `completeSearch`, while one is typed.
+    private val multiSearchBackCallback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() = completeSearch()
+    }
+
+    /**
+     * The texts of the searches in `Multiple` mode, completed searches first, then the one being typed.
+     */
+    val searches: List<String>
+        get() = multiSearchContent.searchTexts
+
+    /**
+     * The selected search in `Multiple` mode, or -1 (iOS `NSNotFound`) when there is none.
+     */
+    val selectedSearchIndex: Int
+        get() = multiSearchContent.selectedIndex
+
+    /**
+     * True while a new search is being typed in `Multiple` mode.
+     */
+    val isEditingNewSearch: Boolean
+        get() = multiSearchContent.isInSearchMode
+
+    /**
+     * A search shorter than this is dropped by `completeSearch`. 3 by default, as in MultiSearchView.
+     */
+    var minimumTextLength: Int = 3
+
+    /**
+     * The color of the indicator under the selected search and of `newSearchButton`. The accent color when null.
+     */
+    var searchIndicatorColor: Int? = null
+        set(value) {
+            field = value
+            multiSearchContent.applyStyle()
+        }
+
+    /**
+     * The opacity of the searches that are not selected. 0.5 by default.
+     */
+    var unselectedSearchAlpha: Float = 0.5f
+        set(value) {
+            field = value.coerceIn(0f, 1f)
+            multiSearchContent.applyStyle()
+        }
+
+    /**
+     * The width of the field of a new search, in dp. 160 by default.
+     */
+    var searchFieldWidth: Float = 160f
+        set(value) {
+            field = max(44f, value)
+            multiSearchContent.applyStyle()
+        }
+
+    /**
+     * The icon of `newSearchButton`. A magnifier when null.
+     */
+    var newSearchImage: Drawable? = null
+        get() = field ?: ContextCompat.getDrawable(context, R.drawable.cyl_search_ic_search)
+        set(value) {
+            field = value
+            multiSearchContent.applyStyle()
+        }
+
+    /**
+     * The icon of the remove button on the selected search. A cross in a circle when null.
+     */
+    var removeSearchImage: Drawable? = null
+        get() = field ?: ContextCompat.getDrawable(context, R.drawable.cyl_search_ic_clear)
+        set(value) {
+            field = value
+            multiSearchContent.applyStyle()
+        }
+
+    /**
+     * Starts a new search and shows the keyboard (MultiSearchView `search`). Does nothing while a search is typed.
+     */
+    fun beginNewSearch() = multiSearchContent.search()
+
+    /**
+     * Completes the search being typed: it becomes the selected search, or is dropped when shorter than
+     * `minimumTextLength`.
+     */
+    fun completeSearch() = multiSearchContent.completeSearch()
+
+    /**
+     * Adds a completed search without typing it and selects it.
+     */
+    fun addSearch(text: String) = multiSearchContent.addSearchText(text)
+
+    /**
+     * Selects a search, like a tap on it.
+     */
+    fun selectSearch(index: Int) = multiSearchContent.selectItemAtIndex(index)
+
+    /**
+     * Removes a search, like a tap on its remove button.
+     */
+    fun removeSearch(index: Int) = multiSearchContent.removeItemAtIndex(index)
+
+    private fun applyMode() {
+        val multiple = mode == CYLSearchBarMode.Multiple
+        multiSearchContent.visibility = if (multiple) VISIBLE else GONE
+        multiSearchBackCallback.isEnabled = multiple && isEditingNewSearch
+        applyIconifiedVisibility()
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        var base: Context? = context
+        while (base is ContextWrapper && base !is ComponentActivity) {
+            base = base.baseContext
+        }
+        (base as? ComponentActivity)?.onBackPressedDispatcher?.addCallback(multiSearchBackCallback)
+        multiSearchBackCallback.isEnabled = mode == CYLSearchBarMode.Multiple && isEditingNewSearch
+    }
+
+    override fun onDetachedFromWindow() {
+        multiSearchBackCallback.remove()
+        super.onDetachedFromWindow()
+    }
 
     init {
         row.orientation = LinearLayout.HORIZONTAL
@@ -895,6 +1082,7 @@ class CYLSearchBarView @JvmOverloads constructor(
         iconButton.contentDescription = CYLSearchResources.localizedString(context, "search.field")
         iconButton.setOnClickListener { setIconified(false, true) }
         addView(iconButton)
+        addView(multiSearchContent, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER_VERTICAL))
 
         textField.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
@@ -1022,6 +1210,7 @@ class CYLSearchBarView @JvmOverloads constructor(
         textField.inputType = type
         textField.isSingleLine = true
         textField.typeface = typeface
+        multiSearchContent.applyStyle()
     }
 
     // Buttons
@@ -1137,6 +1326,13 @@ class CYLSearchBarView @JvmOverloads constructor(
     }
 
     private fun applyIconifiedVisibility() {
+        if (mode == CYLSearchBarMode.Multiple) {
+            // The searches replace the field, its buttons and the iconified button.
+            row.visibility = GONE
+            iconButton.visibility = GONE
+            return
+        }
+        row.visibility = VISIBLE
         fieldView.visibility = if (isIconified) INVISIBLE else VISIBLE
         iconButton.visibility = if (isIconified) VISIBLE else GONE
         cancelButton.visibility = if (isIconified || !showsCancelButton) GONE else VISIBLE
@@ -1206,6 +1402,7 @@ class CYLSearchBarView @JvmOverloads constructor(
         listOf<ImageView>(searchIconView, iconButton, voiceButton, clearButton, submitButton, navigationButton).forEach {
             ImageViewCompat.setImageTintList(it, tint)
         }
+        multiSearchContent.applyStyle()
         applyLayout()
     }
 
@@ -1241,6 +1438,7 @@ class CYLSearchBarView @JvmOverloads constructor(
             marginEnd = dp(contentInsets.right.toFloat())
         }
         minimumHeight = fieldPixels + dp((contentInsets.top + contentInsets.bottom).toFloat())
+        multiSearchContent.setPaddingRelative(dp(contentInsets.left.toFloat()), 0, dp(contentInsets.right.toFloat()), 0)
     }
 
     // Events
@@ -1312,7 +1510,268 @@ class CYLSearchBarView @JvmOverloads constructor(
         super.clearFocus()
     }
 
+    /**
+     * The content of `Multiple` mode (a private helper, was iOS `CYLMultiSearchView`; iammert `MultiSearchView`): a
+     * horizontally scrolling row of searches, an indicator under the selected one, and `newSearchButton` at the end.
+     */
+    private inner class MultiSearchContent(context: Context) : LinearLayout(context) {
+
+        private inner class SearchItem(context: Context) : FrameLayout(context) {
+            val textField = EditText(context)
+            val removeButton = ImageButton(context)
+            val indicator = View(context)
+            var editing = false
+            var reportedText = ""
+        }
+
+        private val bar: CYLSearchBarView
+            get() = this@CYLSearchBarView
+        private val scrollView = HorizontalScrollView(context)
+        private val itemsView = LinearLayout(context)
+        private val items = mutableListOf<SearchItem>()
+
+        var selectedIndex: Int = NO_SELECTION
+            private set
+
+        var isInSearchMode: Boolean = false
+            private set(value) {
+                field = value
+                bar.multiSearchBackCallback.isEnabled = value && bar.mode == CYLSearchBarMode.Multiple
+            }
+
+        val searchTexts: List<String>
+            get() = items.map { it.textField.text.toString() }
+
+        init {
+            orientation = HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            minimumHeight = dp(56f)
+            visibility = GONE
+            scrollView.isHorizontalScrollBarEnabled = false
+            scrollView.isFillViewport = false
+            itemsView.orientation = HORIZONTAL
+            scrollView.addView(itemsView, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT))
+            addView(scrollView, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f))
+            val button = bar.newSearchButton
+            button.setBackgroundResource(TypedValue().also {
+                context.theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, it, true)
+            }.resourceId)
+            button.contentDescription = CYLSearchResources.localizedString(context, "multisearch.add")
+            button.setOnClickListener { if (isInSearchMode) completeSearch() else search() }
+            addView(button, LinearLayout.LayoutParams(dp(48f), dp(48f)))
+        }
+
+        fun applyStyle() {
+            val accent = bar.searchIndicatorColor ?: themeColor(android.R.attr.colorAccent)
+            bar.newSearchButton.setImageDrawable(bar.newSearchImage)
+            ImageViewCompat.setImageTintList(bar.newSearchButton, ColorStateList.valueOf(accent))
+            items.forEachIndexed { index, item -> style(item, index == selectedIndex, accent) }
+        }
+
+        private fun style(item: SearchItem, selected: Boolean, accent: Int) {
+            val field = item.textField
+            field.setTextSize(TypedValue.COMPLEX_UNIT_SP, bar.fontSize)
+            field.typeface = bar.font ?: Typeface.DEFAULT
+            field.setTextColor(bar.textColor ?: themeColor(android.R.attr.textColorPrimary))
+            field.setHintTextColor(bar.placeholderColor ?: themeColor(android.R.attr.textColorHint))
+            field.hint = bar.placeholder ?: CYLSearchResources.localizedString(context, "search.field")
+            field.imeOptions = bar.returnKeyType or EditorInfo.IME_FLAG_NO_EXTRACT_UI
+            var type = bar.keyboardType
+            if (type and InputType.TYPE_MASK_CLASS == InputType.TYPE_CLASS_TEXT) {
+                type = type or when (bar.autocapitalizationType) {
+                    CYLTextAutocapitalizationType.None -> 0
+                    CYLTextAutocapitalizationType.Words -> InputType.TYPE_TEXT_FLAG_CAP_WORDS
+                    CYLTextAutocapitalizationType.Sentences -> InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+                    CYLTextAutocapitalizationType.AllCharacters -> InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
+                }
+            }
+            field.inputType = type
+            field.isSingleLine = true
+            val limit = bar.maximumTextLength
+            field.filters = if (limit > 0) arrayOf(InputFilter.LengthFilter(limit)) else emptyArray()
+            field.alpha = if (selected || item.editing) 1f else bar.unselectedSearchAlpha
+            field.isFocusableInTouchMode = item.editing
+            field.isCursorVisible = item.editing
+            item.removeButton.setImageDrawable(bar.removeSearchImage)
+            ImageViewCompat.setImageTintList(item.removeButton, ColorStateList.valueOf(themeColor(android.R.attr.textColorSecondary)))
+            item.removeButton.visibility = if (selected && !item.editing) VISIBLE else GONE
+            item.indicator.setBackgroundColor(accent)
+            item.indicator.visibility = if (selected || item.editing) VISIBLE else INVISIBLE
+            field.minWidth = if (item.editing) dp(bar.searchFieldWidth) else 0
+            field.maxWidth = if (item.editing) dp(bar.searchFieldWidth) else Int.MAX_VALUE
+            (field.layoutParams as? FrameLayout.LayoutParams)?.let {
+                it.width = FrameLayout.LayoutParams.WRAP_CONTENT
+                it.marginEnd = if (item.removeButton.visibility == VISIBLE) dp(REMOVE_SIZE) else 0
+                field.layoutParams = it
+            }
+            if (!item.editing) {
+                val index = items.indexOf(item)
+                field.contentDescription = context.getString(R.string.cyl_multisearch_item, index + 1, items.size)
+                field.isSelected = selected
+            } else {
+                field.contentDescription = null
+            }
+        }
+
+        private fun newItem(): SearchItem {
+            val item = SearchItem(context)
+            val padding = dp(ITEM_PADDING)
+            item.setPaddingRelative(padding, 0, padding, 0)
+            item.textField.background = null
+            item.textField.setPadding(0, 0, 0, 0)
+            item.textField.gravity = Gravity.CENTER_VERTICAL or Gravity.START
+            item.addView(item.textField, FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.MATCH_PARENT))
+            item.removeButton.background = null
+            item.removeButton.contentDescription = CYLSearchResources.localizedString(context, "multisearch.remove")
+            item.removeButton.setOnClickListener { items.indexOf(item).takeIf { it >= 0 }?.let { removeItemAtIndex(it) } }
+            item.addView(item.removeButton, FrameLayout.LayoutParams(dp(REMOVE_SIZE), dp(REMOVE_SIZE), Gravity.END or Gravity.CENTER_VERTICAL))
+            item.addView(item.indicator, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, dp(INDICATOR_HEIGHT), Gravity.BOTTOM))
+            item.textField.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
+                override fun afterTextChanged(s: Editable?) {
+                    val index = items.indexOf(item)
+                    // Restyling the field (input type, filters) also runs the watcher: report only real edits, as iOS.
+                    if (index >= 0 && item.editing && s.toString() != item.reportedText) {
+                        item.reportedText = s.toString()
+                        bar.delegate?.searchBarViewTextDidChange(bar, s.toString(), index)
+                    }
+                }
+            })
+            item.textField.setOnEditorActionListener { _, _, _ ->
+                completeSearch()
+                true
+            }
+            val select = View.OnClickListener {
+                val index = items.indexOf(item)
+                if (!item.editing && index >= 0 && index != selectedIndex) {
+                    selectItemAtIndex(index)
+                }
+            }
+            item.setOnClickListener(select)
+            item.textField.setOnClickListener(select)
+            return item
+        }
+
+        fun search() {
+            if (isInSearchMode) {
+                return
+            }
+            isInSearchMode = true
+            selectedIndex = NO_SELECTION
+            val item = newItem()
+            item.editing = true
+            items.add(item)
+            itemsView.addView(item, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT))
+            applyStyle()
+            item.alpha = 0f
+            item.animate().alpha(1f).setDuration((bar.animationDuration * 1000).toLong()).start()
+            scrollTo(item)
+            item.textField.requestFocus()
+            item.textField.post {
+                (context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+                    .showSoftInput(item.textField, InputMethodManager.SHOW_IMPLICIT)
+            }
+        }
+
+        fun completeSearch() {
+            val item = items.lastOrNull()
+            if (!isInSearchMode || item == null) {
+                return
+            }
+            isInSearchMode = false
+            item.editing = false
+            hideKeyboard(item)
+            val text = item.textField.text.toString()
+            if (text.isEmpty() || text.length < bar.minimumTextLength) {
+                remove(item, false)
+                return
+            }
+            val index = items.size - 1
+            selectedIndex = index
+            applyStyle()
+            bar.delegate?.searchBarViewDidCompleteSearch(bar, text, index)
+        }
+
+        fun addSearchText(text: String) {
+            if (text.isEmpty()) {
+                return
+            }
+            if (isInSearchMode) {
+                completeSearch()
+            }
+            val limit = bar.maximumTextLength
+            val item = newItem()
+            item.textField.setText(if (limit > 0 && text.length > limit) text.take(limit) else text)
+            items.add(item)
+            itemsView.addView(item, LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT))
+            selectedIndex = items.size - 1
+            applyStyle()
+            scrollTo(item)
+        }
+
+        fun selectItemAtIndex(index: Int) {
+            if (index !in items.indices || items[index].editing) {
+                return
+            }
+            if (isInSearchMode) {
+                completeSearch()
+            }
+            if (index !in items.indices) {
+                return
+            }
+            selectedIndex = index
+            applyStyle()
+            scrollTo(items[index])
+            bar.delegate?.searchBarViewDidSelectSearch(bar, items[index].textField.text.toString(), index)
+        }
+
+        fun removeItemAtIndex(index: Int) {
+            if (index in items.indices) {
+                remove(items[index], true)
+            }
+        }
+
+        private fun remove(item: SearchItem, notify: Boolean) {
+            val index = items.indexOf(item)
+            if (index < 0) {
+                return
+            }
+            if (item.editing) {
+                isInSearchMode = false
+            }
+            hideKeyboard(item)
+            itemsView.removeView(item)
+            items.removeAt(index)
+            // As in MultiSearchView: the next search is selected, or the previous one when the last went away.
+            selectedIndex = when {
+                items.isEmpty() -> NO_SELECTION
+                selectedIndex == index || selectedIndex == NO_SELECTION -> minOf(index, items.size - 1)
+                selectedIndex > index -> selectedIndex - 1
+                else -> selectedIndex
+            }
+            applyStyle()
+            if (notify) {
+                bar.delegate?.searchBarViewDidRemoveSearchAtIndex(bar, index)
+            }
+        }
+
+        private fun hideKeyboard(item: SearchItem) {
+            (context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+                .hideSoftInputFromWindow(item.textField.windowToken, 0)
+            item.textField.clearFocus()
+        }
+
+        private fun scrollTo(item: SearchItem) {
+            scrollView.post { scrollView.smoothScrollTo(item.left, 0) }
+        }
+    }
+
     private companion object {
+        const val NO_SELECTION = -1
+        const val ITEM_PADDING = 12f
+        const val REMOVE_SIZE = 28f
+        const val INDICATOR_HEIGHT = 2f
         const val ICON_SIZE = 18f
         const val SPACING = 8f
         const val DEFAULT_FIELD_COLOR = 0x1F767680
@@ -1320,5 +1779,535 @@ class CYLSearchBarView @JvmOverloads constructor(
         const val STATE_TEXT = "CYLSearchBarText"
         const val STATE_EDITING = "CYLSearchBarEditing"
         const val STATE_ICONIFIED = "CYLSearchBarIconified"
+    }
+}
+
+/**
+ * How an item appended to a search bar looks (iOS `CYLSearchBarItemStyle`).
+ */
+enum class CYLSearchBarItemStyle {
+    /**
+     * An icon button with a 36 dp touch area (a camera, a filter).
+     */
+    Icon,
+
+    /**
+     * A thin vertical line between two items; it takes no taps and TalkBack skips it.
+     */
+    Divider,
+
+    /**
+     * A text button (a "Search" button); an image, when set, comes before the title.
+     */
+    Text,
+}
+
+/**
+ * The fixed look of the whole bar (iOS `CYLSearchBarStyle`): the field stays, the items are appended after its text.
+ */
+enum class CYLSearchBarStyle {
+    /**
+     * The field as configured by its own properties (the default; nothing is changed).
+     */
+    Plain,
+
+    /**
+     * A capsule with a 1 dp outline on the surface color, the field and its items inside one outline.
+     */
+    Bordered,
+}
+
+/**
+ * The item states for text attributes (iOS `UIControlState`).
+ */
+enum class CYLSearchBarItemState {
+    /**
+     * Enabled and not selected.
+     */
+    Normal,
+
+    /**
+     * Selected (`isSelected`).
+     */
+    Selected,
+
+    /**
+     * Disabled (`isEnabled` false).
+     */
+    Disabled,
+}
+
+/**
+ * Title or badge text attributes (iOS `NSAttributedString` attributes): a color in ARGB, a size in sp, a typeface.
+ */
+data class CYLSearchBarItemTextAttributes(
+    val color: Int? = null,
+    val sizeSp: Float? = null,
+    val typeface: Typeface? = null,
+)
+
+/**
+ * One element after the text of a `CYLSearchBarView`: a model independent of its view (iOS `CYLSearchBarItem`, like
+ * `CYLFlatDesignTabBarItem`). Append it with `CYLSearchBarView.addItem`; its view is `itemView`.
+ */
+class CYLSearchBarItem @JvmOverloads constructor(
+    /**
+     * How the item looks (icon, divider or text); set when the item is created.
+     */
+    val style: CYLSearchBarItemStyle,
+    title: String? = null,
+    image: Drawable? = null,
+) {
+
+    /**
+     * The text of a text item, and the TalkBack label of an icon item without `itemAccessibilityLabel`.
+     */
+    var title: String? = title
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * The icon (tinted with `tintColor`).
+     */
+    var image: Drawable? = image
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * The icon while `isSelected` is true; null uses `image`.
+     */
+    var selectedImage: Drawable? = null
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * An animated icon (an `AnimatedVectorDrawable` or `AnimationDrawable`), started when shown; it wins over `image`.
+     */
+    var animatedImage: Drawable? = null
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * The icon size in dp; null uses 20 x 20 dp.
+     */
+    var imageSize: SizeF? = null
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * What TalkBack reads; null reads `title`.
+     */
+    var itemAccessibilityLabel: String? = null
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * A test tag for the item view (its content description stays `itemAccessibilityLabel`).
+     */
+    var itemAccessibilityIdentifier: String? = null
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * False dims the item and ignores taps. True by default.
+     */
+    var isEnabled: Boolean = true
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * True makes each tap toggle `isSelected` (a filter that stays on). False by default.
+     */
+    var isSelectable: Boolean = false
+
+    /**
+     * The selected state (drawn with `selectedImage`, `selectedBackgroundColor` and the selected text attributes).
+     */
+    var isSelected: Boolean = false
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * The icon and title color; null uses the bar's `itemTintColor`.
+     */
+    var tintColor: Int? = null
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * The item background; null is transparent.
+     */
+    var backgroundColor: Int? = null
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * The item background while selected; null uses `backgroundColor`.
+     */
+    var selectedBackgroundColor: Int? = null
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * Padding around the icon and title, in dp (start, top, end, bottom); null uses the style's default.
+     */
+    var contentInsets: FloatArray? = null
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * Moves the icon, in dp (x, y), without changing the item's size.
+     */
+    var imagePositionAdjustment: FloatArray = floatArrayOf(0f, 0f)
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * Moves the title, in dp (x, y), without changing the item's size.
+     */
+    var titlePositionAdjustment: FloatArray = floatArrayOf(0f, 0f)
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * The badge text; null hides the badge, an empty string draws a dot.
+     */
+    var badgeValue: String? = null
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * The badge background; null is red.
+     */
+    var badgeColor: Int? = null
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * The smallest badge size in dp; 0 uses 16 dp (a dot is 8 dp).
+     */
+    var badgeSize: Float = 0f
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * Padding around the badge text, in dp (start, top, end, bottom).
+     */
+    var badgeContentInsets: FloatArray = floatArrayOf(4f, 0f, 4f, 0f)
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * Moves the badge from the icon's top end corner, in dp (x, y).
+     */
+    var badgePositionAdjustment: FloatArray = floatArrayOf(0f, 0f)
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * Called on each tap, after `CYLSearchBarViewDelegate.searchBarViewDidSelectItem`.
+     */
+    var handler: ((CYLSearchBarItem) -> Unit)? = null
+
+    /**
+     * The bar the item was appended to; null before `addItem` and after `removeItem`.
+     */
+    var searchBarView: CYLSearchBarView? = null
+        internal set
+
+    /**
+     * The item's position in its bar's `items`; -1 when it is in no bar.
+     */
+    val index: Int
+        get() = searchBarView?.items?.indexOf(this) ?: -1
+
+    /**
+     * An icon item, or a text item when the title is set and the image is null (iOS `-initWithTitle:image:`).
+     */
+    constructor(title: String?, image: Drawable?) :
+        this(if (image == null && title != null) CYLSearchBarItemStyle.Text else CYLSearchBarItemStyle.Icon, title, image)
+
+    /**
+     * Like `constructor(title, image)`, with an icon for the selected state (iOS `-initWithTitle:image:selectedImage:`).
+     */
+    constructor(title: String?, image: Drawable?, selectedImage: Drawable?) : this(title, image) {
+        this.selectedImage = selectedImage
+    }
+
+    private var view: CYLSearchBarItemView? = null
+    private val titleAttributes = mutableMapOf<CYLSearchBarItemState, CYLSearchBarItemTextAttributes>()
+    private val badgeAttributes = mutableMapOf<CYLSearchBarItemState, CYLSearchBarItemTextAttributes>()
+
+    /**
+     * The item's view, created on first use with the bar's context (or the given one).
+     */
+    fun itemView(context: Context): View = loadItemView(context)
+
+    /**
+     * The item's view once created, or null.
+     */
+    val itemView: View?
+        get() = view
+
+    internal val loadedItemView: CYLSearchBarItemView?
+        get() = view
+
+    internal fun loadItemView(context: Context): CYLSearchBarItemView =
+        view ?: CYLSearchBarItemView(context, this).also { view = it }
+
+    /**
+     * The title attributes for a state.
+     */
+    fun setTitleTextAttributes(attributes: CYLSearchBarItemTextAttributes?, state: CYLSearchBarItemState) {
+        if (attributes == null) titleAttributes.remove(state) else titleAttributes[state] = attributes
+        itemChanged()
+    }
+
+    /**
+     * The title attributes set for a state, or null.
+     */
+    fun titleTextAttributes(state: CYLSearchBarItemState): CYLSearchBarItemTextAttributes? = titleAttributes[state]
+
+    /**
+     * The badge text attributes for a state.
+     */
+    fun setBadgeTextAttributes(attributes: CYLSearchBarItemTextAttributes?, state: CYLSearchBarItemState) {
+        if (attributes == null) badgeAttributes.remove(state) else badgeAttributes[state] = attributes
+        itemChanged()
+    }
+
+    /**
+     * The badge text attributes set for a state, or null.
+     */
+    fun badgeTextAttributes(state: CYLSearchBarItemState): CYLSearchBarItemTextAttributes? = badgeAttributes[state]
+
+    /**
+     * The view the badge is drawn in (the item view), or null before it exists.
+     */
+    fun actualBadgeSuperView(): View? = view
+
+    internal val currentState: CYLSearchBarItemState
+        get() = when {
+            !isEnabled -> CYLSearchBarItemState.Disabled
+            isSelected -> CYLSearchBarItemState.Selected
+            else -> CYLSearchBarItemState.Normal
+        }
+
+    private fun itemChanged() {
+        view?.reload()
+        searchBarView?.requestLayout()
+    }
+
+    companion object {
+        /**
+         * An icon item: the title is what TalkBack reads.
+         */
+        @JvmStatic
+        fun iconItem(image: Drawable?, title: String?, handler: ((CYLSearchBarItem) -> Unit)?): CYLSearchBarItem =
+            CYLSearchBarItem(CYLSearchBarItemStyle.Icon, title, image).also { it.handler = handler }
+
+        /**
+         * A text item (a "Search" button).
+         */
+        @JvmStatic
+        fun textItem(title: String, handler: ((CYLSearchBarItem) -> Unit)?): CYLSearchBarItem =
+            CYLSearchBarItem(CYLSearchBarItemStyle.Text, title, null).also { it.handler = handler }
+
+        /**
+         * A divider between two items.
+         */
+        @JvmStatic
+        fun divider(): CYLSearchBarItem = CYLSearchBarItem(CYLSearchBarItemStyle.Divider)
+
+        /**
+         * An item from plain values, for the cross-platform wrappers (Flutter, React Native): `style` (`icon`,
+         * `divider`, `text`), `title`, `image` (`camera`, `mic`, `search`, `back`, else a drawable name of the app),
+         * `accessibilityIdentifier`, `isEnabled`, `isSelectable`, `isSelected`, `badgeValue` (iOS
+         * `+itemWithDictionary:`).
+         */
+        @JvmStatic
+        fun fromMap(context: Context, map: Map<String, Any?>): CYLSearchBarItem {
+            val style = when (map["style"]) {
+                "divider" -> CYLSearchBarItemStyle.Divider
+                "text" -> CYLSearchBarItemStyle.Text
+                else -> CYLSearchBarItemStyle.Icon
+            }
+            return CYLSearchBarItem(style, map["title"] as? String, namedImage(context, map["image"] as? String)).apply {
+                itemAccessibilityIdentifier = map["accessibilityIdentifier"] as? String
+                isEnabled = map["isEnabled"] as? Boolean ?: true
+                isSelectable = map["isSelectable"] as? Boolean ?: false
+                isSelected = map["isSelected"] as? Boolean ?: false
+                badgeValue = map["badgeValue"] as? String
+                if (style == CYLSearchBarItemStyle.Icon) imageSize = SizeF(22f, 22f)
+            }
+        }
+
+        private fun namedImage(context: Context, name: String?): Drawable? {
+            if (name.isNullOrEmpty()) return null
+            val core = when (name) {
+                "camera" -> R.drawable.cyl_search_ic_camera
+                "mic" -> R.drawable.cyl_search_ic_mic
+                "search" -> R.drawable.cyl_search_ic_search
+                "back" -> R.drawable.cyl_search_ic_arrow_back
+                else -> 0
+            }
+            @Suppress("DiscouragedApi")
+            val id = if (core != 0) core else context.resources.getIdentifier(name, "drawable", context.packageName)
+            return if (id != 0) androidx.core.content.ContextCompat.getDrawable(context, id) else null
+        }
+    }
+}
+
+/**
+ * The view of a `CYLSearchBarItem` (a private helper; like `CYLFlatDesignTabBarButton`). Callers reach it as a `View`
+ * through `CYLSearchBarItem.itemView` and `CYLSearchBarView.itemViews`.
+ */
+internal class CYLSearchBarItemView(context: Context, item: CYLSearchBarItem) : FrameLayout(context) {
+
+    /**
+     * The item this view draws.
+     */
+    val item: CYLSearchBarItem = item
+
+    /**
+     * The icon.
+     */
+    val imageView: ImageView = ImageView(context)
+
+    /**
+     * The title of a text item.
+     */
+    val titleLabel: TextView = TextView(context)
+
+    /**
+     * The badge (`badgeValue`).
+     */
+    val badgeLabel: TextView = TextView(context)
+
+    private val content = LinearLayout(context)
+    private val divider = View(context)
+    private val density = resources.displayMetrics.density
+
+    init {
+        content.orientation = LinearLayout.HORIZONTAL
+        content.gravity = Gravity.CENTER
+        imageView.scaleType = ImageView.ScaleType.FIT_CENTER
+        imageView.importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
+        titleLabel.setTypeface(titleLabel.typeface, Typeface.BOLD)
+        titleLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 17f)
+        titleLabel.maxLines = 1
+        titleLabel.importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
+        badgeLabel.gravity = Gravity.CENTER
+        badgeLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
+        badgeLabel.setTextColor(Color.WHITE)
+        badgeLabel.importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
+        content.addView(imageView)
+        content.addView(titleLabel)
+        addView(content, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT, Gravity.CENTER))
+        addView(divider, LayoutParams(dp(1f), dp(18f), Gravity.CENTER))
+        addView(badgeLabel, LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.TOP or Gravity.END))
+        clipChildren = false
+        clipToPadding = false
+        setOnClickListener { this.item.searchBarView?.itemTapped(this.item) }
+        reload()
+    }
+
+    /**
+     * The view the badge is drawn in (this view).
+     */
+    fun actualBadgeSuperView(): View = this
+
+    private fun dp(value: Float): Int = (value * density + 0.5f).toInt()
+
+    private val resolvedTint: Int
+        get() = item.tintColor ?: item.searchBarView?.itemTintColor ?: defaultTint()
+
+    private fun defaultTint(): Int {
+        val value = TypedValue()
+        return if (context.theme.resolveAttribute(android.R.attr.textColorPrimary, value, true)) {
+            if (value.resourceId != 0) context.getColor(value.resourceId) else value.data
+        } else {
+            Color.BLACK
+        }
+    }
+
+    private val currentImage: Drawable?
+        get() = item.animatedImage ?: if (item.isSelected) item.selectedImage ?: item.image else item.image
+
+    internal fun reload() {
+        val state = item.currentState
+        val tint = resolvedTint
+        isEnabled = item.isEnabled
+        isSelected = item.isSelected
+        alpha = if (item.isEnabled) 1f else 0.4f
+        val image = currentImage
+        imageView.setImageDrawable(image)
+        ImageViewCompat.setImageTintList(imageView, if (item.animatedImage != null) null else ColorStateList.valueOf(tint))
+        (image as? Animatable)?.start()
+        val imageW = item.imageSize?.width?.takeIf { it > 0 } ?: 20f
+        val imageH = item.imageSize?.height?.takeIf { it > 0 } ?: imageW
+        imageView.layoutParams = LinearLayout.LayoutParams(dp(imageW), dp(imageH)).apply {
+            marginEnd = if (item.style == CYLSearchBarItemStyle.Text) dp(4f) else 0
+        }
+        imageView.translationX = item.imagePositionAdjustment.getOrElse(0) { 0f } * density
+        imageView.translationY = item.imagePositionAdjustment.getOrElse(1) { 0f } * density
+        imageView.visibility = if (item.style != CYLSearchBarItemStyle.Divider && image != null) VISIBLE else GONE
+        val attributes = item.titleTextAttributes(state) ?: item.titleTextAttributes(CYLSearchBarItemState.Normal)
+        if (item.style == CYLSearchBarItemStyle.Text && item.title != null) {
+            titleLabel.text = item.title
+            titleLabel.setTextColor(attributes?.color ?: tint)
+            attributes?.sizeSp?.let { titleLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, it) }
+            attributes?.typeface?.let { titleLabel.typeface = it }
+            titleLabel.visibility = VISIBLE
+        } else {
+            titleLabel.text = null
+            titleLabel.visibility = GONE
+        }
+        titleLabel.translationX = item.titlePositionAdjustment.getOrElse(0) { 0f } * density
+        titleLabel.translationY = item.titlePositionAdjustment.getOrElse(1) { 0f } * density
+        val insets = item.contentInsets ?: when (item.style) {
+            CYLSearchBarItemStyle.Text -> floatArrayOf(4f, 0f, 4f, 0f)
+            else -> floatArrayOf(0f, 0f, 0f, 0f)
+        }
+        setPaddingRelative(dp(insets.getOrElse(0) { 0f }), dp(insets.getOrElse(1) { 0f }), dp(insets.getOrElse(2) { 0f }), dp(insets.getOrElse(3) { 0f }))
+        val minimum = if (item.style == CYLSearchBarItemStyle.Divider) 0 else dp(MINIMUM_TOUCH)
+        minimumWidth = minimum
+        minimumHeight = minimum
+        val background = if (item.isSelected) item.selectedBackgroundColor ?: item.backgroundColor else item.backgroundColor
+        this.background = background?.let { color ->
+            GradientDrawable().apply { setColor(color); cornerRadius = dp(10f).toFloat() }
+        }
+        divider.visibility = if (item.style == CYLSearchBarItemStyle.Divider) VISIBLE else GONE
+        divider.setBackgroundColor(Color.argb(0x33, 0x3C, 0x3C, 0x43))
+        content.visibility = if (item.style == CYLSearchBarItemStyle.Divider) GONE else VISIBLE
+        reloadBadge(state)
+        val accessible = item.style != CYLSearchBarItemStyle.Divider
+        importantForAccessibility = if (accessible) IMPORTANT_FOR_ACCESSIBILITY_YES else IMPORTANT_FOR_ACCESSIBILITY_NO
+        contentDescription = item.itemAccessibilityLabel ?: item.title
+        tag = item.itemAccessibilityIdentifier
+        isClickable = accessible
+        isFocusable = accessible
+        requestLayout()
+    }
+
+    private fun reloadBadge(state: CYLSearchBarItemState) {
+        val value = item.badgeValue
+        if (value == null) {
+            badgeLabel.visibility = GONE
+            return
+        }
+        badgeLabel.visibility = VISIBLE
+        val isDot = value.isEmpty()
+        val side = if (isDot) 8f else if (item.badgeSize > 0) item.badgeSize else 16f
+        badgeLabel.text = value
+        val attributes = item.badgeTextAttributes(state) ?: item.badgeTextAttributes(CYLSearchBarItemState.Normal)
+        badgeLabel.setTextColor(attributes?.color ?: Color.WHITE)
+        attributes?.sizeSp?.let { badgeLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, it) }
+        attributes?.typeface?.let { badgeLabel.typeface = it }
+        badgeLabel.minWidth = dp(side)
+        badgeLabel.minHeight = dp(side)
+        badgeLabel.minimumWidth = dp(side)
+        badgeLabel.minimumHeight = dp(side)
+        val insets = if (isDot) floatArrayOf(0f, 0f, 0f, 0f) else item.badgeContentInsets
+        badgeLabel.setPaddingRelative(dp(insets.getOrElse(0) { 0f }), dp(insets.getOrElse(1) { 0f }), dp(insets.getOrElse(2) { 0f }), dp(insets.getOrElse(3) { 0f }))
+        badgeLabel.background = GradientDrawable().apply {
+            setColor(item.badgeColor ?: Color.RED)
+            cornerRadius = dp(side).toFloat() / 2
+        }
+        badgeLabel.translationX = item.badgePositionAdjustment.getOrElse(0) { 0f } * density
+        badgeLabel.translationY = item.badgePositionAdjustment.getOrElse(1) { 0f } * density
+    }
+
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        if (item.style == CYLSearchBarItemStyle.Icon) {
+            // An icon item is square.
+            val side = max(measuredWidth, measuredHeight)
+            setMeasuredDimension(side, side)
+        }
+    }
+
+    private companion object {
+        const val MINIMUM_TOUCH = 36f
     }
 }

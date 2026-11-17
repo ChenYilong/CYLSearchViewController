@@ -11,10 +11,8 @@ import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import com.cyl.search.CYLSearchPlaceholderMessage
-import com.cyl.search.CYLSearchPlaceholderStyle
-import com.cyl.search.CYLSearchPlaceholderView
-import com.cyl.search.CYLSearchResources
+import com.cyl.placeholder.CYLPlaceholderStyle
+import com.cyl.placeholder.CYLPlaceholderView
 
 /**
  * A list of rows with a title, an optional subtitle and icon, and a tap action (iOS `UITableView` menus).
@@ -77,7 +75,8 @@ class CYLSearchDemoMenuFragment : CYLExamplePage() {
 
 /**
  * Every placeholder image with each built-in message, and the custom forms (iOS
- * `CYLSearchPlaceholderGalleryViewController`).
+ * `CYLSearchPlaceholderGalleryViewController`), drawn by CYLTableViewPlaceHolder's `CYLPlaceholderView`: the search
+ * core has no placeholder view of its own.
  */
 class CYLSearchPlaceholderGalleryFragment : CYLExamplePage() {
 
@@ -87,15 +86,17 @@ class CYLSearchPlaceholderGalleryFragment : CYLExamplePage() {
         val rows = mutableListOf<Triple<String, String?, () -> Unit>>()
         val icons = mutableListOf<Drawable?>()
         val headers = mutableMapOf<Int, String>()
-        val styles = CYLSearchPlaceholderStyle.entries.filter { it != CYLSearchPlaceholderStyle.Count }
+        // The styles of the former search placeholder, Empty to WrongLocation, in the same order.
+        val all = CYLPlaceholderStyle.entries
+        val styles = all.subList(0, all.indexOf(CYLPlaceholderStyle.WrongLocation) + 1)
         val messageKeys = listOf("placeholder.empty", "placeholder.search", "placeholder.error", "placeholder.network")
         styles.forEach { style ->
-            headers[rows.size] = CYLSearchPlaceholderView.imageNameForStyle(style)
-            CYLSearchPlaceholderMessage.entries.forEachIndexed { index, message ->
-                val title = context.cylDemoText(messageKeys[index])
-                rows += Triple(title, null) { show(title, CYLSearchPlaceholderView(requireContext(), style, message)) }
-                icons += CYLSearchResources.imageNamed(context, CYLSearchPlaceholderView.imageNameForStyle(style))?.mutate()?.apply {
-                    if (style != CYLSearchPlaceholderStyle.Empty) setTint(Color.GRAY)
+            headers[rows.size] = CYLPlaceholderView.imageNameForStyle(style)
+            messageKeys.forEach { key ->
+                val title = context.cylDemoText(key)
+                rows += Triple(title, null) { show(title, CYLPlaceholderView(requireContext(), style, title)) }
+                icons += CYLPlaceholderView.imageForStyle(context, style)?.mutate()?.apply {
+                    if (style != CYLPlaceholderStyle.Empty) setTint(Color.GRAY)
                 }
             }
         }
@@ -105,17 +106,19 @@ class CYLSearchPlaceholderGalleryFragment : CYLExamplePage() {
         val imageOnly = context.cylDemoText("demo.custom.imageOnly")
         val both = context.cylDemoText("demo.custom.both")
         rows += Triple(textOnly, null) {
-            show(textOnly, CYLSearchPlaceholderView(requireContext(), CYLSearchPlaceholderStyle.NoResults, requireContext().cylDemoText("demo.custom.text")))
+            show(textOnly, CYLPlaceholderView(requireContext(), CYLPlaceholderStyle.NoResults, requireContext().cylDemoText("demo.custom.text")))
         }
-        icons += CYLSearchResources.imageNamed(context, "CYLSearchNoResults")?.mutate()?.apply { setTint(Color.GRAY) }
-        rows += Triple(imageOnly, null) { show(imageOnly, CYLSearchPlaceholderView(requireContext(), heart(), CYLSearchPlaceholderMessage.Network)) }
+        icons += CYLPlaceholderView.imageForStyle(context, CYLPlaceholderStyle.NoResults)?.mutate()?.apply { setTint(Color.GRAY) }
+        rows += Triple(imageOnly, null) {
+            show(imageOnly, CYLPlaceholderView(requireContext(), heart(), requireContext().cylDemoText("placeholder.network")))
+        }
         icons += heart()
-        rows += Triple(both, null) { show(both, CYLSearchPlaceholderView(requireContext(), heart(), requireContext().cylDemoText("demo.custom.text"))) }
+        rows += Triple(both, null) { show(both, CYLPlaceholderView(requireContext(), heart(), requireContext().cylDemoText("demo.custom.text"))) }
         icons += heart()
         return context.cylMenuList(rows, icons, headers)
     }
 
-    private fun show(title: String, placeholder: CYLSearchPlaceholderView) {
+    private fun show(title: String, placeholder: View) {
         push(CYLViewPage.newInstance(title).also { it.content = placeholder })
     }
 }

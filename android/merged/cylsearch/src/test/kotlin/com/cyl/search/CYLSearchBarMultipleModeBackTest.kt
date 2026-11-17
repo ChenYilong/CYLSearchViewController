@@ -10,23 +10,32 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 
 /**
- * The system Back gesture ends the search being typed in a `CYLMultiSearchView`, and only then.
+ * The system Back gesture ends the search being typed in a `CYLSearchBarView` in `Multiple` mode, and only then.
  */
 @RunWith(RobolectricTestRunner::class)
-class CYLMultiSearchBackTest {
+class CYLSearchBarMultipleModeBackTest {
     private val activity: ComponentActivity =
         Robolectric.buildActivity(ComponentActivity::class.java).setup().get()
 
     @Test
     fun backCompletesTypingOnlyWhileTyping() {
-        val view = CYLMultiSearchView(activity)
-        activity.setContentView(view)
+        val bar = CYLSearchBarView(activity)
+        bar.mode = CYLSearchBarMode.Multiple
+        activity.setContentView(bar)
         assertFalse(activity.onBackPressedDispatcher.hasEnabledCallbacks())
-        view.search()
+        bar.beginNewSearch()
         assertTrue(activity.onBackPressedDispatcher.hasEnabledCallbacks())
         activity.onBackPressedDispatcher.onBackPressed()
-        assertFalse(view.isInSearchMode)
+        assertFalse(bar.isEditingNewSearch)
         assertFalse(activity.onBackPressedDispatcher.hasEnabledCallbacks())
-        assertEquals(-1, view.selectedIndex)
+        assertEquals(-1, bar.selectedSearchIndex)
+    }
+
+    @Test
+    fun singleModeNeverTakesTheBackGesture() {
+        val bar = CYLSearchBarView(activity)
+        activity.setContentView(bar)
+        bar.beginNewSearch()
+        assertFalse(activity.onBackPressedDispatcher.hasEnabledCallbacks())
     }
 }

@@ -24,10 +24,9 @@ import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.cyl.search.CYLLineBreakMode
-import com.cyl.search.CYLMultiSearchView
-import com.cyl.search.CYLMultiSearchViewDelegate
 import com.cyl.search.CYLSearchBarExpansionAnimation
 import com.cyl.search.CYLSearchBarIconPosition
+import com.cyl.search.CYLSearchBarMode
 import com.cyl.search.CYLSearchBarNavigationIcon
 import com.cyl.search.CYLSearchBarView
 import com.cyl.search.CYLSearchBarViewDelegate
@@ -391,9 +390,10 @@ class CYLRevealPortFragment : CYLExamplePage() {
 }
 
 /**
- * iammert/MultiSearchView (iOS `CYLMultiSearchDemoViewController`): several searches side by side, with an event log.
+ * iammert/MultiSearchView (iOS `CYLMultiSearchDemoViewController`): a `CYLSearchBarView` in `Multiple` mode, several
+ * searches side by side, with an event log.
  */
-class CYLMultiSearchPortFragment : CYLExamplePage(), CYLMultiSearchViewDelegate {
+class CYLMultiSearchPortFragment : CYLExamplePage(), CYLSearchBarViewDelegate {
 
     private lateinit var logView: TextView
 
@@ -401,7 +401,8 @@ class CYLMultiSearchPortFragment : CYLExamplePage(), CYLMultiSearchViewDelegate 
 
     override fun createContent(context: Context): View {
         val density = context.resources.displayMetrics.density
-        val multiSearchView = CYLMultiSearchView(context).apply {
+        val multiSearchView = CYLSearchBarView(context).apply {
+            mode = CYLSearchBarMode.Multiple
             placeholder = context.cylDemoText("search.field")
             fontSize = 18f
             maximumTextLength = 15
@@ -431,14 +432,14 @@ class CYLMultiSearchPortFragment : CYLExamplePage(), CYLMultiSearchViewDelegate 
         logView.text = line + "\n" + logView.text
     }
 
-    override fun multiSearchViewDidSelectItem(multiSearchView: CYLMultiSearchView, text: String, index: Int) =
+    override fun searchBarViewDidSelectSearch(searchBarView: CYLSearchBarView, text: String, index: Int) =
         log("onItemSelected: index: $index, query: $text")
 
-    override fun multiSearchViewTextDidChange(multiSearchView: CYLMultiSearchView, text: String, index: Int) =
+    override fun searchBarViewTextDidChange(searchBarView: CYLSearchBarView, text: String, index: Int) =
         log("changed: index: $index, query: $text")
 
-    override fun multiSearchViewDidCompleteSearch(multiSearchView: CYLMultiSearchView, text: String, index: Int) =
+    override fun searchBarViewDidCompleteSearch(searchBarView: CYLSearchBarView, text: String, index: Int) =
         log("complete: index: $index, query: $text")
 
-    override fun multiSearchViewDidRemoveItemAtIndex(multiSearchView: CYLMultiSearchView, index: Int) = log("remove: index: $index")
+    override fun searchBarViewDidRemoveSearchAtIndex(searchBarView: CYLSearchBarView, index: Int) = log("remove: index: $index")
 }

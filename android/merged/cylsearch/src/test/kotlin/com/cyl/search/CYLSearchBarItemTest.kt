@@ -53,15 +53,15 @@ class CYLSearchBarItemTest {
         assertSame(bar, camera.searchBarView)
         assertTrue(bar.hasItem(CYLSearchBarItemStyle.Text))
         assertEquals(3, bar.itemViews.size)
-        assertSame(camera, bar.itemViews[0].item)
+        assertSame(camera, (bar.itemViews[0] as CYLSearchBarItemView).item)
         assertSame(camera.itemView, camera.actualBadgeSuperView())
 
         // Layout: in order after the text, inside the field; a square 36 dp camera; TalkBack skips the divider.
         root.measure(View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(400, View.MeasureSpec.AT_MOST))
         root.layout(0, 0, 1080, 400)
-        val cameraView = bar.itemViews[0]
+        val cameraView = bar.itemViews[0] as CYLSearchBarItemView
         val dividerView = bar.itemViews[1]
-        val searchView = bar.itemViews[2]
+        val searchView = bar.itemViews[2] as CYLSearchBarItemView
         fun windowX(view: View): Int = IntArray(2).also { view.getLocationInWindow(it) }[0]
         assertTrue(windowX(bar.textField) + bar.textField.width <= windowX(cameraView))
         assertTrue(windowX(cameraView) + cameraView.width <= windowX(dividerView))
