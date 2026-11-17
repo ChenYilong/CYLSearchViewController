@@ -83,6 +83,22 @@
   with `<cyl-tag-button>`. Until then `CYLSearchBarItem.animationURL` is TODO in `docs/miniprogram-api-alignment.md`
   (score 99).
 
+### TODO (2026-11-17): step 2 on HarmonyOS and the mini program
+
+- **Context**: CollectionViewClassifyMenu `27777c6b6a35951b9fd639849296dcbfaaae5876` (branch `feat/harmony`) removed
+  the four HarmonyOS blockers above (`SymbolGlyph` for `sys.symbol` icons, `ResourceColor` colors, `CYLTagButtonHost`
+  for V2 parents, animation versions noted: lottie 2.0.38, libpag 4.4.31 there vs 4.5.102 in cylplaceholder) and the
+  mini program one (`allowsTransparentBackground`).
+- **Requirements**: HarmonyOS `cylsearch` depends on classifymenu pinned to that commit like cylplaceholder / cyltabbar
+  (`oh-package.json5` key, `sync-sub-repositories.py` entry, git-ignored vendor copy); `CYLSearchBarView.ets` draws
+  every item with `CYLTagButton` (no border, the item's background, tint, title attributes, icon size; text item =
+  title (+ icon), icon item = icon only, divider keeps its line, badge from the item, 44 vp touch area,
+  accessibility); `CYLSearchBarItem.animationURL` forwarded; the example's SVGA header becomes a `CYLTagButton`.
+  Mini program: `cyl-search-bar` items drawn with classifymenu's `cyl-tag-button` (transparent, iOS look), pinned to
+  the same commit; `animationURL` on items. Tests, the parity generators at 100, docs.
+- **Prompt**: relayed by the parent session for the task above (same prompt).
+- **Status**: started.
+
 ### Step 3: TODO
 
 - CYLTableViewPlaceHolder: `CYLPlaceholderView`'s animated icon becomes a `CYLTagButton` (CYLTableViewPlaceHolder
