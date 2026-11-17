@@ -444,3 +444,12 @@ begins and becomes `DONE` when it ends.
   abbreviated file names (`…-rn-search-filter.png`, `{rn,flutter}-rive-at-…`) in this session's documents; they are written
   in full with their labels now. Left to the iOS session: `docs/assets/ios-ci-animated-icons-svga.png` (`261673f`, a
   stitched iOS CI capture without header, footer or label line).
+
+## DONE (2026-11-18; TODO 2026-11-18): remove the screenshot label check from CI
+
+- **Prompt, verbatim**: "Remove label CI screenshots from ci"
+- **English**: remove the screenshot label check (`.github/workflows/screenshot-labels.yml`) from CI.
+- **Scope**: delete the workflow; keep `scripts/check-screenshot-labels.sh` and the local rule (run it before every
+  commit that adds an image); the rule texts that said CI runs it now say it does not (`AGENTS.md`,
+  `instructions.md`, skills `cyl-docs` and `cyl-verify`).
+- **Status**: done, in the same commit.
