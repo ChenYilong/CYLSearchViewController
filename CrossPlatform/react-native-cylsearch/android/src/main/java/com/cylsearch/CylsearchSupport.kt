@@ -19,11 +19,11 @@ internal fun ReadableArray?.cylStrings(): List<String> = (0 until (this?.size() 
  */
 internal fun cylFoldControl(position: String?, content: String?) = CYLMenuFoldControl().apply {
   this.position = when (position) {
-    "none" -> CYLMenuFoldControlPosition.CYLMenuFoldControlPositionNone
-    "bottom" -> CYLMenuFoldControlPosition.CYLMenuFoldControlPositionBottom
-    "topTrailing" -> CYLMenuFoldControlPosition.CYLMenuFoldControlPositionTopTrailing
-    "topLeading" -> CYLMenuFoldControlPosition.CYLMenuFoldControlPositionTopLeading
-    else -> CYLMenuFoldControlPosition.CYLMenuFoldControlPositionInline
+    "none" -> CYLMenuFoldControlPosition.NONE
+    "bottom", "footer" -> CYLMenuFoldControlPosition.FOOTER
+    "topTrailing", "headerTrailing" -> CYLMenuFoldControlPosition.HEADER_TRAILING
+    "topLeading", "headerLeading" -> CYLMenuFoldControlPosition.HEADER_LEADING
+    else -> CYLMenuFoldControlPosition.TAIL
   }
   this.content = when (content) {
     "iconAndTitle" -> CYLMenuFoldControlContent.CYLMenuFoldControlContentIconAndTitle

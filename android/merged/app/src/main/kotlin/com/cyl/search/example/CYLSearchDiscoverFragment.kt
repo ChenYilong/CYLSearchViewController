@@ -205,7 +205,7 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
         }
         recentList = CYLTagListView(context).apply {
             foldControl = CYLMenuFoldControl().apply {
-                position = CYLMenuFoldControlPosition.CYLMenuFoldControlPositionInline
+                position = CYLMenuFoldControlPosition.TAIL
                 content = CYLMenuFoldControlContent.CYLMenuFoldControlContentIcon
             }
             style = recentStyle()

@@ -279,9 +279,13 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDelegate {
  * The fold control for a Dart `CYLTagFoldControlPosition` and `CYLTagFoldControlContent` name; an inline icon by default.
  */
 func cylFoldControl(_ position: Any?, _ content: Any?) -> CYLMenuFoldControl {
-    let positions: [String: CYLMenuFoldControlPosition] = ["none": .none, "inline": .inline, "bottom": .bottom,
-                                                           "topTrailing": .topTrailing, "topLeading": .topLeading]
+    // The plugin's names ("inline", "bottom", "topTrailing", "topLeading") and CollectionViewClassifyMenu's own since
+    // its position rename ("tail", "footer", "headerTrailing", "headerLeading").
+    let positions: [String: CYLMenuFoldControlPosition] = ["none": .none, "inline": .tail, "tail": .tail,
+                                                           "bottom": .footer, "footer": .footer,
+                                                           "topTrailing": .headerTrailing, "headerTrailing": .headerTrailing,
+                                                           "topLeading": .headerLeading, "headerLeading": .headerLeading]
     let contents: [String: CYLMenuFoldControlContent] = ["iconAndTitle": .iconAndTitle, "title": .title, "icon": .icon]
-    return CYLMenuFoldControl(position: positions[position as? String ?? ""] ?? .inline, content: contents[content as? String ?? ""] ?? .icon)
+    return CYLMenuFoldControl(position: positions[position as? String ?? ""] ?? .tail, content: contents[content as? String ?? ""] ?? .icon)
 }
 

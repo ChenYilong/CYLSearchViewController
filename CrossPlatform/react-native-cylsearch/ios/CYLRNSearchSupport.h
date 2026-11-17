@@ -1,5 +1,5 @@
 #import <UIKit/UIKit.h>
-#import <CollectionViewClassifyMenu/CollectionViewClassifyMenu-umbrella.h>
+#import <CollectionViewClassifyMenu/CollectionViewClassifyMenu-Swift.h>
 // The types the generated Swift header uses (CYLPlaceholderScenario, CYLTagListView) come first.
 #import <CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.h>
 #import <CYLSearchViewController/CYLSearchViewController-Swift.h>
@@ -34,17 +34,23 @@ static inline NSArray<NSString *> *CYLRNStrings(const std::vector<std::string> &
  */
 static inline CYLMenuFoldControl *CYLRNFoldControl(NSString *position, NSString *content)
 {
+  // The component's names, and CollectionViewClassifyMenu's own since its position rename (tail, footer, header…).
   NSDictionary<NSString *, NSNumber *> *positions = @{
-    @"none": @(CYLMenuFoldControlPositionNone), @"inline": @(CYLMenuFoldControlPositionInline),
-    @"bottom": @(CYLMenuFoldControlPositionBottom), @"topTrailing": @(CYLMenuFoldControlPositionTopTrailing),
-    @"topLeading": @(CYLMenuFoldControlPositionTopLeading)
+    @"none": @(CYLMenuFoldControlPositionNone),
+    @"inline": @(CYLMenuFoldControlPositionTail), @"tail": @(CYLMenuFoldControlPositionTail),
+    @"bottom": @(CYLMenuFoldControlPositionFooter), @"footer": @(CYLMenuFoldControlPositionFooter),
+    @"topTrailing": @(CYLMenuFoldControlPositionHeaderTrailing),
+    @"headerTrailing": @(CYLMenuFoldControlPositionHeaderTrailing),
+    @"topLeading": @(CYLMenuFoldControlPositionHeaderLeading),
+    @"headerLeading": @(CYLMenuFoldControlPositionHeaderLeading)
   };
   NSDictionary<NSString *, NSNumber *> *contents = @{
     @"icon": @(CYLMenuFoldControlContentIcon), @"title": @(CYLMenuFoldControlContentTitle),
     @"iconAndTitle": @(CYLMenuFoldControlContentIconAndTitle)
   };
-  return [CYLMenuFoldControl foldControlWithPosition:(CYLMenuFoldControlPosition)(positions[position] ?: @(CYLMenuFoldControlPositionInline)).integerValue
-                                             content:(CYLMenuFoldControlContent)(contents[content] ?: @(CYLMenuFoldControlContentIcon)).integerValue];
+  return [[CYLMenuFoldControl alloc]
+      initWithPosition:(CYLMenuFoldControlPosition)(positions[position] ?: @(CYLMenuFoldControlPositionTail)).integerValue
+               content:(CYLMenuFoldControlContent)(contents[content] ?: @(CYLMenuFoldControlContentIcon)).integerValue];
 }
 
 /*!

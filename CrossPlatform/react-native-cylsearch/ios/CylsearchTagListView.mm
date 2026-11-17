@@ -39,8 +39,9 @@ using namespace facebook::react;
     style.backgroundColor = UIColor.clearColor;
     _tagListView.style = style;
     __weak __typeof(self) weakSelf = self;
-    _tagListView.tagClickHandler = ^(NSInteger index, CYLTag *tag) {
-      [weakSelf emitTagSelectAtIndex:index title:tag.title ?: @""];
+    // Objective-C's tagClickHandler (index and title; the Swift one passes a CYLTag): every accepted tap, as on Android.
+    _tagListView.tagClickHandler = ^(NSInteger index, NSString *title) {
+      [weakSelf emitTagSelectAtIndex:index title:title ?: @""];
     };
     self.contentView = _tagListView;
   }

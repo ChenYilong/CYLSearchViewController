@@ -597,7 +597,7 @@ class CYLSearchView @JvmOverloads constructor(
         suggestionsTagView.contentDescription = CYLSearchResources.localizedString(context, "search.suggestions")
         // The last tag is a fold chevron by default (iOS `suggestionsFoldControl`), two rows while folded.
         suggestionsTagView.foldControl = CYLMenuFoldControl().apply {
-            position = CYLMenuFoldControlPosition.CYLMenuFoldControlPositionInline
+            position = CYLMenuFoldControlPosition.TAIL
             content = CYLMenuFoldControlContent.CYLMenuFoldControlContentIcon
         }
         suggestionsTagView.defaultVisibleRows = 2

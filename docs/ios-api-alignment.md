@@ -59,41 +59,24 @@ this project ships with, such as CollectionViewClassifyMenu's tag views) next to
   every Kotlin class with a primary constructor over several lines (122 missing rows); its tables are now 733 / 733
   (Android → iOS) and 762 / 762 (iOS → Android). This session found and fixed the same parser bug in parallel; the
   other session's commit landed first, so this session's duplicate was dropped.
-- TODO (pin): this repository still pins CollectionViewClassifyMenu `f972416` (2026-11-12, Objective-C iOS core) in
-  `Podfile` and `android/merged/gradle.properties`; the table measures `41aec0d` (newest, Swift iOS core). The rule
-  "Sub-repositories" asks for the newest commit. Details of the bump in the next item.
-- TODO (pin, found 2026-11-17): bumping the pin is a breaking change for this repository. At `41aec0d` the fold
-  position `inline` is renamed `tail` (iOS `.tail`, Objective-C `CYLMenuFoldControlPositionTail`, Android `TAIL`;
-  sub-repository `e0129e8`, no alias), and the Objective-C factory `+foldControlWithPosition:content:` became
-  `init(position:content:)`. Call sites to change with the bump: `Sources/CYLSearchViewController/CYLSearchView.swift`
-  (`suggestionsTagView`), `CYLSearchExample/CYLMaterialSearchMenuViewController.swift`,
-  `CYLSearchExample/CYLSearchDiscoverViewController.swift`, `CYLSearchExampleTests/CYLSearchExampleTests.m`,
-  `android/merged/cylsearch/.../CYLSearchView.kt` and its test, `android/merged/app/.../CYLSuggestionStyleFragment.kt`
-  and `CYLSearchDiscoverFragment.kt`, the React Native wrapper (`CYLRNSearchSupport.h`, `CylsearchSupport.kt`, and the
-  `"inline"` string of its prop) and the Flutter plugin (`FlutterCylsearchPlugin.swift` / `.kt`), plus the pins in
-  `Podfile`, `android/merged/gradle.properties` and the React Native and Flutter example Podfiles. Every other
-  CollectionViewClassifyMenu API this repository's iOS core and example call was checked at `41aec0d` and exists with
-  the same Swift names and signatures (`CYLMenuDelegate`, `CYLMenuDataSource`, `CYLMenuStyle`, `CYLTagAppearance`).
-  Not done here: CI builds only iOS, the Android SDK host is blocked by this session's network proxy, and React
-  Native and Flutter have no CI; a blind change to four platforms needs the maintainer's go-ahead.
-- TODO (pin, blocker found 2026-11-17, after the go-ahead): the bump cannot be finished without a change in
-  CollectionViewClassifyMenu. At `41aec0d` its Swift `CYLTagListView` no longer exposes most members to
-  Objective-C (`showsSectionHeaders`, `menuDelegate`, `style`, `tagClickHandler`, `foldControl`,
-  `setTags(withTitles:colors:)`, `heightThatFitsWidth(_:)` have no `@objc`; only `init(foldControl:)` and
-  `defaultVisibleRows` do), `CYLTag` is a pure Swift class (not an `NSObject`), and the pod ships no headers (import
-  `CollectionViewClassifyMenu-Swift.h`, not `-umbrella.h`). The React Native iOS wrapper
-  (`CrossPlatform/react-native-cylsearch/ios/CylsearchTagListView.mm`, `CYLRNSearchSupport.h`, Objective-C++, as
-  Fabric requires) calls all of them, and its example compiles this repository's `Sources/` too, so iOS cannot move
-  without it. Core-first fix: in CollectionViewClassifyMenu, mark those members `@objc` and give `tagClickHandler` an
-  Objective-C-compatible tag type (or make `CYLTag` an `NSObject`); then pin, apply
-  [patches/classifymenu-41aec0d-fold-position-rename.patch](patches/classifymenu-41aec0d-fold-position-rename.patch)
-  (the `inline` → `tail` rename on iOS, Android, React Native Android, Flutter iOS and Android; the plugins keep
-  their `"inline"` / `"bottom"` strings and also accept the new names), update the React Native iOS mapping
-  (`CYLMenuFoldControlPositionTail`… and `-initWithPosition:content:` in place of `+foldControlWithPosition:content:`),
-  bump every pin (`Podfile`, `android/merged/gradle.properties`, both CrossPlatform example Podfiles), and build iOS,
-  Android, React Native and Flutter. Fallback without the sub-repository: a Swift `@objc` adapter for
-  `CYLTagListView` inside the React Native package (its core, npm), called from the `.mm` files. The patch was
-  checked to apply (`git apply --check`); none of it was compiled (no Xcode, no Android SDK here).
+- DONE (2026-11-17, pending CI): the CollectionViewClassifyMenu pin bump, from `f972416` (2026-11-12) to
+  `ec52480` (its newest commit, `feat/harmony`) in `Podfile`, `android/merged/gradle.properties` and both
+  CrossPlatform example Podfiles.
+  - Blocker removed in that repository: `477323d` made every Objective-C-representable `CYLTagListView` member
+    `@objc` again (another session); `ec52480` (this session) added Objective-C's `tagClickHandler` (index and title),
+    called for the same taps as the Swift `tagClickHandler`, whose `CYLTag` Objective-C cannot see.
+  - Fold position rename (`inline` → `tail`, `bottom` → `footer`, `topTrailing` / `topLeading` → `headerTrailing` /
+    `headerLeading`; the Objective-C factory became `-initWithPosition:content:`): iOS core and example, the
+    Objective-C test (which now reads `suggestionsFoldControl` instead of the tag list's member), the Android core,
+    test and example, the Flutter plugin (iOS and Android) and the React Native wrapper (iOS and Android). The
+    React Native and Flutter wrappers keep their own strings (`"inline"`, `"bottom"`, `"topTrailing"`,
+    `"topLeading"`) and also accept the library's new names.
+  - React Native iOS: imports `CollectionViewClassifyMenu-Swift.h` (the pod ships no headers since its Swift
+    migration) and reports taps through Objective-C's `tagClickHandler`.
+  - Not verified here (Linux: no Xcode, no Android SDK; CocoaPods could not reach its spec CDN through this session's
+    proxy, so the three `Podfile.lock` files still name `f972416` and CI's `pod install` re-resolves the pod). To
+    verify: iOS CI (build, analyze, unit tests), the Android build and tests, and the React Native and Flutter
+    examples on a Mac.
 
 ## Score log
 
@@ -441,7 +424,7 @@ Rows: 320; matched 320, TODO 0; score 100/100.
 | `CYLSearchView.dismissSuggestions` | Hides the suggestions (`dismissSuggestions`). | `CYLSearchView.dismissSuggestions()` |
 | `CYLSearchView.clearSuggestionCache` | Removes every cached query (the delete button of `suggestionCacheHeaderView`) and shows the list again (iOS `clearSuggestionCache`). | `CYLSearchView.clearSuggestionCache()` |
 
-### B. CollectionViewClassifyMenu (tag views): `com.cyl.classifymenu` → its iOS library (measured at `652e084 2026-11-17`)
+### B. CollectionViewClassifyMenu (tag views): `com.cyl.classifymenu` → its iOS library (measured at `ec52480 2026-11-17`)
 
 Rows: 604; matched 604, TODO 0; score 100/100.
 

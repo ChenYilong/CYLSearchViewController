@@ -61,7 +61,7 @@ class CYLSuggestionStyleFragment : CYLExamplePage(), CYLSearchViewDelegate {
             focusesSearchFieldOnShow = style != CYLSearchSuggestionStyle.Tags
             // The tags end with the fold chevron, two rows while folded, as on the Discover page.
             suggestionsFoldControl = com.cyl.classifymenu.CYLMenuFoldControl().apply {
-                position = com.cyl.classifymenu.CYLMenuFoldControlPosition.CYLMenuFoldControlPositionInline
+                position = com.cyl.classifymenu.CYLMenuFoldControlPosition.TAIL
                 content = com.cyl.classifymenu.CYLMenuFoldControlContent.CYLMenuFoldControlContentIcon
             }
             suggestionsFoldedRowCount = 2

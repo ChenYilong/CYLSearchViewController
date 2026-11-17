@@ -107,7 +107,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
      * The tags that show the suggestions when `suggestionStyle` is `CYLSearchSuggestionStyleTags`
      * (CollectionViewClassifyMenu's `CYLTagListView`). Style it directly: `style`, spacing, rows, colors.
      */
-    @objc public let suggestionsTagView = CYLTagListView(foldControl: CYLMenuFoldControl(position: .inline, content: .icon))
+    @objc public let suggestionsTagView = CYLTagListView(foldControl: CYLMenuFoldControl(position: .tail, content: .icon))
 
     /**
      * The fold control of the tag suggestions (CollectionViewClassifyMenu's `CYLMenuFoldControl`). An inline chevron as

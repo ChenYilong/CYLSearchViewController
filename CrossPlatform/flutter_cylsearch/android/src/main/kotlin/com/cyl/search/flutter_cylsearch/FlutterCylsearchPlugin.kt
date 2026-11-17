@@ -264,11 +264,11 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
  */
 internal fun cylFoldControl(position: Any?, content: Any?) = com.cyl.classifymenu.CYLMenuFoldControl().apply {
     this.position = when (position) {
-        "none" -> com.cyl.classifymenu.CYLMenuFoldControlPosition.CYLMenuFoldControlPositionNone
-        "bottom" -> com.cyl.classifymenu.CYLMenuFoldControlPosition.CYLMenuFoldControlPositionBottom
-        "topTrailing" -> com.cyl.classifymenu.CYLMenuFoldControlPosition.CYLMenuFoldControlPositionTopTrailing
-        "topLeading" -> com.cyl.classifymenu.CYLMenuFoldControlPosition.CYLMenuFoldControlPositionTopLeading
-        else -> com.cyl.classifymenu.CYLMenuFoldControlPosition.CYLMenuFoldControlPositionInline
+        "none" -> com.cyl.classifymenu.CYLMenuFoldControlPosition.NONE
+        "bottom", "footer" -> com.cyl.classifymenu.CYLMenuFoldControlPosition.FOOTER
+        "topTrailing", "headerTrailing" -> com.cyl.classifymenu.CYLMenuFoldControlPosition.HEADER_TRAILING
+        "topLeading", "headerLeading" -> com.cyl.classifymenu.CYLMenuFoldControlPosition.HEADER_LEADING
+        else -> com.cyl.classifymenu.CYLMenuFoldControlPosition.TAIL
     }
     this.content = when (content) {
         "iconAndTitle" -> com.cyl.classifymenu.CYLMenuFoldControlContent.CYLMenuFoldControlContentIconAndTitle
