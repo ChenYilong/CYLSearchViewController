@@ -190,7 +190,7 @@ export default function cylSearchCoreTest() {
         searchBarViewTextDidChange: () => {
           events.push('single');
         },
-        searchBarViewTextDidChangeAt: (_: CYLSearchBarView, text: string, index: number) => {
+        searchBarViewTextDidChangeAtIndex: (_: CYLSearchBarView, text: string, index: number) => {
           events.push(`change ${index} ${text}`);
         },
         searchBarViewDidCompleteSearch: (_: CYLSearchBarView, text: string, index: number) => {

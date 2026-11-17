@@ -90,9 +90,9 @@ class CYLSearchBarViewDelegate {
     this.searchBarViewDidChangeIconified = undefined;
     this.searchBarViewDidSelectItem = undefined;
     this.searchBarViewTextDidChangeAtIndex = undefined;
-    this.searchBarViewDidCompleteSearchAtIndex = undefined;
+    this.searchBarViewDidCompleteSearch = undefined;
     this.searchBarViewDidRemoveSearchAtIndex = undefined;
-    this.searchBarViewDidSelectSearchAtIndex = undefined;
+    this.searchBarViewDidSelectSearch = undefined;
   }
 }
 
@@ -587,7 +587,7 @@ class CYLSearchBarView {
     }
     this.completed.push(value);
     this.selectedSearchIndex = this.completed.length - 1;
-    tell(this.delegate, 'searchBarViewDidCompleteSearchAtIndex', this, value, this.selectedSearchIndex);
+    tell(this.delegate, 'searchBarViewDidCompleteSearch', this, value, this.selectedSearchIndex);
     return true;
   }
 
@@ -603,7 +603,7 @@ class CYLSearchBarView {
     }
     this.completed.push(value);
     this.selectedSearchIndex = this.completed.length - 1;
-    tell(this.delegate, 'searchBarViewDidCompleteSearchAtIndex', this, value, this.selectedSearchIndex);
+    tell(this.delegate, 'searchBarViewDidCompleteSearch', this, value, this.selectedSearchIndex);
   }
 
   /**
@@ -613,7 +613,7 @@ class CYLSearchBarView {
     if (index < 0 || index >= this.completed.length) return;
     if (this.editingNewSearch) this.completeSearch();
     this.selectedSearchIndex = Math.min(index, this.completed.length - 1);
-    tell(this.delegate, 'searchBarViewDidSelectSearchAtIndex', this, this.completed[this.selectedSearchIndex], this.selectedSearchIndex);
+    tell(this.delegate, 'searchBarViewDidSelectSearch', this, this.completed[this.selectedSearchIndex], this.selectedSearchIndex);
   }
 
   /**

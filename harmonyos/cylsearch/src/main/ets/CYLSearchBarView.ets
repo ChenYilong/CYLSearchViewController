@@ -490,7 +490,7 @@ export interface CYLSearchBarViewDelegate {
    * `multiple` mode: the text of the new search changed; `index` is its place in `searches` (iOS
    * `-searchBarView:textDidChange:atIndex:`). The `single` mode reports `searchBarViewTextDidChange` instead.
    */
-  searchBarViewTextDidChangeAt?: (searchBarView: CYLSearchBarView, text: string, index: number) => void;
+  searchBarViewTextDidChangeAtIndex?: (searchBarView: CYLSearchBarView, text: string, index: number) => void;
   /**
    * `multiple` mode: a search was completed and joined `searches` at `index` (iOS
    * `-searchBarView:didCompleteSearch:atIndex:`).
@@ -1129,7 +1129,7 @@ export class CYLSearchBarView {
 
   /**
    * The component reports a new text; the delegate is told when it differs (`searchBarViewTextDidChange`, or
-   * `searchBarViewTextDidChangeAt` in `multiple` mode).
+   * `searchBarViewTextDidChangeAtIndex` in `multiple` mode).
    */
   textChanged(text: string): void {
     const next = cylSearchTextLimited(text, this.maximumTextLength);
@@ -1138,7 +1138,7 @@ export class CYLSearchBarView {
     }
     this.text = next;
     if (this.mode === CYLSearchBarMode.multiple) {
-      this.delegate?.searchBarViewTextDidChangeAt?.(this, next, this.completedSearches.length);
+      this.delegate?.searchBarViewTextDidChangeAtIndex?.(this, next, this.completedSearches.length);
     } else {
       this.delegate?.searchBarViewTextDidChange?.(this, next);
     }

@@ -105,9 +105,9 @@ Component({
           item: item.itemDictionary(), index: item.index, selected: item.isSelected,
         }),
         searchBarViewTextDidChangeAtIndex: (_, value, index) => this.triggerEvent('textchange', { text: value, index }),
-        searchBarViewDidCompleteSearchAtIndex: (_, value, index) => this.triggerEvent('completesearch', { text: value, index }),
+        searchBarViewDidCompleteSearch: (_, value, index) => this.triggerEvent('completesearch', { text: value, index }),
         searchBarViewDidRemoveSearchAtIndex: (_, index) => this.triggerEvent('removesearch', { index }),
-        searchBarViewDidSelectSearchAtIndex: (_, value, index) => this.triggerEvent('selectsearch', { text: value, index }),
+        searchBarViewDidSelectSearch: (_, value, index) => this.triggerEvent('selectsearch', { text: value, index }),
       };
       // The model asks for the keyboard; the field opens it once the expansion animation has revealed it.
       model.keyboardHandler = (shown) => {

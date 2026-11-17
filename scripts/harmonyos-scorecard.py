@@ -17,12 +17,12 @@ DOC = os.path.join(ROOT, 'docs', 'harmonyos-cross-platform.md')
 # The demos of the iOS example, in the order the app shows them (CYLSearchExample/*).
 DEMOS = [
     ('Tab bar: CYLTabBarController with Search, Examples, Tag style, Discover and the plus button (CYLTabBarConfiguration.json)', 'CYLSearchExampleAppDelegate.m'),
-    ('Search tab: Issue #1317 reproduction, the search bar in the navigation bar over a list (CYLSearchController + CYLSearchResultsViewController)', 'CYLSearchExampleViewController.swift'),
+    ('Search tab: Issue #1317 reproduction, the search bar in the navigation bar over a list (UISearchController, the CYLSearchView refresh API; Overlay: a CYLSearchView with resultsDataSource)', 'CYLSearchExampleViewController.swift'),
     ('Search tab: pull to refresh with CYLTableViewPlaceHolder\'s CYLRefreshNormalHeader', 'CYLSearchExampleViewController.swift'),
-    ('Search tab: the empty state, CYLSearchPlaceholderView "No matching results"', 'CYLSearchExampleViewController.swift'),
+    ('Search tab: the empty state, the CYLPlaceholderView of CYLTableViewPlaceHolder, "No matching results"', 'CYLSearchExampleViewController.swift'),
     ('Examples tab: the menu (Search and refresh, Placeholder styles, Search bar, Ports)', 'CYLSearchDemoMenuViewController.m'),
     ('Placeholder styles: the 41 styles x 4 messages and the Custom section (text only, image only, both)', 'CYLSearchDemoMenuViewController.m'),
-    ('Placeholder styles: the detail page with one CYLSearchPlaceholderView', 'CYLSearchDemoMenuViewController.m'),
+    ('Placeholder styles: the detail page with one CYLPlaceholderView (CYLTableViewPlaceHolder)', 'CYLSearchDemoMenuViewController.m'),
     ('Search bar page (plus button and Examples): CYLSearchBarView styles and appended items', 'CYLSearchBarDemoViewController.m'),
     ('Ports: the menu of five search libraries', 'CYLSearchPortsViewController.swift'),
     ('Port: lapism/search (MaterialSearchBar + MaterialSearchView)', 'CYLLapismSearchViewController.swift'),

@@ -32,8 +32,21 @@ COMPONENT = {
     ('CYLSearchBarItemView', 'item'): '`<cyl-search-bar-item item="…">` (its `item` property)',
     ('CYLSearchView', 'suggestionCacheTitleLabel'): '`CYLSearchView.suggestionCacheTitle`',
     ('CYLSearchView', 'clearSuggestionCacheButton'): '`CYLSearchView.clearSuggestionCache()` (the header button calls it)',
-    ('CYLSearchPlaceholderView', 'imageView'): '`CYLSearchPlaceholderView.image`',
-    ('CYLSearchPlaceholderView', 'textLabel'): '`CYLSearchPlaceholderView.text`',
+    # The merged CYLSearchBar core (docs/search-core-merge.md).
+    ('CYLSearchView', 'emptyResultsView'): '`<cyl-search>` `emptyResultsView()` (the `cyl-placeholder` of CYLTableViewPlaceHolder)',
+    ('CYLSearchView', 'emptySuggestionsView'): '`<cyl-search>` `emptySuggestionsView()` (the `cyl-placeholder` of CYLTableViewPlaceHolder)',
+    ('CYLSearchView', 'resultsTableView'): '`<cyl-search>` results list, drawn from `results` / `setResultsDataSource()` inside `cyl-refresh`',
+    ('CYLSearchView', 'install(in:)'): '`<cyl-search inline>` (drawn in place, always open)',
+    ('CYLSearchBarView', 'autocorrectionType'): 'N/A: the mini program `<input>` has no autocorrection trait',
+    ('CYLSearchBarView', 'tintColorDidChange()'): 'N/A: no inherited tint in the mini program (`searchIndicatorColor` and the colors are properties)',
+    ('CYLSearchView', 'safeAreaInsetsDidChange()'): 'N/A: `<cyl-search>` reads the safe area from the navigation metrics (`CYLSearchResources`)',
+    ('CYLSearchBarView', 'textField'): 'N/A: the mini program has no view objects; `<cyl-search-bar>` draws its `<input>` from the properties',
+    ('CYLSearchBarView', 'itemViews'): 'N/A: the mini program has no view objects; `<cyl-search-bar>` draws each item of `items`',
+    ('CYLSearchBarView', 'newSearchButton'): 'N/A: the mini program has no view objects; `<cyl-search-bar mode="multiple">` draws it',
+    ('CYLSearchView', 'dividerView'): 'N/A: the mini program has no view objects; `<cyl-search>` draws the divider (`dividerColor`)',
+    ('CYLSearchView', 'suggestionsTableView'): 'N/A: the mini program has no view objects; `<cyl-search>` draws the suggestions list',
+    ('CYLSearchView', 'suggestionsTagView'): 'N/A: the mini program has no view objects; `<cyl-search>` draws the tags (`suggestionsFoldControl`)',
+    ('CYLSearchView', 'suggestionCacheHeaderView'): 'N/A: the mini program has no view objects; `<cyl-search>` draws the cache header',
 }
 
 
@@ -56,6 +69,12 @@ def sources():
         if name.endswith('.js') and not name.startswith('._'):
             texts.append(open(os.path.join(CORE, name), encoding='utf-8').read())
     return '\n'.join(texts)
+
+
+def frozen_enum(text, owner):
+    # A string-valued enum of the merged core: `const Owner = Object.freeze({ name: 'value', … });`.
+    m = re.search(r'^const ' + re.escape(owner) + r'\s*=\s*Object\.freeze\(\{(.*?)^\}\);', text, re.M | re.S)
+    return m.group(1) if m else None
 
 
 def body_of(text, owner):
@@ -83,7 +102,8 @@ def detect(text, owner, swift, kind, kotlin):
     if kind in ('class', 'protocol'):
         return COMPONENT.get((owner, None)) or (f'`{owner}`' if body_of(text, owner) else None)
     if kind == 'enum':
-        return f'`{owner}`' if re.search(r'\bvar ' + re.escape(owner) + r'\b|\bexports\.' + re.escape(owner) + r'\s*=\s*\{', text) else None
+        return f'`{owner}`' if (re.search(r'\bvar ' + re.escape(owner) + r'\b|\bexports\.' + re.escape(owner) + r'\s*=\s*\{', text)
+                                or frozen_enum(text, owner) is not None) else None
     if swift in harmony.NOT_APPLICABLE:
         return 'N/A: ' + mini(harmony.NOT_APPLICABLE[swift])
     if (owner, swift) in harmony.VIEW_OBJECTS:
@@ -92,6 +112,9 @@ def detect(text, owner, swift, kind, kotlin):
         return 'N/A: a UIKit protocol conformance (the components report the same events to the model)'
     if kind == 'case':
         name = swift.split('.')[-1]
+        frozen = frozen_enum(text, owner)
+        if frozen is not None and re.search(r'^\s*' + re.escape(name) + r'\s*:', frozen, re.M):
+            return f'`{owner}.{name}`'
         return f'`{owner}.{name}`' if re.search(re.escape(owner) + r'\["' + re.escape(name) + r'"\]\s*=', text) else None
     if body_of(text, owner) is None:
         return None

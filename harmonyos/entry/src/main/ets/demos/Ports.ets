@@ -293,7 +293,7 @@ export struct MultiSearchDemoPage {
     this.searchBar.delegate = {
       searchBarViewDidSelectSearch: (_: CYLSearchBarView, text: string, index: number) =>
       this.append(`onItemSelected: index: ${index}, query: ${text}`),
-      searchBarViewTextDidChangeAt: (_: CYLSearchBarView, text: string, index: number) =>
+      searchBarViewTextDidChangeAtIndex: (_: CYLSearchBarView, text: string, index: number) =>
       this.append(`changed: index: ${index}, query: ${text}`),
       searchBarViewDidCompleteSearch: (_: CYLSearchBarView, text: string, index: number) =>
       this.append(`complete: index: ${index}, query: ${text}`),

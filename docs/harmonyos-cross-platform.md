@@ -216,7 +216,7 @@ DevEco Studio > Device Manager, then `hdc install` the HAP and run the hypium te
 sub-repositories' HarmonyOS libraries: run `python3 harmonyos/scripts/sync-sub-repositories.py` before building.
 
 <!-- harmonyos-score:begin -->
-Score: 99/100 (305 of 308 rows; API 283/283, demos 22/25; TODO left 3).
+Score: 100/100 (308 of 308 rows; API 283/283, demos 25/25; TODO left 0).
 <!-- harmonyos-score:end -->
 
 | Date | Change | Score |
@@ -523,12 +523,12 @@ Score: 99/100 (305 of 308 rows; API 283/283, demos 22/25; TODO left 3).
 | iOS example demo | HarmonyOS implementation |
 | :--- | :--- |
 | Tab bar: CYLTabBarController with Search, Examples, Tag style, Discover and the plus button (CYLTabBarConfiguration.json) (`CYLSearchExampleAppDelegate.m`) | `pages/Index.ets` on CYLTabBarController's HarmonyOS library `cyltabbar` (commit 94eb7b1), configured by the iOS CYLTabBarConfiguration.json |
-| Search tab: Issue #1317 reproduction, the search bar in the navigation bar over a list (CYLSearchController + CYLSearchResultsViewController) (`CYLSearchExampleViewController.swift`) | TODO |
+| Search tab: Issue #1317 reproduction, the search bar in the navigation bar over a list (UISearchController, the CYLSearchView refresh API; Overlay: a CYLSearchView with resultsDataSource) (`CYLSearchExampleViewController.swift`) | `demos/SearchExample.ets` `SearchExampleView`: the list inside `CYLSearchRefreshComponent` with `CYLSearchView.setRefreshHandler` / `endRefreshingIn` (Repro); Overlay: a `CYLSearchView` with `resultsDataSource` and its own `refreshHandler` |
 | Search tab: pull to refresh with CYLTableViewPlaceHolder's CYLRefreshNormalHeader (`CYLSearchExampleViewController.swift`) | `SearchExampleView` with CYLTableViewPlaceHolder's HarmonyOS library `cylplaceholder` (commit 5bcbdb5): `CYLRefreshContainer` + `CYLRefreshNormalHeaderModel` |
-| Search tab: the empty state, CYLSearchPlaceholderView "No matching results" (`CYLSearchExampleViewController.swift`) | TODO |
+| Search tab: the empty state, the CYLPlaceholderView of CYLTableViewPlaceHolder, "No matching results" (`CYLSearchExampleViewController.swift`) | `SearchExampleView` with cylplaceholder's `CYLPlaceholderView` (`CYLPlaceholderViewModel.initWithStyleMessage`, no results) |
 | Examples tab: the menu (Search and refresh, Placeholder styles, Search bar, Ports) (`CYLSearchDemoMenuViewController.m`) | `demos/ExamplesMenu.ets` `ExamplesMenuView` |
 | Placeholder styles: the 41 styles x 4 messages and the Custom section (text only, image only, both) (`CYLSearchDemoMenuViewController.m`) | `PlaceholderGalleryPage` (the iOS images, `imageForStyle`) |
-| Placeholder styles: the detail page with one CYLSearchPlaceholderView (`CYLSearchDemoMenuViewController.m`) | TODO |
+| Placeholder styles: the detail page with one CYLPlaceholderView (CYLTableViewPlaceHolder) (`CYLSearchDemoMenuViewController.m`) | `PlaceholderDetailPage` with cylplaceholder's `CYLPlaceholderView` |
 | Search bar page (plus button and Examples): CYLSearchBarView styles and appended items (`CYLSearchBarDemoViewController.m`) | `demos/SearchBarDemo.ets` `SearchBarDemoView` |
 | Ports: the menu of five search libraries (`CYLSearchPortsViewController.swift`) | `PortsMenuPage` |
 | Port: lapism/search (MaterialSearchBar + MaterialSearchView) (`CYLLapismSearchViewController.swift`) | `demos/Ports.ets` `LapismPage` |

@@ -76,8 +76,8 @@ test('the multiple mode completes, selects and removes searches with the indexed
   bar.delegate = {
     searchBarViewTextDidChange: () => events.push('single text'),
     searchBarViewTextDidChangeAtIndex: (_, text, index) => events.push(`text ${text} ${index}`),
-    searchBarViewDidCompleteSearchAtIndex: (_, text, index) => events.push(`complete ${text} ${index}`),
-    searchBarViewDidSelectSearchAtIndex: (_, text, index) => events.push(`select ${text} ${index}`),
+    searchBarViewDidCompleteSearch: (_, text, index) => events.push(`complete ${text} ${index}`),
+    searchBarViewDidSelectSearch: (_, text, index) => events.push(`select ${text} ${index}`),
     searchBarViewDidRemoveSearchAtIndex: (_, index) => events.push(`remove ${index}`),
   };
   assert.equal(bar.selectedSearchIndex, -1);
