@@ -65,6 +65,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: scripts/check-public-api-comments.sh
+      # AGENTS.md, "Licenses in published packages": every published package ships the MIT LICENSE in its bundle.
+      - run: scripts/check-licenses.sh
 
   # `pod lib lint` of the CYLSearchViewController pod.
   lint:

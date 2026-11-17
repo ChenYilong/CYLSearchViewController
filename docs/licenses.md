@@ -3,7 +3,7 @@
 Every piece of code this project publishes to an external registry (CocoaPods, Maven / Gradle, npm, pub.dev, ohpm and
 any other) ships its license declaration inside the package, in the package's resource bundle when it has one.
 
-## TODO (2026-11-17): a license declaration in every published package
+## DONE (2026-11-17): a license declaration in every published package
 
 - **Context**: branch `feat/harmonyos-parity` (PR #11). The packages declared different licenses: the iOS pod
   (`CYLSearchViewController.podspec`) and the Flutter plugin "Copyright (c) 2015 ChenYilong. All rights reserved.",
@@ -23,4 +23,23 @@ any other) ships its license declaration inside the package, in the package's re
   CocoaPods, Gradle, npm and Maven, must contain a license declaration; if a built-in package (bundle) folder exists,
   put it there, otherwise create one, and make sure it is written. On iOS, for example, the built-in bundle contains
   the license file. This applies to every platform."
-- **Status**: started.
+- **Status**: done.
+  - Rule: `AGENTS.md` and `instructions.md`, "Licenses in published packages (added 2026-11-17)"; new skill
+    `.agents/skills/cyl-license/SKILL.md` (listed in the skills table).
+  - Root `LICENSE` (MIT), copied byte for byte into every package:
+
+    | Registry | Package | License file |
+    |:---|:---|:---|
+    | CocoaPods | `CYLSearchViewController.podspec` (`s.license = { :type => 'MIT', :file => 'LICENSE' }`, was "All rights reserved") | `LICENSE`, `Resources/CYLSearchViewController.bundle/LICENSE` |
+    | Maven / Gradle | `android/merged/cylsearch` | `src/main/assets/CYLSearchViewController.bundle/` (new bundle folder: `LICENSE` and the icon notices) |
+    | ohpm | `harmonyos/cylsearch` | `LICENSE`, `src/main/resources/rawfile/CYLSearchViewController.bundle/` (new: `LICENSE` and the icon notices) |
+    | npm | `CrossPlatform/react-native-cylsearch` | `LICENSE` (copyright year aligned to 2015) |
+    | npm | `CrossPlatform/wechat-miniprogram-cylsearch` | `LICENSE` (already identical) |
+    | pub.dev | `CrossPlatform/flutter_cylsearch` | `LICENSE` (was "All rights reserved") |
+
+  - The new Android and HarmonyOS bundles also carry the third-party icon notices (`NOTICE`,
+    `LICENSE.material-design-icons`, `LICENSE.placeholder-third-party`, `ICON-SOURCES`) of the icons those libraries ship.
+  - Check: `scripts/check-licenses.sh` (shellcheck clean, passes: 8 files), run in CI's "Public API comments" job
+    (`actionlint` clean). README has a License section.
+  - TODO: the Android library has no Maven publishing configuration yet; when it gets one, its POM declares MIT
+    (`licenses { license { name.set("MIT License") } }`).

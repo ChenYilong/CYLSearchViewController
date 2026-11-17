@@ -4,7 +4,7 @@ Pod::Spec.new do |s|
   s.summary = 'A configurable search bar and search view for iOS.'
   s.description = 'CYLSearchBar: a UIKit search bar (one field or several searches), a search page with suggestions, results from an injectable data source and pull-to-refresh, and its resources.'
   s.homepage = 'https://github.com/ChenYilong/CYLSearchViewController'
-  s.license = { :type => 'Copyright', :text => 'Copyright (c) 2015 ChenYilong. All rights reserved.' }
+  s.license = { :type => 'MIT', :file => 'LICENSE' }
   s.author = { 'ChenYilong' => 'luohanchenyilong@163.com' }
   s.source = { :git => 'https://github.com/ChenYilong/CYLSearchViewController.git', :tag => s.version.to_s }
   s.platform = :ios, '15.0'
