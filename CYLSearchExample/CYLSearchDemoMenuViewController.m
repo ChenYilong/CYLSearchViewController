@@ -4,7 +4,7 @@
 #import <SVGAPlayer/SVGA.h>
 #import "CYLSearchExample-Swift.h"
 #import <CYLSearchViewController/CYLSearchViewController-Swift.h>
-#import <CYLSearchViewController/CYLSearchViewController-Swift.h>
+#import <CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.h>
 
 static NSString *CYLDemoText(NSString *key)
 {
@@ -116,6 +116,14 @@ static NSString *CYLExampleText(NSString *key)
 
 @implementation CYLSearchPlaceholderGalleryViewController
 
+/// The messages shown with every style. The styles, images and texts are CYLTableViewPlaceHolder's CYLPlaceholderView
+/// (the core's former CYLSearchPlaceholderView was a duplicate of it and is gone).
++ (NSArray<NSNumber *> *)messages
+{
+    return @[@(CYLPlaceholderMessageEmpty), @(CYLPlaceholderMessageNoResults), @(CYLPlaceholderMessageNoInternet),
+             @(CYLPlaceholderMessageError)];
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -124,34 +132,35 @@ static NSString *CYLExampleText(NSString *key)
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return CYLSearchPlaceholderStyleCount + 1;
+    return CYLPlaceholderStyleCount + 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return section == CYLSearchPlaceholderStyleCount ? 3 : 4;
+    return section == CYLPlaceholderStyleCount ? 3 : (NSInteger)self.class.messages.count;
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 {
-    if (section == CYLSearchPlaceholderStyleCount) return CYLDemoText(@"demo.custom");
-    return [CYLSearchPlaceholderView imageNameForStyle:section];
+    if (section == CYLPlaceholderStyleCount) return CYLDemoText(@"demo.custom");
+    return [CYLPlaceholderView imageNameForStyle:section];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CYLDemoOption"];
     if (!cell) cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"CYLDemoOption"];
-    NSArray<NSString *> *messages = @[@"placeholder.empty", @"placeholder.search", @"placeholder.error", @"placeholder.network"];
     NSArray<NSString *> *custom = @[@"demo.custom.textOnly", @"demo.custom.imageOnly", @"demo.custom.both"];
-    cell.textLabel.text = CYLDemoText(indexPath.section == CYLSearchPlaceholderStyleCount ? custom[indexPath.row] : messages[indexPath.row]);
-    if (indexPath.section == CYLSearchPlaceholderStyleCount) {
+    if (indexPath.section == CYLPlaceholderStyleCount) {
+        cell.textLabel.text = CYLDemoText(custom[indexPath.row]);
         cell.imageView.image = indexPath.row == 0
-            ? [[CYLSearchResources imageNamed:@"CYLSearchNoResults"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]
+            ? [[CYLPlaceholderView imageForStyle:CYLPlaceholderStyleNoResults] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate]
             : [UIImage systemImageNamed:@"heart.fill"];
     } else {
-        UIImage *image = [CYLSearchResources imageNamed:[CYLSearchPlaceholderView imageNameForStyle:indexPath.section]];
-        cell.imageView.image = indexPath.section == CYLSearchPlaceholderStyleEmpty ? image : [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
+        CYLPlaceholderMessage message = (CYLPlaceholderMessage)self.class.messages[indexPath.row].integerValue;
+        cell.textLabel.text = [CYLPlaceholderView localizedTextForMessage:message];
+        UIImage *image = [CYLPlaceholderView imageForStyle:indexPath.section];
+        cell.imageView.image = indexPath.section == CYLPlaceholderStyleEmpty ? image : [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     }
     cell.imageView.tintColor = UIColor.secondaryLabelColor;
     cell.textLabel.numberOfLines = 0;
@@ -161,18 +170,15 @@ static NSString *CYLExampleText(NSString *key)
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    CYLSearchPlaceholderView *placeholder;
-    if (indexPath.section < CYLSearchPlaceholderStyleCount) {
-        placeholder = [[CYLSearchPlaceholderView alloc] initWithStyle:indexPath.section message:indexPath.row];
+    CYLPlaceholderView *placeholder;
+    if (indexPath.section < CYLPlaceholderStyleCount) {
+        CYLPlaceholderMessage message = (CYLPlaceholderMessage)self.class.messages[indexPath.row].integerValue;
+        placeholder = [[CYLPlaceholderView alloc] initWithStyle:indexPath.section message:message];
     } else if (indexPath.row == 0) {
-        placeholder = [[CYLSearchPlaceholderView alloc] initWithStyle:CYLSearchPlaceholderStyleNoResults text:CYLDemoText(@"demo.custom.text")];
+        placeholder = [[CYLPlaceholderView alloc] initWithStyle:CYLPlaceholderStyleNoResults text:CYLDemoText(@"demo.custom.text")];
     } else {
         UIImage *image = [UIImage systemImageNamed:@"heart.fill"];
-        if (indexPath.row == 1) {
-            placeholder = [[CYLSearchPlaceholderView alloc] initWithImage:image message:CYLSearchPlaceholderMessageNetwork];
-        } else {
-            placeholder = [[CYLSearchPlaceholderView alloc] initWithImage:image text:CYLDemoText(@"demo.custom.text")];
-        }
+        placeholder = [[CYLPlaceholderView alloc] initWithImage:image text:indexPath.row == 1 ? nil : CYLDemoText(@"demo.custom.text")];
         placeholder.imageView.tintColor = UIColor.systemPinkColor;
     }
     UIViewController *detail = [UIViewController new];

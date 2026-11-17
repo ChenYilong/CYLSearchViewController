@@ -1,6 +1,23 @@
 import UIKit
 
 /**
+ * What a `CYLSearchBarView` holds: one field, or several searches side by side.
+ */
+@objc(CYLSearchBarMode)
+public enum CYLSearchBarMode: Int {
+    /**
+     * One search field (the default).
+     */
+    case single
+    /**
+     * Several searches side by side (iammert `MultiSearchView`): `newSearchButton` starts a new search, a completed
+     * search becomes an entry of `searches` in a horizontally scrolling row, with an indicator under the selected one
+     * and a remove button on it. Use it to search by several categories at once.
+     */
+    case multiple
+}
+
+/**
  * The icon of the navigation button before the field (lapism `NavigationIconCompat`).
  */
 @objc(CYLSearchBarNavigationIcon)
@@ -51,6 +68,41 @@ public enum CYLSearchBarExpansionAnimation: Int {
      * A circle grows from the icon until it uncovers the whole field (Material circular reveal).
      */
     case circularReveal
+}
+
+/**
+ * How an item appended to a search bar looks, like the FlatDesign tab bar's item appearance.
+ */
+@objc(CYLSearchBarItemStyle)
+public enum CYLSearchBarItemStyle: Int {
+    /**
+     * An icon button with a 36 pt touch area (a camera, a filter).
+     */
+    case icon = 0
+    /**
+     * A thin vertical line between two items; it takes no taps and VoiceOver skips it.
+     */
+    case divider
+    /**
+     * A text button (a "Search" button); an image, when set, comes before the title.
+     */
+    case text
+}
+
+/**
+ * The fixed look of the whole bar: the field on the left stays, the items are appended after its text.
+ */
+@objc(CYLSearchBarStyle)
+public enum CYLSearchBarStyle: Int {
+    /**
+     * The field as configured by its own properties (the default; nothing is changed).
+     */
+    case plain = 0
+    /**
+     * A capsule with a 1 pt separator-colored border on the system background, the field and its items inside one
+     * outline (the Discover search bar).
+     */
+    case bordered
 }
 
 /**
@@ -132,12 +184,39 @@ public protocol CYLSearchBarViewDelegate: NSObjectProtocol {
      */
     @objc(searchBarView:didSelectItem:)
     optional func searchBarView(_ searchBarView: CYLSearchBarView, didSelect item: CYLSearchBarItem)
+
+    /**
+     * `CYLSearchBarModeMultiple`: the text of the search being typed changed (MultiSearchView `onTextChanged`).
+     * `CYLSearchBarModeSingle` reports `-searchBarView:textDidChange:` instead.
+     */
+    @objc(searchBarView:textDidChange:atIndex:)
+    optional func searchBarView(_ searchBarView: CYLSearchBarView, textDidChange text: String, at index: Int)
+
+    /**
+     * `CYLSearchBarModeMultiple`: a search was completed and became an entry of `searches` (`onSearchComplete`).
+     */
+    @objc(searchBarView:didCompleteSearch:atIndex:)
+    optional func searchBarView(_ searchBarView: CYLSearchBarView, didCompleteSearch text: String, at index: Int)
+
+    /**
+     * `CYLSearchBarModeMultiple`: a search was removed by its remove button or `-removeSearchAtIndex:`
+     * (`onSearchItemRemoved`).
+     */
+    @objc(searchBarView:didRemoveSearchAtIndex:)
+    optional func searchBarView(_ searchBarView: CYLSearchBarView, didRemoveSearchAt index: Int)
+
+    /**
+     * `CYLSearchBarModeMultiple`: a search was selected by a tap or `-selectSearchAtIndex:` (`onItemSelected`).
+     */
+    @objc(searchBarView:didSelectSearch:atIndex:)
+    optional func searchBarView(_ searchBarView: CYLSearchBarView, didSelectSearch text: String, at index: Int)
 }
 
 /**
  * A configurable search bar: a rounded field with a magnifier, text and clear button, views of the host inside the
  * field after the text (a camera, a "Search" button) or before the field (a back button), and an optional Cancel
- * button. Use it as a navigation item's title view, a header, or anywhere in a layout.
+ * button. Use it as a navigation item's title view, a header, or anywhere in a layout. With `mode` set to
+ * `CYLSearchBarModeMultiple` it holds several searches side by side instead (iammert `MultiSearchView`).
  */
 @objc(CYLSearchBarView)
 public final class CYLSearchBarView: UIView, UITextFieldDelegate {
@@ -363,7 +442,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     /**
      * The views of `items`, in the same order.
      */
-    @objc public var itemViews: [CYLSearchBarItemView] {
+    @objc public var itemViews: [UIControl] {
         items.map(\.itemView)
     }
 
@@ -371,7 +450,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      * The icon and title color of every item without its own `tintColor`; nil uses the label color.
      */
     @objc public var itemTintColor: UIColor? {
-        didSet { items.forEach { $0.itemView.reload() } }
+        didSet { items.forEach { $0.itemControl.reload() } }
     }
 
     /**
@@ -424,7 +503,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         item.searchBarView?.removeItem(item)
         items.insert(item, at: min(max(0, index), items.count))
         item.searchBarView = self
-        let view = item.itemView
+        let view = item.itemControl
         view.removeTarget(nil, action: nil, for: .allEvents)
         view.addTarget(self, action: #selector(itemTapped(_:)), for: .touchUpInside)
         fieldView.addSubview(view)
@@ -475,8 +554,8 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         items.contains { $0.style == style }
     }
 
-    @objc private func itemTapped(_ sender: CYLSearchBarItemView) {
-        guard let item = sender.item, item.isEnabled else {
+    @objc private func itemTapped(_ sender: UIControl) {
+        guard let item = (sender as? CYLSearchBarItemControl)?.item, item.isEnabled else {
             return
         }
         if item.isSelectable {
@@ -518,7 +597,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      * Shows the Cancel button after the field. NO by default.
      */
     @objc public var showsCancelButton = false {
-        didSet { cancelButton.isHidden = !showsCancelButton || isIconified; setNeedsLayout() }
+        didSet { applyIconifiedVisibility(); setNeedsLayout() }
     }
 
     private var customCancelButtonTitle: String?
@@ -645,7 +724,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      */
     @objc public var keyboardType: UIKeyboardType {
         get { textField.keyboardType }
-        set { textField.keyboardType = newValue; textField.reloadInputViews() }
+        set { textField.keyboardType = newValue; textField.reloadInputViews(); multiSearchView.applyStyle() }
     }
 
     /**
@@ -653,7 +732,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      */
     @objc public var returnKeyType: UIReturnKeyType {
         get { textField.returnKeyType }
-        set { textField.returnKeyType = newValue; textField.reloadInputViews() }
+        set { textField.returnKeyType = newValue; textField.reloadInputViews(); multiSearchView.applyStyle() }
     }
 
     /**
@@ -661,7 +740,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      */
     @objc public var autocapitalizationType: UITextAutocapitalizationType {
         get { textField.autocapitalizationType }
-        set { textField.autocapitalizationType = newValue }
+        set { textField.autocapitalizationType = newValue; multiSearchView.applyStyle() }
     }
 
     /**
@@ -732,6 +811,160 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      */
     @objc public var animationDuration: TimeInterval = 0.3
 
+    // MARK: - Multiple searches (CYLSearchBarModeMultiple)
+
+    private let multiSearchView = CYLSearchBarMultiSearchView()
+    private var customNewSearchImage: UIImage?
+    private var customRemoveSearchImage: UIImage?
+
+    /**
+     * One field (`CYLSearchBarModeSingle`, the default) or several searches side by side
+     * (`CYLSearchBarModeMultiple`, iammert `MultiSearchView`). The text style (`placeholder`, `font`, `textColor`,
+     * `placeholderColor`, the keyboard options, `maximumTextLength`) and `animationDuration` apply to both.
+     */
+    @objc public var mode: CYLSearchBarMode = .single {
+        didSet {
+            guard mode != oldValue else {
+                return
+            }
+            textField.resignFirstResponder()
+            multiSearchView.endEditing(true)
+            applyIconifiedVisibility()
+            multiSearchView.applyStyle()
+            invalidateIntrinsicContentSize()
+            setNeedsLayout()
+        }
+    }
+
+    /**
+     * `CYLSearchBarModeMultiple`: the texts of the searches, completed searches first, then the one being typed.
+     */
+    @objc public var searches: [String] {
+        multiSearchView.searches
+    }
+
+    /**
+     * `CYLSearchBarModeMultiple`: the index of the selected search in `searches`, or `NSNotFound` when none is
+     * selected.
+     */
+    @objc public var selectedSearchIndex: Int {
+        multiSearchView.selectedIndex
+    }
+
+    /**
+     * `CYLSearchBarModeMultiple`: YES while a new search is being typed (MultiSearchView `isInSearchMode`).
+     */
+    @objc public var isEditingNewSearch: Bool {
+        multiSearchView.isEditingNewSearch
+    }
+
+    /**
+     * `CYLSearchBarModeMultiple`: the button at the trailing end; it starts a new search, or completes the one being
+     * typed. VoiceOver reads it as "New search".
+     */
+    @objc public var newSearchButton: UIButton {
+        multiSearchView.searchButton
+    }
+
+    /**
+     * `CYLSearchBarModeMultiple`: a search shorter than this is dropped by `-completeSearch`. 3 by default, as in
+     * MultiSearchView.
+     */
+    @objc public var minimumTextLength: UInt = 3
+
+    /**
+     * `CYLSearchBarModeMultiple`: the color of the indicator under the selected search and of `newSearchButton`; the
+     * tint color when nil.
+     */
+    @objc public var searchIndicatorColor: UIColor? { didSet { multiSearchView.applyStyle() } }
+
+    /**
+     * `CYLSearchBarModeMultiple`: the opacity of the searches that are not selected, 0 to 1. 0.5 by default.
+     */
+    @objc public var unselectedSearchAlpha: CGFloat = 0.5 {
+        didSet { unselectedSearchAlpha = min(1, max(0, unselectedSearchAlpha)); multiSearchView.applyStyle() }
+    }
+
+    /**
+     * `CYLSearchBarModeMultiple`: the width of the field of a new search, in points (at least 44). 160 by default.
+     */
+    @objc public var searchFieldWidth: CGFloat = 160 {
+        didSet { searchFieldWidth = max(44, searchFieldWidth); multiSearchView.setNeedsLayout() }
+    }
+
+    /**
+     * `CYLSearchBarModeMultiple`: the icon of `newSearchButton`. `magnifyingglass` by default.
+     */
+    @objc public var newSearchImage: UIImage! {
+        get { customNewSearchImage ?? UIImage(systemName: "magnifyingglass") }
+        set { customNewSearchImage = newValue; multiSearchView.applyStyle() }
+    }
+
+    /**
+     * `CYLSearchBarModeMultiple`: the icon of the remove button on the selected search. `xmark.circle.fill` by
+     * default.
+     */
+    @objc public var removeSearchImage: UIImage! {
+        get { customRemoveSearchImage ?? UIImage(systemName: "xmark.circle.fill") }
+        set { customRemoveSearchImage = newValue; multiSearchView.applyStyle() }
+    }
+
+    /**
+     * `CYLSearchBarModeMultiple`: starts a new search and shows the keyboard (MultiSearchView `search`). Does nothing
+     * while a search is being typed, or in `CYLSearchBarModeSingle`.
+     */
+    @objc public func beginNewSearch() {
+        guard mode == .multiple else {
+            return
+        }
+        multiSearchView.beginNewSearch()
+    }
+
+    /**
+     * `CYLSearchBarModeMultiple`: completes the search being typed (`completeSearch`). It becomes the selected search,
+     * or is dropped when shorter than `minimumTextLength`.
+     */
+    @objc public func completeSearch() {
+        guard mode == .multiple else {
+            return
+        }
+        multiSearchView.completeSearch()
+    }
+
+    /**
+     * `CYLSearchBarModeMultiple`: adds a completed search without typing it, and selects it. An empty text is ignored.
+     */
+    @objc(addSearch:)
+    public func addSearch(_ text: String) {
+        guard mode == .multiple else {
+            return
+        }
+        multiSearchView.addSearch(text)
+    }
+
+    /**
+     * `CYLSearchBarModeMultiple`: selects a search, like a tap on it.
+     */
+    @objc(selectSearchAtIndex:)
+    public func selectSearch(at index: Int) {
+        guard mode == .multiple else {
+            return
+        }
+        multiSearchView.selectSearch(at: index)
+    }
+
+    /**
+     * `CYLSearchBarModeMultiple`: removes a search, like a tap on its remove button. The next search is selected, or
+     * the previous one when the last search went away.
+     */
+    @objc(removeSearchAtIndex:)
+    public func removeSearch(at index: Int) {
+        guard mode == .multiple else {
+            return
+        }
+        multiSearchView.removeSearch(at: index)
+    }
+
     // MARK: - Initializers
 
     override public init(frame: CGRect) {
@@ -739,6 +972,9 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         commonInit()
     }
 
+    /**
+     * Creates the bar from an archive (a storyboard or a XIB).
+     */
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
         commonInit()
@@ -793,6 +1029,9 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         iconButton.accessibilityLabel = CYLSearchResources.localizedString(forKey: "search.field")
         iconButton.addTarget(self, action: #selector(iconTapped), for: .touchUpInside)
         addSubview(iconButton)
+        multiSearchView.searchBarView = self
+        multiSearchView.isHidden = true
+        addSubview(multiSearchView)
         addInteraction(UILargeContentViewerInteraction())
         updateButtonImages()
         applyStyle()
@@ -967,11 +1206,13 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     }
 
     private func applyIconifiedVisibility() {
-        fieldView.isHidden = isIconified
-        iconButton.isHidden = !isIconified
-        cancelButton.isHidden = isIconified || !showsCancelButton
-        effectiveLeadingView?.isHidden = isIconified
-        navigationButton.isHidden = isIconified || !showsNavigationButton
+        let multiple = mode == .multiple
+        fieldView.isHidden = isIconified || multiple
+        iconButton.isHidden = !isIconified || multiple
+        cancelButton.isHidden = isIconified || !showsCancelButton || multiple
+        effectiveLeadingView?.isHidden = isIconified || multiple
+        navigationButton.isHidden = isIconified || !showsNavigationButton || multiple
+        multiSearchView.isHidden = !multiple
     }
 
     private func notifyIconified() {
@@ -1044,6 +1285,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         // The title may be drawn smaller to fit; VoiceOver and the large content viewer still get the whole title.
         cancelButton.accessibilityLabel = cancelButtonTitle
         cancelButton.largeContentTitle = cancelButtonTitle
+        multiSearchView.applyStyle()
         setNeedsLayout()
     }
 
@@ -1066,10 +1308,18 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         }
     }
 
+    override public func tintColorDidChange() {
+        super.tintColorDidChange()
+        multiSearchView.applyStyle()
+    }
+
     // MARK: - Layout
 
     override public var intrinsicContentSize: CGSize {
-        CGSize(width: UIView.noIntrinsicMetric, height: effectiveFieldHeight + contentInsets.top + contentInsets.bottom)
+        if mode == .multiple {
+            return CGSize(width: UIView.noIntrinsicMetric, height: multiSearchView.preferredHeight)
+        }
+        return CGSize(width: UIView.noIntrinsicMetric, height: effectiveFieldHeight + contentInsets.top + contentInsets.bottom)
     }
 
     override public func sizeThatFits(_ size: CGSize) -> CGSize {
@@ -1086,6 +1336,12 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
 
     override public func layoutSubviews() {
         super.layoutSubviews()
+        if mode == .multiple {
+            // The searches take the whole height; the field and its buttons are hidden.
+            let width = max(0, bounds.width - contentInsets.left - contentInsets.right)
+            multiSearchView.frame = CGRect(x: contentInsets.left, y: 0, width: width, height: bounds.height)
+            return
+        }
         let insets = contentInsets
         let height = bounds.height
         let fieldHeight = min(effectiveFieldHeight, max(0, height - insets.top - insets.bottom))
@@ -1283,5 +1539,910 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     override public func resignFirstResponder() -> Bool {
         let resigned = textField.resignFirstResponder()
         return super.resignFirstResponder() && resigned
+    }
+}
+
+/**
+ * One element after the text of a `CYLSearchBarView`: a model independent of its view, like `CYLFlatDesignTabBarItem`.
+ * Append it with `-[CYLSearchBarView addItem:]`; its view is `itemView`.
+ */
+@objc(CYLSearchBarItem)
+@MainActor
+public final class CYLSearchBarItem: NSObject {
+
+    // MARK: - Properties
+
+    /**
+     * How the item looks (icon, divider or text); set when the item is created.
+     */
+    @objc public let style: CYLSearchBarItemStyle
+
+    /**
+     * The text of a text item, and the VoiceOver label of an icon item without `accessibilityLabel`.
+     */
+    @objc public var title: String? { didSet { itemChanged() } }
+
+    /**
+     * The icon (a template image is tinted with `tintColor`).
+     */
+    @objc public var image: UIImage? { didSet { itemChanged() } }
+
+    /**
+     * The icon while `selected` is YES; nil uses `image`.
+     */
+    @objc public var selectedImage: UIImage? { didSet { itemChanged() } }
+
+    /**
+     * An animated icon (`+[UIImage animatedImageWithImages:duration:]`), drawn instead of `image` when set.
+     */
+    @objc public var animatedImage: UIImage? { didSet { itemChanged() } }
+
+    /**
+     * The icon size; zero uses 20 x 20 pt.
+     */
+    @objc public var imageSize: CGSize = .zero { didSet { itemChanged() } }
+
+    /**
+     * What VoiceOver reads; nil reads `title`.
+     */
+    @objc public var itemAccessibilityLabel: String? { didSet { itemChanged() } }
+
+    /**
+     * A test identifier for the item view.
+     */
+    @objc public var itemAccessibilityIdentifier: String? { didSet { itemChanged() } }
+
+    /**
+     * NO dims the item and ignores taps. YES by default.
+     */
+    @objc public var isEnabled = true { didSet { itemChanged() } }
+
+    /**
+     * YES makes each tap toggle `selected` (a filter that stays on). NO by default.
+     */
+    @objc public var isSelectable = false
+
+    /**
+     * The selected state (drawn with `selectedImage`, `selectedBackgroundColor` and the selected title attributes).
+     */
+    @objc public var isSelected = false { didSet { itemChanged() } }
+
+    /**
+     * The icon and title color; nil uses the bar's `itemTintColor`.
+     */
+    @objc public var tintColor: UIColor? { didSet { itemChanged() } }
+
+    /**
+     * The item background; nil is clear.
+     */
+    @objc public var backgroundColor: UIColor? { didSet { itemChanged() } }
+
+    /**
+     * The item background while selected; nil uses `backgroundColor`.
+     */
+    @objc public var selectedBackgroundColor: UIColor? { didSet { itemChanged() } }
+
+    /**
+     * Space around the icon and title inside the item; `UIEdgeInsetsZero` uses the style's default.
+     */
+    @objc public var contentInsets: UIEdgeInsets = .zero { didSet { itemChanged() } }
+
+    /**
+     * Moves the icon without changing the item's size.
+     */
+    @objc public var imagePositionAdjustment: UIOffset = .zero { didSet { itemChanged() } }
+
+    /**
+     * Moves the title without changing the item's size.
+     */
+    @objc public var titlePositionAdjustment: UIOffset = .zero { didSet { itemChanged() } }
+
+    /**
+     * The badge text; nil hides the badge, an empty string draws a dot.
+     */
+    @objc public var badgeValue: String? { didSet { itemChanged() } }
+
+    /**
+     * The badge background; nil is system red.
+     */
+    @objc public var badgeColor: UIColor? { didSet { itemChanged() } }
+
+    /**
+     * The smallest badge size; zero uses 16 x 16 pt (a dot is 8 x 8 pt).
+     */
+    @objc public var badgeSize: CGSize = .zero { didSet { itemChanged() } }
+
+    /**
+     * Space around the badge text.
+     */
+    @objc public var badgeContentInsets = UIEdgeInsets(top: 0, left: 4, bottom: 0, right: 4) { didSet { itemChanged() } }
+
+    /**
+     * Moves the badge from the icon's top trailing corner.
+     */
+    @objc public var badgePositionAdjustment: UIOffset = .zero { didSet { itemChanged() } }
+
+    /**
+     * Called on each tap, after `-searchBarView:didSelectItem:`.
+     */
+    @objc public var handler: ((CYLSearchBarItem) -> Void)?
+
+    /**
+     * The bar the item was appended to; nil before `-addItem:` and after `-removeItem:`.
+     */
+    @objc public internal(set) weak var searchBarView: CYLSearchBarView?
+
+    /**
+     * The item's position in its bar's `items`; `NSNotFound` when it is in no bar.
+     */
+    @objc public var index: Int {
+        searchBarView?.items.firstIndex(of: self) ?? NSNotFound
+    }
+
+    /**
+     * The item's view (a control), created on first use. The bar adds it inside its field and sends its taps to
+     * `-searchBarView:didSelectItem:` and `handler`.
+     */
+    @objc public var itemView: UIControl {
+        itemControl
+    }
+
+    fileprivate lazy var itemControl = CYLSearchBarItemControl(item: self)
+
+    private var titleAttributes: [UInt: [NSAttributedString.Key: Any]] = [:]
+    private var badgeAttributes: [UInt: [NSAttributedString.Key: Any]] = [:]
+
+    // MARK: - Initializers
+
+    /**
+     * An item of the given style with a title and an icon.
+     */
+    @objc(initWithStyle:title:image:)
+    public init(style: CYLSearchBarItemStyle, title: String?, image: UIImage?) {
+        self.style = style
+        self.title = title
+        self.image = image
+        super.init()
+    }
+
+    /**
+     * An icon item, or a text item when the title is set and the image is nil.
+     */
+    @objc(initWithTitle:image:)
+    public convenience init(title: String?, image: UIImage?) {
+        self.init(style: image == nil && title != nil ? .text : .icon, title: title, image: image)
+    }
+
+    /**
+     * Like `-initWithTitle:image:`, with an icon for the selected state.
+     */
+    @objc(initWithTitle:image:selectedImage:)
+    public convenience init(title: String?, image: UIImage?, selectedImage: UIImage?) {
+        self.init(title: title, image: image)
+        self.selectedImage = selectedImage
+    }
+
+    /**
+     * An icon item: the title is what VoiceOver reads.
+     */
+    @objc(iconItemWithImage:title:handler:)
+    public static func iconItem(image: UIImage?, title: String?, handler: ((CYLSearchBarItem) -> Void)?) -> CYLSearchBarItem {
+        let item = CYLSearchBarItem(style: .icon, title: title, image: image)
+        item.handler = handler
+        return item
+    }
+
+    /**
+     * A text item (a "Search" button).
+     */
+    @objc(textItemWithTitle:handler:)
+    public static func textItem(title: String, handler: ((CYLSearchBarItem) -> Void)?) -> CYLSearchBarItem {
+        let item = CYLSearchBarItem(style: .text, title: title, image: nil)
+        item.handler = handler
+        return item
+    }
+
+    /**
+     * A divider between two items.
+     */
+    @objc(dividerItem)
+    public static func divider() -> CYLSearchBarItem {
+        CYLSearchBarItem(style: .divider, title: nil, image: nil)
+    }
+
+    /**
+     * An item from plain values, for the cross-platform wrappers (Flutter, React Native): `style` (`icon`, `divider`,
+     * `text`), `title`, `image` (`camera`, `mic`, `search`, `back`, else an asset or SF Symbol name),
+     * `accessibilityIdentifier`, `isEnabled`, `isSelectable`, `isSelected`, `badgeValue`. Android: `fromMap`.
+     */
+    @objc(itemWithDictionary:)
+    public static func item(dictionary: [String: Any]) -> CYLSearchBarItem {
+        let style: CYLSearchBarItemStyle
+        switch dictionary["style"] as? String {
+        case "divider":
+            style = .divider
+        case "text":
+            style = .text
+        default:
+            style = .icon
+        }
+        let item = CYLSearchBarItem(style: style, title: dictionary["title"] as? String, image: namedImage(dictionary["image"] as? String))
+        item.itemAccessibilityIdentifier = dictionary["accessibilityIdentifier"] as? String
+        item.isEnabled = dictionary["isEnabled"] as? Bool ?? true
+        item.isSelectable = dictionary["isSelectable"] as? Bool ?? false
+        item.isSelected = dictionary["isSelected"] as? Bool ?? false
+        item.badgeValue = dictionary["badgeValue"] as? String
+        if style == .icon {
+            item.imageSize = CGSize(width: 22, height: 22)
+        }
+        return item
+    }
+
+    private static func namedImage(_ name: String?) -> UIImage? {
+        guard let name, !name.isEmpty else {
+            return nil
+        }
+        let symbols = ["camera": "camera.viewfinder", "mic": "mic", "search": "magnifyingglass", "back": "chevron.backward"]
+        if let symbol = symbols[name] {
+            return UIImage(systemName: symbol)
+        }
+        return UIImage(named: name) ?? UIImage(systemName: name)
+    }
+
+    // MARK: - Text attributes
+
+    /**
+     * The title attributes for a state (`UIControlStateNormal`, `UIControlStateSelected`, `UIControlStateDisabled`).
+     */
+    @objc(setTitleTextAttributes:forState:)
+    public func setTitleTextAttributes(_ attributes: [NSAttributedString.Key: Any]?, for state: UIControl.State) {
+        titleAttributes[state.rawValue] = attributes
+        itemChanged()
+    }
+
+    /**
+     * The title attributes set for a state, or nil.
+     */
+    @objc(titleTextAttributesForState:)
+    public func titleTextAttributes(for state: UIControl.State) -> [NSAttributedString.Key: Any]? {
+        titleAttributes[state.rawValue]
+    }
+
+    /**
+     * The badge text attributes for a state.
+     */
+    @objc(setBadgeTextAttributes:forState:)
+    public func setBadgeTextAttributes(_ attributes: [NSAttributedString.Key: Any]?, for state: UIControl.State) {
+        badgeAttributes[state.rawValue] = attributes
+        itemChanged()
+    }
+
+    /**
+     * The badge text attributes set for a state, or nil.
+     */
+    @objc(badgeTextAttributesForState:)
+    public func badgeTextAttributes(for state: UIControl.State) -> [NSAttributedString.Key: Any]? {
+        badgeAttributes[state.rawValue]
+    }
+
+    /**
+     * The view the badge is drawn in (the item view).
+     */
+    @objc public func actualBadgeSuperView() -> UIView {
+        itemView
+    }
+
+    // MARK: - Private
+
+    var currentState: UIControl.State {
+        if !isEnabled {
+            return .disabled
+        }
+        return isSelected ? .selected : .normal
+    }
+
+    private func itemChanged() {
+        itemControl.reload()
+        searchBarView?.setNeedsLayout()
+    }
+}
+
+/**
+ * The view of a `CYLSearchBarItem` (a control), like `CYLFlatDesignTabBarButton`; it was the public
+ * `CYLSearchBarItemView`. The item's `itemView` returns it.
+ */
+@MainActor
+private final class CYLSearchBarItemControl: UIControl {
+
+    private static let defaultImageSide: CGFloat = 20
+    private static let minimumTouchSide: CGFloat = 36
+
+    /**
+     * The item this view draws.
+     */
+    @objc private(set) weak var item: CYLSearchBarItem?
+
+    /**
+     * The icon.
+     */
+    @objc let imageView = UIImageView()
+
+    /**
+     * The title of a text item.
+     */
+    @objc let titleLabel = UILabel()
+
+    /**
+     * The badge (`badgeValue`).
+     */
+    @objc let badgeLabel = UILabel()
+
+    private let dividerLayer = CALayer()
+
+    /**
+     * The view for an item; the item's `itemView` is the one the bar shows.
+     */
+    init(item: CYLSearchBarItem) {
+        self.item = item
+        super.init(frame: .zero)
+        imageView.contentMode = .scaleAspectFit
+        imageView.isUserInteractionEnabled = false
+        titleLabel.adjustsFontForContentSizeCategory = true
+        titleLabel.font = UIFontMetrics(forTextStyle: .headline).scaledFont(for: .systemFont(ofSize: 17, weight: .semibold))
+        titleLabel.isUserInteractionEnabled = false
+        badgeLabel.textAlignment = .center
+        badgeLabel.font = .systemFont(ofSize: 11, weight: .semibold)
+        badgeLabel.textColor = .white
+        badgeLabel.clipsToBounds = true
+        badgeLabel.isUserInteractionEnabled = false
+        addSubview(imageView)
+        addSubview(titleLabel)
+        addSubview(badgeLabel)
+        layer.addSublayer(dividerLayer)
+        showsLargeContentViewer = true
+        addInteraction(UILargeContentViewerInteraction())
+        addInteraction(UIPointerInteraction())
+        reload()
+    }
+
+    /**
+     * Not supported: an item view is created from its item.
+     */
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    private var resolvedTint: UIColor {
+        item?.tintColor ?? item?.searchBarView?.itemTintColor ?? .label
+    }
+
+    private var resolvedImageSize: CGSize {
+        guard let size = item?.imageSize, size.width > 0, size.height > 0 else {
+            return CGSize(width: Self.defaultImageSide, height: Self.defaultImageSide)
+        }
+        return size
+    }
+
+    private var resolvedInsets: UIEdgeInsets {
+        guard let item, item.contentInsets == .zero else {
+            return item?.contentInsets ?? .zero
+        }
+        switch item.style {
+        case .text:
+            return UIEdgeInsets(top: 0, left: 4, bottom: 0, right: 4)
+        case .icon, .divider:
+            return .zero
+        }
+    }
+
+    private var currentImage: UIImage? {
+        guard let item else {
+            return nil
+        }
+        if let animated = item.animatedImage {
+            return animated
+        }
+        return item.isSelected ? (item.selectedImage ?? item.image) : item.image
+    }
+
+    func reload() {
+        guard let item else {
+            return
+        }
+        let state = item.currentState
+        let tint = resolvedTint
+        isEnabled = item.isEnabled
+        isSelected = item.isSelected
+        alpha = item.isEnabled ? 1 : 0.4
+        imageView.image = currentImage
+        imageView.tintColor = tint
+        imageView.isHidden = item.style == .divider || currentImage == nil
+        if item.animatedImage != nil {
+            imageView.startAnimating()
+        }
+        let attributes = item.titleTextAttributes(for: state) ?? item.titleTextAttributes(for: .normal)
+        if item.style == .text, let title = item.title {
+            var merged: [NSAttributedString.Key: Any] = [.foregroundColor: tint, .font: titleLabel.font as Any]
+            attributes?.forEach { merged[$0.key] = $0.value }
+            titleLabel.attributedText = NSAttributedString(string: title, attributes: merged)
+            titleLabel.isHidden = false
+        } else {
+            titleLabel.attributedText = nil
+            titleLabel.isHidden = true
+        }
+        let background = item.isSelected ? (item.selectedBackgroundColor ?? item.backgroundColor) : item.backgroundColor
+        backgroundColor = background
+        dividerLayer.isHidden = item.style != .divider
+        dividerLayer.backgroundColor = UIColor.separator.resolvedColor(with: traitCollection).cgColor
+        reloadBadge(state: state)
+        isAccessibilityElement = item.style != .divider
+        accessibilityLabel = item.itemAccessibilityLabel ?? item.title
+        accessibilityIdentifier = item.itemAccessibilityIdentifier
+        accessibilityTraits = item.isSelectable && item.isSelected ? [.button, .selected] : .button
+        if !item.isEnabled {
+            accessibilityTraits.insert(.notEnabled)
+        }
+        largeContentTitle = item.itemAccessibilityLabel ?? item.title
+        largeContentImage = currentImage
+        isUserInteractionEnabled = item.style != .divider
+        setNeedsLayout()
+        invalidateIntrinsicContentSize()
+    }
+
+    private func reloadBadge(state: UIControl.State) {
+        guard let item, let value = item.badgeValue else {
+            badgeLabel.isHidden = true
+            return
+        }
+        badgeLabel.isHidden = false
+        badgeLabel.backgroundColor = item.badgeColor ?? .systemRed
+        let attributes = item.badgeTextAttributes(for: state) ?? item.badgeTextAttributes(for: .normal)
+        badgeLabel.attributedText = NSAttributedString(string: value, attributes: attributes ?? [
+            .font: UIFont.systemFont(ofSize: 11, weight: .semibold),
+            .foregroundColor: UIColor.white,
+        ])
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        dividerLayer.backgroundColor = UIColor.separator.resolvedColor(with: traitCollection).cgColor
+    }
+
+    override var intrinsicContentSize: CGSize {
+        sizeThatFits(CGSize(width: CGFloat.greatestFiniteMagnitude, height: CGFloat.greatestFiniteMagnitude))
+    }
+
+    override func sizeThatFits(_ size: CGSize) -> CGSize {
+        guard let item else {
+            return .zero
+        }
+        let insets = resolvedInsets
+        switch item.style {
+        case .divider:
+            return CGSize(width: 1 + insets.left + insets.right, height: 18)
+        case .icon:
+            let image = resolvedImageSize
+            let side = max(Self.minimumTouchSide, max(image.width + insets.left + insets.right, image.height + insets.top + insets.bottom))
+            return CGSize(width: side, height: side)
+        case .text:
+            let titleSize = titleLabel.attributedText.map { ceil($0.size().width) } ?? 0
+            let imageWidth = currentImage == nil ? 0 : resolvedImageSize.width + 4
+            let height = max(Self.minimumTouchSide, ceil(titleLabel.font.lineHeight) + insets.top + insets.bottom)
+            return CGSize(width: max(Self.minimumTouchSide, titleSize + imageWidth + insets.left + insets.right), height: height)
+        }
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        guard let item else {
+            return
+        }
+        let insets = resolvedInsets
+        let content = bounds.inset(by: insets)
+        let image = resolvedImageSize
+        switch item.style {
+        case .divider:
+            dividerLayer.frame = CGRect(x: insets.left, y: floor((bounds.height - 18) / 2), width: 1, height: min(18, bounds.height))
+        case .icon:
+            imageView.frame = CGRect(x: content.midX - image.width / 2, y: content.midY - image.height / 2, width: image.width, height: image.height)
+                .offsetBy(dx: item.imagePositionAdjustment.horizontal, dy: item.imagePositionAdjustment.vertical)
+        case .text:
+            var x = content.minX
+            if currentImage != nil {
+                imageView.frame = CGRect(x: x, y: content.midY - image.height / 2, width: image.width, height: image.height)
+                    .offsetBy(dx: item.imagePositionAdjustment.horizontal, dy: item.imagePositionAdjustment.vertical)
+                x += image.width + 4
+            }
+            titleLabel.frame = CGRect(x: x, y: content.minY, width: max(0, content.maxX - x), height: content.height)
+                .offsetBy(dx: item.titlePositionAdjustment.horizontal, dy: item.titlePositionAdjustment.vertical)
+        }
+        layoutBadge(item: item)
+        layer.cornerRadius = item.backgroundColor == nil && item.selectedBackgroundColor == nil ? 0 : min(bounds.height / 2, 10)
+    }
+
+    private func layoutBadge(item: CYLSearchBarItem) {
+        guard !badgeLabel.isHidden else {
+            return
+        }
+        let isDot = (item.badgeValue ?? "").isEmpty
+        let minimum = item.badgeSize.width > 0 && item.badgeSize.height > 0 ? item.badgeSize : CGSize(width: 16, height: 16)
+        var size = isDot ? CGSize(width: 8, height: 8) : minimum
+        if !isDot {
+            let text = badgeLabel.intrinsicContentSize
+            size.width = max(size.width, ceil(text.width) + item.badgeContentInsets.left + item.badgeContentInsets.right)
+            size.height = max(size.height, ceil(text.height) + item.badgeContentInsets.top + item.badgeContentInsets.bottom)
+        }
+        let anchor = imageView.isHidden ? titleLabel.frame : imageView.frame
+        badgeLabel.frame = CGRect(x: anchor.maxX - size.width / 2, y: anchor.minY - size.height / 2, width: size.width, height: size.height)
+            .offsetBy(dx: item.badgePositionAdjustment.horizontal, dy: item.badgePositionAdjustment.vertical)
+        badgeLabel.layer.cornerRadius = size.height / 2
+    }
+}
+
+/**
+ * One search of `CYLSearchBarModeMultiple`: its text field, and a remove button shown while it is selected.
+ */
+private final class CYLSearchBarSearchEntryView: UIView {
+    @objc let textField = UITextField()
+    @objc let removeButton = UIButton(configuration: .plain(), primaryAction: nil)
+    var editing = false
+}
+
+/**
+ * The content of a `CYLSearchBarView` in `CYLSearchBarModeMultiple`; it was the public `CYLMultiSearchView`, a port of
+ * iammert `MultiSearchView`. The search button starts a new search; a completed search becomes an entry in a
+ * horizontally scrolling row, with an indicator under the selected entry and a remove button on it. The style comes
+ * from the bar, and the events go to the bar's delegate.
+ */
+private final class CYLSearchBarMultiSearchView: UIView, UITextFieldDelegate {
+
+    private static let itemPadding: CGFloat = 12
+    private static let removeSize: CGFloat = 28
+    private static let indicatorHeight: CGFloat = 2
+
+    weak var searchBarView: CYLSearchBarView?
+    private(set) var selectedIndex = NSNotFound
+    private(set) var isEditingNewSearch = false
+    let searchButton = UIButton(configuration: .plain(), primaryAction: nil)
+    @objc private(set) var items: [CYLSearchBarSearchEntryView] = []
+    private let scrollView = UIScrollView()
+    private let indicatorView = UIView()
+
+    // MARK: - Style read from the bar
+
+    private var placeholder: String {
+        searchBarView?.placeholder ?? CYLSearchResources.localizedString(forKey: "search.field")
+    }
+
+    private var font: UIFont {
+        searchBarView?.font ?? UIFont.preferredFont(forTextStyle: .body, compatibleWith: traitCollection)
+    }
+
+    private var textColor: UIColor {
+        searchBarView?.textColor ?? .label
+    }
+
+    private var placeholderColor: UIColor {
+        searchBarView?.placeholderColor ?? .placeholderText
+    }
+
+    private var animationDuration: TimeInterval {
+        searchBarView?.animationDuration ?? 0.25
+    }
+
+    private var accentColor: UIColor {
+        searchBarView?.searchIndicatorColor ?? tintColor
+    }
+
+    var searches: [String] {
+        items.map { $0.textField.text ?? "" }
+    }
+
+    var preferredHeight: CGFloat {
+        max(56, ceil(font.lineHeight) + 24 + Self.indicatorHeight)
+    }
+
+    // MARK: - Initializers
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        scrollView.showsHorizontalScrollIndicator = false
+        scrollView.alwaysBounceHorizontal = false
+        addSubview(scrollView)
+        indicatorView.isHidden = true
+        indicatorView.isAccessibilityElement = false
+        scrollView.addSubview(indicatorView)
+        searchButton.accessibilityLabel = CYLSearchResources.localizedString(forKey: "multisearch.add")
+        searchButton.accessibilityIdentifier = "CYLSearchBarNewSearch"
+        searchButton.showsLargeContentViewer = true
+        searchButton.addTarget(self, action: #selector(searchTapped), for: .touchUpInside)
+        addSubview(searchButton)
+        applyStyle()
+    }
+
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    // MARK: - Style
+
+    func applyStyle() {
+        let accent = accentColor
+        indicatorView.backgroundColor = accent
+        var configuration = searchButton.configuration ?? .plain()
+        configuration.image = searchBarView?.newSearchImage ?? UIImage(systemName: "magnifyingglass")
+        searchButton.configuration = configuration
+        searchButton.tintColor = accent
+        for (index, item) in items.enumerated() {
+            style(item, selected: index == selectedIndex)
+        }
+        setNeedsLayout()
+    }
+
+    private func style(_ item: CYLSearchBarSearchEntryView, selected: Bool) {
+        let field = item.textField
+        let currentFont = self.font
+        field.font = currentFont
+        field.adjustsFontForContentSizeCategory = true
+        field.textColor = textColor
+        field.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: placeholderColor, .font: currentFont])
+        field.returnKeyType = searchBarView?.returnKeyType ?? .search
+        field.keyboardType = searchBarView?.keyboardType ?? .default
+        field.autocapitalizationType = searchBarView?.autocapitalizationType ?? .sentences
+        field.alpha = selected || item.editing ? 1 : (searchBarView?.unselectedSearchAlpha ?? 0.5)
+        item.removeButton.setImage(searchBarView?.removeSearchImage ?? UIImage(systemName: "xmark.circle.fill"), for: .normal)
+        item.removeButton.tintColor = .secondaryLabel
+        item.removeButton.isHidden = !selected || item.editing
+        // VoiceOver: a completed search reads as a selectable button with its position.
+        if !item.editing, let index = items.firstIndex(of: item) {
+            field.accessibilityTraits = selected ? [.button, .selected] : .button
+            field.accessibilityValue = String.localizedStringWithFormat(CYLSearchResources.localizedString(forKey: "multisearch.item"), UInt(index + 1), UInt(items.count))
+        } else {
+            field.accessibilityTraits = .none
+            field.accessibilityValue = nil
+        }
+    }
+
+    override func tintColorDidChange() {
+        super.tintColorDidChange()
+        applyStyle()
+    }
+
+    // MARK: - Layout
+
+    private func width(of item: CYLSearchBarSearchEntryView, selected: Bool) -> CGFloat {
+        if item.editing {
+            return searchBarView?.searchFieldWidth ?? 160
+        }
+        let textWidth = ceil(((item.textField.text ?? "") as NSString).size(withAttributes: [.font: font]).width)
+        return textWidth + Self.itemPadding * 2 + (selected ? Self.removeSize : 0)
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        let height = bounds.height
+        let buttonSide = min(max(44, height), height)
+        searchButton.frame = CGRect(x: bounds.width - buttonSide, y: 0, width: buttonSide, height: height)
+        scrollView.frame = CGRect(x: 0, y: 0, width: max(0, bounds.width - buttonSide), height: height)
+        var x: CGFloat = 0
+        let itemHeight = max(0, height - Self.indicatorHeight)
+        for (index, item) in items.enumerated() {
+            let selected = index == selectedIndex
+            let width = width(of: item, selected: selected)
+            item.frame = CGRect(x: x, y: 0, width: width, height: itemHeight)
+            let removeWidth = item.removeButton.isHidden ? 0 : Self.removeSize
+            item.textField.frame = CGRect(x: Self.itemPadding, y: 0, width: max(0, width - Self.itemPadding * 2 - removeWidth), height: itemHeight)
+            item.removeButton.frame = CGRect(x: width - Self.itemPadding - Self.removeSize + 6, y: floor((itemHeight - 44) / 2), width: 44, height: 44)
+            if selected || item.editing {
+                indicatorView.frame = CGRect(x: x + Self.itemPadding, y: itemHeight, width: max(0, width - Self.itemPadding * 2), height: Self.indicatorHeight)
+            }
+            x += width
+        }
+        indicatorView.isHidden = selectedIndex == NSNotFound && !isEditingNewSearch
+        scrollView.contentSize = CGSize(width: x, height: height)
+    }
+
+    private func scroll(to item: CYLSearchBarSearchEntryView, animated: Bool) {
+        layoutIfNeeded()
+        scrollView.scrollRectToVisible(item.frame, animated: animated)
+    }
+
+    // MARK: - Actions
+
+    @objc private func searchTapped() {
+        if isEditingNewSearch {
+            completeSearch()
+        } else {
+            beginNewSearch()
+        }
+    }
+
+    private func newItem() -> CYLSearchBarSearchEntryView {
+        let item = CYLSearchBarSearchEntryView()
+        item.textField.delegate = self
+        item.textField.accessibilityLabel = placeholder
+        item.textField.addTarget(self, action: #selector(textChanged(_:)), for: .editingChanged)
+        item.addSubview(item.textField)
+        item.removeButton.accessibilityLabel = CYLSearchResources.localizedString(forKey: "multisearch.remove")
+        item.removeButton.showsLargeContentViewer = true
+        item.removeButton.addTarget(self, action: #selector(removeTapped(_:)), for: .touchUpInside)
+        item.addSubview(item.removeButton)
+        item.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(itemTapped(_:))))
+        return item
+    }
+
+    func beginNewSearch() {
+        if isEditingNewSearch {
+            return
+        }
+        isEditingNewSearch = true
+        selectedIndex = NSNotFound
+        let item = newItem()
+        item.editing = true
+        items.append(item)
+        scrollView.addSubview(item)
+        applyStyle()
+        item.alpha = 0
+        scroll(to: item, animated: true)
+        UIView.animate(withDuration: animationDuration) {
+            item.alpha = 1
+        } completion: { _ in
+            item.textField.becomeFirstResponder()
+        }
+        if window == nil {
+            item.textField.becomeFirstResponder()
+        }
+    }
+
+    func completeSearch() {
+        guard isEditingNewSearch, let item = items.last else {
+            return
+        }
+        isEditingNewSearch = false
+        item.editing = false
+        item.textField.resignFirstResponder()
+        let text = item.textField.text ?? ""
+        if text.isEmpty || text.count < Int(searchBarView?.minimumTextLength ?? 3) {
+            remove(item, notify: false)
+            return
+        }
+        let index = items.count - 1
+        selectedIndex = index
+        animateLayout()
+        if let bar = searchBarView {
+            bar.delegate?.searchBarView?(bar, didCompleteSearch: text, at: index)
+        }
+    }
+
+    func addSearch(_ text: String) {
+        if text.isEmpty {
+            return
+        }
+        if isEditingNewSearch {
+            completeSearch()
+        }
+        let item = newItem()
+        let maximum = Int(searchBarView?.maximumTextLength ?? 0)
+        item.textField.text = maximum > 0 && text.count > maximum ? String(text.prefix(maximum)) : text
+        items.append(item)
+        scrollView.addSubview(item)
+        selectedIndex = items.count - 1
+        applyStyle()
+        scroll(to: item, animated: false)
+    }
+
+    func selectSearch(at index: Int) {
+        guard items.indices.contains(index), !items[index].editing else {
+            return
+        }
+        if isEditingNewSearch {
+            completeSearch()
+        }
+        guard items.indices.contains(index) else {
+            return
+        }
+        selectedIndex = index
+        animateLayout()
+        scroll(to: items[index], animated: true)
+        if let bar = searchBarView {
+            bar.delegate?.searchBarView?(bar, didSelectSearch: items[index].textField.text ?? "", at: index)
+        }
+    }
+
+    func removeSearch(at index: Int) {
+        guard items.indices.contains(index) else {
+            return
+        }
+        remove(items[index], notify: true)
+    }
+
+    private func remove(_ item: CYLSearchBarSearchEntryView, notify: Bool) {
+        guard let index = items.firstIndex(of: item) else {
+            return
+        }
+        if item.editing {
+            isEditingNewSearch = false
+        }
+        item.textField.resignFirstResponder()
+        item.removeFromSuperview()
+        items.remove(at: index)
+        // As in MultiSearchView: the next entry is selected, or the previous one when the last entry went away.
+        if items.isEmpty {
+            selectedIndex = NSNotFound
+        } else if selectedIndex == index || selectedIndex == NSNotFound {
+            selectedIndex = min(index, items.count - 1)
+        } else if selectedIndex > index {
+            selectedIndex -= 1
+        }
+        animateLayout()
+        if notify, let bar = searchBarView {
+            bar.delegate?.searchBarView?(bar, didRemoveSearchAt: index)
+        }
+        let focus: Any = selectedIndex == NSNotFound ? searchButton : items[selectedIndex].textField
+        UIAccessibility.post(notification: .layoutChanged, argument: focus)
+    }
+
+    private func animateLayout() {
+        applyStyle()
+        guard window != nil, animationDuration > 0 else {
+            layoutIfNeeded()
+            return
+        }
+        UIView.animate(withDuration: animationDuration) {
+            self.layoutIfNeeded()
+        }
+    }
+
+    @objc private func itemTapped(_ recognizer: UITapGestureRecognizer) {
+        guard let item = recognizer.view as? CYLSearchBarSearchEntryView, let index = items.firstIndex(of: item), index != selectedIndex else {
+            return
+        }
+        selectSearch(at: index)
+    }
+
+    @objc private func removeTapped(_ button: UIButton) {
+        guard let item = button.superview as? CYLSearchBarSearchEntryView, let index = items.firstIndex(of: item) else {
+            return
+        }
+        removeSearch(at: index)
+    }
+
+    @objc private func textChanged(_ field: UITextField) {
+        guard let index = items.firstIndex(where: { $0.textField === field }) else {
+            return
+        }
+        setNeedsLayout()
+        if let bar = searchBarView {
+            bar.delegate?.searchBarView?(bar, textDidChange: field.text ?? "", at: index)
+        }
+    }
+
+    // MARK: - UITextFieldDelegate
+
+    func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        guard let item = textField.superview as? CYLSearchBarSearchEntryView else {
+            return false
+        }
+        if !item.editing {
+            if let index = items.firstIndex(of: item), index != selectedIndex {
+                selectSearch(at: index)
+            }
+            return false
+        }
+        return true
+    }
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        completeSearch()
+        return false
+    }
+
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let maximum = Int(searchBarView?.maximumTextLength ?? 0)
+        if maximum == 0 || string.isEmpty {
+            return true
+        }
+        let length = (textField.text as NSString?)?.length ?? 0
+        return length - range.length + (string as NSString).length <= maximum
     }
 }

@@ -8,7 +8,8 @@
 
 Key details of the current example, stacked top to bottom: `CYLSearchBarView` with text, a camera accessory and
 Cancel (plus page); the Issue #1317 screen with its pinned search bar; `CYLSearchView` suggestions (the
-MaterialSearchView "Default" port); `CYLMultiSearchView` with two searches and its event log.
+MaterialSearchView "Default" port); `CYLSearchBarView` in its multiple mode (formerly `CYLMultiSearchView`) with
+two searches and its event log.
 
 ![Key details of the iOS example](docs/assets/readme-ios-key-details.png)
 
@@ -93,15 +94,49 @@ The reported repeated inset updates were observed with iOS 12.3 and
 
 ## Local CocoaPods component
 
-The reusable `CYLSearchResultsViewController` lives in
-`Sources/CYLSearchViewController` and requires iOS 15 or later. It has no
-dependency on the sample app, a particular result model, or a refresh library.
-Supply a `CYLSearchResultsDataSource` to provide results and configure cells;
-the optional selection callback receives the selected result. The public
-`searchController`, `searchResults`, and `reloadSearchResults` allow consumers
-to customize search and refresh data. Override `reloadResultsTableView` when
-integrating a custom empty-state or table reload mechanism. Use these APIs on
-the main thread.
+The iOS core, CYLSearchBar, lives in `Sources/CYLSearchBar` (module `CYLSearchViewController`, iOS 15 or later):
+three Swift files and four public classes.
+
+| File | Public API |
+|:---|:---|
+| `CYLSearchBarView.swift` | `CYLSearchBarView` (one field, or several searches with `mode = CYLSearchBarModeMultiple`), `CYLSearchBarItem`, `CYLSearchBarViewDelegate` |
+| `CYLSearchView.swift` | `CYLSearchView` (suggestions, results, empty placeholders, pull-to-refresh), `CYLSearchViewDelegate`, `CYLSearchViewDataSource` |
+| `CYLSearchResources.swift` | `CYLSearchResources` (bundle images and strings), `CYLSearchSuggestionCache`, `CYLSearchSuggestionCachePolicy` |
+
+It depends only on CollectionViewClassifyMenu (tag suggestions) and CYLTableViewPlaceHolder (placeholders and
+pull-to-refresh); no other search library. Use these APIs on the main thread.
+
+Results: set `resultsDataSource` (a `CYLSearchViewDataSource`) and, while the query is not empty,
+`resultsTableView` lists `searchResults` below the search bar instead of the suggestions. Call `reloadResults` when
+the data changes; `-searchView:didSelectResult:` reports a tapped row. Open the page in a view controller with
+`showSearchInViewController:animated:` and close it with `closeSearchAnimated:completion:`.
+
+```swift
+let searchView = CYLSearchView()
+searchView.resultsDataSource = dataSource
+searchView.showsEmptyResultsPlaceholder = true
+searchView.showSearch(in: navigationController ?? self)
+```
+
+Several searches side by side (iammert `MultiSearchView`):
+
+```swift
+let bar = CYLSearchBarView()
+bar.mode = .multiple
+bar.delegate = self // searchBarView(_:didCompleteSearch:at:), didSelectSearch, didRemoveSearchAt, textDidChange(_:at:)
+bar.addSearch("Rive")
+```
+
+Pull-to-refresh is the core's only refresh API (CYLTableViewPlaceHolder's header inside): `refreshHandler`,
+`beginRefreshing`, `endRefreshing` and `isRefreshing` for `resultsTableView`, and the class methods
+`setRefreshHandler(_:for:)`, `beginRefreshing(in:)`, `endRefreshing(in:)` and `isRefreshing(in:)` for a scroll
+view of yours. End the refresh on every completion path and capture the view controller weakly:
+
+```swift
+CYLSearchView.setRefreshHandler({ [weak self] in
+    self?.reload { CYLSearchView.endRefreshing(in: table) }
+}, for: table)
+```
 
 For local development, add the following to a Podfile, adjusting the path:
 
@@ -111,21 +146,15 @@ pod 'CYLSearchViewController', :path => '../CYLSearchViewController'
 
 The podspec is an unpublished starting point; its `0.1.0` version and source
 tag do not imply a CocoaPods release. The original sample remains in the
-repository. The Pod also exposes a redesigned `CYLSearchController` that
-animates a search overlay over a host view controller. Initialize it with the
-same data-source protocol, call `showInViewController:`, and call `hide:` or
-use its cancel button to dismiss it. The overlay's public
-`resultsViewController` provides the search and results integration points;
-its optional delegate receives cancellation. The redesigned interface does not
-include the old hard-coded demo results and search-history storage.
+repository.
 
 ## Local Pod reproduction example
 
 The root `CYLSearchExample.xcodeproj` uses app sources in `CYLSearchExample/`
 and integration tests in `CYLSearchExampleTests/`. It consumes this Pod and
-the sibling `CYLTableViewPlaceHolder` repository through local paths. The example owns the
-refresh provider, empty-state view, and reproduction switch; these are not
-dependencies of the reusable search component.
+CYLTableViewPlaceHolder by commit. The example owns the refresh provider, empty-state view, and reproduction switch;
+its refresh goes through `CYLSearchView`'s refresh class methods, never CYLTableViewPlaceHolder's refresh API
+directly.
 
 ```sh
 pod install
@@ -134,8 +163,7 @@ open CYLSearchExample.xcworkspace
 
 Run the `CYLSearchExample` scheme, select **Search and refresh**, pull down to refresh, and tap **Repro: OFF**
 to allow the navigation search bar to scroll. Tap **Repro: ON** to restore the
-pinned-bar workaround. Tap **Overlay** to exercise the animated search
-controller using the same injected data source. This builds the affected interaction, but iOS 15 is
+pinned-bar workaround. Tap **Overlay** to open a `CYLSearchView` that searches the same injected data source. This builds the affected interaction, but iOS 15 is
 the minimum for this example and the original iOS 12.3 report has not been
 reproduced by these tests.
 
@@ -145,35 +173,22 @@ only performed when `scripts/pod-lint.sh push` is explicitly invoked.
 
 ## Placeholder resources and localization
 
-The Pod includes `CYLSearchViewController.bundle` with 41 offline placeholder
-images. `CYLSearchPlaceholderView` exposes its image view and label for
-customization; it does not depend on a particular placeholder library. The
-example uses it with `CYLTableViewPlaceHolder`.
-
-Choose an image and a message independently, or supply either or both
-yourself. Custom text is displayed verbatim, so localize it in your app.
+The empty states come from CYLTableViewPlaceHolder: `CYLPlaceholderView` (a style, a message, or your own image and
+text) and `CYLPlaceholderStackView` scenarios, which `CYLSearchView` shows through `emptyResultsScenario` and
+`emptySuggestionsScenario` (`emptyResultsView`, `emptySuggestionsView`). The core's former
+`CYLSearchPlaceholderView` was a duplicate of `CYLPlaceholderView` and is removed. `CYLSearchViewController.bundle`
+keeps its offline images and strings for the other platforms.
 
 ```objc
-CYLSearchPlaceholderView *view =
-    [[CYLSearchPlaceholderView alloc] initWithStyle:CYLSearchPlaceholderStyleNoResults
-                                           message:CYLSearchPlaceholderMessageNetwork];
-CYLSearchPlaceholderView *customText =
-    [[CYLSearchPlaceholderView alloc] initWithStyle:CYLSearchPlaceholderStyleEmpty text:@"Your message"];
-CYLSearchPlaceholderView *customImage =
-    [[CYLSearchPlaceholderView alloc] initWithImage:yourImage message:CYLSearchPlaceholderMessageError];
-CYLSearchPlaceholderView *customBoth =
-    [[CYLSearchPlaceholderView alloc] initWithImage:yourImage text:@"Your message"];
+CYLPlaceholderView *view =
+    [[CYLPlaceholderView alloc] initWithStyle:CYLPlaceholderStyleNoResults message:CYLPlaceholderMessageNoInternet];
+CYLPlaceholderView *customText =
+    [[CYLPlaceholderView alloc] initWithStyle:CYLPlaceholderStyleEmpty text:@"Your message"];
+CYLPlaceholderView *customBoth = [[CYLPlaceholderView alloc] initWithImage:yourImage text:@"Your message"];
 ```
 
-The `CYLSearchPlaceholderStyle` enum lists every bundled image, including
-network, cloud, sync, error, files, media, people and location states. No
-network access is needed. The messages are `Empty`, `NoResults`, `Error` and
-`Network`. Image and text inputs must
-not be nil; an empty string is allowed. Set `imageView.tintColor` for template
-images or customize `imageView` and `textLabel` directly. `initWithKind:`
-continues to select the corresponding matching image and message. In the
-example, select **Placeholder styles** to explore all 164 built-in combinations
-and three custom-input cases.
+In the example, select **Placeholder styles** to explore every `CYLPlaceholderStyle` with four messages, and three
+custom-input cases.
 
 `CYLSearchResources` loads images from the Pod bundle and resolves localized
 strings using preferred languages, falling back to English. English, Simplified

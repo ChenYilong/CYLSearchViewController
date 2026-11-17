@@ -71,17 +71,46 @@ public protocol CYLSearchViewDelegate: NSObjectProtocol {
      */
     @objc(searchViewNavigationButtonClicked:)
     optional func searchViewNavigationButtonClicked(_ searchView: CYLSearchView)
+
+    /**
+     * A row of `resultsTableView` was tapped (was `-searchResultsViewController:didSelectResult:`).
+     */
+    @objc(searchView:didSelectResult:)
+    optional func searchView(_ searchView: CYLSearchView, didSelectResult result: Any)
+}
+
+/**
+ * Supplies the results of a `CYLSearchView` and configures their cells (was `CYLSearchResultsDataSource`). While it is
+ * set and the query is not empty, `resultsTableView` lists the results under the search bar instead of the
+ * suggestions.
+ */
+@objc(CYLSearchViewDataSource)
+public protocol CYLSearchViewDataSource: NSObjectProtocol {
+    /**
+     * The results for `query` (never empty: an empty query shows the suggestions instead).
+     */
+    @objc(searchView:resultsForQuery:)
+    func searchView(_ searchView: CYLSearchView, resultsForQuery query: String) -> [Any]
+
+    /**
+     * Shows `result` in `cell`, a row of `resultsTableView`.
+     */
+    @objc(searchView:configureResultCell:withResult:)
+    func searchView(_ searchView: CYLSearchView, configureResultCell cell: UITableViewCell, withResult result: Any)
 }
 
 /**
  * A search page that opens over its host view: a `CYLSearchBarView` at the top of the safe area, a divider, a list
- * of suggestions filtered as you type, and an optional content view of yours below (MiguelCatalan and lapism
- * `MaterialSearchView`). The page is opaque, so the bar never covers a view of the host.
+ * of suggestions filtered as you type, the results of `resultsDataSource`, and an optional content view of yours
+ * below (MiguelCatalan and lapism `MaterialSearchView`). It also owns the pull-to-refresh of the search screens
+ * (`refreshHandler`, and the class methods for a scroll view of yours), built on CYLTableViewPlaceHolder. The page is
+ * opaque, so the bar never covers a view of the host.
  */
 @objc(CYLSearchView)
 public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewDataSource, UITableViewDelegate {
 
     private static let cellIdentifier = "CYLSearchSuggestionCell"
+    private static let resultCellIdentifier = "CYLSearchResultCell"
 
     /**
      * Receives the events of the search view.
@@ -143,7 +172,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
 
     /**
      * Shows CYLTableViewPlaceHolder's placeholder for `emptyResultsScenario` under the search bar while a non-empty
-     * query matches no suggestion, in both suggestion styles. NO by default.
+     * query matches no suggestion, in both suggestion styles, or `resultsDataSource` returns no result. NO by default.
      */
     @objc public var showsEmptyResultsPlaceholder = false { didSet { refilter() } }
 
@@ -164,6 +193,99 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
      * time it is shown; nil before. Style it after it appears, or change `emptyResultsScenario`.
      */
     @objc public private(set) var emptyResultsView: CYLPlaceholderStackView?
+
+    // MARK: - Results
+
+    /**
+     * Supplies the results (was `CYLSearchController`'s and `CYLSearchResultsViewController`'s `searchDataSource`).
+     * While it is set and the query is not empty, `resultsTableView` lists them under the search bar and the
+     * suggestions are hidden; an empty result list shows the empty-results placeholder when
+     * `showsEmptyResultsPlaceholder` is YES. Nil (the default) keeps the suggestions only.
+     */
+    @objc public weak var resultsDataSource: CYLSearchViewDataSource? { didSet { refilter() } }
+
+    /**
+     * The table that lists `searchResults` (was `CYLSearchResultsViewController.tableView`). Style it directly; its
+     * data source and delegate are the search view.
+     */
+    @objc public let resultsTableView = UITableView(frame: .zero, style: .plain)
+
+    /**
+     * The results of the current query, from `resultsDataSource`; empty while the suggestions are shown.
+     */
+    @objc public private(set) var searchResults: [Any] = []
+
+    private var resultsVisible = false
+
+    // MARK: - Refresh
+
+    /**
+     * Pull-to-refresh of `resultsTableView` (CYLTableViewPlaceHolder's normal header inside): non-nil adds it, nil
+     * removes it. Call `-endRefreshing` on every completion path, and do not capture the view controller strongly.
+     */
+    @objc public var refreshHandler: (() -> Void)? {
+        didSet { Self.setRefreshHandler(refreshHandler, for: resultsTableView) }
+    }
+
+    /**
+     * YES while `resultsTableView` refreshes.
+     */
+    @objc public var isRefreshing: Bool {
+        Self.isRefreshing(in: resultsTableView)
+    }
+
+    /**
+     * Starts the refresh of `resultsTableView`, as a pull would; calls `refreshHandler`.
+     */
+    @objc public func beginRefreshing() {
+        Self.beginRefreshing(in: resultsTableView)
+    }
+
+    /**
+     * Stops the refresh of `resultsTableView`.
+     */
+    @objc public func endRefreshing() {
+        Self.endRefreshing(in: resultsTableView)
+    }
+
+    /**
+     * The same pull-to-refresh on a scroll view of yours, such as the table of a screen whose navigation item holds a
+     * `UISearchController` (the Issue #1317 page): non-nil adds CYLTableViewPlaceHolder's normal header with the
+     * handler, nil removes it. The handler must not capture its view controller strongly.
+     */
+    @objc(setRefreshHandler:forScrollView:)
+    public static func setRefreshHandler(_ handler: (() -> Void)?, for scrollView: UIScrollView) {
+        guard let handler else {
+            scrollView.cyl_header = nil
+            return
+        }
+        scrollView.cyl_header = CYLRefreshNormalHeader(refreshingBlock: handler)
+    }
+
+    /**
+     * Starts the refresh of a scroll view set up with `+setRefreshHandler:forScrollView:`.
+     */
+    @objc(beginRefreshingInScrollView:)
+    public static func beginRefreshing(in scrollView: UIScrollView) {
+        scrollView.cyl_header?.beginRefreshing()
+    }
+
+    /**
+     * Stops the refresh of a scroll view set up with `+setRefreshHandler:forScrollView:`. Call it on every completion
+     * path of the handler.
+     */
+    @objc(endRefreshingInScrollView:)
+    public static func endRefreshing(in scrollView: UIScrollView) {
+        scrollView.cyl_header?.endRefreshing()
+    }
+
+    /**
+     * YES while a scroll view set up with `+setRefreshHandler:forScrollView:` refreshes.
+     */
+    @objc(isRefreshingInScrollView:)
+    public static func isRefreshing(in scrollView: UIScrollView) -> Bool {
+        scrollView.cyl_header?.isRefreshing ?? false
+    }
 
     private var emptyResultsVisible = false
     private let pageView = UIView()
@@ -190,7 +312,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         didSet {
             oldValue?.removeFromSuperview()
             if let contentView {
-                pageView.insertSubview(contentView, belowSubview: suggestionsTableView)
+                pageView.insertSubview(contentView, belowSubview: resultsTableView)
             }
             setNeedsLayout()
         }
@@ -385,6 +507,9 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         commonInit()
     }
 
+    /**
+     * Creates the search view from an archive (a storyboard or a XIB).
+     */
     public required init?(coder: NSCoder) {
         super.init(coder: coder)
         commonInit()
@@ -405,6 +530,14 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         pageView.addSubview(searchBarView)
         dividerView.isAccessibilityElement = false
         pageView.addSubview(dividerView)
+        resultsTableView.dataSource = self
+        resultsTableView.delegate = self
+        resultsTableView.keyboardDismissMode = .onDrag
+        resultsTableView.tableFooterView = UIView()
+        resultsTableView.accessibilityIdentifier = "CYLSearchResults"
+        resultsTableView.accessibilityLabel = CYLSearchResources.localizedString(forKey: "search.title")
+        resultsTableView.isHidden = true
+        pageView.addSubview(resultsTableView)
         suggestionsTableView.dataSource = self
         suggestionsTableView.delegate = self
         suggestionsTableView.rowHeight = UITableView.automaticDimension
@@ -474,7 +607,9 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
             let emptySuggestionsHeight = emptySuggestionsVisible ? (emptySuggestionsView?.systemLayoutSizeFitting(
                 CGSize(width: width - safe.left - safe.right, height: UIView.layoutFittingCompressedSize.height),
                 withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel).height ?? 0) : 0
-            let listHeight = emptyResultsVisible ? emptyHeight : emptySuggestionsVisible ? emptySuggestionsHeight : !suggestionsVisible ? 0
+            resultsTableView.layoutIfNeeded()
+            let listHeight = emptyResultsVisible ? emptyHeight : resultsVisible ? resultsTableView.contentSize.height
+                : emptySuggestionsVisible ? emptySuggestionsHeight : !suggestionsVisible ? 0
                 : headerHeight + (tags ? suggestionsTagView.heightThatFitsWidth(width - safe.left - safe.right) : suggestionsTableView.contentSize.height)
             pageHeight = min(bottom, top + listHeight)
         }
@@ -486,6 +621,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         dividerView.frame = CGRect(x: 0, y: safe.top + barHeight, width: width, height: dividerHeight)
         let below = CGRect(x: safe.left, y: top, width: width - safe.left - safe.right, height: max(0, pageHeight - top))
         contentView?.frame = below
+        resultsTableView.frame = below
         // The cached queries' header takes the top of the list area; the list starts under it.
         let headerHeight: CGFloat = showsCachedQueries ? max(44, ceil(suggestionCacheTitleLabel.font.lineHeight) + 16) : 0
         suggestionCacheHeaderView.frame = CGRect(x: below.minX, y: below.minY, width: below.width, height: headerHeight)
@@ -500,6 +636,10 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         insets.bottom = max(keyboardOverlap - (bottom - pageHeight), safe.bottom)
         suggestionsTableView.contentInset = insets
         suggestionsTableView.verticalScrollIndicatorInsets = insets
+        var resultInsets = resultsTableView.contentInset
+        resultInsets.bottom = insets.bottom
+        resultsTableView.contentInset = resultInsets
+        resultsTableView.verticalScrollIndicatorInsets = resultInsets
     }
 
     override public func safeAreaInsetsDidChange() {
@@ -599,10 +739,23 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
     }
 
     /**
+     * Installs the search view in `controller`'s view when it is elsewhere (pinned to its edges), then opens it like
+     * `-showSearchAnimated:` (was `-[CYLSearchController showInViewController:]`). Pass a navigation controller to
+     * open the page over its navigation bar.
+     */
+    @objc(showSearchInViewController:animated:)
+    public func showSearch(in controller: UIViewController, animated: Bool = true) {
+        if superview !== controller.view {
+            install(in: controller.view)
+        }
+        showSearch(animated: animated)
+    }
+
+    /**
      * Closes the search view with animation and ends editing (`closeSearch`).
      */
     @objc public func closeSearch() {
-        closeSearch(animated: true)
+        closeSearch(animated: true, completion: nil)
     }
 
     /**
@@ -610,7 +763,17 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
      */
     @objc(closeSearchAnimated:)
     public func closeSearch(animated: Bool) {
+        closeSearch(animated: animated, completion: nil)
+    }
+
+    /**
+     * Closes the search view and ends editing, then calls `completion` once the view is hidden; at once when it is
+     * already closed (was `-[CYLSearchController hide:]`).
+     */
+    @objc(closeSearchAnimated:completion:)
+    public func closeSearch(animated: Bool, completion: (() -> Void)?) {
         guard searchOpen else {
+            completion?()
             return
         }
         searchOpen = false
@@ -622,6 +785,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
             self.accessibilityViewIsModal = false
             UIAccessibility.post(notification: .screenChanged, argument: nil)
             self.delegate?.searchViewDidClose?(self)
+            completion?()
         }
         guard animated, animationDuration > 0 else {
             finish(true)
@@ -687,6 +851,20 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
     private func refilter() {
         let query = searchBarView.text ?? ""
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        // A results data source and a query: the results replace the suggestions.
+        if let resultsDataSource, !trimmed.isEmpty {
+            searchResults = resultsDataSource.searchView(self, resultsForQuery: query)
+            resultsVisible = true
+            showsCachedQueries = false
+            filteredSuggestions = []
+            suggestionsVisible = false
+            emptyResultsVisible = showsEmptyResultsPlaceholder && searchResults.isEmpty
+            emptySuggestionsVisible = false
+            updateSuggestionsVisibility()
+            return
+        }
+        searchResults = []
+        resultsVisible = false
         let cached = suggestionCache?.cachedQueries() ?? []
         // An empty query lists the cached queries, newest first, under the header that clears them.
         showsCachedQueries = trimmed.isEmpty && !cached.isEmpty
@@ -717,9 +895,19 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
     }
 
     /**
-     * Hides the suggestions (`dismissSuggestions`).
+     * Queries `resultsDataSource` again for the current query and reloads `resultsTableView` (was
+     * `reloadSearchResults` and `reloadResultsTableView`). Call it when the results changed, for example after a
+     * refresh.
+     */
+    @objc public func reloadResults() {
+        refilter()
+    }
+
+    /**
+     * Hides the suggestions and the results (`dismissSuggestions`).
      */
     @objc public func dismissSuggestions() {
+        resultsVisible = false
         suggestionsVisible = false
         emptyResultsVisible = false
         emptySuggestionsVisible = false
@@ -749,6 +937,8 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         }
         emptySuggestionsView?.isHidden = !emptySuggestionsVisible
         suggestionCacheHeaderView.isHidden = !(suggestionsVisible && showsCachedQueries)
+        resultsTableView.isHidden = !resultsVisible
+        resultsTableView.reloadData()
         suggestionsTableView.reloadData()
         setNeedsLayout()
     }
@@ -790,7 +980,8 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         let handled = delegate?.searchView?(self, didSubmitText: text) ?? false
         if !handled && closesOnSubmit {
             closeSearch()
-        } else {
+        } else if !resultsVisible {
+            // The results of the query stay; only the suggestions go away.
             dismissSuggestions()
         }
     }
@@ -837,16 +1028,28 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
     // MARK: - Table
 
     /**
-     * One row per matching suggestion while the suggestions are shown.
+     * One row per result in `resultsTableView`, one row per matching suggestion while the suggestions are shown.
      */
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        suggestionsVisible ? filteredSuggestions.count : 0
+        if tableView === resultsTableView {
+            return resultsVisible ? searchResults.count : 0
+        }
+        return suggestionsVisible ? filteredSuggestions.count : 0
     }
 
     /**
-     * A suggestion row: icon, text, background, then `suggestionCellConfiguration`.
+     * A result row configured by `resultsDataSource`, or a suggestion row: icon, text, background, then
+     * `suggestionCellConfiguration`.
      */
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if tableView === resultsTableView {
+            let cell = tableView.dequeueReusableCell(withIdentifier: Self.resultCellIdentifier)
+                ?? UITableViewCell(style: .default, reuseIdentifier: Self.resultCellIdentifier)
+            if searchResults.indices.contains(indexPath.row) {
+                resultsDataSource?.searchView(self, configureResultCell: cell, withResult: searchResults[indexPath.row])
+            }
+            return cell
+        }
         let cell = tableView.dequeueReusableCell(withIdentifier: Self.cellIdentifier, for: indexPath)
         let suggestion = filteredSuggestions[indexPath.row]
         var content = UIListContentConfiguration.cell()
@@ -866,10 +1069,17 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
     }
 
     /**
-     * Fills the field with the suggestion, reports it, and submits it when `submitsOnSuggestionSelection` is YES.
+     * Reports a tapped result (`-searchView:didSelectResult:`); for a suggestion, fills the field with it, reports it,
+     * and submits it when `submitsOnSuggestionSelection` is YES.
      */
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        if tableView === resultsTableView {
+            if searchResults.indices.contains(indexPath.row) {
+                delegate?.searchView?(self, didSelectResult: searchResults[indexPath.row])
+            }
+            return
+        }
         selectSuggestion(at: indexPath.row)
     }
 

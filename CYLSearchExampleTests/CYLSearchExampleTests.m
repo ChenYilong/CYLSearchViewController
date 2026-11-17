@@ -5,11 +5,6 @@
 #import "CYLSearchExampleAppDelegate.h"
 #import <CYLTabBarController/CYLTabBarController.h>
 #import <CYLSearchViewController/CYLSearchViewController-Swift.h>
-#import <CYLSearchViewController/CYLSearchViewController-Swift.h>
-#import <CYLSearchViewController/CYLSearchViewController-Swift.h>
-#import <CYLSearchViewController/CYLSearchViewController-Swift.h>
-#import <CYLSearchViewController/CYLSearchViewController-Swift.h>
-#import <CYLSearchViewController/CYLSearchViewController-Swift.h>
 #import <CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.h>
 #import <CollectionViewClassifyMenu/CollectionViewClassifyMenu-umbrella.h>
 
@@ -32,10 +27,10 @@
 @end
 
 /*!
- * Records the parity events of CYLSearchBarView, CYLSearchView and CYLMultiSearchView, and refuses submissions
- * while `refuseSubmit` is YES.
+ * Records the parity events of CYLSearchBarView (one field and several searches) and CYLSearchView, and refuses
+ * submissions while `refuseSubmit` is YES.
  */
-@interface CYLParityRecorder : NSObject <CYLSearchBarViewDelegate, CYLSearchViewDelegate, CYLMultiSearchViewDelegate>
+@interface CYLParityRecorder : NSObject <CYLSearchBarViewDelegate, CYLSearchViewDelegate>
 @property (nonatomic, strong) NSMutableArray<NSString *> *events;
 @property (nonatomic, assign) BOOL refuseSubmit;
 @property (nonatomic, assign) BOOL handleSubmit;
@@ -56,29 +51,36 @@
 - (void)searchView:(CYLSearchView *)searchView textDidChange:(NSString *)text { [self.events addObject:[@"change " stringByAppendingString:text]]; }
 - (BOOL)searchView:(CYLSearchView *)searchView didSubmitText:(NSString *)text { [self.events addObject:[@"submit " stringByAppendingString:text]]; return self.handleSubmit; }
 - (void)searchView:(CYLSearchView *)searchView didSelectSuggestion:(NSString *)suggestion atIndex:(NSUInteger)index { [self.events addObject:[NSString stringWithFormat:@"suggestion %lu %@", (unsigned long)index, suggestion]]; }
-- (void)multiSearchView:(CYLMultiSearchView *)view textDidChange:(NSString *)text atIndex:(NSUInteger)index { [self.events addObject:[NSString stringWithFormat:@"typed %lu %@", (unsigned long)index, text]]; }
-- (void)multiSearchView:(CYLMultiSearchView *)view didCompleteSearch:(NSString *)text atIndex:(NSUInteger)index { [self.events addObject:[NSString stringWithFormat:@"complete %lu %@", (unsigned long)index, text]]; }
-- (void)multiSearchView:(CYLMultiSearchView *)view didRemoveItemAtIndex:(NSUInteger)index { [self.events addObject:[NSString stringWithFormat:@"removed %lu", (unsigned long)index]]; }
-- (void)multiSearchView:(CYLMultiSearchView *)view didSelectItem:(NSString *)text atIndex:(NSUInteger)index { [self.events addObject:[NSString stringWithFormat:@"selected %lu %@", (unsigned long)index, text]]; }
+- (void)searchBarView:(CYLSearchBarView *)view textDidChange:(NSString *)text atIndex:(NSInteger)index { [self.events addObject:[NSString stringWithFormat:@"typed %ld %@", (long)index, text]]; }
+- (void)searchBarView:(CYLSearchBarView *)view didCompleteSearch:(NSString *)text atIndex:(NSInteger)index { [self.events addObject:[NSString stringWithFormat:@"complete %ld %@", (long)index, text]]; }
+- (void)searchBarView:(CYLSearchBarView *)view didRemoveSearchAtIndex:(NSInteger)index { [self.events addObject:[NSString stringWithFormat:@"removed %ld", (long)index]]; }
+- (void)searchBarView:(CYLSearchBarView *)view didSelectSearch:(NSString *)text atIndex:(NSInteger)index { [self.events addObject:[NSString stringWithFormat:@"selected %ld %@", (long)index, text]]; }
 @end
 
-@interface CYLSearchNumberDataSource : NSObject <CYLSearchResultsDataSource>
-@property (nonatomic, strong) NSNumber *selectedResult;
+/*!
+ * Results for CYLSearchView: @[@42] for an empty query (the Issue #1317 page lists everything then), @[@42, @7] for
+ * "4", nothing for any other query. Also the delegate that records the selected result.
+ */
+@interface CYLSearchNumberDataSource : NSObject <CYLSearchViewDataSource, CYLSearchViewDelegate>
+@property (nonatomic, strong) id selectedResult;
+@property (nonatomic, assign) NSUInteger queryCount;
 @end
 
 @implementation CYLSearchNumberDataSource
 
-- (NSArray *)searchResultsViewController:(CYLSearchResultsViewController *)controller resultsForQuery:(NSString *)query
+- (NSArray *)searchView:(CYLSearchView *)searchView resultsForQuery:(NSString *)query
 {
-    return query.length ? @[] : @[@42];
+    self.queryCount++;
+    if (query.length == 0) return @[@42];
+    return [query isEqualToString:@"4"] ? @[@42, @7] : @[];
 }
 
-- (void)searchResultsViewController:(CYLSearchResultsViewController *)controller configureCell:(UITableViewCell *)cell withResult:(id)result
+- (void)searchView:(CYLSearchView *)searchView configureResultCell:(UITableViewCell *)cell withResult:(id)result
 {
     cell.textLabel.text = [result description];
 }
 
-- (void)searchResultsViewController:(CYLSearchResultsViewController *)controller didSelectResult:(id)result
+- (void)searchView:(CYLSearchView *)searchView didSelectResult:(id)result
 {
     self.selectedResult = result;
 }
@@ -97,17 +99,6 @@
     completion(nil);
 }
 
-@end
-
-@interface CYLSearchOverlayDelegate : NSObject <CYLSearchControllerDelegate>
-@property (nonatomic, assign) NSUInteger cancelCount;
-@end
-
-@implementation CYLSearchOverlayDelegate
-- (void)searchControllerDidCancel:(CYLSearchController *)controller
-{
-    self.cancelCount++;
-}
 @end
 
 @interface CYLSearchTestNavigationController : UINavigationController
@@ -135,6 +126,23 @@ static UIWindow *CYLTestWindow(CGRect frame)
     UIWindow *window = scene ? [[UIWindow alloc] initWithWindowScene:scene] : [[UIWindow alloc] initWithFrame:frame];
     window.frame = frame;
     return window;
+}
+
+/*!
+ * The text fields of the searches of a bar in CYLSearchBarModeMultiple, in order (the bar's own field excluded).
+ */
+static NSArray<UITextField *> *CYLSearchFields(CYLSearchBarView *bar)
+{
+    NSMutableArray<UITextField *> *fields = [NSMutableArray array];
+    __block void (^visit)(UIView *);
+    __block __weak void (^weakVisit)(UIView *);
+    weakVisit = visit = ^(UIView *view) {
+        if ([view isKindOfClass:UITextField.class] && view != bar.textField) [fields addObject:(UITextField *)view];
+        for (UIView *subview in view.subviews) weakVisit(subview);
+    };
+    visit(bar);
+    visit = nil;
+    return fields;
 }
 
 /*!
@@ -200,7 +208,9 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     // The suggestion cache persists by design (a local database, docs/core-todo.md): every test starts from an empty
     // default cache and an empty example cache, so a query submitted by one test never shows in another.
     for (NSString *name in @[@"CYLSearchView", @"MaterialSearchView"]) {
-        [[CYLSearchSuggestionStore cacheWithPolicy:CYLSearchSuggestionCachePolicyDatabase name:name] removeAllQueries];
+        CYLSearchView *searchView = [[CYLSearchView alloc] initWithFrame:CGRectZero];
+        searchView.suggestionCacheName = name;
+        [searchView.suggestionCache removeAllQueries];
     }
 }
 
@@ -214,20 +224,21 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     XCTAssertNotNil(controller.tableView.cyl_header);
     XCTAssertEqual(controller.searchResults.count, 40);
     controller.searchController.searchBar.text = @"not a result";
-    [controller reloadSearchResults];
+    [controller reloadResults];
     XCTAssertEqual(controller.searchResults.count, 0);
     NSPredicate *placeholder = [NSPredicate predicateWithBlock:^BOOL(UIView *view, NSDictionary *bindings) {
         return [view.accessibilityIdentifier isEqualToString:@"CYLSearchEmptyState"];
     }];
     XCTAssertEqual([controller.tableView.subviews filteredArrayUsingPredicate:placeholder].count, 1);
     controller.searchController.searchBar.text = @"";
-    [controller reloadSearchResults];
+    [controller reloadResults];
     XCTAssertEqual([controller.tableView.subviews filteredArrayUsingPredicate:placeholder].count, 0);
 
     UIBarButtonItem *toggle = controller.navigationItem.rightBarButtonItem;
     [UIApplication.sharedApplication sendAction:toggle.action to:toggle.target from:toggle forEvent:nil];
     XCTAssertTrue(controller.navigationItem.hidesSearchBarWhenScrolling);
     XCTAssertEqualObjects(toggle.title, [CYLSearchResources localizedStringForKey:@"repro.on"]);
+    XCTAssertTrue(controller.overlaySearchView.resultsDataSource == source, @"the overlay searches the same data");
     [UIApplication.sharedApplication sendAction:toggle.action to:toggle.target from:toggle forEvent:nil];
     XCTAssertFalse(controller.navigationItem.hidesSearchBarWhenScrolling);
 }
@@ -244,8 +255,11 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     XCTAssertEqualObjects([CYLSearchResources localizedStringForKey:@"placeholder.search" language:@"zh-Hant"], @"沒有符合的結果");
     XCTAssertEqualObjects([CYLSearchResources localizedStringForKey:@"placeholder.search" language:@"ja"], @"一致する結果がありません");
     XCTAssertEqualObjects([CYLSearchResources localizedStringForKey:@"placeholder.search" language:@"xx-XX"], @"No matching results");
-    for (NSNumber *kind in @[@(CYLSearchPlaceholderKindEmpty), @(CYLSearchPlaceholderKindNoResults), @(CYLSearchPlaceholderKindError)]) {
-        CYLSearchPlaceholderView *view = [[CYLSearchPlaceholderView alloc] initWithKind:kind.integerValue];
+    // The empty states themselves are CYLTableViewPlaceHolder's CYLPlaceholderView (the former CYLSearchPlaceholderView).
+    NSArray<NSNumber *> *styles = @[@(CYLPlaceholderStyleEmpty), @(CYLPlaceholderStyleNoResults), @(CYLPlaceholderStyleError)];
+    NSArray<NSNumber *> *messages = @[@(CYLPlaceholderMessageEmpty), @(CYLPlaceholderMessageNoResults), @(CYLPlaceholderMessageError)];
+    for (NSUInteger index = 0; index < styles.count; index++) {
+        CYLPlaceholderView *view = [[CYLPlaceholderView alloc] initWithStyle:styles[index].integerValue message:messages[index].integerValue];
         XCTAssertNotNil(view.imageView.image);
         XCTAssertGreaterThan(view.textLabel.text.length, 0);
     }
@@ -253,30 +267,27 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
 
 - (void)testIndependentPlaceholderStylesAndMessages
 {
-    NSArray<NSString *> *keys = @[@"placeholder.empty", @"placeholder.search", @"placeholder.error", @"placeholder.network"];
+    // CYLTableViewPlaceHolder's CYLPlaceholderView: every style has its own image, every message its own text.
+    NSArray<NSNumber *> *messages = @[@(CYLPlaceholderMessageEmpty), @(CYLPlaceholderMessageNoResults),
+                                      @(CYLPlaceholderMessageNoInternet), @(CYLPlaceholderMessageError)];
     NSMutableSet<NSString *> *names = [NSMutableSet set];
-    for (NSInteger style = 0; style < CYLSearchPlaceholderStyleCount; style++) {
-        NSString *name = [CYLSearchPlaceholderView imageNameForStyle:style];
+    for (NSInteger style = 0; style < CYLPlaceholderStyleCount; style++) {
+        NSString *name = [CYLPlaceholderView imageNameForStyle:style];
+        XCTAssertNotNil(name);
         XCTAssertFalse([names containsObject:name]);
         [names addObject:name];
-        XCTAssertNotNil([CYLSearchResources imageNamed:name]);
-        for (NSInteger message = 0; message < 4; message++) {
-            CYLSearchPlaceholderView *view = [[CYLSearchPlaceholderView alloc] initWithStyle:style message:message];
+        XCTAssertNotNil([CYLPlaceholderView imageForStyle:style], @"%@", name);
+        for (NSNumber *message in messages) {
+            CYLPlaceholderView *view = [[CYLPlaceholderView alloc] initWithStyle:style message:message.integerValue];
             XCTAssertNotNil(view.imageView.image);
-            XCTAssertEqualObjects(view.textLabel.text, [CYLSearchResources localizedStringForKey:keys[message]]);
-            view.frame = CGRectMake(0, 0, 320, 480);
-            [view layoutIfNeeded];
-            XCTAssertEqualWithAccuracy(CGRectGetWidth(view.imageView.frame), 80, 0.1);
+            XCTAssertEqualObjects(view.textLabel.text, [CYLPlaceholderView localizedTextForMessage:message.integerValue]);
         }
     }
     UIImage *image = [UIImage systemImageNamed:@"heart.fill"];
-    CYLSearchPlaceholderView *both = [[CYLSearchPlaceholderView alloc] initWithImage:image text:@"Custom"];
+    CYLPlaceholderView *both = [[CYLPlaceholderView alloc] initWithImage:image text:@"Custom"];
     XCTAssertEqual(both.imageView.image, image);
     XCTAssertEqualObjects(both.textLabel.text, @"Custom");
-    XCTAssertEqualObjects([[[CYLSearchPlaceholderView alloc] initWithStyle:CYLSearchPlaceholderStyleError text:@"Custom"] textLabel].text, @"Custom");
-    XCTAssertEqual([[[CYLSearchPlaceholderView alloc] initWithImage:image message:CYLSearchPlaceholderMessageEmpty] imageView].image, image);
-    XCTAssertThrowsSpecificNamed([[CYLSearchPlaceholderView alloc] initWithStyle:999 message:CYLSearchPlaceholderMessageEmpty], NSException, NSInvalidArgumentException);
-    XCTAssertThrowsSpecificNamed([[CYLSearchPlaceholderView alloc] initWithStyle:CYLSearchPlaceholderStyleEmpty message:999], NSException, NSInvalidArgumentException);
+    XCTAssertEqualObjects([[[CYLPlaceholderView alloc] initWithStyle:CYLPlaceholderStyleError text:@"Custom"] textLabel].text, @"Custom");
 }
 
 - (void)testPlaceholderMessagesAreLocalized
@@ -304,34 +315,132 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     UITableViewController *gallery = (UITableViewController *)navigation.lastPushedController;
     XCTAssertNotEqual(gallery, menu);
     [gallery loadViewIfNeeded];
-    XCTAssertEqual([gallery numberOfSectionsInTableView:gallery.tableView], CYLSearchPlaceholderStyleCount + 1);
-    for (NSInteger section = 0; section <= CYLSearchPlaceholderStyleCount; section++) {
+    XCTAssertEqual([gallery numberOfSectionsInTableView:gallery.tableView], CYLPlaceholderStyleCount + 1);
+    for (NSInteger section = 0; section <= CYLPlaceholderStyleCount; section++) {
         NSInteger count = [gallery tableView:gallery.tableView numberOfRowsInSection:section];
-        XCTAssertEqual(count, section == CYLSearchPlaceholderStyleCount ? 3 : 4);
+        XCTAssertEqual(count, section == CYLPlaceholderStyleCount ? 3 : 4);
         for (NSInteger row = 0; row < count; row++) {
             NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
             [gallery tableView:gallery.tableView didSelectRowAtIndexPath:indexPath];
             UIViewController *detail = navigation.lastPushedController;
             XCTAssertNotEqual(detail, gallery);
-            XCTAssertTrue([detail.view.subviews.firstObject isKindOfClass:CYLSearchPlaceholderView.class]);
+            XCTAssertTrue([detail.view.subviews.firstObject isKindOfClass:CYLPlaceholderView.class]);
             [navigation popViewControllerAnimated:NO];
         }
     }
 }
 
-- (void)testGenericDataSourceConfiguresAndSelectsResults
+- (void)testSearchViewShowsResultsOfItsDataSource
 {
+    // docs/search-core-merge.md, "Results behavior": with a results data source and a query, resultsTableView lists the
+    // results instead of the suggestions; reloadResults asks again; no result shows the empty-results placeholder.
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
+    UIViewController *host = [UIViewController new];
+    window.rootViewController = host;
+    [window makeKeyAndVisible];
     CYLSearchNumberDataSource *source = [CYLSearchNumberDataSource new];
-    CYLSearchResultsViewController *controller = [[CYLSearchResultsViewController alloc] initWithSearchDataSource:source];
-    [controller loadViewIfNeeded];
-    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
-    UITableViewCell *cell = [controller tableView:controller.tableView cellForRowAtIndexPath:indexPath];
+    CYLSearchView *searchView = [[CYLSearchView alloc] initWithFrame:CGRectZero];
+    searchView.suggestionCachePolicy = CYLSearchSuggestionCachePolicyNone;
+    searchView.animationDuration = 0;
+    searchView.suggestions = @[@"42 apples", @"Kotlin"];
+    searchView.resultsDataSource = source;
+    searchView.delegate = source;
+    [searchView showSearchInViewController:host animated:NO];
+    XCTAssertTrue(searchView.superview == host.view);
+    XCTAssertTrue(searchView.isSearchOpen);
+    XCTAssertTrue(searchView.resultsTableView.hidden, @"an empty query shows the suggestions, not the results");
+    XCTAssertEqual(searchView.searchResults.count, 0u);
+
+    [searchView setQuery:@"4" submit:NO];
+    [searchView layoutIfNeeded];
+    XCTAssertFalse(searchView.resultsTableView.hidden);
+    XCTAssertTrue(searchView.suggestionsTableView.hidden, @"the results replace the suggestions");
+    XCTAssertEqualObjects(searchView.searchResults, (@[@42, @7]));
+    XCTAssertEqual([searchView.resultsTableView numberOfRowsInSection:0], 2);
+    XCTAssertGreaterThanOrEqual(CGRectGetMinY(searchView.resultsTableView.frame), CGRectGetMaxY(searchView.searchBarView.frame));
+    NSIndexPath *first = [NSIndexPath indexPathForRow:0 inSection:0];
+    UITableViewCell *cell = [searchView tableView:searchView.resultsTableView cellForRowAtIndexPath:first];
     XCTAssertEqualObjects(cell.textLabel.text, @"42");
-    [controller tableView:controller.tableView didSelectRowAtIndexPath:indexPath];
-    XCTAssertEqualObjects(source.selectedResult, @42);
-    controller.searchController.searchBar.text = @"empty";
-    [controller reloadSearchResults];
-    XCTAssertEqual(controller.searchResults.count, 0);
+    [searchView tableView:searchView.resultsTableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
+    XCTAssertEqualObjects(source.selectedResult, @7);
+
+    NSUInteger queries = source.queryCount;
+    [searchView reloadResults];
+    XCTAssertEqual(source.queryCount, queries + 1, @"reloadResults asks the data source again");
+
+    searchView.showsEmptyResultsPlaceholder = YES;
+    [searchView setQuery:@"zzz" submit:NO];
+    [searchView layoutIfNeeded];
+    XCTAssertEqual(searchView.searchResults.count, 0u);
+    XCTAssertNotNil(searchView.emptyResultsView);
+    XCTAssertFalse(searchView.emptyResultsView.hidden, @"no result shows the placeholder");
+    [searchView setQuery:@"4" submit:NO];
+    XCTAssertTrue(searchView.emptyResultsView.hidden);
+
+    // Focus alone changes nothing below the search bar.
+    NSArray *before = @[@(searchView.resultsTableView.hidden), searchView.searchResults];
+    [searchView.searchBarView.textField becomeFirstResponder];
+    [searchView.searchBarView.textField resignFirstResponder];
+    XCTAssertEqualObjects((@[@(searchView.resultsTableView.hidden), searchView.searchResults]), before);
+
+    // Without a data source the suggestions come back.
+    searchView.resultsDataSource = nil;
+    [searchView setQuery:@"Kot" submit:NO];
+    XCTAssertTrue(searchView.resultsTableView.hidden);
+    XCTAssertEqualObjects(searchView.filteredSuggestions, @[@"Kotlin"]);
+
+    XCTestExpectation *closed = [self expectationWithDescription:@"closeSearchAnimated:completion: calls back"];
+    [searchView closeSearchAnimated:NO completion:^{
+        XCTAssertFalse(searchView.isSearchOpen);
+        [closed fulfill];
+    }];
+    [self waitForExpectationsWithTimeout:2 handler:nil];
+    XCTestExpectation *already = [self expectationWithDescription:@"An already closed search calls back at once"];
+    [searchView closeSearchAnimated:YES completion:^{ [already fulfill]; }];
+    [self waitForExpectationsWithTimeout:2 handler:nil];
+    window.hidden = YES;
+}
+
+- (void)testSearchViewRefreshWrapsThePullToRefresh
+{
+    // The only refresh API of the core: refreshHandler on resultsTableView, and the class methods for another table.
+    CYLSearchView *searchView = [[CYLSearchView alloc] initWithFrame:CGRectMake(0, 0, 390, 844)];
+    XCTAssertNil(searchView.resultsTableView.cyl_header, @"no pull-to-refresh by default");
+    XCTAssertFalse(searchView.isRefreshing);
+    __block NSUInteger calls = 0;
+    searchView.refreshHandler = ^{ calls++; };
+    XCTAssertNotNil(searchView.resultsTableView.cyl_header, @"a handler installs the header");
+    XCTAssertTrue([searchView.resultsTableView.cyl_header isKindOfClass:CYLRefreshNormalHeader.class]);
+    searchView.resultsTableView.cyl_header.refreshingBlock();
+    XCTAssertEqual(calls, 1u, @"the header calls the handler");
+    [searchView beginRefreshing];
+    XCTAssertTrue(searchView.isRefreshing);
+    [searchView endRefreshing];
+    // The header may hold its result for its finishDuration before it is idle again.
+    [self expectationForPredicate:[NSPredicate predicateWithBlock:^BOOL(id object, NSDictionary *bindings) {
+        return !searchView.isRefreshing;
+    }] evaluatedWithObject:searchView handler:nil];
+    [self waitForExpectationsWithTimeout:5 handler:nil];
+    searchView.refreshHandler = nil;
+    XCTAssertNil(searchView.resultsTableView.cyl_header, @"nil removes the header");
+
+    // The class methods on a table of the app (the Issue #1317 page).
+    UITableView *table = [[UITableView alloc] initWithFrame:CGRectMake(0, 0, 390, 600) style:UITableViewStylePlain];
+    __block NSUInteger tableCalls = 0;
+    [CYLSearchView setRefreshHandler:^{ tableCalls++; } forScrollView:table];
+    XCTAssertNotNil(table.cyl_header);
+    table.cyl_header.refreshingBlock();
+    XCTAssertEqual(tableCalls, 1u);
+    [CYLSearchView beginRefreshingInScrollView:table];
+    XCTAssertTrue([CYLSearchView isRefreshingInScrollView:table]);
+    [CYLSearchView endRefreshingInScrollView:table];
+    [self expectationForPredicate:[NSPredicate predicateWithBlock:^BOOL(id object, NSDictionary *bindings) {
+        return ![CYLSearchView isRefreshingInScrollView:table];
+    }] evaluatedWithObject:table handler:nil];
+    [self waitForExpectationsWithTimeout:5 handler:nil];
+    [CYLSearchView setRefreshHandler:nil forScrollView:table];
+    XCTAssertNil(table.cyl_header);
+    XCTAssertFalse([CYLSearchView isRefreshingInScrollView:table], @"no header: not refreshing");
 }
 
 - (void)testRefreshBlockDoesNotRetainController
@@ -370,42 +479,31 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     [self waitForExpectationsWithTimeout:2 handler:nil];
 }
 
-- (void)testAnimatedSearchOverlayUsesInjectedDataAndRemovesItsChild
+- (void)testOverlayOpensACYLSearchViewWithTheSameData
 {
-    CYLSearchNumberDataSource *source = [CYLSearchNumberDataSource new];
-    CYLSearchController *overlay = [[CYLSearchController alloc] initWithSearchDataSource:source];
-    UIViewController *host = [UIViewController new];
-    [host loadViewIfNeeded];
-    [overlay showInViewController:host];
-    XCTAssertTrue(overlay.isPresented);
-    XCTAssertEqual(host.childViewControllers.count, 1);
-    XCTAssertEqual(overlay.resultsViewController.searchResults.count, 1);
-    XCTAssertEqualObjects(overlay.navigationItem.searchController, overlay.resultsViewController.searchController);
-    XCTestExpectation *removed = [self expectationWithDescription:@"Overlay removed"];
-    [overlay hide:^{
-        XCTAssertFalse(overlay.isPresented);
-        XCTAssertEqual(host.childViewControllers.count, 0);
-        [removed fulfill];
-    }];
-    [self waitForExpectationsWithTimeout:2 handler:nil];
-    XCTestExpectation *alreadyHidden = [self expectationWithDescription:@"Already hidden completion"];
-    [overlay hide:^{ [alreadyHidden fulfill]; }];
-    [self waitForExpectationsWithTimeout:2 handler:nil];
-
-    CYLSearchOverlayDelegate *delegate = [CYLSearchOverlayDelegate new];
-    overlay.delegate = delegate;
-    [overlay showInViewController:host];
-    XCTAssertTrue(overlay.isPresented);
-    UIBarButtonItem *cancel = overlay.navigationItem.leftBarButtonItem;
-    [UIApplication.sharedApplication sendAction:cancel.action to:cancel.target from:cancel forEvent:nil];
-    XCTestExpectation *cancelled = [self expectationWithDescription:@"Cancel notifies delegate after dismissal"];
-    [overlay hide:^{
-        XCTAssertFalse(overlay.isPresented);
-        XCTAssertEqual(delegate.cancelCount, 1);
-        XCTAssertEqual(host.childViewControllers.count, 0);
-        [cancelled fulfill];
-    }];
-    [self waitForExpectationsWithTimeout:2 handler:nil];
+    // "Overlay" of the Issue #1317 page (was CYLSearchController): a CYLSearchView over the navigation controller.
+    CYLSearchExampleDataSource *source = [CYLSearchExampleDataSource new];
+    CYLSearchExampleViewController *controller = [[CYLSearchExampleViewController alloc] initWithSearchDataSource:source refreshProvider:source];
+    UINavigationController *navigation = [[UINavigationController alloc] initWithRootViewController:controller];
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
+    window.rootViewController = navigation;
+    [window makeKeyAndVisible];
+    [controller loadViewIfNeeded];
+    CYLSearchView *overlay = controller.overlaySearchView;
+    CYLParityRecorder *recorder = [CYLParityRecorder new];
+    overlay.delegate = recorder;
+    overlay.animationDuration = 0;
+    UIBarButtonItem *open = controller.navigationItem.leftBarButtonItem;
+    [UIApplication.sharedApplication sendAction:open.action to:open.target from:open forEvent:nil];
+    XCTAssertTrue(overlay.isSearchOpen);
+    XCTAssertTrue(overlay.superview == navigation.view);
+    [overlay setQuery:@"1" submit:NO];
+    XCTAssertGreaterThan(overlay.searchResults.count, 0u);
+    XCTAssertFalse(overlay.resultsTableView.hidden);
+    [overlay.searchBarView.navigationButton sendActionsForControlEvents:UIControlEventTouchUpInside];
+    XCTAssertFalse(overlay.isSearchOpen, @"the back arrow closes it");
+    XCTAssertEqualObjects(recorder.events.lastObject, @"closed");
+    window.hidden = YES;
 }
 
 - (void)testSearchBarViewLayoutStyleAndEvents
@@ -672,21 +770,37 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
         window.traitOverrides.preferredContentSizeCategory = UIContentSizeCategoryLarge;
     }
 
-    // The overlay is a page of its own over its host: inside that page its search bar covers no view.
-    UIViewController *host = [UIViewController new];
-    window.rootViewController = [[UINavigationController alloc] initWithRootViewController:host];
+    // The overlay (a CYLSearchView over the results page's navigation controller) is a page of its own: inside that
+    // page its search bar covers no view, with results shown.
+    results = [[CYLSearchExampleViewController alloc] initWithSearchDataSource:source refreshProvider:source];
+    navigation = [[UINavigationController alloc] initWithRootViewController:results];
+    window.rootViewController = navigation;
     [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.3]];
     [window layoutIfNeeded];
-    CYLSearchController *overlay = [[CYLSearchController alloc] initWithSearchDataSource:source];
-    [overlay showInViewController:host];
-    [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.6]];
-    [overlay.navigationController.view layoutIfNeeded];
-    UIView *overlayBar = CYLVisibleSearchView(overlay.navigationItem.searchController.searchBar);
-    XCTAssertNotNil(overlayBar.window, @"the overlay's search bar is shown");
-    if (overlayBar.window && !overlayBar.hidden) {
-        NSArray *covered = CYLViewsCoveredByView(overlayBar, overlay.navigationController.view);
-        XCTAssertEqual(covered.count, 0, @"overlay: %@", covered);
-    }
+    CYLSearchView *overlay = results.overlaySearchView;
+    overlay.animationDuration = 0;
+    [overlay showSearchInViewController:navigation animated:NO];
+    [overlay setQuery:@"1" submit:NO];
+    [overlay layoutIfNeeded];
+    XCTAssertNotNil(overlay.searchBarView.window, @"the overlay's search bar is shown");
+    NSArray *overlayCovered = CYLViewsCoveredByView(overlay.searchBarView, overlay);
+    XCTAssertEqual(overlayCovered.count, 0, @"overlay: %@", overlayCovered);
+    [overlay closeSearchAnimated:NO];
+
+    // A CYLSearchBarView in CYLSearchBarModeMultiple, with searches.
+    CYLSearchBarView *multi = [[CYLSearchBarView alloc] initWithFrame:CGRectZero];
+    multi.mode = CYLSearchBarModeMultiple;
+    UIViewController *multiHost = [UIViewController new];
+    multiHost.edgesForExtendedLayout = UIRectEdgeNone;
+    window.rootViewController = [[UINavigationController alloc] initWithRootViewController:multiHost];
+    [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.3]];
+    multi.frame = CGRectMake(8, 16, CGRectGetWidth(multiHost.view.bounds) - 16, multi.intrinsicContentSize.height);
+    [multiHost.view addSubview:multi];
+    [multi addSearch:@"Rive"];
+    [multi addSearch:@"Lottie"];
+    [multi layoutIfNeeded];
+    NSArray *multiCovered = CYLViewsCoveredByView(multi, nil);
+    XCTAssertEqual(multiCovered.count, 0, @"multiple searches: %@", multiCovered);
     window.hidden = YES;
 }
 
@@ -870,56 +984,83 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     window.hidden = YES;
 }
 
-- (void)testMultiSearchViewFlow
+- (void)testSearchBarViewMultipleModeFlow
 {
-    CYLMultiSearchView *multi = [[CYLMultiSearchView alloc] initWithFrame:CGRectMake(0, 0, 375, 56)];
+    // CYLSearchBarModeMultiple (was CYLMultiSearchView, iammert MultiSearchView): add, type, complete, select and
+    // remove searches, each reported to the bar's delegate.
+    CYLSearchBarView *bar = [[CYLSearchBarView alloc] initWithFrame:CGRectMake(0, 0, 375, 56)];
     CYLParityRecorder *recorder = [CYLParityRecorder new];
-    multi.delegate = recorder;
-    multi.animationDuration = 0;
-    XCTAssertFalse(multi.isInSearchMode);
+    bar.delegate = recorder;
+    bar.animationDuration = 0;
+    XCTAssertEqual(bar.mode, CYLSearchBarModeSingle);
+    [bar beginNewSearch];
+    XCTAssertFalse(bar.isEditingNewSearch, @"nothing happens in the single mode");
+    [bar addSearch:@"ignored"];
+    XCTAssertEqual(bar.searches.count, 0u);
+
+    bar.mode = CYLSearchBarModeMultiple;
+    [bar layoutIfNeeded];
+    XCTAssertTrue(bar.fieldView.hidden, @"the single field is hidden");
+    XCTAssertFalse(bar.newSearchButton.hidden);
+    XCTAssertGreaterThanOrEqual(bar.intrinsicContentSize.height, 56);
+    XCTAssertFalse(bar.isEditingNewSearch);
+    XCTAssertEqual(bar.selectedSearchIndex, NSNotFound);
 
     // A short search is dropped, as in MultiSearchView (3 characters).
-    [multi search];
-    XCTAssertTrue(multi.isInSearchMode);
-    XCTAssertEqual(multi.searchTexts.count, 1u);
-    [multi completeSearch];
-    XCTAssertEqual(multi.searchTexts.count, 0u);
-    XCTAssertEqual(multi.selectedIndex, NSNotFound);
+    [bar beginNewSearch];
+    XCTAssertTrue(bar.isEditingNewSearch);
+    XCTAssertEqual(bar.searches.count, 1u);
+    [bar completeSearch];
+    XCTAssertEqual(bar.searches.count, 0u);
+    XCTAssertEqual(bar.selectedSearchIndex, NSNotFound);
+    XCTAssertFalse([recorder.events.lastObject hasPrefix:@"complete"], @"a dropped search is not reported");
 
-    // Typing reports the index; completing selects the new item.
-    [multi search];
-    UITextField *field = [[[multi valueForKey:@"items"] lastObject] valueForKey:@"textField"];
+    // Typing reports the index; completing selects the new search.
+    [bar beginNewSearch];
+    UITextField *field = CYLSearchFields(bar).lastObject;
+    XCTAssertNotNil(field);
     field.text = @"Rive";
     [field sendActionsForControlEvents:UIControlEventEditingChanged];
     XCTAssertEqualObjects(recorder.events.lastObject, @"typed 0 Rive");
-    [multi completeSearch];
+    [bar completeSearch];
     XCTAssertEqualObjects(recorder.events.lastObject, @"complete 0 Rive");
-    XCTAssertEqual(multi.selectedIndex, 0u);
+    XCTAssertEqual(bar.selectedSearchIndex, 0);
 
-    [multi addSearchText:@"Lottie"];
-    [multi addSearchText:@"PAG"];
-    XCTAssertEqualObjects(multi.searchTexts, (@[@"Rive", @"Lottie", @"PAG"]));
-    XCTAssertEqual(multi.selectedIndex, 2u);
-    [multi selectItemAtIndex:0];
+    [bar addSearch:@"Lottie"];
+    [bar addSearch:@"PAG"];
+    XCTAssertEqualObjects(bar.searches, (@[@"Rive", @"Lottie", @"PAG"]));
+    XCTAssertEqual(bar.selectedSearchIndex, 2);
+    [bar selectSearchAtIndex:0];
     XCTAssertEqualObjects(recorder.events.lastObject, @"selected 0 Rive");
+    XCTAssertEqual(bar.selectedSearchIndex, 0);
 
-    // Removing the selected item selects the next one, or the previous one at the end.
-    [multi removeItemAtIndex:0];
+    // Removing the selected search selects the next one, or the previous one at the end.
+    [bar removeSearchAtIndex:0];
     XCTAssertEqualObjects(recorder.events.lastObject, @"removed 0");
-    XCTAssertEqualObjects(multi.searchTexts, (@[@"Lottie", @"PAG"]));
-    XCTAssertEqual(multi.selectedIndex, 0u);
-    [multi selectItemAtIndex:1];
-    [multi removeItemAtIndex:1];
-    XCTAssertEqual(multi.selectedIndex, 0u);
+    XCTAssertEqualObjects(bar.searches, (@[@"Lottie", @"PAG"]));
+    XCTAssertEqual(bar.selectedSearchIndex, 0);
+    [bar selectSearchAtIndex:1];
+    [bar removeSearchAtIndex:1];
+    XCTAssertEqual(bar.selectedSearchIndex, 0);
+    [bar removeSearchAtIndex:7];
+    XCTAssertEqual(bar.searches.count, 1u, @"an index out of range is ignored");
 
-    // The text style (searchTextStyle) and the length limit.
-    multi.maximumTextLength = 4;
-    [multi search];
-    field = [[[multi valueForKey:@"items"] lastObject] valueForKey:@"textField"];
+    // The bar's text style and length limit apply to the searches.
+    bar.maximumTextLength = 4;
+    [bar beginNewSearch];
+    field = CYLSearchFields(bar).lastObject;
     XCTAssertFalse([field.delegate textField:field shouldChangeCharactersInRange:NSMakeRange(0, 0) replacementString:@"12345"]);
-    multi.placeholder = @"Category";
+    bar.placeholder = @"Category";
     XCTAssertEqualObjects(field.attributedPlaceholder.string, @"Category");
-    XCTAssertEqualObjects(multi.searchButton.accessibilityLabel, [CYLSearchResources localizedStringForKey:@"multisearch.add"]);
+    XCTAssertEqualObjects(bar.newSearchButton.accessibilityLabel, [CYLSearchResources localizedStringForKey:@"multisearch.add"]);
+    [bar.newSearchButton sendActionsForControlEvents:UIControlEventTouchUpInside];
+    XCTAssertFalse(bar.isEditingNewSearch, @"the button completes the search being typed");
+
+    // Back to one field.
+    bar.mode = CYLSearchBarModeSingle;
+    [bar layoutIfNeeded];
+    XCTAssertFalse(bar.fieldView.hidden);
+    XCTAssertTrue(bar.newSearchButton.superview.hidden);
 }
 
 - (void)testSwiftPortsOfOtherLibrariesLoad
@@ -945,7 +1086,7 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
         while (queue.count) {
             UIView *view = queue.firstObject;
             [queue removeObjectAtIndex:0];
-            if ([view isKindOfClass:CYLSearchBarView.class] || [view isKindOfClass:CYLMultiSearchView.class]) [bars addObject:view];
+            if ([view isKindOfClass:CYLSearchBarView.class]) [bars addObject:view];
             [queue addObjectsFromArray:view.subviews];
         }
         for (UIView *bar in bars) {
@@ -1026,13 +1167,20 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
 {
     // docs/core-todo.md: each policy stores the queries newest first, moves a repeated query to the front, keeps at most
     // maximumCount and clears everything; separate names keep separate caches.
+    // The built-in store is internal: a search view makes it from its policy and name.
+    id<CYLSearchSuggestionCache> (^makeCache)(CYLSearchSuggestionCachePolicy, NSString *) = ^id<CYLSearchSuggestionCache>(CYLSearchSuggestionCachePolicy policy, NSString *name) {
+        CYLSearchView *searchView = [[CYLSearchView alloc] initWithFrame:CGRectZero];
+        searchView.suggestionCachePolicy = policy;
+        searchView.suggestionCacheName = name;
+        return searchView.suggestionCache;
+    };
     for (NSNumber *policy in @[@(CYLSearchSuggestionCachePolicyDatabase), @(CYLSearchSuggestionCachePolicyUserDefaults),
                                @(CYLSearchSuggestionCachePolicySandboxFile)]) {
-        CYLSearchSuggestionStore *cache = [CYLSearchSuggestionStore cacheWithPolicy:policy.integerValue name:@"CYLTestCache"];
-        CYLSearchSuggestionStore *other = [CYLSearchSuggestionStore cacheWithPolicy:policy.integerValue name:@"CYLTestOther"];
+        id<CYLSearchSuggestionCache> cache = makeCache(policy.integerValue, @"CYLTestCache");
+        id<CYLSearchSuggestionCache> other = makeCache(policy.integerValue, @"CYLTestOther");
         [cache removeAllQueries];
         [other removeAllQueries];
-        cache.maximumCount = 3;
+        [(NSObject *)cache setValue:@3 forKey:@"maximumCount"];
         [cache addQuery:@"Swift"];
         [cache addQuery:@"Kotlin"];
         [cache addQuery:@"  "];
@@ -1042,14 +1190,14 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
         [cache addQuery:@"Rust"];
         XCTAssertEqualObjects([cache cachedQueries], (@[@"Rust", @"Dart", @"Swift"]), @"the oldest goes, policy %@", policy);
         XCTAssertEqualObjects([other cachedQueries], @[], @"names are separate, policy %@", policy);
-        CYLSearchSuggestionStore *reopened = [CYLSearchSuggestionStore cacheWithPolicy:policy.integerValue name:@"CYLTestCache"];
+        id<CYLSearchSuggestionCache> reopened = makeCache(policy.integerValue, @"CYLTestCache");
         XCTAssertEqualObjects([reopened cachedQueries], (@[@"Rust", @"Dart", @"Swift"]), @"persisted, policy %@", policy);
         [cache removeQuery:@"Dart"];
         XCTAssertEqualObjects([cache cachedQueries], (@[@"Rust", @"Swift"]), @"policy %@", policy);
         [cache removeAllQueries];
         XCTAssertEqualObjects([cache cachedQueries], @[], @"policy %@", policy);
     }
-    XCTAssertNil([CYLSearchSuggestionStore cacheWithPolicy:CYLSearchSuggestionCachePolicyNone name:@"CYLTestCache"]);
+    XCTAssertNil(makeCache(CYLSearchSuggestionCachePolicyNone, @"CYLTestCache"));
 }
 
 - (void)testTheSearchViewCachesSubmittedQueriesAndClearsThemFromTheHeader
@@ -1202,7 +1350,7 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     XCTAssertTrue([bar hasItemOfStyle:CYLSearchBarItemStyleText]);
     XCTAssertEqual(bar.itemViews.count, 3u);
     XCTAssertTrue(camera.itemView.superview == bar.fieldView);
-    XCTAssertTrue(camera.itemView.item == camera);
+    XCTAssertTrue([camera.itemView valueForKey:@"item"] == camera);
     XCTAssertTrue([camera actualBadgeSuperView] == camera.itemView);
 
     // Layout: in order after the text, inside the field, a 36 pt camera, a 1 pt divider skipped by VoiceOver.
@@ -1218,7 +1366,7 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     XCTAssertFalse(divider.itemView.isAccessibilityElement);
     XCTAssertTrue(camera.itemView.isAccessibilityElement);
     XCTAssertEqualObjects(camera.itemView.accessibilityLabel, @"Camera");
-    XCTAssertEqualObjects(search.itemView.titleLabel.text, @"Search");
+    XCTAssertEqualObjects(((UILabel *)[search.itemView valueForKey:@"titleLabel"]).text, @"Search");
 
     // Events: the delegate first, then the handler; a disabled item ignores taps; a selectable item toggles.
     [camera.itemView sendActionsForControlEvents:UIControlEventTouchUpInside];
@@ -1239,14 +1387,15 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     // Badge, text attributes and tint.
     camera.badgeValue = @"3";
     [camera.itemView layoutIfNeeded];
-    XCTAssertFalse(camera.itemView.badgeLabel.hidden);
-    XCTAssertEqualObjects(camera.itemView.badgeLabel.text, @"3");
+    UILabel *badge = [camera.itemView valueForKey:@"badgeLabel"];
+    XCTAssertFalse(badge.hidden);
+    XCTAssertEqualObjects(badge.text, @"3");
     camera.badgeValue = nil;
-    XCTAssertTrue(camera.itemView.badgeLabel.hidden);
+    XCTAssertTrue(badge.hidden);
     [search setTitleTextAttributes:@{NSForegroundColorAttributeName: UIColor.systemBlueColor} forState:UIControlStateNormal];
     XCTAssertEqualObjects([search titleTextAttributesForState:UIControlStateNormal][NSForegroundColorAttributeName], UIColor.systemBlueColor);
     bar.itemTintColor = UIColor.systemGreenColor;
-    XCTAssertEqualObjects(camera.itemView.imageView.tintColor, UIColor.systemGreenColor);
+    XCTAssertEqualObjects(((UIImageView *)[camera.itemView valueForKey:@"imageView"]).tintColor, UIColor.systemGreenColor);
 
     // The fixed bordered style, and removal.
     bar.searchBarStyle = CYLSearchBarStyleBordered;

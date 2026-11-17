@@ -1,14 +1,80 @@
 //
-//  CYLSearchSuggestionCache.swift
+//  CYLSearchResources.swift
 //  CYLSearchViewController
 //
-//  The cache of submitted queries that the suggestion list shows (docs/core-todo.md). The rules come from the legacy
-//  CYLSearchController's search history (newest first, no duplicates, saved after every search, NSUserDefaults);
-//  the database store is new and is the default.
+//  The pod's resources (images and localized strings of CYLSearchViewController.bundle) and the cache of submitted
+//  queries that the suggestion list shows (docs/core-todo.md). The cache rules come from the legacy
+//  CYLSearchController's search history (newest first, no duplicates, saved after every search, NSUserDefaults); the
+//  database store is new and is the default.
 //
 
-import Foundation
 import SQLite3
+import UIKit
+
+/**
+ * Images and localized strings of `CYLSearchViewController.bundle`, the resource bundle of this pod.
+ */
+@objc(CYLSearchResources)
+public final class CYLSearchResources: NSObject {
+
+    private static let tableName = "CYLSearchViewController"
+
+    /**
+     * The resource bundle, found next to this class's framework or in the main bundle; nil when it is missing.
+     */
+    @objc public static let resourceBundle: Bundle? = {
+        for container in [Bundle(for: CYLSearchResources.self), Bundle.main] {
+            if let url = container.url(forResource: "CYLSearchViewController", withExtension: "bundle"),
+               let bundle = Bundle(url: url) {
+                return bundle
+            }
+        }
+        NSLog("CYLSearchViewController: resource bundle not found.")
+        return nil
+    }()
+
+    /**
+     * An image of the resource bundle, or nil (logged) when it is missing.
+     */
+    @objc(imageNamed:)
+    public static func image(named name: String) -> UIImage? {
+        let image = resourceBundle.flatMap { UIImage(named: name, in: $0, compatibleWith: nil) }
+        if image == nil {
+            NSLog("CYLSearchViewController: resource image '%@' not found.", name)
+        }
+        return image
+    }
+
+    /**
+     * The text of `key` in the language the app shows (the preferred languages), English when the key has no
+     * translation, or the key itself (logged) when it is missing everywhere.
+     */
+    @objc(localizedStringForKey:)
+    public static func localizedString(forKey key: String) -> String {
+        localizedString(forKey: key, language: nil)
+    }
+
+    /**
+     * The text of `key` in `language` (for example "zh-Hans"), or in the preferred languages when `language` is nil.
+     */
+    @objc(localizedStringForKey:language:)
+    public static func localizedString(forKey key: String, language: String?) -> String {
+        guard let bundle = resourceBundle else {
+            return key
+        }
+        let preferences = language.map { $0.isEmpty ? Locale.preferredLanguages : [$0] } ?? Locale.preferredLanguages
+        let resolved = Bundle.preferredLocalizations(from: bundle.localizations, forPreferences: preferences).first ?? "en"
+        for code in [resolved, "en"] {
+            if let path = bundle.path(forResource: code, ofType: "lproj"),
+               let value = Bundle(path: path)?.localizedString(forKey: key, value: nil, table: tableName),
+               value != key {
+                return value
+            }
+        }
+        NSLog("CYLSearchViewController: localization key '%@' not found.", key)
+        return key
+    }
+}
 
 /**
  * Where the suggestion cache keeps the submitted queries. More policies can be added later; an app can also plug in
@@ -34,8 +100,8 @@ import SQLite3
 }
 
 /**
- * A store of submitted queries, newest first. The built-in stores are made by `+cacheWithPolicy:name:`; implement this
- * protocol to use another store.
+ * A store of submitted queries, newest first. `CYLSearchView` makes the built-in store of its `suggestionCachePolicy`;
+ * implement this protocol and set `CYLSearchView.suggestionCache` to use another store.
  */
 @objc public protocol CYLSearchSuggestionCache: NSObjectProtocol {
     /**
@@ -57,25 +123,25 @@ import SQLite3
 }
 
 /**
- * The built-in caches: a database, `NSUserDefaults` or a file, behind one class.
+ * The built-in caches: a database, `NSUserDefaults` or a file, behind one class. Internal to the module: `CYLSearchView`
+ * creates it from `suggestionCachePolicy` and `suggestionCacheName`; apps read it through `suggestionCache`.
  */
-@objc(CYLSearchSuggestionStore)
-public final class CYLSearchSuggestionStore: NSObject, CYLSearchSuggestionCache {
+final class CYLSearchSuggestionStore: NSObject, CYLSearchSuggestionCache {
 
     /**
      * The policy of this store.
      */
-    @objc public let policy: CYLSearchSuggestionCachePolicy
+    let policy: CYLSearchSuggestionCachePolicy
 
     /**
      * Separates the caches of different search screens: the database table key, the defaults key or the file name.
      */
-    @objc public let name: String
+    let name: String
 
     /**
      * The largest number of queries kept; the oldest go first. 20 by default.
      */
-    @objc public var maximumCount = 20
+    @objc var maximumCount = 20
 
     private var memory: [String] = []
     private var database: OpaquePointer?
@@ -83,15 +149,14 @@ public final class CYLSearchSuggestionStore: NSObject, CYLSearchSuggestionCache 
     /**
      * Makes the store for `policy` and `name`; nil for `CYLSearchSuggestionCachePolicyNone`.
      */
-    @objc(cacheWithPolicy:name:)
-    public static func cache(policy: CYLSearchSuggestionCachePolicy, name: String) -> CYLSearchSuggestionStore? {
+    static func cache(policy: CYLSearchSuggestionCachePolicy, name: String) -> CYLSearchSuggestionStore? {
         policy == .none ? nil : CYLSearchSuggestionStore(policy: policy, name: name)
     }
 
     /**
      * Makes the store for `policy` (not `none`) and `name`.
      */
-    @objc public init(policy: CYLSearchSuggestionCachePolicy, name: String) {
+    init(policy: CYLSearchSuggestionCachePolicy, name: String) {
         self.policy = policy
         self.name = name.isEmpty ? "CYLSearchView" : name
         super.init()
@@ -109,7 +174,7 @@ public final class CYLSearchSuggestionStore: NSObject, CYLSearchSuggestionCache 
     /**
      * The cached queries, newest first.
      */
-    public func cachedQueries() -> [String] {
+    func cachedQueries() -> [String] {
         switch policy {
         case .none:
             return []
@@ -128,7 +193,7 @@ public final class CYLSearchSuggestionStore: NSObject, CYLSearchSuggestionCache 
     /**
      * Adds `query` at the front, without repeating it.
      */
-    public func addQuery(_ query: String) {
+    func addQuery(_ query: String) {
         let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
             return
@@ -146,7 +211,7 @@ public final class CYLSearchSuggestionStore: NSObject, CYLSearchSuggestionCache 
     /**
      * Removes `query`.
      */
-    public func removeQuery(_ query: String) {
+    func removeQuery(_ query: String) {
         if policy == .database, database != nil {
             execute("DELETE FROM queries WHERE cache = ? AND query = ?", [name, query])
             return
@@ -157,7 +222,7 @@ public final class CYLSearchSuggestionStore: NSObject, CYLSearchSuggestionCache 
     /**
      * Removes every cached query.
      */
-    public func removeAllQueries() {
+    func removeAllQueries() {
         if policy == .database, database != nil {
             execute("DELETE FROM queries WHERE cache = ?", [name])
             return

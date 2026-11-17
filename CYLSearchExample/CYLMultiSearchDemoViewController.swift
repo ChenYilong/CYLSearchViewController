@@ -2,14 +2,15 @@ import UIKit
 import CYLSearchViewController
 
 /**
- * Port of iammert/MultiSearchView's sample `MainActivity`: a multi-search view styled like the README's
+ * Port of iammert/MultiSearchView's sample `MainActivity`: a `CYLSearchBarView` in `CYLSearchBarModeMultiple`, styled
+ * like the README's
  * `SearchTextStyle` (hint "Search", 18 pt text, at most 15 characters, sentence capitalization, the Search key,
  * gray hint, black text), 16 pt from the top, with every event logged (the sample's `Log.v`).
  */
 @objc(CYLMultiSearchDemoViewController)
 final class CYLMultiSearchDemoViewController: UIViewController {
 
-    private let multiSearchView = CYLMultiSearchView(frame: .zero)
+    private let multiSearchView = CYLSearchBarView(frame: .zero)
     private let logView = UITextView()
 
     override func viewDidLoad() {
@@ -18,6 +19,8 @@ final class CYLMultiSearchDemoViewController: UIViewController {
         view.backgroundColor = .systemBackground
         edgesForExtendedLayout = []
 
+        multiSearchView.mode = .multiple
+        multiSearchView.contentInsets = .zero
         multiSearchView.placeholder = cylDemoText("search.field")
         multiSearchView.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: .systemFont(ofSize: 18))
         multiSearchView.maximumTextLength = 15
@@ -52,20 +55,20 @@ final class CYLMultiSearchDemoViewController: UIViewController {
     }
 }
 
-extension CYLMultiSearchDemoViewController: CYLMultiSearchViewDelegate {
-    func multiSearchView(_ multiSearchView: CYLMultiSearchView, didSelectItem text: String, at index: UInt) {
+extension CYLMultiSearchDemoViewController: CYLSearchBarViewDelegate {
+    func searchBarView(_ searchBarView: CYLSearchBarView, didSelectSearch text: String, at index: Int) {
         log("onItemSelected: index: \(index), query: \(text)")
     }
 
-    func multiSearchView(_ multiSearchView: CYLMultiSearchView, textDidChange text: String, at index: UInt) {
+    func searchBarView(_ searchBarView: CYLSearchBarView, textDidChange text: String, at index: Int) {
         log("changed: index: \(index), query: \(text)")
     }
 
-    func multiSearchView(_ multiSearchView: CYLMultiSearchView, didCompleteSearch text: String, at index: UInt) {
+    func searchBarView(_ searchBarView: CYLSearchBarView, didCompleteSearch text: String, at index: Int) {
         log("complete: index: \(index), query: \(text)")
     }
 
-    func multiSearchView(_ multiSearchView: CYLMultiSearchView, didRemoveItemAt index: UInt) {
+    func searchBarView(_ searchBarView: CYLSearchBarView, didRemoveSearchAt index: Int) {
         log("remove: index: \(index)")
     }
 }
