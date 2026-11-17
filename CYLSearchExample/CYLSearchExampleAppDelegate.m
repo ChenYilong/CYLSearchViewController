@@ -3,7 +3,8 @@
 #import "CYLSearchDemoMenuViewController.h"
 #import "CYLSearchExample-Swift.h"
 #import <CYLTabBarController/CYLTabBarController.h>
-#import <CYLTabBarController/CYLSVGATabBarItemAnimator.h>
+// The SVGA animator lives in the CYLAnimatedItem pod (CYLAnimatedItem/SVGA) since CYLTabBarController c53d289.
+#import <CYLAnimatedItem/CYLSVGATabBarItemAnimator.h>
 
 /// A tab title from CYLSearchTabs.bundle, as the configuration file's `CYLTabBarControllerLocalization` reads it.
 static NSString *CYLSearchTabTitle(NSString *key)

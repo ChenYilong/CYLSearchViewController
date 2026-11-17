@@ -327,3 +327,7 @@
   CollectionViewClassifyMenu dropped its `:modular_headers` workaround (`4171135`), pinned here. Pending CI.
 - **Pin** (2026-11-17): CollectionViewClassifyMenu `b4d0e51` (its example's engine report; no core change).
 - **Pins** (2026-11-17): CYLTabBarController `d875dd1` (#788 tip: remote GIF/PAG downloads, late-failure fallback); CollectionViewClassifyMenu `320c3eb` (re-export of `CYLAnimatedItem`, the Android menu buttons and filter header on `CYLTagButton`, the same pin).
+- **CI on `15a6144`** (run 44027141867): `pod lib lint` passes. The example build and the unit tests failed on one line:
+  `CYLSearchExampleAppDelegate.m` imported `<CYLTabBarController/CYLSVGATabBarItemAnimator.h>`, a header that moved to
+  the `CYLAnimatedItem` pod (`CYLAnimatedItem/SVGA`). Example-only: the core has no such import; the example now
+  imports `<CYLAnimatedItem/CYLSVGATabBarItemAnimator.h>`. Pending CI.
