@@ -330,8 +330,7 @@ CYLTabBarController pin needed the plugin's platform views to be `@MainActor` (t
   icons take the tab's title color through CYLTabBarController's new tint option (its B12, `tint: 'title'` in
   `CYLTabBarAnimationOptions`, set in `src/App.tsx`): gray when normal, blue when selected
   (`assets/android-medium-phone-api37-20261117-rn-rive-tint-list-selected.png`, `…-rn-rive-tint-tag-selected.png`). The repository's
-  pin moves to `fe5c3ae3` once CollectionViewClassifyMenu re-vendors its animated item there (the mini program checks
-  that the two match); until then a fresh checkout builds at `4635ef7b`, which ignores `tint`.
+  pin is `fe5c3ae3` since 2026-11-17, with CollectionViewClassifyMenu `333b349` (re-vendored there).
 - Plus button (the user's request, 2026-11-17: the core lays out the plus button, so the examples stop adjusting it):
   `size`, `centerYMultiplier` and `alignsTitle` removed from the React Native example; `CYLPlusButtonCenterYMultiplier`
   from the native Android configurations; `CYLPlusButtonCenterYOffset` and the tall `CYLPlusButtonSize` from the Flutter
