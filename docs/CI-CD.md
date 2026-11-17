@@ -153,4 +153,7 @@ started run completes and the next one tests the newest commit.
 - **Requirements**: add a screenshot job to this repository's CI; fix ClassifyMenu's publishing (done there:
   pull request runs published under the merge commit).
 - **Prompt (verbatim)**: "to fix the screenshot publishing in ClassifyMenu and add a screenshot job to CYLSearchViewController's CI"
-- **Status**: started.
+- **Status**: job added (`screenshots` in `ios.yml`, `scripts/example-screenshots.sh`, `scripts/publish-screenshots.sh`,
+  shellcheck and actionlint clean). Screens: `tab0-search` … `tab4-plus` (`-CYLDemoTab`), `menu0-reproduction` …
+  `menu4-svga-swiftui` (`-CYLDemoTab 1 -CYLDemoRow`). Remaining: the first CI run's images on
+  `ci-screenshots/feat-harmonyos-parity/<sha7>/`, then labelled copies in `docs/assets/`.
