@@ -1930,7 +1930,7 @@ PODS:
 
 DEPENDENCIES:
   - boost (from `build/rndeps-facades/boost`)
-  - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `697e9307823041705aee9dad4032efd2d9cb1eed`)
+  - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `d6a94ce90e0eb7b3e25f04acd083da80fb0f8849`)
   - CYLAnimatedItem (from `../vendor/CYLTabBarController`)
   - Cylsearch (from `../..`)
   - CYLSearchViewController (from `../../../..`)
@@ -1938,8 +1938,8 @@ DEPENDENCIES:
   - CYLTabBarController (from `../vendor/CYLTabBarController`)
   - CYLTabBarController/Rive (from `../vendor/CYLTabBarController`)
   - CYLTabBarController/SVGA (from `../vendor/CYLTabBarController`)
-  - CYLTableViewPlaceHolder/Core (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `8dc39c32b6ebcfd490dbf2fd4b0535cdd16c2b43`)
-  - CYLTableViewPlaceHolder/Lottie (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `8dc39c32b6ebcfd490dbf2fd4b0535cdd16c2b43`)
+  - CYLTableViewPlaceHolder/Core (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `f7e0c4d5931bf94004da898ff02982ab1e347260`)
+  - CYLTableViewPlaceHolder/Lottie (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `f7e0c4d5931bf94004da898ff02982ab1e347260`)
   - DoubleConversion (from `build/rndeps-facades/DoubleConversion`)
   - fast_float (from `build/rndeps-facades/fast_float`)
   - FBLazyVector (from `build/rncore-facades/FBLazyVector`)
@@ -2041,7 +2041,7 @@ EXTERNAL SOURCES:
   boost:
     :path: build/rndeps-facades/boost
   CollectionViewClassifyMenu:
-    :commit: 697e9307823041705aee9dad4032efd2d9cb1eed
+    :commit: d6a94ce90e0eb7b3e25f04acd083da80fb0f8849
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLAnimatedItem:
     :path: "../vendor/CYLTabBarController"
@@ -2054,7 +2054,7 @@ EXTERNAL SOURCES:
   CYLTabBarController:
     :path: "../vendor/CYLTabBarController"
   CYLTableViewPlaceHolder:
-    :commit: 8dc39c32b6ebcfd490dbf2fd4b0535cdd16c2b43
+    :commit: f7e0c4d5931bf94004da898ff02982ab1e347260
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
   DoubleConversion:
     :path: build/rndeps-facades/DoubleConversion
@@ -2232,21 +2232,21 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   CollectionViewClassifyMenu:
-    :commit: 697e9307823041705aee9dad4032efd2d9cb1eed
+    :commit: d6a94ce90e0eb7b3e25f04acd083da80fb0f8849
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLTableViewPlaceHolder:
-    :commit: 8dc39c32b6ebcfd490dbf2fd4b0535cdd16c2b43
+    :commit: f7e0c4d5931bf94004da898ff02982ab1e347260
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
 
 SPEC CHECKSUMS:
   boost: 2a9d6e1d9873337543f08d9dbc007b288f4e113b
-  CollectionViewClassifyMenu: dd4a87be8737b34eb63957ed3907182b08b0349c
-  CYLAnimatedItem: 7a486258f83f36ddf84d14024956ded8aa598f74
+  CollectionViewClassifyMenu: 1cb0703b677486f0087f541e5908c4e7dac3c6de
+  CYLAnimatedItem: 89c28f62fdb00ae0d92a2c09f0a172129bda5a6e
   Cylsearch: bb9d7515388159dd8657f219b5397acfd26f1315
   CYLSearchViewController: 3e9151895e3c991faaf0143e783bd173a9edf924
   Cyltabbar: 4a0ad4bcdf18e8a3953d6e55273ccce83e80ffdd
   CYLTabBarController: d56c43dc7f36a184e444cc4d233fa072c159e6e5
-  CYLTableViewPlaceHolder: 29c94d5cef84db2917e664dd0a59d27e027fccbe
+  CYLTableViewPlaceHolder: 5c0d00af26d5d216db99563d48c4fb24e4c89c21
   DoubleConversion: e85e4faac763226bfd1cc4c6a98d8355149b27a5
   fast_float: 908e5ee35999f3d91af4b962ac951acac591866c
   FBLazyVector: 953381a667ad5f4119b929026e53c4f3aa0da7e7
@@ -2339,6 +2339,6 @@ SPEC CHECKSUMS:
   SVGAPlayerLite: ae073300a9faa016e88a54afa8fec43f54fed682
   Yoga: 58b502c52b14ad3c4468805d461fc37d275c2a42
 
-PODFILE CHECKSUM: e7f39180a241a7f234d095ed4811e46d41fd8715
+PODFILE CHECKSUM: 9e235e8459157004ce35f839f67dca58ea08cf39
 
 COCOAPODS: 1.17.0

@@ -1202,6 +1202,9 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
 
 - (void)testContactTagsDemoSearchesCreatesAndKeepsItsStrings
 {
+    // Edits are saved in the demo's cache: start from the bundled data.
+    [NSClassFromString(@"CYLContactTagsDemo") performSelector:@selector(resetCache)];
+    [self addTeardownBlock:^{ [NSClassFromString(@"CYLContactTagsDemo") performSelector:@selector(resetCache)]; }];
     // docs/CYLTabBarController-Integration.md, "the contact tags example": the Examples row opens Edit Remarks; its
     // editor searches with CYLSearchBarView ("ios" finds "iOS ..." and offers "+ New tag: ios"), creates and selects a
     // tag; the bundle has the same tags and strings in every language.
@@ -1252,6 +1255,9 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
 
 - (void)testContactTagsDemoShowsCYLPlaceholderViewWhenEmpty
 {
+    // Edits are saved in the demo's cache: start from the bundled data.
+    [NSClassFromString(@"CYLContactTagsDemo") performSelector:@selector(resetCache)];
+    [self addTeardownBlock:^{ [NSClassFromString(@"CYLContactTagsDemo") performSelector:@selector(resetCache)]; }];
     // docs/CYLTabBarController-Integration.md, "CYLPlaceholderView in the contact tags example": a search without a
     // match and an empty tag list show CYLTableViewPlaceHolder's placeholder; a match or a tag hides it.
     UIViewController *remark = [NSClassFromString(@"CYLContactTagsDemo") performSelector:@selector(viewController)];
@@ -1309,6 +1315,83 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     XCTAssertTrue(emptyTags.accessibilityTraits & UIAccessibilityTraitButton, @"VoiceOver: it opens the editor");
     [remark performSelector:@selector(updateTags:) withObject:@[@"Family"]];
     XCTAssertNil(remarkPlaceholder(), @"a tag hides it");
+    window.hidden = YES;
+}
+
+- (void)testContactTagsManageEditsInPlaceSavesAndOpensContacts
+{
+    // docs/CYLTabBarController-Integration.md, "editing in the contact tags example": Manage switches CollectionViewClassifyMenu's
+    // tag list into editing mode in place (delete buttons, dragging, the add control); a drag is saved and comes back
+    // when the screen opens again; a tag opens its contacts, and a tag nobody has shows CYLTableViewPlaceHolder's
+    // placeholder there.
+    Class demo = NSClassFromString(@"CYLContactTagsDemo");
+    [demo performSelector:@selector(resetCache)];
+    [self addTeardownBlock:^{ [demo performSelector:@selector(resetCache)]; }];
+    UIViewController *remark = [demo performSelector:@selector(viewController)];
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
+    window.rootViewController = [[UINavigationController alloc] initWithRootViewController:remark];
+    [window makeKeyAndVisible];
+    [remark.view layoutIfNeeded];
+    id editor = [remark performSelector:@selector(editTagsAnimated:) withObject:@NO];
+    UIView *editorView = [editor view];
+    [editorView layoutIfNeeded];
+    XCTAssertNotNil([editor navigationController], @"the editor can push the contacts page");
+    NSInteger mine = [editor numberOfSectionsInMenu] - 1;
+    NSInteger items = [editor menuNumberOfItemsInSection:mine];
+    XCTAssertEqual([editor menuItemTypeAtIndexPath:[NSIndexPath indexPathForItem:items - 1 inSection:mine]], CYLMenuItemTypeCreate);
+    XCTAssertFalse([[editor valueForKey:@"isManaging"] boolValue]);
+
+    [editor performSelector:@selector(toggleManaging)];
+    XCTAssertTrue([[editor valueForKey:@"isManaging"] boolValue], @"Manage enters the list's editing mode");
+    XCTAssertEqual([editor numberOfSectionsInMenu] - 1, mine, @"no page change: the same sections");
+    XCTAssertEqual([editor menuNumberOfItemsInSection:mine], items - 1, @"the add control replaces + New Tag");
+    XCTAssertTrue([editor menuSectionAllowsEditing:mine]);
+    XCTAssertFalse(mine > 0 && [editor menuSectionAllowsEditing:0], @"Recent does not take part");
+    [editorView layoutIfNeeded];
+    BOOL addControl = NO;
+    NSMutableArray<UIView *> *views = [NSMutableArray arrayWithObject:editorView];
+    while (views.count) {
+        UIView *view = views.firstObject;
+        [views removeObjectAtIndex:0];
+        addControl = addControl || [NSStringFromClass(view.class) hasSuffix:@"CYLTagListAddItemView"];
+        [views addObjectsFromArray:view.subviews];
+    }
+    XCTAssertTrue(addControl, @"the add control shows below the tags");
+
+    NSString *first = [editor menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:mine]];
+    NSString *second = [editor menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:1 inSection:mine]];
+    [editor menuMoveItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:mine] toIndexPath:[NSIndexPath indexPathForItem:1 inSection:mine]];
+    XCTAssertEqualObjects([editor menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:mine]], second);
+
+    UIViewController *contacts = [editor performSelector:@selector(showContactsWithTag:) withObject:first];
+    [contacts.view layoutIfNeeded];
+    XCTAssertTrue([NSStringFromClass(contacts.class) hasSuffix:@"CYLContactListViewController"], @"%@", contacts.class);
+    XCTAssertGreaterThan([(UITableViewController *)contacts tableView:[(UITableViewController *)contacts tableView] numberOfRowsInSection:0], 0, @"%@ has contacts", first);
+    [editor performSelector:@selector(createTagNamed:) withObject:@"Nobody Yet"];
+    UITableViewController *empty = (UITableViewController *)[editor performSelector:@selector(showContactsWithTag:) withObject:@"Nobody Yet"];
+    [empty.view layoutIfNeeded];
+    BOOL placeholder = NO;
+    for (UIView *view in empty.tableView.subviews) {
+        placeholder = placeholder || [view isKindOfClass:CYLPlaceholderView.class];
+        for (UIView *inner in view.subviews) placeholder = placeholder || [inner.accessibilityIdentifier isEqualToString:@"CYLContactListEmpty"];
+        placeholder = placeholder || [view.accessibilityIdentifier isEqualToString:@"CYLContactListEmpty"];
+    }
+    XCTAssertEqual([empty tableView:empty.tableView numberOfRowsInSection:0], 0);
+    XCTAssertTrue(placeholder, @"a tag without contacts shows CYLTableViewPlaceHolder's placeholder");
+    [remark dismissViewControllerAnimated:NO completion:nil];
+
+    // Opened again, as after a relaunch: the saved order and the new tag come back.
+    UIViewController *again = [demo performSelector:@selector(viewController)];
+    window.rootViewController = [[UINavigationController alloc] initWithRootViewController:again];
+    [again.view layoutIfNeeded];
+    id editor2 = [again performSelector:@selector(editTagsAnimated:) withObject:@NO];
+    [[editor2 view] layoutIfNeeded];
+    NSInteger mine2 = [editor2 numberOfSectionsInMenu] - 1;
+    XCTAssertEqualObjects([editor2 menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:mine2]], second, @"the drag was saved");
+    XCTAssertEqualObjects([editor2 menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:1 inSection:mine2]], first);
+    NSInteger count2 = [editor2 menuNumberOfItemsInSection:mine2];
+    XCTAssertEqualObjects([editor2 menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:count2 - 2 inSection:mine2]], @"Nobody Yet", @"the new tag was saved");
+    [again dismissViewControllerAnimated:NO completion:nil];
     window.hidden = YES;
 }
 

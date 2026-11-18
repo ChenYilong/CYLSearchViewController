@@ -1,5 +1,5 @@
 {
-  "comment": "Demo contact tags (CYLContactTagStore), from CollectionViewClassifyMenu's CYLTagEditorExample tags.json. One file per language; same tags, in the same order.",
+  "comment": "Demo contact tags (CYLContactTagStore), from CollectionViewClassifyMenu's CYLTagEditorExample tags.json. One file per language; same tags, in the same order. contacts: the demo contacts and their tags (the contacts page of a tag); some tags have none.",
   "version": 1,
   "tags": [
     "家人",
@@ -59,5 +59,205 @@
     "家人",
     "大學同學",
     "讀書會"
+  ],
+  "contacts": [
+    {
+      "name": "陳曉明",
+      "tags": [
+        "家人",
+        "朋友",
+        "鄰居",
+        "旅行",
+        "美食"
+      ]
+    },
+    {
+      "name": "吳佳怡",
+      "tags": [
+        "家人",
+        "營運",
+        "醫生"
+      ]
+    },
+    {
+      "name": "李思遠",
+      "tags": [
+        "大學同學",
+        "前同事",
+        "iOS 開發",
+        "上海",
+        "深圳"
+      ]
+    },
+    {
+      "name": "周雨桐",
+      "tags": [
+        "室友",
+        "產品經理",
+        "律師",
+        "讀書會"
+      ]
+    },
+    {
+      "name": "王浩然",
+      "tags": [
+        "室友",
+        "同事",
+        "設計師",
+        "前端開發"
+      ]
+    },
+    {
+      "name": "林可欣",
+      "tags": [
+        "親戚",
+        "客戶",
+        "北京",
+        "杭州"
+      ]
+    },
+    {
+      "name": "徐子軒",
+      "tags": [
+        "大學同學",
+        "同事",
+        "供應商"
+      ]
+    },
+    {
+      "name": "孫夢瑤",
+      "tags": [
+        "籃球",
+        "讀書會",
+        "健行"
+      ]
+    },
+    {
+      "name": "趙一鳴",
+      "tags": [
+        "大學同學",
+        "室友",
+        "律師"
+      ]
+    },
+    {
+      "name": "何靜怡",
+      "tags": [
+        "室友",
+        "上海"
+      ]
+    },
+    {
+      "name": "馬俊傑",
+      "tags": [
+        "醫生",
+        "房東",
+        "跑步",
+        "常聯繫"
+      ]
+    },
+    {
+      "name": "郭語嫣",
+      "tags": [
+        "主管",
+        "旅行",
+        "北京"
+      ]
+    },
+    {
+      "name": "黃志強",
+      "tags": [
+        "投資人",
+        "律師",
+        "健行",
+        "北京"
+      ]
+    },
+    {
+      "name": "高雅琪",
+      "tags": [
+        "室友",
+        "供應商",
+        "合作夥伴",
+        "老師"
+      ]
+    },
+    {
+      "name": "劉宇航",
+      "tags": [
+        "同事",
+        "尾牙"
+      ]
+    },
+    {
+      "name": "楊柳青",
+      "tags": [
+        "室友",
+        "籃球",
+        "音樂"
+      ]
+    },
+    {
+      "name": "羅晨曦",
+      "tags": [
+        "籃球",
+        "攝影"
+      ]
+    },
+    {
+      "name": "宋詩涵",
+      "tags": [
+        "鄰居",
+        "攝影",
+        "旅行",
+        "美食"
+      ]
+    },
+    {
+      "name": "唐明哲",
+      "tags": [
+        "行銷",
+        "房東",
+        "健行"
+      ]
+    },
+    {
+      "name": "馮曉雪",
+      "tags": [
+        "家人",
+        "獵頭"
+      ]
+    },
+    {
+      "name": "韓立",
+      "tags": [
+        "親戚",
+        "籃球"
+      ]
+    },
+    {
+      "name": "曹文靜",
+      "tags": [
+        "鄰居",
+        "跑步",
+        "重要"
+      ]
+    },
+    {
+      "name": "田中由紀",
+      "tags": [
+        "同事",
+        "iOS 開發",
+        "攝影"
+      ]
+    },
+    {
+      "name": "鄧子琪",
+      "tags": [
+        "主管",
+        "iOS 開發",
+        "醫生"
+      ]
+    }
   ]
 }

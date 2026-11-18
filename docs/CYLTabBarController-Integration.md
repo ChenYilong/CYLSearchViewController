@@ -367,7 +367,7 @@ b376c278, feat/harmonyos-parity, 2026-11-19. Purpose: Rive tab icons in the Flut
 Bell-region pixel change after the tap, against the final frame (30 fps video): RN 820, 409, 811, 164, then under 25;
 Flutter 2503, 919, 833, 355, then 0.
 
-## TODO (2026-11-19): adapt to the Swift CYLAnimatedItemView (CYLTabBarController 4c7dc79d)
+## DONE (2026-11-19; TODO 2026-11-19): adapt to the Swift CYLAnimatedItemView (CYLTabBarController 4c7dc79d)
 
 - **Branch**: `feat/harmonyos-parity`.
 - **Prompt** (verbatim, relayed by the session "Mac-CYLTabBarController 小程序开发"): "要转发任务给其他session要求适应swift新代码完成原有功能 …"
@@ -384,14 +384,15 @@ Flutter 2503, 919, 833, 355, then 0.
 - **Acceptance**: full marks (100) = all pins moved together, the native, Flutter and React Native iOS apps build and
   launch, unit tests pass, a labelled screenshot of the animated items; pass (60) = iOS builds and tests pass at
   `4c7dc79d`.
-- **Status**: TODO, blocked by CYLTableViewPlaceHolder. Local test at `4c7dc79d` (pod install, Xcode 27.2): the only
-  error is CYLTableViewPlaceHolder `8dc39c3`'s Objective-C `@interface CYLPlaceholderView : CYLAnimatedItemView`
-  ("cannot subclass a class that was declared with the 'objc_subclassing_restricted' attribute"). Our code does not
-  subclass it in Objective-C (`CYLSearchBarView.swift`, `CYLSVGADemoTagButton.swift` and `CYLRNSearchSupport.h` only
-  import it), and CollectionViewClassifyMenu's `CYLTagButton` is Swift already. The CYLTableViewPlaceHolder session is
-  porting `CYLPlaceholderView` to Swift (its `docs/Task-Log.md`, `09c9861`); CollectionViewClassifyMenu was asked for a
-  commit bundling `4c7dc79d` or later. The pins stay at `b376c278` until both exist. Score: 10/100 (logged, cause
-  found and reported).
+- **Status**: DONE (2026-11-19). The blocker (CYLTableViewPlaceHolder's Objective-C subclass of the Swift
+  `CYLAnimatedItemView`) was removed there: Swift `CYLPlaceholderView` in `97b0591`, keyboard fix `f7e0c4d`. All pins
+  moved together on every platform (Podfiles, Flutter pubspec, mini program package.json, HarmonyOS oh-package.json5,
+  android/merged gradle.properties): CYLTabBarController `5996fa96` (contains `4c7dc79d`), CYLTableViewPlaceHolder
+  `f7e0c4d`, CollectionViewClassifyMenu `d6a94ce9` (bundles `5996fa96` on every platform). Nothing to change in this
+  repository's code: `CYLSearchBarView.swift`, `CYLSVGADemoTagButton.swift`, `CYLSearchExampleTests.m` and
+  `CYLRNSearchSupport.h` build unchanged. pod install for the native, Flutter and React Native apps; 32 tests pass; the
+  Flutter and React Native iOS apps build. Android, HarmonyOS and mini program at the new pins: for the Windows session.
+  Score: 100/100 for iOS.
 
 ## DONE (2026-11-19; TODO 2026-11-19): the contact tags example from CollectionViewClassifyMenu, on CYLSearchViewController
 
@@ -441,7 +442,7 @@ Flutter 2503, 919, 833, 355, then 0.
   `testContactTagsDemoShowsCYLPlaceholderViewWhenEmpty`; 31 tests pass
   ([assets/ios-iphone18pro-20261119-contact-tags-placeholder.png](assets/ios-iphone18pro-20261119-contact-tags-placeholder.png), iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), CYLTableViewPlaceHolder 8dc39c3, 2026-11-19). Score: 100/100.
 
-### TODO (2026-11-19): editing in the contact tags example (CollectionViewClassifyMenu editing API)
+### DONE (2026-11-19; TODO 2026-11-19): editing in the contact tags example (CollectionViewClassifyMenu editing API)
 
 - **Prompt** (verbatim): "为展示CYLPlaceholderView，为该example增加以下编辑功能，最近使用右侧加删除图标，修改我的标签section样式，为尾部tag折叠展开样式。点击管理后进入编辑模式tag 会显示删除按钮，底部会有增加tag按钮。编辑状态下允许拖动。点击删除按钮之外的tag区域可以跳转下一页面显示全部含有此标签的联系人全列表。模仿附件的样式。要求不跳转其他页面，仅仅修改taglist接口进入编辑状态。我推测你可能需要修改 CollectionView对应的库的代码，新增编辑样式接口。在调用编辑样式接口后，taglist样式会变动，在tag上显示删除icon，允许推动，还有显示新增tag的底部控件。修改CollectionView对应的库的代码后直接推送到CollectionView对应的库的代码，repin对应commit完成需求。"
 - **English**: to show CYLPlaceholderView, add editing: a delete (trash) icon right of "Recent"; "My Tags" folded with a
@@ -454,7 +455,26 @@ Flutter 2503, 919, 833, 355, then 0.
   (`CYLContactListViewController`, contacts in contact-tags.json; no contact with the tag shows CYLPlaceholderView);
   (3) re-pin CollectionViewClassifyMenu with CYLTabBarController `5996fa96`, which waits for CYLTableViewPlaceHolder's
   Swift `CYLPlaceholderView` (see the Swift CYLAnimatedItemView task).
-- **Status**: TODO.
+- **Follow-up prompt** (verbatim): "注意编辑模式，触发新的排序后，你可能需要加入缓存 或者数据库支持，为ClassifyMenu 增加类似本仓库的数据库 缓存实现。"
+  (English: after a new order in editing mode you may need a cache or a database: add to ClassifyMenu a database /
+  cache like this repository's.)
+- **Status**: DONE (2026-11-19). CollectionViewClassifyMenu `d6a94ce9` (feat/harmony, pushed): `CYLTagListView.isEditing` /
+  `setEditing(_:animated:)` (delete indicators on editable sections, dragging, taps report without selecting, every item
+  shown, `CYLTagListAddItemView` below the last section), and a tag list cache like this repository's suggestion cache
+  (`CYLTagListCachePolicy`: none, database, userDefaults, sandboxFile; `CYLTagListStore`; the list saves its editable
+  sections after a drag, a delete or an added tag); its tests 103 of 103. This example: "Recent" has a trash button;
+  "My Tags" folds to three rows with the chevron as its last tag (`CYLMenuFoldControl(position: .tail)`); "Manage" calls
+  `setEditing` on the same list (no page change; "+ New Tag" gives way to the add control); in "Manage" a tap on a tag
+  pushes `CYLContactListViewController` (the editor is in a navigation controller): the contacts with that tag (24 demo
+  contacts in contact-tags.json, four languages), or CYLTableViewPlaceHolder's placeholder through `cyl_reloadData`
+  when nobody has it; every change is saved in CollectionViewClassifyMenu's `CYLTagListStore` (SQLite, name
+  "CYLContactTags", keys "mine" and "recent" through `menuCacheKey(forSection:)`) and restored at launch
+  (`-CYLContactTagsResetCache YES` forgets it). Test `testContactTagsManageEditsInPlaceSavesAndOpensContacts` (a drag
+  survives reopening, a new tag too); 32 tests pass. Pinned with CYLTabBarController `5996fa96` and CYLTableViewPlaceHolder
+  `f7e0c4d` on every platform (pin rule)
+  ([assets/ios-iphone18pro-20261119-contact-tags-editing.png](assets/ios-iphone18pro-20261119-contact-tags-editing.png), iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), 2026-11-19).
+  The Android, HarmonyOS and mini program versions of the library API are TODO rows in CollectionViewClassifyMenu's
+  `docs/android-api.md`, for its Windows session. Score: 100/100 for iOS.
 ## TODO (2026-11-19): the contact tags example on the other platforms
 
 - **Branch**: `feat/harmonyos-parity`. Owner: the Windows session (platform rule).

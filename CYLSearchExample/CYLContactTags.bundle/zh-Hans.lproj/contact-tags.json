@@ -1,5 +1,5 @@
 {
-  "comment": "Demo contact tags (CYLContactTagStore), from CollectionViewClassifyMenu's CYLTagEditorExample tags.json. One file per language; same tags, in the same order.",
+  "comment": "Demo contact tags (CYLContactTagStore), from CollectionViewClassifyMenu's CYLTagEditorExample tags.json. One file per language; same tags, in the same order. contacts: the demo contacts and their tags (the contacts page of a tag); some tags have none.",
   "version": 1,
   "tags": [
     "家人",
@@ -59,5 +59,205 @@
     "家人",
     "大学同学",
     "读书会"
+  ],
+  "contacts": [
+    {
+      "name": "陈晓明",
+      "tags": [
+        "家人",
+        "朋友",
+        "邻居",
+        "旅行",
+        "美食"
+      ]
+    },
+    {
+      "name": "吴佳怡",
+      "tags": [
+        "家人",
+        "运营",
+        "医生"
+      ]
+    },
+    {
+      "name": "李思远",
+      "tags": [
+        "大学同学",
+        "前同事",
+        "iOS 开发",
+        "上海",
+        "深圳"
+      ]
+    },
+    {
+      "name": "周雨桐",
+      "tags": [
+        "室友",
+        "产品经理",
+        "律师",
+        "读书会"
+      ]
+    },
+    {
+      "name": "王浩然",
+      "tags": [
+        "室友",
+        "同事",
+        "设计师",
+        "前端开发"
+      ]
+    },
+    {
+      "name": "林可欣",
+      "tags": [
+        "亲戚",
+        "客户",
+        "北京",
+        "杭州"
+      ]
+    },
+    {
+      "name": "徐子轩",
+      "tags": [
+        "大学同学",
+        "同事",
+        "供应商"
+      ]
+    },
+    {
+      "name": "孙梦瑶",
+      "tags": [
+        "篮球",
+        "读书会",
+        "徒步"
+      ]
+    },
+    {
+      "name": "赵一鸣",
+      "tags": [
+        "大学同学",
+        "室友",
+        "律师"
+      ]
+    },
+    {
+      "name": "何静怡",
+      "tags": [
+        "室友",
+        "上海"
+      ]
+    },
+    {
+      "name": "马俊杰",
+      "tags": [
+        "医生",
+        "房东",
+        "跑步",
+        "常联系"
+      ]
+    },
+    {
+      "name": "郭语嫣",
+      "tags": [
+        "领导",
+        "旅行",
+        "北京"
+      ]
+    },
+    {
+      "name": "黄志强",
+      "tags": [
+        "投资人",
+        "律师",
+        "徒步",
+        "北京"
+      ]
+    },
+    {
+      "name": "高雅琪",
+      "tags": [
+        "室友",
+        "供应商",
+        "合作伙伴",
+        "老师"
+      ]
+    },
+    {
+      "name": "刘宇航",
+      "tags": [
+        "同事",
+        "年会"
+      ]
+    },
+    {
+      "name": "杨柳青",
+      "tags": [
+        "室友",
+        "篮球",
+        "音乐"
+      ]
+    },
+    {
+      "name": "罗晨曦",
+      "tags": [
+        "篮球",
+        "摄影"
+      ]
+    },
+    {
+      "name": "宋诗涵",
+      "tags": [
+        "邻居",
+        "摄影",
+        "旅行",
+        "美食"
+      ]
+    },
+    {
+      "name": "唐明哲",
+      "tags": [
+        "市场",
+        "房东",
+        "徒步"
+      ]
+    },
+    {
+      "name": "冯晓雪",
+      "tags": [
+        "家人",
+        "猎头"
+      ]
+    },
+    {
+      "name": "韩立",
+      "tags": [
+        "亲戚",
+        "篮球"
+      ]
+    },
+    {
+      "name": "曹文静",
+      "tags": [
+        "邻居",
+        "跑步",
+        "重要"
+      ]
+    },
+    {
+      "name": "田中由纪",
+      "tags": [
+        "同事",
+        "iOS 开发",
+        "摄影"
+      ]
+    },
+    {
+      "name": "邓子琪",
+      "tags": [
+        "领导",
+        "iOS 开发",
+        "医生"
+      ]
+    }
   ]
 }

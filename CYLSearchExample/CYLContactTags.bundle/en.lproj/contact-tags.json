@@ -1,5 +1,5 @@
 {
-  "comment": "Demo contact tags (CYLContactTagStore), from CollectionViewClassifyMenu's CYLTagEditorExample tags.json. One file per language; same tags, in the same order.",
+  "comment": "Demo contact tags (CYLContactTagStore), from CollectionViewClassifyMenu's CYLTagEditorExample tags.json. One file per language; same tags, in the same order. contacts: the demo contacts and their tags (the contacts page of a tag); some tags have none.",
   "version": 1,
   "tags": [
     "Family",
@@ -59,5 +59,205 @@
     "Family",
     "College Classmates",
     "Book Club"
+  ],
+  "contacts": [
+    {
+      "name": "Alex Chen",
+      "tags": [
+        "Family",
+        "Friends",
+        "Neighbors",
+        "Travel",
+        "Food"
+      ]
+    },
+    {
+      "name": "Bella Wu",
+      "tags": [
+        "Family",
+        "Operations",
+        "Doctors"
+      ]
+    },
+    {
+      "name": "Chris Li",
+      "tags": [
+        "College Classmates",
+        "Former Coworkers",
+        "iOS Developers",
+        "Shanghai",
+        "Shenzhen"
+      ]
+    },
+    {
+      "name": "Diana Zhou",
+      "tags": [
+        "Roommates",
+        "Product Managers",
+        "Lawyers",
+        "Book Club"
+      ]
+    },
+    {
+      "name": "Ethan Wang",
+      "tags": [
+        "Roommates",
+        "Coworkers",
+        "Designers",
+        "Frontend Developers"
+      ]
+    },
+    {
+      "name": "Fiona Lin",
+      "tags": [
+        "Relatives",
+        "Clients",
+        "Beijing",
+        "Hangzhou"
+      ]
+    },
+    {
+      "name": "George Xu",
+      "tags": [
+        "College Classmates",
+        "Coworkers",
+        "Suppliers"
+      ]
+    },
+    {
+      "name": "Hannah Sun",
+      "tags": [
+        "Basketball",
+        "Book Club",
+        "Hiking"
+      ]
+    },
+    {
+      "name": "Ivan Zhao",
+      "tags": [
+        "College Classmates",
+        "Roommates",
+        "Lawyers"
+      ]
+    },
+    {
+      "name": "Julia He",
+      "tags": [
+        "Roommates",
+        "Shanghai"
+      ]
+    },
+    {
+      "name": "Kevin Ma",
+      "tags": [
+        "Doctors",
+        "Landlords",
+        "Running",
+        "Frequent"
+      ]
+    },
+    {
+      "name": "Lily Guo",
+      "tags": [
+        "Managers",
+        "Travel",
+        "Beijing"
+      ]
+    },
+    {
+      "name": "Mike Huang",
+      "tags": [
+        "Investors",
+        "Lawyers",
+        "Hiking",
+        "Beijing"
+      ]
+    },
+    {
+      "name": "Nina Gao",
+      "tags": [
+        "Roommates",
+        "Suppliers",
+        "Partners",
+        "Teachers"
+      ]
+    },
+    {
+      "name": "Oscar Liu",
+      "tags": [
+        "Coworkers",
+        "Annual Party"
+      ]
+    },
+    {
+      "name": "Penny Yang",
+      "tags": [
+        "Roommates",
+        "Basketball",
+        "Music"
+      ]
+    },
+    {
+      "name": "Quinn Luo",
+      "tags": [
+        "Basketball",
+        "Photography"
+      ]
+    },
+    {
+      "name": "Rachel Song",
+      "tags": [
+        "Neighbors",
+        "Photography",
+        "Travel",
+        "Food"
+      ]
+    },
+    {
+      "name": "Sam Tang",
+      "tags": [
+        "Marketing",
+        "Landlords",
+        "Hiking"
+      ]
+    },
+    {
+      "name": "Tina Feng",
+      "tags": [
+        "Family",
+        "Recruiters"
+      ]
+    },
+    {
+      "name": "Victor Han",
+      "tags": [
+        "Relatives",
+        "Basketball"
+      ]
+    },
+    {
+      "name": "Wendy Cao",
+      "tags": [
+        "Neighbors",
+        "Running",
+        "Important"
+      ]
+    },
+    {
+      "name": "Yuki Tanaka",
+      "tags": [
+        "Coworkers",
+        "iOS Developers",
+        "Photography"
+      ]
+    },
+    {
+      "name": "Zoe Deng",
+      "tags": [
+        "Managers",
+        "iOS Developers",
+        "Doctors"
+      ]
+    }
   ]
 }

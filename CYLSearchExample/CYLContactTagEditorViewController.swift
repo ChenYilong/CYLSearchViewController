@@ -5,7 +5,11 @@
 //  "Edit Tags": a sheet for choosing a contact's tags, as in a chat app, ported from CollectionViewClassifyMenu's
 //  CYLTagEditorExample (CYLTagEditorViewController). The search field is this library's CYLSearchBarView; the tags are
 //  CollectionViewClassifyMenu's CYLTagListView.
-//  - "Recent" and "My Tags" (with "Manage") list the tags; a selected tag is green, in both sections.
+//  - "Recent" (with a trash button) and "My Tags" (with "Manage"; folded to three rows, the chevron as its last tag)
+//    list the tags; a selected tag is green, in both sections.
+//  - "Manage" switches the tag list into CollectionViewClassifyMenu's editing mode in place (setEditing(_:animated:)):
+//    the tags of "My Tags" show a delete button and can be dragged, an add control shows below them, and a tap on a tag
+//    opens the contacts that have it (CYLContactListViewController). Every change is saved (CYLTagListStore).
 //  - "+ New Tag" after the last tag adds a tag (the menu's create item), never selected.
 //  - Typing in the search bar shows "Search Results" (case-insensitive) and "+ New tag: <text>" when that exact tag does
 //    not exist yet; tapping it, or the keyboard's search key, creates, selects and shows the tag.
@@ -84,9 +88,11 @@ final class CYLContactTagEditorViewController: UIViewController {
     private(set) var query = ""
 
     /**
-     * In "Manage" mode a tap on one of "My Tags" deletes the tag (after a confirmation).
+     * "Manage" mode: the tag list's editing mode (`CYLTagListView.isEditing`).
      */
-    private(set) var isManaging = false
+    @objc var isManaging: Bool {
+        tagListView.isEditing
+    }
 
     /**
      * The sections shown.
@@ -101,7 +107,7 @@ final class CYLContactTagEditorViewController: UIViewController {
     /**
      * The tags (CollectionViewClassifyMenu).
      */
-    let tagListView = CYLTagListView()
+    let tagListView = CYLTagListView(foldControl: CYLMenuFoldControl(position: .tail, content: .icon))
 
     /**
      * The search bar (this library).
@@ -129,6 +135,17 @@ final class CYLContactTagEditorViewController: UIViewController {
     let cancelButton = UIButton(type: .system)
     let doneButton = UIButton(type: .custom)
     let titleLabel = UILabel()
+
+    private(set) lazy var clearRecentButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "trash"), for: .normal)
+        button.tintColor = .secondaryLabel
+        button.accessibilityLabel = cylContactTagsText("clearRecent")
+        button.accessibilityIdentifier = "CYLContactTagsClearRecent"
+        button.frame = CGRect(x: 0, y: 0, width: 44, height: 32)
+        button.addTarget(self, action: #selector(clearRecent), for: .touchUpInside)
+        return button
+    }()
 
     private(set) lazy var manageButton: UIButton = {
         let button = UIButton(type: .system)
@@ -236,6 +253,11 @@ final class CYLContactTagEditorViewController: UIViewController {
         tagListView.menuDataSource = self
         tagListView.menuDelegate = self
         tagListView.accessibilityIdentifier = "CYLContactTagsList"
+        // "My Tags" folds to three rows, the chevron as its last tag (as the Discover page's recent searches).
+        tagListView.defaultVisibleRows = 3
+        // The list saves "My Tags" after each edit, in the store's database cache (same name and keys).
+        tagListView.cacheName = CYLContactTagStore.cacheName
+        tagListView.cachePolicy = .database
         for case let scrollView as UIScrollView in tagListView.subviews {
             scrollView.keyboardDismissMode = .onDrag
         }
@@ -317,7 +339,9 @@ final class CYLContactTagEditorViewController: UIViewController {
         if !store.recentTags.isEmpty {
             sections.append(Section(kind: .recent, title: cylContactTagsText("recent"), items: store.recentTags.map(Item.tag)))
         }
-        sections.append(Section(kind: .mine, title: cylContactTagsText("mine"), items: store.tags.map(Item.tag) + [.create(nil)]))
+        // While managing, the list's add control replaces "+ New Tag".
+        let create: [Item] = isManaging ? [] : [.create(nil)]
+        sections.append(Section(kind: .mine, title: cylContactTagsText("mine"), items: store.tags.map(Item.tag) + create))
         return sections
     }
 
@@ -424,6 +448,10 @@ final class CYLContactTagEditorViewController: UIViewController {
     }
 
     private func queryChanged(_ text: String) {
+        if isManaging && !text.isEmpty {
+            // Searching leaves "Manage".
+            tagListView.setEditing(false, animated: false)
+        }
         query = CYLContactTagStore.normalizedName(text)
         reload()
     }
@@ -483,17 +511,31 @@ final class CYLContactTagEditorViewController: UIViewController {
     }
 
     @objc private func toggleManaging() {
-        isManaging.toggle()
+        if isManaging {
+            tagListView.setEditing(false, animated: true)
+        } else {
+            setQuery("")
+            searchBar.hideKeyboard()
+            tagListView.setEditing(true, animated: true)
+        }
         reload()
     }
 
-    private func confirmDeleting(_ tag: String) {
-        let alert = UIAlertController(title: cylContactTagsText("deleteTitle", tag), message: nil, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: cylContactTagsText("cancel"), style: .cancel))
-        alert.addAction(UIAlertAction(title: cylContactTagsText("delete"), style: .destructive) { [weak self] _ in
-            self?.deleteTag(tag)
-        })
-        present(alert, animated: true)
+    @objc private func clearRecent() {
+        store.clearRecent()
+        reload()
+        UIAccessibility.post(notification: .announcement, argument: cylContactTagsText("recentCleared"))
+    }
+
+    /**
+     * Pushes the contacts that have `tag`.
+     */
+    @discardableResult
+    @objc(showContactsWithTag:)
+    func showContacts(withTag tag: String) -> UIViewController {
+        let list = CYLContactListViewController(tag: tag, contacts: store.contacts(withTag: tag))
+        navigationController?.pushViewController(list, animated: true)
+        return list
     }
 
     /**
@@ -504,6 +546,12 @@ final class CYLContactTagEditorViewController: UIViewController {
         store.deleteTag(tag)
         selectedTags.removeAll { $0 == tag }
         reload()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // The sheet draws its own header; the contacts page shows the navigation bar.
+        navigationController?.setNavigationBarHidden(true, animated: animated)
     }
 
     @objc private func cancel() {
@@ -573,21 +621,58 @@ extension CYLContactTagEditorViewController: CYLMenuDataSource {
         return .tag
     }
 
-    func menuItemIsSelectable(at indexPath: IndexPath) -> Bool {
-        !isManaging
-    }
-
     /**
-     * In "Manage" mode a tag of "My Tags" is deleted by a tap: VoiceOver says so.
+     * In "Manage" mode a tap on a tag of "My Tags" opens its contacts (the delete button and dragging are the list's,
+     * with their own VoiceOver actions).
      */
     func menuAccessibilityHintForItem(at indexPath: IndexPath) -> String? {
         guard isManaging, sections[indexPath.section].kind == .mine,
               case .tag = sections[indexPath.section].items[indexPath.item] else { return nil }
-        return cylContactTagsText("hintDelete")
+        return cylContactTagsText("hintContacts")
     }
 
     func menuAccessoryView(forSection section: Int) -> UIView? {
-        sections[section].kind == .mine ? manageButton : nil
+        switch sections[section].kind {
+        case .mine: return manageButton
+        case .recent: return clearRecentButton
+        case .results: return nil
+        }
+    }
+
+    /**
+     * Only "My Tags" takes part in "Manage" (delete buttons, dragging, the add control).
+     */
+    func menuSectionAllowsEditing(_ section: Int) -> Bool {
+        sections.indices.contains(section) && sections[section].kind == .mine
+    }
+
+    /**
+     * Stable cache keys: "Recent" comes and goes, so section indexes would change.
+     */
+    func menuCacheKey(forSection section: Int) -> String {
+        switch sections[section].kind {
+        case .recent: return CYLContactTagStore.recentCacheKey
+        case .mine: return CYLContactTagStore.mineCacheKey
+        case .results: return "results"
+        }
+    }
+
+    /**
+     * A delete button in "Manage" mode.
+     */
+    func menuRemoveItem(at indexPath: IndexPath) {
+        guard case let .tag(tag) = sections[indexPath.section].items[indexPath.item] else { return }
+        store.deleteTag(tag)
+        selectedTags.removeAll { $0 == tag }
+        sections = makeSections()
+    }
+
+    /**
+     * A drag in "Manage" mode.
+     */
+    func menuMoveItem(at sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        store.moveTag(from: sourceIndexPath.item, to: destinationIndexPath.item)
+        sections = makeSections()
     }
 }
 
@@ -598,7 +683,7 @@ extension CYLContactTagEditorViewController: CYLMenuDelegate {
     func menu(_ menu: Any, didSelectItemAt indexPath: IndexPath) {
         guard case let .tag(tag) = sections[indexPath.section].items[indexPath.item] else { return }
         if isManaging {
-            confirmDeleting(tag)
+            showContacts(withTag: tag)
         } else {
             select(tag)
         }
@@ -608,11 +693,24 @@ extension CYLContactTagEditorViewController: CYLMenuDelegate {
      * "+ New Tag": with the searched name, creates it; otherwise asks for one.
      */
     func menu(_ menu: Any, didRequestNewItemWithName name: String, at indexPath: IndexPath) {
+        if isManaging {
+            // The add control in "Manage" mode: added at the end of "My Tags", the list stays in editing mode.
+            store.createTag(named: name)
+            reload()
+            if let indexPath = self.indexPath(of: CYLContactTagStore.normalizedName(name)) {
+                tagListView.scrollToItem(at: indexPath, animated: true)
+            }
+            return
+        }
         if name.isEmpty {
             promptForNewTag()
         } else {
             createTag(named: name)
         }
+    }
+
+    func menu(_ menu: Any, didChangeEditing editing: Bool) {
+        reload()
     }
 
     func menu(_ menu: Any, didDeselectItemAt indexPath: IndexPath) {

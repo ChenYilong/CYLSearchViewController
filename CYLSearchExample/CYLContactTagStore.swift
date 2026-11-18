@@ -3,11 +3,14 @@
 //  CYLSearchExample
 //
 //  The contact tags demo, ported from CollectionViewClassifyMenu's CYLTagEditorExample (CYLTagStore): the user's tags,
-//  in the user's order, and the recently used ones. The demo tags are read from CYLContactTags.bundle/<language>.lproj/
-//  contact-tags.json (CYLContactTagData).
+//  in the user's order, the recently used ones and the contacts. The demo data is read from CYLContactTags.bundle/
+//  <language>.lproj/contact-tags.json (CYLContactTagData); every change (a reorder in editing mode, a deleted or added
+//  tag, a cleared "Recent") is saved in CollectionViewClassifyMenu's tag list cache (CYLTagListStore, a SQLite database)
+//  and restored at the next launch.
 //
 
 import UIKit
+import CollectionViewClassifyMenu
 
 /**
  * The user's tags (like a chat app's contact tags): every tag in the user's order, and the recently used ones. New tags
@@ -31,6 +34,27 @@ final class CYLContactTagStore {
     let recentLimit: Int
 
     /**
+     * The demo contacts and their tags.
+     */
+    private(set) var contacts: [CYLContactTagData.Contact] = []
+
+    /**
+     * Where the changes are saved (CollectionViewClassifyMenu's `CYLTagListStore`); nil keeps them in memory.
+     */
+    var cache: CYLTagListCache?
+
+    /**
+     * The cache keys of "My Tags" and "Recent" (`CYLTagListView.cacheKey(forSection:)` of the editor).
+     */
+    static let mineCacheKey = "mine"
+    static let recentCacheKey = "recent"
+
+    /**
+     * The name of the demo's cache (`CYLTagListView.cacheName` of the editor).
+     */
+    static let cacheName = "CYLContactTags"
+
+    /**
      * A store with `tags` (duplicates dropped) and the `recentTags` among them, at most `recentLimit`.
      */
     init(tags: [String], recentTags: [String] = [], recentLimit: Int = 8) {
@@ -43,11 +67,32 @@ final class CYLContactTagStore {
     /**
      * The demo tags of the app's language (contact-tags.json); an empty store when the file is missing or invalid.
      */
-    static func bundled() -> CYLContactTagStore {
+    static func bundled(cache: CYLTagListCache? = CYLTagListStore(policy: .database, name: cacheName)) -> CYLContactTagStore {
         guard let data = try? CYLContactTagData.bundled() else {
             return CYLContactTagStore(tags: [])
         }
-        return CYLContactTagStore(tags: data.tags, recentTags: data.recentTags)
+        // The saved order and contents win over the bundled demo data.
+        let tags = cache?.cachedTitles(forSection: mineCacheKey) ?? data.tags
+        let recent = cache?.cachedTitles(forSection: recentCacheKey) ?? data.recentTags
+        let store = CYLContactTagStore(tags: tags, recentTags: recent)
+        store.contacts = data.contacts ?? []
+        store.cache = cache
+        return store
+    }
+
+    /**
+     * The contacts that have `tag`, in the file's order.
+     */
+    func contacts(withTag tag: String) -> [CYLContactTagData.Contact] {
+        contacts.filter { $0.tags.contains(tag) }
+    }
+
+    /**
+     * Saves "My Tags" and "Recent" to `cache`.
+     */
+    func save() {
+        cache?.saveTitles(tags, forSection: Self.mineCacheKey)
+        cache?.saveTitles(recentTags, forSection: Self.recentCacheKey)
     }
 
     /**
@@ -93,8 +138,26 @@ final class CYLContactTagStore {
         guard !name.isEmpty else { return nil }
         if !contains(name) {
             tags.append(name)
+            save()
         }
         return name
+    }
+
+    /**
+     * Moves the tag at `from` to `to` in "My Tags" (a drag in editing mode).
+     */
+    func moveTag(from: Int, to: Int) {
+        guard tags.indices.contains(from), tags.indices.contains(to), from != to else { return }
+        tags.insert(tags.remove(at: from), at: to)
+        save()
+    }
+
+    /**
+     * Empties "Recent" (its trash button).
+     */
+    func clearRecent() {
+        recentTags.removeAll()
+        save()
     }
 
     /**
@@ -103,6 +166,7 @@ final class CYLContactTagStore {
     func deleteTag(_ tag: String) {
         tags.removeAll { $0 == tag }
         recentTags.removeAll { $0 == tag }
+        save()
     }
 
     /**
@@ -111,6 +175,7 @@ final class CYLContactTagStore {
     func markUsed(_ used: [String]) {
         let used = used.filter(contains)
         recentTags = Array((used + recentTags.filter { !used.contains($0) }).prefix(recentLimit))
+        save()
     }
 }
 
@@ -137,6 +202,26 @@ struct CYLContactTagData: Codable, Equatable {
      * The tags the remark screen starts with.
      */
     var selectedTags: [String]
+
+    /**
+     * A demo contact: a name and tags.
+     */
+    struct Contact: Codable, Equatable {
+        /**
+         * The contact's name.
+         */
+        var name: String
+
+        /**
+         * The contact's tags.
+         */
+        var tags: [String]
+    }
+
+    /**
+     * The demo contacts (the contacts page of a tag).
+     */
+    var contacts: [Contact]?
 
     /**
      * contact-tags.json of the app's language.
@@ -191,12 +276,23 @@ final class CYLContactTagsDemo: NSObject {
     }
 
     /**
+     * Forgets the saved edits (the demo's tag list cache).
+     */
+    @objc static func resetCache() {
+        CYLTagListStore(policy: .database, name: CYLContactTagStore.cacheName).removeAllTitles()
+    }
+
+    /**
      * "Edit Remarks" with the demo tags of the app's language, to push.
      */
     @objc static func viewController() -> UIViewController {
         // `-CYLContactTagsEmpty YES` on launch starts without tags (the CYLPlaceholderView empty states), for screenshots.
         if UserDefaults.standard.bool(forKey: "CYLContactTagsEmpty") {
             return CYLContactRemarkViewController(store: CYLContactTagStore(tags: []), tags: [])
+        }
+        // `-CYLContactTagsResetCache YES` on launch forgets the saved edits, for screenshots and tests.
+        if UserDefaults.standard.bool(forKey: "CYLContactTagsResetCache") {
+            resetCache()
         }
         let store = CYLContactTagStore.bundled()
         let selected = (try? CYLContactTagData.bundled().selectedTags) ?? []

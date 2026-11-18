@@ -140,8 +140,11 @@ final class CYLContactRemarkViewController: UIViewController {
         editor.onDone = { [weak self] tags in
             self?.updateTags(tags)
         }
-        editor.modalPresentationStyle = .pageSheet
-        if let sheet = editor.sheetPresentationController {
+        // In a navigation controller, so a tag in "Manage" mode can push its contacts (the sheet hides the bar).
+        let navigation = UINavigationController(rootViewController: editor)
+        navigation.setNavigationBarHidden(true, animated: false)
+        navigation.modalPresentationStyle = .pageSheet
+        if let sheet = navigation.sheetPresentationController {
             if #available(iOS 16.0, *) {
                 sheet.detents = [.custom(identifier: .init("tags")) { context in context.maximumDetentValue * 0.78 }, .large()]
             } else {
@@ -149,7 +152,7 @@ final class CYLContactRemarkViewController: UIViewController {
             }
             sheet.preferredCornerRadius = 16
         }
-        present(editor, animated: animated)
+        present(navigation, animated: animated)
         return editor
     }
 
