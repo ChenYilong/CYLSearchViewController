@@ -72,14 +72,14 @@ PODS:
     - Protobuf (= 3.27.2)
 
 DEPENDENCIES:
-  - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `27e17e7030badb8849903ca695a48cee53529291`)
-  - CYLAnimatedItem/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `d733c80e243cbd9a1cfe2e7b4baeadefb5703f7c`)
-  - CYLAnimatedItem/Rive (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `d733c80e243cbd9a1cfe2e7b4baeadefb5703f7c`)
-  - CYLAnimatedItem/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `d733c80e243cbd9a1cfe2e7b4baeadefb5703f7c`)
+  - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `50a673afd7656576b660d9dc1f704f4032c49ec3`)
+  - CYLAnimatedItem/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `700642752cac2b3daaa47c5453e5a5aa94fbe9cf`)
+  - CYLAnimatedItem/Rive (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `700642752cac2b3daaa47c5453e5a5aa94fbe9cf`)
+  - CYLAnimatedItem/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `700642752cac2b3daaa47c5453e5a5aa94fbe9cf`)
   - CYLSearchViewController (from `../../../..`)
-  - CYLTabBarController/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `d733c80e243cbd9a1cfe2e7b4baeadefb5703f7c`)
-  - CYLTabBarController/Rive (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `d733c80e243cbd9a1cfe2e7b4baeadefb5703f7c`)
-  - CYLTabBarController/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `d733c80e243cbd9a1cfe2e7b4baeadefb5703f7c`)
+  - CYLTabBarController/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `700642752cac2b3daaa47c5453e5a5aa94fbe9cf`)
+  - CYLTabBarController/Rive (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `700642752cac2b3daaa47c5453e5a5aa94fbe9cf`)
+  - CYLTabBarController/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `700642752cac2b3daaa47c5453e5a5aa94fbe9cf`)
   - CYLTableViewPlaceHolder/Core (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `62e40c0530f74e8fe8a8e6d8b98cf42d5ac7ada1`)
   - CYLTableViewPlaceHolder/Lottie (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `62e40c0530f74e8fe8a8e6d8b98cf42d5ac7ada1`)
   - Flutter (from `Flutter`)
@@ -99,15 +99,15 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   CollectionViewClassifyMenu:
-    :commit: 27e17e7030badb8849903ca695a48cee53529291
+    :commit: 50a673afd7656576b660d9dc1f704f4032c49ec3
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLAnimatedItem:
-    :commit: d733c80e243cbd9a1cfe2e7b4baeadefb5703f7c
+    :commit: 700642752cac2b3daaa47c5453e5a5aa94fbe9cf
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLSearchViewController:
     :path: "../../../.."
   CYLTabBarController:
-    :commit: d733c80e243cbd9a1cfe2e7b4baeadefb5703f7c
+    :commit: 700642752cac2b3daaa47c5453e5a5aa94fbe9cf
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
     :commit: 62e40c0530f74e8fe8a8e6d8b98cf42d5ac7ada1
@@ -123,13 +123,13 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   CollectionViewClassifyMenu:
-    :commit: 27e17e7030badb8849903ca695a48cee53529291
+    :commit: 50a673afd7656576b660d9dc1f704f4032c49ec3
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLAnimatedItem:
-    :commit: d733c80e243cbd9a1cfe2e7b4baeadefb5703f7c
+    :commit: 700642752cac2b3daaa47c5453e5a5aa94fbe9cf
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTabBarController:
-    :commit: d733c80e243cbd9a1cfe2e7b4baeadefb5703f7c
+    :commit: 700642752cac2b3daaa47c5453e5a5aa94fbe9cf
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
     :commit: 62e40c0530f74e8fe8a8e6d8b98cf42d5ac7ada1
