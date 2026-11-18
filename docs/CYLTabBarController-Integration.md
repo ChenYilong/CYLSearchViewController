@@ -440,6 +440,21 @@ Flutter 2503, 919, 833, 355, then 0.
   intrinsic height outranked it; now the list gives way). `-CYLContactTagsEmpty YES` starts without tags. Test
   `testContactTagsDemoShowsCYLPlaceholderViewWhenEmpty`; 31 tests pass
   ([assets/ios-iphone18pro-20261119-contact-tags-placeholder.png](assets/ios-iphone18pro-20261119-contact-tags-placeholder.png), iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), CYLTableViewPlaceHolder 8dc39c3, 2026-11-19). Score: 100/100.
+
+### TODO (2026-11-19): editing in the contact tags example (CollectionViewClassifyMenu editing API)
+
+- **Prompt** (verbatim): "为展示CYLPlaceholderView，为该example增加以下编辑功能，最近使用右侧加删除图标，修改我的标签section样式，为尾部tag折叠展开样式。点击管理后进入编辑模式tag 会显示删除按钮，底部会有增加tag按钮。编辑状态下允许拖动。点击删除按钮之外的tag区域可以跳转下一页面显示全部含有此标签的联系人全列表。模仿附件的样式。要求不跳转其他页面，仅仅修改taglist接口进入编辑状态。我推测你可能需要修改 CollectionView对应的库的代码，新增编辑样式接口。在调用编辑样式接口后，taglist样式会变动，在tag上显示删除icon，允许推动，还有显示新增tag的底部控件。修改CollectionView对应的库的代码后直接推送到CollectionView对应的库的代码，repin对应commit完成需求。"
+- **English**: to show CYLPlaceholderView, add editing: a delete (trash) icon right of "Recent"; "My Tags" folded with a
+  trailing fold tag (as the Discover page's recent searches); "Manage" switches the tag list into editing mode in place
+  (no new page): tags show a delete button, can be dragged, and an add-tag control shows at the bottom (like the
+  attached AndroidTagView demo); a tap on a tag outside its delete button opens a page listing every contact with that
+  tag. Add the editing API to CollectionViewClassifyMenu, push it there, and re-pin it here.
+- **Plan**: (1) CollectionViewClassifyMenu `CYLTagListView.setEditing(_:animated:)` (its `docs/component-architecture.md`,
+  TODO 2026-11-19); (2) this example: the trash on "Recent", "My Tags" folded, Manage = `setEditing`, the contacts page
+  (`CYLContactListViewController`, contacts in contact-tags.json; no contact with the tag shows CYLPlaceholderView);
+  (3) re-pin CollectionViewClassifyMenu with CYLTabBarController `5996fa96`, which waits for CYLTableViewPlaceHolder's
+  Swift `CYLPlaceholderView` (see the Swift CYLAnimatedItemView task).
+- **Status**: TODO.
 ## TODO (2026-11-19): the contact tags example on the other platforms
 
 - **Branch**: `feat/harmonyos-parity`. Owner: the Windows session (platform rule).
