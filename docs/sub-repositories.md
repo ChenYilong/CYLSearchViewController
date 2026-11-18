@@ -135,7 +135,7 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   animated too (`docs/core-todo.md`, CYLTableViewPlaceHolder `6d8b264`). Left: HarmonyOS on the emulator (no signing needed, rule 2026-11-16; waits for the emulator instance, Scorecard 2 rows
   7 to 9 in [harmonyos-cross-platform.md](harmonyos-cross-platform.md)).
 
-## TODO (2026-11-17): continue the TODOs, unreleased components by commit
+## DONE (2026-11-19, iOS pod install pending; TODO 2026-11-17): continue the TODOs, unreleased components by commit
 
 - **Context**: branch `feat/harmonyos-parity` (PR #11). Open items from the CYLAnimatedItem migration
   (`docs/animated-icon-component.md`): CYLTableViewPlaceHolder still pinned at `f488e2f`, before its own move to
@@ -146,6 +146,17 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
 - **Prompt (verbatim)**: "continue fix todo还没发布的组件尝试使用commit方式导入。不要阻碍进度"
 - **Prompt (English)**: "Continue fixing the TODOs. Try to import components that are not released yet by commit. Do not
   block progress."
+- **CYLTableViewPlaceHolder `8dc39c3` pinned (2026-11-19)**, the head of `feat/android-refresh-port-followup` (PR #31): its
+  `CYLPlaceholderView` now builds on CYLTabBarController's `CYLAnimatedItem` on every platform (iOS `f0320c8`, Android
+  `933ba13`, mini program `bfeb678`, HarmonyOS `0847ffe` + `d54eef1`). It needs CYLTabBarController `4f73209c` or newer;
+  our `b376c278` is 18 commits ahead. HarmonyOS keeps one `cylanimateditem`: `cylplaceholder` takes `file:../cylanimateditem`,
+  which our vendor layout already provides. The iOS `Lottie` subspec still exists. Checked on Windows: mini program
+  `npm test` 52 of 52 and the placeholder catalog and a placeholder page in DevTools with 0 console lines
+  ([assets/miniprogram-devtools-20261119-placeholder-at-8dc39c3.png](assets/miniprogram-devtools-20261119-placeholder-at-8dc39c3.png), WeChat DevTools base library 3.6.6, Windows 11, CYLTableViewPlaceHolder 8dc39c3, 2026-11-19 10:02 +13:00,
+  2026-11-19 10:02 +13:00); HarmonyOS ohosTest 29 of 29; Android build + unit tests; React Native and Flutter Android
+  build. Found: `android/merged`'s pinned checkout ran `git checkout` twice at once on the same folder and both hung on
+  `index.lock` for 28 minutes; a manual checkout fixed it (TODO: make `pinnedCheckout` run once per repository).
+  iOS `pod install` asked of the macOS session.
 - **Status**: started. CYLTableViewPlaceHolder → its newest commit `62e40c0` (branch
   `feat/android-refresh-port-followup`, on `CYLAnimatedItem`); HarmonyOS and mini program component requested from the
   CYLTabBarController session (no upstream code at any commit yet).
