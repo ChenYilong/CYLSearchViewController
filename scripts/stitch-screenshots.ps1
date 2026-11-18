@@ -16,6 +16,9 @@ param(
     [string]$Columns = 'auto',
     [int]$ScreenHeight = 0,
     [int]$Gap = 16,
+    # PNG text keyword for the label: "Description" here; "CYLScreenshot" for CYLTabBarController, whose
+    # scripts/check-screenshot-labels.py reads that chunk (with "Purpose:" in the header and "Result:" in the footer).
+    [string]$TextKeyword = "Description",
     [Parameter(Mandatory = $true)][string]$Header,
     [Parameter(Mandatory = $true)][string]$Footer,
     [Parameter(Mandatory = $true)][string]$Out,
@@ -117,7 +120,7 @@ for ($n = 0; $n -lt 256; $n++) {
 }
 $text = 'CYL header: ' + ($Header -replace "`n", ' ') + ' | CYL footer: ' + ($Footer -replace "`n", ' ')
 $latin1 = [System.Text.Encoding]::GetEncoding(28591)
-$body = [byte[]]([System.Text.Encoding]::ASCII.GetBytes('tEXt') + $latin1.GetBytes('Description') + [byte[]](0) + $latin1.GetBytes($text))
+$body = [byte[]]([System.Text.Encoding]::ASCII.GetBytes('tEXt') + $latin1.GetBytes($TextKeyword) + [byte[]](0) + $latin1.GetBytes($text))
 $crc = [uint32]::MaxValue
 foreach ($b in $body) { $crc = [uint32]($crcTable[($crc -bxor $b) -band 0xFF] -bxor ($crc -shr 8)) }
 $crc = [uint32]($crc -bxor [uint32]::MaxValue)
