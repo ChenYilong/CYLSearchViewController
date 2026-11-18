@@ -366,3 +366,22 @@ iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), CYLSearchView
 b376c278, feat/harmonyos-parity, 2026-11-19. Purpose: Rive tab icons in the Flutter and React Native iOS examples.
 Bell-region pixel change after the tap, against the final frame (30 fps video): RN 820, 409, 811, 164, then under 25;
 Flutter 2503, 919, 833, 355, then 0.
+
+## TODO (2026-11-19): adapt to the Swift CYLAnimatedItemView (CYLTabBarController 4c7dc79d)
+
+- **Branch**: `feat/harmonyos-parity`.
+- **Prompt** (verbatim, relayed by the session "Mac-CYLTabBarController 小程序开发"): "要转发任务给其他session要求适应swift新代码完成原有功能 …"
+  (English: forward the task to the other sessions: adapt to the new Swift code and keep every existing feature.)
+- **Context**: in CYLTabBarController `4c7dc79d` (`feat/cross-platform-components`), `CYLAnimatedItemView`, its enums and
+  protocols are Swift, with the same Objective-C API and the same Swift names for subclasses (`layoutContent(in:)`,
+  `contentSizeThatFits(_:)`, `itemStateDidChange()`, `itemAccessibilityLabel()`; `isDragEnabled`, `isIconHidden`,
+  `isAnimationReady`). `#import <CYLAnimatedItem/CYLAnimatedItemView.h>` still works; SwiftPM uses
+  `import CYLAnimatedItemViews`; Objective-C can no longer subclass it.
+- **Requirements**: (1) log the task; (2) pin `4c7dc79d` or later, together with a CollectionViewClassifyMenu commit that
+  bundles the same tab bar commit (pin rule above); (3) build and test `CYLSearchBarView.swift`,
+  `CYLSVGADemoTagButton.swift`, `CYLSearchExampleTests.m` and the React Native header `CYLRNSearchSupport.h`; (4) fix
+  what breaks here, or report an API gap to CYLTabBarController.
+- **Acceptance**: full marks (100) = all pins moved together, the native, Flutter and React Native iOS apps build and
+  launch, unit tests pass, a labelled screenshot of the animated items; pass (60) = iOS builds and tests pass at
+  `4c7dc79d`.
+- **Status**: TODO.
