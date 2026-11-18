@@ -21,6 +21,16 @@ them. Full rule: `AGENTS.md`, "Sub-repositories".
      `android/merged/gradle.properties`.
    - React Native, Flutter, HarmonyOS, mini programs: the package manager's git-plus-commit form.
    - A local path only while developing; remove it before committing.
+   - **CYLTabBarController and CollectionViewClassifyMenu move together** (2026-11-18): CollectionViewClassifyMenu
+     vendors CYLTabBarController's animated item by commit, for the mini program
+     (`miniprogram_dist/cyl-animated-item/COMMIT`) and for HarmonyOS (`harmony/cylanimateditem/README.md`). Pin the
+     CYLTabBarController commit that CollectionViewClassifyMenu's pinned commit bundles in both places. A pin that
+     moves only CYLTabBarController breaks the mini program test and, once the tab bar uses new animated-item API, the
+     HarmonyOS build (rows 33 and 34 of `docs/animated-icon-component.md`). Check both COMMIT files before pinning; when
+     they lag, ask CollectionViewClassifyMenu to re-vendor first.
+   - **Podfile.lock needs `pod install`** (2026-11-18): editing a Podfile changes its `PODFILE CHECKSUM`, so the three
+     lock files (root, Flutter, React Native example) are refreshed by `pod install` on macOS, never by hand. A
+     session on Windows asks a macOS session to run it after a pin.
 3. Add the feature to the core first, chosen by an enum or a parameter. When the sub-repository lacks an interface,
    add it there, commit and push it there, then update the pinned commit here.
 4. Show every style in the example; the example passes only data, style parameters and click handling.
