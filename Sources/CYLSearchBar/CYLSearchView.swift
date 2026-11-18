@@ -630,10 +630,14 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         let list = below.inset(by: UIEdgeInsets(top: headerHeight, left: 0, bottom: 0, right: 0))
         suggestionsTableView.frame = list
         suggestionsTagView.frame = list
-        emptyResultsView?.frame = below
-        emptySuggestionsView?.frame = below
+        // The keyboard's part over the page: the lists scroll above it, and the placeholders end at it, so they centre in
+        // the part the keyboard leaves visible (docs/core-todo.md, "the empty-results placeholder sits under the keyboard").
+        let keyboardInset = max(0, keyboardOverlap - (bottom - pageHeight))
+        let visible = below.inset(by: UIEdgeInsets(top: 0, left: 0, bottom: min(keyboardInset, below.height), right: 0))
+        emptyResultsView?.frame = visible
+        emptySuggestionsView?.frame = visible
         var insets = suggestionsTableView.contentInset
-        insets.bottom = max(keyboardOverlap - (bottom - pageHeight), safe.bottom)
+        insets.bottom = max(keyboardInset, safe.bottom)
         suggestionsTableView.contentInset = insets
         suggestionsTableView.verticalScrollIndicatorInsets = insets
         var resultInsets = resultsTableView.contentInset

@@ -208,5 +208,14 @@ packages). A test checks each rule.
   working on tasks below 100 until they reach 100). Found while checking the CYLTableViewPlaceHolder 8dc39c3 pin.
 - **Status**: Android fixed (2026-11-19): `CYLSearchView.kt` pads both placeholders by the keyboard inset, as its two lists
   already were, so `CYLPlaceholderStackView` (a `FrameLayout` centring its content) centres within the visible part ([assets/android-medium-phone-api37-20261119-placeholder-above-keyboard.png](assets/android-medium-phone-api37-20261119-placeholder-above-keyboard.png), Android API 37 Medium Phone emulator, React Native 0.88.0, Windows 11, 2026-11-19 10:19 +13:00; unit tests pass).
-  React Native Android uses this core. Left: iOS (the Swift core and React Native iOS; asked of the macOS session),
-  HarmonyOS and the mini program checks. Score: 40/100.
+  React Native Android uses this core. iOS fixed (2026-11-19, macOS session): `CYLSearchView.swift` frames both
+  placeholders (`emptyResultsView`, `emptySuggestionsView`) above the keyboard's part of the page, the same part its two
+  lists already took as their bottom inset, so they centre in the visible part; without a keyboard nothing changes. Test
+  `testEmptyResultsPlaceholderStaysAboveTheKeyboard` (failed before: the placeholder ended at 874 pt, the keyboard
+  starts at 538 pt; 29 tests pass after). Checked on the iPhone 18 Pro simulator in React Native iOS and the native
+  app's search page ("Overlay")
+  ([assets/ios-iphone18pro-20261119-placeholder-above-keyboard.png](assets/ios-iphone18pro-20261119-placeholder-above-keyboard.png), iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), CYLTableViewPlaceHolder 8dc39c3, 2026-11-19).
+  Not this core: the native Search tab (the Issue #1317 page) is a plain `UISearchController` whose table shows
+  CYLTableViewPlaceHolder's own placeholder (`cyl_reloadData`), which CYLTableViewPlaceHolder centres in the whole
+  table; it still sits under the keyboard there (a CYLTableViewPlaceHolder TODO). Left: HarmonyOS and the mini program
+  checks. Score: 70/100 (iOS, Android, React Native on both, Flutter already right).

@@ -1170,6 +1170,36 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     window.hidden = YES;
 }
 
+- (void)testEmptyResultsPlaceholderStaysAboveTheKeyboard
+{
+    // docs/core-todo.md, "the empty-results placeholder sits under the keyboard": the placeholders take the same bottom
+    // keyboard inset as the lists, so a placeholder centres in the part of the page the keyboard leaves visible.
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
+    UIViewController *host = [UIViewController new];
+    window.rootViewController = host;
+    [window makeKeyAndVisible];
+    CYLSearchView *searchView = [[CYLSearchView alloc] initWithFrame:CGRectZero];
+    searchView.suggestions = @[@"Android", @"Kotlin", @"Swift"];
+    searchView.showsEmptyResultsPlaceholder = YES;
+    [searchView installInView:host.view];
+    [searchView showSearchAnimated:NO];
+    [searchView setQuery:@"zzz" submit:NO];
+    [searchView layoutIfNeeded];
+    CGFloat fullHeight = CGRectGetHeight(searchView.emptyResultsView.frame);
+    CGRect keyboard = CGRectMake(0, 874 - 336, 402, 336);
+    CGRect screenKeyboard = [window convertRect:keyboard toCoordinateSpace:window.screen.coordinateSpace];
+    [NSNotificationCenter.defaultCenter postNotificationName:UIKeyboardWillChangeFrameNotification object:nil
+                                                    userInfo:@{UIKeyboardFrameEndUserInfoKey: [NSValue valueWithCGRect:screenKeyboard]}];
+    [searchView layoutIfNeeded];
+    CGRect placeholder = [searchView.emptyResultsView convertRect:searchView.emptyResultsView.bounds toView:window];
+    XCTAssertLessThanOrEqual(CGRectGetMaxY(placeholder), CGRectGetMinY(keyboard) + 0.5, @"the placeholder ends at the keyboard");
+    XCTAssertLessThan(CGRectGetHeight(searchView.emptyResultsView.frame), fullHeight);
+    [NSNotificationCenter.defaultCenter postNotificationName:UIKeyboardWillHideNotification object:nil userInfo:nil];
+    [searchView layoutIfNeeded];
+    XCTAssertEqualWithAccuracy(CGRectGetHeight(searchView.emptyResultsView.frame), fullHeight, 0.5, @"the keyboard gone, full height again");
+    window.hidden = YES;
+}
+
 - (void)testEverySuggestionCachePolicyKeepsSubmittedQueriesNewestFirst
 {
     // docs/core-todo.md: each policy stores the queries newest first, moves a repeated query to the front, keeps at most
