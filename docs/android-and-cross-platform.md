@@ -20,6 +20,13 @@ command then fails with that message. Fix (ask the user first: the SDKs are shar
 cannot find the path specified"), then run `flutter --version`, which downloads the Dart SDK again; check that
 `dartvm.exe` is back. If it disappears again, look for the cleaner.
 
+Watching for the deleter (2026-11-19, with the user's request to find it): no event log, Defender history or LuDaShi log
+(not running, logs end in 2024) records the deletion, so delete auditing is on for both `dartvm.exe` files and their
+`dart-sdkin` folders (`auditpol /set /subcategory:"{0CCE921D-69AE-11D9-BED3-505054503030}" /success:enable` plus an
+`Everyone` / `Delete` audit rule on each). If the file goes again, the Security log names the process:
+`Get-WinEvent -FilterHashtable @{LogName='Security'; Id=4660,4663} | Where-Object { $_.Message -match 'dartvm' }`
+(an elevated PowerShell). To undo: `auditpol /set /subcategory:"{0CCE921D-69AE-11D9-BED3-505054503030}" /success:disable`.
+
 ## DONE (2026-11-18; TODO 2026-11-17): React Native and Flutter environments on Windows, then test them and HarmonyOS
 
 - Prompt (verbatim): "检查RN flutter环境是否符合要求，如果是开始测试这两端，以及鸿蒙。如果环境不符合，继续配置到何时为止。"
