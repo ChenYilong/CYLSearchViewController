@@ -156,15 +156,16 @@ started run completes and the next one tests the newest commit.
 - **Acceptance** (pass 60, full 100): job in `ios.yml`, shellcheck and actionlint clean (30); a run publishes all
   10 screens to `ci-screenshots/<branch>/<head sha7>/` (30); every image checked and correct (20); a labelled crop of
   the animated icons in `docs/assets/` (20).
-- **Status**: done, score 95 of 100. Runs for `c858644` and `4346ede` published all 10 screens to
+- **Status**: done, score 100 of 100 (2026-11-19). Runs for `c858644` and `4346ede` published all 10 screens to
   `ci-screenshots/feat-harmonyos-parity/<sha7>/`; every screen renders (tabs, the five demo menu rows, the SwiftUI SVGA
   tab bar). Fixed afterwards: the tab order is search, examples, search bar (plus), tag style, discover, so the files
   for tabs 2 to 4 are now `tab2-search-bar`, `tab3-tag-style` and `tab4-discover`; they are published since `0d524e7`.
   2026-11-19: runs for `a3a298e`, `d2d65b2` and `2852f76` had no `tab0-search` ("the app is not running", 3 attempts,
   "Child process terminated with signal 13: Broken pipe"). Cause: under `set -o pipefail`,
   `launchctl list | grep -q` failed when `grep -q` stopped reading early, so a running app looked stopped. Fixed in
-  `scripts/example-screenshots.sh`: the list is read into a variable first. Missing 5 points: a run with all 10 screens
-  after the fix.
+  `scripts/example-screenshots.sh`: the list is read into a variable first. Run 44388884124 for `37c96d3` (the fix):
+  every job passed, "10 screenshots, 0 failed", all 10 in `ci-screenshots/feat-harmonyos-parity/37c96d3/` checked
+  (each shows its tab or demo menu row, `tab0-search` included).
 
 ![iOS CI, iOS 26.5 SDK, iPhone 17 simulator, Xcode 26.6, commit 4346ede, 2026-11-17 21:46 UTC: SVGA header of the examples tab and the SwiftUI host's SVGA tab bar](assets/ios-ci-animated-icons-svga.png)
 
