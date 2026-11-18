@@ -349,7 +349,7 @@ CYLTabBarController pin needed the plugin's platform views to be `@MainActor` (t
   10.3.0, initialised by the library); the file is CYLTabBarController's `Example-SwiftUI-Rive/AnimatedApp/RiveAssets/icons.riv`
   (artboards CHAT, SEARCH, BELL, USER, state machine `<ARTBOARD>_Interactivity`, input `active`), as its `example_rive` and
   `example-rive`. Rive is the default icon source; the symbols and SVGA stay selectable.
-- Status: TODO.
+- Status: DONE (2026-11-19): all four rows checked on a simulator or emulator.
 
 | # | Example | Status |
 | :--- | :--- | :--- |
