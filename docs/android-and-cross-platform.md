@@ -11,6 +11,15 @@ CYLTableViewPlaceHolder's `:placeholder-refresh`); HarmonyOS `harmonyos/cylsearc
 mini program components `cyl-search-bar` and `cyl-search`; React Native components `CYLSearchBarView` and `CYLSearchView`
 on the native cores, Flutter as well. Dated task entries below record the work in their own time and name the classes of that time.
 
+### Flutter fails with "Unable to locate the Dart VM executable" (2026-11-18)
+
+Both Flutter SDKs on the Windows machine (`C:cylbuildlutter`, `C:devlutter`) lost
+`bincachedart-sdkindartvm.exe` on the same day (not Windows Defender; a system cleaner is suspected). Every `flutter`
+command then fails with that message. Fix (ask the user first: the SDKs are shared): delete `bincachedart-sdk` and
+`bincacheengine-dart-sdk.stamp` (with the stamp left, `flutter.bat` skips the download and fails with "The system
+cannot find the path specified"), then run `flutter --version`, which downloads the Dart SDK again; check that
+`dartvm.exe` is back. If it disappears again, look for the cleaner.
+
 ## DONE (2026-11-18; TODO 2026-11-17): React Native and Flutter environments on Windows, then test them and HarmonyOS
 
 - Prompt (verbatim): "检查RN flutter环境是否符合要求，如果是开始测试这两端，以及鸿蒙。如果环境不符合，继续配置到何时为止。"
