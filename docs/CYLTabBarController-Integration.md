@@ -392,3 +392,22 @@ Flutter 2503, 919, 833, 355, then 0.
   porting `CYLPlaceholderView` to Swift (its `docs/Task-Log.md`, `09c9861`); CollectionViewClassifyMenu was asked for a
   commit bundling `4c7dc79d` or later. The pins stay at `b376c278` until both exist. Score: 10/100 (logged, cause
   found and reported).
+
+## TODO (2026-11-19): the contact tags example from CollectionViewClassifyMenu, on CYLSearchViewController
+
+- **Branch**: `feat/harmonyos-parity`.
+- **Prompt** (verbatim): "请确认我们的example是否执行过以下任务，如果没有继续执行 找到CollectionViewClassifyMenu 文件夹中联系人tag的example 使用CYLSearchViewController改造为我们的example。"
+  (English: check whether our example has done the following task; if not, do it: find the contact tag example in the
+  CollectionViewClassifyMenu folder and rebuild it as our example with CYLSearchViewController.)
+- **Checked**: not done before (no contact or tag editor screen in `CYLSearchExample`).
+- **Source**: CollectionViewClassifyMenu `Example-Swift/CYLTagEditorExample` (branch `feat/harmony`): "Edit remark"
+  (`CYLRemarkViewController`, a read-only tag list that opens the editor) and "Edit tags" (`CYLTagEditorViewController`:
+  Cancel / Edit tags / Done, a search field, "Recently used" and "My tags", "+ New tag", Manage to delete), data from
+  `tags.json` per language (`CYLTagStore`).
+- **Requirements**: (1) a new Examples row in our iOS example with both screens; (2) the search field becomes
+  CYLSearchViewController's `CYLSearchBarView`; (3) the data and strings in an example-level bundle, in en, ja, zh-Hans
+  and zh-Hant, accessible (VoiceOver labels) like the source; (4) tests and a labelled screenshot.
+- **Acceptance**: full marks (100) = the row opens Edit remark, the editor searches with `CYLSearchBarView`, creates,
+  selects and deletes tags, four languages, a unit test, a labelled screenshot, the docs table; pass (60) = both screens
+  work on iOS with the search bar and a screenshot.
+- **Status**: TODO.
