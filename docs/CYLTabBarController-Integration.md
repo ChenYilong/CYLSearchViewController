@@ -447,7 +447,10 @@ Flutter 2503, 919, 833, 355, then 0.
   and Flutter: an Examples row opening Edit Remarks, whose tags open Edit Tags with the platform's `CYLSearchBarView`
   as the search field (filter while typing, submit creates the tag, "+ New tag", Manage deletes), the 47 tags and
   strings from `CYLContactTags.bundle` in en, ja, zh-Hans and zh-Hant; add `CYLContactTags` to
-  `harmonyos/scripts/check-ios-parity.mjs`.
+  `harmonyos/scripts/check-ios-parity.mjs`. Also be50215: CYLPlaceholderView when the tag list is empty (Edit Tags:
+  `.noResults` "contactTags.noMatch" below "+ New tag" for a search without match, `.empty` "contactTags.noTags" with
+  no tags, centred above the keyboard; Edit Remarks: `.empty` "contactTags.remarkNoTags" as a button opening the editor,
+  no "contactTags.addTags" chip), and the launch option to start without tags (`-CYLContactTagsEmpty YES`).
 - **Acceptance**: full marks (100) = all five platforms with tests and labelled screenshots; pass (60) = Android and
   HarmonyOS with screenshots.
 - **Status**: not started. Score: 0/100.
