@@ -156,7 +156,8 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   2026-11-19 10:02 +13:00); HarmonyOS ohosTest 29 of 29; Android build + unit tests; React Native and Flutter Android
   build. Found: `android/merged`'s pinned checkout ran `git checkout` twice at once on the same folder and both hung on
   `index.lock` for 28 minutes; a manual checkout fixed it (TODO: make `pinnedCheckout` run once per repository).
-  iOS `pod install` asked of the macOS session.
+  iOS `pod install` asked of the macOS session. Commit: `de35153` (its message wrongly repeats "Rive tab icons on Android
+  checked in Flutter and RN"; the content is this pin; `82a24ba` has the same mistake for the guide re-read closure).
 - **Status**: started. CYLTableViewPlaceHolder → its newest commit `62e40c0` (branch
   `feat/android-refresh-port-followup`, on `CYLAnimatedItem`); HarmonyOS and mini program component requested from the
   CYLTabBarController session (no upstream code at any commit yet).
