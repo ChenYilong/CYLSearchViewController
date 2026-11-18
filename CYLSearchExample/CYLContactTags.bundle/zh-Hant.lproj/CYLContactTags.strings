@@ -6,7 +6,6 @@
 "contactTags.remarkName" = "備註名";
 "contactTags.tags" = "標籤";
 "contactTags.editTags" = "編輯標籤";
-"contactTags.addTags" = "新增標籤";
 "contactTags.search" = "搜尋";
 "contactTags.searchTags" = "搜尋標籤";
 "contactTags.results" = "搜尋結果";
@@ -24,3 +23,6 @@
 "contactTags.hintManage" = "點兩下選擇要刪除的標籤";
 "contactTags.hintDoneManaging" = "點兩下結束管理";
 "contactTags.hintEdit" = "開啟編輯標籤";
+"contactTags.noMatch" = "沒有符合的標籤";
+"contactTags.noTags" = "還沒有標籤，點一下「新增標籤」新增。";
+"contactTags.remarkNoTags" = "還沒有標籤，點一下新增。";

@@ -4,11 +4,13 @@
 //
 //  "Edit Remarks": the screen the tag editor is presented from, as in a chat app's contact remarks, ported from
 //  CollectionViewClassifyMenu's CYLTagEditorExample (CYLRemarkViewController). Its "Tags" row shows the chosen tags (a
-//  display-only CYLTagListView); tapping it opens "Edit Tags" (CYLContactTagEditorViewController) as a sheet.
+//  display-only CYLTagListView); tapping it opens "Edit Tags" (CYLContactTagEditorViewController) as a sheet. Without
+//  tags, CYLTableViewPlaceHolder's CYLPlaceholderView takes the list's place; tapping it opens the editor too.
 //
 
 import UIKit
 import CollectionViewClassifyMenu
+import CYLTableViewPlaceHolder
 
 /**
  * "Edit Remarks": a remark name and the contact's tags; the tags open "Edit Tags".
@@ -31,6 +33,11 @@ final class CYLContactRemarkViewController: UIViewController {
     let titleLabel = UILabel()
     let nameField = UITextField()
     let tagsView = CYLTagListView()
+
+    /**
+     * CYLTableViewPlaceHolder's placeholder shown below "Tags" while the contact has no tags; nil before it is needed.
+     */
+    private(set) var emptyTagsView: CYLPlaceholderView?
 
     /**
      * The remark screen of a contact with `tags`, chosen from `store`.
@@ -116,6 +123,7 @@ final class CYLContactRemarkViewController: UIViewController {
             // Its height is its intrinsic content height (CYLTagListView.contentHeight).
         ])
         tagsView.reloadMenuData()
+        updateEmptyTagsView()
         // `-CYLContactTagsEditor YES` on launch opens the editor, for screenshots.
         if UserDefaults.standard.bool(forKey: "CYLContactTagsEditor") {
             DispatchQueue.main.async { [weak self] in self?.editTags(animated: false) }
@@ -145,6 +153,42 @@ final class CYLContactRemarkViewController: UIViewController {
         return editor
     }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // Below the "Tags" title, at its content size (`reportsContentSize`, `preferredMaxLayoutWidth`).
+        if let placeholder = emptyTagsView {
+            let width = view.bounds.width - 32
+            placeholder.reportsContentSize = true
+            placeholder.preferredMaxLayoutWidth = width
+            let size = placeholder.intrinsicContentSize
+            placeholder.frame = CGRect(x: 16 + (width - min(size.width, width)) / 2, y: tagsView.frame.maxY + 16,
+                                       width: min(size.width, width), height: size.height)
+        }
+    }
+
+    /**
+     * Shows the placeholder while the contact has no tags, and hides it otherwise.
+     */
+    private func updateEmptyTagsView() {
+        if tags.isEmpty, emptyTagsView == nil {
+            let placeholder = CYLPlaceholderView(style: .empty, text: cylContactTagsText("remarkNoTags"))
+            placeholder.accessibilityIdentifier = "CYLContactRemarkEmptyTags"
+            placeholder.isAccessibilityElement = true
+            placeholder.accessibilityLabel = cylContactTagsText("remarkNoTags")
+            placeholder.accessibilityTraits = .button
+            placeholder.accessibilityHint = cylContactTagsText("hintEdit")
+            placeholder.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(emptyTagsTapped)))
+            view.addSubview(placeholder)
+            emptyTagsView = placeholder
+        }
+        emptyTagsView?.isHidden = !tags.isEmpty
+        view.setNeedsLayout()
+    }
+
+    @objc private func emptyTagsTapped() {
+        editTags(animated: true)
+    }
+
     @objc private func tagsViewTapped(_ recognizer: UITapGestureRecognizer) {
         if tagsView.titleView.bounds.contains(recognizer.location(in: tagsView.titleView)) {
             editTags(animated: true)
@@ -154,9 +198,11 @@ final class CYLContactRemarkViewController: UIViewController {
     /**
      * Shows `tags` as the contact's tags (the editor's result).
      */
+    @objc(updateTags:)
     func updateTags(_ tags: [String]) {
         self.tags = tags
         tagsView.reloadMenuData()
+        updateEmptyTagsView()
         view.setNeedsLayout()
         navigationItem.rightBarButtonItem?.isEnabled = true
     }
@@ -168,8 +214,11 @@ extension CYLContactRemarkViewController: CYLMenuDataSource, CYLMenuDelegate {
         1
     }
 
+    /**
+     * The contact's tags; none while it has no tags (the placeholder shows instead).
+     */
     func menuNumberOfItems(inSection section: Int) -> Int {
-        max(tags.count, 1)
+        tags.count
     }
 
     func menuTitle(forSection section: Int) -> String {
@@ -177,11 +226,7 @@ extension CYLContactRemarkViewController: CYLMenuDataSource, CYLMenuDelegate {
     }
 
     func menuTitleForItem(at indexPath: IndexPath) -> String {
-        tags.isEmpty ? cylContactTagsText("addTags") : tags[indexPath.item]
-    }
-
-    func menuImageForItem(at indexPath: IndexPath) -> UIImage? {
-        tags.isEmpty ? UIImage(systemName: "plus") : nil
+        tags[indexPath.item]
     }
 
     func menu(_ menu: Any, didSelectItemAt indexPath: IndexPath) {

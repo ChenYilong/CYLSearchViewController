@@ -6,7 +6,6 @@
 "contactTags.remarkName" = "メモの名前";
 "contactTags.tags" = "タグ";
 "contactTags.editTags" = "タグを編集";
-"contactTags.addTags" = "タグを追加";
 "contactTags.search" = "検索";
 "contactTags.searchTags" = "タグを検索";
 "contactTags.results" = "検索結果";
@@ -24,3 +23,6 @@
 "contactTags.hintManage" = "ダブルタップで削除するタグを選択";
 "contactTags.hintDoneManaging" = "ダブルタップで管理を終了";
 "contactTags.hintEdit" = "「タグを編集」を開きます";
+"contactTags.noMatch" = "一致するタグはありません";
+"contactTags.noTags" = "タグはまだありません。「新しいタグ」で追加できます。";
+"contactTags.remarkNoTags" = "タグはまだありません。タップして追加できます。";

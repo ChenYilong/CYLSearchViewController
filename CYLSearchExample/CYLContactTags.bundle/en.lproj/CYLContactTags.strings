@@ -6,7 +6,6 @@
 "contactTags.remarkName" = "Remark name";
 "contactTags.tags" = "Tags";
 "contactTags.editTags" = "Edit Tags";
-"contactTags.addTags" = "Add Tags";
 "contactTags.search" = "Search";
 "contactTags.searchTags" = "Search tags";
 "contactTags.results" = "Search Results";
@@ -24,3 +23,6 @@
 "contactTags.hintManage" = "Double-tap to choose tags to delete";
 "contactTags.hintDoneManaging" = "Double-tap to stop managing tags";
 "contactTags.hintEdit" = "Opens Edit Tags";
+"contactTags.noMatch" = "No matching tags";
+"contactTags.noTags" = "No tags yet. Tap “New Tag” to add one.";
+"contactTags.remarkNoTags" = "No tags yet. Tap to add tags.";

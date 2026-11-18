@@ -1250,6 +1250,68 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     window.hidden = YES;
 }
 
+- (void)testContactTagsDemoShowsCYLPlaceholderViewWhenEmpty
+{
+    // docs/CYLTabBarController-Integration.md, "CYLPlaceholderView in the contact tags example": a search without a
+    // match and an empty tag list show CYLTableViewPlaceHolder's placeholder; a match or a tag hides it.
+    UIViewController *remark = [NSClassFromString(@"CYLContactTagsDemo") performSelector:@selector(viewController)];
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
+    window.rootViewController = [[UINavigationController alloc] initWithRootViewController:remark];
+    [window makeKeyAndVisible];
+    [remark.view layoutIfNeeded];
+    id editor = [remark performSelector:@selector(editTagsAnimated:) withObject:@NO];
+    UIView *editorView = [editor view];
+    [editorView layoutIfNeeded];
+    UIView *(^placeholder)(void) = ^UIView * {
+        NSMutableArray<UIView *> *views = [NSMutableArray arrayWithObject:editorView];
+        while (views.count) {
+            UIView *view = views.firstObject;
+            [views removeObjectAtIndex:0];
+            if ([view.accessibilityIdentifier isEqualToString:@"CYLContactTagsPlaceholder"] && !view.superview.hidden) return view;
+            [views addObjectsFromArray:view.subviews];
+        }
+        return nil;
+    };
+    XCTAssertNil(placeholder(), @"tags shown: no placeholder");
+    [editor performSelector:@selector(setQuery:) withObject:@"zzzz"];
+    [editorView layoutIfNeeded];
+    UIView *noMatch = placeholder();
+    XCTAssertTrue([noMatch isKindOfClass:CYLPlaceholderView.class], @"no match shows CYLPlaceholderView");
+    XCTAssertEqual([editor menuNumberOfItemsInSection:0], 1, @"+ New tag: zzzz stays above it");
+    XCTAssertGreaterThan(CGRectGetHeight(noMatch.frame), 0);
+    [editor performSelector:@selector(setQuery:) withObject:@"ios"];
+    XCTAssertNil(placeholder(), @"a match hides it");
+    [editor performSelector:@selector(setQuery:) withObject:@""];
+    NSInteger mine = [editor numberOfSectionsInMenu] - 1;
+    while ([editor menuNumberOfItemsInSection:mine] > 1) {
+        NSString *tag = [editor menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:mine]];
+        [editor performSelector:@selector(deleteTag:) withObject:tag];
+        mine = [editor numberOfSectionsInMenu] - 1;
+    }
+    [editorView layoutIfNeeded];
+    XCTAssertTrue([placeholder() isKindOfClass:CYLPlaceholderView.class], @"no tags shows CYLPlaceholderView");
+    [editor performSelector:@selector(createTagNamed:) withObject:@"Family"];
+    XCTAssertNil(placeholder(), @"a new tag hides it");
+    [remark dismissViewControllerAnimated:NO completion:nil];
+    // Edit Remarks: a contact without tags shows the placeholder below "Tags"; tags hide it.
+    UIView *(^remarkPlaceholder)(void) = ^UIView * {
+        for (UIView *view in remark.view.subviews) {
+            if ([view.accessibilityIdentifier isEqualToString:@"CYLContactRemarkEmptyTags"] && !view.hidden) return view;
+        }
+        return nil;
+    };
+    XCTAssertNil(remarkPlaceholder(), @"the demo contact has tags");
+    [remark performSelector:@selector(updateTags:) withObject:@[]];
+    [remark.view layoutIfNeeded];
+    UIView *emptyTags = remarkPlaceholder();
+    XCTAssertTrue([emptyTags isKindOfClass:CYLPlaceholderView.class], @"no tags shows CYLPlaceholderView");
+    XCTAssertGreaterThan(CGRectGetHeight(emptyTags.frame), 0);
+    XCTAssertTrue(emptyTags.accessibilityTraits & UIAccessibilityTraitButton, @"VoiceOver: it opens the editor");
+    [remark performSelector:@selector(updateTags:) withObject:@[@"Family"]];
+    XCTAssertNil(remarkPlaceholder(), @"a tag hides it");
+    window.hidden = YES;
+}
+
 - (void)testEverySuggestionCachePolicyKeepsSubmittedQueriesNewestFirst
 {
     // docs/core-todo.md: each policy stores the queries newest first, moves a repeated query to the front, keeps at most

@@ -194,6 +194,10 @@ final class CYLContactTagsDemo: NSObject {
      * "Edit Remarks" with the demo tags of the app's language, to push.
      */
     @objc static func viewController() -> UIViewController {
+        // `-CYLContactTagsEmpty YES` on launch starts without tags (the CYLPlaceholderView empty states), for screenshots.
+        if UserDefaults.standard.bool(forKey: "CYLContactTagsEmpty") {
+            return CYLContactRemarkViewController(store: CYLContactTagStore(tags: []), tags: [])
+        }
         let store = CYLContactTagStore.bundled()
         let selected = (try? CYLContactTagData.bundled().selectedTags) ?? []
         return CYLContactRemarkViewController(store: store, tags: selected.filter(store.contains))

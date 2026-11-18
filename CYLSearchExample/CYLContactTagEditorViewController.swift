@@ -10,11 +10,14 @@
 //  - Typing in the search bar shows "Search Results" (case-insensitive) and "+ New tag: <text>" when that exact tag does
 //    not exist yet; tapping it, or the keyboard's search key, creates, selects and shows the tag.
 //  - "Done" (green) returns the selection; it is off while searching.
+//  - CYLTableViewPlaceHolder's CYLPlaceholderView shows the empty states: a search that matches no tag (below "+ New
+//    tag: <text>") and no tags at all; it is centred in the free space above the keyboard.
 //
 
 import UIKit
 import CollectionViewClassifyMenu
 import CYLSearchViewController
+import CYLTableViewPlaceHolder
 
 /**
  * "Edit Tags": chooses, creates and deletes a contact's tags, searched with `CYLSearchBarView`.
@@ -34,6 +37,21 @@ final class CYLContactTagEditorViewController: UIViewController {
      */
     enum SectionKind: Equatable {
         case recent, mine, results
+    }
+
+    /**
+     * The empty state shown with `CYLPlaceholderView`.
+     */
+    enum EmptyState: Equatable {
+        case none
+        /**
+         * A search that matches no tag.
+         */
+        case noMatch
+        /**
+         * No tags at all.
+         */
+        case noTags
     }
 
     /**
@@ -89,6 +107,21 @@ final class CYLContactTagEditorViewController: UIViewController {
      * The search bar (this library).
      */
     let searchBar = CYLSearchBarView(frame: .zero)
+
+    /**
+     * The empty state shown now.
+     */
+    private(set) var emptyState = EmptyState.none
+
+    /**
+     * CYLTableViewPlaceHolder's placeholder of the current empty state; nil while there is none.
+     */
+    private(set) var placeholderView: CYLPlaceholderView?
+
+    /**
+     * The free space below the tags and above the keyboard, where the placeholder is centred.
+     */
+    private let placeholderArea = UIView()
 
     /**
      * "Cancel", "Done" and the title of the sheet.
@@ -207,10 +240,20 @@ final class CYLContactTagEditorViewController: UIViewController {
             scrollView.keyboardDismissMode = .onDrag
         }
 
+        placeholderArea.isUserInteractionEnabled = false
+        placeholderArea.isHidden = true
         for subview in [cancelButton, titleLabel, doneButton, searchBar, tagListView] as [UIView] {
             subview.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview(subview)
         }
+        // The tag list fills the rest of the sheet and scrolls: its intrinsic (content) height gives way, so the search bar
+        // keeps its own height whether there are few tags or many.
+        tagListView.setContentHuggingPriority(.defaultLow - 1, for: .vertical)
+        tagListView.setContentCompressionResistancePriority(.defaultLow - 1, for: .vertical)
+        searchBar.setContentHuggingPriority(.required, for: .vertical)
+        searchBar.setContentCompressionResistancePriority(.required, for: .vertical)
+        // Laid out by frame (viewDidLayoutSubviews): constraints to the keyboard would fight the header when space is short.
+        view.addSubview(placeholderArea)
         NSLayoutConstraint.activate([
             cancelButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             cancelButton.centerYAnchor.constraint(equalTo: doneButton.centerYAnchor),
@@ -220,7 +263,7 @@ final class CYLContactTagEditorViewController: UIViewController {
             doneButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 16),
             doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             doneButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 56),
-            doneButton.heightAnchor.constraint(greaterThanOrEqualToConstant: 32),
+            doneButton.heightAnchor.constraint(equalToConstant: 32),
             searchBar.topAnchor.constraint(equalTo: doneButton.bottomAnchor, constant: 20),
             searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
             searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
@@ -230,6 +273,31 @@ final class CYLContactTagEditorViewController: UIViewController {
             tagListView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
         reload()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        // The free space: below the tags shown ("+ New tag" stays visible and tappable above it) and above the keyboard,
+        // so the keyboard never covers the placeholder.
+        let top = tagListView.frame.minY + tagListView.contentHeight
+        let bottom = min(view.bounds.maxY - view.safeAreaInsets.bottom, view.keyboardLayoutGuide.layoutFrame.minY)
+        placeholderArea.frame = CGRect(x: 16, y: top, width: max(0, view.bounds.width - 32), height: max(0, bottom - top))
+        layoutPlaceholder()
+    }
+
+    /**
+     * Centres the placeholder at its fitting size in the free space; in a short space (a raised keyboard) it keeps its
+     * top edge. CYLPlaceholderView reports its content size through `reportsContentSize` and `preferredMaxLayoutWidth`.
+     */
+    private func layoutPlaceholder() {
+        guard let placeholder = placeholderView else { return }
+        let area = placeholderArea.bounds
+        placeholder.reportsContentSize = true
+        placeholder.preferredMaxLayoutWidth = area.width
+        let size = placeholder.intrinsicContentSize
+        let width = min(size.width, area.width)
+        placeholder.frame = CGRect(x: (area.width - width) / 2, y: max(0, (area.height - size.height) / 2),
+                                   width: width, height: size.height)
     }
 
     // MARK: Content
@@ -264,6 +332,45 @@ final class CYLContactTagEditorViewController: UIViewController {
         tagListView.reloadMenuData()
         syncSelection()
         updateDoneButton()
+        updatePlaceholder()
+    }
+
+    /**
+     * The empty state for the store and the query: no match for a search, or no tags at all.
+     */
+    func makeEmptyState() -> EmptyState {
+        if !query.isEmpty {
+            return store.tags(matching: query).isEmpty ? .noMatch : .none
+        }
+        return store.tags.isEmpty ? .noTags : .none
+    }
+
+    /**
+     * Shows CYLPlaceholderView for the empty state (a new one when the state changes), or hides it.
+     */
+    private func updatePlaceholder() {
+        let state = makeEmptyState()
+        defer {
+            placeholderArea.isHidden = state == .none
+            view.setNeedsLayout()
+        }
+        guard state != emptyState else { return }
+        emptyState = state
+        placeholderView?.removeFromSuperview()
+        placeholderView = nil
+        let placeholder: CYLPlaceholderView
+        switch state {
+        case .none:
+            return
+        case .noMatch:
+            placeholder = CYLPlaceholderView(style: .noResults, text: cylContactTagsText("noMatch"))
+        case .noTags:
+            placeholder = CYLPlaceholderView(style: .empty, text: cylContactTagsText("noTags"))
+        }
+        placeholder.accessibilityIdentifier = "CYLContactTagsPlaceholder"
+        placeholderArea.addSubview(placeholder)
+        placeholderView = placeholder
+        UIAccessibility.post(notification: .layoutChanged, argument: nil)
     }
 
     /**
@@ -392,6 +499,7 @@ final class CYLContactTagEditorViewController: UIViewController {
     /**
      * Deletes `tag` from the store and the selection.
      */
+    @objc(deleteTag:)
     func deleteTag(_ tag: String) {
         store.deleteTag(tag)
         selectedTags.removeAll { $0 == tag }

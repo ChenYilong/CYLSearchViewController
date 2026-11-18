@@ -423,13 +423,23 @@ Flutter 2503, 919, 833, 355, then 0.
   (platform rule). Score: 100/100 for iOS.
 
 
-### TODO (2026-11-19): CYLPlaceholderView in the contact tags example
+### DONE (2026-11-19; TODO 2026-11-19): CYLPlaceholderView in the contact tags example
 
 - **Prompt** (verbatim): "该example 加入CYLPlaceholderView支持" (English: add CYLPlaceholderView support to this example).
 - **Requirements**: the editor shows CYLTableViewPlaceHolder's `CYLPlaceholderView` for its empty states: a search that
   matches no tag (`.noResults`, below "+ New tag: <query>", which stays) and no tags at all (`.empty`, after every tag
-  is deleted); centred in the free space above the keyboard; localized in the four languages; tested.
-- **Status**: TODO.
+  is deleted); centred in the free space above the keyboard; localized in the four languages; tested. Follow-up prompt
+  (verbatim): "如果tagList为空展示CYLPlaceholderView" (English: if the tag list is empty, show CYLPlaceholderView), so
+  "Edit Remarks" shows it too when the contact has no tags.
+- **Status**: DONE (2026-11-19). "Edit Tags": a search without a match shows `CYLPlaceholderView(style: .noResults)`
+  ("No matching tags") below "+ New tag: <query>", and no tags at all shows `.empty` ("No tags yet. Tap “New Tag” to
+  add one.") below "+ New Tag"; it is laid out by frame in the free space below the tags and above the keyboard
+  (`reportsContentSize` gives its size). "Edit Remarks": without tags the list is empty and the placeholder takes its
+  place ("No tags yet. Tap to add tags."), a button for VoiceOver that opens the editor (the "Add Tags" chip is gone).
+  Found and fixed on the way: the search bar stretched with few tags and collapsed with many (the tag list's
+  intrinsic height outranked it; now the list gives way). `-CYLContactTagsEmpty YES` starts without tags. Test
+  `testContactTagsDemoShowsCYLPlaceholderViewWhenEmpty`; 31 tests pass
+  ([assets/ios-iphone18pro-20261119-contact-tags-placeholder.png](assets/ios-iphone18pro-20261119-contact-tags-placeholder.png), iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), CYLTableViewPlaceHolder 8dc39c3, 2026-11-19). Score: 100/100.
 ## TODO (2026-11-19): the contact tags example on the other platforms
 
 - **Branch**: `feat/harmonyos-parity`. Owner: the Windows session (platform rule).

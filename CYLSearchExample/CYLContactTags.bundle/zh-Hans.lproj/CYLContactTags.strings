@@ -6,7 +6,6 @@
 "contactTags.remarkName" = "备注名";
 "contactTags.tags" = "标签";
 "contactTags.editTags" = "编辑标签";
-"contactTags.addTags" = "添加标签";
 "contactTags.search" = "搜索";
 "contactTags.searchTags" = "搜索标签";
 "contactTags.results" = "搜索结果";
@@ -24,3 +23,6 @@
 "contactTags.hintManage" = "轻点两下选择或删除标签";
 "contactTags.hintDoneManaging" = "轻点两下完成管理";
 "contactTags.hintEdit" = "打开编辑标签";
+"contactTags.noMatch" = "没有匹配的标签";
+"contactTags.noTags" = "还没有标签，轻点「新建标签」添加。";
+"contactTags.remarkNoTags" = "还没有标签，轻点添加。";
