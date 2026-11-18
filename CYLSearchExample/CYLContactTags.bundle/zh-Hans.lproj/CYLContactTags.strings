@@ -1,0 +1,26 @@
+/* The contact tags demo (CYLContactTagEditorViewController), ported from CollectionViewClassifyMenu's CYLTagEditorExample. */
+"contactTags.row" = "联系人标签（CollectionViewClassifyMenu）";
+"contactTags.cancel" = "取消";
+"contactTags.done" = "完成";
+"contactTags.editRemarks" = "编辑备注";
+"contactTags.remarkName" = "备注名";
+"contactTags.tags" = "标签";
+"contactTags.editTags" = "编辑标签";
+"contactTags.addTags" = "添加标签";
+"contactTags.search" = "搜索";
+"contactTags.searchTags" = "搜索标签";
+"contactTags.results" = "搜索结果";
+"contactTags.recent" = "最近使用";
+"contactTags.mine" = "我的标签";
+"contactTags.manage" = "管理";
+"contactTags.doneManaging" = "退出管理";
+"contactTags.created" = "已新建标签：%@";
+"contactTags.newTag" = "新建标签";
+"contactTags.tagName" = "标签名称";
+"contactTags.ok" = "确定";
+"contactTags.deleteTitle" = "删除标签「%@」？";
+"contactTags.delete" = "删除";
+"contactTags.hintDelete" = "轻点两下删除此标签";
+"contactTags.hintManage" = "轻点两下选择或删除标签";
+"contactTags.hintDoneManaging" = "轻点两下完成管理";
+"contactTags.hintEdit" = "打开编辑标签";

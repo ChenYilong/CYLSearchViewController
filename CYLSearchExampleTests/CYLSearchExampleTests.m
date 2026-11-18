@@ -311,7 +311,7 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     CYLSearchTestNavigationController *navigation = [[CYLSearchTestNavigationController alloc] initWithRootViewController:menu];
     [menu loadViewIfNeeded];
     XCTAssertEqual(menu.navigationController, navigation);
-    XCTAssertEqual([menu tableView:menu.tableView numberOfRowsInSection:0], 5, @"reproduction, styles, search bar, ports of other libraries, the SVGA tab bar in SwiftUI");
+    XCTAssertEqual([menu tableView:menu.tableView numberOfRowsInSection:0], 6, @"reproduction, styles, search bar, ports of other libraries, the SVGA tab bar in SwiftUI, contact tags");
     [menu tableView:menu.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
     UITableViewController *gallery = (UITableViewController *)navigation.lastPushedController;
     XCTAssertNotEqual(gallery, menu);
@@ -1197,6 +1197,56 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     [NSNotificationCenter.defaultCenter postNotificationName:UIKeyboardWillHideNotification object:nil userInfo:nil];
     [searchView layoutIfNeeded];
     XCTAssertEqualWithAccuracy(CGRectGetHeight(searchView.emptyResultsView.frame), fullHeight, 0.5, @"the keyboard gone, full height again");
+    window.hidden = YES;
+}
+
+- (void)testContactTagsDemoSearchesCreatesAndKeepsItsStrings
+{
+    // docs/CYLTabBarController-Integration.md, "the contact tags example": the Examples row opens Edit Remarks; its
+    // editor searches with CYLSearchBarView ("ios" finds "iOS ..." and offers "+ New tag: ios"), creates and selects a
+    // tag; the bundle has the same tags and strings in every language.
+    Class demo = NSClassFromString(@"CYLContactTagsDemo");
+    XCTAssertNotNil(demo);
+    NSString *title = [demo performSelector:@selector(rowTitle)];
+    XCTAssertFalse([title hasPrefix:@"contactTags."], @"the row title is localized: %@", title);
+    UIViewController *remark = [demo performSelector:@selector(viewController)];
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
+    window.rootViewController = [[UINavigationController alloc] initWithRootViewController:remark];
+    [window makeKeyAndVisible];
+    [remark.view layoutIfNeeded];
+    id editor = [remark performSelector:@selector(editTagsAnimated:) withObject:@NO];
+    [[editor view] layoutIfNeeded];
+    BOOL hasSearchBar = NO;
+    for (UIView *subview in [editor view].subviews) {
+        hasSearchBar = hasSearchBar || [subview isKindOfClass:CYLSearchBarView.class];
+    }
+    XCTAssertTrue(hasSearchBar, @"the editor searches with CYLSearchBarView");
+    NSInteger sections = [editor numberOfSectionsInMenu];
+    XCTAssertEqual(sections, 2, @"Recent and My Tags");
+    NSInteger mine = [editor menuNumberOfItemsInSection:1];
+    [editor performSelector:@selector(setQuery:) withObject:@"ios"];
+    XCTAssertEqual([editor numberOfSectionsInMenu], 1, @"Search Results");
+    NSInteger results = [editor menuNumberOfItemsInSection:0];
+    XCTAssertGreaterThanOrEqual(results, 2, @"a match and the create item");
+    NSString *first = [editor menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:0]];
+    XCTAssertTrue([first.lowercaseString containsString:@"ios"], @"%@", first);
+    XCTAssertEqual([editor menuItemTypeAtIndexPath:[NSIndexPath indexPathForItem:results - 1 inSection:0]], CYLMenuItemTypeCreate);
+    [editor performSelector:@selector(createTagNamed:) withObject:@"Swift Search"];
+    XCTAssertEqual([editor numberOfSectionsInMenu], 2, @"creating leaves the search");
+    XCTAssertEqual([editor menuNumberOfItemsInSection:1], mine + 1, @"the new tag is in My Tags");
+    NSBundle *bundle = [NSBundle bundleWithURL:[NSBundle.mainBundle URLForResource:@"CYLContactTags" withExtension:@"bundle"]];
+    NSSet *keys = nil;
+    for (NSString *language in @[@"en", @"ja", @"zh-Hans", @"zh-Hant"]) {
+        NSString *lproj = [bundle pathForResource:language ofType:@"lproj"];
+        NSDictionary *strings = [NSDictionary dictionaryWithContentsOfFile:[lproj stringByAppendingPathComponent:@"CYLContactTags.strings"]];
+        NSData *json = [NSData dataWithContentsOfFile:[lproj stringByAppendingPathComponent:@"contact-tags.json"]];
+        NSDictionary *data = json ? [NSJSONSerialization JSONObjectWithData:json options:0 error:nil] : nil;
+        XCTAssertEqual([data[@"tags"] count], 47u, @"%@", language);
+        XCTAssertGreaterThan(strings.count, 0u, @"%@", language);
+        if (keys) XCTAssertEqualObjects([NSSet setWithArray:strings.allKeys], keys, @"same keys in %@", language);
+        keys = [NSSet setWithArray:strings.allKeys];
+    }
+    [remark dismissViewControllerAnimated:NO completion:nil];
     window.hidden = YES;
 }
 

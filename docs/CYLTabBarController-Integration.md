@@ -393,7 +393,7 @@ Flutter 2503, 919, 833, 355, then 0.
   commit bundling `4c7dc79d` or later. The pins stay at `b376c278` until both exist. Score: 10/100 (logged, cause
   found and reported).
 
-## TODO (2026-11-19): the contact tags example from CollectionViewClassifyMenu, on CYLSearchViewController
+## DONE (2026-11-19; TODO 2026-11-19): the contact tags example from CollectionViewClassifyMenu, on CYLSearchViewController
 
 - **Branch**: `feat/harmonyos-parity`.
 - **Prompt** (verbatim): "请确认我们的example是否执行过以下任务，如果没有继续执行 找到CollectionViewClassifyMenu 文件夹中联系人tag的example 使用CYLSearchViewController改造为我们的example。"
@@ -410,4 +410,14 @@ Flutter 2503, 919, 833, 355, then 0.
 - **Acceptance**: full marks (100) = the row opens Edit remark, the editor searches with `CYLSearchBarView`, creates,
   selects and deletes tags, four languages, a unit test, a labelled screenshot, the docs table; pass (60) = both screens
   work on iOS with the search bar and a screenshot.
-- **Status**: TODO.
+- **Status**: DONE (2026-11-19). Examples row 6 (`-CYLDemoRow 5`) opens "Edit Remarks"
+  (`CYLContactRemarkViewController.swift`); its tags open "Edit Tags" (`CYLContactTagEditorViewController.swift`) as a
+  sheet, whose search field is `CYLSearchBarView` (its delegate's `textDidChange` filters, `shouldSubmitText` creates the
+  typed tag); the tags are CollectionViewClassifyMenu's `CYLTagListView`, the data `CYLContactTagStore.swift`. Strings and
+  the 47 demo tags are in `CYLContactTags.bundle` (en, ja, zh-Hans, zh-Hant; Japanese added here); VoiceOver labels as
+  the source ("Search tags", the Manage and delete hints). `-CYLContactTagsEditor YES` opens the editor for screenshots.
+  Test `testContactTagsDemoSearchesCreatesAndKeepsItsStrings`; 30 tests pass
+  ([assets/ios-iphone18pro-20261119-contact-tags-demo.png](assets/ios-iphone18pro-20261119-contact-tags-demo.png), iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), CollectionViewClassifyMenu 697e9307, 2026-11-19).
+  The new bundle is outside `harmonyos/scripts/check-ios-parity.mjs` (it compares `CYLSearchTabs` and
+  `CYLSearchDiscover`), so the other platforms' checks stay green; their copies of this screen are the Win session's
+  (platform rule). Score: 100/100 for iOS.

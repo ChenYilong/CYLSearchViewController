@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		09591E8341AC8342C2778F78 /* CYLSearchDiscover.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 5B066C225673180236E6CE46 /* CYLSearchDiscover.bundle */; };
+		29A8DCF681E71FA7B0945830 /* CYLContactTagStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA7AB600DDC7D517A8984EA /* CYLContactTagStore.swift */; };
+		734E520994095144248A807D /* CYLContactTagEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E7DEF56D4A35247FE9F79F9 /* CYLContactTagEditorViewController.swift */; };
+		8196AA5AE36B22231F60767A /* CYLContactRemarkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A2E83820BF435F5277152B /* CYLContactRemarkViewController.swift */; };
+		B83B0E96503014E8603E75A8 /* CYLContactTags.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 1D0E91D71BE163E06C035C5A /* CYLContactTags.bundle */; };
 		101C7EF837736C301E77C1BD /* CYLSearchExampleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72C6E95A0B238E136F099598 /* CYLSearchExampleViewController.swift */; };
 		1710B2C1CF4C5E46593609A0 /* CYLLaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F1CBD31BF12B1F79D35D8197 /* CYLLaunchScreen.storyboard */; };
 		1DEBF1CD858693B413D71149 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 30E6C2B3AB08D6F182050568 /* Images.xcassets */; };
@@ -70,6 +74,10 @@
 		3CDCF00C5BC550CCB80F6F64 /* Pods-CYLSearchExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CYLSearchExample.release.xcconfig"; path = "Target Support Files/Pods-CYLSearchExample/Pods-CYLSearchExample.release.xcconfig"; sourceTree = "<group>"; };
 		466DA7C43DE8376E42F99CDC /* CYLTabBarConfiguration_svga_swiftui.json */ = {isa = PBXFileReference; includeInIndex = 1; path = CYLTabBarConfiguration_svga_swiftui.json; sourceTree = "<group>"; };
 		5B066C225673180236E6CE46 /* CYLSearchDiscover.bundle */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.plug-in"; path = CYLSearchDiscover.bundle; sourceTree = "<group>"; };
+		6DA7AB600DDC7D517A8984EA /* CYLContactTagStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLContactTagStore.swift; sourceTree = "<group>"; };
+		8E7DEF56D4A35247FE9F79F9 /* CYLContactTagEditorViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLContactTagEditorViewController.swift; sourceTree = "<group>"; };
+		92A2E83820BF435F5277152B /* CYLContactRemarkViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLContactRemarkViewController.swift; sourceTree = "<group>"; };
+		1D0E91D71BE163E06C035C5A /* CYLContactTags.bundle */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.plug-in"; path = CYLContactTags.bundle; sourceTree = "<group>"; };
 		6CB53AE2B9CBC786E92E575D /* Pods_CYLSearchExampleTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CYLSearchExampleTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		72C6E95A0B238E136F099598 /* CYLSearchExampleViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleViewController.swift; sourceTree = "<group>"; };
 		78C4B4FFBF9FDF3873CCD8F4 /* Pods-CYLSearchExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CYLSearchExampleTests.release.xcconfig"; path = "Target Support Files/Pods-CYLSearchExampleTests/Pods-CYLSearchExampleTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -191,6 +199,10 @@
 				A374BB7805B372D828BAFE69 /* CYLSearchDiscoverData.swift */,
 				1E8870E6E14FE5355F516165 /* CYLSuggestionDemoPages.swift */,
 				5B066C225673180236E6CE46 /* CYLSearchDiscover.bundle */,
+				6DA7AB600DDC7D517A8984EA /* CYLContactTagStore.swift */,
+				8E7DEF56D4A35247FE9F79F9 /* CYLContactTagEditorViewController.swift */,
+				92A2E83820BF435F5277152B /* CYLContactRemarkViewController.swift */,
+				1D0E91D71BE163E06C035C5A /* CYLContactTags.bundle */,
 				7388DCCB250617B381967999 /* SVGA */,
 				E639AD5AA798F5082F43D0D8 /* CYLTabBarConfiguration_svga.json */,
 				0314199A175111B3308413FD /* CYLSVGASwiftUIDemo.swift */,
@@ -321,6 +333,7 @@
 				A20000000000000000000014 /* CYLTabBarConfiguration.json in Resources */,
 				A20000000000000000000016 /* CYLSearchTabs.bundle in Resources */,
 				09591E8341AC8342C2778F78 /* CYLSearchDiscover.bundle in Resources */,
+				B83B0E96503014E8603E75A8 /* CYLContactTags.bundle in Resources */,
 				CA3BE6055C75D4104A91FC7E /* tab_search.svga in Resources */,
 				A19522B4581BBFD417720CE3 /* tab_list.svga in Resources */,
 				79C140CF3417B8EAC88A7B1B /* tab_chat.svga in Resources */,
@@ -436,6 +449,9 @@
 				A20000000000000000000011 /* CYLSearchBarDemoViewController.m in Sources */,
 				C74D9C559315C062AFB810C7 /* CYLSearchDiscoverViewController.swift in Sources */,
 				7AF1742377E0BBB8230ADCC3 /* CYLSearchDiscoverData.swift in Sources */,
+				29A8DCF681E71FA7B0945830 /* CYLContactTagStore.swift in Sources */,
+				734E520994095144248A807D /* CYLContactTagEditorViewController.swift in Sources */,
+				8196AA5AE36B22231F60767A /* CYLContactRemarkViewController.swift in Sources */,
 				B7829D16F8E6C9127AA30159 /* CYLSuggestionDemoPages.swift in Sources */,
 				8C0B3D7B899D8C6301DD6D16 /* CYLSVGASwiftUIDemo.swift in Sources */,
 				E7351D9305A9995AB1407795 /* CYLSVGADemoTagButton.swift in Sources */,

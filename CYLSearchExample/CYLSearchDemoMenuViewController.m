@@ -202,8 +202,9 @@ static NSString *CYLExampleText(NSString *key)
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    // The fifth row: the SVGA tab bar hosted in SwiftUI (CYLSVGASwiftUIDemo.swift).
-    return 5;
+    // The fifth row: the SVGA tab bar hosted in SwiftUI (CYLSVGASwiftUIDemo.swift); the sixth: the contact tags demo
+    // ported from CollectionViewClassifyMenu (CYLContactTagStore.swift).
+    return 6;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -211,7 +212,14 @@ static NSString *CYLExampleText(NSString *key)
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CYLDemoMenu"];
     if (!cell) cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"CYLDemoMenu"];
     NSArray<NSString *> *rows = @[@"demo.reproduction", @"demo.styles", @"demo.searchBar", @"demo.ports"];
-    cell.textLabel.text = indexPath.row < (NSInteger)rows.count ? CYLDemoText(rows[indexPath.row]) : CYLExampleText(@"svga.swiftui");
+    if (indexPath.row < (NSInteger)rows.count) {
+        cell.textLabel.text = CYLDemoText(rows[indexPath.row]);
+    } else if (indexPath.row == 4) {
+        cell.textLabel.text = CYLExampleText(@"svga.swiftui");
+    } else {
+        // Through the runtime, as the SwiftUI row: the class is Swift (@objc(CYLContactTagsDemo)).
+        cell.textLabel.text = [NSClassFromString(@"CYLContactTagsDemo") performSelector:@selector(rowTitle)];
+    }
     cell.accessibilityIdentifier = [NSString stringWithFormat:@"CYLDemoRow%ld", (long)indexPath.row];
     cell.textLabel.numberOfLines = 0;
     cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
@@ -228,7 +236,10 @@ static NSString *CYLExampleText(NSString *key)
         return;
     }
     UIViewController *controller;
-    if (indexPath.row == 0) {
+    if (indexPath.row == 5) {
+        // The contact tags demo: "Edit Remarks", whose tags open "Edit Tags" with CYLSearchBarView.
+        controller = [NSClassFromString(@"CYLContactTagsDemo") performSelector:@selector(viewController)];
+    } else if (indexPath.row == 0) {
         CYLSearchExampleDataSource *source = [CYLSearchExampleDataSource new];
         controller = [[CYLSearchExampleViewController alloc] initWithSearchDataSource:source refreshProvider:source];
     } else if (indexPath.row == 1) {

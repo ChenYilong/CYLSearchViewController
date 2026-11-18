@@ -1,0 +1,26 @@
+/* The contact tags demo (CYLContactTagEditorViewController), ported from CollectionViewClassifyMenu's CYLTagEditorExample. */
+"contactTags.row" = "Contact tags (CollectionViewClassifyMenu)";
+"contactTags.cancel" = "Cancel";
+"contactTags.done" = "Done";
+"contactTags.editRemarks" = "Edit Remarks";
+"contactTags.remarkName" = "Remark name";
+"contactTags.tags" = "Tags";
+"contactTags.editTags" = "Edit Tags";
+"contactTags.addTags" = "Add Tags";
+"contactTags.search" = "Search";
+"contactTags.searchTags" = "Search tags";
+"contactTags.results" = "Search Results";
+"contactTags.recent" = "Recent";
+"contactTags.mine" = "My Tags";
+"contactTags.manage" = "Manage";
+"contactTags.doneManaging" = "Done Managing";
+"contactTags.created" = "Tag created: %@";
+"contactTags.newTag" = "New Tag";
+"contactTags.tagName" = "Tag name";
+"contactTags.ok" = "OK";
+"contactTags.deleteTitle" = "Delete the tag “%@”?";
+"contactTags.delete" = "Delete";
+"contactTags.hintDelete" = "Double-tap to delete this tag";
+"contactTags.hintManage" = "Double-tap to choose tags to delete";
+"contactTags.hintDoneManaging" = "Double-tap to stop managing tags";
+"contactTags.hintEdit" = "Opens Edit Tags";
