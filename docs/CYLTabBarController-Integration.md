@@ -422,6 +422,14 @@ Flutter 2503, 919, 833, 355, then 0.
   `CYLSearchDiscover`), so the other platforms' checks stay green; their copies of this screen are the Win session's
   (platform rule). Score: 100/100 for iOS.
 
+
+### TODO (2026-11-19): CYLPlaceholderView in the contact tags example
+
+- **Prompt** (verbatim): "该example 加入CYLPlaceholderView支持" (English: add CYLPlaceholderView support to this example).
+- **Requirements**: the editor shows CYLTableViewPlaceHolder's `CYLPlaceholderView` for its empty states: a search that
+  matches no tag (`.noResults`, below "+ New tag: <query>", which stays) and no tags at all (`.empty`, after every tag
+  is deleted); centred in the free space above the keyboard; localized in the four languages; tested.
+- **Status**: TODO.
 ## TODO (2026-11-19): the contact tags example on the other platforms
 
 - **Branch**: `feat/harmonyos-parity`. Owner: the Windows session (platform rule).
