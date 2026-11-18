@@ -60,7 +60,7 @@ this repository. The document is about the animated component.")
 | 37 | Pin CYLTabBarController `b376c278` (includes `2a367ed1`, the every-engine tint overlay fix for Lottie 2.x / PAG / SVGA) with CollectionViewClassifyMenu `47f4f8b6` (it bundles `b376c278` for the mini program and HarmonyOS) | all | DONE on Windows (2026-11-19): mini program `npm test` 52 of 52; HarmonyOS ohosTest 29 of 29; Android build + unit tests; React Native and Flutter Android build. Podfile.lock files left for `pod install` on macOS. iOS DONE on macOS (2026-11-19): `pod install` in the root, Flutter and React Native examples locks `b376c278` and `47f4f8b6` in all three Podfile.lock files; the native app, Flutter iOS and React Native iOS build and launch on the iPhone 18 Pro simulator (iOS 27.2, Xcode 27.2, macOS 27.3) with their tab bars (`assets/ios-iphone18pro-20261119-three-apps-at-b376c278.png`). The React Native vendor checkout was refreshed with `scripts/fetch-cyltabbar.sh` (it was at `d8f47b4`) | none (supersedes row 36's iOS item) |
 | 38 | Pin CollectionViewClassifyMenu `697e9307` (newest; still bundles CYLTabBarController `b376c278`, so the tab bar pin stays) | all | DONE on Windows (2026-11-19): mini program `npm test` 52 of 52; HarmonyOS ohosTest 29 of 29; Android build + unit tests; React Native and Flutter Android build. Podfile.lock files left for `pod install` on macOS. iOS DONE on macOS (2026-11-19, `a370400`): `pod install` in the root, Flutter and React Native examples locks `697e9307` and `b376c278` in all three Podfile.lock files; clean builds of the native app, Flutter iOS and React Native iOS launch on the iPhone 18 Pro simulator (iOS 27.2, Xcode 27.2, macOS 27.3) with their tab bars (`assets/ios-iphone18pro-20261119-three-apps-at-menu-697e9307.png`) | none |
 
-## TODO (2026-11-17): one icon + title / animated icon component everywhere
+## DONE (2026-11-19; TODO 2026-11-17): one icon + title / animated icon component everywhere
 
 - **Context**: branch `feat/harmonyos-parity` (PR #11). The packaged icon + title component that also plays animated
   icons is CollectionViewClassifyMenu's `CYLTagButton`
@@ -178,13 +178,18 @@ this repository. The document is about the animated component.")
   `minimumSize`, badge metrics, `CYLTagButtonHost`, `allowsTransparentBackground`), `a7d3474` (`playAnimation()`
   before the icon is loaded plays it once loaded), `15877a4` (`cyl-tag-button` `accessibilityLabel`).
 
-### Step 3: BLOCKED on CYLTableViewPlaceHolder (2026-11-19)
+### Step 3: DONE another way (2026-11-19), in CYLTableViewPlaceHolder
 
 - CYLTableViewPlaceHolder: `CYLPlaceholderView`'s animated icon becomes a `CYLTagButton` (CYLTableViewPlaceHolder
   depends on CollectionViewClassifyMenu and drops `CYLPlaceholderItemAnimationEngine`); waits for that repository's
   own session (PR #31). 2026-11-19: PR #31 (its mini program placeholder) is still open and `CYLPlaceholderView`'s icon is
   not a `CYLTagButton` yet; this repository only pins that library, so the change is the CYLTableViewPlaceHolder session's
-  (asked). Steps 1 and 2 stay DONE.
+  (asked). Answer (CYLTableViewPlaceHolder session, 2026-11-19): `CYLPlaceholderView` builds on CYLTabBarController's
+  `CYLAnimatedItem` directly (not on `CYLTagButton`; no CollectionViewClassifyMenu dependency) on every platform, branch
+  `feat/android-refresh-port-followup` (PR #31): iOS `f0320c8`, Android `933ba13`, mini program `bfeb678`, HarmonyOS
+  `0847ffe` + `d54eef1`; head `8dc39c3`. The goal (one animated icon component, no separate placeholder engine) is met.
+  Left (TODO): pin CYLTableViewPlaceHolder `8dc39c3` here (now `62e40c0`), once its CYLAnimatedItem commit matches our
+  CYLTabBarController pin `b376c278` (HarmonyOS must keep one `cylanimateditem`; asked).
 
 ### Unverified (resolved 2026-11-19)
 
