@@ -14,6 +14,9 @@ PODS:
   - CYLAnimatedItem/Rive (1.100.0):
     - CYLAnimatedItem/Engine
     - RiveRuntime (~> 6.29)
+  - CYLAnimatedItem/SVGA (1.100.0):
+    - CYLAnimatedItem/Engine
+    - SVGAPlayerLite (>= 1.0.8, ~> 1.0)
   - Cylsearch (0.1.0):
     - CollectionViewClassifyMenu
     - CYLAnimatedItem
@@ -78,6 +81,8 @@ PODS:
     - CYLAnimatedItem/Core (= 1.100.0)
   - CYLTabBarController/CYLAnimatedItemRive (1.100.0):
     - CYLAnimatedItem/Rive (= 1.100.0)
+  - CYLTabBarController/CYLAnimatedItemSVGA (1.100.0):
+    - CYLAnimatedItem/SVGA (= 1.100.0)
   - CYLTabBarController/CYLBadgeView (1.100.0):
     - CYLTabBarController/CYLUtils
   - CYLTabBarController/CYLUtils (1.100.0):
@@ -85,6 +90,9 @@ PODS:
   - CYLTabBarController/Rive (1.100.0):
     - CYLTabBarController/Core
     - CYLTabBarController/CYLAnimatedItemRive
+  - CYLTabBarController/SVGA (1.100.0):
+    - CYLTabBarController/Core
+    - CYLTabBarController/CYLAnimatedItemSVGA
   - CYLTableViewPlaceHolder/Core (1.1.0):
     - CYLAnimatedItem/Core
   - CYLTableViewPlaceHolder/Lottie (1.1.0):
@@ -106,6 +114,7 @@ PODS:
     - hermes-engine/Pre-built (= 260318099.0.4)
   - hermes-engine/Pre-built (260318099.0.4)
   - lottie-ios (4.6.1)
+  - Protobuf (3.27.2)
   - RCT-Folly (2024.11.18.00):
     - RCT-Folly/Default (= 2024.11.18.00)
     - ReactNativeDependencies
@@ -1908,6 +1917,14 @@ PODS:
   - RiveRuntime (6.29.0)
   - SocketRocket (0.7.1):
     - ReactNativeDependencies
+  - SSZipArchive (2.4.3)
+  - SVGAPlayerLite (1.0.8):
+    - SVGAPlayerLite/Core (= 1.0.8)
+  - SVGAPlayerLite/Core (1.0.8):
+    - SSZipArchive (= 2.4.3)
+    - SVGAPlayerLite/ProtoFiles
+  - SVGAPlayerLite/ProtoFiles (1.0.8):
+    - Protobuf (= 3.27.2)
   - Yoga (0.0.0):
     - React-Core-prebuilt
 
@@ -1920,6 +1937,7 @@ DEPENDENCIES:
   - Cyltabbar (from `../node_modules/react-native-cyltabbar`)
   - CYLTabBarController (from `../vendor/CYLTabBarController`)
   - CYLTabBarController/Rive (from `../vendor/CYLTabBarController`)
+  - CYLTabBarController/SVGA (from `../vendor/CYLTabBarController`)
   - CYLTableViewPlaceHolder/Core (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `62e40c0530f74e8fe8a8e6d8b98cf42d5ac7ada1`)
   - CYLTableViewPlaceHolder/Lottie (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `62e40c0530f74e8fe8a8e6d8b98cf42d5ac7ada1`)
   - DoubleConversion (from `build/rndeps-facades/DoubleConversion`)
@@ -2008,12 +2026,16 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeDependencies (from `../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)
   - SocketRocket (from `build/rndeps-facades/SocketRocket`)
+  - SVGAPlayerLite
   - Yoga (from `build/rncore-facades/Yoga`)
 
 SPEC REPOS:
   trunk:
     - lottie-ios
+    - Protobuf
     - RiveRuntime
+    - SSZipArchive
+    - SVGAPlayerLite
 
 EXTERNAL SOURCES:
   boost:
@@ -2232,6 +2254,7 @@ SPEC CHECKSUMS:
   glog: b4427c3119645da795ff09985ba9da909c940c96
   hermes-engine: a1158910bb7e300b9e3d2f1e2d433f817ec1a4b5
   lottie-ios: 6467ca7035120c5b0e0acee58bb679cf15875686
+  Protobuf: fb2c13674723f76ff6eede14f78847a776455fa2
   RCT-Folly: d173e541eeb78cad5c81011c1bbf62d5b86b9778
   RCTDeprecation: b5015bad0dc536eff092b252e8cdcf7903448e03
   RCTRequired: 1f568a6519677ef482387250f5a098a9ec5dba57
@@ -2312,8 +2335,10 @@ SPEC CHECKSUMS:
   ReactNativeDependencies: d3b7423ba1e52525e42085c8470109abde583d2e
   RiveRuntime: 8d1732229d8e624b0690fef5446a075cd9d344cc
   SocketRocket: d57b1af80c029e12a75cd9b218287c67381e4593
+  SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
+  SVGAPlayerLite: ae073300a9faa016e88a54afa8fec43f54fed682
   Yoga: 58b502c52b14ad3c4468805d461fc37d275c2a42
 
-PODFILE CHECKSUM: c1cd970bfa772586106bd56f2731336990350dd3
+PODFILE CHECKSUM: 668ae0614e6f6e5d4925f5ed9eaa28de2cfb72ba
 
 COCOAPODS: 1.17.0

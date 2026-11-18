@@ -35,6 +35,10 @@ target 'CylsearchExample' do
   pod 'CYLAnimatedItem', :path => '../vendor/CYLTabBarController'
   # Rive tab icons (src/App.tsx): CYLTabBarController's Rive subspec brings RiveRuntime.
   pod 'CYLTabBarController/Rive', :path => '../vendor/CYLTabBarController'
+  # SVGA tab icons (src/App.tsx, CYLDemoTabIconSource 2): CYLTabBarController's SVGA subspec (CYLAnimatedItem/SVGA) and
+  # SVGAPlayerLite, as the Flutter example; static linking needs module maps for this Objective-C pod.
+  pod 'CYLTabBarController/SVGA', :path => '../vendor/CYLTabBarController'
+  pod 'SVGAPlayerLite', :modular_headers => true
 
   use_react_native!(
     :path => config[:reactNativePath],

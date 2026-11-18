@@ -204,6 +204,22 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-CylsearchExample/Pods-CylsearchExample-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
+		1E07E1EA551880B5833A7C31 /* Copy Rive tab icons */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Rive tab icons";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icons.riv",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Rive tab icons (src/App.tsx): CYLTabBarController's icons.riv from the pinned checkout (vendor/, created by\n# scripts/fetch-cyltabbar.sh), copied into the app bundle (not committed here: the file has no licence of its own; see\n# CYLTabBarController Example-SwiftUI-Rive/README.md, \"Source and license\").\nset -e\nSOURCE=\"${SRCROOT}/../vendor/CYLTabBarController/Example-SwiftUI-Rive/AnimatedApp/RiveAssets/icons.riv\"\nif [ ! -f \"$SOURCE\" ]; then echo \"error: $SOURCE not found: run scripts/fetch-cyltabbar.sh first\"; exit 1; fi\ncp \"$SOURCE\" \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icons.riv\"\n# SVGA tab icons (src/App.tsx, CYLDemoTabIconSource 2): the iOS example's files (CYLSearchExample/SVGA, NOTICE.md there).\ncp \"${SRCROOT}\"/../../../../CYLSearchExample/SVGA/*.svga \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/\"\n";
+		};
 		C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -242,22 +258,6 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-CylsearchExample/Pods-CylsearchExample-resources.sh\"\n";
 			showEnvVarsInLog = 0;
-		};
-		1E07E1EA551880B5833A7C31 /* Copy Rive tab icons */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Copy Rive tab icons";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icons.riv",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Rive tab icons (src/App.tsx): CYLTabBarController's icons.riv from the pinned checkout (vendor/, created by\n# scripts/fetch-cyltabbar.sh), copied into the app bundle (not committed here: the file has no licence of its own; see\n# CYLTabBarController Example-SwiftUI-Rive/README.md, \"Source and license\").\nset -e\nSOURCE=\"${SRCROOT}/../vendor/CYLTabBarController/Example-SwiftUI-Rive/AnimatedApp/RiveAssets/icons.riv\"\nif [ ! -f \"$SOURCE\" ]; then echo \"error: $SOURCE not found: run scripts/fetch-cyltabbar.sh first\"; exit 1; fi\ncp \"$SOURCE\" \"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/icons.riv\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
