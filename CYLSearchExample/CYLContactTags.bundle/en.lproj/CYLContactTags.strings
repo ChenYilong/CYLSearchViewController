@@ -28,3 +28,11 @@
 "contactTags.contactsTitle" = "%@ (%ld)";
 "contactTags.noContacts" = "No contacts have the tag “%@”.";
 "contactTags.hintContacts" = "Double-tap to show its contacts";
+"contactTags.sync" = "Sync from other devices";
+"contactTags.syncing" = "Syncing from other devices…";
+"contactTags.synced" = "Synced";
+"contactTags.uploading" = "Uploading tags…";
+"contactTags.uploaded" = "Upload finished";
+"contactTags.downloading" = "Downloading tags…";
+"contactTags.downloaded" = "Tags updated";
+"contactTags.otherDeviceTags" = "Yoga,Coffee,Cycling,Board Games,Volunteers,Parents,Startup,Mentors";

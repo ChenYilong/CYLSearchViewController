@@ -28,3 +28,11 @@
 "contactTags.contactsTitle" = "%@（%ld）";
 "contactTags.noContacts" = "没有联系人带有标签「%@」。";
 "contactTags.hintContacts" = "轻点两下查看带有此标签的联系人";
+"contactTags.sync" = "从其他设备同步";
+"contactTags.syncing" = "正在从其他设备同步…";
+"contactTags.synced" = "同步完成";
+"contactTags.uploading" = "正在上传标签…";
+"contactTags.uploaded" = "上传完成";
+"contactTags.downloading" = "正在下载标签…";
+"contactTags.downloaded" = "标签已更新";
+"contactTags.otherDeviceTags" = "瑜伽,咖啡,骑行,桌游,志愿者,家长,创业,导师";

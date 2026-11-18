@@ -28,3 +28,11 @@
 "contactTags.contactsTitle" = "%@（%ld）";
 "contactTags.noContacts" = "タグ「%@」の連絡先はありません。";
 "contactTags.hintContacts" = "ダブルタップで連絡先を表示";
+"contactTags.sync" = "他のデバイスから同期";
+"contactTags.syncing" = "他のデバイスから同期しています…";
+"contactTags.synced" = "同期しました";
+"contactTags.uploading" = "タグをアップロードしています…";
+"contactTags.uploaded" = "アップロードが完了しました";
+"contactTags.downloading" = "タグをダウンロードしています…";
+"contactTags.downloaded" = "タグを更新しました";
+"contactTags.otherDeviceTags" = "ヨガ,コーヒー,サイクリング,ボードゲーム,ボランティア,保護者,スタートアップ,メンター";

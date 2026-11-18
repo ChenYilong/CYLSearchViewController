@@ -153,6 +153,29 @@ final class CYLContactTagStore {
     }
 
     /**
+     * Takes sections downloaded from the server (`CYLTagListView.loadSections(withKeys:completion:)`): "My Tags" and
+     * "Recent", each when present; returns whether anything changed.
+     */
+    @discardableResult
+    func apply(_ sections: [String: [String]]) -> Bool {
+        var changed = false
+        if let mine = sections[Self.mineCacheKey], mine != tags {
+            var seen = Set<String>()
+            tags = mine.filter { seen.insert($0).inserted }
+            recentTags = recentTags.filter(contains)
+            changed = true
+        }
+        if let recent = sections[Self.recentCacheKey]?.filter(contains), recent != recentTags {
+            recentTags = Array(recent.prefix(recentLimit))
+            changed = true
+        }
+        if changed {
+            save()
+        }
+        return changed
+    }
+
+    /**
      * Empties "Recent" (its trash button).
      */
     func clearRecent() {
@@ -280,6 +303,7 @@ final class CYLContactTagsDemo: NSObject {
      */
     @objc static func resetCache() {
         CYLTagListStore(policy: .database, name: CYLContactTagStore.cacheName).removeAllTitles()
+        CYLContactTagServer().reset()
     }
 
     /**

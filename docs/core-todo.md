@@ -220,7 +220,10 @@ packages). A test checks each rule.
   table; it still sits under the keyboard there (a CYLTableViewPlaceHolder TODO). Rechecked with CYLTableViewPlaceHolder
   `f7e0c4d` (its keyboard fix, 2026-11-19): still on the keyboard on that tab
   ([assets/ios-iphone18pro-20261119-search-tab-placeholder-keyboard-f7e0c4d.png](assets/ios-iphone18pro-20261119-search-tab-placeholder-keyboard-f7e0c4d.png));
-  reported back to that session (the delegate's `makePlaceHolderView` path). Left: HarmonyOS and the mini program
+  reported back to that session (the delegate's `makePlaceHolderView` path). Fixed in CYLTableViewPlaceHolder `d19120f` (keyboard
+  tracking from launch; the legacy frame loses the top inset under a raised keyboard), pinned on every platform: the
+  placeholder is centred above the keyboard
+  ([assets/ios-iphone18pro-20261119-search-tab-placeholder-keyboard-d19120f.png](assets/ios-iphone18pro-20261119-search-tab-placeholder-keyboard-d19120f.png), before f7e0c4d and after d19120f). Left: HarmonyOS and the mini program
   checks. Score: 70/100 (iOS, Android, React Native on both, Flutter already right).
   HarmonyOS passes without a code change (2026-11-19): the system keyboard avoidance lifts the page, so the placeholder stays whole above the keyboard ([assets/harmonyos-mate70pro-20261119-placeholder-above-keyboard.png](assets/harmonyos-mate70pro-20261119-placeholder-above-keyboard.png), HarmonyOS 6 Mate 70 Pro emulator, DevEco Studio 6, Windows 11, 2026-11-19 +13:00, at d7651e0).
   Mini program: WeChat DevTools draws no keyboard, so it cannot be checked there; the `<input>` keeps WeChat's default `adjust-position` (the page is pushed up as on HarmonyOS). It needs a real phone (WeChat preview). Score: 90/100; TODO: the mini program on a phone.

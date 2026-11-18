@@ -1395,6 +1395,68 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     window.hidden = YES;
 }
 
+- (void)testContactTagsUploadSyncAndLoadTheServerCopy
+{
+    // docs/CYLTabBarController-Integration.md, "network sync in the contact tags example": leaving Manage uploads cache A
+    // to the simulated server (cache B); Sync simulates another device (a new tag, the first two swapped) and pulls it;
+    // opening again shows the server's data after the cache (CollectionViewClassifyMenu's cache-then-network default).
+    Class demo = NSClassFromString(@"CYLContactTagsDemo");
+    [demo performSelector:@selector(resetCache)];
+    [NSUserDefaults.standardUserDefaults setDouble:0 forKey:@"CYLContactTagsServerLatency"];
+    [self addTeardownBlock:^{
+        [demo performSelector:@selector(resetCache)];
+        [NSUserDefaults.standardUserDefaults removeObjectForKey:@"CYLContactTagsServerLatency"];
+    }];
+    void (^spin)(void) = ^{
+        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.3]];
+    };
+    UIViewController *remark = [demo performSelector:@selector(viewController)];
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
+    window.rootViewController = [[UINavigationController alloc] initWithRootViewController:remark];
+    [window makeKeyAndVisible];
+    [remark.view layoutIfNeeded];
+    id editor = [remark performSelector:@selector(editTagsAnimated:) withObject:@NO];
+    [[editor view] layoutIfNeeded];
+    spin();
+    NSInteger mine = [editor numberOfSectionsInMenu] - 1;
+    NSString *first = [editor menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:mine]];
+    NSString *second = [editor menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:1 inSection:mine]];
+    NSString *third = [editor menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:2 inSection:mine]];
+
+    [editor performSelector:@selector(toggleManaging)];
+    [editor menuMoveItemAtIndexPath:[NSIndexPath indexPathForItem:2 inSection:mine] toIndexPath:[NSIndexPath indexPathForItem:0 inSection:mine]];
+    [editor performSelector:@selector(toggleManaging)];
+    spin();
+    CYLTagListStore *serverCopy = [[CYLTagListStore alloc] initWithPolicy:CYLTagListCachePolicySandboxFile name:@"CYLContactTagsServer"];
+    NSArray<NSString *> *uploaded = [serverCopy cachedTitlesForSection:@"mine"];
+    XCTAssertEqualObjects([uploaded subarrayWithRange:NSMakeRange(0, 3)], (@[third, first, second]), @"leaving Manage uploads the new order to B");
+
+    NSInteger count = [editor menuNumberOfItemsInSection:mine];
+    [editor performSelector:@selector(syncFromOtherDevices)];
+    spin();
+    XCTAssertEqual([editor menuNumberOfItemsInSection:mine], count + 1, @"another device added a tag");
+    XCTAssertEqualObjects([editor menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:mine]], first, @"and swapped the first two");
+    XCTAssertEqualObjects([editor menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:1 inSection:mine]], third);
+    [remark dismissViewControllerAnimated:NO completion:nil];
+
+    // The server changes again behind this device's back; opening shows cache A, then B.
+    NSMutableArray<NSString *> *server = [[serverCopy cachedTitlesForSection:@"mine"] mutableCopy];
+    [server exchangeObjectAtIndex:0 withObjectAtIndex:2];
+    [serverCopy saveTitles:server forSection:@"mine"];
+    UIViewController *again = [demo performSelector:@selector(viewController)];
+    window.rootViewController = [[UINavigationController alloc] initWithRootViewController:again];
+    [again.view layoutIfNeeded];
+    id editor2 = [again performSelector:@selector(editTagsAnimated:) withObject:@NO];
+    [[editor2 view] layoutIfNeeded];
+    spin();
+    NSInteger mine2 = [editor2 numberOfSectionsInMenu] - 1;
+    XCTAssertEqualObjects([editor2 menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:mine2]], server[0], @"the server's data replaces the cache");
+    CYLTagListStore *local = [[CYLTagListStore alloc] initWithPolicy:CYLTagListCachePolicyDatabase name:@"CYLContactTags"];
+    XCTAssertEqualObjects([local cachedTitlesForSection:@"mine"], server, @"and is saved to cache A");
+    [again dismissViewControllerAnimated:NO completion:nil];
+    window.hidden = YES;
+}
+
 - (void)testEverySuggestionCachePolicyKeepsSubmittedQueriesNewestFirst
 {
     // docs/core-todo.md: each policy stores the queries newest first, moves a repeated query to the front, keeps at most

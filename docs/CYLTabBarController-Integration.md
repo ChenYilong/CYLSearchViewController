@@ -476,7 +476,7 @@ Flutter 2503, 919, 833, 355, then 0.
   The Android, HarmonyOS and mini program versions of the library API are TODO rows in CollectionViewClassifyMenu's
   `docs/android-api.md`, for its Windows session. Score: 100/100 for iOS.
 
-### TODO (2026-11-19): network sync in the contact tags example (cache A, server cache B, sync button)
+### DONE (2026-11-19; TODO 2026-11-19): network sync in the contact tags example (cache A, server cache B, sync button)
 
 - **Prompt** (verbatim, with its correction): "这里需要注意 CollectionViewClassifyMenu 在模仿CYLSearchSuggestionStore 过程中有一个注意事项。与CYLSearchSuggestionStore 不同的是CYLSearchSuggestionStore 只需要本地缓存。无须上传网络  上传。但是 CollectionViewClassifyMenu的CYLTagListCachePolicy还有上传网络的需求，本地拖拽排序后，需要从本地获取到排序后的列表，我们将CYLSearchSuggestionStore保存的缓存称之为缓存A。上传网络，可能需要在编辑结束后增加回调，返回排序后数据给用户，让用户自行上传。下次再进入该页面需要 根据CYLTagListCachePolicy里的缓存策略，缓存优先还是网络优先。还是先缓存后网络刷新。你可能增加回调接口后在example层，演示example可以做一个演示。你将排序后的taglist数据。缓存到沙盒里，这里是缓存A，将缓存A复制一份称之为缓存B，这个就是缓存上传网络服务器后，服务器数据允许不同设备设备上传，这里涉及到多端同步的问题。在将将缓存A复制一份称之为缓存B的过程中增加5秒延迟，并在用户界面显示CYLHUD，提示正在上传，上传结束展示CYLHUD显示上传结束。下次进入该页面将沙盒里的这个新缓存B当作网络数据，并在获取该缓存时候增加5秒延迟，以模拟从网络下载的延迟效果。在该example右上角增加一个同步按钮，该按钮模拟其他设备编辑后，本机拉取新数据的功能，点击同步按钮后，展示CYLHUD显示正在从其他设备同步，该同步按钮如何模拟多设备数据同步：在example层随机一个tag，以模拟多设备编辑后的效果。并修改前两个tag的顺序。更新缓存B。下次进入该页面将沙盒里的这个新缓存B当作网络数据，并在获取该缓存时候增加5秒延迟，增加CYLHUD以模拟从网络下载的延迟效果。core层面缓存策略默认为先缓存后网络数据下载成功后刷新。example层面允许自定义。" Correction: "typo：我们将CYLTagListCachePolicy保存的缓存称之为缓存A".
 - **English**: cache A is the tag list's local cache (`CYLTagListCachePolicy`). CollectionViewClassifyMenu gets an
@@ -492,7 +492,26 @@ Flutter 2503, 919, 833, 355, then 0.
   sandbox file; latency 5 s, `CYLContactTagsServerLatency` overrides; HUD = CYLTableViewPlaceHolder's
   `CYLPlaceholderHUD`), the sync button, `-CYLContactTagsLoadPolicy`. Re-pin CYLTableViewPlaceHolder `d19120f` (its
   keyboard fix) at the same time.
-- **Status**: TODO.
+- **Follow-up prompt** (verbatim): "注意在根据先缓存后网络策略，展示CYLHuD加载以及加载成功给你后，需要将网络下载模拟的缓存B更新到缓存A。"
+  (English: with the cache-then-network policy, after the HUD shows loading and success, write the downloaded cache B
+  into cache A.)
+- **Status**: DONE (2026-11-19). CollectionViewClassifyMenu `3fc2c23b` (feat/harmony, pushed): `menu(_:didFinishEditingWithTitles:)`
+  / `editingFinishHandler`, `CYLTagListRemoteSource`, `CYLTagListLoadPolicy` (`cacheThenNetwork` by default,
+  `cacheFirst`, `networkFirst`), `CYLTagListDataOrigin`, `loadSections(withKeys:completion:)`; its tests 106 of 106.
+  This example: `CYLContactTagServer` is the simulated server, cache B (a `CYLTagListStore` JSON file in the sandbox),
+  5 s per request (`CYLContactTagsServerLatency` overrides) with CYLTableViewPlaceHolder's HUD (`CYLPlaceholderHUD`).
+  Opening the editor shows cache A at once, then "Downloading tags…"; after 5 s "Tags updated", and B is written to
+  cache A twice over (the core saves every download to the list's cache before reporting it, and the store's
+  `apply(_:)` saves "My Tags" and "Recent"), then the list refreshes; a section B lacks leaves A as it is. Leaving
+  "Manage" uploads A to B ("Uploading tags…", after 5 s "Upload finished"). The sync button (top right, beside
+  "Done") simulates another device: a random new tag from a localized list at the end of B's "My Tags" and its first
+  two tags swapped, then downloads B ("Syncing from other devices…", "Synced") and writes it to A. `-CYLContactTagsLoadPolicy
+  cacheFirst` or `networkFirst` picks another policy; `-CYLContactTagsResetCache YES` also forgets B. Test
+  `testContactTagsUploadSyncAndLoadTheServerCopy` (upload, sync, a server change seen on reopening and saved to A);
+  33 tests pass; Flutter and React Native iOS build. Pins on every platform: CollectionViewClassifyMenu `3fc2c23b`,
+  CYLTableViewPlaceHolder `d19120f`, CYLTabBarController `5996fa96`
+  ([assets/ios-iphone18pro-20261119-contact-tags-sync.png](assets/ios-iphone18pro-20261119-contact-tags-sync.png), iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), real 5 s latency, 2026-11-19).
+  Score: 100/100 for iOS.
 ## TODO (2026-11-19): the contact tags example on the other platforms
 
 - **Branch**: `feat/harmonyos-parity`. Owner: the Windows session (platform rule).

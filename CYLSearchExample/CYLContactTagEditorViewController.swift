@@ -10,6 +10,10 @@
 //  - "Manage" switches the tag list into CollectionViewClassifyMenu's editing mode in place (setEditing(_:animated:)):
 //    the tags of "My Tags" show a delete button and can be dragged, an add control shows below them, and a tap on a tag
 //    opens the contacts that have it (CYLContactListViewController). Every change is saved (CYLTagListStore).
+//  - Network sync (CYLContactTagServer, a simulated server): opening loads with the tag list's load policy (the
+//    cache at once, then the server's data after its delay); leaving "Manage" uploads the edited lists; the sync
+//    button (top right) pulls an edit simulated on another device. `-CYLContactTagsLoadPolicy cacheFirst` or
+//    `networkFirst` picks another policy.
 //  - "+ New Tag" after the last tag adds a tag (the menu's create item), never selected.
 //  - Typing in the search bar shows "Search Results" (case-insensitive) and "+ New tag: <text>" when that exact tag does
 //    not exist yet; tapping it, or the keyboard's search key, creates, selects and shows the tag.
@@ -113,6 +117,16 @@ final class CYLContactTagEditorViewController: UIViewController {
      * The search bar (this library).
      */
     let searchBar = CYLSearchBarView(frame: .zero)
+
+    /**
+     * The simulated server (cache B); the tag list's remote source.
+     */
+    @objc let server = CYLContactTagServer()
+
+    /**
+     * Pulls an edit simulated on another device (top right, next to "Done").
+     */
+    let syncButton = UIButton(type: .system)
 
     /**
      * The empty state shown now.
@@ -258,13 +272,30 @@ final class CYLContactTagEditorViewController: UIViewController {
         // The list saves "My Tags" after each edit, in the store's database cache (same name and keys).
         tagListView.cacheName = CYLContactTagStore.cacheName
         tagListView.cachePolicy = .database
+        // The server and the load policy (the core's default, cache then network, unless a launch argument says).
+        tagListView.remoteSource = server
+        switch UserDefaults.standard.string(forKey: "CYLContactTagsLoadPolicy") {
+        case "cacheFirst": tagListView.loadPolicy = .cacheFirst
+        case "networkFirst": tagListView.loadPolicy = .networkFirst
+        default: tagListView.loadPolicy = .cacheThenNetwork
+        }
+        // Leaving "Manage" uploads the edited lists (cache A, already saved) to the server.
+        tagListView.editingFinishHandler = { [weak self] _ in
+            self?.uploadToServer()
+        }
+
+        syncButton.setImage(UIImage(systemName: "arrow.triangle.2.circlepath"), for: .normal)
+        syncButton.tintColor = CYLContactTagEditorViewController.linkColor
+        syncButton.accessibilityLabel = cylContactTagsText("sync")
+        syncButton.accessibilityIdentifier = "CYLContactTagsSync"
+        syncButton.addTarget(self, action: #selector(syncFromOtherDevices), for: .touchUpInside)
         for case let scrollView as UIScrollView in tagListView.subviews {
             scrollView.keyboardDismissMode = .onDrag
         }
 
         placeholderArea.isUserInteractionEnabled = false
         placeholderArea.isHidden = true
-        for subview in [cancelButton, titleLabel, doneButton, searchBar, tagListView] as [UIView] {
+        for subview in [cancelButton, titleLabel, doneButton, syncButton, searchBar, tagListView] as [UIView] {
             subview.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview(subview)
         }
@@ -286,6 +317,10 @@ final class CYLContactTagEditorViewController: UIViewController {
             doneButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             doneButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 56),
             doneButton.heightAnchor.constraint(equalToConstant: 32),
+            syncButton.trailingAnchor.constraint(equalTo: doneButton.leadingAnchor, constant: -4),
+            syncButton.centerYAnchor.constraint(equalTo: doneButton.centerYAnchor),
+            syncButton.widthAnchor.constraint(equalToConstant: 44),
+            syncButton.heightAnchor.constraint(equalToConstant: 44),
             searchBar.topAnchor.constraint(equalTo: doneButton.bottomAnchor, constant: 20),
             searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
             searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
@@ -295,6 +330,43 @@ final class CYLContactTagEditorViewController: UIViewController {
             tagListView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
         reload()
+        loadFromServer()
+    }
+
+    // MARK: Network sync
+
+    /**
+     * The tag list's load policy over cache A and the server (B): the cache is what the store already shows; the
+     * server's sections, when they arrive, replace them.
+     */
+    private func loadFromServer() {
+        tagListView.loadSections(withKeys: [CYLContactTagStore.mineCacheKey, CYLContactTagStore.recentCacheKey]) { [weak self] sections, origin in
+            guard let self else { return }
+            if self.store.apply(sections) {
+                self.reload()
+            }
+        }
+    }
+
+    /**
+     * Uploads "My Tags" and "Recent" (cache A) to the server.
+     */
+    @objc func uploadToServer() {
+        server.upload([CYLContactTagStore.mineCacheKey: store.tags, CYLContactTagStore.recentCacheKey: store.recentTags])
+    }
+
+    /**
+     * The sync button: another device edits the server's data (a random new tag, the first two tags swapped), then
+     * this device pulls it, with the server's delay and HUD.
+     */
+    @objc func syncFromOtherDevices() {
+        server.simulateOtherDeviceEdit(localTags: store.tags)
+        server.fetchSections(withKeys: [CYLContactTagStore.mineCacheKey]) { [weak self] sections, _ in
+            guard let self, let sections else { return }
+            if self.store.apply(sections) {
+                self.reload()
+            }
+        }
     }
 
     override func viewDidLayoutSubviews() {
