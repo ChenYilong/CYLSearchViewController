@@ -154,8 +154,10 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   `npm test` 52 of 52 and the placeholder catalog and a placeholder page in DevTools with 0 console lines
   ([assets/miniprogram-devtools-20261119-placeholder-at-8dc39c3.png](assets/miniprogram-devtools-20261119-placeholder-at-8dc39c3.png), WeChat DevTools base library 3.6.6, Windows 11, CYLTableViewPlaceHolder 8dc39c3, 2026-11-19 10:02 +13:00,
   2026-11-19 10:02 +13:00); HarmonyOS ohosTest 29 of 29; Android build + unit tests; React Native and Flutter Android
-  build. Found: `android/merged`'s pinned checkout ran `git checkout` twice at once on the same folder and both hung on
-  `index.lock` for 28 minutes; a manual checkout fixed it (TODO: make `pinnedCheckout` run once per repository).
+  build. Found: `android/merged`'s pinned checkout hung for 28 minutes in `git checkout` (one checkout; on
+  Windows the `git` launcher starts `git.exe` as its child), most likely while the partial clone downloaded its blobs with
+  OneDrive syncing the folder; a manual checkout then took 1 s. Fixed in `settings.gradle.kts`: every git step has a
+  10-minute limit and one retry, and runs with `core.longpaths=true`.
   iOS `pod install` asked of the macOS session. Commit: `de35153` (its message wrongly repeats "Rive tab icons on Android
   checked in Flutter and RN"; the content is this pin; `82a24ba` has the same mistake for the guide re-read closure).
 - **Status**: started. CYLTableViewPlaceHolder → its newest commit `62e40c0` (branch

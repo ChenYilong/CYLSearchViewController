@@ -27,9 +27,19 @@ fun pinnedCheckout(name: String, url: String, commitProperty: String, dirPropert
     val commit = providers.gradleProperty(commitProperty).get()
     (providers.gradleProperty(dirProperty).orNull ?: System.getenv(environment))?.let { return File(it) }
     val dir = File(settingsDir, ".cyl-deps/$name")
+    // Each step has a time limit and one retry: a checkout of the partial clone downloads its blobs lazily and once hung
+    // for 28 minutes on Windows (2026-11-19, OneDrive syncing the folder); long paths are on for deep example folders.
     fun git(vararg args: String) {
-        val process = ProcessBuilder(listOf("git") + args).directory(dir.parentFile).inheritIO().start()
-        check(process.waitFor() == 0) { "git ${args.joinToString(" ")} failed" }
+        repeat(2) { attempt ->
+            val process = ProcessBuilder(listOf("git", "-c", "core.longpaths=true") + args).directory(dir.parentFile).inheritIO().start()
+            if (process.waitFor(10, java.util.concurrent.TimeUnit.MINUTES)) {
+                check(process.exitValue() == 0) { "git ${args.joinToString(" ")} failed" }
+                return
+            }
+            process.destroyForcibly()
+            File(dir, ".git/index.lock").delete()
+            check(attempt == 0) { "git ${args.joinToString(" ")} timed out twice" }
+        }
     }
     dir.parentFile.mkdirs()
     if (!File(dir, ".git").exists()) {
