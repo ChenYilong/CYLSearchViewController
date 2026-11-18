@@ -741,3 +741,14 @@ question to the user.
   `box="10 20 30 40"`, `sips --cropOffset $box …` passes one argument in zsh but four in bash. The error this rule
   avoids: "zsh doesn't split $box into words either. Running the same measurement as a bash script."
 - In zsh, when a script cannot be used, split explicitly (`${=box}`) or use an array; never rely on word splitting.
+
+## Sessions by platform: Mac for iOS, Win for the other platforms (added 2026-11-19)
+
+- Before starting a task, check the session names (for example with `ListAgents`; this session's own name is shown
+  there too).
+- A session whose name starts with `Mac` (case-insensitive) mainly develops and tests the iOS side.
+- A session whose name starts with `Win` (case-insensitive) mainly develops the other platforms (Android, HarmonyOS,
+  Flutter, React Native, mini program).
+- When sessions of both kinds are active, assign the platform parts of a task to the fitting session: send the iOS
+  part to a `Mac` session and the other platforms to a `Win` session, rather than doing every platform yourself.
+- When no session follows this naming, skip this rule and finish the task on your own.

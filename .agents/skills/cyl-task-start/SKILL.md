@@ -1,6 +1,6 @@
 ---
 name: cyl-task-start
-description: "Starting, scoring and finishing any task in CYLSearchViewController: check other sessions first, mark TODO and the branch at the top of the session, log the task in docs/ with acceptance criteria (full marks and pass), score until it passes, end with the missing points as TODOs; restart a hung emulator after telling the other sessions."
+description: "Starting, scoring and finishing any task in CYLSearchViewController: check other sessions first (split platform work: Mac sessions iOS, Win sessions the others), mark TODO and the branch at the top of the session, log the task in docs/ with acceptance criteria (full marks and pass), score until it passes, end with the missing points as TODOs; restart a hung emulator after telling the other sessions."
 ---
 
 # Start, score and finish every task
@@ -17,6 +17,10 @@ and simulators: restart when hung" (user's rules, 2026-11-18).
    - No session is editing the same branch: go on.
    - One is: check whether its task is the same. Same task: do not duplicate it; ask that session or the user how to
      split the work. Different task: go on and keep out of its files.
+   - **Split by platform (added 2026-11-19)**: a session named `Mac...` (case-insensitive) mainly develops and tests
+     iOS; a session named `Win...` mainly develops the other platforms. When sessions of both kinds are active, send
+     each platform part of the task to the fitting session (iOS to `Mac`, the others to `Win`). When no session
+     follows this naming, skip this step and do the task on your own. Rule: `AGENTS.md`, "Sessions by platform".
 2. **Mark the task at the top of the session**: the first lines of the reply are
    `TODO (branch <git branch --show-current>): <the task in one line>`.
 3. **Log the task in `docs/`** (the feature's document, else `docs/task-log.md`) under
