@@ -70,7 +70,7 @@ export default function App() {
     <SafeAreaProvider>
       {/* Dark status bar icons on the light pages (light ones in dark mode): the app draws edge to edge, so the status
           bar is transparent over the page; the theme alone left white icons on white (Android). */}
-      <StatusBar barStyle={dark ? 'light-content' : 'dark-content'} backgroundColor="transparent" translucent />
+      <StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
       <Screens />
     </SafeAreaProvider>
   );
@@ -101,6 +101,20 @@ const TAB_ITEMS: CYLTabBarItem[] = [
   riveTab({ title: 'Empty results', image: 'system:magnifyingglass', selectedImage: 'system:magnifyingglass', identifier: 'empty' }, 'SEARCH'),
   riveTab({ title: 'Discover', image: 'system:sparkle.magnifyingglass', selectedImage: 'system:sparkle.magnifyingglass', identifier: 'discover' }, 'USER'),
 ];
+// SVGA tab icons (the SVGA counterpart of the Rive scene, as the iOS, native Android, Flutter and HarmonyOS examples):
+// CYLTabBarController plays CYLTabBarSVGAFilePath through the app's SVGA player (Android: SVGAPlayer-Android; iOS: the
+// CYLAnimatedItem/SVGA subspec). The files are the iOS example's CYLSearchExample/SVGA (see NOTICE.md there), read from the
+// Android assets and copied into the iOS app.
+function svgaTab(item: CYLTabBarItem, file: string): CYLTabBarItem {
+  return { ...item, CYLTabBarSVGAFilePath: file, CYLTabBarSVGASize: '{28, 28}' };
+}
+const SVGA_TAB_ITEMS: CYLTabBarItem[] = [
+  svgaTab({ title: 'List style', image: 'system:list.bullet', selectedImage: 'system:list.bullet', identifier: 'list' }, 'tab_list.svga'),
+  svgaTab({ title: 'Tag style', image: 'system:tag', selectedImage: 'system:tag.fill', identifier: 'tags' }, 'tab_chat.svga'),
+  svgaTab({ title: 'Empty results', image: 'system:magnifyingglass', selectedImage: 'system:magnifyingglass', identifier: 'empty' }, 'tab_search.svga'),
+  svgaTab({ title: 'Discover', image: 'system:sparkle.magnifyingglass', selectedImage: 'system:sparkle.magnifyingglass', identifier: 'discover' }, 'tab_profile.svga'),
+];
+
 const PLUS_BUTTON: CYLTabBarPlusButton = {
   title: 'Search bar',
   // A 52 pt green PNG: `imageSize` would redraw an SF Symbol into a black bitmap.
@@ -115,6 +129,8 @@ function Screens() {
   // `-initialTab discover` (an iOS launch argument, read through Settings) opens a tab directly, for screenshots.
   const [tab, setTab] = useState<string>(() => (Platform.OS === 'ios' && typeof Settings.get('initialTab') === 'string' ? Settings.get('initialTab') : 'list'));
   const [open, setOpen] = useState<Demo | null>(null);
+  // Where the tab icons come from (iOS CYLDemoTabIconSource: 2 SVGA; the button on the sample pages switches it).
+  const [iconSource, setIconSource] = useState<'rive' | 'svga'>(() => (Platform.OS === 'ios' && Number(Settings.get('CYLDemoTabIconSource')) === 2 ? 'svga' : 'rive'));
   if (open?.results) {
     return (
       <SafeAreaView style={[styles.fill, { backgroundColor: palette.background }]} edges={['top', 'bottom']}>
@@ -157,13 +173,17 @@ function Screens() {
                 <Text style={styles.buttonText}>{demo.label}</Text>
               </Pressable>
             ))}
+            <Pressable accessibilityRole="button" style={styles.button} onPress={() => setIconSource(iconSource === 'rive' ? 'svga' : 'rive')}>
+              <Text style={styles.buttonText}>{iconSource === 'rive' ? 'Tab icons: Rive' : 'Tab icons: SVGA'}</Text>
+            </Pressable>
           </View>
         ) : null}
       </View>
       {/* CYLTabBarController's tab bar (react-native-cyltabbar): four tabs and a raised plus button for the search bar. */}
       <CYLTabBar
+        key={iconSource}
         style={styles.tabBar}
-        items={TAB_ITEMS}
+        items={iconSource === 'svga' ? SVGA_TAB_ITEMS : TAB_ITEMS}
         plusButton={{ ...PLUS_BUTTON, titleColor: palette.text }}
         tapAnimation="scale"
         selectedIndex={tab === 'bar' ? -1 : TAB_KEYS.indexOf(tab)}

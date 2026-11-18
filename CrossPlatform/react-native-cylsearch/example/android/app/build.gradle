@@ -83,6 +83,8 @@ android {
     sourceSets {
         main {
             assets.srcDir("../../vendor/CYLTabBarController/Example-SwiftUI-Rive/AnimatedApp/RiveAssets")
+            // SVGA tab icons ("Tab icons: SVGA"): the iOS example's files, with their NOTICE.md, not a second copy.
+            assets.srcDir("../../../../../CYLSearchExample/SVGA")
         }
     }
     defaultConfig {
@@ -117,6 +119,8 @@ android {
 dependencies {
     // CYLTabBarController plays the Rive tab icons through rive-android, found by reflection (it calls Rive.init itself).
     implementation("app.rive:rive-android:10.3.0")
+    // CYLTabBarController plays SVGA tab icons through SVGAPlayer-Android, found by reflection (as android/merged).
+    implementation("com.github.yyued:SVGAPlayer-Android:2.6.1")
     // The version of react-native is set by the React Native Gradle Plugin
     implementation("com.facebook.react:react-android")
 
