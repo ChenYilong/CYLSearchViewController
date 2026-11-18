@@ -528,6 +528,11 @@ Flutter 2503, 919, 833, 355, then 0.
   a tag in Manage opens a contact list (24 contacts per language, CYLTableViewPlaceHolder's placeholder when none), edits
   are saved in `CYLTagListStore`. The 49d1f38 pins were checked on 2026-11-19: Android build and unit tests, HarmonyOS
   29/29 device tests, mini program 52/52.
+  Also 5a72ac9: a simulated server (`CYLContactTagServer`, 5 s per request, `CYLPlaceholderHUD` messages): cache then
+  network on opening, upload when leaving Manage, a sync button simulating another device; launch options
+  `-CYLContactTagsServerLatency`, `-CYLContactTagsLoadPolicy`; new strings `contactTags.sync` … `otherDeviceTags`. CollectionViewClassifyMenu's
+  Android editing API landed (dc609d41). The 5a72ac9 pins (3fc2c23b, d19120f, 5996fa96) were checked on 2026-11-19:
+  Android build and unit tests, HarmonyOS 29/29 device tests, mini program 52/52.
 - **Acceptance**: full marks (100) = all five platforms with tests and labelled screenshots; pass (60) = Android and
   HarmonyOS with screenshots.
 - **Status**: not started. Score: 0/100.
