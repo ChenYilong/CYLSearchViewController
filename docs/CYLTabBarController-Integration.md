@@ -353,9 +353,16 @@ CYLTabBarController pin needed the plugin's platform views to be `@MainActor` (t
 
 | # | Example | Status |
 | :--- | :--- | :--- |
-| 1 | Flutter, iOS | TODO need 模拟器截图验证 (code done; `flutter analyze` passes; iOS not built: no Mac): `assets/cyl_tabbar_configuration_rive.json` (CHAT, BELL, SEARCH, USER at 28 pt), the default icon source (`CYL_DEMO_TAB_ICON_SOURCE` 3; 2 SVGA, 0 PNG); Podfile subspec `Rive`; Runner build phase "Fetch Rive tab icons" downloads icons.riv from the commit pinned in pubspec.yaml into the bundle (cached in ios/build) |
+| 1 | Flutter, iOS | DONE 2026-11-19 on the iPhone 18 Pro simulator (iOS 27.2, Xcode 27.2): built at CYLTabBarController `b376c278`; the tab bar draws CHAT, BELL, SEARCH, USER from icons.riv, and tapping Tag style plays BELL once (screenshot below). Code: `assets/cyl_tabbar_configuration_rive.json` (CHAT, BELL, SEARCH, USER at 28 pt), the default icon source (`CYL_DEMO_TAB_ICON_SOURCE` 3; 2 SVGA, 0 PNG); Podfile subspec `Rive`; Runner build phase "Fetch Rive tab icons" downloads icons.riv from the commit pinned in pubspec.yaml into the bundle (cached in ios/build) |
 | 2 | Flutter, Android | TODO need 模拟器截图验证 (BUILT 2026-11-16 on Windows: `flutter build apk --debug --target-platform android-x64`, Flutter 3.x stable / Dart 3.14, JDK 21; app-debug.apk contains assets/icons.riv (10104 bytes, fetched by `fetchCylRiveIcons` from the pinned commit) and lib/*/librive-android.so). The build found and fixed three faults in the fetch task and one manifest merge fault (SVGAPlayer-Android label, `tools:replace`): `31330de0`, `a40cb3e`. Not run on a device |
-| 3 | React Native, iOS | TODO need 模拟器截图验证 (code done; TypeScript checked with `tsc`; iOS not built: no Mac): `src/App.tsx` tab items with `CYLTabBarRiveFilePath` icons.riv, `CYLTabBarAnimationOptions` (artboard, `<ARTBOARD>_Interactivity`, input active), 28 pt; Podfile `CYLTabBarController/Rive`; build phase "Copy Rive tab icons" copies it from vendor/CYLTabBarController (scripts/fetch-cyltabbar.sh) |
+| 3 | React Native, iOS | DONE 2026-11-19 on the iPhone 18 Pro simulator (iOS 27.2, Xcode 27.2, debug build with Metro): same icons, BELL plays once on tap (screenshot below). Code: `src/App.tsx` tab items with `CYLTabBarRiveFilePath` icons.riv, `CYLTabBarAnimationOptions` (artboard, `<ARTBOARD>_Interactivity`, input active), 28 pt; Podfile `CYLTabBarController/Rive`; build phase "Copy Rive tab icons" copies it from vendor/CYLTabBarController (scripts/fetch-cyltabbar.sh) |
 | 4 | React Native, Android | TODO need 模拟器截图验证 (configuration checked 2026-11-16 on Windows: `yarn install`, `tsc --noEmit` passes with the Rive tab items; Gradle resolves rive-android and compiles the Kotlin and Java sources; the APK stops at the native link of `libappmodules` (40 undefined libc++ symbols from React Native codegen), which fails the same way without rive-android, so it is not caused by this change: an environment issue of React Native 0.88 + NDK 27.1 on this Windows machine, to check on a Mac or Linux build) |
 
-Score: 100/100 (4 of 4 rows not `TODO`; all wait for a build and a screenshot).
+Score: 50/100 (2 of 4 rows DONE with a screenshot; rows 2 and 4, Android, still need an emulator run).
+
+![iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), CYLSearchViewController 37c96d3, CYLTabBarController b376c278, feat/harmonyos-parity, 2026-11-19. Purpose: Rive tab icons in the Flutter and React Native iOS examples](assets/ios-iphone18pro-20261119-flutter-rn-rive-tab-icons.png)
+
+iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), CYLSearchViewController 37c96d3, CYLTabBarController
+b376c278, feat/harmonyos-parity, 2026-11-19. Purpose: Rive tab icons in the Flutter and React Native iOS examples.
+Bell-region pixel change after the tap, against the final frame (30 fps video): RN 820, 409, 811, 164, then under 25;
+Flutter 2503, 919, 833, 355, then 0.
