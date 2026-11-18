@@ -719,6 +719,9 @@ class CYLSearchView @JvmOverloads constructor(
             pageView.setPadding(bars.left, topInset, bars.right, 0)
             suggestionsTableView.setPadding(0, 0, 0, keyboardInset)
             resultsTableView.setPadding(0, 0, 0, keyboardInset)
+            // The placeholders are centred in what the keyboard leaves visible, not under it (2026-11-19).
+            emptyResultsView?.setPadding(0, 0, 0, keyboardInset)
+            emptySuggestionsView?.setPadding(0, 0, 0, keyboardInset)
             insets
         }
         applyStyle()
@@ -1010,12 +1013,14 @@ class CYLSearchView @JvmOverloads constructor(
         }
         if (emptyResultsVisible && emptyResultsView == null) {
             emptyResultsView = CYLPlaceholderStackView(context, emptyResultsScenario).also {
+                it.setPadding(0, 0, 0, keyboardInset)
                 bodyView.addView(it, 0, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
             }
         }
         emptyResultsView?.visibility = if (emptyResultsVisible) VISIBLE else GONE
         if (emptySuggestionsVisible && emptySuggestionsView == null) {
             emptySuggestionsView = CYLPlaceholderStackView(context, emptySuggestionsScenario).also {
+                it.setPadding(0, 0, 0, keyboardInset)
                 bodyView.addView(it, 0, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
             }
         }

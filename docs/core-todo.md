@@ -206,4 +206,7 @@ packages). A test checks each rule.
   the core with screenshots.
 - **Prompt** (verbatim, relayed): "继续完成TODO 完成评分不到100的任务，一直到满分为止" (English: continue the TODOs; keep
   working on tasks below 100 until they reach 100). Found while checking the CYLTableViewPlaceHolder 8dc39c3 pin.
-- **Status**: recorded with a screenshot; not fixed yet.
+- **Status**: Android fixed (2026-11-19): `CYLSearchView.kt` pads both placeholders by the keyboard inset, as its two lists
+  already were, so `CYLPlaceholderStackView` (a `FrameLayout` centring its content) centres within the visible part ([assets/android-medium-phone-api37-20261119-placeholder-above-keyboard.png](assets/android-medium-phone-api37-20261119-placeholder-above-keyboard.png), Android API 37 Medium Phone emulator, React Native 0.88.0, Windows 11, 2026-11-19 10:19 +13:00; unit tests pass).
+  React Native Android uses this core. Left: iOS (the Swift core and React Native iOS; asked of the macOS session),
+  HarmonyOS and the mini program checks. Score: 40/100.
