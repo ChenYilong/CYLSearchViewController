@@ -421,3 +421,15 @@ Flutter 2503, 919, 833, 355, then 0.
   The new bundle is outside `harmonyos/scripts/check-ios-parity.mjs` (it compares `CYLSearchTabs` and
   `CYLSearchDiscover`), so the other platforms' checks stay green; their copies of this screen are the Win session's
   (platform rule). Score: 100/100 for iOS.
+
+## TODO (2026-11-19): the contact tags example on the other platforms
+
+- **Branch**: `feat/harmonyos-parity`. Owner: the Windows session (platform rule).
+- **Task**: port the iOS contact tags example (3a69622, section above) to Android, HarmonyOS, the mini program, React Native
+  and Flutter: an Examples row opening Edit Remarks, whose tags open Edit Tags with the platform's `CYLSearchBarView`
+  as the search field (filter while typing, submit creates the tag, "+ New tag", Manage deletes), the 47 tags and
+  strings from `CYLContactTags.bundle` in en, ja, zh-Hans and zh-Hant; add `CYLContactTags` to
+  `harmonyos/scripts/check-ios-parity.mjs`.
+- **Acceptance**: full marks (100) = all five platforms with tests and labelled screenshots; pass (60) = Android and
+  HarmonyOS with screenshots.
+- **Status**: not started. Score: 0/100.
