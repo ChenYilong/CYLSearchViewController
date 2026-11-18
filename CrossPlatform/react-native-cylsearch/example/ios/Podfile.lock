@@ -1913,7 +1913,7 @@ PODS:
 
 DEPENDENCIES:
   - boost (from `build/rndeps-facades/boost`)
-  - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `47f4f8b6b9994a9ac8d0629224c104ab58c7d005`)
+  - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `697e9307823041705aee9dad4032efd2d9cb1eed`)
   - CYLAnimatedItem (from `../vendor/CYLTabBarController`)
   - Cylsearch (from `../..`)
   - CYLSearchViewController (from `../../../..`)
@@ -2019,7 +2019,7 @@ EXTERNAL SOURCES:
   boost:
     :path: build/rndeps-facades/boost
   CollectionViewClassifyMenu:
-    :commit: 47f4f8b6b9994a9ac8d0629224c104ab58c7d005
+    :commit: 697e9307823041705aee9dad4032efd2d9cb1eed
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLAnimatedItem:
     :path: "../vendor/CYLTabBarController"
@@ -2210,7 +2210,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   CollectionViewClassifyMenu:
-    :commit: 47f4f8b6b9994a9ac8d0629224c104ab58c7d005
+    :commit: 697e9307823041705aee9dad4032efd2d9cb1eed
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLTableViewPlaceHolder:
     :commit: 62e40c0530f74e8fe8a8e6d8b98cf42d5ac7ada1
@@ -2314,6 +2314,6 @@ SPEC CHECKSUMS:
   SocketRocket: d57b1af80c029e12a75cd9b218287c67381e4593
   Yoga: 58b502c52b14ad3c4468805d461fc37d275c2a42
 
-PODFILE CHECKSUM: 8afa59294b519cf55d66c503cba6fe7bfd8ba1d8
+PODFILE CHECKSUM: c1cd970bfa772586106bd56f2731336990350dd3
 
 COCOAPODS: 1.17.0
