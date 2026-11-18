@@ -32,6 +32,8 @@ sync() {
     repo=$local_dir
   else
     repo="${TMPDIR:-/tmp}/cyl-harmony-$(basename "$url" .git | tr 'A-Z' 'a-z').git"
+    # A cache that is no longer a repository (a temp-folder cleanup can remove its objects and refs) is made again.
+    if [ -d "$repo" ] && ! git -C "$repo" rev-parse --git-dir >/dev/null 2>&1; then rm -rf "$repo"; fi
     [ -d "$repo" ] || git init --bare -q "$repo"
     git -C "$repo" cat-file -e "$commit^{commit}" 2>/dev/null || git -C "$repo" fetch -q --filter=blob:none "$url" "$commit"
   fi
