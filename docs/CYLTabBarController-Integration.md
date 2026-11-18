@@ -384,4 +384,11 @@ Flutter 2503, 919, 833, 355, then 0.
 - **Acceptance**: full marks (100) = all pins moved together, the native, Flutter and React Native iOS apps build and
   launch, unit tests pass, a labelled screenshot of the animated items; pass (60) = iOS builds and tests pass at
   `4c7dc79d`.
-- **Status**: TODO.
+- **Status**: TODO, blocked by CYLTableViewPlaceHolder. Local test at `4c7dc79d` (pod install, Xcode 27.2): the only
+  error is CYLTableViewPlaceHolder `8dc39c3`'s Objective-C `@interface CYLPlaceholderView : CYLAnimatedItemView`
+  ("cannot subclass a class that was declared with the 'objc_subclassing_restricted' attribute"). Our code does not
+  subclass it in Objective-C (`CYLSearchBarView.swift`, `CYLSVGADemoTagButton.swift` and `CYLRNSearchSupport.h` only
+  import it), and CollectionViewClassifyMenu's `CYLTagButton` is Swift already. The CYLTableViewPlaceHolder session is
+  porting `CYLPlaceholderView` to Swift (its `docs/Task-Log.md`, `09c9861`); CollectionViewClassifyMenu was asked for a
+  commit bundling `4c7dc79d` or later. The pins stay at `b376c278` until both exist. Score: 10/100 (logged, cause
+  found and reported).
