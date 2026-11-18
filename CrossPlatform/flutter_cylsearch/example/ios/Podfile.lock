@@ -80,8 +80,8 @@ DEPENDENCIES:
   - CYLTabBarController/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `b376c278ef13db0a03e433de35aa191fe151ba94`)
   - CYLTabBarController/Rive (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `b376c278ef13db0a03e433de35aa191fe151ba94`)
   - CYLTabBarController/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `b376c278ef13db0a03e433de35aa191fe151ba94`)
-  - CYLTableViewPlaceHolder/Core (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `62e40c0530f74e8fe8a8e6d8b98cf42d5ac7ada1`)
-  - CYLTableViewPlaceHolder/Lottie (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `62e40c0530f74e8fe8a8e6d8b98cf42d5ac7ada1`)
+  - CYLTableViewPlaceHolder/Core (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `8dc39c32b6ebcfd490dbf2fd4b0535cdd16c2b43`)
+  - CYLTableViewPlaceHolder/Lottie (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `8dc39c32b6ebcfd490dbf2fd4b0535cdd16c2b43`)
   - Flutter (from `Flutter`)
   - flutter_cylsearch (from `.symlinks/plugins/flutter_cylsearch/ios`)
   - flutter_cyltabbar (from `.symlinks/plugins/flutter_cyltabbar/ios`)
@@ -110,7 +110,7 @@ EXTERNAL SOURCES:
     :commit: b376c278ef13db0a03e433de35aa191fe151ba94
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
-    :commit: 62e40c0530f74e8fe8a8e6d8b98cf42d5ac7ada1
+    :commit: 8dc39c32b6ebcfd490dbf2fd4b0535cdd16c2b43
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
   Flutter:
     :path: Flutter
@@ -132,7 +132,7 @@ CHECKOUT OPTIONS:
     :commit: b376c278ef13db0a03e433de35aa191fe151ba94
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
-    :commit: 62e40c0530f74e8fe8a8e6d8b98cf42d5ac7ada1
+    :commit: 8dc39c32b6ebcfd490dbf2fd4b0535cdd16c2b43
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
 
 SPEC CHECKSUMS:
@@ -151,6 +151,6 @@ SPEC CHECKSUMS:
   SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
   SVGAPlayerLite: ae073300a9faa016e88a54afa8fec43f54fed682
 
-PODFILE CHECKSUM: 8ff7381d12cdd36346ab2b97384d376911cfba9e
+PODFILE CHECKSUM: 5800e987922d830b6e54ce914ef37125c038d284
 
 COCOAPODS: 1.17.0

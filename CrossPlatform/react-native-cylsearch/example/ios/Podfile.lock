@@ -1938,8 +1938,8 @@ DEPENDENCIES:
   - CYLTabBarController (from `../vendor/CYLTabBarController`)
   - CYLTabBarController/Rive (from `../vendor/CYLTabBarController`)
   - CYLTabBarController/SVGA (from `../vendor/CYLTabBarController`)
-  - CYLTableViewPlaceHolder/Core (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `62e40c0530f74e8fe8a8e6d8b98cf42d5ac7ada1`)
-  - CYLTableViewPlaceHolder/Lottie (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `62e40c0530f74e8fe8a8e6d8b98cf42d5ac7ada1`)
+  - CYLTableViewPlaceHolder/Core (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `8dc39c32b6ebcfd490dbf2fd4b0535cdd16c2b43`)
+  - CYLTableViewPlaceHolder/Lottie (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `8dc39c32b6ebcfd490dbf2fd4b0535cdd16c2b43`)
   - DoubleConversion (from `build/rndeps-facades/DoubleConversion`)
   - fast_float (from `build/rndeps-facades/fast_float`)
   - FBLazyVector (from `build/rncore-facades/FBLazyVector`)
@@ -2054,7 +2054,7 @@ EXTERNAL SOURCES:
   CYLTabBarController:
     :path: "../vendor/CYLTabBarController"
   CYLTableViewPlaceHolder:
-    :commit: 62e40c0530f74e8fe8a8e6d8b98cf42d5ac7ada1
+    :commit: 8dc39c32b6ebcfd490dbf2fd4b0535cdd16c2b43
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
   DoubleConversion:
     :path: build/rndeps-facades/DoubleConversion
@@ -2235,7 +2235,7 @@ CHECKOUT OPTIONS:
     :commit: 697e9307823041705aee9dad4032efd2d9cb1eed
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLTableViewPlaceHolder:
-    :commit: 62e40c0530f74e8fe8a8e6d8b98cf42d5ac7ada1
+    :commit: 8dc39c32b6ebcfd490dbf2fd4b0535cdd16c2b43
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
 
 SPEC CHECKSUMS:
@@ -2339,6 +2339,6 @@ SPEC CHECKSUMS:
   SVGAPlayerLite: ae073300a9faa016e88a54afa8fec43f54fed682
   Yoga: 58b502c52b14ad3c4468805d461fc37d275c2a42
 
-PODFILE CHECKSUM: 668ae0614e6f6e5d4925f5ed9eaa28de2cfb72ba
+PODFILE CHECKSUM: e7f39180a241a7f234d095ed4811e46d41fd8715
 
 COCOAPODS: 1.17.0

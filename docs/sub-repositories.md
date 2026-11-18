@@ -158,7 +158,14 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   Windows the `git` launcher starts `git.exe` as its child), most likely while the partial clone downloaded its blobs with
   OneDrive syncing the folder; a manual checkout then took 1 s. Fixed in `settings.gradle.kts`: every git step has a
   10-minute limit and one retry, and runs with `core.longpaths=true`.
-  iOS `pod install` asked of the macOS session. Commit: `de35153` (its message wrongly repeats "Rive tab icons on Android
+  iOS DONE (2026-11-19, macOS session): `pod install` for the root, Flutter and React Native apps (all three
+  `Podfile.lock` files at `8dc39c3`, subspecs Core, Lottie, LottieSwift); clean builds of the three apps; each shows the
+  empty-results placeholder with its icon on the iPhone 18 Pro simulator (iOS 27.2, Xcode 27.2): native the no-results
+  icon, Flutter the magnifier, React Native the looping Lottie magnifier
+  ([assets/ios-iphone18pro-20261119-placeholder-icons-at-8dc39c3.png](assets/ios-iphone18pro-20261119-placeholder-icons-at-8dc39c3.png)).
+  Seen, not changed: native and React Native center the placeholder in the whole list, so the open keyboard covers
+  its subtitle (Flutter places it above the keyboard).
+  Commit: `de35153` (its message wrongly repeats "Rive tab icons on Android
   checked in Flutter and RN"; the content is this pin; `82a24ba` has the same mistake for the guide re-read closure).
 - **Status**: started. CYLTableViewPlaceHolder → its newest commit `62e40c0` (branch
   `feat/android-refresh-port-followup`, on `CYLAnimatedItem`); HarmonyOS and mini program component requested from the
