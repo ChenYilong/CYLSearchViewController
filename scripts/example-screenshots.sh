@@ -57,7 +57,10 @@ capture() {
     xcrun simctl launch --terminate-running-process "$DEVICE_ID" "$BUNDLE_ID" "$@" > /dev/null
     sleep 8
     if [ "$FIRST" -eq 1 ]; then sleep 10; FIRST=0; fi
-    if xcrun simctl spawn "$DEVICE_ID" launchctl list | grep -q "UIKitApplication:$BUNDLE_ID"; then
+    # The list is read first: with pipefail, `grep -q` closing the pipe early made launchctl fail (SIGPIPE) and hid a running app.
+    local services
+    services=$(xcrun simctl spawn "$DEVICE_ID" launchctl list || true)
+    if grep -q "UIKitApplication:$BUNDLE_ID" <<< "$services"; then
       xcrun simctl io "$DEVICE_ID" screenshot "$OUT/$name.png" > /dev/null
       echo "Captured $name ($*)"
       xcrun simctl terminate "$DEVICE_ID" "$BUNDLE_ID" || true
