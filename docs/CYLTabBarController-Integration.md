@@ -475,6 +475,24 @@ Flutter 2503, 919, 833, 355, then 0.
   ([assets/ios-iphone18pro-20261119-contact-tags-editing.png](assets/ios-iphone18pro-20261119-contact-tags-editing.png), iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), 2026-11-19).
   The Android, HarmonyOS and mini program versions of the library API are TODO rows in CollectionViewClassifyMenu's
   `docs/android-api.md`, for its Windows session. Score: 100/100 for iOS.
+
+### TODO (2026-11-19): network sync in the contact tags example (cache A, server cache B, sync button)
+
+- **Prompt** (verbatim, with its correction): "这里需要注意 CollectionViewClassifyMenu 在模仿CYLSearchSuggestionStore 过程中有一个注意事项。与CYLSearchSuggestionStore 不同的是CYLSearchSuggestionStore 只需要本地缓存。无须上传网络  上传。但是 CollectionViewClassifyMenu的CYLTagListCachePolicy还有上传网络的需求，本地拖拽排序后，需要从本地获取到排序后的列表，我们将CYLSearchSuggestionStore保存的缓存称之为缓存A。上传网络，可能需要在编辑结束后增加回调，返回排序后数据给用户，让用户自行上传。下次再进入该页面需要 根据CYLTagListCachePolicy里的缓存策略，缓存优先还是网络优先。还是先缓存后网络刷新。你可能增加回调接口后在example层，演示example可以做一个演示。你将排序后的taglist数据。缓存到沙盒里，这里是缓存A，将缓存A复制一份称之为缓存B，这个就是缓存上传网络服务器后，服务器数据允许不同设备设备上传，这里涉及到多端同步的问题。在将将缓存A复制一份称之为缓存B的过程中增加5秒延迟，并在用户界面显示CYLHUD，提示正在上传，上传结束展示CYLHUD显示上传结束。下次进入该页面将沙盒里的这个新缓存B当作网络数据，并在获取该缓存时候增加5秒延迟，以模拟从网络下载的延迟效果。在该example右上角增加一个同步按钮，该按钮模拟其他设备编辑后，本机拉取新数据的功能，点击同步按钮后，展示CYLHUD显示正在从其他设备同步，该同步按钮如何模拟多设备数据同步：在example层随机一个tag，以模拟多设备编辑后的效果。并修改前两个tag的顺序。更新缓存B。下次进入该页面将沙盒里的这个新缓存B当作网络数据，并在获取该缓存时候增加5秒延迟，增加CYLHUD以模拟从网络下载的延迟效果。core层面缓存策略默认为先缓存后网络数据下载成功后刷新。example层面允许自定义。" Correction: "typo：我们将CYLTagListCachePolicy保存的缓存称之为缓存A".
+- **English**: cache A is the tag list's local cache (`CYLTagListCachePolicy`). CollectionViewClassifyMenu gets an
+  end-of-editing callback with the reordered lists (the host uploads them), a remote source and a load policy
+  (cache first, network first, or cache then network: the core's default). The example simulates the server: cache B
+  is a copy of A in the sandbox; uploading copies A to B after 5 s with CYLHUD ("Uploading", then "Upload finished");
+  opening the page reads B as network data after 5 s with CYLHUD; a sync button at the top right simulates another
+  device (a random new tag, the first two tags swapped, written to B) and pulls it the same way. The example may pick
+  another policy.
+- **Plan**: CollectionViewClassifyMenu: `menu(_:didFinishEditingWithTitles:)` / `editingFinishHandler`,
+  `CYLTagListRemoteSource`, `CYLTagListLoadPolicy`, `CYLTagListDataOrigin`, `loadSections(withKeys:completion:)`
+  (its TODO in `docs/component-architecture.md`). This example: `CYLContactTagServer` (cache B, a `CYLTagListStore`
+  sandbox file; latency 5 s, `CYLContactTagsServerLatency` overrides; HUD = CYLTableViewPlaceHolder's
+  `CYLPlaceholderHUD`), the sync button, `-CYLContactTagsLoadPolicy`. Re-pin CYLTableViewPlaceHolder `d19120f` (its
+  keyboard fix) at the same time.
+- **Status**: TODO.
 ## TODO (2026-11-19): the contact tags example on the other platforms
 
 - **Branch**: `feat/harmonyos-parity`. Owner: the Windows session (platform rule).
