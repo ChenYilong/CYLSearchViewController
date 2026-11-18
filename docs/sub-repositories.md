@@ -135,7 +135,7 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   animated too (`docs/core-todo.md`, CYLTableViewPlaceHolder `6d8b264`). Left: HarmonyOS on the emulator (no signing needed, rule 2026-11-16; waits for the emulator instance, Scorecard 2 rows
   7 to 9 in [harmonyos-cross-platform.md](harmonyos-cross-platform.md)).
 
-## DONE (2026-11-19, iOS pod install pending; TODO 2026-11-17): continue the TODOs, unreleased components by commit
+## DONE (2026-11-19; TODO 2026-11-17): continue the TODOs, unreleased components by commit
 
 - **Context**: branch `feat/harmonyos-parity` (PR #11). Open items from the CYLAnimatedItem migration
   (`docs/animated-icon-component.md`): CYLTableViewPlaceHolder still pinned at `f488e2f`, before its own move to

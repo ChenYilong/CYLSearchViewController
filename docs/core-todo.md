@@ -189,3 +189,21 @@ packages). A test checks each rule.
   with it off the suggestion list shows without the keyboard, and an empty list shows the CYLTableViewPlaceHolder
   placeholder (animated on iOS and, since 2026-11-15, on Android). The Tag style samples pass
   `false`. Tests: `testFocusesSearchFieldOnShowDecidesWhenTheKeyboardAppears`, Android `CYLSearchBehaviorTest`.
+
+## TODO (2026-11-19): the empty-results placeholder sits under the keyboard
+
+- **Branch**: `feat/harmonyos-parity`.
+- **Bug**: with the keyboard up, the search core centres the empty-results placeholder in the whole list area, so the
+  keyboard covers its subtitle ("Try different keywords"). Seen on React Native Android
+  ([assets/android-medium-phone-api37-20261119-rn-placeholder-keyboard.png](assets/android-medium-phone-api37-20261119-rn-placeholder-keyboard.png), Android API 37 Medium Phone emulator, React Native 0.88.0, Windows 11, CYLTableViewPlaceHolder 8dc39c3, 2026-11-19 10:14 +13:00)
+  and on the iOS native app and React Native iOS by the macOS session (iPhone 18 Pro, iOS 27.2); Flutter keeps it above
+  the keyboard.
+- **Owner**: the search core (`CYLSearchView` lays the placeholder out in the list area; CYLTableViewPlaceHolder only
+  draws it), so the fix belongs here, on every platform: centre the placeholder in the part of the list the keyboard
+  leaves visible (as Flutter does).
+- **Acceptance**: full marks (100) = the placeholder (icon, title, subtitle) fully visible above the keyboard on iOS,
+  Android, React Native, Flutter, HarmonyOS and the mini program, with screenshots; pass (60) = iOS and Android fixed in
+  the core with screenshots.
+- **Prompt** (verbatim, relayed): "继续完成TODO 完成评分不到100的任务，一直到满分为止" (English: continue the TODOs; keep
+  working on tasks below 100 until they reach 100). Found while checking the CYLTableViewPlaceHolder 8dc39c3 pin.
+- **Status**: recorded with a screenshot; not fixed yet.
