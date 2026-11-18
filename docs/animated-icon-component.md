@@ -178,13 +178,18 @@ this repository. The document is about the animated component.")
   `minimumSize`, badge metrics, `CYLTagButtonHost`, `allowsTransparentBackground`), `a7d3474` (`playAnimation()`
   before the icon is loaded plays it once loaded), `15877a4` (`cyl-tag-button` `accessibilityLabel`).
 
-### Step 3: TODO
+### Step 3: BLOCKED on CYLTableViewPlaceHolder (2026-11-19)
 
 - CYLTableViewPlaceHolder: `CYLPlaceholderView`'s animated icon becomes a `CYLTagButton` (CYLTableViewPlaceHolder
   depends on CollectionViewClassifyMenu and drops `CYLPlaceholderItemAnimationEngine`); waits for that repository's
-  own session (PR #31).
+  own session (PR #31). 2026-11-19: PR #31 (its mini program placeholder) is still open and `CYLPlaceholderView`'s icon is
+  not a `CYLTagButton` yet; this repository only pins that library, so the change is the CYLTableViewPlaceHolder session's
+  (asked). Steps 1 and 2 stay DONE.
 
-### Unverified
+### Unverified (resolved 2026-11-19)
+
+- Since then every platform is built and run: iOS on the macOS session's simulator, Android, React Native, Flutter and
+  HarmonyOS on the Windows emulators, the mini program in WeChat DevTools (rows 20 to 38). The notes below are kept as written.
 
 - Nothing was compiled here: the Swift core and example (`CYLSearchBarView.swift`, `CYLSVGADemoTagButton.swift`,
   `CYLSearchDemoMenuViewController.m`, the project file entry), the Objective-C test, the Kotlin core and its
@@ -392,7 +397,7 @@ this repository. The document is about the animated component.")
   the `CYLAnimatedItem` pod (`CYLAnimatedItem/SVGA`). Example-only: the core has no such import; the example now
   imports `<CYLAnimatedItem/CYLSVGATabBarItemAnimator.h>`. Pending CI.
 
-## TODO (2026-11-17): the guide re-read at `57a527e`: CYLAnimatedItem on HarmonyOS and the mini program
+## DONE (2026-11-19; TODO 2026-11-17): the guide re-read at `57a527e`: CYLAnimatedItem on HarmonyOS and the mini program
 
 - **Context**: CYLTabBarController `842aef8` adds the component on HarmonyOS (ohpm module
   `CrossPlatform/harmonyos-cyltabbar/cylanimateditem`, `CYLAnimatedItemView`, engines registered by the app with
@@ -441,7 +446,7 @@ this repository. The document is about the animated component.")
     `node harmonyos/scripts/host-logic-test.mjs` 30 of 30; `check-ios-parity.mjs` 397 match;
     `check-accessibility-i18n.mjs` 0 problems; `harmonyos-scorecard.py` 100/100; `miniprogram-api-alignment.py`
     100/100 (no change); `check-licenses.sh` OK; `check-public-api-comments.sh` OK.
-  - **TODO.** Build the HAP with DevEco Studio (ohpm install of the `file:` modules and the three animation libraries;
+  - **DONE (2026-11-19).** The HAP builds and ohosTest passes 29 of 29 on the Mate 70 Pro emulator at every pin since (latest CYLTabBarController `b376c278`, CollectionViewClassifyMenu `697e9307`); the mini program runs in WeChat DevTools and the SVGA item plays on tap (rows 22, 29, 30; screenshots in `docs/assets/`). Was: Build the HAP with DevEco Studio (ohpm install of the `file:` modules and the three animation libraries;
     `PAGFile.LoadFromAssets` and the Rive view against `@tencent/libpag` 4.5.102 and `@ohos/rive` 1.0.4) and run the
     ohosTest suite on the emulator; run the mini program in WeChat DevTools and check an animated search bar item
     (SVGA / Lottie) plays on tap and falls back to its image; screenshots for both (AGENTS.md, "Screenshots").
