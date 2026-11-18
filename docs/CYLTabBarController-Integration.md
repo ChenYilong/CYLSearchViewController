@@ -287,7 +287,7 @@ CYLTabBarController pin needed the plugin's platform views to be `@MainActor` (t
 
 ![Flutter iOS, SVGA tab icons](assets/flutter-ios-svga-tab-icons-ios26.3.png)
 
-## IN PROGRESS (TODO 2026-11-17): fix the React Native Android tab icons
+## DONE (2026-11-18; TODO 2026-11-17): fix the React Native Android tab icons
 
 - Prompt (verbatim): "fix rn android icons"
 - Prompt (English): "Fix the React Native Android icons."

@@ -11,7 +11,7 @@ CYLTableViewPlaceHolder's `:placeholder-refresh`); HarmonyOS `harmonyos/cylsearc
 mini program components `cyl-search-bar` and `cyl-search`; React Native components `CYLSearchBarView` and `CYLSearchView`
 on the native cores, Flutter as well. Dated task entries below record the work in their own time and name the classes of that time.
 
-## IN PROGRESS (TODO 2026-11-17): React Native and Flutter environments on Windows, then test them and HarmonyOS
+## DONE (2026-11-18; TODO 2026-11-17): React Native and Flutter environments on Windows, then test them and HarmonyOS
 
 - Prompt (verbatim): "检查RN flutter环境是否符合要求，如果是开始测试这两端，以及鸿蒙。如果环境不符合，继续配置到何时为止。"
 - Prompt (English): "Check whether the React Native and Flutter environments meet the requirements; if they do, start testing
