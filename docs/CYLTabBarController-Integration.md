@@ -485,7 +485,12 @@ Flutter 2503, 919, 833, 355, then 0.
   `harmonyos/scripts/check-ios-parity.mjs`. Also be50215: CYLPlaceholderView when the tag list is empty (Edit Tags:
   `.noResults` "contactTags.noMatch" below "+ New tag" for a search without match, `.empty` "contactTags.noTags" with
   no tags, centred above the keyboard; Edit Remarks: `.empty` "contactTags.remarkNoTags" as a button opening the editor,
-  no "contactTags.addTags" chip), and the launch option to start without tags (`-CYLContactTagsEmpty YES`).
+  no "contactTags.addTags" chip), and the launch option to start without tags (`-CYLContactTagsEmpty YES`). Also 49d1f38: Manage uses CollectionViewClassifyMenu's
+  `CYLTagListView` editing mode (delete buttons, drag, add control; its Android, HarmonyOS and mini program versions are
+  TODO rows in that repository's `docs/android-api.md`, which this port waits for), Recent has a clear button, My Tags folds,
+  a tag in Manage opens a contact list (24 contacts per language, CYLTableViewPlaceHolder's placeholder when none), edits
+  are saved in `CYLTagListStore`. The 49d1f38 pins were checked on 2026-11-19: Android build and unit tests, HarmonyOS
+  29/29 device tests, mini program 52/52.
 - **Acceptance**: full marks (100) = all five platforms with tests and labelled screenshots; pass (60) = Android and
   HarmonyOS with screenshots.
 - **Status**: not started. Score: 0/100.
