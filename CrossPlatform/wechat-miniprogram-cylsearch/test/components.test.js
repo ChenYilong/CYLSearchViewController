@@ -210,3 +210,31 @@ test('cyl-search-bar draws each item with cyl-tag-button: title, image, badge, a
   assert.equal(played, 1);
   assert.deepEqual(names(withChild), ['itemselect']);
 });
+
+test('cyl-search-bar editing bar: every new title takes the keyboard, also when focus is already set', (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const bar = load('cyl-search-bar')({ editingBar: true, cancelButtonTitle: 'Done' });
+  const focusHistory = [];
+  const setData = bar.setData;
+  bar.setData = (values) => {
+    if ('inputFocus' in values) focusHistory.push(values.inputFocus);
+    setData(values);
+  };
+  // First rename: the title arrives, the field focuses.
+  bar.set('value', 'Family');
+  assert.deepEqual(focusHistory, [true]);
+  // Done: the page clears the value, but the field keeps inputFocus (no blur event reached it, as on a phone).
+  bar.set('value', '');
+  assert.equal(bar.data.inputFocus, true);
+  // Second rename: false then true, so WeChat focuses the input again.
+  bar.set('value', 'College Classmates');
+  assert.deepEqual(focusHistory, [true, false]);
+  t.mock.timers.tick(30);
+  assert.deepEqual(focusHistory, [true, false, true]);
+  assert.equal(bar.data.inputFocus, true);
+  // The page's own focus property also re-triggers while focus is set.
+  bar.set('focus', true);
+  t.mock.timers.tick(30);
+  assert.deepEqual(focusHistory.slice(-2), [false, true]);
+});
+

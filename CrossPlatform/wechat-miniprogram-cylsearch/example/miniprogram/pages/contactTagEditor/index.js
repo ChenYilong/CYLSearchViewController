@@ -196,7 +196,8 @@ Page({
 
   beginRenaming(position, title) {
     this.renamingPosition = position;
-    this.setData({ editingTitle: t('done'), editingText: title, editingFocus: true });
+    // The editing bar takes the keyboard for each new title itself (cyl-search-bar `editingBar`), every rename.
+    this.setData({ editingTitle: t('done'), editingText: title });
   },
 
   onEditingSubmit(event) {

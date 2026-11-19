@@ -261,3 +261,20 @@ packages). A test checks each rule.
   does not push the page) properties. Test `editing bar submits the trimmed text…` (test/cyl_search_bar_view.test.js); used by
   the mini program contact tags example ([assets/wechat-devtools-20261119-contact-tags.png](assets/wechat-devtools-20261119-contact-tags.png), WeChat DevTools simulator, base library 3.6.6, Windows 11, 2026-11-19 +13:00, after 34b8cd3).
   TODO: Flutter and React Native.
+
+## DONE (2026-11-19; TODO 2026-11-19): the mini program editing bar focuses every rename, not only the first
+
+- **Branch**: `feat/harmonyos-parity`. Platform: WeChat mini program (the user's phone).
+- **Prompt (verbatim)**: "自动聚焦功能，需要默认启动。在联系人example中点击编辑后第一次可以自动聚焦输入框，唤起键盘。当点击done后。点击其他tag编辑时不再自动聚焦。我的测试平台是微信小程序"
+  (English: auto-focus must be on by default. In the contact tags example, the first edit focuses the field and raises
+  the keyboard; after tapping Done, editing another tag no longer focuses it. Tested on the WeChat mini program.)
+- **Cause**: WeChat focuses an `<input>` only when its `focus` goes from false to true. The page set `editingFocus`
+  to true for each rename and false only in `onEditingSubmit`, and the bar kept `inputFocus` true when the keyboard
+  closed without a blur reaching it; the second rename set true over true, which WeChat ignores.
+- **Fix (core, `src/cyl-search-bar`)**: `requestInputFocus()` clears `inputFocus` and sets it again on the next frame
+  when it is still true; an editing bar given a new non-empty `value` (the page's answer to a rename request) calls it,
+  every time, as the editing bar does on iOS, Android, React Native and Flutter; the `focus` property and the model's
+  keyboard requests use it too. The contact tags page no longer sets `editingFocus` for a rename (one request per
+  rename). Test: `cyl-search-bar editing bar: every new title takes the keyboard, also when focus is already set`
+  (`test/components.test.js`); `npm test` 58 of 58.
+- **Left**: the user's check on the phone (WeChat preview).

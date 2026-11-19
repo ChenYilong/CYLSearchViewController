@@ -135,7 +135,8 @@ Component({
       // The model asks for the keyboard; the field opens it once the expansion animation has revealed it.
       model.keyboardHandler = (shown) => {
         if (this.data.revealing && shown) return;
-        this.setData({ inputFocus: shown });
+        if (shown) this.requestInputFocus();
+        else this.setData({ inputFocus: false });
       };
       this.model = model;
     },
@@ -218,9 +219,26 @@ Component({
       // A new value from the page: no textchange event (the page already knows it).
       this.model.text = value || '';
       this.setData({ text: this.model.text });
+      // An editing bar given a new title (the page's answer to a rename request) takes the keyboard, every time, as
+      // CYLSearchBarView's editing bar does on iOS, Android, React Native and Flutter.
+      if (this.properties.editingBar && this.model.text) this.requestInputFocus();
     },
     onFocusPropertyChange(focus) {
-      this.setData({ inputFocus: focus });
+      if (focus) this.requestInputFocus();
+      else this.setData({ inputFocus: false });
+    },
+    /**
+     * Focuses the field and raises the keyboard. WeChat focuses an input only when its `focus` goes from false to
+     * true, so a request while `inputFocus` is still true (the keyboard closed without a blur reaching the page, or a
+     * second rename) first clears it, then sets it on the next frame.
+     */
+    requestInputFocus() {
+      if (!this.data.inputFocus) {
+        this.setData({ inputFocus: true });
+        return;
+      }
+      this.setData({ inputFocus: false });
+      setTimeout(() => this.setData({ inputFocus: true }), 30);
     },
     onIconifiedByDefaultChange(value) {
       if (value && !this.data.focused && !this.data.text) {
