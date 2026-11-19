@@ -100,7 +100,18 @@ What each platform did differently from the target design below.
   text callback is an overload of `searchBarViewTextDidChange` on Android and `searchBarViewTextDidChangeAtIndex` on
   HarmonyOS and the mini program.
 
-### TODO: not verified yet
+### Verification (2026-11-19 status of the list below)
+
+- Verified since: iOS compiles and its tests pass at every pin today (35 tests at CollectionViewClassifyMenu
+  `3af1b7cd`, CYLTableViewPlaceHolder `e984868`, CYLTabBarController `5744917d`; CI runs for `37c96d3` and `80a9463`
+  passed every job); the three `Podfile.lock` files name the current commits; CYLTableViewPlaceHolder's API is checked
+  by those builds; the React Native and Flutter iOS apps build. The Windows session reports, at the same pins: Android
+  `:cylsearch:testDebugUnitTest` and `:app:assembleDebug` pass; HarmonyOS ohosTest 29 of 29 on the Mate 70 Pro
+  emulator; the mini program `npm test` 52 of 52.
+- Still open, for the Windows session: the HarmonyOS V1-in-V2 components and `WeakMap` on a device, and the mini
+  program's default generic path without `cyl-placeholder-miniprogram`.
+
+### TODO: not verified yet (2026-11-16, kept as written)
 
 - Nothing was compiled in this session: no Xcode, no Android SDK, no DevEco Studio, no WeChat DevTools (Linux).
 - iOS CI on PR #11 is the first compile of `Sources/CYLSearchBar` and the example.
