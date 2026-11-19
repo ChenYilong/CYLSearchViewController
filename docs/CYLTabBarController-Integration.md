@@ -569,6 +569,18 @@ Flutter 2503, 919, 833, 355, then 0.
   `-CYLContactTagsServerLatency`, `-CYLContactTagsLoadPolicy`; new strings `contactTags.sync` … `otherDeviceTags`. CollectionViewClassifyMenu's
   Android editing API landed (dc609d41). The 5a72ac9 pins (3fc2c23b, d19120f, 5996fa96) were checked on 2026-11-19:
   Android build and unit tests, HarmonyOS 29/29 device tests, mini program 52/52.
+  Also 662f263 and dfdd83b (2026-11-19): tags carry ids (`contact-tags.json` version 2, `{id, title}`, t01…t47; new
+  `u-…`, other device `o-…`; contacts, Recent and the selection refer to ids); Manage shows an edit icon and a cross
+  per tag, the edit icon or a title tap renames in the editing bar ("Done"), keeping the id and the contacts; Add uses
+  the same editing bar; Recent uses CollectionViewClassifyMenu's built-in header clear button; even icon spacing from
+  the core's defaults. Core of this repository on every platform: the search bar's editing style
+  (`CYLSearchBarView.editingBar(placeholder:actionTitle:)`, no magnifier, submit button, no autocorrection) pinned above
+  the keyboard (`pinToKeyboard(in:)`), record in [core-todo.md](core-todo.md).
+- **Prompt (2026-11-19, verbatim)**: "同样要求修改其他端，更新collectionview相关core的其他端代码，并将今天的example从iOS端移除过去"
+  (English: make the same changes on the other platforms: update the other platforms' code of the CollectionViewClassifyMenu
+  core, and move today's example from iOS over to them). Assigned by the platform rule (2026-11-19): the
+  CollectionViewClassifyMenu core (renaming with two icons, item ids, header clear button, icon spacing, image folder
+  resources) to winCollectionViewClassifyMenu; the editing bar core and the example port to winCYLSearchViewController.
 - **Acceptance**: full marks (100) = all five platforms with tests and labelled screenshots; pass (60) = Android and
   HarmonyOS with screenshots.
-- **Status**: not started. Score: 0/100.
+- **Status**: assigned to the Windows sessions (2026-11-19). Score: 0/100.
