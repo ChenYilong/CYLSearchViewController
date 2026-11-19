@@ -69,6 +69,7 @@ test('Edit Tags holds its list scrolling while a My Tags tag is dragged', () => 
   const wxml = fs.readFileSync(path.join(dir, 'index.wxml'), 'utf8');
   assert.match(wxml, /<scroll-view scroll-y="\{\{!reordering\}\}"/);
   assert.match(wxml, /bind:reorderingchange="onReorderingChange"/);
+  assert.match(wxml.replace(/<!--[\s\S]*?-->\s*/, '').trimStart(), /^<page-meta page-style="\{\{reordering \? 'overflow: hidden;' : ''\}\}" \/>/);
   // The handler, taken from the page source (the page itself imports packages only WeChat resolves).
   const js = fs.readFileSync(path.join(dir, 'index.js'), 'utf8');
   const body = js.match(/onReorderingChange\(event\) \{([\s\S]*?)\n  \},/)[1];

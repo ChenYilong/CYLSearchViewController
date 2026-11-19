@@ -761,3 +761,20 @@ Flutter 2503, 919, 833, 355, then 0.
   Automation cannot drive native scrolling, so the check is on the state that holds it
   ([assets/miniprogram-devtools-20261119-drag-holds-scrolling.png](assets/miniprogram-devtools-20261119-drag-holds-scrolling.png), WeChat DevTools 2.02.2609250, Windows 11, 2026-11-19 +13:00, after d44da39).
 - **Left**: the user's check in WeChat (a drag in Manage no longer scrolls).
+
+## DONE in code (2026-11-19, second pass): dragging a tag still scrolled the list; the lock now starts at the first touch (mini program)
+
+- **Prompt (verbatim)**: "还是不行，手势冲突，你应该找到类似CYLRootWindow这样的方法处理根视图，禁止滚动。拖拽taglist启动后，以及拖拽结束后，应禁止taglist的滚动浏览功能防止拖拽手势和taglist 滚动浏览手势冲突。现在是有这个问题，你需要在taglist core 核心代码中修复后repin完成example 修复，需要默认启动。在联系人example中点击编辑后。可以复现。 我的测试平台是微信小程序"
+  (English: still not working, the gestures conflict; handle the root view like CYLRootWindow and disable scrolling; hold
+  the list's scrolling once a drag starts and after it ends; fix in the core, on by default, re-pin and fix the
+  example; reproduced in the contact tags example's editing mode on the WeChat mini program.)
+- **Why `2ec3d90e` was not enough**: it caught `touchmove` only after the long press, but WeChat decides at the first
+  `touchstart` whether a touch scrolls, so the scroll had already begun.
+- **Core**: CollectionViewClassifyMenu `3bfa201a`: while editing and during any drag the items bind `catchtouchmove` from
+  the first touch (`disablesScrollingWhileReordering`, default true); the lock stays after a drop and ends with editing.
+- **Example (the root view)**: Edit Tags starts with `<page-meta page-style="{{reordering ? 'overflow: hidden;' : ''}}">`
+  (the page-level lock, the CYLRootWindow idea) and the `<scroll-view>` keeps `scroll-y="{{!reordering}}"`.
+- **Tests / pins**: mini program 59 of 59; iOS 35 of 35; pins `3bfa201a` on the mini program and iOS; Android and
+  HarmonyOS asked of the Windows session.
+- **Left**: the user's check on a phone (scrolling cannot be driven by DevTools automation, so only the held state is
+  verified there). If the list still moves, the next step is a `<movable-view>`-based drag or `touch-action` styles.

@@ -1,3 +1,5 @@
+<!-- The root view: page scrolling is held while a tag is dragged (the CYLRootWindow idea); page-meta must be the first node. -->
+<page-meta page-style="{{reordering ? 'overflow: hidden;' : ''}}" />
 <view class="screen">
   <cyl-demo-nav title="{{texts.editTags}}">
     <view slot="right" class="actions">
