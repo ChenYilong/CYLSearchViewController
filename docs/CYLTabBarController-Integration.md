@@ -785,3 +785,16 @@ Flutter 2503, 919, 833, 355, then 0.
   ([assets/miniprogram-devtools-20261120-drag-root-lock.png](assets/miniprogram-devtools-20261120-drag-root-lock.png), WeChat DevTools 2.02.2609250, Windows 11, 2026-11-20 +13:00, after f69a913).
 - **Left**: the user's check on a phone (scrolling cannot be driven by DevTools automation, so only the held state is
   verified there). If the list still moves, the next step is a `<movable-view>`-based drag or `touch-action` styles.
+React Native on iOS with SVGA tab icons (CYL 17Pro, iOS 26.3, Release, base ae8a4ea, 2026-11-16 19:26).
+
+![React Native iOS, SVGA tab icons](assets/rn-ios-svga-tab-icons-ios26.3.png)
+
+Android check at the shared pin `c795d08` (2026-11-17, emulator-5554, base cf0ffcc): `android/merged` builds, its unit
+tests pass, and `--es CYLDemoTabIconSource 2` shows the SVGA tab icons; the React Native Android release build needed
+`tools:replace="android:allowBackup,android:label"` (SVGAPlayer-Android's manifest) and a clean of stale build folders
+that pointed into an old worktree, then it launches. Found: its tab icons are empty on Android (`system:` SF Symbol
+names), TODO; SVGA on React Native Android (`SVGA_ON_ANDROID`) not run. Top to bottom: Android with SVGA; React Native
+Android.
+
+![Android, SVGA tab icons at c795d08](assets/android-svga-tab-icons-c795d08.png)
+![React Native Android at c795d08](assets/rn-android-c795d08.png)

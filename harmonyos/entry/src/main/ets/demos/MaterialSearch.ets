@@ -82,6 +82,7 @@ export struct MaterialMenuView {
           })
         }, (sample: number) => `${sample}`)
       }
+      .contentEndOffset(CYL_PLUS_OVERHANG)
       .backgroundColor($r('sys.color.background_primary'))
       .borderRadius(10)
       .margin({ left: 16, right: 16, top: 20 })

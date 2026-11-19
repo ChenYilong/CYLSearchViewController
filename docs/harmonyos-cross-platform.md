@@ -557,3 +557,32 @@ Score: 100/100 (309 of 309 rows; API 284/284, demos 25/25; TODO left 0).
 | Texts in English, Japanese, Simplified and Traditional Chinese (`CYLSearchViewController.bundle`) | resources base, ja_JP, zh_CN, zh_TW (`harmonyos/scripts/import-ios-resources.py`) |
 | Dark mode follows the system (`CYLSearchExample`) | `sys.color.*` and `resources/dark` colors |
 <!-- harmonyos-demos:end -->
+
+Emulator check of 2026-11-16 (Mate 70 Pro, unsigned HAP, zh-CN, base 4cdf9c9, CYLTableViewPlaceHolder `76762c6`, CYLTabBarController `ebaed17`), top to bottom: Search tab (top of the list; row 10 needs a scroll-to-end screenshot); Examples (rows 6, 23); Examples with SVGA tab icons (`--pi CYLDemoTabIconSource 1`); Placeholder styles (rows 20, 21); Discover (rows 9, 16, 18, 22; new row 24).
+
+![Search tab](assets/harmonyos-sc3-search-tab.jpeg)
+![Examples](assets/harmonyos-sc3-examples.jpeg)
+![Examples, SVGA tab icons](assets/harmonyos-sc3-examples-svga-keys.jpeg)
+![Placeholder styles](assets/harmonyos-sc3-placeholder-styles.jpeg)
+![Discover](assets/harmonyos-sc3-discover.jpeg)
+
+Emulator run with CYLTabBarController `eba8c44` (newest on any branch: HarmonyOS Rive tab icons, page registry, keyboard
+fixes; Mate 70 Pro, unsigned HAP, zh-CN, base ca9bc61, 2026-11-16), every page reached by launch parameters and taps, top to
+bottom: Search; Search scrolled to the end (row 10); Examples; its four pushed pages (Search and refresh, Placeholder
+styles, Search bar, Other libraries' examples); the plus button's page; Tag style; a Tag style sample ("默认"); Discover.
+
+![Search](assets/harmonyos-eba8c44-search.jpeg)
+![Search, end of the list](assets/harmonyos-eba8c44-search-end.jpeg)
+![Examples](assets/harmonyos-eba8c44-examples.jpeg)
+![Examples, Search and refresh](assets/harmonyos-eba8c44-examples-1.jpeg)
+![Examples, Placeholder styles](assets/harmonyos-eba8c44-examples-2.jpeg)
+![Examples, Search bar](assets/harmonyos-eba8c44-examples-3.jpeg)
+![Examples, Other libraries](assets/harmonyos-eba8c44-examples-4.jpeg)
+![Plus button page](assets/harmonyos-eba8c44-plus.jpeg)
+![Tag style](assets/harmonyos-eba8c44-tag-style.jpeg)
+![Tag style sample](assets/harmonyos-eba8c44-tag-sample.jpeg)
+![Discover](assets/harmonyos-eba8c44-discover.jpeg)
+
+![Discover, row 24 fixed: grey area reaches the tab bar](assets/harmonyos-discover-row24-fixed.jpeg)
+
+![Row 7: the empty placeholder above the keyboard](assets/harmonyos-row7-keyboard.jpeg)

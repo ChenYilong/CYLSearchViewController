@@ -453,3 +453,7 @@ begins and becomes `DONE` when it ends.
   commit that adds an image); the rule texts that said CI runs it now say it does not (`AGENTS.md`,
   `instructions.md`, skills `cyl-docs` and `cyl-verify`).
 - **Status**: done, in the same commit.
+- 2026-11-16 DONE: HarmonyOS Scorecard 3 emulator check: rows 6, 9, 16, 18, 20-23 and the SVGA row verified DONE; row 10 still fails; row 7 not reached; new row 24. Prompt: "fix 鸿蒙os TODO with emulator / fix TODO need 模拟器截图验证".
+- 2026-11-16 DONE: HarmonyOS CYLTabBarController pin eba8c44; emulator run of every tab and pushed page (11 screenshots); Scorecard 3 row 10 verified DONE. Prompt: "continue then update CYLTabBatController use new commit run our HarmonyOS version code on an emulator and push next page update more screenshot in docs".
+- 2026-11-16 DONE: React Native SVGA on iOS (SVGA tracker 13/13; Xcode group path fixed); HarmonyOS Scorecard 3 row 24 fixed and verified on the emulator. Prompt: "continue".
+- 2026-11-17 DONE: Android check at pin c795d08 (merged: build, tests, SVGA; RN Android: builds after manifest + clean, launches; empty system: icons TODO); HarmonyOS Scorecard 3 row 7 verified. Prompt: "check android  start emulator".
