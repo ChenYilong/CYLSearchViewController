@@ -597,5 +597,14 @@ Flutter 2503, 919, 833, 355, then 0.
   load policy launch option is not ported yet. The HUD clipped its status at CYLTableViewPlaceHolder e9848682; fixed by
   its 45adf68, pinned at b18b617 on Android, HarmonyOS and the mini program; the placeholders set `reportsContentSize` as
   on iOS, since that is no longer the default ([assets/android-medium-phone-api37-20261119-contact-tags-hud.png](assets/android-medium-phone-api37-20261119-contact-tags-hud.png), Android API 37 Medium Phone emulator, Windows 11, 2026-11-19 +13:00, after 918a7fa).
-  Score: 30/100 (Android). TODO: HarmonyOS (next; CollectionViewClassifyMenu's HarmonyOS API is at c9a94212), the mini
-  program, React Native and Flutter; `CYLContactTags` in `harmonyos/scripts/check-ios-parity.mjs`.
+  HarmonyOS DONE (2026-11-19): `harmonyos/entry/.../demos/contacttags/` (`CYLContactTagStore.ets`, `CYLContactTagServer.ets`,
+  `CYLContactTagsPages.ets`); strings and `contact-tags.json` imported by `scripts/import-ios-resources.py`
+  (`contactTags_*`, rawfile `contacttags/<qualifier>.json`), `CYLContactTags` in `check-ios-parity.mjs` (549/549); Examples row 5,
+  routes `contactTags`, `contactTagEditor`, `contactList`; launch parameters `--pi CYLContactTags 1`, `CYLContactTagsEditor`,
+  `CYLContactTagsEmpty`, `CYLContactTagsResetCache`, `CYLContactTagsServerLatency`. Caches A and B are preference files with id
+  items. The HarmonyOS list does not route a pencil or title tap to renaming yet (reported to winCollectionViewClassifyMenu),
+  so in Manage the demo starts the rename from the tag tap, as iOS and Android do on a title tap. Device tests 29/29
+  ([assets/harmonyos-mate70pro-20261119-contact-tags.png](assets/harmonyos-mate70pro-20261119-contact-tags.png) and
+  [assets/harmonyos-mate70pro-20261119-contact-tags-remark-empty.png](assets/harmonyos-mate70pro-20261119-contact-tags-remark-empty.png), HarmonyOS 6 Mate 70 Pro emulator, DevEco Studio 6, Windows 11, 2026-11-19 +13:00, after 0391f5f).
+  Score: 60/100 (pass: Android and HarmonyOS). TODO: the mini program (CollectionViewClassifyMenu 06c61ed9 has its
+  renaming API), React Native and Flutter.

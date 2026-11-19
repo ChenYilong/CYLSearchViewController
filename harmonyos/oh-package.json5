@@ -4,7 +4,7 @@
   "dependencies": {},
   "cylTabBarControllerCommit": "f88d67a840a06b39dc812bf4253b14f2fb50b7c2",
   "cylTableViewPlaceHolderCommit": "b18b617b4769e30bbabad7640a2d6db26000ca2e",
-  "collectionViewClassifyMenuCommit": "46c861fc2780ae13e7d2978873b391dd9ded7cdf",
+  "collectionViewClassifyMenuCommit": "357478baa15527eb61d04859759c2db0c7008b38",
   "overrides": {
     "@ohos/lottie": "2.0.38",
     "@tencent/libpag": "4.5.102",

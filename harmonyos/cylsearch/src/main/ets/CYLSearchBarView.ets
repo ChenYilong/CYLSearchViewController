@@ -1,3 +1,4 @@
+import { KeyboardAvoidMode } from '@kit.ArkUI';
 import { UIContext } from '@kit.ArkUI';
 import {
   CYLControlState, CYLEdgeInsets, CYLFont, CYLMenuLocalizedString, CYLMenuStyle, CYLOffset, CYLSize, CYLTagButton,

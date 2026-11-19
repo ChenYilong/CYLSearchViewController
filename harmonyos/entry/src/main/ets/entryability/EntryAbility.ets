@@ -30,6 +30,15 @@ export default class EntryAbility extends UIAbility {
     if (source !== undefined && source !== null && [0, 1, 2].includes(Number(source))) {
       AppStorage.setOrCreate<number>(CYL_TAB_ICON_SOURCE_KEY, Number(source));
     }
+    // The contact tags example (iOS launch arguments): `--pi CYLContactTags 1`, `CYLContactTagsEditor`,
+    // `CYLContactTagsEmpty`, `CYLContactTagsResetCache` (1 = YES) and `CYLContactTagsServerLatency` (seconds).
+    ['CYLContactTags', 'CYLContactTagsEditor', 'CYLContactTagsEmpty', 'CYLContactTagsResetCache',
+      'CYLContactTagsServerLatency'].forEach((key: string) => {
+      const value = want.parameters?.[key];
+      if (value !== undefined && value !== null && !Number.isNaN(Number(value))) {
+        AppStorage.setOrCreate<number>(key, Number(value));
+      }
+    });
     const tab = want.parameters?.['CYLDemoTab'];
     if (tab !== undefined && tab !== null) {
       const index = Number(tab);

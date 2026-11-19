@@ -22,6 +22,13 @@ import { PortsMenuPage, SearchBarDemoPage, SearchBarDemoView } from '../demos/Se
 import { MaterialMenuPage, MaterialMenuView, MaterialSamplePage } from '../demos/MaterialSearch';
 import { LapismPage, MultiSearchDemoPage, RevealPage, YechaoaPage } from '../demos/Ports';
 import { DiscoverView } from '../demos/Discover';
+import {
+  CYLContactListPage,
+  CYLContactListParam,
+  CYLContactRemarkPage,
+  CYLContactTagEditorPage,
+  CYLContactTagEditorParam
+} from '../demos/contacttags/CYLContactTagsPages';
 
 /**
  * The tab icons of CYLTabBarConfiguration.json ("system:<SF Symbol>"), drawn in the unselected and selected colors
@@ -201,6 +208,12 @@ struct Index {
       RevealPage({ stack: this.stack(this.currentIdentifier()) })
     } else if (name === CYLDemoRoute.multiSearch) {
       MultiSearchDemoPage({ stack: this.stack(this.currentIdentifier()) })
+    } else if (name === CYLDemoRoute.contactTags) {
+      CYLContactRemarkPage({ stack: this.stack(this.currentIdentifier()) })
+    } else if (name === CYLDemoRoute.contactTagEditor) {
+      CYLContactTagEditorPage({ stack: this.stack(this.currentIdentifier()), param: param as CYLContactTagEditorParam })
+    } else if (name === CYLDemoRoute.contactList) {
+      CYLContactListPage({ stack: this.stack(this.currentIdentifier()), param: param as CYLContactListParam })
     }
   }
 

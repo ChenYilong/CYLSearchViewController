@@ -250,4 +250,9 @@ packages). A test checks each rule.
   `keyboardOverlapHandler` (how far the keyboard covers the container, for the host's own content). Test
   `CYLSearchBarEditingBarTest`; used by the Android contact tags example's Manage mode
   ([assets/android-medium-phone-api37-20261119-contact-tags.png](assets/android-medium-phone-api37-20261119-contact-tags.png), Android API 37 Medium Phone emulator, Windows 11, 2026-11-19 +13:00, after 2fee101).
-  TODO: HarmonyOS, Flutter, React Native and the mini program.
+  HarmonyOS (2026-11-19): `CYLSearchBarView.editingBar(placeholder, actionTitle)`, `isEditingBar`, `editingSubmitHandler`,
+  `enterKeyTapped()` (the enter key and the action button submit) and `pinToKeyboard(uiContext)`
+  (`KeyboardAvoidMode.RESIZE`: a bar at the bottom of the page rides on the keyboard); ArkUI's TextInput has no
+  capitalization setting. Used by the HarmonyOS contact tags example
+  ([assets/harmonyos-mate70pro-20261119-contact-tags.png](assets/harmonyos-mate70pro-20261119-contact-tags.png), HarmonyOS 6 Mate 70 Pro emulator, DevEco Studio 6, Windows 11, 2026-11-19 +13:00, after 0391f5f).
+  TODO: Flutter, React Native and the mini program.

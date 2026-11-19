@@ -91,6 +91,10 @@ export struct ExamplesMenuView {
   aboutToAppear(): void {
     // Plays once when shown, as the tab icons do when selected (iOS `didMoveToWindow`).
     this.svgaButton.playAnimation();
+    // `--pi CYLContactTags 1` opens the contact tags example at launch (iOS `-CYLDemoRow 5`), for screenshots.
+    if ((AppStorage.get<number>('CYLContactTags') ?? 0) === 1) {
+      setTimeout(() => this.stack.pushPath({ name: CYLDemoRoute.contactTags }), 300);
+    }
   }
 
   // As iOS `CYLSVGADemoHeaderView`: the tag button with the 64 vp animation (tab_activity.svga) and its title, the
@@ -122,8 +126,15 @@ export struct ExamplesMenuView {
     .padding({ left: 16, right: 16, top: 12 })
     .width('100%')
   }
-  private rows: string[] = ['demo.reproduction', 'demo.styles', 'demo.searchBar', 'demo.ports'];
-  private routes: string[] = [CYLDemoRoute.reproduction, CYLDemoRoute.styles, CYLDemoRoute.searchBar, CYLDemoRoute.ports];
+  // Row 5 (iOS row 6, `-CYLDemoRow 5`): CollectionViewClassifyMenu's contact tags example on CYLSearchViewController.
+  private rows: string[] = ['demo.reproduction', 'demo.styles', 'demo.searchBar', 'demo.ports', 'contactTags_row'];
+  private routes: string[] = [CYLDemoRoute.reproduction, CYLDemoRoute.styles, CYLDemoRoute.searchBar, CYLDemoRoute.ports,
+    CYLDemoRoute.contactTags];
+
+  // The library's `demo.*` texts, or the example's own (`contactTags_row`).
+  private rowText(key: string): string {
+    return key.startsWith('contactTags_') ? cylAppText(this.context, key) : cylDemoText(this.context, key);
+  }
 
   build() {
     Column() {
@@ -132,11 +143,11 @@ export struct ExamplesMenuView {
       List() {
         ForEach(this.rows, (key: string, index: number) => {
           ListItem() {
-            CYLDemoCell({ text: cylDemoText(this.context, key), showsDivider: index < this.rows.length - 1 })
+            CYLDemoCell({ text: this.rowText(key), showsDivider: index < this.rows.length - 1 })
           }
           // Read as one element with its title as the label; UI tests find it by that label.
           .accessibilityGroup(true)
-          .accessibilityText(cylDemoText(this.context, key))
+          .accessibilityText(this.rowText(key))
           .id(`CYLDemoRow${index}`)
           .onClick(() => this.stack.pushPath({ name: this.routes[index] }))
         }, (key: string) => key)

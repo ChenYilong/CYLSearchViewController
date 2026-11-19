@@ -203,3 +203,11 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   the message check (`build` is not an allowed type) and its staged files were committed with the next one; pushed history
   is not rewritten. Before that: `1a3a31dc` / `c9a94212` / `98c847a6` (918a7fa, 2fee101) and CYLTableViewPlaceHolder `b18b617`
   (0f00440), each checked the same way.
+  **Correction (2026-11-19, Windows)**: the HarmonyOS builds and device tests reported for the pins above and for `49d1f38`,
+  `5a72ac9` and `dfdd83b` ran on a stale copy: the mirror copy (`robocopy ... /MIR` from Git Bash) was turned into
+  `C:/Program Files/Git/MIR` by Git Bash's path conversion and failed silently, so the build at `C:cylbuildharmonyos` kept
+  old sources. Android and mini program results stand (they build in place). Rechecked with a working copy (PowerShell):
+  at CollectionViewClassifyMenu `357478ba` (its revert of `97b87b7b` on top of the iOS pin `7a18be8a`), CYLTabBarController
+  `f88d67a8` and CYLTableViewPlaceHolder `b18b617`, both HAPs build and the device tests pass 29/29; the copy's exit code is
+  now checked. `357478ba` is pinned on Android, HarmonyOS and the mini program in the commit that adds the HarmonyOS contact
+  tags example.

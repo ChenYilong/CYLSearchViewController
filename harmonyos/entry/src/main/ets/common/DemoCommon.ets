@@ -55,6 +55,10 @@ export class CYLDemoRoute {
   static readonly yechaoa: string = 'yechaoa';
   static readonly reveal: string = 'reveal';
   static readonly multiSearch: string = 'multiSearch';
+  /** The contact tags example (iOS Examples row 6, `-CYLDemoRow 5`): Edit Remarks, Edit Tags and a tag's contacts. */
+  static readonly contactTags: string = 'contactTags';
+  static readonly contactTagEditor: string = 'contactTagEditor';
+  static readonly contactList: string = 'contactList';
 }
 
 /**
