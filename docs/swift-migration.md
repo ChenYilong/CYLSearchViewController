@@ -116,4 +116,15 @@ When an Objective-C to Swift change of the core breaks an example's build, fix t
   (Objective-C lines left / 4,139).
 - **Plan**: (1) example app; (2) legacy demo app; (3) `CYLSearchViewControllerTests`; (4) `CYLSearchExampleTests`,
   with an Objective-C smoke test of the core's public API kept.
-- **Status**: TODO, step 1 starting. Score: 0/100 (Objective-C lines left 4,139).
+- **Progress**:
+
+| Step | Objective-C lines left (of 4,139) | Score |
+|:---|:---|:---|
+| 0: logged | 4,139 | 0/100 |
+| 1: example app (`main.m`, app and scene delegate, `CYLSearchBarDemoViewController`, `CYLSearchDemoMenuViewController` with the placeholder gallery and the SVGA header) → Swift; the three classes the tests use are `public` (the app has no bridging header) | 3,618 | 12/100 |
+
+  Step 1 notes: the `performSelector` / `NSClassFromString` detours to Swift classes are plain calls now; cells keep
+  `textLabel` / `imageView` (a first pass with cell content configurations left `textLabel` empty and failed
+  `testSearchBarDemoRow`); Swift names found on the way: `CYLTabBarPageRegistry.shared` and `register(_:forPageIdentifier:)`,
+  `CYLTabBarController(configurationFile:)`. iOS 35 of 35.
+- **Status**: TODO, step 2 (legacy demo app) next. Score: 12/100 (Objective-C lines left 3,618).

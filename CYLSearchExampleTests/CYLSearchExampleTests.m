@@ -1,8 +1,5 @@
 #import <XCTest/XCTest.h>
 #import "CYLSearchExample-Swift.h"
-#import "CYLSearchDemoMenuViewController.h"
-#import "CYLSearchBarDemoViewController.h"
-#import "CYLSearchExampleAppDelegate.h"
 #import <CYLTabBarController/CYLTabBarController.h>
 #import <CYLAnimatedItem/CYLAnimatedItemView.h>
 #import <CYLSearchViewController/CYLSearchViewController-Swift.h>
