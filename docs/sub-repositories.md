@@ -218,3 +218,8 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
 - **CollectionViewClassifyMenu `96feb35d` then `272f569a` (2026-11-19, Windows)**, on Android, HarmonyOS and the mini program:
   mini program only (cyl-tag-cloud folding, then the fold chevron drawn as an icon sized from the tag font), same
   CYLTabBarController `9a4ad95e`. Mini program 57/57; the contact tags editor folds My Tags with a full-size chevron in DevTools.
+- **CollectionViewClassifyMenu `542a0094` with CYLTabBarController `74f0b4cd` (2026-11-19, Windows)**, on Android, HarmonyOS
+  and the mini program (iOS, the Flutter pubspec and the React Native Podfile: the macOS session). `74f0b4cd` brings the iOS
+  tab-tap fix `3ddb2868`; the ClassifyMenu API is unchanged. Android tests pass (0 failures) and the APK builds with
+  `.cyl-deps` at both commits; HarmonyOS builds both HAPs (verified copy; the emulator was off, so no device run this time);
+  the mini program passes 57/57.
