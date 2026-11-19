@@ -197,6 +197,14 @@
       "value": "Search"
     },
     {
+      "name": "cyl_search_foldLess",
+      "value": "Less"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "More"
+    },
+    {
       "name": "cyl_search_placeholder",
       "value": "Filter results"
     },
@@ -207,6 +215,14 @@
     {
       "name": "cyl_search_recentCleared",
       "value": "Recent searches cleared"
+    },
+    {
+      "name": "cyl_search_showLess",
+      "value": "Show less"
+    },
+    {
+      "name": "cyl_search_showMore",
+      "value": "Show more"
     },
     {
       "name": "cyl_search_submit",
@@ -223,22 +239,6 @@
     {
       "name": "cyl_search_voice",
       "value": "Voice search"
-    },
-    {
-      "name": "cyl_search_foldMore",
-      "value": "More"
-    },
-    {
-      "name": "cyl_search_foldLess",
-      "value": "Less"
-    },
-    {
-      "name": "cyl_search_showMore",
-      "value": "Show more"
-    },
-    {
-      "name": "cyl_search_showLess",
-      "value": "Show less"
     }
   ]
 }

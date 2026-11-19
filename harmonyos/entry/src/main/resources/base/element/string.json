@@ -33,6 +33,46 @@
       "value": "Discover"
     },
     {
+      "name": "svga_demo",
+      "value": "SVGA animation: tap to play again"
+    },
+    {
+      "name": "svga_source",
+      "value": "Tab icons: %s"
+    },
+    {
+      "name": "svga_source_symbols",
+      "value": "SF Symbols"
+    },
+    {
+      "name": "svga_source_keys",
+      "value": "SVGA (initialization keys)"
+    },
+    {
+      "name": "svga_source_file",
+      "value": "SVGA (configuration file)"
+    },
+    {
+      "name": "svga_demo_hint",
+      "value": "Plays the SVGA animation again"
+    },
+    {
+      "name": "svga_source_hint",
+      "value": "Switches the tab icons and rebuilds the tab bar"
+    },
+    {
+      "name": "svga_swiftui",
+      "value": "SwiftUI host (SVGA tab bar)"
+    },
+    {
+      "name": "svga_swiftui_title",
+      "value": "SwiftUI host"
+    },
+    {
+      "name": "svga_swiftui_close",
+      "value": "Close"
+    },
+    {
       "name": "discover_recent",
       "value": "Recent searches"
     },
@@ -105,48 +145,160 @@
       "value": "Hot"
     },
     {
+      "name": "contactTags_row",
+      "value": "Contact tags (CollectionViewClassifyMenu)"
+    },
+    {
+      "name": "contactTags_cancel",
+      "value": "Cancel"
+    },
+    {
+      "name": "contactTags_done",
+      "value": "Done"
+    },
+    {
+      "name": "contactTags_editRemarks",
+      "value": "Edit Remarks"
+    },
+    {
+      "name": "contactTags_remarkName",
+      "value": "Remark name"
+    },
+    {
+      "name": "contactTags_tags",
+      "value": "Tags"
+    },
+    {
+      "name": "contactTags_editTags",
+      "value": "Edit Tags"
+    },
+    {
+      "name": "contactTags_search",
+      "value": "Search"
+    },
+    {
+      "name": "contactTags_searchTags",
+      "value": "Search tags"
+    },
+    {
+      "name": "contactTags_results",
+      "value": "Search Results"
+    },
+    {
+      "name": "contactTags_recent",
+      "value": "Recent"
+    },
+    {
+      "name": "contactTags_mine",
+      "value": "My Tags"
+    },
+    {
+      "name": "contactTags_manage",
+      "value": "Manage"
+    },
+    {
+      "name": "contactTags_doneManaging",
+      "value": "Done Managing"
+    },
+    {
+      "name": "contactTags_created",
+      "value": "Tag created: %s"
+    },
+    {
+      "name": "contactTags_newTag",
+      "value": "New Tag"
+    },
+    {
+      "name": "contactTags_tagName",
+      "value": "Tag name"
+    },
+    {
+      "name": "contactTags_ok",
+      "value": "OK"
+    },
+    {
+      "name": "contactTags_hintManage",
+      "value": "Double-tap to edit tags: delete, drag or add"
+    },
+    {
+      "name": "contactTags_hintDoneManaging",
+      "value": "Double-tap to stop editing tags"
+    },
+    {
+      "name": "contactTags_hintEdit",
+      "value": "Opens Edit Tags"
+    },
+    {
+      "name": "contactTags_noMatch",
+      "value": "No matching tags"
+    },
+    {
+      "name": "contactTags_noTags",
+      "value": "No tags yet. Tap “New Tag” to add one."
+    },
+    {
+      "name": "contactTags_remarkNoTags",
+      "value": "No tags yet. Tap to add tags."
+    },
+    {
+      "name": "contactTags_clearRecent",
+      "value": "Clear recent tags"
+    },
+    {
+      "name": "contactTags_recentCleared",
+      "value": "Recent tags cleared"
+    },
+    {
+      "name": "contactTags_contactsTitle",
+      "value": "%s (%d)"
+    },
+    {
+      "name": "contactTags_noContacts",
+      "value": "No contacts have the tag “%s”."
+    },
+    {
+      "name": "contactTags_hintContacts",
+      "value": "Double-tap to show its contacts"
+    },
+    {
+      "name": "contactTags_sync",
+      "value": "Sync from other devices"
+    },
+    {
+      "name": "contactTags_syncing",
+      "value": "Syncing from other devices…"
+    },
+    {
+      "name": "contactTags_synced",
+      "value": "Synced"
+    },
+    {
+      "name": "contactTags_uploading",
+      "value": "Uploading tags…"
+    },
+    {
+      "name": "contactTags_uploaded",
+      "value": "Upload finished"
+    },
+    {
+      "name": "contactTags_downloading",
+      "value": "Downloading tags…"
+    },
+    {
+      "name": "contactTags_downloaded",
+      "value": "Tags updated"
+    },
+    {
+      "name": "contactTags_otherDeviceTags",
+      "value": "Yoga,Coffee,Cycling,Board Games,Volunteers,Parents,Startup,Mentors"
+    },
+    {
+      "name": "contactTags_add",
+      "value": "Add"
+    },
+    {
       "name": "microphone_reason",
       "value": "Turns your spoken query into text in the Voice sample."
-    },
-    {
-      "name": "svga_demo",
-      "value": "SVGA animation: tap to play again"
-    },
-    {
-      "name": "svga_source",
-      "value": "Tab icons: %s"
-    },
-    {
-      "name": "svga_source_symbols",
-      "value": "SF Symbols"
-    },
-    {
-      "name": "svga_source_keys",
-      "value": "SVGA (initialization keys)"
-    },
-    {
-      "name": "svga_source_file",
-      "value": "SVGA (configuration file)"
-    },
-    {
-      "name": "svga_demo_hint",
-      "value": "Plays the SVGA animation again"
-    },
-    {
-      "name": "svga_source_hint",
-      "value": "Switches the tab icons and rebuilds the tab bar"
-    },
-    {
-      "name": "svga_swiftui",
-      "value": "SwiftUI host (SVGA tab bar)"
-    },
-    {
-      "name": "svga_swiftui_title",
-      "value": "SwiftUI host"
-    },
-    {
-      "name": "svga_swiftui_close",
-      "value": "Close"
     }
   ]
 }

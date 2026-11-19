@@ -197,6 +197,14 @@
       "value": "検索"
     },
     {
+      "name": "cyl_search_foldLess",
+      "value": "閉じる"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "もっと見る"
+    },
+    {
       "name": "cyl_search_placeholder",
       "value": "結果を絞り込む"
     },
@@ -207,6 +215,14 @@
     {
       "name": "cyl_search_recentCleared",
       "value": "最近の検索を消去しました"
+    },
+    {
+      "name": "cyl_search_showLess",
+      "value": "表示を減らす"
+    },
+    {
+      "name": "cyl_search_showMore",
+      "value": "もっと表示"
     },
     {
       "name": "cyl_search_submit",
@@ -223,22 +239,6 @@
     {
       "name": "cyl_search_voice",
       "value": "音声検索"
-    },
-    {
-      "name": "cyl_search_foldMore",
-      "value": "もっと見る"
-    },
-    {
-      "name": "cyl_search_foldLess",
-      "value": "閉じる"
-    },
-    {
-      "name": "cyl_search_showMore",
-      "value": "もっと表示"
-    },
-    {
-      "name": "cyl_search_showLess",
-      "value": "表示を減らす"
     }
   ]
 }

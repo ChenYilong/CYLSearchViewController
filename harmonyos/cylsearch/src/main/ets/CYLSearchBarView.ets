@@ -1069,6 +1069,69 @@ export class CYLSearchBarView {
   }
 
   /**
+   * Whether the bar is an editing bar (`editingBar`): an edit field in the search bar's look, whose trailing button
+   * submits instead of cancelling (iOS `isEditingBar`).
+   */
+  @Trace isEditingBar: boolean = false;
+
+  /**
+   * An editing bar's submit: the trimmed text, when its action button or the enter key is tapped (after
+   * `searchBarViewShouldSubmitText` and `searchBarViewSearchButtonClicked`). Empty text submits nothing (iOS
+   * `editingSubmitHandler`).
+   */
+  editingSubmitHandler?: (searchBarView: CYLSearchBarView, text: string) => void;
+
+  /**
+   * An editing bar (iOS `editingBar(placeholder:actionTitle:)`): the search bar's field and look for editing a name (a
+   * tag, a title), without the magnifier, with `actionTitle` ("Add", "Done") as its trailing button, which submits
+   * through `editingSubmitHandler`, as the enter key does. Pin it above the keyboard with `pinToKeyboard` and put it at the
+   * bottom of the page; change `cancelButtonTitle` to change the action. (ArkUI's TextInput has no capitalization
+   * setting, so words are not capitalized automatically.)
+   */
+  static editingBar(placeholder: ResourceStr | undefined, actionTitle: ResourceStr): CYLSearchBarView {
+    const bar = new CYLSearchBarView();
+    bar.isEditingBar = true;
+    bar.searchIcon = undefined;
+    bar.placeholder = placeholder;
+    bar.showsCancelButton = true;
+    bar.cancelButtonTitle = actionTitle;
+    bar.cancelButtonEndsEditing = false;
+    bar.returnKeyType = EnterKeyType.Done;
+    return bar;
+  }
+
+  /**
+   * Pins the bar to the top of the keyboard (iOS `pinToKeyboard(in:)`): the page resizes for the keyboard
+   * (`KeyboardAvoidMode.RESIZE`), so a bar placed at the bottom of the page rides on the keyboard while it is up and
+   * stays at the bottom while it is down.
+   */
+  pinToKeyboard(context: UIContext): void {
+    context.setKeyboardAvoidMode(KeyboardAvoidMode.RESIZE);
+  }
+
+  /**
+   * The enter key: an editing bar submits through `editingSubmitHandler`, a search bar submits its text.
+   */
+  enterKeyTapped(): void {
+    if (this.isEditingBar) {
+      this.submitEditing();
+    } else {
+      this.submit();
+    }
+  }
+
+  /**
+   * An editing bar's submit (iOS `submitEditing`): the delegate's checks (`submit()`), then `editingSubmitHandler`.
+   */
+  private submitEditing(): void {
+    const trimmed = (this.text ?? '').trim();
+    if (trimmed.length === 0 || !this.submit()) {
+      return;
+    }
+    this.editingSubmitHandler?.(this, trimmed);
+  }
+
+  /**
    * Submits the text like the search key; false when the text is empty or the delegate refuses it.
    */
   submit(): boolean {
@@ -1341,6 +1404,11 @@ export class CYLSearchBarView {
    * Cancel was tapped.
    */
   cancelTapped(): void {
+    if (this.isEditingBar) {
+      // An editing bar's trailing button is its action, not a cancel (iOS `cancelTapped`).
+      this.submitEditing();
+      return;
+    }
     if (this.clearsTextOnCancel) {
       this.textChanged('');
     }
@@ -1672,7 +1740,7 @@ export struct CYLSearchBarComponent {
           this.searchBarView.editingChanged(editing);
         })
         .onSubmit(() => {
-          this.searchBarView.submit();
+          this.searchBarView.enterKeyTapped();
         })
         .onWillInsert(() => {
           const allowed = this.searchBarView.delegate?.searchBarViewShouldBeginEditing?.(this.searchBarView) ?? true;

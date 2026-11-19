@@ -33,6 +33,46 @@
       "value": "发现"
     },
     {
+      "name": "svga_demo",
+      "value": "SVGA 动画：点按再次播放"
+    },
+    {
+      "name": "svga_source",
+      "value": "Tab 图标：%s"
+    },
+    {
+      "name": "svga_source_symbols",
+      "value": "SF Symbols"
+    },
+    {
+      "name": "svga_source_keys",
+      "value": "SVGA（初始化 Key）"
+    },
+    {
+      "name": "svga_source_file",
+      "value": "SVGA（配置文件）"
+    },
+    {
+      "name": "svga_demo_hint",
+      "value": "再次播放 SVGA 动画"
+    },
+    {
+      "name": "svga_source_hint",
+      "value": "切换 Tab 图标并重建 TabBar"
+    },
+    {
+      "name": "svga_swiftui",
+      "value": "SwiftUI 宿主（SVGA TabBar）"
+    },
+    {
+      "name": "svga_swiftui_title",
+      "value": "SwiftUI 宿主"
+    },
+    {
+      "name": "svga_swiftui_close",
+      "value": "关闭"
+    },
+    {
       "name": "discover_recent",
       "value": "最近搜索"
     },
@@ -105,48 +145,160 @@
       "value": "热门"
     },
     {
+      "name": "contactTags_row",
+      "value": "联系人标签（CollectionViewClassifyMenu）"
+    },
+    {
+      "name": "contactTags_cancel",
+      "value": "取消"
+    },
+    {
+      "name": "contactTags_done",
+      "value": "完成"
+    },
+    {
+      "name": "contactTags_editRemarks",
+      "value": "编辑备注"
+    },
+    {
+      "name": "contactTags_remarkName",
+      "value": "备注名"
+    },
+    {
+      "name": "contactTags_tags",
+      "value": "标签"
+    },
+    {
+      "name": "contactTags_editTags",
+      "value": "编辑标签"
+    },
+    {
+      "name": "contactTags_search",
+      "value": "搜索"
+    },
+    {
+      "name": "contactTags_searchTags",
+      "value": "搜索标签"
+    },
+    {
+      "name": "contactTags_results",
+      "value": "搜索结果"
+    },
+    {
+      "name": "contactTags_recent",
+      "value": "最近使用"
+    },
+    {
+      "name": "contactTags_mine",
+      "value": "我的标签"
+    },
+    {
+      "name": "contactTags_manage",
+      "value": "管理"
+    },
+    {
+      "name": "contactTags_doneManaging",
+      "value": "退出管理"
+    },
+    {
+      "name": "contactTags_created",
+      "value": "已新建标签：%s"
+    },
+    {
+      "name": "contactTags_newTag",
+      "value": "新建标签"
+    },
+    {
+      "name": "contactTags_tagName",
+      "value": "标签名称"
+    },
+    {
+      "name": "contactTags_ok",
+      "value": "确定"
+    },
+    {
+      "name": "contactTags_hintManage",
+      "value": "轻点两下编辑标签：删除、拖动排序或添加"
+    },
+    {
+      "name": "contactTags_hintDoneManaging",
+      "value": "轻点两下结束编辑标签"
+    },
+    {
+      "name": "contactTags_hintEdit",
+      "value": "打开编辑标签"
+    },
+    {
+      "name": "contactTags_noMatch",
+      "value": "没有匹配的标签"
+    },
+    {
+      "name": "contactTags_noTags",
+      "value": "还没有标签，轻点「新建标签」添加。"
+    },
+    {
+      "name": "contactTags_remarkNoTags",
+      "value": "还没有标签，轻点添加。"
+    },
+    {
+      "name": "contactTags_clearRecent",
+      "value": "清除最近使用"
+    },
+    {
+      "name": "contactTags_recentCleared",
+      "value": "已清除最近使用的标签"
+    },
+    {
+      "name": "contactTags_contactsTitle",
+      "value": "%s（%d）"
+    },
+    {
+      "name": "contactTags_noContacts",
+      "value": "没有联系人带有标签「%s」。"
+    },
+    {
+      "name": "contactTags_hintContacts",
+      "value": "轻点两下查看带有此标签的联系人"
+    },
+    {
+      "name": "contactTags_sync",
+      "value": "从其他设备同步"
+    },
+    {
+      "name": "contactTags_syncing",
+      "value": "正在从其他设备同步…"
+    },
+    {
+      "name": "contactTags_synced",
+      "value": "同步完成"
+    },
+    {
+      "name": "contactTags_uploading",
+      "value": "正在上传标签…"
+    },
+    {
+      "name": "contactTags_uploaded",
+      "value": "上传完成"
+    },
+    {
+      "name": "contactTags_downloading",
+      "value": "正在下载标签…"
+    },
+    {
+      "name": "contactTags_downloaded",
+      "value": "标签已更新"
+    },
+    {
+      "name": "contactTags_otherDeviceTags",
+      "value": "瑜伽,咖啡,骑行,桌游,志愿者,家长,创业,导师"
+    },
+    {
+      "name": "contactTags_add",
+      "value": "添加"
+    },
+    {
       "name": "microphone_reason",
       "value": "在语音示例中把你说出的搜索词转成文字。"
-    },
-    {
-      "name": "svga_demo",
-      "value": "SVGA 动画：点按再次播放"
-    },
-    {
-      "name": "svga_source",
-      "value": "Tab 图标：%s"
-    },
-    {
-      "name": "svga_source_symbols",
-      "value": "SF Symbols"
-    },
-    {
-      "name": "svga_source_keys",
-      "value": "SVGA（初始化 Key）"
-    },
-    {
-      "name": "svga_source_file",
-      "value": "SVGA（配置文件）"
-    },
-    {
-      "name": "svga_demo_hint",
-      "value": "再次播放 SVGA 动画"
-    },
-    {
-      "name": "svga_source_hint",
-      "value": "切换 Tab 图标并重建 TabBar"
-    },
-    {
-      "name": "svga_swiftui",
-      "value": "SwiftUI 宿主（SVGA TabBar）"
-    },
-    {
-      "name": "svga_swiftui_title",
-      "value": "SwiftUI 宿主"
-    },
-    {
-      "name": "svga_swiftui_close",
-      "value": "关闭"
     }
   ]
 }

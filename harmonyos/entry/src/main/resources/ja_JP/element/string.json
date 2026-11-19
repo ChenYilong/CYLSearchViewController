@@ -33,6 +33,46 @@
       "value": "発見"
     },
     {
+      "name": "svga_demo",
+      "value": "SVGA アニメーション：タップで再生"
+    },
+    {
+      "name": "svga_source",
+      "value": "タブアイコン：%s"
+    },
+    {
+      "name": "svga_source_symbols",
+      "value": "SF Symbols"
+    },
+    {
+      "name": "svga_source_keys",
+      "value": "SVGA（初期化キー）"
+    },
+    {
+      "name": "svga_source_file",
+      "value": "SVGA（設定ファイル）"
+    },
+    {
+      "name": "svga_demo_hint",
+      "value": "SVGA アニメーションをもう一度再生します"
+    },
+    {
+      "name": "svga_source_hint",
+      "value": "タブアイコンを切り替えてタブバーを作り直します"
+    },
+    {
+      "name": "svga_swiftui",
+      "value": "SwiftUI ホスト（SVGA タブバー）"
+    },
+    {
+      "name": "svga_swiftui_title",
+      "value": "SwiftUI ホスト"
+    },
+    {
+      "name": "svga_swiftui_close",
+      "value": "閉じる"
+    },
+    {
       "name": "discover_recent",
       "value": "最近の検索"
     },
@@ -105,48 +145,160 @@
       "value": "人気"
     },
     {
+      "name": "contactTags_row",
+      "value": "連絡先のタグ（CollectionViewClassifyMenu）"
+    },
+    {
+      "name": "contactTags_cancel",
+      "value": "キャンセル"
+    },
+    {
+      "name": "contactTags_done",
+      "value": "完了"
+    },
+    {
+      "name": "contactTags_editRemarks",
+      "value": "メモを編集"
+    },
+    {
+      "name": "contactTags_remarkName",
+      "value": "メモの名前"
+    },
+    {
+      "name": "contactTags_tags",
+      "value": "タグ"
+    },
+    {
+      "name": "contactTags_editTags",
+      "value": "タグを編集"
+    },
+    {
+      "name": "contactTags_search",
+      "value": "検索"
+    },
+    {
+      "name": "contactTags_searchTags",
+      "value": "タグを検索"
+    },
+    {
+      "name": "contactTags_results",
+      "value": "検索結果"
+    },
+    {
+      "name": "contactTags_recent",
+      "value": "最近使用"
+    },
+    {
+      "name": "contactTags_mine",
+      "value": "マイタグ"
+    },
+    {
+      "name": "contactTags_manage",
+      "value": "管理"
+    },
+    {
+      "name": "contactTags_doneManaging",
+      "value": "管理を終了"
+    },
+    {
+      "name": "contactTags_created",
+      "value": "タグを作成しました：%s"
+    },
+    {
+      "name": "contactTags_newTag",
+      "value": "新しいタグ"
+    },
+    {
+      "name": "contactTags_tagName",
+      "value": "タグ名"
+    },
+    {
+      "name": "contactTags_ok",
+      "value": "OK"
+    },
+    {
+      "name": "contactTags_hintManage",
+      "value": "ダブルタップでタグを編集：削除、並べ替え、追加"
+    },
+    {
+      "name": "contactTags_hintDoneManaging",
+      "value": "ダブルタップでタグの編集を終了"
+    },
+    {
+      "name": "contactTags_hintEdit",
+      "value": "「タグを編集」を開きます"
+    },
+    {
+      "name": "contactTags_noMatch",
+      "value": "一致するタグはありません"
+    },
+    {
+      "name": "contactTags_noTags",
+      "value": "タグはまだありません。「新しいタグ」で追加できます。"
+    },
+    {
+      "name": "contactTags_remarkNoTags",
+      "value": "タグはまだありません。タップして追加できます。"
+    },
+    {
+      "name": "contactTags_clearRecent",
+      "value": "最近使用したタグを消去"
+    },
+    {
+      "name": "contactTags_recentCleared",
+      "value": "最近使用したタグを消去しました"
+    },
+    {
+      "name": "contactTags_contactsTitle",
+      "value": "%s（%d）"
+    },
+    {
+      "name": "contactTags_noContacts",
+      "value": "タグ「%s」の連絡先はありません。"
+    },
+    {
+      "name": "contactTags_hintContacts",
+      "value": "ダブルタップで連絡先を表示"
+    },
+    {
+      "name": "contactTags_sync",
+      "value": "他のデバイスから同期"
+    },
+    {
+      "name": "contactTags_syncing",
+      "value": "他のデバイスから同期しています…"
+    },
+    {
+      "name": "contactTags_synced",
+      "value": "同期しました"
+    },
+    {
+      "name": "contactTags_uploading",
+      "value": "タグをアップロードしています…"
+    },
+    {
+      "name": "contactTags_uploaded",
+      "value": "アップロードが完了しました"
+    },
+    {
+      "name": "contactTags_downloading",
+      "value": "タグをダウンロードしています…"
+    },
+    {
+      "name": "contactTags_downloaded",
+      "value": "タグを更新しました"
+    },
+    {
+      "name": "contactTags_otherDeviceTags",
+      "value": "ヨガ,コーヒー,サイクリング,ボードゲーム,ボランティア,保護者,スタートアップ,メンター"
+    },
+    {
+      "name": "contactTags_add",
+      "value": "追加"
+    },
+    {
       "name": "microphone_reason",
       "value": "音声サンプルで話した検索語をテキストにします。"
-    },
-    {
-      "name": "svga_demo",
-      "value": "SVGA アニメーション：タップで再生"
-    },
-    {
-      "name": "svga_source",
-      "value": "タブアイコン：%s"
-    },
-    {
-      "name": "svga_source_symbols",
-      "value": "SF Symbols"
-    },
-    {
-      "name": "svga_source_keys",
-      "value": "SVGA（初期化キー）"
-    },
-    {
-      "name": "svga_source_file",
-      "value": "SVGA（設定ファイル）"
-    },
-    {
-      "name": "svga_demo_hint",
-      "value": "SVGA アニメーションをもう一度再生します"
-    },
-    {
-      "name": "svga_source_hint",
-      "value": "タブアイコンを切り替えてタブバーを作り直します"
-    },
-    {
-      "name": "svga_swiftui",
-      "value": "SwiftUI ホスト（SVGA タブバー）"
-    },
-    {
-      "name": "svga_swiftui_title",
-      "value": "SwiftUI ホスト"
-    },
-    {
-      "name": "svga_swiftui_close",
-      "value": "閉じる"
     }
   ]
 }

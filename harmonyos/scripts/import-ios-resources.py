@@ -4,7 +4,7 @@
 - Resources/CYLSearchViewController.bundle/<lang>.lproj/CYLSearchViewController.strings -> cylsearch string.json
   (`search.cancel` -> `cyl_search_cancel`, the name CYLSearchResources.localizedString reads); existing names are kept.
 - The placeholder images (CYLSearch<Name>[@2x].png) -> cylsearch media `cyl_search_<name>.png`.
-- CYLSearchExample/CYLSearchTabs.bundle and CYLSearchDiscover.bundle strings -> entry string.json (`tab.search` ->
+- CYLSearchExample/CYLSearchTabs.bundle, CYLSearchDiscover.bundle and CYLContactTags.bundle strings -> entry string.json (`tab.search` ->
   `tab_search`); search-discover.json -> entry rawfile `discover/<qualifier>.json`; discover-hot.png -> entry media.
 Formats: `%@` -> `%s`, `%ld` / `%lu` -> `%d` (positional `%1$lu` -> `%1$d`).
 Run: python3 harmonyos/scripts/import-ios-resources.py
@@ -65,7 +65,7 @@ def main():
             own = read(os.path.join(ENTRY, 'base', 'element', 'string.json'))
             own = [(n, v) for n, v in own if n in ('module_desc', 'EntryAbility_desc', 'EntryAbility_label')]
         items = dict(own)
-        for bundle in ('CYLSearchTabs', 'CYLSearchDiscover'):
+        for bundle in ('CYLSearchTabs', 'CYLSearchDiscover', 'CYLContactTags'):
             for key, value in strings(os.path.join(EXAMPLE, bundle + '.bundle', lang + '.lproj', bundle + '.strings')):
                 items[key.replace('.', '_')] = value
         items['microphone_reason'] = MICROPHONE[lang]
@@ -77,6 +77,10 @@ def main():
         media = os.path.join(ENTRY, q, 'media')
         os.makedirs(media, exist_ok=True)
         shutil.copyfile(os.path.join(lproj, 'discover-hot@3x.png'), os.path.join(media, 'discover_hot.png'))
+        # The contact tags demo's tags and contacts (contact-tags.json, version 2 with ids) -> rawfile contacttags/<qualifier>.json.
+        raw = os.path.join(ENTRY, 'rawfile', 'contacttags')
+        os.makedirs(raw, exist_ok=True)
+        shutil.copyfile(os.path.join(EXAMPLE, 'CYLContactTags.bundle', lang + '.lproj', 'contact-tags.json'), os.path.join(raw, q + '.json'))
     # The tab bar configuration of the iOS example, read by CYLTabBarController's HarmonyOS library.
     shutil.copyfile(os.path.join(EXAMPLE, 'CYLTabBarConfiguration.json'), os.path.join(ENTRY, 'rawfile', 'CYLTabBarConfiguration.json'))
     media = os.path.join(LIB, 'base', 'media')

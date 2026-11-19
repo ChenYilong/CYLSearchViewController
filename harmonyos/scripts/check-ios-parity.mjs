@@ -60,7 +60,7 @@ for (const [ios, harmony] of Object.entries(languages)) {
   compare(iosStrings(join(bundle, `${ios}.lproj`, 'CYLSearchViewController.strings')), lib,
     (key) => 'cyl_' + key.replaceAll('.', '_'), `cylsearch/${harmony}`);
   const entry = harmonyStrings(join(app, harmony, 'element', 'string.json'));
-  for (const name of ['CYLSearchTabs', 'CYLSearchDiscover']) {
+  for (const name of ['CYLSearchTabs', 'CYLSearchDiscover', 'CYLContactTags']) {
     compare(iosStrings(join(example, `${name}.bundle`, `${ios}.lproj`, `${name}.strings`)), entry,
       (key) => key.replaceAll('.', '_'), `entry/${harmony}`);
   }
