@@ -59,14 +59,14 @@ PODS:
     - Protobuf (= 3.27.2)
 
 DEPENDENCIES:
-  - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `d58c4e6f5d7d042b7930eb6e1fdd5202c0df4d8c`)
-  - CYLAnimatedItem/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `5996fa962e25e216210dd24c4b3186bb2e155abe`)
-  - CYLAnimatedItem/LottieSwift (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `5996fa962e25e216210dd24c4b3186bb2e155abe`)
-  - CYLAnimatedItem/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `5996fa962e25e216210dd24c4b3186bb2e155abe`)
+  - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `43ec09ce25377b111ba653e8f69ffe99d9a061e4`)
+  - CYLAnimatedItem/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `5744917dfd947b4c09bbc55a0a2f2d2a853097d2`)
+  - CYLAnimatedItem/LottieSwift (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `5744917dfd947b4c09bbc55a0a2f2d2a853097d2`)
+  - CYLAnimatedItem/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `5744917dfd947b4c09bbc55a0a2f2d2a853097d2`)
   - CYLSearchViewController (from `.`)
-  - CYLTabBarController/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `5996fa962e25e216210dd24c4b3186bb2e155abe`)
-  - CYLTabBarController/CYLFlatDesignTabBar (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `5996fa962e25e216210dd24c4b3186bb2e155abe`)
-  - CYLTabBarController/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `5996fa962e25e216210dd24c4b3186bb2e155abe`)
+  - CYLTabBarController/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `5744917dfd947b4c09bbc55a0a2f2d2a853097d2`)
+  - CYLTabBarController/CYLFlatDesignTabBar (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `5744917dfd947b4c09bbc55a0a2f2d2a853097d2`)
+  - CYLTabBarController/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `5744917dfd947b4c09bbc55a0a2f2d2a853097d2`)
   - CYLTableViewPlaceHolder/Core (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `d19120f52db1a3bb1688b8d2fcfb07ed80886f48`)
   - CYLTableViewPlaceHolder/Lottie (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `d19120f52db1a3bb1688b8d2fcfb07ed80886f48`)
 
@@ -79,15 +79,15 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   CollectionViewClassifyMenu:
-    :commit: d58c4e6f5d7d042b7930eb6e1fdd5202c0df4d8c
+    :commit: 43ec09ce25377b111ba653e8f69ffe99d9a061e4
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLAnimatedItem:
-    :commit: 5996fa962e25e216210dd24c4b3186bb2e155abe
+    :commit: 5744917dfd947b4c09bbc55a0a2f2d2a853097d2
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLSearchViewController:
     :path: "."
   CYLTabBarController:
-    :commit: 5996fa962e25e216210dd24c4b3186bb2e155abe
+    :commit: 5744917dfd947b4c09bbc55a0a2f2d2a853097d2
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
     :commit: d19120f52db1a3bb1688b8d2fcfb07ed80886f48
@@ -95,13 +95,13 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   CollectionViewClassifyMenu:
-    :commit: d58c4e6f5d7d042b7930eb6e1fdd5202c0df4d8c
+    :commit: 43ec09ce25377b111ba653e8f69ffe99d9a061e4
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLAnimatedItem:
-    :commit: 5996fa962e25e216210dd24c4b3186bb2e155abe
+    :commit: 5744917dfd947b4c09bbc55a0a2f2d2a853097d2
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTabBarController:
-    :commit: 5996fa962e25e216210dd24c4b3186bb2e155abe
+    :commit: 5744917dfd947b4c09bbc55a0a2f2d2a853097d2
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
     :commit: d19120f52db1a3bb1688b8d2fcfb07ed80886f48
@@ -118,6 +118,6 @@ SPEC CHECKSUMS:
   SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
   SVGAPlayerLite: ae073300a9faa016e88a54afa8fec43f54fed682
 
-PODFILE CHECKSUM: ecf082f83e627a90525b2c58b4fab18131d76337
+PODFILE CHECKSUM: 55318ccd34968b69cd0476014ffb0a99eca53098
 
 COCOAPODS: 1.17.0

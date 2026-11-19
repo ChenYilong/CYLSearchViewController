@@ -177,3 +177,12 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   Podfiles already name by commit. Android: its `:placeholder-lottie` module is gone (the Lottie animator lives in
   CYLTabBarController's `:cylanimateditem`, already included and substituted), so the build no longer includes it and the
   app adds `libs.lottie` instead. Not compiled here (no Xcode, Android SDK or DevEco): CI is the check.
+
+- **CollectionViewClassifyMenu `43ec09ce` and CYLTabBarController `5744917d` pinned together (2026-11-19)**, on every
+  platform (Podfiles, Flutter pubspec, mini program package.json, HarmonyOS oh-package.json5, android/merged
+  gradle.properties; RN's vendor copy fetched at `5744917`): `43ec09ce` (feat/harmony) has every platform at `5744917d`
+  and contains the tag list renaming, item ids, header clear button, image folder bundle and icon spacing
+  (`990cf115`, `cea04255`, `7d84d709`, `d58c4e6f`). CYLTableViewPlaceHolder stays at `d19120f`. iOS: pod install for the
+  native, Flutter and React Native apps; 35 tests pass; Flutter and React Native iOS build. Android, HarmonyOS and the
+  mini program: asked of the Windows session (CollectionViewClassifyMenu's own HarmonyOS HAP was not fully built there,
+  disk full; host tests 71 of 71).
