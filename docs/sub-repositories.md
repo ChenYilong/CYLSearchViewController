@@ -223,3 +223,7 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   tab-tap fix `3ddb2868`; the ClassifyMenu API is unchanged. Android tests pass (0 failures) and the APK builds with
   `.cyl-deps` at both commits; HarmonyOS builds both HAPs (verified copy; the emulator was off, so no device run this time);
   the mini program passes 57/57.
+- **CollectionViewClassifyMenu `c43eebcd` (2026-11-19, Windows)**, on Android, HarmonyOS and the mini program, so every platform
+  names the commit the macOS session pins on iOS. `c43eebcd` is `542a0094` plus iOS Podfiles, `Package.swift` and docs only
+  (`git diff --stat 542a0094 c43eebcd`): the Android, HarmonyOS and mini program code is the same, so the checks above stand; the
+  mini program passes 57/57 again after the sync.
