@@ -127,4 +127,22 @@ When an Objective-C to Swift change of the core breaks an example's build, fix t
   `textLabel` / `imageView` (a first pass with cell content configurations left `textLabel` empty and failed
   `testSearchBarDemoRow`); Swift names found on the way: `CYLTabBarPageRegistry.shared` and `register(_:forPageIdentifier:)`,
   `CYLTabBarController(configurationFile:)`. iOS 35 of 35.
-- **Status**: TODO, step 2 (legacy demo app) next. Score: 12/100 (Objective-C lines left 3,618).
+- **Step 2 decision (2026-11-20, from the user)**: the legacy demo app `CYLSearchViewController/` is in no Xcode target (0
+  references in `CYLSearchExample.xcodeproj`; unchanged since 2015). Prompt (verbatim, answering "leave it / delete it /
+  migrate it unverified"): "使用我们封装好的组件库改造，通过pods引用实现同等效果，如果实现不了，改造core代码新增接口，实现效果以readme描述以及截图为准。并实现swift完全迁移。"
+  (English: rebuild it with our packaged component library through the pods to get the same effect; if that cannot be
+  done, change the core code and add an interface; the effect is whatever the README describes and shows in its
+  screenshot (`CYLSearchViewController/it_is_effect_show__SearchBar.gif`); and finish the Swift migration completely.)
+  - **Target effect (the GIF)**: a blue bar titled "微博@iOS程序犭袁"; below it a search field (placeholder "输入问题关键字进行检索")
+    over a Ken Burns sky (`clouds-1.png`); tapping it opens the search: the history (newest first) with a text button
+    "清除搜索历史" below it, the sky still showing under the list above the keyboard, Cancel "取消"; Search pushes the results
+    ("与Gf有关的咨询" header; rows "测试1❤️" … "测试4❤️") and the term enters the history; a row opens a page with a centred "Button"
+    and a back item "返回".
+  - **Plan**: a Swift page in the example built on `CYLSearchView` (suggestions cache = the history, `contentView` = the Ken
+    Burns sky, results table = the results) and a Swift `CYLKenBurnsView`; the one thing the core lacks is the history's
+    text clear button below the list (it has a trash icon in a header): a core option for the clear button's
+    placement and title (iOS first; the other platforms' rows in `core-todo.md`). When the page matches the GIF, the
+    legacy Objective-C files in `CYLSearchViewController/` and `CYLSearchViewControllerTests/` are replaced by it
+    (the Issue #1317 repro page already lives in the example as `CYLSearchExampleViewController`).
+- **Status**: TODO, step 2 (rebuild the GIF's demo in Swift on the core) in progress. Score: 12/100 (Objective-C lines left
+  3,618).
