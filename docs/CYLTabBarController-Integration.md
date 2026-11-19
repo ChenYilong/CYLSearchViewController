@@ -548,7 +548,7 @@ Flutter 2503, 919, 833, 355, then 0.
   the add field is the same editing bar as renaming, riding on the keyboard
   ([assets/ios-iphone18pro-20261119-contact-tags-clear-add-bar.png](assets/ios-iphone18pro-20261119-contact-tags-clear-add-bar.png), iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), 2026-11-19).
   Score: 100/100 for iOS.
-## TODO (2026-11-19): the contact tags example on the other platforms
+## DONE (2026-11-19; TODO 2026-11-19): the contact tags example on the other platforms
 
 - **Branch**: `feat/harmonyos-parity`. Owner: the Windows session (platform rule).
 - **Task**: port the iOS contact tags example (3a69622, section above) to Android, HarmonyOS, the mini program, React Native
@@ -635,7 +635,8 @@ Flutter 2503, 919, 833, 355, then 0.
   device: the My Tags title and Manage were one accessibility node, so a tap or TalkBack focus on Manage could miss (now
   separate semantics containers).
   [assets/flutter-android-api37-20261119-contact-tags.png](assets/flutter-android-api37-20261119-contact-tags.png) (Flutter 3.50.0, Android API 37 Medium Phone emulator, Windows 11, 2026-11-19 +13:00, after 8989d69).
-  Score: 95/100. TODO: the Flutter iOS run (macOS CYLTableViewPlaceHolder session), then 100.
+  Flutter iOS DONE by the macOS session (2026-11-19, 3c75b17; see "Flutter iOS run" below).
+  Score: 100/100. DONE.
 - **Plan for React Native and Flutter (2026-11-19)**: both packages are thin bridges over the native views (React Native
   codegen components `CylsearchBarView`, `CylsearchTagListView`, `CylsearchView`; Flutter platform views), and the bridges
   lack what the demo needs, so each port is (1) bridge API on Android (Windows session) and iOS (macOS session), then (2) the
@@ -676,3 +677,17 @@ Flutter 2503, 919, 833, 355, then 0.
     `actionTitle` is the core's editing bar, `didSubmitEditing` with the trimmed text, the field cleared, no `didSubmit`,
     focus with the text selected on a new `text`; new `cyl_search/placeholder_view` (`placeholderStyle` by name, `text`,
     centred). The Flutter iOS example builds; running it waits for the Dart side and the example page.
+  - Flutter iOS run (2026-11-19, macOS session, example `77ccb4a`, iOS platform views `66c02be` + fix `3c75b17`): the whole
+    flow passes on the iPhone 18 Pro simulator (iOS 27.2, Flutter 3.47.9 debug build, `--dart-define=CYL_DEMO_TAB=1`):
+    download and upload with the HUD, Recent's clear button, My Tags folded to three rows, Manage with the edit icon and
+    cross, a title tap opens the editing bar above the keyboard with the title selected, "Family" renamed to "Home Folks"
+    (same id, still selected), no match shows the noResults placeholder under "+ New Tag: zzqx", both empty states
+    ("Contact tags without tags", on a fresh launch: the example keeps its simulated server in memory for the app's life).
+    Bug found and fixed in the iOS platform view: leaving Manage dropped the tag selection (Home Folks and College
+    Classmates no longer selected after "Done Managing"), because `CYLFlutterTagListContainer.apply` set `selectedIds`
+    before `setEditing(false, animated:)` and Flutter sends no further `update` for unchanged arguments (React Native
+    re-renders and so applied it again); the selection is now applied after the editing change and in
+    `menu(_:didChangeEditing:)` (3c75b17). No Dart / iOS name or argument mismatch. As on React Native, a simulated tap
+    on a CYLTabBarController tab (axe, by label or point, also with a 0.15 s hold) highlights it without switching the
+    page, so the build starts on the Tag style tab.
+    [assets/flutter-ios27.2-iphone18pro-20261119-contact-tags.png](assets/flutter-ios27.2-iphone18pro-20261119-contact-tags.png) (Flutter 3.47.9, iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), CYLSearchViewController 3c75b17, ClassifyMenu 272f569a, CYLTableViewPlaceHolder b18b617, CYLTabBarController 9a4ad95e, 2026-11-19 17:30 +13:00).
