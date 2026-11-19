@@ -35,8 +35,8 @@
   interfaces are aggregated in the CYLSearchBar component. CYLSearch must be the only kernel and must not depend on
   other search kernels; the collection view is excluded, it is not search-related. Example code may change freely,
   regardless of its current usage."
-- **Status** (2026-11-17): merged on iOS, Android, HarmonyOS, the mini program and React Native; Flutter is being
-  moved onto the merged core (in progress), so the task stays `TODO`.
+- **Status** (2026-11-17, Flutter row corrected 2026-11-19): merged on every platform, Flutter included (`80c66ae`,
+  `5126cb7`); the "Flutter: in progress" row left over from the checkpoint is removed.
 
   | Part | State | Commits |
   | :--- | :--- | :--- |
@@ -51,7 +51,6 @@
   | Documentation on the merged API (README, AGENTS.md, instructions, skills, docs) | DONE | this commit |
   | React Native (`CrossPlatform/react-native-cylsearch`): the components follow the classes on the native cores | DONE | `8c425de` |
   | Flutter (`CrossPlatform/flutter_cylsearch`): the widgets follow the classes on the native cores | DONE | `80c66ae`, `5126cb7` |
-  | Flutter (`CrossPlatform/flutter_cylsearch`) | TODO: in progress | |
 
 ### Deviations by platform
 
@@ -108,8 +107,15 @@ What each platform did differently from the target design below.
   by those builds; the React Native and Flutter iOS apps build. The Windows session reports, at the same pins: Android
   `:cylsearch:testDebugUnitTest` and `:app:assembleDebug` pass; HarmonyOS ohosTest 29 of 29 on the Mate 70 Pro
   emulator; the mini program `npm test` 52 of 52.
-- Still open, for the Windows session: the HarmonyOS V1-in-V2 components and `WeakMap` on a device, and the mini
-  program's default generic path without `cyl-placeholder-miniprogram`.
+- Mini program without `cyl-placeholder-miniprogram` (checked 2026-11-19, Windows, WeChat DevTools 2.02.2609250, a copy
+  of the package without that folder): it does not compile, "component not found in the path:
+  …/cyl-placeholder-miniprogram/cyl-refresh/index". `cyl-search` uses its `cyl-refresh` and, by default, its
+  `cyl-placeholder`, so the package is required; the README said "optional" (only so npm does not try the registry) and
+  now says required ([assets/miniprogram-devtools-20261119-without-cyl-placeholder.png](assets/miniprogram-devtools-20261119-without-cyl-placeholder.png), WeChat DevTools 2.02.2609250, Windows 11, 2026-11-19 +13:00, after 4885f35).
+- Still open, for the Windows session: the HarmonyOS refresh helpers' `WeakMap` and V1 `cylplaceholder` components in
+  V2 components on a device. The V1 placeholder inside the V2 search view ran on the emulator on 2026-11-16 (the empty
+  results screenshot) and ohosTest passes 29/29, but the pull-to-refresh path was not driven on a device; the emulator
+  does not start today ("can not read uuid file" after the Temp clean-up).
 
 ### TODO: not verified yet (2026-11-16, kept as written)
 

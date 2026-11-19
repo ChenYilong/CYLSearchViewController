@@ -23,8 +23,10 @@ CYLTableViewPlaceHolder's mini program package, `cyl-placeholder-miniprogram` (p
    `CrossPlatform/wechat-miniprogram-cylplaceholder` in
    [CYLTableViewPlaceHolder](https://github.com/ChenYilong/CYLTableViewPlaceHolder) go into
    `miniprogram_npm/cyl-placeholder-miniprogram/` (`scripts/sync-example.js` does it for the example). It is not on
-   the npm registry and npm cannot install a folder of a Git repository, so `package.json` names it as an optional
-   peer dependency; the search view needs it. In the same way, the folder
+   the npm registry and npm cannot install a folder of a Git repository, so `package.json` names it as a peer
+   dependency (npm does not fetch it). It is required: `cyl-search` uses its `cyl-refresh` and, by default, its
+   `cyl-placeholder`, so without the folder the mini program does not compile ("component not found in the path:
+   …/cyl-placeholder-miniprogram/cyl-refresh/index", checked in WeChat DevTools on 2026-11-19). In the same way, the folder
    `CrossPlatform/wechat-miniprogram/packages/cyl-tag-list-miniprogram/miniprogram_dist` of
    [CollectionViewClassifyMenu](https://github.com/ChenYilong/CollectionViewClassifyMenu) goes into
    `miniprogram_npm/cyl-tag-list-miniprogram/`: the search bar draws its items with its `cyl-tag-button`, whose icon is
