@@ -583,4 +583,17 @@ Flutter 2503, 919, 833, 355, then 0.
   resources) to winCollectionViewClassifyMenu; the editing bar core and the example port to winCYLSearchViewController.
 - **Acceptance**: full marks (100) = all five platforms with tests and labelled screenshots; pass (60) = Android and
   HarmonyOS with screenshots.
-- **Status**: assigned to the Windows sessions (2026-11-19). Score: 0/100.
+- **Status**: Android DONE (2026-11-19, 2fee101 and this commit). `android/merged/app/.../example/contacttags/`:
+  `CYLContactTagStore.kt` (ids; cache A with id items in the store's own file, since CollectionViewClassifyMenu's Android
+  `CYLTagListStore` kept titles only when this started), `CYLContactTagServer.kt` (cache B, latency, `CYLPlaceholderHUD`),
+  `CYLContactTagsPages.kt` (Edit Remarks, Edit Tags, the contact list); assets: a verbatim copy of
+  `CYLContactTags.bundle` (four languages). Examples row "Contact tags (CollectionViewClassifyMenu)"; intent extras
+  `CYLContactTags`, `CYLContactTagsEditor`, `CYLContactTagsEmpty`, `CYLContactTagsResetCache`, `CYLContactTagsServerLatency`.
+  Built on CollectionViewClassifyMenu 1a3a31dc (renaming, ids, the clear button, the tag width fix) with the core's
+  editing bar. Tests `CYLContactTagStoreTest` (3) and `CYLSearchBarEditingBarTest` (1) pass
+  ([assets/android-medium-phone-api37-20261119-contact-tags.png](assets/android-medium-phone-api37-20261119-contact-tags.png) and
+  [assets/android-medium-phone-api37-20261119-contact-tags-remark-empty.png](assets/android-medium-phone-api37-20261119-contact-tags-remark-empty.png), Android API 37 Medium Phone emulator, Windows 11, 2026-11-19 +13:00, after 2fee101).
+  Differences from iOS: Edit Tags is a pushed page (Android has no sheet with a navigation stack), Back is Cancel; the
+  load policy launch option is not ported yet. Known: the HUD clips its status (CYLTableViewPlaceHolder fix in progress).
+  Score: 30/100 (Android). TODO: HarmonyOS (next; CollectionViewClassifyMenu's HarmonyOS API is at c9a94212), the mini
+  program, React Native and Flutter; `CYLContactTags` in `harmonyos/scripts/check-ios-parity.mjs`.

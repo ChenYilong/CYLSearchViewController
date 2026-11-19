@@ -243,3 +243,11 @@ packages). A test checks each rule.
   `testEditingBarSubmitsAndRidesOnTheKeyboard`. Used by the contact tags example's "Manage" mode
   (`docs/CYLTabBarController-Integration.md`, "renaming tags by id"). Android, HarmonyOS, Flutter, React Native and
   the mini program: for the Windows session.
+  Android (2026-11-19, 2fee101): `CYLSearchBarView.editingBar(context, placeholder, actionTitle)` (no magnifier, the
+  trailing button and the action key submit the trimmed text through `editingSubmitHandler` after the delegate's
+  `searchBarViewShouldSubmitText`; words capitalized, no autocorrection), `isEditingBar`, `pinToKeyboard(container)` (the
+  container's bottom; the bar rides on the keyboard through the IME inset when the window is not resized) and
+  `keyboardOverlapHandler` (how far the keyboard covers the container, for the host's own content). Test
+  `CYLSearchBarEditingBarTest`; used by the Android contact tags example's Manage mode
+  ([assets/android-medium-phone-api37-20261119-contact-tags.png](assets/android-medium-phone-api37-20261119-contact-tags.png), Android API 37 Medium Phone emulator, Windows 11, 2026-11-19 +13:00, after 2fee101).
+  TODO: HarmonyOS, Flutter, React Native and the mini program.
