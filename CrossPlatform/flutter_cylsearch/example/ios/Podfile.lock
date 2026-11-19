@@ -72,7 +72,7 @@ PODS:
     - Protobuf (= 3.27.2)
 
 DEPENDENCIES:
-  - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `c9a9421231418693f1ffcfa2b975694793c8a9f2`)
+  - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `1a3a31dc559ec79d8e631bc7e6a88399920e2214`)
   - CYLAnimatedItem/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `5744917dfd947b4c09bbc55a0a2f2d2a853097d2`)
   - CYLAnimatedItem/Rive (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `5744917dfd947b4c09bbc55a0a2f2d2a853097d2`)
   - CYLAnimatedItem/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `5744917dfd947b4c09bbc55a0a2f2d2a853097d2`)
@@ -99,7 +99,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   CollectionViewClassifyMenu:
-    :commit: c9a9421231418693f1ffcfa2b975694793c8a9f2
+    :commit: 1a3a31dc559ec79d8e631bc7e6a88399920e2214
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLAnimatedItem:
     :commit: 5744917dfd947b4c09bbc55a0a2f2d2a853097d2
@@ -123,7 +123,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   CollectionViewClassifyMenu:
-    :commit: c9a9421231418693f1ffcfa2b975694793c8a9f2
+    :commit: 1a3a31dc559ec79d8e631bc7e6a88399920e2214
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLAnimatedItem:
     :commit: 5744917dfd947b4c09bbc55a0a2f2d2a853097d2
@@ -151,6 +151,6 @@ SPEC CHECKSUMS:
   SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
   SVGAPlayerLite: ae073300a9faa016e88a54afa8fec43f54fed682
 
-PODFILE CHECKSUM: a32e3ee64bc7a6eb11816b589358e42ce681e801
+PODFILE CHECKSUM: 5b342b3634dd34a39f031b265e5782aca8dd884a
 
 COCOAPODS: 1.17.0
