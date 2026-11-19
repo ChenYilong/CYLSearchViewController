@@ -195,3 +195,11 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   Android code); HarmonyOS full `assembleHap` (app and test HAP) builds and the device tests pass 29/29 on the Mate 70 Pro
   emulator; the mini program syncs both commits (its animated item at `5744917d`) and passes 52/52. The earlier pins
   `986ab82`, `5a72ac9` and `49d1f38` were checked the same way.
+- **CollectionViewClassifyMenu `46c861fc` with CYLTabBarController `f88d67a8` (2026-11-19, Windows)**, on Android, HarmonyOS
+  and the mini program; CYLTableViewPlaceHolder stays `b18b617`. `46c861fc` adds the mini program's renaming, item ids and
+  clear button and bundles `f88d67a8` everywhere. Android tests, the HarmonyOS build and the mini program tests (52/52)
+  pass. iOS, Flutter and React Native: for the macOS session. Correction: these three pin changes went out inside
+  `9e0ff66` ("feat(harmonyos): editing bar core and contact tags resources"), because the separate pin commit was refused by
+  the message check (`build` is not an allowed type) and its staged files were committed with the next one; pushed history
+  is not rewritten. Before that: `1a3a31dc` / `c9a94212` / `98c847a6` (918a7fa, 2fee101) and CYLTableViewPlaceHolder `b18b617`
+  (0f00440), each checked the same way.
