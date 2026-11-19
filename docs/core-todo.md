@@ -277,4 +277,9 @@ packages). A test checks each rule.
   keyboard requests use it too. The contact tags page no longer sets `editingFocus` for a rename (one request per
   rename). Test: `cyl-search-bar editing bar: every new title takes the keyboard, also when focus is already set`
   (`test/components.test.js`); `npm test` 58 of 58.
+- **DevTools check (2026-11-19, Windows, WeChat DevTools 2.02.2609250, base library 3.6.6)**: two renames in a row as a
+  user does them (a touch tap on the pencil, type, the bar's Done, the next pencil; miniprogram-automator): each pencil
+  puts the title in the bar with the input focused (`bindfocus` fired) and Done renames by id (Family to Family A, then
+  Friends to Friends B)
+  ([assets/miniprogram-devtools-20261119-two-renames-focus.png](assets/miniprogram-devtools-20261119-two-renames-focus.png), WeChat DevTools 2.02.2609250, Windows 11, 2026-11-19 +13:00, after a0fdc9e).
 - **Left**: the user's check on the phone (WeChat preview).
