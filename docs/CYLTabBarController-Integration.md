@@ -602,8 +602,9 @@ Flutter 2503, 919, 833, 355, then 0.
   (`contactTags_*`, rawfile `contacttags/<qualifier>.json`), `CYLContactTags` in `check-ios-parity.mjs` (549/549); Examples row 5,
   routes `contactTags`, `contactTagEditor`, `contactList`; launch parameters `--pi CYLContactTags 1`, `CYLContactTagsEditor`,
   `CYLContactTagsEmpty`, `CYLContactTagsResetCache`, `CYLContactTagsServerLatency`. Caches A and B are preference files with id
-  items. The HarmonyOS list does not route a pencil or title tap to renaming yet (reported to winCollectionViewClassifyMenu),
-  so in Manage the demo starts the rename from the tag tap, as iOS and Android do on a title tap. Device tests 29/29
+  items. The HarmonyOS list did not route a pencil or title tap to renaming at 357478ba (reported); CollectionViewClassifyMenu
+  fixed it in 7e683567, pinned at c966c527 with CYLTabBarController 9a4ad95e, and the demo's workaround is gone: the pencil
+  and the title open the editing bar ([assets/harmonyos-mate70pro-20261119-contact-tags-rename-tap.png](assets/harmonyos-mate70pro-20261119-contact-tags-rename-tap.png), HarmonyOS 6 Mate 70 Pro emulator, Windows 11, 2026-11-19 +13:00, after e6cf550). Device tests 29/29
   ([assets/harmonyos-mate70pro-20261119-contact-tags.png](assets/harmonyos-mate70pro-20261119-contact-tags.png) and
   [assets/harmonyos-mate70pro-20261119-contact-tags-remark-empty.png](assets/harmonyos-mate70pro-20261119-contact-tags-remark-empty.png), HarmonyOS 6 Mate 70 Pro emulator, DevEco Studio 6, Windows 11, 2026-11-19 +13:00, after 0391f5f).
   Score: 60/100 (pass: Android and HarmonyOS). TODO: the mini program (CollectionViewClassifyMenu 06c61ed9 has its

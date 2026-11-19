@@ -480,14 +480,9 @@ export struct CYLContactTagEditorPage {
           return;
         }
         if (this.isManaging) {
-          // In "Manage" a tap on a tag of "My Tags" renames it, as the pencil does (iOS and Android:
-          // `renamesOnTitleTapWhileEditing`). The HarmonyOS list does not route that tap to its rename handler yet, so the
-          // demo starts the rename itself; other sections show the tag's contacts.
-          if (this.source.sections[indexPath.section].kind === CYLContactTagSectionKind.mine && this.tagList.isRenamable(indexPath)) {
-            this.tagList.beginRenaming(indexPath);
-          } else {
-            this.showContacts(element.id);
-          }
+          // In "Manage" the pencil and the title rename (the list calls `renameRequestHandler`); another tap shows the
+          // tag's contacts.
+          this.showContacts(element.id);
         } else {
           this.select(element.id);
         }

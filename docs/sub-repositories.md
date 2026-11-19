@@ -211,3 +211,7 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   `f88d67a8` and CYLTableViewPlaceHolder `b18b617`, both HAPs build and the device tests pass 29/29; the copy's exit code is
   now checked. `357478ba` is pinned on Android, HarmonyOS and the mini program in the commit that adds the HarmonyOS contact
   tags example.
+- **CollectionViewClassifyMenu `c966c527` with CYLTabBarController `9a4ad95e` (2026-11-19, Windows)**, on Android, HarmonyOS
+  and the mini program (iOS: the macOS session at `ab7d0265` + `9a4ad95e`; `c966c527` is `ab7d0265` plus the HarmonyOS rename
+  tap fix `7e683567`). Android tests pass; HarmonyOS (verified copy) builds both HAPs and passes 29/29 device tests; the mini
+  program passes 52/52.
