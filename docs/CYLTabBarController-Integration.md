@@ -659,3 +659,11 @@ Flutter 2503, 919, 833, 355, then 0.
     Found: a simulated tap on a React Native iOS tab (axe, by label or point) highlights it without switching the page,
     at CYLTabBarController `9a4ad95e` and also at `5744917d` (not a regression of its Swift tab bar); reported to the
     CYLTabBarController sessions. React Native is done on both platforms; Flutter remains.
+  - Flutter iOS platform views (2026-11-19, macOS session, against the Windows session's spec message):
+    `cyl_search/tag_list_view` is a one-section `CYLMenuDataSource` as in React Native (`tagIds`, `selectedIds`,
+    `selectionMode`, `sectionTitle`, `showsClearButton`, `editing`, `supportsRenaming`; `didSelectTag` with id and
+    selected, `didDeleteTag`, `didMoveTag`, `didRequestRename`, `didTapClearButton`, `didChangeHeight` again after
+    editing; its own add control hidden); `cyl_search/search_bar_view` with `editingBar` (creation only) and
+    `actionTitle` is the core's editing bar, `didSubmitEditing` with the trimmed text, the field cleared, no `didSubmit`,
+    focus with the text selected on a new `text`; new `cyl_search/placeholder_view` (`placeholderStyle` by name, `text`,
+    centred). The Flutter iOS example builds; running it waits for the Dart side and the example page.

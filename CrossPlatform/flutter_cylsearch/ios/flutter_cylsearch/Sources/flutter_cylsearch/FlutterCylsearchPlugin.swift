@@ -8,8 +8,9 @@ import UIKit
 
 /**
  * Registers the platform views of CYLSearchViewController for Flutter: `cyl_search/search_view` (`CYLSearchView`),
- * `cyl_search/search_bar_view` (`CYLSearchBarView`) and `cyl_search/tag_list_view` (CollectionViewClassifyMenu's
- * `CYLTagListView`, the tags of `CYLSearchView.suggestionsTagView`). Each view talks to Dart on `cyl_search/view_<id>`.
+ * `cyl_search/search_bar_view` (`CYLSearchBarView`, or its editing bar), `cyl_search/tag_list_view`
+ * (CollectionViewClassifyMenu's `CYLTagListView`) and `cyl_search/placeholder_view` (CYLTableViewPlaceHolder's
+ * `CYLPlaceholderView`). Each view talks to Dart on `cyl_search/view_<id>`.
  */
 public final class FlutterCylsearchPlugin: NSObject, FlutterPlugin {
 
@@ -27,6 +28,9 @@ public final class FlutterCylsearchPlugin: NSObject, FlutterPlugin {
         registrar.register(CYLFlutterViewFactory(messenger: messenger) { frame, id, arguments, channel in
             CYLFlutterTagListView(frame: frame, arguments: arguments, channel: channel)
         }, withId: "cyl_search/tag_list_view")
+        registrar.register(CYLFlutterViewFactory(messenger: messenger) { frame, id, arguments, channel in
+            CYLFlutterPlaceholderView(frame: frame, arguments: arguments, channel: channel)
+        }, withId: "cyl_search/placeholder_view")
     }
 }
 
@@ -214,7 +218,8 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
 }
 
 /**
- * `CYLSearchBarView` filling the platform view.
+ * `CYLSearchBarView` filling the platform view; with `editingBar` (read at creation), the core's editing bar
+ * (`CYLSearchBarView.editingBar(placeholder:actionTitle:)`), whose submit is sent as `didSubmitEditing`.
  */
 // Platform views live on the main thread, as the core views they wrap (main-actor isolated).
 @MainActor
@@ -223,10 +228,22 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
     private let channel: FlutterMethodChannel
 
     init(frame: CGRect, arguments: [String: Any], channel: FlutterMethodChannel) {
-        bar = CYLSearchBarView(frame: frame)
+        if arguments["editingBar"] as? Bool ?? false {
+            let title = arguments["actionTitle"] as? String ?? ""
+            bar = CYLSearchBarView.editingBar(placeholder: arguments["placeholder"] as? String,
+                                              actionTitle: title.isEmpty ? NSLocalizedString("Done", comment: "") : title)
+            bar.frame = frame
+        } else {
+            bar = CYLSearchBarView(frame: frame)
+        }
         self.channel = channel
         super.init()
         bar.delegate = self
+        // The editing bar's submit: the trimmed text to Dart, then an empty field for the next name.
+        bar.editingSubmitHandler = { [weak channel] bar, text in
+            channel?.invokeMethod("didSubmitEditing", arguments: ["text": text])
+            bar.text = ""
+        }
         apply(arguments)
         channel.setMethodCallHandler { [weak self] call, result in
             guard let self else {
@@ -304,11 +321,26 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
         if mode != bar.mode { bar.mode = mode }
         applySearches(arguments["searches"] as? [String] ?? [])
         bar.placeholder = arguments["placeholder"] as? String
-        if let text = arguments["text"] as? String, text != bar.text { bar.text = text }
-        bar.showsCancelButton = arguments["showsCancelButton"] as? Bool ?? false
+        let text = arguments["text"] as? String ?? ""
+        if !text.isEmpty, text != bar.text { bar.text = text }
+        // An editing bar given a new title (Dart's answer to `didRequestRename`) takes focus with the title selected,
+        // once per new value, so the rename is typed at once.
+        if bar.isEditingBar, !text.isEmpty, text != appliedText {
+            DispatchQueue.main.async { [bar] in
+                bar.showKeyboard()
+                bar.textField.selectAll(nil)
+            }
+        }
+        appliedText = text
         bar.fieldShadowOpacity = CGFloat(arguments["fieldShadowOpacity"] as? Double ?? 0)
         bar.searchBarStyle = (arguments["searchBarStyle"] as? String) == "bordered" ? .bordered : .plain
-        bar.searchIcon = arguments["showsSearchIcon"] as? Bool ?? true ? UIImage(systemName: "magnifyingglass") : nil
+        if bar.isEditingBar {
+            // The core's own setup stays: no magnifier, its action button always shown.
+            if let title = arguments["actionTitle"] as? String, !title.isEmpty { bar.cancelButtonTitle = title }
+        } else {
+            bar.showsCancelButton = arguments["showsCancelButton"] as? Bool ?? false
+            bar.searchIcon = arguments["showsSearchIcon"] as? Bool ?? true ? UIImage(systemName: "magnifyingglass") : nil
+        }
         let items = arguments["items"] as? [[String: Any]] ?? []
         // Rebuilt only when Dart sends other items, so a rebuild of the widget keeps the native selection.
         if (items as NSArray) != (appliedItems as NSArray) {
@@ -320,6 +352,11 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
 
     private var appliedItems: [[String: Any]] = []
 
+    /**
+     * Dart's `text` as applied last (an editing bar takes focus when it changes).
+     */
+    private var appliedText = ""
+
     func searchBarView(_ searchBarView: CYLSearchBarView, didSelect item: CYLSearchBarItem) {
         channel.invokeMethod("didSelectItem", arguments: ["index": item.index, "selected": item.isSelected])
     }
@@ -329,6 +366,10 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
     }
 
     func searchBarViewSearchButtonClicked(_ searchBarView: CYLSearchBarView) {
+        // An editing bar reports its submit as `didSubmitEditing` and keeps the keyboard up for the next name.
+        guard !searchBarView.isEditingBar else {
+            return
+        }
         channel.invokeMethod("didSubmit", arguments: ["text": searchBarView.text ?? ""])
         searchBarView.hideKeyboard()
     }
@@ -358,29 +399,23 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
 }
 
 /**
- * CollectionViewClassifyMenu's `CYLTagListView` filling the platform view; it reports the height its tags need at the
- * view's width (`didChangeHeight`), so Dart can size it.
+ * CollectionViewClassifyMenu's `CYLTagListView` filling the platform view, one section of tags from Dart: their titles
+ * and ids, the selection, the header (title and clear button) and editing mode (crosses, dragging, rename requests), as
+ * on Android and React Native. It reports the height its tags need at the view's width (`didChangeHeight`), so Dart can
+ * size it.
  */
 // Platform views live on the main thread, as the core views they wrap (main-actor isolated).
 @MainActor
 final class CYLFlutterTagListView: NSObject, @preconcurrency FlutterPlatformView {
     private let container: CYLFlutterTagListContainer
-    private let channel: FlutterMethodChannel
 
     init(frame: CGRect, arguments: [String: Any], channel: FlutterMethodChannel) {
-        container = CYLFlutterTagListContainer(frame: frame)
-        self.channel = channel
+        container = CYLFlutterTagListContainer(frame: frame, channel: channel)
         super.init()
-        container.tagListView.tagClickHandler = { [weak channel] index, tag in
-            channel?.invokeMethod("didSelectTag", arguments: ["index": Int(index), "title": tag.title ?? ""])
-        }
-        container.heightChanged = { [weak channel] height in
-            channel?.invokeMethod("didChangeHeight", arguments: ["height": Double(height)])
-        }
-        apply(arguments)
+        container.apply(arguments)
         channel.setMethodCallHandler { [weak self] call, result in
             if call.method == "update", let arguments = call.arguments as? [String: Any] {
-                self?.apply(arguments)
+                self?.container.apply(arguments)
             }
             result(nil)
         }
@@ -389,39 +424,152 @@ final class CYLFlutterTagListView: NSObject, @preconcurrency FlutterPlatformView
     func view() -> UIView {
         container
     }
-
-    private func apply(_ arguments: [String: Any]) {
-        container.overrideUserInterfaceStyle = (arguments["brightness"] as? String) == "dark" ? .dark : .light
-        container.tagListView.foldControl = cylFoldControl(arguments["foldControlPosition"], arguments["foldControlContent"])
-        container.tagListView.defaultVisibleRows = max(0, arguments["foldedRowCount"] as? Int ?? 2)
-        container.tagListView.setTags(withTitles: arguments["tags"] as? [String] ?? [])
-        container.setNeedsLayout()
-    }
 }
 
 /**
- * The tag list and the height it reported last.
+ * The tag list, its data (titles, ids, selection, header) and the height it reported last.
  */
-final class CYLFlutterTagListContainer: UIView, CYLMenuDelegate {
+final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelegate {
     let tagListView = CYLTagListView(foldControl: nil)
-    var heightChanged: ((CGFloat) -> Void)?
+    private let channel: FlutterMethodChannel
     private var reportedHeight: CGFloat = -1
+    private var titles: [String] = []
+    private var ids: [String] = []
+    private var selectedIds: Set<String> = []
+    private var sectionTitle = ""
+    private var showsClearButton = false
+    private var supportsRenaming = false
 
-    override init(frame: CGRect) {
+    init(frame: CGRect, channel: FlutterMethodChannel) {
+        self.channel = channel
         super.init(frame: frame)
         tagListView.showsSectionHeaders = false
-        // Folding and unfolding change the height: report it again.
-        tagListView.menuDelegate = self
+        tagListView.selectionMode = .none
+        tagListView.allowsEmptySelection = true
+        // Dart adds tags in its own editing bar, as the iOS example and React Native do.
+        tagListView.showsAddItemViewWhileEditing = false
         // The Flutter page shows through, as around any other widget.
         backgroundColor = .clear
         let style = tagListView.style.copy() as! CYLMenuStyle
         style.backgroundColor = .clear
         tagListView.style = style
+        // Renaming is Dart's: the list asks, Dart renames by id and sends the new titles.
+        tagListView.renameRequestHandler = { [weak self] indexPath, title in
+            guard let self else { return }
+            self.channel.invokeMethod("didRequestRename", arguments: ["index": indexPath.item, "id": self.id(at: indexPath.item), "title": title])
+        }
+        tagListView.clearButtonHandler = { [weak self] section in
+            self?.channel.invokeMethod("didTapClearButton", arguments: ["section": section])
+        }
+        tagListView.menuDataSource = self
+        tagListView.menuDelegate = self
         addSubview(tagListView)
     }
 
     required init?(coder: NSCoder) {
         nil
+    }
+
+    func apply(_ arguments: [String: Any]) {
+        overrideUserInterfaceStyle = (arguments["brightness"] as? String) == "dark" ? .dark : .light
+        tagListView.foldControl = cylFoldControl(arguments["foldControlPosition"], arguments["foldControlContent"])
+        tagListView.defaultVisibleRows = max(0, arguments["foldedRowCount"] as? Int ?? 2)
+        let mode: CYLMenuSelectionMode = (arguments["selectionMode"] as? String) == "multiple" ? .multiple : .none
+        if mode != tagListView.selectionMode { tagListView.selectionMode = mode }
+        let newTitles = arguments["tags"] as? [String] ?? []
+        let newIds = arguments["tagIds"] as? [String] ?? []
+        let newSectionTitle = arguments["sectionTitle"] as? String ?? ""
+        let newShowsClearButton = arguments["showsClearButton"] as? Bool ?? false
+        let newSupportsRenaming = arguments["supportsRenaming"] as? Bool ?? false
+        // Reloaded only when Dart sends other content, so a rebuild keeps the native fold state.
+        if newTitles != titles || newIds != ids || newSectionTitle != sectionTitle || newShowsClearButton != showsClearButton
+            || newSupportsRenaming != supportsRenaming {
+            titles = newTitles
+            ids = newIds
+            sectionTitle = newSectionTitle
+            showsClearButton = newShowsClearButton
+            supportsRenaming = newSupportsRenaming
+            tagListView.showsSectionHeaders = !sectionTitle.isEmpty || showsClearButton
+            tagListView.reloadMenuData()
+        }
+        selectedIds = Set(arguments["selectedIds"] as? [String] ?? [])
+        applySelection()
+        let editing = arguments["editing"] as? Bool ?? false
+        if editing != tagListView.isEditing { tagListView.setEditing(editing, animated: true) }
+        setNeedsLayout()
+    }
+
+    /**
+     * The id of the tag at `index`: its entry in `tagIds`, or its title when no id is given.
+     */
+    private func id(at index: Int) -> String {
+        if index < ids.count, !ids[index].isEmpty { return ids[index] }
+        return index < titles.count ? titles[index] : ""
+    }
+
+    private func applySelection() {
+        guard tagListView.selectionMode == .multiple else { return }
+        tagListView.selectedIndexPaths = titles.indices.filter { selectedIds.contains(id(at: $0)) }.map { IndexPath(item: $0, section: 0) }
+    }
+
+    override func responds(to aSelector: Selector!) -> Bool {
+        // The edit icon shows only for a data source that renames (`supportsRenaming`).
+        if aSelector == #selector(CYLMenuDataSource.menuRenameItem(at:to:)) {
+            return supportsRenaming
+        }
+        return super.responds(to: aSelector)
+    }
+
+    // MARK: - CYLMenuDataSource
+
+    func numberOfSectionsInMenu() -> Int { 1 }
+
+    func menuNumberOfItems(inSection section: Int) -> Int { titles.count }
+
+    func menuTitle(forSection section: Int) -> String { sectionTitle }
+
+    func menuTitleForItem(at indexPath: IndexPath) -> String {
+        indexPath.item < titles.count ? titles[indexPath.item] : ""
+    }
+
+    func menuIdentifierForItem(at indexPath: IndexPath) -> String { id(at: indexPath.item) }
+
+    func menuShowsClearButton(forSection section: Int) -> Bool { showsClearButton }
+
+    func menuRenameItem(at indexPath: IndexPath, to title: String) {
+        // Not used: `renameRequestHandler` hands renaming to Dart, which sends the new titles.
+    }
+
+    func menuRemoveItem(at indexPath: IndexPath) {
+        let index = indexPath.item
+        guard index < titles.count else { return }
+        let removed = id(at: index)
+        titles.remove(at: index)
+        if index < ids.count { ids.remove(at: index) }
+        channel.invokeMethod("didDeleteTag", arguments: ["index": index, "id": removed])
+    }
+
+    func menuMoveItem(at sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+        let from = sourceIndexPath.item, to = destinationIndexPath.item
+        guard from < titles.count, to < titles.count else { return }
+        titles.insert(titles.remove(at: from), at: to)
+        if ids.count == titles.count { ids.insert(ids.remove(at: from), at: to) }
+        channel.invokeMethod("didMoveTag", arguments: ["from": from, "to": to])
+    }
+
+    // MARK: - CYLMenuDelegate
+
+    func menu(_ menu: Any, didSelectItemAt indexPath: IndexPath) {
+        let index = indexPath.item
+        let selected = tagListView.selectionMode == .multiple
+        if selected { selectedIds.insert(id(at: index)) }
+        channel.invokeMethod("didSelectTag", arguments: ["index": index, "title": menuTitleForItem(at: indexPath), "id": id(at: index), "selected": selected])
+    }
+
+    func menu(_ menu: Any, didDeselectItemAt indexPath: IndexPath) {
+        let index = indexPath.item
+        selectedIds.remove(id(at: index))
+        channel.invokeMethod("didSelectTag", arguments: ["index": index, "title": menuTitleForItem(at: indexPath), "id": id(at: index), "selected": false])
     }
 
     func menu(_ menu: Any, didChangeContentHeight height: CGFloat) {
@@ -432,6 +580,11 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDelegate {
         setNeedsLayout()
     }
 
+    func menu(_ menu: Any, didChangeEditing editing: Bool) {
+        reportedHeight = -1
+        setNeedsLayout()
+    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
         tagListView.frame = bounds
@@ -439,8 +592,81 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDelegate {
         let height = ceil(tagListView.heightThatFitsWidth(bounds.width))
         if height != reportedHeight {
             reportedHeight = height
-            heightChanged?(height)
+            channel.invokeMethod("didChangeHeight", arguments: ["height": Double(height)])
         }
+    }
+}
+
+/**
+ * CYLTableViewPlaceHolder's `CYLPlaceholderView` filling the size Dart gives it, centred: the image of a
+ * `CYLPlaceholderStyle` (by name, ignoring case; `.empty` when unknown, as on Android) above a text.
+ */
+@MainActor
+final class CYLFlutterPlaceholderView: NSObject, @preconcurrency FlutterPlatformView {
+    private let container: CYLFlutterPlaceholderContainer
+
+    init(frame: CGRect, arguments: [String: Any], channel: FlutterMethodChannel) {
+        container = CYLFlutterPlaceholderContainer(frame: frame)
+        super.init()
+        container.apply(arguments)
+        channel.setMethodCallHandler { [weak self] call, result in
+            if call.method == "update", let arguments = call.arguments as? [String: Any] {
+                self?.container.apply(arguments)
+            }
+            result(nil)
+        }
+    }
+
+    func view() -> UIView {
+        container
+    }
+}
+
+/**
+ * The placeholder, rebuilt when its style or text changes, at its content size in the middle.
+ */
+final class CYLFlutterPlaceholderContainer: UIView {
+    /**
+     * CYLPlaceholderStyle's case names in order (their raw values), lowercased.
+     */
+    private static let styleNames = ["empty", "noresults", "error", "wifioff", "signalwifioff", "nointernet", "cloudoff", "syncproblem", "syncdisabled", "networklocked", "bluetoothdisabled", "locationoff", "publicoff", "erroroutline", "warning", "reportproblem", "blocked", "help", "hourglass", "locked", "visibilityoff", "searchoff", "folderoff", "folderopen", "downloadoff", "uploadoff", "inbox", "brokenimage", "imageunavailable", "photolibrary", "musicoff", "videooff", "personoff", "groupoff", "eventbusy", "emptycart", "favorite", "batteryalert", "unknowndevice", "phonedisabled", "wronglocation", "archive", "info", "refresh", "delete", "search", "mail", "image", "cloud", "notificationsoff", "history"]
+    private var placeholderView: CYLPlaceholderView?
+    private var styleName: String?
+    private var text: String?
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = .clear
+    }
+
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    func apply(_ arguments: [String: Any]) {
+        overrideUserInterfaceStyle = (arguments["brightness"] as? String) == "dark" ? .dark : .light
+        let name = arguments["placeholderStyle"] as? String ?? "empty"
+        let newText = arguments["text"] as? String ?? ""
+        guard placeholderView == nil || name != styleName || newText != text else { return }
+        styleName = name
+        text = newText
+        placeholderView?.removeFromSuperview()
+        let raw = Self.styleNames.firstIndex(of: name.lowercased()) ?? 0
+        let placeholder = CYLPlaceholderView(style: CYLPlaceholderStyle(rawValue: raw) ?? .empty, text: newText)
+        placeholder.reportsContentSize = true
+        addSubview(placeholder)
+        placeholderView = placeholder
+        setNeedsLayout()
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        guard let placeholderView else { return }
+        placeholderView.preferredMaxLayoutWidth = bounds.width
+        var size = placeholderView.intrinsicContentSize
+        size.width = min(bounds.width, size.width > 0 ? size.width : bounds.width)
+        size.height = min(bounds.height, max(0, size.height))
+        placeholderView.frame = CGRect(x: bounds.midX - size.width / 2, y: bounds.midY - size.height / 2, width: size.width, height: size.height)
     }
 }
 
