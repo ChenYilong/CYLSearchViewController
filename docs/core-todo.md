@@ -227,3 +227,19 @@ packages). A test checks each rule.
   checks. Score: 70/100 (iOS, Android, React Native on both, Flutter already right).
   HarmonyOS passes without a code change (2026-11-19): the system keyboard avoidance lifts the page, so the placeholder stays whole above the keyboard ([assets/harmonyos-mate70pro-20261119-placeholder-above-keyboard.png](assets/harmonyos-mate70pro-20261119-placeholder-above-keyboard.png), HarmonyOS 6 Mate 70 Pro emulator, DevEco Studio 6, Windows 11, 2026-11-19 +13:00, at d7651e0).
   Mini program: WeChat DevTools draws no keyboard, so it cannot be checked there; the `<input>` keeps WeChat's default `adjust-position` (the page is pushed up as on HarmonyOS). It needs a real phone (WeChat preview). Score: 90/100; TODO: the mini program on a phone.
+
+## DONE (2026-11-19): the editing bar, the search bar as an edit field above the keyboard
+
+- **Branch**: `feat/harmonyos-parity`.
+- **Prompt** (verbatim): "这个编辑框复用seachbar样式，为seachbar样式增加新的编辑样式初始化，该样式应固定fix跟随在键盘顶部完成core代码，后调用接口完成example"
+  (English: the edit field reuses the search bar's style: add a new editing-style initializer to the search bar, pinned
+  to the top of the keyboard, in the core; then use it in the example.)
+- **Status**: DONE (2026-11-19). `CYLSearchBarView.editingBar(placeholder:actionTitle:)` (Objective-C
+  `+editingBarWithPlaceholder:actionTitle:`): the search bar's field and look without the magnifier, its trailing button
+  (`cancelButton`, `cancelButtonTitle`) the action ("Add", "Done"), which submits through `editingSubmitHandler` as the
+  return key does (after the delegate's `-searchBarView:shouldSubmitText:`); words capitalized, no autocorrection; an
+  opaque background. `pinToKeyboard(in:)` pins it to the view's `keyboardLayoutGuide` (undocked keyboards too): at the
+  bottom while the keyboard is down, on its top while it is up. `isEditingBar`. Test
+  `testEditingBarSubmitsAndRidesOnTheKeyboard`. Used by the contact tags example's "Manage" mode
+  (`docs/CYLTabBarController-Integration.md`, "renaming tags by id"). Android, HarmonyOS, Flutter, React Native and
+  the mini program: for the Windows session.

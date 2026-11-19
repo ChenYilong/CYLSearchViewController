@@ -13,20 +13,37 @@ import UIKit
 import CollectionViewClassifyMenu
 
 /**
- * The user's tags (like a chat app's contact tags): every tag in the user's order, and the recently used ones. New tags
- * are added here; the editor only reads and asks it to change.
+ * A tag: its id is its primary key (a reorder or a rename keeps it, and contacts are bound to it); its title is what
+ * the lists show.
+ */
+struct CYLContactTag: Codable, Equatable {
+    /**
+     * The primary key.
+     */
+    var id: String
+
+    /**
+     * The name shown.
+     */
+    var title: String
+}
+
+/**
+ * The user's tags (like a chat app's contact tags), keyed by id: every tag in the user's order, and the recently used
+ * ones. New tags are added here; the editor only reads and asks it to change. Changes are saved to `cache` (cache A)
+ * as CollectionViewClassifyMenu cache items (id and title).
  */
 final class CYLContactTagStore {
 
     /**
      * Every tag, in the user's order ("My Tags").
      */
-    private(set) var tags: [String]
+    private(set) var tags: [CYLContactTag]
 
     /**
-     * The recently used tags, the most recent first ("Recent").
+     * The ids of the recently used tags, the most recent first ("Recent").
      */
-    private(set) var recentTags: [String]
+    private(set) var recentIDs: [String]
 
     /**
      * How many recent tags are kept.
@@ -34,12 +51,12 @@ final class CYLContactTagStore {
     let recentLimit: Int
 
     /**
-     * The demo contacts and their tags.
+     * The demo contacts and the ids of their tags.
      */
     private(set) var contacts: [CYLContactTagData.Contact] = []
 
     /**
-     * Where the changes are saved (CollectionViewClassifyMenu's `CYLTagListStore`); nil keeps them in memory.
+     * Where the changes are saved (CollectionViewClassifyMenu's `CYLTagListStore`, cache A); nil keeps them in memory.
      */
     var cache: CYLTagListCache?
 
@@ -55,44 +72,84 @@ final class CYLContactTagStore {
     static let cacheName = "CYLContactTags"
 
     /**
-     * A store with `tags` (duplicates dropped) and the `recentTags` among them, at most `recentLimit`.
+     * A store with `tags` (duplicate ids dropped) and the `recentIDs` among them, at most `recentLimit`.
      */
-    init(tags: [String], recentTags: [String] = [], recentLimit: Int = 8) {
+    init(tags: [CYLContactTag], recentIDs: [String] = [], recentLimit: Int = 8) {
         var seen = Set<String>()
-        self.tags = tags.filter { seen.insert($0).inserted }
+        self.tags = tags.filter { seen.insert($0.id).inserted }
         self.recentLimit = recentLimit
-        self.recentTags = Array(recentTags.filter { seen.contains($0) }.prefix(recentLimit))
+        self.recentIDs = Array(recentIDs.filter { seen.contains($0) }.prefix(recentLimit))
     }
 
     /**
-     * The demo tags of the app's language (contact-tags.json); an empty store when the file is missing or invalid.
+     * The demo tags of the app's language (contact-tags.json), with cache A's saved order, names and contents on top.
      */
     static func bundled(cache: CYLTagListCache? = CYLTagListStore(policy: .database, name: cacheName)) -> CYLContactTagStore {
         guard let data = try? CYLContactTagData.bundled() else {
             return CYLContactTagStore(tags: [])
         }
-        // The saved order and contents win over the bundled demo data.
-        let tags = cache?.cachedTitles(forSection: mineCacheKey) ?? data.tags
-        let recent = cache?.cachedTitles(forSection: recentCacheKey) ?? data.recentTags
-        let store = CYLContactTagStore(tags: tags, recentTags: recent)
+        // The saved items (id and title) win over the bundled demo data.
+        let tags = cache?.cachedItems?(forSection: mineCacheKey).map { $0.map { CYLContactTag(id: $0.identifier, title: $0.title) } }
+            ?? data.tags
+        let recent = cache?.cachedItems?(forSection: recentCacheKey)?.map(\.identifier) ?? data.recentTags
+        let store = CYLContactTagStore(tags: tags, recentIDs: recent)
         store.contacts = data.contacts ?? []
         store.cache = cache
         return store
     }
 
     /**
-     * The contacts that have `tag`, in the file's order.
+     * The tag with `id`, if it exists.
      */
-    func contacts(withTag tag: String) -> [CYLContactTagData.Contact] {
-        contacts.filter { $0.tags.contains(tag) }
+    func tag(withID id: String) -> CYLContactTag? {
+        tags.first { $0.id == id }
     }
 
     /**
-     * Saves "My Tags" and "Recent" to `cache`.
+     * The title of the tag with `id`; nil when there is none.
+     */
+    func title(of id: String) -> String? {
+        tag(withID: id)?.title
+    }
+
+    /**
+     * The id of the tag titled exactly `title`, if any.
+     */
+    func id(ofTitle title: String) -> String? {
+        tags.first { $0.title == title }?.id
+    }
+
+    /**
+     * The ids in "My Tags", in order.
+     */
+    var tagIDs: [String] {
+        tags.map(\.id)
+    }
+
+    /**
+     * The contacts that have the tag with `id` (bound to the id, so a renamed tag keeps them), in the file's order.
+     */
+    func contacts(withTagID id: String) -> [CYLContactTagData.Contact] {
+        contacts.filter { $0.tags.contains(id) }
+    }
+
+    /**
+     * "My Tags" and "Recent" as cache items (id and title), for cache A and the server.
+     */
+    var cacheSections: [String: [CYLTagListCacheItem]] {
+        [Self.mineCacheKey: tags.map { CYLTagListCacheItem(identifier: $0.id, title: $0.title) },
+         Self.recentCacheKey: recentIDs.compactMap { id in title(of: id).map { CYLTagListCacheItem(identifier: id, title: $0) } }]
+    }
+
+    /**
+     * Saves "My Tags" and "Recent" to `cache` (cache A), with their ids.
      */
     func save() {
-        cache?.saveTitles(tags, forSection: Self.mineCacheKey)
-        cache?.saveTitles(recentTags, forSection: Self.recentCacheKey)
+        for (key, items) in cacheSections {
+            if cache?.saveItems?(items, forSection: key) == nil {
+                cache?.saveTitles(items.map(\.title), forSection: key)
+            }
+        }
     }
 
     /**
@@ -103,44 +160,58 @@ final class CYLContactTagStore {
     }
 
     /**
-     * Whether `tag` is one of the user's tags.
+     * Whether a tag with `id` exists.
      */
-    func contains(_ tag: String) -> Bool {
-        tags.contains(tag)
+    func contains(_ id: String) -> Bool {
+        tag(withID: id) != nil
     }
 
     /**
-     * The tags containing `query`, ignoring case and width ("ios" finds "iOS"); those starting with it first.
+     * The ids of the tags whose titles contain `query`, ignoring case and width ("ios" finds "iOS"); those starting with
+     * it first.
      */
     func tags(matching query: String) -> [String] {
         let query = CYLContactTagStore.normalizedName(query)
         guard !query.isEmpty else { return [] }
         let options: String.CompareOptions = [.caseInsensitive, .widthInsensitive, .diacriticInsensitive]
-        let matches = tags.filter { $0.range(of: query, options: options) != nil }
-        let prefixed = matches.filter { $0.range(of: query, options: options.union(.anchored)) != nil }
-        return prefixed + matches.filter { !prefixed.contains($0) }
+        let matches = tags.filter { $0.title.range(of: query, options: options) != nil }
+        let prefixed = matches.filter { $0.title.range(of: query, options: options.union(.anchored)) != nil }
+        return (prefixed + matches.filter { !prefixed.contains($0) }).map(\.id)
     }
 
     /**
-     * Whether "+ New tag: <name>" is offered: a name that is not a tag yet (the exact name, as in the chat app).
+     * Whether "+ New tag: <name>" is offered: a title that no tag has yet (the exact title, as in the chat app).
      */
     func canCreate(_ name: String) -> Bool {
         let name = CYLContactTagStore.normalizedName(name)
-        return !name.isEmpty && !contains(name)
+        return !name.isEmpty && id(ofTitle: name) == nil
     }
 
     /**
-     * Adds a tag at the end of "My Tags" and returns it; an existing tag is returned as is; nil for an empty name.
+     * Adds a tag (a new id) at the end of "My Tags" and returns its id; a tag with that title already is returned as
+     * is; nil for an empty name.
      */
     @discardableResult
     func createTag(named name: String) -> String? {
         let name = CYLContactTagStore.normalizedName(name)
         guard !name.isEmpty else { return nil }
-        if !contains(name) {
-            tags.append(name)
-            save()
+        if let existing = id(ofTitle: name) {
+            return existing
         }
-        return name
+        let tag = CYLContactTag(id: "u-" + UUID().uuidString.prefix(8).lowercased(), title: name)
+        tags.append(tag)
+        save()
+        return tag.id
+    }
+
+    /**
+     * Renames the tag with `id` (its id, place and contacts stay); an empty title does nothing.
+     */
+    func renameTag(_ id: String, to title: String) {
+        let title = CYLContactTagStore.normalizedName(title)
+        guard !title.isEmpty, let index = tags.firstIndex(where: { $0.id == id }) else { return }
+        tags[index].title = title
+        save()
     }
 
     /**
@@ -153,20 +224,23 @@ final class CYLContactTagStore {
     }
 
     /**
-     * Takes sections downloaded from the server (`CYLTagListView.loadSections(withKeys:completion:)`): "My Tags" and
-     * "Recent", each when present; returns whether anything changed.
+     * Takes sections downloaded from the server (items with ids): "My Tags" and "Recent", each when present; returns
+     * whether anything changed.
      */
     @discardableResult
-    func apply(_ sections: [String: [String]]) -> Bool {
+    func apply(_ sections: [String: [CYLTagListCacheItem]]) -> Bool {
         var changed = false
-        if let mine = sections[Self.mineCacheKey], mine != tags {
+        if let mine = sections[Self.mineCacheKey] {
             var seen = Set<String>()
-            tags = mine.filter { seen.insert($0).inserted }
-            recentTags = recentTags.filter(contains)
-            changed = true
+            let downloaded = mine.filter { seen.insert($0.identifier).inserted }.map { CYLContactTag(id: $0.identifier, title: $0.title) }
+            if downloaded != tags {
+                tags = downloaded
+                recentIDs = recentIDs.filter(contains)
+                changed = true
+            }
         }
-        if let recent = sections[Self.recentCacheKey]?.filter(contains), recent != recentTags {
-            recentTags = Array(recent.prefix(recentLimit))
+        if let recent = sections[Self.recentCacheKey]?.map(\.identifier).filter(contains), recent != recentIDs {
+            recentIDs = Array(recent.prefix(recentLimit))
             changed = true
         }
         if changed {
@@ -179,55 +253,56 @@ final class CYLContactTagStore {
      * Empties "Recent" (its trash button).
      */
     func clearRecent() {
-        recentTags.removeAll()
+        recentIDs.removeAll()
         save()
     }
 
     /**
-     * Removes `tag` from "My Tags" and "Recent".
+     * Removes the tag with `id` from "My Tags" and "Recent".
      */
-    func deleteTag(_ tag: String) {
-        tags.removeAll { $0 == tag }
-        recentTags.removeAll { $0 == tag }
+    func deleteTag(_ id: String) {
+        tags.removeAll { $0.id == id }
+        recentIDs.removeAll { $0 == id }
         save()
     }
 
     /**
-     * Moves `used` to the front of "Recent" (when the editor is confirmed).
+     * Moves the tags with `used` ids to the front of "Recent" (when the editor is confirmed).
      */
     func markUsed(_ used: [String]) {
         let used = used.filter(contains)
-        recentTags = Array((used + recentTags.filter { !used.contains($0) }).prefix(recentLimit))
+        recentIDs = Array((used + recentIDs.filter { !used.contains($0) }).prefix(recentLimit))
         save()
     }
 }
 
 /**
- * The contents of contact-tags.json: the demo tags, the recently used ones and the tags the remark screen starts with.
+ * The contents of contact-tags.json: the demo tags (id and title), the ids of the recently used ones and of the tags
+ * the remark screen starts with, and the contacts.
  */
 struct CYLContactTagData: Codable, Equatable {
     /**
-     * The file format version.
+     * The file format version (2: tags with ids).
      */
     var version: Int
 
     /**
      * Every tag, in order.
      */
-    var tags: [String]
+    var tags: [CYLContactTag]
 
     /**
-     * The recently used tags.
+     * The ids of the recently used tags.
      */
     var recentTags: [String]
 
     /**
-     * The tags the remark screen starts with.
+     * The ids of the tags the remark screen starts with.
      */
     var selectedTags: [String]
 
     /**
-     * A demo contact: a name and tags.
+     * A demo contact: a name and the ids of its tags.
      */
     struct Contact: Codable, Equatable {
         /**
@@ -236,7 +311,7 @@ struct CYLContactTagData: Codable, Equatable {
         var name: String
 
         /**
-         * The contact's tags.
+         * The ids of the contact's tags.
          */
         var tags: [String]
     }

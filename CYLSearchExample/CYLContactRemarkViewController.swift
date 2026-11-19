@@ -23,7 +23,7 @@ final class CYLContactRemarkViewController: UIViewController {
     let store: CYLContactTagStore
 
     /**
-     * The contact's tags.
+     * The ids of the contact's tags.
      */
     private(set) var tags: [String]
 
@@ -229,7 +229,7 @@ extension CYLContactRemarkViewController: CYLMenuDataSource, CYLMenuDelegate {
     }
 
     func menuTitleForItem(at indexPath: IndexPath) -> String {
-        tags[indexPath.item]
+        store.title(of: tags[indexPath.item]) ?? tags[indexPath.item]
     }
 
     func menu(_ menu: Any, didSelectItemAt indexPath: IndexPath) {

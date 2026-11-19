@@ -1344,7 +1344,10 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     [editor performSelector:@selector(toggleManaging)];
     XCTAssertTrue([[editor valueForKey:@"isManaging"] boolValue], @"Manage enters the list's editing mode");
     XCTAssertEqual([editor numberOfSectionsInMenu] - 1, mine, @"no page change: the same sections");
-    XCTAssertEqual([editor menuNumberOfItemsInSection:mine], items - 1, @"the add control replaces + New Tag");
+    XCTAssertEqual([editor menuNumberOfItemsInSection:mine], items - 1, @"the editing bar replaces + New Tag");
+    CYLSearchBarView *editingBar = [editor valueForKey:@"editingBar"];
+    XCTAssertTrue(editingBar.isEditingBar);
+    XCTAssertFalse(editingBar.hidden, @"Manage shows the editing bar above the keyboard");
     XCTAssertTrue([editor menuSectionAllowsEditing:mine]);
     XCTAssertFalse(mine > 0 && [editor menuSectionAllowsEditing:0], @"Recent does not take part");
     [editorView layoutIfNeeded];
@@ -1356,7 +1359,7 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
         addControl = addControl || [NSStringFromClass(view.class) hasSuffix:@"CYLTagListAddItemView"];
         [views addObjectsFromArray:view.subviews];
     }
-    XCTAssertTrue(addControl, @"the add control shows below the tags");
+    XCTAssertFalse(addControl, @"the list's own field gives way to the editing bar");
 
     NSString *first = [editor menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:mine]];
     NSString *second = [editor menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:1 inSection:mine]];
@@ -1440,9 +1443,10 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     [remark dismissViewControllerAnimated:NO completion:nil];
 
     // The server changes again behind this device's back; opening shows cache A, then B.
-    NSMutableArray<NSString *> *server = [[serverCopy cachedTitlesForSection:@"mine"] mutableCopy];
-    [server exchangeObjectAtIndex:0 withObjectAtIndex:2];
-    [serverCopy saveTitles:server forSection:@"mine"];
+    NSMutableArray<CYLTagListCacheItem *> *serverItems = [[serverCopy cachedItemsForSection:@"mine"] mutableCopy];
+    [serverItems exchangeObjectAtIndex:0 withObjectAtIndex:2];
+    [serverCopy saveItems:serverItems forSection:@"mine"];
+    NSArray<NSString *> *server = [serverItems valueForKey:@"title"];
     UIViewController *again = [demo performSelector:@selector(viewController)];
     window.rootViewController = [[UINavigationController alloc] initWithRootViewController:again];
     [again.view layoutIfNeeded];
@@ -1454,6 +1458,108 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     CYLTagListStore *local = [[CYLTagListStore alloc] initWithPolicy:CYLTagListCachePolicyDatabase name:@"CYLContactTags"];
     XCTAssertEqualObjects([local cachedTitlesForSection:@"mine"], server, @"and is saved to cache A");
     [again dismissViewControllerAnimated:NO completion:nil];
+    window.hidden = YES;
+}
+
+- (void)testContactTagsRenameKeepsTheTagIDAndItsContacts
+{
+    // docs/CYLTabBarController-Integration.md, "renaming in the contact tags example": in Manage, the pencil renames a
+    // tag; its id (the primary key) stays, so its contacts stay; the new name is saved to cache A, uploaded to the server
+    // (cache B) when Manage ends, and shown again after reopening.
+    Class demo = NSClassFromString(@"CYLContactTagsDemo");
+    [demo performSelector:@selector(resetCache)];
+    [NSUserDefaults.standardUserDefaults setDouble:0 forKey:@"CYLContactTagsServerLatency"];
+    [self addTeardownBlock:^{
+        [demo performSelector:@selector(resetCache)];
+        [NSUserDefaults.standardUserDefaults removeObjectForKey:@"CYLContactTagsServerLatency"];
+    }];
+    void (^spin)(void) = ^{
+        [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.3]];
+    };
+    UIViewController *remark = [demo performSelector:@selector(viewController)];
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
+    window.rootViewController = [[UINavigationController alloc] initWithRootViewController:remark];
+    [window makeKeyAndVisible];
+    [remark.view layoutIfNeeded];
+    id editor = [remark performSelector:@selector(editTagsAnimated:) withObject:@NO];
+    [[editor view] layoutIfNeeded];
+    spin();
+    NSInteger mine = [editor numberOfSectionsInMenu] - 1;
+    NSIndexPath *first = [NSIndexPath indexPathForItem:0 inSection:mine];
+    NSString *tagID = [editor menuIdentifierForItemAtIndexPath:first];
+    XCTAssertEqualObjects(tagID, @"t01", @"tags are keyed by id");
+    UITableViewController *before = (UITableViewController *)[editor performSelector:@selector(showContactsWithTag:) withObject:tagID];
+    NSInteger contacts = [before tableView:before.tableView numberOfRowsInSection:0];
+    XCTAssertGreaterThan(contacts, 0);
+
+    [editor performSelector:@selector(toggleManaging)];
+    [editor performSelector:@selector(renameTagWithID:toTitle:) withObject:tagID withObject:@"Home Folks"];
+    XCTAssertEqualObjects([editor menuTitleForItemAtIndexPath:first], @"Home Folks", @"renamed in place");
+    XCTAssertEqualObjects([editor menuIdentifierForItemAtIndexPath:first], tagID, @"the id stays");
+    UITableViewController *after = (UITableViewController *)[editor performSelector:@selector(showContactsWithTag:) withObject:tagID];
+    XCTAssertEqual([after tableView:after.tableView numberOfRowsInSection:0], contacts, @"the contacts are bound to the id");
+    XCTAssertTrue([after.title hasPrefix:@"Home Folks"], @"%@", after.title);
+    CYLTagListStore *local = [[CYLTagListStore alloc] initWithPolicy:CYLTagListCachePolicyDatabase name:@"CYLContactTags"];
+    CYLTagListCacheItem *saved = [local cachedItemsForSection:@"mine"].firstObject;
+    XCTAssertEqualObjects(saved.identifier, tagID, @"cache A keeps the id");
+    XCTAssertEqualObjects(saved.title, @"Home Folks", @"with the new name");
+
+    [editor performSelector:@selector(toggleManaging)];
+    spin();
+    CYLTagListStore *serverCopy = [[CYLTagListStore alloc] initWithPolicy:CYLTagListCachePolicySandboxFile name:@"CYLContactTagsServer"];
+    XCTAssertEqualObjects([serverCopy cachedItemsForSection:@"mine"].firstObject, saved, @"leaving Manage uploads it to B");
+    [remark dismissViewControllerAnimated:NO completion:nil];
+
+    UIViewController *again = [demo performSelector:@selector(viewController)];
+    window.rootViewController = [[UINavigationController alloc] initWithRootViewController:again];
+    [again.view layoutIfNeeded];
+    id editor2 = [again performSelector:@selector(editTagsAnimated:) withObject:@NO];
+    [[editor2 view] layoutIfNeeded];
+    spin();
+    NSInteger mine2 = [editor2 numberOfSectionsInMenu] - 1;
+    XCTAssertEqualObjects([editor2 menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:mine2]], @"Home Folks", @"the name comes back");
+    [again dismissViewControllerAnimated:NO completion:nil];
+    window.hidden = YES;
+}
+
+- (void)testEditingBarSubmitsAndRidesOnTheKeyboard
+{
+    // docs/core-todo.md, "the editing bar": the search bar's look as an edit field; its action button and the return key
+    // submit; pinToKeyboardInView: ties it to the keyboard's top.
+    CYLSearchBarView *bar = [CYLSearchBarView editingBarWithPlaceholder:@"Tag name" actionTitle:@"Add"];
+    XCTAssertTrue(bar.isEditingBar);
+    XCTAssertNil(bar.searchIcon, @"no magnifier");
+    XCTAssertTrue(bar.showsCancelButton);
+    XCTAssertEqualObjects(bar.cancelButtonTitle, @"Add", @"the trailing button is the action");
+    XCTAssertEqualObjects(bar.placeholder, @"Tag name");
+    __block NSString *submitted = nil;
+    bar.editingSubmitHandler = ^(CYLSearchBarView *view, NSString *text) { submitted = text; };
+    bar.text = @"   ";
+    [bar.cancelButton sendActionsForControlEvents:UIControlEventTouchUpInside];
+    XCTAssertNil(submitted, @"empty text submits nothing");
+    bar.text = @"  Book Club ";
+    [bar.cancelButton sendActionsForControlEvents:UIControlEventTouchUpInside];
+    XCTAssertEqualObjects(submitted, @"Book Club", @"the action button submits the trimmed text");
+    submitted = nil;
+    bar.text = @"Hiking";
+    XCTAssertFalse([bar textFieldShouldReturn:bar.textField]);
+    XCTAssertEqualObjects(submitted, @"Hiking", @"so does the return key");
+
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
+    UIViewController *host = [UIViewController new];
+    window.rootViewController = host;
+    [window makeKeyAndVisible];
+    [bar pinToKeyboardInView:host.view];
+    [host.view layoutIfNeeded];
+    XCTAssertEqual(bar.superview, host.view);
+    BOOL pinned = NO;
+    for (NSLayoutConstraint *constraint in host.view.constraints) {
+        pinned = pinned || (constraint.firstItem == bar && constraint.firstAttribute == NSLayoutAttributeBottom
+                            && constraint.secondItem == host.view.keyboardLayoutGuide && constraint.secondAttribute == NSLayoutAttributeTop);
+    }
+    XCTAssertTrue(pinned, @"the bar's bottom is the keyboard's top");
+    XCTAssertEqualWithAccuracy(CGRectGetMaxY(bar.frame), CGRectGetMaxY(host.view.safeAreaLayoutGuide.layoutFrame), 0.5,
+                               @"with the keyboard down, at the bottom of the safe area");
     window.hidden = YES;
 }
 

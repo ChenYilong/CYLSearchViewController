@@ -25,11 +25,17 @@ final class CYLContactListViewController: UITableViewController, CYLTableViewPla
     let contacts: [CYLContactTagData.Contact]
 
     /**
-     * The contacts page of `tag`.
+     * The title of a tag id, for each contact's tags.
      */
-    init(tag: String, contacts: [CYLContactTagData.Contact]) {
+    let titleOfTag: (String) -> String?
+
+    /**
+     * The contacts page of the tag titled `tag`; `contacts` were found by the tag's id.
+     */
+    init(tag: String, contacts: [CYLContactTagData.Contact], titleOfTag: @escaping (String) -> String? = { _ in nil }) {
         self.tag = tag
         self.contacts = contacts
+        self.titleOfTag = titleOfTag
         super.init(style: .insetGrouped)
     }
 
@@ -63,7 +69,7 @@ final class CYLContactListViewController: UITableViewController, CYLTableViewPla
         var content = UIListContentConfiguration.subtitleCell()
         let contact = contacts[indexPath.row]
         content.text = contact.name
-        content.secondaryText = contact.tags.joined(separator: " · ")
+        content.secondaryText = contact.tags.compactMap(titleOfTag).joined(separator: " · ")
         content.secondaryTextProperties.color = .secondaryLabel
         content.image = UIImage(systemName: "person.crop.circle.fill")
         content.imageProperties.tintColor = .systemGray3

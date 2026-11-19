@@ -14,6 +14,11 @@
 //    cache at once, then the server's data after its delay); leaving "Manage" uploads the edited lists; the sync
 //    button (top right) pulls an edit simulated on another device. `-CYLContactTagsLoadPolicy cacheFirst` or
 //    `networkFirst` picks another policy.
+//  - A tag's id is its primary key (`menuIdentifierForItem(at:)`): items hold ids, the cache and the server keep ids,
+//    and the contacts page looks contacts up by id, so a reorder or a rename never loses them. In "Manage" mode the
+//    pencil before a tag's cross (CollectionViewClassifyMenu's rename indicator) fills the field below the tags with its
+//    name and raises the keyboard; Done renames it (`menuRenameItem(at:to:)`), saved to cache A and uploaded with the
+//    rest when "Manage" ends.
 //  - "+ New Tag" after the last tag adds a tag (the menu's create item), never selected.
 //  - Typing in the search bar shows "Search Results" (case-insensitive) and "+ New tag: <text>" when that exact tag does
 //    not exist yet; tapping it, or the keyboard's search key, creates, selects and shows the tag.
@@ -129,6 +134,21 @@ final class CYLContactTagEditorViewController: UIViewController {
     let syncButton = UIButton(type: .system)
 
     /**
+     * The edit field of "Manage" mode: CYLSearchViewController's editing bar (the search bar's look), pinned above the
+     * keyboard. It adds a tag ("Add") or renames one ("Done", after a pencil or title tap).
+     */
+    @objc let editingBar = CYLSearchBarView.editingBar(placeholder: cylContactTagsText("tagName"), actionTitle: cylContactTagsText("add"))
+
+    /**
+     * The id of the tag the editing bar renames; nil while it adds.
+     */
+    private var renamingTagIndexPath: IndexPath?
+
+    /// The tag list ends at the editing bar while managing, at the sheet's bottom otherwise.
+    private var listBottomToView: NSLayoutConstraint?
+    private var listBottomToBar: NSLayoutConstraint?
+
+    /**
      * The empty state shown now.
      */
     private(set) var emptyState = EmptyState.none
@@ -149,17 +169,6 @@ final class CYLContactTagEditorViewController: UIViewController {
     let cancelButton = UIButton(type: .system)
     let doneButton = UIButton(type: .custom)
     let titleLabel = UILabel()
-
-    private(set) lazy var clearRecentButton: UIButton = {
-        let button = UIButton(type: .system)
-        button.setImage(UIImage(systemName: "trash"), for: .normal)
-        button.tintColor = .secondaryLabel
-        button.accessibilityLabel = cylContactTagsText("clearRecent")
-        button.accessibilityIdentifier = "CYLContactTagsClearRecent"
-        button.frame = CGRect(x: 0, y: 0, width: 44, height: 32)
-        button.addTarget(self, action: #selector(clearRecent), for: .touchUpInside)
-        return button
-    }()
 
     private(set) lazy var manageButton: UIButton = {
         let button = UIButton(type: .system)
@@ -280,6 +289,15 @@ final class CYLContactTagEditorViewController: UIViewController {
         default: tagListView.loadPolicy = .cacheThenNetwork
         }
         // Leaving "Manage" uploads the edited lists (cache A, already saved) to the server.
+        // "Manage" edits in the editing bar, not in the list's own field.
+        tagListView.showsAddItemViewWhileEditing = false
+        tagListView.renameRequestHandler = { [weak self] indexPath, title in
+            self?.beginRenaming(at: indexPath, title: title)
+        }
+        editingBar.editingSubmitHandler = { [weak self] _, text in
+            self?.submitEditingBar(text)
+        }
+        editingBar.isHidden = true
         tagListView.editingFinishHandler = { [weak self] _ in
             self?.uploadToServer()
         }
@@ -327,20 +345,71 @@ final class CYLContactTagEditorViewController: UIViewController {
             tagListView.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 8),
             tagListView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tagListView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tagListView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
+        editingBar.pinToKeyboard(in: view)
+        let toView = tagListView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        let toBar = tagListView.bottomAnchor.constraint(equalTo: editingBar.topAnchor)
+        toView.isActive = true
+        listBottomToView = toView
+        listBottomToBar = toBar
         reload()
         loadFromServer()
+    }
+
+    // MARK: Editing bar
+
+    /**
+     * A pencil or title tap in "Manage": the editing bar shows the tag's name, the button reads "Done", the keyboard rises.
+     */
+    private func beginRenaming(at indexPath: IndexPath, title: String) {
+        renamingTagIndexPath = indexPath
+        editingBar.cancelButtonTitle = cylContactTagsText("done")
+        editingBar.text = title
+        editingBar.showKeyboard()
+        editingBar.textField.selectAll(nil)
+    }
+
+    /**
+     * The editing bar's action: rename the tag being renamed, or add a tag.
+     */
+    private func submitEditingBar(_ text: String) {
+        if renamingTagIndexPath != nil {
+            renamingTagIndexPath = nil
+            tagListView.finishRenaming(to: text)
+            editingBar.hideKeyboard()
+        } else {
+            tagListView.submitNewItem(named: text)
+        }
+        editingBar.text = ""
+        editingBar.cancelButtonTitle = cylContactTagsText("add")
+    }
+
+    /**
+     * Shows the editing bar in "Manage" mode (the list ends above it) and hides it otherwise.
+     */
+    private func updateEditingBar() {
+        editingBar.isHidden = !isManaging
+        listBottomToView?.isActive = !isManaging
+        listBottomToBar?.isActive = isManaging
+        if !isManaging {
+            if renamingTagIndexPath != nil {
+                renamingTagIndexPath = nil
+                tagListView.cancelRenaming()
+            }
+            editingBar.text = ""
+            editingBar.cancelButtonTitle = cylContactTagsText("add")
+            editingBar.hideKeyboard()
+        }
     }
 
     // MARK: Network sync
 
     /**
-     * The tag list's load policy over cache A and the server (B): the cache is what the store already shows; the
-     * server's sections, when they arrive, replace them.
+     * The tag list's load policy over cache A and the server (B), with ids: the cache is what the store already shows;
+     * the server's items, when they arrive, replace them (and are written to cache A).
      */
     private func loadFromServer() {
-        tagListView.loadSections(withKeys: [CYLContactTagStore.mineCacheKey, CYLContactTagStore.recentCacheKey]) { [weak self] sections, origin in
+        tagListView.loadItems(withKeys: [CYLContactTagStore.mineCacheKey, CYLContactTagStore.recentCacheKey]) { [weak self] sections, origin in
             guard let self else { return }
             if self.store.apply(sections) {
                 self.reload()
@@ -349,10 +418,21 @@ final class CYLContactTagEditorViewController: UIViewController {
     }
 
     /**
-     * Uploads "My Tags" and "Recent" (cache A) to the server.
+     * Uploads "My Tags" and "Recent" (cache A, with ids) to the server.
      */
     @objc func uploadToServer() {
-        server.upload([CYLContactTagStore.mineCacheKey: store.tags, CYLContactTagStore.recentCacheKey: store.recentTags])
+        server.upload(store.cacheSections)
+    }
+
+    /**
+     * Renames the tag with `id` to `title` as the pencil (or a tap on its title) and the field do, in "Manage" mode
+     * (for tests and automation).
+     */
+    @objc(renameTagWithID:toTitle:)
+    func renameTag(withID id: String, to title: String) {
+        guard let indexPath = indexPath(of: id), sections[indexPath.section].kind == .mine else { return }
+        tagListView.beginRenaming(at: indexPath)
+        submitEditingBar(title)
     }
 
     /**
@@ -360,8 +440,8 @@ final class CYLContactTagEditorViewController: UIViewController {
      * this device pulls it, with the server's delay and HUD.
      */
     @objc func syncFromOtherDevices() {
-        server.simulateOtherDeviceEdit(localTags: store.tags)
-        server.fetchSections(withKeys: [CYLContactTagStore.mineCacheKey]) { [weak self] sections, _ in
+        server.simulateOtherDeviceEdit(localItems: store.cacheSections[CYLContactTagStore.mineCacheKey] ?? [])
+        server.fetchItems(withKeys: [CYLContactTagStore.mineCacheKey]) { [weak self] sections, _ in
             guard let self, let sections else { return }
             if self.store.apply(sections) {
                 self.reload()
@@ -408,12 +488,12 @@ final class CYLContactTagEditorViewController: UIViewController {
             return [Section(kind: .results, title: cylContactTagsText("results"), items: items)]
         }
         var sections: [Section] = []
-        if !store.recentTags.isEmpty {
-            sections.append(Section(kind: .recent, title: cylContactTagsText("recent"), items: store.recentTags.map(Item.tag)))
+        if !store.recentIDs.isEmpty {
+            sections.append(Section(kind: .recent, title: cylContactTagsText("recent"), items: store.recentIDs.map(Item.tag)))
         }
         // While managing, the list's add control replaces "+ New Tag".
         let create: [Item] = isManaging ? [] : [.create(nil)]
-        sections.append(Section(kind: .mine, title: cylContactTagsText("mine"), items: store.tags.map(Item.tag) + create))
+        sections.append(Section(kind: .mine, title: cylContactTagsText("mine"), items: store.tagIDs.map(Item.tag) + create))
         return sections
     }
 
@@ -565,7 +645,7 @@ final class CYLContactTagEditorViewController: UIViewController {
         if let indexPath = indexPath(of: tag), sections[indexPath.section].kind == .mine {
             tagListView.scrollToItem(at: indexPath, animated: false)
         }
-        UIAccessibility.post(notification: .announcement, argument: cylContactTagsText("created", tag))
+        UIAccessibility.post(notification: .announcement, argument: cylContactTagsText("created", store.title(of: tag) ?? name))
         return tag
     }
 
@@ -605,7 +685,10 @@ final class CYLContactTagEditorViewController: UIViewController {
     @discardableResult
     @objc(showContactsWithTag:)
     func showContacts(withTag tag: String) -> UIViewController {
-        let list = CYLContactListViewController(tag: tag, contacts: store.contacts(withTag: tag))
+        // An id (a title from automation works too): contacts are bound to the id.
+        let id = store.contains(tag) ? tag : (store.id(ofTitle: tag) ?? tag)
+        let list = CYLContactListViewController(tag: store.title(of: id) ?? tag, contacts: store.contacts(withTagID: id),
+                                                titleOfTag: { [store] in store.title(of: $0) })
         navigationController?.pushViewController(list, animated: true)
         return list
     }
@@ -615,8 +698,9 @@ final class CYLContactTagEditorViewController: UIViewController {
      */
     @objc(deleteTag:)
     func deleteTag(_ tag: String) {
-        store.deleteTag(tag)
-        selectedTags.removeAll { $0 == tag }
+        let id = store.contains(tag) ? tag : (store.id(ofTitle: tag) ?? tag)
+        store.deleteTag(id)
+        selectedTags.removeAll { $0 == id }
         reload()
     }
 
@@ -681,7 +765,7 @@ extension CYLContactTagEditorViewController: CYLMenuDataSource {
      */
     func menuTitleForItem(at indexPath: IndexPath) -> String {
         switch sections[indexPath.section].items[indexPath.item] {
-        case let .tag(tag): return tag
+        case let .tag(id): return store.title(of: id) ?? id
         case let .create(name): return name ?? ""
         }
     }
@@ -704,11 +788,15 @@ extension CYLContactTagEditorViewController: CYLMenuDataSource {
     }
 
     func menuAccessoryView(forSection section: Int) -> UIView? {
-        switch sections[section].kind {
-        case .mine: return manageButton
-        case .recent: return clearRecentButton
-        case .results: return nil
-        }
+        // "Recent" uses the list's built-in clear button (menuShowsClearButton), not an accessory.
+        sections[section].kind == .mine ? manageButton : nil
+    }
+
+    /**
+     * "Recent" shows CollectionViewClassifyMenu's built-in clear button (the bundle's trash icon, aligned with the title).
+     */
+    func menuShowsClearButton(forSection section: Int) -> Bool {
+        sections.indices.contains(section) && sections[section].kind == .recent
     }
 
     /**
@@ -740,6 +828,25 @@ extension CYLContactTagEditorViewController: CYLMenuDataSource {
     }
 
     /**
+     * The tag's id: its primary key for the cache, the server and the contacts.
+     */
+    func menuIdentifierForItem(at indexPath: IndexPath) -> String {
+        switch sections[indexPath.section].items[indexPath.item] {
+        case let .tag(id): return id
+        case let .create(name): return "create:" + (name ?? "")
+        }
+    }
+
+    /**
+     * The pencil's rename in "Manage" mode: the title changes, the id (and its contacts) stay.
+     */
+    func menuRenameItem(at indexPath: IndexPath, to title: String) {
+        guard case let .tag(id) = sections[indexPath.section].items[indexPath.item] else { return }
+        store.renameTag(id, to: title)
+        sections = makeSections()
+    }
+
+    /**
      * A drag in "Manage" mode.
      */
     func menuMoveItem(at sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
@@ -767,9 +874,9 @@ extension CYLContactTagEditorViewController: CYLMenuDelegate {
     func menu(_ menu: Any, didRequestNewItemWithName name: String, at indexPath: IndexPath) {
         if isManaging {
             // The add control in "Manage" mode: added at the end of "My Tags", the list stays in editing mode.
-            store.createTag(named: name)
+            let id = store.createTag(named: name)
             reload()
-            if let indexPath = self.indexPath(of: CYLContactTagStore.normalizedName(name)) {
+            if let id, let indexPath = self.indexPath(of: id) {
                 tagListView.scrollToItem(at: indexPath, animated: true)
             }
             return
@@ -781,7 +888,15 @@ extension CYLContactTagEditorViewController: CYLMenuDelegate {
         }
     }
 
+    /**
+     * The clear button of "Recent".
+     */
+    func menu(_ menu: Any, didTapClearButtonInSection section: Int) {
+        clearRecent()
+    }
+
     func menu(_ menu: Any, didChangeEditing editing: Bool) {
+        updateEditingBar()
         reload()
     }
 

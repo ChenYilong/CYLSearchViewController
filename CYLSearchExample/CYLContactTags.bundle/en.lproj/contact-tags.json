@@ -1,262 +1,403 @@
 {
-  "comment": "Demo contact tags (CYLContactTagStore), from CollectionViewClassifyMenu's CYLTagEditorExample tags.json. One file per language; same tags, in the same order. contacts: the demo contacts and their tags (the contacts page of a tag); some tags have none.",
-  "version": 1,
+  "comment": "Demo contact tags (CYLContactTagStore), from CollectionViewClassifyMenu's CYLTagEditorExample tags.json. One file per language; the same ids, in the same order, in every language. A tag's id is its primary key: recentTags, selectedTags and every contact's tags are ids, so a reorder or a rename keeps a tag's contacts.",
+  "version": 2,
   "tags": [
-    "Family",
-    "Relatives",
-    "Friends",
-    "Close Friends",
-    "College Classmates",
-    "High School Classmates",
-    "Roommates",
-    "Neighbors",
-    "Coworkers",
-    "Former Coworkers",
-    "Managers",
-    "Clients",
-    "Suppliers",
-    "Partners",
-    "Investors",
-    "Recruiters",
-    "Product Managers",
-    "Designers",
-    "iOS Developers",
-    "Android Developers",
-    "Frontend Developers",
-    "Backend Developers",
-    "Operations",
-    "Marketing",
-    "Teachers",
-    "Doctors",
-    "Lawyers",
-    "Landlords",
-    "Running",
-    "Basketball",
-    "Photography",
-    "Book Club",
-    "Travel",
-    "Food",
-    "Hiking",
-    "Music",
-    "Beijing",
-    "Shanghai",
-    "Shenzhen",
-    "Hangzhou",
-    "Overseas",
-    "Wedding Guests",
-    "Annual Party",
-    "Important",
-    "Frequent",
-    "To Reply",
-    "Rarely in Touch"
+    {
+      "id": "t01",
+      "title": "Family"
+    },
+    {
+      "id": "t02",
+      "title": "Relatives"
+    },
+    {
+      "id": "t03",
+      "title": "Friends"
+    },
+    {
+      "id": "t04",
+      "title": "Close Friends"
+    },
+    {
+      "id": "t05",
+      "title": "College Classmates"
+    },
+    {
+      "id": "t06",
+      "title": "High School Classmates"
+    },
+    {
+      "id": "t07",
+      "title": "Roommates"
+    },
+    {
+      "id": "t08",
+      "title": "Neighbors"
+    },
+    {
+      "id": "t09",
+      "title": "Coworkers"
+    },
+    {
+      "id": "t10",
+      "title": "Former Coworkers"
+    },
+    {
+      "id": "t11",
+      "title": "Managers"
+    },
+    {
+      "id": "t12",
+      "title": "Clients"
+    },
+    {
+      "id": "t13",
+      "title": "Suppliers"
+    },
+    {
+      "id": "t14",
+      "title": "Partners"
+    },
+    {
+      "id": "t15",
+      "title": "Investors"
+    },
+    {
+      "id": "t16",
+      "title": "Recruiters"
+    },
+    {
+      "id": "t17",
+      "title": "Product Managers"
+    },
+    {
+      "id": "t18",
+      "title": "Designers"
+    },
+    {
+      "id": "t19",
+      "title": "iOS Developers"
+    },
+    {
+      "id": "t20",
+      "title": "Android Developers"
+    },
+    {
+      "id": "t21",
+      "title": "Frontend Developers"
+    },
+    {
+      "id": "t22",
+      "title": "Backend Developers"
+    },
+    {
+      "id": "t23",
+      "title": "Operations"
+    },
+    {
+      "id": "t24",
+      "title": "Marketing"
+    },
+    {
+      "id": "t25",
+      "title": "Teachers"
+    },
+    {
+      "id": "t26",
+      "title": "Doctors"
+    },
+    {
+      "id": "t27",
+      "title": "Lawyers"
+    },
+    {
+      "id": "t28",
+      "title": "Landlords"
+    },
+    {
+      "id": "t29",
+      "title": "Running"
+    },
+    {
+      "id": "t30",
+      "title": "Basketball"
+    },
+    {
+      "id": "t31",
+      "title": "Photography"
+    },
+    {
+      "id": "t32",
+      "title": "Book Club"
+    },
+    {
+      "id": "t33",
+      "title": "Travel"
+    },
+    {
+      "id": "t34",
+      "title": "Food"
+    },
+    {
+      "id": "t35",
+      "title": "Hiking"
+    },
+    {
+      "id": "t36",
+      "title": "Music"
+    },
+    {
+      "id": "t37",
+      "title": "Beijing"
+    },
+    {
+      "id": "t38",
+      "title": "Shanghai"
+    },
+    {
+      "id": "t39",
+      "title": "Shenzhen"
+    },
+    {
+      "id": "t40",
+      "title": "Hangzhou"
+    },
+    {
+      "id": "t41",
+      "title": "Overseas"
+    },
+    {
+      "id": "t42",
+      "title": "Wedding Guests"
+    },
+    {
+      "id": "t43",
+      "title": "Annual Party"
+    },
+    {
+      "id": "t44",
+      "title": "Important"
+    },
+    {
+      "id": "t45",
+      "title": "Frequent"
+    },
+    {
+      "id": "t46",
+      "title": "To Reply"
+    },
+    {
+      "id": "t47",
+      "title": "Rarely in Touch"
+    }
   ],
   "recentTags": [
-    "Coworkers",
-    "Clients",
-    "Book Club"
+    "t09",
+    "t12",
+    "t32"
   ],
   "selectedTags": [
-    "Family",
-    "College Classmates",
-    "Book Club"
+    "t01",
+    "t05",
+    "t32"
   ],
   "contacts": [
     {
       "name": "Alex Chen",
       "tags": [
-        "Family",
-        "Friends",
-        "Neighbors",
-        "Travel",
-        "Food"
+        "t01",
+        "t03",
+        "t08",
+        "t33",
+        "t34"
       ]
     },
     {
       "name": "Bella Wu",
       "tags": [
-        "Family",
-        "Operations",
-        "Doctors"
+        "t01",
+        "t23",
+        "t26"
       ]
     },
     {
       "name": "Chris Li",
       "tags": [
-        "College Classmates",
-        "Former Coworkers",
-        "iOS Developers",
-        "Shanghai",
-        "Shenzhen"
+        "t05",
+        "t10",
+        "t19",
+        "t38",
+        "t39"
       ]
     },
     {
       "name": "Diana Zhou",
       "tags": [
-        "Roommates",
-        "Product Managers",
-        "Lawyers",
-        "Book Club"
+        "t07",
+        "t17",
+        "t27",
+        "t32"
       ]
     },
     {
       "name": "Ethan Wang",
       "tags": [
-        "Roommates",
-        "Coworkers",
-        "Designers",
-        "Frontend Developers"
+        "t07",
+        "t09",
+        "t18",
+        "t21"
       ]
     },
     {
       "name": "Fiona Lin",
       "tags": [
-        "Relatives",
-        "Clients",
-        "Beijing",
-        "Hangzhou"
+        "t02",
+        "t12",
+        "t37",
+        "t40"
       ]
     },
     {
       "name": "George Xu",
       "tags": [
-        "College Classmates",
-        "Coworkers",
-        "Suppliers"
+        "t05",
+        "t09",
+        "t13"
       ]
     },
     {
       "name": "Hannah Sun",
       "tags": [
-        "Basketball",
-        "Book Club",
-        "Hiking"
+        "t30",
+        "t32",
+        "t35"
       ]
     },
     {
       "name": "Ivan Zhao",
       "tags": [
-        "College Classmates",
-        "Roommates",
-        "Lawyers"
+        "t05",
+        "t07",
+        "t27"
       ]
     },
     {
       "name": "Julia He",
       "tags": [
-        "Roommates",
-        "Shanghai"
+        "t07",
+        "t38"
       ]
     },
     {
       "name": "Kevin Ma",
       "tags": [
-        "Doctors",
-        "Landlords",
-        "Running",
-        "Frequent"
+        "t26",
+        "t28",
+        "t29",
+        "t45"
       ]
     },
     {
       "name": "Lily Guo",
       "tags": [
-        "Managers",
-        "Travel",
-        "Beijing"
+        "t11",
+        "t33",
+        "t37"
       ]
     },
     {
       "name": "Mike Huang",
       "tags": [
-        "Investors",
-        "Lawyers",
-        "Hiking",
-        "Beijing"
+        "t15",
+        "t27",
+        "t35",
+        "t37"
       ]
     },
     {
       "name": "Nina Gao",
       "tags": [
-        "Roommates",
-        "Suppliers",
-        "Partners",
-        "Teachers"
+        "t07",
+        "t13",
+        "t14",
+        "t25"
       ]
     },
     {
       "name": "Oscar Liu",
       "tags": [
-        "Coworkers",
-        "Annual Party"
+        "t09",
+        "t43"
       ]
     },
     {
       "name": "Penny Yang",
       "tags": [
-        "Roommates",
-        "Basketball",
-        "Music"
+        "t07",
+        "t30",
+        "t36"
       ]
     },
     {
       "name": "Quinn Luo",
       "tags": [
-        "Basketball",
-        "Photography"
+        "t30",
+        "t31"
       ]
     },
     {
       "name": "Rachel Song",
       "tags": [
-        "Neighbors",
-        "Photography",
-        "Travel",
-        "Food"
+        "t08",
+        "t31",
+        "t33",
+        "t34"
       ]
     },
     {
       "name": "Sam Tang",
       "tags": [
-        "Marketing",
-        "Landlords",
-        "Hiking"
+        "t24",
+        "t28",
+        "t35"
       ]
     },
     {
       "name": "Tina Feng",
       "tags": [
-        "Family",
-        "Recruiters"
+        "t01",
+        "t16"
       ]
     },
     {
       "name": "Victor Han",
       "tags": [
-        "Relatives",
-        "Basketball"
+        "t02",
+        "t30"
       ]
     },
     {
       "name": "Wendy Cao",
       "tags": [
-        "Neighbors",
-        "Running",
-        "Important"
+        "t08",
+        "t29",
+        "t44"
       ]
     },
     {
       "name": "Yuki Tanaka",
       "tags": [
-        "Coworkers",
-        "iOS Developers",
-        "Photography"
+        "t09",
+        "t19",
+        "t31"
       ]
     },
     {
       "name": "Zoe Deng",
       "tags": [
-        "Managers",
-        "iOS Developers",
-        "Doctors"
+        "t11",
+        "t19",
+        "t26"
       ]
     }
   ]

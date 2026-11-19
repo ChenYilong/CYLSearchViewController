@@ -502,3 +502,13 @@ remote. Name the base branch in the reply.
 - When sessions of both kinds are active, assign the platform parts of a task to the fitting session: send the iOS
   part to a `Mac` session and the other platforms to a `Win` session, rather than doing every platform yourself.
 - When no session follows this naming, skip this rule and finish the task on your own.
+
+
+## Image resources: folder bundles (added 2026-11-19)
+
+- New image files of a core live in a folder bundle, never in an asset catalog (user's prompt, verbatim:
+  "请确保新增的图片资源文件在core代码仓库中均以文件夹形式管理，以iOS为例，图片资源文件均存放在.bundle的文件夹形式中"). On iOS: PNG files
+  (@1x, @2x, @3x) in a `<Name>.bundle` folder under the core's resources, copied by the podspec and by `Package.swift`
+  (`.copy`), and read through the core's resource lookup (as CYLTabBarController's `CYLAnimatedItem.bundle` and
+  CollectionViewClassifyMenu's `CYLClassifyMenuImages.bundle`). Other platforms keep images in a resource folder of the
+  same kind. This repository's core has no image files today (its icons are SF Symbols).

@@ -59,7 +59,7 @@ PODS:
     - Protobuf (= 3.27.2)
 
 DEPENDENCIES:
-  - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `3fc2c23b94d0744209ac744bb85012fdf0334702`)
+  - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `d58c4e6f5d7d042b7930eb6e1fdd5202c0df4d8c`)
   - CYLAnimatedItem/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `5996fa962e25e216210dd24c4b3186bb2e155abe`)
   - CYLAnimatedItem/LottieSwift (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `5996fa962e25e216210dd24c4b3186bb2e155abe`)
   - CYLAnimatedItem/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `5996fa962e25e216210dd24c4b3186bb2e155abe`)
@@ -79,7 +79,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   CollectionViewClassifyMenu:
-    :commit: 3fc2c23b94d0744209ac744bb85012fdf0334702
+    :commit: d58c4e6f5d7d042b7930eb6e1fdd5202c0df4d8c
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLAnimatedItem:
     :commit: 5996fa962e25e216210dd24c4b3186bb2e155abe
@@ -95,7 +95,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   CollectionViewClassifyMenu:
-    :commit: 3fc2c23b94d0744209ac744bb85012fdf0334702
+    :commit: d58c4e6f5d7d042b7930eb6e1fdd5202c0df4d8c
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLAnimatedItem:
     :commit: 5996fa962e25e216210dd24c4b3186bb2e155abe
@@ -108,7 +108,7 @@ CHECKOUT OPTIONS:
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
 
 SPEC CHECKSUMS:
-  CollectionViewClassifyMenu: 1cb0703b677486f0087f541e5908c4e7dac3c6de
+  CollectionViewClassifyMenu: 40b0c983deb345bdc2d0083a8d6d2e9a51d73e2a
   CYLAnimatedItem: 89c28f62fdb00ae0d92a2c09f0a172129bda5a6e
   CYLSearchViewController: 3e9151895e3c991faaf0143e783bd173a9edf924
   CYLTabBarController: d56c43dc7f36a184e444cc4d233fa072c159e6e5
@@ -118,6 +118,6 @@ SPEC CHECKSUMS:
   SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
   SVGAPlayerLite: ae073300a9faa016e88a54afa8fec43f54fed682
 
-PODFILE CHECKSUM: 299164df93d4b649179de65b84a6f26030f141a1
+PODFILE CHECKSUM: ecf082f83e627a90525b2c58b4fab18131d76337
 
 COCOAPODS: 1.17.0

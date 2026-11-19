@@ -630,6 +630,74 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      */
     @objc public var clearsTextOnCancel = false
 
+    // MARK: - Editing bar
+
+    /**
+     * Whether the bar is an editing bar (`editingBar(placeholder:actionTitle:)`): an edit field in the search bar's look,
+     * whose trailing button submits instead of cancelling.
+     */
+    @objc public private(set) var isEditingBar = false
+
+    /**
+     * An editing bar's submit: the trimmed text, when its action button or the return key is tapped (after
+     * `-searchBarView:shouldSubmitText:` and `-searchBarViewSearchButtonClicked:`). Empty text submits nothing.
+     */
+    @objc public var editingSubmitHandler: ((CYLSearchBarView, String) -> Void)?
+
+    /**
+     * An editing bar: the search bar's field and look for editing a name (a tag, a title), without the magnifier, with
+     * `actionTitle` ("Add", "Done") as its trailing button, which submits through `editingSubmitHandler`, as the return key
+     * does. Pin it above the keyboard with `pinToKeyboard(in:)`; change `cancelButtonTitle` to change the action.
+     */
+    @objc(editingBarWithPlaceholder:actionTitle:)
+    public static func editingBar(placeholder: String?, actionTitle: String) -> CYLSearchBarView {
+        let bar = CYLSearchBarView(frame: .zero)
+        bar.isEditingBar = true
+        bar.searchIcon = nil
+        bar.placeholder = placeholder
+        bar.showsCancelButton = true
+        bar.cancelButtonTitle = actionTitle
+        bar.cancelButtonEndsEditing = false
+        bar.returnKeyType = .done
+        // A name is typed as written: words capitalized, never autocorrected.
+        bar.autocapitalizationType = .words
+        bar.autocorrectionType = .no
+        bar.backgroundColor = .systemBackground
+        bar.accessibilityIdentifier = "CYLSearchEditingBar"
+        return bar
+    }
+
+    /**
+     * Pins the bar to the top of the keyboard in `view` (its keyboard layout guide, iOS 15): full width within the safe
+     * area, at the bottom while the keyboard is down, riding on the keyboard while it is up, docked or not.
+     */
+    @objc(pinToKeyboardInView:)
+    public func pinToKeyboard(in view: UIView) {
+        if superview !== view {
+            removeFromSuperview()
+            view.addSubview(self)
+        }
+        translatesAutoresizingMaskIntoConstraints = false
+        view.keyboardLayoutGuide.followsUndockedKeyboard = true
+        NSLayoutConstraint.activate([
+            leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            bottomAnchor.constraint(equalTo: view.keyboardLayoutGuide.topAnchor),
+        ])
+    }
+
+    /**
+     * An editing bar's submit: the delegate's `-searchBarView:shouldSubmitText:` and `-searchBarViewSearchButtonClicked:`
+     * (`submit()`), then `editingSubmitHandler` with the trimmed text.
+     */
+    private func submitEditing() {
+        let text = (textField.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !text.isEmpty, submit() else {
+            return
+        }
+        editingSubmitHandler?(self, text)
+    }
+
     /**
      * Ending editing also clears the text (lapism `setTextClearOnClearFocus`). NO by default.
      */
@@ -1451,6 +1519,11 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     }
 
     @objc private func cancelTapped() {
+        if isEditingBar {
+            // An editing bar's trailing button is its action, not a cancel.
+            submitEditing()
+            return
+        }
         if clearsTextOnCancel, !(textField.text ?? "").isEmpty {
             textField.text = ""
             textChanged()
@@ -1500,6 +1573,10 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      * The return key submits the text.
      */
     public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if isEditingBar {
+            submitEditing()
+            return false
+        }
         submit()
         return true
     }

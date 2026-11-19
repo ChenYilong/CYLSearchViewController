@@ -42,7 +42,27 @@ final class CYLContactTagServer: NSObject, CYLTagListRemoteSource {
     // MARK: - CYLTagListRemoteSource
 
     /**
-     * Downloads B's sections after `latency`, with a HUD.
+     * Downloads B's items (id and title) after `latency`, with a HUD.
+     */
+    func fetchItems(withKeys keys: [String], completion: @escaping ([String: [CYLTagListCacheItem]]?, Error?) -> Void) {
+        let status = nextFetchStatus ?? cylContactTagsText("downloading")
+        let finished = nextFetchStatus == nil ? cylContactTagsText("downloaded") : cylContactTagsText("synced")
+        nextFetchStatus = nil
+        CYLPlaceholderHUD.show(status: status)
+        DispatchQueue.main.asyncAfter(deadline: .now() + latency) { [storage] in
+            var sections: [String: [CYLTagListCacheItem]] = [:]
+            for key in keys {
+                if let items = storage.cachedItems(forSection: key) {
+                    sections[key] = items
+                }
+            }
+            CYLPlaceholderHUD.showSuccess(status: finished)
+            completion(sections, nil)
+        }
+    }
+
+    /**
+     * Downloads B's titles after `latency`, with a HUD (the protocol's titles-only form).
      */
     func fetchSections(withKeys keys: [String], completion: @escaping ([String: [String]]?, Error?) -> Void) {
         let status = nextFetchStatus ?? cylContactTagsText("downloading")
@@ -66,11 +86,11 @@ final class CYLContactTagServer: NSObject, CYLTagListRemoteSource {
     /**
      * Uploads `sections` (cache A's, after editing): copies them to B after `latency`, with a HUD.
      */
-    func upload(_ sections: [String: [String]], completion: (() -> Void)? = nil) {
+    func upload(_ sections: [String: [CYLTagListCacheItem]], completion: (() -> Void)? = nil) {
         CYLPlaceholderHUD.show(status: cylContactTagsText("uploading"))
         DispatchQueue.main.asyncAfter(deadline: .now() + latency) { [storage] in
-            for (key, titles) in sections {
-                storage.saveTitles(titles, forSection: key)
+            for (key, items) in sections {
+                storage.saveItems(items, forSection: key)
             }
             CYLPlaceholderHUD.showSuccess(status: cylContactTagsText("uploaded"))
             completion?()
@@ -78,19 +98,20 @@ final class CYLContactTagServer: NSObject, CYLTagListRemoteSource {
     }
 
     /**
-     * Simulates an edit on another device, written to B: a random new tag at the end of "My Tags" and its first two
-     * tags swapped. `localTags` stands in when B has nothing yet. Returns the tag added.
+     * Simulates an edit on another device, written to B: a random new tag (a new id) at the end of "My Tags" and its
+     * first two tags swapped. `localItems` stands in when B has nothing yet. Returns the title added.
      */
     @discardableResult
-    func simulateOtherDeviceEdit(localTags: [String]) -> String {
-        var tags = storage.cachedTitles(forSection: CYLContactTagStore.mineCacheKey) ?? localTags
-        let pool = cylContactTagsText("otherDeviceTags").components(separatedBy: ",").filter { !tags.contains($0) }
+    func simulateOtherDeviceEdit(localItems: [CYLTagListCacheItem]) -> String {
+        var tags = storage.cachedItems(forSection: CYLContactTagStore.mineCacheKey) ?? localItems
+        let titles = Set(tags.map(\.title))
+        let pool = cylContactTagsText("otherDeviceTags").components(separatedBy: ",").filter { !titles.contains($0) }
         let added = pool.randomElement() ?? cylContactTagsText("otherDeviceTags") + " \(tags.count)"
-        tags.append(added)
+        tags.append(CYLTagListCacheItem(identifier: "o-" + UUID().uuidString.prefix(8).lowercased(), title: added))
         if tags.count > 1 {
             tags.swapAt(0, 1)
         }
-        storage.saveTitles(tags, forSection: CYLContactTagStore.mineCacheKey)
+        storage.saveItems(tags, forSection: CYLContactTagStore.mineCacheKey)
         nextFetchStatus = cylContactTagsText("syncing")
         return added
     }

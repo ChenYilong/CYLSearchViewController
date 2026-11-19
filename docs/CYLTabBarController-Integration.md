@@ -512,6 +512,41 @@ Flutter 2503, 919, 833, 355, then 0.
   CYLTableViewPlaceHolder `d19120f`, CYLTabBarController `5996fa96`
   ([assets/ios-iphone18pro-20261119-contact-tags-sync.png](assets/ios-iphone18pro-20261119-contact-tags-sync.png), iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), real 5 s latency, 2026-11-19).
   Score: 100/100 for iOS.
+
+### DONE (2026-11-19; TODO 2026-11-19): renaming tags by id in the contact tags example (edit icon, editing bar)
+
+- **Prompts** (verbatim): "编辑模式还应在删除按钮左边加一个编辑按钮，你可以适应CollectionView库新增加的CYLAnimatedStackView实现。追加两个icon的场景。点击编辑按钮后唤醒键盘，可以更新tag名字。依然遵循缓存以及网络下载策略。点击完成后更新缓存中的tag名称。这里注意tag的主键应该是id，避免更换顺序，改名后tag对应不到原来的联系人列表。联系人列表也应和主键id绑定。"; again with "同时在编辑按钮和icon之外的区域，用户直接点击title label也可以直接唤起键盘编辑。如有必要更新 CollectionView库新增加接口实现完成该功能，并在CollectionView库新增加接口后，repin commit完成example。"; "编辑按钮图标换一个 这个图标 不易识别 边框带笔 那种"; "编辑按钮 与 删除按钮可以自定义间距，修改CollectionView的core里面的StackView组件，添加自定义间距 允许用户自定义。并默认增加合适间距，repin后完成example"; "这个间距要完整：可以stackview整体上下左右间距控制，以及item间距控制"; "这个编辑框复用seachbar样式，为seachbar样式增加新的编辑样式初始化，该样式应固定fix跟随在键盘顶部完成core代码，后调用接口完成example".
+- **English**: in "Manage", an edit button left of each tag's delete button (two icons, with CYLAnimatedItemStackView; a
+  square-and-pencil icon), with customizable spacing between and around the icons; the edit button, or a tap on the
+  title, raises the keyboard to rename the tag; the cache and download policies still apply and Done saves the new name.
+  A tag's primary key is an id, so a reorder or a rename keeps its contacts, which are bound to the id. The edit field
+  reuses this repository's search bar as a new editing style pinned above the keyboard (core first, then the example).
+- **Status**: DONE (2026-11-19). CollectionViewClassifyMenu `990cf115` (feat/harmony, pushed): the rename indicator and
+  `CYLAnimatedItemStackView` icons, `CYLMenuStyle.editingIndicatorSpacing` (8) and `editingIndicatorInsets` (left 4, right
+  2), title taps, `menuRenameItem(at:to:)`, `renameRequestHandler`, `submitNewItem(named:)`, ids
+  (`menuIdentifierForItem(at:)`, `CYLTagListCacheItem`, `loadItems`); its tests 109 of 109. This repository's core:
+  `CYLSearchBarView.editingBar(placeholder:actionTitle:)` and `pinToKeyboard(in:)` (`docs/core-todo.md`, "the editing
+  bar"). This example: tags carry ids (`t01`…`t47` in contact-tags.json, version 2; new tags `u-…`, other devices' `o-…`),
+  "Recent", the selection and every contact refer to ids; the editor gives the list the ids, renames through
+  `menuRenameItem(at:to:)` (the id, place and contacts stay), and edits in the editing bar above the keyboard ("Add", or
+  "Done" while renaming); cache A and the server (B) keep id and title (`saveItems`, `fetchItems`); the contacts page looks
+  up contacts by id. Tests `testContactTagsRenameKeepsTheTagIDAndItsContacts`, `testEditingBarSubmitsAndRidesOnTheKeyboard`;
+  35 tests pass; Flutter and React Native iOS build. Pins on every platform: CollectionViewClassifyMenu `d58c4e6f`,
+  CYLTableViewPlaceHolder `d19120f`, CYLTabBarController `5996fa96`
+  ([assets/ios-iphone18pro-20261119-contact-tags-rename.png](assets/ios-iphone18pro-20261119-contact-tags-rename.png), iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), 2026-11-19).
+  In "Manage", a tap on a tag's title renames it; a tap on the rest of the tag (its padding) still opens its contacts.
+  Follow-ups (verbatim): "recent右上角的删除图标应直接调用CollectView组件原有的自定义接口，这个属于已经封装好的，删除图标样式icon在其内部资源包已经内置，如果没有内置，增加该资源，且暴露接口直接在右上角添加删除按钮以及自定义点击事件回调，且新增限制，该图标顶部与底部应与左侧元素顶部 底部对齐。更新CollectView组件增加该限制，完成CollectView组件core代码后repin commit继续完成example";
+  "底部的addtag功能也同样复用编辑tag的searchbar样式，特性一致跟随键盘顶部"; "请确保新增的图片资源文件在core代码仓库中均以文件夹形式管理，以iOS为例，图片资源文件均存放在.bundle的文件夹形式中".
+  Done: "Recent" now uses CollectionViewClassifyMenu's built-in clear button (`cea04255`: `menuShowsClearButton(forSection:)`,
+  `menu(_:didTapClearButtonInSection:)`; the bundle's new trash icon, its top and bottom on the title's text; the
+  example's own button is gone); the icon is a file in the folder bundle `CYLClassifyMenuImages.bundle` (`7d84d709`);
+  the edit icon and the cross are evenly spaced by the core's defaults, with no settings here (`d58c4e6f`; user,
+  verbatim: "tag 的编辑状态下 CYlAnimated StackView右侧间距过大，item 间距过小，直接调整自定义间距实现，完成合适间距默认值，在本example中无须修改自定义间距就可实现合理间距效果。修改CYlAnimated StackView 代码后 repin无须修改example，测试效果。效果不佳继续修改。修改CYlAnimated StackView 代码后 repin无须修改example，测试效果";
+  title to edit icon about 15 pt, between the icons about 17 pt, cross to the edge about 17 pt:
+  [assets/ios-iphone18pro-20261119-contact-tags-editing-icons-spacing.png](assets/ios-iphone18pro-20261119-contact-tags-editing-icons-spacing.png));
+  the add field is the same editing bar as renaming, riding on the keyboard
+  ([assets/ios-iphone18pro-20261119-contact-tags-clear-add-bar.png](assets/ios-iphone18pro-20261119-contact-tags-clear-add-bar.png), iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), 2026-11-19).
+  Score: 100/100 for iOS.
 ## TODO (2026-11-19): the contact tags example on the other platforms
 
 - **Branch**: `feat/harmonyos-parity`. Owner: the Windows session (platform rule).
