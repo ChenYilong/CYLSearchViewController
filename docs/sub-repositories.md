@@ -227,3 +227,7 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   names the commit the macOS session pins on iOS. `c43eebcd` is `542a0094` plus iOS Podfiles, `Package.swift` and docs only
   (`git diff --stat 542a0094 c43eebcd`): the Android, HarmonyOS and mini program code is the same, so the checks above stand; the
   mini program passes 57/57 again after the sync.
+- **CollectionViewClassifyMenu `a32ab9e7` (2026-11-19, Windows)**, on Android, HarmonyOS and the mini program: the
+  `cyl-tag-cloud` fix for the cross and pencil that did not respond to a touch tap (`mut-bind:touchstart` in place of
+  `catchtouchstart`). Only the mini program's template, tests and docs change from `c43eebcd`; CYLTabBarController stays
+  `74f0b4cd`. Mini program 57/57; the touch tap deletes and renames in DevTools.

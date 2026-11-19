@@ -692,7 +692,7 @@ Flutter 2503, 919, 833, 355, then 0.
     page, so the build starts on the Tag style tab.
     [assets/flutter-ios27.2-iphone18pro-20261119-contact-tags.png](assets/flutter-ios27.2-iphone18pro-20261119-contact-tags.png) (Flutter 3.47.9, iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), CYLSearchViewController 3c75b17, ClassifyMenu 272f569a, CYLTableViewPlaceHolder b18b617, CYLTabBarController 9a4ad95e, 2026-11-19 17:30 +13:00).
 
-## TODO (2026-11-19): the delete button does nothing in the contact tags example's editing mode
+## DONE (2026-11-19; TODO 2026-11-19): the delete button does nothing in the contact tags example's editing mode
 
 - **Branch**: `feat/harmonyos-parity`.
 - **Prompt (verbatim)**: "联系人example 编辑状态下 点击删除tag 无响应 请实现删除功能" (English: in the contact tags
@@ -718,5 +718,18 @@ Flutter 2503, 919, 833, 355, then 0.
   this example. With the Windows session's Android check (native, React Native, Flutter), deleting works on every platform
   that can be run at these pins; the user reported Android or HarmonyOS, so the failing build is likely an older install
   (before CollectionViewClassifyMenu `98c847a6` on Android or `c9a94212` on HarmonyOS) or a real device; asked.
-- **Status**: TODO. Score: 80/100 (deleting verified on iOS, Android and HarmonyOS emulators at the pins; the user's
-  failing build not yet reproduced).
+- **Mini program: the failing build, reproduced and fixed (2026-11-19, Windows, WeChat DevTools 2.02.2609250, base library
+  3.6.6)**: the user reported the mini program. A touch-based tap (miniprogram-automator `element.tap()` on
+  `#CYLTagListDeleteButton-0` inside `#mine`) did nothing at CollectionViewClassifyMenu `c43eebcd`, and neither did the
+  pencil; `trigger('tap')` on the same node deleted, which is why the earlier handler-level check passed. Cause:
+  `catchtouchstart="noop"` on `cyl-tag-cloud`'s editing icons and delete indicators (there so a press on an icon would not
+  press the tag) stopped the tap. Fix in the core, CollectionViewClassifyMenu `a32ab9e7` (the CollectionViewClassifyMenu
+  session, with a regression test): `mut-bind:touchstart` on the icons and on the item. On this example, a touch tap on
+  the cross deletes and on the pencil renames; a touch on an icon does not press the tag, a press on the tag body still
+  does ([assets/miniprogram-devtools-20261119-contact-tags-delete-fixed.png](assets/miniprogram-devtools-20261119-contact-tags-delete-fixed.png), WeChat DevTools 2.02.2609250, Windows 11, 2026-11-19 +13:00, after 4d3027a).
+  Not the scroll-view: the old template still failed with it replaced by a `view`. Why CollectionViewClassifyMenu's own
+  sample did not fail with the old template is open in that repository (its base library and renderer were asked).
+  Pinned on Android, HarmonyOS and the mini program (`a32ab9e7` changes only the mini program's template, tests and docs;
+  mini program 57/57); iOS, Flutter and React Native: the macOS session.
+- **Status**: DONE. Score: 100/100 (deleting works on iOS, Android, HarmonyOS and the mini program, each with a labelled
+  screenshot; the mini program fix has a regression test in CollectionViewClassifyMenu). Left: a real phone.
