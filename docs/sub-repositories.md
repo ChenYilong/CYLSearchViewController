@@ -215,3 +215,6 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   and the mini program (iOS: the macOS session at `ab7d0265` + `9a4ad95e`; `c966c527` is `ab7d0265` plus the HarmonyOS rename
   tap fix `7e683567`). Android tests pass; HarmonyOS (verified copy) builds both HAPs and passes 29/29 device tests; the mini
   program passes 52/52.
+- **CollectionViewClassifyMenu `96feb35d` then `272f569a` (2026-11-19, Windows)**, on Android, HarmonyOS and the mini program:
+  mini program only (cyl-tag-cloud folding, then the fold chevron drawn as an icon sized from the tag font), same
+  CYLTabBarController `9a4ad95e`. Mini program 57/57; the contact tags editor folds My Tags with a full-size chevron in DevTools.
