@@ -691,3 +691,14 @@ Flutter 2503, 919, 833, 355, then 0.
     on a CYLTabBarController tab (axe, by label or point, also with a 0.15 s hold) highlights it without switching the
     page, so the build starts on the Tag style tab.
     [assets/flutter-ios27.2-iphone18pro-20261119-contact-tags.png](assets/flutter-ios27.2-iphone18pro-20261119-contact-tags.png) (Flutter 3.47.9, iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), CYLSearchViewController 3c75b17, ClassifyMenu 272f569a, CYLTableViewPlaceHolder b18b617, CYLTabBarController 9a4ad95e, 2026-11-19 17:30 +13:00).
+
+## TODO (2026-11-19): the delete button does nothing in the contact tags example's editing mode
+
+- **Branch**: `feat/harmonyos-parity`.
+- **Prompt (verbatim)**: "联系人example 编辑状态下 点击删除tag 无响应 请实现删除功能" (English: in the contact tags
+  example's editing mode, tapping a tag's delete button does nothing; implement deleting).
+- **Checked on iOS (2026-11-19, iPhone 18 Pro simulator, iOS 27.2, pins CollectionViewClassifyMenu `c43eebcd`, CYLTabBarController
+  `74f0b4cd`)**: the cross deletes the tag in all three iOS builds: the native example (a tap on the glyph and beside it),
+  React Native (Release) and Flutter (debug). Not yet known: the platform and build where it does nothing (Android,
+  HarmonyOS, the mini program, or an older build); asked of the user and of the Windows session.
+- **Status**: TODO. Score: 0/100 (full marks: deleting works on every platform, with a test and a labelled screenshot).
