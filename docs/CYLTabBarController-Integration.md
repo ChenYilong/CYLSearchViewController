@@ -627,7 +627,15 @@ Flutter 2503, 919, 833, 355, then 0.
   ([assets/react-native-android-api37-20261119-contact-tags.png](assets/react-native-android-api37-20261119-contact-tags.png) and [assets/react-native-android-api37-20261119-contact-tags-remark-empty.png](assets/react-native-android-api37-20261119-contact-tags-remark-empty.png), React Native 0.88.0, Android API 37 Medium Phone emulator, Windows 11, 2026-11-19 +13:00, after 274ba00).
   The tags use the bridge's default look (no style prop yet). React Native iOS DONE by the macOS session: f88d6fd
   ([assets/react-native-ios27.2-iphone18pro-20261119-contact-tags.png](assets/react-native-ios27.2-iphone18pro-20261119-contact-tags.png)).
-  Score: 90/100. TODO: Flutter, planned below.
+  Flutter DONE on Android (2026-11-19): plugin and example 8989d69 (Dart: `CYLTagListView` ids, selection, header and clear
+  button, editing with `onTagDeleted` / `onTagMoved` / `onRenameRequested`; `CYLSearchBarView` `editingBar` + `actionTitle` /
+  `onEditingSubmitted`; new `CYLPlaceholderView`), Android platform views ported from the React Native bridge, iOS platform
+  views by the macOS session (66c02be); `example/lib/contact_tags_page.dart` with `contact_tags_data.dart` (generated from the
+  English bundle), opened from the Tag style tab. flutter test 16/16, flutter analyze infos only. Bug found and fixed on the
+  device: the My Tags title and Manage were one accessibility node, so a tap or TalkBack focus on Manage could miss (now
+  separate semantics containers).
+  [assets/flutter-android-api37-20261119-contact-tags.png](assets/flutter-android-api37-20261119-contact-tags.png) (Flutter 3.50.0, Android API 37 Medium Phone emulator, Windows 11, 2026-11-19 +13:00, after 8989d69).
+  Score: 95/100. TODO: the Flutter iOS run (macOS CYLTableViewPlaceHolder session), then 100.
 - **Plan for React Native and Flutter (2026-11-19)**: both packages are thin bridges over the native views (React Native
   codegen components `CylsearchBarView`, `CylsearchTagListView`, `CylsearchView`; Flutter platform views), and the bridges
   lack what the demo needs, so each port is (1) bridge API on Android (Windows session) and iOS (macOS session), then (2) the

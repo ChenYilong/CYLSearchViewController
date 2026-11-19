@@ -512,9 +512,12 @@ class _CYLContactTagEditorPageState extends State<CYLContactTagEditorPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: <Widget>[
                             Semantics(
+                                container: true,
                                 header: true,
                                 child: Text(cylContactText('mine'), style: const TextStyle(fontSize: 15, color: _secondary))),
                             Semantics(
+                              // Its own node: the title and the button are separate for TalkBack and VoiceOver.
+                              container: true,
                               button: true,
                               hint: cylContactText('hintManage'),
                               child: GestureDetector(
