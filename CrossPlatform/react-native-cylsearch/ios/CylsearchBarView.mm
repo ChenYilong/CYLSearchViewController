@@ -12,13 +12,15 @@ using namespace facebook::react;
 @end
 
 /*!
- * CYLSearchBarView filling the component.
+ * CYLSearchBarView filling the component; with `editingBar`, the core's editing bar
+ * (CYLSearchBarView `editingBarWithPlaceholder:actionTitle:`), whose submit is sent as `onEditingSubmit`.
  */
 @implementation CylsearchBarView {
   CYLSearchBarView *_bar;
   NSString *_itemsJSON;
   NSArray<NSString *> *_searches;
   BOOL _applyingSearches;
+  NSString *_actionTitle;
 }
 
 + (ComponentDescriptorProvider)componentDescriptorProvider
@@ -41,16 +43,26 @@ using namespace facebook::react;
 - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &)oldProps
 {
   const auto &p = *std::static_pointer_cast<CylsearchBarViewProps const>(props);
+  NSString *actionTitle = CYLRNString(p.actionTitle);
+  if ((BOOL)p.editingBar != _bar.isEditingBar) {
+    [self useEditingBar:p.editingBar placeholder:CYLRNString(p.placeholder) actionTitle:actionTitle];
+  } else if (_bar.isEditingBar && actionTitle.length > 0 && ![actionTitle isEqualToString:_actionTitle ?: @""]) {
+    _bar.cancelButtonTitle = actionTitle;
+  }
+  _actionTitle = actionTitle;
   _bar.overrideUserInterfaceStyle = CYLRNInterfaceStyle(CYLRNString(p.colorScheme));
   _bar.placeholder = CYLRNString(p.placeholder);
   NSString *text = CYLRNString(p.text);
   if (text.length > 0 && ![text isEqualToString:_bar.text ?: @""]) {
     _bar.text = text;
   }
-  _bar.showsCancelButton = p.showsCancelButton;
   _bar.fieldShadowOpacity = p.fieldShadowOpacity;
   _bar.searchBarStyle = [CYLRNString(p.searchBarStyle) isEqualToString:@"bordered"] ? CYLSearchBarStyleBordered : CYLSearchBarStylePlain;
-  _bar.searchIcon = p.showsSearchIcon ? [UIImage systemImageNamed:@"magnifyingglass"] : nil;
+  // An editing bar keeps the core's own setup: no magnifier, its action button always shown.
+  if (!_bar.isEditingBar) {
+    _bar.showsCancelButton = p.showsCancelButton;
+    _bar.searchIcon = p.showsSearchIcon ? [UIImage systemImageNamed:@"magnifyingglass"] : nil;
+  }
   // Rebuilt only when JavaScript sends other items, so a re-render keeps the native selection.
   NSString *itemsJSON = CYLRNString(p.itemsJSON) ?: @"";
   if (![itemsJSON isEqualToString:_itemsJSON ?: @""]) {
@@ -76,6 +88,38 @@ using namespace facebook::react;
     [self applySearches:searches];
   }
   [super updateProps:props oldProps:oldProps];
+}
+
+/*!
+ * Swaps in the core's editing bar (or a search bar again): its submit goes to `onEditingSubmit` with the trimmed text,
+ * and the field is cleared for the next name.
+ */
+- (void)useEditingBar:(BOOL)editing placeholder:(NSString *)placeholder actionTitle:(NSString *)actionTitle
+{
+  [_bar removeFromSuperview];
+  _itemsJSON = nil;
+  _searches = nil;
+  if (editing) {
+    _bar = [CYLSearchBarView editingBarWithPlaceholder:placeholder
+                                           actionTitle:actionTitle.length > 0 ? actionTitle : NSLocalizedString(@"Done", nil)];
+    __weak __typeof(self) weakSelf = self;
+    _bar.editingSubmitHandler = ^(CYLSearchBarView *bar, NSString *text) {
+      [weakSelf emitEditingSubmit:text];
+      bar.text = @"";
+    };
+  } else {
+    _bar = [[CYLSearchBarView alloc] initWithFrame:self.bounds];
+  }
+  _bar.delegate = self;
+  self.contentView = _bar;
+}
+
+- (void)emitEditingSubmit:(NSString *)text
+{
+  if (_eventEmitter) {
+    std::static_pointer_cast<CylsearchBarViewEventEmitter const>(_eventEmitter)
+        ->onEditingSubmit(CylsearchBarViewEventEmitter::OnEditingSubmit{.text = std::string(text.UTF8String ?: "")});
+  }
 }
 
 /*!
@@ -163,6 +207,10 @@ using namespace facebook::react;
 
 - (void)searchBarViewSearchButtonClicked:(CYLSearchBarView *)searchBarView
 {
+  // An editing bar reports its submit through `onEditingSubmit` and keeps the keyboard up for the next name.
+  if (searchBarView.isEditingBar) {
+    return;
+  }
   if (_eventEmitter) {
     std::static_pointer_cast<CylsearchBarViewEventEmitter const>(_eventEmitter)
         ->onSubmit(CylsearchBarViewEventEmitter::OnSubmit{.text = std::string((searchBarView.text ?: @"").UTF8String)});

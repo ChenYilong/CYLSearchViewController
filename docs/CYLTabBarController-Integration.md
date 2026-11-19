@@ -632,3 +632,12 @@ Flutter 2503, 919, 833, 355, then 0.
   - HUD: the example draws its own (React Native `Modal` / Flutter overlay) unless a bridge to `CYLPlaceholderHUD` is added.
   Acceptance for the last 20 points: both examples run the demo on Android with tests and labelled screenshots (iOS by the
   macOS session).
+  - React Native iOS bridge (2026-11-19, macOS session): `CylsearchTagListView.mm` is a one-section `CYLMenuDataSource` as
+    on Android (titles and ids, `selectedIds` in "multiple" mode, header when `sectionTitle` is set or `showsClearButton`,
+    `editing` through `setEditing:animated:`, the edit icon only with `supportsRenaming` (the data source answers
+    `menuRenameItemAtIndexPath:toTitle:` only then), `renameRequestHandler` → `onRenameRequest`, `onTagDelete`,
+    `onTagMove`, `clearButtonHandler` → `onClearButtonTap`, height again after editing; ClassifyMenu's own add control is
+    hidden, the host adds in its editing bar); `CylsearchBarView.mm` swaps in the core's editing bar for `editingBar`
+    (`onEditingSubmit` with the trimmed text, the field cleared, no `onSubmit`); new `CylsearchPlaceholderView.mm`
+    (CYLPlaceholderView at its content size, centred; style names case-insensitive, unknown → empty). The React Native
+    iOS example builds against spec `274ba00`; running it waits for the example screens.
