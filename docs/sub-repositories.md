@@ -186,3 +186,8 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   native, Flutter and React Native apps; 35 tests pass; Flutter and React Native iOS build. Android, HarmonyOS and the
   mini program: asked of the Windows session (CollectionViewClassifyMenu's own HarmonyOS HAP was not fully built there,
   disk full; host tests 71 of 71).
+
+- **CollectionViewClassifyMenu `3af1b7cd` and CYLTableViewPlaceHolder `e984868` (2026-11-19)**, both at CYLTabBarController
+  `5744917d`, pinned on every platform: `3af1b7cd` sizes the editing icons to their glyphs (even spacing);
+  `e984868` is CYLTableViewPlaceHolder's newest, on the same tab bar commit. iOS: pod install for the three apps; 35 tests
+  pass; Flutter and React Native iOS build.

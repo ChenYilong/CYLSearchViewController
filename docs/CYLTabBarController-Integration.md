@@ -531,8 +531,8 @@ Flutter 2503, 919, 833, 355, then 0.
   `menuRenameItem(at:to:)` (the id, place and contacts stay), and edits in the editing bar above the keyboard ("Add", or
   "Done" while renaming); cache A and the server (B) keep id and title (`saveItems`, `fetchItems`); the contacts page looks
   up contacts by id. Tests `testContactTagsRenameKeepsTheTagIDAndItsContacts`, `testEditingBarSubmitsAndRidesOnTheKeyboard`;
-  35 tests pass; Flutter and React Native iOS build. Pins on every platform: CollectionViewClassifyMenu `d58c4e6f`,
-  CYLTableViewPlaceHolder `d19120f`, CYLTabBarController `5996fa96`
+  35 tests pass; Flutter and React Native iOS build. Pins on every platform: CollectionViewClassifyMenu `3af1b7cd`,
+  CYLTableViewPlaceHolder `e984868`, CYLTabBarController `5744917d`
   ([assets/ios-iphone18pro-20261119-contact-tags-rename.png](assets/ios-iphone18pro-20261119-contact-tags-rename.png), iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), 2026-11-19).
   In "Manage", a tap on a tag's title renames it; a tap on the rest of the tag (its padding) still opens its contacts.
   Follow-ups (verbatim): "recent右上角的删除图标应直接调用CollectView组件原有的自定义接口，这个属于已经封装好的，删除图标样式icon在其内部资源包已经内置，如果没有内置，增加该资源，且暴露接口直接在右上角添加删除按钮以及自定义点击事件回调，且新增限制，该图标顶部与底部应与左侧元素顶部 底部对齐。更新CollectView组件增加该限制，完成CollectView组件core代码后repin commit继续完成example";
@@ -542,7 +542,8 @@ Flutter 2503, 919, 833, 355, then 0.
   example's own button is gone); the icon is a file in the folder bundle `CYLClassifyMenuImages.bundle` (`7d84d709`);
   the edit icon and the cross are evenly spaced by the core's defaults, with no settings here (`d58c4e6f`; user,
   verbatim: "tag 的编辑状态下 CYlAnimated StackView右侧间距过大，item 间距过小，直接调整自定义间距实现，完成合适间距默认值，在本example中无须修改自定义间距就可实现合理间距效果。修改CYlAnimated StackView 代码后 repin无须修改example，测试效果。效果不佳继续修改。修改CYlAnimated StackView 代码后 repin无须修改example，测试效果";
-  title to edit icon about 15 pt, between the icons about 17 pt, cross to the edge about 17 pt:
+  then, after "space is not good enough continue fix", icons sized to their glyphs (`3af1b7cd`): left padding 14 pt,
+  title to edit icon about 12.7 pt, between the icons about 12.7 pt, cross to the edge about 14.7 pt:
   [assets/ios-iphone18pro-20261119-contact-tags-editing-icons-spacing.png](assets/ios-iphone18pro-20261119-contact-tags-editing-icons-spacing.png));
   the add field is the same editing bar as renaming, riding on the keyboard
   ([assets/ios-iphone18pro-20261119-contact-tags-clear-add-bar.png](assets/ios-iphone18pro-20261119-contact-tags-clear-add-bar.png), iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), 2026-11-19).
