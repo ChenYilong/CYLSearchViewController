@@ -727,8 +727,11 @@ Flutter 2503, 919, 833, 355, then 0.
   session, with a regression test): `mut-bind:touchstart` on the icons and on the item. On this example, a touch tap on
   the cross deletes and on the pencil renames; a touch on an icon does not press the tag, a press on the tag body still
   does ([assets/miniprogram-devtools-20261119-contact-tags-delete-fixed.png](assets/miniprogram-devtools-20261119-contact-tags-delete-fixed.png), WeChat DevTools 2.02.2609250, Windows 11, 2026-11-19 +13:00, after 4d3027a).
-  Not the scroll-view: the old template still failed with it replaced by a `view`. Why CollectionViewClassifyMenu's own
-  sample did not fail with the old template is open in that repository (its base library and renderer were asked).
+  Why CollectionViewClassifyMenu's own sample did not fail: the base library. It ran on 3.18.0 (a local override); on
+  3.6.6, this project's version, the old template fails there too, and on 3.18.0 the same tap works. Older base
+  libraries make no tap from a touch whose `touchstart` was caught; `mut-bind` works on both (CollectionViewClassifyMenu
+  `4ff89e9f`, docs only, `docs/issue-progress.md`). Not the scroll-view: the old template still failed here with it
+  replaced by a `view`.
   Pinned on Android, HarmonyOS and the mini program (`a32ab9e7` changes only the mini program's template, tests and docs;
   mini program 57/57); iOS, Flutter and React Native: the macOS session.
 - **Status**: DONE. Score: 100/100 (deleting works on iOS, Android, HarmonyOS and the mini program, each with a labelled
