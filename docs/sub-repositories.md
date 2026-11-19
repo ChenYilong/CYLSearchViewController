@@ -249,3 +249,9 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   macOS session): the tag drag lock from the first touch (mini program) and word picker samples and tests on Android and
   HarmonyOS. Android tests pass and the APK builds; HarmonyOS builds the `default` and `ohosTest` HAPs with
   `vendor/classifymenu` at `3bfa201a`; the mini program passes 59/59.
+- **CollectionViewClassifyMenu `dc5910f5` with CYLTabBarController `8ece77dd` (2026-11-20, Windows)**, on Android, HarmonyOS and
+  the mini program (iOS: the macOS session). `dc5910f5` contains `3bfa201a` (the drag lock); `8ece77dd` makes iOS 15 the
+  minimum and `CYLTabBarController` a Swift class, and changes 161 non-iOS files since `74f0b4cd`. Android tests pass (0
+  failures) and the APK builds with `.cyl-deps` at both commits; HarmonyOS syncs `vendor/cyltabbar` to `8ece77dd` and
+  `vendor/classifymenu` to `dc5910f5` and builds the `default`, `emulator` and `ohosTest` HAPs; the mini program passes
+  59/59. No device run (the Android emulator was closed at the user's request; the HarmonyOS one needs disk space).
