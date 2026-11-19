@@ -32,6 +32,11 @@ android {
     buildFeatures {
         dataBinding = true
     }
+
+    // The example's unit tests read its assets (the contact tags bundle).
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+    }
 }
 
 dependencies {
@@ -54,4 +59,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.swiperefreshlayout)
     implementation(libs.androidx.activity.ktx)
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
+    testImplementation(libs.androidx.test.core)
 }

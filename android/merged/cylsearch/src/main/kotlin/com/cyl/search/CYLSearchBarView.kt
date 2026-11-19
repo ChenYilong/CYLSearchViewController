@@ -686,6 +686,63 @@ class CYLSearchBarView @JvmOverloads constructor(
     var clearsTextOnCancel: Boolean = false
 
     /**
+     * Whether the bar is an editing bar (`editingBar`): an edit field in the search bar's look, whose trailing button
+     * submits instead of cancelling (iOS `isEditingBar`).
+     */
+    var isEditingBar: Boolean = false
+        internal set
+
+    /**
+     * An editing bar's submit: the trimmed text, when its action button or the action key is tapped (after
+     * `searchBarViewShouldSubmitText` and `searchBarViewSearchButtonClicked`). Empty text submits nothing (iOS
+     * `editingSubmitHandler`).
+     */
+    var editingSubmitHandler: ((CYLSearchBarView, String) -> Unit)? = null
+
+    /**
+     * An editing bar's submit (iOS `submitEditing`): the delegate's checks (`submit()`), then `editingSubmitHandler`.
+     */
+    private fun submitEditing() {
+        val trimmed = text.orEmpty().trim()
+        if (trimmed.isEmpty() || !submit()) return
+        editingSubmitHandler?.invoke(this, trimmed)
+    }
+
+    /**
+     * Pins the bar to the bottom of `container`, full width, riding on the keyboard while it is up (iOS
+     * `pinToKeyboard(in:)`, the keyboard layout guide): with `SOFT_INPUT_ADJUST_RESIZE` the container already ends at
+     * the keyboard; in an edge-to-edge window the bar moves up by the part of the IME inset below the container.
+     */
+    /**
+     * After `pinToKeyboard`: how far the keyboard covers the container's bottom, in pixels (0 while it is down), on every
+     * change; a host uses it to keep its own content above the keyboard (iOS: the keyboard layout guide).
+     */
+    var keyboardOverlapHandler: ((Int) -> Unit)? = null
+
+    fun pinToKeyboard(container: ViewGroup) {
+        if (parent !== container) {
+            (parent as? ViewGroup)?.removeView(this)
+            val params: ViewGroup.LayoutParams = when (container) {
+                is android.widget.FrameLayout -> android.widget.FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, android.view.Gravity.BOTTOM)
+                is android.widget.LinearLayout -> android.widget.LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+                else -> ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+            }
+            container.addView(this, params)
+        }
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(container) { view, insets ->
+            val ime = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.ime()).bottom
+            val location = IntArray(2)
+            view.getLocationInWindow(location)
+            val below = (view.rootView.height - (location[1] + view.height)).coerceAtLeast(0)
+            val overlap = (ime - below).coerceAtLeast(0)
+            translationY = -overlap.toFloat()
+            keyboardOverlapHandler?.invoke(overlap)
+            insets
+        }
+        androidx.core.view.ViewCompat.requestApplyInsets(container)
+    }
+
+    /**
      * Ending editing also clears the text (lapism `setTextClearOnClearFocus`). False by default.
      */
     var clearsTextOnEndEditing: Boolean = false
@@ -1109,7 +1166,7 @@ class CYLSearchBarView @JvmOverloads constructor(
         textField.setOnEditorActionListener { _, actionId, event ->
             val enter = event != null && event.keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN
             if (actionId == returnKeyType || actionId == EditorInfo.IME_ACTION_SEARCH || enter) {
-                submit()
+                if (isEditingBar) submitEditing() else submit()
                 true
             } else {
                 false
@@ -1469,6 +1526,11 @@ class CYLSearchBarView @JvmOverloads constructor(
     }
 
     private fun cancelTapped() {
+        if (isEditingBar) {
+            // An editing bar's trailing button is its action, not a cancel (iOS `cancelTapped`).
+            submitEditing()
+            return
+        }
         if (clearsTextOnCancel && !text.isNullOrEmpty()) {
             text = ""
             textChanged()
@@ -1780,18 +1842,40 @@ class CYLSearchBarView @JvmOverloads constructor(
         }
     }
 
-    private companion object {
-        const val NO_SELECTION = -1
-        const val ITEM_PADDING = 12f
-        const val REMOVE_SIZE = 28f
-        const val INDICATOR_HEIGHT = 2f
-        const val ICON_SIZE = 18f
-        const val SPACING = 8f
-        const val DEFAULT_FIELD_COLOR = 0x1F767680
-        const val STATE_SUPER = "CYLSearchBarSuper"
-        const val STATE_TEXT = "CYLSearchBarText"
-        const val STATE_EDITING = "CYLSearchBarEditing"
-        const val STATE_ICONIFIED = "CYLSearchBarIconified"
+    companion object {
+        private const val NO_SELECTION = -1
+        private const val ITEM_PADDING = 12f
+        private const val REMOVE_SIZE = 28f
+        private const val INDICATOR_HEIGHT = 2f
+        private const val ICON_SIZE = 18f
+        private const val SPACING = 8f
+        private const val DEFAULT_FIELD_COLOR = 0x1F767680
+        private const val STATE_SUPER = "CYLSearchBarSuper"
+        private const val STATE_TEXT = "CYLSearchBarText"
+        private const val STATE_EDITING = "CYLSearchBarEditing"
+        private const val STATE_ICONIFIED = "CYLSearchBarIconified"
+
+        /**
+         * An editing bar (iOS `editingBar(placeholder:actionTitle:)`): the search bar's field and look for editing a name
+         * (a tag, a title), without the magnifier, with `actionTitle` ("Add", "Done") as its trailing button, which submits
+         * through `editingSubmitHandler`, as the action key does. Words are capitalized and never autocorrected. Pin it
+         * above the keyboard with `pinToKeyboard`; change `cancelButtonTitle` to change the action.
+         */
+        @JvmStatic
+        fun editingBar(context: Context, placeholder: String?, actionTitle: String): CYLSearchBarView =
+            CYLSearchBarView(context).apply {
+                isEditingBar = true
+                searchIcon = null
+                this.placeholder = placeholder
+                showsCancelButton = true
+                cancelButtonTitle = actionTitle
+                cancelButtonEndsEditing = false
+                returnKeyType = EditorInfo.IME_ACTION_DONE
+                autocapitalizationType = CYLTextAutocapitalizationType.Words
+                autocorrectionType = CYLTextAutocorrectionType.No
+                setBackgroundColor(android.graphics.Color.WHITE)
+                tag = "CYLSearchEditingBar"
+            }
     }
 }
 

@@ -81,8 +81,18 @@ class CYLSearchDemoMenuFragment : CYLExamplePage() {
             Triple(context.cylDemoText("demo.searchBar"), null) { push(CYLSearchBarDemoFragment()) },
             Triple(context.cylDemoText("demo.ports"), null) { push(CYLSearchPortsFragment()) },
             Triple(context.getString(R.string.example_originals), context.getString(R.string.example_originals_subtitle)) { push(CYLOriginalSamplesFragment()) },
+            // Row 6 (iOS `-CYLDemoRow 5`): CollectionViewClassifyMenu's contact tags example on CYLSearchViewController.
+            Triple(com.cyl.search.example.contacttags.cylContactTagsText(context, "row"), null) { push(com.cyl.search.example.contacttags.CYLContactRemarkPage()) },
         )), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         return page
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: android.os.Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        // `--ez CYLContactTags true` opens the contact tags demo at launch (iOS `-CYLDemoRow 5`), for screenshots.
+        if (savedInstanceState == null && activity?.intent?.getBooleanExtra(com.cyl.search.example.contacttags.CYLContactTagsOptions.OPEN, false) == true) {
+            view.post { push(com.cyl.search.example.contacttags.CYLContactRemarkPage()) }
+        }
     }
 }
 
