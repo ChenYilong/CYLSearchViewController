@@ -21,6 +21,7 @@ using namespace facebook::react;
   NSArray<NSString *> *_searches;
   BOOL _applyingSearches;
   NSString *_actionTitle;
+  NSString *_textProp;
 }
 
 + (ComponentDescriptorProvider)componentDescriptorProvider
@@ -56,6 +57,16 @@ using namespace facebook::react;
   if (text.length > 0 && ![text isEqualToString:_bar.text ?: @""]) {
     _bar.text = text;
   }
+  // An editing bar given a new title (the host's answer to `onRenameRequest`) takes focus with the title selected, so
+  // the rename is typed at once, as the iOS example's `beginRenaming` does.
+  if (_bar.isEditingBar && text.length > 0 && ![text isEqualToString:_textProp ?: @""]) {
+    CYLSearchBarView *bar = _bar;
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [bar showKeyboard];
+      [bar.textField selectAll:nil];
+    });
+  }
+  _textProp = text;
   _bar.fieldShadowOpacity = p.fieldShadowOpacity;
   _bar.searchBarStyle = [CYLRNString(p.searchBarStyle) isEqualToString:@"bordered"] ? CYLSearchBarStyleBordered : CYLSearchBarStylePlain;
   // An editing bar keeps the core's own setup: no magnifier, its action button always shown.
@@ -98,6 +109,7 @@ using namespace facebook::react;
 {
   [_bar removeFromSuperview];
   _itemsJSON = nil;
+  _textProp = nil;
   _searches = nil;
   if (editing) {
     _bar = [CYLSearchBarView editingBarWithPlaceholder:placeholder
