@@ -235,3 +235,9 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   iOS pin (the word picker on iOS). From `a32ab9e7` it changes iOS files, docs and one mini program string
   (`CYLMenuSpaceCharacter` in `core-tables.js`); nothing on Android or HarmonyOS. CYLTabBarController stays `74f0b4cd`.
   Mini program 57/57 after the sync.
+- **CollectionViewClassifyMenu `2ec3d90e` (2026-11-19, Windows)**, on Android and HarmonyOS (the mini program by the macOS
+  session): the word picker ports and the drag that holds scrolling. Android tests pass and the APK builds; HarmonyOS builds
+  three HAPs with `vendor/classifymenu` at `2ec3d90e`. Correction: the HarmonyOS sync had been failing since its caches in
+  `%LOCALAPPDATA%Tempcyl-harmony-*.git` were emptied by the Temp clean-up (the folders stayed, so the script did not
+  recreate them); they are rebuilt now. The HarmonyOS checks at `a32ab9e7` and `cf5d9f7e` claimed no change and ran no
+  sync; `2ec3d90e` is the first HarmonyOS build with the new vendor code.

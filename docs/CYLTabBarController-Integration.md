@@ -705,7 +705,7 @@ Flutter 2503, 919, 833, 355, then 0.
   and Flutter on the Android API 37 emulator (an adb tap on the cross of Family; Relatives moves up), and in the mini
   program in WeChat DevTools 2.02.2609250 through the cross's handler (`cyl-tag-cloud` `onDelete`, wired as `catchtap`:
   the tag leaves the list and the store; DevTools automation cannot select nodes inside the component, so not a real
-  tap). HarmonyOS was not run: the emulator does not start today ("can not read uuid file" after the Temp clean-up);
+  tap). HarmonyOS was not run: the emulator does not start today ("can not read uuid file": started without `-imageRoot`; with it, "No enough space to start Emulator" at 3.3 GB free);
   by the code, `deleteItem` allows every item of an editable section while editing and calls the example's
   `menuRemoveItem` -> `store.deleteTag`. Existing tests: the mini program's `example_contact_tags.test.js` deletes by id;
   Android `CYLContactTagStoreTest`.
@@ -751,4 +751,13 @@ Flutter 2503, 919, 833, 355, then 0.
   `reorderingchange`. Pins: the mini program and iOS (Podfiles) at `2ec3d90e`; Android and HarmonyOS asked of the
   Windows session (its word picker ports are in this range). Tests: mini program 59 of 59 (new: the list holds
   scrolling during a drag); iOS 35 of 35.
-- **Left**: the user's check in WeChat (a drag in Manage no longer scrolls), and the Windows session's DevTools run.
+- **Android and HarmonyOS (2026-11-19, Windows)**: pinned at `2ec3d90e` (the word picker ports): Android tests pass (0
+  failures) and the APK builds with `.cyl-deps` at `2ec3d90e`; HarmonyOS builds the `default`, `emulator` and `ohosTest` HAPs
+  with `vendor/classifymenu` at `2ec3d90e` (the sync's caches in Temp were broken and are rebuilt; no device run, see
+  HarmonyOS scorecard row 25).
+- **DevTools check (2026-11-19, Windows, WeChat DevTools 2.02.2609250, base library 3.6.6)**: a long press and drag of
+  Family in Manage (miniprogram-automator): during the drag `reordering` is true, the list drops `scroll-y` and the cloud
+  locks scrolling (`catchtouchmove`); Family moves from 1 to 3; after the drop both are released and `scroll-y` is back.
+  Automation cannot drive native scrolling, so the check is on the state that holds it
+  ([assets/miniprogram-devtools-20261119-drag-holds-scrolling.png](assets/miniprogram-devtools-20261119-drag-holds-scrolling.png), WeChat DevTools 2.02.2609250, Windows 11, 2026-11-19 +13:00, after d44da39).
+- **Left**: the user's check in WeChat (a drag in Manage no longer scrolls).

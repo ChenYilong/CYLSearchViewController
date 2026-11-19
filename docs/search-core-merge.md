@@ -115,7 +115,7 @@ What each platform did differently from the target design below.
 - Still open, for the Windows session: the HarmonyOS refresh helpers' `WeakMap` and V1 `cylplaceholder` components in
   V2 components on a device. The V1 placeholder inside the V2 search view ran on the emulator on 2026-11-16 (the empty
   results screenshot) and ohosTest passes 29/29, but the pull-to-refresh path was not driven on a device; the emulator
-  does not start today ("can not read uuid file" after the Temp clean-up).
+  does not start today ("can not read uuid file": started without `-imageRoot`; with it, "No enough space to start Emulator" at 3.3 GB free).
 
 ### TODO: not verified yet (2026-11-16, kept as written)
 
