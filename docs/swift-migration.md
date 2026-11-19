@@ -144,5 +144,13 @@ When an Objective-C to Swift change of the core breaks an example's build, fix t
     placement and title (iOS first; the other platforms' rows in `core-todo.md`). When the page matches the GIF, the
     legacy Objective-C files in `CYLSearchViewController/` and `CYLSearchViewControllerTests/` are replaced by it
     (the Issue #1317 repro page already lives in the example as `CYLSearchExampleViewController`).
-- **Status**: TODO, step 2 (rebuild the GIF's demo in Swift on the core) in progress. Score: 12/100 (Objective-C lines left
-  3,618).
+- **Step 2 progress (2026-11-20)**: the demo is rebuilt in Swift on the core and listed as the menu's seventh row:
+  `CYLOriginalSearchDemoViewController` (`CYLSearchView`: history = suggestions cache in the user defaults, `contentView` =
+  the Ken Burns sky, results table = the results, a "clear search history" text button as the suggestions table's footer),
+  `CYLKenBurnsView` (Swift), `CYLOriginalDemo.bundle` (`clouds-1.png`, strings in en, ja, zh-Hans, zh-Hant). Core change:
+  `CYLSearchView.showsSuggestionCacheHeader` (default true; false takes the title-and-trash header away). Test
+  `testOriginalDemoRebuiltOnTheCore`; iOS 36 of 36. Left for step 2: compare the running page with the GIF frame by frame
+  (screenshots on the simulator), the other platforms' row for `showsSuggestionCacheHeader` in `core-todo.md`, then
+  delete the legacy Objective-C files in `CYLSearchViewController/` and `CYLSearchViewControllerTests/` (score at that point).
+- **Status**: TODO, step 2 in progress (page built, GIF comparison and legacy removal left). Score: 12/100 (Objective-C
+  lines left 3,618; they drop when the legacy files go).

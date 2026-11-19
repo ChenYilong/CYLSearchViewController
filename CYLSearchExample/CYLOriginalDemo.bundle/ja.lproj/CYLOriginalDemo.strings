@@ -1,0 +1,9 @@
+/* The original demo (README screenshot) rebuilt on CYLSearchView. */
+"title" = "Weibo @iOS程序犭袁";
+"placeholder" = "キーワードを入力して検索";
+"cancel" = "キャンセル";
+"clearHistory" = "検索履歴を消去";
+"resultsHeader" = "%@に関する相談";
+"result" = "テスト%d ❤️";
+"back" = "戻る";
+"button" = "ボタン";

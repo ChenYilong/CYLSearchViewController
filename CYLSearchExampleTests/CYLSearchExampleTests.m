@@ -158,6 +158,28 @@ static UIView *CYLVisibleSearchView(UISearchBar *searchBar)
  * views that contain it, system bar backgrounds, and plain leaf views that draw nothing. Counted: labels, images, controls, text, scroll views, view controllers'
  * views, and leaf views with a background, contents or a border. Each entry is "<class> <frame> in <superview>".
  */
+/// The first view in `root` (itself included) with the accessibility identifier, depth first.
+static UIView *CYLViewWithAccessibilityIdentifier(UIView *root, NSString *identifier)
+{
+    if ([root.accessibilityIdentifier isEqualToString:identifier]) return root;
+    for (UIView *subview in root.subviews) {
+        UIView *found = CYLViewWithAccessibilityIdentifier(subview, identifier);
+        if (found) return found;
+    }
+    return nil;
+}
+
+/// The first view in `root` (itself included) of the class, depth first.
+static UIView *CYLViewOfClass(UIView *root, Class viewClass)
+{
+    if ([root isKindOfClass:viewClass]) return root;
+    for (UIView *subview in root.subviews) {
+        UIView *found = CYLViewOfClass(subview, viewClass);
+        if (found) return found;
+    }
+    return nil;
+}
+
 static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
 {
     UIWindow *window = view.window;
@@ -308,7 +330,7 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     CYLSearchTestNavigationController *navigation = [[CYLSearchTestNavigationController alloc] initWithRootViewController:menu];
     [menu loadViewIfNeeded];
     XCTAssertEqual(menu.navigationController, navigation);
-    XCTAssertEqual([menu tableView:menu.tableView numberOfRowsInSection:0], 6, @"reproduction, styles, search bar, ports of other libraries, the SVGA tab bar in SwiftUI, contact tags");
+    XCTAssertEqual([menu tableView:menu.tableView numberOfRowsInSection:0], 7, @"reproduction, styles, search bar, ports of other libraries, the SVGA tab bar in SwiftUI, contact tags, the original demo");
     [menu tableView:menu.tableView didSelectRowAtIndexPath:[NSIndexPath indexPathForRow:1 inSection:0]];
     UITableViewController *gallery = (UITableViewController *)navigation.lastPushedController;
     XCTAssertNotEqual(gallery, menu);
@@ -600,6 +622,36 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     XCTAssertTrue(bar.placeholderLabel.hidden);
     bar.text = nil;
     XCTAssertFalse(bar.placeholderLabel.hidden);
+}
+
+- (void)testOriginalDemoRebuiltOnTheCore
+{
+    // The README screenshot's demo: the menu's seventh row opens a page whose search field opens CYLSearchView with the
+    // history below the field and a text button that clears it, the sky under the list, and results under a header.
+    CYLSearchDemoMenuViewController *menu = [[CYLSearchDemoMenuViewController alloc] initWithStyle:UITableViewStyleGrouped];
+    CYLSearchTestNavigationController *navigation = [[CYLSearchTestNavigationController alloc] initWithRootViewController:menu];
+    [menu loadViewIfNeeded];
+    NSIndexPath *row = [NSIndexPath indexPathForRow:6 inSection:0];
+    XCTAssertGreaterThan([menu tableView:menu.tableView cellForRowAtIndexPath:row].textLabel.text.length, 0u, @"the row has a title");
+    [menu tableView:menu.tableView didSelectRowAtIndexPath:row];
+    UIViewController *demo = navigation.lastPushedController;
+    XCTAssertEqualObjects(NSStringFromClass(demo.class), @"CYLOriginalSearchDemoViewController");
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 390, 844));
+    window.rootViewController = navigation;
+    [window makeKeyAndVisible];
+    demo.view.frame = CGRectMake(0, 0, 390, 844);
+    [demo.view layoutIfNeeded];
+    UIButton *cover = (UIButton *)CYLViewWithAccessibilityIdentifier(demo.view, @"CYLOriginalDemoSearchField");
+    XCTAssertNotNil(cover, @"the field that opens the search");
+    [cover sendActionsForControlEvents:UIControlEventTouchUpInside];
+    [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+    CYLSearchView *search = (CYLSearchView *)CYLViewOfClass(window, CYLSearchView.class);
+    XCTAssertNotNil(search, @"the core's search page opened");
+    XCTAssertFalse(search.showsSuggestionCacheHeader, @"the clear button is the text button below the list");
+    XCTAssertNotNil(search.suggestionsTableView.tableFooterView);
+    XCTAssertNotNil(search.contentView, @"the sky stays under the list");
+    [search clearSuggestionCache];
+    [window.rootViewController dismissViewControllerAnimated:NO completion:nil];
 }
 
 - (void)testSearchBarDemoRow

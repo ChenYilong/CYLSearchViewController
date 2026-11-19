@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		00CBCAB9751DA098D4097277 /* CYLKenBurnsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBA41F531198DCB20D11D08 /* CYLKenBurnsView.swift */; };
 		09591E8341AC8342C2778F78 /* CYLSearchDiscover.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 5B066C225673180236E6CE46 /* CYLSearchDiscover.bundle */; };
 		101C7EF837736C301E77C1BD /* CYLSearchExampleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72C6E95A0B238E136F099598 /* CYLSearchExampleViewController.swift */; };
 		1710B2C1CF4C5E46593609A0 /* CYLLaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F1CBD31BF12B1F79D35D8197 /* CYLLaunchScreen.storyboard */; };
@@ -17,11 +18,13 @@
 		4B1118BB0621C91A867082AA /* tab_profile.svga in Resources */ = {isa = PBXBuildFile; fileRef = C3AB51676CF686A32E5C3F2D /* tab_profile.svga */; };
 		5056C539D2AE963DF183969D /* tab_home.svga in Resources */ = {isa = PBXBuildFile; fileRef = 8EA07219A58E5EBDB6C139FA /* tab_home.svga */; };
 		53098B93113B873103F0A596 /* CYLSearchExampleAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81DD363A48F982061386928D /* CYLSearchExampleAppDelegate.swift */; };
+		605EAE3645762F54D9304252 /* CYLOriginalDemo.bundle in Resources */ = {isa = PBXBuildFile; fileRef = B917ABA1A24B4A3416F47A59 /* CYLOriginalDemo.bundle */; };
 		67F1DE2BB9678746E2CE5701 /* CYLTabBarConfiguration_svga_swiftui.json in Resources */ = {isa = PBXBuildFile; fileRef = 466DA7C43DE8376E42F99CDC /* CYLTabBarConfiguration_svga_swiftui.json */; };
 		734E520994095144248A807D /* CYLContactTagEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E7DEF56D4A35247FE9F79F9 /* CYLContactTagEditorViewController.swift */; };
 		79C140CF3417B8EAC88A7B1B /* tab_chat.svga in Resources */ = {isa = PBXBuildFile; fileRef = 2A637C6644B075C276387C54 /* tab_chat.svga */; };
 		7AF1742377E0BBB8230ADCC3 /* CYLSearchDiscoverData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A374BB7805B372D828BAFE69 /* CYLSearchDiscoverData.swift */; };
 		7B2EA5CB73AFB47F217A2C44 /* tab_activity.svga in Resources */ = {isa = PBXBuildFile; fileRef = E0F39A67691ACDD2A732B49E /* tab_activity.svga */; };
+		7DF022CB0E62991655EDBC25 /* CYLOriginalSearchDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66C8EE3FD197741FB8EE397 /* CYLOriginalSearchDemoViewController.swift */; };
 		7E4CFBE5456955D7F49DDE18 /* Pods_CYLSearchExampleTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CB53AE2B9CBC786E92E575D /* Pods_CYLSearchExampleTests.framework */; };
 		8196AA5AE36B22231F60767A /* CYLContactRemarkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A2E83820BF435F5277152B /* CYLContactRemarkViewController.swift */; };
 		83556410E6BEAB20335A0D5F /* CYLContactTagServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1EBBACF8BF1441DABDD9379 /* CYLContactTagServer.swift */; };
@@ -75,6 +78,7 @@
 		3CDCF00C5BC550CCB80F6F64 /* Pods-CYLSearchExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CYLSearchExample.release.xcconfig"; path = "Target Support Files/Pods-CYLSearchExample/Pods-CYLSearchExample.release.xcconfig"; sourceTree = "<group>"; };
 		466DA7C43DE8376E42F99CDC /* CYLTabBarConfiguration_svga_swiftui.json */ = {isa = PBXFileReference; includeInIndex = 1; path = CYLTabBarConfiguration_svga_swiftui.json; sourceTree = "<group>"; };
 		5B066C225673180236E6CE46 /* CYLSearchDiscover.bundle */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.plug-in"; path = CYLSearchDiscover.bundle; sourceTree = "<group>"; };
+		5EBA41F531198DCB20D11D08 /* CYLKenBurnsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLKenBurnsView.swift; sourceTree = "<group>"; };
 		6CB53AE2B9CBC786E92E575D /* Pods_CYLSearchExampleTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CYLSearchExampleTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6DA7AB600DDC7D517A8984EA /* CYLContactTagStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLContactTagStore.swift; sourceTree = "<group>"; };
 		6E06E95D27736A6851596998 /* CYLSearchBarDemoViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchBarDemoViewController.swift; sourceTree = "<group>"; };
@@ -95,6 +99,7 @@
 		A50000000000000000000004 /* CYLRevealSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CYLRevealSearchViewController.swift; sourceTree = "<group>"; };
 		A50000000000000000000005 /* CYLMultiSearchDemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CYLMultiSearchDemoViewController.swift; sourceTree = "<group>"; };
 		B1EBBACF8BF1441DABDD9379 /* CYLContactTagServer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLContactTagServer.swift; sourceTree = "<group>"; };
+		B917ABA1A24B4A3416F47A59 /* CYLOriginalDemo.bundle */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.plug-in"; path = CYLOriginalDemo.bundle; sourceTree = "<group>"; };
 		C3AB51676CF686A32E5C3F2D /* tab_profile.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_profile.svga; sourceTree = "<group>"; };
 		C72AC3EBD45BFF3AC9711025 /* CYLSearchExampleTests.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = CYLSearchExampleTests.m; sourceTree = "<group>"; };
 		CDA792B304CC7265A5781447 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -104,6 +109,7 @@
 		E639AD5AA798F5082F43D0D8 /* CYLTabBarConfiguration_svga.json */ = {isa = PBXFileReference; includeInIndex = 1; path = CYLTabBarConfiguration_svga.json; sourceTree = "<group>"; };
 		F1CBD31BF12B1F79D35D8197 /* CYLLaunchScreen.storyboard */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = CYLLaunchScreen.storyboard; path = CYLSearchViewController/CYLLaunchScreen.storyboard; sourceTree = "<group>"; };
 		F4A1C23458E19D7F7CAAFED2 /* CYLSearchDiscoverViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchDiscoverViewController.swift; sourceTree = "<group>"; };
+		F66C8EE3FD197741FB8EE397 /* CYLOriginalSearchDemoViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLOriginalSearchDemoViewController.swift; sourceTree = "<group>"; };
 		FA11275B67AEA4B36D145BD3 /* CYLSearchDemoMenuViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchDemoMenuViewController.swift; sourceTree = "<group>"; };
 		FA7A0B9D7510B24AAB4BC47A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
@@ -203,6 +209,9 @@
 				152DF182224BB30611012ECE /* CYLSearchExampleSceneDelegate.swift */,
 				6E06E95D27736A6851596998 /* CYLSearchBarDemoViewController.swift */,
 				FA11275B67AEA4B36D145BD3 /* CYLSearchDemoMenuViewController.swift */,
+				5EBA41F531198DCB20D11D08 /* CYLKenBurnsView.swift */,
+				F66C8EE3FD197741FB8EE397 /* CYLOriginalSearchDemoViewController.swift */,
+				B917ABA1A24B4A3416F47A59 /* CYLOriginalDemo.bundle */,
 			);
 			path = CYLSearchExample;
 			sourceTree = "<group>";
@@ -337,6 +346,7 @@
 				7B2EA5CB73AFB47F217A2C44 /* tab_activity.svga in Resources */,
 				4B1118BB0621C91A867082AA /* tab_profile.svga in Resources */,
 				67F1DE2BB9678746E2CE5701 /* CYLTabBarConfiguration_svga_swiftui.json in Resources */,
+				605EAE3645762F54D9304252 /* CYLOriginalDemo.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -453,6 +463,8 @@
 				C22D21811DA60A32A63738EA /* CYLSearchExampleSceneDelegate.swift in Sources */,
 				9C9E88D575AF765FDC79BC1F /* CYLSearchBarDemoViewController.swift in Sources */,
 				E040B965177213078B4B0135 /* CYLSearchDemoMenuViewController.swift in Sources */,
+				00CBCAB9751DA098D4097277 /* CYLKenBurnsView.swift in Sources */,
+				7DF022CB0E62991655EDBC25 /* CYLOriginalSearchDemoViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

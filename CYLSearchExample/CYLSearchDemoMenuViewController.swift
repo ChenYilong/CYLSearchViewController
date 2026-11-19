@@ -184,8 +184,9 @@ public final class CYLSearchDemoMenuViewController: UITableViewController {
 
     public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // The fifth row: the SVGA tab bar hosted in SwiftUI (CYLSVGASwiftUIDemo.swift); the sixth: the contact tags demo
-        // ported from CollectionViewClassifyMenu (CYLContactTagStore.swift).
-        6
+        // ported from CollectionViewClassifyMenu (CYLContactTagStore.swift); the seventh: the original demo of the README
+        // screenshot, rebuilt on CYLSearchView (CYLOriginalSearchDemoViewController.swift).
+        7
     }
 
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -196,6 +197,8 @@ public final class CYLSearchDemoMenuViewController: UITableViewController {
             cell.textLabel?.text = cylDemoText(rows[indexPath.row])
         } else if indexPath.row == 4 {
             cell.textLabel?.text = cylExampleText("svga.swiftui")
+        } else if indexPath.row == 6 {
+            cell.textLabel?.text = CYLOriginalSearchDemoViewController.rowTitle()
         } else {
             cell.textLabel?.text = CYLContactTagsDemo.rowTitle()
         }
@@ -217,6 +220,9 @@ public final class CYLSearchDemoMenuViewController: UITableViewController {
         case 5:
             // The contact tags demo: "Edit Remarks", whose tags open "Edit Tags" with CYLSearchBarView.
             controller = CYLContactTagsDemo.viewController()
+        case 6:
+            // The original demo (the README screenshot): a Ken Burns sky, the history, the results.
+            controller = CYLOriginalSearchDemoViewController()
         case 0:
             let source = CYLSearchExampleDataSource()
             controller = CYLSearchExampleViewController(searchDataSource: source, refreshProvider: source)

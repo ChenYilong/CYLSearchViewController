@@ -423,6 +423,13 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
     @objc public let suggestionCacheHeaderView = UIView()
 
     /**
+     * Whether `suggestionCacheHeaderView` (the title and the trash icon) shows above the cached queries. YES by default;
+     * NO takes the header away, for a host that clears the history with its own control, for example a button in
+     * `suggestionsTableView.tableFooterView` that calls `clearSuggestionCache()`.
+     */
+    @objc public var showsSuggestionCacheHeader = true { didSet { setNeedsLayout(); refilter() } }
+
+    /**
      * The title of `suggestionCacheHeaderView` ("Recent searches").
      */
     @objc public let suggestionCacheTitleLabel = UILabel()
@@ -462,6 +469,13 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
     @objc public var focusesSearchFieldOnShow = true
 
     private var showsCachedQueries = false
+
+    /**
+     * The height of the cached queries' header: 0 without cached queries or with `showsSuggestionCacheHeader` off.
+     */
+    private var cacheHeaderHeight: CGFloat {
+        showsCachedQueries && showsSuggestionCacheHeader ? max(44, ceil(suggestionCacheTitleLabel.font.lineHeight) + 16) : 0
+    }
     private var emptySuggestionsVisible = false
 
     // MARK: - Opening and closing
@@ -603,7 +617,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
             let emptyHeight = emptyResultsVisible ? (emptyResultsView?.systemLayoutSizeFitting(
                 CGSize(width: width - safe.left - safe.right, height: UIView.layoutFittingCompressedSize.height),
                 withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel).height ?? 0) : 0
-            let headerHeight: CGFloat = showsCachedQueries ? max(44, ceil(suggestionCacheTitleLabel.font.lineHeight) + 16) : 0
+            let headerHeight = cacheHeaderHeight
             let emptySuggestionsHeight = emptySuggestionsVisible ? (emptySuggestionsView?.systemLayoutSizeFitting(
                 CGSize(width: width - safe.left - safe.right, height: UIView.layoutFittingCompressedSize.height),
                 withHorizontalFittingPriority: .required, verticalFittingPriority: .fittingSizeLevel).height ?? 0) : 0
@@ -623,7 +637,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         contentView?.frame = below
         resultsTableView.frame = below
         // The cached queries' header takes the top of the list area; the list starts under it.
-        let headerHeight: CGFloat = showsCachedQueries ? max(44, ceil(suggestionCacheTitleLabel.font.lineHeight) + 16) : 0
+        let headerHeight = cacheHeaderHeight
         suggestionCacheHeaderView.frame = CGRect(x: below.minX, y: below.minY, width: below.width, height: headerHeight)
         clearSuggestionCacheButton.frame = CGRect(x: below.width - 44 - 4, y: 0, width: 44, height: headerHeight)
         suggestionCacheTitleLabel.frame = CGRect(x: 16, y: 0, width: max(0, below.width - 16 - 52), height: headerHeight)
@@ -940,7 +954,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
             emptySuggestionsView = placeholder
         }
         emptySuggestionsView?.isHidden = !emptySuggestionsVisible
-        suggestionCacheHeaderView.isHidden = !(suggestionsVisible && showsCachedQueries)
+        suggestionCacheHeaderView.isHidden = !(suggestionsVisible && showsCachedQueries && showsSuggestionCacheHeader)
         resultsTableView.isHidden = !resultsVisible
         resultsTableView.reloadData()
         suggestionsTableView.reloadData()
