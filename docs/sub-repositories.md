@@ -241,3 +241,7 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   `%LOCALAPPDATA%Tempcyl-harmony-*.git` were emptied by the Temp clean-up (the folders stayed, so the script did not
   recreate them); they are rebuilt now. The HarmonyOS checks at `a32ab9e7` and `cf5d9f7e` claimed no change and ran no
   sync; `2ec3d90e` is the first HarmonyOS build with the new vendor code.
+- **CYLTableViewPlaceHolder `f1a9052` (2026-11-20, Windows)**, on Android, HarmonyOS and the mini program (iOS, Flutter and
+  React Native: the macOS session): its iOS core is now Swift only; outside iOS, `b18b617..f1a9052` changes only
+  `android/merged/ios-map.json`. Android tests pass (0 failures) and the APK builds with `.cyl-deps` at `f1a9052`; HarmonyOS
+  syncs `vendor/cylplaceholder` to `f1a9052` and builds the `default` and `ohosTest` HAPs; the mini program passes 59/59.
