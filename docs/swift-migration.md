@@ -98,3 +98,22 @@ When an Objective-C to Swift change of the core breaks an example's build, fix t
   uses it. The Swift coding standard decides."
 - Result: appended to this file, `docs/swift-coding-standard.md`, `AGENTS.md`, `instructions.md` and the `cyl-*`
   skills that mention the Swift migration (additions only).
+
+## TODO (2026-11-20): continue the Swift migration: this repository's example app, legacy demo app and tests
+
+- **Branch**: `feat/harmonyos-parity`. Owner: the macOS session (iOS, platform rule).
+- **Prompt (verbatim)**: "continue swift migration", answered "Both" to "which Swift migration: CYLSearchViewController
+  example + tests, CYLTabBarController core, or both" (the core of this repository is already 100/100, above).
+  (English: continue the Swift migration: this repository's example and tests, and CYLTabBarController's core, which
+  its own session (Mac-CYLTabBarController文件夹) carries on; this session relays and re-pins it.)
+- **Scope (Objective-C left, 2026-11-20, 4,139 lines)**: the example app `CYLSearchExample/` (5 `.m`, about 480 lines),
+  the legacy Issue #1317 demo app `CYLSearchViewController/` (about 1,100 lines), `CYLSearchViewControllerTests` (47) and
+  `CYLSearchExampleTests` (1,918, which reach Swift internals through `performSelector`). Not migrated: the React Native
+  bridges (`CrossPlatform/react-native-cylsearch/ios/*.mm`: Fabric needs Objective-C++).
+- **Rules**: Swift first (the vault's rule); example code has the lowest weight (fix examples, never bend the core);
+  `objectVersion = 46` and explicit file references stay; keep the Objective-C API checks that matter (a small
+  Objective-C smoke test of the public API stays, as CYLTableViewPlaceHolder did); score after each commit
+  (Objective-C lines left / 4,139).
+- **Plan**: (1) example app; (2) legacy demo app; (3) `CYLSearchViewControllerTests`; (4) `CYLSearchExampleTests`,
+  with an Objective-C smoke test of the core's public API kept.
+- **Status**: TODO, step 1 starting. Score: 0/100 (Objective-C lines left 4,139).
