@@ -191,3 +191,7 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   `5744917d`, pinned on every platform: `3af1b7cd` sizes the editing icons to their glyphs (even spacing);
   `e984868` is CYLTableViewPlaceHolder's newest, on the same tab bar commit. iOS: pod install for the three apps; 35 tests
   pass; Flutter and React Native iOS build.
+  Windows (2026-11-19): Android `:cylsearch:testDebugUnitTest :app:assembleDebug` passes (neither commit changes
+  Android code); HarmonyOS full `assembleHap` (app and test HAP) builds and the device tests pass 29/29 on the Mate 70 Pro
+  emulator; the mini program syncs both commits (its animated item at `5744917d`) and passes 52/52. The earlier pins
+  `986ab82`, `5a72ac9` and `49d1f38` were checked the same way.
