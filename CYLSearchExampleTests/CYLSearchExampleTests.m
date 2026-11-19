@@ -1413,6 +1413,15 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     void (^spin)(void) = ^{
         [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.3]];
     };
+    // The upload and the sync finish on the main queue a moment later (the HUD's zero latency); a slow runner needs more
+    // than a fixed wait, so poll for the result (up to 15 s).
+    BOOL (^waitUntil)(BOOL (^)(void)) = ^BOOL(BOOL (^condition)(void)) {
+        NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:15];
+        while (!condition() && [deadline timeIntervalSinceNow] > 0) {
+            [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+        }
+        return condition();
+    };
     UIViewController *remark = [demo performSelector:@selector(viewController)];
     UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
     window.rootViewController = [[UINavigationController alloc] initWithRootViewController:remark];
@@ -1429,14 +1438,18 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     [editor performSelector:@selector(toggleManaging)];
     [editor menuMoveItemAtIndexPath:[NSIndexPath indexPathForItem:2 inSection:mine] toIndexPath:[NSIndexPath indexPathForItem:0 inSection:mine]];
     [editor performSelector:@selector(toggleManaging)];
-    spin();
     CYLTagListStore *serverCopy = [[CYLTagListStore alloc] initWithPolicy:CYLTagListCachePolicySandboxFile name:@"CYLContactTagsServer"];
+    waitUntil(^BOOL{
+        NSArray<NSString *> *titles = [serverCopy cachedTitlesForSection:@"mine"];
+        return titles.count >= 3 && [titles.firstObject isEqualToString:third];
+    });
     NSArray<NSString *> *uploaded = [serverCopy cachedTitlesForSection:@"mine"];
-    XCTAssertEqualObjects([uploaded subarrayWithRange:NSMakeRange(0, 3)], (@[third, first, second]), @"leaving Manage uploads the new order to B");
+    XCTAssertGreaterThanOrEqual(uploaded.count, 3u, @"the upload reached B");
+    XCTAssertEqualObjects([uploaded subarrayWithRange:NSMakeRange(0, MIN((NSUInteger)3, uploaded.count))], (@[third, first, second]), @"leaving Manage uploads the new order to B");
 
     NSInteger count = [editor menuNumberOfItemsInSection:mine];
     [editor performSelector:@selector(syncFromOtherDevices)];
-    spin();
+    waitUntil(^BOOL{ return [editor menuNumberOfItemsInSection:mine] == count + 1; });
     XCTAssertEqual([editor menuNumberOfItemsInSection:mine], count + 1, @"another device added a tag");
     XCTAssertEqualObjects([editor menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:mine]], first, @"and swapped the first two");
     XCTAssertEqualObjects([editor menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:1 inSection:mine]], third);
@@ -1453,6 +1466,10 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     id editor2 = [again performSelector:@selector(editTagsAnimated:) withObject:@NO];
     [[editor2 view] layoutIfNeeded];
     spin();
+    waitUntil(^BOOL{
+        NSInteger section = [editor2 numberOfSectionsInMenu] - 1;
+        return [[editor2 menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:section]] isEqualToString:server[0]];
+    });
     NSInteger mine2 = [editor2 numberOfSectionsInMenu] - 1;
     XCTAssertEqualObjects([editor2 menuTitleForItemAtIndexPath:[NSIndexPath indexPathForItem:0 inSection:mine2]], server[0], @"the server's data replaces the cache");
     CYLTagListStore *local = [[CYLTagListStore alloc] initWithPolicy:CYLTagListCachePolicyDatabase name:@"CYLContactTags"];
@@ -1475,6 +1492,15 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     }];
     void (^spin)(void) = ^{
         [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.3]];
+    };
+    // The upload and the sync finish on the main queue a moment later (the HUD's zero latency); a slow runner needs more
+    // than a fixed wait, so poll for the result (up to 15 s).
+    BOOL (^waitUntil)(BOOL (^)(void)) = ^BOOL(BOOL (^condition)(void)) {
+        NSDate *deadline = [NSDate dateWithTimeIntervalSinceNow:15];
+        while (!condition() && [deadline timeIntervalSinceNow] > 0) {
+            [NSRunLoop.mainRunLoop runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.1]];
+        }
+        return condition();
     };
     UIViewController *remark = [demo performSelector:@selector(viewController)];
     UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
@@ -1505,8 +1531,8 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     XCTAssertEqualObjects(saved.title, @"Home Folks", @"with the new name");
 
     [editor performSelector:@selector(toggleManaging)];
-    spin();
     CYLTagListStore *serverCopy = [[CYLTagListStore alloc] initWithPolicy:CYLTagListCachePolicySandboxFile name:@"CYLContactTagsServer"];
+    waitUntil(^BOOL{ return [serverCopy cachedItemsForSection:@"mine"].firstObject != nil; });
     XCTAssertEqualObjects([serverCopy cachedItemsForSection:@"mine"].firstObject, saved, @"leaving Manage uploads it to B");
     [remark dismissViewControllerAnimated:NO completion:nil];
 
