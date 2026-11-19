@@ -612,8 +612,9 @@ Flutter 2503, 919, 833, 355, then 0.
   `contact-tags.json` imported into `utils/cyl_demo_resources.js` by `scripts/import-ios-resources.js`; one cyl-tag-cloud per
   section (Recent with `showsClearButton`, My Tags with `editing` and `supportsRenamingItems`, the results), tags carry their id as
   `identifier`, the editing bar is `setRenameRequestHandler` + `finishRenaming` / `submitNewItem`; caches A and B are storage keys;
-  launch options as query (`reset`, `empty`, `editor`, `latency`). Not ported: My Tags folding (cyl-tag-cloud has no fold; asked
-  of winCollectionViewClassifyMenu). Test `test/example_contact_tags.test.js` (4); 57/57
+  launch options as query (`reset`, `empty`, `editor`, `latency`). My Tags folds to three rows with the chevron as its last
+  tag since CollectionViewClassifyMenu 96feb35d (cyl-tag-cloud `defaultVisibleRows`, asked of winCollectionViewClassifyMenu)
+  ([assets/wechat-devtools-20261119-contact-tags-folding.png](assets/wechat-devtools-20261119-contact-tags-folding.png), WeChat DevTools simulator, Windows 11, 2026-11-19 +13:00, after 0f022e7). Test `test/example_contact_tags.test.js` (4); 57/57
   ([assets/wechat-devtools-20261119-contact-tags.png](assets/wechat-devtools-20261119-contact-tags.png) and
   [assets/wechat-devtools-20261119-contact-tags-remark-empty.png](assets/wechat-devtools-20261119-contact-tags-remark-empty.png), WeChat DevTools simulator, base library 3.6.6, Windows 11, 2026-11-19 +13:00, after 34b8cd3).
   Score: 80/100. TODO: React Native and Flutter.

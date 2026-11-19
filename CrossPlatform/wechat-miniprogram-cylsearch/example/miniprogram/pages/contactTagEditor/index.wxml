@@ -26,8 +26,10 @@
         <text class="header-title" role="heading">{{texts.mine}}</text>
         <text class="manage" role="button" id="CYLContactTagsManage" aria-description="{{texts.hintManage}}" bindtap="onManageTap">{{managing ? texts.doneManaging : texts.manage}}</text>
       </view>
-      <!-- My Tags: the cloud's editing mode while managing (pencil and cross, dragging, renaming by id). -->
+      <!-- My Tags: folded to three rows, the chevron as its last tag; the cloud's editing mode while managing (pencil and cross,
+           dragging, renaming by id). -->
       <cyl-tag-cloud id="mine" tags="{{mineTags}}" listStyle="{{style}}" selectionMode="multiple" editing="{{managing}}"
+        defaultVisibleRows="{{3}}" foldControlContent="icon"
         supportsRenamingItems="{{true}}" showsAddItemViewWhileEditing="{{false}}" allowsReordering="{{true}}"
         bind:tagtap="onTagTap" bind:tagdelete="onTagDelete" bind:tagmove="onTagMove" bind:tagrename="onTagRename"
         bind:requestnewitem="onRequestNewItem" bind:editingfinish="onEditingFinish" />
