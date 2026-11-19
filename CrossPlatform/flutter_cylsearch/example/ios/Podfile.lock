@@ -80,8 +80,8 @@ DEPENDENCIES:
   - CYLTabBarController/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `74f0b4cd8c8e55b8954650b063e2955b9f4e92ef`)
   - CYLTabBarController/Rive (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `74f0b4cd8c8e55b8954650b063e2955b9f4e92ef`)
   - CYLTabBarController/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `74f0b4cd8c8e55b8954650b063e2955b9f4e92ef`)
-  - CYLTableViewPlaceHolder/Core (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `b18b617b4769e30bbabad7640a2d6db26000ca2e`)
-  - CYLTableViewPlaceHolder/Lottie (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `b18b617b4769e30bbabad7640a2d6db26000ca2e`)
+  - CYLTableViewPlaceHolder/Core (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `f1a9052f2cd9a4673b79b73882348b306fb2fe41`)
+  - CYLTableViewPlaceHolder/Lottie (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `f1a9052f2cd9a4673b79b73882348b306fb2fe41`)
   - Flutter (from `Flutter`)
   - flutter_cylsearch (from `.symlinks/plugins/flutter_cylsearch/ios`)
   - flutter_cyltabbar (from `.symlinks/plugins/flutter_cyltabbar/ios`)
@@ -110,7 +110,7 @@ EXTERNAL SOURCES:
     :commit: 74f0b4cd8c8e55b8954650b063e2955b9f4e92ef
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
-    :commit: b18b617b4769e30bbabad7640a2d6db26000ca2e
+    :commit: f1a9052f2cd9a4673b79b73882348b306fb2fe41
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
   Flutter:
     :path: Flutter
@@ -132,7 +132,7 @@ CHECKOUT OPTIONS:
     :commit: 74f0b4cd8c8e55b8954650b063e2955b9f4e92ef
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
-    :commit: b18b617b4769e30bbabad7640a2d6db26000ca2e
+    :commit: f1a9052f2cd9a4673b79b73882348b306fb2fe41
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
 
 SPEC CHECKSUMS:
@@ -140,7 +140,7 @@ SPEC CHECKSUMS:
   CYLAnimatedItem: 89c28f62fdb00ae0d92a2c09f0a172129bda5a6e
   CYLSearchViewController: 3e9151895e3c991faaf0143e783bd173a9edf924
   CYLTabBarController: d56c43dc7f36a184e444cc4d233fa072c159e6e5
-  CYLTableViewPlaceHolder: 931f49a339491b6e1d24ceac4462cc419b6cecd1
+  CYLTableViewPlaceHolder: 0dd29acc59c2e4a14b565464d773f29dba6ae4cc
   Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
   flutter_cylsearch: dd80a2d8a656b1c334d031da3665a32f7766d103
   flutter_cyltabbar: d32640e93c40b5e2f9a9f9bbf0a6094143e228db
@@ -151,6 +151,6 @@ SPEC CHECKSUMS:
   SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
   SVGAPlayerLite: ae073300a9faa016e88a54afa8fec43f54fed682
 
-PODFILE CHECKSUM: 9006c81542d3f3d719af9ddc7555d4020f9a37f5
+PODFILE CHECKSUM: 020b6f206b2ed1b455455725cf8bd0d1c9687441
 
 COCOAPODS: 1.17.0

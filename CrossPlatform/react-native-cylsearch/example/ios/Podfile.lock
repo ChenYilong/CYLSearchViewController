@@ -1938,8 +1938,8 @@ DEPENDENCIES:
   - CYLTabBarController (from `../vendor/CYLTabBarController`)
   - CYLTabBarController/Rive (from `../vendor/CYLTabBarController`)
   - CYLTabBarController/SVGA (from `../vendor/CYLTabBarController`)
-  - CYLTableViewPlaceHolder/Core (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `b18b617b4769e30bbabad7640a2d6db26000ca2e`)
-  - CYLTableViewPlaceHolder/Lottie (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `b18b617b4769e30bbabad7640a2d6db26000ca2e`)
+  - CYLTableViewPlaceHolder/Core (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `f1a9052f2cd9a4673b79b73882348b306fb2fe41`)
+  - CYLTableViewPlaceHolder/Lottie (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `f1a9052f2cd9a4673b79b73882348b306fb2fe41`)
   - DoubleConversion (from `build/rndeps-facades/DoubleConversion`)
   - fast_float (from `build/rndeps-facades/fast_float`)
   - FBLazyVector (from `build/rncore-facades/FBLazyVector`)
@@ -2054,7 +2054,7 @@ EXTERNAL SOURCES:
   CYLTabBarController:
     :path: "../vendor/CYLTabBarController"
   CYLTableViewPlaceHolder:
-    :commit: b18b617b4769e30bbabad7640a2d6db26000ca2e
+    :commit: f1a9052f2cd9a4673b79b73882348b306fb2fe41
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
   DoubleConversion:
     :path: build/rndeps-facades/DoubleConversion
@@ -2235,7 +2235,7 @@ CHECKOUT OPTIONS:
     :commit: 2ec3d90ebb4b51157cab4289916b3d2ba443f9c4
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLTableViewPlaceHolder:
-    :commit: b18b617b4769e30bbabad7640a2d6db26000ca2e
+    :commit: f1a9052f2cd9a4673b79b73882348b306fb2fe41
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
 
 SPEC CHECKSUMS:
@@ -2246,7 +2246,7 @@ SPEC CHECKSUMS:
   CYLSearchViewController: 3e9151895e3c991faaf0143e783bd173a9edf924
   Cyltabbar: 4a0ad4bcdf18e8a3953d6e55273ccce83e80ffdd
   CYLTabBarController: d56c43dc7f36a184e444cc4d233fa072c159e6e5
-  CYLTableViewPlaceHolder: 931f49a339491b6e1d24ceac4462cc419b6cecd1
+  CYLTableViewPlaceHolder: 0dd29acc59c2e4a14b565464d773f29dba6ae4cc
   DoubleConversion: e85e4faac763226bfd1cc4c6a98d8355149b27a5
   fast_float: 908e5ee35999f3d91af4b962ac951acac591866c
   FBLazyVector: 953381a667ad5f4119b929026e53c4f3aa0da7e7
@@ -2339,6 +2339,6 @@ SPEC CHECKSUMS:
   SVGAPlayerLite: ae073300a9faa016e88a54afa8fec43f54fed682
   Yoga: 58b502c52b14ad3c4468805d461fc37d275c2a42
 
-PODFILE CHECKSUM: 9b0728af51b1e355f8ab0f71ffa75136076d34bc
+PODFILE CHECKSUM: 80a94ef6c9cd5223bf8b8318cde75196cbc26eca
 
 COCOAPODS: 1.17.0
