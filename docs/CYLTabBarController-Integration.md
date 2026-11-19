@@ -617,4 +617,18 @@ Flutter 2503, 919, 833, 355, then 0.
   ([assets/wechat-devtools-20261119-contact-tags-folding.png](assets/wechat-devtools-20261119-contact-tags-folding.png), WeChat DevTools simulator, Windows 11, 2026-11-19 +13:00, after 0f022e7). Test `test/example_contact_tags.test.js` (4); 57/57
   ([assets/wechat-devtools-20261119-contact-tags.png](assets/wechat-devtools-20261119-contact-tags.png) and
   [assets/wechat-devtools-20261119-contact-tags-remark-empty.png](assets/wechat-devtools-20261119-contact-tags-remark-empty.png), WeChat DevTools simulator, base library 3.6.6, Windows 11, 2026-11-19 +13:00, after 34b8cd3).
-  Score: 80/100. TODO: React Native and Flutter.
+  Score: 80/100. TODO: React Native and Flutter, planned below.
+- **Plan for React Native and Flutter (2026-11-19)**: both packages are thin bridges over the native views (React Native
+  codegen components `CylsearchBarView`, `CylsearchTagListView`, `CylsearchView`; Flutter platform views), and the bridges
+  lack what the demo needs, so each port is (1) bridge API on Android (Windows session) and iOS (macOS session), then (2) the
+  example in TypeScript / Dart, the store and server in the example as on the other platforms:
+  - tag list: `tagIds` (ids, kept by rename and reorder), `selectedIds`, `sectionTitle` + `showsSectionHeader`,
+    `showsClearButton`, `editing`, `supportsRenaming`, `foldedRowCount` (exists); events `onTagSelect` (exists, + id and
+    selected), `onTagDelete` {id}, `onTagMove` {from, to}, `onRenameRequest` {id, title} (the host's editing bar renames and sends
+    the new tags), `onClearButtonTap`;
+  - search bar: `editingBar` + `actionTitle` and `onEditingSubmit` {text} (the core's editing bar on each side); the host keeps it
+    above the keyboard (React Native `KeyboardAvoidingView`, Flutter `MediaQuery.viewInsets`);
+  - placeholder: a `CylsearchPlaceholderView` (style + text) over CYLTableViewPlaceHolder's `CYLPlaceholderView`;
+  - HUD: the example draws its own (React Native `Modal` / Flutter overlay) unless a bridge to `CYLPlaceholderHUD` is added.
+  Acceptance for the last 20 points: both examples run the demo on Android with tests and labelled screenshots (iOS by the
+  macOS session).
