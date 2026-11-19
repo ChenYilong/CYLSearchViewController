@@ -650,3 +650,12 @@ Flutter 2503, 919, 833, 355, then 0.
     (`onEditingSubmit` with the trimmed text, the field cleared, no `onSubmit`); new `CylsearchPlaceholderView.mm`
     (CYLPlaceholderView at its content size, centred; style names case-insensitive, unknown → empty). The React Native
     iOS example builds against spec `274ba00`; running it waits for the example screens.
+  - React Native iOS run (2026-11-19, macOS session, example `4f68c5f`, iOS bridge `cbc7321` and `94e18ff`, an editing
+    bar given a title takes the keyboard with it selected): the whole flow passes on the iPhone 18 Pro simulator (iOS
+    27.2, Release build, `-initialTab tags`): download and upload with the HUD, Recent's clear button, My Tags folded,
+    Manage with the edit icon and cross, a title tap renames in the editing bar above the keyboard ("Family" to "Home
+    Folks", same id, still selected), no match shows the placeholder under "+ New Tag", both empty states
+    ([assets/react-native-ios27.2-iphone18pro-20261119-contact-tags.png](assets/react-native-ios27.2-iphone18pro-20261119-contact-tags.png)).
+    Found: a simulated tap on a React Native iOS tab (axe, by label or point) highlights it without switching the page,
+    at CYLTabBarController `9a4ad95e` and also at `5744917d` (not a regression of its Swift tab bar); reported to the
+    CYLTabBarController sessions. React Native is done on both platforms; Flutter remains.
