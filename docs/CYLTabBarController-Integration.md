@@ -617,7 +617,16 @@ Flutter 2503, 919, 833, 355, then 0.
   ([assets/wechat-devtools-20261119-contact-tags-folding.png](assets/wechat-devtools-20261119-contact-tags-folding.png), WeChat DevTools simulator, Windows 11, 2026-11-19 +13:00, after 0f022e7). Test `test/example_contact_tags.test.js` (4); 57/57
   ([assets/wechat-devtools-20261119-contact-tags.png](assets/wechat-devtools-20261119-contact-tags.png) and
   [assets/wechat-devtools-20261119-contact-tags-remark-empty.png](assets/wechat-devtools-20261119-contact-tags-remark-empty.png), WeChat DevTools simulator, base library 3.6.6, Windows 11, 2026-11-19 +13:00, after 34b8cd3).
-  Score: 80/100. TODO: React Native and Flutter, planned below.
+  React Native DONE on Android (2026-11-19): bridge 274ba00 (spec: `CylsearchTagListView` ids, selection, header and clear
+  button, editing with `onTagDelete` / `onTagMove` / `onRenameRequest`, no add control while editing; `CylsearchBarView`
+  `editingBar` + `actionTitle` / `onEditingSubmit`, the field clears after a submit and takes the keyboard when given a text; new
+  `CylsearchPlaceholderView`), iOS side by the macOS session (cbc7321, 94e18ff); `example/src/ContactTagsDemo.tsx` with
+  `contact-tags.json` (generated from the English bundle; the React Native example is English), opened from the Tag style tab
+  ("Contact tags", "Contact tags without tags"); caches A and B in memory (no storage package in the example); the HUD drawn by
+  the example; "+ New Tag" opens Manage (no cross-platform prompt). Jest 4/4
+  ([assets/react-native-android-api37-20261119-contact-tags.png](assets/react-native-android-api37-20261119-contact-tags.png) and [assets/react-native-android-api37-20261119-contact-tags-remark-empty.png](assets/react-native-android-api37-20261119-contact-tags-remark-empty.png), React Native 0.88.0, Android API 37 Medium Phone emulator, Windows 11, 2026-11-19 +13:00, after 274ba00).
+  The tags use the bridge's default look (no style prop yet). React Native iOS screenshots: the macOS session.
+  Score: 90/100. TODO: Flutter, planned below.
 - **Plan for React Native and Flutter (2026-11-19)**: both packages are thin bridges over the native views (React Native
   codegen components `CylsearchBarView`, `CylsearchTagListView`, `CylsearchView`; Flutter platform views), and the bridges
   lack what the demo needs, so each port is (1) bridge API on Android (Windows session) and iOS (macOS session), then (2) the

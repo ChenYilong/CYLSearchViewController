@@ -73,7 +73,8 @@ export interface NativeProps extends ViewProps {
   /**
    * The editing bar (iOS `CYLSearchBarView.editingBar(placeholder:actionTitle:)`): no magnifier, `actionTitle` ("Add",
    * "Done") as the trailing button, which submits the trimmed text as the return key does (`onEditingSubmit`). The host keeps
-   * it above the keyboard (`KeyboardAvoidingView`).
+   * it above the keyboard (`KeyboardAvoidingView`). Given a `text` (a tag's title to rename), the editing bar takes the
+   * keyboard with the text selected.
    */
   editingBar?: boolean;
   actionTitle?: string;

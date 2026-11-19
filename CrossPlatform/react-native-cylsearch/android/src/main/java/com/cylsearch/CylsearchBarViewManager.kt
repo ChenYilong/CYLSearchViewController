@@ -29,7 +29,14 @@ class CylsearchBarViewManager : SimpleViewManager<CylsearchBarView>(), Cylsearch
 
   @ReactProp(name = "text")
   override fun setText(view: CylsearchBarView, value: String?) {
-    value?.takeIf { it.isNotEmpty() && it != view.bar.text }?.let { view.bar.text = it }
+    value?.takeIf { it.isNotEmpty() && it != view.bar.text }?.let {
+      view.bar.text = it
+      // An editing bar given a text is renaming: the keyboard rises with the title selected (iOS beginRenaming).
+      if (view.bar.isEditingBar) {
+        view.bar.showKeyboard()
+        view.bar.textField.selectAll()
+      }
+    }
   }
 
   @ReactProp(name = "showsCancelButton")

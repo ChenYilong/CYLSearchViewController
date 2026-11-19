@@ -37,6 +37,8 @@ class CylsearchTagListView(private val reactContext: ThemedReactContext) : CYLTa
     style = style?.copy()?.apply { backgroundColor = Color.TRANSPARENT }
     menuDataSource = this
     menuDelegate = this
+    // The host adds tags through its editing bar, as the iOS example does: no add control of the list's own while editing.
+    showsAddItemViewWhileEditing = false
     // Renaming is the host's: the list asks, the host renames by id and sends the new titles.
     renameRequestHandler = { indexPath, title -> emit("topRenameRequest", "index" to indexPath.item, "id" to idAt(indexPath.item), "title" to title) }
   }

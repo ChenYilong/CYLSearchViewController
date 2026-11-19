@@ -4,6 +4,7 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { CYLSearchBarView, CYLSearchView, CYLTagListView } from 'react-native-cylsearch';
 import { CYLTabBar, type CYLTabBarItem, type CYLTabBarPlusButton } from 'react-native-cyltabbar';
 import discoverData from './search-discover.json';
+import { ContactTagsDemo } from './ContactTagsDemo';
 
 /**
  * The suggestions of MaterialSearchView's Default sample, as in the iOS, Android and Flutter examples.
@@ -25,6 +26,14 @@ type Demo = {
    * Lists the matching languages as results (the core's `resultsDataSource`) with pull-to-refresh.
    */
   results?: boolean;
+  /**
+   * CollectionViewClassifyMenu's contact tags example on CYLSearchViewController (iOS Examples row 6).
+   */
+  contactTags?: boolean;
+  /**
+   * Starts the contact tags demo without tags (the placeholders; iOS `-CYLContactTagsEmpty YES`).
+   */
+  emptyTags?: boolean;
 };
 
 type Tab = { key: string; title: string; description: string; demos: Demo[] };
@@ -43,7 +52,8 @@ const TABS: Tab[] = [
     key: 'tags',
     title: 'Tag style',
     description: 'The same suggestions as tags (CollectionViewClassifyMenu); the keyboard waits for a tap.',
-    demos: [{ label: 'Open search', style: 'tags', focuses: false }],
+    demos: [{ label: 'Open search', style: 'tags', focuses: false }, { label: 'Contact tags (CollectionViewClassifyMenu)', contactTags: true },
+      { label: 'Contact tags without tags', contactTags: true, emptyTags: true }],
   },
   {
     key: 'empty',
@@ -137,6 +147,9 @@ function Screens() {
         <ResultsDemo onClose={() => setOpen(null)} />
       </SafeAreaView>
     );
+  }
+  if (open?.contactTags) {
+    return <ContactTagsDemo onClose={() => setOpen(null)} latency={2} empty={open.emptyTags ?? false} />;
   }
   if (open) {
     return (

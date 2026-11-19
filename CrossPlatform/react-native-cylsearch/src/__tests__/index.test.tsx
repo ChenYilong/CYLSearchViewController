@@ -45,7 +45,7 @@ describe('CYLSearchView results', () => {
 });
 
 describe('exports', () => {
-  it('has one component per core class plus the tag list', () => {
-    expect(Object.keys(CYLSearch).sort()).toEqual(['CYLSearchBarView', 'CYLSearchView', 'CYLTagListView']);
+  it('has one component per core class plus the tag list and the placeholder', () => {
+    expect(Object.keys(CYLSearch).sort()).toEqual(['CYLPlaceholderView', 'CYLSearchBarView', 'CYLSearchView', 'CYLTagListView']);
   });
 });
