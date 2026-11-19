@@ -701,4 +701,14 @@ Flutter 2503, 919, 833, 355, then 0.
   `74f0b4cd`)**: the cross deletes the tag in all three iOS builds: the native example (a tap on the glyph and beside it),
   React Native (Release) and Flutter (debug). Not yet known: the platform and build where it does nothing (Android,
   HarmonyOS, the mini program, or an older build); asked of the user and of the Windows session.
+- **Checked on Windows (2026-11-19, same pins)**: the cross deletes the tag in the native Android example, React Native
+  and Flutter on the Android API 37 emulator (an adb tap on the cross of Family; Relatives moves up), and in the mini
+  program in WeChat DevTools 2.02.2609250 through the cross's handler (`cyl-tag-cloud` `onDelete`, wired as `catchtap`:
+  the tag leaves the list and the store; DevTools automation cannot select nodes inside the component, so not a real
+  tap). HarmonyOS was not run: the emulator does not start today ("can not read uuid file" after the Temp clean-up);
+  by the code, `deleteItem` allows every item of an editable section while editing and calls the example's
+  `menuRemoveItem` -> `store.deleteTag`. Existing tests: the mini program's `example_contact_tags.test.js` deletes by id;
+  Android `CYLContactTagStoreTest`.
+  [assets/contact-tags-delete-android-miniprogram-20261119.png](assets/contact-tags-delete-android-miniprogram-20261119.png) (Android API 37 emulator and WeChat DevTools 2.02.2609250, Windows 11, 2026-11-19 +13:00, after 3c7c83c).
+  Still unknown: the build where it did nothing; left: a real tap in the mini program (a phone) and HarmonyOS.
 - **Status**: TODO. Score: 0/100 (full marks: deleting works on every platform, with a test and a labelled screenshot).
