@@ -774,7 +774,14 @@ Flutter 2503, 919, 833, 355, then 0.
   the first touch (`disablesScrollingWhileReordering`, default true); the lock stays after a drop and ends with editing.
 - **Example (the root view)**: Edit Tags starts with `<page-meta page-style="{{reordering ? 'overflow: hidden;' : ''}}">`
   (the page-level lock, the CYLRootWindow idea) and the `<scroll-view>` keeps `scroll-y="{{!reordering}}"`.
-- **Tests / pins**: mini program 59 of 59; iOS 35 of 35; pins `3bfa201a` on the mini program and iOS; Android and
-  HarmonyOS asked of the Windows session.
+- **Tests / pins**: mini program 59 of 59; iOS 35 of 35; pins `3bfa201a` on the mini program and iOS. Android and
+  HarmonyOS (2026-11-20, Windows): pinned at `3bfa201a` (it also brings word picker samples and tests there); Android tests
+  pass (0 failures) and the APK builds with `.cyl-deps` at `3bfa201a`; HarmonyOS syncs `vendor/classifymenu` to `3bfa201a`
+  and builds the `default` and `ohosTest` HAPs.
+- **DevTools check (2026-11-20, Windows, WeChat DevTools 2.02.2609250, base library 3.6.6)**: editing locks the cloud
+  from the first touch (`scrollLocked`); a long press and drag of Family sets `reordering`, page-meta's `page-style`
+  becomes `overflow: hidden;` and the list drops `scroll-y`; Family moves from 1 to 3; the drop releases the page lock
+  and `scroll-y` (the cloud lock stays), Done Managing releases the cloud lock
+  ([assets/miniprogram-devtools-20261120-drag-root-lock.png](assets/miniprogram-devtools-20261120-drag-root-lock.png), WeChat DevTools 2.02.2609250, Windows 11, 2026-11-20 +13:00, after f69a913).
 - **Left**: the user's check on a phone (scrolling cannot be driven by DevTools automation, so only the held state is
   verified there). If the list still moves, the next step is a `<movable-view>`-based drag or `touch-action` styles.

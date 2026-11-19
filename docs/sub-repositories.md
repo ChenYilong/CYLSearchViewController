@@ -245,3 +245,7 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   React Native: the macOS session): its iOS core is now Swift only; outside iOS, `b18b617..f1a9052` changes only
   `android/merged/ios-map.json`. Android tests pass (0 failures) and the APK builds with `.cyl-deps` at `f1a9052`; HarmonyOS
   syncs `vendor/cylplaceholder` to `f1a9052` and builds the `default` and `ohosTest` HAPs; the mini program passes 59/59.
+- **CollectionViewClassifyMenu `3bfa201a` (2026-11-20, Windows)**, on Android and HarmonyOS (the mini program and iOS by the
+  macOS session): the tag drag lock from the first touch (mini program) and word picker samples and tests on Android and
+  HarmonyOS. Android tests pass and the APK builds; HarmonyOS builds the `default` and `ohosTest` HAPs with
+  `vendor/classifymenu` at `3bfa201a`; the mini program passes 59/59.
