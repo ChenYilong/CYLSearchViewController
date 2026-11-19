@@ -8,7 +8,7 @@ import com.facebook.react.uimanager.ViewManager
 
 class CylsearchViewPackage : BaseReactPackage() {
   override fun createViewManagers(reactContext: ReactApplicationContext): List<ViewManager<*, *>> {
-    return listOf(CylsearchViewManager(), CylsearchBarViewManager(), CylsearchTagListViewManager())
+    return listOf(CylsearchViewManager(), CylsearchBarViewManager(), CylsearchTagListViewManager(), CylsearchPlaceholderViewManager())
   }
 
   override fun getModule(name: String, reactContext: ReactApplicationContext): NativeModule? = null

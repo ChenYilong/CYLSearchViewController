@@ -127,6 +127,9 @@
         },
         "CylsearchTagListView": {
           "className": "CylsearchTagListView"
+        },
+        "CylsearchPlaceholderView": {
+          "className": "CylsearchPlaceholderView"
         }
       }
     }
@@ -149,7 +152,9 @@
     },
     "modulePathIgnorePatterns": [
       "<rootDir>/example/node_modules",
-      "<rootDir>/lib/", "<rootDir>/example/vendor/"]
+      "<rootDir>/lib/",
+      "<rootDir>/example/vendor/"
+    ]
   },
   "commitlint": {
     "extends": [

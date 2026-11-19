@@ -15,10 +15,37 @@ import org.json.JSONObject
  */
 class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayout(reactContext), CYLSearchBarViewDelegate {
 
-  val bar = CYLSearchBarView(reactContext)
+  var bar = CYLSearchBarView(reactContext)
+    private set
 
   init {
     bar.delegate = this
+    addView(bar, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+  }
+
+  /** The editing bar's action title ("Add", "Done"), kept for a bar made later. */
+  var actionTitle: String = ""
+    set(value) {
+      field = value
+      if (bar.isEditingBar) bar.cancelButtonTitle = value
+    }
+
+  /**
+   * `editingBar`: the core's editing bar (CYLSearchBarView.editingBar) in place of the search bar, its submit sent as
+   * `onEditingSubmit` (the trimmed text) and the field cleared after it; false brings a search bar back.
+   */
+  fun setEditingBar(editing: Boolean) {
+    if (editing == bar.isEditingBar) return
+    val placeholder = bar.placeholder
+    removeView(bar)
+    bar = if (editing) CYLSearchBarView.editingBar(reactContext, placeholder, actionTitle) else CYLSearchBarView(reactContext).also { it.placeholder = placeholder }
+    bar.delegate = this
+    if (editing) {
+      bar.editingSubmitHandler = { view, text ->
+        emit("topEditingSubmit", "text" to text)
+        view.text = ""
+      }
+    }
     addView(bar, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
   }
 
@@ -56,6 +83,8 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
   }
 
   override fun searchBarViewSearchButtonClicked(searchBarView: CYLSearchBarView) {
+    // An editing bar reports its submit through `onEditingSubmit` and keeps the keyboard up for the next name.
+    if (searchBarView.isEditingBar) return
     emit("topSubmit", "text" to searchBarView.text.orEmpty())
     searchBarView.hideKeyboard()
   }

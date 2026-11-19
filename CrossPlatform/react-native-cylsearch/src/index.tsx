@@ -6,6 +6,9 @@ import CylsearchBarViewNative, {
 import CylsearchTagListViewNative, {
   type NativeProps as TagListProps,
 } from './CylsearchTagListViewNativeComponent';
+import CylsearchPlaceholderViewNative, {
+  type NativeProps as PlaceholderProps,
+} from './CylsearchPlaceholderViewNativeComponent';
 import CylsearchViewNative, {
   type NativeProps as NativeSearchViewProps,
 } from './CylsearchViewNativeComponent';
@@ -18,7 +21,7 @@ import {
   type CYLSearchBarMode,
 } from './CYLSearchProps';
 
-export type { TagListProps, CYLSearchBarItem, CYLSearchBarMode };
+export type { TagListProps, PlaceholderProps, CYLSearchBarItem, CYLSearchBarMode };
 
 /**
  * The search page's props: the native props, `showsResults` defaulting to whether `results` is given.
@@ -99,4 +102,13 @@ export function CYLTagListView({ style, onHeightChange, ...props }: TagListProps
       }}
     />
   );
+}
+
+/**
+ * CYLTableViewPlaceHolder's placeholder (`CYLPlaceholderView`): the image of `placeholderStyle` ("empty", "noResults",
+ * "personOff", …) above `text`, at its content size (give it a height or let flex size it).
+ */
+export function CYLPlaceholderView(props: PlaceholderProps & ViewProps) {
+  const scheme = useColorScheme();
+  return <CylsearchPlaceholderViewNative colorScheme={scheme === 'dark' ? 'dark' : 'light'} {...props} />;
 }

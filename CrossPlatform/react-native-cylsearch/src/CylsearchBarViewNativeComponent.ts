@@ -70,6 +70,13 @@ export interface NativeProps extends ViewProps {
    * "multiple" mode: a search shorter than this is dropped when it is completed (3 by default).
    */
   minimumTextLength?: CodegenTypes.WithDefault<CodegenTypes.Int32, 3>;
+  /**
+   * The editing bar (iOS `CYLSearchBarView.editingBar(placeholder:actionTitle:)`): no magnifier, `actionTitle` ("Add",
+   * "Done") as the trailing button, which submits the trimmed text as the return key does (`onEditingSubmit`). The host keeps
+   * it above the keyboard (`KeyboardAvoidingView`).
+   */
+  editingBar?: boolean;
+  actionTitle?: string;
   onItemSelect?: CodegenTypes.DirectEventHandler<ItemSelectEvent>;
   /**
    * The text changed: `index` is the search being typed in "multiple" mode, -1 in "single" mode.
@@ -88,6 +95,10 @@ export interface NativeProps extends ViewProps {
    */
   onSelectSearch?: CodegenTypes.DirectEventHandler<IndexedTextEvent>;
   onSubmit?: CodegenTypes.DirectEventHandler<TextEvent>;
+  /**
+   * The editing bar's action button or return key, with the trimmed text (not sent for empty text); the field clears after it.
+   */
+  onEditingSubmit?: CodegenTypes.DirectEventHandler<TextEvent>;
   onCancel?: CodegenTypes.DirectEventHandler<CancelEvent>;
 }
 

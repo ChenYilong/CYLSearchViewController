@@ -52,6 +52,14 @@ class CylsearchBarViewManager : SimpleViewManager<CylsearchBarView>(), Cylsearch
     view.bar.searchIcon = if (value) ContextCompat.getDrawable(view.context, com.cyl.search.R.drawable.cyl_search_ic_search) else null
   }
 
+  @ReactProp(name = "editingBar")
+  override fun setEditingBar(view: CylsearchBarView, value: Boolean) = view.setEditingBar(value)
+
+  @ReactProp(name = "actionTitle")
+  override fun setActionTitle(view: CylsearchBarView, value: String?) {
+    view.actionTitle = value.orEmpty()
+  }
+
   @ReactProp(name = "itemsJSON")
   override fun setItemsJSON(view: CylsearchBarView, value: String?) = view.setItemsJSON(value)
 
