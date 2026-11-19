@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "cyl-tag-cloud": "cyl-tag-list-miniprogram/cyl-tag-cloud/cyl-tag-cloud",
+    "cyl-placeholder": "cyl-placeholder-miniprogram/cyl-placeholder/index",
+    "cyl-placeholder-hud": "cyl-placeholder-miniprogram/cyl-placeholder-hud/index"
+  }
+}

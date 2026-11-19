@@ -26,7 +26,7 @@
     <view class="cyl-mask-icon cyl-mask-search" style="{{searchIndicatorColor ? 'background-color: ' + searchIndicatorColor : ''}}" aria-hidden="true" />
   </view>
 </view>
-<view wx:else class="cyl-bar {{searchBarStyle === 'bordered' ? 'cyl-bar-bordered' : ''}} cyl-icon-{{iconPosition}}" style="{{contentInsets ? 'padding: ' + contentInsets : ''}}">
+<view wx:else class="cyl-bar {{searchBarStyle === 'bordered' ? 'cyl-bar-bordered' : ''}} cyl-icon-{{iconPosition}} {{pinsToKeyboard ? 'cyl-bar-pinned' : ''}}" style="{{contentInsets ? 'padding: ' + contentInsets + ';' : ''}}{{pinsToKeyboard ? 'bottom: ' + keyboardHeight + 'px' : ''}}">
   <view wx:if="{{collapsed}}" class="cyl-icon-button" role="button" aria-label="{{labels.search}}" bindtap="onIconTap"
     style="{{iconButtonBackgroundColor ? 'background: ' + iconButtonBackgroundColor + ';' : ''}}">
     <view class="cyl-mask-icon cyl-mask-search" style="{{iconButtonColor ? 'background-color: ' + iconButtonColor : ''}}" aria-hidden="true" />
@@ -40,12 +40,12 @@
     </view>
     <view class="cyl-field cyl-anim-{{expansionAnimation}} {{revealing ? 'cyl-field-revealing' : ''}}"
       style="{{fieldStyle}}; transition-duration: {{animationDuration}}s">
-      <view wx:if="{{showsSearchIcon && searchIconTintColor}}" class="cyl-mask-icon cyl-mask-search cyl-field-icon" style="background-color: {{searchIconTintColor}}" aria-hidden="true" />
-      <image wx:elif="{{showsSearchIcon && searchIcon}}" class="cyl-field-icon" src="{{searchIcon}}" aria-hidden="true" />
+      <view wx:if="{{showsSearchIcon && !editingBar && searchIconTintColor}}" class="cyl-mask-icon cyl-mask-search cyl-field-icon" style="background-color: {{searchIconTintColor}}" aria-hidden="true" />
+      <image wx:elif="{{showsSearchIcon && !editingBar && searchIcon}}" class="cyl-field-icon" src="{{searchIcon}}" aria-hidden="true" />
       <input class="cyl-input" value="{{text}}" placeholder="{{placeholder}}" placeholder-style="{{placeholderStyle}}"
         style="{{inputStyle}}" focus="{{inputFocus}}" password="{{secure}}" maxlength="{{maximumTextLength > 0 ? maximumTextLength : -1}}"
-        confirm-type="{{returnKeyType}}" cursor-color="{{cursorColor}}" disabled="{{!editable}}"
-        bindinput="onInput" bindconfirm="onConfirm" bindfocus="onFocus" bindblur="onBlur" />
+        confirm-type="{{editingBar ? 'done' : returnKeyType}}" cursor-color="{{cursorColor}}" disabled="{{!editable}}"
+        adjust-position="{{!pinsToKeyboard}}" bindinput="onInput" bindconfirm="onConfirm" bindfocus="onFocus" bindblur="onBlur" />
       <view wx:if="{{!editable}}" class="cyl-tap-cover" role="button" aria-label="{{placeholder || labels.search}}" bindtap="onNotEditableTap" />
       <view wx:if="{{showsClearButton && focused && text}}" class="cyl-field-button" role="button" aria-label="{{labels.clear}}" catchtap="onClear">
         <view class="cyl-mask-icon cyl-mask-clear" aria-hidden="true" />
@@ -78,6 +78,6 @@
         </view>
       </block>
     </view>
-    <view wx:if="{{showsCancelButton}}" class="cyl-cancel" role="button" bindtap="onCancel">{{cancelButtonTitle || labels.cancel}}</view>
+    <view wx:if="{{showsCancelButton || editingBar}}" class="cyl-cancel" role="button" bindtap="onCancel">{{cancelButtonTitle || labels.cancel}}</view>
   </block>
 </view>

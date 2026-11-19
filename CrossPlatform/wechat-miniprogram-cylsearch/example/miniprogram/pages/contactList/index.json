@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "cyl-placeholder": "cyl-placeholder-miniprogram/cyl-placeholder/index"
+  }
+}

@@ -433,6 +433,10 @@ class CYLSearchBarView {
     this.expansionFraction = 1;
     this.isEditing = false;
     this.isKeyboardRequested = false;
+    /** Whether the bar is an editing bar (`CYLSearchBarView.editingBar`): the trailing button submits (iOS `isEditingBar`). */
+    this.isEditingBar = false;
+    /** An editing bar's submit, with the trimmed text (iOS `editingSubmitHandler`). */
+    this.editingSubmitHandler = undefined;
     this.keyboardHandler = undefined;
     this.style = CYLSearchBarStyle.plain;
     this.iconified = false;
@@ -556,10 +560,42 @@ class CYLSearchBarView {
    * "multiple" mode the search key completes the search being typed instead (`completeSearch()`).
    */
   submit() {
+    if (this.isEditingBar) return this.submitEditing();
     if (this.mode === CYLSearchBarMode.multiple) return this.completeSearch();
     if (this.text.length === 0) return false;
     if (tell(this.delegate, 'searchBarViewShouldSubmitText', this, this.text) === false) return false;
     tell(this.delegate, 'searchBarViewSearchButtonClicked', this);
+    return true;
+  }
+
+  /**
+   * An editing bar (iOS `editingBar(placeholder:actionTitle:)`): the search bar's field and look for editing a name (a
+   * tag, a title), without the magnifier, with `actionTitle` ("Add", "Done") as its trailing button, which submits the
+   * trimmed text through `editingSubmitHandler`, as the confirm key does (after `searchBarViewShouldSubmitText` and
+   * `searchBarViewSearchButtonClicked`). The cyl-search-bar component's `editingBar` and `pinsToKeyboard` properties use it.
+   */
+  static editingBar(placeholder, actionTitle) {
+    const bar = new CYLSearchBarView();
+    bar.isEditingBar = true;
+    bar.searchIcon = null;
+    bar.placeholder = placeholder || '';
+    bar.showsCancelButton = true;
+    bar.cancelButtonTitle = actionTitle || '';
+    bar.cancelButtonEndsEditing = false;
+    bar.returnKeyType = 'done';
+    return bar;
+  }
+
+  /**
+   * An editing bar's submit (iOS `submitEditing`): empty text submits nothing; the delegate may refuse it; then
+   * `editingSubmitHandler` gets the trimmed text. Returns whether it was submitted.
+   */
+  submitEditing() {
+    const trimmed = (this.text || '').trim();
+    if (trimmed.length === 0) return false;
+    if (tell(this.delegate, 'searchBarViewShouldSubmitText', this, trimmed) === false) return false;
+    tell(this.delegate, 'searchBarViewSearchButtonClicked', this);
+    if (this.editingSubmitHandler) this.editingSubmitHandler(this, trimmed);
     return true;
   }
 
@@ -779,6 +815,11 @@ class CYLSearchBarView {
    * Cancel was tapped.
    */
   cancelTapped() {
+    // An editing bar's trailing button is its action, not a cancel (iOS `cancelTapped`).
+    if (this.isEditingBar) {
+      this.submitEditing();
+      return;
+    }
     if (this.clearsTextOnCancel) this.textChanged('');
     if (this.cancelButtonEndsEditing) this.hideKeyboard();
     tell(this.delegate, 'searchBarViewCancelButtonClicked', this);

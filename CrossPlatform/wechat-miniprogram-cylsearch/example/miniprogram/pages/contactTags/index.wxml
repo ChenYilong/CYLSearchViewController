@@ -1,0 +1,15 @@
+<view class="screen">
+  <cyl-demo-nav title="" rightTitle="{{texts.done}}" rightIdentifier="CYLContactRemarkDone" tintColor="{{doneEnabled ? '' : '#C7C7CC'}}" />
+  <view class="title" role="heading">{{texts.editRemarks}}</view>
+  <input class="name" placeholder="{{texts.remarkName}}" aria-label="{{texts.remarkName}}" />
+  <view class="tags-title" role="button" aria-label="{{texts.tags}}, {{texts.hintEdit}}" id="CYLContactRemarkTagsTitle" bindtap="editTags">
+    <text>{{texts.tags}}</text><text class="chevron">›</text>
+  </view>
+  <view wx:if="{{tags.length}}" id="CYLContactRemarkTags" bindtap="editTags">
+    <cyl-tag-cloud tags="{{tags}}" listStyle="{{style}}" selectionMode="none" />
+  </view>
+  <!-- Without tags: CYLTableViewPlaceHolder's placeholder, a button that opens the editor. -->
+  <view wx:else class="empty" role="button" aria-label="{{texts.remarkNoTags}}, {{texts.hintEdit}}" id="CYLContactRemarkEmptyTags" bindtap="editTags">
+    <cyl-placeholder components="{{placeholderComponents}}" interactive="{{false}}" />
+  </view>
+</view>

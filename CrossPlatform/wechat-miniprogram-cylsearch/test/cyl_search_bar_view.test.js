@@ -117,3 +117,28 @@ test('the restorable state keeps the text, the icon state and the searches', () 
   assert.deepEqual(copy.searches, ['one', 'two']);
   assert.equal(copy.selectedSearchIndex, 0);
 });
+
+// docs/core-todo.md, "the editing bar" (iOS testEditingBarSubmitsAndRidesOnTheKeyboard): no magnifier, the action
+// button and the confirm key submit the trimmed text; empty text and a refusing delegate submit nothing.
+test('editing bar submits the trimmed text from its action button and the confirm key', () => {
+  const bar = CYLSearchBarView.editingBar('Tag name', 'Add');
+  assert.equal(bar.isEditingBar, true);
+  assert.equal(bar.searchIcon, null);
+  assert.equal(bar.placeholder, 'Tag name');
+  assert.equal(bar.showsCancelButton, true);
+  assert.equal(bar.cancelButtonTitle, 'Add');
+  assert.equal(bar.returnKeyType, 'done');
+  const submitted = [];
+  bar.editingSubmitHandler = (_, text) => submitted.push(text);
+  bar.text = '  Family  ';
+  bar.cancelTapped();
+  bar.text = '   ';
+  bar.cancelTapped();
+  bar.text = 'Friends';
+  assert.equal(bar.submit(), true);
+  assert.deepEqual(submitted, ['Family', 'Friends']);
+  bar.delegate = { searchBarViewShouldSubmitText: () => false };
+  bar.text = 'Refused';
+  bar.cancelTapped();
+  assert.equal(submitted.length, 2);
+});

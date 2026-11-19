@@ -607,5 +607,13 @@ Flutter 2503, 919, 833, 355, then 0.
   and the title open the editing bar ([assets/harmonyos-mate70pro-20261119-contact-tags-rename-tap.png](assets/harmonyos-mate70pro-20261119-contact-tags-rename-tap.png), HarmonyOS 6 Mate 70 Pro emulator, Windows 11, 2026-11-19 +13:00, after e6cf550). Device tests 29/29
   ([assets/harmonyos-mate70pro-20261119-contact-tags.png](assets/harmonyos-mate70pro-20261119-contact-tags.png) and
   [assets/harmonyos-mate70pro-20261119-contact-tags-remark-empty.png](assets/harmonyos-mate70pro-20261119-contact-tags-remark-empty.png), HarmonyOS 6 Mate 70 Pro emulator, DevEco Studio 6, Windows 11, 2026-11-19 +13:00, after 0391f5f).
-  Score: 60/100 (pass: Android and HarmonyOS). TODO: the mini program (CollectionViewClassifyMenu 06c61ed9 has its
-  renaming API), React Native and Flutter.
+  Mini program DONE (2026-11-19): `example/miniprogram/pages/contactTags`, `contactTagEditor`, `contactList` and
+  `utils/cyl_contact_tags.js` (store, simulated server, style over cyl-tag-cloud's `defaultStyle()`); texts and
+  `contact-tags.json` imported into `utils/cyl_demo_resources.js` by `scripts/import-ios-resources.js`; one cyl-tag-cloud per
+  section (Recent with `showsClearButton`, My Tags with `editing` and `supportsRenamingItems`, the results), tags carry their id as
+  `identifier`, the editing bar is `setRenameRequestHandler` + `finishRenaming` / `submitNewItem`; caches A and B are storage keys;
+  launch options as query (`reset`, `empty`, `editor`, `latency`). Not ported: My Tags folding (cyl-tag-cloud has no fold; asked
+  of winCollectionViewClassifyMenu). Test `test/example_contact_tags.test.js` (4); 57/57
+  ([assets/wechat-devtools-20261119-contact-tags.png](assets/wechat-devtools-20261119-contact-tags.png) and
+  [assets/wechat-devtools-20261119-contact-tags-remark-empty.png](assets/wechat-devtools-20261119-contact-tags-remark-empty.png), WeChat DevTools simulator, base library 3.6.6, Windows 11, 2026-11-19 +13:00, after 34b8cd3).
+  Score: 80/100. TODO: React Native and Flutter.

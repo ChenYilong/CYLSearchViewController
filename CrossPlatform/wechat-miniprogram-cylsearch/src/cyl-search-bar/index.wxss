@@ -1,5 +1,7 @@
 :host { display: block; }
 .cyl-bar { display: flex; align-items: center; padding: 6px 12px; }
+/* pinsToKeyboard: at the page's bottom, on the keyboard while it is up (bottom = its height). */
+.cyl-bar-pinned { position: fixed; left: 0; right: 0; z-index: 100; background: #fff; }
 .cyl-field { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; padding: 0 12px; box-sizing: border-box; background: rgba(118, 118, 128, 0.12); transition-property: opacity, transform, clip-path; transition-timing-function: ease-out; }
 .cyl-bar-bordered .cyl-field { background: #fff; border: 1px solid #c6c6c8; }
 .cyl-field-icon { flex: none; width: 18px; height: 18px; margin-right: 6px; }

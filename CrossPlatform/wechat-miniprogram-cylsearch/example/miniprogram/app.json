@@ -15,7 +15,10 @@
     "pages/materialSample/index",
     "pages/yechaoa/index",
     "pages/reveal/index",
-    "pages/multiSearch/index"
+    "pages/multiSearch/index",
+    "pages/contactTags/index",
+    "pages/contactTagEditor/index",
+    "pages/contactList/index"
   ],
   "window": {
     "navigationStyle": "custom",

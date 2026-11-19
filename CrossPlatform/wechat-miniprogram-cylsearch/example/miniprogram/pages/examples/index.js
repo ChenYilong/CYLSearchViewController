@@ -8,6 +8,8 @@ const ROWS = [
   { key: 'demo.styles', url: '/pages/styles/index' },
   { key: 'demo.searchBar', url: '/pages/searchBar/index' },
   { key: 'demo.ports', url: '/pages/ports/index' },
+  // Row 5 (iOS row 6, -CYLDemoRow 5): CollectionViewClassifyMenu's contact tags example on CYLSearchViewController.
+  { key: 'contactTags.row', url: '/pages/contactTags/index' },
 ];
 
 // The SVGA demo's icon side (iOS CYLSVGADemoTagButton.iconSide) and style: icon before the title, no border, grey 13 pt.

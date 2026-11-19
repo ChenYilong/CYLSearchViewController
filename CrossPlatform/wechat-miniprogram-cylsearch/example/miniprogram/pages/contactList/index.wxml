@@ -1,0 +1,12 @@
+<view class="screen">
+  <cyl-demo-nav title="{{title}}" />
+  <view wx:if="{{contacts.length}}" class="card" id="CYLContactList">
+    <view wx:for="{{contacts}}" wx:key="name" class="row">
+      <text class="name">{{item.name}}</text>
+      <text class="tags">{{item.tags}}</text>
+    </view>
+  </view>
+  <view wx:else class="empty" id="CYLContactListEmpty">
+    <cyl-placeholder components="{{placeholderComponents}}" interactive="{{false}}" />
+  </view>
+</view>

@@ -255,4 +255,9 @@ packages). A test checks each rule.
   (`KeyboardAvoidMode.RESIZE`: a bar at the bottom of the page rides on the keyboard); ArkUI's TextInput has no
   capitalization setting. Used by the HarmonyOS contact tags example
   ([assets/harmonyos-mate70pro-20261119-contact-tags.png](assets/harmonyos-mate70pro-20261119-contact-tags.png), HarmonyOS 6 Mate 70 Pro emulator, DevEco Studio 6, Windows 11, 2026-11-19 +13:00, after 0391f5f).
-  TODO: Flutter, React Native and the mini program.
+  Mini program (2026-11-19): `CYLSearchBarView.editingBar(placeholder, actionTitle)`, `isEditingBar`, `editingSubmitHandler`,
+  `submitEditing()` (Cancel and the confirm key submit the trimmed text); the cyl-search-bar component's `editingBar` (event
+  `editingsubmit` {text}) and `pinsToKeyboard` (fixed at the page's bottom, lifted by `wx.onKeyboardHeightChange`, the field
+  does not push the page) properties. Test `editing bar submits the trimmed text…` (test/cyl_search_bar_view.test.js); used by
+  the mini program contact tags example ([assets/wechat-devtools-20261119-contact-tags.png](assets/wechat-devtools-20261119-contact-tags.png), WeChat DevTools simulator, base library 3.6.6, Windows 11, 2026-11-19 +13:00, after 34b8cd3).
+  TODO: Flutter and React Native.

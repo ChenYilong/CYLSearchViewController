@@ -47,6 +47,12 @@ Component({
     searchIcon: { type: String, value: '../images/search.svg' },
     showsSearchIcon: { type: Boolean, value: true },
     showsCancelButton: { type: Boolean, value: false },
+    // An editing bar (iOS CYLSearchBarView.editingBar): no magnifier, `cancelButtonTitle` ("Add", "Done") is the action;
+    // it and the confirm key send `editingsubmit` {text} with the trimmed text.
+    editingBar: { type: Boolean, value: false },
+    // Pinned to the top of the keyboard (iOS pinToKeyboard(in:)): fixed at the page's bottom, lifted by the keyboard's
+    // height (wx.onKeyboardHeightChange); the field does not push the page.
+    pinsToKeyboard: { type: Boolean, value: false },
     cancelButtonTitle: { type: String, value: '' },
     items: { type: Array, value: [], observer: 'onItemsChange' },
     // The navigation button before the field (iOS navigationIcon): "none", "arrow" (back) or "search".
@@ -96,7 +102,7 @@ Component({
     searchFieldWidth: { type: Number, value: 160 },
   },
   data: {
-    text: '', focused: false, inputFocus: false, collapsed: false, revealing: false,
+    text: '', focused: false, inputFocus: false, collapsed: false, revealing: false, keyboardHeight: 0,
     labels: {}, fieldStyle: '', inputStyle: '', placeholderStyle: '', shownItems: [],
     searchItems: [], editingNewSearch: false, selectedSearchIndex: -1,
   },
@@ -114,6 +120,7 @@ Component({
         searchBarViewDidBeginEditing: () => this.triggerEvent('focuschange', { focused: true }),
         searchBarViewDidEndEditing: () => this.triggerEvent('focuschange', { focused: false }),
         searchBarViewCancelButtonClicked: () => this.triggerEvent('cancel'),
+        searchBarViewShouldSubmitText: () => true,
         searchBarViewNavigationButtonClicked: () => this.triggerEvent('navigationtap'),
         searchBarViewVoiceButtonClicked: () => this.triggerEvent('voicetap'),
         searchBarViewDidChangeIconified: (_, iconified) => this.triggerEvent('iconifiedchange', { iconified }),
@@ -140,6 +147,15 @@ Component({
       model.maximumTextLength = p.maximumTextLength;
       model.minimumTextLength = p.minimumTextLength;
       model.iconified = p.iconified || (p.iconifiedByDefault && !p.value);
+      if (p.editingBar) {
+        model.isEditingBar = true;
+        model.cancelButtonEndsEditing = false;
+        model.editingSubmitHandler = (_, value) => this.triggerEvent('editingsubmit', { text: value });
+      }
+      if (p.pinsToKeyboard && typeof wx !== 'undefined' && wx.onKeyboardHeightChange) {
+        this.keyboardListener = (result) => this.setData({ keyboardHeight: result.height || 0 });
+        wx.onKeyboardHeightChange(this.keyboardListener);
+      }
       this.setData({
         text: model.text,
         collapsed: model.iconified,
@@ -152,6 +168,11 @@ Component({
       this.onItemsChange(p.items);
       this.updateStyles();
       this.syncSearches();
+    },
+    detached() {
+      if (this.keyboardListener && typeof wx !== 'undefined' && wx.offKeyboardHeightChange) {
+        wx.offKeyboardHeightChange(this.keyboardListener);
+      }
     },
   },
   methods: {
