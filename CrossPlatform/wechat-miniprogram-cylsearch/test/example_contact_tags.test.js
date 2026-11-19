@@ -61,3 +61,21 @@ test('the other-device edit adds a tag and swaps the first two', () => {
   assert.ok(added.length > 0);
   assert.equal(server.nextFetchStatus !== undefined, true);
 });
+
+test('Edit Tags holds its list scrolling while a My Tags tag is dragged', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const dir = path.join(__dirname, '..', 'example', 'miniprogram', 'pages', 'contactTagEditor');
+  const wxml = fs.readFileSync(path.join(dir, 'index.wxml'), 'utf8');
+  assert.match(wxml, /<scroll-view scroll-y="\{\{!reordering\}\}"/);
+  assert.match(wxml, /bind:reorderingchange="onReorderingChange"/);
+  // The handler, taken from the page source (the page itself imports packages only WeChat resolves).
+  const js = fs.readFileSync(path.join(dir, 'index.js'), 'utf8');
+  const body = js.match(/onReorderingChange\(event\) \{([\s\S]*?)\n  \},/)[1];
+  const handler = new Function('event', body);
+  const instance = { data: { reordering: false }, setData(values) { Object.assign(this.data, values); } };
+  handler.call(instance, { detail: { reordering: true } });
+  assert.equal(instance.data.reordering, true);
+  handler.call(instance, { detail: { reordering: false } });
+  assert.equal(instance.data.reordering, false);
+});

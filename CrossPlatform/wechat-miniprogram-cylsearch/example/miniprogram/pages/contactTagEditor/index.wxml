@@ -11,7 +11,8 @@
     id="search" class="search" value="{{query}}" placeholder="{{texts.search}}" returnKeyType="search"
     bind:textchange="onSearchText" bind:submit="onSearchSubmit" />
 
-  <scroll-view scroll-y class="list {{managing ? 'list-managing' : ''}}">
+  <!-- Scrolling is held while a tag is dragged (the cloud's reorderingchange), so the drag and the scroll do not fight. -->
+  <scroll-view scroll-y="{{!reordering}}" class="list {{managing ? 'list-managing' : ''}}">
     <block wx:if="{{query}}">
       <view class="header"><text class="header-title" role="heading">{{texts.results}}</text></view>
       <cyl-tag-cloud id="results" tags="{{resultTags}}" listStyle="{{style}}" selectionMode="multiple" bind:tagtap="onTagTap" />
@@ -32,7 +33,7 @@
         defaultVisibleRows="{{3}}" foldControlContent="icon"
         supportsRenamingItems="{{true}}" showsAddItemViewWhileEditing="{{false}}" allowsReordering="{{true}}"
         bind:tagtap="onTagTap" bind:tagdelete="onTagDelete" bind:tagmove="onTagMove" bind:tagrename="onTagRename"
-        bind:requestnewitem="onRequestNewItem" bind:editingfinish="onEditingFinish" />
+        bind:requestnewitem="onRequestNewItem" bind:editingfinish="onEditingFinish" bind:reorderingchange="onReorderingChange" />
       <view wx:if="{{!managing}}" class="create" role="button" id="CYLContactTagsNewTag" bindtap="onNewTagTap">＋ {{texts.newTag}}</view>
     </block>
     <!-- The empty states: CYLTableViewPlaceHolder's placeholder below the tags. -->

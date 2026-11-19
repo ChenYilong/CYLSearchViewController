@@ -19,7 +19,7 @@ function tagsOf(store, ids) {
 
 Page({
   data: {
-    texts: { editTags: '', search: '', recent: '', mine: '', results: '', manage: '', doneManaging: '', done: '', sync: '', newTag: '', tagName: '', add: '' }, style: STYLE, query: '', managing: false, doneEnabled: false,
+    texts: { editTags: '', search: '', recent: '', mine: '', results: '', manage: '', doneManaging: '', done: '', sync: '', newTag: '', tagName: '', add: '' }, style: STYLE, query: '', managing: false, reordering: false, doneEnabled: false,
     recentTags: [], mineTags: [], resultTags: [], canCreate: false, createTitle: '',
     emptyState: 'none', placeholderComponents: [],
   },
@@ -154,6 +154,12 @@ Page({
     this.store.deleteTag(id);
     this.selectedTags = this.selectedTags.filter((selected) => selected !== id);
     this.reload();
+  },
+
+  /** A tag drag starts or ends in My Tags: the list's scrolling is held meanwhile (`reordering`). */
+  onReorderingChange(event) {
+    const reordering = !!(event.detail && event.detail.reordering);
+    if (reordering !== this.data.reordering) this.setData({ reordering });
   },
 
   onTagMove(event) {

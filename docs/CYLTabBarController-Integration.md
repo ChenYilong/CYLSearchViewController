@@ -736,3 +736,19 @@ Flutter 2503, 919, 833, 355, then 0.
   mini program 57/57); iOS, Flutter and React Native: the macOS session.
 - **Status**: DONE. Score: 100/100 (deleting works on iOS, Android, HarmonyOS and the mini program, each with a labelled
   screenshot; the mini program fix has a regression test in CollectionViewClassifyMenu). Left: a real phone.
+
+## DONE (2026-11-19; TODO 2026-11-19): dragging a tag no longer scrolls the list (mini program)
+
+- **Branch**: `feat/harmonyos-parity`. Platform: WeChat mini program (the user's test).
+- **Prompt (verbatim)**: "拖拽taglist启动后，以及拖拽结束后，应禁止taglist的滚动浏览功能防止拖拽手势和taglist 滚动浏览手势冲突。现在是有这个问题，你需要在taglist core 核心代码中修复后repin完成example 修复，需要默认启动。在联系人example中点击编辑后。可以复现。 我的测试平台是微信小程序"
+  (English: from the start of a tag drag until it ends, the list's scrolling must be held so the drag and scroll
+  gestures do not fight; fix it in the tag list core, on by default, re-pin and fix the example; reproduced in the
+  contact tags example's editing mode on the WeChat mini program.)
+- **Core**: CollectionViewClassifyMenu `2ec3d90e` (`cyl-tag-cloud`): `disablesScrollingWhileReordering`, default true:
+  from the long press that starts a drag until it ends or is cancelled, the item catches `touchmove` (page scrolling
+  held); `reorderingchange` {reordering} for hosts with a `<scroll-view>`.
+- **Example**: Edit Tags' `<scroll-view>` has `scroll-y="{{!reordering}}"`, `reordering` set by My Tags'
+  `reorderingchange`. Pins: the mini program and iOS (Podfiles) at `2ec3d90e`; Android and HarmonyOS asked of the
+  Windows session (its word picker ports are in this range). Tests: mini program 59 of 59 (new: the list holds
+  scrolling during a drag); iOS 35 of 35.
+- **Left**: the user's check in WeChat (a drag in Manage no longer scrolls), and the Windows session's DevTools run.
