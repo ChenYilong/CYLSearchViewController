@@ -150,6 +150,8 @@ void main() {
             'searchBarStyle': 'plain',
             'showsSearchIcon': true,
             'items': <Object?>[],
+            'editingBar': false,
+            'actionTitle': null,
           });
       cylSearchBarViewDispatch(bar, const MethodCall('textDidChange', <String, Object?>{'text': 'a'}));
       cylSearchBarViewDispatch(bar, const MethodCall('didSubmit', <String, Object?>{'text': 'a'}));
@@ -272,9 +274,73 @@ void main() {
           'foldControlPosition': 'inline',
           'foldControlContent': 'icon',
           'foldedRowCount': 2,
+          'tagIds': <String>[],
+          'selectedIds': <String>[],
+          'selectionMode': 'none',
+          'sectionTitle': '',
+          'showsClearButton': false,
+          'editing': false,
+          'supportsRenaming': false,
         });
     expect(cylTagListViewDispatch(widget, const MethodCall('didSelectTag', <String, Object?>{'index': 1, 'title': 'Kotlin'})), isNull);
     expect(tapped, '1 Kotlin');
     expect(cylTagListViewDispatch(widget, const MethodCall('didChangeHeight', <String, Object?>{'height': 88})), 88);
+  });
+
+  test('CYLTagListView sends ids, selection and editing, and reports the editing events by id', () {
+    final events = <String>[];
+    final widget = CYLTagListView(
+      tags: const <String>['Family', 'Friends'],
+      tagIds: const <String>['t1', 't2'],
+      selectedIds: const <String>['t2'],
+      selectionMode: CYLTagSelectionMode.multiple,
+      sectionTitle: 'Recent',
+      showsClearButton: true,
+      editing: true,
+      supportsRenaming: true,
+      onTagToggled: (index, id, selected) => events.add('toggle $index $id $selected'),
+      onTagDeleted: (index, id) => events.add('delete $index $id'),
+      onTagMoved: (from, to) => events.add('move $from $to'),
+      onRenameRequested: (index, id, title) => events.add('rename $index $id $title'),
+      onClearButtonTapped: () => events.add('clear'),
+    );
+    final parameters = cylTagListViewParameters(widget);
+    expect(parameters['tagIds'], <String>['t1', 't2']);
+    expect(parameters['selectedIds'], <String>['t2']);
+    expect(parameters['selectionMode'], 'multiple');
+    expect(parameters['sectionTitle'], 'Recent');
+    expect(parameters['showsClearButton'], true);
+    expect(parameters['editing'], true);
+    expect(parameters['supportsRenaming'], true);
+    cylTagListViewDispatch(widget, const MethodCall('didSelectTag', <String, Object?>{'index': 0, 'title': 'Family', 'id': 't1', 'selected': true}));
+    cylTagListViewDispatch(widget, const MethodCall('didDeleteTag', <String, Object?>{'index': 1, 'id': 't2'}));
+    cylTagListViewDispatch(widget, const MethodCall('didMoveTag', <String, Object?>{'from': 0, 'to': 1}));
+    cylTagListViewDispatch(widget, const MethodCall('didRequestRename', <String, Object?>{'index': 0, 'id': 't1', 'title': 'Family'}));
+    cylTagListViewDispatch(widget, const MethodCall('didTapClearButton', <String, Object?>{'section': 0}));
+    expect(events, <String>['toggle 0 t1 true', 'delete 1 t2', 'move 0 1', 'rename 0 t1 Family', 'clear']);
+  });
+
+  test('CYLSearchBarView sends the editing bar and reports its submit', () {
+    String? submitted;
+    String? searched;
+    final widget = CYLSearchBarView(
+      editingBar: true,
+      actionTitle: 'Add',
+      placeholder: 'Tag name',
+      onEditingSubmitted: (text) => submitted = text,
+      onSubmitted: (text) => searched = text,
+    );
+    final parameters = cylSearchBarViewParameters(widget);
+    expect(parameters['editingBar'], true);
+    expect(parameters['actionTitle'], 'Add');
+    cylSearchBarViewDispatch(widget, const MethodCall('didSubmitEditing', <String, Object?>{'text': 'Hiking'}));
+    expect(submitted, 'Hiking');
+    expect(searched, isNull);
+  });
+
+  test('CYLPlaceholderView sends its style and text', () {
+    expect(cylPlaceholderViewParameters(const CYLPlaceholderView(placeholderStyle: CYLPlaceholderStyle.noResults, text: 'No matching tags'), brightness: Brightness.dark),
+        <String, Object?>{'brightness': 'dark', 'placeholderStyle': 'noResults', 'text': 'No matching tags'});
+    expect(CYLSearchViewTypes.placeholderView, 'cyl_search/placeholder_view');
   });
 }

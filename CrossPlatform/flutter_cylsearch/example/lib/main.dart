@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_cyltabbar/flutter_cyltabbar.dart';
 import 'package:flutter_cylsearch/flutter_cylsearch.dart';
 
+import 'contact_tags_page.dart';
 import 'discover_page.dart';
 
 Future<void> main() async {
@@ -40,7 +41,15 @@ class CYLSearchDemo {
       this.query,
       this.scenario,
       this.focusesSearchFieldOnShow = true,
-      this.showsResults = false});
+      this.showsResults = false,
+      this.contactTags = false,
+      this.emptyTags = false});
+
+  /// Opens the contact tags demo (iOS CYLContactRemarkViewController) instead of a search page.
+  final bool contactTags;
+
+  /// The contact tags demo without tags (the placeholders; iOS `-CYLContactTagsEmpty YES`).
+  final bool emptyTags;
 
   /// Whether the page lists results (the matching sample suggestions) with pull to refresh, instead of suggestions only.
   final bool showsResults;
@@ -88,6 +97,8 @@ const List<CYLSearchDemoTab> cylDemoTabs = <CYLSearchDemoTab>[
       <CYLSearchDemo>[
         // The keyboard stays down until the field is tapped: the cached queries (or the empty placeholder) show first.
         CYLSearchDemo('Open search', style: CYLSearchSuggestionStyle.tags, focusesSearchFieldOnShow: false),
+        CYLSearchDemo('Contact tags (CollectionViewClassifyMenu)', contactTags: true),
+        CYLSearchDemo('Contact tags without tags', contactTags: true, emptyTags: true),
       ]),
   CYLSearchDemoTab('Empty results', 'A query without a match shows a CYLTableViewPlaceHolder placeholder.', <CYLSearchDemo>[
     CYLSearchDemo('No matching results', query: 'zzz'),
@@ -158,6 +169,10 @@ class CYLSearchDemoPage extends StatelessWidget {
   final CYLSearchDemoTab tab;
 
   void _openSearch(BuildContext context, CYLSearchDemo demo) {
+    if (demo.contactTags) {
+      Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => CYLContactRemarkPage(empty: demo.emptyTags)));
+      return;
+    }
     if (demo.showsResults) {
       Navigator.of(context).push(MaterialPageRoute<void>(
         fullscreenDialog: true,

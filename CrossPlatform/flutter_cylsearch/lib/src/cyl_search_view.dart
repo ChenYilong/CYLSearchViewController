@@ -78,6 +78,27 @@ enum CYLTagFoldControlContent {
   icon,
 }
 
+/// Whether taps on a tag list select tags (CollectionViewClassifyMenu's `CYLMenuSelectionMode`).
+enum CYLTagSelectionMode {
+  /// Taps report the tag and select nothing (the default).
+  none,
+
+  /// Taps select and deselect tags.
+  multiple,
+}
+
+/// The image of a [CYLPlaceholderView] (CYLTableViewPlaceHolder's `CYLPlaceholderStyle`).
+enum CYLPlaceholderStyle {
+  /// An empty tray.
+  empty,
+
+  /// A magnifier with a cross.
+  noResults,
+
+  /// A person with a slash (no contacts).
+  personOff,
+}
+
 /// The view types the platform side registers.
 @visibleForTesting
 class CYLSearchViewTypes {
@@ -91,6 +112,9 @@ class CYLSearchViewTypes {
 
   /// The native tag list (CollectionViewClassifyMenu's `CYLTagListView`, the tags of `suggestionsTagView`).
   static const String tagListView = 'cyl_search/tag_list_view';
+
+  /// CYLTableViewPlaceHolder's `CYLPlaceholderView`.
+  static const String placeholderView = 'cyl_search/placeholder_view';
 
   /// The channel of the platform view with `id`.
   static String channel(int id) => 'cyl_search/view_$id';
@@ -494,7 +518,23 @@ class CYLSearchBarView extends StatefulWidget {
     this.onSubmitted,
     this.onCancel,
     this.onItemSelected,
+    this.editingBar = false,
+    this.actionTitle,
+    this.onEditingSubmitted,
   });
+
+  /// The core's editing bar (iOS and Android `CYLSearchBarView.editingBar`) in place of the search bar: a field and an
+  /// action button ("Add", "Done") to put above the keyboard. Read when the native view is created; give the widget
+  /// another key to switch. Given a new non-empty [text] (a title to rename), it takes the keyboard with the text
+  /// selected.
+  final bool editingBar;
+
+  /// [editingBar]: the action button's title.
+  final String? actionTitle;
+
+  /// [editingBar]: the action button or the return key, with the trimmed text; the field is cleared after it and
+  /// [onSubmitted] is not called.
+  final ValueChanged<String>? onEditingSubmitted;
 
   /// Calls the native bar's multiple-search methods; optional.
   final CYLSearchBarWidgetController? controller;
@@ -661,6 +701,8 @@ Map<String, Object?> cylSearchBarViewParameters(CYLSearchBarView widget, {Bright
       'searchBarStyle': widget.searchBarStyle.name,
       'showsSearchIcon': widget.showsSearchIcon,
       'items': widget.items.map((item) => item.toMap()).toList(),
+      'editingBar': widget.editingBar,
+      'actionTitle': widget.actionTitle,
     };
 
 /// Calls the [CYLSearchBarView] callback of an event from its native view.
@@ -674,6 +716,8 @@ void cylSearchBarViewDispatch(CYLSearchBarView widget, MethodCall call) {
       widget.onSubmitted?.call(arguments['text'] as String? ?? '');
     case 'didCancel':
       widget.onCancel?.call();
+    case 'didSubmitEditing':
+      widget.onEditingSubmitted?.call(arguments['text'] as String? ?? '');
     case 'textDidChangeAtIndex':
       widget.onTextChange?.call(arguments['text'] as String? ?? '', arguments['index'] as int? ?? 0);
     case 'didCompleteSearch':
@@ -703,7 +747,57 @@ class CYLTagListView extends StatefulWidget {
     this.foldControlContent = CYLTagFoldControlContent.icon,
     this.foldedRowCount = 2,
     this.onTagSelected,
+    this.tagIds = const <String>[],
+    this.selectedIds = const <String>[],
+    this.selectionMode = CYLTagSelectionMode.none,
+    this.sectionTitle = '',
+    this.showsClearButton = false,
+    this.editing = false,
+    this.supportsRenaming = false,
+    this.onTagToggled,
+    this.onTagDeleted,
+    this.onTagMoved,
+    this.onRenameRequested,
+    this.onClearButtonTapped,
   });
+
+  /// The tags' ids, one per title (iOS `menuIdentifierForItem(at:)`): kept by renaming and reordering, and reported by
+  /// the callbacks. Empty: the titles are the ids.
+  final List<String> tagIds;
+
+  /// The ids of the selected tags ([CYLTagSelectionMode.multiple]).
+  final List<String> selectedIds;
+
+  /// Whether taps select tags (`selectionMode`).
+  final CYLTagSelectionMode selectionMode;
+
+  /// The section's header title; with [showsClearButton] or a title, the header shows.
+  final String sectionTitle;
+
+  /// A trash button in the header (iOS `menuShowsClearButton(forSection:)`): [onClearButtonTapped].
+  final bool showsClearButton;
+
+  /// Editing mode (iOS `setEditing(_:animated:)`): a cross on each tag ([onTagDeleted]) and dragging ([onTagMoved]).
+  final bool editing;
+
+  /// While [editing], an edit icon before each cross; it and a title tap call [onRenameRequested] (rename by id and
+  /// send the new [tags]).
+  final bool supportsRenaming;
+
+  /// A tag was tapped, with its index, id and whether it is now selected ([CYLTagSelectionMode.multiple]).
+  final void Function(int index, String id, bool selected)? onTagToggled;
+
+  /// A tag's cross was tapped; the list already dropped it: update [tags] and [tagIds].
+  final void Function(int index, String id)? onTagDeleted;
+
+  /// A tag was dragged from one index to another; the list already moved it.
+  final void Function(int from, int to)? onTagMoved;
+
+  /// The edit icon or the title of a tag was tapped while [editing] with [supportsRenaming].
+  final void Function(int index, String id, String title)? onRenameRequested;
+
+  /// The header's clear button was tapped.
+  final VoidCallback? onClearButtonTapped;
 
   /// The titles of the tags (`setTagsWithTitles`).
   final List<String> tags;
@@ -748,6 +842,13 @@ class _CYLTagListViewState extends State<CYLTagListView> {
   void didUpdateWidget(CYLTagListView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!listEquals(oldWidget.tags, widget.tags) ||
+        !listEquals(oldWidget.tagIds, widget.tagIds) ||
+        !listEquals(oldWidget.selectedIds, widget.selectedIds) ||
+        oldWidget.selectionMode != widget.selectionMode ||
+        oldWidget.sectionTitle != widget.sectionTitle ||
+        oldWidget.showsClearButton != widget.showsClearButton ||
+        oldWidget.editing != widget.editing ||
+        oldWidget.supportsRenaming != widget.supportsRenaming ||
         oldWidget.foldControlPosition != widget.foldControlPosition ||
         oldWidget.foldControlContent != widget.foldControlContent ||
         oldWidget.foldedRowCount != widget.foldedRowCount) {
@@ -782,6 +883,13 @@ Map<String, Object?> cylTagListViewParameters(CYLTagListView widget, {Brightness
       'foldControlPosition': widget.foldControlPosition.name,
       'foldControlContent': widget.foldControlContent.name,
       'foldedRowCount': widget.foldedRowCount,
+      'tagIds': widget.tagIds,
+      'selectedIds': widget.selectedIds,
+      'selectionMode': widget.selectionMode.name,
+      'sectionTitle': widget.sectionTitle,
+      'showsClearButton': widget.showsClearButton,
+      'editing': widget.editing,
+      'supportsRenaming': widget.supportsRenaming,
     };
 
 /// Calls the [CYLTagListView] callback of an event from its native view; returns the height it reported, if any.
@@ -790,9 +898,67 @@ double? cylTagListViewDispatch(CYLTagListView widget, MethodCall call) {
   final arguments = (call.arguments as Map<Object?, Object?>?) ?? const <Object?, Object?>{};
   switch (call.method) {
     case 'didSelectTag':
-      widget.onTagSelected?.call(arguments['index'] as int? ?? 0, arguments['title'] as String? ?? '');
+      final index = arguments['index'] as int? ?? 0;
+      final title = arguments['title'] as String? ?? '';
+      widget.onTagSelected?.call(index, title);
+      widget.onTagToggled?.call(index, arguments['id'] as String? ?? title, arguments['selected'] as bool? ?? false);
+    case 'didDeleteTag':
+      widget.onTagDeleted?.call(arguments['index'] as int? ?? 0, arguments['id'] as String? ?? '');
+    case 'didMoveTag':
+      widget.onTagMoved?.call(arguments['from'] as int? ?? 0, arguments['to'] as int? ?? 0);
+    case 'didRequestRename':
+      widget.onRenameRequested?.call(
+          arguments['index'] as int? ?? 0, arguments['id'] as String? ?? '', arguments['title'] as String? ?? '');
+    case 'didTapClearButton':
+      widget.onClearButtonTapped?.call();
     case 'didChangeHeight':
       return (arguments['height'] as num?)?.toDouble();
   }
   return null;
 }
+
+/// CYLTableViewPlaceHolder's placeholder (iOS and Android `CYLPlaceholderView`): the image of a [CYLPlaceholderStyle]
+/// above a text, centred in the size it is given.
+class CYLPlaceholderView extends StatefulWidget {
+  /// Creates the placeholder.
+  const CYLPlaceholderView({super.key, this.placeholderStyle = CYLPlaceholderStyle.empty, this.text = ''});
+
+  /// The image.
+  final CYLPlaceholderStyle placeholderStyle;
+
+  /// The text under the image.
+  final String text;
+
+  @override
+  State<CYLPlaceholderView> createState() => _CYLPlaceholderViewState();
+}
+
+class _CYLPlaceholderViewState extends State<CYLPlaceholderView> {
+  MethodChannel? _channel;
+
+  Map<String, Object?> get _parameters => cylPlaceholderViewParameters(widget, brightness: Theme.of(context).brightness);
+
+  void _created(int id) => setState(() => _channel = MethodChannel(CYLSearchViewTypes.channel(id)));
+
+  @override
+  void didUpdateWidget(CYLPlaceholderView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.placeholderStyle != widget.placeholderStyle || oldWidget.text != widget.text) {
+      _channel?.invokeMethod<void>('update', _parameters);
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _channel?.invokeMethod<void>('update', _parameters);
+  }
+
+  @override
+  Widget build(BuildContext context) => _platformView(CYLSearchViewTypes.placeholderView, _parameters, _created);
+}
+
+/// The parameters a [CYLPlaceholderView] sends to its native view.
+@visibleForTesting
+Map<String, Object?> cylPlaceholderViewParameters(CYLPlaceholderView widget, {Brightness brightness = Brightness.light}) =>
+    <String, Object?>{'brightness': brightness.name, 'placeholderStyle': widget.placeholderStyle.name, 'text': widget.text};

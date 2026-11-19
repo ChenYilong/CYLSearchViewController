@@ -4,7 +4,13 @@ import android.content.Context
 import android.view.ContextThemeWrapper
 import android.view.View
 import android.widget.FrameLayout
+import com.cyl.classifymenu.CYLIndexPath
+import com.cyl.classifymenu.CYLMenuDataSource
+import com.cyl.classifymenu.CYLMenuDelegate
+import com.cyl.classifymenu.CYLMenuSelectionMode
 import com.cyl.classifymenu.CYLTagListView
+import com.cyl.placeholder.CYLPlaceholderStyle
+import com.cyl.placeholder.CYLPlaceholderView
 import com.cyl.placeholder.CYLPlaceholderScenario
 import com.cyl.search.CYLSearchBarItem
 import com.cyl.search.CYLSearchBarMode
@@ -43,6 +49,9 @@ class FlutterCylsearchPlugin : FlutterPlugin {
         })
         binding.platformViewRegistry.registerViewFactory("cyl_search/tag_list_view", Factory(messenger) { context, args, channel ->
             CYLFlutterTagListView(context, args, channel)
+        })
+        binding.platformViewRegistry.registerViewFactory("cyl_search/placeholder_view", Factory(messenger) { context, args, channel ->
+            CYLFlutterPlaceholderView(context, args, channel)
         })
     }
 
@@ -209,7 +218,14 @@ internal class CYLFlutterSearchResultsDataSource : CYLSearchViewDataSource {
 internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, Any?>, private val channel: MethodChannel) :
     PlatformView, CYLSearchBarViewDelegate {
 
-    private val bar = CYLSearchBarView(context)
+    /**
+     * The core's editing bar when Dart asked for one at creation (`editingBar`), else a search bar.
+     */
+    private val bar: CYLSearchBarView = if (arguments["editingBar"] == true) {
+        CYLSearchBarView.editingBar(context, arguments["placeholder"] as? String, arguments["actionTitle"] as? String ?: "Done")
+    } else {
+        CYLSearchBarView(context)
+    }
 
     /**
      * Dart's `searches` as applied last.
@@ -223,6 +239,12 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
 
     init {
         bar.delegate = this
+        if (bar.isEditingBar) {
+            bar.editingSubmitHandler = { view, text ->
+                channel.invokeMethod("didSubmitEditing", mapOf("text" to text))
+                view.text = ""
+            }
+        }
         apply(arguments)
         channel.setMethodCallHandler { call, result ->
             @Suppress("UNCHECKED_CAST")
@@ -266,7 +288,21 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
         val searches = (arguments["searches"] as? List<String>) ?: emptyList()
         applySearches(searches)
         bar.placeholder = arguments["placeholder"] as? String
-        (arguments["text"] as? String)?.takeIf { it != bar.text }?.let { bar.text = it }
+        val text = arguments["text"] as? String
+        if (bar.isEditingBar) {
+            (arguments["actionTitle"] as? String)?.let { bar.cancelButtonTitle = it }
+            // A new title to rename: the keyboard rises with it selected (iOS beginRenaming), once per new value.
+            if (!text.isNullOrEmpty() && text != appliedText) {
+                bar.text = text
+                bar.post {
+                    bar.showKeyboard()
+                    bar.textField.selectAll()
+                }
+            }
+            appliedText = text
+            return
+        }
+        text?.takeIf { it != bar.text }?.let { bar.text = it }
         bar.showsCancelButton = arguments["showsCancelButton"] as? Boolean ?: false
         bar.fieldShadowOpacity = (arguments["fieldShadowOpacity"] as? Number)?.toFloat() ?: 0f
         bar.searchBarStyle = if (arguments["searchBarStyle"] == "bordered") CYLSearchBarStyle.Bordered else CYLSearchBarStyle.Plain
@@ -283,6 +319,11 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
 
     private var appliedItems: List<Map<String, Any?>> = emptyList()
 
+    /**
+     * The editing bar's `text` as Dart sent it last.
+     */
+    private var appliedText: String? = null
+
     override fun searchBarViewDidSelectItem(searchBarView: CYLSearchBarView, item: CYLSearchBarItem) {
         channel.invokeMethod("didSelectItem", mapOf("index" to item.index, "selected" to item.isSelected))
     }
@@ -298,6 +339,7 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
     }
 
     override fun searchBarViewSearchButtonClicked(searchBarView: CYLSearchBarView) {
+        if (searchBarView.isEditingBar) return
         channel.invokeMethod("didSubmit", mapOf("text" to searchBarView.text.orEmpty()))
         searchBarView.hideKeyboard()
     }
@@ -325,13 +367,21 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
 }
 
 /**
- * CollectionViewClassifyMenu's `CYLTagListView` filling the platform view; it reports the height its tags need at the
- * view's width (`didChangeHeight`, in dp), so Dart can size it.
+ * CollectionViewClassifyMenu's `CYLTagListView` filling the platform view, one section of tags from Dart: their titles
+ * and ids, the selection, the header (title and clear button) and editing mode (crosses, dragging, rename requests).
+ * It reports the height its tags need at the view's width (`didChangeHeight`, in dp), again after folding, unfolding
+ * and editing.
  */
 internal class CYLFlutterTagListView(context: Context, arguments: Map<String, Any?>, private val channel: MethodChannel) :
-    PlatformView {
+    PlatformView, CYLMenuDataSource, CYLMenuDelegate {
 
     private var reportedHeight = -1f
+    private var titles: List<String> = emptyList()
+    private var ids: List<String> = emptyList()
+    private var selected: Set<String> = emptySet()
+    private var sectionTitle = ""
+    private var showsClearButton = false
+    private var supportsRenaming = false
 
     private val tagListView = object : CYLTagListView(context) {
         override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -344,11 +394,13 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
         tagListView.showsSectionHeaders = false
         // The Flutter page shows through, as around any other widget.
         tagListView.style = tagListView.style?.copy()?.apply { backgroundColor = android.graphics.Color.TRANSPARENT }
-        tagListView.tagClickHandler = { index, tag -> channel.invokeMethod("didSelectTag", mapOf("index" to index, "title" to tag.title)) }
-        // Folding and unfolding change the height: report it again.
-        tagListView.menuDelegate = object : com.cyl.classifymenu.CYLMenuDelegate {
-            override fun menuDidChangeContentHeight(menu: Any, height: Float) = reportHeight()
-            override fun menuDidChangeExpanded(menu: Any, expanded: Boolean, inSection: Int) = reportHeight()
+        tagListView.menuDataSource = this
+        tagListView.menuDelegate = this
+        // The host adds tags through its editing bar, as the iOS example does: no add control of the list's own.
+        tagListView.showsAddItemViewWhileEditing = false
+        // Renaming is the host's: the list asks, Dart renames by id and sends the new titles.
+        tagListView.renameRequestHandler = { indexPath, title ->
+            channel.invokeMethod("didRequestRename", mapOf("index" to indexPath.item, "id" to idAt(indexPath.item), "title" to title))
         }
         apply(arguments)
         channel.setMethodCallHandler { call, result ->
@@ -358,13 +410,86 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
         }
     }
 
+    private fun idAt(index: Int): String = ids.getOrNull(index)?.takeIf { it.isNotEmpty() } ?: titles.getOrElse(index) { "" }
+
     @Suppress("UNCHECKED_CAST")
     private fun apply(arguments: Map<String, Any?>) {
         tagListView.foldControl = cylFoldControl(arguments["foldControlPosition"], arguments["foldControlContent"])
         tagListView.defaultVisibleRows = maxOf(0, (arguments["foldedRowCount"] as? Number)?.toInt() ?: 2)
-        tagListView.setTagsWithTitles((arguments["tags"] as? List<String>) ?: emptyList())
+        tagListView.selectionMode = if (arguments["selectionMode"] == "multiple") {
+            CYLMenuSelectionMode.CYLMenuSelectionModeMultiple
+        } else {
+            CYLMenuSelectionMode.CYLMenuSelectionModeNone
+        }
+        tagListView.allowsEmptySelection = true
+        sectionTitle = arguments["sectionTitle"] as? String ?: ""
+        showsClearButton = arguments["showsClearButton"] as? Boolean ?: false
+        supportsRenaming = arguments["supportsRenaming"] as? Boolean ?: false
+        titles = (arguments["tags"] as? List<String>) ?: emptyList()
+        ids = (arguments["tagIds"] as? List<String>) ?: emptyList()
+        selected = ((arguments["selectedIds"] as? List<String>) ?: emptyList()).toSet()
+        tagListView.showsSectionHeaders = sectionTitle.isNotEmpty() || showsClearButton
+        tagListView.reloadMenuData()
+        val editing = arguments["editing"] as? Boolean ?: false
+        if (editing != tagListView.isEditing) tagListView.setEditing(editing, false)
+        applySelection()
         reportHeight()
     }
+
+    private fun applySelection() {
+        if (tagListView.selectionMode != CYLMenuSelectionMode.CYLMenuSelectionModeMultiple) return
+        tagListView.selectedIndexPaths = titles.indices.filter { idAt(it) in selected }.map { CYLIndexPath(it, 0) }
+    }
+
+    // CYLMenuDataSource
+
+    override fun numberOfSectionsInMenu() = 1
+    override fun menuNumberOfItemsInSection(section: Int) = titles.size
+    override fun menuTitleForSection(section: Int) = sectionTitle
+    override fun menuTitleForItemAtIndexPath(indexPath: CYLIndexPath) = titles.getOrElse(indexPath.item) { "" }
+    override fun menuIdentifierForItemAtIndexPath(indexPath: CYLIndexPath): String = idAt(indexPath.item)
+    override fun menuShowsClearButtonForSection(section: Int) = showsClearButton
+    override fun supportsRenamingItems() = supportsRenaming
+    override fun menuRenameItemAtIndexPath(indexPath: CYLIndexPath, title: String) = Unit
+    override fun supportsMovingItems() = true
+    override fun menuMoveItemAtIndexPath(sourceIndexPath: CYLIndexPath, toIndexPath: CYLIndexPath) {
+        val from = sourceIndexPath.item
+        val to = toIndexPath.item
+        titles = titles.toMutableList().apply { add(to, removeAt(from)) }
+        if (ids.size == titles.size) ids = ids.toMutableList().apply { add(to, removeAt(from)) }
+        channel.invokeMethod("didMoveTag", mapOf("from" to from, "to" to to))
+    }
+    override fun menuRemoveItemAtIndexPath(indexPath: CYLIndexPath) {
+        val index = indexPath.item
+        val id = idAt(index)
+        titles = titles.filterIndexed { i, _ -> i != index }
+        if (ids.size > index) ids = ids.filterIndexed { i, _ -> i != index }
+        channel.invokeMethod("didDeleteTag", mapOf("index" to index, "id" to id))
+    }
+
+    // CYLMenuDelegate
+
+    override fun menuDidSelectItemAtIndexPath(menu: Any, indexPath: CYLIndexPath) {
+        val index = indexPath.item
+        val id = idAt(index)
+        val nowSelected = tagListView.selectionMode == CYLMenuSelectionMode.CYLMenuSelectionModeMultiple
+        if (nowSelected) selected = selected + id
+        channel.invokeMethod("didSelectTag", mapOf("index" to index, "title" to titles.getOrElse(index) { "" }, "id" to id, "selected" to nowSelected))
+    }
+
+    override fun menuDidDeselectItemAtIndexPath(menu: Any, indexPath: CYLIndexPath) {
+        val index = indexPath.item
+        val id = idAt(index)
+        selected = selected - id
+        channel.invokeMethod("didSelectTag", mapOf("index" to index, "title" to titles.getOrElse(index) { "" }, "id" to id, "selected" to false))
+    }
+
+    override fun menuDidTapClearButtonInSection(menu: Any, section: Int) {
+        channel.invokeMethod("didTapClearButton", mapOf("section" to section))
+    }
+    override fun menuDidChangeContentHeight(menu: Any, height: Float) = reportHeight()
+    override fun menuDidChangeExpanded(menu: Any, expanded: Boolean, inSection: Int) = reportHeight()
+    override fun menuDidChangeEditing(menu: Any, editing: Boolean) = reportHeight()
 
     private fun reportHeight() {
         val width = tagListView.width / tagListView.resources.displayMetrics.density
@@ -378,6 +503,39 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
     }
 
     override fun getView(): View = tagListView
+
+    override fun dispose() {
+        channel.setMethodCallHandler(null)
+    }
+}
+
+/**
+ * CYLTableViewPlaceHolder's `CYLPlaceholderView` centred in the platform view: the image of a `CYLPlaceholderStyle`
+ * (by name) above a text.
+ */
+internal class CYLFlutterPlaceholderView(context: Context, arguments: Map<String, Any?>, private val channel: MethodChannel) :
+    PlatformView {
+
+    private val container = FrameLayout(context)
+
+    init {
+        apply(arguments)
+        channel.setMethodCallHandler { call, result ->
+            @Suppress("UNCHECKED_CAST")
+            if (call.method == "update") (call.arguments as? Map<String, Any?>)?.let { apply(it) }
+            result.success(null)
+        }
+    }
+
+    private fun apply(arguments: Map<String, Any?>) {
+        val name = arguments["placeholderStyle"] as? String ?: "empty"
+        val style = CYLPlaceholderStyle.entries.firstOrNull { it.name.equals(name, ignoreCase = true) } ?: CYLPlaceholderStyle.Empty
+        container.removeAllViews()
+        val placeholder = CYLPlaceholderView(container.context, style, arguments["text"] as? String ?: "").apply { reportsContentSize = true }
+        container.addView(placeholder, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT, android.view.Gravity.CENTER))
+    }
+
+    override fun getView(): View = container
 
     override fun dispose() {
         channel.setMethodCallHandler(null)

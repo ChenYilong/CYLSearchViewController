@@ -625,7 +625,8 @@ Flutter 2503, 919, 833, 355, then 0.
   ("Contact tags", "Contact tags without tags"); caches A and B in memory (no storage package in the example); the HUD drawn by
   the example; "+ New Tag" opens Manage (no cross-platform prompt). Jest 4/4
   ([assets/react-native-android-api37-20261119-contact-tags.png](assets/react-native-android-api37-20261119-contact-tags.png) and [assets/react-native-android-api37-20261119-contact-tags-remark-empty.png](assets/react-native-android-api37-20261119-contact-tags-remark-empty.png), React Native 0.88.0, Android API 37 Medium Phone emulator, Windows 11, 2026-11-19 +13:00, after 274ba00).
-  The tags use the bridge's default look (no style prop yet). React Native iOS screenshots: the macOS session.
+  The tags use the bridge's default look (no style prop yet). React Native iOS DONE by the macOS session: f88d6fd
+  ([assets/react-native-ios27.2-iphone18pro-20261119-contact-tags.png](assets/react-native-ios27.2-iphone18pro-20261119-contact-tags.png)).
   Score: 90/100. TODO: Flutter, planned below.
 - **Plan for React Native and Flutter (2026-11-19)**: both packages are thin bridges over the native views (React Native
   codegen components `CylsearchBarView`, `CylsearchTagListView`, `CylsearchView`; Flutter platform views), and the bridges
