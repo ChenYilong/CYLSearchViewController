@@ -493,9 +493,11 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
             tagListView.reloadMenuData()
         }
         selectedIds = Set(arguments["selectedIds"] as? [String] ?? [])
-        applySelection()
         let editing = arguments["editing"] as? Bool ?? false
         if editing != tagListView.isEditing { tagListView.setEditing(editing, animated: true) }
+        // After the editing change: leaving editing mode drops the list's selection, and Dart sends no other update
+        // (React Native re-renders and so applied it again; Flutter sends `update` only for changed arguments).
+        applySelection()
         setNeedsLayout()
     }
 
@@ -581,6 +583,7 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
     }
 
     func menu(_ menu: Any, didChangeEditing editing: Bool) {
+        applySelection()
         reportedHeight = -1
         setNeedsLayout()
     }
