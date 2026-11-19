@@ -15,7 +15,7 @@ target 'CYLSearchExample' do
   pod 'CYLTableViewPlaceHolder', :subspecs => ['Core', 'Lottie'], :git => 'https://github.com/ChenYilong/CYLTableViewPlaceHolder.git', :commit => 'e9848682f83f9dfb37dd36e0647049a1154bc703'
   # Sub-repository (AGENTS.md, "Sub-repositories"): the tag suggestion style of CYLSearchView. Pinned to its newest
   # commit on any branch (`git log --remotes -1`); never a local path in a commit.
-  pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => '98c847a601515f4947ea8b4047089c6c8a1de1af'
+  pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => 'c9a9421231418693f1ffcfa2b975694793c8a9f2'
   # SVGA: the tab icon animations (docs/CYLTabBarController-Integration.md, SVGA TODO).
   pod 'CYLTabBarController', :subspecs => ['Core', 'SVGA', 'CYLFlatDesignTabBar'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '5744917dfd947b4c09bbc55a0a2f2d2a853097d2'
   # CYLAnimatedItem, the shared animated icon + title component the search bar items subclass: its own pod in
