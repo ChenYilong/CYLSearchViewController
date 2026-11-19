@@ -594,6 +594,8 @@ Flutter 2503, 919, 833, 355, then 0.
   ([assets/android-medium-phone-api37-20261119-contact-tags.png](assets/android-medium-phone-api37-20261119-contact-tags.png) and
   [assets/android-medium-phone-api37-20261119-contact-tags-remark-empty.png](assets/android-medium-phone-api37-20261119-contact-tags-remark-empty.png), Android API 37 Medium Phone emulator, Windows 11, 2026-11-19 +13:00, after 2fee101).
   Differences from iOS: Edit Tags is a pushed page (Android has no sheet with a navigation stack), Back is Cancel; the
-  load policy launch option is not ported yet. Known: the HUD clips its status (CYLTableViewPlaceHolder fix in progress).
+  load policy launch option is not ported yet. The HUD clipped its status at CYLTableViewPlaceHolder e9848682; fixed by
+  its 45adf68, pinned at b18b617 on Android, HarmonyOS and the mini program; the placeholders set `reportsContentSize` as
+  on iOS, since that is no longer the default ([assets/android-medium-phone-api37-20261119-contact-tags-hud.png](assets/android-medium-phone-api37-20261119-contact-tags-hud.png), Android API 37 Medium Phone emulator, Windows 11, 2026-11-19 +13:00, after 918a7fa).
   Score: 30/100 (Android). TODO: HarmonyOS (next; CollectionViewClassifyMenu's HarmonyOS API is at c9a94212), the mini
   program, React Native and Flutter; `CYLContactTags` in `harmonyos/scripts/check-ios-parity.mjs`.

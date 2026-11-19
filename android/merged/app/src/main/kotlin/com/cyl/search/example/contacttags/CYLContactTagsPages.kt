@@ -187,6 +187,8 @@ class CYLContactRemarkPage : CYLExamplePage(), CYLMenuDataSource, CYLMenuDelegat
         })
         column.addView(tagsView, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = context.dp(12f) })
         val placeholder = CYLPlaceholderView(context, CYLPlaceholderStyle.Empty, cylContactTagsText(context, "remarkNoTags")).apply {
+            // At its content size below "Tags", as iOS (`reportsContentSize`).
+            reportsContentSize = true
             contentDescription = "${cylContactTagsText(context, "remarkNoTags")}, ${cylContactTagsText(context, "hintEdit")}"
             isClickable = true
             setOnClickListener { editTags() }
@@ -535,6 +537,8 @@ class CYLContactTagEditorPage : CYLExamplePage(), CYLMenuDataSource, CYLMenuDele
             }
             placeholder?.let {
                 it.tag = "CYLContactTagsPlaceholder"
+                // Centred at its content size in the free space, as iOS (`reportsContentSize`).
+                it.reportsContentSize = true
                 placeholderArea.addView(it, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER))
                 placeholderView = it
             }
