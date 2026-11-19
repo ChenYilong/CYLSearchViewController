@@ -1,8 +1,23 @@
 {
   "apiType": "stageMode",
   "buildOption": {},
+  "buildOptionSet": [
+    {
+      // For the x86_64 emulator (Mate 70 Pro, 127.0.0.1:5555): `@ohos/rive` and `@tencent/libpag` (dependencies of
+      // CYLTabBarController and CYLTableViewPlaceHolder) ship arm64-v8a .so files only, and the installer rejects a HAP
+      // whose native libraries do not match the device ABI. This option leaves them out, so Rive and PAG animations are
+      // unavailable in the `emulator` target; build it with `-p module=entry@emulator`. Phones use `default`.
+      "name": "emulator",
+      "nativeLib": { "filter": { "excludes": ["**/arm64-v8a/*.so"] } }
+    }
+  ],
+  "buildModeBinder": [
+    { "buildModeName": "debug", "mappings": [{ "targetName": "emulator", "buildOptionName": "emulator" }] },
+    { "buildModeName": "release", "mappings": [{ "targetName": "emulator", "buildOptionName": "emulator" }] }
+  ],
   "targets": [
     { "name": "default" },
-    { "name": "ohosTest" }
+    { "name": "ohosTest" },
+    { "name": "emulator" }
   ]
 }

@@ -21,7 +21,8 @@
       "name": "entry",
       "srcPath": "./entry",
       "targets": [
-        { "name": "default", "applyToProducts": ["default"] }
+        { "name": "default", "applyToProducts": ["default"] },
+        { "name": "emulator", "applyToProducts": ["default"] }
       ]
     },
     {
