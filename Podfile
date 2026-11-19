@@ -12,7 +12,7 @@ target 'CYLSearchExample' do
   pod 'CYLSearchViewController', :path => '.'
   # Sub-repository (AGENTS.md, "Sub-repositories"): the empty search results placeholder of CYLSearchView and the
   # example's empty states. Pinned to its newest commit on any branch; never a local path in a commit.
-  pod 'CYLTableViewPlaceHolder', :subspecs => ['Core', 'Lottie'], :git => 'https://github.com/ChenYilong/CYLTableViewPlaceHolder.git', :commit => 'e9848682f83f9dfb37dd36e0647049a1154bc703'
+  pod 'CYLTableViewPlaceHolder', :subspecs => ['Core', 'Lottie'], :git => 'https://github.com/ChenYilong/CYLTableViewPlaceHolder.git', :commit => 'b18b617b4769e30bbabad7640a2d6db26000ca2e'
   # Sub-repository (AGENTS.md, "Sub-repositories"): the tag suggestion style of CYLSearchView. Pinned to its newest
   # commit on any branch (`git log --remotes -1`); never a local path in a commit.
   pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => '1a3a31dc559ec79d8e631bc7e6a88399920e2214'
