@@ -711,4 +711,12 @@ Flutter 2503, 919, 833, 355, then 0.
   Android `CYLContactTagStoreTest`.
   [assets/contact-tags-delete-android-miniprogram-20261119.png](assets/contact-tags-delete-android-miniprogram-20261119.png) (Android API 37 emulator and WeChat DevTools 2.02.2609250, Windows 11, 2026-11-19 +13:00, after 3c7c83c).
   Still unknown: the build where it did nothing; left: a real tap in the mini program (a phone) and HarmonyOS.
-- **Status**: TODO. Score: 0/100 (full marks: deleting works on every platform, with a test and a labelled screenshot).
+- **HarmonyOS (2026-11-19, macOS session, Mate 70 Pro emulator, unsigned HAP built from this branch at the same pins)**:
+  the cross deletes: 家人, then 朋友, removed at once, the others move up
+  ([assets/harmonyos-mate70pro-20261119-contact-tags-delete.png](assets/harmonyos-mate70pro-20261119-contact-tags-delete.png)).
+  CollectionViewClassifyMenu's own Android and HarmonyOS examples have no contacts or Manage demo, so the report is about
+  this example. With the Windows session's Android check (native, React Native, Flutter), deleting works on every platform
+  that can be run at these pins; the user reported Android or HarmonyOS, so the failing build is likely an older install
+  (before CollectionViewClassifyMenu `98c847a6` on Android or `c9a94212` on HarmonyOS) or a real device; asked.
+- **Status**: TODO. Score: 80/100 (deleting verified on iOS, Android and HarmonyOS emulators at the pins; the user's
+  failing build not yet reproduced).
