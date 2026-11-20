@@ -190,10 +190,6 @@ class CYLSearchBarWidgetController extends _CYLPlatformViewController {
 /// starts, the held touches reach it) and the scroll view does not scroll with it; a swipe that began earlier scrolls as usual.
 Set<Factory<OneSequenceGestureRecognizer>> _tagListGestureRecognizers() => <Factory<OneSequenceGestureRecognizer>>{
       Factory<LongPressGestureRecognizer>(LongPressGestureRecognizer.new),
-      // iOS: the embedder replays a UiKitView's touches only after the arena decides, so the native list's own long press never
-      // saw the held finger (the page stayed still, the tag did not lift). An eager recognizer lets the native list take the
-      // touches at once, as CYLTabBarController's platform view does; the native list scrolls itself.
-      if (defaultTargetPlatform == TargetPlatform.iOS) Factory<EagerGestureRecognizer>(EagerGestureRecognizer.new),
     };
 
 Widget _platformView(

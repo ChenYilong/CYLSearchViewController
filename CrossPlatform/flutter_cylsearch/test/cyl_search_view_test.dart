@@ -352,7 +352,6 @@ void main() {
       await tester.pumpWidget(const Directionality(textDirection: TextDirection.ltr, child: CYLTagListView(tags: <String>['Swift'])));
       final view = tester.widget<UiKitView>(find.byType(UiKitView));
       expect(view.gestureRecognizers?.map((factory) => factory.type), contains(LongPressGestureRecognizer));
-      expect(view.gestureRecognizers?.map((factory) => factory.type), contains(EagerGestureRecognizer), reason: 'iOS replays touches after the arena');
     } finally {
       debugDefaultTargetPlatformOverride = null;
     }
