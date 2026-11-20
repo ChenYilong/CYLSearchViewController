@@ -987,8 +987,12 @@ Android.
   | Android native | scrolls | the tag moves, the content stays | \`CYLTagListView\` calls \`requestDisallowInterceptTouchEvent(true)\` when the drag starts (and when a smear starts), which every ancestor scroller honours until the finger lifts |
   | React Native Android | scrolls | the tag moves, the content stays | the same native view; \`ReactScrollView\` honours it |
   | Flutter Android | scrolls | **the tag moves and the content scrolls with it** | the platform view sits in Flutter's gesture arena with no recognizer, so the \`ListView\` also takes the drag |
-  | HarmonyOS | not run (the emulator needs more disk) | not run | the tag list reports no drag state and the core's content \`Scroll\` in \`CYLSearchView.ets\` has no hold; the macOS session runs it on its emulator |
-  | iOS (native, React Native, Flutter) | the macOS session | the macOS session | |
+  | HarmonyOS (macOS session, Mate 70 Pro emulator on the macOS machine) | scrolls from outside a tag; a swipe that starts ON a tag does not scroll | not simulable: `uitest uiInput swipe` and `drag` are the same command (no press-and-hold), so a real long press and drag was not run | the tag list reports no drag state and the core's content `Scroll` in `CYLSearchView.ets` has no hold (code reading, Windows session); a long press drag on a device is still to check |
+  | iOS native (macOS session, iPhone 18 Pro simulator, 2026-11-20) | n/a | **holds**: the tag lifts and the content stays; a short drag inside the list leaves every position unchanged; a drag down to the sheet's bottom edge scrolls the content (UIKit's edge auto-scroll while an item is dragged: a deliberate reorder aid, not the conflict) | `UICollectionView` interactive movement on the very collection view that scrolls: UIKit suspends its pan while an item is dragged |
+| iOS React Native (same session) | n/a | **holds**: the first tag lifts and floats over the list, the "Recent" and "My Tags" headers stay put | the native `CYLTagListView` inside RN's scroll view: its long press wins |
+| iOS Flutter (same session) | n/a | **does NOT hold**: the page is pulled down with the drag and the first tag never lifts | the Dart scroll view wins the gesture arena over the platform view (same cause as Flutter Android) |
+
+  iOS screenshot (React Native holds, Flutter does not): [assets/ios-iphone18pro-20261120-tag-drag-scroll-rn-flutter.png](assets/ios-iphone18pro-20261120-tag-drag-scroll-rn-flutter.png) (iPhone 18 Pro simulator, iOS 27.2, at ClassifyMenu `954edf8c` / tab bar `41660d24`).
 
   [assets/android-tag-drag-scroll-native-vs-flutter-20261120.png](assets/android-tag-drag-scroll-native-vs-flutter-20261120.png) (Android API 37 emulator, Windows 11, 2026-11-20 +13:00, after a17131a).
 - **Plan, the same names on every platform**:
@@ -1000,5 +1004,8 @@ Android.
   3. Flutter core (\`flutter_cylsearch\`): the Android and iOS plugins forward the state as \`didChangeDragging\`; \`CYLTagListView\` claims the drag in the gesture
      arena at that moment, so an ancestor \`Scrollable\` does not scroll (a swipe that began earlier still scrolls), with a widget test.
   4. React Native: the bridge forwards \`onReorderingChange\` and \`onSmearingChange\` for API parity (the native hold already works on Android).
+- **iOS plan (macOS session)**: native and React Native iOS need no hold today. Needed: the ClassifyMenu callbacks `menuDidChangeReordering` / `menuDidChangeSmearing` on iOS
+  (asked of Mac-CollectionViewClassifyMenu文件夹) for API parity and for the Flutter iOS fix (the platform view forwards `didChangeDragging` and the Dart core claims the drag, same as
+  Android); the iOS search core's content scroll view (`isScrollEnabled`) holds while a drag/smear is active, if a host puts a scroll view in its content slot.
 - **Left**: all of the plan; the Android and Flutter checks again after each step with the same drag test
   (\`dragtest.sh\` on the Windows machine), HarmonyOS on the macOS emulator.
