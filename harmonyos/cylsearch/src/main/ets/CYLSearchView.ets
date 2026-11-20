@@ -9,6 +9,7 @@ import {
   CYLRefreshNormalHeaderModel,
   CYLRefreshScrollViewModel
 } from 'cylplaceholder';
+import { CYLMenuGestureState } from '@cyl/classifymenu';
 import { CYLSearchBarComponent, CYLSearchBarNavigationIcon, CYLSearchBarView, CYLSearchBarViewDelegate } from './CYLSearchBarView';
 import { CYLSearchResources, CYLSearchSuggestionCache, CYLSearchSuggestionCachePolicy } from './CYLSearchResources';
 
@@ -340,6 +341,11 @@ export class CYLSearchView {
    * A view of yours shown under the divider, behind the suggestions: a results list, a history.
    */
   @Trace contentView: WrappedBuilder<[]> | undefined = undefined;
+  /**
+   * True while a tag list (a drag of a tag or a smear selection) has a gesture active, the mini program's content page lock. The
+   * core's own scrollers hold while it is true; a host scroller in `contentView` binds `enableScrollInteraction(!searchView.tagGestureActive)`.
+   */
+  @Trace tagGestureActive: boolean = false;
   /**
    * The color behind the page while it is open; undefined draws none.
    */
@@ -1022,8 +1028,14 @@ export struct CYLSearchComponent {
     this.updateKeyboardInset();
   };
 
+  private onTagGesture = (active: boolean): void => {
+    this.searchView.tagGestureActive = active;
+  };
+
   aboutToAppear(): void {
     this.searchView.uiContext = this.getUIContext();
+    this.searchView.tagGestureActive = CYLMenuGestureState.shared.isActive;
+    CYLMenuGestureState.shared.addListener(this.onTagGesture);
     const context = this.getUIContext().getHostContext();
     if (context === undefined) {
       return;
@@ -1037,6 +1049,8 @@ export struct CYLSearchComponent {
   }
 
   aboutToDisappear(): void {
+    CYLMenuGestureState.shared.removeListener(this.onTagGesture);
+    this.searchView.tagGestureActive = false;
     try {
       this.hostWindow?.off('keyboardHeightChange', this.keyboardListener);
     } catch (error) {
@@ -1274,6 +1288,7 @@ export struct CYLSearchComponent {
     .width('100%')
     .layoutWeight(1)
     .align(Alignment.Top)
+    .enableScrollInteraction(!this.searchView.tagGestureActive)
   }
 
   // The results of `resultsDataSource` (iOS `resultsTableView`, was `CYLSearchResultsViewController`): one row per
@@ -1300,6 +1315,7 @@ export struct CYLSearchComponent {
     .height('100%')
     .divider({ strokeWidth: 0.5, color: $r('sys.color.comp_divider'), startMargin: 16 })
     .edgeEffect(EdgeEffect.Spring, { alwaysEnabled: true })
+    .enableScrollInteraction(!this.searchView.tagGestureActive)
   }
 
   build() {

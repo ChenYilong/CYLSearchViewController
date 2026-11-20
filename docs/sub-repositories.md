@@ -277,6 +277,9 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   `954edf8c` plus the tag list state callbacks `menuDidChangeReordering` and `menuDidChangeSmearing` on Android and HarmonyOS. Android tests pass (0
   failures) and the APK builds with `.cyl-deps` at `53608bb5`; HarmonyOS builds the `default`, `emulator` and `ohosTest` HAPs; the mini program passes 60/60;
   the Flutter Android plugin uses the callbacks (`didChangeDragging`).
+- **CollectionViewClassifyMenu `cf478388` (2026-11-20, Windows)**: adds `CYLMenuGestureState.shared` (isActive, addListener) on HarmonyOS. The
+  search core listens and sets `searchView.tagGestureActive`; its suggestion and results scrollers hold while a tag drag or smear is active, and a host
+  scroller in `contentView` binds `enableScrollInteraction(!searchView.tagGestureActive)`. The three HAPs build; a device run is still open.
 
 - **iOS, Flutter and React Native iOS re-pinned (2026-11-20)**: CollectionViewClassifyMenu `bbf854ce` (PR #25, not merged at
   the time; its iOS content is `ca412aa7`), CYLTabBarController `8b7dea18` (the iOS 15 minimum; the launch crash in
