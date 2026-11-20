@@ -966,3 +966,39 @@ Android.
   A unit test in that repository needs a seam: the test classpath has no SVGA, Lottie or Rive library and the animation state is private.
 - **Status**: TODO. Score: 70/100 (audited on three apps, the cause found, the fix verified on the emulator; left: the fix and its test
   committed in CYLTabBarController, re-bundled by CollectionViewClassifyMenu and pinned here, then the same check again).
+
+## TODO (2026-11-20): the tag list drag holds the scrolling on every platform, like the mini program
+
+- **Branch**: `feat/harmonyos-parity`. Score: 30/100 (full marks: every platform holds the content scroller while a drag or smear
+  is active, by core code, with a test and a labelled screenshot; 60: Android native, React Native, Flutter and HarmonyOS).
+- **Prompt (verbatim)**: "小程序联系人example拖动taglist期间禁止滚动测试通过，现在排查其他端的逻辑，要求与小程序的逻辑保持一致，修改searchbar以及collectionview库里的core代码实现该功能。"
+  (English: the mini program contact tags example holds scrolling while a tag list is dragged, tested and passing; now check the
+  other platforms' logic, keep it consistent with the mini program, and implement it in the core code of the search bar and
+  the collection view library.)
+- **The contract** (`AGENTS.md`, "The core owns the content below the search bar and its scrolling"): the tag list reports a drag
+  (and a smear) as a state; the core's content page holds its own scrolling only while one is active, and scrolls at every other
+  time; the example holds nothing. Mini program: done and confirmed on the user's phone (\`reorderingchange\` / \`smearingchange\`
+  bubbling to \`cyl-search\`'s content page).
+- **Audit, Android API 37 emulator** (contact tags editor in Manage; a long press on a tag's padding, a drag of 450 px up and
+  300 px down, the y of the "Recent" or "My Tags" header before and after; a swipe on a tag as the control):
+
+  | Platform | A swipe on a tag | A long press and drag | Why |
+  | :--- | :--- | :--- | :--- |
+  | Android native | scrolls | the tag moves, the content stays | \`CYLTagListView\` calls \`requestDisallowInterceptTouchEvent(true)\` when the drag starts (and when a smear starts), which every ancestor scroller honours until the finger lifts |
+  | React Native Android | scrolls | the tag moves, the content stays | the same native view; \`ReactScrollView\` honours it |
+  | Flutter Android | scrolls | **the tag moves and the content scrolls with it** | the platform view sits in Flutter's gesture arena with no recognizer, so the \`ListView\` also takes the drag |
+  | HarmonyOS | not run (the emulator needs more disk) | not run | the tag list reports no drag state and the core's content \`Scroll\` in \`CYLSearchView.ets\` has no hold; the macOS session runs it on its emulator |
+  | iOS (native, React Native, Flutter) | the macOS session | the macOS session | |
+
+  [assets/android-tag-drag-scroll-native-vs-flutter-20261120.png](assets/android-tag-drag-scroll-native-vs-flutter-20261120.png) (Android API 37 emulator, Windows 11, 2026-11-20 +13:00, after a17131a).
+- **Plan, the same names on every platform**:
+  1. CollectionViewClassifyMenu core: a public state callback of the tag list, the counterpart of the mini program events: \`menuDidChangeReordering(menu, reordering)\`
+     and \`menuDidChangeSmearing(menu, smearing)\` on the delegate (Kotlin, ArkTS, Swift), sent at the start, the end and the cancel of a drag or a smear.
+     Android and HarmonyOS: winCollectionViewClassifyMenu; iOS: Mac-CollectionViewClassifyMenu.
+  2. Search core, HarmonyOS: the content \`Scroll\` of \`CYLSearchView\` listens to the tag list inside it and sets \`enableScrollInteraction(false)\` only while a drag
+     or a smear is active. iOS: the content scroll view's \`isScrollEnabled\` the same way (macOS session).
+  3. Flutter core (\`flutter_cylsearch\`): the Android and iOS plugins forward the state as \`didChangeDragging\`; \`CYLTagListView\` claims the drag in the gesture
+     arena at that moment, so an ancestor \`Scrollable\` does not scroll (a swipe that began earlier still scrolls), with a widget test.
+  4. React Native: the bridge forwards \`onReorderingChange\` and \`onSmearingChange\` for API parity (the native hold already works on Android).
+- **Left**: all of the plan; the Android and Flutter checks again after each step with the same drag test
+  (\`dragtest.sh\` on the Windows machine), HarmonyOS on the macOS emulator.
