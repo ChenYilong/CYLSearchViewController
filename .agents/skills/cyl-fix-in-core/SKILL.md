@@ -50,3 +50,22 @@ into the class that owns the feature (a parameter or a mode), never into a new p
   the core.
 - Is it the example's own page (its list, its icons, its window setup) with no counterpart in the core? Then it is
   example-only, and the document says so.
+
+## The content below the search bar and its scrolling belong to the core (added 2026-11-20)
+
+Full rule: `AGENTS.md`, "The core owns the content below the search bar and its scrolling".
+
+- The search bar and the content page below it are created and owned by the core (mini program: `cyl-search-bar` and the
+  content area of `cyl-search`). An example never creates, looks up or holds that scrolling view: no own `<scroll-view>`
+  around core content, no `getCurrentPages()`, `selectComponent` or `currentPage` lookup, no example flag such as
+  `reordering` bound to `scroll-y`. `currentPage()` (miniprogram-automator) is for test scripts only.
+- The content page listens by itself to the tag list's editing state and drag gesture (`reorderingchange`,
+  `smearingchange`). It turns its own scrolling off only while a drag gesture is active (from the start of the drag until
+  it ends or is cancelled); scrolling stays on at every other time, in editing mode too.
+- It must be the one view that scrolls (a fixed-height column, not a page that grows with its content) and it holds that
+  view's own switch (`scroll-y`, `isScrollEnabled`, ...). In WeChat `catchtouchmove` only stops propagation, and iOS
+  ignores a page-level `overflow: hidden` for touch scrolling.
+- A tag list in another repository emits the states as bubbling, composed events: fix it there first, then pin it
+  (`cyl-sub-repositories`). The example only places the tag list into the content page.
+- Question that decides it: does the example toggle scrolling, find a page or a scroller, or own a scroll view around
+  core content? Then the behavior is in the wrong layer: move it into the core.

@@ -178,3 +178,14 @@ control a test cannot find by label is a screen-reader gap to fix in the app fir
   `box="10 20 30 40"`, `sips --cropOffset $box …` passes one argument in zsh but four in bash. The error this rule
   avoids: "zsh doesn't split $box into words either. Running the same measurement as a bash script."
 - In zsh, when a script cannot be used, split explicitly (`${=box}`) or use an array; never rely on word splitting.
+
+## Scrolling and drag gestures: real pointer input (added 2026-11-20)
+
+- miniprogram-automator's `touchstart` / `touchmove` / `tap` are synthetic events and cannot scroll, so they cannot prove a
+  scroll lock. Use real mouse drags in the WeChat DevTools simulator (touch emulation with native scrolling): find the
+  simulator window on the screen, check before every press that the pointer is over it, press, hold, move in steps, release.
+- Read the page's and the list's scroll offsets and the order of the tags, in the same automator connection (a new
+  connection restarts the simulator). Run a control with the protection off: if it does not scroll, the test cannot tell.
+- Cases: a swipe on a tag scrolls; a long press then a drag moves the tag and scrolls nothing; a move before the long press
+  fires scrolls. The lock belongs to the core's content page (`AGENTS.md`, "The core owns the content below the search bar
+  and its scrolling").

@@ -56,6 +56,21 @@ Read this file and `AGENTS.md` before changing project files.
   could not solve it and why the example layer did.
 - Full rule: `AGENTS.md`, "Fix issues in the core first"; skill `cyl-fix-in-core`.
 
+## The core owns the content below the search bar and its scrolling (added 2026-11-20)
+
+- The search bar and the content page below it (tag lists, suggestions, results) are created and owned by the core
+  (mini program: `cyl-search-bar` and the content area of `cyl-search`). An example never creates, looks up or holds that
+  scrolling view: no own `<scroll-view>` around core content, no `getCurrentPages()` / `selectComponent` / `currentPage`
+  lookup, no example flag such as `reordering` bound to `scroll-y`. (`currentPage()` is for test scripts only.)
+- The content page listens by itself to the tag list's editing state and drag gesture (`reorderingchange`,
+  `smearingchange`) and turns its own scrolling off only while a drag gesture is active; scrolling stays on otherwise,
+  in editing mode too. It is the one scroller (a fixed-height column) and holds its own scroll switch (`scroll-y`);
+  `catchtouchmove` and a page-level `overflow: hidden` do not stop native scrolling in WeChat on iOS.
+- A tag list from another repository emits those states as bubbling, composed events: fix it there first, then pin it.
+- Test scrolling with real pointer input (mouse drags in WeChat DevTools), with a control with the protection off.
+- Full rule: `AGENTS.md`, "The core owns the content below the search bar and its scrolling"; skills `cyl-fix-in-core`,
+  `cyl-verify`.
+
 ## Search core
 
 - The search core is `CYLSearchBar`: three files and four public classes on iOS

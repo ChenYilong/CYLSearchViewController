@@ -26,9 +26,9 @@ WeChat DevTools Skills (<https://developers.weixin.qq.com/miniprogram/dev/devtoo
 | `cyl-license` | Any package published to a registry (CocoaPods, Maven/Gradle, npm, pub, ohpm): the MIT `LICENSE` inside its resource bundle, the manifest field, the check |
 | `cyl-task-start` | Starting, scoring and finishing any task: check other sessions, `TODO` and branch at the top, the `docs/` entry with acceptance criteria, scoring until it passes, missing points as `TODO`s at the end; restarting a hung emulator |
 | `cyl-docs` | Editing `README.md` or `docs/` |
-| `cyl-verify` | Building, testing, running the simulator |
+| `cyl-verify` | Building, testing, running the simulator; real pointer input for scrolling and drag gestures |
 | `cyl-api-parity` | Comparing two platforms' APIs: the parity table (source API, description, target counterpart, `TODO` by default), its score, and the loop to 100 |
-| `cyl-fix-in-core` | Fixing any issue or bug: in the core (code published to a package registry) first; example-layer fixes only after asking, with the reason documented |
+| `cyl-fix-in-core` | Fixing any issue or bug: in the core (code published to a package registry) first; example-layer fixes only after asking, with the reason documented; the content below the search bar and its scrolling belong to the core |
 | `cyl-commit` | Writing any commit message: `git cz` style, English only, the author line, the checks before committing |
 | `cyl-accessibility-i18n` | Screen readers and localization in any code; writing UI tests that find controls by their labels |
 | `cyl-harmonyos-setup` | Preparing DevEco Studio and the HarmonyOS emulator: SDK paths, virtualization, Huawei ID, region `CN` in `country.region.xml` |
@@ -110,6 +110,38 @@ Every new integration rule updates, in the same change, `AGENTS.md`,
      the core could not solve it, and why the example layer is the right place. A fix of example-only code (an example
      page's layout, its texts or images) says so: "example-only: the core has no such code".
 - Skill: `cyl-fix-in-core`.
+
+## The core owns the content below the search bar and its scrolling (added 2026-11-20)
+
+- Prompt (verbatim): "咱们的searchbar组件是由我们自己core核心代码创建的吧？为什么不能监听taglist编辑状态，修改seachbar对应视图的滚动禁用状态？请确认你提到的currentPage 应该在searchbar core核心代码中创建，你不应在example中手动查找。seachbar底部的显示页面也就是你所谓currentPage经由core代码创建后可以自行监听编辑taglist状态并且仅仅在拖拽手势启动状态，来自动关滚动开关"
+- Prompt (English): "Our search bar component is created by our own core code, isn't it? Why can it not listen to the tag
+  list's editing state and change the scrolling state of the view that belongs to it? Confirm that the currentPage you
+  mentioned must be created in the search bar core code and that you must not look it up by hand in the example. The
+  page shown below the search bar, which you call currentPage, once the core code has created it, can listen to the
+  tag list's editing state by itself and turn its scrolling off automatically, only while a drag gesture is active."
+- Rules:
+  1. The search bar and the content page shown below it (the page that holds the tag lists, suggestions or results) are
+     created and owned by the core: on the mini program `cyl-search-bar` and the content area of `cyl-search`, and the
+     same classes on every platform. An example never creates, looks up or holds that scrolling view. No `<scroll-view>`
+     of its own around the core's content, no `getCurrentPages()`, `selectComponent` or `currentPage` lookup in example
+     code, no example flag such as `reordering` bound to `scroll-y`. (`currentPage()` of miniprogram-automator may be used
+     in test scripts only, never in the core or in an example.)
+  2. The content page listens by itself to the tag list below it: its editing state and its drag gesture (the tag
+     list's `reorderingchange` {reordering}, and `smearingchange` {smearing} for the smear selection). It turns its own
+     scrolling off only while a drag gesture is active, from the start of the drag until it ends or is cancelled, and
+     keeps scrolling on at every other time, in editing mode too: a swipe scrolls, a long press starts the drag.
+  3. The content page is the one view that scrolls (on the mini program a fixed-height column whose `<scroll-view>` is the
+     scroller, never a page that grows with its content) and it holds that view's own scroll switch (`scroll-y`; the
+     scroll view's `isScrollEnabled` on iOS, the matching switch on Android, HarmonyOS, React Native and Flutter). In
+     WeChat `catchtouchmove` only stops propagation and never stops native scrolling; a page-level `overflow: hidden` is
+     not honoured by iOS for touch scrolling. `"disableScroll": true` in the page configuration only keeps the page
+     itself from scrolling or bouncing.
+  4. A tag list from another repository (CollectionViewClassifyMenu) sends those states as events the core's content page
+     can hear (on the mini program: bubbling and composed, so they cross the slot), fixed in that repository first and then
+     pinned here (`cyl-sub-repositories`). The example only places the tag list into the content page.
+  5. Test scrolling and dragging with REAL pointer input (mouse drags in WeChat DevTools, not miniprogram-automator's
+     synthetic events, which cannot scroll), read the scroll offsets, and run a control with the protection off, so the test
+     can tell. Skills: `cyl-fix-in-core`, `cyl-verify`.
 
 ## Project rules
 
