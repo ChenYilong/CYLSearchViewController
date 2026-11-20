@@ -453,9 +453,8 @@ before it was committed. So, from now on:
   them into the PNG as its "Description" text (`CYL header: ... | CYL footer: ...`).
 - **The check.** `sh scripts/check-screenshot-labels.sh` (staged images) or `... BASE HEAD` fails when an added
   `docs/assets` image is not a PNG, has no header and footer, is shown by no Markdown file, or the line that shows it
-  has no date (YYYY-MM-DD) and commit. Run it before every commit that adds an image (commit readiness). CI does not
-  run it: the `screenshot-labels.yml` workflow was removed at the user's request (2026-11-18, "Remove label CI
-  screenshots from ci").
+  has no date (YYYY-MM-DD) and commit. Run it before every commit that adds an image (commit readiness); CI runs it
+  on every pull request and push that touches `docs/assets` (`.github/workflows/screenshot-labels.yml`).
 - **The label line in the document**: on the same line as the image link, the platform, device and OS version,
   SDK / IDE version, host OS, the library commits, the date with time and time zone.
 - **Rules change mid-session.** At the start of each task, pull and read what changed in the rules since the session
