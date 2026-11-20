@@ -3,6 +3,7 @@ import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
 import { CYL_TAB_ICON_SOURCE_KEY, cylStoredTabIconSource } from '../common/DemoCommon';
 import { cylRegisterExampleAnimationEngines } from '../animation/CYLExampleAnimationViews';
+import { CYLMenuGestureState } from '@cyl/classifymenu';
 
 const DOMAIN = 0x0000;
 
@@ -39,6 +40,12 @@ export default class EntryAbility extends UIAbility {
         AppStorage.setOrCreate<number>(key, Number(value));
       }
     });
+    // Debug: `--pi CYLDebugTagGestureActive 1` sets the shared tag gesture state active (0 clears it), as a tag drag does, so a
+    // test that cannot make a real long press can check that the scrollers hold and release.
+    const gesture = want.parameters?.['CYLDebugTagGestureActive'];
+    if (gesture !== undefined && gesture !== null && !Number.isNaN(Number(gesture))) {
+      CYLMenuGestureState.shared.setActive(-1, Number(gesture) !== 0);
+    }
     const tab = want.parameters?.['CYLDemoTab'];
     if (tab !== undefined && tab !== null) {
       const index = Number(tab);
