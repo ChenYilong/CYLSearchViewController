@@ -8,7 +8,10 @@
 # (Podfile, android/merged/gradle.properties: `cyl.tabbar.commit`).
 set -eu
 cd "$(dirname "$0")/.."
-COMMIT=$(sed -n 's/^cyl.tabbar.commit=//p' ../../../android/merged/gradle.properties)
+# iOS may hold its own pin (`cyl.tabbar.ios.commit`) while the iOS build of a newer commit is broken; without it the
+# shared `cyl.tabbar.commit` is used.
+COMMIT=$(sed -n 's/^cyl.tabbar.ios.commit=//p' ../../../android/merged/gradle.properties)
+[ -n "$COMMIT" ] || COMMIT=$(sed -n 's/^cyl.tabbar.commit=//p' ../../../android/merged/gradle.properties)
 [ -n "$COMMIT" ] || { echo "cyl.tabbar.commit not found in android/merged/gradle.properties"; exit 1; }
 DIR=vendor/CYLTabBarController
 if [ ! -d "$DIR/.git" ]; then
