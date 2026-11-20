@@ -1,5 +1,6 @@
 import { display, LengthMetrics, UIContext, window } from '@kit.ArkUI';
 import { common } from '@kit.AbilityKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import { accessibility } from '@kit.AccessibilityKit';
 import {
   CYLPlaceholderScenario,
@@ -1029,12 +1030,14 @@ export struct CYLSearchComponent {
   };
 
   private onTagGesture = (active: boolean): void => {
+    hilog.info(0x0000, 'testTag', 'tagGestureActive -> %{public}s', String(active));
     this.searchView.tagGestureActive = active;
   };
 
   aboutToAppear(): void {
     this.searchView.uiContext = this.getUIContext();
     this.searchView.tagGestureActive = CYLMenuGestureState.shared.isActive;
+    hilog.info(0x0000, 'testTag', 'search component appeared, tagGestureActive=%{public}s', String(this.searchView.tagGestureActive));
     CYLMenuGestureState.shared.addListener(this.onTagGesture);
     const context = this.getUIContext().getHostContext();
     if (context === undefined) {
@@ -1211,6 +1214,7 @@ export struct CYLSearchComponent {
     .width('100%')
     .layoutWeight(1)
     .divider({ strokeWidth: 0.5, color: $r('sys.color.comp_divider'), startMargin: 16 })
+    .enableScrollInteraction(!this.searchView.tagGestureActive)
     .accessibilityText($r('app.string.cyl_search_suggestions'))
   }
 
