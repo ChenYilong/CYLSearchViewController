@@ -274,3 +274,10 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   (read first by React Native iOS's `fetch-cyltabbar.sh`, ignored by Android) is `8b7dea18` while Android, HarmonyOS and
   the mini program still pin `cyl.tabbar.commit` `8ece77dd`; delete the iOS line when they move. iOS: pod install for the
   three apps; native 36 of 36; Flutter and React Native iOS build.
+
+- **Every platform on one set of pins again (2026-11-20)**: CollectionViewClassifyMenu `ab84db37` (the merge of the mini program's
+  bubbling drag events `8c141d8c` and the tab bar bundle `bbf854ce`), CYLTabBarController `8b7dea18`, CYLTableViewPlaceHolder
+  `c84fce90`: Android, HarmonyOS and the mini program in `1b3541f`, iOS, Flutter and React Native iOS here. The iOS-only
+  `cyl.tabbar.ios.commit` line is deleted (React Native iOS reads `cyl.tabbar.commit` again; `fetch-cyltabbar.sh` still
+  prefers an iOS line when one is added). iOS: pod install for the three apps; native 36 of 36; Flutter and React Native
+  iOS build.
