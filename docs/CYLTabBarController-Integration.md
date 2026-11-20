@@ -1031,5 +1031,11 @@ Android.
     (the core's content `Scroll` holds only while a drag is active, from the ClassifyMenu callbacks; the callbacks reach the app through the tag list's delegate, so the
     search core needs a way to hear them, to be designed with the ClassifyMenu session; then a device run); React Native: forward the events for parity.
   - **Score**: 55/100.
+  - **HarmonyOS hold check (2026-11-20, macOS emulator, `e6f25d4`)**: launch `--ps CYLDebugQuery i --pi CYLDebugNoFocus 1 --pi CYLDebugTagGestureActive 1|0`
+    (`--pi` carries integers only, the query needs `--ps`); Examples, other libraries' examples, MiguelCatalan, Default, search icon. The suggestion list
+    (query "i", longer than the screen) swiped 700,2200 to 700,900: flag 1 did not scroll, flag 0 scrolled. Before `e6f25d4` the list-style
+    `suggestionList` had no hold and scrolled with the flag on. The keyboard's consent dialog was never accepted.
+    ([assets/harmonyos-20261120-tag-drag-hold-suggestion-list.png](assets/harmonyos-20261120-tag-drag-hold-suggestion-list.png), HarmonyOS emulator on macOS, `e6f25d4`, 2026-11-20 02:22 +08:00)
+  - **Left (HarmonyOS)**: the real drag signal from the ClassifyMenu callbacks (only the debug flag was exercised).
 - **Earlier "Left" (before the progress above)**: all of the plan; the Android and Flutter checks again after each step with the same drag test
   (`dragtest.sh` on the Windows machine), HarmonyOS on the macOS emulator.
