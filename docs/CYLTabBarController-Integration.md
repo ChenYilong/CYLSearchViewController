@@ -957,15 +957,37 @@ Android.
   previous tab only when its animator implements one, and the SVGA animator does not, so the previous tab keeps playing and ends on
   its selected frame. Hence React Native and Flutter, whose tabs are all animated, did not show it; any app of the Android library with
   more than five tabs (a "More" tab) would.
-- **Fix, verified locally** (not yet committed in CYLTabBarController): a shared `internal fun CYLTabBar.cyl_stopAnimationsOfAllTabBarItemsExcept(selectedControl)`
-  in `CYLTabBarItemAnimationHost.kt` (`cyl_animationLottieImageWithSelectedControl` calls it too) and one call to it in
-  `cyl_moreButtonTapped` before `cyl_playTabButtonAnimationForControl(button)`. With it, the same eight switches on the native example
-  leave only the selected tab marked, and the three switches to "More" are fixed
-  ([assets/android-svga-tab-switch-more-20261120.png](assets/android-svga-tab-switch-more-20261120.png), Android API 37 emulator, Windows 11, 2026-11-20 +13:00, after 1b3541f). The patch is
-  `C:\cylbuild\cyltabbar-more-animation.patch` on the Windows machine, for CYLTabBarController's Android owner to commit.
-  A unit test in that repository needs a seam: the test classpath has no SVGA, Lottie or Rive library and the animation state is private.
-- **Status**: TODO. Score: 70/100 (audited on three apps, the cause found, the fix verified on the emulator; left: the fix and its test
-  committed in CYLTabBarController, re-bundled by CollectionViewClassifyMenu and pinned here, then the same check again).
+- **Fix, committed in CYLTabBarController (2026-11-20, `c1abdffe` on `feat/cross-platform-components`, pull request 788)**: a shared
+  `internal fun CYLTabBar.cyl_stopAnimationsOfAllTabBarItemsExcept(selectedControl)` in `CYLTabBarItemAnimationHost.kt`
+  (`cyl_animationLottieImageWithSelectedControl` calls it too) and one call to it in `cyl_moreButtonTapped` before
+  `cyl_playTabButtonAnimationForControl(button)`. With it, the same eight switches on the native example leave only the selected tab
+  marked, and the three switches to "More" are fixed
+  ([assets/android-svga-tab-switch-more-20261120.png](assets/android-svga-tab-switch-more-20261120.png), Android API 37 emulator, Windows 11, 2026-11-20 +13:00, after 1b3541f). The seam the unit test needed (the test classpath has no SVGA, Lottie or Rive
+  library and the animation state is private) is a recording `CYLTabBarItemAnimator` / `CYLTabBarItemAnimationPlayer` test double that
+  tracks whether it is playing, the same shape SVGA has (no deselect step, only `stop()`); test
+  `CYLTabBarMoreAnimationTest.moreStopsTheAnimationOfTheTabSelectedBefore` fails on the commit before this fix and passes after;
+  `:cyltabbar` 130 tests, 0 failures (Gradle 9.3.1, JDK 17, no Mac in this session, documented in CYLTabBarController's
+  `docs/Android-Library.md`).
+- **New blocker found while re-pinning here (2026-11-20)**: bumping `cyl.tabbar.commit` to `c1abdffe` to pick up the fix breaks
+  `:classifymenu:compileDebugKotlin` in CollectionViewClassifyMenu: `CYLTagButton.kt:157:9 'style' hides member of supertype
+  'CYLAnimatedItemView' and needs an 'override' modifier`. Cause: CYLTabBarController's `cylanimateditem` gained a public
+  `var style: CYLAnimatedItemStyle` on `CYLAnimatedItemView` for the Countdown style feature (commits `e7053169`/`d5de5008`,
+  already in the pin before this fix, so unrelated to it); `CYLTagButton` (CollectionViewClassifyMenu) already has its own,
+  long-established `var style: CYLMenuStyle?` (a null-resettable per-tag style copy, used throughout `CYLTagButton.kt` and by
+  `CYLTagFoldButton`, two `androidTest` files, and read everywhere a tag or a fold button is styled), an unrelated type for an
+  unrelated purpose that happens to share the English word "style". The two names cannot both exist unqualified on the same class:
+  `override` is not actually possible (the types, `CYLAnimatedItemStyle` vs `CYLMenuStyle?`, do not match), so one of the two
+  must be renamed; `CYLTagListView`'s own `style: CYLMenuStyle?` (an unrelated `ViewGroup` subclass) and `CYLTag`'s own
+  `style: CYLMenuStyle?` (unrelated, not a view) are not affected, only `CYLTagButton` and its subclass `CYLTagFoldButton`. **Not
+  fixed here**: renaming either property is a public API change on a widely used member (cross-platform parity: `CYLTagButton.style`
+  likely mirrors an iOS property of the same name; `CYLAnimatedItemView.style` is used the same way on every platform
+  CYLAnimatedItemView ships on), so it needs the owning session's decision, not a guess made while chasing an unrelated bug.
+  **Left as its own TODO** (CollectionViewClassifyMenu `docs/animated-item-migration.md` or its API map, whichever session owns
+  that repository next): decide which `style` is renamed (or qualify one with its class, e.g. Kotlin's `@JvmName` does not help
+  here since the clash is at the Kotlin property level, not the JVM signature), rename every reference, re-pin CYLTabBarController
+  at `c1abdffe` or newer here, and rerun this row's check.
+- **Status**: TODO. Score: 80/100 (the fix is committed and tested in CYLTabBarController; re-pinning here and the final check are
+  blocked by the unrelated `style` name collision above, not by this bug).
 
 ## TODO (2026-11-20): the tag list drag holds the scrolling on every platform, like the mini program
 
