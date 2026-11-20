@@ -61,7 +61,7 @@ Read this file and `AGENTS.md` before changing project files.
 - The search bar and the content page below it (tag lists, suggestions, results) are created and owned by the core
   (mini program: `cyl-search-bar` and the content area of `cyl-search`). An example never creates, looks up or holds that
   scrolling view: no own `<scroll-view>` around core content, no `getCurrentPages()` / `selectComponent` / `currentPage`
-  lookup, no example flag such as `reordering` bound to `scroll-y`. (`currentPage()` is for test scripts only.)
+  lookup that finds the content page or its scroller (calling a core component's own API is fine), no example flag such as `reordering` bound to `scroll-y`. (`currentPage()` is for test scripts only.)
 - The content page listens by itself to the tag list's editing state and drag gesture (`reorderingchange`,
   `smearingchange`) and turns its own scrolling off only while a drag gesture is active; scrolling stays on otherwise,
   in editing mode too. It is the one scroller (a fixed-height column) and holds its own scroll switch (`scroll-y`);

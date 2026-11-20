@@ -238,3 +238,23 @@ test('cyl-search-bar editing bar: every new title takes the keyboard, also when 
   assert.deepEqual(focusHistory.slice(-2), [false, true]);
 });
 
+
+test('cyl-search: the content page is the one scroller and holds its scrolling only while a drag or a smear is active', () => {
+  const fs = require('node:fs');
+  const wxml = fs.readFileSync(path.join(__dirname, '..', 'src', 'cyl-search', 'index.wxml'), 'utf8');
+  // The content slot sits in a <scroll-view> that listens, as an ancestor of the slot, to the tag list's gesture events.
+  assert.match(wxml, /<scroll-view wx:if="\{\{showsContent\}\}" class="cyl-content" scroll-y="\{\{!contentScrollHeld\}\}"/);
+  assert.match(wxml, /bind:reorderingchange="onContentGesture"\s+bind:smearingchange="onContentGesture"><slot name="content" \/><\/scroll-view>/);
+  const search = load('cyl-search')({ showsContent: true, inline: true });
+  assert.equal(search.data.contentScrollHeld, false, 'scrolling is on, also while a list is in its editing mode');
+  search.onContentGesture({ type: 'reorderingchange', detail: { reordering: true } });
+  assert.equal(search.data.contentScrollHeld, true, 'a drag holds the scrolling');
+  search.onContentGesture({ type: 'smearingchange', detail: { smearing: true } });
+  search.onContentGesture({ type: 'reorderingchange', detail: { reordering: false } });
+  assert.equal(search.data.contentScrollHeld, true, 'a smear still active holds it');
+  search.onContentGesture({ type: 'smearingchange', detail: { smearing: false } });
+  assert.equal(search.data.contentScrollHeld, false, 'the end of the last gesture releases it');
+  search.onContentGesture({ type: 'reorderingchange', detail: { reordering: true } });
+  search.onContentGesture({ type: 'reorderingchange', detail: { reordering: false } });
+  assert.equal(search.data.contentScrollHeld, false, 'a cancelled drag releases it too (the list sends false)');
+});

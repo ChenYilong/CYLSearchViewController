@@ -19,7 +19,7 @@ function tagsOf(store, ids) {
 
 Page({
   data: {
-    texts: { editTags: '', search: '', recent: '', mine: '', results: '', manage: '', doneManaging: '', done: '', sync: '', newTag: '', tagName: '', add: '' }, style: STYLE, query: '', managing: false, reordering: false, doneEnabled: false,
+    texts: { editTags: '', search: '', recent: '', mine: '', results: '', manage: '', doneManaging: '', done: '', sync: '', newTag: '', tagName: '', add: '' }, style: STYLE, query: '', managing: false, doneEnabled: false,
     recentTags: [], mineTags: [], resultTags: [], canCreate: false, createTitle: '',
     emptyState: 'none', placeholderComponents: [],
   },
@@ -120,7 +120,7 @@ Page({
     const id = this.store.createTag(name);
     if (!id) return;
     if (!this.selectedTags.includes(id)) this.selectedTags.push(id);
-    this.setData({ query: '' }, () => this.reload());
+    this.clearQuery(() => this.reload());
   },
 
   onCreateTap() {
@@ -156,12 +156,6 @@ Page({
     this.reload();
   },
 
-  /** A tag drag starts or ends in My Tags: the list's scrolling is held meanwhile (`reordering`). */
-  onReorderingChange(event) {
-    const reordering = !!(event.detail && event.detail.reordering);
-    if (reordering !== this.data.reordering) this.setData({ reordering });
-  },
-
   onTagMove(event) {
     this.store.moveTag(event.detail.from, event.detail.to);
     this.mineIDs = this.store.tagIDs;
@@ -194,8 +188,15 @@ Page({
     this.setManaging(!this.data.managing);
   },
 
+  /** Empties the search field (cyl-search's setQuery) and the page's copy of the query. */
+  clearQuery(done) {
+    const search = this.selectComponent('#search');
+    if (search) search.setQuery('');
+    this.setData({ query: '' }, done);
+  },
+
   setManaging(managing) {
-    if (managing) this.setData({ query: '' });
+    if (managing) this.clearQuery();
     this.renamingPosition = undefined;
     this.setData({ managing, editingTitle: t('add'), editingText: '' }, () => this.reload());
   },

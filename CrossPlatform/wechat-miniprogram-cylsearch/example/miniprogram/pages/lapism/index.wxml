@@ -10,8 +10,9 @@
   <cyl-search generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
     id="search" coversNavigationBar showsContent showsSearchIcon="{{false}}" placeholder="{{hint}}" closesOnSubmit="{{false}}"
     cacheName="LapismSearch" bind:textchange="onTextChange" bind:focuschange="onFocusChange">
-    <scroll-view slot="content" scroll-y class="results">
+    <!-- The content page of cyl-search scrolls by itself: no scroll-view of our own. -->
+    <view slot="content" class="results">
       <view wx:for="{{filteredItems}}" wx:key="*this" class="row">{{item}}</view>
-    </scroll-view>
+    </view>
   </cyl-search>
 </view>

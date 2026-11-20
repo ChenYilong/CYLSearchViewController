@@ -1,5 +1,3 @@
-<!-- The root view: page scrolling is held while a tag is dragged (the CYLRootWindow idea); page-meta must be the first node. -->
-<page-meta page-style="{{reordering ? 'overflow: hidden;' : ''}}" />
 <view class="screen">
   <cyl-demo-nav title="{{texts.editTags}}">
     <view slot="right" class="actions">
@@ -8,13 +6,12 @@
     </view>
   </cyl-demo-nav>
 
-  <!-- The search field is this library's cyl-search-bar. -->
-  <cyl-search-bar generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
-    id="search" class="search" value="{{query}}" placeholder="{{texts.search}}" returnKeyType="search"
-    bind:textchange="onSearchText" bind:submit="onSearchSubmit" />
-
-  <!-- Scrolling is held while a tag is dragged (the cloud's reorderingchange), so the drag and the scroll do not fight. -->
-  <scroll-view scroll-y="{{!reordering}}" class="list {{managing ? 'list-managing' : ''}}">
+  <!-- The search page is this library's cyl-search (inline): the bar, and below it the content page, the one scroller, which
+       holds its own scrolling while a tag is dragged. The page only places its lists into the content slot. -->
+  <cyl-search generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
+    id="search" class="search-view" inline showsContent focusesSearchFieldOnShow="{{false}}" navigationIcon="none"
+    placeholder="{{texts.search}}" bind:textchange="onSearchText" bind:submit="onSearchSubmit">
+  <view slot="content" class="body {{managing ? 'body-managing' : ''}}">
     <block wx:if="{{query}}">
       <view class="header"><text class="header-title" role="heading">{{texts.results}}</text></view>
       <cyl-tag-cloud id="results" tags="{{resultTags}}" listStyle="{{style}}" selectionMode="multiple" bind:tagtap="onTagTap" />
@@ -35,14 +32,15 @@
         defaultVisibleRows="{{3}}" foldControlContent="icon"
         supportsRenamingItems="{{true}}" showsAddItemViewWhileEditing="{{false}}" allowsReordering="{{true}}"
         bind:tagtap="onTagTap" bind:tagdelete="onTagDelete" bind:tagmove="onTagMove" bind:tagrename="onTagRename"
-        bind:requestnewitem="onRequestNewItem" bind:editingfinish="onEditingFinish" bind:reorderingchange="onReorderingChange" />
+        bind:requestnewitem="onRequestNewItem" bind:editingfinish="onEditingFinish" />
       <view wx:if="{{!managing}}" class="create" role="button" id="CYLContactTagsNewTag" bindtap="onNewTagTap">＋ {{texts.newTag}}</view>
     </block>
     <!-- The empty states: CYLTableViewPlaceHolder's placeholder below the tags. -->
     <view wx:if="{{emptyState !== 'none'}}" class="placeholder" id="CYLContactTagsPlaceholder">
       <cyl-placeholder components="{{placeholderComponents}}" interactive="{{false}}" />
     </view>
-  </scroll-view>
+  </view>
+  </cyl-search>
 
   <!-- The edit field of "Manage": the core's editing bar, at the bottom, riding on the keyboard. -->
   <cyl-search-bar generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"

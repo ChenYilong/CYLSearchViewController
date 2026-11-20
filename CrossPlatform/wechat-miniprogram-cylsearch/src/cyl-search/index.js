@@ -27,7 +27,11 @@ const text = (key) => CYLSearchResources.localizedString(undefined, key);
  * `emptySuggestionsView()`, `playAnimationFromStart()`. Abstract node `cyl-empty-view` (properties `scenario`,
  * `animated`, `loop`, `speed`; method `playAll()`): the empty placeholders, CYLTableViewPlaceHolder's
  * `<cyl-placeholder>` by default. Slots: `placeholder-footer` (under the empty suggestions placeholder); `content`
- * (with `showsContent`: your own view in place of the suggestions, iOS `contentView`).
+ * (with `showsContent`: your own view in place of the suggestions, iOS `contentView`). The content page is the one
+ * scroller below the bar and scrolls by itself; it holds its scrolling only while a tag list inside has a drag
+ * (`reorderingchange`) or a smear (`smearingchange`) active, which that list sends as bubbling, composed events
+ * through the slot (CollectionViewClassifyMenu's `cyl-tag-cloud`). Put your content in the slot: do not wrap it in a
+ * `<scroll-view>` of your own, and do not switch scrolling yourself.
  */
 Component({
   options: { multipleSlots: true },
@@ -99,7 +103,7 @@ Component({
   data: {
     playbackSpeed: 1, shownSuggestions: [], visibleTags: [], needsFold: false, open: false, visible: false, entered: false,
     focus: false, query: '', folded: true, showsCachedQueries: false, showsEmptyResults: false, showsEmptySuggestions: false,
-    showsResults: false, shownResults: [], refreshes: false, labels: {}, pageStyle: '', barInsets: '',
+    showsResults: false, shownResults: [], refreshes: false, labels: {}, pageStyle: '', barInsets: '', contentScrollHeld: false,
   },
   observers: {
     'showsEmptyResultsPlaceholder, closesOnSubmit, showsResultsForEmptyQuery, focusesSearchFieldOnShow, suggestionStyle, emptyResultsScenario, emptySuggestionsScenario': function () {
@@ -392,6 +396,17 @@ Component({
     },
     onVoiceTap() {
       this.model.searchBarView.voiceTapped();
+    },
+    /**
+     * A tag list inside the content page starts or ends a drag (`reorderingchange` { reordering }) or a smear
+     * (`smearingchange` { smearing }). The content page holds its own scrolling only while one of them is active, from the
+     * start of the gesture until it ends or is cancelled; at every other time, in the list's editing mode too, it scrolls.
+     */
+    onContentGesture(event) {
+      const detail = event.detail || {};
+      this.contentGestures = { ...this.contentGestures, [event.type]: !!(detail.reordering || detail.smearing) };
+      const held = Object.values(this.contentGestures).some(Boolean);
+      if (held !== this.data.contentScrollHeld) this.setData({ contentScrollHeld: held });
     },
     onItemSelect(event) {
       this.triggerEvent('itemselect', event.detail);

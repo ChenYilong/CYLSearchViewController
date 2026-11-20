@@ -62,38 +62,26 @@ test('the other-device edit adds a tag and swaps the first two', () => {
   assert.equal(server.nextFetchStatus !== undefined, true);
 });
 
-test('Edit Tags holds its list scrolling while a My Tags tag is dragged', () => {
+test('Edit Tags puts its lists into the core content page and never creates or switches a scroller itself', () => {
   const fs = require('node:fs');
   const path = require('node:path');
   const dir = path.join(__dirname, '..', 'example', 'miniprogram', 'pages', 'contactTagEditor');
   const wxml = fs.readFileSync(path.join(dir, 'index.wxml'), 'utf8');
-  assert.match(wxml, /<scroll-view scroll-y="\{\{!reordering\}\}"/);
-  assert.match(wxml, /bind:reorderingchange="onReorderingChange"/);
-  assert.match(wxml.replace(/<!--[\s\S]*?-->\s*/, '').trimStart(), /^<page-meta page-style="\{\{reordering \? 'overflow: hidden;' : ''\}\}" \/>/);
-  // The handler, taken from the page source (the page itself imports packages only WeChat resolves).
   const js = fs.readFileSync(path.join(dir, 'index.js'), 'utf8');
-  const body = js.match(/onReorderingChange\(event\) \{([\s\S]*?)\n  \},/)[1];
-  const handler = new Function('event', body);
-  const instance = { data: { reordering: false }, setData(values) { Object.assign(this.data, values); } };
-  handler.call(instance, { detail: { reordering: true } });
-  assert.equal(instance.data.reordering, true);
-  handler.call(instance, { detail: { reordering: false } });
-  assert.equal(instance.data.reordering, false);
-});
-
-test('Edit Tags scrolls in its list, not in the page, so holding the list holds the scrolling', () => {
-  // With `min-height: 100vh` the page grew with its tags and the page scrolled: the <scroll-view>'s `scroll-y` (held while a
-  // tag is dragged) held nothing, and only a body `overflow: hidden`, which iOS ignores for touch scrolling, was left. Found
-  // with real mouse drags in WeChat DevTools: with the page as the scroller a drag of a tag scrolled it.
-  const fs = require('node:fs');
-  const path = require('node:path');
-  const dir = path.join(__dirname, '../example/miniprogram/pages/contactTagEditor');
   const wxss = fs.readFileSync(path.join(dir, 'index.wxss'), 'utf8');
+  // AGENTS.md, "The core owns the content below the search bar and its scrolling": the content page is cyl-search's, it listens to
+  // the tag list's drag by itself and holds its own scrolling only while a drag is active. The example creates no scroll view,
+  // finds no page or scroller, and wires no reordering flag.
+  assert.match(wxml, /<cyl-search [^>]*inline showsContent/);
+  assert.match(wxml, /<view slot="content"/);
+  assert.doesNotMatch(wxml, /<scroll-view|<page-meta|scroll-y|reorderingchange/);
+  assert.doesNotMatch(js, /reordering|getCurrentPages|currentPage|pageScroll|scrollTop/i);
+  // The page is a fixed-height column, so the content page is the only thing that scrolls (with min-height the whole page grew
+  // and scrolled, and holding a scroll-view held nothing); the root view never scrolls or bounces.
   const screen = wxss.match(/\.screen \{([^}]*)\}/)[1];
   assert.match(screen, /(^|[\s;])height: 100vh/);
   assert.doesNotMatch(screen, /min-height/);
   assert.match(screen, /overflow: hidden/);
-  assert.match(wxss.match(/\.list \{([^}]*)\}/)[1], /min-height: 0/);
-  // The root view (iOS CYLRootWindow's idea): the page itself never scrolls or bounces.
+  assert.match(wxss.match(/\.search-view \{([^}]*)\}/)[1], /min-height: 0/);
   assert.equal(JSON.parse(fs.readFileSync(path.join(dir, 'index.json'), 'utf8')).disableScroll, true);
 });

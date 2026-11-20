@@ -57,7 +57,7 @@ Full rule: `AGENTS.md`, "The core owns the content below the search bar and its 
 
 - The search bar and the content page below it are created and owned by the core (mini program: `cyl-search-bar` and the
   content area of `cyl-search`). An example never creates, looks up or holds that scrolling view: no own `<scroll-view>`
-  around core content, no `getCurrentPages()`, `selectComponent` or `currentPage` lookup, no example flag such as
+  around core content, no `getCurrentPages()`, `selectComponent` or `currentPage` lookup that finds the content page or its scroller, no example flag such as
   `reordering` bound to `scroll-y`. `currentPage()` (miniprogram-automator) is for test scripts only.
 - The content page listens by itself to the tag list's editing state and drag gesture (`reorderingchange`,
   `smearingchange`). It turns its own scrolling off only while a drag gesture is active (from the start of the drag until

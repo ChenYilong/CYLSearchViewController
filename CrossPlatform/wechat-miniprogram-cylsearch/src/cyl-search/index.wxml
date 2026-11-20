@@ -18,7 +18,11 @@
       bind:navigationtap="onBarClose" bind:voicetap="onVoiceTap" bind:itemselect="onItemSelect" />
     <view class="cyl-line" style="{{dividerColor ? 'background: ' + dividerColor : ''}}" />
   </block>
-  <view wx:if="{{showsContent}}" class="cyl-content"><slot name="content" /></view>
+  <!-- The content page: the one scroller below the bar. It holds its own scrolling only while a tag list inside has a drag or a
+       smear active (their reorderingchange and smearingchange bubble through the slot), so an example places its content in
+       the slot and never creates, finds or switches a scroll view. -->
+  <scroll-view wx:if="{{showsContent}}" class="cyl-content" scroll-y="{{!contentScrollHeld}}"
+    bind:reorderingchange="onContentGesture" bind:smearingchange="onContentGesture"><slot name="content" /></scroll-view>
   <!-- The results (iOS resultsTableView): CYLTableViewPlaceHolder's cyl-refresh, with its normal header while
        refreshing is on; the empty results placeholder stays in the list, so it keeps scrolling and refreshing. -->
   <cyl-refresh wx:elif="{{showsResults}}" id="cyl-refresh" class="cyl-results" header="{{refreshes ? 'normal' : 'none'}}" footer="none"

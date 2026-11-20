@@ -123,8 +123,8 @@ Every new integration rule updates, in the same change, `AGENTS.md`,
   1. The search bar and the content page shown below it (the page that holds the tag lists, suggestions or results) are
      created and owned by the core: on the mini program `cyl-search-bar` and the content area of `cyl-search`, and the
      same classes on every platform. An example never creates, looks up or holds that scrolling view. No `<scroll-view>`
-     of its own around the core's content, no `getCurrentPages()`, `selectComponent` or `currentPage` lookup in example
-     code, no example flag such as `reordering` bound to `scroll-y`. (`currentPage()` of miniprogram-automator may be used
+     of its own around the core's content, no `getCurrentPages()`, `selectComponent` or `currentPage` lookup that finds the content page or its scroller in
+     example code (calling a core component's own API, such as `setQuery`, is fine), no example flag such as `reordering` bound to `scroll-y`. (`currentPage()` of miniprogram-automator may be used
      in test scripts only, never in the core or in an example.)
   2. The content page listens by itself to the tag list below it: its editing state and its drag gesture (the tag
      list's `reorderingchange` {reordering}, and `smearingchange` {smearing} for the smear selection). It turns its own

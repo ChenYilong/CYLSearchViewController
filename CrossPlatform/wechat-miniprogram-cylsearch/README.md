@@ -116,7 +116,7 @@ Events: `textchange` `{ text }` (`{ text, index }` in `multiple`), `submit`, `fo
 | `emptyPlaceholderAnimated`, `animationSpeed`, `animationLoops` | `false`, 1, `true` | Ask `cyl-empty-view` to play the scenario's animation (static on iOS) |
 | `navigationIcon`, `showsCancelButton`, `showsVoiceButton`, `showsSearchIcon`, `secure`, `cursorColor` | `arrow`… | The bar |
 | `backgroundColor`, `textColor`, `placeholderColor`, `navigationColor`, `suggestionTextColor`, `suggestionImageTintColor`, `dividerColor`, `suggestionLineBreak` | | The look |
-| `showsContent` | `false` | Your own view (slot `content`) in place of the suggestions |
+| `showsContent` | `false` | Your own view (slot `content`) in place of the suggestions. The content page scrolls by itself (do not add a `<scroll-view>`) and holds its scrolling only while a tag list inside has a drag (`reorderingchange`) or a smear (`smearingchange`) active |
 | `coversNavigationBar` | `false` | On a `"navigationStyle": "custom"` page, the bar takes the navigation bar's place, clear of WeChat's menu button |
 
 Events: `show`, `close`, `submit`, `textchange`, `suggestionselect`, `selectresult` `{ result, index }`, `refresh`,

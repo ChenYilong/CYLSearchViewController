@@ -828,6 +828,45 @@ Flutter 2503, 919, 833, 355, then 0.
   about 200 ms of a still finger in editing mode; a swipe that starts sooner still scrolls) or per-tag `<movable-view>` (core:
   winCollectionViewClassifyMenu). The comment of `disablesScrollingWhileReordering` and the component's README should say that the
   host's scroller must be a `<scroll-view>` it can hold through `reorderingchange`.
+
+## DONE in code (2026-11-20, fourth pass): the core's content page holds its own scrolling; the example holds nothing (mini program)
+
+- **Branch**: `feat/harmonyos-parity`. Platform: WeChat mini program. Score: 95/100 (real drags in WeChat DevTools pass; the
+  user's check on a phone is the last 5).
+- **Prompt (verbatim)**: "咱们的searchbar组件是由我们自己core核心代码创建的吧？为什么不能监听taglist编辑状态，修改seachbar对应视图的滚动禁用状态？" and the
+  rule that followed (now in `AGENTS.md`, "The core owns the content below the search bar and its scrolling"). English: our
+  search bar is created by our own core, so why can the core not listen to the tag list's editing state and switch the
+  scrolling of the view below it? The content page below the search bar is created by the core and turns its own scrolling off
+  only while a drag gesture is active; the example must not look it up or hold it.
+- **What was wrong**: the third pass fixed the layout but still did it in the example: Edit Tags created its own `<scroll-view>`,
+  wired the tag list's `reorderingchange` into a page flag `reordering`, and bound it to `scroll-y` and to page-meta. That is the
+  wrong layer (any app of the library would have to repeat it). About `currentPage`: it is miniprogram-automator's call for test
+  scripts; neither the core nor the example calls it.
+- **Core, this repository**: the `content` slot of `cyl-search` is now `<scroll-view class="cyl-content" scroll-y="{{!contentScrollHeld}}">`,
+  the one scroller below the bar. As an ancestor of the slot it hears `reorderingchange` and `smearingchange` of the tag lists
+  inside (`onContentGesture`) and holds its own scrolling only while one is active, from the start of the gesture until it ends
+  or is cancelled; in the list's editing mode it scrolls as usual. Test: `cyl-search: the content page is the one scroller…`.
+- **Core, CollectionViewClassifyMenu `8c141d8c`**: `cyl-tag-cloud` sends both events with `{ bubbles: true, composed: true }`, so
+  they cross the slot (and its README says so). Pinned on the mini program.
+- **Example**: Edit Tags is built on `cyl-search` (`inline`, `showsContent`) and only places its lists into the slot: no
+  `<scroll-view>`, no page-meta, no `reordering`, no page or scroller lookup (`clearQuery` calls `cyl-search`'s `setQuery`). The
+  Lapism page's content has no scroll view of its own either. The page stays a fixed-height column with `"disableScroll": true`.
+- **Real drags, WeChat DevTools 2.02.2609250, base library 3.6.6**
+  ([assets/miniprogram-devtools-20261120-core-content-page-drag.png](assets/miniprogram-devtools-20261120-core-content-page-drag.png), Windows 11, 2026-11-20 +13:00, after ad8ee04 plus the core change):
+
+  | Real drag in Manage | Content page scroll | Tags moved |
+  | :--- | :--- | :--- |
+  | Swipe on a tag | 404 | no |
+  | Long press 380 ms or more, then drag | 0 | yes (lock released at the drop) |
+  | Held 300 ms (before the long press fires), then move | 247 | no (a scroll) |
+  | Core handler switched off (control): long press and drag | 295 | yes (the reported conflict) |
+
+- **Tests**: mini program 60 of 60: the new core test, and the example test now asserts the page has no scroll view, page-meta,
+  reordering flag or page lookup and puts its lists in the core's content slot.
+- **Left**: the user's check on a phone (a new preview). The lock lands at the long press, about 350 ms, through the logic layer;
+  if a phone still scrolls, the next step is the 200 ms pre-lock in `cyl-tag-cloud` (not built, by decision). iOS, Android,
+  HarmonyOS, React Native and Flutter hold no such lock yet: their content pages should follow the same rule when their
+  drag gesture is wired (record before doing).
 React Native on iOS with SVGA tab icons (CYL 17Pro, iOS 26.3, Release, base ae8a4ea, 2026-11-16 19:26).
 
 ![React Native iOS, SVGA tab icons](assets/rn-ios-svga-tab-icons-ios26.3.png)
