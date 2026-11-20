@@ -283,3 +283,17 @@ packages). A test checks each rule.
   Friends to Friends B)
   ([assets/miniprogram-devtools-20261119-two-renames-focus.png](assets/miniprogram-devtools-20261119-two-renames-focus.png), WeChat DevTools 2.02.2609250, Windows 11, 2026-11-19 +13:00, after a0fdc9e).
 - **Left**: the user's check on the phone (WeChat preview).
+
+## iOS position on "the core owns the content below the search bar and its scrolling" (2026-11-20)
+
+- **Rule** (written by the Windows session, `ad8ee04`): the core creates the content page below the search bar, listens to the
+  tag list's drag / smear and holds its own scrolling only while a drag is active; examples never create, find or switch a
+  scroller. The mini program implements it in `cyl-search`'s content slot (`7757f9c`, with ClassifyMenu `8c141d8c`).
+- **iOS (macOS session)**: no content-page lock is wired, and none is needed by design for the tag list: `CYLTagListView`'s drag
+  is `UICollectionView` interactive movement (`beginInteractiveMovementForItem` from a long press) on the very collection
+  view that scrolls, so UIKit suspends that scroll view's pan while an item is dragged; there is no second scroller to
+  hold. `CYLSearchView.contentView` hosts whatever view the host gives it; a host scroll view inside it (a case iOS examples
+  do not have today) would need the same core-owned lock: add it when such a drag gesture is wired. The pin `bbf854ce`
+  does not contain `8c141d8c` (mini program only), which is expected.
+- **Not checked**: a physical iPhone drag in Manage (this repository's iOS evidence is the simulator and the unit tests). If a
+  drag still scrolls the list on a device, record it here and fix it in `CYLTagListView` (core first).
