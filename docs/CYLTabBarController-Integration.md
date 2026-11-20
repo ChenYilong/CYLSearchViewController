@@ -861,6 +861,20 @@ Flutter 2503, 919, 833, 355, then 0.
   | Held 300 ms (before the long press fires), then move | 247 | no (a scroll) |
   | Core handler switched off (control): long press and drag | 295 | yes (the reported conflict) |
 
+- **The page-level switches, checked with real drags** (a page that scrolls by itself, a long press and drag of a tag; WeChat DevTools
+  2.02.2609250, base library 3.6.6; official docs: [page-meta](https://developers.weixin.qq.com/miniprogram/dev/component/page-meta.html)):
+
+  | Switch | Documented | Callable from the core | Page scroll during the drag |
+  | :--- | :--- | :--- | :--- |
+  | none (control) | | | 247 |
+  | `<page-meta page-style>` as the first node of the page (2.9.0) | yes, "only the first node of the page" | no, a component cannot hold it | 0 |
+  | `<page-meta>` as the first node of the core component | no | yes | 247 (no effect) |
+  | `wx.setPageStyle({ style: { overflow: 'hidden' } })` | no (a hidden API) | yes | 247 (no effect; neither `success` nor `fail` is called) |
+  | `"disableScroll": true` in the page configuration | yes, static | no (page JSON) | the page cannot scroll |
+  | the content page's own `scroll-y` (this core) | its own component | yes | 0 (when it is the scroller) |
+
+  So the core cannot switch the page itself; it holds its own scroller, and the host's page must not scroll (fixed-height
+  column, `"disableScroll": true`), which Edit Tags does. The experiments were reverted; no undocumented call is in the core.
 - **Tests**: mini program 60 of 60: the new core test, and the example test now asserts the page has no scroll view, page-meta,
   reordering flag or page lookup and puts its lists in the core's content slot.
 - **Left**: the user's check on a phone (a new preview). The lock lands at the long press, about 350 ms, through the logic layer;

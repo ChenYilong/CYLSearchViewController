@@ -64,7 +64,9 @@ Full rule: `AGENTS.md`, "The core owns the content below the search bar and its 
   it ends or is cancelled); scrolling stays on at every other time, in editing mode too.
 - It must be the one view that scrolls (a fixed-height column, not a page that grows with its content) and it holds that
   view's own switch (`scroll-y`, `isScrollEnabled`, ...). In WeChat `catchtouchmove` only stops propagation, and iOS
-  ignores a page-level `overflow: hidden` for touch scrolling.
+  ignores a page-level `overflow: hidden` for touch scrolling. A component cannot switch the page itself (`<page-meta>`
+  must be the first node of a page; `wx.setPageStyle` is undocumented and did nothing in DevTools 3.6.6), so the host keeps
+  its page from scrolling by layout: a fixed-height column with `"disableScroll": true`.
 - A tag list in another repository emits the states as bubbling, composed events: fix it there first, then pin it
   (`cyl-sub-repositories`). The example only places the tag list into the content page.
 - Question that decides it: does the example toggle scrolling, find a page or a scroller, or own a scroll view around

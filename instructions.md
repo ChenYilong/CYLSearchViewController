@@ -66,6 +66,8 @@ Read this file and `AGENTS.md` before changing project files.
   `smearingchange`) and turns its own scrolling off only while a drag gesture is active; scrolling stays on otherwise,
   in editing mode too. It is the one scroller (a fixed-height column) and holds its own scroll switch (`scroll-y`);
   `catchtouchmove` and a page-level `overflow: hidden` do not stop native scrolling in WeChat on iOS.
+  A component cannot switch the page (`<page-meta>` must be the first node of a page; `wx.setPageStyle` is undocumented and
+  did nothing in DevTools 3.6.6): the host keeps its page from scrolling by layout (a fixed-height column, `disableScroll`).
 - A tag list from another repository emits those states as bubbling, composed events: fix it there first, then pin it.
 - Test scrolling with real pointer input (mouse drags in WeChat DevTools), with a control with the protection off.
 - Full rule: `AGENTS.md`, "The core owns the content below the search bar and its scrolling"; skills `cyl-fix-in-core`,

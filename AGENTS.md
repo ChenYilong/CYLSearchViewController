@@ -135,7 +135,11 @@ Every new integration rule updates, in the same change, `AGENTS.md`,
      scroll view's `isScrollEnabled` on iOS, the matching switch on Android, HarmonyOS, React Native and Flutter). In
      WeChat `catchtouchmove` only stops propagation and never stops native scrolling; a page-level `overflow: hidden` is
      not honoured by iOS for touch scrolling. `"disableScroll": true` in the page configuration only keeps the page
-     itself from scrolling or bouncing.
+     itself from scrolling or bouncing. The documented switch for the page's own scrolling is `<page-meta page-style>` (base
+     library 2.9.0), which "must be the first node of the page", so a component cannot hold it (checked: inside a component it
+     does nothing); `wx.setPageStyle` is not in the documentation and had no effect in DevTools 3.6.6 (no callback either).
+     A core component therefore cannot switch the page: its own scroller's switch is the lock, and a host keeps its page from
+     scrolling by layout (a fixed-height column with `"disableScroll": true`).
   4. A tag list from another repository (CollectionViewClassifyMenu) sends those states as events the core's content page
      can hear (on the mini program: bubbling and composed, so they cross the slot), fixed in that repository first and then
      pinned here (`cyl-sub-repositories`). The example only places the tag list into the content page.
