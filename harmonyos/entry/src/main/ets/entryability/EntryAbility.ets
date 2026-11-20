@@ -42,6 +42,12 @@ export default class EntryAbility extends UIAbility {
     });
     // Debug: `--pi CYLDebugTagGestureActive 1` sets the shared tag gesture state active (0 clears it), as a tag drag does, so a
     // test that cannot make a real long press can check that the scrollers hold and release.
+    // `--pi CYLDebugNoFocus 1` opens the material search samples without focusing the field, so no keyboard (or its consent
+    // dialog) covers the screen in tests.
+    const noFocus = want.parameters?.['CYLDebugNoFocus'];
+    if (noFocus !== undefined && noFocus !== null && !Number.isNaN(Number(noFocus))) {
+      AppStorage.setOrCreate<number>('CYLDebugNoFocus', Number(noFocus));
+    }
     const gesture = want.parameters?.['CYLDebugTagGestureActive'];
     if (gesture !== undefined && gesture !== null && !Number.isNaN(Number(gesture))) {
       CYLMenuGestureState.shared.setActive(-1, Number(gesture) !== 0);

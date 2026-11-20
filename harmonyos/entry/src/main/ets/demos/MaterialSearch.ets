@@ -77,7 +77,7 @@ export struct MaterialMenuView {
           .accessibilityText(cylDemoText(this.context, SAMPLE_KEYS[sample]))
           .id(`CYLMaterialSample${sample}`)
           .onClick(() => {
-            const param: CYLMaterialSampleParam = { sample: sample, tags: this.tags, focusesSearchFieldOnShow: !this.tags };
+            const param: CYLMaterialSampleParam = { sample: sample, tags: this.tags, focusesSearchFieldOnShow: !this.tags && AppStorage.get<number>('CYLDebugNoFocus') !== 1 };
             this.stack.pushPath({ name: CYLDemoRoute.materialSample, param: param });
           })
         }, (sample: number) => `${sample}`)
