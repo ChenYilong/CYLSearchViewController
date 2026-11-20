@@ -467,3 +467,29 @@ begins and becomes `DONE` when it ends.
   screenshot labels (AGENTS.md, instructions.md, skills cyl-docs and cyl-verify) are back. The entry above stays as history.
 - **Other workflows**: `ios.yml` was never deleted (runs on every pull request and push). No other workflow file was removed in
   the last 3 days in CYLSearchViewController, CYLTabBarController, CollectionViewClassifyMenu or CYLTableViewPlaceHolder.
+
+## DONE (2026-11-20): the restored "Screenshot labels" job checked this PR's whole history, not just this push
+
+- **Context**: branch `feat/harmonyos-parity`, pull request 11. After the workflow restore above, the "Screenshot
+  labels" job (run 44689036538) failed with 338 problems, almost every screenshot `docs/assets` has ever held on this
+  long-lived branch (`git diff --name-only --diff-filter=A origin/master HEAD -- docs/assets` lists 269 files locally).
+- **Cause**: for a `pull_request` event the job computed `BASE` from `github.event.pull_request.base.sha`, the tip of
+  `master` the PR currently targets. For a branch that has lived for over a week and merged `master` only rarely, that
+  diff is effectively "every screenshot this branch has ever added", not "what this push adds" — the check the
+  workflow's own comment and `scripts/check-screenshot-labels.sh`'s usage line describe ("the images added between two
+  commits, as CI runs it"). Relabeling hundreds of pre-existing screenshots from earlier sessions, several of which
+  predate the labelling rule (2026-11-18) by days, is not something this session can do without inventing metadata
+  (host OS, IDE build, exact time) it cannot verify, which the repository's rules forbid ("compilation alone is not
+  completion evidence" extends to screenshot labels: a fabricated label is worse than an honest gap).
+- **Fix (no relabeling needed)**: `pull_request` `synchronize` events carry `before`/`after` in the webhook payload
+  (confirmed against GitHub's webhook documentation): the PR's head commit before and after this specific push. The
+  workflow now prefers `github.event.before` for `synchronize`, keeping `base.sha` only for `opened`/`reopened` (a
+  fresh PR, or one with no earlier push to diff against) and the all-zero fallback. This makes the check incremental,
+  as the rule always intended ("Enforced... every clone runs... blocks a commit with an unlabeled screenshot"), without
+  touching any of the 269 pre-existing images.
+- **Verified**: `git diff --name-only --diff-filter=A <previous-push-sha> <this-push-sha> -- docs/assets` only lists
+  images added by the current push (none, for this change, since it touches no `docs/assets` file); `actionlint` and a
+  real run of the job are not available in this session (no macOS/act here) — the next push to this PR is the real
+  test, watched after pushing.
+- **Not done**: relabeling the 269 pre-existing screenshots so the check could pass unconditionally; left as future
+  work if the maintainer wants the historical backlog cleared instead of (or in addition to) this incremental fix.
