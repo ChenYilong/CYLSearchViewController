@@ -255,6 +255,11 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   failures) and the APK builds with `.cyl-deps` at both commits; HarmonyOS syncs `vendor/cyltabbar` to `8ece77dd` and
   `vendor/classifymenu` to `dc5910f5` and builds the `default`, `emulator` and `ohosTest` HAPs; the mini program passes
   59/59. No device run (the Android emulator was closed at the user's request; the HarmonyOS one needs disk space).
+- **CollectionViewClassifyMenu `8c141d8c` (2026-11-20, Windows)**, on Android, HarmonyOS and the mini program (iOS: the macOS session; it is
+  on top of `dc5910f5`, so CYLTabBarController stays `8ece77dd`): the mini program's `cyl-tag-cloud` sends `reorderingchange` and
+  `smearingchange` as bubbling, composed events, which the core's content page of `cyl-search` hears to hold its own scrolling
+  while a drag is active. Android tests pass (0 failures) and the APK builds with `.cyl-deps` at `8c141d8c`; HarmonyOS syncs
+  `vendor/classifymenu` to `8c141d8c` and builds the `default` and `ohosTest` HAPs; the mini program passes 60/60.
 
 - **iOS, Flutter and React Native iOS re-pinned (2026-11-20)**: CollectionViewClassifyMenu `bbf854ce` (PR #25, not merged at
   the time; its iOS content is `ca412aa7`), CYLTabBarController `8b7dea18` (the iOS 15 minimum; the launch crash in
