@@ -260,6 +260,12 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   `smearingchange` as bubbling, composed events, which the core's content page of `cyl-search` hears to hold its own scrolling
   while a drag is active. Android tests pass (0 failures) and the APK builds with `.cyl-deps` at `8c141d8c`; HarmonyOS syncs
   `vendor/classifymenu` to `8c141d8c` and builds the `default` and `ohosTest` HAPs; the mini program passes 60/60.
+- **CollectionViewClassifyMenu `ab84db37`, CYLTabBarController `8b7dea18`, CYLTableViewPlaceHolder `c84fce90` (2026-11-20, Windows)**, on
+  Android, HarmonyOS and the mini program, one move for the three (iOS, Flutter and React Native: the macOS session, which then
+  deletes `cyl.tabbar.ios.commit` from `android/merged/gradle.properties`). `ab84db37` is a merge of `8c141d8c` (the bubbling
+  drag and smear events) and `bbf854ce` (the `8b7dea18` bundles); `c84fce90` changes nothing outside iOS and docs for these
+  platforms. Android tests pass (0 failures) and the APK builds with `.cyl-deps` at the three commits; HarmonyOS syncs the three
+  vendors and builds the `default`, `emulator` and `ohosTest` HAPs; the mini program passes 60/60.
 
 - **iOS, Flutter and React Native iOS re-pinned (2026-11-20)**: CollectionViewClassifyMenu `bbf854ce` (PR #25, not merged at
   the time; its iOS content is `ca412aa7`), CYLTabBarController `8b7dea18` (the iOS 15 minimum; the launch crash in
