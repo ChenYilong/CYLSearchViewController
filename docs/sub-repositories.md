@@ -266,6 +266,13 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   drag and smear events) and `bbf854ce` (the `8b7dea18` bundles); `c84fce90` changes nothing outside iOS and docs for these
   platforms. Android tests pass (0 failures) and the APK builds with `.cyl-deps` at the three commits; HarmonyOS syncs the three
   vendors and builds the `default`, `emulator` and `ohosTest` HAPs; the mini program passes 60/60.
+- **CollectionViewClassifyMenu `954edf8c`, CYLTabBarController `41660d24` (2026-11-20, Windows)**, on Android, HarmonyOS and the mini program (iOS,
+  Flutter and React Native: the macOS session, same hashes). `954edf8c` is `8c1d9d99` (the TabBar `41660d24` bundles, with the
+  mini program tab switch fix: every other tab is stopped and rested before the new one plays) plus one docs file. Android tests pass
+  (0 failures) and the APK builds with `.cyl-deps` at the three commits; HarmonyOS builds the `default`, `emulator` and `ohosTest` HAPs;
+  the mini program passes 60/60. DevTools cannot show the tab switch bug: real quick clicks on the SVGA tab bar leave no stale icon
+  with the fix, and the same run with the stop-others step switched off (control) also leaves none, so that check proves nothing
+  either way; the phone is the check.
 
 - **iOS, Flutter and React Native iOS re-pinned (2026-11-20)**: CollectionViewClassifyMenu `bbf854ce` (PR #25, not merged at
   the time; its iOS content is `ca412aa7`), CYLTabBarController `8b7dea18` (the iOS 15 minimum; the launch crash in
