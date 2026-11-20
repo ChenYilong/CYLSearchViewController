@@ -281,3 +281,9 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   `cyl.tabbar.ios.commit` line is deleted (React Native iOS reads `cyl.tabbar.commit` again; `fetch-cyltabbar.sh` still
   prefers an iOS line when one is added). iOS: pod install for the three apps; native 36 of 36; Flutter and React Native
   iOS build.
+
+- **iOS, Flutter and React Native iOS at the tab switch fix (2026-11-20)**: CollectionViewClassifyMenu `954edf8c` (`8c1d9d99` plus a docs
+  commit; PR #26 not merged at the time) bundling CYLTabBarController `41660d24` (the mini program's tab switch contract:
+  stop and rest every other tab before the new one plays). iOS content is unchanged by it. pod install for the three apps;
+  native 36 of 36; Flutter and React Native iOS build. React Native iOS fetches `cyl.tabbar.commit` from
+  `android/merged/gradle.properties` for its vendor copy: it follows when the Windows session moves that line to `41660d24`.
