@@ -80,3 +80,20 @@ test('Edit Tags holds its list scrolling while a My Tags tag is dragged', () => 
   handler.call(instance, { detail: { reordering: false } });
   assert.equal(instance.data.reordering, false);
 });
+
+test('Edit Tags scrolls in its list, not in the page, so holding the list holds the scrolling', () => {
+  // With `min-height: 100vh` the page grew with its tags and the page scrolled: the <scroll-view>'s `scroll-y` (held while a
+  // tag is dragged) held nothing, and only a body `overflow: hidden`, which iOS ignores for touch scrolling, was left. Found
+  // with real mouse drags in WeChat DevTools: with the page as the scroller a drag of a tag scrolled it.
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const dir = path.join(__dirname, '../example/miniprogram/pages/contactTagEditor');
+  const wxss = fs.readFileSync(path.join(dir, 'index.wxss'), 'utf8');
+  const screen = wxss.match(/\.screen \{([^}]*)\}/)[1];
+  assert.match(screen, /(^|[\s;])height: 100vh/);
+  assert.doesNotMatch(screen, /min-height/);
+  assert.match(screen, /overflow: hidden/);
+  assert.match(wxss.match(/\.list \{([^}]*)\}/)[1], /min-height: 0/);
+  // The root view (iOS CYLRootWindow's idea): the page itself never scrolls or bounces.
+  assert.equal(JSON.parse(fs.readFileSync(path.join(dir, 'index.json'), 'utf8')).disableScroll, true);
+});

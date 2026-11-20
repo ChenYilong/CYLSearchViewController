@@ -1,4 +1,5 @@
 {
+  "disableScroll": true,
   "usingComponents": {
     "cyl-tag-cloud": "cyl-tag-list-miniprogram/cyl-tag-cloud/cyl-tag-cloud",
     "cyl-placeholder": "cyl-placeholder-miniprogram/cyl-placeholder/index",

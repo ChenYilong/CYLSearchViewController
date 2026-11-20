@@ -785,6 +785,49 @@ Flutter 2503, 919, 833, 355, then 0.
   ([assets/miniprogram-devtools-20261120-drag-root-lock.png](assets/miniprogram-devtools-20261120-drag-root-lock.png), WeChat DevTools 2.02.2609250, Windows 11, 2026-11-20 +13:00, after f69a913).
 - **Left**: the user's check on a phone (scrolling cannot be driven by DevTools automation, so only the held state is
   verified there). If the list still moves, the next step is a `<movable-view>`-based drag or `touch-action` styles.
+
+## DONE in code (2026-11-20, third pass): the drag still conflicted with scrolling on the phone because the page itself was the scroller (mini program)
+
+- **Branch**: `feat/harmonyos-parity`. Platform: WeChat mini program (the user's phone). Score: 90/100 (the root cause is reproduced and
+  fixed with real drags in WeChat DevTools; the user's check on a phone is the last 10).
+- **Prompt (verbatim)**: "微信小程序拖拽编辑联系人tag还是会手势冲突" (English: dragging a contact tag in the mini program still conflicts
+  with the scroll gesture).
+- **Method (new)**: REAL mouse drags in the WeChat DevTools simulator (touch emulation with native scrolling; Windows mouse input
+  on the simulator window, which is found by matching its screenshot on the screen and checked before every press), with the state
+  read through miniprogram-automator in the same connection (an automator connect restarts the simulator). The earlier checks
+  used automator's synthetic events, which cannot scroll. A control run with every protection off scrolls, so the test can tell.
+- **Root cause 1, the layout**: `.screen { min-height: 100vh }` let the page grow with its tags (the `.list` was 1489 px high in an 844 px
+  window, its content 1425 px), so the PAGE scrolled and the `<scroll-view>` never did: `scroll-y="{{!reordering}}"` held nothing. Only
+  page-meta's `overflow: hidden`, applied after the long press, held anything, and iOS does not honour a body `overflow: hidden` for
+  touch scrolling, which fits a failure on a phone.
+- **Root cause 2, `catchtouchmove`**: in WeChat's render layer (WAWebview) a `catch*` binding only stops propagation (`evCatch`); only
+  built-in components call `preventDefault`. With `scrollLocked` true a fast swipe on a tag still scrolled the page by 404 px. So the
+  "lock from the first touch" of CollectionViewClassifyMenu `3bfa201a` (`disablesScrollingWhileReordering`) does not stop native
+  scrolling (it is harmless: a swipe on a tag scrolls, which is wanted). The only host-side lock is the scroller's `scroll-y`, and it
+  works only when that scroller is the one that scrolls.
+- **Fix (example)**: `.screen { height: 100vh; overflow: hidden }` and `.list { min-height: 0 }` make the `<scroll-view>` the only scroller, so
+  `scroll-y` (off while `reordering`) holds it; `"disableScroll": true` in the page config is the root view lock (the CYLRootWindow idea:
+  the page never scrolls or bounces, statically, with no timing). The page-meta lock stays (redundant now).
+- **Real drags, WeChat DevTools 2.02.2609250, base library 3.6.6, WebView**
+  ([assets/miniprogram-devtools-20261120-real-drag-scroll.png](assets/miniprogram-devtools-20261120-real-drag-scroll.png), Windows 11, 2026-11-20 +13:00, after 7830abc plus the fix):
+
+  | Real drag in Manage | Page scroll | List scroll | Tags moved |
+  | :--- | :--- | :--- | :--- |
+  | Before the fix: swipe on a tag | 404 | 0 | no |
+  | Before the fix, protection off: long press and drag | 247 | 0 | no |
+  | Before the fix, protection on: long press and drag | 0 | 0 | yes (held by page-meta only) |
+  | After: swipe on a tag | 0 | 404 | no |
+  | After: long press 380 ms or more, then drag | 0 | 0 | yes |
+  | After: held 300 ms (before the long press fires), then move | 0 | 247 | no (a scroll) |
+  | After, protection off (control): long press and drag | 0 | 247 | no |
+
+- **Tests**: mini program 60 of 60 (new: `Edit Tags scrolls in its list, not in the page`).
+- **Left / known risk**: the user's check on a phone. The lock is applied at the long press (about 350 ms) through the logic layer,
+  so on a phone a finger that moves within roughly the first 100 ms after the long press can still start a scroll (in DevTools the
+  lock was in place within 30 ms). If it still happens, the next steps are a pre-lock in `cyl-tag-cloud` (lock the scroller after
+  about 200 ms of a still finger in editing mode; a swipe that starts sooner still scrolls) or per-tag `<movable-view>` (core:
+  winCollectionViewClassifyMenu). The comment of `disablesScrollingWhileReordering` and the component's README should say that the
+  host's scroller must be a `<scroll-view>` it can hold through `reorderingchange`.
 React Native on iOS with SVGA tab icons (CYL 17Pro, iOS 26.3, Release, base ae8a4ea, 2026-11-16 19:26).
 
 ![React Native iOS, SVGA tab icons](assets/rn-ios-svga-tab-icons-ios26.3.png)
