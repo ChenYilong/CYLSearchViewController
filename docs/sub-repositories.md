@@ -255,3 +255,11 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   failures) and the APK builds with `.cyl-deps` at both commits; HarmonyOS syncs `vendor/cyltabbar` to `8ece77dd` and
   `vendor/classifymenu` to `dc5910f5` and builds the `default`, `emulator` and `ohosTest` HAPs; the mini program passes
   59/59. No device run (the Android emulator was closed at the user's request; the HarmonyOS one needs disk space).
+
+- **iOS, Flutter and React Native iOS re-pinned (2026-11-20)**: CollectionViewClassifyMenu `bbf854ce` (PR #25, not merged at
+  the time; its iOS content is `ca412aa7`), CYLTabBarController `8b7dea18` (the iOS 15 minimum; the launch crash in
+  `tabBar` and the React Native header cycle fixed, found by this repository's iOS round at `8ece77dd`), CYLTableViewPlaceHolder
+  `c84fce90` (iOS 15 minimum, CI green at `41bc46d`). iOS-only pin: `cyl.tabbar.ios.commit` in `android/merged/gradle.properties`
+  (read first by React Native iOS's `fetch-cyltabbar.sh`, ignored by Android) is `8b7dea18` while Android, HarmonyOS and
+  the mini program still pin `cyl.tabbar.commit` `8ece77dd`; delete the iOS line when they move. iOS: pod install for the
+  three apps; native 36 of 36; Flutter and React Native iOS build.
