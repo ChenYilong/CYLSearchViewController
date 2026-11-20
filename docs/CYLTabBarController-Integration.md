@@ -1004,6 +1004,14 @@ Android.
   3. Flutter core (`flutter_cylsearch`): the Android and iOS plugins forward the state as `didChangeDragging`; `CYLTagListView` claims the drag in the gesture
      arena at that moment, so an ancestor `Scrollable` does not scroll (a swipe that began earlier still scrolls), with a widget test.
   4. React Native: the bridge forwards `onReorderingChange` and `onSmearingChange` for API parity (the native hold already works on Android).
+- **Flutter iOS after the arena fix `7f61043` (macOS session, 2026-11-20)**: the page no longer moves with the drag, but the tag does NOT lift either
+  (Family stays first, nothing floats; a plain swipe with fine samples scrolls the page, so scrolling itself works; native and React Native iOS lift the tag
+  in the same test): so on iOS the long press won in the arena yet the native `CYLTagListView` did not start its drag, i.e. the held touches did not reach
+  the UIKit recognizer the way they do on Android
+  ([assets/ios-iphone18pro-20261120-flutter-tag-drag-after-arena-fix.png](assets/ios-iphone18pro-20261120-flutter-tag-drag-after-arena-fix.png)).
+  Hint: CYLTabBarController's own Flutter iOS platform view needed an `EagerGestureRecognizer` (`3ee06877`) for the same reason (UIKit platform views get their
+  touches replayed by the embedder after the arena decides); to try next on iOS: an eager recognizer in the `UiKitView` (`gestureRecognizers`) or the embedder's
+  `FlutterPlatformViewGestureRecognizersBlockingPolicy`. Sent to the Windows session (owner of `flutter_cylsearch`'s Dart core).
 - **iOS plan (macOS session)**: native and React Native iOS need no hold today. Needed: the ClassifyMenu callbacks `menuDidChangeReordering` / `menuDidChangeSmearing` on iOS
   (asked of Mac-CollectionViewClassifyMenu文件夹) for API parity and for the Flutter iOS fix (the platform view forwards `didChangeDragging` and the Dart core claims the drag, same as
   Android); the iOS search core's content scroll view (`isScrollEnabled`) holds while a drag/smear is active, if a host puts a scroll view in its content slot.
