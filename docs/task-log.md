@@ -457,5 +457,13 @@ begins and becomes `DONE` when it ends.
 - 2026-11-16 DONE: HarmonyOS CYLTabBarController pin eba8c44; emulator run of every tab and pushed page (11 screenshots); Scorecard 3 row 10 verified DONE. Prompt: "continue then update CYLTabBatController use new commit run our HarmonyOS version code on an emulator and push next page update more screenshot in docs".
 - 2026-11-16 DONE: React Native SVGA on iOS (SVGA tracker 13/13; Xcode group path fixed); HarmonyOS Scorecard 3 row 24 fixed and verified on the emulator. Prompt: "continue".
 - 2026-11-17 DONE: Android check at pin c795d08 (merged: build, tests, SVGA; RN Android: builds after manifest + clean, launches; empty system: icons TODO); HarmonyOS Scorecard 3 row 7 verified. Prompt: "check android  start emulator".
-=======
->>>>>>> parent of 86e6cc8 (ci: 🎡 remove the screenshot label check from CI)
+
+## DONE (2026-11-20): screenshot-labels workflow restored
+
+- **Prompt (verbatim)**: "ci 的xml 在最近提交中意外删除 无法在github触发ci ，请恢复"
+  (English: the CI file was deleted by accident in a recent commit and CI cannot be triggered on GitHub; restore it.)
+- **What happened**: `.github/workflows/screenshot-labels.yml` was removed in 86e6cc8 (2026-11-18; its message says "at the
+  maintainer's request"). That commit is reverted (a68405f): the workflow and the rules that said CI no longer checks
+  screenshot labels (AGENTS.md, instructions.md, skills cyl-docs and cyl-verify) are back. The entry above stays as history.
+- **Other workflows**: `ios.yml` was never deleted (runs on every pull request and push). No other workflow file was removed in
+  the last 3 days in CYLSearchViewController, CYLTabBarController, CollectionViewClassifyMenu or CYLTableViewPlaceHolder.
