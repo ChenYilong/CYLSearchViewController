@@ -913,7 +913,22 @@ Android.
 - **Owners / status**: mini program: Mac-CYLTabBarController 小程序开发 (fix + test, asked 2026-11-20); HarmonyOS: winCYLTabBarController 鸿蒙开发
   (static reading: one `selectedIndex` source, each engine stops on `selected` false; emulator run in progress); Android, React
   Native Android, Flutter Android: winCYLSearchViewController文件夹 (audit asked 2026-11-20).
-- **Status**: TODO. Score: 20/100 (iOS reference recorded; mini program fix and the other audits open).
+- **Audit results (2026-11-20)**:
+  - **HarmonyOS** (macOS session, Mate 70 Pro emulator on this Mac, example at the shared pins, SVGA tab icons): holds, one selected
+    item in every frame ([assets/harmonyos-mate70pro-20261120-tab-switch-one-selected.png](assets/harmonyos-mate70pro-20261120-tab-switch-one-selected.png));
+    the Windows session's emulator would not start (C: nearly full), its code reading agrees (one `selectedIndex` source; each
+    engine stops on `selected` false). One gap by reading, GIF images only: a `selectedIndex` changed from outside does not stop the
+    old tab's GIF (`cylOnSelectedIndexChange`); fix with winCYLTabBarController 鸿蒙开发, not reproduced.
+  - **Android native** (Windows session, API 37 emulator, 3 of 8 quick switches): reproduces only when switching to the "More" tab;
+    `cyl_moreButtonTapped` never stops the other tabs (it does not go through the `selectedIndex` setter), so the tab left behind
+    keeps a selected-looking SVGA icon. Fix verified locally (`cyl_stopAnimationsOfAllTabBarItemsExcept`), patch with
+    winCYLTabBarController 鸿蒙开发 to commit. React Native Android and Flutter Android: 0 of 8.
+  - **Mini program**: fixed in CYLTabBarController `41660d24` (container stops and rests every other tab before the new one plays;
+    item halts on deselect; pending plays cancelled; 8 tests); bundled in ClassifyMenu `954edf8c`; iOS pins `049b108`; not yet
+    verified on DevTools or a phone with the SVGA tab bar.
+  - **iOS More tab** (more than five tabs): not run, asked of Mac-CYLTabBarController文件夹.
+- **Status**: TODO. Score: 70/100 (iOS and HarmonyOS verified, mini program fixed and bundled, Android More patch and the iOS More check
+  open; the user's phone retest of the mini program is the last step).
 
 ## TODO (2026-11-20): two tab items stay selected after a quick switch in the SVGA tab bar: the Android audit
 
