@@ -48,9 +48,11 @@ export default class EntryAbility extends UIAbility {
     if (noFocus !== undefined && noFocus !== null && !Number.isNaN(Number(noFocus))) {
       AppStorage.setOrCreate<number>('CYLDebugNoFocus', Number(noFocus));
     }
+    // A text value needs `--ps` (`aa start --ps CYLDebugQuery e`); `--pi` takes integers only.
     const debugQuery = want.parameters?.['CYLDebugQuery'];
-    if (typeof debugQuery === 'string') {
-      AppStorage.setOrCreate<string>('CYLDebugQuery', debugQuery);
+    hilog.info(DOMAIN, 'testTag', 'CYLDebugQuery read: type=%{public}s value=%{public}s', typeof debugQuery, String(debugQuery));
+    if (debugQuery !== undefined && debugQuery !== null) {
+      AppStorage.setOrCreate<string>('CYLDebugQuery', String(debugQuery));
     }
     const gesture = want.parameters?.['CYLDebugTagGestureActive'];
     if (gesture !== undefined && gesture !== null && !Number.isNaN(Number(gesture))) {

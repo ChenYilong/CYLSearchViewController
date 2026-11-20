@@ -192,6 +192,7 @@ export struct MaterialSamplePage {
 
   // The search item: the whole search bar takes the navigation bar's place.
   private openSearch(): void {
+    hilog.info(0x0000, 'testTag', 'openSearch debugQuery=%{public}s', String(AppStorage.get<string>('CYLDebugQuery')));
     this.showsNavigationBar = false;
     this.searchView.showSearch();
     // Debug: `--pi CYLDebugQuery e` sets the query without typing (no keyboard), so the suggestions list can be swiped in tests.
