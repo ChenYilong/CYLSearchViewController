@@ -894,3 +894,23 @@ Android.
 
 ![Android, SVGA tab icons at c795d08](assets/android-svga-tab-icons-c795d08.png)
 ![React Native Android at c795d08](assets/rn-android-c795d08.png)
+
+## TODO (2026-11-20): tab switch mid-animation must leave exactly one item selected, on every platform (the iOS contract)
+
+- **Branch**: `feat/harmonyos-parity`.
+- **Prompt (verbatim)**: "测试发现小程序中的tabbar svga动画tabbar，如果在一个svga动画还没执行结束前，点击下一个tabbaritem 下一个动画执行的同时上一个动画也在执行并没有因为切换tabbaritem就终止播放恢复未选中状态。不符合预期。模仿iOS逻辑，只要切换tabbaiitem就强制终止所有动画恢复未选中状态后，再执行下一个动画" and "这个导致的问题是该场景下会有两个tabbaritem处于选中状态，先解决小程序问题，再排查其他端是否也有这个问题，与iOS逻辑对齐"
+  (English: on the mini program, tapping the next tab item while an SVGA animation is still playing leaves the previous
+  one playing and not reset; follow iOS: any switch force-stops ALL animations and restores the unselected state, then plays
+  the next; the consequence is two selected tab items; fix the mini program first, then check the other platforms, aligned
+  with iOS.)
+- **Contract (iOS, `CYLAnimatedItemView` / `CYLTabBar`)**: after every switch exactly one item is selected; every other item shows
+  its unselected look (image, tint, title, resting frame) and plays nothing; then the new item plays.
+- **iOS (macOS session, simulator, native example with SVGA tab icons)**: holds: Examples then Discover tapped without a pause,
+  one selected item in every frame
+  ([assets/ios-iphone18pro-20261120-tab-switch-one-selected.png](assets/ios-iphone18pro-20261120-tab-switch-one-selected.png)).
+  React Native iOS and Flutter iOS draw the same native tab bar (react-native-cyltabbar / the Flutter platform view wrap
+  `CYLTabBar`), so they follow it by construction; not run separately.
+- **Owners / status**: mini program: Mac-CYLTabBarController 小程序开发 (fix + test, asked 2026-11-20); HarmonyOS: winCYLTabBarController 鸿蒙开发
+  (static reading: one `selectedIndex` source, each engine stops on `selected` false; emulator run in progress); Android, React
+  Native Android, Flutter Android: winCYLSearchViewController文件夹 (audit asked 2026-11-20).
+- **Status**: TODO. Score: 20/100 (iOS reference recorded; mini program fix and the other audits open).
