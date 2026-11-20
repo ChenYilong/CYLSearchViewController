@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_cylsearch/flutter_cylsearch.dart';
@@ -342,5 +343,25 @@ void main() {
     expect(cylPlaceholderViewParameters(const CYLPlaceholderView(placeholderStyle: CYLPlaceholderStyle.noResults, text: 'No matching tags'), brightness: Brightness.dark),
         <String, Object?>{'brightness': 'dark', 'placeholderStyle': 'noResults', 'text': 'No matching tags'});
     expect(CYLSearchViewTypes.placeholderView, 'cyl_search/placeholder_view');
+  });
+  testWidgets('the tag list platform view joins the gesture arena with a long press recognizer', (tester) async {
+    // Without a recognizer the platform view gets its touches only after the arena is decided and an ancestor scroll view wins
+    // every vertical drag: the native list never saw a long press. A long press (the finger still) wins the pointer for it.
+    debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
+    try {
+      await tester.pumpWidget(const Directionality(textDirection: TextDirection.ltr, child: CYLTagListView(tags: <String>['Swift'])));
+      final view = tester.widget<UiKitView>(find.byType(UiKitView));
+      expect(view.gestureRecognizers?.map((factory) => factory.type), contains(LongPressGestureRecognizer));
+    } finally {
+      debugDefaultTargetPlatformOverride = null;
+    }
+  });
+
+  test('CYLTagListView reports the drag state of the native list', () {
+    final states = <bool>[];
+    final widget = CYLTagListView(tags: const <String>['Swift'], onDraggingChanged: states.add);
+    cylTagListViewDispatch(widget, const MethodCall('didChangeDragging', <String, Object?>{'dragging': true}));
+    cylTagListViewDispatch(widget, const MethodCall('didChangeDragging', <String, Object?>{'dragging': false}));
+    expect(states, <bool>[true, false]);
   });
 }

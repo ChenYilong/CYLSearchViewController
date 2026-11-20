@@ -184,11 +184,20 @@ class CYLSearchBarWidgetController extends _CYLPlatformViewController {
   Future<int> selectedSearchIndex() async => await _invoke<int>('selectedSearchIndex') ?? -1;
 }
 
+/// The recognizers the tag list's platform view joins the gesture arena with. A platform view without one gets its touches only
+/// after the arena is decided, and an ancestor scroll view wins every vertical drag, so the native list never saw a long press.
+/// With a long press recognizer, a finger that stays still for the long press time wins the pointer for the native list (its drag
+/// starts, the held touches reach it) and the scroll view does not scroll with it; a swipe that began earlier scrolls as usual.
+Set<Factory<OneSequenceGestureRecognizer>> _tagListGestureRecognizers() => <Factory<OneSequenceGestureRecognizer>>{
+      Factory<LongPressGestureRecognizer>(LongPressGestureRecognizer.new),
+    };
+
 Widget _platformView(
   String viewType,
   Map<String, Object?> creationParams,
-  void Function(int id) onCreated,
-) {
+  void Function(int id) onCreated, {
+  Set<Factory<OneSequenceGestureRecognizer>>? gestureRecognizers,
+}) {
   const codec = StandardMessageCodec();
   switch (defaultTargetPlatform) {
     case TargetPlatform.iOS:
@@ -197,6 +206,7 @@ Widget _platformView(
         creationParams: creationParams,
         creationParamsCodec: codec,
         onPlatformViewCreated: onCreated,
+        gestureRecognizers: gestureRecognizers,
       );
     case TargetPlatform.android:
       // Hybrid composition: the native view is in the Android view hierarchy, so its keyboard, focus and text
@@ -205,7 +215,7 @@ Widget _platformView(
         viewType: viewType,
         surfaceFactory: (context, controller) => AndroidViewSurface(
           controller: controller as AndroidViewController,
-          gestureRecognizers: const <Factory<OneSequenceGestureRecognizer>>{},
+          gestureRecognizers: gestureRecognizers ?? const <Factory<OneSequenceGestureRecognizer>>{},
           hitTestBehavior: PlatformViewHitTestBehavior.opaque,
         ),
         onCreatePlatformView: (params) {
@@ -759,6 +769,7 @@ class CYLTagListView extends StatefulWidget {
     this.onTagMoved,
     this.onRenameRequested,
     this.onClearButtonTapped,
+    this.onDraggingChanged,
   });
 
   /// The tags' ids, one per title (iOS `menuIdentifierForItem(at:)`): kept by renaming and reordering, and reported by
@@ -798,6 +809,11 @@ class CYLTagListView extends StatefulWidget {
 
   /// The header's clear button was tapped.
   final VoidCallback? onClearButtonTapped;
+
+  /// A drag of a tag or a smear selection started (true) or ended or was cancelled (false), the counterpart of the mini
+  /// program's `reorderingchange` and `smearingchange`. The list already keeps an ancestor scroll view from scrolling with
+  /// the drag (a long press wins the pointer in the gesture arena); nothing else is needed in the app.
+  final ValueChanged<bool>? onDraggingChanged;
 
   /// The titles of the tags (`setTagsWithTitles`).
   final List<String> tags;
@@ -871,7 +887,7 @@ class _CYLTagListViewState extends State<CYLTagListView> {
   @override
   Widget build(BuildContext context) => SizedBox(
         height: _height,
-        child: _platformView(CYLSearchViewTypes.tagListView, _parameters, _created),
+        child: _platformView(CYLSearchViewTypes.tagListView, _parameters, _created, gestureRecognizers: _tagListGestureRecognizers()),
       );
 }
 
@@ -911,6 +927,8 @@ double? cylTagListViewDispatch(CYLTagListView widget, MethodCall call) {
           arguments['index'] as int? ?? 0, arguments['id'] as String? ?? '', arguments['title'] as String? ?? '');
     case 'didTapClearButton':
       widget.onClearButtonTapped?.call();
+    case 'didChangeDragging':
+      widget.onDraggingChanged?.call(arguments['dragging'] as bool? ?? false);
     case 'didChangeHeight':
       return (arguments['height'] as num?)?.toDouble();
   }

@@ -491,6 +491,29 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
     override fun menuDidChangeExpanded(menu: Any, expanded: Boolean, inSection: Int) = reportHeight()
     override fun menuDidChangeEditing(menu: Any, editing: Boolean) = reportHeight()
 
+    // A drag of a tag or a smear selection: Dart claims the pointer in the gesture arena while it lasts (didChangeDragging),
+    // so a Flutter scroll view around the list does not scroll with it, as the mini program's content page holds.
+    private var reordering = false
+    private var smearing = false
+    private var reportedDragging = false
+
+    override fun menuDidChangeReordering(menu: Any, reordering: Boolean) {
+        this.reordering = reordering
+        reportDragging()
+    }
+
+    override fun menuDidChangeSmearing(menu: Any, smearing: Boolean) {
+        this.smearing = smearing
+        reportDragging()
+    }
+
+    private fun reportDragging() {
+        val dragging = reordering || smearing
+        if (dragging == reportedDragging) return
+        reportedDragging = dragging
+        channel.invokeMethod("didChangeDragging", mapOf("dragging" to dragging))
+    }
+
     private fun reportHeight() {
         val width = tagListView.width / tagListView.resources.displayMetrics.density
         if (width <= 0f) return

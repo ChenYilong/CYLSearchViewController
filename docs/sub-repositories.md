@@ -273,6 +273,10 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   the mini program passes 60/60. DevTools cannot show the tab switch bug: real quick clicks on the SVGA tab bar leave no stale icon
   with the fix, and the same run with the stop-others step switched off (control) also leaves none, so that check proves nothing
   either way; the phone is the check.
+- **CollectionViewClassifyMenu `53608bb5` (2026-11-20, Windows)**, on Android, HarmonyOS and the mini program (iOS: the macOS session after its iOS callbacks):
+  `954edf8c` plus the tag list state callbacks `menuDidChangeReordering` and `menuDidChangeSmearing` on Android and HarmonyOS. Android tests pass (0
+  failures) and the APK builds with `.cyl-deps` at `53608bb5`; HarmonyOS builds the `default`, `emulator` and `ohosTest` HAPs; the mini program passes 60/60;
+  the Flutter Android plugin uses the callbacks (`didChangeDragging`).
 
 - **iOS, Flutter and React Native iOS re-pinned (2026-11-20)**: CollectionViewClassifyMenu `bbf854ce` (PR #25, not merged at
   the time; its iOS content is `ca412aa7`), CYLTabBarController `8b7dea18` (the iOS 15 minimum; the launch crash in
