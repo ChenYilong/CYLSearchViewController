@@ -48,6 +48,10 @@ export default class EntryAbility extends UIAbility {
     if (noFocus !== undefined && noFocus !== null && !Number.isNaN(Number(noFocus))) {
       AppStorage.setOrCreate<number>('CYLDebugNoFocus', Number(noFocus));
     }
+    const debugQuery = want.parameters?.['CYLDebugQuery'];
+    if (typeof debugQuery === 'string') {
+      AppStorage.setOrCreate<string>('CYLDebugQuery', debugQuery);
+    }
     const gesture = want.parameters?.['CYLDebugTagGestureActive'];
     if (gesture !== undefined && gesture !== null && !Number.isNaN(Number(gesture))) {
       CYLMenuGestureState.shared.setActive(-1, Number(gesture) !== 0);

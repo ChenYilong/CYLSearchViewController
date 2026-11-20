@@ -193,6 +193,11 @@ export struct MaterialSamplePage {
   private openSearch(): void {
     this.showsNavigationBar = false;
     this.searchView.showSearch();
+    // Debug: `--pi CYLDebugQuery e` sets the query without typing (no keyboard), so the suggestions list can be swiped in tests.
+    const debugQuery = AppStorage.get<string>('CYLDebugQuery');
+    if (debugQuery !== undefined && debugQuery.length > 0) {
+      this.searchView.setQuery(debugQuery, false);
+    }
   }
 
   aboutToDisappear(): void {
