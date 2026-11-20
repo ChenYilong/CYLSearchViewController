@@ -1,4 +1,5 @@
 import { common } from '@kit.AbilityKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import {
   CYLMenuFoldControl,
   CYLMenuFoldControlContent,
@@ -196,7 +197,11 @@ export struct MaterialSamplePage {
     // Debug: `--pi CYLDebugQuery e` sets the query without typing (no keyboard), so the suggestions list can be swiped in tests.
     const debugQuery = AppStorage.get<string>('CYLDebugQuery');
     if (debugQuery !== undefined && debugQuery.length > 0) {
-      this.searchView.setQuery(debugQuery, false);
+      // After the open state is drawn and the search field exists, so the text is not lost.
+      setTimeout(() => {
+        this.searchView.setQuery(debugQuery, false);
+        hilog.info(0x0000, 'testTag', 'CYLDebugQuery applied %{public}s', debugQuery);
+      }, 600);
     }
   }
 
