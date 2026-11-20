@@ -914,3 +914,40 @@ Android.
   (static reading: one `selectedIndex` source, each engine stops on `selected` false; emulator run in progress); Android, React
   Native Android, Flutter Android: winCYLSearchViewController文件夹 (audit asked 2026-11-20).
 - **Status**: TODO. Score: 20/100 (iOS reference recorded; mini program fix and the other audits open).
+
+## TODO (2026-11-20): two tab items stay selected after a quick switch in the SVGA tab bar: the Android audit
+
+- **Branch**: `feat/harmonyos-parity`. Platforms of this entry: native Android, React Native Android, Flutter Android (the mini
+  program: Mac-CYLTabBarController 小程序开发; HarmonyOS: winCYLTabBarController 鸿蒙开发; iOS React Native and Flutter: the macOS session).
+- **Prompt (verbatim, relayed by the macOS session)**: "这个导致的问题是该场景下会有两个tabbaritem处于选中状态，先解决小程序问题，再排查其他端是否也有这个问题，与iOS逻辑对齐"
+  (English: in this case two tab items end up selected; fix the mini program first, then check whether the other platforms have it too,
+  and align with the iOS logic). The iOS contract: every tab switch stops all animations, resets every item to unselected, then
+  plays the new one, so exactly one item is selected.
+- **Method**: the SVGA tab bar on the Android API 37 emulator (native `--es CYLDemoTabIconSource 2`, React Native "Tab icons: SVGA",
+  Flutter `--dart-define=CYL_DEMO_TAB_ICON_SOURCE=2`); a quick switch (tap tab A, tap tab B 0.1, 0.25, 0.5 or 0.9 s later, eight
+  switches per app); 3.8 s later the selected tab (accessibility `selected`) and the icon colours of every tab (grey is unselected,
+  a coloured icon that is not the selected tab is an animation that was not stopped and reset).
+- **Results** (CYLSearchViewController `1b3541f`, CYLTabBarController `8b7dea18`):
+
+  | App | Switches with a leftover coloured icon | Which |
+  | :--- | :--- | :--- |
+  | Native Android example | 3 of 8 | all three switch to the "More" tab (Search or Examples then More) |
+  | React Native Android | 0 of 8 | |
+  | Flutter Android | 0 of 8 | |
+
+- **Cause**: `CYLTabBarController.cyl_moreButtonTapped` (CYLTabBarController Android, `Example-Android/cyltabbar`) never stops the
+  other tabs. A normal tab goes through the `selectedIndex` setter, which calls `cyl_playSelectedTabBarItemAnimation`, and that stops
+  every other button's animation; the plus button's page calls it too (an earlier fix of the same kind). "More" has no animation
+  of its own and no `selectedIndex` change, so only `cyl_playTabButtonAnimationForControl` runs: it plays the deselect step of the
+  previous tab only when its animator implements one, and the SVGA animator does not, so the previous tab keeps playing and ends on
+  its selected frame. Hence React Native and Flutter, whose tabs are all animated, did not show it; any app of the Android library with
+  more than five tabs (a "More" tab) would.
+- **Fix, verified locally** (not yet committed in CYLTabBarController): a shared `internal fun CYLTabBar.cyl_stopAnimationsOfAllTabBarItemsExcept(selectedControl)`
+  in `CYLTabBarItemAnimationHost.kt` (`cyl_animationLottieImageWithSelectedControl` calls it too) and one call to it in
+  `cyl_moreButtonTapped` before `cyl_playTabButtonAnimationForControl(button)`. With it, the same eight switches on the native example
+  leave only the selected tab marked, and the three switches to "More" are fixed
+  ([assets/android-svga-tab-switch-more-20261120.png](assets/android-svga-tab-switch-more-20261120.png), Android API 37 emulator, Windows 11, 2026-11-20 +13:00, after 1b3541f). The patch is
+  `C:\cylbuild\cyltabbar-more-animation.patch` on the Windows machine, for CYLTabBarController's Android owner to commit.
+  A unit test in that repository needs a seam: the test classpath has no SVGA, Lottie or Rive library and the animation state is private.
+- **Status**: TODO. Score: 70/100 (audited on three apps, the cause found, the fix verified on the emulator; left: the fix and its test
+  committed in CYLTabBarController, re-bundled by CollectionViewClassifyMenu and pinned here, then the same check again).
