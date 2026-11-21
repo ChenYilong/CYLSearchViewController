@@ -546,6 +546,48 @@ begins and becomes `DONE` when it ends.
   ClassifyMenu callbacks); the mini program keyboard placeholder and the tab switch retest on the user's phone; Maven
   coordinates of CYLTableViewPlaceHolder's Android modules (its owner decides).
 
+## TODO (2026-11-21): test every platform except iOS
+
+- **Branch**: `feat/harmonyos-parity`, at `77f6503`. Windows 11 session; Android API 37 emulator (emulator-5554), HarmonyOS
+  Mate 70 Pro emulator (127.0.0.1:5557).
+- **Prompt (verbatim)**: "process test all platform (not include ios)"
+- **Requirements**: run the tests of Android, HarmonyOS, the mini program, Flutter and React Native; report the results.
+- **Acceptance**: 100 = every suite below runs and passes, and each example builds: Android `:cylsearch` unit tests and
+  `:app:assembleDebug`; HarmonyOS host tests, the parity scripts, the emulator and ohosTest HAPs, hypium on the emulator;
+  mini program `npm test`; Flutter `flutter test` and the Android example build; React Native jest and the Android
+  example build; the repository checks (public API comments, licenses, the API tables). 60 = every suite runs, with
+  failures explained.
+- **Status**: DONE (2026-11-22), score 100/100. Results at `11b4b33` (pins: CYLTabBarController `41660d24`,
+  CollectionViewClassifyMenu `cf478388`, CYLTableViewPlaceHolder `c84fce9`; Windows 11 Pro 10.0.22631, JDK 17):
+
+  | Platform | Tests | Build | Runs on the emulator |
+  |:---|:---|:---|:---|
+  | Android | `:cylsearch` 26 of 26 (Robolectric) | `:app:assembleDebug` (clean) | launches, no crash (API 37) |
+  | HarmonyOS | host logic 30 of 30; iOS parity 549 of 549; accessibility and i18n 0 problems; hypium 29 of 29 | emulator HAP and ohosTest HAP (`emulatorTest`), clean | installed on the Mate 70 Pro emulator (HarmonyOS 6.0.0.112, API 21) |
+  | Mini program | `npm test` 61 of 61 | — | not run (DevTools not used in this task) |
+  | Flutter | plugin 18 of 18; example 3 of 3 | `flutter build apk --debug` | launches, no crash |
+  | React Native | jest 4 of 4 | `:app:assembleDebug` | launches, no crash, with the JS bundle in the APK's assets |
+  | Checks | public API comments OK; licenses OK (9 files); API tables Android, HarmonyOS, mini program 289 of 289; HarmonyOS scorecard 314 of 314 | | |
+
+  Notes: there are no instrumented (androidTest) Android tests. The React Native debug APK reads its bundle from
+  assets, not from Metro, and a release build fails on Windows: ninja's object paths under
+  `react-native-safe-area-context` pass 260 characters even from `C:\cylbuild\repo` (the README's known limit). So
+  the run used `react-native bundle` into the mirror's assets, not committed. iOS was not tested (not part of the task).
+
+## TODO (2026-11-22): pin CYLTabBarController ace1af0e and CollectionViewClassifyMenu 1f8c1001 on every platform
+
+- **Branch**: `feat/harmonyos-parity`. Context: CYLTabBarController PR #822 (`CYLAnimatedItemView.style` renamed
+  `itemStyle` on iOS and Android) is merged as `ace1af0e` and contains the Android More-tab fix `c1abdffe`;
+  CollectionViewClassifyMenu `1f8c1001` (`feat/harmony`, PR #26) pins `ace1af0e` (message from its session).
+  Closes the 8-point TODO of "fix every open TODO in docs" and the two 2026-11-20 tab switch entries in
+  `CYLTabBarController-Integration.md`.
+- **Prompt**: none new; it continues "fix all todo in docs" (this session's task log entry of 2026-11-21).
+- **Acceptance**: 100 = every pin file moved (Podfiles, `android/merged/gradle.properties`, `harmonyos/oh-package.json5`
+  and its vendor copies, the mini program `package.json`, the Flutter `pubspec.yaml`); Android, HarmonyOS, mini program,
+  Flutter and React Native build and pass their tests; the quick switch to More checked at the pin with a screenshot.
+  iOS (`Podfile.lock`, builds) is left to the macOS session and CI. 60 = pins moved, Android and HarmonyOS green.
+- **Status**: started.
+
 ## TODO (2026-11-21): fix every iOS / Swift TODO in docs/ and test with Xcode
 
 - **Branch**: `fix/ios-swift-todos` (from `feat/harmonyos-parity`, pull request 11). macOS 27 session, Xcode 27.2, a
