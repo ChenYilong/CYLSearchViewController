@@ -5,6 +5,8 @@ import { CYLSearchBarView, CYLSearchView, CYLTagListView } from 'react-native-cy
 import { CYLTabBar, type CYLTabBarItem, type CYLTabBarPlusButton } from 'react-native-cyltabbar';
 import discoverData from './search-discover.json';
 import { ContactTagsDemo } from './ContactTagsDemo';
+import { SearchBarStylesDemo } from './SearchBarStylesDemo';
+import { SearchControllerDemo } from './SearchControllerDemo';
 
 /**
  * The suggestions of MaterialSearchView's Default sample, as in the iOS, Android and Flutter examples.
@@ -31,6 +33,10 @@ type Demo = {
    */
   contactTags?: boolean;
   /**
+   * The QMUI replicas: "Search controller" (QDSearchViewController) and "Search bar styles" (QDSearchBarViewController).
+   */
+  qmui?: 'controller' | 'styles';
+  /**
    * Starts the contact tags demo without tags (the placeholders; iOS `-CYLContactTagsEmpty YES`).
    */
   emptyTags?: boolean;
@@ -46,7 +52,8 @@ const TABS: Tab[] = [
     key: 'list',
     title: 'List style',
     description: 'Suggestions as a list, filtered as you type; or results of each query, pulled down to refresh.',
-    demos: [{ label: 'Open search' }, { label: 'Results with pull to refresh', results: true }],
+    demos: [{ label: 'Open search' }, { label: 'Results with pull to refresh', results: true },
+      { label: 'Search controller', qmui: 'controller' }, { label: 'Search bar styles', qmui: 'styles' }],
   },
   {
     key: 'tags',
@@ -138,9 +145,20 @@ function Screens() {
   const palette = usePalette();
   // `-initialTab discover` (an iOS launch argument, read through Settings) opens a tab directly, for screenshots.
   const [tab, setTab] = useState<string>(() => (Platform.OS === 'ios' && typeof Settings.get('initialTab') === 'string' ? Settings.get('initialTab') : 'list'));
-  const [open, setOpen] = useState<Demo | null>(null);
+  // `-initialDemo controller|styles` (an iOS launch argument) opens a QMUI replica directly, for screenshots.
+  const [open, setOpen] = useState<Demo | null>(() => {
+    const initial = Platform.OS === 'ios' ? Settings.get('initialDemo') : undefined;
+    return initial === 'controller' || initial === 'styles' ? { label: initial, qmui: initial } : null;
+  });
   // Where the tab icons come from (iOS CYLDemoTabIconSource: 2 SVGA; the button on the sample pages switches it).
   const [iconSource, setIconSource] = useState<'rive' | 'svga'>(() => (Platform.OS === 'ios' && Number(Settings.get('CYLDemoTabIconSource')) === 2 ? 'svga' : 'rive'));
+  if (open?.qmui) {
+    return (
+      <SafeAreaView style={[styles.fill, { backgroundColor: palette.background }]} edges={['top', 'bottom']}>
+        {open.qmui === 'controller' ? <SearchControllerDemo onClose={() => setOpen(null)} /> : <SearchBarStylesDemo onClose={() => setOpen(null)} />}
+      </SafeAreaView>
+    );
+  }
   if (open?.results) {
     return (
       <SafeAreaView style={[styles.fill, { backgroundColor: palette.background }]} edges={['top', 'bottom']}>
