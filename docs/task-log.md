@@ -860,3 +860,17 @@ begins and becomes `DONE` when it ends.
   `instructions.md` ("Naming"), `AGENTS.md` ("Project rules" and the skills table), `docs/swift-coding-standard.md`.
 - **TODO**: rename the test helpers to lowerCamelCase after the merge phases (they edit the same test files); the
   CYLTabBarController renames belong to that repository's session and pull request.
+## TODO (2026-11-22): pin CYLTabBarController 882ece17, ClassifyMenu 405bf498, CYLTableViewPlaceHolder f4cf978; adopt the x86_64 plan
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: CYLTabBarController `882ece17` ships the x86_64 emulator test plan
+  in `cylanimateditem` (`62715829`: PAG and Rive `canPlay` false without `arm64-v8a`, still image, `isSupportedOnDevice`,
+  `tools/cyl_hap_x86_64.py`, README "x86_64 emulator"; `882ece17`: 6 hypium tests on x86_64), asked for in the entry
+  "the x86_64 emulator test plan" above. CollectionViewClassifyMenu `405bf498` (`feat/harmony`) pins `882ece17` on every
+  platform (both repositories pin the same tab bar commit, so not the newer `89886a3e`). CYLTableViewPlaceHolder
+  `f4cf9785` (`feat/android-refresh-port-followup`, 8 commits after `6117fcfb`).
+- **Prompt (verbatim)**: "continue fix todo fix ci error" and the x86_64 prompt quoted in that entry.
+- **Acceptance**: 100 = the three pins in every manifest with vendor copies synced (from a mirror checked to hold them);
+  Android, HarmonyOS (hypium on the x86_64 emulator), mini program, Flutter and React Native tests pass and the examples
+  build; the x86_64 plan adopted (our recipe matches `cylanimateditem`'s README; any PAG or Rive view this repository
+  builds itself guarded by `isSupportedOnDevice`). 60 = pins moved, Android and HarmonyOS green.
+- **Status**: in progress.
