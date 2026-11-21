@@ -1100,7 +1100,22 @@ Android.
     Checked: the React Native Android example builds (Gradle, JDK 17, React Native 0.88.0) and codegen emits both events (`EventEmitters.h`); jest 4 of 4.
     iOS sends nothing yet: the iOS ClassifyMenu has no such callbacks (checked at `feat/harmony` 7b7051ab, 2026-11-21); once they land, `CylsearchTagListView.mm`
     forwards them the same way (the macOS session).
-  - **Score**: 55/100.
+  - **iOS: Flutter and React Native DONE (2026-11-22, macOS session, `df3283a`, iPhone 18 Pro simulator, iOS 27.2, Xcode 27.2)**. The callbacks
+    existed on iOS already (ClassifyMenu `CYLMenuDelegate` `menu(_:didChangeReordering:)` / `menu(_:didChangeSmearing:)`, logged DONE there on
+    2026-11-20), but the iOS pins (`954edf8c`) predated them. Now: ClassifyMenu `1f8c1001` and CYLTabBarController `ace1af0e` in the three iOS
+    Podfiles (the commit every platform pins; `cyl.tabbar.ios.commit` in `android/merged/gradle.properties` for React Native iOS's fetch until the
+    shared key moves); `CylsearchTagListView.mm` emits `onReorderingChange` / `onSmearingChange`; the Flutter iOS platform view sends
+    `didChangeDragging` (reordering or smearing), the same code as Android.
+    - Flutter iOS (debug, `--hold` 0.6, 1.2 and 2.0 s, an `axe drag` of "Family" in Manage): the tag lifts and floats, lands at its new place, and "My
+      Tags" stays where it was, so the page does not scroll with the drag; a swipe without a hold still scrolls the page. The 2026-11-20 failure (the
+      tag never lifted) does not reproduce with this build; it was not bisected between the new pins and the new `didChangeDragging`.
+    - React Native iOS (Release): the same drag; a temporary `console.error` in the example's handler (not committed) logged
+      `reordering true` when the drag started and `reordering false` at the drop. The smear path is wired the same way and was not exercised.
+    ![Flutter and React Native iOS tag drag, df3283a, 2026-11-22](assets/ios-iphone18pro-20261122-tag-drag-holds-flutter-rn.png)
+    (iOS 27.2 simulator, iPhone 18 Pro, Xcode 27.2 27B52, Flutter 3.47.9, CYLSearchViewController `df3283a`, ClassifyMenu `1f8c1001`,
+    CYLTabBarController `ace1af0e`, 2026-11-22 00:43 to 00:47 +13:00.)
+  - **Score**: 85/100 (Android native, React Native and Flutter on Android and iOS, iOS native hold; left: HarmonyOS, the real drag signal from
+    the ClassifyMenu callbacks and a device run).
   - **HarmonyOS hold check (2026-11-20, macOS emulator, `e6f25d4`)**: launch `--ps CYLDebugQuery i --pi CYLDebugNoFocus 1 --pi CYLDebugTagGestureActive 1|0`
     (`--pi` carries integers only, the query needs `--ps`); Examples, other libraries' examples, MiguelCatalan, Default, search icon. The suggestion list
     (query "i", longer than the screen) swiped 700,2200 to 700,900: flag 1 did not scroll, flag 0 scrolled. Before `e6f25d4` the list-style
