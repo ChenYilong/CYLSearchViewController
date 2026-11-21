@@ -466,3 +466,8 @@ a test or labelled screenshot per screen, the platform's checks green.
   covers a view in any state; strings in en, ja, zh-Hans, zh-Hant; this section filled with files, rows, tests, screenshots, score.
 - **Environment**: JDK 17.0.21 (`/Users/chenyilong/develop/jdk/jdk-17.0.21+9`; JDK 21 and 25 break Robolectric), Gradle 9.4.1 wrapper
   (`sh ./gradlew`, the wrapper is not executable in git), Android SDK `~/Library/Android/sdk`, own AVD.
+
+### HarmonyOS (ArkTS, harmonyos/: library cylsearch, entry example): QMUI search port (2026-11-22)
+
+Status: TODO (2026-11-22, branch `feat/harmonyos-parity`): in progress. Owner change during the task: testing on a device moves to the
+Windows session (no emulator run, no screenshots from this session); this section is filled in as the work lands.
