@@ -760,3 +760,22 @@ begins and becomes `DONE` when it ends.
   Native tests pass; the iOS CI green. 60 = pins moved, Android and HarmonyOS green. The `Podfile.lock` files are left to
   the macOS session (`pod install`).
 - **Status**: in progress.
+
+
+## DONE (2026-11-22): write the x86_64 emulator HAP rule (arm64-only Rive and PAG) into the instructions and skills
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: the default HAPs do not install on the x86_64 HarmonyOS emulator
+  because `@ohos/rive` and `@tencent/libpag` ship `arm64-v8a` libraries only; the build profile already has the fix (the
+  `emulator` target, 2026-11-17, and the `emulatorTest` build mode, `90b3dcf`), described so far only in a paragraph of
+  `cyl-harmonyos-setup`.
+- **Requirements**: write the fix, in English, into the instruction files and the skill files (create them when missing).
+- **Prompt (verbatim)**: "到本项目instructions 相关文件以及skills相关文件，如果没有就新增文件保证写入成功，全英文写入：    to fix HAP won't install on this x86_64 emulator because its Rive and PAG libraries are arm64-only,"
+- **Prompt (English)**: write into the instruction and skill files how to fix a HAP that won't install on this x86_64
+  emulator because its Rive and PAG libraries are arm64-only.
+- **Acceptance**: 100 = the rule (problem, fix, commands, check, rules) in `AGENTS.md` and `instructions.md`, a section and
+  a troubleshooting row in `cyl-harmonyos-setup`, a pointer in `cyl-verify`, the check command verified on a built HAP.
+- **Status**: DONE (2026-11-22), 100/100. `AGENTS.md` and `instructions.md`: "HarmonyOS: HAPs for the x86_64 emulator
+  leave out the arm64-only Rive and PAG libraries"; `cyl-harmonyos-setup`: "Arm64-only native libraries on the x86_64
+  emulator" and a troubleshooting row; `cyl-verify`, "HarmonyOS": a pointer. Checked on today's build (tab bar
+  `618ac11a`): `unzip -l` finds no `.so` file in `entry-emulator-unsigned.hap` and no `arm64-v8a` entry in the ohosTest
+  HAP; both install, and hypium ran 29 of 29 on the Mate 70 Pro emulator earlier today with the same profile.

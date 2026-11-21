@@ -695,6 +695,41 @@ question to the user.
      emulator runs and tests use the unsigned HAPs; keep `signingConfigs` empty and do not ask for a certificate,
      a profile or automatic signing. Signing is needed only for a real device or a release, when the user asks.
 
+## HarmonyOS: HAPs for the x86_64 emulator leave out the arm64-only Rive and PAG libraries (added 2026-11-22)
+
+- Prompt (verbatim): "到本项目instructions 相关文件以及skills相关文件，如果没有就新增文件保证写入成功，全英文写入：    to fix HAP won't install on this x86_64 emulator because its Rive and PAG libraries are arm64-only,"
+- Prompt (English): "Write, in English, into this project's instruction files and skill files (add files when missing,
+  make sure the write succeeds): how to fix a HAP that won't install on this x86_64 emulator because its Rive and PAG
+  libraries are arm64-only."
+- **The problem.** The local HarmonyOS emulator on Windows (Mate 70 Pro, HarmonyOS 6.0.1 API 21, image `phone_all_x86`) is
+  x86_64. `@ohos/rive` and `@tencent/libpag`, which CYLTabBarController and CYLTableViewPlaceHolder bring in, ship
+  `arm64-v8a` `.so` files only. A HAP that bundles them is rejected by the installer: `hdc install` fails with "install
+  parse native so failed" and an "Abi type" message. The app HAP and the ohosTest HAP both carry them.
+- **The fix** (already in `harmonyos/entry/build-profile.json5` and `harmonyos/build-profile.json5`):
+  1. a build option `emulator` with `"nativeLib": { "filter": { "excludes": ["**/arm64-v8a/*.so"] } }`;
+  2. a target `emulator` bound to that option in the `debug` and `release` build modes;
+  3. a build mode `emulatorTest` (listed in the root `buildModeSet`) that binds the `ohosTest` target to the same option.
+- **Commands** (from the ASCII mirror `C:\cylbuild\harmonyos`):
+  - app: `hvigorw --mode module -p module=entry@emulator -p product=default assembleHap`, install
+    `entry/build/default/outputs/emulator/entry-emulator-unsigned.hap`;
+  - tests: `hvigorw --mode module -p module=entry@ohosTest -p isOhosTest=true -p buildMode=emulatorTest -p product=default
+    assembleHap`, install `outputs/ohosTest/entry-ohosTest-unsigned.hap`, then `hdc shell aa test -b
+    com.cyl.search.harmonyos -m entry_test -s unittest OpenHarmonyTestRunner -s timeout 15000`.
+  - Check: `unzip -l <hap> | grep arm64-v8a` prints nothing for both HAPs.
+- **Rules.**
+  1. Use the `emulator` target and the `emulatorTest` build mode for every run on an x86_64 emulator; phones, arm64
+     emulators and releases keep the `default` target and `-p buildMode=test`, which bundle the arm64 libraries.
+  2. Fix it in the build profile only: never remove or replace the Rive or PAG dependencies, never change the
+     `overrides` in `oh-package.json5`, never put the filter on the `default` target.
+  3. In the emulator HAP the Rive and PAG animations cannot play (the still images show instead). A Rive or PAG check
+     needs an arm64 device or an arm64 emulator (a Mac with Apple silicon); say so in the report and in the screenshot
+     footer.
+  4. A new HarmonyOS app module or test target that depends on a library with arm64-only native code gets the same
+     option, target and build mode.
+  5. After a sub-repository sync, delete the mirror's `build`, `.hvigor` and `oh_modules` before building
+     (robocopy `/XD` keeps them, and a stale incremental build once dropped a new export).
+- Skill: `cyl-harmonyos-setup` ("Arm64-only native libraries on the x86_64 emulator"); also `cyl-verify`, "HarmonyOS".
+
 ## HarmonyOS: screen readers and localization (added 2026-11-16)
 
 - Prompt (verbatim): "适配视觉辅助 盲人辅助 为鸿蒙代码 。 适配国际化本地化，本地化文件可以从CYLTabBarController中复制一份过来。筛选本项目用到的文字。"

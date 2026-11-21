@@ -112,13 +112,34 @@ $hdc = 'C:\Program Files\Huawei\DevEco Studio\sdk\default\openharmony\toolchains
 & $hdc shell aa test -b com.cyl.search.harmonyos -m entry_test -s unittest OpenHarmonyTestRunner -s timeout 15000
 ```
 
-On the x86_64 emulator (Windows), the default HAPs do not install ("install parse native so failed … Abi type": Rive and
-PAG ship arm64-v8a .so files only). Build both HAPs without them, from the mirror (2026-11-21):
-`hvigorw --mode module -p module=entry@emulator -p product=default assembleHap` (installs
-`outputs\emulator\entry-emulator-unsigned.hap`) and `hvigorw --mode module -p module=entry@ohosTest -p isOhosTest=true
--p buildMode=emulatorTest -p product=default assembleHap` (the ohosTest HAP; phones keep `-p buildMode=test`). After
-a sub-repository sync, delete the mirror's `build`, `.hvigor` and `oh_modules` first: robocopy `/XD` keeps them,
-and a stale incremental build once missed a new `@cyl/classifymenu` export ("App died" in the UI tests).
+### Arm64-only native libraries on the x86_64 emulator (rule, 2026-11-22)
+
+The Windows emulator (Mate 70 Pro, `phone_all_x86`) is x86_64, but `@ohos/rive` and `@tencent/libpag` (from
+CYLTabBarController and CYLTableViewPlaceHolder) ship `arm64-v8a` `.so` files only, so the default HAPs do not install
+("install parse native so failed … Abi type"). `harmonyos/entry/build-profile.json5` has the fix: the build option
+`emulator` (`nativeLib.filter.excludes: ["**/arm64-v8a/*.so"]`), the target `emulator` bound to it, and the build mode
+`emulatorTest` (in the root `buildModeSet`) that binds `ohosTest` to it. Build both HAPs from the mirror:
+
+```sh
+hvigorw --mode module -p module=entry@emulator -p product=default assembleHap
+hvigorw --mode module -p module=entry@ohosTest -p isOhosTest=true -p buildMode=emulatorTest -p product=default assembleHap
+unzip -l entry/build/default/outputs/emulator/entry-emulator-unsigned.hap | grep arm64-v8a   # prints nothing
+```
+
+Install `outputs\emulator\entry-emulator-unsigned.hap` and `outputs\ohosTest\entry-ohosTest-unsigned.hap`, then run
+`aa test` as above. Rules:
+
+1. x86_64 emulator: always the `emulator` target and `-p buildMode=emulatorTest`. Phones, arm64 emulators and releases:
+   the `default` target and `-p buildMode=test`, which keep the arm64 libraries.
+2. Only the build profile changes: never remove or replace Rive or PAG, never edit the `overrides`, never filter the
+   `default` target.
+3. Rive and PAG animations cannot play in the emulator HAP (the still images show): check them on an arm64 device or
+   emulator, and say so in the report and the screenshot footer.
+4. A new app module or test target with arm64-only native dependencies gets the same option, target and build mode.
+5. After a sub-repository sync, delete the mirror's `build`, `.hvigor` and `oh_modules` first: robocopy `/XD` keeps them,
+   and a stale incremental build once missed a new `@cyl/classifymenu` export ("App died" in the UI tests).
+
+Full rule: `AGENTS.md`, "HarmonyOS: HAPs for the x86_64 emulator leave out the arm64-only Rive and PAG libraries".
 
 Do not ask for a signing certificate, a profile or automatic signing before an emulator run. Signing is needed only
 for a real device or a release, and is out of scope until the user asks for it.
@@ -133,6 +154,7 @@ for a real device or a release, and is out of scope until the user asks for it.
 | `hdc list targets` prints `[Empty]` | Emulator not booted, or a second `hdc` server from another SDK | Wait for the home screen; run `hdc kill`, then `hdc start` from the DevEco toolchains folder |
 | hvigor: path error | Spaces or non-ASCII characters in the project path | Mirror to an ASCII path (section 1, step 5) |
 | `DEVECO_SDK_HOME` error | Variable not set in this shell | Section 1, step 4 |
+| `hdc install`: "install parse native so failed", "Abi type" | The HAP bundles the arm64-only Rive and PAG `.so` files; the emulator is x86_64 | Build `entry@emulator` and `buildMode=emulatorTest` ("Arm64-only native libraries on the x86_64 emulator") |
 
 Report the host OS version, DevEco Studio build, emulator model, and HarmonyOS version and API level with every
 HarmonyOS run or screenshot (`AGENTS.md`, "Screenshots of builds and CI/CD").

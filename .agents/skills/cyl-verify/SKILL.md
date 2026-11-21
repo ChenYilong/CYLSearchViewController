@@ -156,6 +156,10 @@ When an Objective-C to Swift change of the core breaks an example's build, fix t
 
 ## HarmonyOS
 
+- x86_64 emulator (Windows): build `entry@emulator` and the ohosTest HAP with `-p buildMode=emulatorTest`; the default
+  HAPs carry the arm64-only Rive and PAG libraries and do not install there. Rive and PAG are checked on arm64 only
+  (`cyl-harmonyos-setup`, "Arm64-only native libraries on the x86_64 emulator").
+
 Before the first HarmonyOS build or emulator run on a machine, follow `cyl-harmonyos-setup`: DevEco Studio 6.0.1
 and its SDK paths, the emulator prerequisites (virtualization, Hyper-V, Huawei ID), and the region set to China in
 `country.region.xml` (`<countryregion name="CN"/>`, not `NZ`). Report a HarmonyOS run as unverified when no emulator
