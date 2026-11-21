@@ -458,14 +458,81 @@ a test or labelled screenshot per screen, the platform's checks green.
 
 ### Android (Kotlin, android/merged: core module cylsearch, example app): QMUI search port (2026-11-22)
 
-- **Status**: TODO (started 2026-11-22, `feat/harmonyos-parity`, PR #11). Task: port every parity row above into the Android
-  core (`CYLSearchBarView`, `CYLSearchView`, a list view with a built-in bar), add the example screens "Search controller"
-  and "Search bar styles" to `CYLSearchDemoMenuFragment`, Robolectric tests, labelled screenshots on an own AVD.
-- **Acceptance**: every row has a counterpart (file:symbol) or N/A with a reason; `:cylsearch:testDebugUnitTest` and
-  `:app:testDebugUnitTest` green on a clean build; both replica screens screenshotted (`docs/assets/`, labelled); the bar never
-  covers a view in any state; strings in en, ja, zh-Hans, zh-Hant; this section filled with files, rows, tests, screenshots, score.
-- **Environment**: JDK 17.0.21 (`/Users/chenyilong/develop/jdk/jdk-17.0.21+9`; JDK 21 and 25 break Robolectric), Gradle 9.4.1 wrapper
-  (`sh ./gradlew`, the wrapper is not executable in git), Android SDK `~/Library/Android/sdk`, own AVD.
+- **Status**: DONE (2026-11-22, `feat/harmonyos-parity`, PR #11). **Score: 92 / 100 (pass 60)**; missing points are the `TODO`s at the end of this section.
+  Task: port every parity row into the Android core (the class it belongs to first), add the example screens "Search
+  controller" and "Search bar styles" to `CYLSearchDemoMenuFragment`, tests, labelled screenshots on an own AVD.
+- **Acceptance** (written before the work): every row has a counterpart (file:symbol) or N/A with a reason; `:cylsearch:testDebugUnitTest`
+  and `:app:testDebugUnitTest` green on a clean build; both replica screens screenshotted; the bar never covers a view in any state;
+  strings in en, ja, zh-Hans, zh-Hant; this section filled in.
+- **Environment**: JDK 17.0.21 (`/Users/chenyilong/develop/jdk/jdk-17.0.21+9`; JDK 21 and 25 break Robolectric 4.14.1 with
+  `IllegalArgumentException at ClassReader`), Gradle 9.4.1 (`sh ./gradlew`, the wrapper is not executable in git), AGP 9.2.1, Kotlin 2.2.20,
+  compileSdk 35, macOS 27.3 arm64, own AVD `CYL_QPort_API35` (Android 15, API 35, google_apis arm64) on port 5590 (`adb -s emulator-5590`;
+  no other device was touched). Clean builds (`gradlew clean :app:assembleDebug`) before every run.
+- **Design**: all in `android/merged/cylsearch/src/main/kotlin/com/cyl/search` (the published AAR), defaults unchanged (every new property
+  is neutral, the 26 existing tests pass unchanged). "Active" on Android means the field has the focus (iOS: the search controller is active).
+  The Android bar is a custom view, not a platform search bar, so the QMUI behaviour went into `CYLSearchBarView` (bar styling),
+  `CYLSearchView` (the overlay: the counterpart of `CYLSearchController`) and one new class, `CYLSearchListView` (a list whose first item
+  is the bar: the genuinely new concept of `CYLSearchTableViewController`). Plain properties and listeners only (bridge friendly for React
+  Native and Flutter). The example is at `android/merged/app/src/main/kotlin/com/cyl/search/example`.
+- **Files changed**: core `CYLSearchBarView.kt`, `CYLSearchView.kt`, `CYLSearchBarAppearance.kt` (new), `CYLSearchListView.kt` (new),
+  strings in the four `values*/cyl_search_strings.xml`, `NOTICE` and `LICENSE.QMUI` (AAR `META-INF/cylsearch`, Tencent's MIT notice);
+  example `CYLSearchControllerDemoFragment.kt`, `CYLSearchBarStylesFragment.kt`, `CYLSearchShortListFragment.kt`, `CYLSearchDemoMenuFragment.kt`
+  (three rows; `--es CYLDemoPage controller|styles|short` opens a page at launch for screenshots); tests `CYLSearchBarQMUIPortTest`,
+  `CYLSearchViewQMUIPortTest`, `CYLSearchListViewTest` (core), `CYLSearchPortScreensTest` (example).
+- **Parity rows -> counterpart** (all under `android/merged/cylsearch/src/main/kotlin/com/cyl/search` unless noted):
+
+  | iOS source API | Android counterpart | Test |
+  | --- | --- | --- |
+  | `centersPlaceholder` | `CYLSearchBarView.centersPlaceholder` (`updatePlaceholderCentering`: the text container wraps and the field centers while not active and empty) | `placeholderIsCenteredAtRestAndLeadingWhileEditing` |
+  | `placeholder` / `placeholderColor` / `textColor` / `font` | `CYLSearchBarView.placeholder`, `placeholderColor`, `textColor`, `font` + `fontSize`, `tintColor` (new) | existing behaviour tests |
+  | `textFieldMargins` / `textFieldMarginsProvider` | `CYLSearchBarView.textFieldMargins`, `textFieldMarginsProvider` (dp `Rect`, provider wins), `isActive` | `fieldMarginsApplyPerStateAndTheProviderWins` |
+  | `cancelButtonMarginsProvider` / `cancelButtonFont` | `CYLSearchBarView.cancelButtonMargins`, `cancelButtonMarginsProvider`, `cancelButtonFont`; a negative left value pulls Cancel to the field and stops where it touches it | `cancelMarginsFontAndTheNegativeValueNeverCoverTheField` |
+  | `showsCancelButton` + `setShowsCancelButton` | `CYLSearchBarView.showsCancelButton`, `setShowsCancelButton(shows, animated)`, `showsCancelButtonWhenEditing` (width and alpha animation, state flag guard) | `cancelShowsAndHidesAnimatedOrNot`, `cancelAppearsWhileEditingWhenAsked` |
+  | accessory views + margins + `setShows...` | `CYLSearchBarView.leadingAccessoryView` / `trailingAccessoryView` (beside the field; `trailingAccessoryViews` stay the views inside it), `...Margins`, `showsLeadingAccessoryView`, `setShowsLeadingAccessoryView(shows, animated)`, same for trailing; 8 dp gap | `accessoryViewsShowHideAndShrinkTheField` |
+  | `CYLSearchBarAppearance` | `CYLSearchBarAppearance.kt` (`defaultAppearance(context)`, light and dark field, tint RGB(0,104,248), `copy`), `CYLSearchBarView.appearanceStyle`, `applyDefaultAppearance()` | `defaultAppearanceLandsOnTheBar`, `darkAppearanceUsesTheDarkField` |
+  | `launchView` | `CYLSearchView.launchView` (shown while the query is empty, wins over the cached-query list and the empty placeholders) | `launchViewShowsWhileTheQueryIsEmptyAndWinsOverTheHistory` |
+  | `dimmingColor` | `CYLSearchView.dimmingColor` (only while the query is empty and no launch view; tap ends the search; `scrimColor` stays for the whole search) | `dimmingShowsWhileEmptyAndATapEndsTheSearch` |
+  | `searchResultsDelegate.updateResultsFor` (also "") | `CYLSearchViewDelegate.searchViewUpdateResults` (first opening, typing, clear, close with `clearsQueryOnClose`) | `resultsCallbackAlsoReceivesTheEmptyText` |
+  | will/did present/dismiss | `CYLSearchViewDelegate.searchViewWillShow`, `searchViewDidShow`, `searchViewWillClose`, `searchViewDidClose` | `presentationCallbacksAndIsActive` |
+  | `isActive` / `setActive` | `CYLSearchView.isActive`, `setActive(active, animated)` | `presentationCallbacksAndIsActive` |
+  | `showEmptyView` / `hideEmptyView` / `isEmptyViewShowing` | `CYLSearchView.showEmptyView(text, detail, buttonTitle, action)`, `showEmptyView(scenario)`, `hideEmptyView()`, `isEmptyViewShowing`, `emptyView` (no-op for empty text, gone on close or empty text); `CYLSearchListView.showEmptyView` | `emptyViewShowsOnlyWithTextAndLeavesWithTheSearch` |
+  | `historyStore` + `historyDidChangeNotification` | `CYLSearchView.suggestionCache` (+ `suggestionCachePolicy`, `suggestionCacheName`; the existing store: trimmed, newest first, blank ignored) and `addHistoryDidChangeListener` / `removeHistoryDidChangeListener` (the Android counterpart of the notification); the launch view re-reads on every call | `submittedQueriesAreTheHistoryAndNotifyTheListeners`; example `searchControllerShowsKeywordsLaunchViewResultsEmptyViewAndHistory` |
+  | `supportsSwipeToDismissSearch` | `CYLSearchView.supportsSwipeToDismissSearch` on predictive back (`handleOnBackProgressed` drags the page, cancel springs back, completing closes); the system owns edge swipes, so no custom recognizer | `backSwipeDragsThePageAndCompletingEndsTheSearch`, `withoutTheSwitchTheBackSwipeDoesNotMoveThePage` |
+  | `CYLSearchTableViewController.showsSearchBar` / `hidesSearchBarInitially` / `hidesSearchBarWhenEmptyViewShowing` | new `CYLSearchListView.showsSearchBar`, `hidesSearchBarInitially`, `hidesSearchBarWhenEmptyViewShowing`, `opensSearchViewOnTap`, `searchBarView`, `searchView`, `adapter` | `barIsTheFirstItemAndScrollsWithTheRows`, `hidesSearchBarInitiallyScrollsTheBarOut`, `emptyViewRemovesTheBarAndHidingItPutsItBackHidden`, `aTapOnTheBarOpensTheSearchViewOrEditsInPlace` |
+  | `snapsHeaderSearchBar` (I4, #1160) | `CYLSearchListView.snapsHeaderSearchBar`, `settleSearchBar()`: a short list gets the room it needs below its last row (`footerHeight`), the bar settles fully shown or hidden when scrolling ends | `shortListGetsTheRoomToScrollTheBarOutAndSnaps`, control `withoutSnappingAShortListCannotScrollTheBarOut`; real drag on the emulator (below) |
+  | I1 (#1319) | N/A: no `UISearchController` presentation transition; the search page is a view inside the screen | - |
+  | I2 (#1251) | N/A: no navigation bar that hides during a presentation; the list's toolbar is the host's and stays above the page | - |
+  | I3 (#1229) | N/A: no `navigationItem.searchController`, nothing to assign the wrapper to | - |
+  | I4 (#1160) | implemented: row above | see above |
+  | I5 (#1313) | N/A: the bar is one persistent view held by `CYLSearchListView`, never a recycled header view | - |
+  | Screen "Search controller" | `CYLSearchControllerDemoFragment` (+ `CYLRecentSearchLaunchView`): ten keywords, launch view with eight tags and trash button, x20 results with the match in the tint color (`ForegroundColorSpan`), "No matching results", history, back swipe, detail page | `CYLSearchPortScreensTest.searchControllerShowsKeywordsLaunchViewResultsEmptyViewAndHistory` |
+  | Screen "Search bar styles" | `CYLSearchBarStylesFragment`: Placeholder, Layout (32 at rest, Cancel -16 while searching, starts the search), AccessoryView (animated switch, Cancel, 30 x 30 stroked accessories, margins 8, hidden first) | `searchBarStylesRowsDriveTheBar`, `everyTextOfTheScreensExistsInFourLanguages` |
+  | Screens "Navigation item", "Bar in a view", "Collection view" | N/A with I3, I2, I5; the extra screen "Short list" (`CYLSearchShortListFragment`) shows I4 | `shortListScrollsTheBarOutAndSnaps` |
+
+  iOS edge-case and bar rows (not in the parity table): E1, E2, E3, E5, E20 (view controller presentation contexts, leaks), E6, E7, E9, E17, E21, E22, E23, B5, B7 to B12 (UIKit
+  defects or private API) are N/A: the overlay is an ordinary view, the Cancel button and the text field are our own views. E8 and E10 are
+  done (`showEmptyView` and `searchViewUpdateResults`), E11 to E14 are covered by predictive back (the system draws the swipe and owns the
+  edge, so no window snapshot), E15, E16 and E19 are `launchView`, `searchBarMaxY` and `dimmingColor`, B1 to B4, B6 and B13 are the bar rows above.
+  Not ported: E18 (`alwaysShowSearchResultsController`), no consumer.
+- **Findings from the work** (core fixes, with tests): (1) `hideKeyboard` left the focus on the field (Android gives it back to the only
+  focusable view), so a bar never left the active state after Cancel: it now moves the focus to a focus sink. (2) A bar whose delegate refuses
+  editing (the bar of `CYLSearchListView` that opens the search page) looped in `requestFocus` -> refuse -> `clearFocus` -> window requests focus
+  (StackOverflowError); its field now refuses `requestFocus` itself. (3) Seen on the emulator: the leading accessory touched the field; the 8 dp gap
+  is now in the core, tested.
+- **Tests** (JDK 17.0.21, `sh ./gradlew --no-daemon :cylsearch:testDebugUnitTest :app:testDebugUnitTest`): core **50 tests, 0 failures** (baseline 26:
+  +9 `CYLSearchBarQMUIPortTest`, +9 `CYLSearchViewQMUIPortTest`, +6 `CYLSearchListViewTest`); example **9 tests, 0 failures** (3 contact tags + 6 `CYLSearchPortScreensTest`).
+  `scripts/check-public-api-comments.sh`: OK; `scripts/check-licenses.sh`: OK (9 files).
+- **Screenshots** (originals in `docs/assets/raw/android-qmui-*-api35-20261122.png`, crops of the 1080 x 2400 captures, key moments, stitched, English labels):
+  - Search controller: ![Search controller on Android](assets/android-qmui-search-controller-api35-20261122.png) Android 15 (API 35) emulator CYLSearchPort AVD `CYL_QPort_API35`, macOS 27.3, AGP 9.2.1, Kotlin 2.2.20, core commit f2f2ffa, 2026-11-22 11:57 NZDT.
+  - Search bar styles: ![Search bar styles on Android](assets/android-qmui-search-bar-styles-api35-20261122.png) Android 15 (API 35) emulator `CYL_QPort_API35`, macOS 27.3, AGP 9.2.1, Kotlin 2.2.20, core commit f2f2ffa, 2026-11-22 11:58 NZDT.
+  - Short list (I4, real drags with `adb shell input swipe`: 40 px settles hidden, 110 px settles fully shown): ![Short list on Android](assets/android-qmui-search-short-list-api35-20261122.png) Android 15 (API 35) emulator `CYL_QPort_API35`, macOS 27.3, AGP 9.2.1, Kotlin 2.2.20, core commit f2f2ffa, 2026-11-22 11:59 NZDT.
+- **Score: 92 / 100**: rows and example 40/40 (all rows done or N/A with reasons, both screens plus the short list), tests 20/20, core placement and
+  defaults unchanged 15/15, screenshots 10/10 (labelled, stitched, originals kept), licenses and strings 5/5, verification depth 2/10 (see TODO).
+- **TODO** (missing 8 points): (1) the back swipe is tested through `OnBackPressedDispatcher`, not with a real predictive-back gesture: the example
+  manifest has no `android:enableOnBackInvokedCallback="true"`; add it and check on a gesture-navigation device. (2) No screenshot in dark mode, in
+  ja / zh, or with a large font; the strings are tested, the layout is not. (3) E18 `alwaysShowSearchResultsController` is not ported. (4) The animated
+  show/hide of the accessory views and Cancel is tested for its end state only, not frame by frame. (5) React Native and Flutter wrapping (bridge
+  surface review) is for those platforms' agents.
 
 ### HarmonyOS (ArkTS, harmonyos/: library cylsearch, entry example): QMUI search port (2026-11-22)
 
