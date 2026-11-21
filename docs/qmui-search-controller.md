@@ -417,3 +417,40 @@ Originals (cropped to nothing, 1206 x 2622 px, 72 dpi) are in `docs/assets/raw/`
 5. **E21 on iOS 15 to 26**: the stale navigation bar and the workaround were seen on iOS 27.2 only; check with the same `axe draw`.
 6. **The history launch view** reads the store when it enters the window; it is not refreshed while it stays on screen (a submit followed by clearing the text shows the old tags until the next activation).
 7. `Podfile.lock` is not committed (`pod install` rewrites it; the lock is older than the Podfile's pins).
+
+
+## Other platforms: parity table (2026-11-22, `feat/harmonyos-parity`, PR #11)
+
+Task: `docs/task-log.md`, "the open items of the QMUI search port". Each platform ports the behaviour of the iOS classes
+into the class it belongs to (`instructions.md`: a parameter or a mode of an existing class first, a new class only for a
+new concept). The issue scenarios I1–I5 are UIKit defects (`UISearchController` and table header offsets, a navigation
+item crash); a platform without that UIKit code path marks them N/A with that reason instead of a screen. Counterpart
+cells say TODO until the platform's agent reports the file and test.
+
+| iOS source API | Description | Android (Kotlin) | HarmonyOS (ArkTS) | Mini program | React Native | Flutter |
+| --- | --- | --- | --- | --- | --- | --- |
+| `CYLSearchBar.centersPlaceholder` | placeholder centred at rest, leading while editing | TODO | TODO | TODO | TODO | TODO |
+| `placeholder` / `placeholderColor` / `textColor` / `font` | text and placeholder style | TODO | TODO | TODO | TODO | TODO |
+| `textFieldMargins` / `textFieldMarginsProvider(bar, active)` | field margins at rest and while searching | TODO | TODO | TODO | TODO | TODO |
+| `cancelButtonMarginsProvider(bar, active)` / `cancelButtonFont` | Cancel position and font | TODO | TODO | TODO | TODO | TODO |
+| `showsCancelButton` + `setShowsCancelButton(_:animated:)` | Cancel shown or hidden, animated | TODO | TODO | TODO | TODO | TODO |
+| `leadingAccessoryView` / `trailingAccessoryView` + margins + `setShows…(_:animated:)` | views beside the field, animated | TODO | TODO | TODO | TODO | TODO |
+| `CYLSearchBarAppearance` | merged default style (colours, field background, icons) | TODO | TODO | TODO | TODO | TODO |
+| `CYLSearchController.launchView` | own view under the bar while the query is empty | TODO | TODO | TODO | TODO | TODO |
+| `dimmingColor` | own dimming under the bar, tap ends the search | TODO | TODO | TODO | TODO | TODO |
+| `searchResultsDelegate.updateResultsFor` (also "") | results callback on every text change | TODO | TODO | TODO | TODO | TODO |
+| will/did present/dismiss callbacks | presentation life cycle | TODO | TODO | TODO | TODO | TODO |
+| `isActive` / `setActive(_:animated:)` | start or end the search from code | TODO | TODO | TODO | TODO | TODO |
+| `showEmptyView(text:…)` / `hideEmptyView()` / `isEmptyViewShowing` | "No matching results" in the results | TODO | TODO | TODO | TODO | TODO |
+| `historyStore` + `historyDidChangeNotification` | submitted queries kept; the launch view reads them again while on screen | TODO | TODO | TODO | TODO | TODO |
+| `supportsSwipeToDismissSearch` | edge swipe ends the search | TODO | TODO | TODO | TODO | TODO |
+| `CYLSearchTableViewController.showsSearchBar` / `hidesSearchBarInitially` / `hidesSearchBarWhenEmptyViewShowing` | list screen with a built-in bar | TODO | TODO | TODO | TODO | TODO |
+| `snapsHeaderSearchBar` (I4, #1160) | a header bar above a short list settles fully shown or hidden | TODO | TODO | TODO | TODO | TODO |
+| I1–I3, I5 (#1319, #1251, #1229, #1313) | UIKit defects | TODO (N/A?) | TODO (N/A?) | TODO (N/A?) | TODO (N/A?) | TODO (N/A?) |
+| Screen "Search controller" | replica of `QDSearchViewController` (keywords, launch view, ×20 results, highlight, empty view, history) | TODO | TODO | TODO | TODO | TODO |
+| Screen "Search bar styles" | replica of `QDSearchBarViewController` (Placeholder, Layout, AccessoryView sections) | TODO | TODO | TODO | TODO | TODO |
+| Screens "Navigation item", "Bar in a view", "Short list", "Collection view" | issue scenarios | TODO | TODO | TODO | TODO | TODO |
+
+Order: Android, HarmonyOS and the mini program first (native cores); React Native and Flutter after, since they wrap the
+native iOS and Android cores. Score per platform: 100 = every row done or N/A with the reason, both replica screens,
+a test or labelled screenshot per screen, the platform's checks green.
