@@ -947,9 +947,20 @@ Android.
   - **Mini program**: fixed in CYLTabBarController `41660d24` (container stops and rests every other tab before the new one plays;
     item halts on deselect; pending plays cancelled; 8 tests); bundled in ClassifyMenu `954edf8c`; iOS pins `049b108`; not yet
     verified on DevTools or a phone with the SVGA tab bar.
-  - **iOS More tab** (more than five tabs): not run, asked of Mac-CYLTabBarController文件夹.
-- **Status**: TODO. Score: 70/100 (iOS and HarmonyOS verified, mini program fixed and bundled, Android More patch and the iOS More check
-  open; the user's phone retest of the mini program is the last step). 2026-11-21: the Android More patch is blocked by the
+  - **iOS More tab** (more than five tabs): DONE (2026-11-21, macOS session, iPhone 18 Pro simulator, iOS 27.2, Xcode 27.2,
+    CYLSearchViewController `3018f02`, CYLTabBarController `41660d24`): holds. Method: a temporary sixth page in
+    `CYLTabBarConfiguration_svga.json` (not committed; the shipped file keeps four tabs and the plus button) so UIKit adds
+    "More", launched with `-CYLDemoTabIconSource 2`; eight quick switches (Search, Examples or Tag style tapped, then More
+    0.1, 0.25, 0.5 or 0.9 s later; the Android method), a screenshot 3.8 s after each. 8 of 8: only More is coloured, the
+    tab left behind rests in gray; a frame taken right after the More tap shows Examples already stopped. On iOS the
+    More tab goes through the same selection path as any tab, so the Android `cyl_moreButtonTapped` gap does not exist here.
+    ![iOS quick switch to More, 3018f02, 2026-11-21](assets/ios-iphone18pro-20261121-more-tab-switch-one-selected.png)
+    (iOS 27.2 simulator, iPhone 18 Pro, Xcode 27.2 27B52, macOS 27, CYLSearchViewController `3018f02` plus the temporary
+    tab, CYLTabBarController `41660d24`, 2026-11-21 23:40 +13:00.) Found on the way, for CYLTabBarController (not this
+    contract): the More item draws the SVGA icon of the first tab moved into the More list (Discover's `tab_home`, an
+    orange house when selected) in place of UIKit's More icon.
+- **Status**: TODO. Score: 80/100 (iOS, the iOS More tab and HarmonyOS verified, mini program fixed and bundled; open: the Android More
+  patch re-pin (blocked by the `style` clash below) and the user's phone retest of the mini program). 2026-11-21: the Android More patch is blocked by the
   `style` clash (the next entry); the iOS More check is the macOS session's; the phone retest is the user's.
 
 ## TODO (2026-11-20): two tab items stay selected after a quick switch in the SVGA tab bar: the Android audit
