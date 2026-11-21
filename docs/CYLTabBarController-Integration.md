@@ -994,6 +994,11 @@ Android.
   The CollectionViewClassifyMenu session found that iOS clashes too (`CYLAnimatedItemView.swift` `style` against `CYLTagButton.swift`
   `style`; HarmonyOS named it `itemStyle`) and asked the user which property to rename (its proposal: `itemStyle` upstream on
   iOS and Android). Re-pin and re-check once it sends the commit.
+  2026-11-21, later: fixed upstream in CYLTabBarController PR #822 (`CYLAnimatedItemView.style` renamed `itemStyle` on iOS and Android,
+  head `f9827fef`, code `39b274c9`, contains `c1abdffe`), not merged yet. Checked here with `cyl.tabbar.commit=39b274c9` set locally
+  (not committed: the pin follows the newest branch once #822 is merged): `:cylsearch` 26 of 26, the example builds, and the four
+  switches to More that failed before now leave only More selected ([android-medium-phone-api37-20261121-more-switch-at-39b274c9.png](assets/android-medium-phone-api37-20261121-more-switch-at-39b274c9.png), Medium Phone API 37 emulator, JDK 17, Windows 11 Pro 10.0.22631, CYLSearchViewController d6f22c3 + tab bar 39b274c9, ClassifyMenu cf478388, 2026-11-21 23:25 +13:00).
+  Left: pin the merged commit on every platform (with the ClassifyMenu commit that session sends) and re-run this check at the pin.
 
 ## TODO (2026-11-20): the tag list drag holds the scrolling on every platform, like the mini program
 
