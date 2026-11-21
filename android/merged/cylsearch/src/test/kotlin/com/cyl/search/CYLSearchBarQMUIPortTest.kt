@@ -201,6 +201,10 @@ class CYLSearchBarQMUIPortTest {
         assertFalse("leading does not cover the field", Rect.intersects(both, leadingRect))
         assertFalse("trailing does not cover the field", Rect.intersects(both, trailingRect))
         assertTrue(leadingRect.right <= both.left && trailingRect.left >= both.right)
+        // The accessory views sit 8 dp from the field (QMUI's gap) once their container is counted.
+        val gap = (8 * activity.resources.displayMetrics.density + 0.5f).toInt()
+        assertTrue("gap: ${both.left - leadingRect.right}", both.left - leadingRect.right >= gap)
+        assertTrue("gap: ${trailingRect.left - both.right}", trailingRect.left - both.right >= gap)
         bar.showsCancelButton = true
         layout(bar)
         assertFalse("trailing does not cover Cancel", Rect.intersects(frame(bar.cancelButton, bar), frame(trailing, bar)))

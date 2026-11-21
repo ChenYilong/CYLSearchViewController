@@ -20,6 +20,7 @@ import com.cyl.classifymenu.CYLEdgeInsets
 import com.cyl.classifymenu.CYLFont
 import com.cyl.classifymenu.CYLMenuStyle
 import com.cyl.classifymenu.CYLTagListView
+import com.cyl.search.CYLSearchBarAppearance
 import com.cyl.search.CYLSearchBarNavigationIcon
 import com.cyl.search.CYLSearchListView
 import com.cyl.search.CYLSearchResources
@@ -31,13 +32,9 @@ import com.cyl.search.CYLSearchViewDataSource
 import com.cyl.search.CYLSearchViewDelegate
 
 /**
- * The tint color of the example: the accent color of the theme.
+ * The tint color of the example: the tint of `CYLSearchBarAppearance` (iOS: the system blue), also the color of Cancel.
  */
-internal fun Context.cylDemoTint(): Int {
-    val value = TypedValue()
-    theme.resolveAttribute(android.R.attr.colorAccent, value, true)
-    return value.data
-}
+internal fun Context.cylDemoTint(): Int = CYLSearchBarAppearance.defaultAppearance(this).tintColor ?: Color.rgb(0, 104, 248)
 
 /**
  * The recent searches (QMUI's `QDRecentSearchView`, iOS `CYLRecentSearchLaunchView`): a title with a bottom border and a

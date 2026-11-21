@@ -1108,6 +1108,11 @@ class CYLSearchBarView @JvmOverloads constructor(
 
     private val leadingAccessoryContainer = FrameLayout(context)
     private val trailingAccessoryContainer = FrameLayout(context)
+    init {
+        leadingAccessoryContainer.setPaddingRelative(0, 0, dp(SPACING), 0)
+        trailingAccessoryContainer.setPaddingRelative(dp(SPACING), 0, 0, 0)
+    }
+
     private val leadingAccessorySlot = AccessorySlot(leadingAccessoryContainer)
     private val trailingAccessorySlot = AccessorySlot(trailingAccessoryContainer)
     private val cancelSlot = AccessorySlot(cancelButton)
@@ -1231,7 +1236,8 @@ class CYLSearchBarView @JvmOverloads constructor(
     var leadingAccessoryViewMargins: Rect = Rect()
         set(value) {
             field = value
-            leadingAccessoryContainer.setPaddingRelative(dp(value.left.toFloat()), dp(value.top.toFloat()), dp(value.right.toFloat()), dp(value.bottom.toFloat()))
+            // The 8 dp gap to the field comes on top of the margins (QMUI: accessory views sit 8 pt from the field).
+            leadingAccessoryContainer.setPaddingRelative(dp(value.left.toFloat()), dp(value.top.toFloat()), dp(value.right.toFloat() + SPACING), dp(value.bottom.toFloat()))
         }
 
     /**
@@ -1259,7 +1265,7 @@ class CYLSearchBarView @JvmOverloads constructor(
     var trailingAccessoryViewMargins: Rect = Rect()
         set(value) {
             field = value
-            trailingAccessoryContainer.setPaddingRelative(dp(value.left.toFloat()), dp(value.top.toFloat()), dp(value.right.toFloat()), dp(value.bottom.toFloat()))
+            trailingAccessoryContainer.setPaddingRelative(dp(value.left.toFloat() + SPACING), dp(value.top.toFloat()), dp(value.right.toFloat()), dp(value.bottom.toFloat()))
         }
 
     /**
