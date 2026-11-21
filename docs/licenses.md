@@ -52,4 +52,6 @@ any other) ships its license declaration inside the package, in the package's re
     `io.github.chenyilong:cyltableviewplaceholder-refresh:0.1.0`, configured on CYLTableViewPlaceHolder's
     `feat/android-refresh-port-followup` (PR #31), not on Maven Central yet. When `cyl.placeholder.commit` moves to that
     commit, Gradle should write them into this POM (a project dependency with one publication is named by it); check the
-    POM then.
+    POM then. Tried locally at `663c828` (2026-11-21, not committed): configuration fails. Its `android/placeholder` reads
+    CYLTabBarController's version only from an included build, and this repository includes `:cylanimateditem` as a
+    subproject. Reported to that session; the pin stays at `c84fce9`.
