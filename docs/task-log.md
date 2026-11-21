@@ -600,3 +600,15 @@ begins and becomes `DONE` when it ends.
   (the three `Podfile.lock` files still name `41660d24`) and the iOS builds. The newer CYLTabBarController commit
   `e51743e0` (a refactor, 1 minute after `ace1af0e`) is not pinned: ClassifyMenu pins `ace1af0e`, and both repositories
   pin the same commit.
+
+## TODO (2026-11-22): pin CYLTableViewPlaceHolder a169386 on every platform; drop the POM mapping
+
+- **Branch**: `feat/harmonyos-parity`. Context: CYLTableViewPlaceHolder `94c7bbd` publishes its Android modules' Maven
+  coordinates from their own build files (`licenses.md`), so the `pom.withXml` mapping in `cylsearch/build.gradle.kts`
+  goes with the next placeholder pin. Newest commit on any branch (the pin rule in `gradle.properties`): `a169386` (its
+  PR #35, onto PR #31's branch), which contains `94c7bbd` and the current pin `c84fce9`.
+- **Prompt (verbatim)**: "continue fix todo"
+- **Acceptance**: 100 = the pin moved in every file (Podfiles, Gradle, HarmonyOS, mini program) with the vendor copies
+  synced; the mapping removed and the POM still naming `io.github.chenyilong:cyltableviewplaceholder(-refresh):0.1.0`;
+  Android, HarmonyOS, mini program, Flutter and React Native build and pass their tests. 60 = pins moved, Android green.
+- **Status**: started.
