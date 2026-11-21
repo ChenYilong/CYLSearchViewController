@@ -545,3 +545,16 @@ begins and becomes `DONE` when it ends.
   Flutter iOS tag drag, the iOS More tab check, React Native iOS drag events (the macOS session, after the iOS
   ClassifyMenu callbacks); the mini program keyboard placeholder and the tab switch retest on the user's phone; Maven
   coordinates of CYLTableViewPlaceHolder's Android modules (its owner decides).
+
+## TODO (2026-11-21): test every platform except iOS
+
+- **Branch**: `feat/harmonyos-parity`, at `77f6503`. Windows 11 session; Android API 37 emulator (emulator-5554), HarmonyOS
+  Mate 70 Pro emulator (127.0.0.1:5557).
+- **Prompt (verbatim)**: "process test all platform (not include ios)"
+- **Requirements**: run the tests of Android, HarmonyOS, the mini program, Flutter and React Native; report the results.
+- **Acceptance**: 100 = every suite below runs and passes, and each example builds: Android `:cylsearch` unit tests and
+  `:app:assembleDebug`; HarmonyOS host tests, the parity scripts, the emulator and ohosTest HAPs, hypium on the emulator;
+  mini program `npm test`; Flutter `flutter test` and the Android example build; React Native jest and the Android
+  example build; the repository checks (public API comments, licenses, the API tables). 60 = every suite runs, with
+  failures explained.
+- **Status**: started.
