@@ -930,8 +930,10 @@ Android.
 - **Status**: TODO. Score: 70/100 (iOS and HarmonyOS verified, mini program fixed and bundled, Android More patch and the iOS More check
   open; the user's phone retest of the mini program is the last step). 2026-11-21: the Android More patch is blocked by the
   `style` clash (the next entry); the iOS More check is the macOS session's; the phone retest is the user's.
+  2026-11-22: the Android More patch is DONE at the pin `ace1af0e` (the next entry). Score: 85/100; left: the iOS More check (macOS
+  session) and the mini program retest on the user's phone.
 
-## TODO (2026-11-20): two tab items stay selected after a quick switch in the SVGA tab bar: the Android audit
+## DONE (2026-11-22; TODO 2026-11-20): two tab items stay selected after a quick switch in the SVGA tab bar: the Android audit
 
 - **Branch**: `feat/harmonyos-parity`. Platforms of this entry: native Android, React Native Android, Flutter Android (the mini
   program: Mac-CYLTabBarController 小程序开发; HarmonyOS: winCYLTabBarController 鸿蒙开发; iOS React Native and Flutter: the macOS session).
@@ -999,6 +1001,10 @@ Android.
   (not committed: the pin follows the newest branch once #822 is merged): `:cylsearch` 26 of 26, the example builds, and the four
   switches to More that failed before now leave only More selected ([android-medium-phone-api37-20261121-more-switch-at-39b274c9.png](assets/android-medium-phone-api37-20261121-more-switch-at-39b274c9.png), Medium Phone API 37 emulator, JDK 17, Windows 11 Pro 10.0.22631, CYLSearchViewController d6f22c3 + tab bar 39b274c9, ClassifyMenu cf478388, 2026-11-21 23:25 +13:00).
   Left: pin the merged commit on every platform (with the ClassifyMenu commit that session sends) and re-run this check at the pin.
+- **DONE (2026-11-22)**: #822 merged as `ace1af0e`; pinned with CollectionViewClassifyMenu `1f8c1001` on every platform (Podfiles,
+  `android/merged/gradle.properties`, `harmonyos/oh-package.json5` and its vendor copies, the mini program `package.json`, the Flutter
+  `pubspec.yaml` and `pubspec.lock`). Eight quick switches to More (Search or Examples, then More 0.1 to 0.9 s later): only More stays
+  selected in all eight ([android-medium-phone-api37-20261122-more-switch-at-ace1af0e.png](assets/android-medium-phone-api37-20261122-more-switch-at-ace1af0e.png), Medium Phone API 37 emulator, JDK 17, Windows 11 Pro 10.0.22631, CYLSearchViewController 2d907ea + pins ace1af0e / 1f8c1001, 2026-11-22 00:10 +13:00). React Native Android and Flutter Android build and launch at the pin. Score: 100/100.
 
 ## TODO (2026-11-20): the tag list drag holds the scrolling on every platform, like the mini program
 

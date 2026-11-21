@@ -535,8 +535,10 @@ begins and becomes `DONE` when it ends.
   - React Native `onReorderingChange` / `onSmearingChange` on Android (`1a2a7cb`). Found on the way: the React Native
     Android example did not build at all (duplicate SVGA assets), fixed in `8310962`.
   - The mini program generics note closed (a required package, checked in DevTools 2026-11-19).
+  Update (2026-11-22): the 8 points below are earned (CYLTabBarController `ace1af0e` and ClassifyMenu `1f8c1001` pinned,
+  the quick switch checked; "pin CYLTabBarController ace1af0e" below). Score 93/100.
   Missing points:
-  - 8 points: re-pin CYLTabBarController to a commit with `c1abdffe` and re-run the quick switch check. Blocked by the
+  - 8 points (DONE 2026-11-22): re-pin CYLTabBarController to a commit with `c1abdffe` and re-run the quick switch check. Blocked by the
     `style` name clash in CollectionViewClassifyMenu (Android and iOS). A public API decision, asked of the user by
     that repository's session, which sends the commit.
   - 7 points: the mini program back gesture on a non-tab page with `<cyl-search>`. Automation cannot press the real
@@ -586,4 +588,15 @@ begins and becomes `DONE` when it ends.
   and its vendor copies, the mini program `package.json`, the Flutter `pubspec.yaml`); Android, HarmonyOS, mini program,
   Flutter and React Native build and pass their tests; the quick switch to More checked at the pin with a screenshot.
   iOS (`Podfile.lock`, builds) is left to the macOS session and CI. 60 = pins moved, Android and HarmonyOS green.
-- **Status**: started.
+- **Status**: DONE (2026-11-22), score 100/100 (the iOS part was outside this session by the acceptance). Results at the
+  new pins: Android `:cylsearch` 26 of 26 and the example builds (clean); HarmonyOS vendor copies synced (`cyltabbar`
+  `ace1af0e`, `classifymenu` and `cylanimateditem` `1f8c1001`), both HAPs build clean, hypium 29 of 29 on the emulator;
+  mini program `npm test` 61 of 61 (after a re-sync from the pinned commits: `CYL_*_DIR` copies a local clone's working
+  tree, not the pin); Flutter 18 of 18 and 3 of 3, Android example builds and launches; React Native jest 4 of 4, Android
+  example builds and launches. Its first build failed with "Cannot access …: it is internal in file": stale classes in
+  `vendor/CYLTabBarController/CrossPlatform/react-native-cyltabbar/android/build`, which the README says to delete after a
+  pin change; deleted with `rm -rf` (a `Remove-Item` with a long-path prefix silently did nothing here), it builds. Quick
+  switch to More: eight of eight correct (`CYLTabBarController-Integration.md`). Left for the macOS session: `pod install`
+  (the three `Podfile.lock` files still name `41660d24`) and the iOS builds. The newer CYLTabBarController commit
+  `e51743e0` (a refactor, 1 minute after `ace1af0e`) is not pinned: ClassifyMenu pins `ace1af0e`, and both repositories
+  pin the same commit.
