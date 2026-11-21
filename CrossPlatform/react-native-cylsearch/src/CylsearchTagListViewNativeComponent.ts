@@ -120,12 +120,12 @@ export interface NativeProps extends ViewProps {
   /**
    * A drag to reorder started or ended (CollectionViewClassifyMenu `menuDidChangeReordering`; the mini program's
    * `reorderingchange`). The native list already holds an ancestor scroll view during the drag; this reports the state.
-   * Android only for now: the iOS list has no such callback yet.
+   * Android and iOS (iOS: `-menu:didChangeReordering:`, CollectionViewClassifyMenu `c73ae8bd` or newer).
    */
   onReorderingChange?: CodegenTypes.DirectEventHandler<ReorderingChangeEvent>;
   /**
    * A smear selection started or ended (CollectionViewClassifyMenu `menuDidChangeSmearing`; the mini program's
-   * `smearingchange`). Android only for now, as `onReorderingChange`.
+   * `smearingchange`). Android and iOS, as `onReorderingChange`.
    */
   onSmearingChange?: CodegenTypes.DirectEventHandler<SmearingChangeEvent>;
 }
