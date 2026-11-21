@@ -809,3 +809,33 @@ begins and becomes `DONE` when it ends.
   request accepted by the CYLTabBarController session.
 - **Status**: 60/100. Rule written (`AGENTS.md`, `instructions.md`, `cyl-harmonyos-setup` rule 6). The CYLTabBarController
   session accepted it (recorded there in `917fa5ad`) and is building it; it will send the commit.
+
+
+## TODO (2026-11-22): merge the QMUI search components with ours (one implementation each)
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). macOS session. Context: the QMUI port added `CYLSearchBar`,
+  `CYLSearchController`, `CYLSearchTableViewController` and their example screens beside the existing
+  `CYLSearchBarView` / `CYLSearchView`; there are now two search fields, two overlay concepts and example screens that
+  rebuild UI with native views.
+- **Requirements**: evaluate both sets; the one with more strengths is the base, the other's strengths are kept; every
+  integrated API stays compatible; one input field component, one suggestion area, the tag list is the sub-repository's
+  `CYLTagListView` (no native or QMUI-style tag layout); no duplicate code; examples call core API instead of rebuilding
+  with native views, example customisation goes through the core. The advisor designs (doc in `docs/`), Sonnet refactors.
+- **Prompt (verbatim)**: "继续改造最近相关提交commit ，关于新加入的qmui相关组件以及Example， 重构我们已有的相关组件， 只保留一份，
+  或者merge两套方案到一个。 advisor需要评估我们已经存在的组件，与qmui相关组件， 选择两个的优点，谁的优点更多以谁的方案为主，
+  并保留另一个方案的优点， 兼容所有已经集成的api， 尽可能复用所有组件，改造core代码， 比如输入框仅仅保留一个输入框组件，比如
+  底部的备选区域 ， taglist 也复用我们已经集成的子仓库的taglist方案， 不能使用qmui类似的系统原生taglist方案，
+  或者merge两个方案的优点进行重构，尽可能复用， 不要使用不同实现， 避免重复代码，Example层面也尽可能调用api而非使用原生组件重新实现。，
+  代码重复要避免， 通过改造core代码完成Example自定义需求。 然后advisor 设计好方案后交给sonnet默认模型进行代码重构"
+- **Prompt (English)**: continue on the recent commits: refactor our existing components together with the new QMUI
+  components and examples so only one remains, or merge both into one. The advisor evaluates both, picks the one with
+  more strengths as the base and keeps the other's strengths, keeps every integrated API compatible, reuses components,
+  changes the core (one input field component; the bottom suggestion area and the tag list reuse the sub-repository's
+  tag list, never a native QMUI-style tag list), avoids different implementations and duplicate code; examples call the
+  API instead of rebuilding with native components, and example customisation is done by changing the core. Then the
+  advisor's design goes to the default Sonnet model for the refactor.
+- **Acceptance**: 100 = design doc with the evaluation and decisions; one class per concept on iOS (and the same merge
+  on the platforms that ported both); old public API compiles (deprecated forwards where renamed); examples free of
+  native re-implementations; all suites green on iOS 17.5 / 26.5 / 27.2 and the platforms' own tests; screenshots before
+  and after. 60 = design doc plus the iOS merge with green tests.
+- **Status**: TODO (after the React Native and Flutter ports of the previous entry finish).
