@@ -122,6 +122,8 @@ When an Objective-C to Swift change of the core breaks an example's build, fix t
 |:---|:---|:---|
 | 0: logged | 4,139 | 0/100 |
 | 1: example app (`main.m`, app and scene delegate, `CYLSearchBarDemoViewController`, `CYLSearchDemoMenuViewController` with the placeholder gallery and the SVGA header) → Swift; the three classes the tests use are `public` (the app has no bridging header) | 3,618 | 12/100 |
+| 2: the legacy demo app `CYLSearchViewController/` replaced by the Swift `CYLOriginalSearchDemoViewController` (checked against the GIF on the simulator) and removed (`726a2da`) | 2,057 | 50/100 |
+| 3: `CYLSearchViewControllerTests` (the legacy app's empty test target, in no Xcode target) removed with it (`726a2da`) | 2,010 | 51/100 |
 
   Step 1 notes: the `performSelector` / `NSClassFromString` detours to Swift classes are plain calls now; cells keep
   `textLabel` / `imageView` (a first pass with cell content configurations left `textLabel` empty and failed
@@ -153,5 +155,19 @@ When an Objective-C to Swift change of the core breaks an example's build, fix t
   (screenshots on the simulator), the other platforms' row for `showsSuggestionCacheHeader` in `core-todo.md` (DONE
   2026-11-21, Windows: Android, HarmonyOS, the mini program, Flutter and React Native, `efb3b78`), then
   delete the legacy Objective-C files in `CYLSearchViewController/` and `CYLSearchViewControllerTests/` (score at that point).
-- **Status**: TODO, step 2 in progress (page built, GIF comparison and legacy removal left). Score: 12/100 (Objective-C
-  lines left 3,618; they drop when the legacy files go).
+- **Step 2 and 3 done (2026-11-21, macOS session, `726a2da`, iPhone 18 Pro simulator, iOS 27.2, Xcode 27.2)**: the running page
+  compared with the GIF state by state (zh-Hans). Fixed on the way, in the example: the field sat on a black strip in a dark
+  field (now `systemGroupedBackground` behind a `secondarySystemGroupedBackground` field, white in light mode, as the GIF);
+  the search showed a back arrow and no Cancel (now `showsCancelButton` with "取消" and `navigationIcon = .none`); the
+  history rows were transparent over the sky (now white rows through `suggestionCellConfiguration`; the sky shows only
+  below the list). Same as the GIF: the blue bar and its title, the placeholder, the history newest first with
+  "清除搜索历史" below it, the results header "与Gf有关的咨询" with "测试1❤️" to "测试4❤️", the result page with its centred
+  "Button". Different by platform: the iOS 26 Liquid Glass back button shows a chevron without the "返回" title (the title is
+  still set). `testOriginalDemoRebuiltOnTheCore` now also submits a term and checks the results, the header, the history row
+  (white) and the clear button. Then the legacy app (`AppDelegate`, `main.m`, `Class/`, `Base.lproj`, `Info.plist`: 1,653
+  Objective-C lines in no target) and `CYLSearchViewControllerTests/` (47) were removed; `CYLSearchViewController/` keeps
+  the app's `Images.xcassets`, `CYLLaunchScreen.storyboard` and the GIF. 37 of 37 tests pass.
+  ![The original demo rebuilt on CYLSearchView, 726a2da, 2026-11-21](assets/ios-iphone18pro-20261121-original-demo-vs-gif.png)
+  (iOS 27.2 simulator, iPhone 18 Pro, Xcode 27.2 27B52, macOS 27, CYLSearchViewController `726a2da`, 2026-11-21 23:50 +13:00.)
+- **Status**: TODO, step 4 left (`CYLSearchExampleTests.m`, 2,010 lines, to Swift with an Objective-C smoke test of the
+  core's public API kept). Score: 51/100 (Objective-C lines left 2,010 of 4,139).
