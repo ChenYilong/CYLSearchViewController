@@ -204,6 +204,13 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
      */
     @objc public var isEmptyViewShowing: Bool { emptyView?.superview != nil }
 
+    /**
+     * Where the queries the person submits (the return key of the keyboard) are kept, newest first and without
+     * duplicates; nil keeps none. The built-in store of `CYLSearchView` comes from `CYLSearchResources`, so the search
+     * history is shared code, not a copy (the launch view of the example reads it).
+     */
+    @objc public var historyStore: CYLSearchSuggestionCache?
+
     // MARK: Internal state
 
     let systemController: CYLSystemSearchController
@@ -240,6 +247,8 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
         systemController.cylSearchBar.searchController = systemController
         systemController.hidesNavigationBarDuringPresentation = true
         systemController.updateObscuring()
+        systemController.cylSearchBar.searchTextField.addTarget(self, action: #selector(searchFieldSubmitted(_:)),
+                                                                 for: .primaryActionTriggered)
         presentationGuard.owner = self
         contentsViewController.addChild(presentationGuard)
         presentationGuard.didMove(toParent: contentsViewController)
@@ -272,6 +281,13 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
 
     deinit {
         presentationGuard.detach()
+    }
+
+    // The return key of the keyboard (iOS 13 and later, public `UITextField` API): the query goes to the history store.
+    @objc private func searchFieldSubmitted(_ field: UITextField) {
+        let query = (field.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return }
+        historyStore?.addQuery(query)
     }
 
     // MARK: - View life cycle
@@ -673,6 +689,32 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
         return presentationGuard.lastWindow?.rootViewController === top
     }
 
+    /**
+     * E21: a cancelled interactive pop (a slow drag from the left edge that comes back) while the search is presented
+     * leaves the navigation bar showing the contents' title and back button over the pushed screen, a UIKit bug that
+     * a plain `UISearchController` shows too. The navigation bar is put in step again once the cancelled pop ends.
+     */
+    func contentsWillAppear() {
+        guard systemController.isActive, let contents = contentsViewController,
+              let coordinator = contents.transitionCoordinator, coordinator.isInteractive else { return }
+        coordinator.animate(alongsideTransition: nil) { [weak self] context in
+            // The context is only valid inside this block.
+            guard context.isCancelled else { return }
+            DispatchQueue.main.async { self?.resynchronizeNavigationBar() }
+        }
+    }
+
+    /**
+     * Hides and shows the navigation bar again, without animation and keeping its hidden state, so that it draws the
+     * items of the visible view controller (public API only). Does nothing while the search is not presented.
+     */
+    func resynchronizeNavigationBar() {
+        guard systemController.isActive, let navigation = contentsViewController?.navigationController else { return }
+        let hidden = navigation.isNavigationBarHidden
+        navigation.setNavigationBarHidden(!hidden, animated: false)
+        navigation.setNavigationBarHidden(hidden, animated: false)
+    }
+
     func contentsAppearanceTransition(isAppearing: Bool, began: Bool, animated: Bool) {
         guard forwardsAppearanceFromContentsViewController else { return }
         if began {
@@ -954,6 +996,7 @@ final class CYLSearchPresentationGuard: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        owner?.contentsWillAppear()
         owner?.contentsAppearanceTransition(isAppearing: true, began: true, animated: animated)
     }
 

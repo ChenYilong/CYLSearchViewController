@@ -69,6 +69,37 @@ final class CYLSearchControllerDemoTests: CYLSearchExampleTestCase {
         XCTAssertEqual(launch.tagListView.frame.maxY, launch.bounds.maxY, accuracy: 0.5)
     }
 
+    /// The history of the Search controller screen is CYLSearchResources' store: the return key adds the query, newest
+    /// first, no duplicates; the launch view lists it and its trash button clears it.
+    func testSubmittedSearchesFormTheHistoryOfTheLaunchView() throws {
+        CYLSearchControllerDemoViewController.historyName = "CYLSearchControllerDemoTests-\(UUID().uuidString)"
+        let (window, _, search) = shown()
+        let store = try XCTUnwrap(search.historyStore)
+        defer { store.removeAllQueries() }
+        let launch = try XCTUnwrap(search.launchView as? CYLRecentSearchLaunchView)
+        XCTAssertEqual(store.cachedQueries(), [])
+        search.setActive(true, animated: false)
+        CYLRunLoop(0.5)
+        XCTAssertTrue(launch.clearButton.isHidden, "no history yet: the eight suggestions and no trash button")
+        XCTAssertEqual(launch.menuNumberOfItems(inSection: 0), 8)
+        for text in ["Fat", "Liver", " ", "Fat"] {
+            search.searchBar.text = text
+            search.searchBar.searchTextField.sendActions(for: .primaryActionTriggered)
+        }
+        XCTAssertEqual(store.cachedQueries(), ["Fat", "Liver"], "newest first, no duplicates, no blank query")
+        launch.reload()
+        XCTAssertEqual(launch.menuNumberOfItems(inSection: 0), 2)
+        XCTAssertEqual(launch.menuTitleForItem(at: IndexPath(item: 0, section: 0)), "Fat")
+        XCTAssertFalse(launch.clearButton.isHidden)
+        launch.clearButton.sendActions(for: .touchUpInside)
+        XCTAssertEqual(store.cachedQueries(), [])
+        XCTAssertEqual(launch.menuNumberOfItems(inSection: 0), 8, "the suggestions are back")
+        XCTAssertTrue(launch.clearButton.isHidden)
+        search.setActive(false, animated: false)
+        window.isHidden = true
+        CYLSearchControllerDemoViewController.historyName = "CYLSearchControllerDemo"
+    }
+
     func testStringsExistInFourLanguages() {
         let expected = [
             "en": ["Search controller", "Recent searches", "No matching results"],

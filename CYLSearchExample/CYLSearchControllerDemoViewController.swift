@@ -25,7 +25,18 @@ final class CYLRecentSearchLaunchView: UIView, CYLMenuDataSource {
 
     let titleLabel = UILabel()
     let tagListView = CYLTagListView()
+    /// The trash button at the trailing edge of the title row: clears the history (hidden while there is none).
+    let clearButton = UIButton(type: .system)
     private let borderView = UIView()
+
+    /// The submitted searches (`CYLSearchController.historyStore`, built by `CYLSearchResources`): newest first, no
+    /// duplicates. While it is empty the launch view shows the eight suggestions, as QMUI's demo does.
+    var historyStore: CYLSearchSuggestionCache? {
+        didSet { reload() }
+    }
+
+    /// The tags on show: the history, or the suggestions without one.
+    private(set) var queries = CYLRecentSearchLaunchView.suggestions
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -41,6 +52,12 @@ final class CYLRecentSearchLaunchView: UIView, CYLMenuDataSource {
         addSubview(titleLabel)
         borderView.backgroundColor = .separator
         addSubview(borderView)
+        clearButton.setImage(UIImage(systemName: "trash"), for: .normal)
+        clearButton.accessibilityLabel = CYLSearchResources.localizedString(forKey: "search.clearRecent")
+        clearButton.accessibilityIdentifier = "CYLRecentSearchClearButton"
+        clearButton.isHidden = true
+        clearButton.addTarget(self, action: #selector(clearHistory), for: .touchUpInside)
+        addSubview(clearButton)
 
         let style = CYLMenuStyle()
         for state in [UIControl.State.normal, .selected, .disabled] {
@@ -72,6 +89,26 @@ final class CYLRecentSearchLaunchView: UIView, CYLMenuDataSource {
         nil
     }
 
+    /// Reads the history again: the tags are the history (newest first) or, without one, the suggestions.
+    func reload() {
+        let history = historyStore?.cachedQueries() ?? []
+        queries = history.isEmpty ? Self.suggestions : history
+        clearButton.isHidden = history.isEmpty
+        tagListView.reloadMenuData()
+        setNeedsLayout()
+    }
+
+    @objc private func clearHistory() {
+        historyStore?.removeAllQueries()
+        reload()
+    }
+
+    // The launch view is shown on every activation: the history may have changed since.
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        if window != nil { reload() }
+    }
+
     override func tintColorDidChange() {
         super.tintColorDidChange()
         for state in [UIControl.State.normal, .selected, .disabled] {
@@ -87,9 +124,11 @@ final class CYLRecentSearchLaunchView: UIView, CYLMenuDataSource {
         let padding = UIEdgeInsets(top: 26 + safe.top, left: 26 + safe.left, bottom: 26 + safe.bottom,
                                    right: 26 + safe.right)
         let width = max(0, bounds.width - padding.left - padding.right)
-        let fitting = titleLabel.sizeThatFits(CGSize(width: width, height: .greatestFiniteMagnitude))
+        let buttonWidth: CGFloat = clearButton.isHidden ? 0 : 36
+        let fitting = titleLabel.sizeThatFits(CGSize(width: width - buttonWidth, height: .greatestFiniteMagnitude))
         let titleHeight = ceil(fitting.height) + 8
-        titleLabel.frame = CGRect(x: padding.left, y: padding.top, width: width, height: titleHeight - 8)
+        titleLabel.frame = CGRect(x: padding.left, y: padding.top, width: width - buttonWidth, height: titleHeight - 8)
+        clearButton.frame = CGRect(x: padding.left + width - 36, y: padding.top + (titleHeight - 8 - 36) / 2, width: 36, height: 36)
         let line = 1 / max(UIScreen.main.scale, 1)
         borderView.frame = CGRect(x: padding.left, y: padding.top + titleHeight - 1, width: width, height: line)
         let minY = padding.top + titleHeight + 20
@@ -103,7 +142,7 @@ final class CYLRecentSearchLaunchView: UIView, CYLMenuDataSource {
     }
 
     func menuNumberOfItems(inSection section: Int) -> Int {
-        Self.suggestions.count
+        queries.count
     }
 
     func menuTitle(forSection section: Int) -> String {
@@ -111,7 +150,7 @@ final class CYLRecentSearchLaunchView: UIView, CYLMenuDataSource {
     }
 
     func menuTitleForItem(at indexPath: IndexPath) -> String {
-        Self.suggestions[indexPath.item]
+        queries[indexPath.item]
     }
 }
 
@@ -125,6 +164,9 @@ public final class CYLSearchControllerDemoViewController: UITableViewController,
     static let keywords = ["Helps", "Maintain", "Liver", "Health", "Function", "Supports", "Healthy", "Fat", "Metabolism",
                            "Nuturally"]
 
+    /// The name of the history (`CYLSearchResources.suggestionCache`); tests use their own so runs do not share one.
+    static var historyName = "CYLSearchControllerDemo"
+
     private var matches: [String] = []
     /// The search controller; this screen keeps it, as QMUI's demo does (the wrapper is not retained by UIKit).
     private(set) var cylSearchController: CYLSearchController?
@@ -136,7 +178,12 @@ public final class CYLSearchControllerDemoViewController: UITableViewController,
         search.searchResultsDelegate = self
         search.supportsSwipeToDismissSearch = true
         // The launch view is laid out by the controller: it fills the space under the bar.
-        search.launchView = CYLRecentSearchLaunchView()
+        let launch = CYLRecentSearchLaunchView()
+        // The history: a return key submits the query, the launch view lists the newest first and clears it.
+        let store = CYLSearchResources.suggestionCache(policy: .userDefaults, name: Self.historyName)
+        search.historyStore = store
+        launch.historyStore = store
+        search.launchView = launch
         search.installSearchBar(asHeaderOf: tableView)
         cylSearchController = search
     }
@@ -176,6 +223,14 @@ public final class CYLSearchControllerDemoViewController: UITableViewController,
         let detail = UIViewController()
         detail.view.backgroundColor = .systemBackground
         detail.navigationItem.title = matches[indexPath.row / 20]
+        let label = UILabel()
+        label.text = matches[indexPath.row / 20]
+        label.font = .preferredFont(forTextStyle: .title1)
+        label.adjustsFontForContentSizeCategory = true
+        label.translatesAutoresizingMaskIntoConstraints = false
+        detail.view.addSubview(label)
+        NSLayoutConstraint.activate([label.centerXAnchor.constraint(equalTo: detail.view.centerXAnchor),
+                                     label.centerYAnchor.constraint(equalTo: detail.view.centerYAnchor)])
         navigationController?.pushViewController(detail, animated: true)
     }
 

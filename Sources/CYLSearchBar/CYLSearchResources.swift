@@ -34,6 +34,15 @@ public final class CYLSearchResources: NSObject {
     }()
 
     /**
+     * The built-in store of submitted queries (database, `NSUserDefaults` or file, newest first, no duplicates) that
+     * `CYLSearchView` uses, for other search screens such as `CYLSearchController.historyStore`; nil for the policy none.
+     */
+    @objc(suggestionCacheWithPolicy:name:)
+    public static func suggestionCache(policy: CYLSearchSuggestionCachePolicy, name: String) -> CYLSearchSuggestionCache? {
+        CYLSearchSuggestionStore.cache(policy: policy, name: name)
+    }
+
+    /**
      * An image of the resource bundle, or nil (logged) when it is missing.
      */
     @objc(imageNamed:)

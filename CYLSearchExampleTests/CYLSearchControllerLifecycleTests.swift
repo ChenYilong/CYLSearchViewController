@@ -405,6 +405,65 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         CYLTearDownSearchRun(run)
     }
 
+    /// E21, found by a touch run (docs/qmui-search-controller.md): a cancelled interactive pop while the search is presented
+    /// leaves the navigation bar drawing the contents' title over the pushed screen (a plain `UISearchController` does
+    /// the same). XCTest cannot drag from the edge, so this runs the repair itself: with the search presented it hides and
+    /// shows the bar again (two changes of `isHidden`, none left over, the hidden state kept); without a search, nothing.
+    func testE21NavigationBarIsSynchronizedAgainOnlyWhileSearching() {
+        let run = CYLMakeSearchRun()
+        var changes: [Bool] = []
+        let observation = run.navigation.navigationBar.observe(\.isHidden, options: [.new]) { _, change in
+            if let value = change.newValue { changes.append(value) }
+        }
+        run.search.resynchronizeNavigationBar()
+        XCTAssertEqual(changes, [], "the search is not presented: the bar is left alone")
+        CYLActivateSearch(run, text: "H")
+        let hiddenWhileSearching = run.navigation.isNavigationBarHidden
+        changes.removeAll()
+        run.search.resynchronizeNavigationBar()
+        XCTAssertEqual(run.navigation.isNavigationBarHidden, hiddenWhileSearching, "the hidden state is kept")
+        XCTAssertEqual(changes.count % 2, 0, "every hide is followed by a show (or the reverse)")
+        XCTAssertFalse(changes.isEmpty, "the bar is hidden and shown again")
+        XCTAssertEqual(changes.last, hiddenWhileSearching)
+        observation.invalidate()
+        CYLTearDownSearchRun(run)
+    }
+
+    // MARK: - History store (merge table)
+
+    private final class MemoryHistory: NSObject, CYLSearchSuggestionCache {
+        var queries: [String] = []
+        func cachedQueries() -> [String] { queries }
+        func addQuery(_ query: String) { queries.removeAll { $0 == query }; queries.insert(query, at: 0) }
+        func removeQuery(_ query: String) { queries.removeAll { $0 == query } }
+        func removeAllQueries() { queries = [] }
+    }
+
+    /// The merge table: `historyStore` is the shared `CYLSearchSuggestionCache` protocol; the return key adds the trimmed
+    /// query, a blank one is ignored, and without a store nothing happens. The built-in store comes from CYLSearchResources.
+    func testHistoryStoreReceivesTheSubmittedQueries() throws {
+        let run = CYLMakeSearchRun()
+        let history = MemoryHistory()
+        let field = run.search.searchBar.searchTextField
+        run.search.searchBar.text = "Liver"
+        field.sendActions(for: .primaryActionTriggered)
+        XCTAssertEqual(history.queries, [], "no store set: nothing is kept (and nothing crashes)")
+        run.search.historyStore = history
+        for text in ["  Liver ", "Fat", "   ", ""] {
+            run.search.searchBar.text = text
+            field.sendActions(for: .primaryActionTriggered)
+        }
+        XCTAssertEqual(history.queries, ["Fat", "Liver"])
+        let builtIn = try XCTUnwrap(CYLSearchResources.suggestionCache(policy: .userDefaults, name: "CYLHistoryTest-\(UUID().uuidString)"))
+        builtIn.addQuery("a")
+        builtIn.addQuery("b")
+        builtIn.addQuery("a")
+        XCTAssertEqual(builtIn.cachedQueries(), ["a", "b"], "the built-in store: newest first, no duplicates")
+        builtIn.removeAllQueries()
+        XCTAssertNil(CYLSearchResources.suggestionCache(policy: .none, name: "x"))
+        CYLTearDownSearchRun(run)
+    }
+
     // MARK: - E22
 
     /// E22: the status bar providers reach the system controller, which is told to update when it is presented.

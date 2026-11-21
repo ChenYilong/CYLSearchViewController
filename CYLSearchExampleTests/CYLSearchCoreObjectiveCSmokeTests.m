@@ -174,6 +174,12 @@
     search.alwaysShowsSearchResultsController = NO;
     search.forwardsAppearanceFromContentsViewController = YES;
     [search installSearchBarAsHeaderOf:contents.tableView];
+    // The history hook: the built-in store of CYLSearchResources, set as the controller's historyStore.
+    id<CYLSearchSuggestionCache> history = [CYLSearchResources suggestionCacheWithPolicy:CYLSearchSuggestionCachePolicyUserDefaults name:@"CYLObjectiveCSmoke"];
+    XCTAssertNotNil(history);
+    search.historyStore = history;
+    XCTAssertEqual(search.historyStore, history);
+    [history removeAllQueries];
     XCTAssertTrue([search.searchBar isKindOfClass:CYLSearchBar.class]);
     XCTAssertEqual(contents.tableView.tableHeaderView, search.searchBar);
     XCTAssertEqual(search.launchView, launchView);
