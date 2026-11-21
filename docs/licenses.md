@@ -41,5 +41,11 @@ any other) ships its license declaration inside the package, in the package's re
     `LICENSE.material-design-icons`, `LICENSE.placeholder-third-party`, `ICON-SOURCES`) of the icons those libraries ship.
   - Check: `scripts/check-licenses.sh` (shellcheck clean, passes: 8 files), run in CI's "Public API comments" job
     (`actionlint` clean). README has a License section.
-  - TODO: the Android library has no Maven publishing configuration yet; when it gets one, its POM declares MIT
-    (`licenses { license { name.set("MIT License") } }`).
+  - Maven publishing: DONE (2026-11-21). `android/merged/cylsearch/build.gradle.kts` publishes `com.cyl:cylsearch:0.1.0`
+    (the pod's version; the release AAR and a sources jar) with an MIT POM, and Apache-2.0 for the Material Design icons
+    it ships. Checked with `./gradlew :cylsearch:publishReleasePublicationToBuildRepository` (Gradle, JDK 17): the POM
+    lists both licenses and the AAR holds `META-INF/cylsearch/LICENSE`, `NOTICE`, `LICENSE.material-design-icons`,
+    `LICENSE.placeholder-third-party` and `ICON-SOURCES`. Not a license item, but needed before a real release:
+    CYLTableViewPlaceHolder's Android modules (`:placeholder`, `:placeholder-refresh`) publish no coordinates yet, so the
+    POM names them `CYLSearchAndroid:placeholder:unspecified`. That repository has to publish them first (reported to
+    its session, 2026-11-21).
