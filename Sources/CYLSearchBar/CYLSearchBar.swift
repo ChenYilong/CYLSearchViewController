@@ -340,6 +340,7 @@ open class CYLSearchBar: UISearchBar {
             for metrics in Self.allBarMetrics where !explicitBackgroundKeys.contains(metrics.rawValue) {
                 super.setBackgroundImage(backgroundImage, for: .any, barMetrics: metrics)
             }
+            fillTopEdge(with: backgroundImage.flatMap(Self.topEdgeColor(of:)))
         }
     }
 
@@ -516,6 +517,48 @@ open class CYLSearchBar: UISearchBar {
         }
         if background == nil && style.hidesBarBackground { background = UIImage() }
         for metrics in Self.allBarMetrics { setBackgroundImage(background, for: .any, barMetrics: metrics) }
+        if style.hidesBarBackground && barTintColor == nil && style.barBackgroundImage == nil && style.barBackgroundColor == nil {
+            fillTopEdge(with: nil)
+        } else if let tint = barTintColor {
+            fillTopEdge(with: tint.resolvedColor(with: traitCollection))
+        } else if let color = style.barBackgroundColor {
+            fillTopEdge(with: color.resolvedColor(with: traitCollection))
+        } else {
+            fillTopEdge(with: background.flatMap(Self.topEdgeColor(of:)))
+        }
+    }
+
+    /**
+     * Row B9 (#950), measured on iOS 17.5: a bar at rest as a table header insets UIKit's background view by one pixel
+     * (the view clips to bounds), so the view behind the bar reads through as a one pixel line above it. iOS 26.5 and 27.2
+     * do not. The bar's own layer paints the background color behind UIKit's views (public API); an alpha below 1 is
+     * not filled, it would be drawn twice.
+     */
+    private func fillTopEdge(with color: UIColor?) {
+        if #available(iOS 26, *) { return }
+        guard let color, color.cgColor.alpha >= 1 else {
+            if backgroundColor != nil { backgroundColor = nil }
+            return
+        }
+        backgroundColor = color
+    }
+
+    /**
+     * The color of an image's top left pixel when it is opaque, else `nil`.
+     */
+    private static func topEdgeColor(of image: UIImage) -> UIColor? {
+        guard let cgImage = image.cgImage, cgImage.width > 0, cgImage.height > 0,
+              let space = CGColorSpace(name: CGColorSpace.sRGB) else { return nil }
+        var pixel = [UInt8](repeating: 0, count: 4)
+        let drawn: Bool = pixel.withUnsafeMutableBytes { buffer in
+            guard let context = CGContext(data: buffer.baseAddress, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4,
+                                          space: space, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return false }
+            // The context's origin is bottom left: the image's top row lands in the one pixel row.
+            context.draw(cgImage, in: CGRect(x: 0, y: 1 - cgImage.height, width: cgImage.width, height: cgImage.height))
+            return true
+        }
+        guard drawn, pixel[3] == 255 else { return nil }
+        return UIColor(red: CGFloat(pixel[0]) / 255, green: CGFloat(pixel[1]) / 255, blue: CGFloat(pixel[2]) / 255, alpha: 1)
     }
 
     private func applyInterfaceStyleChangeIfNeeded() {
