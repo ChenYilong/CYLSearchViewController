@@ -186,8 +186,9 @@ public final class CYLSearchDemoMenuViewController: UITableViewController {
         // The fifth row: the SVGA tab bar hosted in SwiftUI (CYLSVGASwiftUIDemo.swift); the sixth: the contact tags demo
         // ported from CollectionViewClassifyMenu (CYLContactTagStore.swift); the seventh: the original demo of the README
         // screenshot, rebuilt on CYLSearchView (CYLOriginalSearchDemoViewController.swift).
-        // The eighth: the QMUI search bar styles screen (CYLSearchBarStylesViewController.swift).
-        8
+        // The eighth: the QMUI search bar styles screen (CYLSearchBarStylesViewController.swift); the ninth: the QMUI search
+        // controller screen (CYLSearchControllerDemoViewController.swift).
+        9
     }
 
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -198,6 +199,8 @@ public final class CYLSearchDemoMenuViewController: UITableViewController {
             cell.textLabel?.text = cylDemoText(rows[indexPath.row])
         } else if indexPath.row == 4 {
             cell.textLabel?.text = cylExampleText("svga.swiftui")
+        } else if indexPath.row == 8 {
+            cell.textLabel?.text = cylDemoText("demo.searchController")
         } else if indexPath.row == 7 {
             cell.textLabel?.text = cylDemoText("demo.searchBarStyles")
         } else if indexPath.row == 6 {
@@ -226,6 +229,9 @@ public final class CYLSearchDemoMenuViewController: UITableViewController {
         case 6:
             // The original demo (the README screenshot): a Ken Burns sky, the history, the results.
             controller = CYLOriginalSearchDemoViewController()
+        case 8:
+            // QMUI's QDSearchViewController: CYLSearchController with a launch view and swipe to dismiss.
+            controller = CYLSearchControllerDemoViewController(style: .plain)
         case 7:
             // QMUI's QDSearchBarViewController: the styles of CYLSearchBar.
             controller = CYLSearchBarStylesViewController(style: .grouped)

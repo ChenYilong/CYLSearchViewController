@@ -71,3 +71,7 @@
 "styles.trailing" = "右のアクセサリ";
 "styles.accessory.label" = "アクセサリビュー";
 "styles.row.hint" = "リストの上の検索バーを変更します";
+"demo.searchController" = "検索コントローラ";
+"controller.recent" = "最近の検索";
+"controller.noResults" = "一致する結果はありません";
+"controller.launch.label" = "最近の検索";

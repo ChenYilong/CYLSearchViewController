@@ -71,3 +71,7 @@
 "styles.trailing" = "右側附件檢視";
 "styles.accessory.label" = "附件檢視";
 "styles.row.hint" = "修改清單上方的搜尋列";
+"demo.searchController" = "搜尋控制器";
+"controller.recent" = "最近搜尋";
+"controller.noResults" = "沒有符合的結果";
+"controller.launch.label" = "最近搜尋";

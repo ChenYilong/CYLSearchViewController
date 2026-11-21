@@ -7,7 +7,7 @@
 //
 
 import CYLAnimatedItem
-import CYLSearchViewController
+@testable import CYLSearchViewController
 import CYLTabBarController
 import CYLTableViewPlaceHolder
 import CollectionViewClassifyMenu
@@ -389,6 +389,62 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         if #available(iOS 17.0, *) {
             window.traitOverrides.preferredContentSizeCategory = .large
         }
+
+        // The "Search controller" screen: the bar as the table header at rest, and while searching, when it lives in the
+        // search presentation on top of the contents table (a full-screen scroll view that is not the bar's ancestor, so the
+        // search view is the root there). Nothing in the presentation may sit under the bar: the launch view, the results
+        // and the empty view all start at or below its bottom edge.
+        let controllerDemo = CYLSearchControllerDemoViewController(style: .plain)
+        navigation = UINavigationController(rootViewController: controllerDemo)
+        window.rootViewController = navigation
+        CYLRunLoop(0.3)
+        let search = try XCTUnwrap(controllerDemo.cylSearchController)
+        for active in [false, true] {
+            if active {
+                search.setActive(true, animated: false)
+                CYLRunLoop(0.5)
+            }
+            for size in sizes {
+                if #available(iOS 17.0, *) {
+                    window.traitOverrides.preferredContentSizeCategory = size
+                }
+                CYLRunLoop(0.4)
+                navigation.view.setNeedsLayout()
+                navigation.view.layoutIfNeeded()
+                XCTAssertNotNil(search.searchBar.window, "the search controller screen's bar is shown")
+                let covered = CYLViewsCoveredByView(search.searchBar, active ? search.searchController.view : nil)
+                XCTAssertEqual(covered.count, 0, "search controller, active \(active), at \(size.rawValue): \(covered)")
+                if active {
+                    let barBottom = search.searchBar.convert(search.searchBar.bounds, to: window).maxY
+                    let launch = try XCTUnwrap(search.launchView)
+                    XCTAssertGreaterThanOrEqual(launch.convert(launch.bounds, to: window).minY, barBottom - 0.5,
+                                                "the launch view starts under the bar at \(size.rawValue)")
+                }
+            }
+        }
+        if #available(iOS 17.0, *) {
+            window.traitOverrides.preferredContentSizeCategory = .large
+        }
+        for text in ["H", "zzz"] {
+            search.searchBar.text = text
+            CYLRunLoop(0.4)
+            let barBottom = search.searchBar.convert(search.searchBar.bounds, to: window).maxY
+            // The results table's frame spans the whole screen, as UIKit lays it out; its top inset keeps the rows (checked below)
+            // and the empty view under the bar, so the table itself is left out.
+            let results = try XCTUnwrap(search.searchResultsController?.view)
+            let covered = CYLViewsCoveredByView(search.searchBar, search.searchController.view).filter {
+                !$0.hasPrefix("\(NSStringFromClass(type(of: results))) ")
+            }
+            XCTAssertEqual(covered.count, 0, "search controller with \"\(text)\": \(covered)")
+            XCTAssertFalse(results.isHidden)
+            if let empty = search.emptyView {
+                XCTAssertGreaterThanOrEqual(empty.convert(empty.bounds, to: window).minY, barBottom - 0.5, "the empty view is under the bar")
+            }
+            if let table = search.tableView, let first = table.cellForRow(at: IndexPath(row: 0, section: 0)) {
+                XCTAssertGreaterThanOrEqual(first.convert(first.bounds, to: window).minY, barBottom - 0.5, "the first result is under the bar")
+            }
+        }
+        search.setActive(false, animated: false)
 
         // The overlay (a CYLSearchView over the results page's navigation controller) is a page of its own: inside that
         // page its search bar covers no view, with results shown.

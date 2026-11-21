@@ -71,3 +71,7 @@
 "styles.trailing" = "右侧附件视图";
 "styles.accessory.label" = "附件视图";
 "styles.row.hint" = "修改列表上方的搜索栏";
+"demo.searchController" = "搜索控制器";
+"controller.recent" = "最近搜索";
+"controller.noResults" = "没有匹配结果";
+"controller.launch.label" = "最近搜索";

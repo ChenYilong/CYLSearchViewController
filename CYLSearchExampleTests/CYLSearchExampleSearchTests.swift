@@ -108,10 +108,13 @@ final class CYLSearchExampleSearchTests: CYLSearchExampleTestCase {
         let navigation = CYLSearchTestNavigationController(rootViewController: menu)
         menu.loadViewIfNeeded()
         XCTAssertIdentical(menu.navigationController, navigation)
-        XCTAssertEqual(menu.tableView(menu.tableView, numberOfRowsInSection: 0), 8,
-                       "reproduction, styles, search bar, ports of other libraries, the SVGA tab bar in SwiftUI, contact tags, the original demo, search bar styles")
+        XCTAssertEqual(menu.tableView(menu.tableView, numberOfRowsInSection: 0), 9,
+                       "reproduction, styles, search bar, ports of other libraries, the SVGA tab bar in SwiftUI, contact tags, the original demo, search bar styles, search controller")
         menu.tableView(menu.tableView, didSelectRowAt: IndexPath(row: 7, section: 0))
         XCTAssertTrue(navigation.lastPushedController is CYLSearchBarStylesViewController, "the QMUI search bar styles screen")
+        navigation.popViewController(animated: false)
+        menu.tableView(menu.tableView, didSelectRowAt: IndexPath(row: 8, section: 0))
+        XCTAssertTrue(navigation.lastPushedController is CYLSearchControllerDemoViewController, "the QMUI search controller screen")
         navigation.popViewController(animated: false)
         menu.tableView(menu.tableView, didSelectRowAt: IndexPath(row: 1, section: 0))
         let gallery = try XCTUnwrap(navigation.lastPushedController as? UITableViewController)

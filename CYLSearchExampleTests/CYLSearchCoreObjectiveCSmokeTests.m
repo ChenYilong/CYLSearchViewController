@@ -10,6 +10,32 @@
 #import <CYLSearchViewController/CYLSearchViewController-Swift.h>
 
 /*!
+ * A search controller delegate written in Objective-C: it records the strings and has no rows.
+ */
+@interface CYLSearchControllerSmokeDelegate : NSObject <CYLSearchControllerDelegate>
+@property(nonatomic, copy) NSArray<NSString *> *strings;
+@end
+
+@implementation CYLSearchControllerSmokeDelegate
+
+- (void)searchController:(CYLSearchController *)searchController updateResultsForSearchString:(NSString *)searchString
+{
+    self.strings = [(self.strings ?: @[]) arrayByAddingObject:searchString];
+}
+
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return 0;
+}
+
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return [[UITableViewCell alloc] init];
+}
+
+@end
+
+/*!
  * Calls the core's main types from Objective-C: CYLSearchBarView, CYLSearchView and CYLSearchResources.
  */
 @interface CYLSearchCoreObjectiveCSmokeTests : XCTestCase
@@ -102,6 +128,62 @@
     XCTAssertNotNil([CYLSearchBar textFieldBackgroundImageWithColor:UIColor.grayColor]);
     XCTAssertNil([CYLSearchBar backgroundImageWithColor:nil borderColor:nil]);
     XCTAssertNotNil([CYLSearchBar backgroundImageWithColor:nil borderColor:UIColor.grayColor]);
+}
+
+- (void)testSearchControllerFromObjectiveC
+{
+    XCTAssertEqualObjects(NSStringFromClass(CYLSearchController.class), @"CYLSearchController");
+    XCTAssertTrue([CYLSearchController.class isSubclassOfClass:UIViewController.class]);
+    UITableViewController *contents = [[UITableViewController alloc] initWithStyle:UITableViewStylePlain];
+    UINavigationController *navigation = [[UINavigationController alloc] initWithRootViewController:contents];
+    UIWindowScene *scene = (UIWindowScene *)[UIApplication.sharedApplication.connectedScenes.allObjects firstObject];
+    UIWindow *window = scene ? [[UIWindow alloc] initWithWindowScene:scene] : [[UIWindow alloc] init];
+    window.frame = CGRectMake(0, 0, 402, 874);
+    window.rootViewController = navigation;
+    [window makeKeyAndVisible];
+    [contents loadViewIfNeeded];
+
+    CYLSearchController *search = [[CYLSearchController alloc] initWithContentsViewController:contents];
+    CYLSearchControllerSmokeDelegate *delegate = [[CYLSearchControllerSmokeDelegate alloc] init];
+    search.searchResultsDelegate = delegate;
+    UIView *launchView = [[UIView alloc] init];
+    search.launchView = launchView;
+    search.dimmingColor = UIColor.blackColor;
+    search.supportsSwipeToDismissSearch = YES;
+    search.hidesNavigationBarDuringPresentation = NO;
+    search.alwaysShowsSearchResultsController = NO;
+    search.forwardsAppearanceFromContentsViewController = YES;
+    [search installSearchBarAsHeaderOf:contents.tableView];
+    XCTAssertTrue([search.searchBar isKindOfClass:CYLSearchBar.class]);
+    XCTAssertEqual(contents.tableView.tableHeaderView, search.searchBar);
+    XCTAssertEqual(search.launchView, launchView);
+    XCTAssertEqualObjects(search.dimmingColor, UIColor.blackColor);
+    XCTAssertTrue(search.supportsSwipeToDismissSearch);
+    XCTAssertFalse(search.isActive);
+
+    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.3]];
+    [search setActive:YES animated:NO];
+    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.6]];
+    XCTAssertTrue(search.isActive);
+    XCTAssertEqualObjects(delegate.strings.firstObject, @"");
+    search.searchBar.text = @"Obj";
+    [[NSRunLoop mainRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.3]];
+    XCTAssertEqualObjects(delegate.strings.lastObject, @"Obj");
+    [search showEmptyViewWithText:@"None" detailText:nil buttonTitle:nil buttonAction:nil];
+    XCTAssertTrue(search.isEmptyViewShowing);
+    [search hideEmptyView];
+    XCTAssertGreaterThan(search.searchBarMaxY, 0);
+    [search setActive:NO animated:NO];
+    XCTAssertFalse(search.isActive);
+
+    CYLSearchController *withTable = [[CYLSearchController alloc] initWithContentsViewController:contents resultsTableViewStyle:UITableViewStyleGrouped];
+    XCTAssertNotNil(withTable.tableView);
+    CYLSearchController *withResults = [[CYLSearchController alloc] initWithContentsViewController:contents resultsViewController:[[UIViewController alloc] init]];
+    XCTAssertNil(withResults.tableView);
+    [withResults installInNavigationItem:contents.navigationItem];
+    XCTAssertEqual(contents.navigationItem.searchController, withResults.searchController);
+    window.rootViewController = nil;
+    window.hidden = YES;
 }
 
 - (void)testResourcesFromObjectiveC

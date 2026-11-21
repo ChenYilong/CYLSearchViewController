@@ -71,3 +71,7 @@
 "styles.trailing" = "trailing accessory";
 "styles.accessory.label" = "Accessory view";
 "styles.row.hint" = "Changes the search bar above the list";
+"demo.searchController" = "Search controller";
+"controller.recent" = "Recent searches";
+"controller.noResults" = "No matching results";
+"controller.launch.label" = "Recent searches: tap a search to see it";
