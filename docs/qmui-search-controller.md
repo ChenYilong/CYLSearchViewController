@@ -730,3 +730,77 @@ Full runs of `xcodebuild test` (new derived data each, `CODE_SIGNING_ALLOWED=NO`
 - **Requirements**: give React Native the behaviour of every row of the parity table above (core first: a mode or parameter of an existing component before a new one; a new component only for a new concept, CYL prefix); the example screens "Search controller" and "Search bar styles" (replicas of QMUI's `QDSearchViewController` / `QDSearchBarViewController`: keywords, suggestions, sections, rows, margins 8 / 32 / -16, 30 x 30 stroked accessories, x20 results with the match highlighted, "No matching results", history with a clear button, strings in the languages the example already has); issue rows I1-I5: N/A with a reason, or implemented (I4 snapping); the bar never covers a view; the history change behaviour of the iOS controller.
 - **Prompt** (verbatim, English, as given by the owner): "give React Native (CrossPlatform/react-native-cylsearch: Fabric components wrapping the native iOS and Android cores) the behaviour of every row of the parity table, put into the core class it belongs to (core first: the published package; a parameter or mode of an existing class such as CYLSearchBarView / CYLSearchView before a new class; a new class only for a genuinely new concept, named with the CYL prefix), and add the example screens \"Search controller\" and \"Search bar styles\" (replicas of QMUI's QDSearchViewController / QDSearchBarViewController as specified in the doc's Example section ...). Issue scenarios I1-I5 are UIKit defects: if React Native has no equivalent code path, mark N/A with a one-line reason; if it does have a \"bar scrolls out above a short list\" case (I4 snapping), implement it. The search bar must never cover any view in any state."
 - **Acceptance** (written before the work; 100, pass 60): (1) each parity row has a counterpart (file:symbol) or an N/A with a reason, 40; (2) jest tests for the new API pass and `tsc` / `eslint` are clean, 15; (3) the example builds clean and runs on an own iOS simulator and an own Android AVD, both screens, 25; (4) labelled, stitched screenshots of both screens on both platforms in `docs/assets/`, 10; (5) licenses, docs and commits pushed, 10.
+
+
+## Merge design: one implementation per concept (2026-11-22, `feat/harmonyos-parity`, PR #11)
+
+Task: `docs/task-log.md`, "merge the QMUI search components with ours". Evaluated by the advisor; refactored by Sonnet in
+the phases below.
+
+### Evaluation
+
+| Concept | Ours (`CYLSearchBarView` / `CYLSearchView`) | QMUI port (`CYLSearchBar` / `CYLSearchController` / `CYLSearchTableViewController`) |
+| --- | --- | --- |
+| Platforms | iOS, Android, HarmonyOS, mini program, React Native, Flutter, one API table | iOS only; the other ports already put its behaviour into *our* classes |
+| Field | own `UITextField` field: height, corner, border, shadow, icon, items (`CYLTagButton`), multi-search, iconified, voice / submit / navigation buttons, keyboard pinning | `UISearchBar` subclass: centred placeholder, margin providers per active state, Cancel margins and font, animated accessories, B1–B13 UIKit fixes |
+| Suggestions | list or tags in `suggestionsTagView` (the sub-repository's `CYLTagListView`), history header with clear button, cache policies | none (the example rebuilt one by hand: `CYLRecentSearchLaunchView`) |
+| Results / empty | results table + data source, `CYLTableViewPlaceHolder` scenarios, pull to refresh | results table controller, `showEmptyView`, match highlight done by the example |
+| Presentation | own overlay (`install`, `showSearch`, `attach(to:)`), scrim | `UISearchController`: navigation item (#1229), presentation guard (#1541), appearance forwarding, E21 resync, status bar providers, will/did life cycle, `setActive`, swipe to dismiss, dimming, launch view |
+| Lists | none | table header bar + snapping (#1160), `showsSearchBar` list screen |
+
+**Decision**: ours is the base (more strengths, and the only model shared by six platforms). The QMUI strengths are kept
+as parameters / modes of our classes; the public names `CYLSearchBar`, `CYLSearchController` and
+`CYLSearchTableViewController` stay (the previous task required QMUI's interfaces) but lose their own logic.
+
+**The one limit**: `UINavigationItem.searchController` takes a `UISearchController`, whose bar must be a `UISearchBar`.
+`CYLSearchBarView` is the only field wherever a view can host one; `CYLSearchBar` remains only as the adapter
+`UISearchController` requires, with no style logic of its own: it reads the same `CYLSearchBarAppearance` and uses the
+same knob names through shared helpers. Dropping it would drop navigation-item search and the #1229 / #1319 / #1251 /
+#1313 fixes.
+
+### Pair table (QMUI member → existing counterpart → decision)
+
+| QMUI-port member | Existing counterpart | Decision |
+| --- | --- | --- |
+| `CYLSearchBarAppearance` (colours, field / bar images, icons) | `CYLSearchBarView` `fieldBackgroundColor`, `fieldCornerRadius`, `fieldBorder*`, `searchIcon`, `fieldBackgroundImage`, `searchBarStyle` | merge: one appearance applied to both bars through one helper |
+| `centersPlaceholder` | — (`iconPosition` only) | new on `CYLSearchBarView`; the centring math is a shared helper |
+| `textFieldMargins` / `textFieldMarginsProvider` | `contentInsets` | merge: `contentInsets` is the resting value; the provider (same typealias) wins per active state |
+| `cancelButtonMarginsProvider` / `cancelButtonFont` | `cancelButton`, `cancelButtonTitle` | new on `CYLSearchBarView` (shared typealias) |
+| `showsCancelButton` + animated setter | `showsCancelButton` | merge: add `setShowsCancelButton(_:animated:)` |
+| `leadingAccessoryView` / `trailingAccessoryView` + margins + animated setters | `leadingView`, `trailingAccessoryViews` | merge: animate the existing ones; QMUI names forward (deprecated) on `CYLSearchBar` only |
+| `placeholderColor` / `textColor` / `font` | same names | same names; one implementation of the placeholder colour fix (B1) |
+| image generators (`textFieldBackgroundImage`, `backgroundImage`) | — | shared helper in `CYLSearchBarAppearance` |
+| `launchView` | suggestion area of `CYLSearchView` (tags / list, history header, clear button) | merge: `CYLSearchView`'s area is the launch content (a mode: `suggestionStyle = .tags`, `showsSuggestionsForEmptyQuery`); `CYLSearchController.launchView` defaults to it; `CYLRecentSearchLaunchView` deleted |
+| `dimmingColor` | `scrimColor` | merge: one overlay view; `scrimColor` canonical, `dimmingColor` forwards |
+| `tableView`, `showEmptyView`, `hideEmptyView`, `isEmptyViewShowing` | `resultsTableView`, `showsEmptyResultsPlaceholder`, `emptyResultsScenario`, `emptyResultsView` | merge: one results + placeholder component used by both; match highlight becomes a core option |
+| `historyStore` + `historyDidChangeNotification` | `suggestionCache`, `suggestionCachePolicy`, `suggestionCacheName` | merge: one store, one change signal posted by the store and matched by cache name (`cache(policy:name:)` returns a new instance per call) |
+| `isActive` / `setActive`, will/did present/dismiss | `searchOpen`, `showSearch` / `closeSearch`, `searchViewDidShow/DidClose` | merge: one internal state, one event source feeding both delegates |
+| `supportsSwipeToDismissSearch` | — | new on `CYLSearchView` too |
+| `snapsHeaderSearchBar` (`CYLSearchHeaderSnapper`) | — | shared: the snapper works on any header view, including `CYLSearchBarView` |
+| `CYLSearchTableViewController` | — | keep; its bar and empty view use the shared components |
+| QMUI demo tag size 69 × 29 | `CYLMenuStyle` has no minimum item width | own phase: a ClassifyMenu change plus a pin move on every platform (pins move together) |
+
+### Rules for every phase
+
+- Core first; old public API keeps compiling (forwards, `@available(*, deprecated, renamed:)` where renamed). An API
+  fence (Swift test + Objective-C smoke test touching every public member of the five classes) is committed before
+  phase 1 and must compile unchanged after each phase.
+- Examples call API only: no hand-built tag rows, headers, clear buttons, highlights or tables that the core offers.
+- Tags only through the sub-repository's `CYLTagListView` (no native chip / flex / QMUI float layout) on every platform.
+- Each phase ends with the full suite green on iOS 17.5, 26.5 and 27.2 and before / after screenshots.
+
+### Phases (one Sonnet agent each, iOS phases one after another)
+
+0. Prep: API fence, before screenshots (27.2: the two replicas, the issue screens, the `CYLSearchView` demos), E21
+   visibility check on iOS 17.5.
+1. Style and field knobs (appearance helper, centring, margin providers, Cancel, animated accessories) into
+   `CYLSearchBarView`; `CYLSearchBar` reduced to the adapter.
+2. Launch area: `CYLSearchView`'s suggestion area as the launch content; delete `CYLRecentSearchLaunchView`; tag taps
+   submit.
+3. Results, empty view, highlight option, dimming = scrim, history signal, one active state and life cycle.
+4. Examples: no native re-implementations left; after screenshots; score.
+5. Other platforms in parallel: audit for parallel members (e.g. a new accessory beside `leadingView`, `dimmingColor`
+   beside `scrimColor`), launch views on the ClassifyMenu tag list.
+6. ClassifyMenu `CYLMenuStyle.minimumItemSize` and the pin move (own branch / PR in that repository).
+
+Status: TODO (design written; phase 0 next).
