@@ -1504,7 +1504,12 @@ class CYLSearchBarView @JvmOverloads constructor(
                 false
             }
         }
-        textField.setOnFocusChangeListener { _, focused -> if (focused) didBeginEditing() else didEndEditing() }
+        // A field that is not being edited shows no caret (a steady caret was seen in the idle bar after the search closed).
+        textField.isCursorVisible = false
+        textField.setOnFocusChangeListener { _, focused ->
+            textField.isCursorVisible = focused
+            if (focused) didBeginEditing() else didEndEditing()
+        }
         applyInputType()
         updateButtonImages()
         applyStyle()
