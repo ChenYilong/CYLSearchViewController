@@ -1,12 +1,12 @@
 Tencent is pleased to support the open source community by making QMUI_iOS available.
 Copyright (C) 2016-2021 THL A29 Limited, a Tencent company. All rights reserved.
 
-The following Swift source files of CYLSearchViewController are ported from QMUI_iOS
-(https://github.com/Tencent/QMUI_iOS): CYLSearchBar.swift, CYLSearchBarAppearance.swift,
-CYLSearchController.swift and CYLSearchTableViewController.swift (from QMUISearchBar,
+The following Kotlin source files of the CYLSearchViewController Android library are ported from
+QMUI_iOS (https://github.com/Tencent/QMUI_iOS): CYLSearchBarAppearance.kt and CYLSearchListView.kt,
+and the QMUI-derived parts of CYLSearchBarView.kt and CYLSearchView.kt (from QMUISearchBar,
 QMUISearchController, UISearchBar+QMUI, UISearchController+QMUI and
-QMUICommonTableViewController (Search)). Each of them starts with the notice of the original
-files. QMUI_iOS is licensed under the MIT License, whose terms follow.
+QMUICommonTableViewController (Search)). QMUI_iOS is licensed under the MIT License, whose terms
+follow.
 
 Terms of the MIT License:
 --------------------------------------------------------------------

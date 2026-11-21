@@ -87,3 +87,8 @@ any other) ships its license declaration inside the package, in the package's re
   The pod's own `LICENSE` (MIT, Copyright (c) 2015 ChenYilong) is unchanged.
 - **Check**: `bash scripts/check-licenses.sh` now also fails when `LICENSE.QMUI` is missing, when `NOTICE` does not name it, or
   when a ported file loses Tencent's header (checked: "Licenses: OK (9 files)").
+- **Android (added 2026-11-22, core commit feded48)**: the Android AAR now carries the notice too. The Kotlin port of the same behaviour
+  (`CYLSearchBarAppearance.kt`, `CYLSearchListView.kt` and the QMUI-derived parts of `CYLSearchBarView.kt` and `CYLSearchView.kt`) ships
+  `LICENSE.QMUI` and a NOTICE paragraph in `META-INF/cylsearch` (`android/merged/cylsearch/LICENSE.QMUI` and `NOTICE`, copied into
+  `src/main/resources/META-INF/cylsearch/`); this supersedes "the iOS pod only" above for Android. See the Android section of
+  [qmui-search-controller.md](qmui-search-controller.md).

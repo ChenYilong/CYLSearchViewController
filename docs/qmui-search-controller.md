@@ -461,6 +461,7 @@ a test or labelled screenshot per screen, the platform's checks green.
 - **Status**: DONE (2026-11-22, `feat/harmonyos-parity`, PR #11). **Score: 92 / 100 (pass 60)**; missing points are the `TODO`s at the end of this section.
   Task: port every parity row into the Android core (the class it belongs to first), add the example screens "Search
   controller" and "Search bar styles" to `CYLSearchDemoMenuFragment`, tests, labelled screenshots on an own AVD.
+- **Prompt** (verbatim, English): "give Android (Kotlin, android/merged: core module cylsearch, example app) the behaviour of every row of the parity table, put into the core class it belongs to (core first: the published package; a parameter or mode of an existing class such as CYLSearchBarView / CYLSearchView before a new class; a new class only for a genuinely new concept, named with the CYL prefix), and add the example screens "Search controller" and "Search bar styles" (replicas of QMUI's QDSearchViewController / QDSearchBarViewController as specified in the doc's Example section ...). Issue scenarios I1-I5 are UIKit defects: if Android has no equivalent code path, mark N/A with a one-line reason; if it does have a "bar scrolls out above a short list" case (I4 snapping), implement it. The search bar must never cover any view in any state." The iOS controller's `historyDidChangeNotification` behaviour was ported too.
 - **Acceptance** (written before the work): every row has a counterpart (file:symbol) or N/A with a reason; `:cylsearch:testDebugUnitTest`
   and `:app:testDebugUnitTest` green on a clean build; both replica screens screenshotted; the bar never covers a view in any state;
   strings in en, ja, zh-Hans, zh-Hant; this section filled in.
@@ -518,21 +519,27 @@ a test or labelled screenshot per screen, the platform's checks green.
   focusable view), so a bar never left the active state after Cancel: it now moves the focus to a focus sink. (2) A bar whose delegate refuses
   editing (the bar of `CYLSearchListView` that opens the search page) looped in `requestFocus` -> refuse -> `clearFocus` -> window requests focus
   (StackOverflowError); its field now refuses `requestFocus` itself. (3) Seen on the emulator: the leading accessory touched the field; the 8 dp gap
-  is now in the core, tested.
-- **Tests** (JDK 17.0.21, `sh ./gradlew --no-daemon :cylsearch:testDebugUnitTest :app:testDebugUnitTest`): core **50 tests, 0 failures** (baseline 26:
-  +9 `CYLSearchBarQMUIPortTest`, +9 `CYLSearchViewQMUIPortTest`, +6 `CYLSearchListViewTest`); example **9 tests, 0 failures** (3 contact tags + 6 `CYLSearchPortScreensTest`).
-  `scripts/check-public-api-comments.sh`: OK; `scripts/check-licenses.sh`: OK (9 files).
+  is now in the core, tested. (4) Found on the emulator, **recorded with a screenshot before the fix**: after a result opens the detail page over the open search, Back
+  closed the hidden search and left the detail page on screen (`CYLSearchView`'s back callback registered later than the activity's, so it won):
+  ![Back from detail page, bug](assets/android-qmui-bug-back-from-detail-api35-20261122.png) Android 15 (API 35) emulator `CYL_QPort_API35`, macOS 27.3, core commit f2f2ffa (before the fix), 2026-11-22 12:05 NZDT.
+  Fixed in the core (`CYLSearchView.isCovered` / `passBackThrough`: while a page of the host lies over the search, Back and the predictive-back progress go to the
+  next callback), test `backGoesToAPageThatCoversTheOpenSearch`, checked again on the emulator:
+  ![Back from detail page, fixed](assets/android-qmui-back-from-detail-fixed-api35-20261122.png) Android 15 (API 35) emulator `CYL_QPort_API35`, macOS 27.3, core commit feded48, 2026-11-22 12:11 NZDT.
+  (5) Found on the same run: the idle header bar showed a steady caret after the search closed; the field now shows its cursor only while it has the focus.
+- **Tests** (JDK 17.0.21, `sh ./gradlew --no-daemon :cylsearch:testDebugUnitTest :app:testDebugUnitTest`): core **51 tests, 0 failures** (baseline 26:
+  +9 `CYLSearchBarQMUIPortTest`, +10 `CYLSearchViewQMUIPortTest`, +6 `CYLSearchListViewTest`); example **9 tests, 0 failures** (3 contact tags + 6 `CYLSearchPortScreensTest`).
+  `scripts/check-public-api-comments.sh`: OK and `scripts/check-licenses.sh`: OK (9 files), both run again on the final code (feded48).
 - **Screenshots** (originals in `docs/assets/raw/android-qmui-*-api35-20261122.png`, crops of the 1080 x 2400 captures, key moments, stitched, English labels):
-  - Search controller: ![Search controller on Android](assets/android-qmui-search-controller-api35-20261122.png) Android 15 (API 35) emulator CYLSearchPort AVD `CYL_QPort_API35`, macOS 27.3, AGP 9.2.1, Kotlin 2.2.20, core commit f2f2ffa, 2026-11-22 11:57 NZDT.
-  - Search bar styles: ![Search bar styles on Android](assets/android-qmui-search-bar-styles-api35-20261122.png) Android 15 (API 35) emulator `CYL_QPort_API35`, macOS 27.3, AGP 9.2.1, Kotlin 2.2.20, core commit f2f2ffa, 2026-11-22 11:58 NZDT.
-  - Short list (I4, real drags with `adb shell input swipe`: 40 px settles hidden, 110 px settles fully shown): ![Short list on Android](assets/android-qmui-search-short-list-api35-20261122.png) Android 15 (API 35) emulator `CYL_QPort_API35`, macOS 27.3, AGP 9.2.1, Kotlin 2.2.20, core commit f2f2ffa, 2026-11-22 11:59 NZDT.
+  - Search controller: ![Search controller on Android](assets/android-qmui-search-controller-api35-20261122.png) Android 15 (API 35) emulator `CYL_QPort_API35`, macOS 27.3, AGP 9.2.1, Kotlin 2.2.20, core commit f2f2ffa, pins tabbar ace1af0, classifymenu 881476a, placeholder c473fdc, 2026-11-22 11:57 NZDT.
+  - Search bar styles: ![Search bar styles on Android](assets/android-qmui-search-bar-styles-api35-20261122.png) Android 15 (API 35) emulator `CYL_QPort_API35`, macOS 27.3, AGP 9.2.1, Kotlin 2.2.20, core commit f2f2ffa, pins tabbar ace1af0, classifymenu 881476a, placeholder c473fdc, 2026-11-22 11:58 NZDT.
+  - Short list (I4, real drags with `adb shell input swipe`: 40 px settles hidden, 110 px settles fully shown): ![Short list on Android](assets/android-qmui-search-short-list-api35-20261122.png) Android 15 (API 35) emulator `CYL_QPort_API35`, macOS 27.3, AGP 9.2.1, Kotlin 2.2.20, core commit f2f2ffa, pins tabbar ace1af0, classifymenu 881476a, placeholder c473fdc, 2026-11-22 11:59 NZDT.
 - **Score: 92 / 100**: rows and example 40/40 (all rows done or N/A with reasons, both screens plus the short list), tests 20/20, core placement and
   defaults unchanged 15/15, screenshots 10/10 (labelled, stitched, originals kept), licenses and strings 5/5, verification depth 2/10 (see TODO).
 - **TODO** (missing 8 points): (1) the back swipe is tested through `OnBackPressedDispatcher`, not with a real predictive-back gesture: the example
   manifest has no `android:enableOnBackInvokedCallback="true"`; add it and check on a gesture-navigation device. (2) No screenshot in dark mode, in
   ja / zh, or with a large font; the strings are tested, the layout is not. (3) E18 `alwaysShowSearchResultsController` is not ported. (4) The animated
   show/hide of the accessory views and Cancel is tested for its end state only, not frame by frame. (5) React Native and Flutter wrapping (bridge
-  surface review) is for those platforms' agents.
+  surface review) is for those platforms' agents. (6) The focus sink of `CYLSearchBarView` is focusable in touch mode on every bar: an invisible Tab stop for a hardware keyboard; make it focusable only inside `hideKeyboard`.
 
 ### HarmonyOS (ArkTS, harmonyos/: library cylsearch, entry example): QMUI search port (2026-11-22)
 
