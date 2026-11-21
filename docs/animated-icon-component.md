@@ -96,8 +96,9 @@ this repository. The document is about the animated component.")
   the change to all of them. My requirement: in the future, adding a new animation type only needs a change to this
   component, and every component that shows animations supports the new type with no change in a second place."
 - **Status (2026-11-17)**: step 1 DONE, step 2 DONE on every platform (iOS, Android, HarmonyOS, the mini program; React
-  Native and Flutter through the native cores), step 3 TODO. Nothing is compiled or run here (no Xcode, no Android SDK,
-  no DevEco Studio, no WeChat DevTools): see "Unverified".
+  Native and Flutter through the native cores), step 3 TODO (DONE another way on 2026-11-19, "Step 3" below; every platform
+  built and run since, row 37). Nothing was compiled or run when this status was written (no Xcode, no Android SDK, no DevEco
+  Studio, no WeChat DevTools): see "Unverified".
 
 ### Step 1: DONE (2026-11-17), CollectionViewClassifyMenu `1e43253` + `a0c8232`
 

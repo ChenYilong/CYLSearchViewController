@@ -589,6 +589,29 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
         setNeedsLayout()
     }
 
+    // A drag of a tag or a smear selection: Dart claims the pointer in the gesture arena while it lasts
+    // (didChangeDragging), so a Flutter scroll view around the list does not scroll with it, as on Android.
+    private var reordering = false
+    private var smearing = false
+    private var reportedDragging = false
+
+    func menu(_ menu: Any, didChangeReordering reordering: Bool) {
+        self.reordering = reordering
+        reportDragging()
+    }
+
+    func menu(_ menu: Any, didChangeSmearing smearing: Bool) {
+        self.smearing = smearing
+        reportDragging()
+    }
+
+    private func reportDragging() {
+        let dragging = reordering || smearing
+        guard dragging != reportedDragging else { return }
+        reportedDragging = dragging
+        channel.invokeMethod("didChangeDragging", arguments: ["dragging": dragging])
+    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
         tagListView.frame = bounds

@@ -99,7 +99,7 @@ When an Objective-C to Swift change of the core breaks an example's build, fix t
 - Result: appended to this file, `docs/swift-coding-standard.md`, `AGENTS.md`, `instructions.md` and the `cyl-*`
   skills that mention the Swift migration (additions only).
 
-## TODO (2026-11-20): continue the Swift migration: this repository's example app, legacy demo app and tests
+## DONE (2026-11-21; TODO 2026-11-20): continue the Swift migration: this repository's example app, legacy demo app and tests
 
 - **Branch**: `feat/harmonyos-parity`. Owner: the macOS session (iOS, platform rule).
 - **Prompt (verbatim)**: "continue swift migration", answered "Both" to "which Swift migration: CYLSearchViewController
@@ -122,6 +122,9 @@ When an Objective-C to Swift change of the core breaks an example's build, fix t
 |:---|:---|:---|
 | 0: logged | 4,139 | 0/100 |
 | 1: example app (`main.m`, app and scene delegate, `CYLSearchBarDemoViewController`, `CYLSearchDemoMenuViewController` with the placeholder gallery and the SVGA header) → Swift; the three classes the tests use are `public` (the app has no bridging header) | 3,618 | 12/100 |
+| 2: the legacy demo app `CYLSearchViewController/` replaced by the Swift `CYLOriginalSearchDemoViewController` (checked against the GIF on the simulator) and removed (`726a2da`) | 2,057 | 50/100 |
+| 3: `CYLSearchViewControllerTests` (the legacy app's empty test target, in no Xcode target) removed with it (`726a2da`) | 2,010 | 51/100 |
+| 4: `CYLSearchExampleTests.m` (2,010 lines) → six Swift files (`CYLSearchExampleTestSupport.swift` and five `XCTestCase` subclasses, 2,097 lines), with `CYLSearchCoreObjectiveCSmokeTests.m` (59 lines, 3 tests) kept by the plan | 59 (the smoke test, kept on purpose) | 100/100 |
 
   Step 1 notes: the `performSelector` / `NSClassFromString` detours to Swift classes are plain calls now; cells keep
   `textLabel` / `imageView` (a first pass with cell content configurations left `textLabel` empty and failed
@@ -153,5 +156,28 @@ When an Objective-C to Swift change of the core breaks an example's build, fix t
   (screenshots on the simulator), the other platforms' row for `showsSuggestionCacheHeader` in `core-todo.md` (DONE
   2026-11-21, Windows: Android, HarmonyOS, the mini program, Flutter and React Native, `efb3b78`), then
   delete the legacy Objective-C files in `CYLSearchViewController/` and `CYLSearchViewControllerTests/` (score at that point).
-- **Status**: TODO, step 2 in progress (page built, GIF comparison and legacy removal left). Score: 12/100 (Objective-C
-  lines left 3,618; they drop when the legacy files go).
+- **Step 2 and 3 done (2026-11-21, macOS session, `726a2da`, iPhone 18 Pro simulator, iOS 27.2, Xcode 27.2)**: the running page
+  compared with the GIF state by state (zh-Hans). Fixed on the way, in the example: the field sat on a black strip in a dark
+  field (now `systemGroupedBackground` behind a `secondarySystemGroupedBackground` field, white in light mode, as the GIF);
+  the search showed a back arrow and no Cancel (now `showsCancelButton` with "取消" and `navigationIcon = .none`); the
+  history rows were transparent over the sky (now white rows through `suggestionCellConfiguration`; the sky shows only
+  below the list). Same as the GIF: the blue bar and its title, the placeholder, the history newest first with
+  "清除搜索历史" below it, the results header "与Gf有关的咨询" with "测试1❤️" to "测试4❤️", the result page with its centred
+  "Button". Different by platform: the iOS 26 Liquid Glass back button shows a chevron without the "返回" title (the title is
+  still set). `testOriginalDemoRebuiltOnTheCore` now also submits a term and checks the results, the header, the history row
+  (white) and the clear button. Then the legacy app (`AppDelegate`, `main.m`, `Class/`, `Base.lproj`, `Info.plist`: 1,653
+  Objective-C lines in no target) and `CYLSearchViewControllerTests/` (47) were removed; `CYLSearchViewController/` keeps
+  the app's `Images.xcassets`, `CYLLaunchScreen.storyboard` and the GIF. 37 of 37 tests pass.
+  ![The original demo rebuilt on CYLSearchView, 726a2da, 2026-11-21](assets/ios-iphone18pro-20261121-original-demo-vs-gif.png)
+  (iOS 27.2 simulator, iPhone 18 Pro, Xcode 27.2 27B52, macOS 27, CYLSearchViewController `726a2da`, 2026-11-21 23:50 +13:00.)
+- **Step 4 done (2026-11-21, macOS session)**: the 37 tests are Swift, one `XCTestCase` per area on a shared base class
+  (`CYLSearchExampleTestCase`, the suggestion cache reset of the old `setUp`): search view and placeholders (10), search bar,
+  demo rows, tab bar and covers (8), parity, suggestions, multiple mode and ports (6), contact tags and editing bar (6),
+  cache, focus, tag suggestions and items (7). `@testable import CYLSearchExample` replaces the `performSelector` /
+  `NSClassFromString` detours; 12 KVC or selector calls stay, each on a private member (`toggleManaging`, the core's
+  internal `maximumCount` and a private `item`), with a comment. Assertions kept one for one (a nil check became
+  `XCTUnwrap` where the test cannot go on without the value; pointer comparisons became `XCTAssertIdentical`).
+  `CYLSearchCoreObjectiveCSmokeTests.m` calls `CYLSearchBarView`, `CYLSearchView` and `CYLSearchResources` from Objective-C.
+  40 of 40 tests pass (37 Swift, 3 Objective-C; iPhone 18 Pro simulator, iOS 27.2, Xcode 27.2).
+- **Status**: DONE (2026-11-21). Score: 100/100. Objective-C left on purpose: the 59-line smoke test, and the React Native
+  bridges (`CrossPlatform/react-native-cylsearch/ios/*.mm`, Objective-C++ for Fabric), out of scope from the start.

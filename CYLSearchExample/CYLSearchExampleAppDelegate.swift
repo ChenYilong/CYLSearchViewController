@@ -92,9 +92,13 @@ public final class CYLSearchExampleAppDelegate: UIResponder, UIApplicationDelega
             CYLTabBarControllerTitlePositionAdjustment: NSValue(uiOffset: UIOffset(horizontal: 0, vertical: -2)),
             CYLTabBarControllerPlusButton: [
                 CYLTabBarItemTitle: cylSearchTabTitle("tab.searchBar"),
-                CYLTabBarItemImage: UIImage(systemName: "plus.circle.fill") as Any,
+                CYLTabBarItemImage: UIImage(named: "CYLPlusButton") as Any,
                 CYLTabBarItemIdentifier: "plus",
                 CYLTabBarItemPageIdentifier: "plus",
+                // Raised above the bar, as in CYLTabBarConfiguration.json (AGENTS.md, "Raised plus button").
+                CYLPlusButtonAlignsTitle: false,
+                CYLPlusButtonSize: NSValue(cgSize: CGSize(width: 64, height: 84)),
+                CYLPlusButtonCenterYMultiplier: 0.3,
             ],
         ])
     }

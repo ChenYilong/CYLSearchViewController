@@ -82,7 +82,7 @@ CollectionViewClassifyMenu).
 | SDK | compileSdk / targetSdk 35, minSdk 23 |
 | Repository | [`ffac758`](https://github.com/ChenYilong/CYLSearchViewController/commit/ffac758) on `feat/swift-core`; CYLTabBarController `f410fa7`, CollectionViewClassifyMenu `eb3590e` |
 | Taken | 2026-11-12 21:30–21:40 NZDT |
-  - The iOS side is the TODO above (still open, in order).
+  - The iOS side: DONE (2026-11-12, `e1a771a`; the tag-style demos 2026-11-14, the next entry).
 
 ## DONE (2026-11-14; TODO 2026-11-12): tag-style suggestion demos copied from CollectionViewClassifyMenu, iOS first
 
