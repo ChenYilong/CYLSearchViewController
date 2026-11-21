@@ -573,3 +573,17 @@ begins and becomes `DONE` when it ends.
   assets, not from Metro, and a release build fails on Windows: ninja's object paths under
   `react-native-safe-area-context` pass 260 characters even from `C:\cylbuild\repo` (the README's known limit). So
   the run used `react-native bundle` into the mirror's assets, not committed. iOS was not tested (not part of the task).
+
+## TODO (2026-11-22): pin CYLTabBarController ace1af0e and CollectionViewClassifyMenu 1f8c1001 on every platform
+
+- **Branch**: `feat/harmonyos-parity`. Context: CYLTabBarController PR #822 (`CYLAnimatedItemView.style` renamed
+  `itemStyle` on iOS and Android) is merged as `ace1af0e` and contains the Android More-tab fix `c1abdffe`;
+  CollectionViewClassifyMenu `1f8c1001` (`feat/harmony`, PR #26) pins `ace1af0e` (message from its session).
+  Closes the 8-point TODO of "fix every open TODO in docs" and the two 2026-11-20 tab switch entries in
+  `CYLTabBarController-Integration.md`.
+- **Prompt**: none new; it continues "fix all todo in docs" (this session's task log entry of 2026-11-21).
+- **Acceptance**: 100 = every pin file moved (Podfiles, `android/merged/gradle.properties`, `harmonyos/oh-package.json5`
+  and its vendor copies, the mini program `package.json`, the Flutter `pubspec.yaml`); Android, HarmonyOS, mini program,
+  Flutter and React Native build and pass their tests; the quick switch to More checked at the pin with a screenshot.
+  iOS (`Podfile.lock`, builds) is left to the macOS session and CI. 60 = pins moved, Android and HarmonyOS green.
+- **Status**: started.
