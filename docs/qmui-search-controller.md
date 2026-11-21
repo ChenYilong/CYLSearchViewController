@@ -564,3 +564,23 @@ Screenshots to take (originals, not downscaled, `docs/assets/`, stitched with he
 placeholder, both accessories and Cancel shown, searching with the margins (4 panels); "Search controller" at rest, launch view, results with the highlight, empty view, history
 after a submit (5 panels); "Short list" shown and hidden after a drag (2 panels). Header: `Platform: WeChat mini program, base library 3.6.6. Host: <Windows version>. IDE: WeChat DevTools <version>.
 Purpose: ...`; footer: `Result: ... Versions: ... Taken: <date time zone>`; run `sh scripts/check-screenshot-labels.sh`. Then fix what differs, fill the rows above in this section and re-score the 15 device points.
+
+### iOS 17.5 / 26.5 verification (2026-11-22)
+
+Full runs of `xcodebuild test` (new derived data each, `CODE_SIGNING_ALLOWED=NO`) on the iPhone 15 simulator (iOS 17.5), the iPhone 17 Pro simulator (iOS 26.5) and the iPhone 18 Pro simulator (iOS 27.2). Before the fix: iOS 26.5 had 1 failed assertion, iOS 17.5 had 11 assertions in 6 tests, iOS 27.2 none.
+
+| Test (rows) | iOS | Cause | Fix |
+| :--- | :--- | :--- | :--- |
+| `testB9NoGapAboveTheHeaderBar`, `testB9WithCYLSearchControllerNoGapAboveTheHeaderBar`, `testB9ExplicitBackgroundImageWinsWhileSearching`, `testB9ExplicitBarTintWinsWhileSearching` (B9) | 17.5 | Measured on the view tree: a bar at rest as a table header has UIKit's background container at y = 1 px with `clipsToBounds`, so the table (red) reads through as a one pixel line above the bar (rows read 255, 0, 0 at the bar's first row, blue from 1 pt). While searching the container fills the bar. This is a real #950 gap, not a test error; iOS 26.5 and 27.2 do not show it | Core, `CYLSearchBar.fillTopEdge(with:)` (`#available(iOS 26, *)` skips it): the bar's own layer is painted with the background colour (`barTintColor`, the style's colour, or the top left pixel of an image when it is opaque; an alpha below 1 is not filled) behind UIKit's views. Public API only. The plain-UIKit test `testB9NoGapAboveTheHeaderBar` cannot be fixed in the core, so its "rest" state is checked from iOS 26 on only (reason in the test); the three `CYLSearchController` tests check the core on every system |
+| `testB7CancelDoesNotJitterWhenLeavingSearch` line 435 (B7) | 17.5 | A plain `UISearchController`'s Cancel button and field settle by one point at the end of the leave animation (offset 2 to 3); nothing moves back and forth | Test: the offset spread may be 1.5 pt (same rule as `testB7WithCYLSearchControllerCancelDoesNotJitter`, which passed everywhere); the visible behaviour is unchanged |
+| `testB7CancelDoesNotJitterWhenLeavingSearch` line 437 (B7) | 26.5 | One sample read y = 0 (and offset 0): on iOS 26.5 the bar leaves the window for one frame when it returns to the header, so its presentation layer converts to the window origin; the Cancel moves 58 to 112 and then 125, one direction | Test: samples while `bar.window == nil` are skipped |
+| `testCancelledPopThenPushShowsNoResults` lines 403, 404 (E21) | 17.5 | Timing: the search view is still in the window 0.9 s after the second push and gone by 2.4 s (UIKit takes it out later on iOS 17.5); the navigation stack and the pushed screen on top were correct | Test: waits up to 4 s for the search view to leave the window instead of one read at 0.9 s. Not checked: whether the search view was visible over the pushed screen during that time (TODO) |
+
+**Results** (clean derived data, 2026-11-22): iOS 17.5: Executed 123 tests, with 0 failures; iOS 26.5: Executed 123 tests, with 0 failures; iOS 27.2: Executed 123 tests, with 0 failures.
+
+**Not run: iOS 15 and 16.** The iOS 15.0 runtime is not supported on macOS after 14.99 (this host runs macOS 27.3) and no iOS 16 runtime is installed, so the deployment target's lower end is untested.
+
+**TODO**
+- iOS 15, 16 and 18 to 25 unverified; the B9 fill is applied below iOS 26 on the evidence of 17.5 alone.
+- E21 on iOS 17.5: check by touch (and a screenshot) that the search view is not visible over the pushed screen while it is still in the window.
+- The plain-UIKit B9 "rest" gap on iOS 17.5 is not asserted any more; the core test covers the `CYLSearchBar`.

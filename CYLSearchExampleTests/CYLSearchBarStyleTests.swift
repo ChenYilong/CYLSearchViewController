@@ -425,14 +425,17 @@ final class CYLSearchBarStyleTests: CYLSearchExampleTestCase {
         var offsets: [CGFloat] = []
         var cancelY: [CGFloat] = []
         sample(run, for: 0.6) {
-            guard let button = bar.searchTextField.superview?.subviews.compactMap({ $0 as? UIButton }).first,
+            // iOS 26.5 takes the bar out of the window for one frame when it returns to the header: that sample reads y 0.
+            guard bar.window != nil,
+                  let button = bar.searchTextField.superview?.subviews.compactMap({ $0 as? UIButton }).first,
                   let buttonFrame = self.presentationFrame(button, in: run.window),
                   let fieldFrame = self.presentationFrame(bar.searchTextField, in: run.window) else { return }
             offsets.append(buttonFrame.minY - fieldFrame.minY)
             cancelY.append(buttonFrame.minY)
         }
         XCTAssertFalse(offsets.isEmpty, "Cancel was visible while leaving search")
-        XCTAssertTrue(offsets.allSatisfy { abs($0 - offsets[0]) < 0.5 }, "level with the field: \(offsets)")
+        // The offset may settle by one point at the end of the animation (2 to 3 on iOS 17.5); a jitter is a back and forth.
+        XCTAssertLessThanOrEqual((offsets.max() ?? 0) - (offsets.min() ?? 0), 1.5, "level with the field: \(offsets)")
         let steps = zip(cancelY, cancelY.dropFirst()).map { $1 - $0 }
         XCTAssertFalse(steps.contains { $0 > 0.5 } && steps.contains { $0 < -0.5 }, "one direction only: \(cancelY)")
         run.window.isHidden = true
@@ -492,6 +495,10 @@ final class CYLSearchBarStyleTests: CYLSearchExampleTestCase {
                 RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.8))
             }
             let frame = bar.convert(bar.bounds, to: run.window)
+            // iOS 17.5 insets a plain UISearchBar's background by one pixel at rest, so the table reads through (measured:
+            // red at the first row, blue from 1 pt). The core covers it for CYLSearchBar (testB9WithCYLSearchControllerNoGap...,
+            // row B9); a plain UIKit bar cannot be fixed here, so this test checks it from iOS 26 on only.
+            if state == "rest", #unavailable(iOS 26) { continue }
             let rows = pixels(run.window, at: [CGPoint(x: 5, y: frame.minY), CGPoint(x: 5, y: frame.minY + pixel)])
             for row in rows {
                 XCTAssertLessThan(row[0], 100, "\(state): the bar's top rows show no red background: \(row)")
