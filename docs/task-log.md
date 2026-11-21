@@ -700,3 +700,17 @@ begins and becomes `DONE` when it ends.
   (`812cc17`). Review of the 48 code files: the project file wires the six Swift test files and the smoke test, no dangling
   references; the three plus configurations match; the bridges match Android; no finding. CI: run 44901322830 on `a53a704` fully
   green (unit tests included); later commits change only `docs/` and `README.md`. Merged into `feat/harmonyos-parity`.
+
+
+## TODO (2026-11-22): fix the iOS CI failure on feat/harmonyos-parity
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: the iOS workflow fails since the QMUI search port
+  (`1ffabb0`, "CYLSearchBar and CYLSearchBarAppearance in Swift"); runs 44913488301 to 44921717079 (head `6014474`). The
+  jobs "pod lib lint", "Example build and analyze", "Unit tests" and "Example screenshots" all stop at the same compiler
+  error on CI's Xcode 26.6: `Sources/CYLSearchBar/CYLSearchBar.swift:419:70: error: implicit use of 'self' in closure;
+  use 'self.' to make capture semantics explicit` (`bounds.width` inside the `UIView.animate` closure of
+  `setShowsTrailingAccessoryView(_:animated:)`). Xcode 27 on the macOS session accepts it, so it passed locally.
+- **Prompt (verbatim)**: "continue fix todo fix ci error"
+- **Acceptance**: 100 = the core fixed (`self.bounds`), every job of the iOS workflow green on the new head. 60 = the
+  compiler error gone, "pod lib lint" and "Example build and analyze" green.
+- **Status**: in progress.

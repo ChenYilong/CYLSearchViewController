@@ -416,7 +416,7 @@ open class CYLSearchBar: UISearchBar {
                 }
             } else {
                 UIView.animate(withDuration: duration, delay: 0, options: .curveEaseInOut, animations: {
-                    view.transform = CGAffineTransform(translationX: bounds.width - view.frame.minX, y: 0)
+                    view.transform = CGAffineTransform(translationX: self.bounds.width - view.frame.minX, y: 0)
                     self.updateAccessoryMargins()
                 }, completion: { _ in
                     if shows == self.trailingShows { view.isHidden = true }
