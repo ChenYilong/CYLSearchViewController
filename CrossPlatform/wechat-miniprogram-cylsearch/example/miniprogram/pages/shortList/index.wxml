@@ -1,0 +1,12 @@
+<view class="page">
+  <cyl-demo-nav title="{{title}}" />
+  <cyl-search id="search" class="host" generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga" style="height: {{hostHeight}}px" showsSearchBar showsContent snapsHeaderSearchBar
+    results="{{results}}" placeholder="{{placeholder}}" cacheName="CYLSearchShortList" navigationIcon="none"
+    bind:updateresults="onUpdateResults">
+    <view slot="content" class="short">
+      <view wx:for="{{rows}}" wx:key="*this" class="cell" role="button" aria-label="{{item}}">
+        <text class="cell-title">{{item}}</text>
+      </view>
+    </view>
+  </cyl-search>
+</view>

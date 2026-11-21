@@ -1,0 +1,5 @@
+@import "/utils/cyl_table.wxss";
+.page { height: 100vh; overflow: hidden; background: #fff; }
+.host { display: block; }
+.short { background: #fff; }
+@media (prefers-color-scheme: dark) { .page, .short { background: #000; } }

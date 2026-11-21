@@ -18,7 +18,10 @@
     "pages/multiSearch/index",
     "pages/contactTags/index",
     "pages/contactTagEditor/index",
-    "pages/contactList/index"
+    "pages/contactList/index",
+    "pages/searchBarStyles/index",
+    "pages/searchController/index",
+    "pages/shortList/index"
   ],
   "window": {
     "navigationStyle": "custom",
