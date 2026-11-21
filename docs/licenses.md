@@ -54,4 +54,9 @@ any other) ships its license declaration inside the package, in the package's re
     commit, Gradle should write them into this POM (a project dependency with one publication is named by it); check the
     POM then. Tried locally at `663c828` (2026-11-21, not committed): configuration fails. Its `android/placeholder` reads
     CYLTabBarController's version only from an included build, and this repository includes `:cylanimateditem` as a
-    subproject. Reported to that session; the pin stays at `c84fce9`.
+    subproject. Reported to that session; the pin stays at `c84fce9`. Fixed there in `3ae8a3a`: checked here (local pin,
+    not committed), it configures, `:cylsearch` 26 of 26 and the example builds. Its publishing lives in its root build,
+    which this build does not evaluate, so `cylsearch`'s POM maps the two modules to the chosen coordinates itself
+    (`pom.withXml` in `cylsearch/build.gradle.kts`): the POM now names `io.github.chenyilong:cyltableviewplaceholder:0.1.0`
+    and `io.github.chenyilong:cyltableviewplaceholder-refresh:0.1.0` (checked with `publishReleasePublicationToBuildRepository`).
+    Before a release they must be on Maven Central, as must `io.github.chenyilong:cyltabbarcontroller-animateditem`.
