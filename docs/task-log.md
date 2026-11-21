@@ -522,3 +522,25 @@ begins and becomes `DONE` when it ends.
   pushed) and every group 3 item says why it is blocked and who owns it; 60 = group 1 and at least four of the six
   group 2 items.
 - **Status**: started (2026-11-21). Score 0/100.
+
+## TODO (2026-11-21): fix every iOS / Swift TODO in docs/ and test with Xcode
+
+- **Branch**: `fix/ios-swift-todos` (from `feat/harmonyos-parity`, pull request 11). macOS 27 session, Xcode 27.2, a
+  dedicated iPhone simulator. Built from an APFS worktree (`/tmp/xpr/csvc-ios`; the vault volume is exFAT).
+- **Context**: the Windows session's "fix every open TODO in docs/" (above) left group 3 to the macOS session. The
+  iOS / Swift items open on 2026-11-21:
+  1. `CYLTabBarController-Integration.md`, Status: Quick Help and the generated interface of `Sources/CYLSearchBar` not
+     measured on Xcode.
+  2. `CYLTabBarController-Integration.md`, raised plus button: the iOS example's plus button
+     (`CYLSearchExample/CYLTabBarConfiguration.json`) is not raised; `CYLPlusButtonAlignsTitle` false is the fix React
+     Native proved.
+  3. `CYLTabBarController-Integration.md`, tab switch mid-animation: the iOS More tab check (more than five tabs).
+  4. `CYLTabBarController-Integration.md`, tag list drag: Flutter iOS forwards the drag state.
+  5. `swift-migration.md`: steps 2 (GIF comparison, legacy removal) to 4 (`CYLSearchViewControllerTests`,
+     `CYLSearchExampleTests` in Swift, an Objective-C smoke test of the public API kept).
+- **Requirements**: fix every iOS / Swift TODO in `docs/`; test with Xcode (build, unit tests, simulator runs with
+  labelled screenshots); follow AGENTS.md (core first, examples have the lowest weight, scores in each document).
+- **Prompt (verbatim)**: "fix all todo in docs about ios/swift and test with  Xcode"
+- **Prompt (English)**: "Fix all the TODOs in docs about iOS/Swift and test with Xcode."
+- **Status**: started (2026-11-21). Score 0/100 (100 = items 1 to 5 done with evidence, or blocked with the reason and
+  the owner).
