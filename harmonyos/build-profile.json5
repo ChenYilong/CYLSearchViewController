@@ -13,7 +13,8 @@
     ],
     "buildModeSet": [
       { "name": "debug" },
-      { "name": "release" }
+      { "name": "release" },
+      { "name": "emulatorTest" }
     ]
   },
   "modules": [
