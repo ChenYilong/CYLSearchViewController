@@ -636,9 +636,13 @@ begins and becomes `DONE` when it ends.
 - **Acceptance**: 100 = both pins moved in every file (Podfiles, Gradle, HarmonyOS, mini program) with the vendor copies
   synced; Android, HarmonyOS (hypium on the emulator), mini program, Flutter and React Native tests pass. 60 = pins moved,
   HarmonyOS green.
-- **Status**: in progress.
-
-- **Status**: started.
+- **Status**: DONE (2026-11-22), score 100/100 (iOS: the macOS session moved the `Podfile.lock` files to `a169386` in `a53a704`; `pod install` at these two pins is theirs). Both pins
+  moved in the three Podfiles, `android/merged/gradle.properties`, `harmonyos/oh-package.json5` and the mini program
+  `package.json`; `sync-sub-repositories.sh` and `npm run sync-example` synced the vendor copies. Android `:cylsearch`
+  26 of 26 (re-run with `--rerun`: the Android sources of both sub-repositories are unchanged); HarmonyOS both HAPs build
+  from a clean mirror, hypium 29 of 29 on the Mate 70 Pro emulator, host logic tests 30 of 30; mini program 61 of 61;
+  Flutter 18 of 18 and 3 of 3; React Native jest 4 of 4; `check-licenses.sh` OK. The Flutter and React Native examples
+  were not rebuilt: neither pin changes Android, Dart or JavaScript code they use.
 
 ## DONE (2026-11-22; TODO 2026-11-21): fix every iOS / Swift TODO in docs/ and test with Xcode
 
