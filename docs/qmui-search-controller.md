@@ -429,27 +429,27 @@ cells say TODO until the platform's agent reports the file and test.
 
 | iOS source API | Description | Android (Kotlin) | HarmonyOS (ArkTS) | Mini program | React Native | Flutter |
 | --- | --- | --- | --- | --- | --- | --- |
-| `CYLSearchBar.centersPlaceholder` | placeholder centred at rest, leading while editing | TODO | TODO | TODO | TODO | TODO |
-| `placeholder` / `placeholderColor` / `textColor` / `font` | text and placeholder style | TODO | TODO | TODO | TODO | TODO |
-| `textFieldMargins` / `textFieldMarginsProvider(bar, active)` | field margins at rest and while searching | TODO | TODO | TODO | TODO | TODO |
-| `cancelButtonMarginsProvider(bar, active)` / `cancelButtonFont` | Cancel position and font | TODO | TODO | TODO | TODO | TODO |
-| `showsCancelButton` + `setShowsCancelButton(_:animated:)` | Cancel shown or hidden, animated | TODO | TODO | TODO | TODO | TODO |
-| `leadingAccessoryView` / `trailingAccessoryView` + margins + `setShows…(_:animated:)` | views beside the field, animated | TODO | TODO | TODO | TODO | TODO |
-| `CYLSearchBarAppearance` | merged default style (colours, field background, icons) | TODO | TODO | TODO | TODO | TODO |
-| `CYLSearchController.launchView` | own view under the bar while the query is empty | TODO | TODO | TODO | TODO | TODO |
-| `dimmingColor` | own dimming under the bar, tap ends the search | TODO | TODO | TODO | TODO | TODO |
-| `searchResultsDelegate.updateResultsFor` (also "") | results callback on every text change | TODO | TODO | TODO | TODO | TODO |
-| will/did present/dismiss callbacks | presentation life cycle | TODO | TODO | TODO | TODO | TODO |
-| `isActive` / `setActive(_:animated:)` | start or end the search from code | TODO | TODO | TODO | TODO | TODO |
-| `showEmptyView(text:…)` / `hideEmptyView()` / `isEmptyViewShowing` | "No matching results" in the results | TODO | TODO | TODO | TODO | TODO |
-| `historyStore` + `historyDidChangeNotification` | submitted queries kept; the launch view reads them again while on screen | TODO | TODO | TODO | TODO | TODO |
-| `supportsSwipeToDismissSearch` | edge swipe ends the search | TODO | TODO | TODO | TODO | TODO |
-| `CYLSearchTableViewController.showsSearchBar` / `hidesSearchBarInitially` / `hidesSearchBarWhenEmptyViewShowing` | list screen with a built-in bar | TODO | TODO | TODO | TODO | TODO |
-| `snapsHeaderSearchBar` (I4, #1160) | a header bar above a short list settles fully shown or hidden | TODO | TODO | TODO | TODO | TODO |
-| I1–I3, I5 (#1319, #1251, #1229, #1313) | UIKit defects | TODO (N/A?) | TODO (N/A?) | TODO (N/A?) | TODO (N/A?) | TODO (N/A?) |
-| Screen "Search controller" | replica of `QDSearchViewController` (keywords, launch view, ×20 results, highlight, empty view, history) | TODO | TODO | TODO | TODO | TODO |
-| Screen "Search bar styles" | replica of `QDSearchBarViewController` (Placeholder, Layout, AccessoryView sections) | TODO | TODO | TODO | TODO | TODO |
-| Screens "Navigation item", "Bar in a view", "Short list", "Collection view" | issue scenarios | TODO | TODO | TODO | TODO | TODO |
+| `CYLSearchBar.centersPlaceholder` | placeholder centred at rest, leading while editing | `CYLSearchBarView.centersPlaceholder` | `CYLSearchBarView.centersPlaceholder` | bar `centersPlaceholder` | TODO | TODO |
+| `placeholder` / `placeholderColor` / `textColor` / `font` | text and placeholder style | existing `CYLSearchBarView` properties (+ `tintColor`) | existing `CYLSearchBarView` properties | existing bar properties (`fontSize`) | TODO | TODO |
+| `textFieldMargins` / `textFieldMarginsProvider(bar, active)` | field margins at rest and while searching | `textFieldMargins`, `textFieldMarginsProvider` | `textFieldMargins`, `textFieldMarginsProvider` | `textFieldMargins`, `activeTextFieldMargins`, `setTextFieldMarginsProvider(fn)` | TODO | TODO |
+| `cancelButtonMarginsProvider(bar, active)` / `cancelButtonFont` | Cancel position and font | `cancelButtonMargins(Provider)`, `cancelButtonFont` | `cancelButtonMarginsProvider`, `cancelButtonFont` | `(active)CancelButtonMargins`, `cancelButtonFont`, `setCancelButtonMarginsProvider(fn)` | TODO | TODO |
+| `showsCancelButton` + `setShowsCancelButton(_:animated:)` | Cancel shown or hidden, animated | `setShowsCancelButton(shows, animated)` | `showsCancelButton`, `setShowsCancelButton` | `setShowsCancelButton(shows, animated)` | TODO | TODO |
+| `leadingAccessoryView` / `trailingAccessoryView` + margins + `setShows…(_:animated:)` | views beside the field, animated | `leading/trailingAccessoryView` + margins + `setShows…(animated)` | `CYLSearchBarView` accessories + margins + animated toggles | slots `leading-accessory` / `trailing-accessory` + `setShows…View` | TODO | TODO |
+| `CYLSearchBarAppearance` | merged default style (colours, field background, icons) | `CYLSearchBarAppearance.kt`, `appearanceStyle` | `CYLSearchBarAppearance`, `appearanceStyle` (opt-in) | `CYLSearchBarAppearance.default()` + bar `appearance` | TODO | TODO |
+| `CYLSearchController.launchView` | own view under the bar while the query is empty | `CYLSearchView.launchView` | `CYLSearchView.launchView` | `search` `showsLaunchView` + slot `launch-view` | TODO | TODO |
+| `dimmingColor` | own dimming under the bar, tap ends the search | `CYLSearchView.dimmingColor` | `CYLSearchView.dimmingColor` | `search` `dimmingColor` | TODO | TODO |
+| `searchResultsDelegate.updateResultsFor` (also "") | results callback on every text change | `searchViewUpdateResults` | `searchViewUpdateResults` | event `updateresults` | TODO | TODO |
+| will/did present/dismiss callbacks | presentation life cycle | `searchViewWillShow/DidShow/WillClose/DidClose` | `searchViewWillShow/WillClose` + existing did callbacks | events `willpresent` … `diddismiss` (did: timer-based) | TODO | TODO |
+| `isActive` / `setActive(_:animated:)` | start or end the search from code | `isActive` / `setActive` | `isActive` / `setActive` | `isActive()` / `setActive()` | TODO | TODO |
+| `showEmptyView(text:…)` / `hideEmptyView()` / `isEmptyViewShowing` | "No matching results" in the results | same names on `CYLSearchView` | same names on `CYLSearchView` | same names on `search` | TODO | TODO |
+| `historyStore` + `historyDidChangeNotification` | submitted queries kept; the launch view reads them again while on screen | `suggestionCache` + `add/removeHistoryDidChangeListener` | `historyStore`, `historyRevision`, `searchViewHistoryDidChange` | `history()`, `clearHistory()`, event `historychange` | TODO | TODO |
+| `supportsSwipeToDismissSearch` | edge swipe ends the search | `supportsSwipeToDismissSearch` (predictive back) | N/A: the system back gesture ends the search (`handleBackPress`) | `supportsSwipeToDismissSearch` (left-edge touch) | TODO | TODO |
+| `CYLSearchTableViewController.showsSearchBar` / `hidesSearchBarInitially` / `hidesSearchBarWhenEmptyViewShowing` | list screen with a built-in bar | new `CYLSearchListView` | `CYLSearchTableView` / `CYLSearchTableComponent` | `search` list-screen mode | TODO | TODO |
+| `snapsHeaderSearchBar` (I4, #1160) | a header bar above a short list settles fully shown or hidden | `CYLSearchListView.snapsHeaderSearchBar` | `snapsHeaderSearchBar` (emulator drags checked) | `search` `snapsHeaderSearchBar` (drag not run: Windows TODO) | TODO | TODO |
+| I1–I3, I5 (#1319, #1251, #1229, #1313) | UIKit defects | N/A: UIKit defects | N/A: UIKit defects | N/A: UIKit defects | TODO (N/A?) | TODO (N/A?) |
+| Screen "Search controller" | replica of `QDSearchViewController` (keywords, launch view, ×20 results, highlight, empty view, history) | `CYLSearchControllerDemoFragment` | `demos/SearchController.ets` | `pages/searchController` (device test: Windows TODO) | TODO | TODO |
+| Screen "Search bar styles" | replica of `QDSearchBarViewController` (Placeholder, Layout, AccessoryView sections) | `CYLSearchBarStylesFragment` | `demos/SearchController.ets` | `pages/searchBarStyles` (device test: Windows TODO) | TODO | TODO |
+| Screens "Navigation item", "Bar in a view", "Short list", "Collection view" | issue scenarios | "Short list" (`CYLSearchShortListFragment`); others N/A | N/A (I4 checked on the replica lists) | "Short list"; others N/A | TODO | TODO |
 
 Order: Android, HarmonyOS and the mini program first (native cores); React Native and Flutter after, since they wrap the
 native iOS and Android cores. Score per platform: 100 = every row done or N/A with the reason, both replica screens,
