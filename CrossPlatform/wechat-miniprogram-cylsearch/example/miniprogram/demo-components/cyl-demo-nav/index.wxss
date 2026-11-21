@@ -1,0 +1,13 @@
+.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; background: rgba(249, 249, 249, 0.94); border-bottom: 1px solid rgba(0, 0, 0, 0.12); }
+.nav-row { position: relative; display: flex; align-items: center; box-sizing: border-box; }
+.nav-leading, .nav-trailing { flex: none; display: flex; align-items: center; height: 100%; min-width: 8px; }
+.nav-title { flex: 1; min-width: 0; padding: 0 4px; text-align: center; font-size: 17px; font-weight: 600; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nav-button { padding: 0 12px; color: #007aff; font-size: 17px; line-height: 44px; }
+.nav-back { display: flex; align-items: center; justify-content: center; width: 40px; height: 44px; }
+.nav-icon { width: 22px; height: 22px; background-color: #007aff; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; }
+.nav-icon-back { -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><path d='M15 4l-8 8 8 8'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'><path d='M15 4l-8 8 8 8'/></svg>"); }
+.nav-icon-search { -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'><circle cx='10.5' cy='10.5' r='6.5'/><path d='M15.5 15.5L21 21'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'><circle cx='10.5' cy='10.5' r='6.5'/><path d='M15.5 15.5L21 21'/></svg>"); }
+@media (prefers-color-scheme: dark) {
+  .nav { background: rgba(29, 29, 31, 0.94); border-color: rgba(255, 255, 255, 0.15); }
+  .nav-title { color: #fff; }
+}

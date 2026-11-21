@@ -1,0 +1,66 @@
+// The resources module (src/core/CYLSearchResources.js): strings, formats, navigation metrics and the suggestion cache.
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const {
+  CYLSearchResources, CYLSearchSuggestionCachePolicy, CYLSearchSuggestionCache, cylSuggestionCache, cylFormatString,
+  cylNavigationMetricsFrom,
+} = require('../src/core/CYLSearchResources');
+
+function memoryStorage() {
+  const values = {};
+  return { getSync: (key) => values[key], setSync: (key, value) => { values[key] = value; }, values };
+}
+
+test('strings fall back to English, then to the key; language tags map to the tables', () => {
+  assert.equal(CYLSearchResources.localizedString(null, 'search.cancel', 'ja'), 'キャンセル');
+  assert.equal(CYLSearchResources.localizedString(null, 'search.cancel', 'fr'), 'Cancel');
+  assert.equal(CYLSearchResources.localizedString(null, 'no.such.key', 'en'), 'no.such.key');
+  assert.equal(CYLSearchResources.languageFor('zh_TW'), 'zh-Hant');
+  assert.equal(CYLSearchResources.languageFor('zh-Hans-CN'), 'zh-Hans');
+  assert.equal(CYLSearchResources.imageNamed('camera'), '../images/camera.svg');
+  assert.equal(CYLSearchResources.imageNamed('nothing'), undefined);
+});
+
+test('formats keep the iOS and Android forms', () => {
+  assert.equal(cylFormatString('Search %1$d of %2$d', [1, 3]), 'Search 1 of 3');
+  assert.equal(CYLSearchResources.formatString('%@ and %d%%', ['a', 2]), 'a and 2%');
+});
+
+test('the navigation bar is centered on the menu button and ends before it', () => {
+  const metrics = cylNavigationMetricsFrom({ statusBarHeight: 44, windowWidth: 390 }, { top: 48, height: 32, left: 296, right: 383 });
+  assert.equal(metrics.navigationBarHeight, 40);
+  assert.equal(metrics.trailingInset, 101);
+  assert.equal(cylNavigationMetricsFrom(null, null).navigationBarHeight, 44);
+});
+
+test('every policy keeps submitted queries newest first, without repeats', () => {
+  for (const policy of [CYLSearchSuggestionCachePolicy.database, CYLSearchSuggestionCachePolicy.userDefaults, CYLSearchSuggestionCachePolicy.sandboxFile]) {
+    const store = cylSuggestionCache(policy, 'a', memoryStorage());
+    assert.ok(store instanceof CYLSearchSuggestionCache);
+    store.addQuery('Swift');
+    store.addQuery('Kotlin');
+    store.addQuery(' Swift ');
+    store.addQuery('   ');
+    assert.deepEqual(store.cachedQueries(), ['Swift', 'Kotlin']);
+    store.removeQuery('Swift');
+    assert.deepEqual(store.cachedQueries(), ['Kotlin']);
+    store.removeAllQueries();
+    assert.deepEqual(store.cachedQueries(), []);
+  }
+  assert.equal(cylSuggestionCache(CYLSearchSuggestionCachePolicy.none, 'a', memoryStorage()), undefined);
+});
+
+test('the cache keeps at most maximumCount queries, separates names and shares the user defaults key', () => {
+  const storage = memoryStorage();
+  const store = cylSuggestionCache(CYLSearchSuggestionCachePolicy.database, 'one', storage);
+  store.maximumCount = 3;
+  ['a', 'b', 'c', 'd'].forEach((query) => store.addQuery(query));
+  assert.deepEqual(store.cachedQueries(), ['d', 'c', 'b']);
+  assert.deepEqual(cylSuggestionCache(CYLSearchSuggestionCachePolicy.database, 'two', storage).cachedQueries(), []);
+  cylSuggestionCache(CYLSearchSuggestionCachePolicy.userDefaults, 'x', storage).addQuery('one');
+  cylSuggestionCache(CYLSearchSuggestionCachePolicy.userDefaults, 'y', storage).addQuery('two');
+  assert.deepEqual(Object.keys(storage.values.CYLSearchSuggestionDefaults).sort(), ['x', 'y']);
+  // The JSON text earlier versions stored is still read.
+  storage.values.CYLSearchSuggestions_old = '["kept"]';
+  assert.deepEqual(cylSuggestionCache(CYLSearchSuggestionCachePolicy.database, 'old', storage).cachedQueries(), ['kept']);
+});

@@ -1,0 +1,156 @@
+PODS:
+  - CollectionViewClassifyMenu (0.1.0):
+    - CYLAnimatedItem
+  - CYLAnimatedItem (1.100.0):
+    - CYLAnimatedItem/Core (= 1.100.0)
+  - CYLAnimatedItem/Core (1.100.0)
+  - CYLAnimatedItem/Engine (1.100.0):
+    - CYLAnimatedItem/Core
+  - CYLAnimatedItem/LottieSwift (1.100.0):
+    - CYLAnimatedItem/Engine
+    - lottie-ios (>= 4.5.1)
+  - CYLAnimatedItem/Rive (1.100.0):
+    - CYLAnimatedItem/Engine
+    - RiveRuntime (~> 6.29)
+  - CYLAnimatedItem/SVGA (1.100.0):
+    - CYLAnimatedItem/Engine
+    - SVGAPlayerLite (>= 1.0.8, ~> 1.0)
+  - CYLSearchViewController (0.1.0):
+    - CollectionViewClassifyMenu
+    - CYLAnimatedItem
+    - CYLTableViewPlaceHolder/Core
+  - CYLTabBarController (1.100.0):
+    - CYLTabBarController/Core (= 1.100.0)
+  - CYLTabBarController/Core (1.100.0):
+    - CYLTabBarController/CYLAnimatedItem
+    - CYLTabBarController/CYLBadgeView
+    - CYLTabBarController/CYLUtils
+  - CYLTabBarController/CYLAnimatedItem (1.100.0):
+    - CYLAnimatedItem/Core (= 1.100.0)
+  - CYLTabBarController/CYLAnimatedItemRive (1.100.0):
+    - CYLAnimatedItem/Rive (= 1.100.0)
+  - CYLTabBarController/CYLAnimatedItemSVGA (1.100.0):
+    - CYLAnimatedItem/SVGA (= 1.100.0)
+  - CYLTabBarController/CYLBadgeView (1.100.0):
+    - CYLTabBarController/CYLUtils
+  - CYLTabBarController/CYLUtils (1.100.0):
+    - CYLAnimatedItem/Core (= 1.100.0)
+  - CYLTabBarController/Rive (1.100.0):
+    - CYLTabBarController/Core
+    - CYLTabBarController/CYLAnimatedItemRive
+  - CYLTabBarController/SVGA (1.100.0):
+    - CYLTabBarController/Core
+    - CYLTabBarController/CYLAnimatedItemSVGA
+  - CYLTableViewPlaceHolder/Core (1.1.0):
+    - CYLAnimatedItem/Core
+  - CYLTableViewPlaceHolder/Lottie (1.1.0):
+    - CYLTableViewPlaceHolder/LottieSwift
+  - CYLTableViewPlaceHolder/LottieSwift (1.1.0):
+    - CYLAnimatedItem/LottieSwift
+    - CYLTableViewPlaceHolder/Core
+  - Flutter (1.0.0)
+  - flutter_cylsearch (0.1.0):
+    - CollectionViewClassifyMenu
+    - CYLSearchViewController
+    - CYLTableViewPlaceHolder/Core
+    - Flutter
+  - flutter_cyltabbar (0.1.0):
+    - CYLTabBarController
+    - Flutter
+  - integration_test (0.0.1):
+    - Flutter
+  - lottie-ios (4.6.1)
+  - Protobuf (3.27.2)
+  - RiveRuntime (6.29.0)
+  - SSZipArchive (2.4.3)
+  - SVGAPlayerLite (1.0.8):
+    - SVGAPlayerLite/Core (= 1.0.8)
+  - SVGAPlayerLite/Core (1.0.8):
+    - SSZipArchive (= 2.4.3)
+    - SVGAPlayerLite/ProtoFiles
+  - SVGAPlayerLite/ProtoFiles (1.0.8):
+    - Protobuf (= 3.27.2)
+
+DEPENDENCIES:
+  - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `1f8c1001442a548916161b72105045a2d5f26ccf`)
+  - CYLAnimatedItem/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `ace1af0e42d90dbfaed28fbd8beebd58e7fb08de`)
+  - CYLAnimatedItem/Rive (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `ace1af0e42d90dbfaed28fbd8beebd58e7fb08de`)
+  - CYLAnimatedItem/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `ace1af0e42d90dbfaed28fbd8beebd58e7fb08de`)
+  - CYLSearchViewController (from `../../../..`)
+  - CYLTabBarController/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `ace1af0e42d90dbfaed28fbd8beebd58e7fb08de`)
+  - CYLTabBarController/Rive (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `ace1af0e42d90dbfaed28fbd8beebd58e7fb08de`)
+  - CYLTabBarController/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `ace1af0e42d90dbfaed28fbd8beebd58e7fb08de`)
+  - CYLTableViewPlaceHolder/Core (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `a169386cf9c9ad5699aab3511e86df97628e43ef`)
+  - CYLTableViewPlaceHolder/Lottie (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `a169386cf9c9ad5699aab3511e86df97628e43ef`)
+  - Flutter (from `Flutter`)
+  - flutter_cylsearch (from `.symlinks/plugins/flutter_cylsearch/ios`)
+  - flutter_cyltabbar (from `.symlinks/plugins/flutter_cyltabbar/ios`)
+  - integration_test (from `.symlinks/plugins/integration_test/ios`)
+  - Protobuf
+  - SVGAPlayerLite
+
+SPEC REPOS:
+  trunk:
+    - lottie-ios
+    - Protobuf
+    - RiveRuntime
+    - SSZipArchive
+    - SVGAPlayerLite
+
+EXTERNAL SOURCES:
+  CollectionViewClassifyMenu:
+    :commit: 1f8c1001442a548916161b72105045a2d5f26ccf
+    :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
+  CYLAnimatedItem:
+    :commit: ace1af0e42d90dbfaed28fbd8beebd58e7fb08de
+    :git: https://github.com/ChenYilong/CYLTabBarController.git
+  CYLSearchViewController:
+    :path: "../../../.."
+  CYLTabBarController:
+    :commit: ace1af0e42d90dbfaed28fbd8beebd58e7fb08de
+    :git: https://github.com/ChenYilong/CYLTabBarController.git
+  CYLTableViewPlaceHolder:
+    :commit: a169386cf9c9ad5699aab3511e86df97628e43ef
+    :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
+  Flutter:
+    :path: Flutter
+  flutter_cylsearch:
+    :path: ".symlinks/plugins/flutter_cylsearch/ios"
+  flutter_cyltabbar:
+    :path: ".symlinks/plugins/flutter_cyltabbar/ios"
+  integration_test:
+    :path: ".symlinks/plugins/integration_test/ios"
+
+CHECKOUT OPTIONS:
+  CollectionViewClassifyMenu:
+    :commit: 1f8c1001442a548916161b72105045a2d5f26ccf
+    :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
+  CYLAnimatedItem:
+    :commit: ace1af0e42d90dbfaed28fbd8beebd58e7fb08de
+    :git: https://github.com/ChenYilong/CYLTabBarController.git
+  CYLTabBarController:
+    :commit: ace1af0e42d90dbfaed28fbd8beebd58e7fb08de
+    :git: https://github.com/ChenYilong/CYLTabBarController.git
+  CYLTableViewPlaceHolder:
+    :commit: a169386cf9c9ad5699aab3511e86df97628e43ef
+    :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
+
+SPEC CHECKSUMS:
+  CollectionViewClassifyMenu: 40b0c983deb345bdc2d0083a8d6d2e9a51d73e2a
+  CYLAnimatedItem: d3177d086f5d5ce295ab12005ae925034611a7f0
+  CYLSearchViewController: 3e9151895e3c991faaf0143e783bd173a9edf924
+  CYLTabBarController: 0a54ec0bcac6aba78794eaf24d8fd3286d36baca
+  CYLTableViewPlaceHolder: 067199f54056c001b64841832293f8a3067e3c86
+  Flutter: 71a624a5bc0c04062bf19101d501e466baf2fb47
+  flutter_cylsearch: dd80a2d8a656b1c334d031da3665a32f7766d103
+  flutter_cyltabbar: d32640e93c40b5e2f9a9f9bbf0a6094143e228db
+  integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
+  lottie-ios: 6467ca7035120c5b0e0acee58bb679cf15875686
+  Protobuf: fb2c13674723f76ff6eede14f78847a776455fa2
+  RiveRuntime: 8d1732229d8e624b0690fef5446a075cd9d344cc
+  SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
+  SVGAPlayerLite: ae073300a9faa016e88a54afa8fec43f54fed682
+
+PODFILE CHECKSUM: 6573efa75c28ec2343d5c875ef0c93366c39fcd2
+
+COCOAPODS: 1.17.0

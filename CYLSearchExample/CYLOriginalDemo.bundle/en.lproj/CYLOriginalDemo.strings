@@ -1,0 +1,9 @@
+/* The original demo (README screenshot) rebuilt on CYLSearchView. */
+"title" = "Weibo @iOS程序犭袁";
+"placeholder" = "Enter a keyword to search";
+"cancel" = "Cancel";
+"clearHistory" = "Clear search history";
+"resultsHeader" = "Consultations about %@";
+"result" = "Test %d ❤️";
+"back" = "Back";
+"button" = "Button";

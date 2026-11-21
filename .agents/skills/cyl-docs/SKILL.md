@@ -58,6 +58,33 @@ description: "Document public integration and reproducible steps for CYLSearchVi
 - Screenshots in `docs/assets/` show search screens with nothing behind the
   search bar (`AGENTS.md`, "Search bar placement").
 
+## Screenshots in docs and README
+
+- Screenshots of local builds and of CI/CD go into the related `docs/` document (images in `docs/assets/`, create
+  a document when none fits), as clear originals with platform, environment (host OS, simulator or emulator, SDK
+  version), repository version or commit link, and date and time.
+- At a key milestone (a `TODO` or `Linux` note can be removed, a PR can be merged, the result works with no known
+  bug or open issue) update the screenshot section of `README.md` (create it if missing): cropped key details, not
+  full screens unless needed, stitched into one image with `scripts/stitch-screenshots.swift`; layout preference:
+  stacked top to bottom, then two columns, then one row of at most three.
+- Correction (user, 2026-11-12): the original wording, "prefer the horizontal arrangement" and "worst is horizontal stitching", contradicted itself; the rule is to prefer the vertical arrangement, one image per row stacked top to bottom.
+- Enforced (added 2026-11-18): every image committed to `docs/assets` (not only stitched ones) is made with
+  `swift scripts/stitch-screenshots.swift` (macOS) or `scripts/stitch-screenshots.ps1` (Windows) with a header and a
+  footer; the document line that links it carries the label (platform, device and OS, SDK / IDE, host OS, commits,
+  date with time zone). `sh scripts/check-screenshot-labels.sh` must pass before every commit that adds an image; CI
+  runs it too. Re-read rules changed since the session began at each task start. Full rule: `AGENTS.md`, "Screenshot
+  labels are enforced".
+
+- Stitched screenshots (added 2026-11-18, replaces the order above): one column over several rows; two columns over
+  several rows when one column would be taller than one phone screen (one full screenshot of the device). A header
+  above and a footer below, in bands of their own that never cover a screenshot, bold, English: header (red) with the
+  platform, simulator or emulator and its OS version, IDE or SDK version, host OS when it matters, library and
+  repository commits, branch, date, and the purpose; a red caption above each panel (state, timing, measured result);
+  footer (dark gray) with the result and what is needed to reproduce. Example: "iOS 27.2, iPhone 17 Pro sim, Xcode
+  27.2, CYLTabBarController dcbfdec6 (ef1d0313), feat/harmony, 2026-11-18. Rive tags at rest (no play)". Tool:
+  `swift scripts/stitch-screenshots.swift --header ... --footer ... --out OUT.png IN.png=caption ...`. Full rule:
+  `AGENTS.md`, "Stitched screenshots: layout, header and footer".
+
 ## Task log before every task
 
 Before any task, log it as `TODO` in the most suitable document in `docs/`
@@ -65,6 +92,9 @@ Before any task, log it as `TODO` in the most suitable document in `docs/`
 (verbatim plus English translation) and a status line. Commit and push it,
 then start; mark it `DONE (YYYY-MM-DD)` with the result when the task ends.
 Full rule: `AGENTS.md`, "Task log before every task".
+Also before any task: check other sessions, mark `TODO` and the branch at the top of the session, write
+acceptance criteria (full marks, pass), score until it passes, end with the missing points as `TODO`s
+(`cyl-task-start`).
 
 - Pick the document by subject: a feature's document first; `task-log.md`
   only when no document fits. Never start a second tracker for the same task.
@@ -72,3 +102,20 @@ Full rule: `AGENTS.md`, "Task log before every task".
   the entry is English.
 - The stale-notes search before a commit skips the open `TODO` of the task in
   progress; every other `TODO` it finds is tested and resolved as before.
+
+## Swift
+
+Swift code follows `docs/swift-coding-standard.md` and the third-party Swift skills in `.agents/skills`
+(`swift-api-design-guidelines`, `swift-language`, `swift-concurrency`, `swift-testing`, `swift-architecture`,
+`uikit`, `uikit-layouting`). The core's translation and its score: `docs/swift-migration.md`.
+
+## Open pull requests and issues of projects we translate
+
+When we translate or port another GitHub project's code (for example `android/`), merge its open pull requests
+(before translating, or translate and merge them afterwards), list its open issues in a `docs/` table (issue link,
+description, fix status `TODO`), fix them in our code and score after every fix until 100; a translation that has not
+started begins at 60. Full rule: `AGENTS.md`, same section.
+
+## Swift core: examples adapt to the core (added 2026-11-13)
+
+When an Objective-C to Swift change of the core breaks an example's build, fix the example: example code has the lowest weight of all code here. Change any example code as needed; never keep a core API, overload, shim or deprecated alias only because an example uses it, and never lower the Swift core's quality (naming, types, optionality, access control) to fit an example. Compatibility matters only for callers outside the examples (published API users). The Swift coding standard (docs/swift-coding-standard.md) decides. Rule and context: [docs/swift-migration.md](../../../docs/swift-migration.md).

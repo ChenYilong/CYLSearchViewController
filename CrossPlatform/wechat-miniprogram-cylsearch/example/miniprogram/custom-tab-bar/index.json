@@ -1,0 +1,8 @@
+{
+  "component": true,
+  "usingComponents": {
+    "cyl-tab-bar": "cyl-tabbar-miniprogram/cyl-tab-bar/index",
+    "cyl-svga": "cyl-svga-miniprogram/cyl-svga/index",
+    "cyl-placeholder": "cyl-tabbar-miniprogram/cyl-animation-placeholder/index"
+  }
+}

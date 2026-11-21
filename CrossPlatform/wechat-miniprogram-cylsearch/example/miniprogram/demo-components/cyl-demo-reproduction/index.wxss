@@ -1,0 +1,6 @@
+.screen { display: flex; flex-direction: column; height: 100vh; background: #fff; }
+.screen-tab { height: calc(100vh - 50px - env(safe-area-inset-bottom)); }
+.list { display: block; flex: 1; min-height: 0; }
+@media (prefers-color-scheme: dark) {
+  .screen { background: #000; }
+}

@@ -1,0 +1,73 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'com.lapism.search'
+    compileSdk 33
+    buildToolsVersion "33.0.0"
+
+    defaultConfig {
+        minSdk 21
+        targetSdk 33
+        versionCode 2002000
+        versionName "2.0.2"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    buildFeatures {
+        viewBinding true
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    publishing {
+        singleVariant('release') {
+            withSourcesJar()
+        }
+    }
+}
+
+dependencies {
+
+    implementation 'androidx.appcompat:appcompat:1.7.0-alpha01'
+    implementation 'com.google.android.material:material:1.8.0-alpha03'
+}
+
+ext {
+    PUBLISH_GROUP_ID = 'io.github.lapism'
+    PUBLISH_VERSION = '2.0.2'
+    PUBLISH_ARTIFACT_ID = 'search'
+    PUBLISH_DESCRIPTION = 'Material You Search component for Android, SearchView'
+    PUBLISH_URL = 'https://github.com/lapism/search'
+    PUBLISH_LICENSE_NAME = 'Apache License'
+    PUBLISH_LICENSE_URL = 'https://github.com/lapism/search/blob/master/LICENSE'
+    PUBLISH_DEVELOPER_ID = 'lapism'
+    PUBLISH_DEVELOPER_NAME = 'Martin Lapiš'
+    PUBLISH_DEVELOPER_EMAIL = 'lapis.martin@gmail.com'
+    PUBLISH_SCM_CONNECTION = 'scm:git:github.com/lapism/search.git'
+    PUBLISH_SCM_DEVELOPER_CONNECTION = 'scm:git:ssh://github.com/lapism/search.git'
+    PUBLISH_SCM_URL = 'https://github.com/lapism/search/tree/master'
+}
+
+apply from: "${rootProject.projectDir}/scripts/publish-module.gradle"

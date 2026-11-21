@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The upstream sample theme (AppTheme in its themes.xml), set on its activities in this manifest. -->
+    <style name="CYLMergedSampleTheme" parent="AppTheme">
+    </style>
+</resources>

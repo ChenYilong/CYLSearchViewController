@@ -1,0 +1,10 @@
+<view class="screen">
+  <cyl-demo-nav title="{{title}}" />
+  <view class="group-header" role="heading">CYLPlaceholderScenarioCatalog</view>
+  <view class="group">
+    <view wx:for="{{rows}}" wx:key="scenario" class="cell" role="button" aria-label="{{item.text}}" data-url="{{item.url}}" bindtap="onRow">
+      <text class="cell-title">{{item.text}}</text>
+      <view class="chevron" aria-hidden="true" />
+    </view>
+  </view>
+</view>

@@ -12,13 +12,17 @@ description: "Install, build, analyze, and test the search sample and its local 
    to iOS 15.0.
 4. Run `xcodebuild analyze` and the test action when available.
    Check the public API comments (`AGENTS.md`, "Comments on public API"):
-   every comment on a public declaration in `Sources/**/*.h` is a three-line
-   `/*!` / ` * …` / ` */` block above it, one-line comments included; none is
+   the core is Swift, `Sources/CYLSearchBar/*.swift` (three files:
+   `CYLSearchBarView.swift`, `CYLSearchView.swift`, `CYLSearchResources.swift`);
+   every comment on a `public` or `open` declaration is a three-line
+   `/**` / ` * …` / ` */` block above it, one-line comments included; none is
    written on one line; there is no trailing `/**< */`, `/*!< */`, `///<` or
    `//`; each public file uses one format; and the format is the official one
-   of its language (table in `AGENTS.md`). Quick check:
-   `grep -nE '///|/\*[*!]<|/\*!.*\*/|;\s*//|,\s*//' Sources/CYLSearchViewController/*.h`
-   must print nothing.
+   of its language (table in `AGENTS.md`). Check:
+   `bash scripts/check-public-api-comments.sh` must pass.
+   The example's refresh goes only through `CYLSearchView`'s refresh API
+   (`setRefreshHandler(_:for:)`, `endRefreshing(in:)`):
+   `grep -rnE 'CYLRefreshNormalHeader|cyl_header' CYLSearchExample` must print nothing.
 5. Launch and exercise the sample before claiming that the UI reproduces the
    issue or verifies its workaround.
 
@@ -70,6 +74,26 @@ shellcheck scripts/*.sh && actionlint
 Name the environment in every report: the GitHub runner (`macos-26` unless
 `MACOS_RUNNER` is set) or the local macOS and Xcode versions.
 
+### Screenshots
+
+Every local build or run screenshot and every CI/CD screenshot is committed and shown in the related `docs/`
+document (`docs/assets/`, create a document when none fits), as a clear original, labeled with:
+
+- the platform (iOS, Android, Flutter, React Native, HarmonyOS, mini program);
+- the environment: host OS version and build, simulator or emulator and its OS version, platform SDK version;
+- this repository's version or commit link;
+- the date and time, with the time zone.
+
+Take them at key milestones: a `TODO` or `Linux` note can be removed, a PR can be merged, or the result works with
+no known bug or open issue. Then update `README.md` (see `cyl-docs`). Full rule: `AGENTS.md`, "Screenshots of builds and CI/CD".
+
+- Enforced (added 2026-11-18): every image committed to `docs/assets` (not only stitched ones) is made with
+  `swift scripts/stitch-screenshots.swift` (macOS) or `scripts/stitch-screenshots.ps1` (Windows) with a header and a
+  footer; the document line that links it carries the label (platform, device and OS, SDK / IDE, host OS, commits,
+  date with time zone). `sh scripts/check-screenshot-labels.sh` must pass before every commit that adds an image; CI
+  runs it too. Re-read rules changed since the session began at each task start. Full rule: `AGENTS.md`, "Screenshot
+  labels are enforced".
+
 ## Search bar placement
 
 A search bar never covers the main view, the view controller's view
@@ -97,3 +121,71 @@ Before any task, log it as `TODO` in the most suitable document in `docs/`
 (verbatim plus English translation) and a status line. Commit and push it,
 then start; mark it `DONE (YYYY-MM-DD)` with the result when the task ends.
 Full rule: `AGENTS.md`, "Task log before every task".
+
+## Swift
+
+Swift code follows `docs/swift-coding-standard.md` and the third-party Swift skills in `.agents/skills`
+(`swift-api-design-guidelines`, `swift-language`, `swift-concurrency`, `swift-testing`, `swift-architecture`,
+`uikit`, `uikit-layouting`). The core's translation and its score: `docs/swift-migration.md`.
+
+## Open pull requests and issues of projects we translate
+
+When we translate or port another GitHub project's code (for example `android/`), merge its open pull requests
+(before translating, or translate and merge them afterwards), list its open issues in a `docs/` table (issue link,
+description, fix status `TODO`), fix them in our code and score after every fix until 100; a translation that has not
+started begins at 60. Full rule: `AGENTS.md`, same section.
+
+## Screenshot stitching order
+
+Stitched screenshots: stacked top to bottom first, then two columns over several rows, then one row of at most
+three. Correction (user, 2026-11-12): the original wording, "prefer the horizontal arrangement" and "worst is horizontal stitching", contradicted itself; the rule is to prefer the vertical arrangement, one image per row stacked top to bottom.
+
+- Stitched screenshots (added 2026-11-18, replaces the order above): one column over several rows; two columns over
+  several rows when one column would be taller than one phone screen (one full screenshot of the device). A header
+  above and a footer below, in bands of their own that never cover a screenshot, bold, English: header (red) with the
+  platform, simulator or emulator and its OS version, IDE or SDK version, host OS when it matters, library and
+  repository commits, branch, date, and the purpose; a red caption above each panel (state, timing, measured result);
+  footer (dark gray) with the result and what is needed to reproduce. Example: "iOS 27.2, iPhone 17 Pro sim, Xcode
+  27.2, CYLTabBarController dcbfdec6 (ef1d0313), feat/harmony, 2026-11-18. Rive tags at rest (no play)". Tool:
+  `swift scripts/stitch-screenshots.swift --header ... --footer ... --out OUT.png IN.png=caption ...`. Full rule:
+  `AGENTS.md`, "Stitched screenshots: layout, header and footer".
+
+## Swift core: examples adapt to the core (added 2026-11-13)
+
+When an Objective-C to Swift change of the core breaks an example's build, fix the example: example code has the lowest weight of all code here. Change any example code as needed; never keep a core API, overload, shim or deprecated alias only because an example uses it, and never lower the Swift core's quality (naming, types, optionality, access control) to fit an example. Compatibility matters only for callers outside the examples (published API users). The Swift coding standard (docs/swift-coding-standard.md) decides. Rule and context: [docs/swift-migration.md](../../../docs/swift-migration.md).
+
+## HarmonyOS
+
+Before the first HarmonyOS build or emulator run on a machine, follow `cyl-harmonyos-setup`: DevEco Studio 6.0.1
+and its SDK paths, the emulator prerequisites (virtualization, Hyper-V, Huawei ID), and the region set to China in
+`country.region.xml` (`<countryregion name="CN"/>`, not `NZ`). Report a HarmonyOS run as unverified when no emulator
+or device was used.
+
+Without an emulator, run the pure logic of the HarmonyOS core on the host: `node harmonyos/scripts/host-logic-test.mjs`
+(Node 22.18 or newer). Keep `harmonyos/cylsearch/src/main/ets/CYLSearchLogic.ets` free of kit imports so it runs there.
+Check that the HarmonyOS strings and placeholder images still match iOS after any iOS resource change:
+`node harmonyos/scripts/check-ios-parity.mjs` (exit code 1 lists what is missing or different).
+Check the HarmonyOS screen-reader labels, touch areas and localization: `node harmonyos/scripts/check-accessibility-i18n.mjs`.
+After CYLTabBarController's string table changes, run `node harmonyos/scripts/import-cyltabbar-localizations.mjs` again.
+UI tests find controls by their accessibility labels and localized texts first (skill `cyl-accessibility-i18n`); a
+control a test cannot find by label is a screen-reader gap to fix in the app first.
+
+## Running scripts: prefer bash (added 2026-11-16)
+
+- Run scripts with bash first: write them as `#!/usr/bin/env bash` files and run them with `bash script.sh`, or pipe
+  a heredoc to `bash` (`bash <<'EOF' … EOF`), instead of typing them straight into the interactive shell.
+- Reason: the default shell here is zsh, and zsh does not split an unquoted variable into words. For example, with
+  `box="10 20 30 40"`, `sips --cropOffset $box …` passes one argument in zsh but four in bash. The error this rule
+  avoids: "zsh doesn't split $box into words either. Running the same measurement as a bash script."
+- In zsh, when a script cannot be used, split explicitly (`${=box}`) or use an array; never rely on word splitting.
+
+## Scrolling and drag gestures: real pointer input (added 2026-11-20)
+
+- miniprogram-automator's `touchstart` / `touchmove` / `tap` are synthetic events and cannot scroll, so they cannot prove a
+  scroll lock. Use real mouse drags in the WeChat DevTools simulator (touch emulation with native scrolling): find the
+  simulator window on the screen, check before every press that the pointer is over it, press, hold, move in steps, release.
+- Read the page's and the list's scroll offsets and the order of the tags, in the same automator connection (a new
+  connection restarts the simulator). Run a control with the protection off: if it does not scroll, the test cannot tell.
+- Cases: a swipe on a tag scrolls; a long press then a drag moves the tag and scrolls nothing; a move before the long press
+  fires scrolls. The lock belongs to the core's content page (`AGENTS.md`, "The core owns the content below the search bar
+  and its scrolling").

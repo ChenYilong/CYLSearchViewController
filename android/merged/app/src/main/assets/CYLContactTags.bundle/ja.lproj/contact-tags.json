@@ -1,0 +1,404 @@
+{
+  "comment": "Demo contact tags (CYLContactTagStore), from CollectionViewClassifyMenu's CYLTagEditorExample tags.json. One file per language; the same ids, in the same order, in every language. A tag's id is its primary key: recentTags, selectedTags and every contact's tags are ids, so a reorder or a rename keeps a tag's contacts.",
+  "version": 2,
+  "tags": [
+    {
+      "id": "t01",
+      "title": "家族"
+    },
+    {
+      "id": "t02",
+      "title": "親戚"
+    },
+    {
+      "id": "t03",
+      "title": "友達"
+    },
+    {
+      "id": "t04",
+      "title": "親友"
+    },
+    {
+      "id": "t05",
+      "title": "大学の同級生"
+    },
+    {
+      "id": "t06",
+      "title": "高校の同級生"
+    },
+    {
+      "id": "t07",
+      "title": "ルームメイト"
+    },
+    {
+      "id": "t08",
+      "title": "ご近所"
+    },
+    {
+      "id": "t09",
+      "title": "同僚"
+    },
+    {
+      "id": "t10",
+      "title": "元同僚"
+    },
+    {
+      "id": "t11",
+      "title": "上司"
+    },
+    {
+      "id": "t12",
+      "title": "顧客"
+    },
+    {
+      "id": "t13",
+      "title": "仕入れ先"
+    },
+    {
+      "id": "t14",
+      "title": "パートナー"
+    },
+    {
+      "id": "t15",
+      "title": "投資家"
+    },
+    {
+      "id": "t16",
+      "title": "採用担当"
+    },
+    {
+      "id": "t17",
+      "title": "プロダクトマネージャー"
+    },
+    {
+      "id": "t18",
+      "title": "デザイナー"
+    },
+    {
+      "id": "t19",
+      "title": "iOS 開発者"
+    },
+    {
+      "id": "t20",
+      "title": "Android 開発者"
+    },
+    {
+      "id": "t21",
+      "title": "フロントエンド開発者"
+    },
+    {
+      "id": "t22",
+      "title": "バックエンド開発者"
+    },
+    {
+      "id": "t23",
+      "title": "運用"
+    },
+    {
+      "id": "t24",
+      "title": "マーケティング"
+    },
+    {
+      "id": "t25",
+      "title": "先生"
+    },
+    {
+      "id": "t26",
+      "title": "医師"
+    },
+    {
+      "id": "t27",
+      "title": "弁護士"
+    },
+    {
+      "id": "t28",
+      "title": "大家さん"
+    },
+    {
+      "id": "t29",
+      "title": "ランニング"
+    },
+    {
+      "id": "t30",
+      "title": "バスケットボール"
+    },
+    {
+      "id": "t31",
+      "title": "写真"
+    },
+    {
+      "id": "t32",
+      "title": "読書会"
+    },
+    {
+      "id": "t33",
+      "title": "旅行"
+    },
+    {
+      "id": "t34",
+      "title": "グルメ"
+    },
+    {
+      "id": "t35",
+      "title": "ハイキング"
+    },
+    {
+      "id": "t36",
+      "title": "音楽"
+    },
+    {
+      "id": "t37",
+      "title": "北京"
+    },
+    {
+      "id": "t38",
+      "title": "上海"
+    },
+    {
+      "id": "t39",
+      "title": "深圳"
+    },
+    {
+      "id": "t40",
+      "title": "杭州"
+    },
+    {
+      "id": "t41",
+      "title": "海外"
+    },
+    {
+      "id": "t42",
+      "title": "結婚式のゲスト"
+    },
+    {
+      "id": "t43",
+      "title": "忘年会"
+    },
+    {
+      "id": "t44",
+      "title": "重要"
+    },
+    {
+      "id": "t45",
+      "title": "よく連絡"
+    },
+    {
+      "id": "t46",
+      "title": "返信待ち"
+    },
+    {
+      "id": "t47",
+      "title": "あまり連絡しない"
+    }
+  ],
+  "recentTags": [
+    "t09",
+    "t12",
+    "t32"
+  ],
+  "selectedTags": [
+    "t01",
+    "t05",
+    "t32"
+  ],
+  "contacts": [
+    {
+      "name": "陳 アレックス",
+      "tags": [
+        "t01",
+        "t03",
+        "t08",
+        "t33",
+        "t34"
+      ]
+    },
+    {
+      "name": "呉 ベラ",
+      "tags": [
+        "t01",
+        "t23",
+        "t26"
+      ]
+    },
+    {
+      "name": "李 クリス",
+      "tags": [
+        "t05",
+        "t10",
+        "t19",
+        "t38",
+        "t39"
+      ]
+    },
+    {
+      "name": "周 ダイアナ",
+      "tags": [
+        "t07",
+        "t17",
+        "t27",
+        "t32"
+      ]
+    },
+    {
+      "name": "王 イーサン",
+      "tags": [
+        "t07",
+        "t09",
+        "t18",
+        "t21"
+      ]
+    },
+    {
+      "name": "林 フィオナ",
+      "tags": [
+        "t02",
+        "t12",
+        "t37",
+        "t40"
+      ]
+    },
+    {
+      "name": "徐 ジョージ",
+      "tags": [
+        "t05",
+        "t09",
+        "t13"
+      ]
+    },
+    {
+      "name": "孫 ハンナ",
+      "tags": [
+        "t30",
+        "t32",
+        "t35"
+      ]
+    },
+    {
+      "name": "趙 イワン",
+      "tags": [
+        "t05",
+        "t07",
+        "t27"
+      ]
+    },
+    {
+      "name": "何 ジュリア",
+      "tags": [
+        "t07",
+        "t38"
+      ]
+    },
+    {
+      "name": "馬 ケビン",
+      "tags": [
+        "t26",
+        "t28",
+        "t29",
+        "t45"
+      ]
+    },
+    {
+      "name": "郭 リリー",
+      "tags": [
+        "t11",
+        "t33",
+        "t37"
+      ]
+    },
+    {
+      "name": "黄 マイク",
+      "tags": [
+        "t15",
+        "t27",
+        "t35",
+        "t37"
+      ]
+    },
+    {
+      "name": "高 ニーナ",
+      "tags": [
+        "t07",
+        "t13",
+        "t14",
+        "t25"
+      ]
+    },
+    {
+      "name": "劉 オスカー",
+      "tags": [
+        "t09",
+        "t43"
+      ]
+    },
+    {
+      "name": "楊 ペニー",
+      "tags": [
+        "t07",
+        "t30",
+        "t36"
+      ]
+    },
+    {
+      "name": "羅 クイン",
+      "tags": [
+        "t30",
+        "t31"
+      ]
+    },
+    {
+      "name": "宋 レイチェル",
+      "tags": [
+        "t08",
+        "t31",
+        "t33",
+        "t34"
+      ]
+    },
+    {
+      "name": "唐 サム",
+      "tags": [
+        "t24",
+        "t28",
+        "t35"
+      ]
+    },
+    {
+      "name": "馮 ティナ",
+      "tags": [
+        "t01",
+        "t16"
+      ]
+    },
+    {
+      "name": "韓 ビクター",
+      "tags": [
+        "t02",
+        "t30"
+      ]
+    },
+    {
+      "name": "曹 ウェンディ",
+      "tags": [
+        "t08",
+        "t29",
+        "t44"
+      ]
+    },
+    {
+      "name": "田中 ゆき",
+      "tags": [
+        "t09",
+        "t19",
+        "t31"
+      ]
+    },
+    {
+      "name": "鄧 ゾーイ",
+      "tags": [
+        "t11",
+        "t19",
+        "t26"
+      ]
+    }
+  ]
+}

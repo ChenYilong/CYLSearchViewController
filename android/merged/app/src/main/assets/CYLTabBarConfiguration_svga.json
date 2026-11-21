@@ -1,0 +1,58 @@
+{
+  "CYLTabBarControllerContext": "CYLSearchExampleAndroid",
+  "CYLTabBarControllerLocalization": {
+    "CYLTabBarLocalizationTableName": "CYLSearchTabs",
+    "CYLTabBarLocalizationBundleName": "CYLSearchTabs.bundle"
+  },
+  "CYLTabBarControllerTabBarItemsAttributes": [
+    {
+      "CYLTabBarItemTitle": "tab.search",
+      "CYLTabBarItemImage": "system:magnifyingglass",
+      "CYLTabBarItemIdentifier": "search",
+      "CYLTabBarItemPageIdentifier": "search",
+      "CYLTabBarSVGAFilePath": "tab_search.svga",
+      "CYLTabBarSVGASize": "{28, 28}"
+    },
+    {
+      "CYLTabBarItemTitle": "tab.examples",
+      "CYLTabBarItemImage": "system:list.bullet",
+      "CYLTabBarItemIdentifier": "examples",
+      "CYLTabBarItemPageIdentifier": "examples",
+      "CYLTabBarSVGAFilePath": "tab_list.svga",
+      "CYLTabBarSVGASize": "{28, 28}"
+    },
+    {
+      "CYLTabBarItemTitle": "tab.listStyle",
+      "CYLTabBarItemImage": "cyl_tab_list_style",
+      "CYLTabBarItemIdentifier": "listStyle",
+      "CYLTabBarItemPageIdentifier": "listStyle",
+      "CYLTabBarSVGAFilePath": "tab_activity.svga",
+      "CYLTabBarSVGASize": "{28, 28}"
+    },
+    {
+      "CYLTabBarItemTitle": "tab.tagStyle",
+      "CYLTabBarItemImage": "cyl_tab_tag_style",
+      "CYLTabBarItemIdentifier": "tagStyle",
+      "CYLTabBarItemPageIdentifier": "tagStyle",
+      "CYLTabBarSVGAFilePath": "tab_chat.svga",
+      "CYLTabBarSVGASize": "{28, 28}"
+    },
+    {
+      "CYLTabBarItemTitle": "tab.discover",
+      "CYLTabBarItemImage": "cyl_tab_discover",
+      "CYLTabBarItemIdentifier": "discover",
+      "CYLTabBarItemPageIdentifier": "discover",
+      "CYLTabBarSVGAFilePath": "tab_home.svga",
+      "CYLTabBarSVGASize": "{28, 28}",
+      "CYLTabBarSVGADarkFilePath": "tab_profile.svga"
+    }
+  ],
+  "CYLTabBarControllerPlusButton": {
+    "CYLTabBarItemTitle": "tab.searchBar",
+    "CYLTabBarItemImage": "system:plus.circle.fill",
+    "CYLTabBarItemIdentifier": "plus",
+    "CYLTabBarItemPageIdentifier": "plus",
+    "CYLPlusButtonSize": "{56, 56}",
+    "CYLPlusButtonIndexInTabBar": 2
+  }
+}

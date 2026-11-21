@@ -1,0 +1,34 @@
+# Fails a pull request or push that adds a screenshot under docs/assets without its header, footer and label
+# (AGENTS.md, "Screenshots of builds and CI/CD"; scripts/check-screenshot-labels.sh).
+name: Screenshot labels
+
+on:
+  pull_request:
+    paths: [ 'docs/assets/**' ]
+  push:
+    paths: [ 'docs/assets/**' ]
+
+permissions:
+  contents: read
+
+jobs:
+  labels:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      # [EN] BASE: for a pull_request "synchronize" (a PR that already had a push), GitHub's payload carries `before`/
+      #      `after`, the PR's head commit right before and after this push, so the check only looks at what this push
+      #      adds, not the whole PR's history against its (possibly old) base branch — a long-lived PR branch that
+      #      rarely merges its base would otherwise have every screenshot it has ever added flagged again on every push.
+      #      "opened"/"reopened" (no earlier push to diff against) and `push` keep the previous base/before logic.
+      - name: Check the screenshots added by this change
+        env:
+          BASE: ${{ (github.event_name == 'pull_request' && github.event.action == 'synchronize' && github.event.before) || (github.event_name == 'pull_request' && github.event.pull_request.base.sha) || github.event.before }}
+          HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
+            BASE=$(git rev-list --max-parents=0 "$HEAD" | tail -n 1)
+          fi
+          sh scripts/check-screenshot-labels.sh "$BASE" "$HEAD"

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Toolbar styles of yechaoa/MaterialDesign used by its search screen (copied, Apache 2.0). -->
+<resources>
+    <style name="ToolBarTheme">
+        <item name="titleTextColor">@color/white</item>
+        <item name="actionMenuTextColor">@color/white</item>
+        <item name="colorControlNormal">@color/white</item>
+        <item name="textAllCaps">false</item>
+        <item name="actionOverflowMenuStyle">@style/PopupMenu.Overflow</item>
+    </style>
+    <style name="PopupMenu.Overflow" parent="Widget.AppCompat.Light.PopupMenu.Overflow">
+        <!--false表示弹出框位置位于toolbar下面-->
+        <item name="overlapAnchor">false</item>
+    </style>
+</resources>

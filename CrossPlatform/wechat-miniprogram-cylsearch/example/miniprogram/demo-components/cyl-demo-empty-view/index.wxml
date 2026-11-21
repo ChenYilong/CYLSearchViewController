@@ -1,0 +1,2 @@
+<cyl-placeholder id="placeholder" scenario="{{scenario}}" interactive="{{false}}" animated="{{animated}}" loop="{{loop}}" speed="{{speed}}"
+  generic:animation="cyl-lottie" />

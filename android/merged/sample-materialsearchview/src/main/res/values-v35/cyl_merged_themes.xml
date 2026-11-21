@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 15 makes apps that target API 35 edge-to-edge; the upstream layouts predate it and would draw their toolbar under the status bar. -->
+    <style name="CYLMergedSampleTheme" parent="AppTheme">
+        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+    </style>
+</resources>

@@ -1,0 +1,9 @@
+# Android build output and IDE files (upstream android-cjj/MaterialSearchView issue #3: keep .idea out of git).
+.gradle/
+build/
+.idea/
+*.iml
+local.properties
+captures/
+.cxx/
+.externalNativeBuild/

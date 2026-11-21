@@ -1,0 +1,12 @@
+{
+  "name": "cylsearch",
+  "version": "0.1.0",
+  "description": "The search core of CYLSearchViewController in ArkTS, with the iOS names: CYLSearchBarView, CYLSearchView and CYLSearchResources, on CYLTableViewPlaceHolder's cylplaceholder (placeholders and pull to refresh) and CollectionViewClassifyMenu's classifymenu (CYLTagButton draws the search bar items).",
+  "main": "Index.ets",
+  "author": "ChenYilong",
+  "license": "MIT",
+  "dependencies": {
+    "cylplaceholder": "file:../vendor/cylplaceholder",
+    "@cyl/classifymenu": "file:../vendor/classifymenu"
+  }
+}

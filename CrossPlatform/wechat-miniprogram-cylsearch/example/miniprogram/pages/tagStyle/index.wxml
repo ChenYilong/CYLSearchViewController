@@ -1,0 +1,1 @@
+<cyl-demo-material-menu suggestionStyle="tags" focusesSearchFieldOnShow="{{false}}" inTabBar />

@@ -1,0 +1,20 @@
+{
+  "string": [
+    {
+      "name": "cyl_action_ok",
+      "value": "D’acord"
+    },
+    {
+      "name": "cyl_demo_port_default",
+      "value": "Per defecte"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "No hi ha dades"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "Cancel·la"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- No action bar: every sample sets its own Toolbar as the support action bar. -->
+    <style name="Theme.CYLSearch" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">#3F51B5</item>
+        <item name="colorPrimaryDark">#303F9F</item>
+        <item name="colorAccent">#FF4081</item>
+        <!-- Dark status bar icons: the app draws edge to edge (target SDK 35), so the status bar is transparent over the
+             light page, and the light icons the dark colorPrimaryDark asks for could not be seen. -->
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+</resources>

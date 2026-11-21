@@ -1,0 +1,5 @@
+.screen { min-height: 100vh; background: #fff; }
+.camera { display: flex; align-items: center; justify-content: center; width: 32px; height: 36px; }
+.camera-icon { width: 22px; height: 22px; }
+.status { margin: 16px 16px 0; color: rgba(60, 60, 67, 0.6); font-size: 17px; line-height: 1.35; }
+@media (prefers-color-scheme: dark) { .screen { background: #000; } .status { color: rgba(235, 235, 245, 0.6); } }

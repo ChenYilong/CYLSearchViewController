@@ -1,0 +1,57 @@
+<view class="screen">
+  <!-- The search bar in place of the navigation bar; the back button only when the page was pushed. -->
+  <view class="top" style="top: {{barTop}}px; right: {{barRight}}px; left: {{showsBack ? 6 : 4}}px">
+    <view wx:if="{{showsBack}}" class="back" role="button" aria-label="{{texts.back}}" bindtap="onBack"><view class="icon icon-back" aria-hidden="true" /></view>
+    <cyl-search-bar generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
+      id="bar" class="bar" value="{{query}}" placeholder="{{placeholder}}" showsSearchIcon="{{false}}" contentInsets="0"
+      fieldHeight="{{46}}" fieldCornerRadius="{{22}}" fieldShadowOpacity="{{0.06}}" fieldBorderColor="#c6c6c8" fieldBorderWidth="{{1}}"
+      fieldBackgroundColor="#ffffff" searchBarStyle="bordered" fontSize="{{16}}" items="{{items}}"
+      bind:textchange="onTextChange" bind:submit="onSubmit" bind:itemselect="onItemSelect" />
+  </view>
+
+  <scroll-view scroll-y class="content" style="top: {{contentTop}}px">
+    <!-- Recent searches: square-cornered bordered tags, folded to two rows, the chevron as the last tag. -->
+    <view wx:if="{{recent.length}}" class="section">
+      <view class="header">
+        <text class="header-title" role="heading">{{texts.recent}}</text>
+        <view class="header-button" role="button" aria-label="{{texts.clear}}" bindtap="clearRecentSearches"><view class="icon icon-trash" aria-hidden="true" /></view>
+      </view>
+      <view class="tags">
+        <view wx:for="{{visibleRecent}}" wx:key="*this" class="tag" role="button" aria-label="{{item}}" aria-description="{{texts.tapToSearch}}" data-index="{{index}}" bindtap="onRecentTap">{{item}}</view>
+        <view wx:if="{{needsFold}}" class="tag tag-chevron" role="button" aria-label="{{folded ? foldLabels[0] : foldLabels[1]}}" bindtap="onToggleFold">
+          <view class="icon icon-chevron {{folded ? '' : 'icon-chevron-up'}}" aria-hidden="true" />
+        </view>
+      </view>
+      <!-- Measures every tag on one line, out of sight, to fold the list. -->
+      <view class="measure" aria-hidden="true">
+        <view wx:for="{{recent}}" wx:key="*this" class="tag measure-tag">{{item}}</view>
+        <view class="tag tag-chevron measure-chevron"><view class="icon icon-chevron" /></view>
+      </view>
+    </view>
+    <!-- Discover: two titles per row, a hot icon after a hot title, the More button refreshing the topics. -->
+    <view class="section">
+      <view class="header">
+        <text class="header-title" role="heading">{{texts.title}}</text>
+        <view class="header-button" role="button" aria-label="{{texts.refresh}}" bindtap="refreshDiscover"><view class="icon icon-more" aria-hidden="true" /></view>
+      </view>
+      <view class="grid">
+        <view wx:for="{{topics}}" wx:key="title" class="topic" role="button" aria-label="{{item.title}}{{item.icon === 'hot' ? ', ' + texts.hot : ''}}"
+          aria-description="{{texts.tapToSearch}}" data-index="{{index}}" bindtap="onTopicTap">
+          <text class="topic-title">{{item.title}}</text>
+          <image wx:if="{{item.icon === 'hot'}}" class="hot" src="{{hotIcon}}" mode="heightFix" aria-hidden="true" />
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- Hold to ask: the hint over the mic button on a light curved area. -->
+  <view class="ask">
+    <view class="ask-curve" aria-hidden="true" />
+    <view class="hint" aria-label="{{hint}}">{{hint}} ✨</view>
+    <view class="mic" role="button" aria-label="{{texts.ask}}" aria-description="{{texts.askHint}}" id="CYLSearchDiscoverMicButton"
+      bindtap="onMicTap" bindlongpress="onHoldStart" bindtouchend="onHoldEnd" bindtouchcancel="onHoldEnd">
+      <view class="icon icon-mic" aria-hidden="true" />
+    </view>
+  </view>
+  <view class="sr-only" aria-live="polite">{{announcement}}</view>
+</view>

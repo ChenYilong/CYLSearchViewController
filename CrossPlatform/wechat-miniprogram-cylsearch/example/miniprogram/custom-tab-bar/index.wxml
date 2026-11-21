@@ -1,0 +1,7 @@
+<!-- The custom tab bar: cyl-tab-bar of CYLTabBarController's mini program package, five tabs and a raised plus button;
+     SVGA tab icons played by cyl-svga (docs/svga-tab-icons.md). -->
+<cyl-tab-bar id="cyl-tab-bar" generic:cyl-lottie-view="cyl-placeholder" generic:cyl-pag-view="cyl-placeholder"
+  generic:cyl-rive-view="cyl-placeholder" generic:cyl-svga-view="cyl-svga"
+  configuration="{{configuration}}" strings="{{strings}}"
+  symbols-by-theme="{{symbolsByTheme}}" selected-identifier="{{selectedIdentifier}}"
+  bind:select="onSelect" bind:plustap="onPlusTap" />

@@ -1,0 +1,73 @@
+{
+  "pages": [
+    "pages/search/index",
+    "pages/examples/index",
+    "pages/plus/index",
+    "pages/tagStyle/index",
+    "pages/discover/index",
+    "pages/reproduction/index",
+    "pages/styles/index",
+    "pages/placeholderDetail/index",
+    "pages/searchBar/index",
+    "pages/ports/index",
+    "pages/lapism/index",
+    "pages/materialMenu/index",
+    "pages/materialSample/index",
+    "pages/yechaoa/index",
+    "pages/reveal/index",
+    "pages/multiSearch/index",
+    "pages/contactTags/index",
+    "pages/contactTagEditor/index",
+    "pages/contactList/index"
+  ],
+  "window": {
+    "navigationStyle": "custom",
+    "navigationBarTextStyle": "@statusBarText",
+    "backgroundColor": "@windowBackground",
+    "backgroundTextStyle": "@backgroundText"
+  },
+  "darkmode": true,
+  "themeLocation": "theme.json",
+  "tabBar": {
+    "custom": true,
+    "color": "#8e8e93",
+    "selectedColor": "#007aff",
+    "list": [
+      {
+        "pagePath": "pages/search/index",
+        "text": "Search"
+      },
+      {
+        "pagePath": "pages/examples/index",
+        "text": "Examples"
+      },
+      {
+        "pagePath": "pages/plus/index",
+        "text": "Search bar"
+      },
+      {
+        "pagePath": "pages/tagStyle/index",
+        "text": "Tag style"
+      },
+      {
+        "pagePath": "pages/discover/index",
+        "text": "Discover"
+      }
+    ]
+  },
+  "usingComponents": {
+    "cyl-search-bar": "/components/cyl-search-bar/index",
+    "cyl-search": "/components/cyl-search/index",
+    "cyl-lottie": "cyl-lottie-miniprogram/cyl-lottie/index",
+    "cyl-svga": "cyl-svga-miniprogram/cyl-svga/index",
+    "cyl-animation-placeholder": "cyl-tag-list-miniprogram/cyl-animation-placeholder/index",
+    "cyl-demo-nav": "/demo-components/cyl-demo-nav/index",
+    "cyl-demo-snackbar": "/demo-components/cyl-demo-snackbar/index",
+    "cyl-demo-reproduction": "/demo-components/cyl-demo-reproduction/index",
+    "cyl-demo-material-menu": "/demo-components/cyl-demo-material-menu/index",
+    "cyl-demo-search-bar": "/demo-components/cyl-demo-search-bar/index",
+    "cyl-demo-empty-view": "/demo-components/cyl-demo-empty-view/index"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

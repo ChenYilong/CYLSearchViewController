@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Merged module manifest (the upstream manifest sets a package attribute, which AGP 8 rejects). -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity android:name="com.cyl.search.reveal.CYLRevealSearchActivity" android:exported="false" android:label="Reveal" />
+    </application>
+</manifest>

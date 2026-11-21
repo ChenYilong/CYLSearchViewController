@@ -1,0 +1,29 @@
+<view class="screen">
+  <cyl-demo-nav title="{{title}}" rightIcon="search" rightLabel="{{openLabel}}" rightIdentifier="CYLMaterialOpenSearch" bind:righttap="openSearch" />
+  <!-- StickyActivity: a long list scrolls under the sticky toolbar. -->
+  <scroll-view wx:if="{{sample === 'sticky'}}" scroll-y class="sticky-list">
+    <view wx:for="{{items}}" wx:key="*this" class="sticky-item">{{item}}</view>
+  </scroll-view>
+  <!-- TabActivity: three pages under tabs. -->
+  <view wx:elif="{{sample === 'tabs'}}" class="tabs-page">
+    <view class="segmented" role="tablist">
+      <view wx:for="{{pages}}" wx:key="*this" class="segment {{index === selectedPage ? 'segment-selected' : ''}}" role="tab"
+        aria-selected="{{index === selectedPage}}" data-index="{{index}}" bindtap="onSelectPage">{{item}}</view>
+    </view>
+    <view class="title2">{{pages[selectedPage]}}</view>
+  </view>
+  <view wx:else class="center"><view class="title2">{{title}}</view></view>
+
+  <cyl-search generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
+    id="search" generic:cyl-empty-view="cyl-demo-empty-view" coversNavigationBar
+    suggestions="{{configuration.suggestions}}" suggestionStyle="{{suggestionStyle}}" foldedRowCount="{{2}}"
+    showsEmptyResultsPlaceholder="{{true}}" cacheName="MaterialSearchView" focusesSearchFieldOnShow="{{focusesSearchFieldOnShow}}"
+    placeholder="{{placeholder}}" showsVoiceButton="{{configuration.showsVoiceButton}}" cursorColor="{{configuration.cursorColor}}"
+    suggestionLineBreak="{{configuration.suggestionLineBreak}}" secure="{{configuration.secure}}"
+    backgroundColor="{{configuration.backgroundColor}}" textColor="{{configuration.textColor}}" placeholderColor="{{configuration.placeholderColor}}"
+    navigationColor="{{configuration.navigationColor}}" suggestionTextColor="{{configuration.suggestionTextColor}}"
+    suggestionImageTintColor="{{configuration.suggestionImageTintColor}}" dividerColor="{{configuration.dividerColor}}"
+    bind:submit="onSubmit" bind:close="onSearchClose" bind:voicetap="onVoice" />
+
+  <cyl-demo-snackbar id="snackbar" />
+</view>

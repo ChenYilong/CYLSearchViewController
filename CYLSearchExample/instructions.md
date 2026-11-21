@@ -3,6 +3,11 @@
 - Follow the repository's `instructions.md` and `AGENTS.md`.
 - Integrate the search component and the sibling placeholder library as local
   CocoaPods dependencies. Keep reproduction-specific code in the example.
+- Use the search core (CYLSearchBar: `CYLSearchBarView`, `CYLSearchBarItem`, `CYLSearchView`,
+  `CYLSearchResources`) through `import CYLSearchViewController` / `@import CYLSearchViewController;`. Pull-to-refresh
+  goes only through `CYLSearchView`'s refresh API (`setRefreshHandler(_:for:)`, `endRefreshing(in:)`, or
+  `refreshHandler` on a `CYLSearchView`); never call CYLTableViewPlaceHolder's refresh header directly. Empty states
+  use CYLTableViewPlaceHolder's `CYLPlaceholderView`.
 - Example sources and the app Info.plist live in this directory. The Xcode
   project and Podfile remain at the repository root.
 - Keep project file references and the test target's header search path in

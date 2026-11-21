@@ -15,9 +15,12 @@ on:
 permissions:
   contents: read
 
+# A started run always finishes: several sessions push to the same branch within minutes, and cancelling the running
+# run on every push left no iOS run finished for hours (2026-11-17). GitHub keeps at most one pending run per group and
+# replaces it with the newest push, so the queue stays one run deep.
 concurrency:
   group: ios-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   # Decides whether the macOS jobs need to build. A pull request that only changes docs (docs/, *.md, assets/)
@@ -65,6 +68,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: scripts/check-public-api-comments.sh
+      # AGENTS.md, "Licenses in published packages": every published package ships the MIT LICENSE in its bundle.
+      - run: scripts/check-licenses.sh
 
   # `pod lib lint` of the CYLSearchViewController pod.
   lint:
@@ -155,10 +160,10 @@ jobs:
       - name: Fail on warnings in Sources/
         if: needs.changes.outputs.code == 'true'
         run: |
-          COUNT=$( (grep -h '/Sources/CYLSearchViewController/[^:]*\.[mh]:[0-9]*:[0-9]*: warning: ' build/build.log build/analyze.log || true) | sort -u | wc -l | tr -d ' ')
+          COUNT=$( (grep -hE '/Sources/CYLSearchBar/[^:]*\.(swift|m|h):[0-9]*:[0-9]*: warning: ' build/build.log build/analyze.log || true) | sort -u | wc -l | tr -d ' ')
           echo "Source warnings: $COUNT"
           if [[ "$COUNT" -gt 0 ]]; then
-            grep -h '/Sources/CYLSearchViewController/[^:]*\.[mh]:[0-9]*:[0-9]*: warning: ' build/build.log build/analyze.log | sort -u
+            grep -hE '/Sources/CYLSearchBar/[^:]*\.(swift|m|h):[0-9]*:[0-9]*: warning: ' build/build.log build/analyze.log | sort -u
             exit 1
           fi
       - uses: actions/upload-artifact@v4
@@ -196,4 +201,41 @@ jobs:
         with:
           name: unit-tests-log
           path: build/unit-tests.log
+          if-no-files-found: ignore
+
+  screenshots:
+    name: Example screenshots
+    needs: changes
+    runs-on: ${{ vars.MACOS_RUNNER || 'macos-26' }}
+    timeout-minutes: 45
+    # Pushes the screenshots to the ci-screenshots branch (artifact storage is not reachable from every reader).
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sibling dependencies
+        if: needs.changes.outputs.code == 'true'
+        run: scripts/ci-checkout-dependencies.sh
+      - name: CocoaPods
+        if: needs.changes.outputs.code == 'true'
+        run: pod --version || sudo gem install cocoapods
+      - name: Screenshots
+        if: needs.changes.outputs.code == 'true'
+        run: bash scripts/example-screenshots.sh
+      - name: Publish screenshots
+        # Forks get no write token; their screenshots stay in the artifact.
+        if: >-
+          always() && needs.changes.outputs.code == 'true' &&
+          (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SCREENSHOT_REF: ${{ github.head_ref || github.ref_name }}
+          SCREENSHOT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: sh scripts/publish-screenshots.sh
+      - uses: actions/upload-artifact@v4
+        continue-on-error: true
+        if: always() && needs.changes.outputs.code == 'true'
+        with:
+          name: example-screenshots
+          path: build/screenshots
           if-no-files-found: ignore

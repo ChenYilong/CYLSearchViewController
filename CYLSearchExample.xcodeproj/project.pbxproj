@@ -7,21 +7,69 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		101C7EF837736C301E77C1BD /* CYLSearchExampleViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 72C6E95A0B238E136F099598 /* CYLSearchExampleViewController.m */; };
+		C277434BE0EA9BCF69F767A7 /* CYLSearchTableViewControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73A84EB77B75161F29CBD6E9 /* CYLSearchTableViewControllerTests.swift */; };
+		7C8FAC8C07DB0FE78550E459 /* CYLSearchIssueScenarioTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F6F46916412F7ED18F8179 /* CYLSearchIssueScenarioTests.swift */; };
+		232E6F71BE904F5A989570E6 /* CYLSearchCollectionViewDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72B1C7D574D15FFD72612C0D /* CYLSearchCollectionViewDemoViewController.swift */; };
+		03EFEDA00C93FF0635047552 /* CYLSearchShortListDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E6DE4A75DAE52F71DE282FC /* CYLSearchShortListDemoViewController.swift */; };
+		042378DB7B45897ED2913951 /* CYLSearchBarInViewDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB734718C34ED7E03BEFCAB3 /* CYLSearchBarInViewDemoViewController.swift */; };
+		29ABBDD2341093A17F0919B8 /* CYLSearchNavigationItemDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A3D831D3D3903BC4C91118D /* CYLSearchNavigationItemDemoViewController.swift */; };
+		00CBCAB9751DA098D4097277 /* CYLKenBurnsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EBA41F531198DCB20D11D08 /* CYLKenBurnsView.swift */; };
+		09591E8341AC8342C2778F78 /* CYLSearchDiscover.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 5B066C225673180236E6CE46 /* CYLSearchDiscover.bundle */; };
+		101C7EF837736C301E77C1BD /* CYLSearchExampleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72C6E95A0B238E136F099598 /* CYLSearchExampleViewController.swift */; };
 		1710B2C1CF4C5E46593609A0 /* CYLLaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F1CBD31BF12B1F79D35D8197 /* CYLLaunchScreen.storyboard */; };
 		1DEBF1CD858693B413D71149 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 30E6C2B3AB08D6F182050568 /* Images.xcassets */; };
+		255D5D9308CE5BFE4457047E /* CYLContactListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E21AAD40352A177CEA2EB58D /* CYLContactListViewController.swift */; };
+		284BAC8A33CF8771994D5D5B /* CYLSearchExampleSearchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B9356DCF4828F670ED17687 /* CYLSearchExampleSearchTests.swift */; };
+		29A8DCF681E71FA7B0945830 /* CYLContactTagStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA7AB600DDC7D517A8984EA /* CYLContactTagStore.swift */; };
+		3EC747682D98032230EA997F /* CYLSearchExampleTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75595E2688B0F4B5F4BDEB14 /* CYLSearchExampleTestSupport.swift */; };
 		4A8E12591D75157E8E50494E /* Pods_CYLSearchExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13A5CFF6BFF18FEBE3C40D70 /* Pods_CYLSearchExample.framework */; };
+		4B1118BB0621C91A867082AA /* tab_profile.svga in Resources */ = {isa = PBXBuildFile; fileRef = C3AB51676CF686A32E5C3F2D /* tab_profile.svga */; };
+		5056C539D2AE963DF183969D /* tab_home.svga in Resources */ = {isa = PBXBuildFile; fileRef = 8EA07219A58E5EBDB6C139FA /* tab_home.svga */; };
+		53098B93113B873103F0A596 /* CYLSearchExampleAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81DD363A48F982061386928D /* CYLSearchExampleAppDelegate.swift */; };
+		605EAE3645762F54D9304252 /* CYLOriginalDemo.bundle in Resources */ = {isa = PBXBuildFile; fileRef = B917ABA1A24B4A3416F47A59 /* CYLOriginalDemo.bundle */; };
+		6695FDECCBC1B4CFDECFF616 /* CYLSearchBarStyleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078F4D2059A21704E7B927F2 /* CYLSearchBarStyleTests.swift */; };
+		B94D7DE24672FBC17581BFAC /* CYLSearchControllerDemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C07A531093A655B51143D2C /* CYLSearchControllerDemoTests.swift */; };
+		F38B677AA6E4A8ACB269DBB1 /* CYLSearchControllerSwipeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E3687D9D4887B546909809 /* CYLSearchControllerSwipeTests.swift */; };
+		7CD022B63D4149C07ADAE43A /* CYLSearchControllerLaunchViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D3AA5758E049D4F2C8D5120 /* CYLSearchControllerLaunchViewTests.swift */; };
+		7AA89C0A5E0FB667EDC747A2 /* CYLSearchControllerLifecycleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07AE3162F5E8114044687B22 /* CYLSearchControllerLifecycleTests.swift */; };
+		7C96CCCB0BDDE2551F46F29A /* CYLSearchControllerTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = C55511CF119FDE63CCDF5A42 /* CYLSearchControllerTestSupport.swift */; };
+		67F1DE2BB9678746E2CE5701 /* CYLTabBarConfiguration_svga_swiftui.json in Resources */ = {isa = PBXBuildFile; fileRef = 466DA7C43DE8376E42F99CDC /* CYLTabBarConfiguration_svga_swiftui.json */; };
+		734E520994095144248A807D /* CYLContactTagEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E7DEF56D4A35247FE9F79F9 /* CYLContactTagEditorViewController.swift */; };
+		79C140CF3417B8EAC88A7B1B /* tab_chat.svga in Resources */ = {isa = PBXBuildFile; fileRef = 2A637C6644B075C276387C54 /* tab_chat.svga */; };
+		7AF1742377E0BBB8230ADCC3 /* CYLSearchDiscoverData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A374BB7805B372D828BAFE69 /* CYLSearchDiscoverData.swift */; };
+		7B2EA5CB73AFB47F217A2C44 /* tab_activity.svga in Resources */ = {isa = PBXBuildFile; fileRef = E0F39A67691ACDD2A732B49E /* tab_activity.svga */; };
+		7DF022CB0E62991655EDBC25 /* CYLOriginalSearchDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F66C8EE3FD197741FB8EE397 /* CYLOriginalSearchDemoViewController.swift */; };
 		7E4CFBE5456955D7F49DDE18 /* Pods_CYLSearchExampleTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6CB53AE2B9CBC786E92E575D /* Pods_CYLSearchExampleTests.framework */; };
+		8196AA5AE36B22231F60767A /* CYLContactRemarkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A2E83820BF435F5277152B /* CYLContactRemarkViewController.swift */; };
+		83556410E6BEAB20335A0D5F /* CYLContactTagServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1EBBACF8BF1441DABDD9379 /* CYLContactTagServer.swift */; };
 		870253A69C9D8386606E41F0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA7A0B9D7510B24AAB4BC47A /* Foundation.framework */; };
-		89E2ACA17CA7765ED192EFB2 /* CYLSearchExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C72AC3EBD45BFF3AC9711025 /* CYLSearchExampleTests.m */; };
-		AECF70647E07466898903E7C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA7A0B9D7510B24AAB4BC47A /* Foundation.framework */; };
-		D787BCBE26892DD9A9415062 /* CYLSearchExampleAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E008B7937D631C1FDD620EA5 /* CYLSearchExampleAppDelegate.m */; };
-		E0196D8390297BD29A49C29F /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 34FE1E690725740C1C51847B /* main.m */; };
-		A20000000000000000000001 /* CYLSearchDemoMenuViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000003 /* CYLSearchDemoMenuViewController.m */; };
-		A20000000000000000000011 /* CYLSearchBarDemoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000013 /* CYLSearchBarDemoViewController.m */; };
+		89E2ACA17CA7765ED192EFB2 /* CYLSearchCoreObjectiveCSmokeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C72AC3EBD45BFF3AC9711025 /* CYLSearchCoreObjectiveCSmokeTests.m */; };
+		8C0B3D7B899D8C6301DD6D16 /* CYLSVGASwiftUIDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0314199A175111B3308413FD /* CYLSVGASwiftUIDemo.swift */; };
+		9C9E88D575AF765FDC79BC1F /* CYLSearchBarDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E06E95D27736A6851596998 /* CYLSearchBarDemoViewController.swift */; };
+		A19522B4581BBFD417720CE3 /* tab_list.svga in Resources */ = {isa = PBXBuildFile; fileRef = 0539046CE5626071D7218E4A /* tab_list.svga */; };
 		A20000000000000000000014 /* CYLTabBarConfiguration.json in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000015 /* CYLTabBarConfiguration.json */; };
 		A20000000000000000000016 /* CYLSearchTabs.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000017 /* CYLSearchTabs.bundle */; };
-		A40000000000000000000003 /* CYLSearchExampleSceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A40000000000000000000002 /* CYLSearchExampleSceneDelegate.m */; };
+		A60000000000000000000000 /* CYLSearchPortsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000000000000000000000 /* CYLSearchPortsViewController.swift */; };
+		A60000000000000000000001 /* CYLLapismSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000000000000000000001 /* CYLLapismSearchViewController.swift */; };
+		A60000000000000000000002 /* CYLMaterialSearchMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000000000000000000002 /* CYLMaterialSearchMenuViewController.swift */; };
+		A60000000000000000000003 /* CYLYechaoaSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000000000000000000003 /* CYLYechaoaSearchViewController.swift */; };
+		A60000000000000000000004 /* CYLRevealSearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000000000000000000004 /* CYLRevealSearchViewController.swift */; };
+		A60000000000000000000005 /* CYLMultiSearchDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A50000000000000000000005 /* CYLMultiSearchDemoViewController.swift */; };
+		AECF70647E07466898903E7C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA7A0B9D7510B24AAB4BC47A /* Foundation.framework */; };
+		B7829D16F8E6C9127AA30159 /* CYLSuggestionDemoPages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E8870E6E14FE5355F516165 /* CYLSuggestionDemoPages.swift */; };
+		B83B0E96503014E8603E75A8 /* CYLContactTags.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 1D0E91D71BE163E06C035C5A /* CYLContactTags.bundle */; };
+		C22D21811DA60A32A63738EA /* CYLSearchExampleSceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 152DF182224BB30611012ECE /* CYLSearchExampleSceneDelegate.swift */; };
+		C74D9C559315C062AFB810C7 /* CYLSearchDiscoverViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A1C23458E19D7F7CAAFED2 /* CYLSearchDiscoverViewController.swift */; };
+		CA3BE6055C75D4104A91FC7E /* tab_search.svga in Resources */ = {isa = PBXBuildFile; fileRef = 0A6E1B84CDAA97C5FDF54F8D /* tab_search.svga */; };
+		D25A2FF1334E2CA458891290 /* CYLSearchExampleCacheFocusItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2456A2446CB47D7D0B76A552 /* CYLSearchExampleCacheFocusItemTests.swift */; };
+		D7F8CA8AB1976494D5B6AD9F /* CYLSearchExampleParityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5C4DB884EB3DEFA2DD82150 /* CYLSearchExampleParityTests.swift */; };
+		D82F404523DA92EEF4F9693F /* CYLSearchBarStylesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77024FE43CAE48940FF06E59 /* CYLSearchBarStylesViewController.swift */; };
+		6832384551D8BF7D98C5322E /* CYLSearchControllerDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 301F545EAF4FD0FB1655A330 /* CYLSearchControllerDemoViewController.swift */; };
+		DDE4C576CB6A03AC93AE7CE0 /* CYLSearchExampleContactTagsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 306CE615EFCF241601BFDECD /* CYLSearchExampleContactTagsTests.swift */; };
+		E040B965177213078B4B0135 /* CYLSearchDemoMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA11275B67AEA4B36D145BD3 /* CYLSearchDemoMenuViewController.swift */; };
+		E7351D9305A9995AB1407795 /* CYLSVGADemoTagButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23456A57479C45D0163AC0C0 /* CYLSVGADemoTagButton.swift */; };
+		E940950CEF9FDF271D8F9298 /* CYLTabBarConfiguration_svga.json in Resources */ = {isa = PBXBuildFile; fileRef = E639AD5AA798F5082F43D0D8 /* CYLTabBarConfiguration_svga.json */; };
+		F885FC21B72F86495233668B /* CYLSearchExampleSearchBarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0947CF42D2DA6F8237ACB4DB /* CYLSearchExampleSearchBarTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,32 +83,75 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		73A84EB77B75161F29CBD6E9 /* CYLSearchTableViewControllerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchTableViewControllerTests.swift; sourceTree = "<group>"; };
+		F4F6F46916412F7ED18F8179 /* CYLSearchIssueScenarioTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchIssueScenarioTests.swift; sourceTree = "<group>"; };
+		72B1C7D574D15FFD72612C0D /* CYLSearchCollectionViewDemoViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchCollectionViewDemoViewController.swift; sourceTree = "<group>"; };
+		8E6DE4A75DAE52F71DE282FC /* CYLSearchShortListDemoViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchShortListDemoViewController.swift; sourceTree = "<group>"; };
+		CB734718C34ED7E03BEFCAB3 /* CYLSearchBarInViewDemoViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchBarInViewDemoViewController.swift; sourceTree = "<group>"; };
+		6A3D831D3D3903BC4C91118D /* CYLSearchNavigationItemDemoViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchNavigationItemDemoViewController.swift; sourceTree = "<group>"; };
+		0314199A175111B3308413FD /* CYLSVGASwiftUIDemo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSVGASwiftUIDemo.swift; sourceTree = "<group>"; };
+		0539046CE5626071D7218E4A /* tab_list.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_list.svga; sourceTree = "<group>"; };
 		0723FAFC7CC20AE1DCCCB285 /* CYLSearchExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CYLSearchExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		078F4D2059A21704E7B927F2 /* CYLSearchBarStyleTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchBarStyleTests.swift; sourceTree = "<group>"; };
+		2C07A531093A655B51143D2C /* CYLSearchControllerDemoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchControllerDemoTests.swift; sourceTree = "<group>"; };
+		F0E3687D9D4887B546909809 /* CYLSearchControllerSwipeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchControllerSwipeTests.swift; sourceTree = "<group>"; };
+		9D3AA5758E049D4F2C8D5120 /* CYLSearchControllerLaunchViewTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchControllerLaunchViewTests.swift; sourceTree = "<group>"; };
+		07AE3162F5E8114044687B22 /* CYLSearchControllerLifecycleTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchControllerLifecycleTests.swift; sourceTree = "<group>"; };
+		C55511CF119FDE63CCDF5A42 /* CYLSearchControllerTestSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchControllerTestSupport.swift; sourceTree = "<group>"; };
+		0947CF42D2DA6F8237ACB4DB /* CYLSearchExampleSearchBarTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleSearchBarTests.swift; sourceTree = "<group>"; };
+		0A6E1B84CDAA97C5FDF54F8D /* tab_search.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_search.svga; sourceTree = "<group>"; };
 		13A5CFF6BFF18FEBE3C40D70 /* Pods_CYLSearchExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CYLSearchExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		152DF182224BB30611012ECE /* CYLSearchExampleSceneDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleSceneDelegate.swift; sourceTree = "<group>"; };
 		1CAB6CA1230E3F537FE774D0 /* Pods-CYLSearchExampleTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CYLSearchExampleTests.debug.xcconfig"; path = "Target Support Files/Pods-CYLSearchExampleTests/Pods-CYLSearchExampleTests.debug.xcconfig"; sourceTree = "<group>"; };
-		2ECACD2FCF0F1BE4A83F798C /* CYLSearchExampleAppDelegate.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CYLSearchExampleAppDelegate.h; sourceTree = "<group>"; };
+		1D0E91D71BE163E06C035C5A /* CYLContactTags.bundle */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.plug-in"; path = CYLContactTags.bundle; sourceTree = "<group>"; };
+		1E8870E6E14FE5355F516165 /* CYLSuggestionDemoPages.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSuggestionDemoPages.swift; sourceTree = "<group>"; };
+		23456A57479C45D0163AC0C0 /* CYLSVGADemoTagButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSVGADemoTagButton.swift; sourceTree = "<group>"; };
+		2456A2446CB47D7D0B76A552 /* CYLSearchExampleCacheFocusItemTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleCacheFocusItemTests.swift; sourceTree = "<group>"; };
+		2A637C6644B075C276387C54 /* tab_chat.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_chat.svga; sourceTree = "<group>"; };
+		306CE615EFCF241601BFDECD /* CYLSearchExampleContactTagsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleContactTagsTests.swift; sourceTree = "<group>"; };
 		30E6C2B3AB08D6F182050568 /* Images.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = CYLSearchViewController/Images.xcassets; sourceTree = "<group>"; };
-		34FE1E690725740C1C51847B /* main.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		3B9356DCF4828F670ED17687 /* CYLSearchExampleSearchTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleSearchTests.swift; sourceTree = "<group>"; };
 		3CDCF00C5BC550CCB80F6F64 /* Pods-CYLSearchExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CYLSearchExample.release.xcconfig"; path = "Target Support Files/Pods-CYLSearchExample/Pods-CYLSearchExample.release.xcconfig"; sourceTree = "<group>"; };
+		466DA7C43DE8376E42F99CDC /* CYLTabBarConfiguration_svga_swiftui.json */ = {isa = PBXFileReference; includeInIndex = 1; path = CYLTabBarConfiguration_svga_swiftui.json; sourceTree = "<group>"; };
+		5B066C225673180236E6CE46 /* CYLSearchDiscover.bundle */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.plug-in"; path = CYLSearchDiscover.bundle; sourceTree = "<group>"; };
+		5EBA41F531198DCB20D11D08 /* CYLKenBurnsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLKenBurnsView.swift; sourceTree = "<group>"; };
 		6CB53AE2B9CBC786E92E575D /* Pods_CYLSearchExampleTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CYLSearchExampleTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		72C6E95A0B238E136F099598 /* CYLSearchExampleViewController.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = CYLSearchExampleViewController.m; sourceTree = "<group>"; };
+		6DA7AB600DDC7D517A8984EA /* CYLContactTagStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLContactTagStore.swift; sourceTree = "<group>"; };
+		6E06E95D27736A6851596998 /* CYLSearchBarDemoViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchBarDemoViewController.swift; sourceTree = "<group>"; };
+		72C6E95A0B238E136F099598 /* CYLSearchExampleViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleViewController.swift; sourceTree = "<group>"; };
+		75595E2688B0F4B5F4BDEB14 /* CYLSearchExampleTestSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleTestSupport.swift; sourceTree = "<group>"; };
+		77024FE43CAE48940FF06E59 /* CYLSearchBarStylesViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchBarStylesViewController.swift; sourceTree = "<group>"; };
+		301F545EAF4FD0FB1655A330 /* CYLSearchControllerDemoViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchControllerDemoViewController.swift; sourceTree = "<group>"; };
 		78C4B4FFBF9FDF3873CCD8F4 /* Pods-CYLSearchExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CYLSearchExampleTests.release.xcconfig"; path = "Target Support Files/Pods-CYLSearchExampleTests/Pods-CYLSearchExampleTests.release.xcconfig"; sourceTree = "<group>"; };
 		7E3A630CFE564B95329C9A3B /* CYLSearchExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CYLSearchExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		C72AC3EBD45BFF3AC9711025 /* CYLSearchExampleTests.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = CYLSearchExampleTests.m; sourceTree = "<group>"; };
-		CDA792B304CC7265A5781447 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D69AD592F007AA158CC66F16 /* Pods-CYLSearchExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CYLSearchExample.debug.xcconfig"; path = "Target Support Files/Pods-CYLSearchExample/Pods-CYLSearchExample.debug.xcconfig"; sourceTree = "<group>"; };
-		DF5C54305D5A0EB5C6717D1E /* CYLSearchExampleViewController.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = CYLSearchExampleViewController.h; sourceTree = "<group>"; };
-		E008B7937D631C1FDD620EA5 /* CYLSearchExampleAppDelegate.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = CYLSearchExampleAppDelegate.m; sourceTree = "<group>"; };
-		F1CBD31BF12B1F79D35D8197 /* CYLLaunchScreen.storyboard */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = CYLLaunchScreen.storyboard; path = CYLSearchViewController/CYLLaunchScreen.storyboard; sourceTree = "<group>"; };
-		A20000000000000000000002 /* CYLSearchDemoMenuViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CYLSearchDemoMenuViewController.h; sourceTree = "<group>"; };
-		A20000000000000000000003 /* CYLSearchDemoMenuViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CYLSearchDemoMenuViewController.m; sourceTree = "<group>"; };
-		A20000000000000000000012 /* CYLSearchBarDemoViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CYLSearchBarDemoViewController.h; sourceTree = "<group>"; };
-		A20000000000000000000013 /* CYLSearchBarDemoViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CYLSearchBarDemoViewController.m; sourceTree = "<group>"; };
+		81DD363A48F982061386928D /* CYLSearchExampleAppDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleAppDelegate.swift; sourceTree = "<group>"; };
+		8E7DEF56D4A35247FE9F79F9 /* CYLContactTagEditorViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLContactTagEditorViewController.swift; sourceTree = "<group>"; };
+		8EA07219A58E5EBDB6C139FA /* tab_home.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_home.svga; sourceTree = "<group>"; };
+		92A2E83820BF435F5277152B /* CYLContactRemarkViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLContactRemarkViewController.swift; sourceTree = "<group>"; };
 		A20000000000000000000015 /* CYLTabBarConfiguration.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = CYLTabBarConfiguration.json; sourceTree = "<group>"; };
 		A20000000000000000000017 /* CYLSearchTabs.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = CYLSearchTabs.bundle; sourceTree = "<group>"; };
+		A374BB7805B372D828BAFE69 /* CYLSearchDiscoverData.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchDiscoverData.swift; sourceTree = "<group>"; };
+		A50000000000000000000000 /* CYLSearchPortsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CYLSearchPortsViewController.swift; sourceTree = "<group>"; };
+		A50000000000000000000001 /* CYLLapismSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CYLLapismSearchViewController.swift; sourceTree = "<group>"; };
+		A50000000000000000000002 /* CYLMaterialSearchMenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CYLMaterialSearchMenuViewController.swift; sourceTree = "<group>"; };
+		A50000000000000000000003 /* CYLYechaoaSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CYLYechaoaSearchViewController.swift; sourceTree = "<group>"; };
+		A50000000000000000000004 /* CYLRevealSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CYLRevealSearchViewController.swift; sourceTree = "<group>"; };
+		A50000000000000000000005 /* CYLMultiSearchDemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CYLMultiSearchDemoViewController.swift; sourceTree = "<group>"; };
+		A5C4DB884EB3DEFA2DD82150 /* CYLSearchExampleParityTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleParityTests.swift; sourceTree = "<group>"; };
+		B1EBBACF8BF1441DABDD9379 /* CYLContactTagServer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLContactTagServer.swift; sourceTree = "<group>"; };
+		B917ABA1A24B4A3416F47A59 /* CYLOriginalDemo.bundle */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.plug-in"; path = CYLOriginalDemo.bundle; sourceTree = "<group>"; };
+		C3AB51676CF686A32E5C3F2D /* tab_profile.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_profile.svga; sourceTree = "<group>"; };
+		C72AC3EBD45BFF3AC9711025 /* CYLSearchCoreObjectiveCSmokeTests.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = CYLSearchCoreObjectiveCSmokeTests.m; sourceTree = "<group>"; };
+		CDA792B304CC7265A5781447 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D69AD592F007AA158CC66F16 /* Pods-CYLSearchExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CYLSearchExample.debug.xcconfig"; path = "Target Support Files/Pods-CYLSearchExample/Pods-CYLSearchExample.debug.xcconfig"; sourceTree = "<group>"; };
+		E0F39A67691ACDD2A732B49E /* tab_activity.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_activity.svga; sourceTree = "<group>"; };
+		E21AAD40352A177CEA2EB58D /* CYLContactListViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLContactListViewController.swift; sourceTree = "<group>"; };
+		E639AD5AA798F5082F43D0D8 /* CYLTabBarConfiguration_svga.json */ = {isa = PBXFileReference; includeInIndex = 1; path = CYLTabBarConfiguration_svga.json; sourceTree = "<group>"; };
+		F1CBD31BF12B1F79D35D8197 /* CYLLaunchScreen.storyboard */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = CYLLaunchScreen.storyboard; path = CYLSearchViewController/CYLLaunchScreen.storyboard; sourceTree = "<group>"; };
+		F4A1C23458E19D7F7CAAFED2 /* CYLSearchDiscoverViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchDiscoverViewController.swift; sourceTree = "<group>"; };
+		F66C8EE3FD197741FB8EE397 /* CYLOriginalSearchDemoViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLOriginalSearchDemoViewController.swift; sourceTree = "<group>"; };
+		FA11275B67AEA4B36D145BD3 /* CYLSearchDemoMenuViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchDemoMenuViewController.swift; sourceTree = "<group>"; };
 		FA7A0B9D7510B24AAB4BC47A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		A40000000000000000000001 /* CYLSearchExampleSceneDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CYLSearchExampleSceneDelegate.h; sourceTree = "<group>"; };
-		A40000000000000000000002 /* CYLSearchExampleSceneDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CYLSearchExampleSceneDelegate.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -104,6 +195,20 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		7388DCCB250617B381967999 /* SVGA */ = {
+			isa = PBXGroup;
+			children = (
+				0A6E1B84CDAA97C5FDF54F8D /* tab_search.svga */,
+				0539046CE5626071D7218E4A /* tab_list.svga */,
+				2A637C6644B075C276387C54 /* tab_chat.svga */,
+				8EA07219A58E5EBDB6C139FA /* tab_home.svga */,
+				E0F39A67691ACDD2A732B49E /* tab_activity.svga */,
+				C3AB51676CF686A32E5C3F2D /* tab_profile.svga */,
+			);
+			name = SVGA;
+			path = SVGA;
+			sourceTree = "<group>";
+		};
 		8B4EC6C8ECED0E83971182C5 /* iOS */ = {
 			isa = PBXGroup;
 			children = (
@@ -115,20 +220,44 @@
 		A10000000000000000000001 /* CYLSearchExample */ = {
 			isa = PBXGroup;
 			children = (
-				34FE1E690725740C1C51847B /* main.m */,
-				2ECACD2FCF0F1BE4A83F798C /* CYLSearchExampleAppDelegate.h */,
-				E008B7937D631C1FDD620EA5 /* CYLSearchExampleAppDelegate.m */,
-				A40000000000000000000001 /* CYLSearchExampleSceneDelegate.h */,
-				A40000000000000000000002 /* CYLSearchExampleSceneDelegate.m */,
-				DF5C54305D5A0EB5C6717D1E /* CYLSearchExampleViewController.h */,
-				72C6E95A0B238E136F099598 /* CYLSearchExampleViewController.m */,
-				A20000000000000000000002 /* CYLSearchDemoMenuViewController.h */,
-				A20000000000000000000003 /* CYLSearchDemoMenuViewController.m */,
-				A20000000000000000000012 /* CYLSearchBarDemoViewController.h */,
-				A20000000000000000000013 /* CYLSearchBarDemoViewController.m */,
+				72B1C7D574D15FFD72612C0D /* CYLSearchCollectionViewDemoViewController.swift */,
+				8E6DE4A75DAE52F71DE282FC /* CYLSearchShortListDemoViewController.swift */,
+				CB734718C34ED7E03BEFCAB3 /* CYLSearchBarInViewDemoViewController.swift */,
+				6A3D831D3D3903BC4C91118D /* CYLSearchNavigationItemDemoViewController.swift */,
+				A50000000000000000000000 /* CYLSearchPortsViewController.swift */,
+				A50000000000000000000001 /* CYLLapismSearchViewController.swift */,
+				A50000000000000000000002 /* CYLMaterialSearchMenuViewController.swift */,
+				A50000000000000000000003 /* CYLYechaoaSearchViewController.swift */,
+				A50000000000000000000004 /* CYLRevealSearchViewController.swift */,
+				A50000000000000000000005 /* CYLMultiSearchDemoViewController.swift */,
+				72C6E95A0B238E136F099598 /* CYLSearchExampleViewController.swift */,
 				A20000000000000000000015 /* CYLTabBarConfiguration.json */,
 				A20000000000000000000017 /* CYLSearchTabs.bundle */,
 				CDA792B304CC7265A5781447 /* Info.plist */,
+				F4A1C23458E19D7F7CAAFED2 /* CYLSearchDiscoverViewController.swift */,
+				A374BB7805B372D828BAFE69 /* CYLSearchDiscoverData.swift */,
+				1E8870E6E14FE5355F516165 /* CYLSuggestionDemoPages.swift */,
+				5B066C225673180236E6CE46 /* CYLSearchDiscover.bundle */,
+				6DA7AB600DDC7D517A8984EA /* CYLContactTagStore.swift */,
+				8E7DEF56D4A35247FE9F79F9 /* CYLContactTagEditorViewController.swift */,
+				92A2E83820BF435F5277152B /* CYLContactRemarkViewController.swift */,
+				E21AAD40352A177CEA2EB58D /* CYLContactListViewController.swift */,
+				B1EBBACF8BF1441DABDD9379 /* CYLContactTagServer.swift */,
+				1D0E91D71BE163E06C035C5A /* CYLContactTags.bundle */,
+				7388DCCB250617B381967999 /* SVGA */,
+				E639AD5AA798F5082F43D0D8 /* CYLTabBarConfiguration_svga.json */,
+				0314199A175111B3308413FD /* CYLSVGASwiftUIDemo.swift */,
+				23456A57479C45D0163AC0C0 /* CYLSVGADemoTagButton.swift */,
+				466DA7C43DE8376E42F99CDC /* CYLTabBarConfiguration_svga_swiftui.json */,
+				81DD363A48F982061386928D /* CYLSearchExampleAppDelegate.swift */,
+				152DF182224BB30611012ECE /* CYLSearchExampleSceneDelegate.swift */,
+				6E06E95D27736A6851596998 /* CYLSearchBarDemoViewController.swift */,
+				FA11275B67AEA4B36D145BD3 /* CYLSearchDemoMenuViewController.swift */,
+				5EBA41F531198DCB20D11D08 /* CYLKenBurnsView.swift */,
+				F66C8EE3FD197741FB8EE397 /* CYLOriginalSearchDemoViewController.swift */,
+				B917ABA1A24B4A3416F47A59 /* CYLOriginalDemo.bundle */,
+				77024FE43CAE48940FF06E59 /* CYLSearchBarStylesViewController.swift */,
+				301F545EAF4FD0FB1655A330 /* CYLSearchControllerDemoViewController.swift */,
 			);
 			path = CYLSearchExample;
 			sourceTree = "<group>";
@@ -136,7 +265,21 @@
 		A10000000000000000000002 /* CYLSearchExampleTests */ = {
 			isa = PBXGroup;
 			children = (
-				C72AC3EBD45BFF3AC9711025 /* CYLSearchExampleTests.m */,
+				73A84EB77B75161F29CBD6E9 /* CYLSearchTableViewControllerTests.swift */,
+				F4F6F46916412F7ED18F8179 /* CYLSearchIssueScenarioTests.swift */,
+				C72AC3EBD45BFF3AC9711025 /* CYLSearchCoreObjectiveCSmokeTests.m */,
+				2456A2446CB47D7D0B76A552 /* CYLSearchExampleCacheFocusItemTests.swift */,
+				306CE615EFCF241601BFDECD /* CYLSearchExampleContactTagsTests.swift */,
+				A5C4DB884EB3DEFA2DD82150 /* CYLSearchExampleParityTests.swift */,
+				0947CF42D2DA6F8237ACB4DB /* CYLSearchExampleSearchBarTests.swift */,
+				3B9356DCF4828F670ED17687 /* CYLSearchExampleSearchTests.swift */,
+				75595E2688B0F4B5F4BDEB14 /* CYLSearchExampleTestSupport.swift */,
+				078F4D2059A21704E7B927F2 /* CYLSearchBarStyleTests.swift */,
+				2C07A531093A655B51143D2C /* CYLSearchControllerDemoTests.swift */,
+				F0E3687D9D4887B546909809 /* CYLSearchControllerSwipeTests.swift */,
+				9D3AA5758E049D4F2C8D5120 /* CYLSearchControllerLaunchViewTests.swift */,
+				07AE3162F5E8114044687B22 /* CYLSearchControllerLifecycleTests.swift */,
+				C55511CF119FDE63CCDF5A42 /* CYLSearchControllerTestSupport.swift */,
 			);
 			path = CYLSearchExampleTests;
 			sourceTree = "<group>";
@@ -196,7 +339,6 @@
 				2FA9722B6D11BCC3A423BDEC /* Sources */,
 				FA7A4787691E37727669FCA4 /* Frameworks */,
 				9D571A4007ED1D85328B1C4D /* Resources */,
-				2D049CF0F1EBB5F3577A1360 /* [CP] Embed Pods Frameworks */,
 				A21F5E720486F857A6C6BC05 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
@@ -254,6 +396,17 @@
 				1710B2C1CF4C5E46593609A0 /* CYLLaunchScreen.storyboard in Resources */,
 				A20000000000000000000014 /* CYLTabBarConfiguration.json in Resources */,
 				A20000000000000000000016 /* CYLSearchTabs.bundle in Resources */,
+				09591E8341AC8342C2778F78 /* CYLSearchDiscover.bundle in Resources */,
+				B83B0E96503014E8603E75A8 /* CYLContactTags.bundle in Resources */,
+				CA3BE6055C75D4104A91FC7E /* tab_search.svga in Resources */,
+				A19522B4581BBFD417720CE3 /* tab_list.svga in Resources */,
+				79C140CF3417B8EAC88A7B1B /* tab_chat.svga in Resources */,
+				5056C539D2AE963DF183969D /* tab_home.svga in Resources */,
+				E940950CEF9FDF271D8F9298 /* CYLTabBarConfiguration_svga.json in Resources */,
+				7B2EA5CB73AFB47F217A2C44 /* tab_activity.svga in Resources */,
+				4B1118BB0621C91A867082AA /* tab_profile.svga in Resources */,
+				67F1DE2BB9678746E2CE5701 /* CYLTabBarConfiguration_svga_swiftui.json in Resources */,
+				605EAE3645762F54D9304252 /* CYLOriginalDemo.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -282,26 +435,6 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		2D049CF0F1EBB5F3577A1360 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-CYLSearchExample/Pods-CYLSearchExample-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/CYLSearchViewController/CYLSearchViewController.framework",
-				"${BUILT_PRODUCTS_DIR}/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.framework",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CYLSearchViewController.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/CYLTableViewPlaceHolder.framework",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-CYLSearchExample/Pods-CYLSearchExample-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
 		A21F5E720486F857A6C6BC05 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -309,19 +442,31 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-CYLSearchExample/Pods-CYLSearchExample-resources.sh",
+				"${PODS_ROOT}/CYLAnimatedItem/CYLTabBarController/CYLAnimatedItem/Resources/CYLAnimatedItem.bundle",
+				"${PODS_ROOT}/../Resources/CYLSearchViewController.bundle",
 				"${PODS_ROOT}/CYLTabBarController/CYLTabBarController/Resources/CYLTabBarController.bundle",
-				"${PODS_ROOT}/../../CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.bundle",
-				"${PODS_ROOT}/../../CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/LICENSE.placeholder-third-party",
-				"${PODS_ROOT}/../../CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLRefresh/PrivacyInfo.xcprivacy",
-				"${PODS_ROOT}/../../CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLRefresh/LICENSE.third-party",
+				"${PODS_ROOT}/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.bundle",
+				"${PODS_ROOT}/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/LICENSE.placeholder-third-party",
+				"${PODS_ROOT}/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLRefresh/LICENSE.third-party",
+				"${PODS_ROOT}/CYLTableViewPlaceHolder/CYLTableViewPlaceHolder/CYLRefresh/LICENSE.refresh-third-party.txt",
+				"${PODS_CONFIGURATION_BUILD_DIR}/CYLTableViewPlaceHolder/CYLTableViewPlaceHolderPrivacy.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/CollectionViewClassifyMenu/CYLClassifyMenuResources.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/Protobuf/Protobuf_Privacy.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/lottie-ios/LottiePrivacyInfo.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/CYLAnimatedItem.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/CYLSearchViewController.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/CYLTabBarController.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/CYLTableViewPlaceHolder.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/LICENSE.placeholder-third-party",
-				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/PrivacyInfo.xcprivacy",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/LICENSE.third-party",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/LICENSE.refresh-third-party.txt",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/CYLTableViewPlaceHolderPrivacy.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/CYLClassifyMenuResources.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/Protobuf_Privacy.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/LottiePrivacyInfo.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -357,12 +502,35 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				E0196D8390297BD29A49C29F /* main.m in Sources */,
-				D787BCBE26892DD9A9415062 /* CYLSearchExampleAppDelegate.m in Sources */,
-				A40000000000000000000003 /* CYLSearchExampleSceneDelegate.m in Sources */,
-				101C7EF837736C301E77C1BD /* CYLSearchExampleViewController.m in Sources */,
-				A20000000000000000000001 /* CYLSearchDemoMenuViewController.m in Sources */,
-				A20000000000000000000011 /* CYLSearchBarDemoViewController.m in Sources */,
+				232E6F71BE904F5A989570E6 /* CYLSearchCollectionViewDemoViewController.swift in Sources */,
+				03EFEDA00C93FF0635047552 /* CYLSearchShortListDemoViewController.swift in Sources */,
+				042378DB7B45897ED2913951 /* CYLSearchBarInViewDemoViewController.swift in Sources */,
+				29ABBDD2341093A17F0919B8 /* CYLSearchNavigationItemDemoViewController.swift in Sources */,
+				A60000000000000000000000 /* CYLSearchPortsViewController.swift in Sources */,
+				A60000000000000000000001 /* CYLLapismSearchViewController.swift in Sources */,
+				A60000000000000000000002 /* CYLMaterialSearchMenuViewController.swift in Sources */,
+				A60000000000000000000003 /* CYLYechaoaSearchViewController.swift in Sources */,
+				A60000000000000000000004 /* CYLRevealSearchViewController.swift in Sources */,
+				A60000000000000000000005 /* CYLMultiSearchDemoViewController.swift in Sources */,
+				101C7EF837736C301E77C1BD /* CYLSearchExampleViewController.swift in Sources */,
+				C74D9C559315C062AFB810C7 /* CYLSearchDiscoverViewController.swift in Sources */,
+				7AF1742377E0BBB8230ADCC3 /* CYLSearchDiscoverData.swift in Sources */,
+				29A8DCF681E71FA7B0945830 /* CYLContactTagStore.swift in Sources */,
+				734E520994095144248A807D /* CYLContactTagEditorViewController.swift in Sources */,
+				8196AA5AE36B22231F60767A /* CYLContactRemarkViewController.swift in Sources */,
+				255D5D9308CE5BFE4457047E /* CYLContactListViewController.swift in Sources */,
+				83556410E6BEAB20335A0D5F /* CYLContactTagServer.swift in Sources */,
+				B7829D16F8E6C9127AA30159 /* CYLSuggestionDemoPages.swift in Sources */,
+				8C0B3D7B899D8C6301DD6D16 /* CYLSVGASwiftUIDemo.swift in Sources */,
+				E7351D9305A9995AB1407795 /* CYLSVGADemoTagButton.swift in Sources */,
+				53098B93113B873103F0A596 /* CYLSearchExampleAppDelegate.swift in Sources */,
+				C22D21811DA60A32A63738EA /* CYLSearchExampleSceneDelegate.swift in Sources */,
+				9C9E88D575AF765FDC79BC1F /* CYLSearchBarDemoViewController.swift in Sources */,
+				E040B965177213078B4B0135 /* CYLSearchDemoMenuViewController.swift in Sources */,
+				00CBCAB9751DA098D4097277 /* CYLKenBurnsView.swift in Sources */,
+				7DF022CB0E62991655EDBC25 /* CYLOriginalSearchDemoViewController.swift in Sources */,
+				D82F404523DA92EEF4F9693F /* CYLSearchBarStylesViewController.swift in Sources */,
+				6832384551D8BF7D98C5322E /* CYLSearchControllerDemoViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -370,7 +538,21 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				89E2ACA17CA7765ED192EFB2 /* CYLSearchExampleTests.m in Sources */,
+				C277434BE0EA9BCF69F767A7 /* CYLSearchTableViewControllerTests.swift in Sources */,
+				7C8FAC8C07DB0FE78550E459 /* CYLSearchIssueScenarioTests.swift in Sources */,
+				89E2ACA17CA7765ED192EFB2 /* CYLSearchCoreObjectiveCSmokeTests.m in Sources */,
+				D25A2FF1334E2CA458891290 /* CYLSearchExampleCacheFocusItemTests.swift in Sources */,
+				DDE4C576CB6A03AC93AE7CE0 /* CYLSearchExampleContactTagsTests.swift in Sources */,
+				D7F8CA8AB1976494D5B6AD9F /* CYLSearchExampleParityTests.swift in Sources */,
+				F885FC21B72F86495233668B /* CYLSearchExampleSearchBarTests.swift in Sources */,
+				284BAC8A33CF8771994D5D5B /* CYLSearchExampleSearchTests.swift in Sources */,
+				3EC747682D98032230EA997F /* CYLSearchExampleTestSupport.swift in Sources */,
+				6695FDECCBC1B4CFDECFF616 /* CYLSearchBarStyleTests.swift in Sources */,
+				B94D7DE24672FBC17581BFAC /* CYLSearchControllerDemoTests.swift in Sources */,
+				F38B677AA6E4A8ACB269DBB1 /* CYLSearchControllerSwipeTests.swift in Sources */,
+				7CD022B63D4149C07ADAE43A /* CYLSearchControllerLaunchViewTests.swift in Sources */,
+				7AA89C0A5E0FB667EDC747A2 /* CYLSearchControllerLifecycleTests.swift in Sources */,
+				7C96CCCB0BDDE2551F46F29A /* CYLSearchControllerTestSupport.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -409,7 +591,11 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				HEADER_SEARCH_PATHS = ("$(inherited)", "$(SRCROOT)/CYLSearchExample");
+				HEADER_SEARCH_PATHS = (
+					"$(CONFIGURATION_TEMP_DIR)/CYLSearchExample.build/DerivedSources",
+					"$(inherited)",
+					"$(SRCROOT)/CYLSearchExample",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.chenyilong.CYLSearchExampleTests;
 				SDKROOT = iphoneos;
@@ -496,7 +682,11 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				HEADER_SEARCH_PATHS = ("$(inherited)", "$(SRCROOT)/CYLSearchExample");
+				HEADER_SEARCH_PATHS = (
+					"$(CONFIGURATION_TEMP_DIR)/CYLSearchExample.build/DerivedSources",
+					"$(inherited)",
+					"$(SRCROOT)/CYLSearchExample",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.chenyilong.CYLSearchExampleTests;
 				SDKROOT = iphoneos;

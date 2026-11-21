@@ -1,0 +1,50 @@
+{
+  "app": {
+    "signingConfigs": [],
+    "products": [
+      {
+        "name": "default",
+        "signingConfig": "default",
+        "compatibleSdkVersion": "6.0.1(21)",
+        "targetSdkVersion": "6.0.1(21)",
+        "runtimeOS": "HarmonyOS",
+        "buildOption": { "strictMode": { "useNormalizedOHMUrl": true } }
+      }
+    ],
+    "buildModeSet": [
+      { "name": "debug" },
+      { "name": "release" },
+      { "name": "emulatorTest" }
+    ]
+  },
+  "modules": [
+    {
+      "name": "entry",
+      "srcPath": "./entry",
+      "targets": [
+        { "name": "default", "applyToProducts": ["default"] },
+        { "name": "emulator", "applyToProducts": ["default"] }
+      ]
+    },
+    {
+      "name": "cylsearch",
+      "srcPath": "./cylsearch"
+    },
+    {
+      "name": "cyltabbar",
+      "srcPath": "./vendor/cyltabbar"
+    },
+    {
+      "name": "cylplaceholder",
+      "srcPath": "./vendor/cylplaceholder"
+    },
+    {
+      "name": "classifymenu",
+      "srcPath": "./vendor/classifymenu"
+    },
+    {
+      "name": "cylanimateditem",
+      "srcPath": "./vendor/cylanimateditem"
+    }
+  ]
+}

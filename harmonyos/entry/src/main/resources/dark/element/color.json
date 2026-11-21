@@ -1,0 +1,7 @@
+{
+  "color": [
+    { "name": "start_window_background", "value": "#000000" },
+    { "name": "system_indigo", "value": "#5E5CE6" },
+    { "name": "system_pink", "value": "#FF375F" }
+  ]
+}

@@ -1,0 +1,83 @@
+<!-- The search bar (iOS CYLSearchBarView). mode "multiple": the completed searches in a row (the selected one underlined,
+     with its remove button), the field of the search being typed, the new-search button. mode "single": navigation
+     button, field (magnifier, text, clear, voice or submit, slot trailing, appended items), Cancel; or, while
+     iconified, only the search button where iconPosition says. -->
+<view wx:if="{{mode === 'multiple'}}" class="cyl-multi" style="{{contentInsets ? 'padding: ' + contentInsets : ''}}">
+  <scroll-view scroll-x class="cyl-multi-row" enhanced show-scrollbar="{{false}}">
+    <view class="cyl-multi-items">
+      <view wx:for="{{searchItems}}" wx:key="index" class="cyl-multi-item" style="opacity: {{index === selectedSearchIndex ? 1 : unselectedSearchAlpha}}">
+        <view class="cyl-multi-text" role="button" aria-label="{{item.label}}" aria-selected="{{index === selectedSearchIndex}}"
+          data-index="{{index}}" bindtap="onSearchTap" style="font-size: {{fontSize}}px; {{textColor ? 'color: ' + textColor : ''}}">{{item.text}}</view>
+        <view wx:if="{{index === selectedSearchIndex}}" class="cyl-multi-remove" role="button" aria-label="{{labels.remove}}" data-index="{{index}}" bindtap="onRemoveSearchTap">
+          <view class="cyl-mask-icon cyl-mask-clear" style="{{searchIndicatorColor ? 'background-color: ' + searchIndicatorColor : ''}}" aria-hidden="true" />
+        </view>
+        <view wx:if="{{index === selectedSearchIndex}}" class="cyl-multi-indicator" style="{{searchIndicatorColor ? 'background: ' + searchIndicatorColor : ''}}" />
+      </view>
+      <view wx:if="{{editingNewSearch}}" class="cyl-multi-item" style="width: {{searchFieldWidth}}px">
+        <input class="cyl-multi-input" value="{{text}}" focus="{{inputFocus}}" placeholder="{{placeholder || labels.search}}"
+          placeholder-style="{{placeholderStyle}}" confirm-type="{{returnKeyType}}" cursor-color="{{cursorColor}}"
+          maxlength="{{maximumTextLength > 0 ? maximumTextLength : -1}}" style="font-size: {{fontSize}}px; {{textColor ? 'color: ' + textColor : ''}}"
+          bindinput="onSearchInput" bindconfirm="onSearchConfirm" />
+        <view class="cyl-multi-indicator" style="{{searchIndicatorColor ? 'background: ' + searchIndicatorColor : ''}}" />
+      </view>
+    </view>
+  </scroll-view>
+  <view class="cyl-multi-button" role="button" aria-label="{{editingNewSearch ? (placeholder || labels.search) : labels.add}}" bindtap="onNewSearchTap">
+    <view class="cyl-mask-icon cyl-mask-search" style="{{searchIndicatorColor ? 'background-color: ' + searchIndicatorColor : ''}}" aria-hidden="true" />
+  </view>
+</view>
+<view wx:else class="cyl-bar {{searchBarStyle === 'bordered' ? 'cyl-bar-bordered' : ''}} cyl-icon-{{iconPosition}} {{pinsToKeyboard ? 'cyl-bar-pinned' : ''}}" style="{{contentInsets ? 'padding: ' + contentInsets + ';' : ''}}{{pinsToKeyboard ? 'bottom: ' + keyboardHeight + 'px' : ''}}">
+  <view wx:if="{{collapsed}}" class="cyl-icon-button" role="button" aria-label="{{labels.search}}" bindtap="onIconTap"
+    style="{{iconButtonBackgroundColor ? 'background: ' + iconButtonBackgroundColor + ';' : ''}}">
+    <view class="cyl-mask-icon cyl-mask-search" style="{{iconButtonColor ? 'background-color: ' + iconButtonColor : ''}}" aria-hidden="true" />
+  </view>
+  <block wx:else>
+    <slot name="leading" />
+    <view wx:if="{{navigationIcon !== 'none'}}" class="cyl-navigation" role="button"
+      aria-label="{{navigationAccessibilityLabel || (navigationIcon === 'arrow' ? labels.back : labels.search)}}" bindtap="onNavigationTap">
+      <view class="cyl-mask-icon {{navigationIcon === 'arrow' ? 'cyl-mask-back' : 'cyl-mask-search'}}"
+        style="{{navigationColor ? 'background-color: ' + navigationColor : ''}}" aria-hidden="true" />
+    </view>
+    <view class="cyl-field cyl-anim-{{expansionAnimation}} {{revealing ? 'cyl-field-revealing' : ''}}"
+      style="{{fieldStyle}}; transition-duration: {{animationDuration}}s">
+      <view wx:if="{{showsSearchIcon && !editingBar && searchIconTintColor}}" class="cyl-mask-icon cyl-mask-search cyl-field-icon" style="background-color: {{searchIconTintColor}}" aria-hidden="true" />
+      <image wx:elif="{{showsSearchIcon && !editingBar && searchIcon}}" class="cyl-field-icon" src="{{searchIcon}}" aria-hidden="true" />
+      <input class="cyl-input" value="{{text}}" placeholder="{{placeholder}}" placeholder-style="{{placeholderStyle}}"
+        style="{{inputStyle}}" focus="{{inputFocus}}" password="{{secure}}" maxlength="{{maximumTextLength > 0 ? maximumTextLength : -1}}"
+        confirm-type="{{editingBar ? 'done' : returnKeyType}}" cursor-color="{{cursorColor}}" disabled="{{!editable}}"
+        adjust-position="{{!pinsToKeyboard}}" bindinput="onInput" bindconfirm="onConfirm" bindfocus="onFocus" bindblur="onBlur" />
+      <view wx:if="{{!editable}}" class="cyl-tap-cover" role="button" aria-label="{{placeholder || labels.search}}" bindtap="onNotEditableTap" />
+      <view wx:if="{{showsClearButton && focused && text}}" class="cyl-field-button" role="button" aria-label="{{labels.clear}}" catchtap="onClear">
+        <view class="cyl-mask-icon cyl-mask-clear" aria-hidden="true" />
+      </view>
+      <view wx:if="{{showsVoiceButton && !text}}" class="cyl-field-button" role="button" aria-label="{{labels.voice}}" bindtap="onVoiceTap">
+        <view class="cyl-mask-icon cyl-mask-mic" style="{{textColor ? 'background-color: ' + textColor : ''}}" aria-hidden="true" />
+      </view>
+      <view wx:if="{{showsSubmitButton && text}}" class="cyl-field-button" role="button" aria-label="{{labels.submit}}" bindtap="onSubmitTap">
+        <view class="cyl-mask-icon cyl-mask-submit" aria-hidden="true" />
+      </view>
+      <slot name="trailing" />
+      <!-- The appended items (iOS CYLSearchBarItem): a divider, or CollectionViewClassifyMenu's cyl-tag-button (the one
+           icon + title + animated icon component, with the badge), at least 36 px square; it reads the item's label.
+           The four engine slots go on to cyl-tag-button, which hands them to CYLTabBarController's cyl-animated-item:
+           the package plays no animation itself (the app passes its engines with generic:cyl-*-view). -->
+      <block wx:for="{{shownItems}}" wx:key="index">
+        <view wx:if="{{item.style === 'divider'}}" class="cyl-divider" aria-hidden="true" />
+        <view wx:else class="cyl-item {{item.isEnabled === false ? 'cyl-item-disabled' : ''}}" id="{{item.accessibilityIdentifier}}"
+          data-index="{{index}}" bindtap="onItemTap">
+          <cyl-tag-button id="cyl-bar-item-{{index}}" generic:cyl-lottie-view="cyl-lottie-view" generic:cyl-pag-view="cyl-pag-view"
+            generic:cyl-rive-view="cyl-rive-view" generic:cyl-svga-view="cyl-svga-view"
+            title="{{item.button.title}}" image="{{item.button.image}}"
+            selectedImage="{{item.button.selectedImage}}" animationURL="{{item.button.animationURL}}"
+            gifFirstFrame="{{item.button.gifFirstFrame}}" gifLastFrame="{{item.button.gifLastFrame}}"
+            gifDuration="{{item.button.gifDuration}}" autoplay="{{item.button.autoplay}}" embedded="{{item.button.embedded}}"
+            badgeValue="{{item.button.badgeValue}}" badgeColor="{{item.button.badgeColor}}"
+            accessibilityLabel="{{item.button.accessibilityLabel}}" selected="{{item.button.selected}}"
+            enabled="{{item.isEnabled !== false}}"
+            tagStyle="{{item.button.tagStyle}}" />
+        </view>
+      </block>
+    </view>
+    <view wx:if="{{showsCancelButton || editingBar}}" class="cyl-cancel" role="button" bindtap="onCancel">{{cancelButtonTitle || labels.cancel}}</view>
+  </block>
+</view>

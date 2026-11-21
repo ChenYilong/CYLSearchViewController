@@ -1,0 +1,9 @@
+/* The original demo (README screenshot) rebuilt on CYLSearchView. */
+"title" = "微博@iOS程序犭袁";
+"placeholder" = "輸入問題關鍵字進行檢索";
+"cancel" = "取消";
+"clearHistory" = "清除搜尋歷史";
+"resultsHeader" = "與%@有關的諮詢";
+"result" = "測試%d❤️";
+"back" = "返回";
+"button" = "Button";

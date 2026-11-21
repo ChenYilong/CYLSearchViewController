@@ -1,41 +1,123 @@
 PODS:
-  - CYLSearchViewController (0.1.0)
-  - CYLTabBarController (1.100.0):
-    - CYLTabBarController/Core (= 1.100.0)
+  - CollectionViewClassifyMenu (0.1.0):
+    - CYLAnimatedItem
+  - CYLAnimatedItem (1.100.0):
+    - CYLAnimatedItem/Core (= 1.100.0)
+  - CYLAnimatedItem/Core (1.100.0)
+  - CYLAnimatedItem/Engine (1.100.0):
+    - CYLAnimatedItem/Core
+  - CYLAnimatedItem/LottieSwift (1.100.0):
+    - CYLAnimatedItem/Engine
+    - lottie-ios (>= 4.5.1)
+  - CYLAnimatedItem/SVGA (1.100.0):
+    - CYLAnimatedItem/Engine
+    - SVGAPlayerLite (>= 1.0.8, ~> 1.0)
+  - CYLSearchViewController (0.1.0):
+    - CollectionViewClassifyMenu
+    - CYLAnimatedItem
+    - CYLTableViewPlaceHolder/Core
   - CYLTabBarController/Core (1.100.0):
+    - CYLTabBarController/CYLAnimatedItem
     - CYLTabBarController/CYLBadgeView
     - CYLTabBarController/CYLUtils
+  - CYLTabBarController/CYLAnimatedItem (1.100.0):
+    - CYLAnimatedItem/Core (= 1.100.0)
+  - CYLTabBarController/CYLAnimatedItemLottieSwift (1.100.0):
+    - CYLAnimatedItem/LottieSwift (= 1.100.0)
+  - CYLTabBarController/CYLAnimatedItemSVGA (1.100.0):
+    - CYLAnimatedItem/SVGA (= 1.100.0)
   - CYLTabBarController/CYLBadgeView (1.100.0):
     - CYLTabBarController/CYLUtils
-  - CYLTabBarController/CYLUtils (1.100.0)
-  - CYLTableViewPlaceHolder (1.1.0):
-    - CYLTableViewPlaceHolder/Core (= 1.1.0)
-  - CYLTableViewPlaceHolder/Core (1.1.0)
+  - CYLTabBarController/CYLFlatDesignTabBar (1.100.0):
+    - CYLTabBarController/CYLFlatDesignTabBar-ObjectiveC
+  - CYLTabBarController/CYLFlatDesignTabBar-ObjectiveC (1.100.0):
+    - CYLTabBarController/LottieSwift
+  - CYLTabBarController/CYLUtils (1.100.0):
+    - CYLAnimatedItem/Core (= 1.100.0)
+  - CYLTabBarController/LottieSwift (1.100.0):
+    - CYLTabBarController/Core
+    - CYLTabBarController/CYLAnimatedItemLottieSwift
+  - CYLTabBarController/SVGA (1.100.0):
+    - CYLTabBarController/Core
+    - CYLTabBarController/CYLAnimatedItemSVGA
+  - CYLTableViewPlaceHolder/Core (1.1.0):
+    - CYLAnimatedItem/Core
+  - CYLTableViewPlaceHolder/Lottie (1.1.0):
+    - CYLTableViewPlaceHolder/LottieSwift
+  - CYLTableViewPlaceHolder/LottieSwift (1.1.0):
+    - CYLAnimatedItem/LottieSwift
+    - CYLTableViewPlaceHolder/Core
+  - lottie-ios (4.6.1)
+  - Protobuf (3.27.2)
+  - SSZipArchive (2.4.3)
+  - SVGAPlayerLite (1.0.8):
+    - SVGAPlayerLite/Core (= 1.0.8)
+  - SVGAPlayerLite/Core (1.0.8):
+    - SSZipArchive (= 2.4.3)
+    - SVGAPlayerLite/ProtoFiles
+  - SVGAPlayerLite/ProtoFiles (1.0.8):
+    - Protobuf (= 3.27.2)
 
 DEPENDENCIES:
+  - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `1f8c1001442a548916161b72105045a2d5f26ccf`)
+  - CYLAnimatedItem/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `ace1af0e42d90dbfaed28fbd8beebd58e7fb08de`)
+  - CYLAnimatedItem/LottieSwift (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `ace1af0e42d90dbfaed28fbd8beebd58e7fb08de`)
+  - CYLAnimatedItem/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `ace1af0e42d90dbfaed28fbd8beebd58e7fb08de`)
   - CYLSearchViewController (from `.`)
-  - CYLTabBarController (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `d36c7080157c49c552a3a352d72a9d00a2be11a9`)
-  - CYLTableViewPlaceHolder (from `../CYLTableViewPlaceHolder`)
+  - CYLTabBarController/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `ace1af0e42d90dbfaed28fbd8beebd58e7fb08de`)
+  - CYLTabBarController/CYLFlatDesignTabBar (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `ace1af0e42d90dbfaed28fbd8beebd58e7fb08de`)
+  - CYLTabBarController/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `ace1af0e42d90dbfaed28fbd8beebd58e7fb08de`)
+  - CYLTableViewPlaceHolder/Core (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `a169386cf9c9ad5699aab3511e86df97628e43ef`)
+  - CYLTableViewPlaceHolder/Lottie (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `a169386cf9c9ad5699aab3511e86df97628e43ef`)
+
+SPEC REPOS:
+  trunk:
+    - lottie-ios
+    - Protobuf
+    - SSZipArchive
+    - SVGAPlayerLite
 
 EXTERNAL SOURCES:
+  CollectionViewClassifyMenu:
+    :commit: 1f8c1001442a548916161b72105045a2d5f26ccf
+    :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
+  CYLAnimatedItem:
+    :commit: ace1af0e42d90dbfaed28fbd8beebd58e7fb08de
+    :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLSearchViewController:
     :path: "."
   CYLTabBarController:
-    :commit: d36c7080157c49c552a3a352d72a9d00a2be11a9
+    :commit: ace1af0e42d90dbfaed28fbd8beebd58e7fb08de
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
-    :path: "../CYLTableViewPlaceHolder"
+    :commit: a169386cf9c9ad5699aab3511e86df97628e43ef
+    :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
 
 CHECKOUT OPTIONS:
-  CYLTabBarController:
-    :commit: d36c7080157c49c552a3a352d72a9d00a2be11a9
+  CollectionViewClassifyMenu:
+    :commit: 1f8c1001442a548916161b72105045a2d5f26ccf
+    :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
+  CYLAnimatedItem:
+    :commit: ace1af0e42d90dbfaed28fbd8beebd58e7fb08de
     :git: https://github.com/ChenYilong/CYLTabBarController.git
+  CYLTabBarController:
+    :commit: ace1af0e42d90dbfaed28fbd8beebd58e7fb08de
+    :git: https://github.com/ChenYilong/CYLTabBarController.git
+  CYLTableViewPlaceHolder:
+    :commit: a169386cf9c9ad5699aab3511e86df97628e43ef
+    :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
 
 SPEC CHECKSUMS:
-  CYLSearchViewController: ba67d0fd3f9331a361deaf3d9ac2752a2d2ee5cf
-  CYLTabBarController: 99bfc43bcc42da04e2d953c23dfb60891a6f4e23
-  CYLTableViewPlaceHolder: a046bbc8b8a40833bc660c320211a4cddf3aa265
+  CollectionViewClassifyMenu: 40b0c983deb345bdc2d0083a8d6d2e9a51d73e2a
+  CYLAnimatedItem: d3177d086f5d5ce295ab12005ae925034611a7f0
+  CYLSearchViewController: 3e9151895e3c991faaf0143e783bd173a9edf924
+  CYLTabBarController: 0a54ec0bcac6aba78794eaf24d8fd3286d36baca
+  CYLTableViewPlaceHolder: 067199f54056c001b64841832293f8a3067e3c86
+  lottie-ios: 6467ca7035120c5b0e0acee58bb679cf15875686
+  Protobuf: fb2c13674723f76ff6eede14f78847a776455fa2
+  SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
+  SVGAPlayerLite: ae073300a9faa016e88a54afa8fec43f54fed682
 
-PODFILE CHECKSUM: 9d28dadd44fc648d6353809e8f9492e79c04cba5
+PODFILE CHECKSUM: bbf0fb9706a87f59761e6408fc64c385f7c6be6a
 
 COCOAPODS: 1.17.0

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="material_search_bar_scrolling_view_behavior">com.lapism.search.widget.MaterialSearchBar$ScrollingViewBehavior</string>
+
+</resources>

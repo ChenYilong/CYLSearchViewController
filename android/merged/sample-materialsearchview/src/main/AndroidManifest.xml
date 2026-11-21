@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Merged module manifest (the upstream manifest sets a package attribute, which AGP 8 rejects). -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity android:name="com.miguelcatalan.materialsearchview.sample.DefaultActivity" android:exported="false" android:theme="@style/CYLMergedSampleTheme" android:label="DefaultActivity" />
+        <activity android:name="com.miguelcatalan.materialsearchview.sample.ColoredActivity" android:exported="false" android:theme="@style/CYLMergedSampleTheme" android:label="ColoredActivity" />
+        <activity android:name="com.miguelcatalan.materialsearchview.sample.VoiceActivity" android:exported="false" android:theme="@style/CYLMergedSampleTheme" android:label="VoiceActivity" />
+        <activity android:name="com.miguelcatalan.materialsearchview.sample.StickyActivity" android:exported="false" android:theme="@style/CYLMergedSampleTheme" android:label="StickyActivity" />
+        <activity android:name="com.miguelcatalan.materialsearchview.sample.TabActivity" android:exported="false" android:theme="@style/CYLMergedSampleTheme" android:label="TabActivity" />
+        <activity android:name="com.miguelcatalan.materialsearchview.sample.InputTypeActivity" android:exported="false" android:theme="@style/CYLMergedSampleTheme" android:label="InputTypeActivity" />
+        <activity android:name="com.miguelcatalan.materialsearchview.sample.MainActivity" android:exported="false" android:theme="@style/CYLMergedSampleTheme" android:label="MainActivity" />
+    </application>
+</manifest>

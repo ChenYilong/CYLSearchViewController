@@ -1,0 +1,57 @@
+{
+  "CYLTabBarControllerContext": "CYLSearchExampleSwiftUI",
+  "CYLTabBarControllerLocalization": {
+    "CYLTabBarLocalizationTableName": "CYLSearchTabs",
+    "CYLTabBarLocalizationBundleName": "CYLSearchTabs.bundle"
+  },
+  "CYLTabBarControllerTitlePositionAdjustment": "{0, -2}",
+  "CYLTabBarControllerTabBarItemsAttributes": [
+    {
+      "CYLTabBarItemTitle": "tab.search",
+      "CYLTabBarItemImage": "system:magnifyingglass",
+      "CYLTabBarItemSelectedImage": "system:magnifyingglass",
+      "CYLTabBarItemIdentifier": "search",
+      "CYLTabBarItemPageIdentifier": "search",
+      "CYLTabBarSVGAFilePath": "tab_search.svga",
+      "CYLTabBarSVGASize": "{28, 28}",
+      "CYLTabBarSVGADarkFilePath": "tab_activity.svga"
+    },
+    {
+      "CYLTabBarItemTitle": "tab.examples",
+      "CYLTabBarItemImage": "system:list.bullet",
+      "CYLTabBarItemSelectedImage": "system:list.bullet",
+      "CYLTabBarItemIdentifier": "examples",
+      "CYLTabBarItemPageIdentifier": "examples",
+      "CYLTabBarSVGAFilePath": "tab_list.svga",
+      "CYLTabBarSVGASize": "{28, 28}"
+    },
+    {
+      "CYLTabBarItemTitle": "tab.tagStyle",
+      "CYLTabBarItemImage": "system:tag",
+      "CYLTabBarItemSelectedImage": "system:tag.fill",
+      "CYLTabBarItemIdentifier": "tagStyle",
+      "CYLTabBarItemPageIdentifier": "tagStyle",
+      "CYLTabBarSVGAFilePath": "tab_chat.svga",
+      "CYLTabBarSVGASize": "{28, 28}"
+    },
+    {
+      "CYLTabBarItemTitle": "tab.discover",
+      "CYLTabBarItemImage": "system:sparkle.magnifyingglass",
+      "CYLTabBarItemSelectedImage": "system:sparkle.magnifyingglass",
+      "CYLTabBarItemIdentifier": "discover",
+      "CYLTabBarItemPageIdentifier": "discover",
+      "CYLTabBarSVGAFilePath": "tab_home.svga",
+      "CYLTabBarSVGASize": "{28, 28}",
+      "CYLTabBarSVGADarkFilePath": "tab_profile.svga"
+    }
+  ],
+  "CYLTabBarControllerPlusButton": {
+    "CYLTabBarItemTitle": "tab.searchBar",
+    "CYLTabBarItemImage": "CYLPlusButton",
+    "CYLTabBarItemIdentifier": "plus",
+    "CYLPlusButtonAlignsTitle": false,
+    "CYLPlusButtonSize": "{64, 84}",
+    "CYLPlusButtonCenterYMultiplier": 0.3,
+    "CYLTabBarItemPageIdentifier": "plus"
+  }
+}

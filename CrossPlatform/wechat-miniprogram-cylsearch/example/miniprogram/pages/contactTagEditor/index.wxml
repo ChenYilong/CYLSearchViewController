@@ -1,0 +1,52 @@
+<view class="screen">
+  <cyl-demo-nav title="{{texts.editTags}}">
+    <view slot="right" class="actions">
+      <view class="sync" role="button" aria-label="{{texts.sync}}" id="CYLContactTagsSync" bindtap="onSyncTap">⟳</view>
+      <view class="done {{doneEnabled ? 'done-on' : ''}}" role="button" id="CYLContactTagsDone" aria-disabled="{{!doneEnabled}}" bindtap="onDoneTap">{{texts.done}}</view>
+    </view>
+  </cyl-demo-nav>
+
+  <!-- The search page is this library's cyl-search (inline): the bar, and below it the content page, the one scroller, which
+       holds its own scrolling while a tag is dragged. The page only places its lists into the content slot. -->
+  <cyl-search generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
+    id="search" class="search-view" inline showsContent focusesSearchFieldOnShow="{{false}}" navigationIcon="none"
+    placeholder="{{texts.search}}" bind:textchange="onSearchText" bind:submit="onSearchSubmit">
+  <view slot="content" class="body {{managing ? 'body-managing' : ''}}">
+    <block wx:if="{{query}}">
+      <view class="header"><text class="header-title" role="heading">{{texts.results}}</text></view>
+      <cyl-tag-cloud id="results" tags="{{resultTags}}" listStyle="{{style}}" selectionMode="multiple" bind:tagtap="onTagTap" />
+      <view wx:if="{{canCreate}}" class="create" role="button" id="CYLContactTagsCreate" bindtap="onCreateTap">＋ {{texts.newTag}}: {{createTitle}}</view>
+    </block>
+    <block wx:else>
+      <!-- Recent: CollectionViewClassifyMenu's built-in clear button in the header. -->
+      <cyl-tag-cloud wx:if="{{recentTags.length}}" id="recent" tags="{{recentTags}}" listStyle="{{style}}" selectionMode="multiple"
+        showsSectionHeaders="{{true}}" sectionTitle="{{texts.recent}}" showsClearButton="{{true}}"
+        bind:tagtap="onTagTap" bind:clearbuttontap="onClearRecent" />
+      <view class="header">
+        <text class="header-title" role="heading">{{texts.mine}}</text>
+        <text class="manage" role="button" id="CYLContactTagsManage" aria-description="{{texts.hintManage}}" bindtap="onManageTap">{{managing ? texts.doneManaging : texts.manage}}</text>
+      </view>
+      <!-- My Tags: folded to three rows, the chevron as its last tag; the cloud's editing mode while managing (pencil and cross,
+           dragging, renaming by id). -->
+      <cyl-tag-cloud id="mine" tags="{{mineTags}}" listStyle="{{style}}" selectionMode="multiple" editing="{{managing}}"
+        defaultVisibleRows="{{3}}" foldControlContent="icon"
+        supportsRenamingItems="{{true}}" showsAddItemViewWhileEditing="{{false}}" allowsReordering="{{true}}"
+        bind:tagtap="onTagTap" bind:tagdelete="onTagDelete" bind:tagmove="onTagMove" bind:tagrename="onTagRename"
+        bind:requestnewitem="onRequestNewItem" bind:editingfinish="onEditingFinish" />
+      <view wx:if="{{!managing}}" class="create" role="button" id="CYLContactTagsNewTag" bindtap="onNewTagTap">＋ {{texts.newTag}}</view>
+    </block>
+    <!-- The empty states: CYLTableViewPlaceHolder's placeholder below the tags. -->
+    <view wx:if="{{emptyState !== 'none'}}" class="placeholder" id="CYLContactTagsPlaceholder">
+      <cyl-placeholder components="{{placeholderComponents}}" interactive="{{false}}" />
+    </view>
+  </view>
+  </cyl-search>
+
+  <!-- The edit field of "Manage": the core's editing bar, at the bottom, riding on the keyboard. -->
+  <cyl-search-bar generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
+    wx:if="{{managing}}" id="CYLSearchEditingBar" editingBar="{{true}}" pinsToKeyboard="{{true}}"
+    placeholder="{{texts.tagName}}" cancelButtonTitle="{{editingTitle}}" value="{{editingText}}" focus="{{editingFocus}}"
+    bind:editingsubmit="onEditingSubmit" />
+
+  <cyl-placeholder-hud id="hud" />
+</view>

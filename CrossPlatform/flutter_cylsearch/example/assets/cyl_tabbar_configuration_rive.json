@@ -1,0 +1,65 @@
+{
+  "CYLTabBarControllerContext": "CYLSearchFlutterExample",
+  "CYLTabBarControllerTabBarItemsAttributes": [
+    {
+      "CYLTabBarItemTitle": "List style",
+      "CYLTabBarItemImage": "flutter-asset:assets/tab_list.png",
+      "CYLTabBarItemIdentifier": "listStyle",
+      "CYLTabBarRiveFilePath": "icons.riv",
+      "CYLTabBarAnimationOptions": {
+        "artboard": "CHAT",
+        "stateMachine": "CHAT_Interactivity",
+        "input": "active",
+        "tint": "title"
+      },
+      "CYLTabBarRiveSize": "{28, 28}"
+    },
+    {
+      "CYLTabBarItemTitle": "Tag style",
+      "CYLTabBarItemImage": "flutter-asset:assets/tab_tags.png",
+      "CYLTabBarItemIdentifier": "tagStyle",
+      "CYLTabBarRiveFilePath": "icons.riv",
+      "CYLTabBarAnimationOptions": {
+        "artboard": "BELL",
+        "stateMachine": "BELL_Interactivity",
+        "input": "active",
+        "tint": "title"
+      },
+      "CYLTabBarRiveSize": "{28, 28}"
+    },
+    {
+      "CYLTabBarItemTitle": "Empty results",
+      "CYLTabBarItemImage": "flutter-asset:assets/tab_empty.png",
+      "CYLTabBarItemIdentifier": "emptyResults",
+      "CYLTabBarRiveFilePath": "icons.riv",
+      "CYLTabBarAnimationOptions": {
+        "artboard": "SEARCH",
+        "stateMachine": "SEARCH_Interactivity",
+        "input": "active",
+        "tint": "title"
+      },
+      "CYLTabBarRiveSize": "{28, 28}"
+    },
+    {
+      "CYLTabBarItemTitle": "Discover",
+      "CYLTabBarItemImage": "flutter-asset:assets/tab_discover.png",
+      "CYLTabBarItemIdentifier": "discover",
+      "CYLTabBarRiveFilePath": "icons.riv",
+      "CYLTabBarAnimationOptions": {
+        "artboard": "USER",
+        "stateMachine": "USER_Interactivity",
+        "input": "active",
+        "tint": "title"
+      },
+      "CYLTabBarRiveSize": "{28, 28}"
+    }
+  ],
+  "CYLTabBarControllerPlusButton": {
+    "CYLTabBarItemTitle": "Search bar",
+    "CYLTabBarItemImage": "flutter-asset:assets/plus.png",
+    "CYLTabBarItemIdentifier": "plus",
+    "CYLPlusButtonImageSize": "{55, 55}",
+    "CYLTabBarItemPageIdentifier": "plus",
+    "CYLPlusButtonIndexInTabBar": 2
+  }
+}
