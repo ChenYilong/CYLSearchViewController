@@ -891,3 +891,23 @@ begins and becomes `DONE` when it ends.
   60 = the rule written and plan 1 handed to the CYLTabBarController session.
 - **Status**: rule written (`AGENTS.md`, `instructions.md`, `cyl-harmonyos-setup`, `cyl-verify`); plan 1 sent to the
   CYLTabBarController session (2026-11-22). Score 60/100.
+
+
+## TODO (2026-11-22): tags as the default suggestion style, folded, with the trailing fold tag
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). macOS session.
+- **Requirements**: in the core (`CYLSearchView` on every platform) the default `suggestionStyle` becomes tags; every other
+  default stays (CollectionViewClassifyMenu's `CYLTagListView` in `suggestionsTagView`, `CYLMenuFoldControl` at the tail
+  with an icon, 2 folded rows), so the tags start folded and the last tag is always the fold control, folded or
+  unfolded, and toggles the fold. Screens that replicate a list design set the list style explicitly.
+- **Prompt (verbatim)**: "修改searchbarcore核心代码， 修改taglist 默认样式保持当前当前的配置的基础上仅仅修改默认样式为taglist，且启动折叠，
+  折叠样式为tag尾部折叠按钮， 下面是详细描述， 该样式是已经封装好的样式 ， 其特点为无论折叠还是展开taglist ，
+  其最后一个tag总是折叠按钮，可以响应折叠展开操作。"
+- **Prompt (English)**: change the search bar core: keep the current configuration and only change the default
+  suggestion style to the tag list, folded at start, with the fold button as the trailing tag (the existing packaged
+  style): folded or unfolded, the last tag is always the fold button and it toggles folding.
+- **Acceptance**: 100 = the default is tags on iOS, Android, HarmonyOS, the mini program, React Native and Flutter; folded
+  at start; the trailing fold tag present in both states and toggling (test per platform); list-only tests and list
+  replica screens set the list style explicitly; suites green; labelled screenshots folded / unfolded. 60 = iOS and
+  Android done with tests.
+- **Status**: in progress.
