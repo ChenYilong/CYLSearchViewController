@@ -182,8 +182,8 @@ plus page; the Examples tab at the largest accessibility text size.
   and `instructions.md`, and in the `cyl-plus-button` and `cyl-tabbar-integration` skills. The Android example
   already follows it (56 dp, `CYLPlusButtonCenterYMultiplier` 0.3; screenshots in
   [android-and-cross-platform.md](android-and-cross-platform.md)).
-- Follow-up `TODO`: the iOS example's plus button (`CYLSearchExample/CYLTabBarConfiguration.json`) is not raised
-  yet; give it the raised effect, build and screenshot it (iOS example layer).
+- Follow-up DONE (2026-11-21, `a5158b8`; was `TODO`): the iOS example's plus button (`CYLSearchExample/CYLTabBarConfiguration.json`)
+  is raised, built and screenshotted (the "iOS example" sub-entry below; the earlier attempt is kept as history).
   - Tried (2026-11-14, iPhone 17, iOS 26.3.1): `CYLPlusButtonSize` `{56, 56}` and `CYLPlusButtonCenterYMultiplier` 0.3
     in `CYLSearchExample/CYLTabBarConfiguration.json` (the keys the Android example uses, read by the iOS parser) change
     nothing: the plus button stays level with the tab icons in the floating Liquid Glass bar. The same in the React
@@ -191,7 +191,8 @@ plus page; the Examples tab at the largest accessibility text size.
     button replaces only the item's icon (`cyl_showsTitleInTabBarItem`), so it is placed inside the item, not by
     `+multiplierOfTabBarHeight:`; the multiplier applies to a title-less button with
     `cyl_appliesCenterYOffsetWithoutTitle` YES, or in the other styles. Decision needed in CYLTabBarController (raised
-    effect with a title on Liquid Glass), so it stays `TODO` here; the config was reverted.
+    effect with a title on Liquid Glass), so it stayed `TODO` then; the config was reverted. Superseded 2026-11-21: `CYLPlusButtonAlignsTitle`
+    false makes the multiplier apply (below).
   - React Native: DONE 2026-11-16. `CYLPlusButtonAlignsTitle` false (RN `alignsTitle: false`) keeps the title on the
     button, so the multiplier applies; see `android-and-cross-platform.md`, "Open TODOs".
   - iOS example: DONE (2026-11-21, `a5158b8`, iPhone 18 Pro simulator, iOS 27.2, Xcode 27.2). The iOS core has no default
@@ -964,6 +965,8 @@ Android.
   `style` clash (the next entry); the iOS More check is the macOS session's; the phone retest is the user's.
   2026-11-22: the Android More patch is DONE at the pin `ace1af0e` (the next entry). Score: 85/100; left: the iOS More check (macOS
   session) and the mini program retest on the user's phone.
+  2026-11-22 (macOS session): the iOS More check is DONE (8 of 8, above, `2fa5667`). Score: 95/100; left: the mini program retest on the
+  user's phone.
 
 ## DONE (2026-11-22; TODO 2026-11-20): two tab items stay selected after a quick switch in the SVGA tab bar: the Android audit
 
@@ -1083,7 +1086,7 @@ Android.
   Hint: CYLTabBarController's own Flutter iOS platform view needed an `EagerGestureRecognizer` (`3ee06877`) for the same reason (UIKit platform views get their
   touches replayed by the embedder after the arena decides); to try next on iOS: an eager recognizer in the `UiKitView` (`gestureRecognizers`) or the embedder's
   `FlutterPlatformViewGestureRecognizersBlockingPolicy`. Sent to the Windows session (owner of `flutter_cylsearch`'s Dart core).
-- **iOS plan (macOS session)**: native and React Native iOS need no hold today. Needed: the ClassifyMenu callbacks `menuDidChangeReordering` / `menuDidChangeSmearing` on iOS
+- **iOS plan (macOS session)** (DONE 2026-11-22, see "iOS: Flutter and React Native DONE" below): native and React Native iOS need no hold today. Needed: the ClassifyMenu callbacks `menuDidChangeReordering` / `menuDidChangeSmearing` on iOS
   (asked of Mac-CollectionViewClassifyMenu文件夹) for API parity and for the Flutter iOS fix (the platform view forwards `didChangeDragging` and the Dart core claims the drag, same as
   Android); the iOS search core's content scroll view (`isScrollEnabled`) holds while a drag/smear is active, if a host puts a scroll view in its content slot.
 - **Progress (2026-11-20, Windows)**: Flutter Android fixed and verified; iOS audit by the macOS session: native and React Native hold, Flutter does
@@ -1098,7 +1101,7 @@ Android.
     drag state event).
   - **Flutter Android after the fix** (same drag test, 450 px up and 300 px down): the tag moves, the content stays; a swipe on a tag scrolls
     ([assets/flutter-android-tag-drag-fixed-20261120.png](assets/flutter-android-tag-drag-fixed-20261120.png), Android API 37 emulator, Windows 11, 2026-11-20 +13:00, after a17131a).
-  - **Left**: Flutter iOS (the macOS session verifies the same Dart core on iOS and forwards `didChangeDragging` once the iOS ClassifyMenu callbacks land); HarmonyOS
+  - **Left** (Flutter iOS and React Native iOS DONE 2026-11-22, below): Flutter iOS (the macOS session verifies the same Dart core on iOS and forwards `didChangeDragging` once the iOS ClassifyMenu callbacks land); HarmonyOS
     (the core's content `Scroll` holds only while a drag is active, from the ClassifyMenu callbacks; the callbacks reach the app through the tag list's delegate, so the
     search core needs a way to hear them, to be designed with the ClassifyMenu session; then a device run); React Native: forward the events for parity.
   - **React Native events (2026-11-21, Windows)**: `<CYLTagListView onReorderingChange onSmearingChange>` (`CylsearchTagListViewNativeComponent.ts`),
@@ -1115,6 +1118,8 @@ Android.
     - Flutter iOS (debug, `--hold` 0.6, 1.2 and 2.0 s, an `axe drag` of "Family" in Manage): the tag lifts and floats, lands at its new place, and "My
       Tags" stays where it was, so the page does not scroll with the drag; a swipe without a hold still scrolls the page. The 2026-11-20 failure (the
       tag never lifted) does not reproduce with this build; it was not bisected between the new pins and the new `didChangeDragging`.
+      A temporary `NSLog` in `reportDragging` (not committed) logged `didChangeDragging true` at the drag's start and `false` at
+      the drop (2026-11-22 01:25 +13:00), so the forwarding fires on iOS.
     - React Native iOS (Release): the same drag; a temporary `console.error` in the example's handler (not committed) logged
       `reordering true` when the drag started and `reordering false` at the drop. The smear path is wired the same way and was not exercised.
     ![Flutter and React Native iOS tag drag, df3283a, 2026-11-22](assets/ios-iphone18pro-20261122-tag-drag-holds-flutter-rn.png)

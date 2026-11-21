@@ -148,7 +148,10 @@ Score: 5/5 = 100.
     so `android/merged` moved from AGP 8.7.3 / Kotlin 2.0.21 to those (it builds and its tests pass).
   - iOS: CocoaPods with the local core pod and the sub-repositories pinned by commit, static frameworks. Swift
     Package Manager is off in the example; Flutter warns that a plugin without SPM support will be an error in a
-    future version (`TODO`: a `Package.swift` once the core and its sub-repositories can be Swift packages).
+    future version (`TODO`: a `Package.swift` once the core and its sub-repositories can be Swift packages). Still blocked
+    (2026-11-22, macOS session): this repository has no `Package.swift`, and CYLTabBarController's SwiftPM target is its
+    migration's endgame (its session); the plugin follows when the core and CollectionViewClassifyMenu, CYLTableViewPlaceHolder
+    and CYLTabBarController ship Swift packages. Owner: the macOS session, after those.
   - Tests: `flutter test` 6/6 (parameters with the iOS names and defaults, brightness, events, the platform view of
     each platform); `flutter analyze` clean. Verified by hand on the iOS 26.3 simulator and the Android 15 emulator:
     typing in the native bar reaches Dart ("Text: Rive"), the list and tag styles filter, "zzz" shows the empty
