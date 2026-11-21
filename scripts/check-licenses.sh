@@ -18,6 +18,22 @@ required=(
 )
 
 status=0
+# The Swift port of QMUI_iOS's search classes (docs/qmui-search-controller.md) ships Tencent's notice in the iOS bundle,
+# and every ported file keeps Tencent's header.
+if ! grep -q 'Tencent' Resources/CYLSearchViewController.bundle/LICENSE.QMUI 2>/dev/null; then
+  echo "error: Resources/CYLSearchViewController.bundle/LICENSE.QMUI (the QMUI_iOS notice) is missing" >&2
+  status=1
+fi
+if ! grep -q 'LICENSE.QMUI' Resources/CYLSearchViewController.bundle/NOTICE 2>/dev/null; then
+  echo "error: Resources/CYLSearchViewController.bundle/NOTICE does not name LICENSE.QMUI" >&2
+  status=1
+fi
+for ported in CYLSearchBar CYLSearchBarAppearance CYLSearchController CYLSearchTableViewController; do
+  if ! grep -q 'Tencent is pleased to support the open source community' "Sources/CYLSearchBar/$ported.swift"; then
+    echo "error: Sources/CYLSearchBar/$ported.swift lost Tencent's header" >&2
+    status=1
+  fi
+done
 for file in "${required[@]}"; do
   if [ ! -f "$file" ]; then
     echo "error: $file is missing" >&2

@@ -65,3 +65,25 @@ any other) ships its license declaration inside the package, in the package's re
     `cyl.placeholder.commit` moves to `94c7bbd` or later, delete the `withXml` block in `cylsearch/build.gradle.kts`. DONE
     (2026-11-22): pinned at `a169386`, the block is gone, and `publishReleasePublicationToBuildRepository` still names
     `io.github.chenyilong:cyltableviewplaceholder:0.1.0` and `io.github.chenyilong:cyltableviewplaceholder-refresh:0.1.0`.
+
+## DONE (2026-11-22): the QMUI_iOS port ships Tencent's notice (phase 4 of docs/qmui-search-controller.md)
+
+- **Context**: `feat/harmonyos-parity` (PR #11). The Swift port of QMUI_iOS's search classes (Tencent, MIT) came into
+  `Sources/CYLSearchBar` in phases 1 to 3 of [qmui-search-controller.md](qmui-search-controller.md).
+- **Ported files** (each starts with Tencent's original header, then "Ported to Swift for CYLSearchViewController, 2026."):
+
+  | File | Derived from |
+  | --- | --- |
+  | `Sources/CYLSearchBar/CYLSearchBar.swift` | `QMUISearchBar`, `UISearchBar+QMUI` |
+  | `Sources/CYLSearchBar/CYLSearchBarAppearance.swift` | the style values of `qmui_styledAsQMUISearchBar` (QMUIConfiguration) |
+  | `Sources/CYLSearchBar/CYLSearchController.swift` | `QMUISearchController`, `UISearchController+QMUI` |
+  | `Sources/CYLSearchBar/CYLSearchTableViewController.swift` | `QMUICommonTableViewController (Search)` |
+  | `Sources/CYLSearchBar/CYLSearchHeaderSnapper.swift` | not derived: original code (only the idea of zero estimated heights comes from QMUI's answer to #1160), so no Tencent header |
+
+- **Where the notice ships**: the iOS pod only (the port is Swift for iOS; the Android, HarmonyOS, React Native, Flutter and
+  mini program packages contain none of these files). `Resources/CYLSearchViewController.bundle/LICENSE.QMUI` holds
+  Tencent's copyright line and the MIT terms, and `Resources/CYLSearchViewController.bundle/NOTICE` names the files and
+  `LICENSE.QMUI`, next to the notices of the icons (Material Design Icons, KLTableViewAndCollectionViewPlaceholder).
+  The pod's own `LICENSE` (MIT, Copyright (c) 2015 ChenYilong) is unchanged.
+- **Check**: `bash scripts/check-licenses.sh` now also fails when `LICENSE.QMUI` is missing, when `NOTICE` does not name it, or
+  when a ported file loses Tencent's header (checked: "Licenses: OK (9 files)").

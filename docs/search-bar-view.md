@@ -272,3 +272,9 @@ text size.
 - Status: DONE (2026-11-14): the cores, the wrappers, all four Discover examples (native iOS, native Android,
   Flutter, React Native), their tests and their screenshots. Table 58/58, no `TODO`.
 
+## See also: CYLSearchBar and CYLSearchController (2026-11-22)
+
+`CYLSearchBarView` is a custom `UIView` field; for a bar that is a `UISearchBar` (a table header, a navigation item,
+a plain subview) and for a `UISearchController` wrapper with a launch view, results table, empty view and swipe to
+dismiss, use `CYLSearchBar` and `CYLSearchController`, ported from QMUI_iOS:
+[qmui-search-controller.md](qmui-search-controller.md). `CYLSearchBarView` itself did not change.
