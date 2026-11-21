@@ -19,12 +19,14 @@ official rule wins.
 
 ## Naming
 
-- Every project-owned type, protocol and global function starts with `CYL` (types) or `cyl` (functions), as in the
-  Objective-C code (`AGENTS.md`, "Project rules"). One primary type per file; the file is named after it.
+- Every project-owned public type and protocol starts with `CYL`. No new global functions (static members of a `CYL`
+  type instead); functions, members and constants are lowerCamelCase without underscores (SonarCloud swift:S100,
+  S115). Re-evaluated 2026-11-22: skill `cyl-naming`. One primary type per file; the file is named after it.
 - Follow the API Design Guidelines: clarity at the point of use, argument labels that read as phrases, no needless
   words, Boolean properties that read as assertions (`isIconified`, `showsVoiceButton`).
 - Private helpers have no prefix (`private func applyStyle()`); members of an extension on a system type start with
-  `cyl_` in Objective-C names and `cyl` in Swift names.
+  `cyl_` in Objective-C names and `cyl` in Swift names (public members only; internal and private extension members
+  have no prefix).
 
 ## Objective-C compatibility (the core)
 

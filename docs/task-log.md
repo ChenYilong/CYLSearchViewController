@@ -839,3 +839,24 @@ begins and becomes `DONE` when it ends.
   native re-implementations; all suites green on iOS 17.5 / 26.5 / 27.2 and the platforms' own tests; screenshots before
   and after. 60 = design doc plus the iOS merge with green tests.
 - **Status**: TODO (after the React Native and Flutter ports of the previous entry finish).
+
+
+## DONE (rules) / TODO (code) (2026-11-22): re-evaluate the CYL / cyl_ prefixes against static analysis
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). macOS session.
+- **Context**: the SonarCloud report on CYLTabBarController PR #788 (956 open issues: swift:S100 743, S115 146, S116 16,
+  S117 11, S101 3) flags `cyl_` / `CYL` function and constant names. CYLSearchViewController is not analysed by
+  SonarCloud; its own S100 cases are only the global test helpers (`CYLRunLoop`, `CYLTestWindow`, … in
+  `CYLSearchExampleTests/*TestSupport.swift`); the core has no `cyl_` functions.
+- **Prompt (verbatim)**: "找到本项目instructions 相关文件以及skills相关文件，如果没有就新增文件保证写入成功，全英文写入： 根据github pr评论区的静态分析报告，
+  重新评估 instructions 中关于cyl_ CYL 方法名前缀名，类名前缀名的必要性， 这个前缀目的主要是为了在objc项目中，
+  兼容分类方法可能覆盖其他同名实现的场景， 以及弥补objc没有命名空间导致类名冲突的问题，请在Swift上重新评估该前缀必要性，
+  以及其他有相关机制，能保证我们的库不会导致类名冲突， 方法名冲突的其他语言， 以静态分析为指导意见， 重新调整代码命名， 以适应静态分析建议"
+- **Prompt (English)**: find this project's instruction and skill files (add one if missing), write in English: using the
+  static analysis report in the PR comments, re-evaluate the need for the `cyl_` / `CYL` prefixes, which exist for
+  Objective-C category overrides and the missing namespace; re-evaluate them for Swift and for the other languages that
+  have namespaces, and rename the code to follow the static analysis.
+- **Done**: new skill `.agents/skills/cyl-naming/SKILL.md` (reasons, Swift table, other platforms, check); rules updated in
+  `instructions.md` ("Naming"), `AGENTS.md` ("Project rules" and the skills table), `docs/swift-coding-standard.md`.
+- **TODO**: rename the test helpers to lowerCamelCase after the merge phases (they edit the same test files); the
+  CYLTabBarController renames belong to that repository's session and pull request.
