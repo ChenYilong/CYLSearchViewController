@@ -7,6 +7,9 @@ import 'package:flutter_cylsearch/flutter_cylsearch.dart';
 
 import 'contact_tags_page.dart';
 import 'discover_page.dart';
+import 'qmui_search_bar_styles_page.dart';
+import 'qmui_search_controller_page.dart';
+import 'qmui_short_list_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,7 +46,11 @@ class CYLSearchDemo {
       this.focusesSearchFieldOnShow = true,
       this.showsResults = false,
       this.contactTags = false,
-      this.emptyTags = false});
+      this.emptyTags = false,
+      this.page});
+
+  /// Opens a screen of the QMUI search port instead of a search page: `controller`, `styles` or `short`.
+  final String? page;
 
   /// Opens the contact tags demo (iOS CYLContactRemarkViewController) instead of a search page.
   final bool contactTags;
@@ -92,6 +99,9 @@ const List<CYLSearchDemoTab> cylDemoTabs = <CYLSearchDemoTab>[
       <CYLSearchDemo>[
         CYLSearchDemo('Open search'),
         CYLSearchDemo('Results and pull to refresh', showsResults: true),
+        CYLSearchDemo('Search controller', page: 'controller'),
+        CYLSearchDemo('Search bar styles', page: 'styles'),
+        CYLSearchDemo('Short list', page: 'short'),
       ]),
   CYLSearchDemoTab('Tag style', 'The same suggestions as tags (CollectionViewClassifyMenu).',
       <CYLSearchDemo>[
@@ -141,6 +151,16 @@ class _CYLSearchTabsState extends State<CYLSearchTabs> {
   bool _plusPageSelected = false;
 
   @override
+  void initState() {
+    super.initState();
+    // `--dart-define=CYL_DEMO_PAGE=controller|styles|short` opens that screen at launch, for screenshots.
+    const page = String.fromEnvironment('CYL_DEMO_PAGE');
+    if (page.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => openCYLQMUIPage(context, page));
+    }
+  }
+
+  @override
   Widget build(BuildContext context) => Scaffold(
         body: _plusPageSelected
             ? const CYLSearchBarDemoPage()
@@ -160,6 +180,16 @@ class _CYLSearchTabsState extends State<CYLSearchTabs> {
       );
 }
 
+/// Opens a screen of the QMUI search port: `controller`, `styles` or `short`.
+void openCYLQMUIPage(BuildContext context, String page) {
+  final Widget screen = switch (page) {
+    'controller' => const CYLQMUISearchControllerPage(),
+    'styles' => const CYLQMUISearchBarStylesPage(),
+    _ => const CYLQMUIShortListPage(),
+  };
+  Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => screen));
+}
+
 /// A tab: its description and one button per demo, each opening the native search page as a full screen route.
 class CYLSearchDemoPage extends StatelessWidget {
   /// Creates the page of `tab`.
@@ -169,6 +199,10 @@ class CYLSearchDemoPage extends StatelessWidget {
   final CYLSearchDemoTab tab;
 
   void _openSearch(BuildContext context, CYLSearchDemo demo) {
+    if (demo.page != null) {
+      openCYLQMUIPage(context, demo.page!);
+      return;
+    }
     if (demo.contactTags) {
       Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => CYLContactRemarkPage(empty: demo.emptyTags)));
       return;
