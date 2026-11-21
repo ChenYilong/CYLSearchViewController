@@ -714,3 +714,27 @@ begins and becomes `DONE` when it ends.
 - **Acceptance**: 100 = the core fixed (`self.bounds`), every job of the iOS workflow green on the new head. 60 = the
   compiler error gone, "pod lib lint" and "Example build and analyze" green.
 - **Status**: in progress.
+
+
+## TODO (2026-11-22): the open items of the QMUI search port (iOS versions, launch view refresh, other platforms)
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). macOS session. Context: the QMUI search port (`docs/qmui-search-controller.md`,
+  94/100) left three items outside its score. The CI failure of the same prompt is the entry above (another session,
+  `ff1e4de`); this entry only watches its run.
+- **Requirements**:
+  1. Test the port on older iOS: the full suite on the iOS 17.5 and 26.5 simulators of this host (iOS 15.0 is
+     unavailable on macOS 15 and later, no iOS 16 runtime: a missing point with that reason).
+  2. The launch view of the "Search controller" screen reads the history again after a submitted query while it stays on
+     screen (core first: the controller announces the new query).
+  3. The new screens on the mini program, Android, HarmonyOS, React Native and Flutter: a parity table first
+     (`docs/qmui-search-controller.md`), then one port per platform with labelled screenshots.
+- **Prompt (verbatim)**: "fix ci error and fix" followed by the pasted list: "Open, outside the score / - Only iOS 27.2
+  was tested; iOS 15–26 are unverified. CYLSearchBar watches frame changes on views UIKit owns, which may behave
+  differently on older iOS versions. / - The new screens have no versions yet on the mini program, Android, HarmonyOS,
+  React Native or Flutter. Per AGENTS.md those belong to a Win session. / - The recent-search list doesn't refresh while
+  it stays on screen."
+- **Prompt (English)**: fix the CI error and fix the three open items above. Note: no rule in `AGENTS.md` or
+  `instructions.md` gives the other platforms to a Windows session (checked 2026-11-22); the earlier report was wrong.
+- **Acceptance**: 100 = the 122 tests green on iOS 17.5, 26.5 and 27.2; the refresh covered by a test; every platform
+  has the six screens with its own test or screenshot; CI green. 60 = items 1 and 2 done, the parity table written.
+- **Status**: in progress.
