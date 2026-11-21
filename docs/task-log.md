@@ -493,3 +493,32 @@ begins and becomes `DONE` when it ends.
   test, watched after pushing.
 - **Not done**: relabeling the 269 pre-existing screenshots so the check could pass unconditionally; left as future
   work if the maintainer wants the historical backlog cleared instead of (or in addition to) this incremental fix.
+
+## TODO (2026-11-21): fix every open TODO in docs/
+
+- **Branch**: `feat/harmonyos-parity` (pull request 11). Windows 11 session (no Xcode, no Mac); Android SDK with the API 37
+  emulator, DevEco Studio with the Mate 70 Pro emulator, Flutter, Node and WeChat DevTools are available.
+- **Context**: `grep TODO docs/` gives 329 lines; most are history (`DONE (…; TODO …)` headings, quoted prompts, the
+  `TODO: N/A on HarmonyOS` rows that count as handled). The open items, triaged on 2026-11-21:
+  1. Stale (the work is done; the note was not updated): `harmonyos-api-alignment.md` status "score 0";
+     `svga-tab-icons.md` (points at a heading that is now DONE); `search-core-merge.md` "not verified yet";
+     `animated-icon-component.md` (the CYLTableViewPlaceHolder `8dc39c3` pin, the HarmonyOS / mini program component,
+     the verification list, the PR #814 pin note, the `57a527e` heading's status); `sub-repositories.md` status;
+     `ios-api-alignment.md` "TODO" heading; `core-todo.md` "TODO: Flutter and React Native" (the editing bar exists in
+     both); `task-log.md` plus-button lines.
+  2. Can be done on this machine: `CYLSearchView.showsSuggestionCacheHeader` (iOS only, `swift-migration.md` step 2) on
+     Android, HarmonyOS, the mini program, Flutter and React Native; Maven publishing with an MIT POM for the Android
+     library (`licenses.md`); React Native forwards the tag list's drag and smear states (`CYLTabBarController-Integration.md`,
+     tag drag, plan step 4); re-pin CYLTabBarController to a commit with the Android More-tab fix `c1abdffe` and re-run
+     the quick-switch check (two entries of 2026-11-20); HarmonyOS Scorecard 3 row 25 on the emulator (the disk is no
+     longer full: 318 GB free); the mini program back-gesture check in WeChat DevTools (`task-log.md`, 2026-11-15).
+  3. Blocked here, kept `TODO` with the reason: iOS (the example's raised plus button, the Swift migration steps 2 to 4,
+     Flutter iOS tag drag, the iOS More tab check) needs the macOS session; the mini program keyboard placeholder and the
+     tab-switch retest need the user's phone.
+- **Requirements**: fix every TODO in `docs/` that can be fixed; follow AGENTS.md (core first, tests, labelled
+  screenshots, scores in each document).
+- **Prompt (verbatim)**: "fix all todo in docs"
+- **Acceptance**: 100 = every item of groups 1 and 2 done with evidence (tests, builds, labelled screenshots, commits
+  pushed) and every group 3 item says why it is blocked and who owns it; 60 = group 1 and at least four of the six
+  group 2 items.
+- **Status**: started (2026-11-21). Score 0/100.
