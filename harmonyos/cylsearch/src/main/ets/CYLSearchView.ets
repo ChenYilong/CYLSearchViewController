@@ -11,7 +11,13 @@ import {
   CYLRefreshScrollViewModel
 } from 'cylplaceholder';
 import { CYLMenuGestureState } from '@cyl/classifymenu';
-import { CYLSearchBarComponent, CYLSearchBarNavigationIcon, CYLSearchBarView, CYLSearchBarViewDelegate } from './CYLSearchBarView';
+import {
+  CYLSearchBarAppearance,
+  CYLSearchBarComponent,
+  CYLSearchBarNavigationIcon,
+  CYLSearchBarView,
+  CYLSearchBarViewDelegate
+} from './CYLSearchBarView';
 import { CYLSearchResources, CYLSearchSuggestionCache, CYLSearchSuggestionCachePolicy } from './CYLSearchResources';
 
 // MARK: - Pure logic (begin): no ArkUI, no kit; harmonyos/scripts/host-logic-test.mjs runs it with Node.
@@ -119,6 +125,48 @@ function cylFoldedTagCount(widths: number[], width: number, rows: number, spacin
     }
   }
   return 0;
+}
+
+/**
+ * Whether the empty view shows: it was asked for and the query is not empty (iOS `QMUISearchController`: the empty
+ * view is not shown while the text is empty, because it would sit on the dimming view).
+ */
+function cylSearchEmptyViewShown(requested: boolean, query: string): boolean {
+  return requested && query.trim().length > 0;
+}
+
+/**
+ * Whether the launch view shows: there is one and the query is empty.
+ */
+function cylSearchLaunchViewShown(hasLaunchView: boolean, query: string): boolean {
+  return hasLaunchView && query.trim().length === 0;
+}
+
+/**
+ * Whether the dimming shows under the bar: a dimming color is set, the query is empty and no launch view covers it
+ * (iOS `dimmingColor` is ignored when `launchView` is set).
+ */
+function cylSearchDimmingShown(hasDimming: boolean, hasLaunchView: boolean, query: string): boolean {
+  return hasDimming && !hasLaunchView && query.trim().length === 0;
+}
+
+/**
+ * The height to add after the rows so that a header of the list can scroll out of sight above a short list:
+ * what the rows leave of the viewport, never less than 0 (iOS `CYLSearchHeaderSnapper`, issue 1160).
+ */
+function cylSearchHeaderFillerHeight(viewportHeight: number, rowsHeight: number): number {
+  return Math.max(0, viewportHeight - rowsHeight);
+}
+
+/**
+ * Where a header that rests at `offset` settles: fully hidden (its height) from its half on, else fully shown (0);
+ * undefined when it already is, or when it is not in the header band (iOS `CYLSearchHeaderSnapper.settle`).
+ */
+function cylSearchHeaderSettleOffset(offset: number, headerHeight: number): number | undefined {
+  if (headerHeight <= 0 || offset <= 0 || offset >= headerHeight) {
+    return undefined;
+  }
+  return offset >= headerHeight / 2 ? headerHeight : 0;
 }
 
 // MARK: - Pure logic (end)
@@ -276,6 +324,70 @@ export interface CYLSearchViewDelegate {
    * A result of `resultsDataSource` was tapped (iOS `-searchView:didSelectResult:`).
    */
   searchViewDidSelectResult?: (searchView: CYLSearchView, result: Object) => void;
+  /**
+   * The search is about to open (iOS `willPresentSearchController`).
+   */
+  searchViewWillShow?: (searchView: CYLSearchView) => void;
+  /**
+   * The search is about to close (iOS `willDismissSearchController`).
+   */
+  searchViewWillClose?: (searchView: CYLSearchView) => void;
+  /**
+   * Update the results for `searchString`: called on every change of the text, also with "" (when the search opens,
+   * when the text is deleted or cleared), as iOS `searchResultsDelegate.updateResultsFor` is.
+   */
+  searchViewUpdateResults?: (searchView: CYLSearchView, searchString: string) => void;
+  /**
+   * A submitted query went into the history; a launch view that stays on screen reads it again (iOS
+   * `historyDidChangeNotification`).
+   */
+  searchViewHistoryDidChange?: (searchView: CYLSearchView, query: string) => void;
+}
+
+/**
+ * The content of the empty view of a search or a list (iOS `showEmptyView(text:detailText:buttonTitle:buttonAction:)`,
+ * `hideEmptyView()`, `isEmptyViewShowing`): a centered text, an optional detail text and an optional button.
+ */
+@ObservedV2
+export class CYLSearchEmptyView {
+  /**
+   * Whether the empty view was asked for.
+   */
+  @Trace isShowing: boolean = false;
+  /**
+   * The main text, such as "No matching results".
+   */
+  @Trace text: string = '';
+  /**
+   * The smaller text under it.
+   */
+  @Trace detailText: string | undefined = undefined;
+  /**
+   * The title of the button under the texts.
+   */
+  @Trace buttonTitle: string | undefined = undefined;
+  /**
+   * Called when the button is tapped.
+   */
+  buttonAction: (() => void) | undefined = undefined;
+
+  /**
+   * Shows the empty view with these texts.
+   */
+  show(text: string, detailText?: string, buttonTitle?: string, buttonAction?: () => void): void {
+    this.text = text;
+    this.detailText = detailText;
+    this.buttonTitle = buttonTitle;
+    this.buttonAction = buttonAction;
+    this.isShowing = true;
+  }
+
+  /**
+   * Hides the empty view.
+   */
+  hide(): void {
+    this.isShowing = false;
+  }
 }
 
 /**
@@ -430,6 +542,30 @@ export class CYLSearchView {
    * Whether the tag suggestions are folded.
    */
   @Trace suggestionsFolded: boolean = true;
+  /**
+   * A view of yours under the bar while the query is empty, such as the recent searches (iOS `launchView`). It is
+   * given this search view, so a component can observe the history. It replaces the suggestions while the query is empty.
+   */
+  @Trace launchView: WrappedBuilder<[CYLSearchView]> | undefined = undefined;
+  /**
+   * The dimming under the bar while the query is empty; a tap on it ends the search (iOS `dimmingColor`). Ignored
+   * when `launchView` is set.
+   */
+  @Trace dimmingColor: ResourceColor | undefined = undefined;
+  /**
+   * Draws a result as your own view, such as a text with the match highlighted; it is given the result and its index.
+   * Without it a result is the text of `searchViewConfigureResultCell`.
+   */
+  @Trace resultCellConfiguration: WrappedBuilder<[CYLSearchView, Object, number]> | undefined = undefined;
+  /**
+   * Counts the submitted queries that went into the history; a component that draws the history reads it, so it is read
+   * again (iOS `historyDidChangeNotification`).
+   */
+  @Trace historyRevision: number = 0;
+  /**
+   * The empty view (iOS `showEmptyView`): "No matching results" in the results.
+   */
+  readonly emptyView: CYLSearchEmptyView = new CYLSearchEmptyView();
 
   /**
    * The scroller of the results list (iOS `resultsTableView`): scroll it, or pass it to the static refresh methods.
@@ -471,6 +607,10 @@ export class CYLSearchView {
       },
       searchBarViewVoiceButtonClicked: (_: CYLSearchBarView) => {
         this.delegate?.searchViewVoiceButtonClicked?.(this);
+      },
+      searchBarViewCancelButtonClicked: (_: CYLSearchBarView) => {
+        // Cancel ends the search (iOS `UISearchController`).
+        this.closeSearch(true);
       },
       searchBarViewNavigationButtonClicked: (_: CYLSearchBarView) => {
         if (this.delegate?.searchViewNavigationButtonClicked !== undefined) {
@@ -630,6 +770,76 @@ export class CYLSearchView {
   }
 
   /**
+   * Whether the search is active, that is open (iOS `isActive`).
+   */
+  get isActive(): boolean {
+    return this.open;
+  }
+
+  /**
+   * Starts or ends the search from code (iOS `setActive(_:animated:)`).
+   */
+  setActive(active: boolean, animated: boolean): void {
+    if (active) {
+      this.showSearch(animated);
+    } else {
+      this.closeSearch(animated);
+    }
+  }
+
+  /**
+   * The submitted queries (iOS `historyStore`); the same store as `suggestionCache`, shared with a launch view.
+   */
+  get historyStore(): CYLSearchSuggestionCache | undefined {
+    return this.suggestionCache;
+  }
+
+  set historyStore(value: CYLSearchSuggestionCache | undefined) {
+    this.suggestionCache = value;
+    this.historyRevision += 1;
+    this.refilter();
+  }
+
+  /**
+   * Shows the empty view in the results, such as "No matching results" (iOS `showEmptyView`). Nothing is shown while
+   * the query is empty.
+   */
+  showEmptyView(text: string, detailText?: string, buttonTitle?: string, buttonAction?: () => void): void {
+    if (this.query.trim().length === 0) {
+      return;
+    }
+    this.emptyView.show(text, detailText, buttonTitle, buttonAction);
+  }
+
+  /**
+   * Hides the empty view (iOS `hideEmptyView()`).
+   */
+  hideEmptyView(): void {
+    this.emptyView.hide();
+  }
+
+  /**
+   * Whether the empty view shows now (iOS `isEmptyViewShowing`).
+   */
+  get isEmptyViewShowing(): boolean {
+    return cylSearchEmptyViewShown(this.emptyView.isShowing, this.query);
+  }
+
+  /**
+   * Whether the launch view shows now: there is one and the query is empty.
+   */
+  get showsLaunchView(): boolean {
+    return cylSearchLaunchViewShown(this.launchView !== undefined, this.query);
+  }
+
+  /**
+   * Whether the dimming shows now.
+   */
+  get showsDimming(): boolean {
+    return cylSearchDimmingShown(this.dimmingColor !== undefined, this.launchView !== undefined, this.query);
+  }
+
+  /**
    * The current query.
    */
   get query(): string {
@@ -674,6 +884,9 @@ export class CYLSearchView {
    * Put a `CYLSearchComponent` for this search view over the page it covers.
    */
   installInView(context: common.Context): void {
+    if (this.context === context) {
+      return;
+    }
     this.context = context;
     this.rebuildCache();
   }
@@ -700,6 +913,8 @@ export class CYLSearchView {
       }
       return;
     }
+    this.delegate?.searchViewWillShow?.(this);
+    this.searchBarView.hostIsActive = true;
     this.refilter();
     if (animated && this.animationDuration > 0) {
       // The delegate hears of it when the animation ends, as on Android.
@@ -712,6 +927,8 @@ export class CYLSearchView {
       this.open = true;
       this.delegate?.searchViewDidShow?.(this);
     }
+    // The first activation reports the text, "" included (iOS `updateResultsFor`).
+    this.delegate?.searchViewUpdateResults?.(this, this.query);
     if (this.focusesSearchFieldOnShow) {
       // The field exists once the open state is drawn.
       setTimeout(() => {
@@ -729,6 +946,9 @@ export class CYLSearchView {
       completion?.();
       return;
     }
+    this.delegate?.searchViewWillClose?.(this);
+    this.searchBarView.hostIsActive = false;
+    this.emptyView.hide();
     this.searchBarView.hideKeyboard();
     if (animated && this.animationDuration > 0) {
       cylAnimate(this.uiContext, { duration: this.animationDuration * 1000, curve: Curve.EaseIn, onFinish: () => {
@@ -895,6 +1115,7 @@ export class CYLSearchView {
    */
   clearSuggestionCache(): void {
     this.suggestionCache?.removeAllQueries();
+    this.historyRevision += 1;
     this.refilter();
     this.announceForAccessibility('search.recentCleared');
   }
@@ -938,12 +1159,18 @@ export class CYLSearchView {
     this.refilter();
     this.reloadResults();
     this.delegate?.searchViewTextDidChange?.(this, text);
+    this.delegate?.searchViewUpdateResults?.(this, text);
   }
 
   // Every submitted query is cached, so the list shows it the next time (Android `searchBarViewSearchButtonClicked`).
   private submitted(): void {
     const text = this.query;
-    this.suggestionCache?.addQuery(text);
+    if (this.suggestionCache !== undefined) {
+      this.suggestionCache.addQuery(text);
+      // The history changed: a launch view on screen reads it again (iOS `historyDidChangeNotification`).
+      this.historyRevision += 1;
+      this.delegate?.searchViewHistoryDidChange?.(this, text);
+    }
     const handled = this.delegate?.searchViewDidSubmitText?.(this, text) ?? false;
     if (!handled && this.closesOnSubmit) {
       this.closeSearch(true);
@@ -1013,6 +1240,44 @@ struct CYLSearchPlaceholderHost {
 }
 
 /**
+ * Draws a `CYLSearchEmptyView`: its text, its detail text and its button, centered.
+ */
+@ComponentV2
+struct CYLSearchEmptyViewComponent {
+  /**
+   * The content to draw.
+   */
+  @Require @Param content: CYLSearchEmptyView;
+
+  build() {
+    Column({ space: 8 }) {
+      Text(this.content.text)
+        .fontSize(17)
+        .fontColor($r('sys.color.font_primary'))
+        .textAlign(TextAlign.Center)
+      if (this.content.detailText !== undefined) {
+        Text(this.content.detailText)
+          .fontSize(14)
+          .fontColor($r('sys.color.font_secondary'))
+          .textAlign(TextAlign.Center)
+      }
+      if (this.content.buttonTitle !== undefined) {
+        Button(this.content.buttonTitle)
+          .constraintSize({ minHeight: 44 })
+          .onClick(() => {
+            this.content.buttonAction?.();
+          })
+      }
+    }
+    .width('100%')
+    .height('100%')
+    .padding(32)
+    .justifyContent(FlexAlign.Center)
+    .id('CYLSearchEmptyView')
+  }
+}
+
+/**
  * Draws a `CYLSearchView` over the page it is placed on: nothing while it is closed; the search bar, the divider and
  * the suggestions while it is open. The search bar sits at the top of the safe area and covers no view of the page
  * behind it: the page under it is hidden by the search page's own background.
@@ -1049,6 +1314,8 @@ export struct CYLSearchComponent {
     if (context === undefined) {
       return;
     }
+    // The history needs the app's context; a search view opened with `showSearch` has not been given one yet.
+    this.searchView.installInView(context);
     window.getLastWindow(context).then((win: window.Window) => {
       this.hostWindow = win;
       win.on('keyboardHeightChange', this.keyboardListener);
@@ -1306,20 +1573,25 @@ export struct CYLSearchComponent {
   @Builder
   resultsList() {
     List({ scroller: this.searchView.resultsTableView }) {
-      ForEach(this.searchView.searchResults, (result: Object) => {
+      ForEach(this.searchView.searchResults, (result: Object, index: number) => {
         ListItem() {
-          Text(this.searchView.resultsDataSource?.searchViewConfigureResultCell(this.searchView, result) ?? '')
-            .fontSize(17)
-            .fontColor(this.searchView.suggestionTextColor ?? $r('sys.color.font_primary'))
-            .width('100%')
-            .constraintSize({ minHeight: this.rowHeight() })
-            .padding({ left: 16, right: 16, top: 8, bottom: 8 })
+          if (this.searchView.resultCellConfiguration !== undefined) {
+            this.searchView.resultCellConfiguration.builder(this.searchView, result, index)
+          } else {
+            Text(this.searchView.resultsDataSource?.searchViewConfigureResultCell(this.searchView, result) ?? '')
+              .fontSize(17)
+              .fontColor(this.searchView.suggestionTextColor ?? $r('sys.color.font_primary'))
+              .width('100%')
+              .constraintSize({ minHeight: this.rowHeight() })
+              .padding({ left: 16, right: 16, top: 8, bottom: 8 })
+          }
         }
         .accessibilityGroup(true)
         .onClick(() => {
           this.searchView.resultSelected(result);
         })
-      }, (result: Object, index: number) => `${index}`)
+      // The query is part of the key, so a result view of yours is built again for a new query (to move a highlight).
+      }, (result: Object, index: number) => `${index}-${this.searchView.query}`)
     }
     .width('100%')
     .height('100%')
@@ -1332,16 +1604,33 @@ export struct CYLSearchComponent {
     Stack() {
       if (this.searchView.isSearchOpen) {
         Column() {
-          CYLSearchBarComponent({ searchBarView: this.searchView.searchBarView })
-          Divider()
-            .strokeWidth(0.5)
-            .color(this.searchView.dividerColor ?? $r('sys.color.comp_divider'))
+          Column() {
+            CYLSearchBarComponent({ searchBarView: this.searchView.searchBarView })
+            Divider()
+              .strokeWidth(0.5)
+              .color(this.searchView.dividerColor ?? $r('sys.color.comp_divider'))
+          }
+          .width('100%')
+          .backgroundColor(this.searchView.backgroundColor ?? $r('sys.color.background_primary'))
           Stack({ alignContent: Alignment.Top }) {
+            if (this.searchView.showsDimming && this.searchView.dimmingColor !== undefined) {
+              // The dimming: a tap on it ends the search (iOS `dimmingColor`).
+              Row()
+                .width('100%')
+                .height('100%')
+                .backgroundColor(this.searchView.dimmingColor)
+                .accessibilityText($r('app.string.cyl_search_cancel'))
+                .onClick(() => {
+                  this.searchView.closeSearch(true);
+                })
+            }
             if (this.searchView.contentView !== undefined) {
               this.searchView.contentView.builder()
             }
             Column() {
-              if (this.searchView.showsEmptyResults && this.searchView.emptyResultsView !== undefined) {
+              if (this.searchView.isEmptyViewShowing) {
+                CYLSearchEmptyViewComponent({ content: this.searchView.emptyView })
+              } else if (this.searchView.showsEmptyResults && this.searchView.emptyResultsView !== undefined) {
                 CYLSearchPlaceholderHost({ model: this.searchView.emptyResultsView })
               } else if (this.searchView.showsResults) {
                 if (this.searchView.refreshHandler !== undefined) {
@@ -1354,6 +1643,8 @@ export struct CYLSearchComponent {
                 } else {
                   this.resultsList()
                 }
+              } else if (this.searchView.showsLaunchView && this.searchView.launchView !== undefined) {
+                this.searchView.launchView.builder(this.searchView)
               } else if (this.searchView.showsEmptySuggestions &&
                 this.searchView.emptySuggestionsView !== undefined) {
                 CYLSearchPlaceholderHost({ model: this.searchView.emptySuggestionsView })
@@ -1371,9 +1662,12 @@ export struct CYLSearchComponent {
             .width('100%')
             .height('100%')
             .padding({ bottom: this.keyboardInset })
+            .hitTestBehavior(this.searchView.showsDimming ? HitTestMode.Transparent : HitTestMode.Default)
           }
           .width('100%')
           .layoutWeight(1)
+          .backgroundColor(this.searchView.showsDimming ? Color.Transparent :
+            (this.searchView.backgroundColor ?? $r('sys.color.background_primary')))
           .onAreaChange((_: Area, area: Area) => {
             this.contentBottom = Number(area.globalPosition.y ?? 0) + Number(area.height);
             this.updateKeyboardInset();
@@ -1381,7 +1675,6 @@ export struct CYLSearchComponent {
         }
         .width('100%')
         .height('100%')
-        .backgroundColor(this.searchView.backgroundColor ?? $r('sys.color.background_primary'))
         .transition(TransitionEffect.OPACITY)
         .onKeyEvent((event: KeyEvent) => {
           if (event.keyCode === 2070 && event.type === KeyType.Up) {
@@ -1419,5 +1712,222 @@ export struct CYLSearchRefreshComponent {
     CYLRefreshContainer({ scrollView: cylRefreshScrollView(this.scroller), scroller: this.scroller }) {
       this.content()
     }
+  }
+}
+
+/**
+ * A list screen with a built-in search bar as its first row (iOS `CYLSearchTableViewController`): `showsSearchBar`,
+ * `hidesSearchBarInitially`, `hidesSearchBarWhenEmptyViewShowing`, the empty view, and a bar that settles fully
+ * shown or fully hidden above a short list (`snapsHeaderSearchBar`, issue 1160). `CYLSearchTableComponent` draws it.
+ * The bar is a `CYLSearchBarView` with the default appearance, Cancel while active, and Cancel clears the text.
+ */
+@ObservedV2
+export class CYLSearchTableView {
+  /**
+   * The bar of the list (iOS `searchBar`).
+   */
+  readonly searchBarView: CYLSearchBarView = new CYLSearchBarView();
+  /**
+   * The list's scroller (iOS `tableView`).
+   */
+  readonly scroller: Scroller = new Scroller();
+  /**
+   * The empty view (iOS `showEmptyView`).
+   */
+  readonly emptyView: CYLSearchEmptyView = new CYLSearchEmptyView();
+  /**
+   * Shows the bar as the list's first row. False by default.
+   */
+  @Trace showsSearchBar: boolean = false;
+  /**
+   * The bar starts scrolled out of sight (iOS `hidesSearchBarInitially`). False by default.
+   */
+  @Trace hidesSearchBarInitially: boolean = false;
+  /**
+   * The bar is removed while the empty view shows and comes back, scrolled out, after it (iOS
+   * `hidesSearchBarWhenEmptyViewShowing`). False by default.
+   */
+  @Trace hidesSearchBarWhenEmptyViewShowing: boolean = false;
+  /**
+   * The bar settles fully shown or fully hidden when scrolling stops with it half out (issue 1160). True by default.
+   */
+  snapsHeaderSearchBar: boolean = true;
+  /**
+   * A search view that a tap on the bar opens, as the iOS bar that is the header of a table and starts a search;
+   * undefined makes the bar an editable field in the list.
+   */
+  @Trace searchView: CYLSearchView | undefined = undefined;
+  /**
+   * The height of the bar row, measured by the component.
+   */
+  @Trace headerHeight: number = 0;
+  /**
+   * The height added after the rows so the bar can scroll out above a short list.
+   */
+  @Trace fillerHeight: number = 0;
+  /**
+   * The height of the list's viewport.
+   */
+  @Trace viewportHeight: number = 0;
+  private hiddenInitiallyApplied: boolean = false;
+  private fillerTop: number = -1;
+
+  /**
+   * A list with a default bar.
+   */
+  constructor() {
+    this.searchBarView.appearanceStyle = CYLSearchBarAppearance.defaultAppearance;
+    this.searchBarView.automaticallyShowsCancelButton = true;
+    this.searchBarView.clearsTextOnCancel = true;
+  }
+
+  /**
+   * Shows the empty view in place of the rows (iOS `showEmptyView`).
+   */
+  showEmptyView(text: string, detailText?: string, buttonTitle?: string, buttonAction?: () => void): void {
+    this.emptyView.show(text, detailText, buttonTitle, buttonAction);
+  }
+
+  /**
+   * Hides the empty view; a bar that was removed comes back scrolled out (iOS `hideEmptyView()`).
+   */
+  hideEmptyView(): void {
+    if (this.emptyView.isShowing && this.hidesSearchBarWhenEmptyViewShowing && this.showsSearchBar) {
+      this.hiddenInitiallyApplied = false;
+    }
+    this.emptyView.hide();
+  }
+
+  /**
+   * Whether the empty view shows (iOS `isEmptyViewShowing`).
+   */
+  get isEmptyViewShowing(): boolean {
+    return this.emptyView.isShowing;
+  }
+
+  /**
+   * Whether the bar is a row of the list now.
+   */
+  get showsHeader(): boolean {
+    return this.showsSearchBar && !(this.hidesSearchBarWhenEmptyViewShowing && this.emptyView.isShowing);
+  }
+
+  /**
+   * The list reports where the end filler is (in the viewport) and how tall the viewport is; the filler grows so the
+   * bar can scroll out, and a bar that starts hidden scrolls out once.
+   */
+  layoutChanged(viewportHeight: number, fillerTopInViewport: number): void {
+    this.viewportHeight = viewportHeight;
+    if (fillerTopInViewport >= 0) {
+      this.fillerTop = fillerTopInViewport + this.scroller.currentOffset().yOffset;
+    }
+    if (!this.showsHeader || this.headerHeight <= 0 || this.fillerTop < 0) {
+      return;
+    }
+    const rowsHeight = this.fillerTop - this.headerHeight;
+    const wanted = cylSearchHeaderFillerHeight(viewportHeight, rowsHeight);
+    if (Math.abs(wanted - this.fillerHeight) > 1) {
+      this.fillerHeight = wanted;
+    }
+    if (this.hidesSearchBarInitially && !this.hiddenInitiallyApplied) {
+      this.hiddenInitiallyApplied = true;
+      setTimeout(() => {
+        this.scroller.scrollTo({ xOffset: 0, yOffset: this.headerHeight, animation: false });
+      }, 50);
+    }
+  }
+
+  /**
+   * Settles the bar fully shown or fully hidden after scrolling stopped with it half out (issue 1160).
+   */
+  settle(): void {
+    if (!this.snapsHeaderSearchBar || !this.showsHeader) {
+      return;
+    }
+    const target = cylSearchHeaderSettleOffset(this.scroller.currentOffset().yOffset, this.headerHeight);
+    if (target !== undefined) {
+      this.scroller.scrollTo({ xOffset: 0, yOffset: target, animation: { duration: 200, curve: Curve.EaseOut } });
+    }
+  }
+}
+
+/**
+ * Draws a `CYLSearchTableView`: a list whose first row is the search bar, then your rows (`ListItem`s and
+ * `ListItemGroup`s), then a filler that lets the bar scroll out above a short list; the empty view replaces the rows.
+ */
+@ComponentV2
+export struct CYLSearchTableComponent {
+  /**
+   * The list to draw.
+   */
+  @Require @Param searchTable: CYLSearchTableView;
+  /**
+   * Your rows: `ListItem`s and `ListItemGroup`s.
+   */
+  @BuilderParam rows: () => void = cylSearchEmptyContent;
+
+  // The bar's placeholder as text, for screen readers (a resource in the language the app shows).
+  private placeholderLabel(): string {
+    const placeholder: ResourceStr = this.searchTable.searchBarView.placeholder ?? $r('app.string.cyl_search_field');
+    if (typeof placeholder === 'string') {
+      return placeholder;
+    }
+    try {
+      return this.getUIContext().getHostContext()?.resourceManager.getStringSync((placeholder as Resource).id) ?? '';
+    } catch (error) {
+      return '';
+    }
+  }
+
+  @Builder
+  header() {
+    Column() {
+      CYLSearchBarComponent({ searchBarView: this.searchTable.searchBarView })
+    }
+    // With a search view, a tap on the bar starts its search instead of editing here.
+    .hitTestBehavior(this.searchTable.searchView !== undefined ? HitTestMode.Block : HitTestMode.Default)
+    .accessibilityGroup(this.searchTable.searchView !== undefined)
+    .accessibilityText(this.searchTable.searchView !== undefined ? this.placeholderLabel() : '')
+    .onClick(() => {
+      this.searchTable.searchView?.showSearch(true);
+    })
+    .onAreaChange((_: Area, area: Area) => {
+      this.searchTable.headerHeight = Number(area.height);
+    })
+  }
+
+  build() {
+    List({ scroller: this.searchTable.scroller }) {
+      if (this.searchTable.showsHeader) {
+        ListItem() {
+          this.header()
+        }
+      }
+      if (this.searchTable.emptyView.isShowing) {
+        ListItem() {
+          CYLSearchEmptyViewComponent({ content: this.searchTable.emptyView })
+            .height(Math.max(240, this.searchTable.viewportHeight - this.searchTable.headerHeight))
+        }
+      } else {
+        this.rows()
+      }
+      ListItem() {
+        Row()
+          .width('100%')
+          .height(this.searchTable.fillerHeight)
+      }
+      .onAreaChange((_: Area, area: Area) => {
+        this.searchTable.layoutChanged(this.searchTable.viewportHeight, Number(area.position.y));
+      })
+    }
+    .width('100%')
+    .height('100%')
+    .edgeEffect(EdgeEffect.Spring, { alwaysEnabled: true })
+    .onAreaChange((_: Area, area: Area) => {
+      this.searchTable.layoutChanged(Number(area.height), -1);
+    })
+    .onScrollStop(() => {
+      this.searchTable.settle();
+    })
   }
 }

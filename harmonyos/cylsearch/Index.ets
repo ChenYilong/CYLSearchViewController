@@ -2,6 +2,7 @@
 // "Target design"): three files, four public classes (CYLSearchBarView, CYLSearchBarItem, CYLSearchView,
 // CYLSearchResources), the components that draw them, and their interfaces and enums.
 export {
+  CYLSearchBarAppearance,
   CYLSearchBarComponent,
   CYLSearchBarExpansionAnimation,
   CYLSearchBarIconPosition,
@@ -13,15 +14,19 @@ export {
   CYLSearchBarNavigationIcon,
   CYLSearchBarStyle,
   CYLSearchBarView,
-  CYLSearchBarViewDelegate
+  CYLSearchBarViewDelegate,
+  CYLSearchEdgeInsets
 } from './src/main/ets/CYLSearchBarView';
 export {
   CYLMenuFoldControl,
   CYLMenuFoldControlContent,
   CYLMenuFoldControlPosition,
   CYLSearchComponent,
+  CYLSearchEmptyView,
   CYLSearchRefreshComponent,
   CYLSearchSuggestionStyle,
+  CYLSearchTableComponent,
+  CYLSearchTableView,
   CYLSearchView,
   CYLSearchViewDataSource,
   CYLSearchViewDelegate
