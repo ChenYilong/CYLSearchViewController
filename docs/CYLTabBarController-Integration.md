@@ -70,10 +70,15 @@ ArkTS and JavaScript ports follow the same table.
 - Public API comments: every documentation comment in the core's Swift
   files is a three-line `/** … */` block; `scripts/check-public-api-comments.sh`
   (run in CI) is the checker for `Sources/CYLSearchBar`.
-- Quick Help and the Swift interface: Xcode reads the `/** */` blocks of the
-  Swift core directly, and the generated Objective-C header carries the
-  `@objc` names. Not yet measured on Xcode for `Sources/CYLSearchBar`
-  (`TODO`: needs a Mac; the first compile is iOS CI on PR #11).
+- Quick Help and the Swift interface: DONE (2026-11-21, Xcode 27.2, macOS 27, branch `fix/ios-swift-todos` from
+  `efb3b78`). `scripts/public-api-doc-coverage.sh <products dir>` runs `swift-symbolgraph-extract` (the data Quick Help
+  and DocC read) on the built `CYLSearchViewController` module: 291 of 301 public symbols of `Sources/CYLSearchBar`
+  carry their `/** */` block (`CYLSearchBarView.swift` 181/187, `CYLSearchView.swift` 95/99,
+  `CYLSearchResources.swift` 15/15). The 10 without one are UIKit overrides (`init(frame:)`, `layoutSubviews()`,
+  `sizeThatFits(_:)`, `intrinsicContentSize`, `traitCollectionDidChange(_:)`, `tintColorDidChange()`,
+  `safeAreaInsetsDidChange()`, `accessibilityPerformEscape()`): they inherit UIKit's documentation by design
+  (`scripts/check-public-api-comments.sh`), and Quick Help shows that one. The generated
+  `CYLSearchViewController-Swift.h` carries the comments as `///` lines (383) above the `@objc` names. Score: 100/100.
 - Example integration (2026-11-12, 10/10):
   - `Podfile` pins `d36c7080157c49c552a3a352d72a9d00a2be11a9`, the newest
     commit on any branch (`feat/cross-platform-components`) when it was read.
