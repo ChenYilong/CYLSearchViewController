@@ -683,7 +683,7 @@ begins and becomes `DONE` when it ends.
   `Sources/`). Six earlier commit subjects of this branch break `scripts/check-commit-message.sh` (five over 64
   characters, one merge subject); pushed, so left as they are, every later commit checked.
 
-## TODO (2026-11-22): review pull request 13, merge it into feat/harmonyos-parity, README screenshots
+## DONE (2026-11-22): review pull request 13, merge it into feat/harmonyos-parity, README screenshots
 
 - **Branch**: `fix/ios-swift-todos` (pull request 13, base `feat/harmonyos-parity`). macOS session.
 - **Context**: the iOS / Swift TODO sweep above is done (97/100); its screenshot rule puts key details in the README at
@@ -692,4 +692,7 @@ begins and becomes `DONE` when it ends.
   `feat/harmonyos-parity` after CI.
 - **Prompt (verbatim)**: "Next: review PR #13 and merge it into feat/harmonyos-parity. The Swift migration and the raised
   plus button are good candidates for README screenshots."
-- **Status**: started (2026-11-22).
+- **Status**: DONE (2026-11-22). README: "iOS milestone (2026-11-22)" with the labelled demo-vs-GIF and raised plus images
+  (`812cc17`). Review of the 48 code files: the project file wires the six Swift test files and the smoke test, no dangling
+  references; the three plus configurations match; the bridges match Android; no finding. CI: run 44901322830 on `a53a704` fully
+  green (unit tests included); later commits change only `docs/` and `README.md`. Merged into `feat/harmonyos-parity`.
