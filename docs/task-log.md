@@ -740,3 +740,23 @@ begins and becomes `DONE` when it ends.
 - **Acceptance**: 100 = the 122 tests green on iOS 17.5, 26.5 and 27.2; the refresh covered by a test; every platform
   has the six screens with its own test or screenshot; CI green. 60 = items 1 and 2 done, the parity table written.
 - **Status**: in progress.
+
+
+## TODO (2026-11-22): pin CYLTabBarController 618ac11a, ClassifyMenu 9dc1f761, CYLTableViewPlaceHolder 6117fcf
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: CollectionViewClassifyMenu `9dc1f761` (`feat/harmony`, newest code
+  commit; `ci-screenshots` is an orphan branch of CI images) moves its CYLTabBarController pins to `618ac11a`
+  (`feat/cross-platform-components`, 19 commits after `ace1af0e`: `b13b88f1` `showsImageWhenAnimationEnds`, `73d352d5`
+  the iOS tab player in Swift). Both repositories pin the same tab bar commit, so this one moves to `618ac11a` too (not
+  the newer `61ba2131`, which ClassifyMenu does not pin; not `master` `960dc211`, older and without CYLAnimatedItem, as
+  that session warned). CYLTableViewPlaceHolder `6117fcfb` (`feat/android-refresh-port-followup`, PR #31, newest on any
+  branch): the Success scenario's still check mark after its animation ends (Android, HarmonyOS, mini program), the
+  HarmonyOS Rive end of playback; its examples pin tab bar `b13b88f1`, which `618ac11a` contains. It has diverged from
+  `c473fdc3` (PR #35's branch): the 6 commits it lacks are docs and the iOS example fix `a169386c` (#1628), none in
+  code this repository builds.
+- **Prompt (verbatim)**: "continue fix todo fix ci error"
+- **Acceptance**: 100 = the three pins moved in every manifest (Podfiles, Gradle, HarmonyOS, mini program, Flutter
+  `pubspec`) with the vendor copies synced; Android, HarmonyOS (hypium on the emulator), mini program, Flutter and React
+  Native tests pass; the iOS CI green. 60 = pins moved, Android and HarmonyOS green. The `Podfile.lock` files are left to
+  the macOS session (`pod install`).
+- **Status**: in progress.
