@@ -50,7 +50,7 @@ messages, localized strings (English, Simplified Chinese, a missing key) and the
 ## Table
 
 <!-- api-alignment:begin -->
-Rows: 284; DONE 262, N/A 22, TODO 0; score 100/100.
+Rows: 289; DONE 267, N/A 22, TODO 0; score 100/100.
 
 | iOS API | Upstream counterpart (named in the iOS doc comment) | Android (`cylsearch`) | Status |
 | :--- | :--- | :--- | :--- |
@@ -137,6 +137,10 @@ Rows: 284; DONE 262, N/A 22, TODO 0; score 100/100.
 | `CYLSearchBarView.cancelButtonTitle` | — | `CYLSearchBarView.cancelButtonTitle` | DONE |
 | `CYLSearchBarView.cancelButtonEndsEditing` | — | `CYLSearchBarView.cancelButtonEndsEditing` | DONE |
 | `CYLSearchBarView.clearsTextOnCancel` | lapism `setTextClearOnBackPressed` | `CYLSearchBarView.clearsTextOnCancel` | DONE |
+| `CYLSearchBarView.isEditingBar` | — | `CYLSearchBarView.isEditingBar` | DONE |
+| `CYLSearchBarView.editingSubmitHandler` | after `-searchBarView:shouldSubmitText:` and `-searchBarViewSearchButtonClicked:` | `CYLSearchBarView.editingSubmitHandler` | DONE |
+| `CYLSearchBarView.editingBar(placeholder:actionTitle:)` | — | `CYLSearchBarView.editingBar` | DONE |
+| `CYLSearchBarView.pinToKeyboard(in:)` | — | `CYLSearchBarView.pinToKeyboard` | DONE |
 | `CYLSearchBarView.clearsTextOnEndEditing` | lapism `setTextClearOnClearFocus` | `CYLSearchBarView.clearsTextOnEndEditing` | DONE |
 | `CYLSearchBarView.navigationIcon` | — | `CYLSearchBarView.navigationIcon` | DONE |
 | `CYLSearchBarView.navigationImage` | — | `CYLSearchBarView.navigationImage` | DONE |
@@ -298,6 +302,7 @@ Rows: 284; DONE 262, N/A 22, TODO 0; score 100/100.
 | `CYLSearchView.suggestionCacheName` | — | `CYLSearchView.suggestionCacheName` | DONE |
 | `CYLSearchView.suggestionCache` | — | `CYLSearchView.suggestionCache` | DONE |
 | `CYLSearchView.suggestionCacheHeaderView` | — | `CYLSearchView.suggestionCacheHeaderView` | DONE |
+| `CYLSearchView.showsSuggestionCacheHeader` | — | `CYLSearchView.showsSuggestionCacheHeader` | DONE |
 | `CYLSearchView.suggestionCacheTitleLabel` | — | `CYLSearchView.suggestionCacheTitleLabel` | DONE |
 | `CYLSearchView.clearSuggestionCacheButton` | — | `CYLSearchView.clearSuggestionCacheButton` | DONE |
 | `CYLSearchView.showsEmptySuggestionsPlaceholder` | — | `CYLSearchView.showsEmptySuggestionsPlaceholder` | DONE |

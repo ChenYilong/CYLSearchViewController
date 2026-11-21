@@ -56,7 +56,7 @@
     <slot name="placeholder-footer" />
   </view>
   <block wx:elif="{{shownSuggestions.length > 0}}">
-    <view wx:if="{{showsCachedQueries}}" class="cyl-header">
+    <view wx:if="{{showsCacheHeader}}" class="cyl-header">
       <text class="cyl-header-title" role="heading" style="{{suggestionTextColor ? 'color: ' + suggestionTextColor : ''}}">{{recentTitle || labels.recent}}</text>
       <view class="cyl-clear" role="button" aria-label="{{clearLabel || labels.clear}}" bindtap="onClear">
         <view class="cyl-mask-trash" style="{{suggestionImageTintColor ? 'background-color: ' + suggestionImageTintColor : ''}}" aria-hidden="true" />

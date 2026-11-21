@@ -403,6 +403,17 @@ class CYLSearchView @JvmOverloads constructor(
      */
     var focusesSearchFieldOnShow = true
 
+    /**
+     * Shows `suggestionCacheHeaderView` (the title and `clearSuggestionCacheButton`) above the cached queries (iOS
+     * `showsSuggestionCacheHeader`). True by default. False takes the header away, for a host that clears the history with
+     * its own control that calls `clearSuggestionCache()`.
+     */
+    var showsSuggestionCacheHeader = true
+        set(value) {
+            field = value
+            refilter()
+        }
+
     private var showsCachedQueries = false
     private var emptySuggestionsVisible = false
 
@@ -1025,7 +1036,8 @@ class CYLSearchView @JvmOverloads constructor(
             }
         }
         emptySuggestionsView?.visibility = if (emptySuggestionsVisible) VISIBLE else GONE
-        suggestionCacheHeaderView.visibility = if (suggestionsVisible && showsCachedQueries) VISIBLE else GONE
+        suggestionCacheHeaderView.visibility =
+            if (suggestionsVisible && showsCachedQueries && showsSuggestionCacheHeader) VISIBLE else GONE
         // The results list sits under the empty results placeholder, so the list (and its pull-to-refresh) stays.
         resultsRefreshLayout.visibility = if (resultsVisible) VISIBLE else GONE
         if (emptyResultsVisible) {

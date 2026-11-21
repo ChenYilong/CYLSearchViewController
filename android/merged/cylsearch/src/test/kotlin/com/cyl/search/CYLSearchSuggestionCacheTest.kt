@@ -69,6 +69,12 @@ class CYLSearchSuggestionCacheTest {
         assertEquals("the cache, newest first", listOf("Kotlin", "Flutter"), view.filteredSuggestions)
         assertEquals(View.VISIBLE, view.suggestionCacheHeaderView.visibility)
         assertEquals(View.GONE, view.emptySuggestionsView?.visibility)
+        assertTrue("the header shows by default", view.showsSuggestionCacheHeader)
+        view.showsSuggestionCacheHeader = false
+        assertEquals("no header: the host clears the history itself", View.GONE, view.suggestionCacheHeaderView.visibility)
+        assertEquals("the cached queries stay", listOf("Kotlin", "Flutter"), view.filteredSuggestions)
+        view.showsSuggestionCacheHeader = true
+        assertEquals(View.VISIBLE, view.suggestionCacheHeaderView.visibility)
         view.setQuery("t", false)
         assertEquals("cached matches first, no repeats", listOf("Kotlin", "Flutter", "Swift"), view.filteredSuggestions)
         view.setQuery("", false)

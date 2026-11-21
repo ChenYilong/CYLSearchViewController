@@ -188,6 +188,7 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
             searchView.suggestionCachePolicy = policy
         }
         searchView.focusesSearchFieldOnShow = arguments["focusesSearchFieldOnShow"] as? Bool ?? true
+        searchView.showsSuggestionCacheHeader = arguments["showsSuggestionCacheHeader"] as? Bool ?? true
         searchView.suggestionsFoldControl = cylFoldControl(arguments["suggestionsFoldControlPosition"], arguments["suggestionsFoldControlContent"])
         searchView.suggestionsFoldedRowCount = UInt(max(0, arguments["suggestionsFoldedRowCount"] as? Int ?? 2))
     }

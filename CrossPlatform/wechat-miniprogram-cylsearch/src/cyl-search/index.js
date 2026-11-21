@@ -43,6 +43,8 @@ Component({
     items: { type: Array, value: [] },
     cacheName: { type: String, value: 'CYLSearchView', observer: 'onCacheNameChange' },
     focusesSearchFieldOnShow: { type: Boolean, value: true },
+    // false hides the "Recent searches" header and its trash button (iOS showsSuggestionCacheHeader).
+    showsSuggestionCacheHeader: { type: Boolean, value: true },
     showsEmptyResultsPlaceholder: { type: Boolean, value: false },
     // NO keeps the page open after a submitted query (iOS closesOnSubmit, or a delegate that handles the query).
     closesOnSubmit: { type: Boolean, value: true },
@@ -102,11 +104,11 @@ Component({
   },
   data: {
     playbackSpeed: 1, shownSuggestions: [], visibleTags: [], needsFold: false, open: false, visible: false, entered: false,
-    focus: false, query: '', folded: true, showsCachedQueries: false, showsEmptyResults: false, showsEmptySuggestions: false,
+    focus: false, query: '', folded: true, showsCachedQueries: false, showsCacheHeader: false, showsEmptyResults: false, showsEmptySuggestions: false,
     showsResults: false, shownResults: [], refreshes: false, labels: {}, pageStyle: '', barInsets: '', contentScrollHeld: false,
   },
   observers: {
-    'showsEmptyResultsPlaceholder, closesOnSubmit, showsResultsForEmptyQuery, focusesSearchFieldOnShow, suggestionStyle, emptyResultsScenario, emptySuggestionsScenario': function () {
+    'showsEmptyResultsPlaceholder, closesOnSubmit, showsResultsForEmptyQuery, focusesSearchFieldOnShow, showsSuggestionCacheHeader, suggestionStyle, emptyResultsScenario, emptySuggestionsScenario': function () {
       if (!this.model) return;
       this.applyProperties();
       this.model.refilter();
@@ -179,6 +181,7 @@ Component({
       const model = this.model;
       model.suggestionStyle = p.suggestionStyle;
       model.focusesSearchFieldOnShow = p.focusesSearchFieldOnShow;
+      model.showsSuggestionCacheHeader = p.showsSuggestionCacheHeader;
       model.showsEmptyResultsPlaceholder = p.showsEmptyResultsPlaceholder;
       // An inline search view never closes, so a submitted query keeps it open.
       model.closesOnSubmit = p.closesOnSubmit && !p.inline;
@@ -217,6 +220,7 @@ Component({
         query: model.query,
         shownSuggestions: model.filteredSuggestions,
         showsCachedQueries: model.showsCachedQueries,
+        showsCacheHeader: model.showsCachedQueries && model.showsSuggestionCacheHeader,
         showsEmptyResults: model.showsEmptyResults,
         showsEmptySuggestions: model.showsEmptySuggestions,
         showsResults: model.showsResults,

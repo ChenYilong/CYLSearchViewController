@@ -76,6 +76,11 @@ class CylsearchViewManager : SimpleViewManager<CylsearchView>(), CylsearchViewMa
     view.searchView.focusesSearchFieldOnShow = value
   }
 
+  @ReactProp(name = "showsSuggestionCacheHeader", defaultBoolean = true)
+  override fun setShowsSuggestionCacheHeader(view: CylsearchView, value: Boolean) {
+    view.searchView.showsSuggestionCacheHeader = value
+  }
+
   @ReactProp(name = "suggestionsFoldControlPosition")
   override fun setSuggestionsFoldControlPosition(view: CylsearchView, value: String?) {
     view.searchView.suggestionsFoldControl = cylFoldControl(value, view.foldContent)

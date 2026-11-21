@@ -20,6 +20,7 @@ void main() {
         suggestionCachePolicy: CYLSearchSuggestionCachePolicy.sandboxFile,
         suggestionCacheName: 'Demo',
         focusesSearchFieldOnShow: false,
+        showsSuggestionCacheHeader: false,
       ));
       expect(parameters, <String, Object?>{
         'brightness': 'light',
@@ -36,6 +37,7 @@ void main() {
         'suggestionCachePolicy': 'sandboxFile',
         'suggestionCacheName': 'Demo',
         'focusesSearchFieldOnShow': false,
+        'showsSuggestionCacheHeader': false,
         'suggestionsFoldControlPosition': 'inline',
         'suggestionsFoldControlContent': 'icon',
         'suggestionsFoldedRowCount': 2,
@@ -55,6 +57,7 @@ void main() {
       expect(parameters['suggestionCachePolicy'], 'database');
       expect(parameters['suggestionCacheName'], 'CYLSearchView');
       expect(parameters['focusesSearchFieldOnShow'], true);
+      expect(parameters['showsSuggestionCacheHeader'], true);
       expect(parameters['suggestionsFoldControlPosition'], 'inline', reason: 'the last tag is the fold chevron');
       expect(parameters['suggestionsFoldControlContent'], 'icon');
       expect(parameters['suggestionsFoldedRowCount'], 2);

@@ -72,6 +72,7 @@ using namespace facebook::react;
     _searchView.suggestionCachePolicy = policy;
   }
   _searchView.focusesSearchFieldOnShow = p.focusesSearchFieldOnShow;
+  _searchView.showsSuggestionCacheHeader = p.showsSuggestionCacheHeader;
   _searchView.suggestionsFoldControl = CYLRNFoldControl(CYLRNString(p.suggestionsFoldControlPosition), CYLRNString(p.suggestionsFoldControlContent));
   _searchView.suggestionsFoldedRowCount = (NSUInteger)MAX(0, p.suggestionsFoldedRowCount);
   [self updateResults:CYLRNStrings(p.results) shows:p.showsResults];

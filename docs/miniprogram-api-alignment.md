@@ -251,7 +251,7 @@ MaterialSearchView sample (`pages/materialSample`), the pages that show the anim
 | Mini program | ![List style: no results, controls under the animation](assets/miniprogram-playback-controls-list-style.png) | Same; 2026-11-15 12:05 NZDT (UTC+13) |
 
 <!-- miniprogram-api-alignment:begin -->
-Rows: 284; implemented or N/A 284, TODO 0; score 100/100.
+Rows: 289; implemented or N/A 289, TODO 0; score 100/100.
 
 | iOS public API | Doc comment | Mini program |
 | :--- | :--- | :--- |
@@ -338,6 +338,10 @@ Rows: 284; implemented or N/A 284, TODO 0; score 100/100.
 | `CYLSearchBarView.cancelButtonTitle` | The Cancel title. The localized "Cancel" by default. | `CYLSearchBarView.cancelButtonTitle` |
 | `CYLSearchBarView.cancelButtonEndsEditing` | Taps on Cancel also end editing and clear nothing. YES by default. | `CYLSearchBarView.cancelButtonEndsEditing` |
 | `CYLSearchBarView.clearsTextOnCancel` | Taps on Cancel also clear the text (lapism `setTextClearOnBackPressed`). NO by default. | `CYLSearchBarView.clearsTextOnCancel` |
+| `CYLSearchBarView.isEditingBar` | Whether the bar is an editing bar (`editingBar(placeholder:actionTitle:)`): an edit field in the search bar's look, whose trailing button submits instead of cancelling. | `CYLSearchBarView.isEditingBar` |
+| `CYLSearchBarView.editingSubmitHandler` | An editing bar's submit: the trimmed text, when its action button or the return key is tapped (after `-searchBarView:shouldSubmitText:` and `-searchBarViewSearchButtonClicked:`). Empty text submits nothing. | `CYLSearchBarView.editingSubmitHandler` |
+| `CYLSearchBarView.editingBar(placeholder:actionTitle:)` | An editing bar: the search bar's field and look for editing a name (a tag, a title), without the magnifier, with `actionTitle` ("Add", "Done") as its trailing button, which submits through `editingSubmitHandler`, as the return key does.… | `CYLSearchBarView.editingBar` |
+| `CYLSearchBarView.pinToKeyboard(in:)` | Pins the bar to the top of the keyboard in `view` (its keyboard layout guide, iOS 15): full width within the safe area, at the bottom while the keyboard is down, riding on the keyboard while it is up, docked or not. | `<cyl-search-bar pinsToKeyboard>` (fixed at the page's bottom, lifted by `wx.onKeyboardHeightChange`) |
 | `CYLSearchBarView.clearsTextOnEndEditing` | Ending editing also clears the text (lapism `setTextClearOnClearFocus`). NO by default. | `CYLSearchBarView.clearsTextOnEndEditing` |
 | `CYLSearchBarView.navigationIcon` | A built-in navigation icon. `CYLSearchBarNavigationIconNone` by default. | `CYLSearchBarView.navigationIcon` |
 | `CYLSearchBarView.navigationImage` | A custom navigation icon; it wins over `navigationIcon`. | `CYLSearchBarView.navigationImage` |
@@ -499,6 +503,7 @@ Rows: 284; implemented or N/A 284, TODO 0; score 100/100.
 | `CYLSearchView.suggestionCacheName` | Separates the caches of different search screens. "CYLSearchView" by default. | `CYLSearchView.suggestionCacheName` |
 | `CYLSearchView.suggestionCache` | The cache in use: the built-in store of `suggestionCachePolicy`, or a store of yours (set it after the policy). Nil when the policy is `CYLSearchSuggestionCachePolicyNone`. | `CYLSearchView.suggestionCache` |
 | `CYLSearchView.suggestionCacheHeaderView` | The header above the cached queries: a title and, at its trailing edge, `clearSuggestionCacheButton`. | N/A: the mini program has no view objects; `<cyl-search>` draws the cache header |
+| `CYLSearchView.showsSuggestionCacheHeader` | Whether `suggestionCacheHeaderView` (the title and the trash icon) shows above the cached queries. YES by default; NO takes the header away, for a host that clears the history with its own control, for example a button in `suggestionsTab… | `CYLSearchView.showsSuggestionCacheHeader` |
 | `CYLSearchView.suggestionCacheTitleLabel` | The title of `suggestionCacheHeaderView` ("Recent searches"). | `CYLSearchView.suggestionCacheTitle` |
 | `CYLSearchView.clearSuggestionCacheButton` | Clears the whole cache (a trash icon at the top right of the suggestion list). | `CYLSearchView.clearSuggestionCache()` (the header button calls it) |
 | `CYLSearchView.showsEmptySuggestionsPlaceholder` | Shows CYLTableViewPlaceHolder's placeholder for `emptySuggestionsScenario` while the query is empty and the cache holds nothing, so an open search is never a blank page. YES by default. | `CYLSearchView.showsEmptySuggestionsPlaceholder` |

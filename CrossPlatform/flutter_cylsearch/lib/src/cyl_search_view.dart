@@ -264,6 +264,7 @@ class CYLSearchView extends StatefulWidget {
     this.suggestionCachePolicy = CYLSearchSuggestionCachePolicy.database,
     this.suggestionCacheName = 'CYLSearchView',
     this.focusesSearchFieldOnShow = true,
+    this.showsSuggestionCacheHeader = true,
     this.suggestionsFoldControlPosition = CYLTagFoldControlPosition.inline,
     this.suggestionsFoldControlContent = CYLTagFoldControlContent.icon,
     this.suggestionsFoldedRowCount = 2,
@@ -327,6 +328,10 @@ class CYLSearchView extends StatefulWidget {
   /// Focuses the search field when the page opens, which raises the keyboard (iOS `focusesSearchFieldOnShow`). False
   /// shows the suggestion list (or an empty placeholder) with the keyboard down until the field is tapped.
   final bool focusesSearchFieldOnShow;
+
+  /// Shows the header above the cached queries: the title and the trash button (iOS `showsSuggestionCacheHeader`).
+  /// False takes it away, for a page that clears the history with its own control.
+  final bool showsSuggestionCacheHeader;
 
   /// Where the tag suggestions' fold control is (iOS `suggestionsFoldControl.position`): a chevron as the last tag by
   /// default.
@@ -672,6 +677,7 @@ Map<String, Object?> cylSearchViewParameters(CYLSearchView widget, {Brightness b
       'suggestionCachePolicy': widget.suggestionCachePolicy.name,
       'suggestionCacheName': widget.suggestionCacheName,
       'focusesSearchFieldOnShow': widget.focusesSearchFieldOnShow,
+      'showsSuggestionCacheHeader': widget.showsSuggestionCacheHeader,
       'suggestionsFoldControlPosition': widget.suggestionsFoldControlPosition.name,
       'suggestionsFoldControlContent': widget.suggestionsFoldControlContent.name,
       'suggestionsFoldedRowCount': widget.suggestionsFoldedRowCount,

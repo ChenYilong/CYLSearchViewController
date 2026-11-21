@@ -69,6 +69,11 @@ export interface NativeProps extends ViewProps {
    */
   focusesSearchFieldOnShow?: CodegenTypes.WithDefault<boolean, true>;
   /**
+   * Shows the header above the cached queries (the title and the trash button); false takes it away, for a page that
+   * clears the history with its own control (iOS `showsSuggestionCacheHeader`).
+   */
+  showsSuggestionCacheHeader?: CodegenTypes.WithDefault<boolean, true>;
+  /**
    * The tag suggestions' fold control: "none", "inline" (default), "bottom", "topTrailing" or "topLeading".
    */
   suggestionsFoldControlPosition?: string;

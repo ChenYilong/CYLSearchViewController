@@ -139,6 +139,9 @@ class CYLSearchView {
     this.suggestionCellConfiguration = undefined;
     this.suggestionCacheTitle = $r('app.string.cyl_search_recent');
     this.focusesSearchFieldOnShow = true;
+    // Shows the header above the cached queries (the title and the trash button; iOS showsSuggestionCacheHeader). false
+    // takes it away, for a host that clears the history with its own control that calls clearSuggestionCache().
+    this.showsSuggestionCacheHeader = true;
     this.animationDuration = 0.25;
     this.closesOnSubmit = true;
     this.showsCachedQueries = false;

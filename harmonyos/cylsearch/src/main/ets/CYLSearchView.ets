@@ -409,6 +409,12 @@ export class CYLSearchView {
    */
   focusesSearchFieldOnShow: boolean = true;
   /**
+   * Shows the header above the cached queries (the title and the trash button; iOS `showsSuggestionCacheHeader`). True
+   * by default. False takes it away, for a host that clears the history with its own control that calls
+   * `clearSuggestionCache()`.
+   */
+  @Trace showsSuggestionCacheHeader: boolean = true;
+  /**
    * The length of the open and close animations, in seconds. 0.25 by default.
    */
   animationDuration: number = 0.25;
@@ -1352,7 +1358,7 @@ export struct CYLSearchComponent {
                 this.searchView.emptySuggestionsView !== undefined) {
                 CYLSearchPlaceholderHost({ model: this.searchView.emptySuggestionsView })
               } else if (this.searchView.suggestionsVisible && this.searchView.filteredSuggestions.length > 0) {
-                if (this.searchView.showsCachedQueries) {
+                if (this.searchView.showsCachedQueries && this.searchView.showsSuggestionCacheHeader) {
                   this.cacheHeader()
                 }
                 if (this.searchView.suggestionStyle === CYLSearchSuggestionStyle.tags) {

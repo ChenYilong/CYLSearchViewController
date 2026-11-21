@@ -159,6 +159,7 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
             searchView.suggestionCachePolicy = policy
         }
         searchView.focusesSearchFieldOnShow = arguments["focusesSearchFieldOnShow"] as? Boolean ?: true
+        searchView.showsSuggestionCacheHeader = arguments["showsSuggestionCacheHeader"] as? Boolean ?: true
         searchView.suggestionsFoldControl = cylFoldControl(arguments["suggestionsFoldControlPosition"], arguments["suggestionsFoldControlContent"])
         searchView.suggestionsFoldedRowCount = maxOf(0, (arguments["suggestionsFoldedRowCount"] as? Number)?.toInt() ?: 2)
     }
