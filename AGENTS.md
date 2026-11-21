@@ -29,6 +29,7 @@ WeChat DevTools Skills (<https://developers.weixin.qq.com/miniprogram/dev/devtoo
 | `cyl-verify` | Building, testing, running the simulator; real pointer input for scrolling and drag gestures |
 | `cyl-api-parity` | Comparing two platforms' APIs: the parity table (source API, description, target counterpart, `TODO` by default), its score, and the loop to 100 |
 | `cyl-fix-in-core` | Fixing any issue or bug: in the core (code published to a package registry) first; example-layer fixes only after asking, with the reason documented; the content below the search bar and its scrolling belong to the core |
+| `cyl-naming` | Adding or renaming any type, function, member, constant or component: when `CYL` / `cyl_` is required, and the SonarCloud naming rules |
 | `cyl-commit` | Writing any commit message: `git cz` style, English only, the author line, the checks before committing |
 | `cyl-accessibility-i18n` | Screen readers and localization in any code; writing UI tests that find controls by their labels |
 | `cyl-harmonyos-setup` | Preparing DevEco Studio and the HarmonyOS emulator: SDK paths, virtualization, Huawei ID, region `CN` in `country.region.xml` |
@@ -155,8 +156,10 @@ Every new integration rule updates, in the same change, `AGENTS.md`,
   `cyl-search-bar` and `cyl-search`). Refresh lives only in `CYLSearchView`. CYLSearch depends on no other search
   kernel (CollectionViewClassifyMenu and CYLTableViewPlaceHolder are not search kernels). A new feature goes into the
   class it belongs to (a parameter or a mode), not into a new public class. Design: `docs/search-core-merge.md`.
-- New project-owned types and identifiers use the `CYL` prefix. New UIKit
-  category files use `+CYL`; category methods and properties use `cyl_`.
+- New project-owned public types use the `CYL` prefix. Functions, members and constants are lowerCamelCase
+  without underscores (SonarCloud S100 / S115 / S116 / S117); `cyl_` survives only in Objective-C selectors of
+  extension members on system types (`@objc(cyl_name)`, Swift name `cylName`). Skill `cyl-naming` (re-evaluated
+  2026-11-22) has the reasons and the rules for every platform.
 - Do not rename existing APIs or vendor symbols in a task that does not require
   it. Keep original copyright and attribution when adapting third-party code.
 - The public integration surface of `CYLTableViewPlaceHolder` is its umbrella

@@ -85,10 +85,15 @@ Read this file and `AGENTS.md` before changing project files.
 ## Naming
 
 - Write all instruction and skill files in English.
-- Prefix every new project-owned class, protocol, enum, type, function, and
-  constant with `CYL`. Name a class file after its primary type.
-- Name UIKit category files `<SystemClass>+CYL<Feature>.h` and `.m`; prefix
-  every new category method and property with `cyl_`.
+- Prefix every new project-owned public class, protocol, enum and type with `CYL`. Name a class file after its
+  primary type. (Re-evaluated 2026-11-22 against SonarCloud, skill `cyl-naming`: the prefixes exist for the global
+  Objective-C namespace and category overrides; Swift, Kotlin, ArkTS, JavaScript and Dart have module namespaces.)
+- Functions, methods, properties and constants are lowerCamelCase without underscores (SonarCloud swift:S100, S115,
+  S116, S117); no new global functions or global constants: use static members of a `CYL` type.
+- Objective-C category files keep `<SystemClass>+CYL<Feature>.h` / `.m` and the `cyl_` prefix. A Swift extension member
+  on a system or third-party type keeps `cyl_` only in its Objective-C selector (`@objc(cyl_name)`); its Swift name is
+  `cylName` when public and unprefixed when internal or private.
+- Renaming a shipped name: keep the Objective-C name, add a deprecated Swift forward for one release.
 - Apply these rules to copied or newly introduced code. Remove unrelated
   third-party prefixes from new code and retain source attribution.
 - Do not rename existing project APIs or vendor code as part of unrelated

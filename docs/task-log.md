@@ -840,6 +840,41 @@ begins and becomes `DONE` when it ends.
   and after. 60 = design doc plus the iOS merge with green tests.
 - **Status**: TODO (after the React Native and Flutter ports of the previous entry finish).
 
+
+## DONE (rules) / TODO (code) (2026-11-22): re-evaluate the CYL / cyl_ prefixes against static analysis
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). macOS session.
+- **Context**: the SonarCloud report on CYLTabBarController PR #788 (956 open issues: swift:S100 743, S115 146, S116 16,
+  S117 11, S101 3) flags `cyl_` / `CYL` function and constant names. CYLSearchViewController is not analysed by
+  SonarCloud; its own S100 cases are only the global test helpers (`CYLRunLoop`, `CYLTestWindow`, … in
+  `CYLSearchExampleTests/*TestSupport.swift`); the core has no `cyl_` functions.
+- **Prompt (verbatim)**: "找到本项目instructions 相关文件以及skills相关文件，如果没有就新增文件保证写入成功，全英文写入： 根据github pr评论区的静态分析报告，
+  重新评估 instructions 中关于cyl_ CYL 方法名前缀名，类名前缀名的必要性， 这个前缀目的主要是为了在objc项目中，
+  兼容分类方法可能覆盖其他同名实现的场景， 以及弥补objc没有命名空间导致类名冲突的问题，请在Swift上重新评估该前缀必要性，
+  以及其他有相关机制，能保证我们的库不会导致类名冲突， 方法名冲突的其他语言， 以静态分析为指导意见， 重新调整代码命名， 以适应静态分析建议"
+- **Prompt (English)**: find this project's instruction and skill files (add one if missing), write in English: using the
+  static analysis report in the PR comments, re-evaluate the need for the `cyl_` / `CYL` prefixes, which exist for
+  Objective-C category overrides and the missing namespace; re-evaluate them for Swift and for the other languages that
+  have namespaces, and rename the code to follow the static analysis.
+- **Done**: new skill `.agents/skills/cyl-naming/SKILL.md` (reasons, Swift table, other platforms, check); rules updated in
+  `instructions.md` ("Naming"), `AGENTS.md` ("Project rules" and the skills table), `docs/swift-coding-standard.md`.
+- **TODO**: rename the test helpers to lowerCamelCase after the merge phases (they edit the same test files); the
+  CYLTabBarController renames belong to that repository's session and pull request.
+## TODO (2026-11-22): pin CYLTabBarController 882ece17, ClassifyMenu 405bf498, CYLTableViewPlaceHolder f4cf978; adopt the x86_64 plan
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: CYLTabBarController `882ece17` ships the x86_64 emulator test plan
+  in `cylanimateditem` (`62715829`: PAG and Rive `canPlay` false without `arm64-v8a`, still image, `isSupportedOnDevice`,
+  `tools/cyl_hap_x86_64.py`, README "x86_64 emulator"; `882ece17`: 6 hypium tests on x86_64), asked for in the entry
+  "the x86_64 emulator test plan" above. CollectionViewClassifyMenu `405bf498` (`feat/harmony`) pins `882ece17` on every
+  platform (both repositories pin the same tab bar commit, so not the newer `89886a3e`). CYLTableViewPlaceHolder
+  `f4cf9785` (`feat/android-refresh-port-followup`, 8 commits after `6117fcfb`).
+- **Prompt (verbatim)**: "continue fix todo fix ci error" and the x86_64 prompt quoted in that entry.
+- **Acceptance**: 100 = the three pins in every manifest with vendor copies synced (from a mirror checked to hold them);
+  Android, HarmonyOS (hypium on the x86_64 emulator), mini program, Flutter and React Native tests pass and the examples
+  build; the x86_64 plan adopted (our recipe matches `cylanimateditem`'s README; any PAG or Rive view this repository
+  builds itself guarded by `isSupportedOnDevice`). 60 = pins moved, Android and HarmonyOS green.
+- **Status**: in progress.
+
 ## TODO (2026-11-22): continue the iOS TODOs in docs/ (QMUI port leftovers, React Native smear)
 
 - **Branch**: `fix/ios-todos-qmui` (from `feat/harmonyos-parity`, pull request 11). macOS 27 session, Xcode 27.2, the
