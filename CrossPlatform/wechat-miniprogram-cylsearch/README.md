@@ -129,6 +129,26 @@ result)`), `reloadResults()`, `searchResults()`, `setRefreshHandler(handler)`, `
 `isRefreshing(target)` take a `<cyl-search>` instance or a `CYLSearchView`. Slots: `content`, `placeholder-footer`.
 Abstract node: `cyl-empty-view` (properties `scenario`, `animated`, `loop`, `speed`; method `playAll()`).
 
+### QMUI search bar and controller (the iOS CYLSearchBar / CYLSearchController)
+
+All of it is opt-in; the defaults change nothing.
+
+- `<cyl-search-bar>`: `centersPlaceholder`; `textFieldMargins` / `activeTextFieldMargins` and `cancelButtonMargins` /
+  `activeCancelButtonMargins` (`{ top, left, bottom, right }` in px, at rest and while editing), or the functions
+  `setTextFieldMarginsProvider((bar, active) => insets)` and `setCancelButtonMarginsProvider`; `cancelButtonFont`
+  (`{ size, weight }`); `setShowsCancelButton(shows, animated)`; the accessory views beside the field: slots `leading-accessory`
+  and `trailing-accessory`, `showsLeadingAccessory` / `showsTrailingAccessory`, their margins, and
+  `setShowsLeadingAccessoryView(shows, animated)` / `setShowsTrailingAccessoryView`; `appearance`
+  (`CYLSearchBarAppearance.default()`).
+- `<cyl-search>`: `showsSearchBar` with `showsContent` is the list screen (iOS CYLSearchTableViewController): the bar is the header of
+  the content's scroller, `hidesSearchBarInitially`, `hidesSearchBarWhenEmptyViewShowing`, `snapsHeaderSearchBar` (a half hidden
+  bar settles, a short list can scroll it out); focusing it starts the search. `showsLaunchView` (slot `launch-view`),
+  `dimmingColor`, `highlightsMatches` / `highlightColor`, `supportsSwipeToDismissSearch`; events `updateresults` (every change,
+  also "" on activation), `willpresent`, `didpresent`, `willdismiss`, `diddismiss`, `historychange`; methods `setActive(active,
+  animated)`, `isActive()`, `showEmptyView(text, detailText, buttonTitle, buttonAction)`, `hideEmptyView()`,
+  `isEmptyViewShowing()`, `history()`, `clearHistory()`, and the bar's methods above. Design and parity:
+  `docs/qmui-search-controller.md` of the repository.
+
 ## Example
 
 Open this folder (`CrossPlatform/wechat-miniprogram-cylsearch`) in WeChat DevTools. `project.config.json` points
