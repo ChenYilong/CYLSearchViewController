@@ -625,7 +625,7 @@ begins and becomes `DONE` when it ends.
 
 - **Status**: started.
 
-## TODO (2026-11-21): fix every iOS / Swift TODO in docs/ and test with Xcode
+## DONE (2026-11-22; TODO 2026-11-21): fix every iOS / Swift TODO in docs/ and test with Xcode
 
 - **Branch**: `fix/ios-swift-todos` (from `feat/harmonyos-parity`, pull request 11). macOS 27 session, Xcode 27.2, a
   dedicated iPhone simulator. Built from an APFS worktree (`/tmp/xpr/csvc-ios`; the vault volume is exFAT).
@@ -647,5 +647,23 @@ begins and becomes `DONE` when it ends.
   labelled screenshots); follow AGENTS.md (core first, examples have the lowest weight, scores in each document).
 - **Prompt (verbatim)**: "fix all todo in docs about ios/swift and test with  Xcode"
 - **Prompt (English)**: "Fix all the TODOs in docs about iOS/Swift and test with Xcode."
-- **Status**: started (2026-11-21). Score 0/100 (100 = items 1 to 6 done with evidence, or blocked with the reason and
-  the owner).
+- **Status**: DONE (2026-11-22). Score 97/100 (100 = items 1 to 6 done with evidence, or blocked with the reason and
+  the owner). Per item:
+  1. Quick Help: 100. 291 of 301 public Swift symbols documented; the 10 left are UIKit overrides (inherit by rule);
+     `scripts/public-api-doc-coverage.sh` measures the Swift module (`218ba50`).
+  2. Raised plus button: 90. Raised in the three configurations and the code-built tab bar, test
+     `testPlusButtonIsRaisedAboveTheTabBar`, screenshot (`a5158b8`, `2fa5667`). Left: the plus title keeps the core's gray (a
+     dynamic title color asked of the CYLTabBarController session, 2026-11-22).
+  3. iOS More tab: 100. 8 of 8 quick switches keep one item selected, screenshot (`2fa5667`); found: the More item shows
+     the first moved tab's SVGA icon (sent to the CYLTabBarController session).
+  4. Flutter iOS tag drag: 100. The tag lifts, the page holds, a swipe still scrolls; `didChangeDragging` forwarded
+     (`df3283a`, `414bdb2`). Not bisected against the 2026-11-20 failure.
+  5. Swift migration steps 2 to 4: 100. The demo matches the GIF, the legacy Objective-C is removed, the tests are Swift
+     with an Objective-C smoke test (`726a2da`, `f46d814`); 40 of 40 tests.
+  6. React Native iOS drag events: 95. `onReorderingChange` reaches JavaScript (true, then false) on a Release build;
+     `onSmearingChange` wired the same way, not exercised.
+  Pins: ClassifyMenu `1f8c1001`, CYLTabBarController `ace1af0e`, CYLTableViewPlaceHolder `a169386` on iOS as on every
+  platform, verified locally (40 of 40, `a53a704`); ClassifyMenu's own iOS CI on that commit was still pending when
+  pinned (its session watches it). Local checks: public API comments, shellcheck, `pod lib lint`, analyze (0 warnings in
+  `Sources/`). Six earlier commit subjects of this branch break `scripts/check-commit-message.sh` (five over 64
+  characters, one merge subject); pushed, so left as they are, every later commit checked.
