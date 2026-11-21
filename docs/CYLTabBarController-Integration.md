@@ -193,8 +193,24 @@ plus page; the Examples tab at the largest accessibility text size.
     `cyl_appliesCenterYOffsetWithoutTitle` YES, or in the other styles. Decision needed in CYLTabBarController (raised
     effect with a title on Liquid Glass), so it stays `TODO` here; the config was reverted.
   - React Native: DONE 2026-11-16. `CYLPlusButtonAlignsTitle` false (RN `alignsTitle: false`) keeps the title on the
-    button, so the multiplier applies; see `android-and-cross-platform.md`, "Open TODOs". The iOS example can use the
-    same key in `CYLTabBarConfiguration.json` (still `TODO`, iOS example layer).
+    button, so the multiplier applies; see `android-and-cross-platform.md`, "Open TODOs".
+  - iOS example: DONE (2026-11-21, `a5158b8`, iPhone 18 Pro simulator, iOS 27.2, Xcode 27.2). The iOS core has no default
+    raise (its center comes only from `+multiplierOfTabBarHeight:`, which a configuration gives with
+    `CYLPlusButtonCenterYMultiplier`), so the three configurations (`CYLTabBarConfiguration.json`, `…_svga.json`,
+    `…_svga_swiftui.json`) set `CYLPlusButtonAlignsTitle` false, `CYLPlusButtonSize` `{64, 84}` and
+    `CYLPlusButtonCenterYMultiplier` 0.3, the React Native values, with React Native's 52 pt green image
+    (`CYLPlusButton` in `CYLSearchViewController/Images.xcassets`; `CYLPlusButtonImageSize` would redraw the SF Symbol
+    black). Tried first: `CYLPlusButtonAlignsTitle` false alone (the button barely moves) and multiplier 0.15 (raised
+    further, but the title sits 7 pt above the tab titles). Result: the circle rises about 10 pt above the bar and the
+    title sits on the tab titles' line; its page shows the Liquid Glass lens under it. Test
+    `testPlusButtonIsRaisedAboveTheTabBar` (the button's top above the bar's top, centred, the 52 pt image); 37 of 37
+    tests pass.
+    ![iOS plus button before and after, a5158b8, 2026-11-21](assets/ios-iphone18pro-20261121-plus-button-raised.png)
+    (iOS 27.2 simulator, iPhone 18 Pro, Xcode 27.2 27B52, macOS 27, CYLSearchViewController `a5158b8`, CYLTabBarController
+    `41660d24`, 2026-11-21 23:29 +13:00.)
+  - Left (minor, CYLTabBarController): the button draws its own title in the core's default gray, not in the tab titles'
+    color. `CYLTabBarItemTitleColor` takes a hex color only, which would not follow dark mode, so the example keeps
+    the default. A dynamic title color for a non-aligned plus title is a CYLTabBarController option to ask for.
 
 ## DONE (2026-11-19; TODO 2026-11-16): SVGA animations from CYLTabBarController, with one SVGA demo for every Rive demo
 
