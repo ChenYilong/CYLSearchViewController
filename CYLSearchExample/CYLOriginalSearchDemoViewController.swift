@@ -55,7 +55,8 @@ final class CYLOriginalSearchDemoViewController: UIViewController, CYLSearchView
         super.viewDidLoad()
         // navigationItem.title: a view controller's title also renames its tab item.
         navigationItem.title = cylOriginalDemoText("title")
-        view.backgroundColor = .black
+        // The GIF: a light gray strip behind a white field (UISearchBar's look); adaptive colors keep dark mode readable.
+        view.backgroundColor = .systemGroupedBackground
         edgesForExtendedLayout = []
         installBlueBar()
 
@@ -67,6 +68,7 @@ final class CYLOriginalSearchDemoViewController: UIViewController, CYLSearchView
         searchField.placeholder = cylOriginalDemoText("placeholder")
         searchField.fieldHeight = 30
         searchField.searchBarStyle = .plain
+        searchField.fieldBackgroundColor = .secondarySystemGroupedBackground
         searchField.isUserInteractionEnabled = false
         searchField.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(searchField)
@@ -118,6 +120,9 @@ final class CYLOriginalSearchDemoViewController: UIViewController, CYLSearchView
         searchView.resultsDataSource = self
         searchView.searchBarView.placeholder = cylOriginalDemoText("placeholder")
         searchView.searchBarView.cancelButtonTitle = cylOriginalDemoText("cancel")
+        // The GIF: Cancel ("取消") after the field closes the search; no back arrow before it.
+        searchView.searchBarView.showsCancelButton = true
+        searchView.searchBarView.navigationIcon = .none
         // The history: the queries the user submitted, newest first, kept across launches; the page has no suggestions of
         // its own.
         searchView.suggestions = []
@@ -128,6 +133,12 @@ final class CYLOriginalSearchDemoViewController: UIViewController, CYLSearchView
         // The clear button is a text button below the list, not the core's title and trash icon.
         searchView.showsSuggestionCacheHeader = false
         searchView.suggestionsTableView.tableFooterView = makeClearFooter()
+        // The GIF: white history rows; only the area below the list shows the sky.
+        searchView.suggestionCellConfiguration = { cell, _, _ in
+            var background = UIBackgroundConfiguration.listPlainCell()
+            background.backgroundColor = .systemBackground
+            cell.backgroundConfiguration = background
+        }
         // The sky stays under the list.
         searchView.contentView = cylOriginalDemoSky()
         searchView.closesOnSubmit = false

@@ -650,7 +650,28 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     XCTAssertFalse(search.showsSuggestionCacheHeader, @"the clear button is the text button below the list");
     XCTAssertNotNil(search.suggestionsTableView.tableFooterView);
     XCTAssertNotNil(search.contentView, @"the sky stays under the list");
+    // The GIF: Cancel after the field, no back arrow before it.
+    XCTAssertTrue(search.searchBarView.showsCancelButton);
+    XCTAssertEqual(search.searchBarView.navigationIcon, CYLSearchBarNavigationIconNone);
+    // Search lists the results under the header and puts the term in the history, shown again for an empty field.
     [search clearSuggestionCache];
+    search.searchBarView.text = @"Gf";
+    [search searchBarView:search.searchBarView textDidChange:@"Gf"];
+    [search searchBarViewSearchButtonClicked:search.searchBarView];
+    XCTAssertEqual([search.resultsTableView numberOfRowsInSection:0], 4);
+    UILabel *header = (UILabel *)search.resultsTableView.tableHeaderView;
+    XCTAssertTrue([header.text containsString:@"Gf"], @"%@", header.text);
+    search.searchBarView.text = @"";
+    [search searchBarView:search.searchBarView textDidChange:@""];
+    [search.suggestionsTableView layoutIfNeeded];
+    XCTAssertFalse(search.suggestionsTableView.hidden, @"the history is listed");
+    XCTAssertEqual([search.suggestionsTableView numberOfRowsInSection:0], 1);
+    UITableViewCell *historyCell = [search.suggestionsTableView.dataSource tableView:search.suggestionsTableView
+                                                               cellForRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
+    XCTAssertEqualObjects(((UIListContentConfiguration *)historyCell.contentConfiguration).text, @"Gf");
+    XCTAssertEqualObjects(historyCell.backgroundConfiguration.backgroundColor, UIColor.systemBackgroundColor, @"white rows, as in the GIF");
+    [search clearSuggestionCache];
+    XCTAssertEqual([search.suggestionsTableView numberOfRowsInSection:0], 0, @"the text button clears the history");
     [window.rootViewController dismissViewControllerAnimated:NO completion:nil];
 }
 
