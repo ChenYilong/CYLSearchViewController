@@ -22,7 +22,8 @@ import UIKit
  * (`SearchBarFont`, `SearchBarTextColor`, `SearchBarPlaceholderColor`, `SearchBarTintColor`, the icons, the field
  * background and border, `SearchBarTextFieldCornerRadius`, `SearchBarBackgroundImage`), merged with the defaults of the
  * legacy Objective-C `CYLSearchBar` (field RGB 187, 186, 193, tint RGB 0, 104, 248, no bar background, localized
- * placeholder and Cancel). `CYLSearchBarAppearance.defaultAppearance` is the app-wide default; every bar copies it when it
+ * placeholder and Cancel). `CYLSearchBarAppearance.defaultAppearance` is the app-wide default; every bar copies it when
+ * it
  * is created.
  */
 @objc(CYLSearchBarAppearance)
@@ -125,7 +126,8 @@ public final class CYLSearchBarAppearance: NSObject, NSCopying {
     // MARK: - Default
 
     /**
-     * The app-wide default style, merged from QMUI's template and the legacy CYLSearchBar. A change affects bars created
+     * The app-wide default style, merged from QMUI's template and the legacy CYLSearchBar. A change affects bars
+     * created
      * afterwards.
      */
     @objc(defaultAppearance)
@@ -145,6 +147,10 @@ public final class CYLSearchBarAppearance: NSObject, NSCopying {
                 ? UIColor(red: 58 / 255, green: 58 / 255, blue: 60 / 255, alpha: 1)
                 : UIColor(red: 187 / 255, green: 186 / 255, blue: 193 / 255, alpha: 1)
         }
+    }
+
+    static func defaultCopy() -> CYLSearchBarAppearance {
+        CYLSearchBarAppearance.default.copy() as? CYLSearchBarAppearance ?? CYLSearchBarAppearance()
     }
 
     /**

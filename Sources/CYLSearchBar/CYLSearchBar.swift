@@ -21,7 +21,8 @@ import UIKit
 
 /**
  * A `UISearchBar` that is styled by `CYLSearchBarAppearance` and adds what QMUI's `QMUISearchBar` and its
- * `UISearchBar (QMUI)` category add: a centered placeholder, placeholder / text colors and fonts, margins of the text field
+ * `UISearchBar (QMUI)` category add: a centered placeholder, placeholder / text colors and fonts, margins of the text
+ * field
  * and the Cancel button (per state), leading and trailing accessory views, an always enabled Cancel button, the bar's
  * background view and scope bar, and the fixes for `UISearchBar` quirks (the placeholder color lost when the bar moves
  * to a window, a text field frame that UIKit sets again).
@@ -35,14 +36,15 @@ open class CYLSearchBar: UISearchBar {
      * The style applied to the bar (copied from `CYLSearchBarAppearance.defaultAppearance` when the bar is created).
      * Assigning a style applies it.
      */
-    @objc public var appearanceStyle: CYLSearchBarAppearance = CYLSearchBarAppearance.default.copy() as? CYLSearchBarAppearance
-        ?? CYLSearchBarAppearance() {
+    @objc public var appearanceStyle: CYLSearchBarAppearance = CYLSearchBarAppearance.defaultCopy() {
         didSet { applyAppearance(appearanceStyle) }
     }
 
     /**
-     * Whether the bar is a table view's header view (QMUI `qmui_usedAsTableHeaderView`). Set by the screens that install
-     * the bar as a header; default `false`. UIKit's header quirks of QMUI (#233, #830, #950, #1207, #1473) were checked on
+     * Whether the bar is a table view's header view (QMUI `qmui_usedAsTableHeaderView`). Set by the screens that
+     * install
+     * the bar as a header; default `false`. UIKit's header quirks of QMUI (#233, #830, #950, #1207, #1473) were checked
+     * on
      * iOS 27 (docs/qmui-search-controller.md, rows B7 to B9) and need no fix here.
      */
     @objc public var usedAsTableHeaderView = false
@@ -59,7 +61,8 @@ open class CYLSearchBar: UISearchBar {
     }
 
     /**
-     * The placeholder's color (QMUI `qmui_placeholderColor`); kept when the bar moves to a window and when the placeholder
+     * The placeholder's color (QMUI `qmui_placeholderColor`); kept when the bar moves to a window and when the
+     * placeholder
      * changes.
      */
     @objc public var placeholderColor: UIColor? {
@@ -72,7 +75,11 @@ open class CYLSearchBar: UISearchBar {
     @objc public var textColor: UIColor? {
         didSet {
             // Assigning nil to UIKit's own property is avoided: the field keeps its default look.
-            if let textColor { searchTextField.textColor = textColor } else if oldValue != nil { searchTextField.textColor = .label }
+            if let textColor {
+                searchTextField.textColor = textColor
+            } else if oldValue != nil {
+                searchTextField.textColor = .label
+            }
         }
     }
 
@@ -92,7 +99,8 @@ open class CYLSearchBar: UISearchBar {
     // MARK: - Layout
 
     /**
-     * The margins added to the text field's frame (QMUI `qmui_textFieldMargins`), on top of UIKit's own (10, 8, 10, 8). A
+     * The margins added to the text field's frame (QMUI `qmui_textFieldMargins`), on top of UIKit's own (10, 8, 10, 8).
+     * A
      * positive value shrinks the field, a negative one grows it.
      */
     @objc public var textFieldMargins: UIEdgeInsets = .zero {
@@ -119,7 +127,8 @@ open class CYLSearchBar: UISearchBar {
     }
 
     /**
-     * The font of the Cancel button's title (QMUI `qmui_cancelButtonFont`). iOS 26 and later draw an xmark without a title,
+     * The font of the Cancel button's title (QMUI `qmui_cancelButtonFont`). iOS 26 and later draw an xmark without a
+     * title,
      * where it has no visible effect.
      */
     @objc public var cancelButtonFont: UIFont? {
@@ -135,7 +144,8 @@ open class CYLSearchBar: UISearchBar {
     }
 
     /**
-     * Whether the Cancel button stays enabled although the keyboard is down (QMUI `qmui_alwaysEnableCancelButton`). Only
+     * Whether the Cancel button stays enabled although the keyboard is down (QMUI `qmui_alwaysEnableCancelButton`).
+     * Only
      * a bar without a `searchController` does this: UIKit disables Cancel when editing ends. Default `true`.
      */
     @objc public var alwaysEnablesCancelButton = true {
@@ -174,7 +184,8 @@ open class CYLSearchBar: UISearchBar {
     }
 
     /**
-     * Whether the leading accessory view is shown (QMUI `qmui_showsLeftAccessoryView`), without animation. Default `true`.
+     * Whether the leading accessory view is shown (QMUI `qmui_showsLeftAccessoryView`), without animation. Default
+     * `true`.
      */
     @objc public var showsLeadingAccessoryView: Bool {
         get { leadingShows }
@@ -276,7 +287,7 @@ open class CYLSearchBar: UISearchBar {
      * Applies `CYLSearchBarAppearance.defaultAppearance` (QMUI `qmui_styledAsQMUISearchBar`).
      */
     @objc open func applyDefaultAppearance() {
-        appearanceStyle = CYLSearchBarAppearance.default.copy() as? CYLSearchBarAppearance ?? CYLSearchBarAppearance()
+        appearanceStyle = CYLSearchBarAppearance.defaultCopy()
     }
 
     // MARK: - UISearchBar
@@ -320,6 +331,7 @@ open class CYLSearchBar: UISearchBar {
     @objc public func setShowsLeadingAccessoryView(_ shows: Bool, animated: Bool) {
         leadingShows = shows
         guard let view = leadingAccessoryView else { return }
+        let duration = Self.accessoryAnimationDuration
         if animated {
             if shows {
                 view.isHidden = false
@@ -328,7 +340,7 @@ open class CYLSearchBar: UISearchBar {
                     self.updateAccessoryMargins()
                 }
             } else {
-                UIView.animate(withDuration: Self.accessoryAnimationDuration, delay: 0, options: .curveEaseInOut, animations: {
+                UIView.animate(withDuration: duration, delay: 0, options: .curveEaseInOut, animations: {
                     view.transform = CGAffineTransform(translationX: -view.frame.maxX, y: 0)
                     self.updateAccessoryMargins()
                 }, completion: { _ in
@@ -350,6 +362,7 @@ open class CYLSearchBar: UISearchBar {
     @objc public func setShowsTrailingAccessoryView(_ shows: Bool, animated: Bool) {
         trailingShows = shows
         guard let view = trailingAccessoryView else { return }
+        let duration = Self.accessoryAnimationDuration
         if animated {
             // The accessory flies in from the Cancel button, so the two overlap for a moment: fade it as well.
             let fades = showsCancelButton
@@ -362,7 +375,7 @@ open class CYLSearchBar: UISearchBar {
                     if fades { view.alpha = 1 }
                 }
             } else {
-                UIView.animate(withDuration: Self.accessoryAnimationDuration, delay: 0, options: .curveEaseInOut, animations: {
+                UIView.animate(withDuration: duration, delay: 0, options: .curveEaseInOut, animations: {
                     view.transform = CGAffineTransform(translationX: bounds.width - view.frame.minX, y: 0)
                     self.updateAccessoryMargins()
                 }, completion: { _ in
@@ -520,7 +533,8 @@ open class CYLSearchBar: UISearchBar {
 
     private func bindControls() {
         if fieldObservation == nil {
-            // UIKit sets the field's frame again after layoutSubviews (QMUI hooks setFrame: for this): adjust it as soon as
+            // UIKit sets the field's frame again after layoutSubviews (QMUI hooks setFrame: for this): adjust it as
+            // soon as
             // it changes, and lay the rest out for the new size.
             fieldObservation = searchTextField.observe(\.frame) { [weak self] _, _ in
                 self?.adjustTextFieldFrame()
@@ -586,7 +600,8 @@ open class CYLSearchBar: UISearchBar {
     }
 
     private func enableCancelButtonIfNeeded() {
-        guard alwaysEnablesCancelButton, searchController == nil, let button = cancelButton, !button.isEnabled else { return }
+        guard alwaysEnablesCancelButton, searchController == nil,
+              let button = cancelButton, !button.isEnabled else { return }
         button.isEnabled = true
     }
 
@@ -598,7 +613,8 @@ open class CYLSearchBar: UISearchBar {
             return
         }
         let field = searchTextField
-        // Some intermediate states give the field a negative width; bounds.size.width keeps the sign, frame.width does not.
+        // Some intermediate states give the field a negative width; bounds.size.width keeps the sign, frame.width does
+        // not.
         guard field.bounds.size.width > 0 else { return }
         if field.isEditing || !(field.text ?? "").isEmpty {
             centeredPlaceholder = nil
@@ -634,7 +650,8 @@ open class CYLSearchBar: UISearchBar {
             field.setNeedsLayout()
             field.layoutIfNeeded()
         }
-        centeredPlaceholder = CenteredPlaceholder(fieldWidth: fieldWidth, textWidth: textWidth, iconMinX: baseline + horizontal)
+        centeredPlaceholder = CenteredPlaceholder(
+            fieldWidth: fieldWidth, textWidth: textWidth, iconMinX: baseline + horizontal)
     }
 
     private static func placeholderLabel(in field: UISearchTextField) -> UILabel? {
@@ -662,15 +679,18 @@ open class CYLSearchBar: UISearchBar {
         updateAccessoryMargins()
     }
 
+    private func accessorySpace(_ view: UIView?, _ shows: Bool, _ margins: UIEdgeInsets) -> CGFloat {
+        guard shows, let view else { return 0 }
+        return view.frame.width + margins.left + margins.right
+    }
+
     /**
      * Recomputes the space the accessory views take from the text field. The flags decide, not `isHidden`: during an
      * animation `isHidden` is not updated yet.
      */
     private func updateAccessoryMargins() {
-        let leading = leadingShows && leadingAccessoryView != nil
-            ? leadingAccessoryView!.frame.width + leadingAccessoryViewMargins.left + leadingAccessoryViewMargins.right : 0
-        let trailing = trailingShows && trailingAccessoryView != nil
-            ? trailingAccessoryView!.frame.width + trailingAccessoryViewMargins.left + trailingAccessoryViewMargins.right : 0
+        let leading = accessorySpace(leadingAccessoryView, leadingShows, leadingAccessoryViewMargins)
+        let trailing = accessorySpace(trailingAccessoryView, trailingShows, trailingAccessoryViewMargins)
         guard customTextFieldMargins.left != leading || customTextFieldMargins.right != trailing else { return }
         customTextFieldMargins = UIEdgeInsets(top: customTextFieldMargins.top, left: leading,
                                               bottom: customTextFieldMargins.bottom, right: trailing)
@@ -695,7 +715,8 @@ open class CYLSearchBar: UISearchBar {
         if let view = trailingAccessoryView {
             if view.superview !== container { container.addSubview(view) }
             if !view.isHidden {
-                let x = base.maxX + Self.defaultTextFieldSideMargin - view.bounds.width - trailingAccessoryViewMargins.right
+                let gap = Self.defaultTextFieldSideMargin
+                let x = base.maxX + gap - view.bounds.width - trailingAccessoryViewMargins.right
                 view.center = CGPoint(x: x + view.bounds.width / 2, y: midY)
             }
         }
