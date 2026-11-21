@@ -557,4 +557,19 @@ begins and becomes `DONE` when it ends.
   mini program `npm test`; Flutter `flutter test` and the Android example build; React Native jest and the Android
   example build; the repository checks (public API comments, licenses, the API tables). 60 = every suite runs, with
   failures explained.
-- **Status**: started.
+- **Status**: DONE (2026-11-22), score 100/100. Results at `11b4b33` (pins: CYLTabBarController `41660d24`,
+  CollectionViewClassifyMenu `cf478388`, CYLTableViewPlaceHolder `c84fce9`; Windows 11 Pro 10.0.22631, JDK 17):
+
+  | Platform | Tests | Build | Runs on the emulator |
+  |:---|:---|:---|:---|
+  | Android | `:cylsearch` 26 of 26 (Robolectric) | `:app:assembleDebug` (clean) | launches, no crash (API 37) |
+  | HarmonyOS | host logic 30 of 30; iOS parity 549 of 549; accessibility and i18n 0 problems; hypium 29 of 29 | emulator HAP and ohosTest HAP (`emulatorTest`), clean | installed on the Mate 70 Pro emulator (HarmonyOS 6.0.0.112, API 21) |
+  | Mini program | `npm test` 61 of 61 | — | not run (DevTools not used in this task) |
+  | Flutter | plugin 18 of 18; example 3 of 3 | `flutter build apk --debug` | launches, no crash |
+  | React Native | jest 4 of 4 | `:app:assembleDebug` | launches, no crash, with the JS bundle in the APK's assets |
+  | Checks | public API comments OK; licenses OK (9 files); API tables Android, HarmonyOS, mini program 289 of 289; HarmonyOS scorecard 314 of 314 | | |
+
+  Notes: there are no instrumented (androidTest) Android tests. The React Native debug APK reads its bundle from
+  assets, not from Metro, and a release build fails on Windows: ninja's object paths under
+  `react-native-safe-area-context` pass 260 characters even from `C:\cylbuild\repo` (the README's known limit). So
+  the run used `react-native bundle` into the mirror's assets, not committed. iOS was not tested (not part of the task).
