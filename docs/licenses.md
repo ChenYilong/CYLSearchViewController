@@ -62,4 +62,6 @@ any other) ships its license declaration inside the package, in the package's re
     Before a release they must be on Maven Central, as must `io.github.chenyilong:cyltabbarcontroller-animateditem`.
     CYLTableViewPlaceHolder `94c7bbd` moved its publication into the two modules' own build files: checked here (local pin,
     mapping removed, nothing committed), the POM names both coordinates without the mapping. So when
-    `cyl.placeholder.commit` moves to `94c7bbd` or later, delete the `withXml` block in `cylsearch/build.gradle.kts`.
+    `cyl.placeholder.commit` moves to `94c7bbd` or later, delete the `withXml` block in `cylsearch/build.gradle.kts`. DONE
+    (2026-11-22): pinned at `a169386`, the block is gone, and `publishReleasePublicationToBuildRepository` still names
+    `io.github.chenyilong:cyltableviewplaceholder:0.1.0` and `io.github.chenyilong:cyltableviewplaceholder-refresh:0.1.0`.

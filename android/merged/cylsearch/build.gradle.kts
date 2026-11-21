@@ -94,27 +94,6 @@ afterEvaluate {
                     scm {
                         url.set("https://github.com/ChenYilong/CYLSearchViewController")
                     }
-                    // CYLTableViewPlaceHolder's modules are included from its checkout (settings.gradle.kts), but their
-                    // publishing is set up in its own root build, which this build does not evaluate; so the POM would
-                    // name them by this build's defaults. These are the coordinates its owner chose (its
-                    // docs/Android-Port.md, "Maven publication coordinates").
-                    withXml {
-                        val coordinates = mapOf(
-                            "placeholder" to "cyltableviewplaceholder",
-                            "placeholder-refresh" to "cyltableviewplaceholder-refresh",
-                        )
-                        val dependencies = asNode().children()
-                            .filterIsInstance<groovy.util.Node>()
-                            .firstOrNull { it.name().toString().endsWith("dependencies") } ?: return@withXml
-                        dependencies.children().filterIsInstance<groovy.util.Node>().forEach { dependency ->
-                            fun field(name: String) = dependency.children().filterIsInstance<groovy.util.Node>()
-                                .first { it.name().toString().endsWith(name) }
-                            val artifactId = coordinates[field("artifactId").text()] ?: return@forEach
-                            field("groupId").setValue("io.github.chenyilong")
-                            field("artifactId").setValue(artifactId)
-                            field("version").setValue("0.1.0")
-                        }
-                    }
                 }
             }
         }
