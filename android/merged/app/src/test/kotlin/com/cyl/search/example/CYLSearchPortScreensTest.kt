@@ -10,6 +10,7 @@ import com.cyl.search.CYLSearchSuggestionCachePolicy
 import com.cyl.search.CYLSearchView
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -184,6 +185,22 @@ class CYLSearchPortScreensTest {
         val texts = allViews(menu.requireView()).filterIsInstance<android.widget.TextView>().map { it.text.toString() }
         for (key in listOf("demo.searchController", "demo.searchBarStyles", "demo.shortList")) {
             assertTrue("$key in the menu", activity.cylDemoText(key) in texts)
+        }
+    }
+
+    @Test
+    fun everyTextOfTheScreensExistsInFourLanguages() {
+        val keys = listOf("demo.searchController", "demo.searchBarStyles", "demo.shortList", "styles.section.placeholder", "styles.section.layout",
+            "styles.section.accessory", "styles.centerPlaceholder", "styles.changePlaceholder", "styles.longPlaceholder", "styles.adjustField",
+            "styles.adjustCancel", "styles.animated", "styles.show", "styles.hide", "styles.cancel", "styles.leading", "styles.trailing",
+            "styles.accessory.label", "styles.row.hint", "controller.recent", "controller.noResults", "controller.launch.label", "shortList.row")
+        val english = keys.associateWith { com.cyl.search.CYLSearchResources.localizedString(activity, it, "en") }
+        for (language in listOf("ja", "zh-Hans", "zh-Hant")) {
+            for (key in keys) {
+                val text = com.cyl.search.CYLSearchResources.localizedString(activity, key, language)
+                assertNotEquals("$language misses $key", key, text)
+                assertNotEquals("$language is not translated: $key", english[key], text)
+            }
         }
     }
 
