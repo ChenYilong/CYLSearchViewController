@@ -167,7 +167,16 @@ public final class CYLSearchControllerDemoViewController: UITableViewController,
     }
 
     public override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
+        guard tableView !== self.tableView else {
+            tableView.deselectRow(at: indexPath, animated: true)
+            return
+        }
+        // A result opens a detail screen (the search stays behind it): the push, the interactive pop that can be cancelled,
+        // and the push again are the scenario of QMUI issue #680 (docs/qmui-search-controller.md, row E21).
+        let detail = UIViewController()
+        detail.view.backgroundColor = .systemBackground
+        detail.navigationItem.title = matches[indexPath.row / 20]
+        navigationController?.pushViewController(detail, animated: true)
     }
 
     // MARK: - CYLSearchControllerDelegate

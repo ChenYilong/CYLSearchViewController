@@ -557,6 +557,29 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         CYLTearDownSearchRun(run)
     }
 
+
+    /// E21 / the touch run of docs/qmui-search-controller.md: results showing, push a screen with animation, pop it with
+    /// animation, the search must be on screen again (the bar, the results) and not a blank page.
+    func testE21SearchIsDrawnAgainAfterAnAnimatedPushAndPop() throws {
+        let run = CYLMakeSearchRun()
+        CYLActivateSearch(run, text: "H")
+        let results = try XCTUnwrap(run.search.tableView)
+        XCTAssertNotNil(results.cellForRow(at: IndexPath(row: 0, section: 0)))
+        for round in 1...2 {
+            run.navigation.pushViewController(CYLSearchPushedController(), animated: true)
+            CYLRunLoop(1.0)
+            run.navigation.popViewController(animated: true)
+            CYLRunLoop(1.0)
+            XCTAssertTrue(run.search.isActive, "round \(round)")
+            XCTAssertNotNil(run.search.searchBar.window, "round \(round): the bar is on screen")
+            XCTAssertNotNil(results.window, "round \(round): the results are on screen")
+            XCTAssertNotNil(results.cellForRow(at: IndexPath(row: 0, section: 0))?.window, "round \(round): a result is on screen")
+            XCTAssertFalse(results.isHidden)
+            XCTAssertFalse(run.search.searchController.view.isHidden)
+        }
+        CYLTearDownSearchRun(run)
+    }
+
     // MARK: - B9: an explicit background wins
 
     private func solidImage(_ color: UIColor) -> UIImage {
