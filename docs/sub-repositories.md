@@ -122,8 +122,9 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   plus title fixes of `127b8ae8` and `16a19bbf`, the badge border width of PR #805 and the demo translations;
   Scorecard 3 rows 1 to 4, 12 and 13). Before: `94eb7b1`. Their
   minimum is API 21, so the example's `compatibleSdkVersion` is 6.0.1(21).
-- Status: `TODO` (iOS, Android, Flutter and React Native done; HarmonyOS uses CYLTableViewPlaceHolder's `cylplaceholder` library
-  (above) and compiles, not run yet; mini programs done, see below).
+- Status: DONE (2026-11-17; see the heading). Was: iOS, Android, Flutter and React Native done; HarmonyOS uses CYLTableViewPlaceHolder's `cylplaceholder` library
+  (above) and compiles, not run yet (run on the Mate 70 Pro emulator since: Scorecard 2 rows 7 to 9 in
+  [harmonyos-cross-platform.md](harmonyos-cross-platform.md)); mini programs done, see below.
 - Progress (2026-11-15): mini programs DONE: the empty results and the empty cache of `cyl-search` play
   CYLTableViewPlaceHolder's `CYLPlaceholderNoResults.json` / `CYLPlaceholderNoDrafts.json` (with their licenses) through
   CYLTabBarController's `cyl-lottie`; screenshot in [miniprogram-api-alignment.md](miniprogram-api-alignment.md).

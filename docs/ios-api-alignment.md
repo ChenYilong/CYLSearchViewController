@@ -37,7 +37,7 @@ this project ships with, such as CollectionViewClassifyMenu's tag views) next to
     `viewDidLayoutSubviews()` of `CYLSearchController` and `CYLSearchResultsViewController`, are UIKit overrides
     (N/A), like `viewDidLoad()`.
 
-### TODO
+### Follow-ups (all DONE, 2026-11-17)
 
 - Status (2026-11-17, third pass): 99 (917 of 924); A 100, B 98. The generator now checks every bare name it takes
   from the sub-repository's table against the iOS sources it measures (`existsInIOS`): that table lags behind its own
@@ -49,8 +49,8 @@ this project ships with, such as CollectionViewClassifyMenu's tag views) next to
   (`CYLSearchSuggestionCell.imageView` / `textLabel` had matched `CYLSearchPlaceholderView`) and now name the
   suggestion row's `UIListContentConfiguration.image` / `.text`. Cells with prose are no longer wrapped in backticks.
 - Result (2026-11-17, fourth pass): Android core → iOS 100 (924 of 924, CollectionViewClassifyMenu measured at
-  `652e084`); iOS → Android 100 ([android-api-alignment.md](android-api-alignment.md), 397 rows). Follow-up, still
-  open: the CollectionViewClassifyMenu pin bump (TODO items below), blocked by its Objective-C API.
+  `652e084`); iOS → Android 100 ([android-api-alignment.md](android-api-alignment.md), 397 rows). Follow-up: the
+  CollectionViewClassifyMenu pin bump (items below), blocked by its Objective-C API, DONE below.
 - DONE (generator review): see the third pass above.
 - DONE (2026-11-17): the multiple filter's state object. Restored on iOS by CollectionViewClassifyMenu `a3c2e1f`
   (`CYLFilterParamsTool`, `CYLFilterBaseController.settingArray`, Swift, Android logic); the rows match again.
@@ -73,7 +73,8 @@ this project ships with, such as CollectionViewClassifyMenu's tag views) next to
     `"topLeading"`) and also accept the library's new names.
   - React Native iOS: imports `CollectionViewClassifyMenu-Swift.h` (the pod ships no headers since its Swift
     migration) and reports taps through Objective-C's `tagClickHandler`.
-  - Not verified here (Linux: no Xcode, no Android SDK; CocoaPods could not reach its spec CDN through this session's
+  - Verified since: the macOS session's `pod install` and the iOS, Flutter and React Native builds of 2026-11-19
+    ([animated-icon-component.md](animated-icon-component.md), rows 37 and 38). Original note: not verified here (Linux: no Xcode, no Android SDK; CocoaPods could not reach its spec CDN through this session's
     proxy, so the three `Podfile.lock` files still name `f972416` and CI's `pod install` re-resolves the pod). To
     verify: iOS CI (build, analyze, unit tests), the Android build and tests, and the React Native and Flutter
     examples on a Mac.

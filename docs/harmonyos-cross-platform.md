@@ -121,8 +121,8 @@ Score: 100/100 (26 of 26 rows not `TODO`; row 25 waits for an emulator check).
   `%APPDATA%\Huawei\DevEcoStudio6.0\options\country.region.xml` contains `<countryregion name="CN"/>` (the original
   `NZ` file is kept as `country.region.xml.bak-NZ`); `HypervisorPresent = True`; 64 GB RAM; the HarmonyOS 6.0.1
   `phone_all_x86` system image was downloading in `%LOCALAPPDATA%\Huawei\Sdk`.
-- TODO: N/A on HarmonyOS: no emulator instance on this machine (the image is downloaded; Device Manager only);
-  development continues without one. See Scorecard 2, row 7.
+- Emulator instance: DONE (2026-11-16): the Mate 70 Pro emulator was created and is listed by `hdc list targets`
+  (Scorecard 2, row 7).
 
 ## DONE (2026-11-16; TODO 2026-11-16): the HarmonyOS scorecard, scored to 100
 

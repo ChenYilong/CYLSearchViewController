@@ -57,9 +57,9 @@ Watching for the deleter (2026-11-19, with the user's request to find it): no ev
   - Windows build note (from CYLTableViewPlaceHolder's session): a clone at a deep path fails React Native's CMake step on
     260 characters; written into the React Native README ("Building the example on Windows").
 
-## Open TODOs: Android, React Native, Flutter (2026-11-16)
+## DONE (2026-11-16): the Android, React Native and Flutter TODO table ("Open TODOs", 5/5)
 
-Collected from every cross-platform document. A row's TODO is removed when it is done; no TODO left = full score.
+Collected from every cross-platform document. A row's TODO is removed when it is done; none is left, so the score is full.
 
 | Found | Status |
 |:---|:---|

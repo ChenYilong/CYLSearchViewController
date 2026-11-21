@@ -12,7 +12,7 @@ made as the [Android table](android-api-alignment.md) was. Rules and prompt: the
   from the Swift sources, keeps the third column, and prints the score. Repeat until 100.
 - Before the search bar: study [Applib-HarmonyOS/FlexibleSearchBar](https://github.com/Applib-HarmonyOS/FlexibleSearchBar)
   and note what is reused.
-- Status: `TODO`, score 0 (no HarmonyOS module yet).
+- Status (2026-11-13): score 0 (no HarmonyOS module yet).
 - Status (2026-11-14): score 100/100 (declarations; compiled, not run). The module exists (`harmonyos/cylsearch`); the score below is computed from its
   sources.
 

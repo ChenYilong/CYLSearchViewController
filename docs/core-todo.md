@@ -260,7 +260,8 @@ packages). A test checks each rule.
   `editingsubmit` {text}) and `pinsToKeyboard` (fixed at the page's bottom, lifted by `wx.onKeyboardHeightChange`, the field
   does not push the page) properties. Test `editing bar submits the trimmed text…` (test/cyl_search_bar_view.test.js); used by
   the mini program contact tags example ([assets/wechat-devtools-20261119-contact-tags.png](assets/wechat-devtools-20261119-contact-tags.png), WeChat DevTools simulator, base library 3.6.6, Windows 11, 2026-11-19 +13:00, after 34b8cd3).
-  TODO: Flutter and React Native.
+  Flutter and React Native: DONE (2026-11-19): Flutter `CYLSearchView(editingBar: true)` (`8989d69`), React Native
+  `<CylsearchBarView editingBar>` (`274ba00`), both on the native cores above; used by their contact tags examples.
 
 ## DONE (2026-11-19; TODO 2026-11-19): the mini program editing bar focuses every rename, not only the first
 
