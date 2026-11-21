@@ -623,6 +623,21 @@ begins and becomes `DONE` when it ends.
   builds and launches; HarmonyOS `vendor/cylplaceholder` synced, both HAPs build clean, hypium 29 of 29; mini program
   61 of 61; Flutter 18 of 18, the example builds and launches; React Native jest 4 of 4, the example builds and launches.
 
+
+## TODO (2026-11-22): pin CollectionViewClassifyMenu 881476a and CYLTableViewPlaceHolder c473fdc on every platform
+
+- **Branch**: `feat/harmonyos-parity`. Context: newer sub-repository commits (the pin rule in `gradle.properties`: the
+  newest commit on any branch). CollectionViewClassifyMenu `881476a1` (`feat/harmony`; the newer `ci-screenshots` head
+  is an orphan branch of CI screenshots, not code): HarmonyOS `CYLTagButton` tints animated tag icons through
+  `CYLAnimatedItemView.iconColor`. CYLTableViewPlaceHolder `c473fdc3`: docs and the iOS scenarios Podfile only.
+  CYLTabBarController stays at `ace1af0e`: its newer commits (`7a39ad36`) are iOS, sample and docs changes, and
+  ClassifyMenu `881476a` still pins `ace1af0e` (both repositories pin the same commit).
+- **Prompt (verbatim)**: "continue fix todo"
+- **Acceptance**: 100 = both pins moved in every file (Podfiles, Gradle, HarmonyOS, mini program) with the vendor copies
+  synced; Android, HarmonyOS (hypium on the emulator), mini program, Flutter and React Native tests pass. 60 = pins moved,
+  HarmonyOS green.
+- **Status**: in progress.
+
 - **Status**: started.
 
 ## DONE (2026-11-22; TODO 2026-11-21): fix every iOS / Swift TODO in docs/ and test with Xcode
