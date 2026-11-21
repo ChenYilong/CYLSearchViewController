@@ -556,4 +556,104 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         }
         CYLTearDownSearchRun(run)
     }
+
+    // MARK: - B9: an explicit background wins
+
+    private func solidImage(_ color: UIColor) -> UIImage {
+        UIGraphicsImageRenderer(size: CGSize(width: 10, height: 10)).image { context in
+            color.setFill()
+            context.fill(CGRect(x: 0, y: 0, width: 10, height: 10))
+        }.resizableImage(withCapInsets: UIEdgeInsets(top: 1, left: 1, bottom: 1, right: 1))
+    }
+
+    /// A header run whose table is red and whose bar has no appearance background: whatever the bar draws is set by hand.
+    private func explicitRun() -> CYLSearchRun {
+        let run = CYLMakeSearchRun { $0.tableView.backgroundColor = .red }
+        run.search.searchController.automaticallyShowsCancelButton = false
+        run.search.searchBar.showsCancelButton = true
+        run.search.searchBar.sizeToFit()
+        CYLRunLoop(0.4)
+        return run
+    }
+
+    /// The color under the bar's first two rows, at rest and while searching (the red table must not read through).
+    private func barRows(_ run: CYLSearchRun, state: String) -> [[UInt8]] {
+        if state == "searching" {
+            run.search.setActive(true, animated: true)
+            CYLRunLoop(0.8)
+        }
+        let frame = run.search.searchBar.convert(run.search.searchBar.bounds, to: run.window)
+        let pixel = 1 / run.window.screen.scale
+        return pixels(run.window, at: [CGPoint(x: 5, y: frame.minY), CGPoint(x: 5, y: frame.minY + pixel)])
+    }
+
+    /// B9: a background image set by hand draws at rest and while searching, in light and dark mode, and the appearance does
+    /// not replace it when it is assigned afterwards (an explicit call wins in both orders).
+    func testB9ExplicitBackgroundImageWinsWhileSearching() {
+        for state in ["rest", "searching"] {
+            let run = explicitRun()
+            let bar = run.search.searchBar
+            bar.setBackgroundImage(solidImage(.blue), for: .any, barMetrics: .default)
+            CYLRunLoop(0.4)
+            // The appearance assigned after the explicit image does not replace it.
+            let style = bar.appearanceStyle
+            style.barBackgroundColor = .green
+            bar.appearanceStyle = style
+            for row in barRows(run, state: state) {
+                XCTAssertLessThan(row[0], 100, "\(state): no red reads through: \(row)")
+                XCTAssertGreaterThan(row[2], 100, "\(state): the hand-set blue wins over the green appearance: \(row)")
+            }
+            CYLTearDownSearchRun(run)
+        }
+    }
+
+    /// B9: a nil image by hand hands the background back to the appearance, and the appearance set before the image still
+    /// shows once the image is gone.
+    func testB9NilBackgroundImageHandsBackToTheAppearance() {
+        let run = explicitRun()
+        let bar = run.search.searchBar
+        let style = bar.appearanceStyle
+        style.barBackgroundColor = .green
+        bar.appearanceStyle = style
+        bar.setBackgroundImage(solidImage(.blue), for: .any, barMetrics: .default)
+        bar.setBackgroundImage(nil, for: .any, barMetrics: .default)
+        CYLRunLoop(0.4)
+        for row in barRows(run, state: "searching") {
+            XCTAssertLessThan(row[0], 100, "no red reads through: \(row)")
+            XCTAssertGreaterThan(row[1], 100, "green again: \(row)")
+            XCTAssertLessThan(row[2], 100, "not blue: \(row)")
+        }
+        CYLTearDownSearchRun(run)
+    }
+
+    /// B9: a barTintColor set by hand draws at rest and while searching, and wins over the appearance's background color;
+    /// nil gives the appearance back.
+    func testB9ExplicitBarTintWinsWhileSearching() {
+        for state in ["rest", "searching"] {
+            let run = explicitRun()
+            let bar = run.search.searchBar
+            let style = bar.appearanceStyle
+            style.barBackgroundColor = .green
+            bar.appearanceStyle = style
+            bar.barTintColor = .blue
+            for row in barRows(run, state: state) {
+                XCTAssertLessThan(row[0], 100, "\(state): no red reads through: \(row)")
+                XCTAssertGreaterThan(row[2], 100, "\(state): the bar tint wins over the appearance: \(row)")
+                XCTAssertLessThan(row[1], 100, "\(state): not green: \(row)")
+            }
+            CYLTearDownSearchRun(run)
+        }
+        let run = explicitRun()
+        let bar = run.search.searchBar
+        let style = bar.appearanceStyle
+        style.barBackgroundColor = .green
+        bar.appearanceStyle = style
+        bar.barTintColor = .blue
+        bar.barTintColor = nil
+        CYLRunLoop(0.3)
+        for row in barRows(run, state: "searching") {
+            XCTAssertGreaterThan(row[1], 100, "nil hands the background back to the appearance: \(row)")
+        }
+        CYLTearDownSearchRun(run)
+    }
 }

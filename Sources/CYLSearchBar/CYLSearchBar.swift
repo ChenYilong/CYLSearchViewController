@@ -235,6 +235,7 @@ open class CYLSearchBar: UISearchBar {
         var iconMinX: CGFloat
     }
 
+    private static let allBarMetrics: [UIBarMetrics] = [.default, .defaultPrompt, .compact, .compactPrompt]
     private static let defaultTextFieldSideMargin: CGFloat = 8
     private static let accessoryAnimationDuration: TimeInterval = 0.25
 
@@ -247,6 +248,8 @@ open class CYLSearchBar: UISearchBar {
     private var fieldObservation: NSKeyValueObservation?
     private var cancelObservations: [NSKeyValueObservation] = []
     private var isApplyingPlaceholder = false
+    private var isApplyingBackground = false
+    private var explicitBackgroundKeys = Set<Int>()
     private var centeredPlaceholder: CenteredPlaceholder?
     private var lastInterfaceStyle = UIUserInterfaceStyle.unspecified
     private static var cachedFieldHeight: CGFloat = 0
@@ -301,6 +304,43 @@ open class CYLSearchBar: UISearchBar {
 
     public override var text: String? {
         didSet { setNeedsLayout() }
+    }
+
+    /**
+     * An explicit bar tint wins over `appearanceStyle` (docs/qmui-search-controller.md, row B9): the bar draws a background
+     * of this color, with the style's bottom border, so it also shows while searching. `nil` hands the background back to
+     * the style.
+     */
+    public override var barTintColor: UIColor? {
+        didSet {
+            guard !isApplyingBackground else { return }
+            applyFieldAndBarBackground(appearanceStyle)
+        }
+    }
+
+    /**
+     * An image set here wins over `appearanceStyle` (row B9): the style no longer replaces it when the bar lays out in a
+     * window, changes appearance or switches between light and dark mode. Setting `nil` for every position and metrics
+     * hands the background back to the style.
+     */
+    public override func setBackgroundImage(_ backgroundImage: UIImage?, for barPosition: UIBarPosition,
+                                            barMetrics: UIBarMetrics) {
+        super.setBackgroundImage(backgroundImage, for: barPosition, barMetrics: barMetrics)
+        guard !isApplyingBackground else { return }
+        let key = barPosition.rawValue * 100 + barMetrics.rawValue
+        if backgroundImage == nil {
+            guard explicitBackgroundKeys.remove(key) != nil else { return }
+            if explicitBackgroundKeys.isEmpty { applyFieldAndBarBackground(appearanceStyle) }
+        } else {
+            explicitBackgroundKeys.insert(key)
+            // UIKit asks for the image of the metrics it uses at that moment (while searching it is not `.default` on every
+            // system): the metrics not set by hand draw the same image.
+            isApplyingBackground = true
+            defer { isApplyingBackground = false }
+            for metrics in Self.allBarMetrics where !explicitBackgroundKeys.contains(metrics.rawValue) {
+                super.setBackgroundImage(backgroundImage, for: .any, barMetrics: metrics)
+            }
+        }
     }
 
     public override func didMoveToWindow() {
@@ -458,16 +498,24 @@ open class CYLSearchBar: UISearchBar {
         searchTextField.layer.borderWidth = style.textFieldBorderColor == nil ? 0 : borderWidth
         searchTextField.layer.borderColor = style.textFieldBorderColor?.resolvedColor(with: traitCollection).cgColor
 
+        // A background image set by hand wins over the style (row B9); an explicit bar tint becomes the background color.
+        guard explicitBackgroundKeys.isEmpty else { return }
+        isApplyingBackground = true
+        defer { isApplyingBackground = false }
+
         // A background image instead of barTintColor, so the bottom border's color can change as well.
         var background = style.barBackgroundImage
+        if let tint = barTintColor {
+            background = Self.backgroundImage(color: tint.resolvedColor(with: traitCollection),
+                                              borderColor: style.barBorderColor?.resolvedColor(with: traitCollection))
+        }
         if background == nil {
             background = Self.backgroundImage(
                 color: style.barBackgroundColor?.resolvedColor(with: traitCollection),
                 borderColor: style.barBorderColor?.resolvedColor(with: traitCollection))
         }
         if background == nil && style.hidesBarBackground { background = UIImage() }
-        setBackgroundImage(background, for: .any, barMetrics: .default)
-        setBackgroundImage(background, for: .any, barMetrics: .defaultPrompt)
+        for metrics in Self.allBarMetrics { setBackgroundImage(background, for: .any, barMetrics: metrics) }
     }
 
     private func applyInterfaceStyleChangeIfNeeded() {

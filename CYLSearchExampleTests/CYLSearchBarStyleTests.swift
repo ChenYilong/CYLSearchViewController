@@ -68,7 +68,8 @@ final class CYLSearchBarStyleTests: CYLSearchExampleTestCase {
     /// selector would silently override it. Every own method of CYLSearchBar is checked against its superclass chain.
     func testNoSelectorOverridesAPrivateUISearchBarMethod() {
         let intended: Set<String> = ["layoutSubviews", "didMoveToWindow", "placeholder", "setPlaceholder:", "text", "setText:",
-                                     "initWithFrame:", "initWithCoder:", ".cxx_destruct"]
+                                     "initWithFrame:", "initWithCoder:", ".cxx_destruct", "barTintColor", "setBarTintColor:",
+                                     "setBackgroundImage:forBarPosition:barMetrics:"]
         var count: UInt32 = 0
         let methods = class_copyMethodList(CYLSearchBar.self, &count)
         defer { free(methods) }
