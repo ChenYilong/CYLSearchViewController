@@ -39,6 +39,34 @@ Design and task record for bringing QMUI_iOS's `QMUISearchBar` and `QMUISearchCo
   the `issues1160-TestSearchBar` project. Prompt (verbatim): "默认模型在代码实现过程中， 要参考 /Volumes/obsidian/chenyilong/chenyilong/Vibe-Coding-Projects/QMUI_iOS-fixed/docs/issue-tracker.md  注意实现过程中， 考虑里面的searchbar相关的issue https://github.com/Tencent/QMUI_iOS/issues/1319 https://github.com/Tencent/QMUI_iOS/issues/1251  https://github.com/Tencent/QMUI_iOS/issues/1229  https://github.com/Tencent/QMUI_iOS/issues/1313 https://github.com/Tencent/QMUI_iOS/issues/1160 /Volumes/obsidian/chenyilong/chenyilong/Vibe-Coding-Projects/QMUI_iOS-fixed/issues1160-TestSearchBar". English: "While the default model implements the code, it must refer to issue-tracker.md and take the search bar issues in it into account: #1319, #1251, #1229, #1313, #1160, and the issues1160-TestSearchBar project."
 - **Status** (2026-11-22): design written (below); **phase 1 done** (`1ffabb0` core, `96ad416` example and tests; suite: 62 tests, 0 failures on iOS 27.2): `CYLSearchBar`, `CYLSearchBarAppearance`, the "Search bar styles" screen, rows B1 to B13 and E23; **phase 2 done** (`a9f59e6` core, `1f33609` example and tests; suite: 101 tests, 0 failures on iOS 27.2): `CYLSearchController`, `CYLSearchControllerDelegate`, the "Search controller" screen, rows E1 to E22 (E21 checked, open for a touch run); phase 3 next (`CYLSearchTableViewController`, the issue scenarios). Phase 1 and 2 notes are in "Phase 1 log" and "Phase 2 log" below.
 
+## TODO (2026-11-22, `feat/harmonyos-parity`, PR #11): phase 3 of the QMUI search port
+
+- **Context**: phases 1 and 2 are done (up to `02fbad8`; 101 tests, 0 failures on iOS 27.2). This phase: `CYLSearchTableViewController`
+  (the replacement of `QMUICommonTableViewController (Search)`), the owner's issues I1 to I5 with their screens and tests, the
+  core bug of phase 2 (a hand-set background image or `barTintColor` is not drawn while searching, row B9), and the real check of E21.
+- **Requirements** (the phase 3 scope as given, English original):
+  1. `Sources/CYLSearchBar/CYLSearchTableViewController.swift`: `showsSearchBar` (creating / removing the `CYLSearchController` and the
+     header bar only once the view is loaded; setting it before `viewDidLoad` waits for `viewDidLoad`), `searchController`,
+     `searchBar`, `hidesSearchBarWhenEmptyViewShowing` (removes the header while an empty view shows and puts it back
+     hidden-initially after, #128 "force" behaviour), `setUpSearchBar()` hook, clears results selection in `viewWillAppear` unless
+     `allowsMultipleSelection`, default empty `updateResults`. Move the Styles screen onto it.
+  2. The owner's issues I1 to I5, each with its example screen (menu rows "Navigation item" I3, "Bar in a view" I2, "Short list" I4,
+     "Collection view" I5; I1 is checked on the Search controller screen) and its test (class `CYLSearchIssueScenarioTests`). I4
+     (#1160, also B10 / #1207): finish `installSearchBar(asHeaderOf:)`: estimated row / header / footer heights 0, enough bottom inset
+     that the header can scroll out even with 3 rows, snap fully shown / hidden at the end of dragging, without stealing the
+     table's delegate. I3 (#1229): `install(in:)` keeps the wrapper alive (associated with the contents view controller), the test
+     proves no crash plus delegate callbacks. Add every new bar to `testSearchBarsCoverNoView`.
+  3. Core bug from phase 2: a hand-set `setBackgroundImage(_:for:barMetrics:)` or `barTintColor` on a `CYLSearchBar` does not draw
+     while searching; an explicit call wins over `appearanceStyle`; with a test; update row B9.
+  4. E21 (#680) real check on the iOS 27.2 simulator (results showing, push, start an interactive pop, cancel it halfway, push
+     again; look for search results flashing). Port a public-API fix only if it reproduces; write the result and method in row E21.
+  Not in this phase: phase 4 (merge table, licenses, screenshots, final score).
+- **Prompt**: "You are implementing PHASE 3 of the design in docs/qmui-search-controller.md ... PHASE 3 SCOPE 1. ...
+  `CYLSearchTableViewController.swift` ... 2. The owner's issues I1-I5 ... 3. Core bug from phase 2 ... 4. E21 (#680) real check ...
+  Update the doc rows (I1-I5, B9, B10, E21), the Status line, and a Phase 3 log. Do not do phase 4." (the scope items are quoted in
+  Requirements above).
+- **Status**: started (2026-11-22). Nothing committed yet for phase 3.
+
 ## Sources read (2026-11-21)
 
 | Source | Where | Notes |
