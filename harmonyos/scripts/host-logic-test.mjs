@@ -185,3 +185,65 @@ describe('cylSearchTouchRegion', () => {
     assert.deepEqual(logic.cylSearchTouchRegion(80, 36, 44), { x: 0, y: -4, width: 80, height: 44 });
   });
 });
+
+describe('QMUI search port: bar rules', () => {
+  const zero = { top: 0, left: 0, bottom: 0, right: 0 };
+  it('centers the placeholder only at rest, empty, with a placeholder', () => {
+    assert.equal(logic.cylSearchPlaceholderCentered(true, false, '', true), true);
+    assert.equal(logic.cylSearchPlaceholderCentered(true, true, '', true), false);
+    assert.equal(logic.cylSearchPlaceholderCentered(true, false, 'a', true), false);
+    assert.equal(logic.cylSearchPlaceholderCentered(true, false, '', false), false);
+    assert.equal(logic.cylSearchPlaceholderCentered(false, false, '', true), false);
+  });
+  it('lets the provider win over the fixed margins', () => {
+    const fixed = { top: 0, left: 8, bottom: 0, right: 8 };
+    const provided = { top: 0, left: 32, bottom: 0, right: 32 };
+    assert.deepEqual(logic.cylSearchResolvedInsets(provided, fixed), provided);
+    assert.deepEqual(logic.cylSearchResolvedInsets(undefined, fixed), fixed);
+    assert.deepEqual(logic.cylSearchResolvedInsets(undefined, zero), zero);
+  });
+  it('draws Cancel when asked for, or automatically while active', () => {
+    assert.equal(logic.cylSearchCancelVisible(true, false, false), true);
+    assert.equal(logic.cylSearchCancelVisible(false, true, true), true);
+    assert.equal(logic.cylSearchCancelVisible(false, true, false), false);
+    assert.equal(logic.cylSearchCancelVisible(false, false, true), false);
+  });
+});
+
+describe('QMUI search port: search view rules', () => {
+  it('shows the empty view only for a non-empty query', () => {
+    assert.equal(logic.cylSearchEmptyViewShown(true, 'zzz'), true);
+    assert.equal(logic.cylSearchEmptyViewShown(true, '  '), false);
+    assert.equal(logic.cylSearchEmptyViewShown(false, 'zzz'), false);
+  });
+  it('shows the launch view while the query is empty', () => {
+    assert.equal(logic.cylSearchLaunchViewShown(true, ''), true);
+    assert.equal(logic.cylSearchLaunchViewShown(true, 'a'), false);
+    assert.equal(logic.cylSearchLaunchViewShown(false, ''), false);
+  });
+  it('ignores the dimming when a launch view is set or the query is not empty', () => {
+    assert.equal(logic.cylSearchDimmingShown(true, false, ''), true);
+    assert.equal(logic.cylSearchDimmingShown(true, true, ''), false);
+    assert.equal(logic.cylSearchDimmingShown(true, false, 'a'), false);
+    assert.equal(logic.cylSearchDimmingShown(false, false, ''), false);
+  });
+});
+
+describe('QMUI search port: header snapping (issue 1160)', () => {
+  it('adds only what the rows leave of the viewport', () => {
+    assert.equal(logic.cylSearchHeaderFillerHeight(700, 300), 400);
+    assert.equal(logic.cylSearchHeaderFillerHeight(700, 900), 0);
+    assert.equal(logic.cylSearchHeaderFillerHeight(700, 700), 0);
+  });
+  it('settles a half-hidden header fully shown or fully hidden', () => {
+    assert.equal(logic.cylSearchHeaderSettleOffset(10, 48), 0);
+    assert.equal(logic.cylSearchHeaderSettleOffset(24, 48), 48);
+    assert.equal(logic.cylSearchHeaderSettleOffset(40, 48), 48);
+  });
+  it('leaves a header alone outside the header band', () => {
+    assert.equal(logic.cylSearchHeaderSettleOffset(0, 48), undefined);
+    assert.equal(logic.cylSearchHeaderSettleOffset(48, 48), undefined);
+    assert.equal(logic.cylSearchHeaderSettleOffset(120, 48), undefined);
+    assert.equal(logic.cylSearchHeaderSettleOffset(10, 0), undefined);
+  });
+});
