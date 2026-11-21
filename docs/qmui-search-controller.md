@@ -454,3 +454,15 @@ cells say TODO until the platform's agent reports the file and test.
 Order: Android, HarmonyOS and the mini program first (native cores); React Native and Flutter after, since they wrap the
 native iOS and Android cores. Score per platform: 100 = every row done or N/A with the reason, both replica screens,
 a test or labelled screenshot per screen, the platform's checks green.
+
+
+### Android (Kotlin, android/merged: core module cylsearch, example app): QMUI search port (2026-11-22)
+
+- **Status**: TODO (started 2026-11-22, `feat/harmonyos-parity`, PR #11). Task: port every parity row above into the Android
+  core (`CYLSearchBarView`, `CYLSearchView`, a list view with a built-in bar), add the example screens "Search controller"
+  and "Search bar styles" to `CYLSearchDemoMenuFragment`, Robolectric tests, labelled screenshots on an own AVD.
+- **Acceptance**: every row has a counterpart (file:symbol) or N/A with a reason; `:cylsearch:testDebugUnitTest` and
+  `:app:testDebugUnitTest` green on a clean build; both replica screens screenshotted (`docs/assets/`, labelled); the bar never
+  covers a view in any state; strings in en, ja, zh-Hans, zh-Hant; this section filled with files, rows, tests, screenshots, score.
+- **Environment**: JDK 17.0.21 (`/Users/chenyilong/develop/jdk/jdk-17.0.21+9`; JDK 21 and 25 break Robolectric), Gradle 9.4.1 wrapper
+  (`sh ./gradlew`, the wrapper is not executable in git), Android SDK `~/Library/Android/sdk`, own AVD.
