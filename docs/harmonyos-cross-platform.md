@@ -105,7 +105,7 @@ The HarmonyOS port of CYLSearchViewController: the ArkTS library `harmonyos/cyls
   | 25 | Core of the sub-repositories (open) | `@ohos/rive` and `@tencent/libpag` are dependencies of CYLTabBarController's and CYLTableViewPlaceHolder's libraries |
 
 <!-- harmonyos-score3:begin -->
-Score: 100/100 (26 of 26 rows not `TODO`; row 25 waits for an emulator check).
+Score: 100/100 (26 of 26 rows not `TODO`; row 25 checked on the emulator 2026-11-21).
 <!-- harmonyos-score3:end -->
 
 - Prompt (verbatim): "全英文写入instructions相关文件以及 skills相关文件： 鸿蒙系统 ide 准备工作，模拟器安装的必要条件， region should be set to china (NZ) in country.region.xml to china make sure The region file now says China: <countryregion name="CN"/>"

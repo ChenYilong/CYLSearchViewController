@@ -928,7 +928,8 @@ Android.
     verified on DevTools or a phone with the SVGA tab bar.
   - **iOS More tab** (more than five tabs): not run, asked of Mac-CYLTabBarController文件夹.
 - **Status**: TODO. Score: 70/100 (iOS and HarmonyOS verified, mini program fixed and bundled, Android More patch and the iOS More check
-  open; the user's phone retest of the mini program is the last step).
+  open; the user's phone retest of the mini program is the last step). 2026-11-21: the Android More patch is blocked by the
+  `style` clash (the next entry); the iOS More check is the macOS session's; the phone retest is the user's.
 
 ## TODO (2026-11-20): two tab items stay selected after a quick switch in the SVGA tab bar: the Android audit
 
@@ -988,6 +989,11 @@ Android.
   at `c1abdffe` or newer here, and rerun this row's check.
 - **Status**: TODO. Score: 80/100 (the fix is committed and tested in CYLTabBarController; re-pinning here and the final check are
   blocked by the unrelated `style` name collision above, not by this bug).
+  2026-11-21: still blocked. The CYLTabBarController tip `e96c4979` contains `c1abdffe`, but `:classifymenu:compileDebugKotlin`
+  still fails at CollectionViewClassifyMenu `cf478388` (and on every branch there: `feat/harmony` `7b7051ab`, `master` `76e7a8cd`).
+  The CollectionViewClassifyMenu session found that iOS clashes too (`CYLAnimatedItemView.swift` `style` against `CYLTagButton.swift`
+  `style`; HarmonyOS named it `itemStyle`) and asked the user which property to rename (its proposal: `itemStyle` upstream on
+  iOS and Android). Re-pin and re-check once it sends the commit.
 
 ## TODO (2026-11-20): the tag list drag holds the scrolling on every platform, like the mini program
 

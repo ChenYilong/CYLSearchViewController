@@ -132,8 +132,11 @@ What each platform did differently from the target design below.
 - HarmonyOS: V1 `cylplaceholder` components inside V2 components. DONE: they run on the emulator (the empty results,
   Scorecard 2). The `WeakMap` of the refresh helpers: DONE on the emulator (2026-11-21, the pull-to-refresh
   screenshot above).
-- Mini program: the default path of the component generics (no `cyl-placeholder-miniprogram` installed): see
-  `task-log.md`, "fix every open TODO in docs" (2026-11-21).
+- Mini program: the default path of the component generics (no `cyl-placeholder-miniprogram` installed). DONE: it
+  is not a supported install. `cyl-search` loads `cyl-refresh` and its default `cyl-placeholder` from that package,
+  so WeChat DevTools does not compile without it ("component not found in the path", checked 2026-11-19); the
+  package README says it is required. `package.json` keeps it an optional peer only so that npm does not try to
+  fetch it (it is not on the registry).
 - Android: the timing of the refresh tests under Robolectric. DONE: `:cylsearch` unit tests pass on every Android
   pin since 2026-11-16 (`animated-icon-component.md`, rows 31 to 38).
 - React Native: the native code was not compiled. DONE: React Native iOS builds and runs (2026-11-18, macOS) and
