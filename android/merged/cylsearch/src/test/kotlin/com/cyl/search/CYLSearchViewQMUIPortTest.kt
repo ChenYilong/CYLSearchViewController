@@ -219,6 +219,40 @@ class CYLSearchViewQMUIPortTest {
     }
 
     @Test
+    fun backGoesToAPageThatCoversTheOpenSearch() {
+        // The detail page pushed from a result lies over the search that stays open behind it: Back pops that page
+        // first, then closes the search (a bug found on the emulator).
+        val host = FrameLayout(activity)
+        activity.setContentView(host, android.view.ViewGroup.LayoutParams(1080, 1920))
+        var pagePopped = 0
+        val pageCallback = object : androidx.activity.OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                pagePopped++
+                host.removeViewAt(host.childCount - 1)
+            }
+        }
+        activity.onBackPressedDispatcher.addCallback(pageCallback)
+        val view = CYLSearchView(activity).also {
+            host.addView(it, android.view.ViewGroup.LayoutParams(-1, -1))
+            it.delegate = delegate
+        }
+        view.showSearch(false)
+        val cover = View(activity)
+        host.addView(cover, android.view.ViewGroup.LayoutParams(-1, -1))
+        host.measure(View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(1920, View.MeasureSpec.EXACTLY))
+        host.layout(0, 0, 1080, 1920)
+        activity.onBackPressedDispatcher.onBackPressed()
+        assertEquals("the covering page took Back", 1, pagePopped)
+        assertTrue("the search stays open behind it", view.isActive)
+        host.measure(View.MeasureSpec.makeMeasureSpec(1080, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(1920, View.MeasureSpec.EXACTLY))
+        host.layout(0, 0, 1080, 1920)
+        activity.onBackPressedDispatcher.onBackPressed()
+        idle()
+        assertFalse("uncovered: Back closes the search", view.isActive)
+        assertEquals(1, pagePopped)
+    }
+
+    @Test
     fun searchBarMaxYIsTheBottomOfTheBar() {
         val view = searchView()
         view.showSearch(false)

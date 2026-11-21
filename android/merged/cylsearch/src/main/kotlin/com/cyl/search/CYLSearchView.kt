@@ -256,14 +256,20 @@ class CYLSearchView @JvmOverloads constructor(
     private var topInset = 0
     private var keyboardInset = 0
     private val backCallback = object : OnBackPressedCallback(false) {
-        override fun handleOnBackPressed() = closeSearch()
+        override fun handleOnBackPressed() {
+            if (isCovered()) {
+                passBackThrough()
+            } else {
+                closeSearch()
+            }
+        }
 
         override fun handleOnBackStarted(backEvent: BackEventCompat) {
-            pageView.animate().cancel()
+            if (!isCovered()) pageView.animate().cancel()
         }
 
         override fun handleOnBackProgressed(backEvent: BackEventCompat) {
-            if (!supportsSwipeToDismissSearch) return
+            if (!supportsSwipeToDismissSearch || isCovered()) return
             val direction = if (backEvent.swipeEdge == BackEventCompat.EDGE_RIGHT) -1 else 1
             pageView.translationX = direction * backEvent.progress * width * SWIPE_TRAVEL
             pageView.alpha = 1f - 0.5f * backEvent.progress
@@ -951,6 +957,39 @@ class CYLSearchView @JvmOverloads constructor(
 
     private fun effectiveScrimColor(): Int? = if (dimmingShown) dimmingColor else scrimColor
 
+
+    // True while a page of the host lies over this view (a detail page pushed from a result): Back then belongs to that
+    // page, not to the search that stays open behind it.
+    private fun isCovered(): Boolean {
+        val bounds = android.graphics.Rect()
+        if (!getGlobalVisibleRect(bounds)) {
+            return false
+        }
+        var child: View = this
+        var parent = child.parent
+        while (parent is ViewGroup) {
+            for (index in parent.indexOfChild(child) + 1 until parent.childCount) {
+                val sibling = parent.getChildAt(index)
+                val area = android.graphics.Rect()
+                if (sibling.visibility == VISIBLE && sibling.width > 0 && sibling.getGlobalVisibleRect(area) && area.contains(bounds)) {
+                    return true
+                }
+            }
+            child = parent
+            parent = parent.parent
+        }
+        return false
+    }
+
+    // Hands Back to the next callback of the activity (the covering page's) without closing the search.
+    private fun passBackThrough() {
+        backCallback.isEnabled = false
+        try {
+            (activity() as? ComponentActivity)?.onBackPressedDispatcher?.onBackPressed()
+        } finally {
+            backCallback.isEnabled = isSearchOpen
+        }
+    }
 
     // Opening and closing
 
