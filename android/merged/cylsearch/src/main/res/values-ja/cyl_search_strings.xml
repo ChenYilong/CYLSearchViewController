@@ -57,4 +57,28 @@
     <string name="cyl_search_recent">最近の検索</string>
     <string name="cyl_search_clearRecent">最近の検索を消去</string>
     <string name="cyl_search_recentCleared">最近の検索を消去しました</string>
+    <!-- The QMUI search port screens (iOS CYLSearchViewController.strings, 2026-11-22). -->
+    <string name="cyl_demo_searchController">検索コントローラ</string>
+    <string name="cyl_demo_searchBarStyles">検索バーのスタイル</string>
+    <string name="cyl_demo_shortList">短いリスト</string>
+    <string name="cyl_styles_section_placeholder">プレースホルダー</string>
+    <string name="cyl_styles_section_layout">レイアウト</string>
+    <string name="cyl_styles_section_accessory">アクセサリビュー</string>
+    <string name="cyl_styles_centerPlaceholder">プレースホルダーを中央に</string>
+    <string name="cyl_styles_changePlaceholder">プレースホルダーを変更</string>
+    <string name="cyl_styles_longPlaceholder">とても とても とても 長いプレースホルダー</string>
+    <string name="cyl_styles_adjustField">通常時の入力欄を調整</string>
+    <string name="cyl_styles_adjustCancel">検索中のキャンセルを調整</string>
+    <string name="cyl_styles_animated">アニメーションで表示</string>
+    <string name="cyl_styles_show" formatted="true">%sを表示</string>
+    <string name="cyl_styles_hide" formatted="true">%sを非表示</string>
+    <string name="cyl_styles_cancel">キャンセルボタン</string>
+    <string name="cyl_styles_leading">左のアクセサリ</string>
+    <string name="cyl_styles_trailing">右のアクセサリ</string>
+    <string name="cyl_styles_accessory_label">アクセサリビュー</string>
+    <string name="cyl_styles_row_hint">リストの上の検索バーを変更します</string>
+    <string name="cyl_controller_recent">最近の検索</string>
+    <string name="cyl_controller_noResults">一致する結果はありません</string>
+    <string name="cyl_controller_launch_label">最近の検索</string>
+    <string name="cyl_shortList_row" formatted="true">行 %d</string>
 </resources>

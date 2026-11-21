@@ -57,4 +57,28 @@
     <string name="cyl_search_recent">最近搜索</string>
     <string name="cyl_search_clearRecent">清除最近搜索</string>
     <string name="cyl_search_recentCleared">已清除最近搜索</string>
+    <!-- The QMUI search port screens (iOS CYLSearchViewController.strings, 2026-11-22). -->
+    <string name="cyl_demo_searchController">搜索控制器</string>
+    <string name="cyl_demo_searchBarStyles">搜索栏样式</string>
+    <string name="cyl_demo_shortList">短列表</string>
+    <string name="cyl_styles_section_placeholder">占位文字</string>
+    <string name="cyl_styles_section_layout">布局</string>
+    <string name="cyl_styles_section_accessory">附件视图</string>
+    <string name="cyl_styles_centerPlaceholder">占位文字居中</string>
+    <string name="cyl_styles_changePlaceholder">更换占位文字</string>
+    <string name="cyl_styles_longPlaceholder">很长很长很长的占位文字</string>
+    <string name="cyl_styles_adjustField">调整默认状态输入框布局</string>
+    <string name="cyl_styles_adjustCancel">调整搜索状态取消按钮布局</string>
+    <string name="cyl_styles_animated">以动画形式展示</string>
+    <string name="cyl_styles_show" formatted="true">显示%s</string>
+    <string name="cyl_styles_hide" formatted="true">隐藏%s</string>
+    <string name="cyl_styles_cancel">取消按钮</string>
+    <string name="cyl_styles_leading">左侧附件视图</string>
+    <string name="cyl_styles_trailing">右侧附件视图</string>
+    <string name="cyl_styles_accessory_label">附件视图</string>
+    <string name="cyl_styles_row_hint">修改列表上方的搜索栏</string>
+    <string name="cyl_controller_recent">最近搜索</string>
+    <string name="cyl_controller_noResults">没有匹配结果</string>
+    <string name="cyl_controller_launch_label">最近搜索</string>
+    <string name="cyl_shortList_row" formatted="true">第 %d 行</string>
 </resources>
