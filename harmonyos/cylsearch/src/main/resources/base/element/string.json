@@ -9,8 +9,28 @@
       "value": "Overlay"
     },
     {
+      "name": "cyl_controller_launch_label",
+      "value": "Recent searches: tap a search to see it"
+    },
+    {
+      "name": "cyl_controller_noResults",
+      "value": "No matching results"
+    },
+    {
+      "name": "cyl_controller_recent",
+      "value": "Recent searches"
+    },
+    {
+      "name": "cyl_demo_barInView",
+      "value": "Bar in a view"
+    },
+    {
       "name": "cyl_demo_choose",
       "value": "Image and message"
+    },
+    {
+      "name": "cyl_demo_collectionView",
+      "value": "Collection view"
     },
     {
       "name": "cyl_demo_custom",
@@ -31,6 +51,10 @@
     {
       "name": "cyl_demo_custom_textOnly",
       "value": "Built-in image, custom text"
+    },
+    {
+      "name": "cyl_demo_navigationItem",
+      "value": "Navigation item"
     },
     {
       "name": "cyl_demo_port_default",
@@ -109,6 +133,10 @@
       "value": "Search bar"
     },
     {
+      "name": "cyl_demo_searchBarStyles",
+      "value": "Search bar styles"
+    },
+    {
       "name": "cyl_demo_searchBar_camera",
       "value": "Camera"
     },
@@ -125,12 +153,28 @@
       "value": "Text: %s"
     },
     {
+      "name": "cyl_demo_searchController",
+      "value": "Search controller"
+    },
+    {
+      "name": "cyl_demo_shortList",
+      "value": "Short list"
+    },
+    {
       "name": "cyl_demo_styles",
       "value": "Placeholder styles"
     },
     {
       "name": "cyl_demo_title",
       "value": "Search examples"
+    },
+    {
+      "name": "cyl_issue_item",
+      "value": "Item %d"
+    },
+    {
+      "name": "cyl_issue_row",
+      "value": "Row %d"
     },
     {
       "name": "cyl_multisearch_add",
@@ -239,6 +283,70 @@
     {
       "name": "cyl_search_voice",
       "value": "Voice search"
+    },
+    {
+      "name": "cyl_styles_accessory_label",
+      "value": "Accessory view"
+    },
+    {
+      "name": "cyl_styles_adjustCancel",
+      "value": "Adjust Cancel while searching"
+    },
+    {
+      "name": "cyl_styles_adjustField",
+      "value": "Adjust the field at rest"
+    },
+    {
+      "name": "cyl_styles_animated",
+      "value": "Animated"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "Cancel"
+    },
+    {
+      "name": "cyl_styles_centerPlaceholder",
+      "value": "Center placeholder"
+    },
+    {
+      "name": "cyl_styles_changePlaceholder",
+      "value": "Change placeholder"
+    },
+    {
+      "name": "cyl_styles_hide",
+      "value": "Hide %s"
+    },
+    {
+      "name": "cyl_styles_leading",
+      "value": "leading accessory"
+    },
+    {
+      "name": "cyl_styles_longPlaceholder",
+      "value": "A very very very long placeholder"
+    },
+    {
+      "name": "cyl_styles_row_hint",
+      "value": "Changes the search bar above the list"
+    },
+    {
+      "name": "cyl_styles_section_accessory",
+      "value": "Accessory view"
+    },
+    {
+      "name": "cyl_styles_section_layout",
+      "value": "Layout"
+    },
+    {
+      "name": "cyl_styles_section_placeholder",
+      "value": "Placeholder"
+    },
+    {
+      "name": "cyl_styles_show",
+      "value": "Show %s"
+    },
+    {
+      "name": "cyl_styles_trailing",
+      "value": "trailing accessory"
     }
   ]
 }

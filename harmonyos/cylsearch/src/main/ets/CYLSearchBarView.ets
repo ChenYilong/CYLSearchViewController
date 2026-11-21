@@ -116,6 +116,53 @@ function cylSearchTouchRegion(width: number, height: number, minimum: number): C
   return region;
 }
 
+/**
+ * Space around a view in vp (iOS `UIEdgeInsets`).
+ */
+export interface CYLSearchEdgeInsets {
+  /**
+   * The space above.
+   */
+  top: number;
+  /**
+   * The space before (the left in a left-to-right layout).
+   */
+  left: number;
+  /**
+   * The space below.
+   */
+  bottom: number;
+  /**
+   * The space after.
+   */
+  right: number;
+}
+
+/**
+ * Whether the placeholder is drawn centered with the magnifier: only at rest (not editing), with no text, a
+ * placeholder and `centersPlaceholder` on (iOS `CYLSearchBar.centersPlaceholder`: centered at rest, leading while
+ * editing).
+ */
+function cylSearchPlaceholderCentered(centers: boolean, editing: boolean, text: string, hasPlaceholder: boolean): boolean {
+  return centers && !editing && text.length === 0 && hasPlaceholder;
+}
+
+/**
+ * The margins to apply: what the provider answers for the state (iOS `textFieldMarginsProvider(bar, active)`, which
+ * wins), else the fixed margins.
+ */
+function cylSearchResolvedInsets(provided: CYLSearchEdgeInsets | undefined, fixed: CYLSearchEdgeInsets): CYLSearchEdgeInsets {
+  return provided ?? fixed;
+}
+
+/**
+ * Whether Cancel is drawn: asked for with `showsCancelButton`, or automatically while the bar is active (iOS
+ * `automaticallyShowsCancelButton`).
+ */
+function cylSearchCancelVisible(shows: boolean, automatic: boolean, active: boolean): boolean {
+  return shows || (automatic && active);
+}
+
 // MARK: - Pure logic (end)
 
 /**
@@ -679,6 +726,107 @@ export interface CYLSearchBarViewDelegate {
 }
 
 /**
+ * The style of a search bar as one value (iOS `CYLSearchBarAppearance`): fonts, colors, the field's and the bar's
+ * backgrounds and the icons. `CYLSearchBarAppearance.defaultAppearance` is the merged default style (the grey field,
+ * the blue tint, "Search" and "Cancel" in the language the app shows); `CYLSearchBarView.appearanceStyle` applies one.
+ */
+export class CYLSearchBarAppearance {
+  /**
+   * The font size of the text and the placeholder in fp; undefined keeps the bar's.
+   */
+  font: number | undefined = undefined;
+  /**
+   * The text color.
+   */
+  textColor: ResourceColor | undefined = undefined;
+  /**
+   * The placeholder color.
+   */
+  placeholderColor: ResourceColor | undefined = $r('sys.color.font_tertiary');
+  /**
+   * The placeholder.
+   */
+  placeholder: ResourceStr | undefined = $r('app.string.cyl_search_field');
+  /**
+   * The title of Cancel.
+   */
+  cancelTitle: ResourceStr | undefined = $r('app.string.cyl_search_cancel');
+  /**
+   * The color of Cancel and the caret.
+   */
+  tintColor: ResourceColor | undefined = '#0068F8';
+  /**
+   * The magnifier.
+   */
+  searchIconImage: Resource | undefined = undefined;
+  /**
+   * The clear button's symbol.
+   */
+  clearIconImage: Resource | undefined = undefined;
+  /**
+   * The field's fill; light and dark grey by default.
+   */
+  textFieldBackgroundColor: ResourceColor | undefined = $r('app.color.cyl_search_field_background');
+  /**
+   * An image behind the field.
+   */
+  textFieldBackgroundImage: ResourceStr | undefined = undefined;
+  /**
+   * The color of the field's border.
+   */
+  textFieldBorderColor: ResourceColor | undefined = undefined;
+  /**
+   * The field's corner radius; negative makes a capsule.
+   */
+  textFieldCornerRadius: number = -1;
+  /**
+   * An image behind the whole bar.
+   */
+  barBackgroundImage: ResourceStr | undefined = undefined;
+  /**
+   * The color behind the whole bar.
+   */
+  barBackgroundColor: ResourceColor | undefined = undefined;
+  /**
+   * The color of the line under the bar.
+   */
+  barBorderColor: ResourceColor | undefined = undefined;
+  /**
+   * The bar has no background of its own unless a color or an image is set. True by default.
+   */
+  hidesBarBackground: boolean = true;
+
+  /**
+   * The shared default style; change its values to change the default of every bar that applies it.
+   */
+  static readonly defaultAppearance: CYLSearchBarAppearance = new CYLSearchBarAppearance();
+
+  /**
+   * A copy with the same values.
+   */
+  copy(): CYLSearchBarAppearance {
+    const result = new CYLSearchBarAppearance();
+    result.font = this.font;
+    result.textColor = this.textColor;
+    result.placeholderColor = this.placeholderColor;
+    result.placeholder = this.placeholder;
+    result.cancelTitle = this.cancelTitle;
+    result.tintColor = this.tintColor;
+    result.searchIconImage = this.searchIconImage;
+    result.clearIconImage = this.clearIconImage;
+    result.textFieldBackgroundColor = this.textFieldBackgroundColor;
+    result.textFieldBackgroundImage = this.textFieldBackgroundImage;
+    result.textFieldBorderColor = this.textFieldBorderColor;
+    result.textFieldCornerRadius = this.textFieldCornerRadius;
+    result.barBackgroundImage = this.barBackgroundImage;
+    result.barBackgroundColor = this.barBackgroundColor;
+    result.barBorderColor = this.barBorderColor;
+    result.hidesBarBackground = this.hidesBarBackground;
+    return result;
+  }
+}
+
+/**
  * A configurable search bar (iOS `CYLSearchBarView`): a rounded field with a magnifier, text and clear button,
  * appended items after the text, a button before the field and an optional Cancel button. With `mode` set to
  * `multiple` it edits several searches side by side instead (was `CYLMultiSearchView`). This class is the bar's
@@ -917,6 +1065,82 @@ export class CYLSearchBarView {
    */
   @Trace itemTintColor: ResourceColor | undefined = undefined;
 
+  /**
+   * The placeholder (with the magnifier) is centered while the field rests and goes to the leading edge while it is
+   * edited (iOS `centersPlaceholder`). False by default.
+   */
+  @Trace centersPlaceholder: boolean = false;
+  /**
+   * The space around the field on top of the bar's `contentInsets` (iOS `textFieldMargins`). Zero by default.
+   */
+  @Trace textFieldMargins: CYLSearchEdgeInsets = { top: 0, left: 0, bottom: 0, right: 0 };
+  /**
+   * Answers the field's margins for each state (`active` is true while the bar is active), and wins over
+   * `textFieldMargins` (iOS `textFieldMarginsProvider`).
+   */
+  @Trace textFieldMarginsProvider: ((searchBarView: CYLSearchBarView, active: boolean) => CYLSearchEdgeInsets) | undefined =
+    undefined;
+  /**
+   * Answers Cancel's margins for each state; a negative `left` moves it toward the field (iOS
+   * `cancelButtonMarginsProvider`).
+   */
+  @Trace cancelButtonMarginsProvider: ((searchBarView: CYLSearchBarView, active: boolean) => CYLSearchEdgeInsets) | undefined =
+    undefined;
+  /**
+   * The font size of Cancel in fp; undefined uses `font` (iOS `cancelButtonFont`).
+   */
+  @Trace cancelButtonFont: number | undefined = undefined;
+  /**
+   * Cancel shows while the bar is active even when `showsCancelButton` is false (iOS `automaticallyShowsCancelButton`).
+   * False by default.
+   */
+  @Trace automaticallyShowsCancelButton: boolean = false;
+  /**
+   * The bar is active because its host (a `CYLSearchView` that is open) says so; it adds to editing.
+   */
+  @Trace hostIsActive: boolean = false;
+  /**
+   * The color of Cancel and the caret; undefined uses the system accent (iOS `tintColor`).
+   */
+  @Trace tintColor: ResourceColor | undefined = undefined;
+  /**
+   * The color behind the whole bar; undefined draws none (iOS `barBackgroundColor`).
+   */
+  @Trace barBackgroundColor: ResourceColor | undefined = undefined;
+  /**
+   * An image behind the whole bar (iOS `barBackgroundImage`).
+   */
+  @Trace barBackgroundImage: ResourceStr | undefined = undefined;
+  /**
+   * The color of the line under the bar; undefined draws none (iOS `barBorderColor`).
+   */
+  @Trace barBorderColor: ResourceColor | undefined = undefined;
+  /**
+   * A view of yours before the field, inside the bar (iOS `leadingAccessoryView`).
+   */
+  @Trace leadingAccessoryView: WrappedBuilder<[]> | undefined = undefined;
+  /**
+   * Whether the leading accessory view is shown. True by default.
+   */
+  @Trace showsLeadingAccessoryView: boolean = true;
+  /**
+   * The space around the leading accessory view; `right` is the gap to the field (iOS `leadingAccessoryViewMargins`).
+   */
+  @Trace leadingAccessoryViewMargins: CYLSearchEdgeInsets = { top: 0, left: 0, bottom: 0, right: 0 };
+  /**
+   * A view of yours after the field, before Cancel (iOS `trailingAccessoryView`).
+   */
+  @Trace trailingAccessoryView: WrappedBuilder<[]> | undefined = undefined;
+  /**
+   * Whether the trailing accessory view is shown. True by default.
+   */
+  @Trace showsTrailingAccessoryView: boolean = true;
+  /**
+   * The space around the trailing accessory view; `left` is the gap to the field (iOS `trailingAccessoryViewMargins`).
+   */
+  @Trace trailingAccessoryViewMargins: CYLSearchEdgeInsets = { top: 0, left: 0, bottom: 0, right: 0 };
+  private appearance: CYLSearchBarAppearance = CYLSearchBarAppearance.defaultAppearance.copy();
+
   @Trace private style: CYLSearchBarStyle = CYLSearchBarStyle.plain;
   @Trace private iconified: boolean = false;
   /**
@@ -953,6 +1177,126 @@ export class CYLSearchBarView {
       this.fieldBorderWidth = 1;
       this.fieldBackgroundColor = $r('sys.color.comp_background_primary');
       this.fieldCornerRadius = -1;
+    }
+  }
+
+  /**
+   * Whether the bar is active: being edited, or its host (an open `CYLSearchView`) says so (iOS: the search
+   * controller is active).
+   */
+  get isActive(): boolean {
+    return this.isEditing || this.hostIsActive;
+  }
+
+  /**
+   * Whether Cancel is drawn (`showsCancelButton`, or `automaticallyShowsCancelButton` while active).
+   */
+  get cancelButtonVisible(): boolean {
+    return cylSearchCancelVisible(this.showsCancelButton, this.automaticallyShowsCancelButton, this.isActive);
+  }
+
+  /**
+   * Whether the placeholder is drawn centered now.
+   */
+  get placeholderCentered(): boolean {
+    return cylSearchPlaceholderCentered(this.centersPlaceholder, this.isEditing, this.text, this.placeholder !== undefined);
+  }
+
+  /**
+   * The field's margins for the current state.
+   */
+  get resolvedTextFieldMargins(): CYLSearchEdgeInsets {
+    return cylSearchResolvedInsets(this.textFieldMarginsProvider?.(this, this.isActive), this.textFieldMargins);
+  }
+
+  /**
+   * Cancel's margins for the current state (zero without a provider).
+   */
+  get resolvedCancelButtonMargins(): CYLSearchEdgeInsets {
+    const none: CYLSearchEdgeInsets = { top: 0, left: 0, bottom: 0, right: 0 };
+    return cylSearchResolvedInsets(this.cancelButtonMarginsProvider?.(this, this.isActive), none);
+  }
+
+  /**
+   * The style values as last applied with `appearanceStyle` (a copy).
+   */
+  get appearanceStyle(): CYLSearchBarAppearance {
+    return this.appearance.copy();
+  }
+
+  /**
+   * Applies a style to the bar in one step (iOS `appearanceStyle`): fonts, colors, field and bar backgrounds, icons.
+   * A value left undefined keeps the bar's own.
+   */
+  set appearanceStyle(value: CYLSearchBarAppearance) {
+    this.appearance = value.copy();
+    const style = this.appearance;
+    if (style.font !== undefined) {
+      this.font = style.font;
+    }
+    this.textColor = style.textColor ?? this.textColor;
+    this.placeholderColor = style.placeholderColor ?? this.placeholderColor;
+    this.placeholder = style.placeholder ?? this.placeholder;
+    this.cancelButtonTitle = style.cancelTitle ?? this.cancelButtonTitle;
+    this.tintColor = style.tintColor ?? this.tintColor;
+    this.cursorColor = style.tintColor ?? this.cursorColor;
+    this.searchIcon = style.searchIconImage ?? this.searchIcon;
+    this.clearImage = style.clearIconImage ?? this.clearImage;
+    this.fieldBackgroundColor = style.textFieldBackgroundColor ?? this.fieldBackgroundColor;
+    this.fieldBackgroundImage = style.textFieldBackgroundImage ?? this.fieldBackgroundImage;
+    if (style.textFieldBorderColor !== undefined) {
+      this.fieldBorderColor = style.textFieldBorderColor;
+      this.fieldBorderWidth = 1;
+    }
+    this.fieldCornerRadius = style.textFieldCornerRadius;
+    this.barBackgroundColor = style.barBackgroundColor ?? (style.hidesBarBackground ? undefined :
+    $r('sys.color.background_primary'));
+    this.barBackgroundImage = style.barBackgroundImage;
+    this.barBorderColor = style.barBorderColor;
+  }
+
+  /**
+   * Shows or hides Cancel, animated over `animationDuration` when `animated` is true (iOS
+   * `setShowsCancelButton(_:animated:)`).
+   */
+  setShowsCancelButton(shows: boolean, animated: boolean): void {
+    const apply = () => {
+      this.showsCancelButton = shows;
+    };
+    if (animated && this.animationDuration > 0) {
+      cylAnimate(this.uiContext, { duration: this.animationDuration * 1000, curve: Curve.EaseInOut }, apply);
+    } else {
+      apply();
+    }
+  }
+
+  /**
+   * Shows or hides the leading accessory view, animated when `animated` is true (iOS
+   * `setShowsLeadingAccessoryView(_:animated:)`). The state is a flag, so fast toggling ends in the last request.
+   */
+  setShowsLeadingAccessoryView(shows: boolean, animated: boolean): void {
+    const apply = () => {
+      this.showsLeadingAccessoryView = shows;
+    };
+    if (animated && this.animationDuration > 0) {
+      cylAnimate(this.uiContext, { duration: this.animationDuration * 1000, curve: Curve.EaseInOut }, apply);
+    } else {
+      apply();
+    }
+  }
+
+  /**
+   * Shows or hides the trailing accessory view, animated when `animated` is true (iOS
+   * `setShowsTrailingAccessoryView(_:animated:)`).
+   */
+  setShowsTrailingAccessoryView(shows: boolean, animated: boolean): void {
+    const apply = () => {
+      this.showsTrailingAccessoryView = shows;
+    };
+    if (animated && this.animationDuration > 0) {
+      cylAnimate(this.uiContext, { duration: this.animationDuration * 1000, curve: Curve.EaseInOut }, apply);
+    } else {
+      apply();
     }
   }
 
@@ -1705,10 +2049,29 @@ export struct CYLSearchBarComponent {
     }
   }
 
+  private insetsMargin(insets: CYLSearchEdgeInsets): Margin {
+    const result: Margin = { top: insets.top, left: insets.left, bottom: insets.bottom, right: insets.right };
+    return result;
+  }
+
+  private tint(): ResourceColor {
+    return this.searchBarView.tintColor ?? $r('sys.color.brand');
+  }
+
+  @Builder
+  accessory(builder: WrappedBuilder<[]>, insets: CYLSearchEdgeInsets) {
+    Row() {
+      builder.builder()
+    }
+    .margin(this.insetsMargin(insets))
+    .transition(TransitionEffect.OPACITY)
+  }
+
   @Builder
   field() {
+    Stack({ alignContent: Alignment.Center }) {
     Row({ space: 8 }) {
-      if (this.searchBarView.searchIcon !== undefined) {
+      if (this.searchBarView.searchIcon !== undefined && !this.searchBarView.placeholderCentered) {
         SymbolGlyph(this.searchBarView.searchIcon)
           .fontSize(18)
           .fontColor([this.secondary()])
@@ -1727,9 +2090,10 @@ export struct CYLSearchBarComponent {
         .borderRadius(0)
         .fontSize(this.searchBarView.font)
         .fontColor(this.searchBarView.textColor ?? $r('sys.color.font_primary'))
-        .placeholderColor(this.searchBarView.placeholderColor ?? $r('sys.color.font_tertiary'))
+        .placeholderColor(this.searchBarView.placeholderCentered ? Color.Transparent :
+          (this.searchBarView.placeholderColor ?? $r('sys.color.font_tertiary')))
         .placeholderFont({ size: this.searchBarView.font })
-        .caretColor(this.searchBarView.cursorColor ?? $r('sys.color.brand'))
+        .caretColor(this.searchBarView.cursorColor ?? this.tint())
         .type(this.searchBarView.isSecureTextEntry ? InputType.Password : this.searchBarView.keyboardType)
         .enterKeyType(this.searchBarView.returnKeyType)
         .maxLength(this.searchBarView.maximumTextLength > 0 ? this.searchBarView.maximumTextLength : 100000)
@@ -1791,9 +2155,32 @@ export struct CYLSearchBarComponent {
         })
       }, (item: CYLSearchBarItem, index: number) => `${index}-${item.style}-${item.title ?? ''}`)
     }
+    .width('100%')
+    .height('100%')
+    .padding({ left: 12, right: 12 })
+    // At rest, the magnifier and the placeholder are centered together; a tap goes through to the text input.
+    if (this.searchBarView.placeholderCentered) {
+      Row({ space: 8 }) {
+        if (this.searchBarView.searchIcon !== undefined) {
+          SymbolGlyph(this.searchBarView.searchIcon)
+            .fontSize(18)
+            .fontColor([this.secondary()])
+        }
+        Text(this.searchBarView.placeholder)
+          .fontSize(this.searchBarView.font)
+          .fontColor(this.searchBarView.placeholderColor ?? $r('sys.color.font_tertiary'))
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .flexShrink(1)
+      }
+      .padding({ left: 12, right: 12 })
+      .hitTestBehavior(HitTestMode.None)
+      .accessibilityLevel('no')
+    }
+    }
     .layoutWeight(1)
     .height(this.searchBarView.fieldHeight)
-    .padding({ left: 12, right: 12 })
+    .margin(this.insetsMargin(this.searchBarView.resolvedTextFieldMargins))
     .backgroundColor(this.searchBarView.fieldBackgroundColor ?? $r('sys.color.comp_background_tertiary'))
     .backgroundImage(this.searchBarView.fieldBackgroundImage)
     .backgroundImageSize(ImageSize.Cover)
@@ -1864,14 +2251,22 @@ export struct CYLSearchBarComponent {
             this.searchBarView.navigationTapped();
           })
         }
+        if (this.searchBarView.showsLeadingAccessoryView && this.searchBarView.leadingAccessoryView !== undefined) {
+          this.accessory(this.searchBarView.leadingAccessoryView, this.searchBarView.leadingAccessoryViewMargins)
+        }
         this.field()
-        if (this.searchBarView.showsCancelButton) {
+        if (this.searchBarView.showsTrailingAccessoryView && this.searchBarView.trailingAccessoryView !== undefined) {
+          this.accessory(this.searchBarView.trailingAccessoryView, this.searchBarView.trailingAccessoryViewMargins)
+        }
+        if (this.searchBarView.cancelButtonVisible) {
           Text(this.searchBarView.cancelButtonTitle)
-            .fontSize(this.searchBarView.font)
-            .fontColor($r('sys.color.brand'))
+            .fontSize(this.searchBarView.cancelButtonFont ?? this.searchBarView.font)
+            .fontColor(this.tint())
             .maxLines(1)
             .constraintSize({ minWidth: 44, minHeight: 44 })
             .textAlign(TextAlign.Center)
+            .margin(this.insetsMargin(this.searchBarView.resolvedCancelButtonMargins))
+            .transition(TransitionEffect.OPACITY)
             .accessibilityText(this.resolvedText(this.searchBarView.cancelButtonTitle))
             .onClick(() => {
               this.searchBarView.cancelTapped();
@@ -1882,5 +2277,12 @@ export struct CYLSearchBarComponent {
     .width('100%')
     .justifyContent(this.searchBarView.isIconified ? this.iconAlignment() : FlexAlign.Start)
     .padding(this.searchBarView.contentInsets)
+    .backgroundColor(this.searchBarView.barBackgroundColor ?? Color.Transparent)
+    .backgroundImage(this.searchBarView.barBackgroundImage)
+    .backgroundImageSize(ImageSize.Cover)
+    .border({
+      width: { bottom: this.searchBarView.barBorderColor !== undefined ? 0.5 : 0 },
+      color: this.searchBarView.barBorderColor ?? Color.Transparent
+    })
   }
 }
