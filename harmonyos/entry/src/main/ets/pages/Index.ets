@@ -22,6 +22,7 @@ import { PortsMenuPage, SearchBarDemoPage, SearchBarDemoView } from '../demos/Se
 import { MaterialMenuPage, MaterialMenuView, MaterialSamplePage } from '../demos/MaterialSearch';
 import { LapismPage, MultiSearchDemoPage, RevealPage, YechaoaPage } from '../demos/Ports';
 import { DiscoverView } from '../demos/Discover';
+import { SearchBarStylesPage, SearchControllerPage } from '../demos/SearchController';
 import {
   CYLContactListPage,
   CYLContactListParam,
@@ -208,6 +209,10 @@ struct Index {
       RevealPage({ stack: this.stack(this.currentIdentifier()) })
     } else if (name === CYLDemoRoute.multiSearch) {
       MultiSearchDemoPage({ stack: this.stack(this.currentIdentifier()) })
+    } else if (name === CYLDemoRoute.searchController) {
+      SearchControllerPage({ stack: this.stack(this.currentIdentifier()) })
+    } else if (name === CYLDemoRoute.searchBarStyles) {
+      SearchBarStylesPage({ stack: this.stack(this.currentIdentifier()) })
     } else if (name === CYLDemoRoute.contactTags) {
       CYLContactRemarkPage({ stack: this.stack(this.currentIdentifier()) })
     } else if (name === CYLDemoRoute.contactTagEditor) {
