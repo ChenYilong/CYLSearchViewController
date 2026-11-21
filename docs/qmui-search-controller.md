@@ -469,8 +469,71 @@ a test or labelled screenshot per screen, the platform's checks green.
 
 ### HarmonyOS (ArkTS, harmonyos/: library cylsearch, entry example): QMUI search port (2026-11-22)
 
-Status: TODO (2026-11-22, branch `feat/harmonyos-parity`): in progress. Owner change during the task: testing on a device moves to the
-Windows session (no emulator run, no screenshots from this session); this section is filled in as the work lands.
+- **Status**: DONE (2026-11-22, `feat/harmonyos-parity`, PR #11), score 90 / 100 (pass 60), see "Score". Environment: HarmonyOS 6.0.1 (API 21)
+  arm64 emulator "CYL Search Test" (my own clone of the Mate 70 Pro image; `hdc` target 127.0.0.1:5555), DevEco Studio 6.0.1, host
+  macOS 27.3 (26C5035r). Builds: `hvigorw --mode module -p module=entry@default -p product=default assembleHap` and
+  `-p module=entry@ohosTest -p isOhosTest=true -p buildMode=test`, both after deleting `build`, `.hvigor` and `oh_modules` (unsigned HAPs,
+  `hdc install -r`). The Mac is arm64, so the default (arm64) HAP runs; `entry@emulator` still builds (checked) but is for x86_64.
+- **Files changed**: `harmonyos/cylsearch/src/main/ets/CYLSearchBarView.ets`, `harmonyos/cylsearch/src/main/ets/CYLSearchView.ets`, `harmonyos/cylsearch/Index.ets` (exports),
+  `harmonyos/cylsearch/src/main/resources/{base,dark}/element/color.json` (field fill, light and dark) and the four
+  `string.json` (en, ja, zh-Hans, zh-Hant: the iOS `styles.*`, `controller.*`, `demo.searchController`, `demo.searchBarStyles` keys, imported by
+  `harmonyos/scripts/import-ios-resources.py`); example `harmonyos/entry/src/main/ets/demos/SearchController.ets` (new),
+  `.../common/DemoCommon.ets` (two routes), `.../demos/ExamplesMenu.ets` (rows 6 and 7 after the existing ones),
+  `.../pages/Index.ets` (routes); tests `harmonyos/entry/src/ohosTest/ets/test/CYLSearchQMUIPort.test.ets` (new), `List.test.ets`,
+  `harmonyos/scripts/host-logic-test.mjs`.
+- **Design**: core first, no new bar or search class. `CYLSearchBarView` (the bar) and `CYLSearchView` (the overlay that plays the part of
+  iOS `CYLSearchController`: it has `showSearch` / `closeSearch`, results, suggestions) get the new parameters. New classes only for new
+  concepts, CYL prefix: `CYLSearchBarAppearance` (iOS value class of the same name), `CYLSearchEmptyView` (the model of
+  `showEmptyView`, shared by the overlay and the list), `CYLSearchTableView` + `CYLSearchTableComponent` (iOS
+  `CYLSearchTableViewController`: a list whose first row is the bar), `CYLSearchEdgeInsets` (iOS `UIEdgeInsets`). The decision rules
+  are in the `// MARK: - Pure logic` blocks and run on the host.
+- **Parity rows** (row -> counterpart, `file:symbol`):
+
+| Row | HarmonyOS counterpart |
+| --- | --- |
+| `centersPlaceholder` | `CYLSearchBarView.ets:CYLSearchBarView.centersPlaceholder` / `placeholderCentered`; the magnifier and the placeholder are drawn together centered at rest (overlay in `CYLSearchBarComponent.field`), leading while editing |
+| `placeholder` / `placeholderColor` / `textColor` / `font` | already there: `CYLSearchBarView.placeholder`, `placeholderColor`, `textColor`, `font` (long placeholders are ellipsized, screenshot) |
+| `textFieldMargins` / `textFieldMarginsProvider(bar, active)` | `CYLSearchBarView.textFieldMargins`, `textFieldMarginsProvider`, `resolvedTextFieldMargins` (active = `isActive`: editing or its `CYLSearchView` is open); `CYLSearchEdgeInsets` |
+| `cancelButtonMarginsProvider` / `cancelButtonFont` | `CYLSearchBarView.cancelButtonMarginsProvider`, `resolvedCancelButtonMargins`, `cancelButtonFont` (fp) |
+| `showsCancelButton` + `setShowsCancelButton(_:animated:)` | `CYLSearchBarView.showsCancelButton`, `setShowsCancelButton(shows, animated)`, `automaticallyShowsCancelButton` (UISearchBar's automatic Cancel while active), `cancelButtonVisible` |
+| accessory views + margins + `setShows…(_:animated:)` | `CYLSearchBarView.leadingAccessoryView` / `trailingAccessoryView` (`WrappedBuilder<[]>`), `showsLeadingAccessoryView`, `leadingAccessoryViewMargins`, `setShowsLeadingAccessoryView(shows, animated)` and the trailing twins; a state flag, so fast toggling ends in the last request |
+| `CYLSearchBarAppearance` | `CYLSearchBarView.ets:CYLSearchBarAppearance` (`defaultAppearance`, `copy()`), `CYLSearchBarView.appearanceStyle`; applied on request, not to every bar, so the existing screens keep their look (`CYLSearchTableView` and the Search controller screen apply it) |
+| `launchView` | `CYLSearchView.launchView` (`WrappedBuilder<[CYLSearchView]>`), shown while the query is empty, `showsLaunchView` |
+| `dimmingColor` | `CYLSearchView.dimmingColor`; under the bar while the query is empty and no launch view is set, a tap ends the search (`showsDimming`) |
+| `searchResultsDelegate.updateResultsFor` (also "") | `CYLSearchViewDelegate.searchViewUpdateResults`, called when the search opens and on every text change, "" included; with `resultCellConfiguration` for rows of your own (the match highlight) |
+| will/did present/dismiss | `searchViewWillShow` (new), `searchViewDidShow` (existing), `searchViewWillClose` (new), `searchViewDidClose` (existing) |
+| `isActive` / `setActive(_:animated:)` | `CYLSearchView.isActive`, `setActive(active, animated)` (over `showSearch` / `closeSearch`) |
+| `showEmptyView` / `hideEmptyView` / `isEmptyViewShowing` | `CYLSearchView.showEmptyView(text, detailText?, buttonTitle?, buttonAction?)`, `hideEmptyView()`, `isEmptyViewShowing`, `CYLSearchEmptyView`; nothing is shown for an empty query (E8), hidden on close (E9) |
+| `historyStore` + `historyDidChangeNotification` | `CYLSearchView.historyStore` (the same store as `suggestionCache`), `historyRevision` (`@Trace`, +1 per submitted query and per clear; the launch view reads the history again from it) and `searchViewHistoryDidChange` |
+| `supportsSwipeToDismissSearch` | no flag: the system back gesture / back key ends the search through the existing `CYLSearchView.handleBackPress` (`SearchControllerPage` forwards `onBackPressed`); the OS edge gesture owns the left edge, so an own gesture could not begin there |
+| `CYLSearchTableViewController` options | `CYLSearchTableView.showsSearchBar`, `hidesSearchBarInitially`, `hidesSearchBarWhenEmptyViewShowing`, `showEmptyView` / `hideEmptyView`, drawn by `CYLSearchTableComponent` (`harmonyos/cylsearch/src/main/ets/CYLSearchView.ets`); `searchView` makes a tap on the bar open an overlay |
+| `snapsHeaderSearchBar` (I4, #1160) | `CYLSearchTableView.snapsHeaderSearchBar`, `settle()`, `layoutChanged`: an end filler of only what the rows leave of the viewport lets the bar scroll out above a short list, and it settles fully shown or hidden when scrolling stops (half = threshold). Real drags on the emulator: 110 px up hides it, 35 px down keeps it hidden, 115 px down shows it |
+| I1 (#1319) | N/A: no `UISearchController` transition; the bar is an ordinary node of an overlay and never moves on activation |
+| I2 (#1251) | N/A: no navigation bar that hides, no plain-subview bar offset |
+| I3 (#1229) | N/A: no navigation-item search controller (nothing to crash on) |
+| I4 (#1160) | implemented, see `snapsHeaderSearchBar` |
+| I5 (#1313) | N/A: no reused collection header; the bar is a normal list row |
+| Screen "Search controller" | `SearchController.ets:SearchControllerView` / `SearchControllerPage`: Examples row 6 |
+| Screen "Search bar styles" | `SearchController.ets:SearchBarStylesView` / `SearchBarStylesPage`: Examples row 7 |
+| Screens "Navigation item", "Bar in a view", "Collection view" | N/A with I1–I3, I5; "Short list" has no screen of its own: both replica lists are short lists (10 and 8 rows), so I4 is verified on them |
+
+- **Tests** (all run here): `node harmonyos/scripts/host-logic-test.mjs`: 39 pass, 0 fail (9 new: placeholder centering, margin resolution, Cancel,
+  empty view, launch view, dimming, filler, settle); `node harmonyos/scripts/check-ios-parity.mjs`: 657 match, 0 problems;
+  `node harmonyos/scripts/check-accessibility-i18n.mjs`: 0 problems; hypium on the emulator (`aa test -b com.cyl.search.harmonyos -m entry_test
+  -s unittest OpenHarmonyTestRunner`): 41 run, 0 failure, 0 error (the 29 existing and 12 new in `CYLSearchQMUIPort.test.ets`). Emulator
+  touch checks (uitest): launch view, results typing, empty view, submit with the keyboard's search key and with Enter, history after Cancel,
+  clear button, back key (first Back lowers the keyboard, second ends the search, the page stays), every row of the styles list, header snapping.
+- **Screenshots** (stitched, originals, two columns; HarmonyOS 6.0.1 (API 21), "CYL Search Test" arm64 emulator, DevEco Studio 6.0.1, macOS 27.3, CYLSearchViewController 68fc9e4, 2026-11-22 11:58 NZDT = 06:58 UTC+8 on the emulator):
+  - [Search controller](assets/harmonyos-mate70pro-api21-20261122-search-controller.png): HarmonyOS 6.0.1 (API 21), "CYL Search Test" emulator, DevEco Studio 6.0.1, macOS 27.3, commit 68fc9e4, 2026-11-22 11:58 NZDT
+  - [Search bar styles](assets/harmonyos-mate70pro-api21-20261122-search-bar-styles.png): HarmonyOS 6.0.1 (API 21), "CYL Search Test" emulator, DevEco Studio 6.0.1, macOS 27.3, commit 68fc9e4, 2026-11-22 11:58 NZDT
+- **Score**: 90 / 100. Every row is done or N/A with a reason, both screens run, tests green, screenshots labelled.
+- **Missing points (TODO)**:
+  - TODO (3 points): `hidesSearchBarInitially` and `hidesSearchBarWhenEmptyViewShowing` are only covered by unit rules (`tableViewHeaderRules`), no screen uses them on the emulator.
+  - TODO (2 points): no label-based UI test (`CYLSearchUI.test.ets`) for the two new screens; they were driven with `uitest` coordinates.
+  - TODO (2 points): a tap on a result does not push a detail screen (iOS does); the centered placeholder is checked by eye, not measured.
+  - TODO (2 points): dark mode and the languages other than zh_CN were not screenshotted (strings exist in en, ja, zh-Hans, zh-Hant; other languages fall back to English like the other demo strings).
+  - TODO (1 point): the end filler measures the last row through `onAreaChange` of its own item; on a list taller than the screen it is 0 and unused, so only short lists were checked.
+
 
 ### the WeChat mini program (CrossPlatform/wechat-miniprogram-cylsearch: components cyl-search-bar, cyl-search): QMUI search port (2026-11-22)
 
