@@ -277,7 +277,11 @@ begins and becomes `DONE` when it ends.
     automation: `page-container` intercepts the user's back gesture and the navigation bar's back button, and the automator
     can only call `wx.navigateBack`, which `page-container` does not intercept, so an automated run proves nothing; the plus
     page is a tab page now, so the check needs a non-tab page with `<cyl-search>` and a real back tap in DevTools or on a
-    phone; listed as a user check in "fix every open TODO in docs") — the run stopped at
+    phone; listed as a user check in "fix every open TODO in docs"; 2026-11-22: WeChat DevTools' automation tools have no
+    native back action either (`automation_navigate` `navigateBack` is the same API). Manual steps: open
+    `CrossPlatform/wechat-miniprogram-cylsearch/example` in DevTools, Examples, "MiguelCatalan" (`pages/materialSample`, a
+    non-tab page with `<cyl-search>`), open the search, tap the navigation bar's back arrow (or a phone's back gesture):
+    expected, the search closes and `materialSample` stays; a second back leaves the page) — the run stopped at
     "Login is required" (APPID_ERROR); the check script is `back-test.js` (navigateTo plus, open, navigateBack,
     expect plus still shown with the search page closed).
 - Progress (2026-11-15, "先把本项目的example 丰富到与iOS端保持一致再考虑发布npm", branch `feat/swift-core-next`): DONE.
@@ -535,8 +539,13 @@ begins and becomes `DONE` when it ends.
   - React Native `onReorderingChange` / `onSmearingChange` on Android (`1a2a7cb`). Found on the way: the React Native
     Android example did not build at all (duplicate SVGA assets), fixed in `8310962`.
   - The mini program generics note closed (a required package, checked in DevTools 2026-11-19).
+  Update (2026-11-22, later): CYLTableViewPlaceHolder pinned at `a169386` and the POM mapping dropped ("pin
+  CYLTableViewPlaceHolder a169386" below). The 7 points left need a manual back tap (steps in the 2026-11-15 mini program
+  entry above).
+  Update (2026-11-22): the 8 points below are earned (CYLTabBarController `ace1af0e` and ClassifyMenu `1f8c1001` pinned,
+  the quick switch checked; "pin CYLTabBarController ace1af0e" below). Score 93/100.
   Missing points:
-  - 8 points: re-pin CYLTabBarController to a commit with `c1abdffe` and re-run the quick switch check. Blocked by the
+  - 8 points (DONE 2026-11-22): re-pin CYLTabBarController to a commit with `c1abdffe` and re-run the quick switch check. Blocked by the
     `style` name clash in CollectionViewClassifyMenu (Android and iOS). A public API decision, asked of the user by
     that repository's session, which sends the commit.
   - 7 points: the mini program back gesture on a non-tab page with `<cyl-search>`. Automation cannot press the real
@@ -586,6 +595,34 @@ begins and becomes `DONE` when it ends.
   and its vendor copies, the mini program `package.json`, the Flutter `pubspec.yaml`); Android, HarmonyOS, mini program,
   Flutter and React Native build and pass their tests; the quick switch to More checked at the pin with a screenshot.
   iOS (`Podfile.lock`, builds) is left to the macOS session and CI. 60 = pins moved, Android and HarmonyOS green.
+- **Status**: DONE (2026-11-22), score 100/100 (the iOS part was outside this session by the acceptance). Results at the
+  new pins: Android `:cylsearch` 26 of 26 and the example builds (clean); HarmonyOS vendor copies synced (`cyltabbar`
+  `ace1af0e`, `classifymenu` and `cylanimateditem` `1f8c1001`), both HAPs build clean, hypium 29 of 29 on the emulator;
+  mini program `npm test` 61 of 61 (after a re-sync from the pinned commits: `CYL_*_DIR` copies a local clone's working
+  tree, not the pin); Flutter 18 of 18 and 3 of 3, Android example builds and launches; React Native jest 4 of 4, Android
+  example builds and launches. Its first build failed with "Cannot access …: it is internal in file": stale classes in
+  `vendor/CYLTabBarController/CrossPlatform/react-native-cyltabbar/android/build`, which the README says to delete after a
+  pin change; deleted with `rm -rf` (a `Remove-Item` with a long-path prefix silently did nothing here), it builds. Quick
+  switch to More: eight of eight correct (`CYLTabBarController-Integration.md`). Left for the macOS session: `pod install`
+  (the three `Podfile.lock` files still name `41660d24`) and the iOS builds. The newer CYLTabBarController commit
+  `e51743e0` (a refactor, 1 minute after `ace1af0e`) is not pinned: ClassifyMenu pins `ace1af0e`, and both repositories
+  pin the same commit.
+
+## TODO (2026-11-22): pin CYLTableViewPlaceHolder a169386 on every platform; drop the POM mapping
+
+- **Branch**: `feat/harmonyos-parity`. Context: CYLTableViewPlaceHolder `94c7bbd` publishes its Android modules' Maven
+  coordinates from their own build files (`licenses.md`), so the `pom.withXml` mapping in `cylsearch/build.gradle.kts`
+  goes with the next placeholder pin. Newest commit on any branch (the pin rule in `gradle.properties`): `a169386` (its
+  PR #35, onto PR #31's branch), which contains `94c7bbd` and the current pin `c84fce9`.
+- **Prompt (verbatim)**: "continue fix todo"
+- **Acceptance**: 100 = the pin moved in every file (Podfiles, Gradle, HarmonyOS, mini program) with the vendor copies
+  synced; the mapping removed and the POM still naming `io.github.chenyilong:cyltableviewplaceholder(-refresh):0.1.0`;
+  Android, HarmonyOS, mini program, Flutter and React Native build and pass their tests. 60 = pins moved, Android green.
+- **Status**: DONE (2026-11-22), score 100/100 (iOS: `Podfile.lock` and builds for the macOS session, as before). At
+  `a169386`: Android `:cylsearch` 26 of 26, the POM names both placeholder coordinates without the mapping, the example
+  builds and launches; HarmonyOS `vendor/cylplaceholder` synced, both HAPs build clean, hypium 29 of 29; mini program
+  61 of 61; Flutter 18 of 18, the example builds and launches; React Native jest 4 of 4, the example builds and launches.
+
 - **Status**: started.
 
 ## TODO (2026-11-21): fix every iOS / Swift TODO in docs/ and test with Xcode

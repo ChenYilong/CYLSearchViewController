@@ -67,8 +67,8 @@ DEPENDENCIES:
   - CYLTabBarController/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `ace1af0e42d90dbfaed28fbd8beebd58e7fb08de`)
   - CYLTabBarController/CYLFlatDesignTabBar (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `ace1af0e42d90dbfaed28fbd8beebd58e7fb08de`)
   - CYLTabBarController/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `ace1af0e42d90dbfaed28fbd8beebd58e7fb08de`)
-  - CYLTableViewPlaceHolder/Core (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `c84fce90f6b9b526352a1d2b3de00887646c2793`)
-  - CYLTableViewPlaceHolder/Lottie (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `c84fce90f6b9b526352a1d2b3de00887646c2793`)
+  - CYLTableViewPlaceHolder/Core (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `a169386cf9c9ad5699aab3511e86df97628e43ef`)
+  - CYLTableViewPlaceHolder/Lottie (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `a169386cf9c9ad5699aab3511e86df97628e43ef`)
 
 SPEC REPOS:
   trunk:
@@ -90,7 +90,7 @@ EXTERNAL SOURCES:
     :commit: ace1af0e42d90dbfaed28fbd8beebd58e7fb08de
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
-    :commit: c84fce90f6b9b526352a1d2b3de00887646c2793
+    :commit: a169386cf9c9ad5699aab3511e86df97628e43ef
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
 
 CHECKOUT OPTIONS:
@@ -104,7 +104,7 @@ CHECKOUT OPTIONS:
     :commit: ace1af0e42d90dbfaed28fbd8beebd58e7fb08de
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
-    :commit: c84fce90f6b9b526352a1d2b3de00887646c2793
+    :commit: a169386cf9c9ad5699aab3511e86df97628e43ef
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
 
 SPEC CHECKSUMS:
@@ -118,6 +118,6 @@ SPEC CHECKSUMS:
   SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
   SVGAPlayerLite: ae073300a9faa016e88a54afa8fec43f54fed682
 
-PODFILE CHECKSUM: 441dcc69390bfc148a84dfb762049fcc9a8a326a
+PODFILE CHECKSUM: bbf0fb9706a87f59761e6408fc64c385f7c6be6a
 
 COCOAPODS: 1.17.0
