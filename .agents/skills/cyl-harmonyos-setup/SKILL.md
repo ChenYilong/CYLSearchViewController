@@ -153,6 +153,18 @@ Full rule: `AGENTS.md`, "HarmonyOS: HAPs for the x86_64 emulator leave out the a
 Do not ask for a signing certificate, a profile or automatic signing before an emulator run. Signing is needed only
 for a real device or a release, and is out of scope until the user asks for it.
 
+### Rive and PAG tests that need arm64 (rule, 2026-11-22)
+
+Two plans, in this order (full rule: `AGENTS.md`, "HarmonyOS: Rive and PAG tests that need arm64, two plans"):
+
+1. **Plan 1, in CYLTabBarController's HarmonyOS `cylanimateditem`** (never here): bring in x86_64 builds of Rive and PAG
+   from GitHub (built from `rive-app/rive-runtime` / `Tencent/libpag` sources or their own releases; source, commit and
+   license recorded). Use them only when the device ABI is x86_64 (`deviceInfo.abiList`). Order: it compiles, then
+   nothing crashes and no other feature changes, then Rive and PAG play. Keep all of it behind a debug build guard
+   until it passes; removing that guard needs the user's approval, asked with the evidence.
+2. **Plan 2, if plan 1 fails**: hand the Rive / PAG test to the macOS session (Apple silicon, arm64 emulator) with the
+   commit, build commands and checks; log the hand-off in `docs/task-log.md`.
+
 ## Troubleshooting
 
 | Symptom | Cause | Fix |
