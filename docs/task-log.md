@@ -839,3 +839,27 @@ begins and becomes `DONE` when it ends.
   native re-implementations; all suites green on iOS 17.5 / 26.5 / 27.2 and the platforms' own tests; screenshots before
   and after. 60 = design doc plus the iOS merge with green tests.
 - **Status**: TODO (after the React Native and Flutter ports of the previous entry finish).
+
+## TODO (2026-11-22): continue the iOS TODOs in docs/ (QMUI port leftovers, React Native smear)
+
+- **Branch**: `fix/ios-todos-qmui` (from `feat/harmonyos-parity`, pull request 11). macOS 27 session, Xcode 27.2, the
+  dedicated simulator "iPhone 18 Pro (CYLSearch iOS TODOs)" (iOS 27.2); APFS worktree `/tmp/xpr/csvc-ios`.
+- **Context**: after "fix every iOS / Swift TODO in docs/" (97/100, above) the iOS items still open in `docs/` are:
+  1. `qmui-search-controller.md`, "Remaining TODO": items 1 (iOS versions), 5 (E21 on older iOS) and 6 (history refresh)
+     are stale: 17.5 and 26.5 ran green (123 tests) and `0b3cbcf` refreshes the launch view.
+  2. Same list, item 3: the black band behind the bar while searching on the "Navigation item" screen (row I3).
+  3. Same list, item 2: the 116 pt offset of a bar in a plain subview or container (rows I2, I5). A core change in
+     `CYLSearchController`'s presentation, the area the running merge refactor ("merge the QMUI search components",
+     phases 1 to 3; phase 0 is in progress in another session) rewrites: recorded there, not changed here.
+  4. Same list, item 7: `Podfile.lock` not committed. Three pin moves are still open, each rewrites the lock.
+  5. The 97/100 entry, item 6: React Native iOS `onSmearingChange` is wired but never exercised.
+  Owned elsewhere and not touched: the E21 touch check on iOS 17.5 (merge phase 0), the plus title color and the More
+  item icon (CYLTabBarController session), the React Native / Flutter / mini program ports (their sessions).
+- **Requirements**: fix what can be fixed without colliding with the merge refactor (examples and docs; no
+  `CYLSearchController` changes); test with Xcode; labelled screenshots; follow AGENTS.md.
+- **Prompt (verbatim)**: "continue fix todo"
+- **Prompt (English)**: "Continue fixing the TODOs."
+- **Acceptance**: 100 = item 1 updated with its evidence; item 2 explained with a screenshot and fixed if the cause is in
+  the example (or handed to the merge with the cause); items 3 and 4 recorded with the reason and owner; item 5
+  exercised on a simulator with the event reaching JavaScript. 60 = items 1, 3, 4 and either 2 or 5.
+- **Status**: TODO.
