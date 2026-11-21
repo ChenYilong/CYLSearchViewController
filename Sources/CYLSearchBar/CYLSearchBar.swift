@@ -50,6 +50,18 @@ open class CYLSearchBar: UISearchBar {
     @objc public var usedAsTableHeaderView = false
 
     /**
+     * Whether the bar sits on a navigation item (`CYLSearchController.install(in:)`). A style that hides the bar background
+     * then draws `systemBackground` instead: while searching UIKit hides the navigation bar and has only black behind the
+     * bar (row I3, the black band).
+     */
+    var hostedInNavigationItem = false {
+        didSet {
+            guard hostedInNavigationItem != oldValue else { return }
+            applyFieldAndBarBackground(appearanceStyle)
+        }
+    }
+
+    /**
      * Whether the magnifier and the placeholder are centered in the field while the bar is not editing and has no text
      * (QMUI `qmui_centerPlaceholder`). Default `false`.
      */
@@ -515,9 +527,13 @@ open class CYLSearchBar: UISearchBar {
                 color: style.barBackgroundColor?.resolvedColor(with: traitCollection),
                 borderColor: style.barBorderColor?.resolvedColor(with: traitCollection))
         }
-        if background == nil && style.hidesBarBackground { background = UIImage() }
+        let hidesBackground = style.hidesBarBackground && !hostedInNavigationItem
+        if background == nil && hidesBackground { background = UIImage() }
+        if background == nil && style.hidesBarBackground {
+            background = Self.backgroundImage(color: UIColor.systemBackground.resolvedColor(with: traitCollection), borderColor: nil)
+        }
         for metrics in Self.allBarMetrics { setBackgroundImage(background, for: .any, barMetrics: metrics) }
-        if style.hidesBarBackground && barTintColor == nil && style.barBackgroundImage == nil && style.barBackgroundColor == nil {
+        if hidesBackground && barTintColor == nil && style.barBackgroundImage == nil && style.barBackgroundColor == nil {
             fillTopEdge(with: nil)
         } else if let tint = barTintColor {
             fillTopEdge(with: tint.resolvedColor(with: traitCollection))

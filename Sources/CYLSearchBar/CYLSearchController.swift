@@ -339,6 +339,7 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
      */
     @objc public func installSearchBar(asHeaderOf tableView: UITableView) {
         searchBar.usedAsTableHeaderView = true
+        searchBar.hostedInNavigationItem = false
         searchBar.sizeToFit()
         tableView.tableHeaderView = searchBar
         objc_setAssociatedObject(tableView, &CYLSearchController.retainKey, self, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
@@ -356,6 +357,7 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
     @objc(installInNavigationItem:)
     public func install(in navigationItem: UINavigationItem) {
         searchBar.usedAsTableHeaderView = false
+        searchBar.hostedInNavigationItem = true
         navigationItem.searchController = systemController
         // The wrapper is not retained by UIKit (the navigation item holds the system controller only): the contents view
         // controller keeps it, so that a caller who drops its own reference does not crash on the first search (#1229).
