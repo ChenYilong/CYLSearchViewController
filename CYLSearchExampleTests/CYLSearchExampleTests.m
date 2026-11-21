@@ -740,6 +740,28 @@ static NSArray<NSString *> *CYLViewsCoveredByView(UIView *view, UIView *root)
     }
 }
 
+- (void)testPlusButtonIsRaisedAboveTheTabBar
+{
+    // AGENTS.md, "Raised plus button": CYLTabBarConfiguration.json keeps the title on the button
+    // (CYLPlusButtonAlignsTitle false), so CYLPlusButtonCenterYMultiplier lifts the 52 pt image above the bar.
+    CYLTabBarController *tabBarController = (CYLTabBarController *)[CYLSearchExampleAppDelegate rootViewController];
+    UIWindow *window = CYLTestWindow(CGRectMake(0, 0, 402, 874));
+    window.rootViewController = tabBarController;
+    [window makeKeyAndVisible];
+    [window layoutIfNeeded];
+    [tabBarController.tabBar layoutIfNeeded];
+    UIButton *plusButton = (UIButton *)CYLExternPlusButton;
+    XCTAssertNotNil(plusButton.superview);
+    CGRect plusFrame = [plusButton convertRect:plusButton.bounds toView:tabBarController.tabBar];
+    CGRect barFrame = tabBarController.tabBar.bounds;
+    XCTAssertLessThan(CGRectGetMinY(plusFrame), CGRectGetMinY(barFrame), @"the plus button rises above the tab bar: %@ in %@",
+                      NSStringFromCGRect(plusFrame), NSStringFromCGRect(barFrame));
+    XCTAssertEqualWithAccuracy(CGRectGetMidX(plusFrame), CGRectGetMidX(barFrame), 1, @"it stays in the middle");
+    XCTAssertTrue(CGSizeEqualToSize(plusButton.currentImage.size, CGSizeMake(52, 52)), @"the CYLPlusButton image: %@",
+                  NSStringFromCGSize(plusButton.currentImage.size));
+    window.hidden = YES;
+}
+
 - (void)testSearchBarNeverCoversTheViewControllersView
 {
     CYLSearchExampleDataSource *source = [CYLSearchExampleDataSource new];

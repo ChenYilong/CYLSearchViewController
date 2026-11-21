@@ -21,8 +21,11 @@
   ],
   "CYLTabBarControllerPlusButton": {
     "CYLTabBarItemTitle": "tab.searchBar",
-    "CYLTabBarItemImage": "system:plus.circle.fill",
+    "CYLTabBarItemImage": "CYLPlusButton",
     "CYLTabBarItemIdentifier": "plus",
+    "CYLPlusButtonAlignsTitle": false,
+    "CYLPlusButtonSize": "{64, 84}",
+    "CYLPlusButtonCenterYMultiplier": 0.3,
     "CYLTabBarItemPageIdentifier": "plus"
   }
 }
