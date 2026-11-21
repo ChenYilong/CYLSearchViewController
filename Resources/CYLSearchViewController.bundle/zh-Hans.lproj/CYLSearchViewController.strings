@@ -75,3 +75,9 @@
 "controller.recent" = "最近搜索";
 "controller.noResults" = "没有匹配结果";
 "controller.launch.label" = "最近搜索";
+"demo.navigationItem" = "导航栏";
+"demo.barInView" = "视图内的搜索栏";
+"demo.shortList" = "短列表";
+"demo.collectionView" = "集合视图";
+"issue.row" = "第 %d 行";
+"issue.item" = "项目 %d";

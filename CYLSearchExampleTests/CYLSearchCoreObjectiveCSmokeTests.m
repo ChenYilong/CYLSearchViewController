@@ -130,6 +130,26 @@
     XCTAssertNotNil([CYLSearchBar backgroundImageWithColor:nil borderColor:UIColor.grayColor]);
 }
 
+- (void)testSearchTableViewControllerFromObjectiveC
+{
+    CYLSearchTableViewController *screen = [[CYLSearchTableViewController alloc] initWithStyle:UITableViewStylePlain];
+    screen.showsSearchBar = YES;
+    screen.hidesSearchBarWhenEmptyViewShowing = YES;
+    screen.hidesSearchBarInitially = NO;
+    XCTAssertNil(screen.searchController, @"nothing before the view loads");
+    [screen loadViewIfNeeded];
+    XCTAssertNotNil(screen.searchController);
+    XCTAssertEqual(screen.tableView.tableHeaderView, screen.searchBar);
+    [screen showEmptyViewWithText:@"None" detailText:nil];
+    XCTAssertTrue(screen.isEmptyViewShowing);
+    XCTAssertNil(screen.tableView.tableHeaderView);
+    [screen hideEmptyView];
+    XCTAssertEqual(screen.tableView.tableHeaderView, screen.searchBar);
+    screen.showsSearchBar = NO;
+    XCTAssertNil(screen.searchBar);
+    XCTAssertNil(screen.searchController);
+}
+
 - (void)testSearchControllerFromObjectiveC
 {
     XCTAssertEqualObjects(NSStringFromClass(CYLSearchController.class), @"CYLSearchController");

@@ -75,3 +75,9 @@
 "controller.recent" = "Recent searches";
 "controller.noResults" = "No matching results";
 "controller.launch.label" = "Recent searches: tap a search to see it";
+"demo.navigationItem" = "Navigation item";
+"demo.barInView" = "Bar in a view";
+"demo.shortList" = "Short list";
+"demo.collectionView" = "Collection view";
+"issue.row" = "Row %d";
+"issue.item" = "Item %d";

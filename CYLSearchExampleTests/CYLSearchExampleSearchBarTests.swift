@@ -363,16 +363,22 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         }
 
         // The "Search bar styles" screen: a CYLSearchBar as the table header with Cancel and both accessory views shown, at
-        // the default and the largest text size, at rest and while editing.
+        // the default and the largest text size, at rest and while searching (the bar then lives in the search presentation,
+        // so the presentation's view is the root of the check).
         let styles = CYLSearchBarStylesViewController(style: .grouped)
         navigation = UINavigationController(rootViewController: styles)
         window.rootViewController = navigation
         CYLRunLoop(0.2)
-        styles.searchBar.showsCancelButton = true
-        styles.searchBar.setShowsLeadingAccessoryView(true, animated: false)
-        styles.searchBar.setShowsTrailingAccessoryView(true, animated: false)
+        let stylesBar = try XCTUnwrap(styles.searchBar)
+        let stylesSearch = try XCTUnwrap(styles.searchController)
+        stylesBar.showsCancelButton = true
+        stylesBar.setShowsLeadingAccessoryView(true, animated: false)
+        stylesBar.setShowsTrailingAccessoryView(true, animated: false)
         for editing in [false, true] {
-            if editing { styles.searchBar.becomeFirstResponder() }
+            if editing {
+                stylesSearch.setActive(true, animated: false)
+                CYLRunLoop(0.5)
+            }
             for size in sizes {
                 if #available(iOS 17.0, *) {
                     window.traitOverrides.preferredContentSizeCategory = size
@@ -380,12 +386,12 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
                 CYLRunLoop(0.3)
                 navigation.view.setNeedsLayout()
                 navigation.view.layoutIfNeeded()
-                XCTAssertNotNil(styles.searchBar.window, "the styles screen's bar is shown")
-                let covered = CYLViewsCoveredByView(styles.searchBar, nil)
+                XCTAssertNotNil(stylesBar.window, "the styles screen's bar is shown")
+                let covered = CYLViewsCoveredByView(stylesBar, editing ? stylesSearch.searchController.view : nil)
                 XCTAssertEqual(covered.count, 0, "search bar styles, editing \(editing), at \(size.rawValue): \(covered)")
             }
         }
-        styles.searchBar.resignFirstResponder()
+        stylesSearch.setActive(false, animated: false)
         if #available(iOS 17.0, *) {
             window.traitOverrides.preferredContentSizeCategory = .large
         }
@@ -445,6 +451,89 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
             }
         }
         search.setActive(false, animated: false)
+
+        // The issue scenario screens (docs/qmui-search-controller.md, rows I2 to I5 and the short list of I4): the bar at rest and
+        // while searching, at both text sizes, then with results and with the empty view. The results table spans the whole
+        // screen as UIKit lays it out, so it is left out of the cover check, like in the search controller screen above.
+        func checkScenario(_ name: String, _ controller: UIViewController,
+                           _ find: (UIViewController) -> CYLSearchController?) throws {
+            let scenarioNavigation = UINavigationController(rootViewController: controller)
+            window.rootViewController = scenarioNavigation
+            CYLRunLoop(0.4)
+            let scenarioSearch = try XCTUnwrap(find(controller), name)
+            func covered(_ bar: UIView, active: Bool) -> [String] {
+                let root: UIView? = active && bar.isDescendant(of: scenarioSearch.searchController.view)
+                    ? scenarioSearch.searchController.view : nil
+                let results = scenarioSearch.searchResultsController?.view
+                // A bar in the navigation bar is drawn over the presentation, whose full-screen backdrop (the dimming view and the
+                // presentation's own view) reaches under the navigation bar by design: what is checked is that no content
+                // (results, launch view, empty view) sits under the bar, below.
+                let backdrop = bar.isDescendant(of: scenarioNavigation.navigationBar)
+                    ? ["UIDimmingView ", "_UISearchControllerView "] : []
+                return CYLViewsCoveredByView(bar, root).filter { entry in
+                    if backdrop.contains(where: { entry.hasPrefix($0) }) { return false }
+                    guard let results else { return true }
+                    return !entry.hasPrefix("\(NSStringFromClass(type(of: results))) ")
+                }
+            }
+            for active in [false, true] {
+                if active {
+                    scenarioSearch.setActive(true, animated: false)
+                    CYLRunLoop(0.5)
+                }
+                for size in sizes {
+                    if #available(iOS 17.0, *) {
+                        window.traitOverrides.preferredContentSizeCategory = size
+                    }
+                    CYLRunLoop(0.4)
+                    scenarioNavigation.view.setNeedsLayout()
+                    scenarioNavigation.view.layoutIfNeeded()
+                    let bar = CYLVisibleSearchView(scenarioSearch.searchBar)
+                    XCTAssertNotNil(bar.window, "\(name): the bar is shown")
+                    if !bar.isDescendant(of: scenarioNavigation.navigationBar) {
+                        // Not in the navigation bar: it is under it, not over it.
+                        XCTAssertGreaterThanOrEqual(bar.convert(bar.bounds, to: window).minY,
+                                                    scenarioNavigation.navigationBar.frame.maxY - 0.5,
+                                                    "\(name), active \(active), at \(size.rawValue): the bar is under the navigation bar")
+                    }
+                    let list = covered(bar, active: active)
+                    XCTAssertEqual(list.count, 0, "\(name), active \(active), at \(size.rawValue): \(list)")
+                }
+            }
+            if #available(iOS 17.0, *) {
+                window.traitOverrides.preferredContentSizeCategory = .large
+            }
+            for text in ["1", "zzz"] {
+                scenarioSearch.searchBar.text = text
+                CYLRunLoop(0.4)
+                let bar = CYLVisibleSearchView(scenarioSearch.searchBar)
+                let list = covered(bar, active: true)
+                XCTAssertEqual(list.count, 0, "\(name) with \"\(text)\": \(list)")
+                let barBottom = bar.convert(bar.bounds, to: window).maxY
+                if let empty = scenarioSearch.emptyView {
+                    XCTAssertGreaterThanOrEqual(empty.convert(empty.bounds, to: window).minY, barBottom - 0.5,
+                                                "\(name): the empty view is under the bar")
+                }
+                if let table = scenarioSearch.tableView, let first = table.cellForRow(at: IndexPath(row: 0, section: 0)) {
+                    XCTAssertGreaterThanOrEqual(first.convert(first.bounds, to: window).minY, barBottom - 0.5,
+                                                "\(name): the first result is under the bar")
+                }
+            }
+            scenarioSearch.setActive(false, animated: false)
+            CYLRunLoop(0.3)
+        }
+        try checkScenario("navigation item", CYLSearchNavigationItemDemoViewController(style: .plain)) {
+            ($0 as? CYLSearchNavigationItemDemoViewController)?.cylSearchController
+        }
+        try checkScenario("bar in a view", CYLSearchBarInViewDemoViewController()) {
+            ($0 as? CYLSearchBarInViewDemoViewController)?.cylSearchController
+        }
+        try checkScenario("short list", CYLSearchShortListDemoViewController(style: .plain)) {
+            ($0 as? CYLSearchShortListDemoViewController)?.searchController
+        }
+        try checkScenario("collection view", CYLSearchCollectionViewDemoViewController()) {
+            ($0 as? CYLSearchCollectionViewDemoViewController)?.cylSearchController
+        }
 
         // The overlay (a CYLSearchView over the results page's navigation controller) is a page of its own: inside that
         // page its search bar covers no view, with results shown.

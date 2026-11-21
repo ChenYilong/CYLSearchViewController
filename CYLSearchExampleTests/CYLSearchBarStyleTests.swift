@@ -634,8 +634,10 @@ final class CYLSearchBarStyleTests: CYLSearchExampleTestCase {
         let screen = CYLSearchBarStylesViewController(style: .grouped)
         let window = makeWindow(UINavigationController(rootViewController: screen))
         settle(screen.view)
-        let bar = screen.searchBar
+        let bar = try XCTUnwrap(screen.searchBar)
         XCTAssertTrue(screen.tableView.tableHeaderView === bar)
+        let barDelegate = bar.delegate
+        XCTAssertFalse(barDelegate === screen, "the screen does not take the bar's delegate over")
         XCTAssertTrue(bar.usedAsTableHeaderView)
         XCTAssertEqual(screen.numberOfSections(in: screen.tableView), 3)
         XCTAssertEqual(screen.tableView(screen.tableView, numberOfRowsInSection: 2), 4)
@@ -670,7 +672,8 @@ final class CYLSearchBarStyleTests: CYLSearchExampleTestCase {
         XCTAssertTrue(bar.showsCancelButton)
         select(1, 1)
         XCTAssertNotNil(bar.cancelButtonMarginsProvider)
-        XCTAssertTrue(bar.isFirstResponder || bar.searchTextField.isFirstResponder, "Adjust Cancel starts searching")
+        XCTAssertEqual(screen.searchController?.isActive, true, "Adjust Cancel starts searching")
+        XCTAssertTrue(bar.delegate === barDelegate, "the rows never reassign the bar's delegate")
         window.isHidden = true
     }
 }

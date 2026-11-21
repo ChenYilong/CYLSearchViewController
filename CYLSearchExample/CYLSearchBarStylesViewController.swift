@@ -15,7 +15,7 @@ import UIKit
  * shown and hidden with or without animation. Text comes from the core's string table (four languages).
  */
 @objc(CYLSearchBarStylesViewController)
-public final class CYLSearchBarStylesViewController: CYLSearchBarHostTableViewController, UISearchBarDelegate {
+public final class CYLSearchBarStylesViewController: CYLSearchTableViewController {
 
     private enum Row: Int {
         case centerPlaceholder, changePlaceholder
@@ -30,17 +30,18 @@ public final class CYLSearchBarStylesViewController: CYLSearchBarHostTableViewCo
     ]
 
     private var animated = true
-    /// Set once a row shows or hides Cancel by hand: editing then no longer toggles it.
-    private var cancelPinned = false
 
     public override func viewDidLoad() {
+        // As QMUI's demo does in didInitialize: the bar is created in viewDidLoad.
+        showsSearchBar = true
         super.viewDidLoad()
         navigationItem.title = cylDemoText("demo.searchBarStyles")
         view.backgroundColor = .systemGroupedBackground
     }
 
     public override func setUpSearchBar() {
-        searchBar.delegate = self
+        // The bar belongs to the search controller, which is its delegate: only its style and accessories are set here.
+        guard let searchBar else { return }
         searchBar.leadingAccessoryView = Self.accessoryView()
         searchBar.trailingAccessoryView = Self.accessoryView()
         searchBar.leadingAccessoryViewMargins = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 0)
@@ -92,7 +93,7 @@ public final class CYLSearchBarStylesViewController: CYLSearchBarHostTableViewCo
         switch row {
         case .centerPlaceholder, .animated:
             let toggle = UISwitch()
-            toggle.isOn = row == .animated ? animated : searchBar.centersPlaceholder
+            toggle.isOn = row == .animated ? animated : searchBar?.centersPlaceholder ?? false
             toggle.accessibilityLabel = content.text
             toggle.tag = row.rawValue
             toggle.addTarget(self, action: #selector(switchChanged(_:)), for: .valueChanged)
@@ -114,15 +115,16 @@ public final class CYLSearchBarStylesViewController: CYLSearchBarHostTableViewCo
         case .adjustField: return cylDemoText("styles.adjustField")
         case .adjustCancel: return cylDemoText("styles.adjustCancel")
         case .animated: return cylDemoText("styles.animated")
-        case .toggleCancel: return toggleTitle(searchBar.showsCancelButton, "styles.cancel")
-        case .toggleLeading: return toggleTitle(searchBar.showsLeadingAccessoryView, "styles.leading")
-        case .toggleTrailing: return toggleTitle(searchBar.showsTrailingAccessoryView, "styles.trailing")
+        case .toggleCancel: return toggleTitle(searchBar?.showsCancelButton ?? false, "styles.cancel")
+        case .toggleLeading: return toggleTitle(searchBar?.showsLeadingAccessoryView ?? false, "styles.leading")
+        case .toggleTrailing: return toggleTitle(searchBar?.showsTrailingAccessoryView ?? false, "styles.trailing")
         }
     }
 
     public override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let row = Self.sections[indexPath.section][indexPath.row]
         tableView.deselectRow(at: indexPath, animated: true)
+        guard let searchBar else { return }
         switch row {
         case .changePlaceholder:
             searchBar.placeholder = cylDemoText("styles.longPlaceholder")
@@ -134,9 +136,8 @@ public final class CYLSearchBarStylesViewController: CYLSearchBarHostTableViewCo
             searchBar.cancelButtonMarginsProvider = { _, active in
                 active ? UIEdgeInsets(top: 0, left: -16, bottom: 0, right: 0) : .zero
             }
-            if !searchBar.isFirstResponder { searchBar.becomeFirstResponder() }
+            if searchController?.isActive == false { searchController?.setActive(true, animated: true) }
         case .toggleCancel:
-            cancelPinned = true
             searchBar.setShowsCancelButton(!searchBar.showsCancelButton, animated: animated)
             tableView.reloadRows(at: [indexPath], with: .fade)
         case .toggleLeading:
@@ -152,29 +153,9 @@ public final class CYLSearchBarStylesViewController: CYLSearchBarHostTableViewCo
 
     @objc private func switchChanged(_ toggle: UISwitch) {
         switch Row(rawValue: toggle.tag) {
-        case .centerPlaceholder: searchBar.centersPlaceholder = toggle.isOn
+        case .centerPlaceholder: searchBar?.centersPlaceholder = toggle.isOn
         case .animated: animated = toggle.isOn
         default: break
         }
-    }
-
-    // MARK: - UISearchBarDelegate
-
-    public func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
-        // A bar without a search controller shows Cancel by hand while it is edited.
-        if !cancelPinned { searchBar.setShowsCancelButton(true, animated: true) }
-    }
-
-    public func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-        if !cancelPinned { searchBar.setShowsCancelButton(false, animated: true) }
-    }
-
-    public func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.resignFirstResponder()
-    }
-
-    public func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
-        searchBar.text = nil
-        searchBar.resignFirstResponder()
     }
 }

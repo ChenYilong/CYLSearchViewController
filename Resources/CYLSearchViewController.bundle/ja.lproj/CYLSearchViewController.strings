@@ -75,3 +75,9 @@
 "controller.recent" = "最近の検索";
 "controller.noResults" = "一致する結果はありません";
 "controller.launch.label" = "最近の検索";
+"demo.navigationItem" = "ナビゲーション項目";
+"demo.barInView" = "ビュー内のバー";
+"demo.shortList" = "短いリスト";
+"demo.collectionView" = "コレクションビュー";
+"issue.row" = "行 %d";
+"issue.item" = "項目 %d";
