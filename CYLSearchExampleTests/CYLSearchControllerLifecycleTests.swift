@@ -161,6 +161,23 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         CYLTearDownSearchRun(run)
     }
 
+    /// A full-screen modal over the root takes the root's view out of the window: the contents are covered, not gone, so the
+    /// guard must keep the presentation (the search is still there when the modal closes).
+    func testGuardKeepsTheSearchUnderAFullScreenModal() {
+        let run = CYLMakeSearchRun()
+        CYLActivateSearch(run, text: "H")
+        let modal = CYLSearchPushedController()
+        modal.modalPresentationStyle = .fullScreen
+        run.navigation.present(modal, animated: false)
+        CYLRunLoop(0.8)
+        XCTAssertTrue(run.search.isActive, "the search stays presented under the modal")
+        run.navigation.dismiss(animated: false)
+        CYLRunLoop(0.8)
+        XCTAssertTrue(run.search.isActive, "and when the modal closes")
+        XCTAssertEqual(run.contents.updates.last, "H")
+        CYLTearDownSearchRun(run)
+    }
+
     // MARK: - E4, E5
 
     /// E4: obscuring is on by default (iOS 15 made it off), and off while a launch view, a dimming color or the always

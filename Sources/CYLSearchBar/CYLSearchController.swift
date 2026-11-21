@@ -622,17 +622,24 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
         guard let contents = contentsViewController,
               systemController.presentingViewController === contents,
               contents.presentedViewController === systemController,
-              !Self.isInWindowHierarchy(contents) else { return }
+              !isAlive(contents) else { return }
         contents.dismiss(animated: false)
     }
 
-    private static func isInWindowHierarchy(_ controller: UIViewController) -> Bool {
+    /**
+     * Whether the contents view controller is still part of a window's view controller hierarchy: one of its ancestors has a
+     * view in a window, or the top of its ancestors is the root view controller of the window the guard was last in (a
+     * full-screen modal over the root takes the root's view out of the window, but the contents are only covered).
+     */
+    private func isAlive(_ controller: UIViewController) -> Bool {
         var current: UIViewController? = controller
+        var top = controller
         while let candidate = current {
             if candidate.isViewLoaded && candidate.view.window != nil { return true }
+            top = candidate
             current = candidate.parent ?? candidate.presentingViewController
         }
-        return false
+        return presentationGuard.lastWindow?.rootViewController === top
     }
 
     func contentsAppearanceTransition(isAppearing: Bool, began: Bool, animated: Bool) {
@@ -861,13 +868,16 @@ final class CYLSearchPresentationGuard: UIViewController {
 
     weak var owner: CYLSearchController?
     var isEnabled = true
+    // The window the guard's view was last in: the contents' root is compared with its root view controller.
+    private(set) weak var lastWindow: UIWindow?
 
     private final class GuardView: UIView {
         var onLeaveWindow: (() -> Void)?
+        var onEnterWindow: ((UIWindow) -> Void)?
 
         override func didMoveToWindow() {
             super.didMoveToWindow()
-            if window == nil { onLeaveWindow?() }
+            if let window { onEnterWindow?(window) } else { onLeaveWindow?() }
         }
     }
 
@@ -878,6 +888,7 @@ final class CYLSearchPresentationGuard: UIViewController {
         guardView.accessibilityElementsHidden = true
         guardView.accessibilityIdentifier = "CYLSearchPresentationGuard"
         guardView.onLeaveWindow = { [weak self] in self?.scheduleCheck() }
+        guardView.onEnterWindow = { [weak self] window in self?.lastWindow = window }
         view = guardView
     }
 
