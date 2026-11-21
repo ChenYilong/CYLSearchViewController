@@ -211,6 +211,12 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
      */
     @objc public var historyStore: CYLSearchSuggestionCache?
 
+    /**
+     * Posted (object: this controller, `userInfo` key `"query"`) after a submitted query went into `historyStore`, so
+     * a launch view that stays on screen can read the history again.
+     */
+    @objc public static let historyDidChangeNotification = Notification.Name("CYLSearchControllerHistoryDidChange")
+
     // MARK: Internal state
 
     let systemController: CYLSystemSearchController
@@ -287,7 +293,9 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
     @objc private func searchFieldSubmitted(_ field: UITextField) {
         let query = (field.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else { return }
-        historyStore?.addQuery(query)
+        guard let historyStore else { return }
+        historyStore.addQuery(query)
+        NotificationCenter.default.post(name: Self.historyDidChangeNotification, object: self, userInfo: ["query": query])
     }
 
     // MARK: - View life cycle

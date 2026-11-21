@@ -98,6 +98,10 @@ final class CYLRecentSearchLaunchView: UIView, CYLMenuDataSource {
         setNeedsLayout()
     }
 
+    @objc func historyDidChange(_ notification: Notification) {
+        reload()
+    }
+
     @objc private func clearHistory() {
         historyStore?.removeAllQueries()
         reload()
@@ -184,6 +188,9 @@ public final class CYLSearchControllerDemoViewController: UITableViewController,
         search.historyStore = store
         launch.historyStore = store
         search.launchView = launch
+        // The launch view stays on screen while the person searches: read the history again after each submitted query.
+        NotificationCenter.default.addObserver(launch, selector: #selector(CYLRecentSearchLaunchView.historyDidChange),
+                                               name: CYLSearchController.historyDidChangeNotification, object: search)
         search.installSearchBar(asHeaderOf: tableView)
         cylSearchController = search
     }

@@ -87,8 +87,8 @@ final class CYLSearchControllerDemoTests: CYLSearchExampleTestCase {
             search.searchBar.searchTextField.sendActions(for: .primaryActionTriggered)
         }
         XCTAssertEqual(store.cachedQueries(), ["Fat", "Liver"], "newest first, no duplicates, no blank query")
-        launch.reload()
-        XCTAssertEqual(launch.menuNumberOfItems(inSection: 0), 2)
+        XCTAssertNotNil(launch.window, "the launch view stayed on screen")
+        XCTAssertEqual(launch.menuNumberOfItems(inSection: 0), 2, "read again without leaving the screen")
         XCTAssertEqual(launch.menuTitleForItem(at: IndexPath(item: 0, section: 0)), "Fat")
         XCTAssertFalse(launch.clearButton.isHidden)
         launch.clearButton.sendActions(for: .touchUpInside)
@@ -98,6 +98,36 @@ final class CYLSearchControllerDemoTests: CYLSearchExampleTestCase {
         search.setActive(false, animated: false)
         window.isHidden = true
         CYLSearchControllerDemoViewController.historyName = "CYLSearchControllerDemo"
+    }
+
+    /// The core announces each submitted query once it is in the history store (object: the controller), and stays
+    /// silent for a blank query or without a store.
+    func testSubmittedQueryPostsHistoryDidChange() throws {
+        CYLSearchControllerDemoViewController.historyName = "CYLSearchControllerDemoTests-\(UUID().uuidString)"
+        defer { CYLSearchControllerDemoViewController.historyName = "CYLSearchControllerDemo" }
+        let (window, _, search) = shown()
+        let store = try XCTUnwrap(search.historyStore)
+        defer { store.removeAllQueries() }
+        search.setActive(true, animated: false)
+        CYLRunLoop(0.3)
+        var posted: [String] = []
+        let token = NotificationCenter.default.addObserver(forName: CYLSearchController.historyDidChangeNotification,
+                                                           object: search, queue: nil) { note in
+            posted.append(note.userInfo?["query"] as? String ?? "?")
+        }
+        defer { NotificationCenter.default.removeObserver(token) }
+        for text in [" Health ", "  "] {
+            search.searchBar.text = text
+            search.searchBar.searchTextField.sendActions(for: .primaryActionTriggered)
+        }
+        XCTAssertEqual(posted, ["Health"], "trimmed, and nothing for a blank query")
+        search.historyStore = nil
+        search.searchBar.text = "Fat"
+        search.searchBar.searchTextField.sendActions(for: .primaryActionTriggered)
+        XCTAssertEqual(posted, ["Health"], "no store, no notification")
+        search.historyStore = store
+        search.setActive(false, animated: false)
+        window.isHidden = true
     }
 
     func testStringsExistInFourLanguages() {
