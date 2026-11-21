@@ -18,6 +18,21 @@ type TagSelectEvent = Readonly<{
   selected: boolean;
 }>;
 
+type ReorderingChangeEvent = Readonly<{
+  /**
+   * True while a tag is being dragged to a new place (from the long press until the finger lifts or the drag is
+   * cancelled).
+   */
+  reordering: boolean;
+}>;
+
+type SmearingChangeEvent = Readonly<{
+  /**
+   * True while a finger smears across tags to select them.
+   */
+  smearing: boolean;
+}>;
+
 type HeightChangeEvent = Readonly<{
   height: CodegenTypes.Double;
 }>;
@@ -102,6 +117,17 @@ export interface NativeProps extends ViewProps {
   onTagMove?: CodegenTypes.DirectEventHandler<TagMoveEvent>;
   onRenameRequest?: CodegenTypes.DirectEventHandler<RenameRequestEvent>;
   onClearButtonTap?: CodegenTypes.DirectEventHandler<EmptyEvent>;
+  /**
+   * A drag to reorder started or ended (CollectionViewClassifyMenu `menuDidChangeReordering`; the mini program's
+   * `reorderingchange`). The native list already holds an ancestor scroll view during the drag; this reports the state.
+   * Android only for now: the iOS list has no such callback yet.
+   */
+  onReorderingChange?: CodegenTypes.DirectEventHandler<ReorderingChangeEvent>;
+  /**
+   * A smear selection started or ended (CollectionViewClassifyMenu `menuDidChangeSmearing`; the mini program's
+   * `smearingchange`). Android only for now, as `onReorderingChange`.
+   */
+  onSmearingChange?: CodegenTypes.DirectEventHandler<SmearingChangeEvent>;
 }
 
 export default codegenNativeComponent<NativeProps>('CylsearchTagListView') as HostComponent<NativeProps>;

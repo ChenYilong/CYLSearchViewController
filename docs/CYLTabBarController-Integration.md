@@ -1052,6 +1052,11 @@ Android.
   - **Left**: Flutter iOS (the macOS session verifies the same Dart core on iOS and forwards `didChangeDragging` once the iOS ClassifyMenu callbacks land); HarmonyOS
     (the core's content `Scroll` holds only while a drag is active, from the ClassifyMenu callbacks; the callbacks reach the app through the tag list's delegate, so the
     search core needs a way to hear them, to be designed with the ClassifyMenu session; then a device run); React Native: forward the events for parity.
+  - **React Native events (2026-11-21, Windows)**: `<CYLTagListView onReorderingChange onSmearingChange>` (`CylsearchTagListViewNativeComponent.ts`),
+    sent by the Android view from ClassifyMenu's `menuDidChangeReordering` / `menuDidChangeSmearing` (the same callbacks as Flutter's `didChangeDragging`).
+    Checked: the React Native Android example builds (Gradle, JDK 17, React Native 0.88.0) and codegen emits both events (`EventEmitters.h`); jest 4 of 4.
+    iOS sends nothing yet: the iOS ClassifyMenu has no such callbacks (checked at `feat/harmony` 7b7051ab, 2026-11-21); once they land, `CylsearchTagListView.mm`
+    forwards them the same way (the macOS session).
   - **Score**: 55/100.
   - **HarmonyOS hold check (2026-11-20, macOS emulator, `e6f25d4`)**: launch `--ps CYLDebugQuery i --pi CYLDebugNoFocus 1 --pi CYLDebugTagGestureActive 1|0`
     (`--pi` carries integers only, the query needs `--ps`); Examples, other libraries' examples, MiguelCatalan, Default, search icon. The suggestion list
