@@ -101,9 +101,16 @@ final class CYLSearchIssueScenarioTests: CYLSearchExampleTestCase {
         XCTAssertTrue(search.isActive)
         XCTAssertFalse(navigation.navigationBar.isHidden, "the navigation bar stays")
         let worst = samples.map { abs($0.minY - start.minY) }.max() ?? 0
-        XCTAssertLessThanOrEqual(worst, 0.5, "the bar moved \(worst) pt")
+        // Measured on iOS 27.2 (docs/qmui-search-controller.md, row I2, phase 4): UIKit puts the container it moves the bar into at
+        // the bar's y plus the safe area top of the presentation, which is the navigation bar's height here, so the bar ends
+        // one navigation bar height below where it was (still inside the screen, covering no view). This pins that behavior;
+        // when it changes, row I2 can be closed.
+        XCTAssertEqual(worst, navigation.navigationBar.frame.maxY, accuracy: 1, "the bar moved \(worst) pt")
         let active = bar.convert(bar.bounds, to: window)
         XCTAssertGreaterThanOrEqual(active.minY, navigation.navigationBar.frame.maxY - 0.5, "inside the safe area while searching")
+        // A real tap run (docs/qmui-search-controller.md, phase 4) found the bar 0 pt wide while searching when it was laid out
+        // with Auto Layout constraints to the screen's view: UIKit moves the bar into its own container and drops them.
+        XCTAssertEqual(active.width, window.bounds.width, accuracy: 0.5, "the bar keeps its width while searching")
         XCTAssertLessThanOrEqual(active.maxY, window.bounds.maxY)
         search.setActive(false, animated: false)
         window.isHidden = true

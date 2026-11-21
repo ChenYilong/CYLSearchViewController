@@ -21,6 +21,7 @@ public final class CYLSearchBarInViewDemoViewController: UIViewController, CYLSe
     private(set) var cylSearchController: CYLSearchController?
     private(set) var contentsTableView = UITableView(frame: .zero, style: .plain)
     private var matches: [String] = []
+    private var barWidth: NSLayoutConstraint?
 
     public override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,6 +38,12 @@ public final class CYLSearchBarInViewDemoViewController: UIViewController, CYLSe
 
         let bar = search.searchBar
         bar.translatesAutoresizingMaskIntoConstraints = false
+        // While the search is presented UIKit moves the bar into its own container and drops the constraints to this view
+        // (a real tap on iOS 27.2 left the bar 0 pt wide). A width constraint that names no other view survives the move;
+        // it is optional (750) so the leading and trailing constraints win when the width changes.
+        barWidth = bar.widthAnchor.constraint(equalToConstant: view.bounds.width)
+        barWidth?.priority = .defaultHigh
+        barWidth?.isActive = true
         contentsTableView.translatesAutoresizingMaskIntoConstraints = false
         contentsTableView.dataSource = self
         contentsTableView.delegate = self
@@ -51,6 +58,11 @@ public final class CYLSearchBarInViewDemoViewController: UIViewController, CYLSe
             contentsTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             contentsTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
+    }
+
+    public override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        if barWidth?.constant != view.bounds.width { barWidth?.constant = view.bounds.width }
     }
 
     // MARK: - CYLSearchControllerDelegate
