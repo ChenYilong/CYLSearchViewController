@@ -862,4 +862,12 @@ begins and becomes `DONE` when it ends.
 - **Acceptance**: 100 = item 1 updated with its evidence; item 2 explained with a screenshot and fixed if the cause is in
   the example (or handed to the merge with the cause); items 3 and 4 recorded with the reason and owner; item 5
   exercised on a simulator with the event reaching JavaScript. 60 = items 1, 3, 4 and either 2 or 5.
-- **Status**: TODO.
+- **Status** (2026-11-22): score 85/100, a pass.
+  1. Stale notes: "Remaining TODO" rewritten with its evidence (items 1, 5, 6).
+  2. I3 black band: fixed in the core (`bfbee55`): a bar installed on a navigation item draws `systemBackground` when the
+     style hides the background. Two tests (the band read RGB 10, 10, 10 before the fix), 125 tests with 0 failures on
+     iOS 27.2 (clean derived data), labelled before / after screenshot in light and dark mode.
+  3. I2 / I5: moved into phase 3 of the merge design, with the options to try.
+  4. `Podfile.lock`: kept uncommitted with the reason (open pin moves).
+  5. Missing 15 points: React Native iOS `onSmearingChange` is still not exercised. Paused for the newer prompt (the
+     `cyl_` / `CYL` prefix review).
