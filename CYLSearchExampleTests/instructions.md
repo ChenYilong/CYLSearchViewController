@@ -8,6 +8,13 @@
   `CYLSearchCoreObjectiveCSmokeTests.m`, stays: it checks that Objective-C callers see the Swift core through its
   generated header.
 
+## API fence
+
+- `CYLSearchAPIFenceTests.swift` (public `import`, no `@testable`) and the "API fence" part of
+  `CYLSearchCoreObjectiveCSmokeTests.m` name every public and `@objc` member of the search classes, their delegate
+  protocols and enums. A refactor must keep both compiling unchanged: add a test line for a new public member, never
+  edit one away (`docs/qmui-search-controller.md`, "Merge design", phase 0).
+
 ## Search bar placement
 
 - A search bar never covers the main view, that is, the view controller's
