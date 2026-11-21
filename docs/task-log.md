@@ -713,7 +713,9 @@ begins and becomes `DONE` when it ends.
 - **Prompt (verbatim)**: "continue fix todo fix ci error"
 - **Acceptance**: 100 = the core fixed (`self.bounds`), every job of the iOS workflow green on the new head. 60 = the
   compiler error gone, "pod lib lint" and "Example build and analyze" green.
-- **Status**: in progress.
+- **Status**: DONE (2026-11-22), score 100/100. `ff1e4de` writes `self.bounds.width` in that closure. Its own run was
+  cancelled by the next push; run 44955819321 on `adb6aeb` (which contains it) is green in all seven jobs: Public API
+  comments, shellcheck, Changes, pod lib lint, Unit tests, Example build and analyze, Example screenshots.
 
 
 ## TODO (2026-11-22): the open items of the QMUI search port (iOS versions, launch view refresh, other platforms)
