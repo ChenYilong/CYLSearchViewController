@@ -120,6 +120,8 @@ class CylsearchTagListView(private val reactContext: ThemedReactContext) : CYLTa
   override fun menuDidChangeContentHeight(menu: Any, height: Float) = reportHeight()
   override fun menuDidChangeExpanded(menu: Any, expanded: Boolean, inSection: Int) = reportHeight()
   override fun menuDidChangeEditing(menu: Any, editing: Boolean) = reportHeight()
+  override fun menuDidChangeReordering(menu: Any, reordering: Boolean) = emit("topReorderingChange", "reordering" to reordering)
+  override fun menuDidChangeSmearing(menu: Any, smearing: Boolean) = emit("topSmearingChange", "smearing" to smearing)
 
   override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
     super.onSizeChanged(w, h, oldw, oldh)

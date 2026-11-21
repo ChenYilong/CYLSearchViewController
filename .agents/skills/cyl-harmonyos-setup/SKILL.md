@@ -112,6 +112,14 @@ $hdc = 'C:\Program Files\Huawei\DevEco Studio\sdk\default\openharmony\toolchains
 & $hdc shell aa test -b com.cyl.search.harmonyos -m entry_test -s unittest OpenHarmonyTestRunner -s timeout 15000
 ```
 
+On the x86_64 emulator (Windows), the default HAPs do not install ("install parse native so failed … Abi type": Rive and
+PAG ship arm64-v8a .so files only). Build both HAPs without them, from the mirror (2026-11-21):
+`hvigorw --mode module -p module=entry@emulator -p product=default assembleHap` (installs
+`outputs\emulator\entry-emulator-unsigned.hap`) and `hvigorw --mode module -p module=entry@ohosTest -p isOhosTest=true
+-p buildMode=emulatorTest -p product=default assembleHap` (the ohosTest HAP; phones keep `-p buildMode=test`). After
+a sub-repository sync, delete the mirror's `build`, `.hvigor` and `oh_modules` first: robocopy `/XD` keeps them,
+and a stale incremental build once missed a new `@cyl/classifymenu` export ("App died" in the UI tests).
+
 Do not ask for a signing certificate, a profile or automatic signing before an emulator run. Signing is needed only
 for a real device or a release, and is out of scope until the user asks for it.
 

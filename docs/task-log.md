@@ -273,7 +273,11 @@ begins and becomes `DONE` when it ends.
     the typed search like `completeSearch`; Robolectric test `CYLMultiSearchBackTest`; `:cylsearch` tests 17/17.
   - Mini program: the back button or gesture left the page with the search page open. `cyl-search` now holds a
     `page-container` while open, so back closes the search page (`onBackLeave`). The example's plus page (the only
-    non-tab page) gets an "Open search" button to show it. TODO: verify in WeChat DevTools — the run stopped at
+    non-tab page) gets an "Open search" button to show it. Verify in WeChat DevTools (2026-11-21: still open, but not by
+    automation: `page-container` intercepts the user's back gesture and the navigation bar's back button, and the automator
+    can only call `wx.navigateBack`, which `page-container` does not intercept, so an automated run proves nothing; the plus
+    page is a tab page now, so the check needs a non-tab page with `<cyl-search>` and a real back tap in DevTools or on a
+    phone; listed as a user check in "fix every open TODO in docs") — the run stopped at
     "Login is required" (APPID_ERROR); the check script is `back-test.js` (navigateTo plus, open, navigateBack,
     expect plus still shown with the search page closed).
 - Progress (2026-11-15, "先把本项目的example 丰富到与iOS端保持一致再考虑发布npm", branch `feat/swift-core-next`): DONE.
@@ -521,7 +525,26 @@ begins and becomes `DONE` when it ends.
 - **Acceptance**: 100 = every item of groups 1 and 2 done with evidence (tests, builds, labelled screenshots, commits
   pushed) and every group 3 item says why it is blocked and who owns it; 60 = group 1 and at least four of the six
   group 2 items.
-- **Status**: started (2026-11-21). Score 0/100.
+- **Status** (2026-11-21, end of session): score 85/100, a pass. Done:
+  - Group 1, all stale notes closed with their evidence (`bf1b2f8`).
+  - `showsSuggestionCacheHeader` on Android, HarmonyOS, the mini program, Flutter and React Native (`efb3b78`;
+    `core-todo.md`), with the three API tables back to 289 of 289.
+  - HarmonyOS row 25: the emulator target runs on the x86_64 emulator; new `-p buildMode=emulatorTest` for the ohosTest
+    HAP; hypium 29 of 29 (`90b3dcf`). Pull to refresh driven on the emulator (`3b1a408`).
+  - Maven publication `com.cyl:cylsearch` with an MIT POM (`626e3c5`).
+  - React Native `onReorderingChange` / `onSmearingChange` on Android (`1a2a7cb`). Found on the way: the React Native
+    Android example did not build at all (duplicate SVGA assets), fixed in `8310962`.
+  - The mini program generics note closed (a required package, checked in DevTools 2026-11-19).
+  Missing points:
+  - 8 points: re-pin CYLTabBarController to a commit with `c1abdffe` and re-run the quick switch check. Blocked by the
+    `style` name clash in CollectionViewClassifyMenu (Android and iOS). A public API decision, asked of the user by
+    that repository's session, which sends the commit.
+  - 7 points: the mini program back gesture on a non-tab page with `<cyl-search>`. Automation cannot press the real
+    back button (`wx.navigateBack` bypasses `page-container`); it needs a tap in DevTools or on a phone.
+  Still `TODO` and owned elsewhere (group 3): the iOS example's raised plus button, the Swift migration steps 2 to 4,
+  Flutter iOS tag drag, the iOS More tab check, React Native iOS drag events (the macOS session, after the iOS
+  ClassifyMenu callbacks); the mini program keyboard placeholder and the tab switch retest on the user's phone; Maven
+  coordinates of CYLTableViewPlaceHolder's Android modules (its owner decides).
 
 ## TODO (2026-11-21): fix every iOS / Swift TODO in docs/ and test with Xcode
 
@@ -538,9 +561,12 @@ begins and becomes `DONE` when it ends.
   4. `CYLTabBarController-Integration.md`, tag list drag: Flutter iOS forwards the drag state.
   5. `swift-migration.md`: steps 2 (GIF comparison, legacy removal) to 4 (`CYLSearchViewControllerTests`,
      `CYLSearchExampleTests` in Swift, an Objective-C smoke test of the public API kept).
+  6. Added from the Windows session's final status (merged 2026-11-21): React Native iOS forwards the tag list's drag and
+     smear states (`onReorderingChange` / `onSmearingChange`, done on Android in `1a2a7cb`), after the iOS ClassifyMenu
+     callbacks.
 - **Requirements**: fix every iOS / Swift TODO in `docs/`; test with Xcode (build, unit tests, simulator runs with
   labelled screenshots); follow AGENTS.md (core first, examples have the lowest weight, scores in each document).
 - **Prompt (verbatim)**: "fix all todo in docs about ios/swift and test with  Xcode"
 - **Prompt (English)**: "Fix all the TODOs in docs about iOS/Swift and test with Xcode."
-- **Status**: started (2026-11-21). Score 0/100 (100 = items 1 to 5 done with evidence, or blocked with the reason and
+- **Status**: started (2026-11-21). Score 0/100 (100 = items 1 to 6 done with evidence, or blocked with the reason and
   the owner).

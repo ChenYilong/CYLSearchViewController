@@ -41,5 +41,25 @@ any other) ships its license declaration inside the package, in the package's re
     `LICENSE.material-design-icons`, `LICENSE.placeholder-third-party`, `ICON-SOURCES`) of the icons those libraries ship.
   - Check: `scripts/check-licenses.sh` (shellcheck clean, passes: 8 files), run in CI's "Public API comments" job
     (`actionlint` clean). README has a License section.
-  - TODO: the Android library has no Maven publishing configuration yet; when it gets one, its POM declares MIT
-    (`licenses { license { name.set("MIT License") } }`).
+  - Maven publishing: DONE (2026-11-21). `android/merged/cylsearch/build.gradle.kts` publishes `com.cyl:cylsearch:0.1.0`
+    (the pod's version; the release AAR and a sources jar) with an MIT POM, and Apache-2.0 for the Material Design icons
+    it ships. Checked with `./gradlew :cylsearch:publishReleasePublicationToBuildRepository` (Gradle, JDK 17): the POM
+    lists both licenses and the AAR holds `META-INF/cylsearch/LICENSE`, `NOTICE`, `LICENSE.material-design-icons`,
+    `LICENSE.placeholder-third-party` and `ICON-SOURCES`. Not a license item, but needed before a real release:
+    CYLTableViewPlaceHolder's Android modules (`:placeholder`, `:placeholder-refresh`) publish no coordinates yet, so the
+    POM names them `CYLSearchAndroid:placeholder:unspecified`. That repository has to publish them first (reported to
+    its session, 2026-11-21). Answer (2026-11-21): the owner chose `io.github.chenyilong:cyltableviewplaceholder:0.1.0` and
+    `io.github.chenyilong:cyltableviewplaceholder-refresh:0.1.0`, configured on CYLTableViewPlaceHolder's
+    `feat/android-refresh-port-followup` (PR #31), not on Maven Central yet. When `cyl.placeholder.commit` moves to that
+    commit, Gradle should write them into this POM (a project dependency with one publication is named by it); check the
+    POM then. Tried locally at `663c828` (2026-11-21, not committed): configuration fails. Its `android/placeholder` reads
+    CYLTabBarController's version only from an included build, and this repository includes `:cylanimateditem` as a
+    subproject. Reported to that session; the pin stays at `c84fce9`. Fixed there in `3ae8a3a`: checked here (local pin,
+    not committed), it configures, `:cylsearch` 26 of 26 and the example builds. Its publishing lives in its root build,
+    which this build does not evaluate, so `cylsearch`'s POM maps the two modules to the chosen coordinates itself
+    (`pom.withXml` in `cylsearch/build.gradle.kts`): the POM now names `io.github.chenyilong:cyltableviewplaceholder:0.1.0`
+    and `io.github.chenyilong:cyltableviewplaceholder-refresh:0.1.0` (checked with `publishReleasePublicationToBuildRepository`).
+    Before a release they must be on Maven Central, as must `io.github.chenyilong:cyltabbarcontroller-animateditem`.
+    CYLTableViewPlaceHolder `94c7bbd` moved its publication into the two modules' own build files: checked here (local pin,
+    mapping removed, nothing committed), the POM names both coordinates without the mapping. So when
+    `cyl.placeholder.commit` moves to `94c7bbd` or later, delete the `withXml` block in `cylsearch/build.gradle.kts`.

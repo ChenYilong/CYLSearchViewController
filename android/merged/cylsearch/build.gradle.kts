@@ -2,9 +2,16 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    `maven-publish`
 }
 
 android {
+    // Published as a Maven artifact (docs/licenses.md): the release AAR with its sources.
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
     namespace = "com.cyl.search"
     compileSdk = 35
 
@@ -56,4 +63,68 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+                groupId = "com.cyl"
+                artifactId = "cylsearch"
+                // The version of the iOS pod (CYLSearchViewController.podspec).
+                version = "0.1.0"
+                // The AAR carries META-INF/cylsearch/LICENSE (MIT) and the notices of the icons it ships
+                // (LICENSE.material-design-icons, Apache-2.0); AGENTS.md, "Licenses in published packages".
+                pom {
+                    name.set("CYLSearchViewController for Android")
+                    description.set("The CYL search core for Android: CYLSearchBarView, CYLSearchView and CYLSearchResources, with the iOS API.")
+                    url.set("https://github.com/ChenYilong/CYLSearchViewController")
+                    licenses {
+                        license {
+                            name.set("MIT License")
+                            url.set("https://opensource.org/licenses/MIT")
+                        }
+                        license {
+                            name.set("The Apache License, Version 2.0")
+                            url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                            comments.set("The Material Design icons in the resources (META-INF/cylsearch/LICENSE.material-design-icons)")
+                        }
+                    }
+                    scm {
+                        url.set("https://github.com/ChenYilong/CYLSearchViewController")
+                    }
+                    // CYLTableViewPlaceHolder's modules are included from its checkout (settings.gradle.kts), but their
+                    // publishing is set up in its own root build, which this build does not evaluate; so the POM would
+                    // name them by this build's defaults. These are the coordinates its owner chose (its
+                    // docs/Android-Port.md, "Maven publication coordinates").
+                    withXml {
+                        val coordinates = mapOf(
+                            "placeholder" to "cyltableviewplaceholder",
+                            "placeholder-refresh" to "cyltableviewplaceholder-refresh",
+                        )
+                        val dependencies = asNode().children()
+                            .filterIsInstance<groovy.util.Node>()
+                            .firstOrNull { it.name().toString().endsWith("dependencies") } ?: return@withXml
+                        dependencies.children().filterIsInstance<groovy.util.Node>().forEach { dependency ->
+                            fun field(name: String) = dependency.children().filterIsInstance<groovy.util.Node>()
+                                .first { it.name().toString().endsWith(name) }
+                            val artifactId = coordinates[field("artifactId").text()] ?: return@forEach
+                            field("groupId").setValue("io.github.chenyilong")
+                            field("artifactId").setValue(artifactId)
+                            field("version").setValue("0.1.0")
+                        }
+                    }
+                }
+            }
+        }
+        repositories {
+            // `publishReleasePublicationToBuildRepository` checks the artifact locally (build/repo); a Maven Central
+            // repository with credentials is added here for a release.
+            maven {
+                name = "build"
+                url = uri(layout.buildDirectory.dir("repo"))
+            }
+        }
+    }
 }

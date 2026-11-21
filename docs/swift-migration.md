@@ -150,7 +150,8 @@ When an Objective-C to Swift change of the core breaks an example's build, fix t
   `CYLKenBurnsView` (Swift), `CYLOriginalDemo.bundle` (`clouds-1.png`, strings in en, ja, zh-Hans, zh-Hant). Core change:
   `CYLSearchView.showsSuggestionCacheHeader` (default true; false takes the title-and-trash header away). Test
   `testOriginalDemoRebuiltOnTheCore`; iOS 36 of 36. Left for step 2: compare the running page with the GIF frame by frame
-  (screenshots on the simulator), the other platforms' row for `showsSuggestionCacheHeader` in `core-todo.md`, then
+  (screenshots on the simulator), the other platforms' row for `showsSuggestionCacheHeader` in `core-todo.md` (DONE
+  2026-11-21, Windows: Android, HarmonyOS, the mini program, Flutter and React Native, `efb3b78`), then
   delete the legacy Objective-C files in `CYLSearchViewController/` and `CYLSearchViewControllerTests/` (score at that point).
 - **Status**: TODO, step 2 in progress (page built, GIF comparison and legacy removal left). Score: 12/100 (Objective-C
   lines left 3,618; they drop when the legacy files go).
