@@ -765,18 +765,7 @@ class CYLSearchView @JvmOverloads constructor(
         if (searchBarView.text.isNullOrEmpty()) {
             return
         }
-        val components = mutableListOf(
-            CYLPlaceholderComponent.componentWithBundledAnimation("CYLPlaceholderNoResults.json", CYLPlaceholderStyle.NoResults, text),
-        )
-        if (!detailText.isNullOrEmpty()) {
-            components.add(CYLPlaceholderComponent.hintComponentWithText(detailText))
-        }
-        val actions = mutableMapOf<String, CYLPlaceholderActionHandler>()
-        if (!buttonTitle.isNullOrEmpty()) {
-            components.add(CYLPlaceholderComponent.buttonComponentWithTitle(buttonTitle, CYLPlaceholderButtonStyle.Outlined, CYLPlaceholderAction.Retry))
-            actions[CYLPlaceholderAction.Retry] = { buttonAction?.invoke() }
-        }
-        present(CYLPlaceholderStackView(context, components, actions))
+        present(emptyPlaceholder(context, text, detailText, buttonTitle, buttonAction))
     }
 
     /**
@@ -1454,6 +1443,27 @@ class CYLSearchView @JvmOverloads constructor(
     companion object {
         private const val STATE_SUPER = "CYLSearchViewSuper"
         private const val SWIPE_TRAVEL = 0.3f
+
+        /**
+         * CYLTableViewPlaceHolder's "no results" placeholder with a title, an optional detail and an optional button: the
+         * view of `showEmptyView`, also used by `CYLSearchListView`.
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun emptyPlaceholder(context: Context, text: String?, detailText: String? = null, buttonTitle: String? = null, buttonAction: (() -> Unit)? = null): CYLPlaceholderStackView {
+            val components = mutableListOf(
+                CYLPlaceholderComponent.componentWithBundledAnimation("CYLPlaceholderNoResults.json", CYLPlaceholderStyle.NoResults, text),
+            )
+            if (!detailText.isNullOrEmpty()) {
+                components.add(CYLPlaceholderComponent.hintComponentWithText(detailText))
+            }
+            val actions = mutableMapOf<String, CYLPlaceholderActionHandler>()
+            if (!buttonTitle.isNullOrEmpty()) {
+                components.add(CYLPlaceholderComponent.buttonComponentWithTitle(buttonTitle, CYLPlaceholderButtonStyle.Outlined, CYLPlaceholderAction.Retry))
+                actions[CYLPlaceholderAction.Retry] = { buttonAction?.invoke() }
+            }
+            return CYLPlaceholderStackView(context, components, actions)
+        }
         private const val STATE_QUERY = "CYLSearchViewQuery"
         private const val STATE_OPEN = "CYLSearchViewOpen"
 

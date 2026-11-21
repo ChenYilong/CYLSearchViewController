@@ -290,7 +290,12 @@ class CYLSearchBarView @JvmOverloads constructor(
     /**
      * The text field inside the field.
      */
-    val textField: EditText = EditText(context)
+    val textField: EditText = object : EditText(context) {
+        // A bar whose delegate refuses editing never takes the focus, also not when the window gives the focus back to the
+        // first focusable view after another view cleared it (that would loop: take it, refuse it, clear it).
+        override fun requestFocus(direction: Int, previouslyFocusedRect: Rect?): Boolean =
+            delegate?.searchBarViewShouldBeginEditing(this@CYLSearchBarView) != false && super.requestFocus(direction, previouslyFocusedRect)
+    }
 
     /**
      * The rounded field that holds the magnifier, the text and `trailingAccessoryViews`.
