@@ -1,4 +1,4 @@
-const { CYLSearchBarView, CYLSearchBarItem, CYLSearchBarMode } = require('../core/CYLSearchBarView');
+const { CYLSearchBarView, CYLSearchBarItem, CYLSearchBarMode, CYLSearchBarAppearance, cylInsetsCSS } = require('../core/CYLSearchBarView');
 const { CYLSearchResources, cylFormatString } = require('../core/CYLSearchResources');
 
 const text = (key) => CYLSearchResources.localizedString(undefined, key);
@@ -100,15 +100,39 @@ Component({
     searchIndicatorColor: { type: String, value: '' },
     unselectedSearchAlpha: { type: Number, value: 0.5 },
     searchFieldWidth: { type: Number, value: 160 },
+    // iOS CYLSearchBar (QMUI): the placeholder (with the magnifier) centred while the field rests, leading while it edits.
+    centersPlaceholder: { type: Boolean, value: false },
+    // The field's margins as { top, left, bottom, right } in px, at rest and while editing (iOS textFieldMargins and the
+    // two states of textFieldMarginsProvider; setTextFieldMarginsProvider(fn(bar, active)) wins over both).
+    textFieldMargins: { type: Object, value: null },
+    activeTextFieldMargins: { type: Object, value: null },
+    // The same for the Cancel button (iOS cancelButtonMarginsProvider), and its font { size, weight } (cancelButtonFont).
+    cancelButtonMargins: { type: Object, value: null },
+    activeCancelButtonMargins: { type: Object, value: null },
+    cancelButtonFont: { type: Object, value: null },
+    // The accessory views beside the field, outside it (iOS leadingAccessoryView / trailingAccessoryView): slots
+    // `leading-accessory` and `trailing-accessory`, their margins, and whether they show (setShowsLeadingAccessoryView
+    // and setShowsTrailingAccessoryView(shows, animated) change it, animated).
+    showsLeadingAccessory: { type: Boolean, value: false, observer: 'onAccessoryProperty' },
+    showsTrailingAccessory: { type: Boolean, value: false, observer: 'onAccessoryProperty' },
+    leadingAccessoryMargins: { type: Object, value: null },
+    trailingAccessoryMargins: { type: Object, value: null },
+    // iOS CYLSearchBarAppearance: plain values of CYLSearchBarAppearance.default(), applied under the bar's own properties.
+    appearance: { type: Object, value: null },
   },
   data: {
     text: '', focused: false, inputFocus: false, collapsed: false, revealing: false, keyboardHeight: 0,
     labels: {}, fieldStyle: '', inputStyle: '', placeholderStyle: '', shownItems: [],
     searchItems: [], editingNewSearch: false, selectedSearchIndex: -1,
+    centered: false, cancelShown: false, cancelAnimated: false, leadingShown: false, trailingShown: false, accessoryAnimated: false,
+    leadingWidth: 0, trailingWidth: 0, barStyle: '', fieldMargin: '', cancelStyle: '', leadingStyle: '', trailingStyle: '', fieldIconAlt: '',
   },
   observers: {
-    'fieldHeight, fieldCornerRadius, fieldBackgroundColor, fieldBorderColor, fieldBorderWidth, fieldShadowOpacity, fontSize, textColor, placeholderColor': function () {
+    'fieldHeight, fieldCornerRadius, fieldBackgroundColor, fieldBorderColor, fieldBorderWidth, fieldShadowOpacity, fontSize, textColor, placeholderColor, centersPlaceholder, textFieldMargins, activeTextFieldMargins, cancelButtonMargins, activeCancelButtonMargins, cancelButtonFont, leadingAccessoryMargins, trailingAccessoryMargins, appearance, focused, text': function () {
       this.updateStyles();
+    },
+    showsCancelButton(value) {
+      if (this.model) this.model.setShowsCancelButton(value, false);
     },
   },
   lifetimes: {
@@ -138,6 +162,12 @@ Component({
         if (shown) this.requestInputFocus();
         else this.setData({ inputFocus: false });
       };
+      // setShowsCancelButton / setShows...AccessoryView(shows, animated) reach the view through this handler.
+      model.accessoryHandler = (which, shown, animated) => {
+        if (which === 'cancel') this.setData({ cancelShown: shown, cancelAnimated: animated });
+        else this.setData({ [`${which}Shown`]: shown, accessoryAnimated: animated });
+        this.updateStyles();
+      };
       this.model = model;
     },
     attached() {
@@ -148,6 +178,9 @@ Component({
       model.maximumTextLength = p.maximumTextLength;
       model.minimumTextLength = p.minimumTextLength;
       model.iconified = p.iconified || (p.iconifiedByDefault && !p.value);
+      model.showsCancelButton = p.showsCancelButton;
+      model.showsLeadingAccessoryView = p.showsLeadingAccessory;
+      model.showsTrailingAccessoryView = p.showsTrailingAccessory;
       if (p.editingBar) {
         model.isEditingBar = true;
         model.cancelButtonEndsEditing = false;
@@ -160,6 +193,9 @@ Component({
       this.setData({
         text: model.text,
         collapsed: model.iconified,
+        cancelShown: p.showsCancelButton,
+        leadingShown: p.showsLeadingAccessory,
+        trailingShown: p.showsTrailingAccessory,
         labels: {
           back: text('search.back'), search: text('search.field'), voice: text('search.voice'),
           submit: text('search.submit'), clear: text('search.clear'), cancel: text('search.cancel'),
@@ -170,6 +206,9 @@ Component({
       this.updateStyles();
       this.syncSearches();
     },
+    ready() {
+      this.measureAccessories();
+    },
     detached() {
       if (this.keyboardListener && typeof wx !== 'undefined' && wx.offKeyboardHeightChange) {
         wx.offKeyboardHeightChange(this.keyboardListener);
@@ -179,17 +218,95 @@ Component({
   methods: {
     updateStyles() {
       const p = this.properties;
-      const radius = p.fieldCornerRadius < 0 ? p.fieldHeight / 2 : p.fieldCornerRadius;
+      if (!this.model) return;
+      const dark = defaultItemTint() === '#FFFFFF';
+      const ap = p.appearance ? CYLSearchBarAppearance.styles(p.appearance, dark) : null;
+      const model = this.model;
+      model.centersPlaceholder = p.centersPlaceholder;
+      const active = !!this.data.focused;
+      const radiusValue = p.fieldCornerRadius >= 0 ? p.fieldCornerRadius : (ap && ap.radius >= 0 ? ap.radius : -1);
+      const radius = radiusValue < 0 ? p.fieldHeight / 2 : radiusValue;
       const field = [`min-height: ${p.fieldHeight}px`, `border-radius: ${radius}px`];
+      if (ap) field.push(ap.field);
       if (p.fieldBackgroundColor) field.push(`background: ${p.fieldBackgroundColor}`);
       if (p.fieldBorderColor && p.fieldBorderWidth > 0) field.push(`border: ${p.fieldBorderWidth}px solid ${p.fieldBorderColor}`);
       if (p.fieldShadowOpacity > 0) field.push(`box-shadow: 0 2px 8px rgba(0, 0, 0, ${p.fieldShadowOpacity})`);
-      const input = [`font-size: ${p.fontSize}px`, `height: ${p.fieldHeight}px`];
-      if (p.textColor) input.push(`color: ${p.textColor}`);
+      const fieldMargins = cylInsetsCSS(model.textFieldMarginsProvider ? model.textFieldMarginsFor(active)
+        : (active ? p.activeTextFieldMargins || p.textFieldMargins : p.textFieldMargins));
+      if (fieldMargins) field.push(`margin: ${fieldMargins}`);
+      const fontSize = p.fontSize !== 17 || !ap ? p.fontSize : ap.fontSize;
+      const input = [`font-size: ${fontSize}px`, `height: ${p.fieldHeight}px`];
+      const textColor = p.textColor || (ap && ap.textColor);
+      if (textColor) input.push(`color: ${textColor}`);
+      const placeholderColor = p.placeholderColor || (ap && ap.placeholderColor);
+      const cancel = [];
+      if (ap && ap.cancel) cancel.push(ap.cancel);
+      const font = p.cancelButtonFont;
+      if (font && font.size) cancel.push(`font-size: ${font.size}px`);
+      if (font && font.weight) cancel.push(`font-weight: ${font.weight}`);
+      const cancelMargins = cylInsetsCSS(model.cancelButtonMarginsProvider ? model.cancelButtonMarginsFor(active)
+        : (active ? p.activeCancelButtonMargins || p.cancelButtonMargins : p.cancelButtonMargins));
+      if (cancelMargins) cancel.push(`margin: ${cancelMargins}`);
+      const padding = (margins) => { const css = cylInsetsCSS(margins); return css ? `padding: ${css}` : ''; };
       this.setData({
         fieldStyle: field.join('; '),
         inputStyle: input.join('; '),
-        placeholderStyle: p.placeholderColor ? `color: ${p.placeholderColor}` : '',
+        placeholderStyle: placeholderColor ? `color: ${placeholderColor}` : '',
+        barStyle: ap ? ap.bar : '',
+        cancelStyle: cancel.join('; '),
+        leadingStyle: padding(p.leadingAccessoryMargins),
+        trailingStyle: padding(p.trailingAccessoryMargins),
+        centered: !!p.centersPlaceholder && !this.data.focused && !this.data.text,
+        fieldCursor: p.cursorColor || (ap && ap.tintColor) || '',
+      });
+    },
+    onAccessoryProperty() {
+      if (!this.model) return;
+      this.model.setShowsLeadingAccessoryView(this.properties.showsLeadingAccessory, false);
+      this.model.setShowsTrailingAccessoryView(this.properties.showsTrailingAccessory, false);
+    },
+    /**
+     * Shows or hides Cancel, animated or not (iOS `setShowsCancelButton(_:animated:)`).
+     */
+    setShowsCancelButton(shows, animated) {
+      this.model.setShowsCancelButton(shows, animated === true);
+    },
+    /**
+     * Shows or hides the leading accessory beside the field (iOS `setShowsLeadingAccessoryView(_:animated:)`).
+     */
+    setShowsLeadingAccessoryView(shows, animated) {
+      this.model.setShowsLeadingAccessoryView(shows, animated === true);
+    },
+    /**
+     * Shows or hides the trailing accessory beside the field (iOS `setShowsTrailingAccessoryView(_:animated:)`).
+     */
+    setShowsTrailingAccessoryView(shows, animated) {
+      this.model.setShowsTrailingAccessoryView(shows, animated === true);
+    },
+    /**
+     * The margins of the field per state, from a function (iOS `textFieldMarginsProvider`): `(bar, active) => { top,
+     * left, bottom, right }`; undefined removes it.
+     */
+    setTextFieldMarginsProvider(provider) {
+      this.model.textFieldMarginsProvider = typeof provider === 'function' ? provider : undefined;
+      this.updateStyles();
+    },
+    /**
+     * The margins of Cancel per state, from a function (iOS `cancelButtonMarginsProvider`); undefined removes it.
+     */
+    setCancelButtonMarginsProvider(provider) {
+      this.model.cancelButtonMarginsProvider = typeof provider === 'function' ? provider : undefined;
+      this.updateStyles();
+    },
+    /**
+     * The accessories' widths, measured once they are drawn, so that showing one animates the width (iOS lays them out).
+     */
+    measureAccessories() {
+      const query = this.createSelectorQuery();
+      query.select('.cyl-leading-inner').boundingClientRect();
+      query.select('.cyl-trailing-inner').boundingClientRect();
+      query.exec(([leading, trailing]) => {
+        this.setData({ leadingWidth: leading ? Math.ceil(leading.width) : 0, trailingWidth: trailing ? Math.ceil(trailing.width) : 0 });
       });
     },
     onLengthChange() {

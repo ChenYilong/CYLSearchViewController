@@ -139,6 +139,19 @@ class CYLSearchView {
     this.suggestionCellConfiguration = undefined;
     this.suggestionCacheTitle = $r('app.string.cyl_search_recent');
     this.focusesSearchFieldOnShow = true;
+    // iOS CYLSearchController (QMUI): a launch view under the bar while the query is empty (the component's slot
+    // `launch-view`), a dimming color there instead, results that mark the match, the empty view with its own text, and
+    // the list screen mode (the bar as the header of the content: CYLSearchTableViewController).
+    this.showsLaunchView = false;
+    this.dimmingColor = undefined;
+    this.highlightsMatches = false;
+    this.emptyView = undefined;
+    this.emptyViewInContent = false;
+    this.showsSearchBar = false;
+    this.hidesSearchBarInitially = false;
+    this.hidesSearchBarWhenEmptyViewShowing = false;
+    this.snapsHeaderSearchBar = true;
+    this.supportsSwipeToDismissSearch = false;
     // Shows the header above the cached queries (the title and the trash button; iOS showsSuggestionCacheHeader). false
     // takes it away, for a host that clears the history with its own control that calls clearSuggestionCache().
     this.showsSuggestionCacheHeader = true;
@@ -160,7 +173,9 @@ class CYLSearchView {
       searchBarViewTextDidChange: (_, text) => {
         this.refilter();
         this.reloadResults();
+        if (text.length === 0) this.hideEmptyView();
         tell(this.delegate, 'searchViewTextDidChange', this, text);
+        tell(this.delegate, 'searchViewUpdateResults', this, text);
       },
       searchBarViewSearchButtonClicked: () => this.submitted(),
       searchBarViewDidBeginEditing: () => tell(this.delegate, 'searchViewDidChangeFocus', this, true),
@@ -304,12 +319,30 @@ class CYLSearchView {
     }
     this.refilter();
     this.reloadResults();
+    tell(this.delegate, 'searchViewWillShow', this);
     const duration = animated ? this.animationDuration * 1000 : 0;
     animateTo({ duration, curve: Curve.EaseOut, onFinish: completion }, () => {
       this.open = true;
     });
     if (this.focusesSearchFieldOnShow) this.searchBarView.showKeyboard();
     tell(this.delegate, 'searchViewDidShow', this);
+    // UIKit calls the results updater on the first activation too, with the empty text (iOS E10).
+    tell(this.delegate, 'searchViewUpdateResults', this, this.query);
+  }
+
+  /**
+   * Starts or ends the search (iOS `setActive(_:animated:)`): `showSearch` or `closeSearch`.
+   */
+  setActive(active, animated = true) {
+    if (active) this.showSearch(animated);
+    else this.closeSearch(animated);
+  }
+
+  /**
+   * True while the search is active (iOS `isActive`), as `isSearchOpen`.
+   */
+  get isActive() {
+    return this.open;
   }
 
   /**
@@ -321,7 +354,10 @@ class CYLSearchView {
       if (completion) completion();
       return;
     }
+    tell(this.delegate, 'searchViewWillClose', this);
     this.searchBarView.hideKeyboard();
+    // The empty view is hidden when the search ends (iOS E9).
+    this.hideEmptyView();
     const duration = animated ? this.animationDuration * 1000 : 0;
     animateTo({ duration, curve: Curve.EaseIn, onFinish: completion }, () => {
       this.open = false;
@@ -411,6 +447,88 @@ class CYLSearchView {
   clearSuggestionCache() {
     if (this.suggestionCache) this.suggestionCache.removeAllQueries();
     this.refilter();
+    this.historyChanged();
+  }
+
+  /**
+   * The submitted queries, newest first, no duplicates (iOS `historyStore.cachedQueries()`): the suggestion cache.
+   */
+  get history() {
+    return this.suggestionCache ? this.suggestionCache.cachedQueries() : [];
+  }
+
+  /**
+   * Where submitted queries are kept (iOS `historyStore`): `suggestionCache`.
+   */
+  get historyStore() {
+    return this.suggestionCache;
+  }
+
+  set historyStore(value) {
+    this.suggestionCache = value;
+    this.refilter();
+  }
+
+  /**
+   * Clears the history (iOS `historyStore.removeAllQueries()`) and tells the delegate.
+   */
+  clearHistory() {
+    this.clearSuggestionCache();
+  }
+
+  // Tells the delegate that the history changed (iOS `historyDidChangeNotification`), so a launch view that stays on
+  // screen reads it again.
+  historyChanged() {
+    tell(this.delegate, 'searchViewHistoryDidChange', this, this.history);
+  }
+
+  /**
+   * Shows the empty view with its own text (iOS `showEmptyView(text:detailText:buttonTitle:buttonAction:)`). It is not
+   * shown while the query is empty while searching (iOS E8, it would sit on the dimming); when the search is not active it
+   * takes the content's place (the list screen's empty view). Returns whether it is showing.
+   */
+  showEmptyView(text, detailText, buttonTitle, buttonAction) {
+    if (this.open && this.query.length === 0) return false;
+    this.emptyView = { text: text || '', detailText: detailText || '', buttonTitle: buttonTitle || '', buttonAction };
+    this.emptyViewInContent = !this.open;
+    return true;
+  }
+
+  /**
+   * Hides the empty view (iOS `hideEmptyView()`).
+   */
+  hideEmptyView() {
+    this.emptyView = undefined;
+    this.emptyViewInContent = false;
+  }
+
+  /**
+   * True while the empty view shows (iOS `isEmptyViewShowing`).
+   */
+  get isEmptyViewShowing() {
+    return this.emptyView !== undefined;
+  }
+
+  /**
+   * True while the launch view shows: it is on, the query is empty and no results show (iOS `launchView`).
+   */
+  get showsLaunch() {
+    return this.showsLaunchView && this.query.length === 0 && !this.showsResults && this.emptyView === undefined;
+  }
+
+  /**
+   * True while the dimming shows under the bar: a dimming color, an empty query, no launch view (iOS `dimmingColor`).
+   */
+  get showsDimming() {
+    return !!this.dimmingColor && this.query.length === 0 && !this.showsLaunchView && !this.showsResults;
+  }
+
+  /**
+   * True while the bar of the list screen is hidden: the content's empty view shows and the bar hides with it (iOS
+   * `hidesSearchBarWhenEmptyViewShowing`).
+   */
+  get hidesHeaderBar() {
+    return this.showsSearchBar && this.hidesSearchBarWhenEmptyViewShowing && this.emptyView !== undefined && this.emptyViewInContent;
   }
 
   /**
@@ -448,6 +566,7 @@ class CYLSearchView {
     const cell = { title: result === null || result === undefined ? '' : String(result), subtitle: '', accessibilityLabel: '' };
     tell(this.resultsDataSource, 'searchViewConfigureResultCell', this, cell, result);
     if (!cell.accessibilityLabel) cell.accessibilityLabel = cell.subtitle ? `${cell.title}, ${cell.subtitle}` : cell.title;
+    if (this.highlightsMatches) cell.parts = cylHighlightParts(cell.title, this.query);
     return cell;
   }
 
@@ -510,7 +629,10 @@ class CYLSearchView {
   submitted() {
     const text = this.query.trim();
     if (text.length === 0) return;
-    if (this.suggestionCache) this.suggestionCache.addQuery(text);
+    if (this.suggestionCache) {
+      this.suggestionCache.addQuery(text);
+      this.historyChanged();
+    }
     this.searchBarView.hideKeyboard();
     const handled = tell(this.delegate, 'searchViewDidSubmitText', this, text) === true;
     if (!handled && this.closesOnSubmit) this.closeSearch(true);
@@ -544,6 +666,41 @@ class CYLSearchView {
     }
     this.filteredSuggestions = result;
   }
+}
+
+/**
+ * A result's title split around the first match of the query (QMUI demo: the match in the tint color):
+ * `[{ text, highlighted }]`; the whole title when the query is empty or does not match.
+ */
+function cylHighlightParts(title, query) {
+  const text = String(title);
+  const index = query ? text.indexOf(query) : -1;
+  if (index < 0) return [{ text, highlighted: false }];
+  return [
+    { text: text.slice(0, index), highlighted: false },
+    { text: text.slice(index, index + query.length), highlighted: true },
+    { text: text.slice(index + query.length), highlighted: false },
+  ].filter((part) => part.text.length > 0);
+}
+
+/**
+ * Where a header search bar settles when a drag ends inside its band (iOS `snapsHeaderSearchBar`, #1160): fully hidden
+ * (the header height) from half of it on, else fully shown (0); a fling decides by its direction (`velocity` in px per ms,
+ * positive scrolls the content up). An offset outside the band stays.
+ */
+function cylSnapHeaderOffset(offset, headerHeight, velocity = 0) {
+  if (!(headerHeight > 0) || offset <= 0 || offset >= headerHeight) return offset;
+  const projected = offset + velocity * 200;
+  return projected >= headerHeight / 2 ? headerHeight : 0;
+}
+
+/**
+ * Whether a swipe from the left edge ends the search (iOS `supportsSwipeToDismissSearch`): it began within `edge` px of the
+ * edge, and moved right more than a quarter of the `width` or fast to the right (iOS: velocity above 0).
+ */
+function cylSwipeShouldDismiss(startX, deltaX, width, velocity = 0, edge = 24) {
+  if (startX > edge || deltaX <= 0) return false;
+  return deltaX > width / 4 || (velocity > 0.5 && deltaX > 24);
 }
 
 /**
@@ -603,6 +760,9 @@ module.exports = {
   CYLSearchViewDataSource,
   CYLSearchView,
   cylFoldTags,
+  cylHighlightParts,
+  cylSnapHeaderOffset,
+  cylSwipeShouldDismiss,
   CYLSearchAnimationSpeed,
   cylClampAnimationSpeed,
   cylAnimationPlaybackDescription,

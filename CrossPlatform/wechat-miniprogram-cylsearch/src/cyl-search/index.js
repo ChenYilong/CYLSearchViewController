@@ -1,4 +1,4 @@
-const { CYLSearchView, cylFoldTags, cylClampAnimationSpeed } = require('../core/CYLSearchView');
+const { CYLSearchView, cylFoldTags, cylClampAnimationSpeed, cylSnapHeaderOffset, cylSwipeShouldDismiss } = require('../core/CYLSearchView');
 const { CYLSearchResources, cylNavigationMetrics } = require('../core/CYLSearchResources');
 
 const TAG_SPACING = 12;
@@ -101,14 +101,48 @@ Component({
     showsContent: { type: Boolean, value: false },
     // YES puts the bar where the navigation bar of a "navigationStyle": "custom" page is, clear of the menu button.
     coversNavigationBar: { type: Boolean, value: false },
+    // The list screen (iOS CYLSearchTableViewController): with `showsContent`, the bar is the header of the content page, in
+    // the content's own scroller. Focusing it starts the search: the page scrolls to the top, and the launch view, the
+    // dimming, the suggestions, the results or the empty view fill the space under the bar, never over it.
+    showsSearchBar: { type: Boolean, value: false },
+    // The bar starts scrolled out of sight (iOS hidesSearchBarInitially).
+    hidesSearchBarInitially: { type: Boolean, value: false },
+    // The bar leaves while the content's empty view shows (iOS hidesSearchBarWhenEmptyViewShowing).
+    hidesSearchBarWhenEmptyViewShowing: { type: Boolean, value: false },
+    // A header bar half scrolled out settles fully shown or fully hidden when the scrolling ends, and a short list can
+    // scroll it out (iOS snapsHeaderSearchBar, QMUI #1160).
+    snapsHeaderSearchBar: { type: Boolean, value: true },
+    // Your own view under the bar while the query is empty (iOS launchView): the slot `launch-view`.
+    showsLaunchView: { type: Boolean, value: false },
+    // A color under the bar while the query is empty and there is no launch view; a tap ends the search (iOS dimmingColor).
+    dimmingColor: { type: String, value: '' },
+    // The result rows mark the first match of the query in `highlightColor` (the tint color by default).
+    highlightsMatches: { type: Boolean, value: false },
+    highlightColor: { type: String, value: '' },
+    // A swipe from the left edge ends the search (iOS supportsSwipeToDismissSearch).
+    supportsSwipeToDismissSearch: { type: Boolean, value: false },
+    // The bar's own style, passed to the header bar (see cyl-search-bar): iOS CYLSearchBar.
+    centersPlaceholder: { type: Boolean, value: false },
+    textFieldMargins: { type: Object, value: null },
+    activeTextFieldMargins: { type: Object, value: null },
+    cancelButtonMargins: { type: Object, value: null },
+    activeCancelButtonMargins: { type: Object, value: null },
+    cancelButtonFont: { type: Object, value: null },
+    showsLeadingAccessory: { type: Boolean, value: false },
+    showsTrailingAccessory: { type: Boolean, value: false },
+    leadingAccessoryMargins: { type: Object, value: null },
+    trailingAccessoryMargins: { type: Object, value: null },
+    appearance: { type: Object, value: null },
   },
   data: {
     playbackSpeed: 1, shownSuggestions: [], visibleTags: [], needsFold: false, open: false, visible: false, entered: false,
     focus: false, query: '', folded: true, showsCachedQueries: false, showsCacheHeader: false, showsEmptyResults: false, showsEmptySuggestions: false,
     showsResults: false, shownResults: [], refreshes: false, labels: {}, pageStyle: '', barInsets: '', contentScrollHeld: false,
+    showsLaunch: false, showsDimming: false, emptyView: null, emptyInContent: false, headerHidden: false, headerHeight: 56,
+    scrollTop: 0, scrollAnimated: false, swipeX: 0,
   },
   observers: {
-    'showsEmptyResultsPlaceholder, closesOnSubmit, showsResultsForEmptyQuery, focusesSearchFieldOnShow, showsSuggestionCacheHeader, suggestionStyle, emptyResultsScenario, emptySuggestionsScenario': function () {
+    'showsLaunchView, dimmingColor, highlightsMatches, showsSearchBar, hidesSearchBarWhenEmptyViewShowing, showsEmptyResultsPlaceholder, closesOnSubmit, showsResultsForEmptyQuery, focusesSearchFieldOnShow, showsSuggestionCacheHeader, suggestionStyle, emptyResultsScenario, emptySuggestionsScenario': function () {
       if (!this.model) return;
       this.applyProperties();
       this.model.refilter();
@@ -131,6 +165,11 @@ Component({
         searchViewDidSelectSuggestion: (_, suggestion, index) => this.triggerEvent('suggestionselect', { suggestion, index }),
         searchViewDidSelectResult: (_, result, index) => this.triggerEvent('selectresult', { result, index }),
         searchViewVoiceButtonClicked: () => this.triggerEvent('voicetap'),
+        // UIKit's updateSearchResults: every change of the text, the empty text on the first activation and on clear.
+        searchViewUpdateResults: (_, query) => this.triggerEvent('updateresults', { text: query }),
+        searchViewHistoryDidChange: (_, history) => this.triggerEvent('historychange', { history }),
+        searchViewWillShow: () => this.triggerEvent('willpresent'),
+        searchViewWillClose: () => this.triggerEvent('willdismiss'),
       };
       model.searchBarView.keyboardHandler = (shown) => this.setData({ focus: shown });
       // The pull of the results list (or beginRefreshing()) calls this: the JavaScript handler, then the event.
@@ -159,13 +198,15 @@ Component({
         pageStyle,
         barInsets,
         labels: {
-          recent: text('search.recent'), clear: text('search.clearRecent'), suggestions: text('search.suggestions'),
+          dismiss: text('search.cancel'), recent: text('search.recent'), clear: text('search.clearRecent'), suggestions: text('search.suggestions'),
           showMore: (FOLD_LABELS[language] || FOLD_LABELS.en)[0],
           showLess: (FOLD_LABELS[language] || FOLD_LABELS.en)[1],
         },
       });
       this.updateRefreshes();
-      if (this.properties.inline) {
+      // The list screen draws the content itself, in its scroller with the bar; the chain below is the search's layer.
+      if (this.properties.showsSearchBar) this.setData({ showsContent: false });
+      if (this.properties.inline && !this.properties.showsSearchBar) {
         // Inline: open at once, without raising the keyboard.
         model.focusesSearchFieldOnShow = false;
         model.showSearch(false);
@@ -173,6 +214,9 @@ Component({
       }
       model.reloadResults();
       this.sync();
+    },
+    ready() {
+      if (this.properties.showsSearchBar) this.measureHeader();
     },
   },
   methods: {
@@ -188,6 +232,14 @@ Component({
       model.showsResultsForEmptyQuery = p.showsResultsForEmptyQuery;
       model.emptyResultsScenario = p.emptyResultsScenario;
       model.emptySuggestionsScenario = p.emptySuggestionsScenario;
+      model.showsLaunchView = p.showsLaunchView;
+      model.dimmingColor = p.dimmingColor || undefined;
+      model.highlightsMatches = p.highlightsMatches;
+      model.showsSearchBar = p.showsSearchBar;
+      model.hidesSearchBarInitially = p.hidesSearchBarInitially;
+      model.hidesSearchBarWhenEmptyViewShowing = p.hidesSearchBarWhenEmptyViewShowing;
+      model.snapsHeaderSearchBar = p.snapsHeaderSearchBar;
+      model.supportsSwipeToDismissSearch = p.supportsSwipeToDismissSearch;
     },
     onAnimationSpeedChange(value) {
       this.setData({ playbackSpeed: cylClampAnimationSpeed(value) });
@@ -225,6 +277,11 @@ Component({
         showsEmptySuggestions: model.showsEmptySuggestions,
         showsResults: model.showsResults,
         shownResults: model.searchResults.map((result) => model.resultCell(result)),
+        showsLaunch: model.showsLaunch,
+        showsDimming: model.showsDimming,
+        emptyView: model.emptyView ? { text: model.emptyView.text, detailText: model.emptyView.detailText, buttonTitle: model.emptyView.buttonTitle } : null,
+        emptyInContent: model.emptyViewInContent,
+        headerHidden: model.hidesHeaderBar,
       });
       if (this.properties.suggestionStyle === 'tags' && !model.showsResults) this.foldTags();
     },
@@ -256,16 +313,19 @@ Component({
       this.setData({ visible: true, entered: !animated });
       if (animated) setTimeout(() => this.setData({ entered: true }), 30);
       this.triggerEvent('show');
+      setTimeout(() => this.triggerEvent('didpresent'), animated ? this.model.animationDuration * 1000 : 0);
     },
     // The model closed (a call, the back arrow, Cancel, a submitted query): the close transition, then the page goes.
     onModelClosed() {
       const animated = this.closeAnimated !== false;
       this.closeAnimated = true;
-      this.setData({ entered: false, focus: false });
+      this.setData({ entered: false, focus: false, swipeX: 0 });
       setTimeout(() => {
         if (!this.model.isSearchOpen) this.setData({ visible: false });
+        this.triggerEvent('diddismiss');
       }, animated ? this.model.animationDuration * 1000 : 0);
       this.triggerEvent('close');
+      this.endHeaderSearch();
     },
     /**
      * Opens the search view (iOS `showSearch(animated:)`); `completion` runs once it is open.
@@ -394,8 +454,204 @@ Component({
     },
     onFocusChange(event) {
       this.model.focusChanged(event.detail.focused);
+      // The list screen: focusing the header bar starts the search (UIKit activates on a tap in the bar).
+      if (event.detail.focused && this.properties.showsSearchBar && !this.model.isSearchOpen) this.beginHeaderSearch(false);
     },
     onBarClose() {
+      // Cancel clears the text (UIKit) and ends the search.
+      if (this.properties.showsSearchBar) this.model.setQuery('', false);
+      this.closeSearch();
+    },
+    // The list screen's search starts: the page scrolls to the top and holds, the bar shows Cancel unless the host did.
+    beginHeaderSearch(focus) {
+      const bar = this.barComponent();
+      this.autoCancel = !!bar && bar.model && !bar.model.showsCancelButton;
+      if (this.autoCancel) bar.setShowsCancelButton(true, true);
+      this.setData({ scrollTop: 0, scrollAnimated: true });
+      const keep = this.model.focusesSearchFieldOnShow;
+      this.model.focusesSearchFieldOnShow = focus;
+      this.showSearch(true);
+      this.model.focusesSearchFieldOnShow = keep;
+    },
+    // The search ended: Cancel goes again if it came with the search.
+    endHeaderSearch() {
+      if (!this.properties.showsSearchBar) return;
+      const bar = this.barComponent();
+      if (this.autoCancel && bar) bar.setShowsCancelButton(false, true);
+      this.autoCancel = false;
+    },
+    // The bar of the page: the header bar of the list screen, else the page's own.
+    barComponent() {
+      return this.selectComponent('#cyl-header-bar') || this.selectComponent('#cyl-bar');
+    },
+    /**
+     * Starts or ends the search from code (iOS `setActive(_:animated:)`).
+     */
+    setActive(active, animated = true) {
+      if (!active) {
+        this.closeSearch(animated);
+      } else if (this.properties.showsSearchBar) {
+        if (!this.model.isSearchOpen) this.beginHeaderSearch(true);
+      } else {
+        this.showSearch(animated);
+      }
+    },
+    /**
+     * True while the search is active (iOS `isActive`).
+     */
+    isActive() {
+      return this.model.isSearchOpen;
+    },
+    /**
+     * Shows the empty view with your text under the bar (iOS `showEmptyView(text:detailText:buttonTitle:buttonAction:)`);
+     * while the search is not active it takes the content's place, and the bar leaves with it when
+     * `hidesSearchBarWhenEmptyViewShowing` is set. Nothing shows while the text is empty and the search is active.
+     */
+    showEmptyView(text, detailText, buttonTitle, buttonAction) {
+      this.emptyButtonAction = typeof buttonAction === 'function' ? buttonAction : undefined;
+      this.model.showEmptyView(text, detailText, buttonTitle, buttonAction);
+      this.sync();
+      if (this.data.headerHidden) this.setData({ scrollTop: 0 });
+    },
+    /**
+     * Hides the empty view (iOS `hideEmptyView()`); the bar of the list screen comes back scrolled out when
+     * `hidesSearchBarInitially` is set.
+     */
+    hideEmptyView() {
+      this.model.hideEmptyView();
+      this.emptyButtonAction = undefined;
+      this.sync();
+      if (this.properties.hidesSearchBarInitially) this.setData({ scrollTop: this.data.headerHeight });
+    },
+    /**
+     * True while the empty view shows (iOS `isEmptyViewShowing`).
+     */
+    isEmptyViewShowing() {
+      return this.model.isEmptyViewShowing;
+    },
+    onEmptyButtonTap() {
+      if (this.emptyButtonAction) this.emptyButtonAction();
+    },
+    /**
+     * The submitted queries, newest first, no duplicates (iOS `historyStore.cachedQueries()`); `historychange` tells
+     * when they change, also while a launch view stays on screen.
+     */
+    history() {
+      return this.model.history;
+    },
+    /**
+     * Clears the history (iOS `historyStore.removeAllQueries()`).
+     */
+    clearHistory() {
+      this.model.clearHistory();
+      this.sync();
+    },
+    /**
+     * Shows or hides Cancel on the bar, animated or not (iOS `setShowsCancelButton(_:animated:)`).
+     */
+    setShowsCancelButton(shows, animated) {
+      const bar = this.barComponent();
+      if (bar) bar.setShowsCancelButton(shows, animated);
+    },
+    /**
+     * Shows or hides the leading accessory beside the field (iOS `setShowsLeadingAccessoryView(_:animated:)`).
+     */
+    setShowsLeadingAccessoryView(shows, animated) {
+      const bar = this.barComponent();
+      if (bar) bar.setShowsLeadingAccessoryView(shows, animated);
+    },
+    /**
+     * Shows or hides the trailing accessory beside the field (iOS `setShowsTrailingAccessoryView(_:animated:)`).
+     */
+    setShowsTrailingAccessoryView(shows, animated) {
+      const bar = this.barComponent();
+      if (bar) bar.setShowsTrailingAccessoryView(shows, animated);
+    },
+    /**
+     * The field's margins per state from a function `(bar, active) => { top, left, bottom, right }` (iOS
+     * `textFieldMarginsProvider`).
+     */
+    setTextFieldMarginsProvider(provider) {
+      const bar = this.barComponent();
+      if (bar) bar.setTextFieldMarginsProvider(provider);
+    },
+    /**
+     * The Cancel button's margins per state from a function (iOS `cancelButtonMarginsProvider`).
+     */
+    setCancelButtonMarginsProvider(provider) {
+      const bar = this.barComponent();
+      if (bar) bar.setCancelButtonMarginsProvider(provider);
+    },
+    // The header bar's height, measured; with `hidesSearchBarInitially` the content starts scrolled by it.
+    measureHeader() {
+      const query = this.createSelectorQuery();
+      query.select('.cyl-header-bar').boundingClientRect();
+      query.exec(([rect]) => {
+        if (!rect || !(rect.height > 0)) return;
+        this.setData({ headerHeight: Math.ceil(rect.height) });
+        if (this.properties.hidesSearchBarInitially) this.setData({ scrollTop: Math.ceil(rect.height) });
+      });
+    },
+    // The content scrolled: once it stops (and no finger is down), a bar half scrolled out settles (iOS #1160).
+    onContentScroll(event) {
+      this.scrollTopNow = event.detail.scrollTop;
+      this.scheduleSettle();
+    },
+    onContentTouchStart() {
+      this.touching = true;
+      clearTimeout(this.settleTimer);
+    },
+    onContentTouchEnd() {
+      this.touching = false;
+      this.scheduleSettle();
+    },
+    scheduleSettle() {
+      clearTimeout(this.settleTimer);
+      if (this.touching) return;
+      this.settleTimer = setTimeout(() => this.settleHeader(), 120);
+    },
+    /**
+     * Settles the header bar fully shown or fully hidden when the scrolling ended inside its band (iOS
+     * `snapsHeaderSearchBar`); returns the offset it moved to, or undefined.
+     */
+    settleHeader() {
+      const p = this.properties;
+      if (!p.showsSearchBar || !p.snapsHeaderSearchBar || this.model.isSearchOpen || this.data.headerHidden) return undefined;
+      const offset = this.scrollTopNow || 0;
+      const target = cylSnapHeaderOffset(offset, this.data.headerHeight);
+      if (target === offset) return undefined;
+      // Scroll-top follows the data only when it changes: set the real offset first, then the target animated.
+      this.setData({ scrollTop: offset, scrollAnimated: false });
+      wx.nextTick(() => this.setData({ scrollTop: target, scrollAnimated: true }));
+      return target;
+    },
+    // A swipe from the left edge ends the search (iOS supportsSwipeToDismissSearch): the page follows the finger.
+    onPageTouchStart(event) {
+      if (!this.properties.supportsSwipeToDismissSearch || !this.model.isSearchOpen) return;
+      const touch = event.touches[0];
+      this.swipe = touch.clientX <= 24 ? { startX: touch.clientX, startTime: Date.now() } : undefined;
+    },
+    onPageTouchMove(event) {
+      if (!this.swipe) return;
+      const deltaX = event.touches[0].clientX - this.swipe.startX;
+      if (deltaX > 0) this.setData({ swipeX: deltaX });
+    },
+    onPageTouchEnd(event) {
+      const swipe = this.swipe;
+      this.swipe = undefined;
+      if (!swipe) return;
+      const deltaX = event.changedTouches[0].clientX - swipe.startX;
+      const velocity = deltaX / Math.max(1, Date.now() - swipe.startTime);
+      let width = 375;
+      try {
+        width = (wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync()).windowWidth || width;
+      } catch (error) {
+        width = 375;
+      }
+      if (cylSwipeShouldDismiss(swipe.startX, deltaX, width, velocity)) this.closeSearch(false);
+      else this.setData({ swipeX: 0 });
+    },
+    onDimmingTap() {
       this.closeSearch();
     },
     onVoiceTap() {

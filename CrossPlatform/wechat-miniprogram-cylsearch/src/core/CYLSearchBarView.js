@@ -69,6 +69,64 @@ const CYLSearchBarItemState = Object.freeze({
 });
 
 /**
+ * The merged default style of a bar (iOS `CYLSearchBarAppearance`): QMUI's template merged with the legacy CYLSearchBar
+ * (field RGB 187, 186, 193 in light mode and 58, 58, 60 in dark mode, tint RGB 0, 104, 248, a pill field). The keys are the
+ * iOS names (`font` is a size in px); `<cyl-search-bar appearance>` takes the plain values of `CYLSearchBarAppearance.default()`
+ * and applies them only to what the bar does not set itself.
+ */
+const CYLSearchBarAppearance = Object.freeze({
+  /**
+   * A fresh copy of the merged defaults, to change and pass to the bar.
+   */
+  default() {
+    return {
+      font: 17,
+      textColor: '',
+      placeholderColor: 'rgba(60, 60, 67, 0.3)',
+      placeholder: '',
+      cancelTitle: '',
+      tintColor: '#0068F8',
+      textFieldBackgroundColor: '#BBBAC1',
+      textFieldBackgroundColorDark: '#3A3A3C',
+      textFieldBorderColor: '',
+      textFieldCornerRadius: -1,
+      barBackgroundColor: '',
+      barBorderColor: '',
+    };
+  },
+  /**
+   * The CSS of a style (`dark` picks the dark field color): the bar, the field, the input and the Cancel button.
+   */
+  styles(values, dark) {
+    const a = Object.assign(CYLSearchBarAppearance.default(), values || {});
+    const field = [`background: ${dark ? a.textFieldBackgroundColorDark : a.textFieldBackgroundColor}`];
+    if (a.textFieldBorderColor) field.push(`border: 1px solid ${a.textFieldBorderColor}`);
+    const bar = [];
+    if (a.barBackgroundColor) bar.push(`background: ${a.barBackgroundColor}`);
+    if (a.barBorderColor) bar.push(`border-bottom: 1px solid ${a.barBorderColor}`);
+    return {
+      bar: bar.join('; '),
+      field: field.join('; '),
+      radius: a.textFieldCornerRadius,
+      fontSize: a.font,
+      textColor: a.textColor,
+      placeholderColor: a.placeholderColor,
+      tintColor: a.tintColor,
+      cancel: a.tintColor ? `color: ${a.tintColor}` : '',
+    };
+  },
+});
+
+/**
+ * The insets of a state as CSS (`top right bottom left` in px) from `{ top, left, bottom, right }`; empty for nothing.
+ */
+function cylInsetsCSS(insets) {
+  if (!insets) return '';
+  const n = (value) => `${Number(value) || 0}px`;
+  return `${n(insets.top)} ${n(insets.right)} ${n(insets.bottom)} ${n(insets.left)}`;
+}
+
+/**
  * The events of a `CYLSearchBarView` (iOS `CYLSearchBarViewDelegate`); every method is optional. The four
  * `...AtIndex` methods are the events of the "multiple" mode.
  */
@@ -397,6 +455,16 @@ class CYLSearchBarView {
     this.searchIcon = $r('sys.symbol.magnifyingglass');
     this.searchIconTintColor = undefined;
     this.showsCancelButton = false;
+    // iOS CYLSearchBar (QMUI): the placeholder centred at rest, the field and Cancel margins per state (a provider
+    // `(bar, active) => insets` wins over the plain insets), the Cancel font, the accessory views beside the field.
+    this.centersPlaceholder = false;
+    this.textFieldMargins = undefined;
+    this.textFieldMarginsProvider = undefined;
+    this.cancelButtonMargins = undefined;
+    this.cancelButtonMarginsProvider = undefined;
+    this.cancelButtonFont = undefined;
+    this.showsLeadingAccessoryView = false;
+    this.showsTrailingAccessoryView = false;
     this.cancelButtonTitle = $r('app.string.cyl_search_cancel');
     this.cancelButtonEndsEditing = true;
     this.clearsTextOnCancel = false;
@@ -534,6 +602,49 @@ class CYLSearchBarView {
    */
   hasItem(style) {
     return this.items.some((item) => item.style === style);
+  }
+
+  /**
+   * The field's margins in a state (iOS `textFieldMarginsProvider`, else `textFieldMargins`); `active` is true while
+   * the bar is searching (editing).
+   */
+  textFieldMarginsFor(active) {
+    if (typeof this.textFieldMarginsProvider === 'function') return this.textFieldMarginsProvider(this, !!active);
+    return this.textFieldMargins;
+  }
+
+  /**
+   * The Cancel button's margins in a state (iOS `cancelButtonMarginsProvider`, else `cancelButtonMargins`).
+   */
+  cancelButtonMarginsFor(active) {
+    if (typeof this.cancelButtonMarginsProvider === 'function') return this.cancelButtonMarginsProvider(this, !!active);
+    return this.cancelButtonMargins;
+  }
+
+  /**
+   * Shows or hides Cancel, animated or not (iOS `setShowsCancelButton(_:animated:)`); the component draws the change
+   * through `accessoryHandler`.
+   */
+  setShowsCancelButton(shows, animated = false) {
+    this.showsCancelButton = !!shows;
+    if (this.accessoryHandler) this.accessoryHandler('cancel', this.showsCancelButton, !!animated);
+  }
+
+  /**
+   * Shows or hides the leading accessory beside the field (iOS `setShowsLeadingAccessoryView(_:animated:)`). The
+   * request is a state flag, so fast toggling ends in the last request.
+   */
+  setShowsLeadingAccessoryView(shows, animated = false) {
+    this.showsLeadingAccessoryView = !!shows;
+    if (this.accessoryHandler) this.accessoryHandler('leading', this.showsLeadingAccessoryView, !!animated);
+  }
+
+  /**
+   * Shows or hides the trailing accessory beside the field (iOS `setShowsTrailingAccessoryView(_:animated:)`).
+   */
+  setShowsTrailingAccessoryView(shows, animated = false) {
+    this.showsTrailingAccessoryView = !!shows;
+    if (this.accessoryHandler) this.accessoryHandler('trailing', this.showsTrailingAccessoryView, !!animated);
   }
 
   /**
@@ -860,6 +971,8 @@ module.exports = {
   CYLSearchBarExpansionAnimation,
   CYLSearchBarItemState,
   CYLSearchBarViewDelegate,
+  CYLSearchBarAppearance,
+  cylInsetsCSS,
   CYLSearchBarItem,
   CYLSearchBarView,
 };

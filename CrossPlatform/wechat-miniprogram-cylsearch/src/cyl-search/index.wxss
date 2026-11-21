@@ -5,6 +5,18 @@
 .cyl-page-entered { opacity: 1; transform: none; }
 /* Inline: drawn in place, filling its container, always open. */
 .cyl-page-inline { position: relative; z-index: auto; height: 100%; transition: none; }
+/* The list screen: the page is the container of the content's scroller; the search layer sits under the bar, over the content. */
+.cyl-screen { position: relative; height: 100%; }
+.cyl-screen-scroll { height: 100%; }
+.cyl-header-bar { background: #fff; }
+.cyl-page-over { position: absolute; z-index: 5; transform: none; }
+.cyl-page-dim { background: transparent; }
+.cyl-launch { flex: 1; min-height: 0; background: #fff; }
+.cyl-dimming { flex: 1; min-height: 0; }
+.cyl-custom-empty { display: flex; flex-direction: column; align-items: center; padding: 0 32px; }
+.cyl-custom-empty-title { color: rgba(60, 60, 67, 0.6); font-size: 17px; text-align: center; }
+.cyl-custom-empty-detail { margin-top: 8px; color: rgba(60, 60, 67, 0.4); font-size: 15px; text-align: center; }
+.cyl-custom-empty-button { margin-top: 16px; padding: 8px 16px; border: 1px solid #007aff; border-radius: 6px; color: #007aff; font-size: 15px; }
 .cyl-results { flex: 1; min-height: 0; }
 .cyl-result { padding: 0 16px; flex-direction: column; align-items: stretch; justify-content: center; }
 .cyl-row-subtitle { padding-bottom: 10px; color: rgba(60, 60, 67, 0.6); font-size: 13px; }
@@ -32,6 +44,9 @@
 .cyl-mask-trash { width: 20px; height: 20px; -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 7h16M10 11v6M14 11v6M5 7l1 13h12l1-13M9 7V4h6v3'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 7h16M10 11v6M14 11v6M5 7l1 13h12l1-13M9 7V4h6v3'/></svg>"); }
 @media (prefers-color-scheme: dark) {
   .cyl-page { background: #000; }
+  .cyl-page-dim { background: transparent; }
+  .cyl-header-bar, .cyl-launch { background: #000; }
+  .cyl-custom-empty-title { color: rgba(235, 235, 245, 0.6); }
   .cyl-row-text, .cyl-tag { color: #fff; }
   .cyl-row { border-color: #38383a; }
   .cyl-row-subtitle { color: rgba(235, 235, 245, 0.6); }
