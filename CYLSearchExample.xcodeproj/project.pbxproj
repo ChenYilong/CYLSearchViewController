@@ -12,13 +12,17 @@
 		101C7EF837736C301E77C1BD /* CYLSearchExampleViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72C6E95A0B238E136F099598 /* CYLSearchExampleViewController.swift */; };
 		1710B2C1CF4C5E46593609A0 /* CYLLaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F1CBD31BF12B1F79D35D8197 /* CYLLaunchScreen.storyboard */; };
 		1DEBF1CD858693B413D71149 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 30E6C2B3AB08D6F182050568 /* Images.xcassets */; };
+		21FF2F148ABA7EDAFC2934E2 /* CYLSearchBarHostTableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F1307CBA92279A363BCEA36 /* CYLSearchBarHostTableViewController.swift */; };
 		255D5D9308CE5BFE4457047E /* CYLContactListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E21AAD40352A177CEA2EB58D /* CYLContactListViewController.swift */; };
+		284BAC8A33CF8771994D5D5B /* CYLSearchExampleSearchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B9356DCF4828F670ED17687 /* CYLSearchExampleSearchTests.swift */; };
 		29A8DCF681E71FA7B0945830 /* CYLContactTagStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DA7AB600DDC7D517A8984EA /* CYLContactTagStore.swift */; };
+		3EC747682D98032230EA997F /* CYLSearchExampleTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75595E2688B0F4B5F4BDEB14 /* CYLSearchExampleTestSupport.swift */; };
 		4A8E12591D75157E8E50494E /* Pods_CYLSearchExample.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13A5CFF6BFF18FEBE3C40D70 /* Pods_CYLSearchExample.framework */; };
 		4B1118BB0621C91A867082AA /* tab_profile.svga in Resources */ = {isa = PBXBuildFile; fileRef = C3AB51676CF686A32E5C3F2D /* tab_profile.svga */; };
 		5056C539D2AE963DF183969D /* tab_home.svga in Resources */ = {isa = PBXBuildFile; fileRef = 8EA07219A58E5EBDB6C139FA /* tab_home.svga */; };
 		53098B93113B873103F0A596 /* CYLSearchExampleAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81DD363A48F982061386928D /* CYLSearchExampleAppDelegate.swift */; };
 		605EAE3645762F54D9304252 /* CYLOriginalDemo.bundle in Resources */ = {isa = PBXBuildFile; fileRef = B917ABA1A24B4A3416F47A59 /* CYLOriginalDemo.bundle */; };
+		6695FDECCBC1B4CFDECFF616 /* CYLSearchBarStyleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078F4D2059A21704E7B927F2 /* CYLSearchBarStyleTests.swift */; };
 		67F1DE2BB9678746E2CE5701 /* CYLTabBarConfiguration_svga_swiftui.json in Resources */ = {isa = PBXBuildFile; fileRef = 466DA7C43DE8376E42F99CDC /* CYLTabBarConfiguration_svga_swiftui.json */; };
 		734E520994095144248A807D /* CYLContactTagEditorViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E7DEF56D4A35247FE9F79F9 /* CYLContactTagEditorViewController.swift */; };
 		79C140CF3417B8EAC88A7B1B /* tab_chat.svga in Resources */ = {isa = PBXBuildFile; fileRef = 2A637C6644B075C276387C54 /* tab_chat.svga */; };
@@ -47,15 +51,14 @@
 		C22D21811DA60A32A63738EA /* CYLSearchExampleSceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 152DF182224BB30611012ECE /* CYLSearchExampleSceneDelegate.swift */; };
 		C74D9C559315C062AFB810C7 /* CYLSearchDiscoverViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A1C23458E19D7F7CAAFED2 /* CYLSearchDiscoverViewController.swift */; };
 		CA3BE6055C75D4104A91FC7E /* tab_search.svga in Resources */ = {isa = PBXBuildFile; fileRef = 0A6E1B84CDAA97C5FDF54F8D /* tab_search.svga */; };
+		D25A2FF1334E2CA458891290 /* CYLSearchExampleCacheFocusItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2456A2446CB47D7D0B76A552 /* CYLSearchExampleCacheFocusItemTests.swift */; };
+		D7F8CA8AB1976494D5B6AD9F /* CYLSearchExampleParityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5C4DB884EB3DEFA2DD82150 /* CYLSearchExampleParityTests.swift */; };
+		D82F404523DA92EEF4F9693F /* CYLSearchBarStylesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77024FE43CAE48940FF06E59 /* CYLSearchBarStylesViewController.swift */; };
+		DDE4C576CB6A03AC93AE7CE0 /* CYLSearchExampleContactTagsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 306CE615EFCF241601BFDECD /* CYLSearchExampleContactTagsTests.swift */; };
 		E040B965177213078B4B0135 /* CYLSearchDemoMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA11275B67AEA4B36D145BD3 /* CYLSearchDemoMenuViewController.swift */; };
 		E7351D9305A9995AB1407795 /* CYLSVGADemoTagButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23456A57479C45D0163AC0C0 /* CYLSVGADemoTagButton.swift */; };
 		E940950CEF9FDF271D8F9298 /* CYLTabBarConfiguration_svga.json in Resources */ = {isa = PBXBuildFile; fileRef = E639AD5AA798F5082F43D0D8 /* CYLTabBarConfiguration_svga.json */; };
-		3EC747682D98032230EA997F /* CYLSearchExampleTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75595E2688B0F4B5F4BDEB14 /* CYLSearchExampleTestSupport.swift */; };
-		284BAC8A33CF8771994D5D5B /* CYLSearchExampleSearchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B9356DCF4828F670ED17687 /* CYLSearchExampleSearchTests.swift */; };
 		F885FC21B72F86495233668B /* CYLSearchExampleSearchBarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0947CF42D2DA6F8237ACB4DB /* CYLSearchExampleSearchBarTests.swift */; };
-		D7F8CA8AB1976494D5B6AD9F /* CYLSearchExampleParityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5C4DB884EB3DEFA2DD82150 /* CYLSearchExampleParityTests.swift */; };
-		DDE4C576CB6A03AC93AE7CE0 /* CYLSearchExampleContactTagsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 306CE615EFCF241601BFDECD /* CYLSearchExampleContactTagsTests.swift */; };
-		D25A2FF1334E2CA458891290 /* CYLSearchExampleCacheFocusItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2456A2446CB47D7D0B76A552 /* CYLSearchExampleCacheFocusItemTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +75,8 @@
 		0314199A175111B3308413FD /* CYLSVGASwiftUIDemo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSVGASwiftUIDemo.swift; sourceTree = "<group>"; };
 		0539046CE5626071D7218E4A /* tab_list.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_list.svga; sourceTree = "<group>"; };
 		0723FAFC7CC20AE1DCCCB285 /* CYLSearchExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CYLSearchExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		078F4D2059A21704E7B927F2 /* CYLSearchBarStyleTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchBarStyleTests.swift; sourceTree = "<group>"; };
+		0947CF42D2DA6F8237ACB4DB /* CYLSearchExampleSearchBarTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleSearchBarTests.swift; sourceTree = "<group>"; };
 		0A6E1B84CDAA97C5FDF54F8D /* tab_search.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_search.svga; sourceTree = "<group>"; };
 		13A5CFF6BFF18FEBE3C40D70 /* Pods_CYLSearchExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CYLSearchExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		152DF182224BB30611012ECE /* CYLSearchExampleSceneDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleSceneDelegate.swift; sourceTree = "<group>"; };
@@ -79,16 +84,22 @@
 		1D0E91D71BE163E06C035C5A /* CYLContactTags.bundle */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.plug-in"; path = CYLContactTags.bundle; sourceTree = "<group>"; };
 		1E8870E6E14FE5355F516165 /* CYLSuggestionDemoPages.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSuggestionDemoPages.swift; sourceTree = "<group>"; };
 		23456A57479C45D0163AC0C0 /* CYLSVGADemoTagButton.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSVGADemoTagButton.swift; sourceTree = "<group>"; };
+		2456A2446CB47D7D0B76A552 /* CYLSearchExampleCacheFocusItemTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleCacheFocusItemTests.swift; sourceTree = "<group>"; };
 		2A637C6644B075C276387C54 /* tab_chat.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_chat.svga; sourceTree = "<group>"; };
+		306CE615EFCF241601BFDECD /* CYLSearchExampleContactTagsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleContactTagsTests.swift; sourceTree = "<group>"; };
 		30E6C2B3AB08D6F182050568 /* Images.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = CYLSearchViewController/Images.xcassets; sourceTree = "<group>"; };
+		3B9356DCF4828F670ED17687 /* CYLSearchExampleSearchTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleSearchTests.swift; sourceTree = "<group>"; };
 		3CDCF00C5BC550CCB80F6F64 /* Pods-CYLSearchExample.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CYLSearchExample.release.xcconfig"; path = "Target Support Files/Pods-CYLSearchExample/Pods-CYLSearchExample.release.xcconfig"; sourceTree = "<group>"; };
 		466DA7C43DE8376E42F99CDC /* CYLTabBarConfiguration_svga_swiftui.json */ = {isa = PBXFileReference; includeInIndex = 1; path = CYLTabBarConfiguration_svga_swiftui.json; sourceTree = "<group>"; };
+		4F1307CBA92279A363BCEA36 /* CYLSearchBarHostTableViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchBarHostTableViewController.swift; sourceTree = "<group>"; };
 		5B066C225673180236E6CE46 /* CYLSearchDiscover.bundle */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.plug-in"; path = CYLSearchDiscover.bundle; sourceTree = "<group>"; };
 		5EBA41F531198DCB20D11D08 /* CYLKenBurnsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLKenBurnsView.swift; sourceTree = "<group>"; };
 		6CB53AE2B9CBC786E92E575D /* Pods_CYLSearchExampleTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CYLSearchExampleTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6DA7AB600DDC7D517A8984EA /* CYLContactTagStore.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLContactTagStore.swift; sourceTree = "<group>"; };
 		6E06E95D27736A6851596998 /* CYLSearchBarDemoViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchBarDemoViewController.swift; sourceTree = "<group>"; };
 		72C6E95A0B238E136F099598 /* CYLSearchExampleViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleViewController.swift; sourceTree = "<group>"; };
+		75595E2688B0F4B5F4BDEB14 /* CYLSearchExampleTestSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleTestSupport.swift; sourceTree = "<group>"; };
+		77024FE43CAE48940FF06E59 /* CYLSearchBarStylesViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchBarStylesViewController.swift; sourceTree = "<group>"; };
 		78C4B4FFBF9FDF3873CCD8F4 /* Pods-CYLSearchExampleTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CYLSearchExampleTests.release.xcconfig"; path = "Target Support Files/Pods-CYLSearchExampleTests/Pods-CYLSearchExampleTests.release.xcconfig"; sourceTree = "<group>"; };
 		7E3A630CFE564B95329C9A3B /* CYLSearchExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CYLSearchExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		81DD363A48F982061386928D /* CYLSearchExampleAppDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleAppDelegate.swift; sourceTree = "<group>"; };
@@ -104,6 +115,7 @@
 		A50000000000000000000003 /* CYLYechaoaSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CYLYechaoaSearchViewController.swift; sourceTree = "<group>"; };
 		A50000000000000000000004 /* CYLRevealSearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CYLRevealSearchViewController.swift; sourceTree = "<group>"; };
 		A50000000000000000000005 /* CYLMultiSearchDemoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CYLMultiSearchDemoViewController.swift; sourceTree = "<group>"; };
+		A5C4DB884EB3DEFA2DD82150 /* CYLSearchExampleParityTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleParityTests.swift; sourceTree = "<group>"; };
 		B1EBBACF8BF1441DABDD9379 /* CYLContactTagServer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLContactTagServer.swift; sourceTree = "<group>"; };
 		B917ABA1A24B4A3416F47A59 /* CYLOriginalDemo.bundle */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.plug-in"; path = CYLOriginalDemo.bundle; sourceTree = "<group>"; };
 		C3AB51676CF686A32E5C3F2D /* tab_profile.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_profile.svga; sourceTree = "<group>"; };
@@ -118,12 +130,6 @@
 		F66C8EE3FD197741FB8EE397 /* CYLOriginalSearchDemoViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLOriginalSearchDemoViewController.swift; sourceTree = "<group>"; };
 		FA11275B67AEA4B36D145BD3 /* CYLSearchDemoMenuViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchDemoMenuViewController.swift; sourceTree = "<group>"; };
 		FA7A0B9D7510B24AAB4BC47A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
-		75595E2688B0F4B5F4BDEB14 /* CYLSearchExampleTestSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleTestSupport.swift; sourceTree = "<group>"; };
-		3B9356DCF4828F670ED17687 /* CYLSearchExampleSearchTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleSearchTests.swift; sourceTree = "<group>"; };
-		0947CF42D2DA6F8237ACB4DB /* CYLSearchExampleSearchBarTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleSearchBarTests.swift; sourceTree = "<group>"; };
-		A5C4DB884EB3DEFA2DD82150 /* CYLSearchExampleParityTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleParityTests.swift; sourceTree = "<group>"; };
-		306CE615EFCF241601BFDECD /* CYLSearchExampleContactTagsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleContactTagsTests.swift; sourceTree = "<group>"; };
-		2456A2446CB47D7D0B76A552 /* CYLSearchExampleCacheFocusItemTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleCacheFocusItemTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -224,6 +230,8 @@
 				5EBA41F531198DCB20D11D08 /* CYLKenBurnsView.swift */,
 				F66C8EE3FD197741FB8EE397 /* CYLOriginalSearchDemoViewController.swift */,
 				B917ABA1A24B4A3416F47A59 /* CYLOriginalDemo.bundle */,
+				4F1307CBA92279A363BCEA36 /* CYLSearchBarHostTableViewController.swift */,
+				77024FE43CAE48940FF06E59 /* CYLSearchBarStylesViewController.swift */,
 			);
 			path = CYLSearchExample;
 			sourceTree = "<group>";
@@ -238,6 +246,7 @@
 				0947CF42D2DA6F8237ACB4DB /* CYLSearchExampleSearchBarTests.swift */,
 				3B9356DCF4828F670ED17687 /* CYLSearchExampleSearchTests.swift */,
 				75595E2688B0F4B5F4BDEB14 /* CYLSearchExampleTestSupport.swift */,
+				078F4D2059A21704E7B927F2 /* CYLSearchBarStyleTests.swift */,
 			);
 			path = CYLSearchExampleTests;
 			sourceTree = "<group>";
@@ -483,6 +492,8 @@
 				E040B965177213078B4B0135 /* CYLSearchDemoMenuViewController.swift in Sources */,
 				00CBCAB9751DA098D4097277 /* CYLKenBurnsView.swift in Sources */,
 				7DF022CB0E62991655EDBC25 /* CYLOriginalSearchDemoViewController.swift in Sources */,
+				21FF2F148ABA7EDAFC2934E2 /* CYLSearchBarHostTableViewController.swift in Sources */,
+				D82F404523DA92EEF4F9693F /* CYLSearchBarStylesViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -497,6 +508,7 @@
 				F885FC21B72F86495233668B /* CYLSearchExampleSearchBarTests.swift in Sources */,
 				284BAC8A33CF8771994D5D5B /* CYLSearchExampleSearchTests.swift in Sources */,
 				3EC747682D98032230EA997F /* CYLSearchExampleTestSupport.swift in Sources */,
+				6695FDECCBC1B4CFDECFF616 /* CYLSearchBarStyleTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

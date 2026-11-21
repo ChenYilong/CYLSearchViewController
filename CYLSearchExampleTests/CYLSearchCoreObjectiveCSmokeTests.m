@@ -50,6 +50,60 @@
     XCTAssertEqual(searchView.suggestionCache.cachedQueries.count, 0u);
 }
 
+/*!
+ * CYLSearchBar and CYLSearchBarAppearance are visible from Objective-C with the names of the design
+ * (docs/qmui-search-controller.md): properties, blocks, accessory methods and the two class methods; the Cancel button is
+ * cyl_cancelButton (UISearchBar answers cancelButton itself).
+ */
+- (void)testSearchBarFromObjectiveC
+{
+    XCTAssertEqualObjects(NSStringFromClass(CYLSearchBar.class), @"CYLSearchBar");
+    XCTAssertEqualObjects(NSStringFromClass(CYLSearchBarAppearance.class), @"CYLSearchBarAppearance");
+    XCTAssertTrue([CYLSearchBar.class isSubclassOfClass:UISearchBar.class]);
+
+    CYLSearchBar *bar = [[CYLSearchBar alloc] initWithFrame:CGRectMake(0, 0, 320, 56)];
+    bar.usedAsTableHeaderView = YES;
+    bar.centersPlaceholder = YES;
+    bar.placeholderColor = UIColor.redColor;
+    bar.textColor = UIColor.blueColor;
+    bar.font = [UIFont systemFontOfSize:15];
+    bar.textFieldMargins = UIEdgeInsetsMake(0, 4, 0, 4);
+    bar.textFieldMarginsProvider = ^UIEdgeInsets(CYLSearchBar *searchBar, BOOL active) { return active ? UIEdgeInsetsZero : UIEdgeInsetsMake(0, 8, 0, 8); };
+    bar.cancelButtonFont = [UIFont boldSystemFontOfSize:15];
+    bar.cancelButtonMarginsProvider = ^UIEdgeInsets(CYLSearchBar *searchBar, BOOL active) { return UIEdgeInsetsZero; };
+    bar.alwaysEnablesCancelButton = NO;
+    XCTAssertFalse(bar.alwaysEnablesCancelButton);
+    XCTAssertTrue(bar.centersPlaceholder);
+    XCTAssertEqualObjects(bar.placeholderColor, UIColor.redColor);
+    XCTAssertEqual(bar.textFieldMargins.left, 4);
+    XCTAssertEqual(bar.textFieldMarginsProvider(bar, NO).left, 8);
+
+    UIView *leading = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
+    UIView *trailing = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
+    bar.leadingAccessoryView = leading;
+    bar.trailingAccessoryView = trailing;
+    bar.leadingAccessoryViewMargins = UIEdgeInsetsMake(0, 8, 0, 0);
+    bar.trailingAccessoryViewMargins = UIEdgeInsetsMake(0, 0, 0, 8);
+    [bar setShowsLeadingAccessoryView:NO animated:NO];
+    bar.showsTrailingAccessoryView = NO;
+    XCTAssertFalse(bar.showsLeadingAccessoryView);
+    XCTAssertFalse(bar.showsTrailingAccessoryView);
+    XCTAssertEqual(bar.leadingAccessoryView, leading);
+
+    XCTAssertNil(bar.cyl_cancelButton);
+    XCTAssertNil(bar.searchController);
+    XCTAssertNil(bar.segmentedControl);
+    [bar applyDefaultAppearance];
+    CYLSearchBarAppearance *style = [CYLSearchBarAppearance.defaultAppearance copy];
+    style.tintColor = UIColor.orangeColor;
+    style.placeholder = @"Objective-C";
+    bar.appearanceStyle = style;
+    XCTAssertEqualObjects(bar.placeholder, @"Objective-C");
+    XCTAssertNotNil([CYLSearchBar textFieldBackgroundImageWithColor:UIColor.grayColor]);
+    XCTAssertNil([CYLSearchBar backgroundImageWithColor:nil borderColor:nil]);
+    XCTAssertNotNil([CYLSearchBar backgroundImageWithColor:nil borderColor:UIColor.grayColor]);
+}
+
 - (void)testResourcesFromObjectiveC
 {
     XCTAssertGreaterThan([CYLSearchResources localizedStringForKey:@"search.cancel"].length, 0u);

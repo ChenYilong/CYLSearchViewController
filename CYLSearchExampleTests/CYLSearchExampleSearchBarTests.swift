@@ -362,6 +362,34 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
             window.traitOverrides.preferredContentSizeCategory = .large
         }
 
+        // The "Search bar styles" screen: a CYLSearchBar as the table header with Cancel and both accessory views shown, at
+        // the default and the largest text size, at rest and while editing.
+        let styles = CYLSearchBarStylesViewController(style: .grouped)
+        navigation = UINavigationController(rootViewController: styles)
+        window.rootViewController = navigation
+        CYLRunLoop(0.2)
+        styles.searchBar.showsCancelButton = true
+        styles.searchBar.setShowsLeadingAccessoryView(true, animated: false)
+        styles.searchBar.setShowsTrailingAccessoryView(true, animated: false)
+        for editing in [false, true] {
+            if editing { styles.searchBar.becomeFirstResponder() }
+            for size in sizes {
+                if #available(iOS 17.0, *) {
+                    window.traitOverrides.preferredContentSizeCategory = size
+                }
+                CYLRunLoop(0.3)
+                navigation.view.setNeedsLayout()
+                navigation.view.layoutIfNeeded()
+                XCTAssertNotNil(styles.searchBar.window, "the styles screen's bar is shown")
+                let covered = CYLViewsCoveredByView(styles.searchBar, nil)
+                XCTAssertEqual(covered.count, 0, "search bar styles, editing \(editing), at \(size.rawValue): \(covered)")
+            }
+        }
+        styles.searchBar.resignFirstResponder()
+        if #available(iOS 17.0, *) {
+            window.traitOverrides.preferredContentSizeCategory = .large
+        }
+
         // The overlay (a CYLSearchView over the results page's navigation controller) is a page of its own: inside that
         // page its search bar covers no view, with results shown.
         results = CYLSearchExampleViewController(searchDataSource: source, refreshProvider: source)
