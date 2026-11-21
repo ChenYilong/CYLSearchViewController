@@ -3,6 +3,10 @@
 - Inherit the repository's `instructions.md` and `AGENTS.md`.
 - Keep integration tests for the root example app and its local Pods here.
 - Update the explicit Xcode test target references when moving test files.
+- Write tests in Swift (`docs/swift-migration.md`, step 4): one `XCTestCase` subclass of `CYLSearchExampleTestCase` per
+  area, shared recorders and view helpers in `CYLSearchExampleTestSupport.swift`. The one Objective-C file,
+  `CYLSearchCoreObjectiveCSmokeTests.m`, stays: it checks that Objective-C callers see the Swift core through its
+  generated header.
 
 ## Search bar placement
 

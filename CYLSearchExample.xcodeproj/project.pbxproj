@@ -29,7 +29,7 @@
 		8196AA5AE36B22231F60767A /* CYLContactRemarkViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92A2E83820BF435F5277152B /* CYLContactRemarkViewController.swift */; };
 		83556410E6BEAB20335A0D5F /* CYLContactTagServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1EBBACF8BF1441DABDD9379 /* CYLContactTagServer.swift */; };
 		870253A69C9D8386606E41F0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FA7A0B9D7510B24AAB4BC47A /* Foundation.framework */; };
-		89E2ACA17CA7765ED192EFB2 /* CYLSearchExampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C72AC3EBD45BFF3AC9711025 /* CYLSearchExampleTests.m */; };
+		89E2ACA17CA7765ED192EFB2 /* CYLSearchCoreObjectiveCSmokeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C72AC3EBD45BFF3AC9711025 /* CYLSearchCoreObjectiveCSmokeTests.m */; };
 		8C0B3D7B899D8C6301DD6D16 /* CYLSVGASwiftUIDemo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0314199A175111B3308413FD /* CYLSVGASwiftUIDemo.swift */; };
 		9C9E88D575AF765FDC79BC1F /* CYLSearchBarDemoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E06E95D27736A6851596998 /* CYLSearchBarDemoViewController.swift */; };
 		A19522B4581BBFD417720CE3 /* tab_list.svga in Resources */ = {isa = PBXBuildFile; fileRef = 0539046CE5626071D7218E4A /* tab_list.svga */; };
@@ -50,6 +50,12 @@
 		E040B965177213078B4B0135 /* CYLSearchDemoMenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA11275B67AEA4B36D145BD3 /* CYLSearchDemoMenuViewController.swift */; };
 		E7351D9305A9995AB1407795 /* CYLSVGADemoTagButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 23456A57479C45D0163AC0C0 /* CYLSVGADemoTagButton.swift */; };
 		E940950CEF9FDF271D8F9298 /* CYLTabBarConfiguration_svga.json in Resources */ = {isa = PBXBuildFile; fileRef = E639AD5AA798F5082F43D0D8 /* CYLTabBarConfiguration_svga.json */; };
+		3EC747682D98032230EA997F /* CYLSearchExampleTestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75595E2688B0F4B5F4BDEB14 /* CYLSearchExampleTestSupport.swift */; };
+		284BAC8A33CF8771994D5D5B /* CYLSearchExampleSearchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B9356DCF4828F670ED17687 /* CYLSearchExampleSearchTests.swift */; };
+		F885FC21B72F86495233668B /* CYLSearchExampleSearchBarTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0947CF42D2DA6F8237ACB4DB /* CYLSearchExampleSearchBarTests.swift */; };
+		D7F8CA8AB1976494D5B6AD9F /* CYLSearchExampleParityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5C4DB884EB3DEFA2DD82150 /* CYLSearchExampleParityTests.swift */; };
+		DDE4C576CB6A03AC93AE7CE0 /* CYLSearchExampleContactTagsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 306CE615EFCF241601BFDECD /* CYLSearchExampleContactTagsTests.swift */; };
+		D25A2FF1334E2CA458891290 /* CYLSearchExampleCacheFocusItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2456A2446CB47D7D0B76A552 /* CYLSearchExampleCacheFocusItemTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -101,7 +107,7 @@
 		B1EBBACF8BF1441DABDD9379 /* CYLContactTagServer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLContactTagServer.swift; sourceTree = "<group>"; };
 		B917ABA1A24B4A3416F47A59 /* CYLOriginalDemo.bundle */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "wrapper.plug-in"; path = CYLOriginalDemo.bundle; sourceTree = "<group>"; };
 		C3AB51676CF686A32E5C3F2D /* tab_profile.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_profile.svga; sourceTree = "<group>"; };
-		C72AC3EBD45BFF3AC9711025 /* CYLSearchExampleTests.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = CYLSearchExampleTests.m; sourceTree = "<group>"; };
+		C72AC3EBD45BFF3AC9711025 /* CYLSearchCoreObjectiveCSmokeTests.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = CYLSearchCoreObjectiveCSmokeTests.m; sourceTree = "<group>"; };
 		CDA792B304CC7265A5781447 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D69AD592F007AA158CC66F16 /* Pods-CYLSearchExample.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CYLSearchExample.debug.xcconfig"; path = "Target Support Files/Pods-CYLSearchExample/Pods-CYLSearchExample.debug.xcconfig"; sourceTree = "<group>"; };
 		E0F39A67691ACDD2A732B49E /* tab_activity.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_activity.svga; sourceTree = "<group>"; };
@@ -112,6 +118,12 @@
 		F66C8EE3FD197741FB8EE397 /* CYLOriginalSearchDemoViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLOriginalSearchDemoViewController.swift; sourceTree = "<group>"; };
 		FA11275B67AEA4B36D145BD3 /* CYLSearchDemoMenuViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchDemoMenuViewController.swift; sourceTree = "<group>"; };
 		FA7A0B9D7510B24AAB4BC47A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		75595E2688B0F4B5F4BDEB14 /* CYLSearchExampleTestSupport.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleTestSupport.swift; sourceTree = "<group>"; };
+		3B9356DCF4828F670ED17687 /* CYLSearchExampleSearchTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleSearchTests.swift; sourceTree = "<group>"; };
+		0947CF42D2DA6F8237ACB4DB /* CYLSearchExampleSearchBarTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleSearchBarTests.swift; sourceTree = "<group>"; };
+		A5C4DB884EB3DEFA2DD82150 /* CYLSearchExampleParityTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleParityTests.swift; sourceTree = "<group>"; };
+		306CE615EFCF241601BFDECD /* CYLSearchExampleContactTagsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleContactTagsTests.swift; sourceTree = "<group>"; };
+		2456A2446CB47D7D0B76A552 /* CYLSearchExampleCacheFocusItemTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchExampleCacheFocusItemTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -219,7 +231,13 @@
 		A10000000000000000000002 /* CYLSearchExampleTests */ = {
 			isa = PBXGroup;
 			children = (
-				C72AC3EBD45BFF3AC9711025 /* CYLSearchExampleTests.m */,
+				C72AC3EBD45BFF3AC9711025 /* CYLSearchCoreObjectiveCSmokeTests.m */,
+				2456A2446CB47D7D0B76A552 /* CYLSearchExampleCacheFocusItemTests.swift */,
+				306CE615EFCF241601BFDECD /* CYLSearchExampleContactTagsTests.swift */,
+				A5C4DB884EB3DEFA2DD82150 /* CYLSearchExampleParityTests.swift */,
+				0947CF42D2DA6F8237ACB4DB /* CYLSearchExampleSearchBarTests.swift */,
+				3B9356DCF4828F670ED17687 /* CYLSearchExampleSearchTests.swift */,
+				75595E2688B0F4B5F4BDEB14 /* CYLSearchExampleTestSupport.swift */,
 			);
 			path = CYLSearchExampleTests;
 			sourceTree = "<group>";
@@ -472,7 +490,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				89E2ACA17CA7765ED192EFB2 /* CYLSearchExampleTests.m in Sources */,
+				89E2ACA17CA7765ED192EFB2 /* CYLSearchCoreObjectiveCSmokeTests.m in Sources */,
+				D25A2FF1334E2CA458891290 /* CYLSearchExampleCacheFocusItemTests.swift in Sources */,
+				DDE4C576CB6A03AC93AE7CE0 /* CYLSearchExampleContactTagsTests.swift in Sources */,
+				D7F8CA8AB1976494D5B6AD9F /* CYLSearchExampleParityTests.swift in Sources */,
+				F885FC21B72F86495233668B /* CYLSearchExampleSearchBarTests.swift in Sources */,
+				284BAC8A33CF8771994D5D5B /* CYLSearchExampleSearchTests.swift in Sources */,
+				3EC747682D98032230EA997F /* CYLSearchExampleTestSupport.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
