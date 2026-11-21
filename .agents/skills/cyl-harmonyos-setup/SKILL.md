@@ -139,6 +139,15 @@ Install `outputs\emulator\entry-emulator-unsigned.hap` and `outputs\ohosTest\ent
 5. After a sub-repository sync, delete the mirror's `build`, `.hvigor` and `oh_modules` first: robocopy `/XD` keeps them,
    and a stale incremental build once missed a new `@cyl/classifymenu` export ("App died" in the UI tests).
 
+   From Git Bash, robocopy needs `MSYS2_ARG_CONV_EXCL='*'` (or Git Bash turns `/MIR` and `/XD` into paths) and quoted
+   Windows paths (an unquoted `C:\cylbuild\harmonyos` loses its backslashes and lands in `C:cylbuildharmonyos` under the
+   current folder). A failed robocopy prints its usage and leaves the old mirror: check the mirror's `oh-package.json5`
+   names the new commits before building (2026-11-22, a stale mirror once passed tests at the old pins).
+6. Owner: CYLTabBarController's HarmonyOS `cylanimateditem` (`CYLAnimatedItemView`), which brings in Rive and PAG, owns
+   the x86_64 test plan: the emulator build recipe for its dependents, a still-image fallback when a native library is
+   missing, and its own tests on the x86_64 emulator. This repository's build profile is a stopgap until the pin reaches
+   that commit; then use what `cylanimateditem` provides and drop the local copy (user, 2026-11-22).
+
 Full rule: `AGENTS.md`, "HarmonyOS: HAPs for the x86_64 emulator leave out the arm64-only Rive and PAG libraries".
 
 Do not ask for a signing certificate, a profile or automatic signing before an emulator run. Signing is needed only

@@ -759,7 +759,19 @@ begins and becomes `DONE` when it ends.
   `pubspec`) with the vendor copies synced; Android, HarmonyOS (hypium on the emulator), mini program, Flutter and React
   Native tests pass; the iOS CI green. 60 = pins moved, Android and HarmonyOS green. The `Podfile.lock` files are left to
   the macOS session (`pod install`).
-- **Status**: in progress.
+- **Status**: DONE (2026-11-22), score 100/100 (`Podfile.lock` files and the iOS build left to the macOS session). The
+  three pins moved in the three Podfiles, `android/merged/gradle.properties`, `harmonyos/oh-package.json5`, the mini
+  program `package.json` and the Flutter example `pubspec.yaml` / `pubspec.lock` (`flutter pub get`); vendor copies synced.
+  Android `:cylsearch` 50 of 50, the POM still names both placeholder coordinates, `assembleDebug` of the whole build
+  passes; HarmonyOS both HAPs build from a clean mirror, hypium 41 of 41 on the Mate 70 Pro emulator; mini program 84 of
+  84; Flutter 18 of 18 and 3 of 3, the example APK builds (after `flutter clean`: a stale Kotlin build in the mirror
+  failed first with "package CYLTabBarItemAnimationStyleSource does not exist"); React Native jest 4 of 4, the example
+  APK builds with the vendor copy at `618ac11a`.
+  Correction: robocopy run from Git Bash had silently failed since 2026-11-22 00:33 (Git Bash turned `/MIR` into a path,
+  and an unquoted `C:\cylbuild\…` lost its backslashes), so the HarmonyOS mirror kept the `a169386` / `1f8c1001` pins:
+  the HarmonyOS result of the `881476a` / `c473fdc` entry above tested that stale copy. This entry's HarmonyOS run is
+  from a mirror checked to hold `618ac11a`, `9dc1f761` and `6117fcfb` (its `oh-package.json5`), and supersedes it. The
+  skill `cyl-harmonyos-setup` now says how to call robocopy from Git Bash.
 
 
 ## DONE (2026-11-22): write the x86_64 emulator HAP rule (arm64-only Rive and PAG) into the instructions and skills
@@ -778,4 +790,22 @@ begins and becomes `DONE` when it ends.
   leave out the arm64-only Rive and PAG libraries"; `cyl-harmonyos-setup`: "Arm64-only native libraries on the x86_64
   emulator" and a troubleshooting row; `cyl-verify`, "HarmonyOS": a pointer. Checked on today's build (tab bar
   `618ac11a`): `unzip -l` finds no `.so` file in `entry-emulator-unsigned.hap` and no `arm64-v8a` entry in the ohosTest
-  HAP; both install, and hypium ran 29 of 29 on the Mate 70 Pro emulator earlier today with the same profile.
+  HAP; both install, and hypium runs 41 of 41 on the Mate 70 Pro emulator with them.
+
+
+## TODO (2026-11-22): the x86_64 emulator test plan in CYLTabBarController's cylanimateditem
+
+- **Branch**: `feat/harmonyos-parity` here; the work is in CYLTabBarController (`feat/cross-platform-components`, session
+  chen-yilong-b6). Context: the user's second prompt puts the x86_64 test plan into CYLTabBarController's HarmonyOS
+  `cylanimateditem` (`CYLAnimatedItemView`), so every dependent tests fully on the x86_64 emulator; rule: `AGENTS.md`,
+  "HarmonyOS: HAPs for the x86_64 emulator …", "Where the fix belongs".
+- **Prompt (verbatim)**: "、到本项目instructions 相关文件以及skills相关文件，如果没有就新增文件保证写入成功，全英文写入：    to fix HAP won't install on this x86_64 emulator because its Rive and PAG libraries are arm64-only, 最好的CYLTabBarController里的CYLAnimatedItemView库中完成该测试方案， 以让依赖该组件的example以及其他库完成完整测试 x86_64 emulator"
+- **Prompt (English)**: write the x86_64 fix into the instruction and skill files; the best place to complete this test
+  plan is CYLTabBarController's CYLAnimatedItemView library, so that the examples and libraries depending on it can
+  test completely on the x86_64 emulator.
+- **Acceptance**: 100 = the rule written here (done), CYLTabBarController ships the plan (ABI declaration per engine,
+  still image when a native library is missing, the build recipe or helper, tests on x86_64), this repository pins that
+  commit and drops its local build-profile copy, hypium passes on the x86_64 emulator. 60 = the rule written and the
+  request accepted by the CYLTabBarController session.
+- **Status**: 60/100. Rule written (`AGENTS.md`, `instructions.md`, `cyl-harmonyos-setup` rule 6). The CYLTabBarController
+  session accepted it (recorded there in `917fa5ad`) and is building it; it will send the commit.

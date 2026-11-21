@@ -34,15 +34,15 @@ target 'Runner' do
   pod 'CYLSearchViewController', :path => '../../../..'
   # flutter_cyltabbar's native tab bar, at the newest CYLTabBarController commit (as its git dependency in pubspec.yaml).
   # Rive tab icons (the default icon source): CYLTabBarController's Rive subspec brings RiveRuntime.
-  pod 'CYLTabBarController', :subspecs => ['Core', 'SVGA', 'Rive'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => 'ace1af0e42d90dbfaed28fbd8beebd58e7fb08de'
+  pod 'CYLTabBarController', :subspecs => ['Core', 'SVGA', 'Rive'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '618ac11a2b467666c8783683af29617988377956'
   # CYLAnimatedItem: its own pod in CYLTabBarController's repository, not on the trunk yet; the engines the example plays.
-  pod 'CYLAnimatedItem', :subspecs => ['Core', 'SVGA', 'Rive'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => 'ace1af0e42d90dbfaed28fbd8beebd58e7fb08de'
+  pod 'CYLAnimatedItem', :subspecs => ['Core', 'SVGA', 'Rive'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '618ac11a2b467666c8783683af29617988377956'
   # SVGA tab icons (SVGAPlayerLite, the player CYLAnimatedItem/SVGA uses; SVGAPlayer beside it builds the same sources
   # twice and misses Svga.pbobjc.h); static linking needs module maps for these two Objective-C pods.
   pod 'SVGAPlayerLite', :modular_headers => true
   pod 'Protobuf', :modular_headers => true
-  pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => '881476a1da01165a5680f0fbbfb22da241c28e94'
-  pod 'CYLTableViewPlaceHolder', :subspecs => ['Core', 'Lottie'], :git => 'https://github.com/ChenYilong/CYLTableViewPlaceHolder.git', :commit => 'c473fdc3c7787d6fb68dc34e5cfa6748a91e74af'
+  pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => '9dc1f7613a7d026d0a36755bad8b7792ec7df9c7'
+  pod 'CYLTableViewPlaceHolder', :subspecs => ['Core', 'Lottie'], :git => 'https://github.com/ChenYilong/CYLTableViewPlaceHolder.git', :commit => '6117fcfba779aa3363ca7ace0279249d6cbb54f4'
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   target 'RunnerTests' do

@@ -728,6 +728,20 @@ question to the user.
      option, target and build mode.
   5. After a sub-repository sync, delete the mirror's `build`, `.hvigor` and `oh_modules` before building
      (robocopy `/XD` keeps them, and a stale incremental build once dropped a new export).
+- **Where the fix belongs** (added 2026-11-22, second prompt). Prompt (verbatim): "、到本项目instructions 相关文件以及skills相关文件，如果没有就新增文件保证写入成功，全英文写入：    to fix HAP won't install on this x86_64 emulator because its Rive and PAG libraries are arm64-only, 最好的CYLTabBarController里的CYLAnimatedItemView库中完成该测试方案， 以让依赖该组件的example以及其他库完成完整测试 x86_64 emulator". Prompt (English): "…
+  the best place to complete this test plan is CYLTabBarController's CYLAnimatedItemView library, so that the examples
+  and the other libraries that depend on the component can run complete tests on the x86_64 emulator."
+  1. The x86_64 test plan is owned by CYLTabBarController's HarmonyOS `cylanimateditem` (`CYLAnimatedItemView`), the one
+     library that brings in Rive and PAG. It ships, for every dependent: (a) a ready-made way to build an app and its
+     ohosTest HAP without the `arm64-v8a` libraries (the `emulator` option, target and `emulatorTest` mode above, or a
+     hvigor helper the app applies), documented in its README; (b) a runtime check, so a Rive or PAG item whose native
+     library is missing shows its still image and reports the state (no crash, no blank cell); (c) its own hypium
+     tests for that path on the x86_64 emulator.
+  2. Dependents (this repository, CollectionViewClassifyMenu, CYLTableViewPlaceHolder and their examples) use what
+     `cylanimateditem` provides and keep no copy of their own once it is there; until then the build profile above is
+     the local stopgap, removed when the pin reaches the CYLTabBarController commit that ships the plan
+     (`cyl-sub-repositories`).
+  3. Requested from the CYLTabBarController session on 2026-11-22; status in `docs/task-log.md`.
 - Skill: `cyl-harmonyos-setup` ("Arm64-only native libraries on the x86_64 emulator"); also `cyl-verify`, "HarmonyOS".
 
 ## HarmonyOS: screen readers and localization (added 2026-11-16)
