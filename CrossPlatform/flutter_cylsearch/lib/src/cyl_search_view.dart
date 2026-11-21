@@ -225,6 +225,9 @@ class CYLSearchBarWidgetController extends _CYLPlatformViewController with Chang
   Future<void> setShowsCancelButton(bool shows, {bool animated = true}) =>
       _invoke<void>('setShowsCancelButton', <String, Object?>{'shows': shows, 'animated': animated});
 
+  /// Focuses the field and raises the keyboard (iOS and Android `showKeyboard()`).
+  Future<void> showKeyboard() => _invoke<void>('showKeyboard');
+
   /// Shows or hides [CYLSearchBarView.leadingAccessoryView], with an animation when [animated] is true (iOS
   /// `setShowsLeadingAccessoryView(_:animated:)`). The last call decides.
   void setShowsLeadingAccessoryView(bool shows, {bool animated = true}) {

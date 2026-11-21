@@ -78,13 +78,24 @@ final class CYLFlutterSearchResult: NSObject {
 final class CYLFlutterSearchResultsDataSource: NSObject, CYLSearchViewDataSource {
     var results: [String] = []
 
+    /// Colors the part of each result that matches the query in the tint color (case sensitive, the first match).
+    var highlightsMatches = false
+
     func searchView(_ searchView: CYLSearchView, resultsForQuery query: String) -> [Any] {
         results.enumerated().map { CYLFlutterSearchResult(text: $0.element, index: $0.offset) }
     }
 
     func searchView(_ searchView: CYLSearchView, configureResultCell cell: UITableViewCell, withResult result: Any) {
         var content = UIListContentConfiguration.cell()
-        content.text = (result as? CYLFlutterSearchResult)?.text
+        let text = (result as? CYLFlutterSearchResult)?.text ?? ""
+        let query = searchView.query ?? ""
+        if highlightsMatches, !query.isEmpty, let range = text.range(of: query) {
+            let attributed = NSMutableAttributedString(string: text, attributes: [.foregroundColor: UIColor.label])
+            attributed.addAttribute(.foregroundColor, value: searchView.tintColor ?? UIColor.systemBlue, range: NSRange(range, in: text))
+            content.attributedText = attributed
+        } else {
+            content.text = text
+        }
         cell.contentConfiguration = content
         cell.accessibilityTraits.insert(.button)
     }
@@ -104,9 +115,11 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
     private var appliedResults: [String]?
 
     init(frame: CGRect, arguments: [String: Any], channel: FlutterMethodChannel) {
-        container = UIView(frame: frame)
+        let layoutContainer = CYLFlutterLayoutReportingView(frame: frame)
+        container = layoutContainer
         self.channel = channel
         super.init()
+        layoutContainer.didLayout = { [weak self] in self?.reportSearchBar() }
         searchView.delegate = self
         // The page stays open after a submit: Dart decides what a submitted query does.
         searchView.closesOnSubmit = false
@@ -135,6 +148,21 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
             case "reloadResults":
                 self.searchView.reloadResults()
                 result(nil)
+            case "setActive":
+                let arguments = call.arguments as? [String: Any] ?? [:]
+                let animated = arguments["animated"] as? Bool ?? true
+                if arguments["active"] as? Bool ?? true {
+                    self.searchView.showSearch(animated: animated)
+                } else {
+                    self.searchView.closeSearch(animated: animated)
+                }
+                result(nil)
+            case "history":
+                result(self.history())
+            case "clearHistory":
+                self.searchView.clearSuggestionCache()
+                self.channel.invokeMethod("historyDidChange", arguments: ["history": self.history()])
+                result(nil)
             default:
                 result(FlutterMethodNotImplemented)
             }
@@ -144,6 +172,22 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
     func view() -> UIView {
         container
     }
+
+    /// The submitted queries in the page's cache, newest first (the history of the launch view).
+    private func history() -> [String] {
+        searchView.suggestionCache?.cachedQueries() ?? []
+    }
+
+    /// Tells Dart where the bar ends, in points: Dart lays the launch view, the dimming and the empty view from there down.
+    fileprivate func reportSearchBar() {
+        let bottom = searchView.searchBarView.convert(searchView.searchBarView.bounds, to: container).maxY
+        if bottom != reportedBarBottom, bottom > 0 {
+            reportedBarBottom = bottom
+            channel.invokeMethod("didLayoutSearchBar", arguments: ["bottom": Double(bottom)])
+        }
+    }
+
+    private var reportedBarBottom: CGFloat = -1
 
     private func apply(_ arguments: [String: Any]) {
         // The Flutter app's brightness, whatever the system setting is.
@@ -191,6 +235,11 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
         searchView.showsSuggestionCacheHeader = arguments["showsSuggestionCacheHeader"] as? Bool ?? true
         searchView.suggestionsFoldControl = cylFoldControl(arguments["suggestionsFoldControlPosition"], arguments["suggestionsFoldControlContent"])
         searchView.suggestionsFoldedRowCount = UInt(max(0, arguments["suggestionsFoldedRowCount"] as? Int ?? 2))
+        resultsDataSource.highlightsMatches = arguments["highlightsResultMatches"] as? Bool ?? false
+    }
+
+    func searchViewDidShow(_ searchView: CYLSearchView) {
+        channel.invokeMethod("didShow", arguments: nil)
     }
 
     func searchView(_ searchView: CYLSearchView, textDidChange text: String) {
@@ -199,6 +248,12 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
 
     func searchView(_ searchView: CYLSearchView, didSubmitText text: String) -> Bool {
         channel.invokeMethod("didSubmit", arguments: ["text": text])
+        // The core adds the query to its cache after this call: the history is read on the next turn of the run loop
+        // (the counterpart of CYLSearchController.historyDidChangeNotification, which is not in the core's views).
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
+            self.channel.invokeMethod("historyDidChange", arguments: ["history": self.history()])
+        }
         return true
     }
 
@@ -215,6 +270,20 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
             return
         }
         channel.invokeMethod("didSelectResult", arguments: ["result": result.text, "index": result.index])
+    }
+}
+
+/**
+ * A container that reports each layout, so Dart learns where the search bar ends.
+ */
+final class CYLFlutterLayoutReportingView: UIView {
+    var didLayout: (() -> Void)?
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        didLayout?()
+        // The bar is laid out after its parent: report once more on the next turn.
+        DispatchQueue.main.async { [weak self] in self?.didLayout?() }
     }
 }
 
@@ -270,6 +339,14 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
                 result(nil)
             case "removeSearch":
                 self.bar.removeSearch(at: arguments["index"] as? Int ?? -1)
+                result(nil)
+            case "setShowsCancelButton":
+                // TODO: waiting for the iOS merge (docs/qmui-search-controller.md): `setShowsCancelButton(_:animated:)` is
+                // on CYLSearchBar only, so `animated` is not honoured on CYLSearchBarView yet.
+                self.bar.showsCancelButton = arguments["shows"] as? Bool ?? false
+                result(nil)
+            case "showKeyboard":
+                self.bar.showKeyboard()
                 result(nil)
             case "searches":
                 result(self.bar.searches)
@@ -333,6 +410,7 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
             }
         }
         appliedText = text
+        applyStyle(arguments)
         bar.fieldShadowOpacity = CGFloat(arguments["fieldShadowOpacity"] as? Double ?? 0)
         bar.searchBarStyle = (arguments["searchBarStyle"] as? String) == "bordered" ? .bordered : .plain
         if bar.isEditingBar {
@@ -352,6 +430,35 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
     }
 
     private var appliedItems: [[String: Any]] = []
+
+    private func color(_ value: Any?) -> UIColor? {
+        guard let argb = (value as? NSNumber)?.uint32Value else { return nil }
+        return UIColor(red: CGFloat((argb >> 16) & 0xFF) / 255, green: CGFloat((argb >> 8) & 0xFF) / 255,
+                       blue: CGFloat(argb & 0xFF) / 255, alpha: CGFloat((argb >> 24) & 0xFF) / 255)
+    }
+
+    /// The style options Dart sends. The ones CYLSearchBarView has are applied; the others are marked below.
+    private func applyStyle(_ arguments: [String: Any]) {
+        if let appearance = arguments["appearance"] as? [String: Any] {
+            if let value = color(appearance["fieldBackgroundColor"]) { bar.fieldBackgroundColor = value }
+            if let value = color(appearance["fieldBorderColor"]) {
+                bar.fieldBorderColor = value
+                bar.fieldBorderWidth = 1
+            }
+            if let radius = appearance["fieldCornerRadius"] as? Double { bar.fieldCornerRadius = CGFloat(radius) }
+            if let value = color(appearance["tintColor"]) { bar.tintColor = value }
+            if let value = color(appearance["barBackgroundColor"]) { bar.backgroundColor = value }
+            if let title = appearance["cancelTitle"] as? String, !bar.isEditingBar { bar.cancelButtonTitle = title }
+        }
+        if let value = color(arguments["placeholderColor"]) { bar.placeholderColor = value }
+        if let value = color(arguments["textColor"]) { bar.textColor = value }
+        if let size = arguments["fontSize"] as? Double { bar.font = .systemFont(ofSize: CGFloat(size)) }
+        // TODO: waiting for the iOS merge (docs/qmui-search-controller.md): `centersPlaceholder`, the field and Cancel
+        // margins for both states (`textFieldMarginsProvider`, `cancelButtonMarginsProvider`), `cancelButtonFont` and
+        // the animated Cancel exist on CYLSearchBar only today. Dart sends them already (centersPlaceholder,
+        // textFieldMargins, activeTextFieldMargins, cancelButtonMargins, activeCancelButtonMargins,
+        // cancelButtonFontSize); wire them here when CYLSearchBarView has the members.
+    }
 
     /**
      * Dart's `text` as applied last (an editing bar takes focus when it changes).
