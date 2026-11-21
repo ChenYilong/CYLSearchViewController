@@ -308,30 +308,61 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
 
     /**
      * Shows the search bar as the table view's header (QMUI `qmui_usedAsTableHeaderView`) and keeps the wrapper alive
-     * as long as the table view lives.
+     * as long as the table view lives. For QMUI issues #1160 and #1207 it also sets the table's estimated row, header and
+     * footer heights to 0, adds the bottom inset the header needs to scroll out of sight above a short list, and settles
+     * the header fully shown or fully hidden when a drag ends; the table view's delegate is not replaced (the drag is
+     * seen through a target on its pan gesture recognizer). `snapsHeaderSearchBar` turns the inset and the settling off.
      */
     @objc public func installSearchBar(asHeaderOf tableView: UITableView) {
         searchBar.usedAsTableHeaderView = true
         searchBar.sizeToFit()
         tableView.tableHeaderView = searchBar
         objc_setAssociatedObject(tableView, &CYLSearchController.retainKey, self, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        headerSnapper?.detach()
+        let snapper = CYLSearchHeaderSnapper(tableView: tableView, searchBar: searchBar, systemController: systemController)
+        snapper.isEnabled = snapsHeaderSearchBar
+        headerSnapper = snapper
         attachGuardViewIfPossible()
     }
 
     /**
      * Installs the system search controller on a navigation item (the wrapper itself is not a `UISearchController`,
-     * #1229) and keeps the wrapper alive as long as the navigation item lives.
+     * #1229) and keeps the wrapper alive as long as the contents view controller lives.
      */
     @objc(installInNavigationItem:)
     public func install(in navigationItem: UINavigationItem) {
         searchBar.usedAsTableHeaderView = false
         navigationItem.searchController = systemController
-        objc_setAssociatedObject(navigationItem, &CYLSearchController.retainKey, self,
+        // The wrapper is not retained by UIKit (the navigation item holds the system controller only): the contents view
+        // controller keeps it, so that a caller who drops its own reference does not crash on the first search (#1229).
+        objc_setAssociatedObject(contentsViewController ?? navigationItem, &CYLSearchController.retainKey, self,
                                  .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         attachGuardViewIfPossible()
     }
 
     private static var retainKey = 0
+
+    /**
+     * Whether a header search bar (`installSearchBar(asHeaderOf:)`) is kept scrollable out of sight, even above a short
+     * list, and settles fully shown or fully hidden when a drag ends (QMUI issues #1160 and #1207). Default `true`; turn it
+     * off to keep UIKit's own behavior (the inset it added is taken out again).
+     */
+    @objc public var snapsHeaderSearchBar = true {
+        didSet { headerSnapper?.isEnabled = snapsHeaderSearchBar }
+    }
+
+    private(set) var headerSnapper: CYLSearchHeaderSnapper?
+
+    /**
+     * Takes the bar out of `tableView`'s header and lets the table view go of the wrapper (`CYLSearchTableViewController`
+     * does this when `showsSearchBar` is turned off).
+     */
+    func removeSearchBarHeader(from tableView: UITableView) {
+        headerSnapper?.detach()
+        headerSnapper = nil
+        if tableView.tableHeaderView === searchBar { tableView.tableHeaderView = nil }
+        objc_setAssociatedObject(tableView, &CYLSearchController.retainKey, nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+    }
 
     // MARK: - Empty view
 
@@ -385,9 +416,8 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
     func layoutEmptyView() {
         guard let emptyView, let superview = emptyView.superview else { return }
         // Under the search bar: the bar never sits on a view.
-        let top = superview.convert(CGPoint(x: 0, y: searchBarMaxY), from: systemController.view).y
         let bounds = superview.bounds
-        let minY = max(bounds.minY, top)
+        let minY = systemController.topEdge(in: superview)
         emptyView.frame = CGRect(x: bounds.minX, y: minY, width: bounds.width, height: max(0, bounds.maxY - minY))
         superview.bringSubviewToFront(emptyView)
     }
@@ -453,6 +483,7 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
      */
     @objc public func didDismissSearchController(_ searchController: UISearchController) {
         hideEmptyView()
+        headerSnapper?.refresh()
         searchResultsDelegate?.didDismissSearchController?(self)
         if supportsSwipeToDismissSearch && !dismissBySwipe { cleanSnapshotObjects() }
     }
@@ -810,11 +841,21 @@ final class CYLSystemSearchController: UISearchController {
         dimmingView.isHidden = !showsDimming
         for overlay in [launchView, dimmingColor == nil ? nil : dimmingView] {
             guard let overlay, let container = overlay.superview else { continue }
-            let top = container.convert(CGPoint(x: 0, y: searchBarMaxY), from: view).y
             let bounds = container.bounds
-            let minY = max(bounds.minY, top)
+            let minY = topEdge(in: container)
             overlay.frame = CGRect(x: bounds.minX, y: minY, width: bounds.width, height: max(0, bounds.maxY - minY))
         }
+    }
+
+    /**
+     * The top edge, in `container`'s coordinates, below which own views (the launch view, the dimming view, the empty view)
+     * may sit: under the search bar when it lives in this controller's view, and under the safe area otherwise (a bar in a
+     * navigation item stays in the navigation bar, which the presentation reaches under).
+     */
+    func topEdge(in container: UIView) -> CGFloat {
+        let bounds = container.bounds
+        let barBottom = container.convert(CGPoint(x: 0, y: searchBarMaxY), from: view).y
+        return max(bounds.minY, barBottom, bounds.minY + container.safeAreaInsets.top)
     }
 
     @objc func dimmingViewTapped() {
