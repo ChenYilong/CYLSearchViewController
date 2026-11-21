@@ -48,4 +48,8 @@ any other) ships its license declaration inside the package, in the package's re
     `LICENSE.placeholder-third-party` and `ICON-SOURCES`. Not a license item, but needed before a real release:
     CYLTableViewPlaceHolder's Android modules (`:placeholder`, `:placeholder-refresh`) publish no coordinates yet, so the
     POM names them `CYLSearchAndroid:placeholder:unspecified`. That repository has to publish them first (reported to
-    its session, 2026-11-21).
+    its session, 2026-11-21). Answer (2026-11-21): the owner chose `io.github.chenyilong:cyltableviewplaceholder:0.1.0` and
+    `io.github.chenyilong:cyltableviewplaceholder-refresh:0.1.0`, configured on CYLTableViewPlaceHolder's
+    `feat/android-refresh-port-followup` (PR #31), not on Maven Central yet. When `cyl.placeholder.commit` moves to that
+    commit, Gradle should write them into this POM (a project dependency with one publication is named by it); check the
+    POM then.
