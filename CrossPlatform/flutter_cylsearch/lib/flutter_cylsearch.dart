@@ -5,3 +5,4 @@
 library;
 
 export 'src/cyl_search_view.dart';
+export 'src/cyl_search_list_view.dart';

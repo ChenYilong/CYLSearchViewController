@@ -41,6 +41,7 @@ void main() {
         'suggestionsFoldControlPosition': 'inline',
         'suggestionsFoldControlContent': 'icon',
         'suggestionsFoldedRowCount': 2,
+        'highlightsResultMatches': false,
       });
     });
 
@@ -156,6 +157,16 @@ void main() {
             'items': <Object?>[],
             'editingBar': false,
             'actionTitle': null,
+            'placeholderColor': null,
+            'textColor': null,
+            'fontSize': null,
+            'centersPlaceholder': false,
+            'textFieldMargins': <double>[0, 0, 0, 0],
+            'activeTextFieldMargins': <double>[0, 0, 0, 0],
+            'cancelButtonMargins': <double>[0, 0, 0, 0],
+            'activeCancelButtonMargins': <double>[0, 0, 0, 0],
+            'cancelButtonFontSize': null,
+            'appearance': null,
           });
       cylSearchBarViewDispatch(bar, const MethodCall('textDidChange', <String, Object?>{'text': 'a'}));
       cylSearchBarViewDispatch(bar, const MethodCall('didSubmit', <String, Object?>{'text': 'a'}));
