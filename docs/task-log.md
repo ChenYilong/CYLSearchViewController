@@ -277,7 +277,11 @@ begins and becomes `DONE` when it ends.
     automation: `page-container` intercepts the user's back gesture and the navigation bar's back button, and the automator
     can only call `wx.navigateBack`, which `page-container` does not intercept, so an automated run proves nothing; the plus
     page is a tab page now, so the check needs a non-tab page with `<cyl-search>` and a real back tap in DevTools or on a
-    phone; listed as a user check in "fix every open TODO in docs") — the run stopped at
+    phone; listed as a user check in "fix every open TODO in docs"; 2026-11-22: WeChat DevTools' automation tools have no
+    native back action either (`automation_navigate` `navigateBack` is the same API). Manual steps: open
+    `CrossPlatform/wechat-miniprogram-cylsearch/example` in DevTools, Examples, "MiguelCatalan" (`pages/materialSample`, a
+    non-tab page with `<cyl-search>`), open the search, tap the navigation bar's back arrow (or a phone's back gesture):
+    expected, the search closes and `materialSample` stays; a second back leaves the page) — the run stopped at
     "Login is required" (APPID_ERROR); the check script is `back-test.js` (navigateTo plus, open, navigateBack,
     expect plus still shown with the search page closed).
 - Progress (2026-11-15, "先把本项目的example 丰富到与iOS端保持一致再考虑发布npm", branch `feat/swift-core-next`): DONE.
@@ -535,6 +539,9 @@ begins and becomes `DONE` when it ends.
   - React Native `onReorderingChange` / `onSmearingChange` on Android (`1a2a7cb`). Found on the way: the React Native
     Android example did not build at all (duplicate SVGA assets), fixed in `8310962`.
   - The mini program generics note closed (a required package, checked in DevTools 2026-11-19).
+  Update (2026-11-22, later): CYLTableViewPlaceHolder pinned at `a169386` and the POM mapping dropped ("pin
+  CYLTableViewPlaceHolder a169386" below). The 7 points left need a manual back tap (steps in the 2026-11-15 mini program
+  entry above).
   Update (2026-11-22): the 8 points below are earned (CYLTabBarController `ace1af0e` and ClassifyMenu `1f8c1001` pinned,
   the quick switch checked; "pin CYLTabBarController ace1af0e" below). Score 93/100.
   Missing points:
