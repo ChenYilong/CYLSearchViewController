@@ -8,7 +8,7 @@
 
 using namespace facebook::react;
 
-@interface CylsearchBarView () <CYLSearchBarViewDelegate>
+@interface CylsearchBarView () <CYLSearchBarViewDelegate, RCTCylsearchBarViewViewProtocol>
 @end
 
 /*!
@@ -41,8 +41,29 @@ using namespace facebook::react;
   return self;
 }
 
+- (void)handleCommand:(const NSString *)commandName args:(const NSArray *)args
+{
+  RCTCylsearchBarViewHandleCommand(self, commandName, args);
+}
+
+/*!
+ * The `setActive` command: the field takes the focus (the keyboard rises) or gives it up.
+ */
+- (void)setActive:(BOOL)active
+{
+  if (active) {
+    [_bar showKeyboard];
+  } else {
+    [_bar hideKeyboard];
+  }
+}
+
 - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &)oldProps
 {
+  // TODO (waiting for the iOS merge, docs/qmui-search-controller.md): the QMUI options (usesDefaultAppearance,
+  // centersPlaceholder, placeholderColor, textColor, fieldMargins, searchingFieldMargins, cancelMargins,
+  // searchingCancelMargins, animatesChanges, the accessories, appearanceJSON, onActiveChange) belong to the base
+  // CYLSearchBarView once the owner's merge lands; today only CYLSearchBar has them, which is not hosted here.
   const auto &p = *std::static_pointer_cast<CylsearchBarViewProps const>(props);
   NSString *actionTitle = CYLRNString(p.actionTitle);
   if ((BOOL)p.editingBar != _bar.isEditingBar) {
