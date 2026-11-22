@@ -2636,7 +2636,10 @@ class CYLSearchBarItem @JvmOverloads constructor(
                 isSelectable = map["isSelectable"] as? Boolean ?: false
                 isSelected = map["isSelected"] as? Boolean ?: false
                 badgeValue = map["badgeValue"] as? String
-                animationURL = (map["animationURL"] as? String)?.takeIf { it.isNotEmpty() }?.let { Uri.parse(it) }
+                // A name with no scheme and no leading slash is an asset of the app ("tab_activity.svga").
+                animationURL = (map["animationURL"] as? String)?.takeIf { it.isNotEmpty() }?.let {
+                    Uri.parse(if (it.contains(':') || it.startsWith('/')) it else "file:///android_asset/$it")
+                }
                 animationLoops = map["animationLoops"] as? Boolean ?: false
                 animationSpeed = (map["animationSpeed"] as? Number)?.toFloat() ?: 1f
                 if (style == CYLSearchBarItemStyle.Icon) imageSize = SizeF(22f, 22f)

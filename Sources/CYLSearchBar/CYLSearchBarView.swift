@@ -2160,7 +2160,13 @@ public final class CYLSearchBarItem: NSObject {
         item.isSelected = dictionary["isSelected"] as? Bool ?? false
         item.badgeValue = dictionary["badgeValue"] as? String
         if let url = dictionary["animationURL"] as? String, !url.isEmpty {
-            item.animationURL = URL(string: url)
+            // A name with no scheme and no leading slash is a file in the app's main bundle ("tab_activity.svga").
+            if url.contains(":") || url.hasPrefix("/") {
+                item.animationURL = URL(string: url)
+            } else {
+                item.animationURL = Bundle.main.url(forResource: (url as NSString).deletingPathExtension,
+                                                    withExtension: (url as NSString).pathExtension)
+            }
         }
         item.animationLoops = dictionary["animationLoops"] as? Bool ?? false
         item.animationSpeed = CGFloat((dictionary["animationSpeed"] as? NSNumber)?.doubleValue ?? 1)
