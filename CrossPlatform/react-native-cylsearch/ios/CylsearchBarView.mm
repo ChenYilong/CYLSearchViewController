@@ -65,6 +65,16 @@ using namespace facebook::react;
   }
 }
 
+/*!
+ * The `restartItemAnimation` command: plays the animation of the item at `index` again from the start.
+ */
+- (void)restartItemAnimation:(NSInteger)index
+{
+  if (index >= 0 && index < (NSInteger)_bar.items.count) {
+    [_bar.items[index] restartAnimation];
+  }
+}
+
 - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &)oldProps
 {
   const auto &p = *std::static_pointer_cast<CylsearchBarViewProps const>(props);

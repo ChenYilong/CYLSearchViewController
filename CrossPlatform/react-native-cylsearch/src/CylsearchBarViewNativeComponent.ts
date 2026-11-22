@@ -172,8 +172,15 @@ interface NativeCommands {
     viewRef: React.ElementRef<HostComponent<NativeProps>>,
     active: boolean
   ) => void;
+  /**
+   * Plays the animation of the item at `index` again from the start (`CYLSearchBarItem.restartAnimation()`).
+   */
+  restartItemAnimation: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    index: CodegenTypes.Int32
+  ) => void;
 }
 
 export const Commands = codegenNativeCommands<NativeCommands>({
-  supportedCommands: ['setActive'],
+  supportedCommands: ['setActive', 'restartItemAnimation'],
 });

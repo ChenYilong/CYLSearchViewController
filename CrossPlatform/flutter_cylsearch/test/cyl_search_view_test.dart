@@ -206,6 +206,9 @@ void main() {
         'isSelectable': false,
         'isSelected': false,
         'badgeValue': '',
+        'animationURL': null,
+        'animationLoops': false,
+        'animationSpeed': 1.0,
       });
       expect((items[1]! as Map<String, Object?>)['style'], 'divider');
       expect((items[2]! as Map<String, Object?>)['accessibilityIdentifier'], 'search');
@@ -213,6 +216,21 @@ void main() {
       cylSearchBarViewDispatch(bar, const MethodCall('didSelectItem', <String, Object?>{'index': 2, 'selected': false}));
       cylSearchBarViewDispatch(bar, const MethodCall('didSelectItem', <String, Object?>{'index': 9}));
       expect(events, <String>['camera true', 'selected 0 icon', 'search', 'selected 2 text']);
+    });
+
+    test('an item sends its animation file, loops and speed', () {
+      final item = CYLSearchBarItem.icon(
+        image: 'camera',
+        title: 'Camera',
+        animationURL: 'asset:///camera.json#loop',
+        animationLoops: true,
+        animationSpeed: 1.5,
+      );
+      final map = item.toMap();
+      expect(map['animationURL'], 'asset:///camera.json#loop');
+      expect(map['animationLoops'], true);
+      expect(map['animationSpeed'], 1.5);
+      expect(const CYLSearchBarItem.divider().toMap()['animationURL'], isNull);
     });
 
     test('multiple mode sends its searches and forwards the search events', () {
@@ -259,14 +277,17 @@ void main() {
       await controller.addSearch('Dart');
       await controller.selectSearch(1);
       await controller.removeSearch(0);
+      await controller.restartItemAnimation(2);
       expect(await controller.searches(), <String>['Swift', 'Dart']);
       expect(await controller.selectedSearchIndex(), 1);
       expect(calls.map((call) => call.method), <String>[
-        'beginNewSearch', 'completeSearch', 'addSearch', 'selectSearch', 'removeSearch', 'searches', 'selectedSearchIndex',
+        'beginNewSearch', 'completeSearch', 'addSearch', 'selectSearch', 'removeSearch', 'restartItemAnimation', 'searches',
+        'selectedSearchIndex',
       ]);
       expect(calls[2].arguments, <String, Object?>{'text': 'Dart'});
       expect(calls[3].arguments, <String, Object?>{'index': 1});
       expect(calls[4].arguments, <String, Object?>{'index': 0});
+      expect(calls[5].arguments, <String, Object?>{'index': 2});
       controller.attach(null);
       TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger.setMockMethodCallHandler(channel, null);
     });

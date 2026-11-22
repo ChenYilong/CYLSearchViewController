@@ -41,6 +41,18 @@ export type CYLSearchBarItem = {
    */
   badgeValue?: string;
   /**
+   * The animated file of the item: Lottie `.json`, `.pag`, `.riv`, `.svga` or `.gif`, with `#` options.
+   */
+  animationURL?: string;
+  /**
+   * Whether `animationURL` plays again after each pass; false plays once on each tap.
+   */
+  animationLoops?: boolean;
+  /**
+   * The playback speed of `animationURL`; 1 is the file's own.
+   */
+  animationSpeed?: number;
+  /**
    * Called on each tap with the selected state after the tap.
    */
   onPress?: (selected: boolean) => void;

@@ -328,6 +328,7 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
                 "setShowsCancelButton" ->
                     bar.setShowsCancelButton(callArguments["shows"] as? Boolean ?: false, callArguments["animated"] as? Boolean ?: true)
                 "showKeyboard" -> bar.showKeyboard()
+                "restartItemAnimation" -> bar.items.getOrNull(index)?.restartAnimation()
                 "searches" -> return@setMethodCallHandler result.success(bar.searches)
                 "selectedSearchIndex" -> return@setMethodCallHandler result.success(bar.selectedSearchIndex)
                 else -> return@setMethodCallHandler result.notImplemented()

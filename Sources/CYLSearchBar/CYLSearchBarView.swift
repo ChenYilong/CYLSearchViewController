@@ -2159,6 +2159,11 @@ public final class CYLSearchBarItem: NSObject {
         item.isSelectable = dictionary["isSelectable"] as? Bool ?? false
         item.isSelected = dictionary["isSelected"] as? Bool ?? false
         item.badgeValue = dictionary["badgeValue"] as? String
+        if let url = dictionary["animationURL"] as? String, !url.isEmpty {
+            item.animationURL = URL(string: url)
+        }
+        item.animationLoops = dictionary["animationLoops"] as? Bool ?? false
+        item.animationSpeed = CGFloat((dictionary["animationSpeed"] as? NSNumber)?.doubleValue ?? 1)
         if style == .icon {
             item.imageSize = CGSize(width: 22, height: 22)
         }

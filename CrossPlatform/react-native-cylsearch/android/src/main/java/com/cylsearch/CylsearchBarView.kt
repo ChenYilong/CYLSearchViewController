@@ -229,6 +229,11 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
     }
   }
 
+  /** The `restartItemAnimation` command: plays the animation of the item at `index` again from the start. */
+  fun restartItemAnimation(index: Int) {
+    bar.items.getOrNull(index)?.restartAnimation()
+  }
+
   private var appliedSearches: List<String>? = null
   private var applyingSearches = false
 

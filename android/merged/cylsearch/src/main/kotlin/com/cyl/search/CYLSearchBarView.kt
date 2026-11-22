@@ -2636,6 +2636,9 @@ class CYLSearchBarItem @JvmOverloads constructor(
                 isSelectable = map["isSelectable"] as? Boolean ?: false
                 isSelected = map["isSelected"] as? Boolean ?: false
                 badgeValue = map["badgeValue"] as? String
+                animationURL = (map["animationURL"] as? String)?.takeIf { it.isNotEmpty() }?.let { Uri.parse(it) }
+                animationLoops = map["animationLoops"] as? Boolean ?: false
+                animationSpeed = (map["animationSpeed"] as? Number)?.toFloat() ?: 1f
                 if (style == CYLSearchBarItemStyle.Icon) imageSize = SizeF(22f, 22f)
             }
         }
