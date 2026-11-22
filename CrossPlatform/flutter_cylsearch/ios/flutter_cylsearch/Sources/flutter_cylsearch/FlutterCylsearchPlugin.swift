@@ -369,6 +369,12 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
             case "showKeyboard":
                 self.bar.showKeyboard()
                 result(nil)
+            case "restartItemAnimation":
+                let index = arguments["index"] as? Int ?? -1
+                if self.bar.items.indices.contains(index) {
+                    self.bar.items[index].restartAnimation()
+                }
+                result(nil)
             case "searches":
                 result(self.bar.searches)
             case "selectedSearchIndex":

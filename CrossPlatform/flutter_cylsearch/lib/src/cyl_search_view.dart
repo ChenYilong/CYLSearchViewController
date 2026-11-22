@@ -204,6 +204,10 @@ class CYLSearchBarWidgetController extends _CYLPlatformViewController with Chang
   /// Focuses the field and raises the keyboard (iOS and Android `showKeyboard()`).
   Future<void> showKeyboard() => _invoke<void>('showKeyboard');
 
+  /// Plays the animation of the item at [index] of [CYLSearchBarView.items] again from the start (iOS and Android
+  /// `CYLSearchBarItem.restartAnimation()`); nothing happens for an item without [CYLSearchBarItem.animationURL].
+  Future<void> restartItemAnimation(int index) => _invoke<void>('restartItemAnimation', <String, Object?>{'index': index});
+
   /// Shows or hides [CYLSearchBarView.leadingView], with an animation when [animated] is true (iOS
   /// `setShowsLeadingView(_:animated:)`). The last call decides.
   void setShowsLeadingView(bool shows, {bool animated = true}) {
@@ -619,11 +623,14 @@ class CYLSearchBarItem {
     this.isSelectable = false,
     this.isSelected = false,
     this.badgeValue,
+    this.animationURL,
+    this.animationLoops = false,
+    this.animationSpeed = 1,
     this.onTap,
   });
 
   /// An icon item; [title] is what screen readers read.
-  const CYLSearchBarItem.icon({required String this.image, required String this.title, this.accessibilityIdentifier, this.isEnabled = true, this.isSelectable = false, this.isSelected = false, this.badgeValue, this.onTap})
+  const CYLSearchBarItem.icon({required String this.image, required String this.title, this.accessibilityIdentifier, this.isEnabled = true, this.isSelectable = false, this.isSelected = false, this.badgeValue, this.animationURL, this.animationLoops = false, this.animationSpeed = 1, this.onTap})
       : style = CYLSearchBarItemStyle.icon;
 
   /// A text item (a "Search" button).
@@ -632,7 +639,10 @@ class CYLSearchBarItem {
         image = null,
         isSelectable = false,
         isSelected = false,
-        badgeValue = null;
+        badgeValue = null,
+        animationURL = null,
+        animationLoops = false,
+        animationSpeed = 1;
 
   /// A divider between two items.
   const CYLSearchBarItem.divider()
@@ -644,6 +654,9 @@ class CYLSearchBarItem {
         isSelectable = false,
         isSelected = false,
         badgeValue = null,
+        animationURL = null,
+        animationLoops = false,
+        animationSpeed = 1,
         onTap = null;
 
   /// The look (iOS `style`).
@@ -671,6 +684,16 @@ class CYLSearchBarItem {
   /// The badge text; an empty string draws a dot (iOS `badgeValue`).
   final String? badgeValue;
 
+  /// The animated file of the icon (iOS and Android `animationURL`): Lottie `.json`, `.pag`, `.riv`, `.svga` or `.gif`,
+  /// with `#` options; null shows [image] still. It plays on each tap, and again after each pass with [animationLoops].
+  final String? animationURL;
+
+  /// Whether [animationURL] plays again after each pass (iOS and Android `animationLoops`); false plays once on each tap.
+  final bool animationLoops;
+
+  /// The playback speed of [animationURL] (iOS and Android `animationSpeed`); 1 is the file's own.
+  final double animationSpeed;
+
   /// Called on each tap with the selected state after the tap (iOS `handler`).
   final ValueChanged<bool>? onTap;
 
@@ -684,6 +707,9 @@ class CYLSearchBarItem {
         'isSelectable': isSelectable,
         'isSelected': isSelected,
         'badgeValue': badgeValue,
+        'animationURL': animationURL,
+        'animationLoops': animationLoops,
+        'animationSpeed': animationSpeed,
       };
 }
 

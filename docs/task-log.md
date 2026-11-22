@@ -1229,3 +1229,17 @@ begins and becomes `DONE` when it ends.
   3. CI: a CocoaPods CDN DNS failure on the runner (rerun), then `testB7WithCYLSearchControllerCancelDoesNotJitter` read the
      tail of a slow presentation as a jitter (a header bar: the I2 / I5 correction is off there); it now waits for
      `didPresent`.
+
+## TODO (2026-11-23): label the 338 old screenshots that fail the CI label check on PR #11
+
+- **Prompt (verbatim)**: "PR #11 的 label check： 报 338 个旧截图问题 为截图增加label"
+  (English: the label check on PR #11 reports 338 old-screenshot problems; add labels to the screenshots.)
+- **Context**: `screenshot-labels.yml` (restored 2026-11-20) checks every image added since the merge base with master. Problems:
+  50 images are not PNG, 152 PNGs have no header and footer, 8 are shown by no Markdown file, 128 are shown on a line
+  without a date and a commit.
+- **Plan**: (1) convert the 50 jpg/gif/webp to PNG; (2) give each unlabeled PNG a header and footer with
+  `scripts/stitch-screenshots.swift`, original pixels, using only facts that can be proven: the commit and time of the commit that
+  added the file, the platform the file name or the document shows; anything else is written "not recorded", never guessed;
+  (3) put date and commit on the Markdown line that shows each image; (4) link the 8 unshown images from their document;
+  (5) run `sh scripts/check-screenshot-labels.sh BASE HEAD` until it says ok, then check the PR #11 checks.
+- **Status**: TODO.

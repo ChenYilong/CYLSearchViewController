@@ -172,6 +172,12 @@ Component({
         else this.setData({ [`${which}Shown`]: shown, accessoryAnimated: animated });
         this.updateStyles();
       };
+      // CYLSearchBarItem.restartAnimation() reaches the item's cyl-tag-button through this handler; playAnimation()
+      // plays from progress 0, which is the restart.
+      model.itemAnimationHandler = (item) => {
+        const button = this.selectComponent(`#cyl-bar-item-${item.index}`);
+        if (button && typeof button.playAnimation === 'function') button.playAnimation();
+      };
       this.model = model;
     },
     attached() {

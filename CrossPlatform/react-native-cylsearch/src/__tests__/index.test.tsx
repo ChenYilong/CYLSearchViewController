@@ -49,6 +49,26 @@ describe('CYLSearchBarView items', () => {
     ]);
   });
 
+  it('sends the animation options of an item', () => {
+    const items: CYLSearchBarItem[] = [
+      {
+        style: 'icon',
+        animationURL: 'camera.json#loop',
+        animationLoops: true,
+        animationSpeed: 2,
+        onPress: () => {},
+      },
+    ];
+    expect(JSON.parse(cylSearchBarItemsJSON(items))).toEqual([
+      {
+        style: 'icon',
+        animationURL: 'camera.json#loop',
+        animationLoops: true,
+        animationSpeed: 2,
+      },
+    ]);
+  });
+
   it('calls the tapped item with its selected state', () => {
     const onPress = jest.fn();
     const items: CYLSearchBarItem[] = [

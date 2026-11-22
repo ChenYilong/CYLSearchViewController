@@ -311,6 +311,15 @@ export class CYLSearchBarItem {
    */
   @Trace animationURL: string | undefined = undefined;
   /**
+   * Whether `animationURL` plays again after each pass; false plays once on each tap. The same on every platform.
+   */
+  @Trace animationLoops: boolean = false;
+  /**
+   * The playback speed of `animationURL`; 1 is the file's own. An engine without speed ignores it. The same on every
+   * platform.
+   */
+  @Trace animationSpeed: number = 1;
+  /**
    * The icon side in vp; 0 uses 20.
    */
   @Trace imageSize: number = 0;
@@ -416,6 +425,16 @@ export class CYLSearchBarItem {
   }
 
   /**
+   * Plays `animationURL` again from the start, as a tap does. Does nothing without an animation. The same on every
+   * platform.
+   */
+  restartAnimation(): void {
+    if (this.animationURL !== undefined) {
+      this.itemView.playAnimation();
+    }
+  }
+
+  /**
    * Styles `itemView` from the item for its current state (iOS `CYLSearchBarItemButton.reload()`): no border, the
    * item's background (transparent by default), its tint (`barTint` when it has none) for the title and the icon, its
    * title attributes, icon size, insets, position adjustments and badge; at least 36 x 36 vp. Returns the view.
@@ -431,6 +450,8 @@ export class CYLSearchBarItem {
     button.image = content.image;
     button.selectedImage = content.selectedImage;
     button.animationURL = content.animationURL;
+    button.animationLoops = this.animationLoops;
+    button.animationSpeed = this.animationSpeed;
     button.isSelected = this.isSelected;
     const badge = this.badgeTextAttributes(this.currentState) ?? this.badgeTextAttributes(CYLSearchBarItemState.normal);
     button.badgeColor = this.badgeColor;
