@@ -21,6 +21,7 @@ import {
   cylSearchBarItemsJSON,
   cylSearchBarSelectedItem,
   cylSearchViewShowsResults,
+  cylSearchViewSuggestionStyle,
   type CYLSearchBarItem,
 } from '../CYLSearchProps';
 import * as CYLSearch from '../index';
@@ -62,6 +63,14 @@ describe('CYLSearchView results', () => {
     expect(cylSearchViewShowsResults(undefined, [])).toBe(true);
     expect(cylSearchViewShowsResults(false, ['Swift'])).toBe(false);
     expect(cylSearchViewShowsResults(true, undefined)).toBe(true);
+  });
+});
+
+describe('CYLSearchView suggestion style', () => {
+  it('shows tags unless the app asks for the list', () => {
+    expect(cylSearchViewSuggestionStyle(undefined)).toBe('tags');
+    expect(cylSearchViewSuggestionStyle('tags')).toBe('tags');
+    expect(cylSearchViewSuggestionStyle('list')).toBe('list');
   });
 });
 

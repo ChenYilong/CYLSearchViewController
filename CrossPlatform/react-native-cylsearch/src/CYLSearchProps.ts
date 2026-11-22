@@ -78,6 +78,17 @@ export function cylSearchViewShowsResults(
 ): boolean {
   return showsResults ?? results !== undefined;
 }
+
+/**
+ * The suggestion style `CYLSearchView` sends to the core: `"tags"` (folded, the fold control as the last tag) unless
+ * the app asks for `"list"`, as the core's default.
+ */
+export function cylSearchViewSuggestionStyle(
+  style: string | undefined
+): string {
+  return style ?? 'tags';
+}
+
 /**
  * Margins in points (iOS) or dp (Android): `UIEdgeInsets` order.
  */

@@ -31,6 +31,7 @@ import {
   cylSearchBarItemsJSON,
   cylSearchBarSelectedItem,
   cylSearchViewShowsResults,
+  cylSearchViewSuggestionStyle,
   type CYLEdgeInsets,
   type CYLSearchBarAccessory,
   type CYLSearchBarAppearance,
@@ -128,12 +129,13 @@ export type SearchBarProps = Omit<
  * (`refreshEnabled`, `onRefresh`, `refreshing`) and CYLTableViewPlaceHolder's placeholders. Show it as a full screen
  * and leave it in `onClose`.
  */
-export function CYLSearchView({ showsResults, ...props }: SearchViewProps) {
+export function CYLSearchView({ showsResults, suggestionStyle, ...props }: SearchViewProps) {
   const scheme = useColorScheme();
   return (
     <CylsearchViewNative
       colorScheme={scheme === 'dark' ? 'dark' : 'light'}
       {...props}
+      suggestionStyle={cylSearchViewSuggestionStyle(suggestionStyle)}
       showsResults={cylSearchViewShowsResults(showsResults, props.results)}
     />
   );
