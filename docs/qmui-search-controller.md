@@ -1149,13 +1149,13 @@ iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSear
 
 | Image | Label |
 | --- | --- |
-| ![Search bar styles, after phase 4](assets/merge-after-styles-ios27.2-20261122.png) | Search bar styles (menu row 7): rest and accessories shown; the look of the before image |
-| ![Search controller, after phase 4](assets/merge-after-controller-ios27.2-20261122.png) | Search controller (row 8): rest, launch view, "H" results, "Hzzz" empty view (now from `noResultsText`) |
-| ![The four issue screens, after phase 4](assets/merge-after-issue-screens-ios27.2-20261122.png) | #1229, #1251, #1160 (header hidden), #1313 searching; the Collection view now shows the empty view above the keyboard (the phase 3 fix; the before image showed a blank area) |
-| ![CYLSearchExampleViewController, after phase 4](assets/merge-after-demo-example-ios27.2-20261122.png) | Menu row 0: rest and overlay search |
-| ![CYLSearchBarDemoViewController, after phase 4](assets/merge-after-demo-searchbar-ios27.2-20261122.png) | Menu row 2: rest and focused |
-| ![CYLOriginalSearchDemoViewController, after phase 4](assets/merge-after-demo-original-ios27.2-20261122.png) | Menu row 6: rest, searching "a" with the results header (core option), and the history with the clear text button below the list (core option) |
-| ![CYLMaterialSearchMenuViewController, after phase 4](assets/merge-after-demo-material-ios27.2-20261122.png) | Menu row 3, MiguelCatalan row: menu, Default demo, its search with "Sw" typed |
+| ![Search bar styles, after phase 4](assets/merge-after-styles-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `815bb9b`, 2026-11-22 NZDT. Search bar styles (menu row 7): rest and accessories shown; the look of the before image |
+| ![Search controller, after phase 4](assets/merge-after-controller-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `815bb9b`, 2026-11-22 NZDT. Search controller (row 8): rest, launch view, "H" results, "Hzzz" empty view (now from `noResultsText`) |
+| ![The four issue screens, after phase 4](assets/merge-after-issue-screens-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `815bb9b`, 2026-11-22 NZDT. #1229, #1251, #1160 (header hidden), #1313 searching; the Collection view now shows the empty view above the keyboard (the phase 3 fix; the before image showed a blank area) |
+| ![CYLSearchExampleViewController, after phase 4](assets/merge-after-demo-example-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `815bb9b`, 2026-11-22 NZDT. Menu row 0: rest and overlay search |
+| ![CYLSearchBarDemoViewController, after phase 4](assets/merge-after-demo-searchbar-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `815bb9b`, 2026-11-22 NZDT. Menu row 2: rest and focused |
+| ![CYLOriginalSearchDemoViewController, after phase 4](assets/merge-after-demo-original-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `815bb9b`, 2026-11-22 NZDT. Menu row 6: rest, searching "a" with the results header (core option), and the history with the clear text button below the list (core option) |
+| ![CYLMaterialSearchMenuViewController, after phase 4](assets/merge-after-demo-material-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `815bb9b`, 2026-11-22 NZDT. Menu row 3, MiguelCatalan row: menu, Default demo, its search with "Sw" typed |
 | ![Edge swipe by real touch](assets/merge-after-swipe-real-touch-ios27.2-20261122.png) | iOS 27.2 (iPhone 18 Pro) and iOS 17.5 (iPhone 15) simulators, Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `df5f0da`, `feat/harmonyos-parity`, 2026-11-22 16:20 NZDT. Search controller: search open, mid swipe, search left |
 
 #### Merge score (iOS) (2026-11-22): 88 / 100 (pass 60)
