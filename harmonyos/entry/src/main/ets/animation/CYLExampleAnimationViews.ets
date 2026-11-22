@@ -12,8 +12,7 @@
  */
 import lottie, { AnimationItem } from '@ohos/lottie';
 import { PAGFile, PAGView, PAGViewController } from '@tencent/libpag';
-import { CYLRiveIcon, CYLRiveLoopPolicy, cylRegisterRiveEngine } from 'cylanimateditemrive';
-import { CYLTabBarAnimationURLWithOptions } from 'cyltabbar';
+import { CYLRiveAnimationBuilder, cylRegisterRiveEngine } from 'cylanimateditemrive';
 import { common } from '@kit.AbilityKit';
 import { image } from '@kit.ImageKit';
 import { BusinessError } from '@kit.BasicServicesKit';
@@ -23,12 +22,12 @@ import {
   CYLTagAnimationContext, CYLUIContext
 } from '@cyl/classifymenu';
 import {
-  CYLGIFPlayer, CYLLottiePlayer, CYLPAGPlayer, CYLRivePlayer, CYLSVGAPlayer
+  CYLGIFPlayer, CYLLottiePlayer, CYLPAGPlayer, CYLSVGAPlayer
 } from './CYLExampleAnimationPlayers';
 import { CYLSVGAMovie, CYLSVGAShape, CYLSVGAShapeType, CYLSVGATransform } from './svga/CYLSVGAMovie';
 
 /**
- * Whether Rive views are created. Kept as a switch: set to false to leave Rive items without animation if @ohos/rive
+ * Whether Rive plays. Kept as a switch: set to false to leave Rive items on their static image if @ohos/rive
  * crashes again (CollectionViewClassifyMenu issue Z1).
  */
 export const CYL_RIVE_ENABLED: boolean = true;
@@ -137,70 +136,6 @@ struct CYLPAGIconView {
     }
     .width(this.iconWidth)
     .height(this.iconHeight)
-    .accessibilityLevel('no')
-  }
-}
-
-/**
- * Rive: CYLTabBarController's shared Rive engine (`CYLRiveIcon` of the `cylanimateditemrive` module, loop policy
- * `WhilePlaying`, the same one the tab bar and CollectionViewClassifyMenu use; no Rive player of our own) with the
- * item's file and options (`artboard`, `stateMachine`, `input` / `triggerInput`, `numberInput` / `values`, `animation`), so the tags and the tab bar play
- * Rive alike; it picks the Canvas renderer on emulators. A file that cannot load (or @ohos/rive, arm64 only, cannot
- * run) calls `onFailed()`: the tag shows its static image.
- */
-@Component
-struct CYLRiveIconView {
-  source: CYLAnimationSource = new CYLAnimationSource();
-  @Prop iconWidth: number = 0;
-  @Prop iconHeight: number = 0;
-  onPlayer?: (player: CYLAnimationPlayer) => void;
-  onFailed?: () => void;
-  @State selected: boolean = false;
-  @State replayToken: number = 0;
-  @State loops: boolean = false;
-  private path: string = '';
-
-  aboutToAppear(): void {
-    if (!CYL_RIVE_ENABLED) {
-      this.onFailed?.();
-      return;
-    }
-    const options: Record<string, string> = {};
-    this.source.options.forEach((value: string, key: string) => {
-      options[key] = value;
-    });
-    this.path = CYLTabBarAnimationURLWithOptions(
-      this.source.existingRawFilePath(CYLUIContext.hostContext(this.getUIContext())), options);
-    this.onPlayer?.(new CYLRivePlayer(this.source, {
-      replay: () => {
-        this.replayToken += 1;
-      },
-      select: (selected: boolean) => {
-        this.selected = selected;
-      },
-      setLoops: (loops: boolean) => {
-        this.loops = loops;
-      }
-    }));
-  }
-
-  build() {
-    Stack() {
-      if (CYL_RIVE_ENABLED) {
-        CYLRiveIcon({
-          path: this.path,
-          iconSize: Math.min(this.iconWidth, this.iconHeight),
-          selected: this.selected,
-          replayToken: this.replayToken,
-          loops: this.loops,
-          loopPolicy: CYLRiveLoopPolicy.WhilePlaying,
-          onLoadError: (message: string) => this.onFailed?.()
-        })
-      }
-    }
-    .width(this.iconWidth)
-    .height(this.iconHeight)
-    .hitTestBehavior(HitTestMode.None)
     .accessibilityLevel('no')
   }
 }
@@ -490,13 +425,6 @@ struct CYLExampleAnimationView {
           iconHeight: this.animationContext.height,
           onPlayer: (p: CYLAnimationPlayer) => this.ready(p), onFailed: () => this.failed()
         })
-      } else if (this.animationContext.source.engine === CYLAnimationEngine.RIVE) {
-        CYLRiveIconView({
-          source: this.animationContext.source,
-          iconWidth: this.animationContext.width,
-          iconHeight: this.animationContext.height,
-          onPlayer: (p: CYLAnimationPlayer) => this.ready(p), onFailed: () => this.failed()
-        })
       } else if (this.animationContext.source.engine === CYLAnimationEngine.SVGA) {
         CYLSVGAIconView({
           source: this.animationContext.source,
@@ -545,7 +473,12 @@ const CYL_EXAMPLE_ANIMATION_BUILDER: WrappedBuilder<[CYLTagAnimationContext]> =
 export function cylRegisterExampleAnimationEngines(context?: common.Context): void {
   CYLAnimatedItemEngines.register('Lottie');
   CYLAnimatedItemEngines.register('PAG');
-  cylRegisterRiveEngine(context);
+  if (CYL_RIVE_ENABLED) {
+    // Rive needs no view of the example: CYLTabBarController's CYLRiveAnimationBuilder plays it, and the tags drive its
+    // loop and replay through CYLAnimatedItemView (CYLTagAnimationBuilder.registerItemBuilder).
+    cylRegisterRiveEngine(context);
+    CYLTagAnimationBuilder.registerItemBuilder(CYLAnimationEngine.RIVE, wrapBuilder(CYLRiveAnimationBuilder));
+  }
   CYLAnimatedItemEngines.register('SVGA');
   CYLAnimatedItemEngines.register('GIF');
   CYLTagAnimationBuilder.register(CYL_EXAMPLE_ANIMATION_BUILDER);
