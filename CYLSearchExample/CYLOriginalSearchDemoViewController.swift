@@ -126,6 +126,8 @@ final class CYLOriginalSearchDemoViewController: UIViewController, CYLSearchView
         // The history: the queries the user submitted, newest first, kept across launches; the page has no suggestions of
         // its own.
         searchView.suggestions = []
+        // A list replica of the GIF (rows, a footer under the list): the core's default is tags.
+        searchView.suggestionStyle = .list
         searchView.suggestionCachePolicy = .userDefaults
         searchView.suggestionCacheName = "CYLOriginalDemo"
         searchView.showsSuggestionsForEmptyQuery = true

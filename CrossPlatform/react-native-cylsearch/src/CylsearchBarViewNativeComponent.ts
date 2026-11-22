@@ -1,4 +1,6 @@
+import type * as React from 'react';
 import {
+  codegenNativeCommands,
   codegenNativeComponent,
   type CodegenTypes,
   type HostComponent,
@@ -23,6 +25,10 @@ type CancelEvent = Readonly<{}>;
 type ItemSelectEvent = Readonly<{
   index: CodegenTypes.Int32;
   selected: boolean;
+}>;
+
+type ActiveEvent = Readonly<{
+  active: boolean;
 }>;
 
 export interface NativeProps extends ViewProps {
@@ -78,6 +84,54 @@ export interface NativeProps extends ViewProps {
    */
   editingBar?: boolean;
   actionTitle?: string;
+  /**
+   * Applies `CYLSearchBarAppearance.default` (`applyDefaultAppearance()`) before the other style options. The QMUI
+   * options below (`centersPlaceholder` to `onActiveChange`) are wired on Android; on iOS they wait for the merge of
+   * the QMUI members into `CYLSearchBarView` (docs/qmui-search-controller.md) and are accepted and ignored.
+   */
+  usesDefaultAppearance?: boolean;
+  /**
+   * The placeholder and its magnifier sit in the middle of the field at rest and at the start while editing (`centersPlaceholder`).
+   */
+  centersPlaceholder?: boolean;
+  /**
+   * Colors as "#RRGGBB" or "#AARRGGBB"; empty keeps the appearance's.
+   */
+  placeholderColor?: string;
+  textColor?: string;
+  /**
+   * The field's margins in points / dp, [top, left, bottom, right], at rest and while searching (`textFieldMarginsProvider(bar, active)`);
+   * empty means none.
+   */
+  fieldMargins?: ReadonlyArray<CodegenTypes.Double>;
+  searchingFieldMargins?: ReadonlyArray<CodegenTypes.Double>;
+  /**
+   * Cancel's margins, [top, left, bottom, right], at rest and while searching (`cancelButtonMarginsProvider(bar, active)`); a
+   * negative left pulls Cancel toward the field.
+   */
+  cancelMargins?: ReadonlyArray<CodegenTypes.Double>;
+  searchingCancelMargins?: ReadonlyArray<CodegenTypes.Double>;
+  /**
+   * Cancel and the accessories change with an animation (`setShowsCancelButton(_:animated:)`); false changes at once.
+   */
+  animatesChanges?: CodegenTypes.WithDefault<boolean, true>;
+  /**
+   * A view beside the field before it / after it (`leadingAccessoryView`, `trailingAccessoryView`): a JSON spec drawn by the
+   * core's wrapper (`{"kind":"square","size":30,"color":"#FF3B30","label":"..."}`, a stroked rounded square), 8 points from the field; shown
+   * or hidden by `showsLeadingAccessory` and `showsTrailingAccessory`.
+   */
+  leadingAccessoryJSON?: string;
+  trailingAccessoryJSON?: string;
+  showsLeadingAccessory?: boolean;
+  showsTrailingAccessory?: boolean;
+  /**
+   * `CYLSearchBarAppearance` as JSON (`{"textColor","placeholderColor","tintColor","cancelTitle","fieldBackgroundColor","fieldCornerRadius","fontSize"}`).
+   */
+  appearanceJSON?: string;
+  /**
+   * The field gained or lost the focus (iOS: the bar is editing; `searchController.isActive` once a controller owns it).
+   */
+  onActiveChange?: CodegenTypes.DirectEventHandler<ActiveEvent>;
   onItemSelect?: CodegenTypes.DirectEventHandler<ItemSelectEvent>;
   /**
    * The text changed: `index` is the search being typed in "multiple" mode, -1 in "single" mode.
@@ -103,4 +157,20 @@ export interface NativeProps extends ViewProps {
   onCancel?: CodegenTypes.DirectEventHandler<CancelEvent>;
 }
 
-export default codegenNativeComponent<NativeProps>('CylsearchBarView') as HostComponent<NativeProps>;
+export default codegenNativeComponent<NativeProps>(
+  'CylsearchBarView'
+) as HostComponent<NativeProps>;
+
+interface NativeCommands {
+  /**
+   * Starts (focus, the keyboard rises) or ends (focus leaves) the search from code (`isActive`).
+   */
+  setActive: (
+    viewRef: React.ElementRef<HostComponent<NativeProps>>,
+    active: boolean
+  ) => void;
+}
+
+export const Commands = codegenNativeCommands<NativeCommands>({
+  supportedCommands: ['setActive'],
+});

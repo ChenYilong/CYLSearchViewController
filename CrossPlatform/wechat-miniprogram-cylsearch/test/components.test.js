@@ -34,7 +34,10 @@ function load(name) {
     };
     instance.triggerEvent = (type, detail) => instance.events.push([type, detail]);
     instance.selectComponent = (selector) => children[selector] || null;
-    instance.createSelectorQuery = () => ({ selectAll() {}, select() {}, exec() {} });
+    instance.createSelectorQuery = () => {
+      const query = { selectAll: () => query, select: () => query, boundingClientRect: () => query, exec() {} };
+      return query;
+    };
     instance.set = (key, value) => {
       instance.properties[key] = value;
       instance.data[key] = value;
@@ -259,4 +262,46 @@ test('cyl-search: the content page is the one scroller and holds its scrolling o
   search.onContentGesture({ type: 'reorderingchange', detail: { reordering: true } });
   search.onContentGesture({ type: 'reorderingchange', detail: { reordering: false } });
   assert.equal(search.data.contentScrollHeld, false, 'a cancelled drag releases it too (the list sends false)');
+});
+
+test('cyl-search: tags are the default suggestion style, folded at start, and the fold chevron is the last tag folded or not', () => {
+  const fs = require('node:fs');
+  const wxml = fs.readFileSync(path.join(__dirname, '..', 'src', 'cyl-search', 'index.wxml'), 'utf8');
+  const tagsAt = wxml.indexOf('wx:for="{{visibleTags}}"');
+  const foldAt = wxml.indexOf('class="cyl-tag cyl-fold" role="button"');
+  assert.ok(tagsAt > 0 && foldAt > tagsAt, 'the fold chevron is drawn after every visible tag, in both states');
+  const withWidths = (widths, properties) => {
+    const search = load('cyl-search')(properties);
+    search.createSelectorQuery = () => {
+      const query = { selectAll: () => query, select: () => query, boundingClientRect: () => query,
+        exec(done) { done([widths.map((width) => ({ width })), { width: 40 }, { width: 420 }]); } };
+      return query;
+    };
+    return search;
+  };
+  const many = Array.from({ length: 10 }, (_, index) => 'Tag ' + index);
+  const search = withWidths(many.map(() => 100), { suggestions: many });
+  assert.equal(search.properties.suggestionStyle, 'tags', 'the property defaults to tags');
+  assert.equal(search.properties.foldedRowCount, 2);
+  search.showSearch(false);
+  search.onTextChange({ detail: { text: 'tag' } });
+  assert.equal(search.data.shownSuggestions.length, 10);
+  assert.equal(search.data.folded, true, 'folded at start');
+  assert.equal(search.data.needsFold, true, 'the fold chevron is the last tag');
+  assert.ok(search.data.visibleTags.length > 0 && search.data.visibleTags.length < 10, 'two rows of tags');
+  search.onToggleFold();
+  assert.equal(search.data.folded, false);
+  assert.equal(search.data.visibleTags.length, 10, 'unfolded: every tag');
+  assert.equal(search.data.needsFold, true, 'unfolded: the chevron is still the last tag');
+  search.onToggleFold();
+  assert.equal(search.data.folded, true);
+  assert.ok(search.data.visibleTags.length < 10);
+  assert.equal(search.data.needsFold, true);
+  const fits = withWidths([100, 100, 100], { suggestions: ['Aa', 'Ab', 'Ac'] });
+  fits.showSearch(false);
+  fits.onTextChange({ detail: { text: 'a' } });
+  assert.equal(fits.data.needsFold, false, 'all tags fit the folded rows: no fold chevron (cyl-search / iOS CYLTagListView canFoldSection)');
+  assert.equal(fits.data.visibleTags.length, 3);
+  const list = withWidths([100], { suggestions: ['A'], suggestionStyle: 'list' });
+  assert.equal(list.properties.suggestionStyle, 'list', 'the list stays available');
 });

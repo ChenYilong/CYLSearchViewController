@@ -116,7 +116,7 @@ class CYLSearchView {
     this.refreshHandler = undefined;
     this.searchBarView = new CYLSearchBarView();
     this.searchBarView.navigationIcon = CYLSearchBarNavigationIcon.arrow;
-    this.suggestionStyle = CYLSearchSuggestionStyle.list;
+    this.suggestionStyle = CYLSearchSuggestionStyle.tags;
     this.suggestionsFoldControl = new CYLMenuFoldControl();
     this.suggestionsFoldedRowCount = 2;
     this.showsEmptyResultsPlaceholder = false;

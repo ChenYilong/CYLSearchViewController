@@ -139,7 +139,7 @@ Install `outputs\emulator\entry-emulator-unsigned.hap` and `outputs\ohosTest\ent
 5. After a sub-repository sync, delete the mirror's `build`, `.hvigor` and `oh_modules` first: robocopy `/XD` keeps them,
    and a stale incremental build once missed a new `@cyl/classifymenu` export ("App died" in the UI tests).
 
-   From Git Bash, robocopy needs `MSYS2_ARG_CONV_EXCL='*'` (or Git Bash turns `/MIR` and `/XD` into paths) and quoted
+   From Git Bash, robocopy needs `MSYS2_ARG_CONV_EXCL='*'` (set it for robocopy only: hvigor fails silently with it) (or Git Bash turns `/MIR` and `/XD` into paths) and quoted
    Windows paths (an unquoted `C:\cylbuild\harmonyos` loses its backslashes and lands in `C:cylbuildharmonyos` under the
    current folder). A failed robocopy prints its usage and leaves the old mirror: check the mirror's `oh-package.json5`
    names the new commits before building (2026-11-22, a stale mirror once passed tests at the old pins).
@@ -152,6 +152,18 @@ Full rule: `AGENTS.md`, "HarmonyOS: HAPs for the x86_64 emulator leave out the a
 
 Do not ask for a signing certificate, a profile or automatic signing before an emulator run. Signing is needed only
 for a real device or a release, and is out of scope until the user asks for it.
+
+### Rive and PAG tests that need arm64 (rule, 2026-11-22)
+
+Two plans, in this order (full rule: `AGENTS.md`, "HarmonyOS: Rive and PAG tests that need arm64, two plans"):
+
+1. **Plan 1, in CYLTabBarController's HarmonyOS `cylanimateditem`** (never here): bring in x86_64 builds of Rive and PAG
+   from GitHub (built from `rive-app/rive-runtime` / `Tencent/libpag` sources or their own releases; source, commit and
+   license recorded). Use them only when the device ABI is x86_64 (`deviceInfo.abiList`). Order: it compiles, then
+   nothing crashes and no other feature changes, then Rive and PAG play. Keep all of it behind a debug build guard
+   until it passes; removing that guard needs the user's approval, asked with the evidence.
+2. **Plan 2, if plan 1 fails**: hand the Rive / PAG test to the macOS session (Apple silicon, arm64 emulator) with the
+   commit, build commands and checks; log the hand-off in `docs/task-log.md`.
 
 ## Troubleshooting
 

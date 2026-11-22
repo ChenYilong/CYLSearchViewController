@@ -329,9 +329,10 @@ class CYLSearchView @JvmOverloads constructor(
         }
 
     /**
-     * How the suggestions are shown: a list (`List`, the default) or tags (`Tags`).
+     * How the suggestions are shown: tags (`Tags`, the default, folded to `suggestionsFoldedRowCount` rows with the
+     * fold control as the last tag) or a list (`List`).
      */
-    var suggestionStyle: CYLSearchSuggestionStyle = CYLSearchSuggestionStyle.List
+    var suggestionStyle: CYLSearchSuggestionStyle = CYLSearchSuggestionStyle.Tags
         set(value) {
             field = value
             updateSuggestionsVisibility()

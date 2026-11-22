@@ -53,6 +53,8 @@ class CYLSearchViewQMUIPortTest {
         val host = FrameLayout(activity)
         activity.setContentView(host)
         return CYLSearchView(activity).also {
+            // These tests check the list's visibility: the core's default is tags.
+            it.suggestionStyle = CYLSearchSuggestionStyle.List
             it.installInView(host)
             it.suggestionCachePolicy = CYLSearchSuggestionCachePolicy.Database
             it.suggestionCacheName = "QMUIPortTest"

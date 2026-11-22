@@ -14,6 +14,11 @@ import com.facebook.react.uimanager.events.Event
 internal fun ReadableArray?.cylStrings(): List<String> = (0 until (this?.size() ?: 0)).map { this?.getString(it).orEmpty() }
 
 /**
+ * The numbers of a JavaScript array.
+ */
+internal fun ReadableArray?.cylDoubles(): List<Double> = (0 until (this?.size() ?: 0)).map { this?.getDouble(it) ?: 0.0 }
+
+/**
  * The fold control for "none", "inline", "bottom", "topTrailing" or "topLeading" and "icon", "title" or "iconAndTitle";
  * an inline icon by default.
  */

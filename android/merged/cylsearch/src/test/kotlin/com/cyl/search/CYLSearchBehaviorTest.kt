@@ -107,6 +107,7 @@ class CYLSearchBehaviorTest {
                 selected = index
             }
         }
+        view.suggestionStyle = CYLSearchSuggestionStyle.List
         view.suggestions = listOf("Android", "Apple")
         view.showSearch(false)
         view.query = "a"
@@ -252,6 +253,7 @@ class CYLSearchBehaviorTest {
     @Test
     fun resultsDataSourceListsResultsInsteadOfSuggestions() {
         val view = searchView()
+        view.suggestionStyle = CYLSearchSuggestionStyle.List
         view.suggestions = listOf("Android", "Kotlin")
         val source = Source(listOf("Apple", "Apricot", "Banana"))
         var selected: Any? = null

@@ -128,6 +128,7 @@ final class CYLSearchExampleParityTests: CYLSearchExampleTestCase {
         let recorder = CYLParityRecorder()
         searchView.delegate = recorder
         searchView.animationDuration = 0
+        searchView.suggestionStyle = .list
         searchView.suggestions = ["Android", "iOS", "Café", "SwiftUI"]
         searchView.install(in: host.view)
         XCTAssertFalse(searchView.searchOpen)

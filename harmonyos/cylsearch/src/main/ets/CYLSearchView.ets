@@ -430,9 +430,10 @@ export class CYLSearchView {
    */
   readonly searchBarView: CYLSearchBarView = new CYLSearchBarView();
   /**
-   * How the suggestions are shown: a list (the default) or tags.
+   * How the suggestions are shown: tags (the default, folded to `suggestionsFoldedRowCount` rows with the fold control
+   * as the last tag) or a list.
    */
-  @Trace suggestionStyle: CYLSearchSuggestionStyle = CYLSearchSuggestionStyle.list;
+  @Trace suggestionStyle: CYLSearchSuggestionStyle = CYLSearchSuggestionStyle.tags;
   /**
    * The fold control of the tag suggestions. An inline chevron by default.
    */

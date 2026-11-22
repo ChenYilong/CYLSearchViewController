@@ -25,6 +25,7 @@ class CylsearchBarViewManager : SimpleViewManager<CylsearchBarView>(), Cylsearch
   @ReactProp(name = "placeholder")
   override fun setPlaceholder(view: CylsearchBarView, value: String?) {
     view.bar.placeholder = value
+    view.placeholderProp = value
   }
 
   @ReactProp(name = "text")
@@ -41,7 +42,7 @@ class CylsearchBarViewManager : SimpleViewManager<CylsearchBarView>(), Cylsearch
 
   @ReactProp(name = "showsCancelButton")
   override fun setShowsCancelButton(view: CylsearchBarView, value: Boolean) {
-    view.bar.showsCancelButton = value
+    view.showsCancel = value
   }
 
   @ReactProp(name = "fieldShadowOpacity")
@@ -79,6 +80,59 @@ class CylsearchBarViewManager : SimpleViewManager<CylsearchBarView>(), Cylsearch
   @ReactProp(name = "minimumTextLength", defaultInt = 3)
   override fun setMinimumTextLength(view: CylsearchBarView, value: Int) {
     view.bar.minimumTextLength = maxOf(0, value)
+  }
+
+  @ReactProp(name = "usesDefaultAppearance")
+  override fun setUsesDefaultAppearance(view: CylsearchBarView, value: Boolean) { view.usesDefaultAppearance = value }
+
+  @ReactProp(name = "centersPlaceholder")
+  override fun setCentersPlaceholder(view: CylsearchBarView, value: Boolean) { view.centersPlaceholder = value }
+
+  @ReactProp(name = "placeholderColor")
+  override fun setPlaceholderColor(view: CylsearchBarView, value: String?) { view.placeholderColor = value }
+
+  @ReactProp(name = "textColor")
+  override fun setTextColor(view: CylsearchBarView, value: String?) { view.textColor = value }
+
+  @ReactProp(name = "fieldMargins")
+  override fun setFieldMargins(view: CylsearchBarView, value: ReadableArray?) { view.fieldMargins = value.cylDoubles() }
+
+  @ReactProp(name = "searchingFieldMargins")
+  override fun setSearchingFieldMargins(view: CylsearchBarView, value: ReadableArray?) { view.searchingFieldMargins = value.cylDoubles() }
+
+  @ReactProp(name = "cancelMargins")
+  override fun setCancelMargins(view: CylsearchBarView, value: ReadableArray?) { view.cancelMargins = value.cylDoubles() }
+
+  @ReactProp(name = "searchingCancelMargins")
+  override fun setSearchingCancelMargins(view: CylsearchBarView, value: ReadableArray?) { view.searchingCancelMargins = value.cylDoubles() }
+
+  @ReactProp(name = "animatesChanges", defaultBoolean = true)
+  override fun setAnimatesChanges(view: CylsearchBarView, value: Boolean) { view.animatesChanges = value }
+
+  @ReactProp(name = "leadingAccessoryJSON")
+  override fun setLeadingAccessoryJSON(view: CylsearchBarView, value: String?) { view.leadingAccessoryJSON = value }
+
+  @ReactProp(name = "trailingAccessoryJSON")
+  override fun setTrailingAccessoryJSON(view: CylsearchBarView, value: String?) { view.trailingAccessoryJSON = value }
+
+  @ReactProp(name = "showsLeadingAccessory")
+  override fun setShowsLeadingAccessory(view: CylsearchBarView, value: Boolean) { view.showsLeadingAccessory = value }
+
+  @ReactProp(name = "showsTrailingAccessory")
+  override fun setShowsTrailingAccessory(view: CylsearchBarView, value: Boolean) { view.showsTrailingAccessory = value }
+
+  @ReactProp(name = "appearanceJSON")
+  override fun setAppearanceJSON(view: CylsearchBarView, value: String?) { view.appearanceJSON = value }
+
+  /** Applies the QMUI options together, after every prop of the update is set. */
+  override fun onAfterUpdateTransaction(view: CylsearchBarView) {
+    super.onAfterUpdateTransaction(view)
+    view.applyQMUIStyle()
+  }
+
+  /** The `setActive` command: focus (the keyboard rises) or leave the focus. */
+  override fun setActive(view: CylsearchBarView, active: Boolean) {
+    if (active) view.bar.showKeyboard() else view.bar.hideKeyboard()
   }
 
   /**

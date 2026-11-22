@@ -20,7 +20,7 @@ HEADERS=$(find "$CORE" -name '*.h' ! -name '._*')
 if [ -n "$HEADERS" ]; then
   # shellcheck disable=SC2086
   if grep -nE '///|/\*[*!]<|/\*!.*\*/|;[[:space:]]*//|,[[:space:]]*//' $HEADERS; then
-    echo "error: Objective-C public API comments must be three-line /*! ... */ blocks (AGENTS.md, \"Comments on public API\")" >&2
+    echo "error: Objective-C public API comments must be three-line /*! ... */ blocks (docs/instructions/code-style.md, \"Comments on public API\")" >&2
     STATUS=1
   fi
 fi
@@ -63,7 +63,7 @@ if [ -n "$SWIFT" ]; then
     }
     END { exit failed }
   ' $SWIFT; then
-    echo "error: every public Swift declaration needs a three-line /** ... */ block right above it (AGENTS.md, \"Comments on public API\")" >&2
+    echo "error: every public Swift declaration needs a three-line /** ... */ block right above it (docs/instructions/code-style.md, \"Comments on public API\")" >&2
     STATUS=1
   fi
 fi

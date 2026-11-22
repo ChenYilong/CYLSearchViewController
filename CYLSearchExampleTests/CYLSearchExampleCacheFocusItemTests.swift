@@ -184,6 +184,136 @@ final class CYLSearchExampleCacheFocusItemTests: CYLSearchExampleTestCase {
         XCTAssertEqual(searchView.suggestionsTagView.defaultVisibleRows, 3)
     }
 
+    /**
+     * The tag list's collection view cells, in order, with the collection view's index path of each.
+     */
+    @MainActor
+    private func orderedTagCells(of tagView: CYLTagListView) -> [(indexPath: IndexPath, cell: UICollectionViewCell)] {
+        func collectionView(in view: UIView) -> UICollectionView? {
+            if let found = view as? UICollectionView { return found }
+            return view.subviews.lazy.compactMap { collectionView(in: $0) }.first
+        }
+        guard let collection = collectionView(in: tagView) else { return [] }
+        collection.layoutIfNeeded()
+        return collection.visibleCells.compactMap { cell in collection.indexPath(for: cell).map { ($0, cell) } }
+            .sorted { $0.0 < $1.0 }
+    }
+
+    /**
+     * Taps the last tag the way the collection view reports a tap (the fold control is a cell of the list).
+     */
+    @MainActor
+    private func tapLastTag(of tagView: CYLTagListView) {
+        func collectionView(in view: UIView) -> UICollectionView? {
+            if let found = view as? UICollectionView { return found }
+            return view.subviews.lazy.compactMap { collectionView(in: $0) }.first
+        }
+        guard let collection = collectionView(in: tagView), let last = orderedTagCells(of: tagView).last else { return }
+        collection.delegate?.collectionView?(collection, didSelectItemAt: last.indexPath)
+        RunLoop.current.run(until: Date(timeIntervalSinceNow: 0.6))
+        collection.layoutIfNeeded()
+    }
+
+    @MainActor
+    private func openedSearchView(suggestions: [String], in host: UIViewController) -> CYLSearchView {
+        let searchView = CYLSearchView(frame: .zero)
+        searchView.suggestionCachePolicy = CYLSearchSuggestionCachePolicy.none
+        searchView.suggestions = suggestions
+        searchView.showsSuggestionsForEmptyQuery = true
+        searchView.focusesSearchFieldOnShow = false
+        searchView.install(in: host.view)
+        searchView.showSearch(animated: false)
+        searchView.layoutIfNeeded()
+        return searchView
+    }
+
+    @MainActor
+    func testSuggestionsAreTagsFoldedToTwoRowsByDefaultAndTheLastTagIsTheFoldControl() {
+        // docs/task-log.md, "tags as the default suggestion style": the packaged style, folded at start; folded or
+        // unfolded the last tag is the fold control and a tap on it toggles the folding.
+        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let host = UIViewController()
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        let searchView = openedSearchView(suggestions: (1...14).map { "Suggestion number \($0)" }, in: host)
+        let tagView = searchView.suggestionsTagView
+        XCTAssertEqual(searchView.suggestionStyle, .tags, "tags are the default style")
+        XCTAssertFalse(tagView.isHidden)
+        XCTAssertTrue(searchView.suggestionsTableView.isHidden, "the list is not shown")
+        XCTAssertFalse(tagView.isSectionExpanded(0), "folded at start")
+        XCTAssertTrue(tagView.canFoldSection(0))
+        XCTAssertGreaterThan(tagView.numberOfRows(inSection: 0), 2, "the suggestions take more rows than the folded two")
+
+        let rowsOf = { (cells: [(indexPath: IndexPath, cell: UICollectionViewCell)]) in
+            Set(cells.map { Int($0.cell.frame.minY.rounded()) }).count
+        }
+        let folded = orderedTagCells(of: tagView)
+        XCTAssertEqual(rowsOf(folded), 2, "folded: two rows")
+        XCTAssertTrue(folded.last?.cell is CYLTagFoldCell, "folded: the last tag is the fold control")
+        XCTAssertEqual(folded.last?.cell.accessibilityIdentifier, CYLTagListAccessibilityIdentifier.foldControl)
+        XCTAssertEqual(folded.filter { $0.cell is CYLTagFoldCell }.count, 1, "one fold control")
+
+        tapLastTag(of: tagView)
+        XCTAssertTrue(tagView.isSectionExpanded(0), "a tap on the last tag unfolds")
+        let unfolded = orderedTagCells(of: tagView)
+        XCTAssertGreaterThanOrEqual(rowsOf(unfolded), tagView.numberOfRows(inSection: 0), "unfolded: every row (the control may start another)")
+        XCTAssertGreaterThan(rowsOf(unfolded), 2)
+        XCTAssertGreaterThan(unfolded.count, folded.count)
+        XCTAssertTrue(unfolded.last?.cell is CYLTagFoldCell, "unfolded: the last tag is still the fold control")
+        XCTAssertEqual(unfolded.filter { $0.cell is CYLTagFoldCell }.count, 1)
+
+        tapLastTag(of: tagView)
+        XCTAssertFalse(tagView.isSectionExpanded(0), "a second tap folds again")
+        let again = orderedTagCells(of: tagView)
+        XCTAssertEqual(rowsOf(again), 2)
+        XCTAssertTrue(again.last?.cell is CYLTagFoldCell)
+
+        searchView.closeSearch(animated: false)
+        searchView.removeFromSuperview()
+        window.isHidden = true
+    }
+
+    @MainActor
+    func testTagSuggestionsThatFitTheFoldedRowsShowNoFoldControl() {
+        // CollectionViewClassifyMenu's packaged control hides itself when every tag fits the folded rows
+        // (CYLTagListView.canFoldSection); the core does not add one. docs/task-log.md, "tags as the default".
+        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let host = UIViewController()
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        let searchView = openedSearchView(suggestions: ["Swift", "Kotlin", "Dart"], in: host)
+        let tagView = searchView.suggestionsTagView
+        XCTAssertFalse(tagView.canFoldSection(0))
+        let cells = orderedTagCells(of: tagView)
+        XCTAssertEqual(cells.count, 3)
+        XCTAssertFalse(cells.contains { $0.cell is CYLTagFoldCell })
+        searchView.closeSearch(animated: false)
+        searchView.removeFromSuperview()
+        window.isHidden = true
+    }
+
+    @MainActor
+    func testTheListStyleStaysAvailable() {
+        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let host = UIViewController()
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        let searchView = CYLSearchView(frame: .zero)
+        searchView.suggestionStyle = .list
+        searchView.suggestionCachePolicy = CYLSearchSuggestionCachePolicy.none
+        searchView.suggestions = ["Swift", "Kotlin"]
+        searchView.showsSuggestionsForEmptyQuery = true
+        searchView.focusesSearchFieldOnShow = false
+        searchView.install(in: host.view)
+        searchView.showSearch(animated: false)
+        searchView.layoutIfNeeded()
+        XCTAssertFalse(searchView.suggestionsTableView.isHidden)
+        XCTAssertTrue(searchView.suggestionsTagView.isHidden)
+        searchView.closeSearch(animated: false)
+        searchView.removeFromSuperview()
+        window.isHidden = true
+    }
+
     @MainActor
     func testSearchBarItemsFollowTheAnimatedItemDisplayPriority() {
         // The items' CYLTagButton is CYLTabBarController's CYLAnimatedItemView (docs/animated-icon-component.md; guide:

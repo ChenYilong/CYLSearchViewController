@@ -75,8 +75,8 @@ button; CYLTabBarController and CollectionViewClassifyMenu are pinned by commit.
 `cd android/merged && ./gradlew assembleDebug` (JDK 17). Details: `docs/android-and-cross-platform.md`, the API
 table `docs/android-api-alignment.md`.
 
-`CYLSearchView.suggestionStyle` shows suggestions as a list (top) or as tags from CollectionViewClassifyMenu
-(bottom); both tabs of the example filter the same suggestions for "a":
+`CYLSearchView.suggestionStyle` shows suggestions as tags from CollectionViewClassifyMenu (the default since
+2026-11-22: folded to two rows, the fold control as the last tag) or as a list (top: list, bottom: tags); both tabs of the example filter the same suggestions for "a":
 
 ![Android suggestion styles: list and tags](docs/assets/android-suggestion-styles-readme.png)
 

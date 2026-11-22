@@ -49,7 +49,9 @@ export type CYLSearchBarItem = {
 /**
  * The items as the JSON the native bar reads (`CYLSearchBarItem itemWithDictionary:` / `fromMap`), without handlers.
  */
-export function cylSearchBarItemsJSON(items: readonly CYLSearchBarItem[]): string {
+export function cylSearchBarItemsJSON(
+  items: readonly CYLSearchBarItem[]
+): string {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   return JSON.stringify(items.map(({ onPress, ...values }) => values));
 }
@@ -75,4 +77,108 @@ export function cylSearchViewShowsResults(
   results: ReadonlyArray<string> | undefined
 ): boolean {
   return showsResults ?? results !== undefined;
+}
+
+/**
+ * The suggestion style `CYLSearchView` sends to the core: `"tags"` (folded, the fold control as the last tag) unless
+ * the app asks for `"list"`, as the core's default.
+ */
+export function cylSearchViewSuggestionStyle(
+  style: string | undefined
+): string {
+  return style ?? 'tags';
+}
+
+/**
+ * Margins in points (iOS) or dp (Android): `UIEdgeInsets` order.
+ */
+export type CYLEdgeInsets = {
+  top?: number;
+  left?: number;
+  bottom?: number;
+  right?: number;
+};
+
+/**
+ * The margins as the native [top, left, bottom, right] array; undefined sends none.
+ */
+export function cylInsetsArray(insets: CYLEdgeInsets | undefined): number[] {
+  return insets
+    ? [insets.top ?? 0, insets.left ?? 0, insets.bottom ?? 0, insets.right ?? 0]
+    : [];
+}
+
+/**
+ * A view beside the field (`leadingAccessoryView` / `trailingAccessoryView`): a rounded square with a stroke, drawn by the core's
+ * wrapper (QDSearchBarViewController's 30 x 30 accessory).
+ */
+export type CYLSearchBarAccessory = {
+  kind: 'square';
+  /** Width and height; 30 by default. */
+  size?: number;
+  /** "#RRGGBB" or "#AARRGGBB". */
+  color?: string;
+  /** The screen reader label. */
+  label?: string;
+};
+
+/**
+ * The accessory as the JSON the native bar reads; "" for none.
+ */
+export function cylAccessoryJSON(
+  accessory: CYLSearchBarAccessory | undefined
+): string {
+  return accessory ? JSON.stringify({ size: 30, ...accessory }) : '';
+}
+
+/**
+ * `CYLSearchBarAppearance`: the values that are set replace the default style's (colors "#RRGGBB" or "#AARRGGBB").
+ */
+export type CYLSearchBarAppearance = {
+  textColor?: string;
+  placeholderColor?: string;
+  tintColor?: string;
+  fieldBackgroundColor?: string;
+  cancelTitle?: string;
+  /** Negative makes a capsule. */
+  fieldCornerRadius?: number;
+  fontSize?: number;
+};
+
+/**
+ * The appearance as the JSON the native bar reads; "" for none.
+ */
+export function cylAppearanceJSON(
+  appearance: CYLSearchBarAppearance | undefined
+): string {
+  return appearance ? JSON.stringify(appearance) : '';
+}
+
+/**
+ * The text split around the first match of `query` (case sensitive, as QMUI's `range(of:)`): the match is drawn in the tint
+ * color. No match, or an empty query, leaves the whole text in `before`.
+ */
+export function cylSplitMatch(
+  text: string,
+  query: string
+): { before: string; match: string; after: string } {
+  const start = query.length > 0 ? text.indexOf(query) : -1;
+  if (start < 0) return { before: text, match: '', after: '' };
+  return {
+    before: text.slice(0, start),
+    match: query,
+    after: text.slice(start + query.length),
+  };
+}
+
+/**
+ * The results of a text for a list that stands for `resultsQuery`: results of another text are not shown (a late answer never
+ * fills the list of a newer text), as the native list does.
+ */
+export function cylResultsForQuery<T>(
+  query: string,
+  resultsQuery: string,
+  results: readonly T[]
+): readonly T[] {
+  return query === resultsQuery ? results : [];
 }

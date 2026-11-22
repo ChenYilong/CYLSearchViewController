@@ -425,11 +425,14 @@ final class CYLSearchBarStyleTests: CYLSearchExampleTestCase {
         var offsets: [CGFloat] = []
         var cancelY: [CGFloat] = []
         sample(run, for: 0.6) {
-            // iOS 26.5 takes the bar out of the window for one frame when it returns to the header: that sample reads y 0.
+            // iOS 26.5 takes the bar out of the window for one frame when it returns to the header: that sample reads y 0
+            // (the window is not always nil yet when it is read, so a frame at the window's top edge is skipped too: the
+            // Cancel button is always below the status bar).
             guard bar.window != nil,
                   let button = bar.searchTextField.superview?.subviews.compactMap({ $0 as? UIButton }).first,
                   let buttonFrame = self.presentationFrame(button, in: run.window),
-                  let fieldFrame = self.presentationFrame(bar.searchTextField, in: run.window) else { return }
+                  let fieldFrame = self.presentationFrame(bar.searchTextField, in: run.window),
+                  buttonFrame.minY > 0, fieldFrame.minY > 0 else { return }
             offsets.append(buttonFrame.minY - fieldFrame.minY)
             cancelY.append(buttonFrame.minY)
         }

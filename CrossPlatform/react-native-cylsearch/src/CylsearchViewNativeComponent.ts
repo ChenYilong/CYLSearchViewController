@@ -29,7 +29,7 @@ export interface NativeProps extends ViewProps {
    */
   suggestions?: ReadonlyArray<string>;
   /**
-   * "list" (one row each) or "tags" (CollectionViewClassifyMenu's tag list).
+   * "tags" (CollectionViewClassifyMenu's tag list, the default) or "list" (one row each).
    */
   suggestionStyle?: string;
   /**

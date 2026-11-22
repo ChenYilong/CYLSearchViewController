@@ -3,6 +3,9 @@ name: cyl-task-start
 description: "Starting, scoring and finishing any task in CYLSearchViewController: check other sessions first (split platform work: Mac sessions iOS, Win sessions the others), mark TODO and the branch at the top of the session, log the task in docs/ with acceptance criteria (full marks and pass), score until it passes, end with the missing points as TODOs; restart a hung emulator after telling the other sessions."
 ---
 
+> **Before step 0, read in full** [docs/instructions/behavioral.md](../../../docs/instructions/behavioral.md)
+> (tag `behavioral` in `AGENTS.md`): every line, at the start of every task.
+
 # Start, score and finish every task
 
 Full rules: `AGENTS.md`, "Task log before every task" (with "Start, score and finish every task") and "Emulators

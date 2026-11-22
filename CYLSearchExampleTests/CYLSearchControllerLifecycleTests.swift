@@ -385,6 +385,24 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
 
     // MARK: - E21
 
+    /// Whether `view` can be seen in `window`: it and every superview is shown with alpha above 0.01, and its frame, in window
+    /// coordinates, intersects the window's bounds, and the topmost view at its middle belongs to it.
+    private func CYLIsVisibleInWindow(_ view: UIView, _ window: UIWindow) -> Bool {
+        var current: UIView? = view
+        while let item = current {
+            if item.isHidden || item.alpha <= 0.01 { return false }
+            current = item.superview
+        }
+        let frame = view.convert(view.bounds, to: window)
+        guard frame.intersects(window.bounds) else { return false }
+        // Seen, not only shown: the topmost view at the middle of the visible part belongs to `view` (a pushed screen with
+        // an opaque background above it hides it).
+        let visible = frame.intersection(window.bounds)
+        let point = CGPoint(x: visible.midX, y: visible.midY)
+        guard let top = window.hitTest(point, with: nil) else { return false }
+        return top.isDescendant(of: view)
+    }
+
     /// E21 (#680): the results of the contents' search must not show over a screen pushed on top of the contents. The real
     /// reproduction needs a cancelled interactive pop (a touch), which XCTest cannot make; this runs the closest sequence:
     /// push, push again, pop and push, and checks that no search view is in the window while a pushed screen is on top.
@@ -399,11 +417,25 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         run.navigation.popViewController(animated: true)
         CYLRunLoop(0.05)
         run.navigation.pushViewController(CYLSearchPushedController(), animated: true)
-        CYLRunLoop(0.9)
-        // iOS 17.5 takes the search view out of the window later than 0.9 s (it is gone by 2.4 s; not checked
-        // whether it was visible over the pushed screen meanwhile): wait for it instead of reading once.
+        // iOS 17.5 takes the search view out of the window later than 0.9 s (it is gone by 2.4 s). Until then it must not
+        // be visible over the pushed screen: sampled every 0.1 s (not hidden, alpha, frame inside the window, and every
+        // superview likewise).
+        var visibleSamples: [String] = []
+        var lingerSamples = 0
         let deadline = Date(timeIntervalSinceNow: 4)
-        while system.view.window != nil, Date() < deadline { CYLRunLoop(0.1) }
+        var elapsed = 0.0
+        repeat {
+            CYLRunLoop(0.1)
+            elapsed += 0.1
+            if let window = system.view.window {
+                lingerSamples += 1
+                if CYLIsVisibleInWindow(system.view, window) { visibleSamples.append(String(format: "%.1f s", elapsed)) }
+                if let results = run.search.tableView, results.window != nil, CYLIsVisibleInWindow(results, window) {
+                    visibleSamples.append(String(format: "results %.1f s", elapsed))
+                }
+            }
+        } while system.view.window != nil && Date() < deadline
+        XCTAssertTrue(visibleSamples.isEmpty, "the search view is visible over the pushed screen at \(visibleSamples) (in the window for \(lingerSamples) samples)")
         XCTAssertNil(system.view.window, "no search view over the screen pushed after the pop")
         XCTAssertNil(run.search.tableView?.window, "no results over the pushed screen")
         CYLTearDownSearchRun(run)

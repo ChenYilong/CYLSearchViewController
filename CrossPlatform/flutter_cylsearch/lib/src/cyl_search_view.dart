@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart' show Theme;
+import 'package:flutter/material.dart' show Curves, Theme;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -120,9 +120,15 @@ class CYLSearchViewTypes {
   static String channel(int id) => 'cyl_search/view_$id';
 }
 
+/// What a widget state tells its controller about changes the Dart side decides (the start of a close).
+abstract interface class _CYLActiveListener {
+  void willChangeActive(bool active);
+}
+
 /// Sends calls to the native view of one widget; calls made before the view exists do nothing.
 abstract class _CYLPlatformViewController {
   MethodChannel? _channel;
+  _CYLActiveListener? _owner;
 
   /// Connects the controller to the channel of its widget's native view, or disconnects it (null).
   @visibleForTesting
@@ -140,7 +146,57 @@ abstract class _CYLPlatformViewController {
 
 /// Drives a [CYLSearchView] from code (iOS and Android `CYLSearchView` methods): the refresh of its results and their
 /// reload. Pass it as [CYLSearchView.controller]; one controller serves one search view at a time.
-class CYLSearchViewWidgetController extends _CYLPlatformViewController {
+class CYLSearchViewWidgetController extends _CYLPlatformViewController with ChangeNotifier {
+  bool _isActive = true;
+  bool _isEmptyViewShowing = false;
+  String? _emptyViewText;
+  String? _emptyViewDetailText;
+
+  void _setActiveState(bool active) {
+    if (_isActive == active) return;
+    _isActive = active;
+    notifyListeners();
+  }
+
+  /// Whether the search is active, that is open (iOS `isActive`, Android `isActive`): true from the moment the page opens
+  /// until a Cancel, the back arrow or [setActive] closes it. Listen to this controller to follow it.
+  bool get isActive => _isActive;
+
+  /// Opens or closes the search from code (iOS `setActive(_:animated:)`, Android `setActive`). Closing ends with
+  /// [CYLSearchView.onClose] (pop the route there); opening again shows the page as it was.
+  Future<void> setActive(bool active, {bool animated = true}) async {
+    _owner?.willChangeActive(active);
+    await _invoke<void>('setActive', <String, Object?>{'active': active, 'animated': animated});
+  }
+
+  /// Whether [showEmptyView] has put its placeholder under the bar (iOS `isEmptyViewShowing`).
+  bool get isEmptyViewShowing => _isEmptyViewShowing;
+
+  /// Shows CYLTableViewPlaceHolder's placeholder with a title and an optional detail under the bar, over the results
+  /// (iOS `showEmptyView(text:detailText:buttonTitle:buttonAction:)`). It shows only while the query is not empty (the
+  /// launch view or the dimming is there then), and stays until [hideEmptyView], an emptied query or the close of the search.
+  void showEmptyView({String? text, String? detailText}) {
+    _isEmptyViewShowing = true;
+    _emptyViewText = text;
+    _emptyViewDetailText = detailText;
+    notifyListeners();
+  }
+
+  /// Removes the placeholder of [showEmptyView] (iOS `hideEmptyView()`).
+  void hideEmptyView() {
+    if (!_isEmptyViewShowing) return;
+    _isEmptyViewShowing = false;
+    notifyListeners();
+  }
+
+  /// The submitted queries kept in the search page's cache, newest first (iOS `historyStore.cachedQueries()`); empty with
+  /// [CYLSearchSuggestionCachePolicy.none].
+  Future<List<String>> history() async =>
+      (await _invoke<List<Object?>>('history'))?.whereType<String>().toList() ?? const <String>[];
+
+  /// Clears that cache (iOS `historyStore.removeAllQueries()`); [CYLSearchView.onHistoryChanged] reports the empty list.
+  Future<void> clearHistory() => _invoke<void>('clearHistory');
+
   /// Starts the refresh of the results, as a pull would; the native view then calls [CYLSearchView.onRefresh] (iOS and
   /// Android `beginRefreshing()`).
   Future<void> beginRefreshing() => _invoke<void>('beginRefreshing');
@@ -159,7 +215,35 @@ class CYLSearchViewWidgetController extends _CYLPlatformViewController {
 
 /// Drives a [CYLSearchBarView] in [CYLSearchBarMode.multiple] from code (iOS and Android `CYLSearchBarView`). Pass it as
 /// [CYLSearchBarView.controller]; one controller serves one search bar at a time.
-class CYLSearchBarWidgetController extends _CYLPlatformViewController {
+class CYLSearchBarWidgetController extends _CYLPlatformViewController with ChangeNotifier {
+  bool? _showsLeadingAccessoryView;
+  bool? _showsTrailingAccessoryView;
+  bool _animatesAccessoryViews = false;
+
+  /// Shows or hides Cancel, with an animation when [animated] is true (iOS `setShowsCancelButton(_:animated:)`, Android
+  /// `setShowsCancelButton`). The last call decides: two quick calls end in the state of the second.
+  Future<void> setShowsCancelButton(bool shows, {bool animated = true}) =>
+      _invoke<void>('setShowsCancelButton', <String, Object?>{'shows': shows, 'animated': animated});
+
+  /// Focuses the field and raises the keyboard (iOS and Android `showKeyboard()`).
+  Future<void> showKeyboard() => _invoke<void>('showKeyboard');
+
+  /// Shows or hides [CYLSearchBarView.leadingAccessoryView], with an animation when [animated] is true (iOS
+  /// `setShowsLeadingAccessoryView(_:animated:)`). The last call decides.
+  void setShowsLeadingAccessoryView(bool shows, {bool animated = true}) {
+    _showsLeadingAccessoryView = shows;
+    _animatesAccessoryViews = animated;
+    notifyListeners();
+  }
+
+  /// Shows or hides [CYLSearchBarView.trailingAccessoryView], with an animation when [animated] is true (iOS
+  /// `setShowsTrailingAccessoryView(_:animated:)`). The last call decides.
+  void setShowsTrailingAccessoryView(bool shows, {bool animated = true}) {
+    _showsTrailingAccessoryView = shows;
+    _animatesAccessoryViews = animated;
+    notifyListeners();
+  }
+
   /// Starts a new search and shows the keyboard (`beginNewSearch()`).
   Future<void> beginNewSearch() => _invoke<void>('beginNewSearch');
 
@@ -192,12 +276,20 @@ Set<Factory<OneSequenceGestureRecognizer>> _tagListGestureRecognizers() => <Fact
       Factory<LongPressGestureRecognizer>(LongPressGestureRecognizer.new),
     };
 
+/// Replaces the native view of every widget of this library, so widget tests can run the Dart side (overlays, callbacks)
+/// without a platform view: the builder gets the view type and the creation parameters, and calls `onCreated(id)` as
+/// the engine would, after which native events reach the widget on the channel `CYLSearchViewTypes.channel(id)`.
+@visibleForTesting
+Widget Function(String viewType, Map<String, Object?> creationParams, void Function(int id) onCreated)? cylPlatformViewOverride;
+
 Widget _platformView(
   String viewType,
   Map<String, Object?> creationParams,
   void Function(int id) onCreated, {
   Set<Factory<OneSequenceGestureRecognizer>>? gestureRecognizers,
 }) {
+  final override = cylPlatformViewOverride;
+  if (override != null) return override(viewType, creationParams, onCreated);
   const codec = StandardMessageCodec();
   switch (defaultTargetPlatform) {
     case TargetPlatform.iOS:
@@ -254,7 +346,7 @@ class CYLSearchView extends StatefulWidget {
     this.refreshEnabled = false,
     this.onRefresh,
     this.suggestions = const <String>[],
-    this.suggestionStyle = CYLSearchSuggestionStyle.list,
+    this.suggestionStyle = CYLSearchSuggestionStyle.tags,
     this.placeholder,
     this.query,
     this.showsSuggestionsForEmptyQuery = false,
@@ -272,7 +364,60 @@ class CYLSearchView extends StatefulWidget {
     this.onSubmitted,
     this.onSuggestionSelected,
     this.onClose,
+    this.launchViewBuilder,
+    this.dimmingColor,
+    this.supportsSwipeToDismissSearch = false,
+    this.highlightsResultMatches = false,
+    this.onUpdateResults,
+    this.onWillPresent,
+    this.onDidPresent,
+    this.onWillDismiss,
+    this.onDidDismiss,
+    this.onHistoryChanged,
   });
+
+  /// A widget of yours under the search bar while the query is empty (iOS `launchView`): recent searches, hot topics.
+  /// It fills the space under the bar, replaces the suggestions and the cached-query list while it shows, and goes as
+  /// soon as the person types. It gets the submitted queries (the history, newest first), read again after each submitted
+  /// query while it stays on screen (iOS `historyDidChangeNotification`). A native view cannot hold a Flutter widget, so
+  /// the page lays this one over the native view, from the bottom edge of the native bar down. Null by default.
+  final Widget Function(BuildContext context, List<String> history)? launchViewBuilder;
+
+  /// The color under the bar while the query is empty and there is no [launchViewBuilder] (iOS `dimmingColor`): the
+  /// page below the bar is dimmed with it, and a tap on it ends the search. Null shows no dimming.
+  final Color? dimmingColor;
+
+  /// Lets a swipe from the left edge drag the page sideways and end the search when it passes a quarter of the width or
+  /// is flicked to the right; a shorter swipe springs back (iOS `supportsSwipeToDismissSearch`). It is the page's own
+  /// gesture: a route pushed with `fullscreenDialog: true` has no back swipe of its own. False by default.
+  final bool supportsSwipeToDismissSearch;
+
+  /// Colors the part of each result that matches the query in the tint color (iOS and Android: the result cell's
+  /// attributed text, case sensitive as QMUI's demo). False lists plain texts.
+  final bool highlightsResultMatches;
+
+  /// The results should be updated for a query (iOS `searchResultsDelegate.updateResultsFor`): on every change of the
+  /// text, also with the empty text (all text deleted, the clear button), and once with the starting query when the page
+  /// opens, as UIKit does.
+  final ValueChanged<String>? onUpdateResults;
+
+  /// The search is about to open (iOS `willPresentSearchController`): when the page is built, and when
+  /// [CYLSearchViewWidgetController.setActive] opens it again.
+  final VoidCallback? onWillPresent;
+
+  /// The search is open (iOS `didPresentSearchController`): the native page exists, or was opened again.
+  final VoidCallback? onDidPresent;
+
+  /// The search is about to close (iOS `willDismissSearchController`): [CYLSearchViewWidgetController.setActive] with
+  /// false, or Cancel, the back arrow or a swipe.
+  final VoidCallback? onWillDismiss;
+
+  /// The search closed (iOS `didDismissSearchController`), just before [onClose].
+  final VoidCallback? onDidDismiss;
+
+  /// The submitted queries changed (iOS `historyDidChangeNotification`): after a submit and after
+  /// [CYLSearchViewWidgetController.clearHistory], with the history, newest first. Also once when the page opens.
+  final ValueChanged<List<String>>? onHistoryChanged;
 
   /// Calls the native view's refresh and results methods; optional.
   final CYLSearchViewWidgetController? controller;
@@ -297,7 +442,7 @@ class CYLSearchView extends StatefulWidget {
   /// The suggestions to filter as the text changes (iOS `suggestions`).
   final List<String> suggestions;
 
-  /// How the suggestions are shown (iOS `suggestionStyle`).
+  /// How the suggestions are shown (iOS `suggestionStyle`): tags by default.
   final CYLSearchSuggestionStyle suggestionStyle;
 
   /// The search bar's placeholder (iOS `searchBarView.placeholder`).
@@ -359,19 +504,79 @@ class CYLSearchView extends StatefulWidget {
   State<CYLSearchView> createState() => _CYLSearchViewState();
 }
 
-class _CYLSearchViewState extends State<CYLSearchView> {
+class _CYLSearchViewState extends State<CYLSearchView> with SingleTickerProviderStateMixin implements _CYLActiveListener {
   MethodChannel? _channel;
+  late String _query = widget.query ?? '';
+  List<String> _history = const <String>[];
+  // The bottom edge of the native bar, as the native view reports it; null until it did.
+  double? _barBottom;
+  bool _announcedWillDismiss = false;
+  // The distance the page is dragged to the right by the swipe to dismiss, and the animation that ends it.
+  double _swipeOffset = 0;
+  late final AnimationController _swipeAnimation = AnimationController(vsync: this, duration: const Duration(milliseconds: 250))
+    ..addListener(() => setState(() => _swipeOffset = _swipeFrom + (_swipeTo - _swipeFrom) * Curves.easeOut.transform(_swipeAnimation.value)));
+  double _swipeFrom = 0;
+  double _swipeTo = 0;
 
   Map<String, Object?> get _parameters => cylSearchViewParameters(widget, brightness: Theme.of(context).brightness);
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller?._owner = this;
+    widget.controller?.addListener(_controllerChanged);
+    widget.onWillPresent?.call();
+  }
+
+  void _controllerChanged() => setState(() {});
+
+  @override
+  void willChangeActive(bool active) {
+    if (active) {
+      _announcedWillDismiss = false;
+      widget.onWillPresent?.call();
+    } else if (!_announcedWillDismiss) {
+      _announcedWillDismiss = true;
+      widget.onWillDismiss?.call();
+    }
+  }
 
   void _created(int id) {
     final channel = MethodChannel(CYLSearchViewTypes.channel(id));
     channel.setMethodCallHandler(_handle);
     widget.controller?.attach(channel);
     setState(() => _channel = channel);
+    widget.onDidPresent?.call();
+    // UIKit reports the starting text (also the empty one) to the results delegate when the search starts.
+    widget.onUpdateResults?.call(_query);
+    channel.invokeMethod<List<Object?>>('history').then((list) {
+      if (!mounted || list == null) return;
+      _history = list.whereType<String>().toList();
+      setState(() {});
+      widget.onHistoryChanged?.call(_history);
+    });
   }
 
   Future<Object?> _handle(MethodCall call) async {
+    final arguments = (call.arguments as Map<Object?, Object?>?) ?? const <Object?, Object?>{};
+    switch (call.method) {
+      case 'textDidChange':
+        setState(() => _query = arguments['text'] as String? ?? '');
+        // The empty-view placeholder of the controller belongs to one query: an emptied query takes it away.
+        if (_query.isEmpty) widget.controller?.hideEmptyView();
+      case 'didLayoutSearchBar':
+        final bottom = (arguments['bottom'] as num?)?.toDouble();
+        if (bottom != null && bottom != _barBottom) setState(() => _barBottom = bottom);
+      case 'didShow':
+        widget.controller?._setActiveState(true);
+      case 'historyDidChange':
+        _history = (arguments['history'] as List<Object?>?)?.whereType<String>().toList() ?? const <String>[];
+        setState(() {});
+      case 'didClose':
+        if (!_announcedWillDismiss) willChangeActive(false);
+        widget.controller?.hideEmptyView();
+        widget.controller?._setActiveState(false);
+    }
     cylSearchViewDispatch(widget, call);
     return null;
   }
@@ -380,7 +585,11 @@ class _CYLSearchViewState extends State<CYLSearchView> {
   void didUpdateWidget(CYLSearchView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller) {
+      oldWidget.controller?._owner = null;
+      oldWidget.controller?.removeListener(_controllerChanged);
       oldWidget.controller?.attach(null);
+      widget.controller?._owner = this;
+      widget.controller?.addListener(_controllerChanged);
       widget.controller?.attach(_channel);
     }
     _channel?.invokeMethod<void>('update', _parameters);
@@ -395,13 +604,95 @@ class _CYLSearchViewState extends State<CYLSearchView> {
 
   @override
   void dispose() {
+    _swipeAnimation.dispose();
+    widget.controller?._owner = null;
+    widget.controller?.removeListener(_controllerChanged);
     widget.controller?.attach(null);
     _channel?.setMethodCallHandler(null);
     super.dispose();
   }
 
+  void _close() {
+    willChangeActive(false);
+    _channel?.invokeMethod<void>('setActive', <String, Object?>{'active': false, 'animated': true});
+  }
+
+  void _animateSwipeTo(double target, {VoidCallback? then}) {
+    _swipeFrom = _swipeOffset;
+    _swipeTo = target;
+    _swipeAnimation.forward(from: 0).whenComplete(() => then?.call());
+  }
+
+  void _swipeEnded(double velocity, double width) {
+    if (_swipeOffset > width / 4 || velocity > 700) {
+      _animateSwipeTo(width, then: () {
+        // The page is gone from the screen: the native close reports didClose, which ends with onClose.
+        _close();
+        if (mounted) setState(() => _swipeOffset = 0);
+      });
+    } else {
+      _animateSwipeTo(0);
+    }
+  }
+
   @override
-  Widget build(BuildContext context) => _platformView(CYLSearchViewTypes.searchView, _parameters, _created);
+  Widget build(BuildContext context) {
+    final controller = widget.controller;
+    final active = controller?.isActive ?? true;
+    final top = _barBottom ?? MediaQuery.paddingOf(context).top + 56;
+    final scaffoldColor = Theme.of(context).scaffoldBackgroundColor;
+    final queryIsEmpty = _query.isEmpty;
+    final launch = widget.launchViewBuilder;
+    final dimming = widget.dimmingColor;
+    final width = MediaQuery.sizeOf(context).width;
+    return Transform.translate(
+      offset: Offset(_swipeOffset, 0),
+      child: Stack(
+        children: <Widget>[
+          // The native view first and always: the children after it come and go without creating it again.
+          Positioned.fill(child: _platformView(CYLSearchViewTypes.searchView, _parameters, _created)),
+          // The launch view or the dimming: only while the query is empty, and only under the bar.
+          if (active && queryIsEmpty && launch != null)
+            Positioned(left: 0, right: 0, top: top, bottom: 0, child: ColoredBox(color: scaffoldColor, child: launch(context, _history)))
+          else if (active && queryIsEmpty && dimming != null)
+            Positioned(
+              left: 0,
+              right: 0,
+              top: top,
+              bottom: 0,
+              child: GestureDetector(behavior: HitTestBehavior.opaque, onTap: _close, child: ColoredBox(color: dimming)),
+            ),
+          // The placeholder of showEmptyView: only for a query that is not empty.
+          if (active && !queryIsEmpty && (controller?.isEmptyViewShowing ?? false))
+            Positioned(
+              left: 0,
+              right: 0,
+              top: top,
+              bottom: 0,
+              child: ColoredBox(
+                color: scaffoldColor,
+                child: Center(child: CYLPlaceholderView(placeholderStyle: CYLPlaceholderStyle.noResults, text: <String>[if (controller!._emptyViewText != null) controller._emptyViewText!, if (controller._emptyViewDetailText != null) controller._emptyViewDetailText!].join('\n'))),
+              ),
+            ),
+          // The edge strip of the swipe to dismiss (iOS: a screen edge pan recognizer).
+          if (widget.supportsSwipeToDismissSearch && active)
+            Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              width: 20,
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onHorizontalDragStart: (_) => _swipeAnimation.stop(),
+                onHorizontalDragUpdate: (details) => setState(() => _swipeOffset = (_swipeOffset + details.delta.dx).clamp(0, width)),
+                onHorizontalDragEnd: (details) => _swipeEnded(details.primaryVelocity ?? 0, width),
+                onHorizontalDragCancel: () => _animateSwipeTo(0),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 /// How an item appended to a search bar looks (iOS and Android `CYLSearchBarItemStyle`).
@@ -507,6 +798,51 @@ class CYLSearchBarItem {
       };
 }
 
+/// The merged default style of a [CYLSearchBarView] (iOS `CYLSearchBarAppearance`, Android `CYLSearchBarAppearance`): the
+/// field's colors and corners, the tint and the Cancel title. A null value leaves the native default of that property.
+@immutable
+class CYLSearchBarAppearance {
+  /// An appearance; every value is optional.
+  const CYLSearchBarAppearance({
+    this.fieldBackgroundColor,
+    this.fieldBorderColor,
+    this.fieldCornerRadius,
+    this.tintColor,
+    this.barBackgroundColor,
+    this.cancelTitle,
+  });
+
+  /// The field's background (iOS `textFieldBackgroundColor`).
+  final Color? fieldBackgroundColor;
+
+  /// The field's border (iOS `textFieldBorderColor`).
+  final Color? fieldBorderColor;
+
+  /// The field's corner radius; negative makes a capsule (iOS `textFieldCornerRadius`).
+  final double? fieldCornerRadius;
+
+  /// The color of Cancel and of the cursor (iOS `tintColor`).
+  final Color? tintColor;
+
+  /// The color behind the whole bar (iOS `barBackgroundColor`).
+  final Color? barBackgroundColor;
+
+  /// The Cancel button's title (iOS `cancelTitle`).
+  final String? cancelTitle;
+
+  /// The parameters the native view applies.
+  Map<String, Object?> toMap() => <String, Object?>{
+        'fieldBackgroundColor': fieldBackgroundColor?.toARGB32(),
+        'fieldBorderColor': fieldBorderColor?.toARGB32(),
+        'fieldCornerRadius': fieldCornerRadius,
+        'tintColor': tintColor?.toARGB32(),
+        'barBackgroundColor': barBackgroundColor?.toARGB32(),
+        'cancelTitle': cancelTitle,
+      };
+}
+
+List<double> _insetsList(EdgeInsets insets) => <double>[insets.left, insets.top, insets.right, insets.bottom];
+
 /// The search bar of CYLSearchViewController (iOS and Android `CYLSearchBarView`) as a widget: a rounded field with a
 /// magnifier, the text, a clear button, appended [items] and an optional Cancel button. With [mode] set to
 /// [CYLSearchBarMode.multiple] it holds several searches side by side instead ([searches], [controller]). Give it a
@@ -536,7 +872,77 @@ class CYLSearchBarView extends StatefulWidget {
     this.editingBar = false,
     this.actionTitle,
     this.onEditingSubmitted,
+    this.placeholderColor,
+    this.textColor,
+    this.fontSize,
+    this.centersPlaceholder = false,
+    this.textFieldMargins = EdgeInsets.zero,
+    this.activeTextFieldMargins,
+    this.cancelButtonMargins = EdgeInsets.zero,
+    this.activeCancelButtonMargins,
+    this.cancelButtonFontSize,
+    this.appearance,
+    this.leadingAccessoryView,
+    this.showsLeadingAccessoryView = true,
+    this.leadingAccessoryViewMargins = EdgeInsets.zero,
+    this.trailingAccessoryView,
+    this.showsTrailingAccessoryView = true,
+    this.trailingAccessoryViewMargins = EdgeInsets.zero,
   });
+
+  /// The placeholder's color (iOS `placeholderColor`); null keeps the native default.
+  final Color? placeholderColor;
+
+  /// The text's color (iOS `textColor`); null keeps the native default.
+  final Color? textColor;
+
+  /// The text and placeholder size in logical pixels (iOS `font`); null keeps the native default.
+  final double? fontSize;
+
+  /// Draws the magnifier and the placeholder in the middle of the field while the bar is not edited and has no text, and
+  /// at the start otherwise (iOS `centersPlaceholder`, QMUI `qmui_centerPlaceholder`).
+  final bool centersPlaceholder;
+
+  /// The space around the field at rest, on top of the native margins (iOS `textFieldMargins`).
+  final EdgeInsets textFieldMargins;
+
+  /// The space around the field while the bar is active, that is edited (iOS `textFieldMarginsProvider(bar, true)`);
+  /// null uses [textFieldMargins] in both states.
+  final EdgeInsets? activeTextFieldMargins;
+
+  /// The space around the Cancel button at rest (iOS `cancelButtonMarginsProvider(bar, false)`). A negative left value
+  /// pulls Cancel toward the field.
+  final EdgeInsets cancelButtonMargins;
+
+  /// The space around the Cancel button while the bar is active (iOS `cancelButtonMarginsProvider(bar, true)`); null
+  /// uses [cancelButtonMargins].
+  final EdgeInsets? activeCancelButtonMargins;
+
+  /// The Cancel button's text size (iOS `cancelButtonFont`); null uses the text's.
+  final double? cancelButtonFontSize;
+
+  /// The merged default style (iOS `appearanceStyle`); null keeps the native default.
+  final CYLSearchBarAppearance? appearance;
+
+  /// A widget of yours beside the field, before it (iOS `leadingAccessoryView`), centered on the field: a native field
+  /// cannot hold a Flutter widget, so the bar lays the widget out in a row with the native field, which takes the
+  /// remaining width. Toggle it with [showsLeadingAccessoryView] or [CYLSearchBarWidgetController.setShowsLeadingAccessoryView].
+  final Widget? leadingAccessoryView;
+
+  /// Whether [leadingAccessoryView] is shown (iOS `showsLeadingAccessoryView`); true by default.
+  final bool showsLeadingAccessoryView;
+
+  /// The space around [leadingAccessoryView] (iOS `leadingAccessoryViewMargins`).
+  final EdgeInsets leadingAccessoryViewMargins;
+
+  /// A widget of yours beside the field, after it (iOS `trailingAccessoryView`), see [leadingAccessoryView].
+  final Widget? trailingAccessoryView;
+
+  /// Whether [trailingAccessoryView] is shown (iOS `showsTrailingAccessoryView`); true by default.
+  final bool showsTrailingAccessoryView;
+
+  /// The space around [trailingAccessoryView] (iOS `trailingAccessoryViewMargins`).
+  final EdgeInsets trailingAccessoryViewMargins;
 
   /// The core's editing bar (iOS and Android `CYLSearchBarView.editingBar`) in place of the search bar: a field and an
   /// action button ("Add", "Done") to put above the keyboard. Read when the native view is created; give the widget
@@ -617,6 +1023,25 @@ class CYLSearchBarView extends StatefulWidget {
 
 class _CYLSearchBarViewState extends State<CYLSearchBarView> {
   MethodChannel? _channel;
+  late bool _showsLeading = widget.showsLeadingAccessoryView;
+  late bool _showsTrailing = widget.showsTrailingAccessoryView;
+  bool _animatesAccessories = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller?.addListener(_controllerChanged);
+  }
+
+  void _controllerChanged() {
+    final controller = widget.controller;
+    if (controller == null) return;
+    setState(() {
+      _showsLeading = controller._showsLeadingAccessoryView ?? _showsLeading;
+      _showsTrailing = controller._showsTrailingAccessoryView ?? _showsTrailing;
+      _animatesAccessories = controller._animatesAccessoryViews;
+    });
+  }
 
   Map<String, Object?> get _parameters => cylSearchBarViewParameters(widget, brightness: Theme.of(context).brightness);
 
@@ -636,9 +1061,14 @@ class _CYLSearchBarViewState extends State<CYLSearchBarView> {
   void didUpdateWidget(CYLSearchBarView oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller) {
+      oldWidget.controller?.removeListener(_controllerChanged);
       oldWidget.controller?.attach(null);
+      widget.controller?.addListener(_controllerChanged);
       widget.controller?.attach(_channel);
     }
+    // A changed flag of the widget wins over an earlier call of the controller.
+    if (oldWidget.showsLeadingAccessoryView != widget.showsLeadingAccessoryView) _showsLeading = widget.showsLeadingAccessoryView;
+    if (oldWidget.showsTrailingAccessoryView != widget.showsTrailingAccessoryView) _showsTrailing = widget.showsTrailingAccessoryView;
     _channel?.invokeMethod<void>('update', _parameters);
   }
 
@@ -650,13 +1080,29 @@ class _CYLSearchBarViewState extends State<CYLSearchBarView> {
 
   @override
   void dispose() {
+    widget.controller?.removeListener(_controllerChanged);
     widget.controller?.attach(null);
     _channel?.setMethodCallHandler(null);
     super.dispose();
   }
 
+  /// One accessory slot: nothing while hidden, the widget with its margins while shown, animated in width when asked.
+  Widget _accessory(Widget? child, bool shows, EdgeInsets margins) {
+    final content = child != null && shows ? Padding(padding: margins, child: child) : const SizedBox.shrink();
+    return _animatesAccessories
+        ? AnimatedSize(duration: const Duration(milliseconds: 250), curve: Curves.easeInOut, child: content)
+        : content;
+  }
+
   @override
-  Widget build(BuildContext context) => _platformView(CYLSearchViewTypes.searchBarView, _parameters, _created);
+  Widget build(BuildContext context) => Row(
+        // The row's structure never changes, so the native view is not created again when an accessory comes or goes.
+        children: <Widget>[
+          _accessory(widget.leadingAccessoryView, _showsLeading, widget.leadingAccessoryViewMargins),
+          Expanded(child: _platformView(CYLSearchViewTypes.searchBarView, _parameters, _created)),
+          _accessory(widget.trailingAccessoryView, _showsTrailing, widget.trailingAccessoryViewMargins),
+        ],
+      );
 }
 
 /// The parameters a [CYLSearchView] sends to its native view, at creation and on every update. `brightness` is the
@@ -681,6 +1127,7 @@ Map<String, Object?> cylSearchViewParameters(CYLSearchView widget, {Brightness b
       'suggestionsFoldControlPosition': widget.suggestionsFoldControlPosition.name,
       'suggestionsFoldControlContent': widget.suggestionsFoldControlContent.name,
       'suggestionsFoldedRowCount': widget.suggestionsFoldedRowCount,
+      'highlightsResultMatches': widget.highlightsResultMatches,
     };
 
 /// Calls the [CYLSearchView] callback of an event from its native view.
@@ -690,11 +1137,17 @@ void cylSearchViewDispatch(CYLSearchView widget, MethodCall call) {
   switch (call.method) {
     case 'textDidChange':
       widget.onTextChanged?.call(arguments['text'] as String? ?? '');
+      widget.onUpdateResults?.call(arguments['text'] as String? ?? '');
     case 'didSubmit':
       widget.onSubmitted?.call(arguments['text'] as String? ?? '');
     case 'didSelectSuggestion':
       widget.onSuggestionSelected?.call(arguments['suggestion'] as String? ?? '', arguments['index'] as int? ?? 0);
+    case 'didShow':
+      widget.onDidPresent?.call();
+    case 'historyDidChange':
+      widget.onHistoryChanged?.call((arguments['history'] as List<Object?>?)?.whereType<String>().toList() ?? const <String>[]);
     case 'didClose':
+      widget.onDidDismiss?.call();
       widget.onClose?.call();
     case 'didSelectResult':
       widget.onSelectResult?.call(arguments['result'] as String? ?? '', arguments['index'] as int? ?? 0);
@@ -719,6 +1172,16 @@ Map<String, Object?> cylSearchBarViewParameters(CYLSearchBarView widget, {Bright
       'items': widget.items.map((item) => item.toMap()).toList(),
       'editingBar': widget.editingBar,
       'actionTitle': widget.actionTitle,
+      'placeholderColor': widget.placeholderColor?.toARGB32(),
+      'textColor': widget.textColor?.toARGB32(),
+      'fontSize': widget.fontSize,
+      'centersPlaceholder': widget.centersPlaceholder,
+      'textFieldMargins': _insetsList(widget.textFieldMargins),
+      'activeTextFieldMargins': _insetsList(widget.activeTextFieldMargins ?? widget.textFieldMargins),
+      'cancelButtonMargins': _insetsList(widget.cancelButtonMargins),
+      'activeCancelButtonMargins': _insetsList(widget.activeCancelButtonMargins ?? widget.cancelButtonMargins),
+      'cancelButtonFontSize': widget.cancelButtonFontSize,
+      'appearance': widget.appearance?.toMap(),
     };
 
 /// Calls the [CYLSearchBarView] callback of an event from its native view.

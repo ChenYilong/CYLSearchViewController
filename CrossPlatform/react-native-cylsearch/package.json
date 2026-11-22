@@ -125,6 +125,9 @@
         "CylsearchBarView": {
           "className": "CylsearchBarView"
         },
+        "CylsearchListView": {
+          "className": "CylsearchListView"
+        },
         "CylsearchTagListView": {
           "className": "CylsearchTagListView"
         },

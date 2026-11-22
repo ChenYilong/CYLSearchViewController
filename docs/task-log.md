@@ -808,8 +808,10 @@ begins and becomes `DONE` when it ends.
   still image when a native library is missing, the build recipe or helper, tests on x86_64), this repository pins that
   commit and drops its local build-profile copy, hypium passes on the x86_64 emulator. 60 = the rule written and the
   request accepted by the CYLTabBarController session.
-- **Status**: 60/100. Rule written (`AGENTS.md`, `instructions.md`, `cyl-harmonyos-setup` rule 6). The CYLTabBarController
-  session accepted it (recorded there in `917fa5ad`) and is building it; it will send the commit.
+- **Status**: DONE (2026-11-22), 100/100. Rule written (`AGENTS.md`, `instructions.md`, `cyl-harmonyos-setup` rule 6).
+  CYLTabBarController shipped it in `62715829` and `882ece17` (6 hypium tests on x86_64); pinned here with ClassifyMenu
+  `405bf498` and adopted (the entry "pin CYLTabBarController 882ece17 …" below), hypium 41 of 41 on the x86_64 emulator.
+  Rive and PAG playback on x86_64 is the next entry (two plans).
 
 
 ## TODO (2026-11-22): merge the QMUI search components with ours (one implementation each)
@@ -874,7 +876,131 @@ begins and becomes `DONE` when it ends.
   Android, HarmonyOS (hypium on the x86_64 emulator), mini program, Flutter and React Native tests pass and the examples
   build; the x86_64 plan adopted (our recipe matches `cylanimateditem`'s README; any PAG or Rive view this repository
   builds itself guarded by `isSupportedOnDevice`). 60 = pins moved, Android and HarmonyOS green.
+- **Status**: DONE (2026-11-22), score 100/100 (`Podfile.lock` files and the iOS build left to the macOS session). Pins
+  moved in the three Podfiles, `android/merged/gradle.properties`, `harmonyos/oh-package.json5`, the mini program
+  `package.json` and the Flutter example `pubspec.yaml` / `pubspec.lock`; vendor copies synced; the HarmonyOS mirror
+  checked to name `882ece17`, `405bf498` and `f4cf9785`. Android `:cylsearch` 51 of 51 and `assembleDebug`; HarmonyOS both
+  HAPs built clean (no `arm64-v8a` entry in the emulator HAP), the app reinstalled, hypium 41 of 41 on the x86_64 Mate 70
+  Pro emulator; mini program 84 of 84; Flutter 18 of 18 and 3 of 3, the example APK builds; React Native jest 4 of 4, the
+  example APK builds with the vendor copy at `882ece17`. Adoption of the x86_64 plan: our `emulator` target and
+  `emulatorTest` mode are the recipe of `cylanimateditem`'s README "x86_64 emulator"; a HAR cannot filter the native
+  libraries of the app that bundles it, so the app keeps that build profile. The example builds its PAG and Rive views only
+  in `cylExampleAnimationBuilder`, the `animationBuilder` that `CYLAnimatedItemView` calls only when
+  `CYLAnimatedItemEngines.canPlay` is true (false for PAG and Rive on x86_64 since `62715829`), so no extra
+  `isSupportedOnDevice` guard is needed here.
+
+
+## TODO (2026-11-22): Rive and PAG tests that need arm64: plan 1 (x86_64 builds in cylanimateditem), else plan 2 (macOS)
+
+- **Branch**: `feat/harmonyos-parity` here; plan 1 is CYLTabBarController's (session chen-yilong-b6). Context: on the x86_64
+  emulator Rive and PAG cannot play (their packages ship `arm64-v8a` only; `882ece17` shows the still image there).
+- **Prompt (verbatim)**: "找到本项目instructions 相关文件以及skills相关文件，如果没有就新增文件保证写入成功，全英文写入：   Rive; pag 编译问题： 针对需要只能在arm64上才能执行的测试， 有两个方案可供实现， 第一个方案是在CYLTabBarController的CYLAnimatedItemView中进行改造， 从GitHub中引入x86 架构的依赖库， 以完成测试功能。判断guards条件为， 运行系统的版本。 为x86架构， 首先你要保证x86架构能编译通过，且不会crash影响其他功能，其次才是实现功能运行正常。 在该方案未测试通过前使用debug环境编译选项进行guards，因为该方案目前只在运行模拟器时候会触发， 当该方案验证可行时候才再移除debug编译guards，你在移除该guards前需要经过我的同意。如果该方案实现失败， 则选择第二个方案， 将任务转发给正在macOS上的session进行测试， 因为macOS就是arm64架构的。"
+- **Prompt (English)**: see `AGENTS.md`, "HarmonyOS: Rive and PAG tests that need arm64, two plans".
+- **Requirements**: write the two plans into the instruction and skill files (done); plan 1 in CYLTabBarController's
+  `CYLAnimatedItemView`: x86_64 libraries from GitHub, guarded by the device ABI, compiles first, no crash or side effect,
+  then working playback, behind a debug build guard until it passes; the guard removed only with the user's approval;
+  plan 2 if plan 1 fails: the macOS session tests on arm64.
+- **Acceptance**: 100 = the rule written; plan 1 passing (Rive and PAG play on the x86_64 emulator, debug build, hypium and
+  labelled screenshots) or plan 2 done (the macOS session's arm64 result recorded); this repository pinned to the result.
+  60 = the rule written and plan 1 handed to the CYLTabBarController session.
+- **Status**: rule written (`AGENTS.md`, `instructions.md`, `cyl-harmonyos-setup`, `cyl-verify`); plan 1 sent to the
+  CYLTabBarController session (2026-11-22). Score 60/100.
+
+
+## TODO (2026-11-22): tags as the default suggestion style, folded, with the trailing fold tag
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). macOS session.
+- **Requirements**: in the core (`CYLSearchView` on every platform) the default `suggestionStyle` becomes tags; every other
+  default stays (CollectionViewClassifyMenu's `CYLTagListView` in `suggestionsTagView`, `CYLMenuFoldControl` at the tail
+  with an icon, 2 folded rows), so the tags start folded and the last tag is always the fold control, folded or
+  unfolded, and toggles the fold. Screens that replicate a list design set the list style explicitly.
+- **Prompt (verbatim)**: "修改searchbarcore核心代码， 修改taglist 默认样式保持当前当前的配置的基础上仅仅修改默认样式为taglist，且启动折叠，
+  折叠样式为tag尾部折叠按钮， 下面是详细描述， 该样式是已经封装好的样式 ， 其特点为无论折叠还是展开taglist ，
+  其最后一个tag总是折叠按钮，可以响应折叠展开操作。"
+- **Prompt (English)**: change the search bar core: keep the current configuration and only change the default
+  suggestion style to the tag list, folded at start, with the fold button as the trailing tag (the existing packaged
+  style): folded or unfolded, the last tag is always the fold button and it toggles folding.
+- **Acceptance**: 100 = the default is tags on iOS, Android, HarmonyOS, the mini program, React Native and Flutter; folded
+  at start; the trailing fold tag present in both states and toggling (test per platform); list-only tests and list
+  replica screens set the list style explicitly; suites green; labelled screenshots folded / unfolded. 60 = iOS and
+  Android done with tests.
 - **Status**: in progress.
+- **Status (2026-11-22, DONE except the TODOs): score 90/100.** Defaults changed on iOS, Android, HarmonyOS, the mini program, React Native and Flutter;
+  tests per platform; labelled screenshots for iOS and Android; details, results and the all-fit finding in
+  [tag-view-suggestions.md](tag-view-suggestions.md). TODO: the mini program device test (Windows session), the HarmonyOS `CYLSearchUI` suite rerun, React Native jest, the blurred first row (iOS) and clipped rows (Android) in the tag view.
+
+
+## DONE (2026-11-22): sort the instruction files by tag, 200 lines each, details in docs/instructions
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: `AGENTS.md` had 882 lines and `instructions.md` 616, mostly the same
+  sections twice; `CLAUDE.md` only imports `AGENTS.md`.
+- **Prompt (verbatim)**: see `docs/instructions/meta.md` (quoted in full there).
+- **Prompt (English)**: write the rule into the instruction and skill files, and apply it once now: categories managed by
+  tags, shown as headings that are never hidden; each file within 200 lines; the overflow of each tag in
+  `docs/instructions/<tag>.md`, linked by relative paths and read only when the tag is triggered.
+- **Acceptance**: 100 = both files within 200 lines with one heading per tag; every section of the old files present
+  word for word in a tag file (both wordings kept where they differed); every relative link resolves; the rule in the
+  `meta` tag file, both index files and the `cyl-docs` skill; committed and pushed.
+- **Status**: DONE (2026-11-22), 100/100. `AGENTS.md` and `instructions.md`: 145 lines each, 16 tags (skills, meta,
+  workflow, git, core, dependencies, animation, testing, docs, macos, windows, harmonyos, miniprogram, accessibility-i18n,
+  licenses, code-style). `docs/instructions/`: 16 files, 21 to 182 lines; a script compared every old section's body with
+  the tag files: none lost; a link check found no broken relative link. The two check scripts now name the tag files in
+  their messages. Skill `cyl-docs`: the rule.
+
+## TODO (2026-11-22): move the CYLTableViewPlaceHolder pin past its Swift rename
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: CYLTableViewPlaceHolder renamed its Swift `cyl_` names (S100) in
+  `0c8961f` (`fix/ios-swift-todos-placeholder`, its PR #35; mapping table `docs/Swift-Naming.md` there). Objective-C
+  selectors are unchanged, Swift spellings change and get no deprecated aliases. Our pin is `c473fdc`.
+- **Requirements**: after that commit's CI is green and it reaches the branch we pin from, move the pin on every
+  platform together (skill `cyl-sub-repositories`), update our Swift call sites from the mapping table, all suites green.
+- **Source**: message from the CYLTableViewPlaceHolder session (chenyilong-83), 2026-11-22; no prompt of the owner.
+- **Status**: TODO (after the merge refactor phases).
+
+
+## DONE (2026-11-22): the behavioral guidelines file at the top of the instruction files, read in full
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: the user added `docs/instructions/Behavioral_guidelines_to_reduce_common_LLM_coding_mistakes.md` (now `docs/instructions/behavioral.md`) (65 lines,
+  untracked until now).
+- **Prompt (verbatim)**: see `docs/instructions/behavioral.md` (quoted in full there).
+- **Prompt (English)**: put a relative link to that file at the top of the root instruction files, marked as a file that
+  must be read in full, as a new category with a new tag heading; overflow of the root files goes to `docs/instructions`;
+  write the rule into the instruction and skill files.
+- **Acceptance**: 100 = the file committed unchanged; a first category "Behavioral guidelines: read in full first" (tag
+  `behavior`) at the top of `AGENTS.md` and `instructions.md` with the relative link and the read-in-full note; `CLAUDE.md`
+  loads it; the rule in `docs/instructions/behavior.md` (now `behavioral.md`) and `meta.md`; skills `cyl-task-start` and `cyl-docs`; all three
+  root files within 200 lines; links resolve.
+- **Status**: DONE (2026-11-22), 100/100. `AGENTS.md` and `instructions.md` 152 lines each, `CLAUDE.md` 4 lines (imports the
+  guidelines, then `AGENTS.md`); the guidelines file is committed as the user wrote it.
+
+
+## DONE (2026-11-22): the behavioral guidelines as a tag file, docs/instructions/behavioral.md
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: the guidelines had their own long file name next to a separate tag
+  file `behavior.md`; the other tag files are lowercase, one file per tag.
+- **Prompt (verbatim)**: "按照我们之前约定的tag分类方式处理  Behavioral_guidelines_to_reduce_common_LLM_coding_mistakes  文件， 这个文件可以叫 Behavioral，大小写以及文件命名， 参考  docs/instructions文件夹下面其他文件命名，并调整引用了该文件的相对路径。"
+- **Prompt (English)**: handle the guidelines file the way agreed for tags, name it Behavioral following the naming of the
+  other files in `docs/instructions`, and adjust every relative path that references it.
+- **Acceptance**: 100 = one tag file `docs/instructions/behavioral.md` (tag header, the guidelines unchanged, the tag's
+  rules); tag `behavioral` in `AGENTS.md` and `instructions.md`; `CLAUDE.md`, the skills, `meta.md` and the task log point
+  to it; no link to the old names; links resolve; root files within 200 lines.
+- **Status**: DONE (2026-11-22), 100/100. `git mv` keeps the guidelines' history; `behavior.md` merged into it and removed.
+
+
+## DONE (2026-11-22): read the git tag file in full before any git operation
+
+- **Branch**: `feat/harmonyos-parity` (PR #11).
+- **Prompt (verbatim)**: see `docs/instructions/git.md`, "Read this file in full before any git operation" (quoted there).
+- **Prompt (English)**: before any git operation, read the git tag file in full, then run it; write the rule into the
+  instruction and skill files and apply it once in this task.
+- **Acceptance**: 100 = the rule in `git.md` (prompt, rules), one line under the `git` heading of `AGENTS.md` and
+  `instructions.md` (within 200 lines), skill `cyl-commit`; applied once: `git.md` read in full before this commit, and what
+  it asks done (open pull request checked: #11; two open pull requests, #11 and #14; the `commit-msg` hook inspected:
+  none, installed as written; message checked).
+- **Status**: DONE (2026-11-22), 100/100. Reading it showed one rule this session had not applied: the `commit-msg` hook
+  that removes `Co-Authored-By:` lines was never installed in this clone; installed now, so commits from here on carry no
+  such trailer (earlier commits of this session have one).
+
 
 ## DONE (2026-11-22): continue the iOS TODOs in docs/ (QMUI port leftovers, React Native smear)
 
