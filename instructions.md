@@ -1,18 +1,10 @@
 # Folder Instructions
 
-## Behavioral guidelines: read in full first (tag: `behavior`)
+## Behavioral guidelines: read in full first (tag: `behavioral`)
 
 - **You must read this file in full, every line, before any task:**
-  [docs/instructions/Behavioral_guidelines_to_reduce_common_LLM_coding_mistakes.md](docs/instructions/Behavioral_guidelines_to_reduce_common_LLM_coding_mistakes.md). Its rules (think before coding, simplicity first, surgical changes, goal-driven
-  execution) apply to every task, together with the rest of this file.
-- Details: [docs/instructions/behavior.md](docs/instructions/behavior.md).
-
-This repository contains the CYLSearchViewController search library, its ports and examples, and the Issue #1317
-reproduction for `UISearchController` with `CYLTableViewPlaceHolder` refresh. Read this file and `AGENTS.md` before
-changing project files; both keep the same tags.
-
-The content is grouped by tag. Every category below has a short summary; its full text is in
-`docs/instructions/<tag>.md`: read that file whenever the task touches the tag (tag: `meta`).
+  [docs/instructions/behavioral.md](docs/instructions/behavioral.md). Its rules (think before coding, simplicity first,
+  surgical changes, goal-driven execution) apply to every task, together with the rest of this file.
 
 ## Skills (tag: `skills`)
 

@@ -6,7 +6,7 @@ description: "Document public integration and reproducible steps for CYLSearchVi
 ## Instruction files: categories, tags, 200 lines (rule, 2026-11-22)
 
 `AGENTS.md` and `instructions.md` (and `CLAUDE.md`, which imports `AGENTS.md`) stay within 200 lines each. Their content is
-grouped under one always-visible heading per category, `## <Category> (tag: `tag`)` (behavior first, then skills, meta, workflow, git, core,
+grouped under one always-visible heading per category, `## <Category> (tag: `tag`)` (behavioral first, then skills, meta, workflow, git, core,
 dependencies, animation, testing, docs, macos, windows, harmonyos, miniprogram, accessibility-i18n, licenses,
 code-style). Each heading holds the must-know rules and a relative link to `docs/instructions/<tag>.md`, the full text;
 read that file when a task touches the tag. A new rule: full text in its tag file, one line under the heading when every

@@ -956,15 +956,28 @@ begins and becomes `DONE` when it ends.
 
 ## DONE (2026-11-22): the behavioral guidelines file at the top of the instruction files, read in full
 
-- **Branch**: `feat/harmonyos-parity` (PR #11). Context: the user added `docs/instructions/Behavioral_guidelines_to_reduce_common_LLM_coding_mistakes.md` (65 lines,
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: the user added `docs/instructions/Behavioral_guidelines_to_reduce_common_LLM_coding_mistakes.md` (now `docs/instructions/behavioral.md`) (65 lines,
   untracked until now).
-- **Prompt (verbatim)**: see `docs/instructions/behavior.md` (quoted in full there).
+- **Prompt (verbatim)**: see `docs/instructions/behavioral.md` (quoted in full there).
 - **Prompt (English)**: put a relative link to that file at the top of the root instruction files, marked as a file that
   must be read in full, as a new category with a new tag heading; overflow of the root files goes to `docs/instructions`;
   write the rule into the instruction and skill files.
 - **Acceptance**: 100 = the file committed unchanged; a first category "Behavioral guidelines: read in full first" (tag
   `behavior`) at the top of `AGENTS.md` and `instructions.md` with the relative link and the read-in-full note; `CLAUDE.md`
-  loads it; the rule in `docs/instructions/behavior.md` and `meta.md`; skills `cyl-task-start` and `cyl-docs`; all three
+  loads it; the rule in `docs/instructions/behavior.md` (now `behavioral.md`) and `meta.md`; skills `cyl-task-start` and `cyl-docs`; all three
   root files within 200 lines; links resolve.
 - **Status**: DONE (2026-11-22), 100/100. `AGENTS.md` and `instructions.md` 152 lines each, `CLAUDE.md` 4 lines (imports the
   guidelines, then `AGENTS.md`); the guidelines file is committed as the user wrote it.
+
+
+## DONE (2026-11-22): the behavioral guidelines as a tag file, docs/instructions/behavioral.md
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: the guidelines had their own long file name next to a separate tag
+  file `behavior.md`; the other tag files are lowercase, one file per tag.
+- **Prompt (verbatim)**: "按照我们之前约定的tag分类方式处理  Behavioral_guidelines_to_reduce_common_LLM_coding_mistakes  文件， 这个文件可以叫 Behavioral，大小写以及文件命名， 参考  docs/instructions文件夹下面其他文件命名，并调整引用了该文件的相对路径。"
+- **Prompt (English)**: handle the guidelines file the way agreed for tags, name it Behavioral following the naming of the
+  other files in `docs/instructions`, and adjust every relative path that references it.
+- **Acceptance**: 100 = one tag file `docs/instructions/behavioral.md` (tag header, the guidelines unchanged, the tag's
+  rules); tag `behavioral` in `AGENTS.md` and `instructions.md`; `CLAUDE.md`, the skills, `meta.md` and the task log point
+  to it; no link to the old names; links resolve; root files within 200 lines.
+- **Status**: DONE (2026-11-22), 100/100. `git mv` keeps the guidelines' history; `behavior.md` merged into it and removed.
