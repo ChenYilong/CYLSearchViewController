@@ -115,7 +115,14 @@ final class CYLSearchIssueScenarioTests: CYLSearchExampleTestCase {
         // with Auto Layout constraints to the screen's view: UIKit moves the bar into its own container and drops them.
         XCTAssertEqual(active.width, window.bounds.width, accuracy: 0.5, "the bar keeps its width while searching")
         XCTAssertLessThanOrEqual(active.maxY, window.bounds.maxY)
-        search.setActive(false, animated: false)
+        // Leaving the search starts from the corrected place: no slide on the way back either.
+        var leaving: [CGRect] = []
+        let leaveSampler = CYLFrameSampler { leaving.append(self.drawnFrame(of: bar, in: window)) }
+        search.setActive(false, animated: true)
+        runLoop(1.0)
+        leaveSampler.stop()
+        let worstLeaving = leaving.map { abs($0.minY - start.minY) }.max() ?? 0
+        XCTAssertLessThanOrEqual(worstLeaving, 1, "the bar moved \(worstLeaving) pt while leaving")
         window.isHidden = true
     }
 
@@ -394,9 +401,15 @@ final class CYLSearchIssueScenarioTests: CYLSearchExampleTestCase {
             XCTAssertEqual(drawnFrame(of: bar, in: window).minY, before.minY, accuracy: 1, "round \(round): searching")
             search.searchBar.text = "1"
             runLoop(0.3)
+            var leaving: [CGRect] = []
+            let sampler = CYLFrameSampler { leaving.append(self.drawnFrame(of: bar, in: window)) }
             search.setActive(false, animated: true)
             runLoop(1.0)
             runLoop(0.1)
+            sampler.stop()
+            // #1313 is a jitter after Cancel: no frame of the way back leaves the rest position.
+            let worst = leaving.map { abs($0.minY - before.minY) }.max() ?? 0
+            XCTAssertLessThanOrEqual(worst, 1, "round \(round): the bar moved \(worst) pt after Cancel")
             let after = bar.convert(bar.bounds, to: window)
             XCTAssertEqual(after.minX, before.minX, accuracy: 0.5, "round \(round)")
             XCTAssertEqual(after.minY, before.minY, accuracy: 0.5, "round \(round)")

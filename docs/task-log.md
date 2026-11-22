@@ -1143,5 +1143,6 @@ begins and becomes `DONE` when it ends.
   2. I2 / I5 fixed in the core (`0a7deab`): UIKit placed the bar's container at the bar's window y inside a presentation
      that starts at the contents view (bar at 232 instead of 116); `CYLSearchController` keeps the rest frame and the
      system controller moves the container back by the measured difference before the results read `searchBarMaxY`.
-     Three tests check the absolute position (all read 116 pt without the fix); 188 tests, 0 failures on iOS 27.2 (clean
-     derived data); real taps on both screens, labelled screenshot `qmui-search-i2-i5-offset-fix-ios27.2-20261123.png`.
+     Three tests check the absolute position while entering and leaving the search (all read 116 pt without the fix); 188
+     tests, 0 failures on iOS 27.2, 26.5 and 17.5 (clean derived data); real taps on both screens, labelled before / after
+     screenshot `qmui-search-i2-i5-offset-fix-ios27.2-20261123.png`.

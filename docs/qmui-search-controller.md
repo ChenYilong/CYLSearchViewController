@@ -424,9 +424,9 @@ Updated 2026-11-22 (`fix/ios-todos-qmui`, task "continue the iOS TODOs in docs/"
    results now start at the bar's bottom edge. Tests: `testI2PlainSubviewBarStaysInTheSafeArea` (worst offset over the
    animation at most 1 pt, results top = bar bottom; it pinned the 116 pt before), `testI5BarInContainerReturnsToItsFrameAfterCancel`
    (frame while searching), new `testI2PlainBarInAnExtendedViewStaysInPlace` (view under the navigation bar, UIKit's
-   default). All three read 116 pt without the fix; 188 tests, 0 failures on iOS 27.2 (clean derived data). Real taps
-   (axe) on both screens:
-   ![I2 / I5 after the fix](assets/qmui-search-i2-i5-offset-fix-ios27.2-20261123.png) iOS 27.2, iPhone 18 Pro simulator, Xcode 27.2, macOS 27.3, CYLSearchViewController 0a7deab, 2026-11-23 00:50 to 00:53 +13:00: Bar in a view and Collection view, at rest and searching, the bar at the same y (before: the issue screens image above, bar 116 pt lower).
+   default). All three read 116 pt without the fix; 188 tests, 0 failures on iOS 27.2, 26.5 and 17.5 (clean derived data; the I2 / I5 tests also sample leaving the search: at most 1 pt). Real taps
+   (axe) on both screens, before and after:
+   ![I2 / I5 before and after the fix](assets/qmui-search-i2-i5-offset-fix-ios27.2-20261123.png) iOS 27.2, iPhone 18 Pro simulator, Xcode 27.2, macOS 27.3, CYLSearchViewController before `b0096d9` (fix off) and after `0a7deab`, 2026-11-23 00:52 to 01:13 +13:00: Bar in a view and Collection view searching; before, the bar sits 116 pt low under a blank gap; after, it stays under the navigation bar.
 3. **Row I3: the black band. DONE (`bfbee55`).** Cause: the default style hides the bar background
    (`hidesBarBackground`); while searching UIKit hides the navigation bar and has only black behind the bar (an explicit
    `barTintColor` filled the band, a red window background did not show, so it is not the window). Fix in the core: a
