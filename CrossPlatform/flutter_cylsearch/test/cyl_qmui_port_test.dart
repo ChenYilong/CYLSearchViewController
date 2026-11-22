@@ -150,97 +150,67 @@ void main() {
       expect(changes.first, <String>['Helps', 'Liver']);
     });
 
-    testWidgets('the dimming shows while the query is empty and a tap ends the search', (tester) async {
-      await tester.pumpWidget(MaterialApp(
-        home: Scaffold(body: CYLSearchView(dimmingColor: const Color(0x66000000))),
+    test('the scrim, the swipe, the highlight color and the empty text go to the native page', () {
+      final map = cylSearchViewParameters(const CYLSearchView(
+        scrimColor: Color(0x66000000),
+        supportsSwipeToDismissSearch: true,
+        resultMatchHighlightColor: Color(0xFFFF0000),
+        noResultsText: 'No matching results',
       ));
-      await tester.pump();
-      await tester.pump();
-      await nativeEvent(1, 'didLayoutSearchBar', <String, Object?>{'bottom': 60.0});
-      await tester.pump();
-      await tester.tapAt(const Offset(400, 300));
-      expect(calls, contains('1:setActive'));
-      await nativeEvent(1, 'textDidChange', <String, Object?>{'text': 'a'});
-      await tester.pump();
-      calls.clear();
-      await tester.tapAt(const Offset(400, 300));
-      expect(calls, isNot(contains('1:setActive')), reason: 'no dimming while there is a query');
+      expect(map['scrimColor'], 0x66000000);
+      expect(map['supportsSwipeToDismissSearch'], true);
+      expect(map['resultMatchHighlightColor'], 0xFFFF0000);
+      expect(map['noResultsText'], 'No matching results');
+      final none = cylSearchViewParameters(const CYLSearchView());
+      expect(none['scrimColor'], isNull);
+      expect(none['supportsSwipeToDismissSearch'], false);
+      expect(none['noResultsText'], isNull);
     });
 
-    testWidgets('the callbacks run in the order of the presentation life cycle, and the results also get the empty text', (tester) async {
+    testWidgets('the callbacks follow the native events: will and did show, will close, close', (tester) async {
       final events = <String>[];
       final controller = CYLSearchViewWidgetController();
       await tester.pumpWidget(MaterialApp(
         home: Scaffold(
           body: CYLSearchView(
             controller: controller,
-            onWillPresent: () => events.add('willPresent'),
-            onDidPresent: () => events.add('didPresent'),
-            onWillDismiss: () => events.add('willDismiss'),
-            onDidDismiss: () => events.add('didDismiss'),
+            onWillShow: () => events.add('willShow'),
+            onDidShow: () => events.add('didShow'),
+            onWillClose: () => events.add('willClose'),
             onClose: () => events.add('close'),
-            onUpdateResults: (text) => events.add('update [$text]'),
           ),
         ),
       ));
       await tester.pump();
       await tester.pump();
-      expect(events, <String>['willPresent', 'didPresent', 'update []']);
+      expect(events, <String>['willShow', 'didShow'], reason: 'the first open happens before Dart listens to the native page');
       expect(controller.isActive, true);
-      await nativeEvent(1, 'textDidChange', <String, Object?>{'text': ''});
-      expect(events.last, 'update []');
       await controller.setActive(false);
       expect(calls, contains('1:setActive'));
+      expect(events, hasLength(2), reason: 'the will event is the native one: nothing is announced by Dart itself');
+      await nativeEvent(1, 'willClose');
       await nativeEvent(1, 'didClose');
       await tester.pump();
-      expect(events.skip(4).toList(), <String>['willDismiss', 'didDismiss', 'close']);
+      expect(events.skip(2).toList(), <String>['willClose', 'close']);
       expect(controller.isActive, false);
+      await nativeEvent(1, 'willShow');
       await nativeEvent(1, 'didShow');
+      expect(events.skip(4).toList(), <String>['willShow', 'didShow']);
       expect(controller.isActive, true);
     });
 
-    testWidgets('showEmptyView shows only for a non empty query and leaves with the query', (tester) async {
-      final controller = CYLSearchViewWidgetController();
-      await tester.pumpWidget(MaterialApp(home: Scaffold(body: CYLSearchView(controller: controller))));
-      await tester.pump();
-      await tester.pump();
-      controller.showEmptyView(text: 'No matching results');
-      await tester.pump();
-      expect(controller.isEmptyViewShowing, true);
-      expect(find.byType(CYLPlaceholderView), findsNothing, reason: 'not while the query is empty');
-      await nativeEvent(1, 'textDidChange', <String, Object?>{'text': 'zzz'});
-      await tester.pump();
-      expect(find.byType(CYLPlaceholderView), findsOneWidget);
-      await nativeEvent(1, 'textDidChange', <String, Object?>{'text': ''});
-      await tester.pump();
-      expect(controller.isEmptyViewShowing, false, reason: 'an emptied query takes the placeholder away');
-    });
-
-    testWidgets('a swipe from the left edge ends the search past a quarter of the width', (tester) async {
-      final events = <String>[];
+    testWidgets('no Dart overlay is built for the scrim, the empty view or the swipe', (tester) async {
       await tester.pumpWidget(MaterialApp(
-        home: Scaffold(body: CYLSearchView(supportsSwipeToDismissSearch: true, onWillDismiss: () => events.add('willDismiss'))),
+        home: Scaffold(
+          body: CYLSearchView(scrimColor: const Color(0x66000000), supportsSwipeToDismissSearch: true, showsEmptyResultsPlaceholder: true, noResultsText: 'None'),
+        ),
       ));
       await tester.pump();
       await tester.pump();
-      // A short swipe springs back.
-      await tester.dragFrom(const Offset(5, 300), const Offset(100, 0));
-      await tester.pumpAndSettle();
-      expect(events, isEmpty);
-      expect(calls, isNot(contains('1:setActive')));
-      // A long swipe closes.
-      await tester.dragFrom(const Offset(5, 300), const Offset(400, 0));
-      await tester.pumpAndSettle();
-      expect(events, <String>['willDismiss']);
-      expect(calls, contains('1:setActive'));
-    });
-
-    testWidgets('without the switch the edge does nothing', (tester) async {
-      await tester.pumpWidget(const MaterialApp(home: Scaffold(body: CYLSearchView())));
+      await nativeEvent(1, 'didLayoutSearchBar', <String, Object?>{'bottom': 60.0});
       await tester.pump();
-      await tester.dragFrom(const Offset(5, 300), const Offset(400, 0));
-      await tester.pumpAndSettle();
-      expect(calls, isNot(contains('1:setActive')));
+      expect(find.byType(CYLPlaceholderView), findsNothing);
+      expect(find.byType(GestureDetector), findsNothing);
     });
   });
 

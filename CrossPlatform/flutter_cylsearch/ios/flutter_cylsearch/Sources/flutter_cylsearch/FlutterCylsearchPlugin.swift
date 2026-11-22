@@ -78,24 +78,14 @@ final class CYLFlutterSearchResult: NSObject {
 final class CYLFlutterSearchResultsDataSource: NSObject, CYLSearchViewDataSource {
     var results: [String] = []
 
-    /// Colors the part of each result that matches the query in the tint color (case sensitive, the first match).
-    var highlightsMatches = false
-
     func searchView(_ searchView: CYLSearchView, resultsForQuery query: String) -> [Any] {
         results.enumerated().map { CYLFlutterSearchResult(text: $0.element, index: $0.offset) }
     }
 
     func searchView(_ searchView: CYLSearchView, configureResultCell cell: UITableViewCell, withResult result: Any) {
+        // The highlight of a match is the core's option (`highlightsResultMatches`), applied after this configuration.
         var content = UIListContentConfiguration.cell()
-        let text = (result as? CYLFlutterSearchResult)?.text ?? ""
-        let query = searchView.query ?? ""
-        if highlightsMatches, !query.isEmpty, let range = text.range(of: query) {
-            let attributed = NSMutableAttributedString(string: text, attributes: [.foregroundColor: UIColor.label])
-            attributed.addAttribute(.foregroundColor, value: searchView.tintColor ?? UIColor.systemBlue, range: NSRange(range, in: text))
-            content.attributedText = attributed
-        } else {
-            content.text = text
-        }
+        content.text = (result as? CYLFlutterSearchResult)?.text ?? ""
         cell.contentConfiguration = content
         cell.accessibilityTraits.insert(.button)
     }
@@ -113,6 +103,10 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
     // `resultsDataSource` is weak: the platform view keeps it.
     private let resultsDataSource = CYLFlutterSearchResultsDataSource()
     private var appliedResults: [String]?
+    // The last query reported to Dart and the last history reported: an event goes out only for a change.
+    private var reportedText = ""
+    private var reportedHistory: [String] = []
+    private var noResultsText: String?
 
     init(frame: CGRect, arguments: [String: Any], channel: FlutterMethodChannel) {
         let layoutContainer = CYLFlutterLayoutReportingView(frame: frame)
@@ -126,6 +120,11 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
         apply(arguments)
         searchView.install(in: container)
         searchView.showSearch(animated: false)
+        reportedText = searchView.query ?? ""
+        reportedHistory = history()
+        // The core's history signal: its stores post a notification after each change (a submit, the trash button, another
+        // page of the same name). The notification is internal to the core, so it is observed by name (TODO in the docs).
+        NotificationCenter.default.addObserver(self, selector: #selector(historyChanged), name: Notification.Name("CYLSearchSuggestionStoreDidChange"), object: nil)
         channel.setMethodCallHandler { [weak self] call, result in
             guard let self else {
                 result(nil)
@@ -136,6 +135,10 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
                 if let arguments = call.arguments as? [String: Any] {
                     self.apply(arguments)
                 }
+                result(nil)
+            case "setQuery":
+                let arguments = call.arguments as? [String: Any] ?? [:]
+                self.searchView.setQuery(arguments["query"] as? String, submit: arguments["submit"] as? Bool ?? false)
                 result(nil)
             case "beginRefreshing":
                 self.searchView.beginRefreshing()
@@ -160,8 +163,8 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
             case "history":
                 result(self.history())
             case "clearHistory":
+                // The store's notification reports the change.
                 self.searchView.clearSuggestionCache()
-                self.channel.invokeMethod("historyDidChange", arguments: ["history": self.history()])
                 result(nil)
             default:
                 result(FlutterMethodNotImplemented)
@@ -176,6 +179,14 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
     /// The submitted queries in the page's cache, newest first (the history of the launch view).
     private func history() -> [String] {
         searchView.suggestionCache?.cachedQueries() ?? []
+    }
+
+    /// Tells Dart the history when it differs from the one it has (the core's store notification).
+    @objc private func historyChanged() {
+        let current = history()
+        guard current != reportedHistory else { return }
+        reportedHistory = current
+        channel.invokeMethod("historyDidChange", arguments: ["history": current])
     }
 
     /// Tells Dart where the bar ends, in points: Dart lays the launch view, the dimming and the empty view from there down.
@@ -235,7 +246,34 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
         searchView.showsSuggestionCacheHeader = arguments["showsSuggestionCacheHeader"] as? Bool ?? true
         searchView.suggestionsFoldControl = cylFoldControl(arguments["suggestionsFoldControlPosition"], arguments["suggestionsFoldControlContent"])
         searchView.suggestionsFoldedRowCount = UInt(max(0, arguments["suggestionsFoldedRowCount"] as? Int ?? 2))
-        resultsDataSource.highlightsMatches = arguments["highlightsResultMatches"] as? Bool ?? false
+        searchView.highlightsResultMatches = arguments["highlightsResultMatches"] as? Bool ?? false
+        searchView.resultMatchHighlightColor = color(arguments["resultMatchHighlightColor"])
+        searchView.scrimColor = color(arguments["scrimColor"])
+        searchView.supportsSwipeToDismissSearch = arguments["supportsSwipeToDismissSearch"] as? Bool ?? false
+        noResultsText = arguments["noResultsText"] as? String
+        applyNoResultsText()
+    }
+
+    /// The core's `CYLSearchView` has no `noResultsText` (the controller has): the title of its empty results placeholder is
+    /// set here, after every change of the query or the results (a new scenario makes a new placeholder).
+    /// TODO: move it into the core (docs/qmui-search-controller.md, merge phase 5 log: Flutter).
+    private func applyNoResultsText() {
+        guard let noResultsText, let placeholder = searchView.emptyResultsView else { return }
+        placeholder.titleLabel.text = noResultsText
+    }
+
+    private func color(_ value: Any?) -> UIColor? {
+        guard let argb = (value as? NSNumber)?.uint32Value else { return nil }
+        return UIColor(red: CGFloat((argb >> 16) & 0xFF) / 255, green: CGFloat((argb >> 8) & 0xFF) / 255,
+                       blue: CGFloat(argb & 0xFF) / 255, alpha: CGFloat((argb >> 24) & 0xFF) / 255)
+    }
+
+    func searchViewWillShow(_ searchView: CYLSearchView) {
+        channel.invokeMethod("willShow", arguments: nil)
+    }
+
+    func searchViewWillClose(_ searchView: CYLSearchView) {
+        channel.invokeMethod("willClose", arguments: nil)
     }
 
     func searchViewDidShow(_ searchView: CYLSearchView) {
@@ -243,17 +281,20 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
     }
 
     func searchView(_ searchView: CYLSearchView, textDidChange text: String) {
+        reportText(text)
+    }
+
+    private func reportText(_ text: String) {
+        reportedText = text
+        applyNoResultsText()
         channel.invokeMethod("textDidChange", arguments: ["text": text])
     }
 
     func searchView(_ searchView: CYLSearchView, didSubmitText text: String) -> Bool {
+        // A tapped tag with `submitsOnSuggestionSelection` sets the text and submits without a text change: tell Dart the
+        // query first, so its results follow.
+        if text != reportedText { reportText(text) }
         channel.invokeMethod("didSubmit", arguments: ["text": text])
-        // The core adds the query to its cache after this call: the history is read on the next turn of the run loop
-        // (the counterpart of CYLSearchController.historyDidChangeNotification, which is not in the core's views).
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            self.channel.invokeMethod("historyDidChange", arguments: ["history": self.history()])
-        }
         return true
     }
 

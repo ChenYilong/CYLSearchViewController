@@ -60,4 +60,51 @@ void main() {
       expect(tester.getRect(find.byKey(const Key('t2'))).left, greaterThan(tester.getRect(find.byKey(const Key('t1'))).left));
     });
   });
+
+  group('CYLSearchView controller', () {
+    testWidgets('setQuery goes to the native page, with and without submit', (tester) async {
+      final controller = CYLSearchViewWidgetController();
+      await tester.pumpWidget(MaterialApp(home: Scaffold(body: CYLSearchView(controller: controller))));
+      await tester.pump();
+      await tester.pump();
+      await controller.setQuery('Fat', submit: true);
+      expect(calls, contains('1:setQuery'));
+      expect(lastArguments[1], <String, Object?>{'query': 'Fat', 'submit': true});
+      await controller.setQuery('Liver');
+      expect(lastArguments[1], <String, Object?>{'query': 'Liver', 'submit': false});
+    });
+
+    testWidgets('a text change from a tapped tag reaches onTextChanged and the query that hides the launch widget', (tester) async {
+      final texts = <String>[];
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: CYLSearchView(
+            onTextChanged: texts.add,
+            launchViewBuilder: (context, history) => const Text('custom launch', key: Key('launch')),
+          ),
+        ),
+      ));
+      await tester.pump();
+      await tester.pump();
+      expect(find.byKey(const Key('launch')), findsOneWidget);
+      // The plugin sends the query of a tapped tag as a text change before the submit.
+      await nativeEvent(1, 'textDidChange', <String, Object?>{'text': 'Fat'});
+      await nativeEvent(1, 'didSubmit', <String, Object?>{'text': 'Fat'});
+      await tester.pump();
+      expect(texts, <String>['Fat']);
+      expect(find.byKey(const Key('launch')), findsNothing);
+    });
+
+    testWidgets('the history signal comes from the native store: Dart adds no event of its own', (tester) async {
+      final changes = <List<String>>[];
+      final controller = CYLSearchViewWidgetController();
+      await tester.pumpWidget(MaterialApp(home: Scaffold(body: CYLSearchView(controller: controller, onHistoryChanged: changes.add))));
+      await tester.pump();
+      await tester.pump();
+      await nativeEvent(1, 'historyDidChange', <String, Object?>{'history': <String>['Fat']});
+      await controller.clearHistory();
+      expect(calls, contains('1:clearHistory'));
+      expect(changes, <List<String>>[<String>['Helps', 'Liver'], <String>['Fat']], reason: 'Dart reports the history when the page opens and what the native store sends; clearHistory sends no event of its own');
+    });
+  });
 }

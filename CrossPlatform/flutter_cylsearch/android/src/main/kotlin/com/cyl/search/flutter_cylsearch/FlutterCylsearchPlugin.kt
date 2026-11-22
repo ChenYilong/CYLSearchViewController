@@ -92,6 +92,11 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
     private val searchView = CYLSearchView(context)
     private val resultsDataSource = CYLFlutterSearchResultsDataSource()
     private var appliedResults: List<String>? = null
+    // The last query and history reported to Dart: an event goes out only for a change.
+    private var reportedText = ""
+    private var reportedHistory: List<String> = emptyList()
+    private var noResultsText: String? = null
+    private var shownNoResultsText: String? = null
 
     init {
         searchView.delegate = this
@@ -100,8 +105,11 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
         apply(arguments)
         searchView.installInView(container)
         searchView.showSearch(false)
-        // The history of the launch view: Dart reads it again after each submitted query.
-        searchView.addHistoryDidChangeListener { channel.invokeMethod("historyDidChange", mapOf("history" to history())) }
+        reportedText = searchView.query.orEmpty()
+        reportedHistory = history()
+        // The core's history signal (after a submitted query); the core does not post one for the trash button yet, so a
+        // clear reports itself (TODO in docs/qmui-search-controller.md). Only a changed history reaches Dart.
+        searchView.addHistoryDidChangeListener { reportHistory() }
         container.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> reportSearchBar() }
         searchView.searchBarView.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> reportSearchBar() }
         channel.setMethodCallHandler { call, result ->
@@ -133,7 +141,12 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
                 "history" -> result.success(history())
                 "clearHistory" -> {
                     searchView.clearSuggestionCache()
-                    channel.invokeMethod("historyDidChange", mapOf("history" to history()))
+                    reportHistory()
+                    result.success(null)
+                }
+                "setQuery" -> {
+                    val arguments = call.arguments as? Map<*, *>
+                    searchView.setQuery(arguments?.get("query") as? String, arguments?.get("submit") as? Boolean ?: false)
                     result.success(null)
                 }
                 else -> result.notImplemented()
@@ -145,6 +158,34 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
      * The submitted queries in the page's cache, newest first (the history of the launch view).
      */
     private fun history(): List<String> = searchView.suggestionCache?.cachedQueries().orEmpty()
+
+    /**
+     * Tells Dart the history when it differs from the one it has.
+     */
+    private fun reportHistory() {
+        val current = history()
+        if (current == reportedHistory) return
+        reportedHistory = current
+        channel.invokeMethod("historyDidChange", mapOf("history" to current))
+    }
+
+    /**
+     * Shows the core's empty view with `noResultsText` while a query has no result, and takes it away otherwise.
+     */
+    private fun updateNoResultsText() {
+        val text = noResultsText
+        val empty = searchView.showsEmptyResultsPlaceholder && searchView.resultsDataSource != null &&
+            !searchView.query.isNullOrEmpty() && searchView.searchResults.isEmpty()
+        if (text != null && empty) {
+            if (shownNoResultsText != text || !searchView.isEmptyViewShowing) {
+                searchView.showEmptyView(text)
+                shownNoResultsText = text
+            }
+        } else if (shownNoResultsText != null) {
+            searchView.hideEmptyView()
+            shownNoResultsText = null
+        }
+    }
 
     /**
      * Tells Dart where the bar ends, in dp: Dart lays the launch view, the dimming and the empty view from there down.
@@ -197,6 +238,19 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
         searchView.suggestionsFoldControl = cylFoldControl(arguments["suggestionsFoldControlPosition"], arguments["suggestionsFoldControlContent"])
         searchView.suggestionsFoldedRowCount = maxOf(0, (arguments["suggestionsFoldedRowCount"] as? Number)?.toInt() ?: 2)
         resultsDataSource.highlightsMatches = arguments["highlightsResultMatches"] as? Boolean ?: false
+        resultsDataSource.highlightColor = (arguments["resultMatchHighlightColor"] as? Number)?.toInt()
+        searchView.scrimColor = (arguments["scrimColor"] as? Number)?.toInt()
+        searchView.supportsSwipeToDismissSearch = arguments["supportsSwipeToDismissSearch"] as? Boolean ?: false
+        noResultsText = arguments["noResultsText"] as? String
+        updateNoResultsText()
+    }
+
+    override fun searchViewWillShow(searchView: CYLSearchView) {
+        channel.invokeMethod("willShow", null)
+    }
+
+    override fun searchViewWillClose(searchView: CYLSearchView) {
+        channel.invokeMethod("willClose", null)
     }
 
     override fun searchViewDidShow(searchView: CYLSearchView) {
@@ -210,10 +264,18 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
     }
 
     override fun searchViewTextDidChange(searchView: CYLSearchView, text: String) {
+        reportText(text)
+    }
+
+    private fun reportText(text: String) {
+        reportedText = text
         channel.invokeMethod("textDidChange", mapOf("text" to text))
     }
 
     override fun searchViewDidSubmitText(searchView: CYLSearchView, text: String): Boolean {
+        // A tapped tag with `submitsOnSuggestionSelection` sets the text and submits without a text change: tell Dart the
+        // query first, so its results follow.
+        if (text != reportedText) reportText(text)
         channel.invokeMethod("didSubmit", mapOf("text" to text))
         return true
     }
@@ -245,9 +307,12 @@ internal class CYLFlutterSearchResultsDataSource : CYLSearchViewDataSource {
     var results: List<String> = emptyList()
 
     /**
-     * Colors the part of each result that matches the query in the accent color (case sensitive, the first match).
+     * Colors the first part of each result that matches the query, ignoring case and diacritics (the iOS core's
+     * `highlightsResultMatches`), in `highlightColor`: the accent color when null.
      */
     var highlightsMatches = false
+
+    var highlightColor: Int? = null
 
     override fun searchViewResultsForQuery(searchView: CYLSearchView, query: String): List<Any> =
         results.mapIndexed { index, text -> CYLFlutterSearchResult(text, index) }
@@ -255,14 +320,15 @@ internal class CYLFlutterSearchResultsDataSource : CYLSearchViewDataSource {
     override fun searchViewConfigureResultCell(searchView: CYLSearchView, cell: CYLSearchSuggestionCell, result: Any) {
         val text = (result as? CYLFlutterSearchResult)?.text ?: return
         val query = searchView.query.orEmpty()
-        val start = if (highlightsMatches && query.isNotEmpty()) text.indexOf(query) else -1
-        if (start < 0) {
+        val match = if (highlightsMatches) CYLMatchHighlight.firstMatch(text, query) else null
+        if (match == null) {
             cell.textLabel.text = text
             return
         }
-        val accent = TypedValue().also { cell.textLabel.context.theme.resolveAttribute(androidx.appcompat.R.attr.colorAccent, it, true) }.data
+        val color = highlightColor
+            ?: TypedValue().also { cell.textLabel.context.theme.resolveAttribute(androidx.appcompat.R.attr.colorAccent, it, true) }.data
         cell.textLabel.text = SpannableString(text).apply {
-            setSpan(ForegroundColorSpan(accent), start, start + query.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            setSpan(ForegroundColorSpan(color), match.first, match.last + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
     }
 }
