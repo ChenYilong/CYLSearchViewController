@@ -118,25 +118,24 @@ class CYLSearchViewQMUIPortTest {
         assertEquals(View.VISIBLE, view.suggestionsTableView.visibility)
     }
 
+    @Suppress("DEPRECATION")
     @Test
-    fun dimmingShowsWhileEmptyAndATapEndsTheSearch() {
+    fun dimmingColorIsTheScrimAndATapEndsTheSearch() {
         val view = searchView()
+        view.dimmingColor = Color.argb(128, 0, 0, 0)
+        assertEquals("one overlay: dimmingColor is scrimColor", Color.argb(128, 0, 0, 0), view.scrimColor)
+        view.scrimColor = Color.argb(64, 0, 0, 0)
+        assertEquals(Color.argb(64, 0, 0, 0), view.dimmingColor)
         view.dimmingColor = Color.argb(128, 0, 0, 0)
         view.showSearch(false)
         val scrim = view.getChildAt(0)
         assertEquals(View.VISIBLE, scrim.visibility)
         assertEquals(Color.argb(128, 0, 0, 0), (scrim.background as android.graphics.drawable.ColorDrawable).color)
         view.query = "a"
-        assertEquals("no dimming while there is text", View.GONE, scrim.visibility)
-        view.query = ""
-        assertEquals(View.VISIBLE, scrim.visibility)
+        assertEquals("the one overlay stays while there is text", View.VISIBLE, scrim.visibility)
         scrim.performClick()
         idle()
         assertFalse("a tap on the dimming ends the search", view.isActive)
-        // A launch view wins: no dimming.
-        view.launchView = View(activity)
-        view.showSearch(false)
-        assertEquals(View.GONE, scrim.visibility)
     }
 
     @Test
