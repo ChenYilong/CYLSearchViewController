@@ -29,6 +29,14 @@ class CYLSearchFoldControlTest {
         .also { it.get().setTheme(android.R.style.Theme_Material_NoActionBar) }.setup().get()
     private val column = LinearLayout(activity).apply { orientation = LinearLayout.VERTICAL }
 
+    /**
+     * Takes the test's views off the window, so their history observers end (Robolectric keeps the activity alive).
+     */
+    @org.junit.After
+    fun detachTheViews() {
+        activity.setContentView(android.view.View(activity))
+    }
+
     private fun idle() = org.robolectric.Shadows.shadowOf(android.os.Looper.getMainLooper()).idleFor(java.time.Duration.ofMillis(2000))
 
     private fun layoutWindow() {
