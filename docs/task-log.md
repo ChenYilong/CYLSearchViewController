@@ -740,6 +740,11 @@ begins and becomes `DONE` when it ends.
 - **Acceptance**: 100 = the 122 tests green on iOS 17.5, 26.5 and 27.2; the refresh covered by a test; every platform
   has the six screens with its own test or screenshot; CI green. 60 = items 1 and 2 done, the parity table written.
 - **Status**: in progress.
+- **Status (2026-11-22)**: DONE, 90/100. iOS: 123 → 185 tests green on 17.5, 26.5 and 27.2 (fixes `f94d2c4`,
+  `15a5876`; iOS 15 / 16 cannot run on this host). Launch view refresh: `0b3cbcf`. Other platforms: Android 92,
+  HarmonyOS 90, Flutter 86, React Native 72 then merged (87), mini program 79/85 (device test: Windows session); parity
+  table filled. Missing: iOS 15–16 and 18–25 unverified (−4), mini program device test (−3), dark mode / large type
+  screenshots (−3).
 
 
 ## TODO (2026-11-22): pin CYLTabBarController 618ac11a, ClassifyMenu 9dc1f761, CYLTableViewPlaceHolder 6117fcf
@@ -841,6 +846,10 @@ begins and becomes `DONE` when it ends.
   native re-implementations; all suites green on iOS 17.5 / 26.5 / 27.2 and the platforms' own tests; screenshots before
   and after. 60 = design doc plus the iOS merge with green tests.
 - **Status**: TODO (after the React Native and Flutter ports of the previous entry finish).
+- **Status (2026-11-22)**: phases 0–5b DONE (`faf68da` … `4f8e22f`, logs in `docs/qmui-search-controller.md`): iOS
+  merge 88/100 (185 tests green on 17.5 / 26.5 / 27.2), Android 91, HarmonyOS 90, Flutter 88, React Native 87, mini
+  program 85/90, core gaps 90. TODO: phase 6 in CollectionViewClassifyMenu (69 × 29 minimum tag size, Android tag
+  border clip, owner's decision on a fold control when the tags fit), mini program device test (Windows session).
 
 
 ## DONE (rules) / TODO (code) (2026-11-22): re-evaluate the CYL / cyl_ prefixes against static analysis
