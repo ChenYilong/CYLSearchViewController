@@ -1343,3 +1343,75 @@ TODO (9 points):
 - TODO (1 point): the trailing accessory of "Search bar styles" now sits inside the field (QMUI: beside it); a core option for a view beside the field would bring that back if wanted.
 - TODO (1 point): no dark mode, ja / zh or large font screenshot; the history of the screenshots was seeded, not typed.
 - TODO (1 point): the example `CYLSearchDiscoverFragment` copies the Discover page (two `CYLTagListView` sections) instead of using the suggestion area, as on iOS.
+### Merge phase 5 log: React Native (2026-11-22)
+
+Phase 5 of the merge design above for CrossPlatform/react-native-cylsearch, `feat/harmonyos-parity`, PR #11. Worktree `/tmp/xpr/merge-p5-react-native-cylsearch`; simulator `iPhone 18 Pro (CYLSearch RN QMUI)` (iOS 27.2, 530EE4E8), AVD `CYL_QRN_API35` on port 5600 (Android 15); Release builds, Xcode 27.2 (27B52), macOS 27.3, JDK 17.0.21, React Native 0.88.0. Code commits `20a2859`, `f3db6d0`, `6de5ca8`, `ff7dca8` (2026-11-22). Only CrossPlatform/react-native-cylsearch and this document changed.
+
+#### 1. The audit: parallel members merged into one
+
+None of the first port's names reached master (the package is 0.1.0 and the names exist only on this PR), but the old names still work as deprecated JavaScript forwards (`cylListForwards`, `cylBarForwards` in `src/CYLSearchProps.ts`), so no screen of an app that followed the first port breaks. The native codegen specs carry only the merged names.
+
+| Parallel member (first port) | Merged into (iOS name) | Where |
+| --- | --- | --- |
+| list `dimmingColor` | `scrimColor` | spec, iOS `CylsearchListView.mm`, Android `CylsearchListView.kt` |
+| list `emptyViewText` | `noResultsText` | same |
+| list `launchSuggestions` | `suggestions` (+ `showsSuggestionsForEmptyQuery`, tags, `submitsOnSuggestionSelection`) | same |
+| list `historyPolicy` / `historyName` | `suggestionCachePolicy` / `suggestionCacheName` (the names `CylsearchView` already used: one name per concept in the package) | same |
+| list `launchTitle`, `launchLabel`, `clearHistoryLabel` | removed: the core's suggestion area has its own localized title, trash button and labels | spec, Android |
+| Android `CylsearchLaunchView.kt` (title, border, trash button, `CYLTagListView`) and `cylsearch_ic_delete.xml` | deleted: the core's suggestion area is the launch area (folded tags, fold control last, history header, clear button) | Android |
+| bar `leadingAccessory` / `showsLeadingAccessory` | `leadingView` / `showsLeadingView` | spec, both bars |
+| bar `trailingAccessory` / `showsTrailingAccessory` | `trailingAccessoryViews` (array) / `showsTrailingAccessoryViews` | same |
+| bar `appearance` | `appearanceStyle` | same |
+| two results data sources (`CylsearchView` and `CylsearchListView`, each with its own cell text and cache mapping) | one per platform: iOS `CYLRNSearchResults` + `CYLRNApplySuggestionCache`, Android `CylsearchResults` + `applySuggestionCache` | both |
+| iOS list stub (drew nothing) and the example's iOS composition (bridged bar + `CYLTagListView` + `FlatList`) | `CylsearchListView.mm` hosts the core `CYLSearchView`; the example is one `<CYLSearchListView>` | iOS, example |
+| match highlight drawn by the example (`cylSplitMatch`, case sensitive, returned the query) | core option `highlightsResultMatches` + `resultMatchHighlightColor` on iOS; Android: one `cylMatchRange` in the wrapper (the Android core has no option); `cylSplitMatch` is case and diacritic insensitive and returns the text as written | all |
+
+Every launch area is the core's suggestion area, whose tags are CollectionViewClassifyMenu's `CYLTagListView`: no native chip group, flex wrap or hand-built tag row remains in the package or the example. A tapped tag submits (`submitsOnSuggestionSelection`, on by default in the list).
+
+#### 2. What is wired now
+
+- iOS bar (`CylsearchBarView.mm` -> `CYLSearchBarView`): `applyDefaultAppearance` / `appearanceStyle`, `centersPlaceholder`, `placeholderColor`, `textColor`, `textFieldMarginsProvider`, `cancelButtonMarginsProvider`, `cancelButtonFont`, `setShowsCancelButton(_:animated:)`, `setShowsLeadingView(_:animated:)`, `setShowsTrailingAccessoryViews(_:animated:)`, `leadingView`, `trailingAccessoryViews`, `onActiveChange` from the editing delegate. Checked on the simulator: margins 32, accessories, Cancel, centred placeholder.
+- `cancelButtonFont` on both platforms (`{"size", "weight"}`): iOS `CYLSearchBarView.cancelButtonFont`; Android the core's typeface for the weight and the button's text size (the core's font is a typeface without a size).
+- iOS list (`CylsearchListView.mm` -> `CYLSearchView`): launch area from `suggestions` + history (folded tags, trash button), `scrimColor`, `highlightsResultMatches`, `noResultsText` (the placeholder's title; its hint is hidden), will / did present and dismiss, `setActive`, `clearHistory`, `onHistoryChange` from the core store's change signal, `supportsSwipeToDismissSearch`, `onSubmit`, rows with `hidesSearchBarInitially`.
+- Android list: the same props on the core's `CYLSearchView` / `CYLSearchListView`; `onSubmit` is new.
+- The blank band of about 150 px above the bar on Android was in the wrapper, not in the core: the core pads its page by the window's system bars, and a React Native screen is already below the status bar. `cylKeepSystemBarsAbove` reduces the insets that reach the page by what the view already keeps clear (top and bottom); measured on the 1080 x 2400 emulator: the bar's top edge was 150 px below the header, now it sits directly under it (the Search controller page) and the Open search page's bar moved up by 136 px.
+
+#### 3. Findings
+
+- A tapped tag sets the query in code, and `CYLSearchView` sends no `textDidChange` for it: on iOS the list showed a blank area, because JavaScript never learned the text. `CylsearchListView` answers `onUpdateResults` on the submit when the text differs (core TODO: notify on a programmatic `setQuery`).
+- The Android core fills its tag list while the page is hidden (no width), so the first open showed the header and an empty strip; the wrapper fills it again after `searchViewDidShow` (core TODO).
+- The iOS demo's switch "Center placeholder" did not react to `axe` taps by coordinates; by label it worked.
+
+#### 4. Tests
+
+- `yarn jest --no-watchman`: **14 tests, 0 failures** (5 new: forwards of the old list and bar names, `cancelButtonFont` and views-after-the-text JSON, case and diacritic insensitive highlight splitting incl. "Cafe" / "CAFE" with an accent, text kept as written). `yarn tsc`: clean. eslint on the files changed: clean (the three untouched spec files keep their one prettier error each).
+- iOS: `pod install` (codegen), `xcodebuild` Release for the simulator with clean derived data: BUILD SUCCEEDED; run on the simulator by `axe` input: rest, tap on the bar, tag tap submits, return key, history with the trash button, fold and unfold, results, empty view, Cancel; the styles screen.
+- Android: `gradlew clean :app:assembleRelease` (arm64-v8a): BUILD SUCCESSFUL in 4m 18s; run on the emulator: the same flow with `adb input`.
+- No native unit tests (the package has no native test target; unchanged from the first port). `Podfile.lock` churn from `pod install` was not committed.
+
+#### 5. After screenshots
+
+React Native 0.88.0, Release builds, CYLSearchViewController `ff7dca8`, 2026-11-22 17:34 NZDT; originals cropped in `docs/assets/raw/merge-after-p5-rn-*`, stitched with `scripts/stitch-screenshots.swift`. The task names one image per platform; React Native has two, so each carries its platform: rest, launch area folded and unfolded (ten submitted queries, so the history is three rows and the fold control is the last tag), results for "He" with the match highlighted, "Hzzz" with the empty view.
+
+| Image | Label |
+| --- | --- |
+| ![Search controller, React Native iOS, after phase 5](assets/merge-after-p5-react-native-ios-20261122.png) | iOS 27.2, iPhone 18 Pro simulator (CYLSearch RN QMUI), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `ff7dca8`, 2026-11-22 17:34 NZDT |
+| ![Search controller, React Native Android, after phase 5](assets/merge-after-p5-react-native-android-20261122.png) | Android 15 (API 35) emulator CYL_QRN_API35, JDK 17.0.21, macOS 27.3, CYLSearchViewController `ff7dca8`, 2026-11-22 17:34 NZDT |
+
+#### Merge score (React Native) (2026-11-22): 84 / 100 (pass 60)
+
+| Criterion | Points | Got | Why |
+| --- | :---: | :---: | --- |
+| Design (the merge rows for this platform audited and written down) | 10 | 10 | tables 1 and 2 |
+| One implementation per concept | 30 | 24 | the names, the launch view, the data source and the cache mapping are merged; open: iOS `snapsHeaderSearchBar`, the Android bar still sets the core's accessory slots, two components (`CYLSearchView`, `CYLSearchListView`) host the same core view |
+| Old API keeps working | 15 | 13 | deprecated forwards, tested; no native negative test |
+| Example free of re-implementations | 20 | 18 | the Search controller is API only on both platforms; the other screens were not in scope |
+| Suites green | 15 | 11 | jest, tsc, eslint, two clean builds and runs; no native tests |
+| Before / after screenshots | 10 | 9 | both platforms, five states; no dark mode or large font |
+
+Missing points as TODO:
+- TODO (3 points): iOS `snapsHeaderSearchBar` and `hidesSearchBarWhenEmptyViewShowing` are accepted and ignored: `CYLSearchHeaderSnapper` is internal to the core (a public API there first), and the empty view lives in the page, not in the list.
+- TODO (3 points, core): iOS `CYLSearchView` has no `noResultsText` (the wrapper sets the placeholder's title); the Android core has no `highlightsResultMatches` (the wrapper's `cylHighlighted`); the history signal of the iOS store is observed by its notification name `CYLSearchSuggestionStoreDidChange` because the constant is internal; programmatic `setQuery` sends no `textDidChange`; the Android tag list is filled before it has a width.
+- TODO (2 points): the Android bar keeps setting `leadingAccessoryView` / `trailingAccessoryView` (the first of `trailingAccessoryViews`) until the Android merge animates `leadingView` / `trailingAccessoryViews`; re-check after the next rebase.
+- TODO (4 points): native tests; dark mode and large font; a real edge swipe and predictive back with `supportsSwipeToDismissSearch`; `showsSearchBar`, `hidesSearchBarInitially` and the bar options on the list (only on the bar) were not screenshotted.
+- TODO (4 points): arbitrary React children as accessories (still a 30 x 30 square spec); the bar options of the list besides `centersPlaceholder` and `placeholder`.
