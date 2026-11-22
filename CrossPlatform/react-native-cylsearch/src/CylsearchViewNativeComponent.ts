@@ -99,6 +99,12 @@ export interface NativeProps extends ViewProps {
    */
   showsResults?: boolean;
   /**
+   * The first match of the text in each result is drawn in `resultMatchHighlightColor` (the tint color by default), case and
+   * diacritic insensitive (`highlightsResultMatches`).
+   */
+  highlightsResultMatches?: boolean;
+  resultMatchHighlightColor?: string;
+  /**
    * Adds pull-to-refresh to the results list (the core's `refreshHandler`, CYLTableViewPlaceHolder's header).
    */
   refreshEnabled?: boolean;

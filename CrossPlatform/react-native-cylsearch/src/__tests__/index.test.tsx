@@ -13,7 +13,11 @@ jest.mock(
 );
 
 import {
+  cylAccessoriesJSON,
   cylAccessoryJSON,
+  cylBarForwards,
+  cylFontJSON,
+  cylListForwards,
   cylAppearanceJSON,
   cylInsetsArray,
   cylResultsForQuery,
@@ -112,17 +116,77 @@ describe('QMUI search bar options', () => {
   });
 });
 
+describe('merged names', () => {
+  it('lets the iOS names win over the first QMUI port names', () => {
+    expect(
+      cylListForwards({
+        noResultsText: 'None',
+        emptyViewText: 'Old',
+        dimmingColor: '#000000',
+        launchSuggestions: ['a'],
+        historyPolicy: 'userDefaults',
+        historyName: 'old',
+        suggestionCacheName: 'new',
+      })
+    ).toEqual({
+      noResultsText: 'None',
+      scrimColor: '#000000',
+      suggestions: ['a'],
+      suggestionCachePolicy: 'userDefaults',
+      suggestionCacheName: 'new',
+    });
+  });
+
+  it('forwards the first port accessory names to the iOS ones', () => {
+    const forwards = cylBarForwards({
+      leadingAccessory: { kind: 'square' },
+      trailingAccessory: { kind: 'square', size: 20 },
+      showsLeadingAccessory: true,
+      showsTrailingAccessory: false,
+      appearance: { tintColor: '#0068F8' },
+    });
+    expect(JSON.parse(forwards.leadingViewJSON).size).toBe(30);
+    expect(JSON.parse(forwards.trailingAccessoryViewsJSON)).toEqual([
+      { kind: 'square', size: 20 },
+    ]);
+    expect(forwards.showsLeadingView).toBe(true);
+    expect(forwards.showsTrailingAccessoryViews).toBe(false);
+    expect(JSON.parse(forwards.appearanceStyleJSON)).toEqual({
+      tintColor: '#0068F8',
+    });
+    expect(forwards.cancelButtonFontJSON).toBe('');
+  });
+
+  it('sends the cancel button font and the views after the text', () => {
+    expect(JSON.parse(cylFontJSON({ size: 17, weight: 'semibold' }))).toEqual({
+      size: 17,
+      weight: 'semibold',
+    });
+    expect(cylFontJSON(undefined)).toBe('');
+    expect(cylAccessoriesJSON([])).toBe('');
+    expect(cylAccessoriesJSON(undefined)).toBe('');
+    expect(
+      JSON.parse(
+        cylAccessoriesJSON([{ kind: 'square' }, { kind: 'square', size: 10 }])
+      )
+    ).toEqual([
+      { kind: 'square', size: 30 },
+      { kind: 'square', size: 10 },
+    ]);
+  });
+});
+
 describe('search results of the list', () => {
-  it('splits a result around the first match, case sensitive', () => {
+  it('splits a result around the first match, case and diacritic insensitive', () => {
     expect(cylSplitMatch('Healthy', 'Health')).toEqual({
       before: '',
       match: 'Health',
       after: 'y',
     });
-    expect(cylSplitMatch('Helps', 'H')).toEqual({
+    expect(cylSplitMatch('Helps', 'hel')).toEqual({
       before: '',
-      match: 'H',
-      after: 'elps',
+      match: 'Hel',
+      after: 'ps',
     });
     expect(cylSplitMatch('Liver', 'h')).toEqual({
       before: 'Liver',
@@ -133,6 +197,24 @@ describe('search results of the list', () => {
       before: 'Liver',
       match: '',
       after: '',
+    });
+  });
+
+  it('keeps the text as written when an accent is typed or not', () => {
+    expect(cylSplitMatch('Café au lait', 'cafe')).toEqual({
+      before: '',
+      match: 'Café',
+      after: ' au lait',
+    });
+    expect(cylSplitMatch('Cafe au lait', 'CAFÉ')).toEqual({
+      before: '',
+      match: 'Cafe',
+      after: ' au lait',
+    });
+    expect(cylSplitMatch('Crème brûlée', 'brule')).toEqual({
+      before: 'Crème ',
+      match: 'brûlé',
+      after: 'e',
     });
   });
 

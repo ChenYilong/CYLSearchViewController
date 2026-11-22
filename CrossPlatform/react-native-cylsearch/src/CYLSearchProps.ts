@@ -146,6 +146,34 @@ export type CYLSearchBarAppearance = {
 };
 
 /**
+ * The font of Cancel's title (`cancelButtonFont`): a size in points / sp and a weight.
+ */
+export type CYLFont = {
+  size?: number;
+  weight?: 'regular' | 'medium' | 'semibold' | 'bold';
+};
+
+/**
+ * The font as the JSON the native bar reads; "" for none.
+ */
+export function cylFontJSON(font: CYLFont | undefined): string {
+  return font ? JSON.stringify(font) : '';
+}
+
+/**
+ * The views after the text as the JSON array the native bar reads; "" for none.
+ */
+export function cylAccessoriesJSON(
+  accessories: readonly CYLSearchBarAccessory[] | undefined
+): string {
+  return accessories && accessories.length > 0
+    ? JSON.stringify(
+        accessories.map((accessory) => ({ size: 30, ...accessory }))
+      )
+    : '';
+}
+
+/**
  * The appearance as the JSON the native bar reads; "" for none.
  */
 export function cylAppearanceJSON(
@@ -155,19 +183,40 @@ export function cylAppearanceJSON(
 }
 
 /**
- * The text split around the first match of `query` (case sensitive, as QMUI's `range(of:)`): the match is drawn in the tint
- * color. No match, or an empty query, leaves the whole text in `before`.
+ * The text split around the first match of `query`, case and diacritic insensitive like the core's
+ * `highlightsResultMatches` (`range(of:options: [.caseInsensitive, .diacriticInsensitive])`): `match` is the text of the result
+ * as written, not the query. No match, or an empty query, leaves the whole text in `before`.
  */
 export function cylSplitMatch(
   text: string,
   query: string
 ): { before: string; match: string; after: string } {
-  const start = query.length > 0 ? text.indexOf(query) : -1;
+  const fold = (value: string) =>
+    value.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+  // The folded text and, for each of its characters, where it starts in the original (a letter with an accent folds to
+  // one character, a ligature or a capital sharp s to more).
+  let folded = '';
+  const starts: number[] = [];
+  const ends: number[] = [];
+  let offset = 0;
+  for (const character of text) {
+    const part = fold(character);
+    for (let k = 0; k < part.length; k++) {
+      starts.push(offset);
+      ends.push(offset + character.length);
+    }
+    folded += part;
+    offset += character.length;
+  }
+  const needle = fold(query);
+  const start = needle.length > 0 ? folded.indexOf(needle) : -1;
   if (start < 0) return { before: text, match: '', after: '' };
+  const from = starts[start] ?? 0;
+  const to = ends[start + needle.length - 1] ?? text.length;
   return {
-    before: text.slice(0, start),
-    match: query,
-    after: text.slice(start + query.length),
+    before: text.slice(0, from),
+    match: text.slice(from, to),
+    after: text.slice(to),
   };
 }
 
@@ -181,4 +230,67 @@ export function cylResultsForQuery<T>(
   results: readonly T[]
 ): readonly T[] {
   return query === resultsQuery ? results : [];
+}
+
+/**
+ * The native values of a bar's accessory, font and appearance props: the iOS names (`leadingView`,
+ * `trailingAccessoryViews`, `showsLeadingView`, `showsTrailingAccessoryViews`, `appearanceStyle`) win over the names of
+ * the first QMUI port (`leadingAccessory`, `trailingAccessory`, `showsLeadingAccessory`, `showsTrailingAccessory`,
+ * `appearance`), which still work.
+ */
+export function cylBarForwards(props: {
+  leadingView?: CYLSearchBarAccessory;
+  trailingAccessoryViews?: CYLSearchBarAccessory[];
+  showsLeadingView?: boolean;
+  showsTrailingAccessoryViews?: boolean;
+  appearanceStyle?: CYLSearchBarAppearance;
+  cancelButtonFont?: CYLFont;
+  leadingAccessory?: CYLSearchBarAccessory;
+  trailingAccessory?: CYLSearchBarAccessory;
+  showsLeadingAccessory?: boolean;
+  showsTrailingAccessory?: boolean;
+  appearance?: CYLSearchBarAppearance;
+}) {
+  return {
+    leadingViewJSON: cylAccessoryJSON(
+      props.leadingView ?? props.leadingAccessory
+    ),
+    trailingAccessoryViewsJSON: cylAccessoriesJSON(
+      props.trailingAccessoryViews ??
+        (props.trailingAccessory ? [props.trailingAccessory] : undefined)
+    ),
+    showsLeadingView: props.showsLeadingView ?? props.showsLeadingAccessory,
+    showsTrailingAccessoryViews:
+      props.showsTrailingAccessoryViews ?? props.showsTrailingAccessory,
+    appearanceStyleJSON: cylAppearanceJSON(
+      props.appearanceStyle ?? props.appearance
+    ),
+    cancelButtonFontJSON: cylFontJSON(props.cancelButtonFont),
+  };
+}
+
+/**
+ * The native values of a list's props that were renamed for the iOS names: `noResultsText` (was `emptyViewText`),
+ * `scrimColor` (`dimmingColor`), `suggestions` (`launchSuggestions`), `suggestionCachePolicy` (`historyPolicy`) and
+ * `suggestionCacheName` (`historyName`); the old names still work.
+ */
+export function cylListForwards(props: {
+  noResultsText?: string;
+  scrimColor?: string;
+  suggestions?: ReadonlyArray<string>;
+  suggestionCachePolicy?: string;
+  suggestionCacheName?: string;
+  emptyViewText?: string;
+  dimmingColor?: string;
+  launchSuggestions?: ReadonlyArray<string>;
+  historyPolicy?: string;
+  historyName?: string;
+}) {
+  return {
+    noResultsText: props.noResultsText ?? props.emptyViewText,
+    scrimColor: props.scrimColor ?? props.dimmingColor,
+    suggestions: props.suggestions ?? props.launchSuggestions,
+    suggestionCachePolicy: props.suggestionCachePolicy ?? props.historyPolicy,
+    suggestionCacheName: props.suggestionCacheName ?? props.historyName,
+  };
 }
