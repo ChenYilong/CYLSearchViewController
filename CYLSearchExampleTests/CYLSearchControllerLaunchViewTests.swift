@@ -722,6 +722,11 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
         CYLRunLoop(0.05)
         open.view.showSearch(animated: true)
         CYLRunLoop(0.9)
+        // A slow CI simulator can finish the 0.3 s opening later than 0.9 s: wait up to 3 s more for it.
+        let deadline = Date(timeIntervalSinceNow: 3)
+        while !recorder.events.contains("didShow") && Date() < deadline {
+            CYLRunLoop(0.05)
+        }
         XCTAssertTrue(open.view.searchOpen)
         XCTAssertFalse(open.view.isHidden, "the closing did not win")
         XCTAssertEqual(open.view.alpha, 1, accuracy: 0.01)
