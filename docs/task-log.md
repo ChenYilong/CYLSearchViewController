@@ -1117,7 +1117,7 @@ begins and becomes `DONE` when it ends.
   of `3382ebc` sat on the line after their image; joined onto the image line) and "Unit tests" (`testDelegateLifecycleOrder`
   missed `didDismiss` after a fixed 0.9 s on a slow runner; now waits up to 5 s for it). Lifecycle suite 29 of 29 locally.
 
-## TODO (2026-11-23): rows I2 / I5 (the 116 pt offset while searching) and the uncommitted Podfile.lock
+## DONE (2026-11-23): rows I2 / I5 (the 116 pt offset while searching) and the uncommitted Podfile.lock
 
 - **Branch**: `fix/i2-i5-offset` (from `feat/harmonyos-parity` at `052919a`, pull request 11 is its base). macOS 27
   session, Xcode 27.2, the dedicated simulator "iPhone 18 Pro (CYLSearch iOS TODOs)" (iOS 27.2); APFS worktree
@@ -1138,4 +1138,10 @@ begins and becomes `DONE` when it ends.
 - **Acceptance**: 100 = the bar of "Bar in a view" and "Collection view" stays at its rest position while searching
   (tests with the absolute frame, a touch run, screenshot), `Podfile.lock` committed in sync with the Podfile, suite and
   CI green. 60 = `Podfile.lock` committed and the offset fixed on one of the two screens.
-- **Status**: TODO.
+- **Status** (2026-11-23): DONE, score 100/100.
+  1. `Podfile.lock` committed in sync with the Podfile (`b0096d9`); "Remaining TODO" item 7 marked done.
+  2. I2 / I5 fixed in the core (`0a7deab`): UIKit placed the bar's container at the bar's window y inside a presentation
+     that starts at the contents view (bar at 232 instead of 116); `CYLSearchController` keeps the rest frame and the
+     system controller moves the container back by the measured difference before the results read `searchBarMaxY`.
+     Three tests check the absolute position (all read 116 pt without the fix); 188 tests, 0 failures on iOS 27.2 (clean
+     derived data); real taps on both screens, labelled screenshot `qmui-search-i2-i5-offset-fix-ios27.2-20261123.png`.
