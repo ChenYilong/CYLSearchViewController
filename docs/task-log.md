@@ -1039,3 +1039,6 @@ begins and becomes `DONE` when it ends.
   Follow-up prompt (verbatim): "修复ci错误 then \"smear\"" (English: "Fix the CI error, then do the smear"). CI had no failing
   run in this repository at that time (the last failures, 2026-11-21 on `feat/harmonyos-parity`, were fixed by `ff1e4de`);
   pull request 14's iOS run on `8bd7255` is green in all jobs.
+  CI on `56374a5` (merge of `feat/harmonyos-parity`) then failed twice: "Screenshot labels" (two `tags-default-*` captions
+  of `3382ebc` sat on the line after their image; joined onto the image line) and "Unit tests" (`testDelegateLifecycleOrder`
+  missed `didDismiss` after a fixed 0.9 s on a slow runner; now waits up to 5 s for it). Lifecycle suite 29 of 29 locally.

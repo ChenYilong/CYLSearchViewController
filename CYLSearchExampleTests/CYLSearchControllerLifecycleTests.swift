@@ -528,7 +528,9 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         let run = CYLMakeSearchRun()
         CYLActivateSearch(run, text: "H")
         run.search.setActive(false, animated: true)
-        CYLRunLoop(0.9)
+        // A slow CI runner can need more than the animation time: wait for didDismiss, up to 5 s.
+        let deadline = Date(timeIntervalSinceNow: 5)
+        repeat { CYLRunLoop(0.1) } while !run.contents.events.contains("didDismiss") && Date() < deadline
         let events = run.contents.events.filter { $0 != "willShowEmptyView" }
         XCTAssertEqual(events.filter { $0 == "didLoadTableView" }.count, 1)
         XCTAssertEqual(events.filter { $0 != "didLoadTableView" }, ["willPresent", "didPresent", "willDismiss", "didDismiss"])

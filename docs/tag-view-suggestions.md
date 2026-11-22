@@ -300,9 +300,7 @@ CollectionViewClassifyMenu).
   `CYLSearchQMUIPort` 12 of 12; the `CYLSearchUI` suite hung (no result after 100 s, also while an older `aa test` runner stayed hung on the emulator; not attributed to this change, rerun needed).
   React Native: unit test added (`cylSearchViewSuggestionStyle`), not run (no node_modules; the RN agent runs jest).
 - Screenshots (originals, stitched):
-  ![iOS tags default](assets/tags-default-ios-20261122.png)
-  iOS 27.2, iPhone 18 Pro simulator, Xcode 27.2, macOS 27.3, CYLSearchViewController 901e461, CollectionViewClassifyMenu 9dc1f761, 2026-11-22 13:31 +13:00: default suggestions folded, then unfolded.
-  ![Android tags default](assets/tags-default-android-20261122.png)
-  Android 15 API 35, CYL_API35_test emulator, macOS 27.3, JDK 17, CYLSearchViewController ff73ebd, 2026-11-22 13:44 +13:00: default suggestions folded, then unfolded.
+  ![iOS tags default](assets/tags-default-ios-20261122.png) iOS 27.2, iPhone 18 Pro simulator, Xcode 27.2, macOS 27.3, CYLSearchViewController 901e461, CollectionViewClassifyMenu 9dc1f761, 2026-11-22 13:31 +13:00: default suggestions folded, then unfolded.
+  ![Android tags default](assets/tags-default-android-20261122.png) Android 15 API 35, CYL_API35_test emulator, macOS 27.3, JDK 17, CYLSearchViewController ff73ebd, 2026-11-22 13:44 +13:00: default suggestions folded, then unfolded.
 - Observed, not fixed: iOS draws the first tag row blurred under the overlay's search bar region; Android clips the first and last tag rows by a few pixels. Both look like layout defects of the tag view inside the page (check against CollectionViewClassifyMenu).
 - TODO (Windows session): test the mini program on a device (WeChat DevTools); rerun the HarmonyOS `CYLSearchUI` suite; React Native jest and typecheck.
