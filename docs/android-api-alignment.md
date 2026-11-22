@@ -269,7 +269,7 @@ Rows: 289; DONE 267, N/A 22, TODO 0; score 100/100.
 | `CYLSearchView.suggestionsTagView` | CollectionViewClassifyMenu's `CYLTagListView` | `CYLSearchView.suggestionsTagView` | DONE |
 | `CYLSearchView.suggestionsFoldControl` | CollectionViewClassifyMenu's `CYLMenuFoldControl` | `CYLSearchView.suggestionsFoldControl` | DONE |
 | `CYLSearchView.suggestionsFoldedRowCount` | — | `CYLSearchView.suggestionsFoldedRowCount` | DONE |
-| `CYLSearchView.suggestionStyle` | `CYLSearchSuggestionStyleList`, the default; `CYLSearchSuggestionStyleTags` | `CYLSearchView.suggestionStyle` | DONE |
+| `CYLSearchView.suggestionStyle` | `CYLSearchSuggestionStyleTags`, the default (folded to `suggestionsFoldedRowCount` rows, the fold control as the last tag; was `CYLSearchSuggestionStyleList` until 2026-11-22); `CYLSearchSuggestionStyleList` | `CYLSearchView.suggestionStyle` | DONE |
 | `CYLSearchView.showsEmptyResultsPlaceholder` | — | `CYLSearchView.showsEmptyResultsPlaceholder` | DONE |
 | `CYLSearchView.emptyResultsScenario` | — | `CYLSearchView.emptyResultsScenario` | DONE |
 | `CYLSearchView.emptyResultsView` | CYLTableViewPlaceHolder's `CYLPlaceholderStackView` | `CYLSearchView.emptyResultsView` | DONE |

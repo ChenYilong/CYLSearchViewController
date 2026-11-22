@@ -924,6 +924,9 @@ begins and becomes `DONE` when it ends.
   replica screens set the list style explicitly; suites green; labelled screenshots folded / unfolded. 60 = iOS and
   Android done with tests.
 - **Status**: in progress.
+- **Status (2026-11-22, DONE except the TODOs): score 90/100.** Defaults changed on iOS, Android, HarmonyOS, the mini program, React Native and Flutter;
+  tests per platform; labelled screenshots for iOS and Android; details, results and the all-fit finding in
+  [tag-view-suggestions.md](tag-view-suggestions.md). TODO: the mini program device test (Windows session), the HarmonyOS `CYLSearchUI` suite rerun, React Native jest, the blurred first row (iOS) and clipped rows (Android) in the tag view.
 
 
 ## DONE (2026-11-22): sort the instruction files by tag, 200 lines each, details in docs/instructions

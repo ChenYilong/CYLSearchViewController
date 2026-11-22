@@ -293,7 +293,7 @@ Rows: 238; matched 238, TODO 0; score 100/100.
 | `CYLSearchView.suggestionsTagView` | The tags that show the suggestions when `suggestionStyle` is `Tags` (CollectionViewClassifyMenu's `CYLTagListView`). | `CYLSearchView.suggestionsTagView` |
 | `CYLSearchView.suggestionsFoldControl` | The fold control of the tag suggestions (CollectionViewClassifyMenu's `CYLMenuFoldControl`; iOS `suggestionsFoldControl`). | `CYLSearchView.suggestionsFoldControl` |
 | `CYLSearchView.suggestionsFoldedRowCount` | The rows of tag suggestions shown while folded (iOS `suggestionsFoldedRowCount`). | `CYLSearchView.suggestionsFoldedRowCount` |
-| `CYLSearchView.suggestionStyle` | How the suggestions are shown: a list (`List`, the default) or tags (`Tags`). | `CYLSearchView.suggestionStyle` |
+| `CYLSearchView.suggestionStyle` | How the suggestions are shown: tags (`Tags`, the default since 2026-11-22: folded to `suggestionsFoldedRowCount` rows, the fold control as the last tag) or a list (`List`, the default until then). | `CYLSearchView.suggestionStyle` |
 | `CYLSearchView.showsEmptyResultsPlaceholder` | Shows CYLTableViewPlaceHolder's placeholder for `emptyResultsScenario` under the search bar while a non-empty query matches no suggestion, in both suggestion styles. | `CYLSearchView.showsEmptyResultsPlaceholder` |
 | `CYLSearchView.emptyResultsScenario` | The CYLTableViewPlaceHolder scenario of that placeholder. | `CYLSearchView.emptyResultsScenario` |
 | `CYLSearchView.emptyResultsView` | The placeholder shown for empty results (CYLTableViewPlaceHolder's `CYLPlaceholderStackView`), created the first time it is shown; null before. | `CYLSearchView.emptyResultsView` |

@@ -280,3 +280,29 @@ CollectionViewClassifyMenu).
 
 - Status: `BUG DONE`.
 
+
+## DONE (2026-11-22): tags are the default suggestion style, folded, the fold control as the last tag
+
+- Task log: [task-log.md](task-log.md), "tags as the default suggestion style". Branch `feat/harmonyos-parity` (PR #11).
+- Change: `CYLSearchView.suggestionStyle` defaults to tags on iOS, Android, HarmonyOS, the mini program (core and `cyl-search`
+  property), React Native (`cylSearchViewSuggestionStyle`) and Flutter. Every other default is unchanged: CollectionViewClassifyMenu's
+  `CYLTagListView` (`suggestionsTagView`), the inline fold control (position tail, content icon), 2 folded rows
+  (`suggestionsFoldedRowCount`), so the tags start folded. Tests that exercise the list, and the list replicas (iOS
+  `CYLOriginalSearchDemoViewController`, Android MaterialSearchView sample), set the list style explicitly.
+- Property of the packaged style, checked by a test per platform: folded or unfolded, the last tag is the fold control and a
+  tap on it toggles the folding. **All tags fit the folded rows: the packaged control hides itself** (`CYLTagListView.canFoldSection`
+  is false when the rows do not exceed the folded rows; the mini program and HarmonyOS follow the same rule). The core adds no
+  control of its own; a different behavior belongs in CollectionViewClassifyMenu. Tests pin the current behavior.
+- Tests: iOS 27.2 sim (140 of 143 earlier run: the 2 list failures fixed by setting `.list`; `CYLSearchExampleCacheFocusItemTests` 10 of 10
+  after the new tests; one lifecycle jitter test failed once under parallel load and passed in the first run);
+  Android `:cylsearch:testDebugUnitTest` and `:app:testDebugUnitTest` green; mini program `npm test` 86 of 86; Flutter `flutter test` 18 of 18;
+  HarmonyOS hypium on the local Mac emulator (arm64): `CYLSearchCore` 22 of 22 (new `suggestionStyleDefaultsToFoldedTags`),
+  `CYLSearchQMUIPort` 12 of 12; the `CYLSearchUI` suite hung (no result after 100 s, also while an older `aa test` runner stayed hung on the emulator; not attributed to this change, rerun needed).
+  React Native: unit test added (`cylSearchViewSuggestionStyle`), not run (no node_modules; the RN agent runs jest).
+- Screenshots (originals, stitched):
+  ![iOS tags default](assets/tags-default-ios-20261122.png)
+  iOS 27.2, iPhone 18 Pro simulator, Xcode 27.2, macOS 27.3, CYLSearchViewController 901e461, CollectionViewClassifyMenu 9dc1f761, 2026-11-22 13:31 +13:00: default suggestions folded, then unfolded.
+  ![Android tags default](assets/tags-default-android-20261122.png)
+  Android 15 API 35, CYL_API35_test emulator, macOS 27.3, JDK 17, CYLSearchViewController ff73ebd, 2026-11-22 13:44 +13:00: default suggestions folded, then unfolded.
+- Observed, not fixed: iOS draws the first tag row blurred under the overlay's search bar region; Android clips the first and last tag rows by a few pixels. Both look like layout defects of the tag view inside the page (check against CollectionViewClassifyMenu).
+- TODO (Windows session): test the mini program on a device (WeChat DevTools); rerun the HarmonyOS `CYLSearchUI` suite; React Native jest and typecheck.
