@@ -862,6 +862,7 @@ begins and becomes `DONE` when it ends.
   `instructions.md` ("Naming"), `AGENTS.md` ("Project rules" and the skills table), `docs/swift-coding-standard.md`.
 - **TODO**: rename the test helpers to lowerCamelCase after the merge phases (they edit the same test files); the
   CYLTabBarController renames belong to that repository's session and pull request.
+- **Status (code)**: rename DONE (2026-11-22), commit `fe82e0c` ("refactor: ♻️ lowerCamelCase test helpers (S100)"): the 14 global test helpers (`CYLRunLoop` -> `runLoop`, `CYLTestWindow` -> `testWindow`, `CYLMakeSearchRun` / `CYLActivateSearch` / `CYLTearDownSearchRun` -> `makeSearchRun` / `activateSearch` / `tearDownSearchRun`, `CYLViewsCoveredByView` -> `viewsCoveredByView`, and the rest) are lowerCamelCase with every call site updated; no public API or `@objc` selector touched; Sources/ and CYLSearchExample/ have no other S115/S116/S117 case of ours. Full suites: iOS 27.2 (CF8CABFE), 26.5 (36C5761F) and 17.5 (AC24E128), 185 tests each, 0 failures, clean derived data each.
 ## TODO (2026-11-22): pin CYLTabBarController 882ece17, ClassifyMenu 405bf498, CYLTableViewPlaceHolder f4cf978; adopt the x86_64 plan
 
 - **Branch**: `feat/harmonyos-parity` (PR #11). Context: CYLTabBarController `882ece17` ships the x86_64 emulator test plan
