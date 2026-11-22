@@ -41,6 +41,14 @@ class CYLSearchViewQMUIPortTest {
         override fun searchViewWillShowEmptyView(searchView: CYLSearchView, emptyView: View) { events += "willShowEmpty" }
     }
 
+    /**
+     * Takes the test's views off the window, so their history observers end (Robolectric keeps the activity alive).
+     */
+    @org.junit.After
+    fun detachTheViews() {
+        activity.setContentView(FrameLayout(activity))
+    }
+
     @Before
     fun cleanCache() {
         CYLSearchSuggestionStore.cacheWithPolicy(activity, CYLSearchSuggestionCachePolicy.Database, "CYLSearchView")?.removeAllQueries()
