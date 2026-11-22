@@ -127,6 +127,33 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
     }
 
     /**
+     * Whether the built-in launch view is `launchView`: the suggestion area of `CYLSearchView` (CollectionViewClassifyMenu's
+     * tags folded to two rows with the fold control as the last tag, and, over the submitted queries of
+     * `historyStore`, the title "Recent searches" with a clear button). It shows the history, newest first, or else
+     * `suggestions`; it reads the history again whenever a query is submitted. A tapped tag becomes the query and is
+     * submitted. Default `false`. Setting it to `true` replaces a custom `launchView`; setting a `launchView` of your own
+     * turns it off.
+     */
+    @objc public var showsSuggestionsLaunchView: Bool {
+        get { launchView === suggestionsLaunchView }
+        set {
+            if newValue {
+                launchView = suggestionsLaunchView
+            } else if launchView === suggestionsLaunchView {
+                launchView = nil
+            }
+        }
+    }
+
+    /**
+     * The tags of the built-in launch view while `historyStore` is empty or nil (see `showsSuggestionsLaunchView`). Empty
+     * by default.
+     */
+    @objc public var suggestions: [String] = [] {
+        didSet { suggestionsLaunchView.area.suggestions = suggestions }
+    }
+
+    /**
      * The color over the contents while the keyboard is up and the text is empty; `nil` keeps the system's. Ignored
      * when a `launchView` is set (QMUI `dimmingColor`).
      */
@@ -207,9 +234,11 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
     /**
      * Where the queries the person submits (the return key of the keyboard) are kept, newest first and without
      * duplicates; nil keeps none. The built-in store of `CYLSearchView` comes from `CYLSearchResources`, so the search
-     * history is shared code, not a copy (the launch view of the example reads it).
+     * history is shared code, not a copy (the built-in launch view reads it).
      */
-    @objc public var historyStore: CYLSearchSuggestionCache?
+    @objc public var historyStore: CYLSearchSuggestionCache? {
+        didSet { suggestionsLaunchView.area.cache = historyStore }
+    }
 
     /**
      * Posted (object: this controller, `userInfo` key `"query"`) after a submitted query went into `historyStore`, so
@@ -221,6 +250,13 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
 
     let systemController: CYLSystemSearchController
     let presentationGuard = CYLSearchPresentationGuard()
+    private lazy var suggestionsLaunchView: CYLSearchSuggestionsLaunchView = {
+        let view = CYLSearchSuggestionsLaunchView()
+        view.area.cache = historyStore
+        view.area.suggestions = suggestions
+        view.area.onSelect = { [weak self] _, title in self?.submitSuggestion(title) }
+        return view
+    }()
     private(set) weak var contentsViewController: UIViewController?
     private(set) var emptyView: UIView?
     private(set) var snapshotView: UIView?
@@ -291,10 +327,23 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
 
     // The return key of the keyboard (iOS 13 and later, public `UITextField` API): the query goes to the history store.
     @objc private func searchFieldSubmitted(_ field: UITextField) {
-        let query = (field.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        recordSubmittedQuery(field.text ?? "")
+    }
+
+    // A tapped tag of the built-in launch view: it becomes the query (the results update) and is submitted like the
+    // return key does.
+    private func submitSuggestion(_ title: String) {
+        searchBar.text = title
+        recordSubmittedQuery(title)
+        searchBar.searchTextField.resignFirstResponder()
+    }
+
+    private func recordSubmittedQuery(_ text: String) {
+        let query = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else { return }
         guard let historyStore else { return }
         historyStore.addQuery(query)
+        CYLSearchSuggestionStore.announceChange(of: historyStore)
         NotificationCenter.default.post(name: Self.historyDidChangeNotification, object: self, userInfo: ["query": query])
     }
 

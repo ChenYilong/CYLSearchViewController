@@ -156,3 +156,39 @@ func CYLTearDownSearchRun(_ run: CYLSearchRun) {
     run.window.rootViewController = nil
     run.window.isHidden = true
 }
+
+/**
+ * The collection view inside a `CYLTagListView`, and its visible cells in order (the fold control is the last one).
+ */
+func CYLTagCollectionView(in view: UIView) -> UICollectionView? {
+    if let found = view as? UICollectionView { return found }
+    return view.subviews.lazy.compactMap { CYLTagCollectionView(in: $0) }.first
+}
+
+func CYLOrderedTagCells(of tagView: UIView) -> [(indexPath: IndexPath, cell: UICollectionViewCell)] {
+    guard let collection = CYLTagCollectionView(in: tagView) else { return [] }
+    collection.layoutIfNeeded()
+    return collection.visibleCells.compactMap { cell in collection.indexPath(for: cell).map { ($0, cell) } }
+        .sorted { $0.0 < $1.0 }
+}
+
+/**
+ * Taps a tag the way the collection view reports a tap.
+ */
+func CYLTapTag(at index: Int, in tagView: UIView) {
+    guard let collection = CYLTagCollectionView(in: tagView) else { return }
+    collection.delegate?.collectionView?(collection, didSelectItemAt: IndexPath(item: index, section: 0))
+    CYLRunLoop(0.6)
+    collection.layoutIfNeeded()
+}
+
+/**
+ * A store of an app's own (not CYLSearchResources'), to show that the history signal covers it too.
+ */
+final class CYLMemoryHistory: NSObject, CYLSearchSuggestionCache {
+    private var queries: [String] = []
+    func cachedQueries() -> [String] { queries }
+    func addQuery(_ query: String) { queries = [query] + queries.filter { $0 != query } }
+    func removeQuery(_ query: String) { queries.removeAll { $0 == query } }
+    func removeAllQueries() { queries = [] }
+}

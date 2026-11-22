@@ -5,6 +5,7 @@
 //  Rows E15 (launch view), E18 (always visible results) and E19 (dimming view) of docs/qmui-search-controller.md.
 //
 
+import CollectionViewClassifyMenu
 import UIKit
 import XCTest
 @testable import CYLSearchViewController
@@ -139,6 +140,159 @@ final class CYLSearchControllerLaunchViewTests: CYLSearchExampleTestCase {
         XCTAssertTrue(dimming.isHidden, "ignored while a launch view is set")
         run.search.dimmingColor = nil
         XCTAssertNil(dimming.superview)
+        CYLTearDownSearchRun(run)
+    }
+}
+
+/**
+ * The built-in launch view of CYLSearchController (`showsSuggestionsLaunchView`, `suggestions`, `historyStore`): the
+ * suggestion area of CYLSearchView shown under the bar (docs/qmui-search-controller.md, "Merge phase 2 log").
+ */
+final class CYLSearchControllerSuggestionsLaunchTests: CYLSearchExampleTestCase {
+
+    private func makeRun(suggestions: [String], store: CYLSearchSuggestionCache? = nil) -> CYLSearchRun {
+        let run = CYLMakeSearchRun()
+        run.search.historyStore = store
+        run.search.suggestions = suggestions
+        run.search.showsSuggestionsLaunchView = true
+        return run
+    }
+
+    private func launch(_ run: CYLSearchRun) throws -> CYLSearchSuggestionsLaunchView {
+        try XCTUnwrap(run.search.launchView as? CYLSearchSuggestionsLaunchView)
+    }
+
+    private func uniqueName() -> String { "CYLSuggestionsLaunchTests-\(UUID().uuidString)" }
+
+    private let many = (1...14).map { "Suggestion number \($0)" }
+
+    func testTheCustomLaunchViewPathStillWorks() throws {
+        let run = CYLMakeSearchRun()
+        XCTAssertFalse(run.search.showsSuggestionsLaunchView, "off by default: the launch view stays nil")
+        XCTAssertNil(run.search.launchView)
+        let custom = UIView()
+        run.search.launchView = custom
+        XCTAssertFalse(run.search.showsSuggestionsLaunchView)
+        run.search.showsSuggestionsLaunchView = false
+        XCTAssertTrue(run.search.launchView === custom, "off does not touch a custom view")
+        CYLActivateSearch(run)
+        XCTAssertNotNil(custom.window, "the custom view is the launch view")
+        run.search.showsSuggestionsLaunchView = true
+        XCTAssertTrue(run.search.launchView is CYLSearchSuggestionsLaunchView, "on replaces a custom view")
+        XCTAssertNil(custom.superview)
+        run.search.launchView = custom
+        XCTAssertFalse(run.search.showsSuggestionsLaunchView, "a custom view turns the built-in one off")
+        run.search.showsSuggestionsLaunchView = true
+        run.search.alwaysShowsSearchResultsController = true
+        XCTAssertNil(run.search.launchView, "always visible results clear it too")
+        CYLTearDownSearchRun(run)
+    }
+
+    func testTagsAreFoldedAndTheFoldControlIsLast() throws {
+        let run = makeRun(suggestions: many)
+        CYLActivateSearch(run)
+        let area = try launch(run).area
+        XCTAssertEqual(area.titles, many)
+        XCTAssertTrue(area.headerView.isHidden, "no history: no header")
+        XCTAssertEqual(area.tagView.foldControl.position, CYLMenuFoldControlPosition.tail)
+        XCTAssertFalse(area.tagView.isSectionExpanded(0), "folded at start")
+        let folded = CYLOrderedTagCells(of: area.tagView)
+        XCTAssertTrue(folded.last?.cell is CYLTagFoldCell, "folded: the fold control is the last tag")
+        XCTAssertEqual(folded.filter { $0.cell is CYLTagFoldCell }.count, 1)
+        XCTAssertEqual(Set(folded.map { Int($0.cell.frame.minY.rounded()) }).count, 2, "two rows")
+        CYLTapTag(at: folded.last!.indexPath.item, in: area.tagView)
+        XCTAssertTrue(area.tagView.isSectionExpanded(0), "a tap on the control unfolds")
+        let unfolded = CYLOrderedTagCells(of: area.tagView)
+        XCTAssertTrue(unfolded.last?.cell is CYLTagFoldCell, "unfolded: still the last tag")
+        XCTAssertGreaterThan(unfolded.count, folded.count)
+        CYLTearDownSearchRun(run)
+    }
+
+    func testLaunchContentIsNeverCoveredByTheBar() throws {
+        let run = makeRun(suggestions: many)
+        CYLActivateSearch(run)
+        let launch = try launch(run)
+        let area = launch.area
+        func check(_ state: String) {
+            let bar = run.search.searchBar.convert(run.search.searchBar.bounds, to: run.window).maxY
+            XCTAssertGreaterThanOrEqual(launch.convert(launch.bounds, to: run.window).minY, bar - 0.5, "\(state): launch view under the bar")
+            XCTAssertGreaterThanOrEqual(area.tagView.convert(area.tagView.bounds, to: run.window).minY, bar - 0.5, "\(state): tags under the bar")
+            XCTAssertEqual(CYLTagCollectionView(in: area.tagView)?.adjustedContentInset.top ?? -1, 0, accuracy: 0.5, "\(state): no inset pushes the tags")
+            let first = CYLOrderedTagCells(of: area.tagView).map { area.tagView.convert($0.cell.bounds, from: $0.cell).minY }.min() ?? 0
+            XCTAssertGreaterThanOrEqual(first, -0.5, "\(state): the first row is inside the list")
+            if #available(iOS 26.0, *) {
+                var scrollers: [UIScrollView] = []
+                func collect(_ view: UIView) { if let s = view as? UIScrollView { scrollers.append(s) }; view.subviews.forEach(collect) }
+                collect(area.tagView)
+                XCTAssertTrue(!scrollers.isEmpty && scrollers.allSatisfy { $0.topEdgeEffect.isHidden }, "\(state): no edge blur")
+            }
+        }
+        check("active")
+        CYLTapTag(at: CYLOrderedTagCells(of: area.tagView).last!.indexPath.item, in: area.tagView)
+        check("unfolded")
+        run.search.searchBar.text = "S"
+        CYLRunLoop(0.4)
+        run.search.searchBar.text = ""
+        CYLRunLoop(0.4)
+        check("after typing and clearing")
+        run.window.frame = CGRect(x: 0, y: 0, width: 330, height: 640)
+        CYLRunLoop(0.7)
+        check("after a resize")
+        CYLTearDownSearchRun(run)
+    }
+
+    func testHistoryChangesOfOneNameReachTheLaunchContentOnScreen() throws {
+        let name = uniqueName()
+        let store = try XCTUnwrap(CYLSearchResources.suggestionCache(policy: .userDefaults, name: name))
+        defer { store.removeAllQueries() }
+        let run = makeRun(suggestions: ["a", "b"], store: store)
+        CYLActivateSearch(run)
+        let area = try launch(run).area
+        XCTAssertEqual(area.titles, ["a", "b"])
+        // Another instance of the same history (cache(policy:name:) returns a new one on each call).
+        let other = try XCTUnwrap(CYLSearchResources.suggestionCache(policy: .userDefaults, name: name))
+        other.addQuery("first")
+        XCTAssertEqual(area.titles, ["first"], "matched by name")
+        XCTAssertFalse(area.headerView.isHidden)
+        // The history of another name does not reach it.
+        let stranger = try XCTUnwrap(CYLSearchResources.suggestionCache(policy: .userDefaults, name: uniqueName()))
+        defer { stranger.removeAllQueries() }
+        stranger.addQuery("elsewhere")
+        XCTAssertEqual(area.titles, ["first"])
+        // The same name under another policy is another history.
+        let file = try XCTUnwrap(CYLSearchResources.suggestionCache(policy: .sandboxFile, name: name))
+        defer { file.removeAllQueries() }
+        file.addQuery("file")
+        XCTAssertEqual(area.titles, ["first"])
+        // A submit of a CYLSearchView with the same history reaches the controller's launch content too.
+        let host = UIViewController()
+        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        let searchView = CYLSearchView(frame: host.view.bounds)
+        host.view.addSubview(searchView)
+        searchView.suggestionCachePolicy = .userDefaults
+        searchView.suggestionCacheName = name
+        searchView.showSearch(animated: false)
+        searchView.setQuery("from search view", submit: true)
+        CYLRunLoop(0.3)
+        XCTAssertEqual(area.titles.first, "from search view", "one signal for both classes")
+        searchView.removeFromSuperview()
+        window.isHidden = true
+        CYLTearDownSearchRun(run)
+    }
+
+    func testAStoreOfTheAppsOwnIsCoveredToo() throws {
+        let store = CYLMemoryHistory()
+        let run = makeRun(suggestions: ["a"], store: store)
+        CYLActivateSearch(run)
+        let area = try launch(run).area
+        run.search.searchBar.text = "mine"
+        run.search.searchBar.searchTextField.sendActions(for: .primaryActionTriggered)
+        XCTAssertEqual(store.cachedQueries(), ["mine"])
+        XCTAssertEqual(area.titles, ["mine"], "announced by the core: the store cannot post")
+        area.clearButton.sendActions(for: .touchUpInside)
+        XCTAssertEqual(area.titles, ["a"])
         CYLTearDownSearchRun(run)
     }
 }

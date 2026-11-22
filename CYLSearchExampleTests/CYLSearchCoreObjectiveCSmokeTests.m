@@ -712,6 +712,8 @@
     (void)sc.searchBar;
     (void)sc.tableView;
     { __typeof__(sc.launchView) value149 = sc.launchView; sc.launchView = value149; }
+    { __typeof__(sc.showsSuggestionsLaunchView) value160 = sc.showsSuggestionsLaunchView; sc.showsSuggestionsLaunchView = value160; }
+    { __typeof__(sc.suggestions) value161 = sc.suggestions; sc.suggestions = value161; }
     { __typeof__(sc.dimmingColor) value150 = sc.dimmingColor; sc.dimmingColor = value150; }
     { __typeof__(sc.isActive) value151 = sc.isActive; sc.isActive = value151; }
     { __typeof__(sc.hidesNavigationBarDuringPresentation) value152 = sc.hidesNavigationBarDuringPresentation; sc.hidesNavigationBarDuringPresentation = value152; }

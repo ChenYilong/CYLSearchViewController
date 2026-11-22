@@ -501,6 +501,8 @@ final class CYLSearchAPIFenceTests: XCTestCase {
         _ = sc.searchBar
         _ = sc.tableView
         touch(sc, \.launchView)
+        touch(sc, \.showsSuggestionsLaunchView)
+        touch(sc, \.suggestions)
         touch(sc, \.dimmingColor)
         touch(sc, \.isActive)
         touch(sc, \.hidesNavigationBarDuringPresentation)
