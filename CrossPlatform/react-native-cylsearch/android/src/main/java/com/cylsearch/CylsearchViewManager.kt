@@ -102,10 +102,10 @@ class CylsearchViewManager : SimpleViewManager<CylsearchView>(), CylsearchViewMa
   override fun setResults(view: CylsearchView, value: ReadableArray?) = view.setResults(value.cylStrings())
 
   @ReactProp(name = "highlightsResultMatches")
-  override fun setHighlightsResultMatches(view: CylsearchView, value: Boolean) { view.highlightsResultMatches = value }
+  override fun setHighlightsResultMatches(view: CylsearchView, value: Boolean) { view.searchView.highlightsResultMatches = value }
 
   @ReactProp(name = "resultMatchHighlightColor")
-  override fun setResultMatchHighlightColor(view: CylsearchView, value: String?) { view.resultMatchHighlightColor = cylParseColor(value) }
+  override fun setResultMatchHighlightColor(view: CylsearchView, value: String?) { view.searchView.resultMatchHighlightColor = cylParseColor(value) }
 
   @ReactProp(name = "showsResults")
   override fun setShowsResults(view: CylsearchView, value: Boolean) = view.setShowsResults(value)

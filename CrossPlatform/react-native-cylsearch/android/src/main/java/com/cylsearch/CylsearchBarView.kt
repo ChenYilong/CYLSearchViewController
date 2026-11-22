@@ -149,25 +149,22 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
     bar.textFieldMarginsProvider = if (fieldMargins.isEmpty() && searchingFieldMargins.isEmpty()) null else { b, active -> if (active && searchingFieldMargins.isNotEmpty()) fieldActive else field }
     bar.cancelButtonMarginsProvider = if (cancelMargins.isEmpty() && searchingCancelMargins.isEmpty()) null else { b, active -> if (active && searchingCancelMargins.isNotEmpty()) cancelActive else cancel }
     bar.applyCancelButtonFont(cancelButtonFontJSON)
-    // TODO (Android merge): the core still has the accessory slots next to `leadingView` / `trailingAccessoryViews`; the
-    // first view of `trailingAccessoryViewsJSON` goes into the slot until the core animates the existing members.
     if (leadingViewJSON != appliedLeading) {
       appliedLeading = leadingViewJSON
-      bar.leadingAccessoryView = accessory(leadingViewJSON)
-      bar.leadingAccessoryViewMargins = Rect(8, 0, 0, 0)
+      bar.leadingView = accessory(leadingViewJSON, start = 8)
     }
     if (trailingAccessoryViewsJSON != appliedTrailing) {
       appliedTrailing = trailingAccessoryViewsJSON
-      bar.trailingAccessoryView = accessory(runCatching { JSONArray(trailingAccessoryViewsJSON).optJSONObject(0)?.toString() }.getOrNull())
-      bar.trailingAccessoryViewMargins = Rect(0, 0, 8, 0)
+      val specs = runCatching { JSONArray(trailingAccessoryViewsJSON) }.getOrNull()
+      bar.trailingAccessoryViews = (0 until (specs?.length() ?: 0)).mapNotNull { accessory(specs?.optJSONObject(it)?.toString(), end = 8) }
     }
     // Changes of the shown state animate once the first one is on screen (setShows...(_:animated:)).
     if (shownLeading != showsLeadingView) {
-      bar.setShowsLeadingAccessoryView(showsLeadingView, animatesChanges && shownLeading != null)
+      bar.setShowsLeadingView(showsLeadingView, animatesChanges && shownLeading != null)
       shownLeading = showsLeadingView
     }
     if (shownTrailing != showsTrailingAccessoryViews) {
-      bar.setShowsTrailingAccessoryView(showsTrailingAccessoryViews, animatesChanges && shownTrailing != null)
+      bar.setShowsTrailingAccessoryViews(showsTrailingAccessoryViews, animatesChanges && shownTrailing != null)
       shownTrailing = showsTrailingAccessoryViews
     }
     if (shownCancel != showsCancel) {
@@ -193,7 +190,7 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
   }
 
   /** The accessory of a JSON spec: a stroked rounded square (QDSearchBarViewController's 30 x 30 view). */
-  private fun accessory(json: String?): View? {
+  private fun accessory(json: String?, start: Int = 0, end: Int = 0): View? {
     if (json.isNullOrEmpty()) return null
     val spec = runCatching { JSONObject(json) }.getOrNull() ?: return null
     val density = resources.displayMetrics.density
@@ -204,7 +201,11 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
       setStroke((3 * density).toInt(), parseColor(spec.optString("color")) ?: Color.rgb(0, 122, 255))
     }
     view.contentDescription = spec.optString("label")
-    view.layoutParams = LayoutParams(size, size)
+    // The gap to the field is the view's own margin (the core's accessory margins are deprecated).
+    view.layoutParams = LayoutParams(size, size).apply {
+      marginStart = (start * density).toInt()
+      marginEnd = (end * density).toInt()
+    }
     return view
   }
 

@@ -1,9 +1,7 @@
 package com.cylsearch
 
-import android.graphics.Color
 import android.widget.FrameLayout
 import com.cyl.placeholder.CYLPlaceholderScenario
-import com.cyl.search.CYLSearchBarAppearance
 import com.cyl.search.CYLSearchSuggestionCachePolicy
 import com.cyl.search.CYLSearchSuggestionStyle
 import com.cyl.search.CYLSearchView
@@ -19,23 +17,7 @@ class CylsearchView(private val reactContext: ThemedReactContext) : FrameLayout(
 
   val searchView = CYLSearchView(reactContext)
   // The one results data source of both components; JavaScript filters, so the results belong to every text.
-  private val source = CylsearchResults(CYLSearchBarAppearance.defaultAppearance(reactContext).tintColor ?: Color.rgb(0, 104, 248))
-
-  /**
-   * The match highlight option (`highlightsResultMatches`, `resultMatchHighlightColor`).
-   */
-  var highlightsResultMatches: Boolean
-    get() = source.highlights
-    set(value) {
-      source.highlights = value
-      if (resultsShown) searchView.reloadResults()
-    }
-  var resultMatchHighlightColor: Int?
-    get() = source.highlightColor
-    set(value) {
-      source.highlightColor = value
-      if (resultsShown) searchView.reloadResults()
-    }
+  private val source = CylsearchResults()
 
   /**
    * The fold control's last position and content names, combined into one control.

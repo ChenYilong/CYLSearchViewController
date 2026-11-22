@@ -1,13 +1,11 @@
 package com.cylsearch
 
-import android.graphics.Color
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.cyl.search.CYLSearchBarAppearance
 import com.cyl.search.CYLSearchBarNavigationIcon
 import com.cyl.search.CYLSearchListView
 import com.cyl.search.CYLSearchSuggestionCachePolicy
@@ -19,15 +17,15 @@ import com.facebook.react.uimanager.UIManagerHelper
 /**
  * The core's `CYLSearchListView` (iOS `CYLSearchTableViewController`: a list whose first item is the search bar) with its
  * `CYLSearchView` as the search. The page is the core's own: its suggestion area is the launch area (the history, else
- * `suggestions`, as folded tags, with the title and the clear button), `scrimColor` the dimming, `showEmptyView` the
- * empty view. React Native owns the data; the core owns the bar, the page, the scrolling and the snapping. The results
- * and their highlight come from the one data source both components use (`CylsearchResults`).
+ * `suggestions`, as folded tags, with the title and the clear button), `scrimColor` the dimming, `noResultsText` the
+ * empty view, `highlightsResultMatches` the highlight. React Native owns the data; the core owns the bar, the page, the
+ * scrolling and the snapping. The results come from the one data source both components use (`CylsearchResults`).
  */
 class CylsearchListView(private val reactContext: ThemedReactContext) : FrameLayout(reactContext), CYLSearchViewDelegate {
 
   val list = CYLSearchListView(reactContext)
   val searchView: CYLSearchView get() = list.searchView
-  private val source = CylsearchResults(CYLSearchBarAppearance.defaultAppearance(reactContext).tintColor ?: Color.rgb(0, 104, 248))
+  private val source = CylsearchResults()
 
   var rows: List<String> = emptyList()
     set(value) {
@@ -43,16 +41,6 @@ class CylsearchListView(private val reactContext: ThemedReactContext) : FrameLay
     get() = source.resultsQuery.orEmpty()
     set(value) {
       source.resultsQuery = value
-    }
-  var highlightsResultMatches: Boolean
-    get() = source.highlights
-    set(value) {
-      source.highlights = value
-    }
-  var resultMatchHighlightColor: Int?
-    get() = source.highlightColor
-    set(value) {
-      source.highlightColor = value
     }
   var noResultsText: String = ""
   var suggestions: List<String> = emptyList()
@@ -116,24 +104,13 @@ class CylsearchListView(private val reactContext: ThemedReactContext) : FrameLay
     // The launch area shows while the text is empty when there is something to launch with: the history or the suggestions.
     searchView.showsSuggestionsForEmptyQuery = suggestions.isNotEmpty() || searchView.suggestionCachePolicy != CYLSearchSuggestionCachePolicy.None
     searchView.scrimColor = cylParseColor(scrimColor)
+    searchView.noResultsText = noResultsText.takeIf { it.isNotEmpty() }
     searchView.reloadResults()
-    updateEmptyView()
-  }
-
-  /** The empty view for a text whose results are known to be empty (QDSearchViewController's updateResults). */
-  private fun updateEmptyView() {
-    val query = searchView.query.orEmpty()
-    if (noResultsText.isNotEmpty() && query.isNotEmpty() && resultsQuery == query && results.isEmpty()) {
-      searchView.showEmptyView(noResultsText)
-    } else {
-      searchView.hideEmptyView()
-    }
   }
 
   /** The text changed (also ""): JavaScript answers with results of that text. */
   override fun searchViewUpdateResults(searchView: CYLSearchView, searchString: String) {
     emit("topUpdateResults", "text" to searchString)
-    updateEmptyView()
   }
 
   override fun searchViewWillShow(searchView: CYLSearchView) = emit("topWillPresent")

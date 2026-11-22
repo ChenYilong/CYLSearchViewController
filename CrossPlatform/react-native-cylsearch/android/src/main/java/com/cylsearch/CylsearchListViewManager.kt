@@ -70,10 +70,10 @@ class CylsearchListViewManager : SimpleViewManager<CylsearchListView>(), Cylsear
   override fun setScrimColor(view: CylsearchListView, value: String?) { view.scrimColor = value }
 
   @ReactProp(name = "highlightsResultMatches")
-  override fun setHighlightsResultMatches(view: CylsearchListView, value: Boolean) { view.highlightsResultMatches = value }
+  override fun setHighlightsResultMatches(view: CylsearchListView, value: Boolean) { view.searchView.highlightsResultMatches = value }
 
   @ReactProp(name = "resultMatchHighlightColor")
-  override fun setResultMatchHighlightColor(view: CylsearchListView, value: String?) { view.resultMatchHighlightColor = cylParseColor(value) }
+  override fun setResultMatchHighlightColor(view: CylsearchListView, value: String?) { view.searchView.resultMatchHighlightColor = cylParseColor(value) }
 
   @ReactProp(name = "supportsSwipeToDismissSearch")
   override fun setSupportsSwipeToDismissSearch(view: CylsearchListView, value: Boolean) { view.searchView.supportsSwipeToDismissSearch = value }
