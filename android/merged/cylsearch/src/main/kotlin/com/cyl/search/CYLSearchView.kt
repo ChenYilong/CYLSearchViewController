@@ -957,7 +957,7 @@ class CYLSearchView @JvmOverloads constructor(
             val hadWidth = filledTagWidth > 0
             filledTagWidth = width
             if (width > 0 && !hadWidth && suggestionStyle == CYLSearchSuggestionStyle.Tags && suggestionsVisible) {
-                view.post { suggestionsTagView.setTagsWithTitles(filteredSuggestions) }
+                view.post { updateSuggestionsVisibility() }
             }
         }
         val padding = (12 * density).toInt()
