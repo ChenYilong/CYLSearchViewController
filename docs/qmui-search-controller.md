@@ -1588,3 +1588,37 @@ Closed in the cores with tests (35 of 40: the Android history signal needed no c
 - TODO: with no history and only `suggestions`, the Android launch area no longer clips its rows (margins fix, checked on the emulator), but the fold control is still missing for 10 tags in 2 folded rows on the first open (8 tags shown); the same on the build before this phase; the list is now an inset white block with 12 dp margins instead of a full-width one; to look at in the core. The wrappers' observers drop notifications without `userInfo` (a cache of your own announced through `announceChange`); no wrapper uses one.
 - TODO: the Flutter plugin has no native unit test left on Android (`CYLMatchHighlightTest` went with the code, the core tests cover the highlight); no native tests of the bridges.
 - TODO: RN iOS Release not run on a simulator in this phase (built only); `cancelButtonFontSize` and the history signal of the Flutter Android trash button were not exercised on the device; the Android core's `cancelButtonFontSize` is a second property beside `cancelButtonFont` (as `fontSize` beside `font`), not one font object.
+
+### Fold control fix (2026-11-22)
+
+Base `4f8e22f` (`feat/harmonyos-parity`, PR #11); worktree `/tmp/xpr/fold-fix`. Task prompt (English, verbatim in substance): on the Android "Search controller" example screen the first-open launch area, with no history and only the 10 `suggestions`, shows 8 of the 10 tags and no fold control, so tags are hidden with no way to unfold; the owner's rule is that, folded or unfolded, the last tag is always the fold control (CollectionViewClassifyMenu's `CYLTagListView` with `CYLMenuFoldControl` at the tail, 2 folded rows) and it toggles; find the cause, fix it in the core or write a ClassifyMenu TODO, check iOS, HarmonyOS and the mini program for the same input.
+
+#### Finding: the premise does not hold, nothing is hidden (misdiagnosis)
+
+| Check | Result |
+| :--- | :--- |
+| The example's `suggestions` | **8**, not 10: `CYLSearchControllerDemoFragment.SUGGESTIONS` (Android), `CYLSearchControllerDemoViewController.suggestions` (iOS), `SearchController.ets` `CYL_LAUNCH_SUGGESTIONS` (HarmonyOS), `pages/searchController/index.js` `SUGGESTIONS` (mini program), `cylQMUISuggestions` (Flutter) and QMUI's own `QDSearchBarViewController.m` (`suggestions`, 8 entries). The list of 10 is `KEYWORDS` (the keywords the results filter, "Nuturally" included), which is not shown as the launch tags. |
+| Android, unchanged example, AVD (1080 x 2400 px, 420 dpi) | All 8 tags in exactly 2 rows, no fold control (screenshot, top). `CYLTagListView.canFoldRowCount` needs more rows than `defaultVisibleRows` (2), so a list that fits has nothing to fold and draws no control: 8 shown of 8, none hidden. The phase 5b TODO ("10 tags in 2 folded rows (8 shown)") describes this screen; it counted the 10 keywords, not the 8 suggestions. |
+| Android, 10 suggestions (local patch of the example, not committed) | 3 rows at 411 dp, so it folds: 9 tags and the fold control last in 2 rows; a tap shows all 10 with the control last (now a chevron up); a second tap folds again (screenshot, middle and bottom). The core and CollectionViewClassifyMenu 405bf49 already behave as the rule asks. |
+| Stale width or refill (the suspected cause) | Not the cause: with 10 tags the list is folded to 2 rows and the control is laid out inside the list (the first-open refill of d341704 and the margins of 4f8e22f work). `numberOfVisibleItemsInSection` trims the last row for the inline control (9 of 10 at 411 dp), which is the designed behavior, not a missing control. |
+
+So there is no defect in the CYLSearch core or in CollectionViewClassifyMenu's Android `CYLTagListView` for this input, and no code change was made. The rule "the last tag is always the fold control" holds whenever there is something to fold; a list that fits in 2 rows has no control, and forcing a control on it would give a toggle that does nothing (and need a hand-built control, which the task forbids). If the owner wants a control even on a list that fits, that is a new option of CollectionViewClassifyMenu's `CYLTagListView` (e.g. always-show for the tail control), to be decided there first.
+
+#### Tests added
+
+- Android: `CYLSearchFoldControlTest` (`:cylsearch`, Robolectric 4.14.1 with `GraphicsMode.NATIVE`, because the legacy text measurement is far too narrow and puts all 10 tags in one row; qualifiers `w411dp-h914dp-420dpi`, the AVD's screen). Ten suggestions: the precondition `numberOfRowsInSection(0) > 2`, folded to 2 rows with exactly one control, the last laid-out cell is the control and lies inside the list; a click unfolds (all 10 tags, the control still last); a second click folds again. Eight suggestions (the example): 2 rows, `canFoldSection` false, all 8 shown, no control. Both pass.
+- Mini program: `test/qmui_search_port.test.js` "launch tags: ten suggestions and no history ...": the tag list gets all 10 suggestions, `defaultVisibleRows` 2 and the fold control at the tail (the list component itself folds).
+- iOS: the existing `testSuggestionsAreTagsFoldedToTwoRowsByDefaultAndTheLastTagIsTheFoldControl` (`CYLSearchExampleCacheFocusItemTests`, precondition more than 2 rows, last tag is the fold control, toggles) already covers the rule; not re-run in this task.
+- HarmonyOS: `node harmonyos/scripts/host-logic-test.mjs` 39 passed; the folding is drawn by the vendored ClassifyMenu `CYLTagListView`, which the host logic test does not load, and no emulator was used, so the HarmonyOS fold is unverified here.
+
+#### Results
+
+- `:cylsearch:testDebugUnitTest` 76 tests, 0 failures (74 + 2 new), `:app:testDebugUnitTest` 9, 0 failures, JDK 17.0.21, `--rerun-tasks`.
+- Mini program `node --test test/*.test.js`: 91 passed, 2 skipped, 3 failed; the 3 failures are the example tests (`example_qmui_search.test.js`: "Search controller", "Search bar styles", "Short list") that cannot find `example/miniprogram/components/core/*` (`MODULE_NOT_FOUND`: the example's `components/` folder is generated and absent in this fresh worktree), not related to folding.
+- Device: own AVD `CYL_Fold_API35` (copy of the Pixel 7 API 35 arm64 AVD, port 5598), shut down with `adb emu kill` and its files deleted afterwards. Screenshot: ![Fold control on Android, 8 and 10 suggestions](assets/fold-fix-android-20261122.png) Android 15 (API 35) emulator CYL_Fold_API35, macOS 27.3, JDK 17.0.21, CYLSearchViewController `4f8e22f` (`feat/harmonyos-parity`), 2026-11-22. Top: the unchanged example (8 suggestions); middle and bottom: a local patch with 10 suggestions, folded and unfolded.
+
+#### TODO (after the fold control fix)
+
+- TODO (decision, owner): the phase 5b TODO about a missing fold control is closed as a misreading (8 of 8 shown); if a control is wanted even when the tags fit in 2 rows, ClassifyMenu's `CYLTagListView` needs an option for it first (iOS, Android, HarmonyOS and the mini program share that component); the example data (8 suggestions, as QMUI) is not changed here.
+- TODO (verification): HarmonyOS and iOS were not run with 10 suggestions on a device or simulator in this task (iOS has its own test for the rule, HarmonyOS only the host logic); the mini program only at the configuration level (DevTools was not used).
+- TODO (tests): the three mini program example tests need the generated `example/miniprogram/components` folder to run in a fresh worktree; a script or a pretest step should create it.

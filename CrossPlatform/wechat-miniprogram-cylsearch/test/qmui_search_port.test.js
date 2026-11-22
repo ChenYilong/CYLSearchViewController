@@ -572,3 +572,16 @@ test('no component of the package lays tags out by itself: the tag list is Colle
   });
   assert.equal(typeof require('../src/index.js').cylFoldTags, 'function', 'the deprecated helper stays exported');
 });
+
+// Fold control fix (docs/qmui-search-controller.md, "Fold control fix (2026-11-22)"): the tag list gets every suggestion, folded to two rows with
+// the fold control at the tail (the list's own component folds, and draws the control last, folded or unfolded).
+test('launch tags: ten suggestions and no history go to the tag list whole, 2 folded rows, the fold control at the tail', () => {
+  const ten = ['Helps', 'Maintain', 'Liver', 'Health', 'Function', 'Supports', 'Healthy', 'Fat', 'Metabolism', 'Naturally'];
+  const search = load('cyl-search')({ showsSuggestionsLaunchView: true, suggestions: ten, results: [], cacheName: 'FoldFix' + Date.now() });
+  search.showSearch(false);
+  const configuration = search.data.tagConfiguration;
+  assert.deepEqual(configuration.sections[0].items.map((item) => item.title), ten, 'no tag is dropped before the list');
+  assert.equal(configuration.defaultVisibleRows, 2);
+  assert.deepEqual(configuration.foldControl, { position: 'tail', content: 'icon' });
+  assert.equal(configuration.showsSectionHeaders, false);
+});
