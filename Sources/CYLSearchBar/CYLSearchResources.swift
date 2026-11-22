@@ -207,6 +207,7 @@ final class CYLSearchSuggestionStore: NSObject, CYLSearchSuggestionCache {
         guard !trimmed.isEmpty else {
             return
         }
+        defer { postDidChange() }
         if policy == .database, database != nil {
             execute("INSERT OR REPLACE INTO queries (cache, query, time) VALUES (?, ?, ?)", [name, trimmed], time: Self.nextTime())
             execute("DELETE FROM queries WHERE cache = ? AND query NOT IN (SELECT query FROM queries WHERE cache = ? ORDER BY time DESC LIMIT \(max(1, maximumCount)))", [name, name])
@@ -221,6 +222,7 @@ final class CYLSearchSuggestionStore: NSObject, CYLSearchSuggestionCache {
      * Removes `query`.
      */
     func removeQuery(_ query: String) {
+        defer { postDidChange() }
         if policy == .database, database != nil {
             execute("DELETE FROM queries WHERE cache = ? AND query = ?", [name, query])
             return
@@ -232,11 +234,16 @@ final class CYLSearchSuggestionStore: NSObject, CYLSearchSuggestionCache {
      * Removes every cached query.
      */
     func removeAllQueries() {
+        defer { postDidChange() }
         if policy == .database, database != nil {
             execute("DELETE FROM queries WHERE cache = ?", [name])
             return
         }
         save([])
+    }
+
+    private func postDidChange() {
+        NotificationCenter.default.post(name: Self.didChangeNotification, object: self)
     }
 
     // MARK: - Storage

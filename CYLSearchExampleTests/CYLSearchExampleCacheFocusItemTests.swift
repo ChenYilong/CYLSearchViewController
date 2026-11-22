@@ -274,6 +274,37 @@ final class CYLSearchExampleCacheFocusItemTests: CYLSearchExampleTestCase {
     }
 
     @MainActor
+    func testTagSuggestionsStartBelowTheSearchBarWithoutAnEdgeBlur() {
+        // The first tag row is crisp: the tag list starts under the divider, its first row starts at its top edge, and on
+        // iOS 26 and later its scroll view has no top edge effect (that blurred the first row under the search bar).
+        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let host = UIViewController()
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        let searchView = openedSearchView(suggestions: (1...14).map { "Suggestion number \($0)" }, in: host)
+        let tagView = searchView.suggestionsTagView
+        XCTAssertGreaterThanOrEqual(tagView.frame.minY, searchView.dividerView.frame.maxY - 0.01, "the tags start below the bar")
+        XCTAssertGreaterThanOrEqual(tagView.convert(tagView.bounds, to: searchView).minY, searchView.searchBarView.frame.maxY - 0.01)
+        let cells = orderedTagCells(of: tagView)
+        let firstRowTop = cells.map { tagView.convert($0.cell.bounds, from: $0.cell).minY }.min() ?? -1
+        XCTAssertGreaterThanOrEqual(firstRowTop, 0, "the first row is inside the tag list")
+        func scrollViews(in view: UIView) -> [UIScrollView] {
+            var found: [UIScrollView] = []
+            if let scroll = view as? UIScrollView { found.append(scroll) }
+            for child in view.subviews { found += scrollViews(in: child) }
+            return found
+        }
+        let scrollers = scrollViews(in: tagView)
+        XCTAssertFalse(scrollers.isEmpty)
+        if #available(iOS 26.0, *) {
+            XCTAssertTrue(scrollers.allSatisfy { $0.topEdgeEffect.isHidden }, "no scroll edge blur over the first row")
+        }
+        searchView.closeSearch(animated: false)
+        searchView.removeFromSuperview()
+        window.isHidden = true
+    }
+
+    @MainActor
     func testTagSuggestionsThatFitTheFoldedRowsShowNoFoldControl() {
         // CollectionViewClassifyMenu's packaged control hides itself when every tag fits the folded rows
         // (CYLTagListView.canFoldSection); the core does not add one. docs/task-log.md, "tags as the default".

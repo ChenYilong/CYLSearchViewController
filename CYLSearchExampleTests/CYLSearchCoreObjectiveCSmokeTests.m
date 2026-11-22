@@ -420,6 +420,18 @@
     (void)bar.selectedIndex;
     { __typeof__(bar.leadingView) value21 = bar.leadingView; bar.leadingView = value21; }
     { __typeof__(bar.showsCancelButton) value22 = bar.showsCancelButton; bar.showsCancelButton = value22; }
+    // Merge phase 1: the knobs CYLSearchBarView shares with CYLSearchBar.
+    { __typeof__(bar.centersPlaceholder) valueP1a = bar.centersPlaceholder; bar.centersPlaceholder = valueP1a; }
+    { __typeof__(bar.textFieldMarginsProvider) valueP1b = bar.textFieldMarginsProvider; bar.textFieldMarginsProvider = valueP1b; }
+    { __typeof__(bar.cancelButtonMarginsProvider) valueP1c = bar.cancelButtonMarginsProvider; bar.cancelButtonMarginsProvider = valueP1c; }
+    { __typeof__(bar.cancelButtonFont) valueP1d = bar.cancelButtonFont; bar.cancelButtonFont = valueP1d; }
+    { __typeof__(bar.appearanceStyle) valueP1e = bar.appearanceStyle; bar.appearanceStyle = valueP1e; }
+    { __typeof__(bar.showsLeadingView) valueP1f = bar.showsLeadingView; bar.showsLeadingView = valueP1f; }
+    { __typeof__(bar.showsTrailingAccessoryViews) valueP1g = bar.showsTrailingAccessoryViews; bar.showsTrailingAccessoryViews = valueP1g; }
+    [bar applyDefaultAppearance];
+    [bar setShowsCancelButton:YES animated:NO];
+    [bar setShowsLeadingView:YES animated:NO];
+    [bar setShowsTrailingAccessoryViews:YES animated:NO];
     { __typeof__(bar.cancelButtonTitle) value23 = bar.cancelButtonTitle; bar.cancelButtonTitle = value23; }
     { __typeof__(bar.cancelButtonEndsEditing) value24 = bar.cancelButtonEndsEditing; bar.cancelButtonEndsEditing = value24; }
     { __typeof__(bar.clearsTextOnCancel) value25 = bar.clearsTextOnCancel; bar.clearsTextOnCancel = value25; }
@@ -558,6 +570,10 @@
     { __typeof__(sv.resultsDataSource) value86 = sv.resultsDataSource; sv.resultsDataSource = value86; }
     (void)sv.resultsTableView;
     (void)sv.searchResults;
+    { __typeof__(sv.highlightsResultMatches) valueP3a = sv.highlightsResultMatches; sv.highlightsResultMatches = valueP3a; }
+    { __typeof__(sv.resultMatchHighlightColor) valueP3b = sv.resultMatchHighlightColor; sv.resultMatchHighlightColor = valueP3b; }
+    { __typeof__(sv.isActive) valueP3c = sv.isActive; sv.isActive = valueP3c; }
+    { __typeof__(sv.supportsSwipeToDismissSearch) valueP3d = sv.supportsSwipeToDismissSearch; sv.supportsSwipeToDismissSearch = valueP3d; }
     { __typeof__(sv.refreshHandler) value87 = sv.refreshHandler; sv.refreshHandler = value87; }
     (void)sv.isRefreshing;
     { __typeof__(sv.dividerColor) value88 = sv.dividerColor; sv.dividerColor = value88; }
@@ -603,6 +619,7 @@
     XCTAssertTrue([sv respondsToSelector:@selector(installInView:)], @"CYLSearchView installInView:");
     XCTAssertTrue([sv respondsToSelector:@selector(showSearch)], @"CYLSearchView showSearch");
     XCTAssertTrue([sv respondsToSelector:@selector(showSearchAnimated:)], @"CYLSearchView showSearchAnimated:");
+    XCTAssertTrue([sv respondsToSelector:@selector(setActive:animated:)], @"CYLSearchView setActive:animated:");
     XCTAssertTrue([sv respondsToSelector:@selector(showSearchInViewController:animated:)], @"CYLSearchView showSearchInViewController:animated:");
     XCTAssertTrue([sv respondsToSelector:@selector(closeSearch)], @"CYLSearchView closeSearch");
     XCTAssertTrue([sv respondsToSelector:@selector(closeSearchAnimated:)], @"CYLSearchView closeSearchAnimated:");
@@ -700,8 +717,13 @@
     (void)sc.searchBar;
     (void)sc.tableView;
     { __typeof__(sc.launchView) value149 = sc.launchView; sc.launchView = value149; }
+    { __typeof__(sc.showsSuggestionsLaunchView) value160 = sc.showsSuggestionsLaunchView; sc.showsSuggestionsLaunchView = value160; }
+    { __typeof__(sc.suggestions) value161 = sc.suggestions; sc.suggestions = value161; }
     { __typeof__(sc.dimmingColor) value150 = sc.dimmingColor; sc.dimmingColor = value150; }
     { __typeof__(sc.isActive) value151 = sc.isActive; sc.isActive = value151; }
+    (void)sc.isSearchOpen;
+    { __typeof__(sc.highlightsResultMatches) valueP3e = sc.highlightsResultMatches; sc.highlightsResultMatches = valueP3e; }
+    { __typeof__(sc.resultMatchHighlightColor) valueP3f = sc.resultMatchHighlightColor; sc.resultMatchHighlightColor = valueP3f; }
     { __typeof__(sc.hidesNavigationBarDuringPresentation) value152 = sc.hidesNavigationBarDuringPresentation; sc.hidesNavigationBarDuringPresentation = value152; }
     { __typeof__(sc.alwaysShowsSearchResultsController) value153 = sc.alwaysShowsSearchResultsController; sc.alwaysShowsSearchResultsController = value153; }
     { __typeof__(sc.forwardsAppearanceFromContentsViewController) value154 = sc.forwardsAppearanceFromContentsViewController; sc.forwardsAppearanceFromContentsViewController = value154; }
@@ -720,6 +742,8 @@
     XCTAssertTrue([sc respondsToSelector:@selector(initWithCoder:)], @"CYLSearchController initWithCoder:");
     XCTAssertTrue([sc respondsToSelector:@selector(viewDidLoad)], @"CYLSearchController viewDidLoad");
     XCTAssertTrue([sc respondsToSelector:@selector(setActive:animated:)], @"CYLSearchController setActive:animated:");
+    XCTAssertTrue([sc respondsToSelector:@selector(showSearchAnimated:)], @"CYLSearchController showSearchAnimated:");
+    XCTAssertTrue([sc respondsToSelector:@selector(closeSearchAnimated:)], @"CYLSearchController closeSearchAnimated:");
     XCTAssertTrue([sc respondsToSelector:@selector(installSearchBarAsHeaderOf:)], @"CYLSearchController installSearchBarAsHeaderOf:");
     XCTAssertTrue([sc respondsToSelector:@selector(installInNavigationItem:)], @"CYLSearchController installInNavigationItem:");
     XCTAssertTrue([sc respondsToSelector:@selector(showEmptyViewWithText:detailText:buttonTitle:buttonAction:)], @"CYLSearchController showEmptyViewWithText:detailText:buttonTitle:buttonAction:");
@@ -792,6 +816,8 @@
     XCTAssertNotEqual(protocol_getMethodDescription(@protocol(CYLSearchBarViewDelegate), @selector(searchBarView:didCompleteSearch:atIndex:), NO, YES).name, NULL, @"CYLSearchBarViewDelegate searchBarView:didCompleteSearch:atIndex:");
     XCTAssertNotEqual(protocol_getMethodDescription(@protocol(CYLSearchBarViewDelegate), @selector(searchBarView:didRemoveSearchAtIndex:), NO, YES).name, NULL, @"CYLSearchBarViewDelegate searchBarView:didRemoveSearchAtIndex:");
     XCTAssertNotEqual(protocol_getMethodDescription(@protocol(CYLSearchBarViewDelegate), @selector(searchBarView:didSelectSearch:atIndex:), NO, YES).name, NULL, @"CYLSearchBarViewDelegate searchBarView:didSelectSearch:atIndex:");
+    XCTAssertNotEqual(protocol_getMethodDescription(@protocol(CYLSearchViewDelegate), @selector(searchViewWillShow:), NO, YES).name, NULL, @"CYLSearchViewDelegate searchViewWillShow:");
+    XCTAssertNotEqual(protocol_getMethodDescription(@protocol(CYLSearchViewDelegate), @selector(searchViewWillClose:), NO, YES).name, NULL, @"CYLSearchViewDelegate searchViewWillClose:");
     XCTAssertNotEqual(protocol_getMethodDescription(@protocol(CYLSearchViewDelegate), @selector(searchViewDidShow:), NO, YES).name, NULL, @"CYLSearchViewDelegate searchViewDidShow:");
     XCTAssertNotEqual(protocol_getMethodDescription(@protocol(CYLSearchViewDelegate), @selector(searchViewDidClose:), NO, YES).name, NULL, @"CYLSearchViewDelegate searchViewDidClose:");
     XCTAssertNotEqual(protocol_getMethodDescription(@protocol(CYLSearchViewDelegate), @selector(searchView:textDidChange:), NO, YES).name, NULL, @"CYLSearchViewDelegate searchView:textDidChange:");

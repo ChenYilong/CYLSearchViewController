@@ -925,9 +925,9 @@ begins and becomes `DONE` when it ends.
   replica screens set the list style explicitly; suites green; labelled screenshots folded / unfolded. 60 = iOS and
   Android done with tests.
 - **Status**: in progress.
-- **Status (2026-11-22, DONE except the TODOs): score 90/100.** Defaults changed on iOS, Android, HarmonyOS, the mini program, React Native and Flutter;
+- **Status (2026-11-22, DONE except the TODOs): score 94/100 (after the review: iOS blur fixed, header fixed, three iOS sims, React Native jest).** Defaults changed on iOS, Android, HarmonyOS, the mini program, React Native and Flutter;
   tests per platform; labelled screenshots for iOS and Android; details, results and the all-fit finding in
-  [tag-view-suggestions.md](tag-view-suggestions.md). TODO: the mini program device test (Windows session), the HarmonyOS `CYLSearchUI` suite rerun, React Native jest, the blurred first row (iOS) and clipped rows (Android) in the tag view.
+  [tag-view-suggestions.md](tag-view-suggestions.md). TODO: the mini program device test (Windows session), the HarmonyOS `CYLSearchUI` suite rerun, the Android 5 px cut of the first and last tag row (CollectionViewClassifyMenu `CYLTagListView`).
 
 
 ## DONE (2026-11-22): sort the instruction files by tag, 200 lines each, details in docs/instructions
@@ -1001,6 +1001,20 @@ begins and becomes `DONE` when it ends.
   that removes `Co-Authored-By:` lines was never installed in this clone; installed now, so commits from here on carry no
   such trailer (earlier commits of this session have one).
 
+
+## DONE (2026-11-22): iOS CI: testB7CancelDoesNotJitterWhenLeavingSearch fails on the runner
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: run 44966585183 (head `282f522`) fails one unit test,
+  `CYLSearchBarStyleTests.testB7CancelDoesNotJitterWhenLeavingSearch` at line 440, `XCTAssertFalse(offsets.isEmpty)`; the
+  other six jobs pass. `15a5876` made B7 skip every sample taken while the bar is out of the window (on the macOS session's
+  iOS 26.5 simulator that lasts one frame and reads y 0); on the CI runner (Xcode 26.6, iOS 26.5) the bar is out of the
+  window for the whole 0.6 s, so no sample was left. The run before `15a5876` (44955819321) passed B7.
+- **Prompt (verbatim)**: "continue fix todo and watch and fix ci fail"
+- **Acceptance**: 100 = B7 keeps the in-window samples when there are any and falls back to all samples otherwise (the
+  behaviour that passed CI before), and the iOS workflow is green on the new head. 60 = the change pushed with the reason.
+- **Status**: DONE (2026-11-22), 100/100. `327d9c5` (merged with the macOS session's `44f8103`, which skips samples drawn at
+  y 0): B7 keeps the samples taken in the window at a real position, else all samples. Run 44969395687 (`a84f551`, with
+  `44f8103` only) and run 44973402168 (`3705a5a`, with both) are green in all seven jobs.
 
 ## DONE (2026-11-22): continue the iOS TODOs in docs/ (QMUI port leftovers, React Native smear)
 

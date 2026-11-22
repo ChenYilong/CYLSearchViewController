@@ -20,6 +20,12 @@
 import UIKit
 
 /**
+ * Returns the margins of a `CYLSearchBar` for its state (`true` while searching); the same shape as
+ * `CYLSearchBarViewMarginsProvider`.
+ */
+public typealias CYLSearchBarMarginsProvider = (CYLSearchBar, Bool) -> UIEdgeInsets
+
+/**
  * A `UISearchBar` that is styled by `CYLSearchBarAppearance` and adds what QMUI's `QMUISearchBar` and its
  * `UISearchBar (QMUI)` category add: a centered placeholder, placeholder / text colors and fonts, margins of the text
  * field
@@ -123,7 +129,7 @@ open class CYLSearchBar: UISearchBar {
      * Returns the margins of the text field for the bar's state (`true` while searching); wins over `textFieldMargins`
      * (QMUI `qmui_textFieldMarginsBlock`).
      */
-    @objc public var textFieldMarginsProvider: ((CYLSearchBar, Bool) -> UIEdgeInsets)? {
+    @objc public var textFieldMarginsProvider: CYLSearchBarMarginsProvider? {
         didSet { relayoutControls() }
     }
 
@@ -151,7 +157,7 @@ open class CYLSearchBar: UISearchBar {
      * Returns the margins applied to the Cancel button's frame for the bar's state (`true` while searching); a negative
      * left value moves it left and widens it (QMUI `qmui_cancelButtonMarginsBlock`).
      */
-    @objc public var cancelButtonMarginsProvider: ((CYLSearchBar, Bool) -> UIEdgeInsets)? {
+    @objc public var cancelButtonMarginsProvider: CYLSearchBarMarginsProvider? {
         didSet { relayoutControls() }
     }
 
@@ -264,7 +270,6 @@ open class CYLSearchBar: UISearchBar {
     private var explicitBackgroundKeys = Set<Int>()
     private var centeredPlaceholder: CenteredPlaceholder?
     private var lastInterfaceStyle = UIUserInterfaceStyle.unspecified
-    private static var cachedFieldHeight: CGFloat = 0
 
     // MARK: - Initializers
 
@@ -454,13 +459,7 @@ open class CYLSearchBar: UISearchBar {
      * UIKit's default field height, measured once. The corners are rounded by the field, not by the image.
      */
     @objc public static func textFieldBackgroundImage(color: UIColor?) -> UIImage? {
-        guard let color else { return nil }
-        let size = CGSize(width: 60, height: defaultTextFieldHeight())
-        let image = UIGraphicsImageRenderer(size: size).image { context in
-            color.setFill()
-            context.fill(CGRect(origin: .zero, size: size))
-        }
-        return image.resizableImage(withCapInsets: UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10))
+        CYLSearchBarAppearance.textFieldBackgroundImage(color: color)
     }
 
     /**
@@ -468,19 +467,7 @@ open class CYLSearchBar: UISearchBar {
      * `borderColor`, or `nil` when both are `nil` (QMUI `qmui_generateBackgroundImageWithColor:borderColor:`).
      */
     @objc public static func backgroundImage(color: UIColor?, borderColor: UIColor?) -> UIImage? {
-        guard color != nil || borderColor != nil else { return nil }
-        let size = CGSize(width: 10, height: 10)
-        let format = UIGraphicsImageRendererFormat.preferred()
-        let image = UIGraphicsImageRenderer(size: size, format: format).image { context in
-            (color ?? .white).setFill()
-            context.fill(CGRect(origin: .zero, size: size))
-            if let borderColor {
-                let line = 1 / max(format.scale, 1)
-                borderColor.setFill()
-                context.fill(CGRect(x: 0, y: size.height - line, width: size.width, height: line))
-            }
-        }
-        return image.resizableImage(withCapInsets: UIEdgeInsets(top: 1, left: 1, bottom: 1, right: 1))
+        CYLSearchBarAppearance.backgroundImage(color: color, borderColor: borderColor)
     }
 
     // MARK: - Appearance
@@ -504,12 +491,11 @@ open class CYLSearchBar: UISearchBar {
 
     private func applyFieldAndBarBackground(_ style: CYLSearchBarAppearance) {
         lastInterfaceStyle = traitCollection.userInterfaceStyle
-        let fieldColor = style.textFieldBackgroundColor?.resolvedColor(with: traitCollection)
-        let fieldImage = style.textFieldBackgroundImage ?? Self.textFieldBackgroundImage(color: fieldColor)
-        setSearchFieldBackgroundImage(fieldImage, for: .normal)
-        let borderWidth = 1 / max(UIGraphicsImageRendererFormat.preferred().scale, 1)
-        searchTextField.layer.borderWidth = style.textFieldBorderColor == nil ? 0 : borderWidth
-        searchTextField.layer.borderColor = style.textFieldBorderColor?.resolvedColor(with: traitCollection).cgColor
+        let field = style.resolvedField(traits: traitCollection)
+        setSearchFieldBackgroundImage(field.backgroundImage ?? Self.textFieldBackgroundImage(color: field.fillColor),
+                                      for: .normal)
+        searchTextField.layer.borderWidth = field.borderWidth
+        searchTextField.layer.borderColor = field.borderColor?.cgColor
 
         // A background image set by hand wins over the style (row B9); an explicit bar tint becomes the background color.
         guard explicitBackgroundKeys.isEmpty else { return }
@@ -612,17 +598,6 @@ open class CYLSearchBar: UISearchBar {
         }
     }
 
-    private static func defaultTextFieldHeight() -> CGFloat {
-        if cachedFieldHeight == 0 {
-            // UIKit's field height depends on the system (36 before iOS 26, 44 after): measure a plain bar once.
-            let probe = UISearchBar(frame: CGRect(x: 0, y: 0, width: 320, height: 56))
-            probe.layoutIfNeeded()
-            let height = probe.searchTextField.frame.height
-            cachedFieldHeight = height > 0 ? height : 36
-        }
-        return cachedFieldHeight
-    }
-
     // MARK: - Layout
 
     private var isSearchActive: Bool {
@@ -678,17 +653,16 @@ open class CYLSearchBar: UISearchBar {
         guard field.bounds.size.width > 0, field.bounds.size.height > 0 else { return }
         let current = field.frame
         let base = baseFrame(of: field, tracked: fieldFrame)
-        let margins = textFieldMarginsProvider?(self, isSearchActive) ?? textFieldMargins
+        let margins = CYLSearchBarAppearance.margins(of: textFieldMarginsProvider, bar: self, active: isSearchActive,
+                                                     resting: textFieldMargins)
         var frame = base
         if margins != .zero { frame = frame.inset(by: margins) }
         if customTextFieldMargins != .zero { frame = frame.inset(by: customTextFieldMargins) }
         fieldFrame = TrackedFrame(base: base, adjusted: frame)
         if frame != current { field.frame = frame }
 
-        let radius = appearanceStyle.textFieldCornerRadius
-        let cornerRadius = radius < 0 ? field.frame.height / 2 : radius
-        if radius != 0 {
-            field.layer.cornerRadius = cornerRadius
+        if let radius = appearanceStyle.resolvedField(traits: traitCollection).cornerRadius {
+            field.layer.cornerRadius = CYLSearchBarAppearance.cornerRadius(radius, height: field.frame.height)
             field.clipsToBounds = true
         }
         positionAccessoryViews()
@@ -699,9 +673,9 @@ open class CYLSearchBar: UISearchBar {
         let current = button.frame
         let base = baseFrame(of: button, tracked: cancelFrame)
         var frame = base
-        if let margins = cancelButtonMarginsProvider?(self, isSearchActive), margins != .zero {
-            frame = frame.inset(by: margins)
-        }
+        let margins = CYLSearchBarAppearance.margins(of: cancelButtonMarginsProvider, bar: self,
+                                                     active: isSearchActive, resting: .zero)
+        if margins != .zero { frame = frame.inset(by: margins) }
         cancelFrame = TrackedFrame(base: base, adjusted: frame)
         if frame != current { button.frame = frame }
     }
@@ -736,7 +710,7 @@ open class CYLSearchBar: UISearchBar {
         guard let text = placeholder, !text.isEmpty else { return }
         field.layoutIfNeeded()
         let textFont = font ?? field.font ?? UIFont.preferredFont(forTextStyle: .body)
-        let textWidth = ceil((text as NSString).size(withAttributes: [.font: textFont]).width)
+        let textWidth = CYLSearchBarAppearance.textWidth(text, font: textFont)
         let fieldWidth = field.bounds.size.width
         // Nothing changed since the icon was placed: leave it.
         if let state = centeredPlaceholder, state.fieldWidth == fieldWidth, state.textWidth == textWidth,
@@ -751,7 +725,8 @@ open class CYLSearchBar: UISearchBar {
         let gap = Self.placeholderLabel(in: field).map { $0.frame.minX - icon.frame.maxX } ?? 6
         let contentWidth = icon.frame.width + gap + textWidth
         let baseline = icon.frame.minX
-        let horizontal = max(0, (fieldWidth - contentWidth) / 2 - baseline)
+        let horizontal = CYLSearchBarAppearance.centeringOffset(fieldWidth: fieldWidth, contentWidth: contentWidth,
+                                                                baseline: baseline)
         if horizontal > 0 {
             setPositionAdjustment(UIOffset(horizontal: horizontal, vertical: 0), for: .search)
             field.setNeedsLayout()

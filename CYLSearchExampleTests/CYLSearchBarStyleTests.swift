@@ -422,20 +422,21 @@ final class CYLSearchBarStyleTests: CYLSearchExampleTestCase {
         run.controller.isActive = true
         RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.8))
         run.controller.isActive = false
-        var offsets: [CGFloat] = []
-        var cancelY: [CGFloat] = []
+        var samples: [(inWindow: Bool, offset: CGFloat, cancelY: CGFloat)] = []
         sample(run, for: 0.6) {
-            // iOS 26.5 takes the bar out of the window for one frame when it returns to the header: that sample reads y 0
-            // (the window is not always nil yet when it is read, so a frame at the window's top edge is skipped too: the
-            // Cancel button is always below the status bar).
-            guard bar.window != nil,
-                  let button = bar.searchTextField.superview?.subviews.compactMap({ $0 as? UIButton }).first,
+            guard let button = bar.searchTextField.superview?.subviews.compactMap({ $0 as? UIButton }).first,
                   let buttonFrame = self.presentationFrame(button, in: run.window),
-                  let fieldFrame = self.presentationFrame(bar.searchTextField, in: run.window),
-                  buttonFrame.minY > 0, fieldFrame.minY > 0 else { return }
-            offsets.append(buttonFrame.minY - fieldFrame.minY)
-            cancelY.append(buttonFrame.minY)
+                  let fieldFrame = self.presentationFrame(bar.searchTextField, in: run.window) else { return }
+            samples.append((bar.window != nil && buttonFrame.minY > 0 && fieldFrame.minY > 0,
+                            buttonFrame.minY - fieldFrame.minY, buttonFrame.minY))
         }
+        // iOS 26.5 takes the bar out of the window while it returns to the header: for one frame on a fast Mac (that sample
+        // reads y 0, sometimes before the window is nil; the Cancel button is always below the status bar), for the whole
+        // sampling time on the CI runner (Xcode 26.6). Use the samples taken in the window at a real position when there
+        // are any, else all of them (as before 15a5876, which passed on the runner).
+        let kept = samples.contains { $0.inWindow } ? samples.filter { $0.inWindow } : samples
+        let offsets = kept.map { $0.offset }
+        let cancelY = kept.map { $0.cancelY }
         XCTAssertFalse(offsets.isEmpty, "Cancel was visible while leaving search")
         // The offset may settle by one point at the end of the animation (2 to 3 on iOS 17.5); a jitter is a back and forth.
         XCTAssertLessThanOrEqual((offsets.max() ?? 0) - (offsets.min() ?? 0), 1.5, "level with the field: \(offsets)")
@@ -685,5 +686,318 @@ final class CYLSearchBarStyleTests: CYLSearchExampleTestCase {
         XCTAssertEqual(screen.searchController?.isActive, true, "Adjust Cancel starts searching")
         XCTAssertTrue(bar.delegate === barDelegate, "the rows never reassign the bar's delegate")
         window.isHidden = true
+    }
+}
+
+// MARK: - CYLSearchBarView: the knobs it shares with CYLSearchBar (merge phase 1)
+
+/// The knobs of QMUI's search bar that `CYLSearchBarView` gained in merge phase 1 (docs/qmui-search-controller.md,
+/// "Merge phase 1 log"): centered placeholder, margins and Cancel margins per active state, Cancel font, animated Cancel,
+/// leading view and trailing accessory views, and one `CYLSearchBarAppearance` for both bars.
+final class CYLSearchBarViewKnobTests: CYLSearchExampleTestCase {
+
+    private func shownBar(width: CGFloat = 390) -> (CYLSearchBarView, UIWindow) {
+        let bar = CYLSearchBarView(frame: CGRect(x: 0, y: 100, width: width, height: 48))
+        let controller = UIViewController()
+        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: width, height: 874))
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        controller.view.addSubview(bar)
+        settle(bar)
+        return (bar, window)
+    }
+
+    private func settle(_ view: UIView, _ seconds: TimeInterval = 0.05) {
+        view.setNeedsLayout()
+        view.layoutIfNeeded()
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: seconds))
+        view.layoutIfNeeded()
+    }
+
+    /// The animations of the bar last 0.25 s.
+    private func finishAnimations(_ bar: UIView) {
+        settle(bar, 0.5)
+    }
+
+    private func placeholderBlockMidX(_ bar: CYLSearchBarView) -> CGFloat {
+        let text = ((bar.placeholder ?? "") as NSString).size(withAttributes: [.font: bar.font as UIFont]).width
+        let icon = bar.searchIconView.frame
+        return bar.fieldView.frame.minX + icon.minX + (bar.placeholderLabel.frame.minX - icon.minX + ceil(text)) / 2
+    }
+
+    func testCentersPlaceholder() {
+        let (bar, window) = shownBar()
+        bar.placeholder = "Search"
+        settle(bar)
+        let restingIconX = bar.searchIconView.frame.minX
+        let restingLabelX = bar.placeholderLabel.frame.minX
+        let restingTextFrame = bar.textField.frame
+        bar.centersPlaceholder = true
+        settle(bar)
+        XCTAssertGreaterThan(bar.searchIconView.frame.minX, restingIconX + 20, "the magnifier moved to the middle")
+        XCTAssertEqual(placeholderBlockMidX(bar), bar.fieldView.frame.midX, accuracy: 1.5, "icon and text are centered")
+        XCTAssertEqual(bar.textField.frame, restingTextFrame, "the text field itself does not move")
+
+        // Editing leads again, typed text keeps it leading, at rest it is centered again.
+        XCTAssertTrue(bar.textField.becomeFirstResponder())
+        finishAnimations(bar)
+        XCTAssertEqual(bar.searchIconView.frame.minX, restingIconX, accuracy: 0.5)
+        XCTAssertEqual(bar.placeholderLabel.frame.minX, restingLabelX, accuracy: 0.5)
+        bar.textField.resignFirstResponder()
+        finishAnimations(bar)
+        XCTAssertEqual(placeholderBlockMidX(bar), bar.fieldView.frame.midX, accuracy: 1.5)
+
+        // A trailing accessory view takes room: the placeholder is never cut off by the shift.
+        let camera = UIButton(type: .system)
+        camera.setImage(UIImage(systemName: "camera"), for: .normal)
+        bar.trailingAccessoryViews = [camera]
+        settle(bar)
+        XCTAssertLessThanOrEqual(bar.placeholderLabel.frame.maxX, bar.textField.frame.maxX + 0.5)
+        bar.trailingAccessoryViews = []
+
+        bar.centersPlaceholder = false
+        settle(bar)
+        XCTAssertEqual(bar.searchIconView.frame.minX, restingIconX, accuracy: 0.5)
+        window.isHidden = true
+    }
+
+    func testTextFieldMarginsProviderWinsPerActiveState() {
+        let (bar, window) = shownBar()
+        let height = bar.intrinsicContentSize.height
+        XCTAssertEqual(bar.fieldView.frame.minX, bar.contentInsets.left, "the resting value")
+        bar.textFieldMarginsProvider = { _, active in
+            active ? UIEdgeInsets(top: 6, left: 4, bottom: 6, right: 4) : UIEdgeInsets(top: 6, left: 32, bottom: 6, right: 32)
+        }
+        settle(bar)
+        XCTAssertEqual(bar.fieldView.frame.minX, 32, "the provider wins at rest")
+        XCTAssertEqual(bar.fieldView.frame.maxX, 390 - 32)
+        XCTAssertTrue(bar.textField.becomeFirstResponder())
+        finishAnimations(bar)
+        XCTAssertEqual(bar.fieldView.frame.minX, 4, "and while editing")
+        XCTAssertEqual(bar.fieldView.frame.maxX, 390 - 4)
+        XCTAssertEqual(bar.intrinsicContentSize.height, height, "the height is measured with contentInsets")
+        bar.textField.resignFirstResponder()
+        finishAnimations(bar)
+        XCTAssertEqual(bar.fieldView.frame.minX, 32)
+        bar.textFieldMarginsProvider = nil
+        settle(bar)
+        XCTAssertEqual(bar.fieldView.frame.minX, bar.contentInsets.left, "without a provider contentInsets is back")
+        window.isHidden = true
+    }
+
+    func testCancelButtonMarginsAndFont() throws {
+        let (bar, window) = shownBar()
+        bar.showsCancelButton = true
+        settle(bar)
+        let resting = bar.cancelButton.frame
+        bar.cancelButtonMarginsProvider = { _, active in
+            active ? UIEdgeInsets(top: 0, left: -16, bottom: 0, right: 0) : .zero
+        }
+        settle(bar)
+        XCTAssertEqual(bar.cancelButton.frame, resting, "no margins at rest")
+        XCTAssertTrue(bar.textField.becomeFirstResponder())
+        finishAnimations(bar)
+        XCTAssertEqual(bar.cancelButton.frame.minX, resting.minX - 16, accuracy: 0.5, "moved left while editing")
+        XCTAssertEqual(bar.cancelButton.frame.width, resting.width + 16, accuracy: 0.5, "and widened")
+        XCTAssertEqual(bar.cancelButton.frame.maxX, resting.maxX, accuracy: 0.5)
+        bar.textField.resignFirstResponder()
+        finishAnimations(bar)
+        XCTAssertEqual(bar.cancelButton.frame, resting)
+
+        func titleFont() throws -> UIFont {
+            let title = try XCTUnwrap(bar.cancelButton.configuration?.attributedTitle)
+            return try XCTUnwrap(NSAttributedString(title).attribute(.font, at: 0, effectiveRange: nil) as? UIFont)
+        }
+        XCTAssertEqual(try titleFont().pointSize, bar.font.pointSize, "the bar's font by default")
+        bar.cancelButtonFont = .boldSystemFont(ofSize: 24)
+        settle(bar)
+        XCTAssertEqual(try titleFont().pointSize, 24)
+        XCTAssertEqual(try titleFont().fontDescriptor.symbolicTraits.contains(.traitBold), true)
+        XCTAssertEqual(bar.font.pointSize, UIFont.preferredFont(forTextStyle: .body).pointSize, "the field keeps its font")
+        bar.cancelButtonFont = nil
+        settle(bar)
+        XCTAssertEqual(try titleFont().pointSize, bar.font.pointSize)
+        window.isHidden = true
+    }
+
+    func testSetShowsCancelButtonAnimated() {
+        let (bar, window) = shownBar()
+        let restingMaxX = bar.fieldView.frame.maxX
+        bar.setShowsCancelButton(true, animated: true)
+        XCTAssertTrue(bar.showsCancelButton)
+        XCTAssertFalse(bar.cancelButton.isHidden, "shown at once, sliding in")
+        finishAnimations(bar)
+        XCTAssertFalse(bar.cancelButton.isHidden)
+        XCTAssertEqual(bar.cancelButton.alpha, 1)
+        XCTAssertLessThanOrEqual(bar.fieldView.frame.maxX, bar.cancelButton.frame.minX)
+        XCTAssertLessThanOrEqual(bar.cancelButton.frame.maxX, bar.bounds.width)
+
+        bar.setShowsCancelButton(false, animated: true)
+        XCTAssertFalse(bar.showsCancelButton)
+        XCTAssertFalse(bar.cancelButton.isHidden, "still drawn while it slides out")
+        finishAnimations(bar)
+        XCTAssertTrue(bar.cancelButton.isHidden)
+        XCTAssertEqual(bar.cancelButton.alpha, 1, "ready for the next showing")
+        XCTAssertEqual(bar.fieldView.frame.maxX, restingMaxX, "the field has its room back")
+
+        // Toggling quickly ends in the last request.
+        bar.setShowsCancelButton(true, animated: true)
+        bar.setShowsCancelButton(false, animated: true)
+        bar.setShowsCancelButton(true, animated: true)
+        finishAnimations(bar)
+        XCTAssertTrue(bar.showsCancelButton)
+        XCTAssertFalse(bar.cancelButton.isHidden)
+        XCTAssertEqual(bar.cancelButton.alpha, 1)
+        bar.setShowsCancelButton(false, animated: false)
+        settle(bar)
+        XCTAssertTrue(bar.cancelButton.isHidden)
+        window.isHidden = true
+    }
+
+    func testLeadingViewAndTrailingAccessoryViewsAnimate() {
+        let (bar, window) = shownBar()
+        let back = UIButton(type: .system)
+        let camera = UIButton(type: .system)
+        camera.setImage(UIImage(systemName: "camera"), for: .normal)
+        bar.leadingView = back
+        bar.trailingAccessoryViews = [camera]
+        settle(bar)
+        let withLeading = bar.fieldView.frame.minX
+        let textWidth = bar.textField.frame.width
+        XCTAssertGreaterThan(withLeading, bar.contentInsets.left + 20)
+
+        bar.setShowsLeadingView(false, animated: true)
+        XCTAssertFalse(bar.showsLeadingView)
+        XCTAssertFalse(back.isHidden, "drawn while it slides out")
+        finishAnimations(bar)
+        XCTAssertTrue(back.isHidden)
+        XCTAssertEqual(bar.fieldView.frame.minX, bar.contentInsets.left, "the field takes the room")
+        bar.setShowsLeadingView(true, animated: true)
+        XCTAssertFalse(back.isHidden)
+        finishAnimations(bar)
+        XCTAssertEqual(bar.fieldView.frame.minX, withLeading, accuracy: 0.5)
+        XCTAssertLessThanOrEqual(back.frame.maxX, bar.fieldView.frame.minX + 0.5)
+
+        bar.setShowsTrailingAccessoryViews(false, animated: true)
+        XCTAssertFalse(camera.isHidden, "drawn while it fades out")
+        finishAnimations(bar)
+        XCTAssertTrue(camera.isHidden)
+        XCTAssertEqual(camera.alpha, 1, "ready for the next showing")
+        XCTAssertGreaterThan(bar.textField.frame.width, textWidth + 20, "the text takes the room")
+        bar.setShowsTrailingAccessoryViews(true, animated: true)
+        finishAnimations(bar)
+        XCTAssertFalse(camera.isHidden)
+        XCTAssertEqual(camera.alpha, 1)
+        XCTAssertEqual(bar.textField.frame.width, textWidth, accuracy: 0.5)
+        XCTAssertLessThanOrEqual(bar.textField.frame.maxX, camera.frame.minX)
+
+        // Toggling quickly ends in the last request, in both directions.
+        bar.setShowsLeadingView(false, animated: true)
+        bar.setShowsLeadingView(true, animated: true)
+        bar.setShowsTrailingAccessoryViews(false, animated: true)
+        bar.setShowsTrailingAccessoryViews(true, animated: true)
+        bar.setShowsTrailingAccessoryViews(false, animated: true)
+        finishAnimations(bar)
+        XCTAssertFalse(back.isHidden)
+        XCTAssertEqual(bar.fieldView.frame.minX, withLeading, accuracy: 0.5)
+        XCTAssertTrue(camera.isHidden)
+        bar.showsTrailingAccessoryViews = true
+        settle(bar)
+        XCTAssertFalse(camera.isHidden)
+        window.isHidden = true
+    }
+
+    func testOneAppearanceStylesBothBars() throws {
+        let style = CYLSearchBarAppearance()
+        style.font = .italicSystemFont(ofSize: 19)
+        style.textColor = .systemGreen
+        style.placeholderColor = .systemOrange
+        style.placeholder = "Style"
+        style.cancelTitle = "Done"
+        style.tintColor = .systemPink
+        style.textFieldBackgroundColor = .systemYellow
+        style.textFieldBorderColor = .systemRed
+        style.textFieldCornerRadius = 6
+        style.searchIconImage = UIImage(systemName: "star")
+        style.barBackgroundColor = .systemTeal
+
+        let view = CYLSearchBarView(frame: CGRect(x: 0, y: 0, width: 390, height: 48))
+        XCTAssertNil(view.appearanceStyle, "opt-in: a bar without a style keeps its own look")
+        XCTAssertEqual(view.fieldBackgroundColor, .tertiarySystemFill)
+        view.appearanceStyle = style
+        view.layoutIfNeeded()
+        XCTAssertEqual(view.font, style.font)
+        XCTAssertEqual(view.textColor, .systemGreen)
+        XCTAssertEqual(view.placeholderColor, .systemOrange)
+        XCTAssertEqual(view.placeholder, "Style")
+        XCTAssertEqual(view.cancelButtonTitle, "Done")
+        XCTAssertEqual(view.tintColor, .systemPink)
+        XCTAssertEqual(view.fieldBackgroundColor, .systemYellow)
+        XCTAssertEqual(view.fieldBorderColor, .systemRed)
+        XCTAssertEqual(view.fieldBorderWidth, 1 / UIScreen.main.scale, accuracy: 0.001, "one pixel, as on CYLSearchBar")
+        XCTAssertEqual(view.fieldCornerRadius, 6)
+        XCTAssertEqual(view.fieldView.layer.cornerRadius, 6)
+        XCTAssertNotNil(view.searchIcon)
+        XCTAssertEqual(view.backgroundColor, .systemTeal)
+
+        // The same style on a CYLSearchBar lands on the matching UIKit values.
+        let bar = CYLSearchBar(frame: CGRect(x: 0, y: 0, width: 390, height: 56))
+        bar.appearanceStyle = style
+        XCTAssertEqual(bar.font, style.font)
+        XCTAssertEqual(bar.textColor, .systemGreen)
+        XCTAssertEqual(bar.placeholder, "Style")
+        XCTAssertEqual(bar.tintColor, .systemPink)
+        XCTAssertEqual(bar.searchTextField.layer.borderWidth, view.fieldBorderWidth, "one border width for both")
+
+        // 0 keeps each bar's own corners; the default style gives a capsule on both.
+        style.textFieldCornerRadius = 0
+        view.appearanceStyle = style
+        XCTAssertEqual(view.fieldCornerRadius, -1)
+        view.applyDefaultAppearance()
+        view.layoutIfNeeded()
+        XCTAssertEqual(view.fieldView.layer.cornerRadius, view.fieldView.bounds.height / 2, accuracy: 0.5)
+        XCTAssertEqual(view.cancelButtonTitle, CYLSearchResources.localizedString(forKey: "search.cancel"))
+        view.appearanceStyle = nil
+        XCTAssertEqual(view.placeholder, CYLSearchResources.localizedString(forKey: "search.field"),
+                       "removing the style leaves the last values")
+    }
+
+    func testBothBarsAnswerToTheSameKnobNames() {
+        let names = ["centersPlaceholder", "setCentersPlaceholder:", "textFieldMarginsProvider",
+                     "setTextFieldMarginsProvider:", "cancelButtonMarginsProvider", "setCancelButtonMarginsProvider:",
+                     "cancelButtonFont", "setCancelButtonFont:", "setShowsCancelButton:animated:", "appearanceStyle",
+                     "setAppearanceStyle:", "applyDefaultAppearance", "font", "setFont:", "textColor", "setTextColor:",
+                     "placeholderColor", "setPlaceholderColor:", "placeholder", "setPlaceholder:"]
+        for name in names {
+            XCTAssertTrue(CYLSearchBar.instancesRespond(to: Selector(name)), "CYLSearchBar \(name)")
+            XCTAssertTrue(CYLSearchBarView.instancesRespond(to: Selector(name)), "CYLSearchBarView \(name)")
+        }
+    }
+
+    func testSameKnobValuesMoveBothBars() throws {
+        // The same three assignments on each bar, read back as the field's left edge at rest and while editing.
+        let (view, viewWindow) = shownBar()
+        view.textFieldMarginsProvider = { _, active in active ? .zero : UIEdgeInsets(top: 6, left: 24, bottom: 6, right: 24) }
+        view.centersPlaceholder = true
+        view.placeholder = "Search"
+        settle(view)
+        XCTAssertEqual(view.fieldView.frame.minX, 24)
+
+        let bar = CYLSearchBar(frame: CGRect(x: 0, y: 100, width: 390, height: 56))
+        let controller = UIViewController()
+        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        controller.view.addSubview(bar)
+        settle(bar)
+        let plain = bar.searchTextField.frame.minX
+        bar.textFieldMarginsProvider = { _, active in active ? .zero : UIEdgeInsets(top: 0, left: 24, bottom: 0, right: 24) }
+        bar.centersPlaceholder = true
+        bar.placeholder = "Search"
+        settle(bar, 0.3)
+        XCTAssertEqual(bar.searchTextField.frame.minX, plain + 24, accuracy: 0.5, "the same provider moves this bar too")
+        XCTAssertGreaterThan(bar.searchTextField.leftView?.frame.minX ?? 0, 30, "and centers its placeholder")
+        window.isHidden = true
+        viewWindow.isHidden = true
     }
 }

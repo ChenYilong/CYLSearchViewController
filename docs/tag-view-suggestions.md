@@ -293,6 +293,238 @@ CollectionViewClassifyMenu).
   tap on it toggles the folding. **All tags fit the folded rows: the packaged control hides itself** (`CYLTagListView.canFoldSection`
   is false when the rows do not exceed the folded rows; the mini program and HarmonyOS follow the same rule). The core adds no
   control of its own; a different behavior belongs in CollectionViewClassifyMenu. Tests pin the current behavior.
+- Tests (rerun 2026-11-22 after the iOS fix): iOS 17.5 sim 144 of 144; iOS 27.2 sim 144 tests, 1 flaky failure (`testI4ShortListHeaderSettlesFullyShownOrHidden`, passes alone); iOS 26.5 sim 144 tests, 1 failure (`CYLSearchBarStyleTests.testB7CancelDoesNotJitterWhenLeavingSearch`: a bar-only test that never touches `CYLSearchView`, fails alone too, not caused by this change; another session handles B7);
+  Android `:cylsearch:testDebugUnitTest` and `:app:testDebugUnitTest` green; mini program `npm test` 86 of 86; Flutter `flutter test` 18 of 18; React Native `jest` 10 of 10 and `tsc` clean;
+  HarmonyOS hypium on the local Mac emulator (arm64): `CYLSearchCore` 22 of 22 (new `suggestionStyleDefaultsToFoldedTags`), `CYLSearchQMUIPort` 12 of 12; the `CYLSearchUI` suite hung (no result after 100 s, also while an older `aa test` runner stayed hung on the emulator; not attributed to this change, rerun needed).
+- iOS first-row blur: FIXED in the core (commit `4cc5638`). Cause: on iOS 26 and later the tag list's scroll view draws a scroll edge effect (a blur) on its top edge, which blurred the first tag row right under the bar. `CYLSearchView` now hides `topEdgeEffect` of the tag list's scroll views (`#available(iOS 26.0, *)`); the frame check shows the tag list starts below the divider. Test: `testTagSuggestionsStartBelowTheSearchBarWithoutAnEdgeBlur`.
+- Android first and last tag rows cut by about 5 px: NOT fixed, located in CollectionViewClassifyMenu's Android `CYLTagListView` (not the core's layout). The rows between are whole, and the first row's top edge and the last row's bottom edge are missing, as if the list's content were taller than its measured height and scrolled by about 5 px. A margin or padding change in `CYLSearchView` made no difference (tried, reverted). Next step, in CollectionViewClassifyMenu: compare `heightThatFitsWidth` with `computeFrames`' `totalHeight` for a folded inline fold control.
+- Screenshots (originals), from top to bottom: list style, tag style, tag style after tapping "Android".
+
+    ![List style](assets/android-suggestions-list-style.png)
+
+    ![Tag style](assets/android-suggestions-tag-style.png)
+
+    ![Tag tapped](assets/android-suggestions-tag-picked.png)
+
+| Field | Value |
+|:---|:---|
+| Platform | Android (Kotlin, `android/merged`) |
+| Host | macOS 27.3 (26C5035r), JDK 17.0.21, Gradle 9.3.1, AGP 8.7.3, Kotlin 2.0.21 |
+| Emulator | `CYL_API35_arm64`, Android 15 (API 35), arm64-v8a, 1080 × 2400 |
+| SDK | compileSdk / targetSdk 35, minSdk 23 |
+| Repository | [`ffac758`](https://github.com/ChenYilong/CYLSearchViewController/commit/ffac758) on `feat/swift-core`; CYLTabBarController `f410fa7`, CollectionViewClassifyMenu `eb3590e` |
+| Taken | 2026-11-12 21:30–21:40 NZDT |
+  - The iOS side: DONE (2026-11-12, `e1a771a`; the tag-style demos 2026-11-14, the next entry).
+
+## DONE (2026-11-14; TODO 2026-11-12): tag-style suggestion demos copied from CollectionViewClassifyMenu, iOS first
+
+- Context: refines the iOS TODO at the top of this document. CollectionViewClassifyMenu already implements tag
+  pages (the user's screenshots below): a search page with "Recent searches" tags (a fold button at the end of the
+  second row, a trash button), a two-column "Discover" list with a "hot" badge, the camera and Search buttons in the
+  field, and a voice button at the bottom; and a tag editor with a search field and tag sections. Android has
+  `CYLSearchView.suggestionStyle` (List / Tags) and the List style / Tag style tabs.
+- Requirements:
+  1. Add demos that show the search suggestions as tags; copy what CollectionViewClassifyMenu already implements
+     (the screenshots show the effect).
+  2. Use the new style property (`suggestionStyle`) and the new dependency layout: CollectionViewClassifyMenu as a
+     sub-dependency (`docs/sub-repositories.md`).
+  3. In the example, the different demo pages are told apart by the empty tab items of CYLTabBarController (new tab
+     items with no content yet).
+  4. iOS first; then Android and the cross-platform versions (React Native, Flutter) with the same requirements.
+- Screenshots (the user's), top to bottom: the discover search page; its states in four languages; the tag editor.
+
+  ![Discover search page](assets/user-2026-11-12-classifymenu-discover-search.png)
+
+  ![Discover states](assets/user-2026-11-12-classifymenu-discover-states.jpg)
+
+  ![Tag editor](assets/user-2026-11-12-classifymenu-tag-editor.jpg)
+
+- Prompt (verbatim): "新增tag 形式展示备选搜索内容的样式demo，你可以直接从CollectionViewClassifyMenu文件夹  中复制已经实现的内容，具体代码效果见截图，使用我们的新建的样式属性，以及新组织的 依赖关系 使用 CollectionViewClassifyMenu作为子依赖。进行代码改造。使用example中cyltabbarcontroller中的 空的没有内容的tabbaritem进行区分上面的不同演示页面。先实现iOS端展示，然后再 按照相同要求执行其他平台比如android和跨端平台rn flutter。continue"
+- Prompt (English): "Add a style demo that shows the candidate search content as tags. You can copy what is already
+  implemented in the CollectionViewClassifyMenu folder (see the screenshots for the effect), use our new style
+  property and the newly organized dependency, with CollectionViewClassifyMenu as a sub-dependency, and rework the
+  code. Use the empty tab items of the example's CYLTabBarController to tell the demo pages apart. Implement iOS
+  first, then the other platforms, Android and the cross-platform React Native and Flutter, with the same
+  requirements. Continue."
+- Progress, iOS: DONE (2026-11-12, [`e1a771a`](https://github.com/ChenYilong/CYLSearchViewController/commit/e1a771a)).
+  - Core: `CYLSearchView.suggestionStyle` (`CYLSearchSuggestionStyle.list` / `.tags`) and `suggestionsTagView`
+    (CollectionViewClassifyMenu's `CYLTagListView`), the same option as Android; a tapped tag fills the query and is
+    reported like a row.
+  - Sub-dependency: `s.dependency 'CollectionViewClassifyMenu'` in the podspec; the Podfile pins its newest commit
+    `e550a01` (`:git` + `:commit`). Its podspec makes it a static framework, so the app links pods as static
+    frameworks (`use_frameworks! :linkage => :static`); `scripts/pod-lint.sh` checks the pinned commit out into
+    `build/lint-specs/` and lints with `--include-podspecs` and `--use-static-frameworks` (it is not on trunk).
+    `pod lib lint` passes.
+  - Example: two new tab items in `CYLTabBarConfiguration.json`, titles in four languages: "Tag style"
+    (MaterialSearchView's six samples, the same suggestions and parameters as the list ports, shown as tags) and
+    "Discover" (`CYLSearchDiscoverViewController` and its data, copied from CollectionViewClassifyMenu's
+    `CYLMenuExample` at `e550a01`, its strings in an example-level `CYLSearchDiscover.bundle`; the back button shows
+    only when the page is pushed).
+  - Tests: 19/19 pass on iPhone 17 (tab bar with five pages and every tab key; the Discover search bar covers no
+    view at the default and the largest text size).
+  - Known: the "✨" after the Discover hint shows as a box on the freshly booted simulator (its emoji font); the
+    source is the same as CollectionViewClassifyMenu's.
+  - Screenshots (originals), top to bottom: the Tag style tab; its Default sample after typing "a"; the Discover tab.
+
+    ![Tag style tab](assets/ios-tag-style-menu.png)
+
+    ![Tag style, Default sample](assets/ios-tag-style-default.png)
+
+    ![Discover tab](assets/ios-discover-tab.png)
+
+| Field | Value |
+|:---|:---|
+| Platform | iOS (Swift core, Swift / Objective-C example) |
+| Host | macOS 27.3 (26C5035r), Xcode 27.2 (27B5028f) |
+| Simulator | iPhone 17, iOS 26.3 |
+| SDK | iOS SDK 27.2, Swift 5 language mode, deployment target iOS 15.0 |
+| Repository | [`e1a771a`](https://github.com/ChenYilong/CYLSearchViewController/commit/e1a771a) on `feat/swift-core`; CollectionViewClassifyMenu `e550a01` |
+| Taken | 2026-11-12 23:01–23:05 NZDT |
+- Progress, Android: DONE (2026-11-12, [`0c8e306`](https://github.com/ChenYilong/CYLSearchViewController/commit/0c8e306)).
+  - The tag style was already there (`CYLSearchView.suggestionStyle`, the List style / Tag style tabs).
+  - New Discover tab: `CYLSearchDiscoverFragment`, a Kotlin port of the iOS page with CollectionViewClassifyMenu's
+    Android `CYLTagListView` (inline fold chevron, two-column grid, More button, section accessory), the same data
+    and hot images (`assets/CYLSearchDiscover.bundle`) and texts in four languages. CollectionViewClassifyMenu is now
+    pinned to `e550a01` on Android too.
+  - Library fix found here: `CYLSearchBarView` keeps an accessory view's own size (a 1 dp divider filled the field).
+  - Verified on the emulator: Recent searches expand to every search, a tapped tag fills the query, More shows other
+    topics; no crash. Not a difference to keep: long titles are cut by the cell's edge; see the bug TODO below.
+  - Screenshots (originals), top to bottom: the Discover tab; Recent searches expanded; Discover after More (cropped).
+
+    ![Android Discover tab](assets/android-discover-tab.png)
+
+    ![Recent searches expanded](assets/android-discover-expanded.png)
+
+    ![Discover after More](assets/android-discover-refreshed.png)
+
+| Field | Value |
+|:---|:---|
+| Platform | Android (Kotlin, `android/merged`) |
+| Host | macOS 27.3 (26C5035r), JDK 17.0.21, Gradle 9.3.1, AGP 8.7.3, Kotlin 2.0.21 |
+| Emulator | `CYL_API35_arm64`, Android 15 (API 35), arm64-v8a, 1080 × 2400 |
+| SDK | compileSdk / targetSdk 35, minSdk 23 |
+| Repository | [`0c8e306`](https://github.com/ChenYilong/CYLSearchViewController/commit/0c8e306) on `feat/swift-core`; CollectionViewClassifyMenu `e550a01` |
+| Taken | 2026-11-12 23:24–23:27 NZDT |
+- Next: React Native and Flutter. Neither version of this library exists yet; they are built by the cross-platform
+  TODO in [android-and-cross-platform.md](android-and-cross-platform.md) (Flutter first), and get the tag style and
+  the Discover page there.
+- Flutter: DONE (2026-11-13, [`40f9765`](https://github.com/ChenYilong/CYLSearchViewController/commit/40f9765)). The
+  plugin's `CYLSearchView` takes `suggestionStyle: CYLSearchSuggestionStyle.tags`, and its new `CYLTagListView` widget
+  is CollectionViewClassifyMenu's native tag list; the example has a Tag style tab and a Discover tab built on it (same
+  data as iOS and Android). Details and screenshots: [android-and-cross-platform.md](android-and-cross-platform.md).
+- React Native: DONE (2026-11-14). `react-native-cylsearch` has `suggestionStyle="tags"` on `CYLSearchView` and the
+  `CYLTagListView` component (CollectionViewClassifyMenu's native tag list, folded to two rows behind the inline
+  chevron); the example has a Tag style tab and a Discover tab on the same data. Screenshots (Android and iOS):
+  [android-and-cross-platform.md](android-and-cross-platform.md).
+- Status: DONE (2026-11-14): iOS, Android, Flutter and React Native.
+
+## DONE (2026-11-12): Android tag cells cut their text at the cell edge
+
+- Context: the Android Discover tab (`CYLSearchDiscoverFragment`, CollectionViewClassifyMenu's Android
+  `CYLTagListView` with `CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(2)`, pinned at `e550a01`). Long topic titles
+  ("Switching your cat's food", "Saving money on train tickets", "Designers' favorite palettes") run to the cell's edge
+  and are cut mid-letter. On iOS the same grid keeps a gap and ends a long title with "…". I first wrote this off as a
+  difference of the library; the user disagreed: it is a bug.
+- Requirements:
+  1. Keep a gap between the text and the cell's edge (the cell's content insets / margin, as on iOS).
+  2. A title that does not fit ends with an ellipsis ("…"), on one line.
+  3. Where the cut comes from CollectionViewClassifyMenu's Android tag layout (`CYLTagButton` / grid cell
+     measuring), fix it there, push it, then update `cyl.classifymenu.commit` here (AGENTS.md, "Sub-repositories");
+     check the other tag cells too (Recent searches, the Tag style tab).
+  4. Screenshots after the fix, labeled; mark this TODO done.
+- Screenshot (the user's):
+
+  ![Android Discover titles cut at the cell edge](assets/user-2026-11-12-android-discover-clipped-titles.png)
+
+- Prompt (verbatim): "No  I don't think so. Android tests pass (9/9). The alignment table has grown to 299 rows (the new iOS suggestionStyle API), all aligned. Regenerating it and writing the Android progress with screenshots: tag cell text are cut by boundary of cell , it should got gap between text and boundary of cell, if text is too long it should show text end with ... please mark this bug as TODO in docs files related."
+- Status: DONE (2026-11-12, [`74b75a6`](https://github.com/ChenYilong/CYLSearchViewController/commit/74b75a6)).
+  - Cause, in CollectionViewClassifyMenu's Android `CYLTagButton`: its children were measured with an `UNSPECIFIED`
+    width, so the title `TextView` kept a text layout as wide as the whole title; the narrower frame then clipped it
+    and `ellipsize = END` never applied.
+  - Fix there (sub-repository rule): `place()` measures each child at its frame before laying it out; every tag cell
+    uses it.
+  - Core, not example: the user asked again (2026-11-12, "请在core层面修复该问题，不要在example修复！" — "fix it in the core, not
+    in the example"). The fix is in CollectionViewClassifyMenu's core library (`CYLTagButton`, used by every tag cell);
+    no example code changed for it (`CYLSearchDiscoverFragment` is untouched by `74b75a6` / `f972416`). [ChenYilong/CollectionViewClassifyMenu#17](https://github.com/ChenYilong/CollectionViewClassifyMenu/pull/17),
+    commit `f972416`, with `CYLTagTitleEllipsisTest` (fails without the fix) and its 30 library tests passing.
+  - Pinned here to `f972416` on Android and iOS; Android builds from the pinned checkout, iOS 19/19, `pod lib lint`
+    passes.
+  - After (cropped, Android 15 emulator `CYL_API35_arm64`, API 35, host macOS 27.3, built from
+    [`74b75a6`](https://github.com/ChenYilong/CYLSearchViewController/commit/74b75a6)'s pin, 2026-11-12 23:5x NZDT): long titles
+    end with "…" inside the cell, with a gap before the next column.
+
+    ![Android Discover titles end with an ellipsis](assets/android-discover-titles-ellipsis.png)
+
+## BUG DONE (2026-11-13): the tag list lost its fold button on later platforms
+
+- Context: the first implementations, the iOS Discover page (`CYLSearchDiscoverViewController`:
+  `CYLTagListView(foldControl: CYLMenuFoldControl(position: .inline, content: .icon))`) and its Android port
+  (`CYLSearchDiscoverFragment`: an inline icon fold control, `defaultVisibleRows = 2`), end the recent-search tags with a
+  fold button (a chevron as the last tag: two rows folded, all rows unfolded). Later work dropped it: the core's tag
+  suggestion style creates `suggestionsTagView` with `CYLTagListView(foldControl: nil)` (iOS) and without one (Android),
+  and the Flutter `CYLTagListView` widget and the Flutter Discover page have no fold button (first screenshot below:
+  Flutter Discover, all ten recent searches shown; second: the Android reference, folded with the chevron, then
+  unfolded with the up chevron).
+
+  ![Flutter Discover without the fold button](assets/fold-missing-flutter-discover.png)
+
+  ![Android Discover with the fold button (reference)](assets/fold-reference-android-discover.png)
+
+- Requirements:
+  1. The core supports the fold button through parameters an app can customize: on `CYLSearchView` (the tag
+     suggestion style) the fold control (position, content) and the number of rows shown while folded, on iOS and
+     Android; the Flutter `CYLTagListView` widget and `CYLSearchView` widget pass the same parameters.
+  2. Check every example page in the screenshots that shows a tag list and set the parameters, so the last item of the
+     tag list is the fold button, as in the iOS example.
+  3. Reference: this project's iOS example (`CYLSearchDiscoverViewController`).
+- Prompt (verbatim): "你在不同平台实现搜索备选项列表样式为collectionView的时候，在某一节点，忘记了这个有一个折叠功能。只有你在前期实现的时候，加了这个功能。请确保core核心代码 使用参数支持该样式的外部自定义，再排查所有example的截图中的页面，更新该参数。预期效果是tag list的最后一项是 折叠交互按钮。参考本项目iOS example的实现。记录到文档中，标记BUG TODO"
+- Prompt (English): "When you implemented the suggestion list in the collection view (tag) style on the different
+  platforms, at some point you forgot that it has a fold feature; only your early implementation added it. Make sure
+  the core supports customizing this style from outside through parameters, then check the pages in all the examples'
+  screenshots and set the parameter. Expected: the last item of the tag list is the fold button. Refer to this
+  project's iOS example. Record it in the docs and mark it BUG TODO."
+- Result (2026-11-13):
+  - Core parameters on `CYLSearchView` (tag suggestion style), iOS and Android: `suggestionsFoldControl`
+    (CollectionViewClassifyMenu's `CYLMenuFoldControl`; default an inline icon, the chevron as the last tag) and
+    `suggestionsFoldedRowCount` (default 2; 0 shows every row). On iOS the search view relays out on fold changes
+    through a private `CYLMenuDelegate` object, so it gains no public conformance.
+  - Flutter: `CYLSearchView(suggestionsFoldControlPosition:, suggestionsFoldControlContent:, suggestionsFoldedRowCount:)`
+    and `CYLTagListView(foldControlPosition:, foldControlContent:, foldedRowCount:)` (enums `CYLTagFoldControlPosition`,
+    `CYLTagFoldControlContent`); the native tag list reports its height again after folding and unfolding.
+  - Examples set the parameters on every page with a tag list: iOS MaterialSearchView samples (the Tag style tab),
+    Android `CYLSuggestionStyleFragment`, the Flutter Tag style demo and Discover page; the iOS and Android Discover
+    pages already had it.
+  - Tests: iOS 25/25 (`testTagSuggestionsEndWithTheFoldButtonByDefault`), Android 15/15
+    (`tagSuggestionsEndWithTheFoldButtonByDefault`), Flutter plugin 7/7 (parameters), both Flutter builds.
+  - Verified (Flutter, iPhone 17 simulator iOS 26.3, 2026-11-13 19:0x NZDT), top to bottom: the Discover page folded
+    to two rows with the chevron ("More") as the last tag; after tapping it, every recent search with the up chevron
+    ("Less") last, and the page below moved down.
+
+    ![Flutter Discover: folded, then unfolded](assets/fold-fixed-flutter-ios.png)
+
+  - Android (Flutter, `CYL_API35_arm64` read-only instance, Android 15 / API 35, 2026-11-13 19:42 NZDT): the first run
+    showed the folded list one row short (the row with the chevron clipped): the plugin reported `heightThatFitsWidth`
+    before the folded layout settled. It now reports the larger of that and the list's own `contentHeight`, which the
+    list updates through `menuDidChangeContentHeight`. Left to right: folded (two rows, the chevron last), unfolded
+    (the up chevron last), folded again.
+
+    ![Flutter Discover on Android: folded, unfolded, folded again](assets/fold-fixed-flutter-android.png)
+
+- Status: `BUG DONE`.
+
+
+## DONE (2026-11-22): tags are the default suggestion style, folded, the fold control as the last tag
+
+- Task log: [task-log.md](task-log.md), "tags as the default suggestion style". Branch `feat/harmonyos-parity` (PR #11).
+- Change: `CYLSearchView.suggestionStyle` defaults to tags on iOS, Android, HarmonyOS, the mini program (core and `cyl-search`
+  property), React Native (`cylSearchViewSuggestionStyle`) and Flutter. Every other default is unchanged: CollectionViewClassifyMenu's
+  `CYLTagListView` (`suggestionsTagView`), the inline fold control (position tail, content icon), 2 folded rows
+  (`suggestionsFoldedRowCount`), so the tags start folded. Tests that exercise the list, and the list replicas (iOS
+  `CYLOriginalSearchDemoViewController`, Android MaterialSearchView sample), set the list style explicitly.
+- Property of the packaged style, checked by a test per platform: folded or unfolded, the last tag is the fold control and a
+  tap on it toggles the folding. **All tags fit the folded rows: the packaged control hides itself** (`CYLTagListView.canFoldSection`
+  is false when the rows do not exceed the folded rows; the mini program and HarmonyOS follow the same rule). The core adds no
+  control of its own; a different behavior belongs in CollectionViewClassifyMenu. Tests pin the current behavior.
 - Tests: iOS 27.2 sim (140 of 143 earlier run: the 2 list failures fixed by setting `.list`; `CYLSearchExampleCacheFocusItemTests` 10 of 10
   after the new tests; one lifecycle jitter test failed once under parallel load and passed in the first run);
   Android `:cylsearch:testDebugUnitTest` and `:app:testDebugUnitTest` green; mini program `npm test` 86 of 86; Flutter `flutter test` 18 of 18;
@@ -300,7 +532,6 @@ CollectionViewClassifyMenu).
   `CYLSearchQMUIPort` 12 of 12; the `CYLSearchUI` suite hung (no result after 100 s, also while an older `aa test` runner stayed hung on the emulator; not attributed to this change, rerun needed).
   React Native: unit test added (`cylSearchViewSuggestionStyle`), not run (no node_modules; the RN agent runs jest).
 - Screenshots (originals, stitched):
-  ![iOS tags default](assets/tags-default-ios-20261122.png) iOS 27.2, iPhone 18 Pro simulator, Xcode 27.2, macOS 27.3, CYLSearchViewController 901e461, CollectionViewClassifyMenu 9dc1f761, 2026-11-22 13:31 +13:00: default suggestions folded, then unfolded.
-  ![Android tags default](assets/tags-default-android-20261122.png) Android 15 API 35, CYL_API35_test emulator, macOS 27.3, JDK 17, CYLSearchViewController ff73ebd, 2026-11-22 13:44 +13:00: default suggestions folded, then unfolded.
-- Observed, not fixed: iOS draws the first tag row blurred under the overlay's search bar region; Android clips the first and last tag rows by a few pixels. Both look like layout defects of the tag view inside the page (check against CollectionViewClassifyMenu).
-- TODO (Windows session): test the mini program on a device (WeChat DevTools); rerun the HarmonyOS `CYLSearchUI` suite; React Native jest and typecheck.
+  ![iOS tags default](assets/tags-default-ios-20261122.png) iOS 27.2, iPhone 18 Pro simulator, Xcode 27.2, macOS 27.3, CYLSearchViewController 4cc5638, CollectionViewClassifyMenu 9dc1f761, 2026-11-22 14:18 +13:00: default suggestions folded, then unfolded (first row crisp).
+  ![Android tags default](assets/tags-default-android-20261122.png) Android 15 API 35, CYL_API35_test emulator, macOS 27.3, JDK 17, CYLSearchViewController 8df22f8, 2026-11-22 14:21 +13:00: default suggestions folded, then unfolded.
+- TODO: the mini program device test (Windows session, WeChat DevTools); rerun the HarmonyOS `CYLSearchUI` suite; fix the Android 5 px row cut in CollectionViewClassifyMenu and pin it.

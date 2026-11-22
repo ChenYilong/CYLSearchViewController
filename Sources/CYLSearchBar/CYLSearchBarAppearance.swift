@@ -153,6 +153,119 @@ public final class CYLSearchBarAppearance: NSObject, NSCopying {
         CYLSearchBarAppearance.default.copy() as? CYLSearchBarAppearance ?? CYLSearchBarAppearance()
     }
 
+    // MARK: - Shared by CYLSearchBar and CYLSearchBarView
+    //
+    // The one place that turns the appearance into values and measures what both bars need; each bar only assigns the
+    // results to its own subviews (UISearchBar's field, or the view's fieldView).
+
+    /**
+     * What the field draws, resolved for `traits` (docs/qmui-search-controller.md, "Merge design"): the colors are
+     * resolved, `cornerRadius` is nil when the style keeps the bar's own corners (0), negative for a capsule.
+     */
+    struct ResolvedField {
+        var fillColor: UIColor?
+        var backgroundImage: UIImage?
+        var borderColor: UIColor?
+        var borderWidth: CGFloat
+        var cornerRadius: CGFloat?
+    }
+
+    func resolvedField(traits: UITraitCollection) -> ResolvedField {
+        ResolvedField(
+            fillColor: textFieldBackgroundColor?.resolvedColor(with: traits),
+            backgroundImage: textFieldBackgroundImage,
+            borderColor: textFieldBorderColor?.resolvedColor(with: traits),
+            borderWidth: textFieldBorderColor == nil ? 0 : Self.hairline,
+            cornerRadius: textFieldCornerRadius == 0 ? nil : textFieldCornerRadius)
+    }
+
+    /**
+     * One pixel in points, the width of the borders.
+     */
+    static var hairline: CGFloat {
+        1 / max(UIGraphicsImageRendererFormat.preferred().scale, 1)
+    }
+
+    /**
+     * The radius to draw: a negative value is half of `height` (a capsule).
+     */
+    static func cornerRadius(_ radius: CGFloat, height: CGFloat) -> CGFloat {
+        radius < 0 ? height / 2 : radius
+    }
+
+    /**
+     * The margins of a bar in a state: the provider's answer wins over the resting value.
+     */
+    static func margins<Bar>(of provider: ((Bar, Bool) -> UIEdgeInsets)?, bar: Bar, active: Bool,
+                             resting: UIEdgeInsets) -> UIEdgeInsets {
+        provider?(bar, active) ?? resting
+    }
+
+    /**
+     * The width of `text` in `font`, rounded up.
+     */
+    static func textWidth(_ text: String, font: UIFont) -> CGFloat {
+        ceil((text as NSString).size(withAttributes: [.font: font]).width)
+    }
+
+    /**
+     * How far to move a block of `contentWidth` (the magnifier, its gap and the placeholder), whose left edge rests
+     * at `baseline`, to center it in a field of `fieldWidth`; never negative, never more than `room` (the free
+     * space right of the block, so accessories and Cancel keep theirs).
+     */
+    static func centeringOffset(fieldWidth: CGFloat, contentWidth: CGFloat, baseline: CGFloat,
+                                room: CGFloat = .greatestFiniteMagnitude) -> CGFloat {
+        min(max(0, (fieldWidth - contentWidth) / 2 - baseline), max(0, room))
+    }
+
+    private static var cachedFieldHeight: CGFloat = 0
+
+    /**
+     * UIKit's default field height, measured once from a plain `UISearchBar` (36 before iOS 26, 44 after).
+     */
+    static func defaultTextFieldHeight() -> CGFloat {
+        if cachedFieldHeight == 0 {
+            let probe = UISearchBar(frame: CGRect(x: 0, y: 0, width: 320, height: 56))
+            probe.layoutIfNeeded()
+            let height = probe.searchTextField.frame.height
+            cachedFieldHeight = height > 0 ? height : 36
+        }
+        return cachedFieldHeight
+    }
+
+    /**
+     * A resizable image of a text field in `color`; its height decides the height of a `UISearchBar` field.
+     */
+    static func textFieldBackgroundImage(color: UIColor?) -> UIImage? {
+        guard let color else { return nil }
+        let size = CGSize(width: 60, height: defaultTextFieldHeight())
+        let image = UIGraphicsImageRenderer(size: size).image { context in
+            color.setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+        }
+        return image.resizableImage(withCapInsets: UIEdgeInsets(top: 10, left: 10, bottom: 10, right: 10))
+    }
+
+    /**
+     * A resizable image for a bar's background: `color` (white by default) with a one pixel bottom border in
+     * `borderColor`, or nil when both are nil.
+     */
+    static func backgroundImage(color: UIColor?, borderColor: UIColor?) -> UIImage? {
+        guard color != nil || borderColor != nil else { return nil }
+        let size = CGSize(width: 10, height: 10)
+        let format = UIGraphicsImageRendererFormat.preferred()
+        let image = UIGraphicsImageRenderer(size: size, format: format).image { context in
+            (color ?? .white).setFill()
+            context.fill(CGRect(origin: .zero, size: size))
+            if let borderColor {
+                let line = 1 / max(format.scale, 1)
+                borderColor.setFill()
+                context.fill(CGRect(x: 0, y: size.height - line, width: size.width, height: line))
+            }
+        }
+        return image.resizableImage(withCapInsets: UIEdgeInsets(top: 1, left: 1, bottom: 1, right: 1))
+    }
+
     /**
      * Returns an independent copy of this style.
      */

@@ -2,11 +2,11 @@
 //  CYLSearchControllerDemoTests.swift
 //  CYLSearchExampleTests
 //
-//  The "Search controller" screen (a replica of QMUI's QDSearchViewController): the keywords, the launch view of recent
-//  searches, the results with the match in the tint color, the empty view, and the strings in four languages.
+//  The "Search controller" screen (a replica of QMUI's QDSearchViewController): the keywords, the core's launch view of
+//  recent searches (configured through API only), the results with the match in the tint color, the empty view, and the
+//  strings in four languages.
 //
 
-import CollectionViewClassifyMenu
 import UIKit
 import XCTest
 @testable import CYLSearchViewController
@@ -30,7 +30,10 @@ final class CYLSearchControllerDemoTests: CYLSearchExampleTestCase {
         XCTAssertTrue(screen.tableView.tableHeaderView === search.searchBar, "the bar is the table header")
         XCTAssertTrue(search.searchBar.usedAsTableHeaderView)
         XCTAssertTrue(search.supportsSwipeToDismissSearch)
-        XCTAssertTrue(search.launchView is CYLRecentSearchLaunchView)
+        XCTAssertTrue(search.showsSuggestionsLaunchView, "the core's launch view, no view of the example")
+        XCTAssertTrue(search.launchView is CYLSearchSuggestionsLaunchView)
+        XCTAssertEqual(search.suggestions, ["Helps", "Maintain", "Liver", "Health", "Function", "Supports", "Healthy", "Fat"], "QMUI's eight")
+        XCTAssertNotNil(search.historyStore)
         XCTAssertTrue(search.searchResultsDelegate === screen)
         window.isHidden = true
     }
@@ -43,7 +46,8 @@ final class CYLSearchControllerDemoTests: CYLSearchExampleTestCase {
         CYLRunLoop(0.4)
         let table = try XCTUnwrap(search.tableView)
         XCTAssertEqual(table.numberOfRows(inSection: 0), 2 * 20, "Health and Healthy, twenty rows each")
-        let cell = screen.tableView(table, cellForRowAt: IndexPath(row: 0, section: 0))
+        XCTAssertTrue(search.highlightsResultMatches, "the core highlights the match, the screen does not")
+        let cell = try XCTUnwrap(table.dataSource).tableView(table, cellForRowAt: IndexPath(row: 0, section: 0))
         let text = try XCTUnwrap(cell.textLabel?.attributedText)
         XCTAssertEqual(text.string, "Health")
         let tint = try XCTUnwrap(screen.view.tintColor)
@@ -59,14 +63,20 @@ final class CYLSearchControllerDemoTests: CYLSearchExampleTestCase {
     }
 
     func testLaunchViewHoldsTheRecentSearchesAsTags() throws {
-        let launch = CYLRecentSearchLaunchView(frame: CGRect(x: 0, y: 0, width: 402, height: 700))
-        launch.layoutIfNeeded()
-        XCTAssertEqual(launch.titleLabel.text, CYLSearchResources.localizedString(forKey: "controller.recent"))
-        XCTAssertEqual(launch.menuNumberOfItems(inSection: 0), 8)
-        XCTAssertEqual(launch.menuTitleForItem(at: IndexPath(item: 0, section: 0)), "Helps")
-        XCTAssertEqual(launch.titleLabel.frame.minX, 26, accuracy: 0.5, "26 pt padding")
-        XCTAssertEqual(launch.tagListView.frame.minY, launch.titleLabel.frame.maxY + 8 + 20, accuracy: 0.5, "20 pt under the title")
-        XCTAssertEqual(launch.tagListView.frame.maxY, launch.bounds.maxY, accuracy: 0.5)
+        CYLSearchControllerDemoViewController.historyName = "CYLSearchControllerDemoTests-\(UUID().uuidString)"
+        defer { CYLSearchControllerDemoViewController.historyName = "CYLSearchControllerDemo" }
+        let (window, _, search) = shown()
+        search.setActive(true, animated: false)
+        CYLRunLoop(0.5)
+        let launch = try XCTUnwrap(search.launchView as? CYLSearchSuggestionsLaunchView)
+        XCTAssertEqual(launch.area.titles, CYLSearchControllerDemoViewController.suggestions, "no history: the eight suggestions")
+        XCTAssertEqual(launch.area.titleLabel.text, CYLSearchResources.localizedString(forKey: "search.recent"), "Recent searches")
+        XCTAssertTrue(launch.area.headerView.isHidden, "no history: no header and no trash button")
+        XCTAssertFalse(CYLOrderedTagCells(of: launch.area.tagView).isEmpty, "tags on screen")
+        XCTAssertGreaterThanOrEqual(launch.area.tagView.frame.minY, 0)
+        XCTAssertEqual(launch.frame.maxY, try XCTUnwrap(launch.superview).bounds.maxY, accuracy: 0.5, "it fills the space under the bar")
+        search.setActive(false, animated: false)
+        window.isHidden = true
     }
 
     /// The history of the Search controller screen is CYLSearchResources' store: the return key adds the query, newest
@@ -76,28 +86,55 @@ final class CYLSearchControllerDemoTests: CYLSearchExampleTestCase {
         let (window, _, search) = shown()
         let store = try XCTUnwrap(search.historyStore)
         defer { store.removeAllQueries() }
-        let launch = try XCTUnwrap(search.launchView as? CYLRecentSearchLaunchView)
+        let launch = try XCTUnwrap(search.launchView as? CYLSearchSuggestionsLaunchView)
+        let area = launch.area
         XCTAssertEqual(store.cachedQueries(), [])
         search.setActive(true, animated: false)
         CYLRunLoop(0.5)
-        XCTAssertTrue(launch.clearButton.isHidden, "no history yet: the eight suggestions and no trash button")
-        XCTAssertEqual(launch.menuNumberOfItems(inSection: 0), 8)
+        XCTAssertTrue(area.headerView.isHidden, "no history yet: the eight suggestions and no trash button")
+        XCTAssertEqual(area.titles.count, 8)
         for text in ["Fat", "Liver", " ", "Fat"] {
             search.searchBar.text = text
             search.searchBar.searchTextField.sendActions(for: .primaryActionTriggered)
         }
         XCTAssertEqual(store.cachedQueries(), ["Fat", "Liver"], "newest first, no duplicates, no blank query")
         XCTAssertNotNil(launch.window, "the launch view stayed on screen")
-        XCTAssertEqual(launch.menuNumberOfItems(inSection: 0), 2, "read again without leaving the screen")
-        XCTAssertEqual(launch.menuTitleForItem(at: IndexPath(item: 0, section: 0)), "Fat")
-        XCTAssertFalse(launch.clearButton.isHidden)
-        launch.clearButton.sendActions(for: .touchUpInside)
+        XCTAssertEqual(area.titles, ["Fat", "Liver"], "read again without leaving the screen")
+        XCTAssertFalse(area.headerView.isHidden)
+        area.clearButton.sendActions(for: .touchUpInside)
         XCTAssertEqual(store.cachedQueries(), [])
-        XCTAssertEqual(launch.menuNumberOfItems(inSection: 0), 8, "the suggestions are back")
-        XCTAssertTrue(launch.clearButton.isHidden)
+        XCTAssertEqual(area.titles.count, 8, "the suggestions are back")
+        XCTAssertTrue(area.headerView.isHidden)
         search.setActive(false, animated: false)
         window.isHidden = true
         CYLSearchControllerDemoViewController.historyName = "CYLSearchControllerDemo"
+    }
+
+    /// A tapped tag is the query and is submitted (the old demo view did nothing on a tap): the results update, the
+    /// history gets it, the launch view on screen lists it first, and the controller announces it.
+    func testTappedTagSetsTheQueryAndSubmitsIt() throws {
+        CYLSearchControllerDemoViewController.historyName = "CYLSearchControllerDemoTests-\(UUID().uuidString)"
+        defer { CYLSearchControllerDemoViewController.historyName = "CYLSearchControllerDemo" }
+        let (window, _, search) = shown()
+        let store = try XCTUnwrap(search.historyStore)
+        defer { store.removeAllQueries() }
+        let launch = try XCTUnwrap(search.launchView as? CYLSearchSuggestionsLaunchView)
+        search.setActive(true, animated: false)
+        CYLRunLoop(0.5)
+        var posted: [String] = []
+        let token = NotificationCenter.default.addObserver(forName: CYLSearchController.historyDidChangeNotification,
+                                                           object: search, queue: nil) { posted.append($0.userInfo?["query"] as? String ?? "?") }
+        defer { NotificationCenter.default.removeObserver(token) }
+        CYLTapTag(at: 3, in: launch.area.tagView)
+        XCTAssertEqual(search.searchBar.text, "Health", "the tapped tag is the query")
+        XCTAssertEqual(store.cachedQueries(), ["Health"], "and it is submitted")
+        XCTAssertEqual(posted, ["Health"])
+        XCTAssertEqual(try XCTUnwrap(search.tableView).numberOfRows(inSection: 0), 2 * 20, "Health and Healthy: the results follow the query")
+        XCTAssertNotNil(launch.window)
+        XCTAssertEqual(launch.area.titles, ["Health"], "the launch view on screen shows the history now")
+        XCTAssertFalse(launch.area.headerView.isHidden)
+        search.setActive(false, animated: false)
+        window.isHidden = true
     }
 
     /// The core announces each submitted query once it is in the history store (object: the controller), and stays
