@@ -73,24 +73,38 @@ describe('cylQueriesAdding', () => {
   });
 });
 
-describe('cylFoldedTagCount', () => {
-  const widths = [45, 45, 45, 45, 45];
-  it('shows every tag when they fit', () => {
-    assert.equal(logic.cylFoldedTagCount(widths, 100, 3, 10, 40), 5);
+describe('cylSearchMatchRange (the result highlight)', () => {
+  it('finds the first match, ignoring case', () => {
+    assert.deepEqual(logic.cylSearchMatchRange('Healthy', 'heal'), [0, 4]);
+    assert.deepEqual(logic.cylSearchMatchRange('Healthy Health', 'HEALTH'), [0, 6]);
+    assert.deepEqual(logic.cylSearchMatchRange('Maintain', 'tai'), [4, 7]);
   });
-  it('leaves room for an inline control after the last visible tag', () => {
-    assert.equal(logic.cylFoldedTagCount(widths, 100, 2, 10, 40), 3);
+  it('ignores accents in the text and in the query', () => {
+    assert.deepEqual(logic.cylSearchMatchRange('Café crème', 'cafe'), [0, 4]);
+    assert.deepEqual(logic.cylSearchMatchRange('Café crème', 'CRÈME'), [5, 10]);
+    // A decomposed text (e + combining acute) has a longer string than its folded form.
+    const decomposed = 'cafe\u0301 bar';
+    assert.deepEqual(logic.cylSearchMatchRange(decomposed, 'bar'), [6, 9]);
+    assert.deepEqual(logic.cylSearchMatchRange(decomposed, 'cafe'), [0, 5]);
   });
-  it('keeps the folded rows full when the control is on its own row', () => {
-    assert.equal(logic.cylFoldedTagCount(widths, 100, 2, 10, 0), 4);
+  it('is undefined for an empty query or no match', () => {
+    assert.equal(logic.cylSearchMatchRange('Health', ''), undefined);
+    assert.equal(logic.cylSearchMatchRange('Health', 'zzz'), undefined);
   });
-  it('shows every tag with no rows or no width yet', () => {
-    assert.equal(logic.cylFoldedTagCount(widths, 100, 0, 10, 40), 5);
-    assert.equal(logic.cylFoldedTagCount(widths, 0, 2, 10, 40), 5);
+});
+
+describe('swipe to dismiss rules (iOS CYLSearchEdgePanGestureRecognizer)', () => {
+  it('begins at the left edge, moving right past the slop and more than vertically', () => {
+    assert.ok(logic.cylSearchSwipeBegins(2, 12, 3));
+    assert.ok(!logic.cylSearchSwipeBegins(30, 12, 3));
+    assert.ok(!logic.cylSearchSwipeBegins(2, 8, 0));
+    assert.ok(!logic.cylSearchSwipeBegins(2, -12, 0));
+    assert.ok(!logic.cylSearchSwipeBegins(2, 12, 20));
   });
-  it('clamps a tag wider than the row', () => {
-    assert.equal(logic.cylFoldedTagCount([300, 45], 100, 1, 10, 40), 0);
-    assert.equal(logic.cylFoldedTagCount([300], 100, 1, 10, 40), 1);
+  it('ends the search past a quarter of the width', () => {
+    assert.ok(logic.cylSearchSwipeCompletes(101, 400));
+    assert.ok(!logic.cylSearchSwipeCompletes(100, 400));
+    assert.ok(!logic.cylSearchSwipeCompletes(-50, 400));
   });
 });
 
