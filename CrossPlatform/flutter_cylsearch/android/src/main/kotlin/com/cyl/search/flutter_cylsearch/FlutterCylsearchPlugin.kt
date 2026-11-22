@@ -96,7 +96,6 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
     private var reportedText = ""
     private var reportedHistory: List<String> = emptyList()
     private var noResultsText: String? = null
-    private var shownNoResultsText: String? = null
 
     init {
         searchView.delegate = this
@@ -170,21 +169,14 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
     }
 
     /**
-     * Shows the core's empty view with `noResultsText` while a query has no result, and takes it away otherwise.
+     * The core's `CYLSearchView` has no `noResultsText` (the iOS controller has): the title of its empty results
+     * placeholder is set here, after every change of the results (a new scenario makes a new placeholder). Not
+     * `showEmptyView`: that adds a second placeholder over the core's own one.
+     * TODO: move it into the core (docs/qmui-search-controller.md, merge phase 5 log: Flutter).
      */
     private fun updateNoResultsText() {
-        val text = noResultsText
-        val empty = searchView.showsEmptyResultsPlaceholder && searchView.resultsDataSource != null &&
-            !searchView.query.isNullOrEmpty() && searchView.searchResults.isEmpty()
-        if (text != null && empty) {
-            if (shownNoResultsText != text || !searchView.isEmptyViewShowing) {
-                searchView.showEmptyView(text)
-                shownNoResultsText = text
-            }
-        } else if (shownNoResultsText != null) {
-            searchView.hideEmptyView()
-            shownNoResultsText = null
-        }
+        val text = noResultsText ?: return
+        searchView.emptyResultsView?.titleLabel?.text = text
     }
 
     /**
@@ -269,6 +261,7 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
 
     private fun reportText(text: String) {
         reportedText = text
+        updateNoResultsText()
         channel.invokeMethod("textDidChange", mapOf("text" to text))
     }
 
