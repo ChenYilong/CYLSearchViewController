@@ -1159,3 +1159,6 @@ begins and becomes `DONE` when it ends.
      Three tests check the absolute position while entering and leaving the search (all read 116 pt without the fix); 188
      tests, 0 failures on iOS 27.2, 26.5 and 17.5 (clean derived data); real taps on both screens, labelled before / after
      screenshot `qmui-search-i2-i5-offset-fix-ios27.2-20261123.png`.
+  3. CI: a CocoaPods CDN DNS failure on the runner (rerun), then `testB7WithCYLSearchControllerCancelDoesNotJitter` read the
+     tail of a slow presentation as a jitter (a header bar: the I2 / I5 correction is off there); it now waits for
+     `didPresent`.
