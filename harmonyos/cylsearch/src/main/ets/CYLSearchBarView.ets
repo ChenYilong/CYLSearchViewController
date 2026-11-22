@@ -1116,27 +1116,28 @@ export class CYLSearchBarView {
    */
   @Trace barBorderColor: ResourceColor | undefined = undefined;
   /**
-   * A view of yours before the field, inside the bar (iOS `leadingAccessoryView`).
+   * A view of yours before the field, inside the bar; it replaces the navigation button (iOS `leadingView`).
    */
-  @Trace leadingAccessoryView: WrappedBuilder<[]> | undefined = undefined;
+  @Trace leadingView: WrappedBuilder<[]> | undefined = undefined;
   /**
-   * Whether the leading accessory view is shown. True by default.
+   * Whether `leadingView` is shown. True by default (iOS `showsLeadingView`).
    */
-  @Trace showsLeadingAccessoryView: boolean = true;
+  @Trace showsLeadingView: boolean = true;
   /**
-   * The space around the leading accessory view; `right` is the gap to the field (iOS `leadingAccessoryViewMargins`).
+   * The space around `leadingView`; `right` is the gap to the field (iOS `leadingAccessoryViewMargins`).
    */
   @Trace leadingAccessoryViewMargins: CYLSearchEdgeInsets = { top: 0, left: 0, bottom: 0, right: 0 };
   /**
-   * A view of yours after the field, before Cancel (iOS `trailingAccessoryView`).
+   * A view of yours inside the field after the text, before the voice button and the items (iOS
+   * `trailingAccessoryViews`).
    */
-  @Trace trailingAccessoryView: WrappedBuilder<[]> | undefined = undefined;
+  @Trace trailingAccessoryViews: WrappedBuilder<[]> | undefined = undefined;
   /**
-   * Whether the trailing accessory view is shown. True by default.
+   * Whether `trailingAccessoryViews` is shown. True by default (iOS `showsTrailingAccessoryViews`).
    */
-  @Trace showsTrailingAccessoryView: boolean = true;
+  @Trace showsTrailingAccessoryViews: boolean = true;
   /**
-   * The space around the trailing accessory view; `left` is the gap to the field (iOS `trailingAccessoryViewMargins`).
+   * The space around `trailingAccessoryViews`; `left` is the gap to the text (iOS `trailingAccessoryViewMargins`).
    */
   @Trace trailingAccessoryViewMargins: CYLSearchEdgeInsets = { top: 0, left: 0, bottom: 0, right: 0 };
   private appearance: CYLSearchBarAppearance = CYLSearchBarAppearance.defaultAppearance.copy();
@@ -1256,6 +1257,54 @@ export class CYLSearchBarView {
   }
 
   /**
+   * The same view as `leadingView`.
+   * @deprecated Use `leadingView`.
+   */
+  get leadingAccessoryView(): WrappedBuilder<[]> | undefined {
+    return this.leadingView;
+  }
+
+  set leadingAccessoryView(value: WrappedBuilder<[]> | undefined) {
+    this.leadingView = value;
+  }
+
+  /**
+   * The same flag as `showsLeadingView`.
+   * @deprecated Use `showsLeadingView`.
+   */
+  get showsLeadingAccessoryView(): boolean {
+    return this.showsLeadingView;
+  }
+
+  set showsLeadingAccessoryView(value: boolean) {
+    this.showsLeadingView = value;
+  }
+
+  /**
+   * The same view as `trailingAccessoryViews`.
+   * @deprecated Use `trailingAccessoryViews`.
+   */
+  get trailingAccessoryView(): WrappedBuilder<[]> | undefined {
+    return this.trailingAccessoryViews;
+  }
+
+  set trailingAccessoryView(value: WrappedBuilder<[]> | undefined) {
+    this.trailingAccessoryViews = value;
+  }
+
+  /**
+   * The same flag as `showsTrailingAccessoryViews`.
+   * @deprecated Use `showsTrailingAccessoryViews`.
+   */
+  get showsTrailingAccessoryView(): boolean {
+    return this.showsTrailingAccessoryViews;
+  }
+
+  set showsTrailingAccessoryView(value: boolean) {
+    this.showsTrailingAccessoryViews = value;
+  }
+
+  /**
    * Shows or hides Cancel, animated over `animationDuration` when `animated` is true (iOS
    * `setShowsCancelButton(_:animated:)`).
    */
@@ -1271,12 +1320,12 @@ export class CYLSearchBarView {
   }
 
   /**
-   * Shows or hides the leading accessory view, animated when `animated` is true (iOS
-   * `setShowsLeadingAccessoryView(_:animated:)`). The state is a flag, so fast toggling ends in the last request.
+   * Shows or hides `leadingView`, animated when `animated` is true (iOS `setShowsLeadingView(_:animated:)`). The state
+   * is a flag, so fast toggling ends in the last request.
    */
-  setShowsLeadingAccessoryView(shows: boolean, animated: boolean): void {
+  setShowsLeadingView(shows: boolean, animated: boolean): void {
     const apply = () => {
-      this.showsLeadingAccessoryView = shows;
+      this.showsLeadingView = shows;
     };
     if (animated && this.animationDuration > 0) {
       cylAnimate(this.uiContext, { duration: this.animationDuration * 1000, curve: Curve.EaseInOut }, apply);
@@ -1286,18 +1335,34 @@ export class CYLSearchBarView {
   }
 
   /**
-   * Shows or hides the trailing accessory view, animated when `animated` is true (iOS
-   * `setShowsTrailingAccessoryView(_:animated:)`).
+   * Shows or hides `trailingAccessoryViews`, animated when `animated` is true (iOS
+   * `setShowsTrailingAccessoryViews(_:animated:)`).
    */
-  setShowsTrailingAccessoryView(shows: boolean, animated: boolean): void {
+  setShowsTrailingAccessoryViews(shows: boolean, animated: boolean): void {
     const apply = () => {
-      this.showsTrailingAccessoryView = shows;
+      this.showsTrailingAccessoryViews = shows;
     };
     if (animated && this.animationDuration > 0) {
       cylAnimate(this.uiContext, { duration: this.animationDuration * 1000, curve: Curve.EaseInOut }, apply);
     } else {
       apply();
     }
+  }
+
+  /**
+   * The same as `setShowsLeadingView(_:animated:)`.
+   * @deprecated Use `setShowsLeadingView`.
+   */
+  setShowsLeadingAccessoryView(shows: boolean, animated: boolean): void {
+    this.setShowsLeadingView(shows, animated);
+  }
+
+  /**
+   * The same as `setShowsTrailingAccessoryViews(_:animated:)`.
+   * @deprecated Use `setShowsTrailingAccessoryViews`.
+   */
+  setShowsTrailingAccessoryView(shows: boolean, animated: boolean): void {
+    this.setShowsTrailingAccessoryViews(shows, animated);
   }
 
   /**
@@ -2114,6 +2179,9 @@ export struct CYLSearchBarComponent {
           }
           return allowed;
         })
+      if (this.searchBarView.showsTrailingAccessoryViews && this.searchBarView.trailingAccessoryViews !== undefined) {
+        this.accessory(this.searchBarView.trailingAccessoryViews, this.searchBarView.trailingAccessoryViewMargins)
+      }
       this.trailingAccessoryViews()
       if (this.searchBarView.showsVoiceButton && this.searchBarView.text.length === 0) {
         Row() {
@@ -2229,8 +2297,15 @@ export struct CYLSearchBarComponent {
           this.searchBarView.setIconified(false, true);
         })
       } else {
-        this.leadingView()
-        if (this.searchBarView.navigationSymbol !== undefined) {
+        // One slot before the field: the bar's `leadingView` (it replaces the navigation button), else the component's.
+        if (this.searchBarView.leadingView !== undefined) {
+          if (this.searchBarView.showsLeadingView) {
+            this.accessory(this.searchBarView.leadingView, this.searchBarView.leadingAccessoryViewMargins)
+          }
+        } else {
+          this.leadingView()
+        }
+        if (this.searchBarView.navigationSymbol !== undefined && this.searchBarView.leadingView === undefined) {
           Row() {
             SymbolGlyph(this.searchBarView.navigationSymbol)
               .fontSize(22)
@@ -2251,13 +2326,7 @@ export struct CYLSearchBarComponent {
             this.searchBarView.navigationTapped();
           })
         }
-        if (this.searchBarView.showsLeadingAccessoryView && this.searchBarView.leadingAccessoryView !== undefined) {
-          this.accessory(this.searchBarView.leadingAccessoryView, this.searchBarView.leadingAccessoryViewMargins)
-        }
         this.field()
-        if (this.searchBarView.showsTrailingAccessoryView && this.searchBarView.trailingAccessoryView !== undefined) {
-          this.accessory(this.searchBarView.trailingAccessoryView, this.searchBarView.trailingAccessoryViewMargins)
-        }
         if (this.searchBarView.cancelButtonVisible) {
           Text(this.searchBarView.cancelButtonTitle)
             .fontSize(this.searchBarView.cancelButtonFont ?? this.searchBarView.font)
