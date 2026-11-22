@@ -924,3 +924,21 @@ begins and becomes `DONE` when it ends.
   replica screens set the list style explicitly; suites green; labelled screenshots folded / unfolded. 60 = iOS and
   Android done with tests.
 - **Status**: in progress.
+
+
+## DONE (2026-11-22): sort the instruction files by tag, 200 lines each, details in docs/instructions
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: `AGENTS.md` had 882 lines and `instructions.md` 616, mostly the same
+  sections twice; `CLAUDE.md` only imports `AGENTS.md`.
+- **Prompt (verbatim)**: see `docs/instructions/meta.md` (quoted in full there).
+- **Prompt (English)**: write the rule into the instruction and skill files, and apply it once now: categories managed by
+  tags, shown as headings that are never hidden; each file within 200 lines; the overflow of each tag in
+  `docs/instructions/<tag>.md`, linked by relative paths and read only when the tag is triggered.
+- **Acceptance**: 100 = both files within 200 lines with one heading per tag; every section of the old files present
+  word for word in a tag file (both wordings kept where they differed); every relative link resolves; the rule in the
+  `meta` tag file, both index files and the `cyl-docs` skill; committed and pushed.
+- **Status**: DONE (2026-11-22), 100/100. `AGENTS.md` and `instructions.md`: 145 lines each, 16 tags (skills, meta,
+  workflow, git, core, dependencies, animation, testing, docs, macos, windows, harmonyos, miniprogram, accessibility-i18n,
+  licenses, code-style). `docs/instructions/`: 16 files, 21 to 182 lines; a script compared every old section's body with
+  the tag files: none lost; a link check found no broken relative link. The two check scripts now name the tag files in
+  their messages. Skill `cyl-docs`: the rule.

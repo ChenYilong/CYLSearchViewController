@@ -50,7 +50,7 @@ for file in $added; do
 done
 
 if [ "$failures" -gt 0 ]; then
-  echo "screenshot label: $failures problem(s); see AGENTS.md, \"Screenshots of builds and CI/CD\"" >&2
+  echo "screenshot label: $failures problem(s); see docs/instructions/docs.md, \"Screenshots of builds and CI/CD\"" >&2
   exit 1
 fi
 echo "screenshot labels: ok"
