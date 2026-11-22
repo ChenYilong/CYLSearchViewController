@@ -86,6 +86,7 @@ public final class CYLSearchCollectionViewDemoViewController: UIViewController, 
         edgesForExtendedLayout.remove(.top)
         let search = CYLSearchController(contentsViewController: self)
         search.searchResultsDelegate = self
+        search.noResultsText = cylDemoText("controller.noResults")
         // The bar is in a container, not in a header: the navigation bar stays (as for a plain subview, row I2).
         search.hidesNavigationBarDuringPresentation = false
         cylSearchController = search
@@ -156,11 +157,5 @@ public final class CYLSearchCollectionViewDemoViewController: UIViewController, 
             $0.range(of: searchString, options: .caseInsensitive) != nil
         }
         searchController.tableView?.reloadData()
-        if matches.isEmpty && !searchString.isEmpty {
-            searchController.showEmptyView(text: cylDemoText("controller.noResults"), detailText: nil, buttonTitle: nil,
-                                           buttonAction: nil)
-        } else {
-            searchController.hideEmptyView()
-        }
     }
 }

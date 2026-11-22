@@ -32,6 +32,7 @@ public final class CYLSearchBarInViewDemoViewController: UIViewController, CYLSe
         edgesForExtendedLayout.remove(.top)
         let search = CYLSearchController(contentsViewController: self)
         search.searchResultsDelegate = self
+        search.noResultsText = cylDemoText("controller.noResults")
         // A bar that is neither a header nor in a navigation item: UIKit cannot animate it away, so the navigation bar stays.
         search.hidesNavigationBarDuringPresentation = false
         cylSearchController = search
@@ -72,12 +73,6 @@ public final class CYLSearchBarInViewDemoViewController: UIViewController, CYLSe
             $0.range(of: searchString, options: .caseInsensitive) != nil
         }
         searchController.tableView?.reloadData()
-        if matches.isEmpty && !searchString.isEmpty {
-            searchController.showEmptyView(text: cylDemoText("controller.noResults"), detailText: nil, buttonTitle: nil,
-                                           buttonAction: nil)
-        } else {
-            searchController.hideEmptyView()
-        }
     }
 }
 

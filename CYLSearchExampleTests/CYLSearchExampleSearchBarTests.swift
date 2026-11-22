@@ -134,9 +134,10 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         window.makeKeyAndVisible()
         demo.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
         demo.view.layoutIfNeeded()
-        let cover = CYLViewWithAccessibilityIdentifier(demo.view, "CYLOriginalDemoSearchField") as? UIButton
-        XCTAssertNotNil(cover, "the field that opens the search")
-        cover?.sendActions(for: .touchUpInside)
+        let field = CYLViewWithAccessibilityIdentifier(demo.view, "CYLOriginalDemoSearchField") as? CYLSearchBarView
+        XCTAssertNotNil(field, "the field that opens the search")
+        // A tap on the field asks to begin editing; the demo refuses and opens the search instead.
+        _ = field?.textField.becomeFirstResponder()
         CYLRunLoop(0.5)
         let search = try XCTUnwrap(CYLViewOfClass(window, CYLSearchView.self), "the core's search page opened")
         XCTAssertFalse(search.showsSuggestionCacheHeader, "the clear button is the text button below the list")
@@ -151,7 +152,7 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         search.searchBarView(search.searchBarView, textDidChange: "Gf")
         search.searchBarViewSearchButtonClicked(search.searchBarView)
         XCTAssertEqual(search.resultsTableView.numberOfRows(inSection: 0), 4)
-        let header = search.resultsTableView.tableHeaderView as? UILabel
+        let header = search.resultsTableView.tableHeaderView.flatMap { CYLViewOfClass($0, UILabel.self) }
         XCTAssertTrue(header?.text?.contains("Gf") ?? false, String(describing: header?.text))
         search.searchBarView.text = ""
         search.searchBarView(search.searchBarView, textDidChange: "")
