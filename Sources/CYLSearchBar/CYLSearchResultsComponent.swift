@@ -255,3 +255,83 @@ final class CYLSearchResultsDataSourceProxy: NSObject, UITableViewDataSource {
         target?.responds(to: aSelector) == true ? target : super.forwardingTarget(for: aSelector)
     }
 }
+
+// MARK: - Results header and clear footer
+
+/**
+ * The header over the results of `CYLSearchView` (`resultsHeaderTitleProvider`): one footnote line with a header trait.
+ */
+final class CYLSearchResultsHeaderView: UIView {
+
+    static let height: CGFloat = 44
+
+    private let label = UILabel()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        autoresizingMask = .flexibleWidth
+        label.font = .preferredFont(forTextStyle: .footnote)
+        label.adjustsFontForContentSizeCategory = true
+        label.numberOfLines = 1
+        label.accessibilityTraits = .header
+        label.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(label)
+        NSLayoutConstraint.activate([
+            label.leadingAnchor.constraint(equalTo: safeAreaLayoutGuide.leadingAnchor, constant: 8),
+            label.trailingAnchor.constraint(lessThanOrEqualTo: safeAreaLayoutGuide.trailingAnchor, constant: -8),
+            label.centerYAnchor.constraint(equalTo: centerYAnchor),
+        ])
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) is not supported")
+    }
+
+    func configure(title: String, color: UIColor) {
+        label.text = title
+        label.textColor = color
+    }
+}
+
+/**
+ * The footer of the suggestion list of `CYLSearchView` (`suggestionCacheFooterTitle`): a bordered text button that
+ * clears the history, centered below the last row.
+ */
+final class CYLSearchClearFooterView: UIView {
+
+    static let height: CGFloat = 64
+
+    let button = UIButton(type: .system)
+    var onTap: (() -> Void)?
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        backgroundColor = .systemBackground
+        autoresizingMask = .flexibleWidth
+        button.titleLabel?.font = .preferredFont(forTextStyle: .footnote)
+        button.titleLabel?.adjustsFontForContentSizeCategory = true
+        button.layer.borderWidth = 1
+        button.layer.borderColor = UIColor.separator.cgColor
+        button.layer.cornerRadius = 4
+        button.contentEdgeInsets = UIEdgeInsets(top: 6, left: 24, bottom: 6, right: 24)
+        button.accessibilityIdentifier = "CYLSearchSuggestionCacheFooterButton"
+        button.addAction(UIAction { [weak self] _ in self?.onTap?() }, for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(button)
+        NSLayoutConstraint.activate([
+            button.centerXAnchor.constraint(equalTo: centerXAnchor),
+            button.centerYAnchor.constraint(equalTo: centerYAnchor),
+        ])
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) is not supported")
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        button.layer.borderColor = UIColor.separator.cgColor
+    }
+}

@@ -572,6 +572,9 @@
     (void)sv.searchResults;
     { __typeof__(sv.highlightsResultMatches) valueP3a = sv.highlightsResultMatches; sv.highlightsResultMatches = valueP3a; }
     { __typeof__(sv.resultMatchHighlightColor) valueP3b = sv.resultMatchHighlightColor; sv.resultMatchHighlightColor = valueP3b; }
+    { __typeof__(sv.resultsHeaderTitleProvider) valueP4a = sv.resultsHeaderTitleProvider; sv.resultsHeaderTitleProvider = valueP4a; }
+    { __typeof__(sv.resultsHeaderTextColor) valueP4b = sv.resultsHeaderTextColor; sv.resultsHeaderTextColor = valueP4b; }
+    { __typeof__(sv.suggestionCacheFooterTitle) valueP4c = sv.suggestionCacheFooterTitle; sv.suggestionCacheFooterTitle = valueP4c; }
     { __typeof__(sv.isActive) valueP3c = sv.isActive; sv.isActive = valueP3c; }
     { __typeof__(sv.supportsSwipeToDismissSearch) valueP3d = sv.supportsSwipeToDismissSearch; sv.supportsSwipeToDismissSearch = valueP3d; }
     { __typeof__(sv.refreshHandler) value87 = sv.refreshHandler; sv.refreshHandler = value87; }
@@ -724,6 +727,7 @@
     (void)sc.isSearchOpen;
     { __typeof__(sc.highlightsResultMatches) valueP3e = sc.highlightsResultMatches; sc.highlightsResultMatches = valueP3e; }
     { __typeof__(sc.resultMatchHighlightColor) valueP3f = sc.resultMatchHighlightColor; sc.resultMatchHighlightColor = valueP3f; }
+    { __typeof__(sc.noResultsText) valueP4d = sc.noResultsText; sc.noResultsText = valueP4d; }
     { __typeof__(sc.hidesNavigationBarDuringPresentation) value152 = sc.hidesNavigationBarDuringPresentation; sc.hidesNavigationBarDuringPresentation = value152; }
     { __typeof__(sc.alwaysShowsSearchResultsController) value153 = sc.alwaysShowsSearchResultsController; sc.alwaysShowsSearchResultsController = value153; }
     { __typeof__(sc.forwardsAppearanceFromContentsViewController) value154 = sc.forwardsAppearanceFromContentsViewController; sc.forwardsAppearanceFromContentsViewController = value154; }

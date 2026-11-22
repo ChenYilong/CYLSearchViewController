@@ -826,3 +826,103 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
         open.window.isHidden = true
     }
 }
+
+// MARK: - Merge phase 4
+
+/**
+ * Merge phase 4 (docs/qmui-search-controller.md, "Merge phase 4 log"): what the examples used to build by hand and the core
+ * now offers: the "no results" empty view of `CYLSearchController`, the clear button below the suggestion list and the
+ * header over the results of `CYLSearchView`.
+ */
+final class CYLSearchMergePhase4Tests: CYLSearchExampleTestCase {
+
+    private func openSearchView(configure: ((CYLSearchView) -> Void)? = nil)
+        -> (view: CYLSearchView, window: UIWindow, host: UIViewController) {
+        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let host = UIViewController()
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        let searchView = CYLSearchView(frame: .zero)
+        searchView.suggestionCachePolicy = .none
+        searchView.animationDuration = 0
+        configure?(searchView)
+        searchView.showSearch(in: host, animated: false)
+        searchView.layoutIfNeeded()
+        return (searchView, window, host)
+    }
+
+    /// `noResultsText`: the controller shows and hides the empty view by the row count, the delegate does not.
+    func testNoResultsTextManagesTheEmptyView() {
+        let run = CYLMakeSearchRun { $0.showsEmptyViewWithoutMatch = false }
+        run.search.noResultsText = "Nothing found"
+        CYLActivateSearch(run, text: "Zzz")
+        XCTAssertTrue(run.search.isEmptyViewShowing, "no row for the text")
+        run.search.searchBar.text = "He"
+        CYLRunLoop(0.4)
+        XCTAssertFalse(run.search.isEmptyViewShowing, "rows again")
+        run.search.searchBar.text = ""
+        CYLRunLoop(0.4)
+        XCTAssertFalse(run.search.isEmptyViewShowing, "an empty text is never an empty result")
+        run.search.noResultsText = nil
+        run.search.searchBar.text = "Zzz"
+        CYLRunLoop(0.4)
+        XCTAssertFalse(run.search.isEmptyViewShowing, "without the option the delegate decides")
+        CYLTearDownSearchRun(run)
+    }
+
+    /// `suggestionCacheFooterTitle`: a text button below the list clears the cache; nil takes it away again.
+    func testClearFooterClearsTheCache() throws {
+        let open = openSearchView {
+            $0.suggestionCachePolicy = .userDefaults
+            $0.suggestionCacheName = "CYLMergePhase4Footer"
+            $0.suggestionStyle = .list
+            $0.showsSuggestionCacheHeader = false
+            $0.suggestionCacheFooterTitle = "Clear history"
+        }
+        let view = open.view
+        view.clearSuggestionCache()
+        view.suggestionCache?.addQuery("Swift")
+        view.setQuery("", submit: false)
+        view.layoutIfNeeded()
+        let footer = try XCTUnwrap(view.suggestionsTableView.tableFooterView as? CYLSearchClearFooterView)
+        XCTAssertEqual(footer.button.title(for: .normal), "Clear history")
+        XCTAssertEqual(footer.button.accessibilityIdentifier, "CYLSearchSuggestionCacheFooterButton")
+        XCTAssertFalse(view.suggestionsTableView.isHidden)
+        XCTAssertEqual(view.suggestionsTableView.numberOfRows(inSection: 0), 1)
+        footer.button.sendActions(for: .touchUpInside)
+        XCTAssertEqual(view.suggestionsTableView.numberOfRows(inSection: 0), 0, "the text button cleared the history")
+        view.suggestionCacheFooterTitle = nil
+        XCTAssertNil(view.suggestionsTableView.tableFooterView)
+        let own = UIView()
+        view.suggestionsTableView.tableFooterView = own
+        view.suggestionCacheFooterTitle = nil
+        XCTAssertTrue(view.suggestionsTableView.tableFooterView === own, "a footer of the host stays")
+        open.window.isHidden = true
+    }
+
+    /// `resultsHeaderTitleProvider`: a header over the results, gone with them.
+    func testResultsHeaderTitlesTheResults() throws {
+        let source = CYLSearchWordDataSource()
+        let open = openSearchView {
+            $0.resultsDataSource = source
+            $0.resultsHeaderTitleProvider = { "About \($0)" }
+            $0.resultsHeaderTextColor = .systemTeal
+        }
+        let view = open.view
+        XCTAssertNil(view.resultsTableView.tableHeaderView, "no results yet")
+        view.setQuery("Swift", submit: false)
+        let header = try XCTUnwrap(view.resultsTableView.tableHeaderView)
+        let label = try XCTUnwrap(CYLViewOfClass(header, UILabel.self))
+        XCTAssertEqual(label.text, "About Swift")
+        XCTAssertEqual(label.textColor, .systemTeal)
+        XCTAssertTrue(label.accessibilityTraits.contains(.header))
+        view.setQuery("Kot", submit: false)
+        XCTAssertEqual(CYLViewOfClass(try XCTUnwrap(view.resultsTableView.tableHeaderView), UILabel.self)?.text, "About Kot")
+        view.setQuery("", submit: false)
+        XCTAssertNil(view.resultsTableView.tableHeaderView, "the suggestions show again")
+        view.resultsHeaderTitleProvider = { _ in nil }
+        view.setQuery("Swift", submit: false)
+        XCTAssertNil(view.resultsTableView.tableHeaderView, "a nil title shows no header")
+        open.window.isHidden = true
+    }
+}

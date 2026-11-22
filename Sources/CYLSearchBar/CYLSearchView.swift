@@ -257,6 +257,31 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
 
     private var resultsVisible = false
 
+    /**
+     * Titles the results: while results show, a header above the first row says what this closure returns for the query
+     * (a footnote, `resultsHeaderTextColor`, a header trait for VoiceOver); nil from the closure, or no closure (the
+     * default), shows none.
+     */
+    @objc public var resultsHeaderTitleProvider: ((String) -> String?)? { didSet { updateResultsHeader() } }
+
+    /**
+     * The color of the results header text. Nil (the default) is the secondary label color.
+     */
+    @objc public var resultsHeaderTextColor: UIColor? { didSet { updateResultsHeader() } }
+
+    private let resultsHeaderView = CYLSearchResultsHeaderView()
+
+    private func updateResultsHeader() {
+        let query = searchBarView.text ?? ""
+        guard resultsVisible, let title = resultsHeaderTitleProvider?(query) else {
+            if resultsTableView.tableHeaderView === resultsHeaderView { resultsTableView.tableHeaderView = nil }
+            return
+        }
+        resultsHeaderView.configure(title: title, color: resultsHeaderTextColor ?? .secondaryLabel)
+        resultsHeaderView.frame.size = CGSize(width: resultsTableView.bounds.width, height: CYLSearchResultsHeaderView.height)
+        resultsTableView.tableHeaderView = resultsHeaderView
+    }
+
     // MARK: - Refresh
 
     /**
@@ -469,6 +494,25 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
      * `suggestionsTableView.tableFooterView` that calls `clearSuggestionCache()`.
      */
     @objc public var showsSuggestionCacheHeader = true { didSet { setNeedsLayout(); refilter() } }
+
+    /**
+     * A text button under the cached queries and the suggestions of the list style that clears the cache, with this
+     * title (a bordered footnote button centered below the last row). Nil (the default) shows none; with it, set
+     * `showsSuggestionCacheHeader` to NO to have the text button instead of the trash icon.
+     */
+    @objc public var suggestionCacheFooterTitle: String? { didSet { updateSuggestionCacheFooter() } }
+
+    private func updateSuggestionCacheFooter() {
+        guard let title = suggestionCacheFooterTitle else {
+            if suggestionsTableView.tableFooterView is CYLSearchClearFooterView { suggestionsTableView.tableFooterView = nil }
+            return
+        }
+        let footer = (suggestionsTableView.tableFooterView as? CYLSearchClearFooterView) ?? CYLSearchClearFooterView()
+        footer.button.setTitle(title, for: .normal)
+        footer.onTap = { [weak self] in self?.clearSuggestionCache() }
+        footer.frame.size = CGSize(width: suggestionsTableView.bounds.width, height: CYLSearchClearFooterView.height)
+        suggestionsTableView.tableFooterView = footer
+    }
 
     /**
      * The title of `suggestionCacheHeaderView` ("Recent searches").
@@ -984,10 +1028,12 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
             emptyResultsVisible = showsEmptyResultsPlaceholder && searchResults.isEmpty
             emptySuggestionsVisible = false
             updateSuggestionsVisibility()
+            updateResultsHeader()
             return
         }
         searchResults = []
         resultsVisible = false
+        updateResultsHeader()
         // An empty query lists the cached queries, newest first, under the header that clears them; the choice is the
         // suggestion area's.
         let resolution = CYLSearchSuggestionArea.resolve(cache: suggestionCache, suggestions: suggestions, query: query,

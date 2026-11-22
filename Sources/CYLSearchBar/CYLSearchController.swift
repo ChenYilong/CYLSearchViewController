@@ -255,6 +255,26 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
     @objc public var isEmptyViewShowing: Bool { emptyViewSlot.isShowing }
 
     /**
+     * The text of the "no results" empty view that the controller manages itself: after each update of the results (the
+     * delegate has reloaded `tableView`), it shows the empty view with this text while the text is not empty and
+     * `tableView` has no row, and hides it otherwise. Nil (the default) leaves `showEmptyView` and `hideEmptyView` to
+     * the delegate.
+     */
+    @objc public var noResultsText: String?
+
+    private func updateNoResultsEmptyView(for text: String) {
+        guard let noResultsText else { return }
+        let rowCount = tableView.map { table in
+            (0..<table.numberOfSections).reduce(0) { $0 + table.numberOfRows(inSection: $1) }
+        } ?? 0
+        if !text.isEmpty && rowCount == 0 {
+            showEmptyView(text: noResultsText, detailText: nil, buttonTitle: nil, buttonAction: nil)
+        } else {
+            hideEmptyView()
+        }
+    }
+
+    /**
      * Where the queries the person submits (the return key of the keyboard) are kept, newest first and without
      * duplicates; nil keeps none. The built-in store of `CYLSearchView` comes from `CYLSearchResources`, so the search
      * history is shared code, not a copy (the built-in launch view reads it).
@@ -578,6 +598,7 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
         }
         systemController.refreshOverlays()
         searchResultsDelegate?.searchController(self, updateResultsFor: text)
+        updateNoResultsEmptyView(for: text)
     }
 
     // MARK: - UISearchControllerDelegate
