@@ -1153,6 +1153,50 @@ begins and becomes `DONE` when it ends.
 - **Audit against PR #824 (2026-11-23)**: prompt (verbatim): "学习这个pr的做法， 排查我们的项目中是否可以向该pr贡献代码的相关代码，尤其是修复了动效相关的bug issue，但是没有将修复的代码提交给这个pr贡献给CYLAnimatedItemView。而是将修复代码保留在了我们项目中。https://github.com/ChenYilong/CYLTabBarController/pull/824" (English: learn how this pull request works, and find code in our project that could go into it, especially animation bug fixes kept here instead of contributed to CYLAnimatedItemView). Found and sent to a8: (1) the Rive tags play through cyltabbar's `CYLRiveIcon` since `615fc30` (fixes a trigger fired at once after `reset()`, which did not restart the state machine); `cylanimateditem-rive` should reuse that one implementation rather than ClassifyMenu's player; (2) Android has no `interactive` option, so `012343f` sets `isClickable = false` on the SVGA demo tag; (3) the x86_64 emulator HAP recipe (`4885f35`, `90b3dcf`) for the `cylanimateditem` README. Otherwise, the HarmonyOS copy differs from ClassifyMenu's only in comment style; the other platforms already use the upstream players.
 - **Status**: TODO, waiting for the API in CYLTabBarController (a8 tells this session the modules and commit).
 
+## TODO (2026-11-23): one shared Rive engine: cylanimateditemrive from CYLTabBarController
+
+- **Branch**: `feat/harmonyos-parity`. Context: CYLTabBarController `3074c51d` moved `CYLRiveIcon` (loop policies, builder,
+  `cylRegisterRiveEngine`) into the HarmonyOS module `cylanimateditemrive`; ClassifyMenu `feat/harmony` vendors it
+  (`669ab5e5`, `653452e6`). This repository's HarmonyOS example still has its own `CYLRiveIconView` / `CYLRiveIconHost` /
+  `CYLRivePlayer` glue.
+- **Prompt (verbatim)**: "你应该通知 CYLSearch's CYLRiveIcon， 让他把 CYLRiveIcon，封装进 CYLTabBarController 里的CYLAnimatedItemView中， 这样所有引用rive的库都能共享修复好的rive动画， 并且其他端也应该这样，统一使用CYLTabBarController 里的CYLAnimatedItemView。 请通知 CYLSearch来重构， 或者你自己修复，通知相关session。"
+- **Prompt (English)**: "Notify CYLSearch's CYLRiveIcon owner to wrap CYLRiveIcon into CYLTabBarController's CYLAnimatedItemView, so
+  every library that uses Rive shares the fixed Rive animation; the other platforms should do the same and use
+  CYLTabBarController's CYLAnimatedItemView. Tell CYLSearch to refactor, or fix it yourself and tell the related sessions."
+  (Every library plays Rive through CYLTabBarController's CYLAnimatedItemView / its shared Rive engine; no own copies.)
+- **Requirements**: (1) pins at the newest CYLTabBarController and ClassifyMenu commits; `sync-sub-repositories.sh` also
+  copies `cylanimateditemrive`; (2) the example's Rive glue replaced by the shared engine as ClassifyMenu `653452e6`;
+  (3) build and tests; (4) emulator 127.0.0.1:5555 only; (5) survey of the other platforms (report only).
+- **Acceptance**: 100 = 1 to 5 done with numbers; 60 = 1 and 2 build and the app starts.
+- **Status**: DONE (2026-11-23), score 100/100 for the HarmonyOS part (the other platforms are surveyed only, as asked).
+  - **Pins** (`harmonyos/oh-package.json5`): `cylTabBarControllerCommit` `c4a1f8fd` -> `f51057a7` (newest on `feat/cross-platform-components`,
+    contains `3074c51d`); `collectionViewClassifyMenuCommit` `04b39e26` -> `e474f469` (newest on `feat/harmony`, contains
+    `653452e6`). Agreement check: `diff -r` of CYLTabBarController `f51057a7` `cylanimateditem` against ClassifyMenu `e474f469`
+    `harmony/cylanimateditem` (VENDORED.md says `3074c51d`): identical except ClassifyMenu's own `VENDORED.md`; the
+    `harmonyos-cyltabbar` tree did not change between `3074c51d` and `f51057a7`.
+  - **Sync**: `sync-sub-repositories.sh` (and the `.py` twin) also copy `cylanimateditemrive` (+ `LICENSE`) from the tab bar pin into
+    `vendor/cylanimateditemrive` (git-ignored); registered in `harmonyos/build-profile.json5`; `entry` depends on it.
+  - **Example**: `CYLRiveIconView` passes `loopPolicy: CYLRiveLoopPolicy.WhilePlaying` to `CYLRiveIcon` imported from
+    `cylanimateditemrive`; `cylRegisterExampleAnimationEngines(context)` calls `cylRegisterRiveEngine(context)` (EntryAbility passes
+    `this.context`), exactly as ClassifyMenu `653452e6`. `CYLRivePlayer` / `CYLRiveIconHost` stay as the thin adapter between the
+    tag button's player API and `CYLRiveIcon` (ClassifyMenu keeps the same adapter); no @ohos/rive call and no Rive
+    renderer / init code is left in the example, and `cylsearch` has no Rive reference.
+  - **Build and tests** (DevEco Studio 6.0.1, macOS, arm64 emulator 127.0.0.1:5555 only): `ohpm install --all` ok; `hvigorw
+    assembleHap` `entry@default` and `entry@ohosTest` BUILD SUCCESSFUL (no warning in changed files); host: `host-logic-test.mjs` 39 / 39,
+    `check-ios-parity.mjs` 657 match, 0 problems, `check-accessibility-i18n.mjs` 0 problems; hypium `aa test` 55 run, 48 pass, 7 errors:
+    the same 7 UI tests (`overlayShowsResultsOfTheDataSource` first, then six that no longer find their tab labels) fail on the
+    unchanged previous commit rebuilt with its own pins (55 run, 48 pass, 7 errors), so they are not caused by this change; open.
+  - **Device**: installed, `com.cyl.search.harmonyos` starts, tab bar with plus button and the Examples page (SVGA header "tap to
+    play again") render, `libohos_rive.so` loads through the shared engine, no crash in hilog; tab icon sources 0/1/2 launch.
+    No `.riv` file ships in this repository's screens (only the placeholder library's own), so Rive here is code-path only.
+  - **Not verified**: a Rive file playing (no .riv tag); frame-by-frame motion of Lottie / PAG / GIF / SVGA (only that they render and
+    nothing crashes); the 7 failing UI tests' cause; other platforms' pins (still `c4a1f8fd` / `04b39e26`).
+  - **Survey of other platforms**: see the report in the commit's pull request thread; Android (`android/merged`): CYLAnimatedItemView
+    through `cyltabbarcontroller-animateditem`, Lottie and SVGA only, no Rive player; RN and Flutter: tab bars from
+    CYLTabBarController's `react-native-cyltabbar` / `flutter_cyltabbar`, iOS side CYLAnimatedItem pods (Flutter iOS with the
+    `Rive` subspec), no Rive player of their own in this repository; mini program: `cyl-tab-bar` of CYLTabBarController's package, SVGA
+    only, no Rive; iOS: `CYLAnimatedItem` pod (Core, SVGA, LottieSwift).
+
 ## DONE (2026-11-23): rows I2 / I5 (the 116 pt offset while searching) and the uncommitted Podfile.lock
 
 - **Branch**: `fix/i2-i5-offset` (from `feat/harmonyos-parity` at `052919a`, pull request 11 is its base). macOS 27

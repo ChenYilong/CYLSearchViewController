@@ -11,7 +11,7 @@ export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
     // cylsearch and CollectionViewClassifyMenu play no animation by themselves: the example registers the engines it
     // bundles (Lottie, PAG, Rive, SVGA, GIF) and the views that play them, before any search bar item is shown.
-    cylRegisterExampleAnimationEngines();
+    cylRegisterExampleAnimationEngines(this.context);
     // The tab icon source chosen last time (the Examples page's "Tab icons: …" button), before any page is built.
     AppStorage.setOrCreate<number>(CYL_TAB_ICON_SOURCE_KEY, cylStoredTabIconSource(this.context));
     this.storeLaunchParameters(want);
