@@ -935,3 +935,13 @@ How the fence works. Swift: the module is imported without `@testable` (a member
 - The fence has no negative test (a deliberately removed member); its guarantee is the compiler. A script that regenerates the Objective-C part from the header (the generator lived in a throwaway REPL session) is not committed.
 - Material demo "Default": only the first of its six rows was shot; Themed, Voice, Sticky, Tabs and Input type are not in the baseline.
 - iOS 15, 16 and 18 to 25 are not run (see the iOS 17.5 / 26.5 verification above).
+
+
+### Merge phase 1 log (2026-11-22)
+
+#### TODO (2026-11-22, `feat/harmonyos-parity`, PR #11): merge phase 1, style and field knobs
+
+- Context: phase 1 of "Merge design: one implementation per concept" (pair table rows for style and field knobs). Base `65e3eb8`.
+- Requirements (the task text, verbatim, English): "1. One CYLSearchBarAppearance applied to both bars through one shared helper (no duplicated styling code): map it onto CYLSearchBarView's existing field properties (fieldBackgroundColor, fieldCornerRadius, fieldBorder*, searchIcon, fieldBackgroundImage, searchBarStyle, font/textColor/placeholderColor) and onto CYLSearchBar. 2. Add to CYLSearchBarView only what it lacks, with the same names and typealiases as CYLSearchBar: centersPlaceholder (shared centring math), textFieldMarginsProvider (contentInsets is the resting value; the provider wins per active state), cancelButtonMarginsProvider, cancelButtonFont, setShowsCancelButton(_:animated:). Animate the EXISTING leadingView and trailingAccessoryViews; do not add a parallel leadingAccessoryView on CYLSearchBarView. 3. Reduce CYLSearchBar to the adapter UISearchController requires: its knobs keep their public names (API fence must compile unchanged) but forward to the shared helpers; delete its duplicated style logic; keep every B1-B13 UIKit fix that is specific to UISearchBar internals and say which and why. 4. The styles example stays on CYLSearchTableViewController for now; both bars react to the same knob names. 5. Tests for the new CYLSearchBarView knobs; all existing tests green; avoid CYLSearchView.swift."
+- Acceptance (100): every item above done, the three suites (iOS 17.5, 26.5, 27.2) green, after screenshots (`merge-after-p1-...`), this log complete. 60: items 1 and 2 with tests on one simulator.
+- Status: TODO, started 2026-11-22.
