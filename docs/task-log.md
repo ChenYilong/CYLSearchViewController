@@ -1011,5 +1011,6 @@ begins and becomes `DONE` when it ends.
 - **Prompt (verbatim)**: "continue fix todo and watch and fix ci fail"
 - **Acceptance**: 100 = B7 keeps the in-window samples when there are any and falls back to all samples otherwise (the
   behaviour that passed CI before), and the iOS workflow is green on the new head. 60 = the change pushed with the reason.
-- **Status**: change pushed (test only; the core is not involved). Waiting for the iOS run on the new head: a running
-  iOS run is never cancelled on this branch (`cancel-in-progress: false`) and each push replaces the pending one.
+- **Status**: DONE (2026-11-22), 100/100. `327d9c5` (merged with the macOS session's `44f8103`, which skips samples drawn at
+  y 0): B7 keeps the samples taken in the window at a real position, else all samples. Run 44969395687 (`a84f551`, with
+  `44f8103` only) and run 44973402168 (`3705a5a`, with both) are green in all seven jobs.
