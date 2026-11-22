@@ -1212,3 +1212,18 @@ begins and becomes `DONE` when it ends.
   152 given a header and footer (original pixels; facts only: platform, commit and time of the adding commit, file-name tokens;
   device, OS and SDK say "not recorded"), date and commit added to the Markdown lines, 14 images with no Markdown line listed in
   `docs/screenshot-index.md`. Left: the real device, OS and SDK of the old images are still unknown.
+
+## DONE (2026-11-23): CI "Screenshot labels" failed on a push to a new branch (64 problems)
+
+- **Prompt (verbatim)**: "修复 ci 错误 为截图加label https://github.com/ChenYilong/CYLSearchViewController/actions/runs/45083899475/job/137397989818"
+  (English: fix the CI error, add labels to the screenshots.)
+- **Context**: the run is the `push` of the new branch `tmp/label-upload-0cc1` (commit `71d9ebb`). A first push has no earlier
+  commit (`github.event.before` is all zeros), and `.github/workflows/screenshot-labels.yml` then compared with the very
+  first commit of the repository, so every screenshot ever added (the 64 old ones under `docs/assets`) counted as new. The
+  same commit passes on the pull request (PR #11, run 232).
+- **Fix**: for an all-zero or empty `before`, the base is the merge base with the default branch (`DEFAULT_BRANCH`, the
+  root commit only when there is no merge base). Checked on `71d9ebb`: base = root commit gives 64 problems as in the log;
+  base = merge base with `master` (`55022ba`) gives `screenshot labels: ok`. `actionlint` passes.
+- **Labels**: the 64 images are not added by this branch against `master`, so they need no new label; the label check of
+  the pull requests (new images only) stays as it is.
+- **Status**: DONE; the next push of a new branch is the check.

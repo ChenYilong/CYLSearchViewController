@@ -27,8 +27,11 @@ jobs:
         env:
           BASE: ${{ (github.event_name == 'pull_request' && github.event.action == 'synchronize' && github.event.before) || (github.event_name == 'pull_request' && github.event.pull_request.base.sha) || github.event.before }}
           HEAD: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
         run: |
           if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ]; then
-            BASE=$(git rev-list --max-parents=0 "$HEAD" | tail -n 1)
+            # [EN] The first push of a new branch has no earlier commit (`before` is all zeros): compare with where the branch
+            #      left the default branch, not with the very first commit, which would flag every screenshot ever added.
+            BASE=$(git merge-base "origin/$DEFAULT_BRANCH" "$HEAD" 2>/dev/null || git rev-list --max-parents=0 "$HEAD" | tail -n 1)
           fi
           sh scripts/check-screenshot-labels.sh "$BASE" "$HEAD"
