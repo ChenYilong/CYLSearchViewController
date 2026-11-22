@@ -71,7 +71,7 @@ test target finds that header through `$(CONFIGURATION_TEMP_DIR)/CYLSearchExampl
 
 The all-Swift core in the example app, key details stacked top to bottom (the same image as `README.md`).
 
-![Key details of the iOS example](assets/readme-ios-key-details.png)
+![Key details of the iOS example](assets/readme-ios-key-details.png) (commit 1416a3e, 2026-11-12)
 
 | Field | Value |
 |:---|:---|

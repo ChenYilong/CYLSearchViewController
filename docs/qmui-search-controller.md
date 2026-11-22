@@ -1426,7 +1426,7 @@ Items 1 and 2 (audit, merges, deprecated forwards, API-only example with tags th
 
 TODO (9 points):
 - TODO (2 points): the swipe to dismiss was not run with a real predictive-back gesture: `adb shell input swipe` from the edge did not start the system gesture on the AVD (Back key and Back from the detail page were checked); needs a real gesture or `adb shell cmd` back-progress injection.
-- TODO (2 points): tags show their top and bottom borders clipped by 2 to 3 px (first and last row; also in `docs/assets/android-cache-recent-searches.png`): the `CYLTagListView` content box is as tall as the rows without their border; fix in CollectionViewClassifyMenu first, then pin.
+- TODO (2 points): tags show their top and bottom borders clipped by 2 to 3 px (first and last row; also in `docs/assets/android-cache-recent-searches.png`): the `CYLTagListView` content box is as tall as the rows without their border; fix in CollectionViewClassifyMenu first, then pin. (commit 59d01d3, 2026-11-13)
 - TODO (2 points): CrossPlatform React Native / Flutter Android wrappers use the deprecated names (listed above); `controller.recent` and `controller.launch.label` strings are unused on Android (kept for the cross-platform parity check).
 - TODO (1 point): the trailing accessory of "Search bar styles" now sits inside the field (QMUI: beside it); a core option for a view beside the field would bring that back if wanted.
 - TODO (1 point): no dark mode, ja / zh or large font screenshot; the history of the screenshots was seeded, not typed.

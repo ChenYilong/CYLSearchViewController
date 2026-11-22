@@ -260,54 +260,54 @@ configuration file. CYL 17Pro simulator, iOS 26.3, Debug, CYLTabBarController `5
 base c0e7a8c, 2026-11-16 09:50. SVGA files: CYLTabBarController's `Example-SwiftUI-Rive/AnimatedApp/SVGAAssets`
 (Apache 2.0, `CYLSearchExample/SVGA/NOTICE.md`); 0 (default) keeps the SF Symbols.
 
-![SVGA tab icons, initialization keys](assets/ios-svga-tab-icons-keys-ios26.3.png)
-![SVGA tab icons, configuration file](assets/ios-svga-tab-icons-configuration-ios26.3.png)
+![SVGA tab icons, initialization keys](assets/ios-svga-tab-icons-keys-ios26.3.png) (commit 84fe8cb, 2026-11-16)
+![SVGA tab icons, configuration file](assets/ios-svga-tab-icons-configuration-ios26.3.png) (commit 84fe8cb, 2026-11-16)
 
 Other styles, top to bottom: FlatDesign (CYL 17Pro, iOS 26.3, `-CYLDemoTabIconSource 1 -CYLDemoTabBarStyle flatDesign`);
 classic, initialization keys; classic, configuration file (iPhone 15 Pro, iOS 17.5). Debug, base 84fe8cb, 2026-11-16
 09:53–09:57, full screens.
 
-![SVGA tab icons, FlatDesign, iOS 26.3](assets/ios-svga-tab-icons-flatdesign-ios26.3.png)
-![SVGA tab icons, classic, keys, iOS 17.5](assets/ios-svga-tab-icons-classic-keys-ios17.5.png)
-![SVGA tab icons, classic, configuration file, iOS 17.5](assets/ios-svga-tab-icons-classic-configuration-ios17.5.png)
+![SVGA tab icons, FlatDesign, iOS 26.3](assets/ios-svga-tab-icons-flatdesign-ios26.3.png) (commit a4ccf9f, 2026-11-16)
+![SVGA tab icons, classic, keys, iOS 17.5](assets/ios-svga-tab-icons-classic-keys-ios17.5.png) (commit a4ccf9f, 2026-11-16)
+![SVGA tab icons, classic, configuration file, iOS 17.5](assets/ios-svga-tab-icons-classic-configuration-ios17.5.png) (commit a4ccf9f, 2026-11-16)
 
 Dark mode and the plus page, top to bottom: dark, initialization keys; dark, configuration file (Search shows its dark
 file `tab_activity`, Discover `tab_profile`); the plus button's page selected, after switching back to light (Search
 and Discover still show the dark files). CYL 17Pro, iOS 26.3, Debug, base a4ccf9f, 2026-11-16 10:03.
 
-![SVGA dark mode, keys](assets/ios-svga-dark-keys-ios26.3.png)
-![SVGA dark mode, configuration file](assets/ios-svga-dark-configuration-ios26.3.png)
-![Plus button page with SVGA tab icons](assets/ios-svga-plus-page-ios26.3.png)
+![SVGA dark mode, keys](assets/ios-svga-dark-keys-ios26.3.png) (commit 6f684be, 2026-11-16)
+![SVGA dark mode, configuration file](assets/ios-svga-dark-configuration-ios26.3.png) (commit 6f684be, 2026-11-16)
+![Plus button page with SVGA tab icons](assets/ios-svga-plus-page-ios26.3.png) (commit 6f684be, 2026-11-16)
 
 Examples tab, the SVGA demo above the list; top to bottom: after the first, second and third tap on the source button
 (SVGA keys, SVGA configuration file, SF Symbols). CYL 17Pro, iOS 26.3, Debug, base e93d8e3, 2026-11-16 10:55. The button
 was tapped by coordinates: `axe` lists every element twice, so its accessibility identifier matched two elements.
 
-![Source switch, tap 1](assets/ios-svga-menu-switch-1-ios26.3.png)
-![Source switch, tap 2](assets/ios-svga-menu-switch-2-ios26.3.png)
-![Source switch, tap 3](assets/ios-svga-menu-switch-3-ios26.3.png)
+![Source switch, tap 1](assets/ios-svga-menu-switch-1-ios26.3.png) (commit b08c020, 2026-11-16)
+![Source switch, tap 2](assets/ios-svga-menu-switch-2-ios26.3.png) (commit b08c020, 2026-11-16)
+![Source switch, tap 3](assets/ios-svga-menu-switch-3-ios26.3.png) (commit b08c020, 2026-11-16)
 
 Android, top to bottom: SVGA icons (`--es CYLDemoTabIconSource 2`); the default icons. Emulator emulator-5554, debug
 APK, base b08c020, 2026-11-16 12:28. Build and `:cylsearch:testDebugUnitTest` pass with the new pin.
 
-![Android, SVGA tab icons](assets/android-svga-tab-icons-configuration.png)
-![Android, default tab icons](assets/android-tab-icons-default.png)
+![Android, SVGA tab icons](assets/android-svga-tab-icons-configuration.png) (commit 7158911, 2026-11-16)
+![Android, default tab icons](assets/android-tab-icons-default.png) (commit 7158911, 2026-11-16)
 
 SwiftUI host: SwiftUI title bar and Close button above the hosted SVGA tab bar. CYL 17Pro, iOS 26.3, Debug, base 329e50f,
 2026-11-16 12:38.
 
-![SwiftUI host with the SVGA tab bar](assets/ios-svga-swiftui-host-ios26.3.png)
+![SwiftUI host with the SVGA tab bar](assets/ios-svga-swiftui-host-ios26.3.png) (commit 69c180c, 2026-11-16)
 
 WeChat mini program: Search selected; Search, Examples and Discover show their SVGA icons, Tag style its symbol. WeChat
 DevTools 2.02.2609250 (base library 3.6.6), Windows 11 Pro 10.0.22631, CYLTabBarController `c72323f`, commit `fb15432`,
 2026-11-16 12:24 NZDT (UTC+13:00), original 324×701. A still image: the animation on switching tabs is not checked.
 
-![Mini program, SVGA tab icons in WeChat DevTools](assets/miniprogram-svga-tab-icons-devtools.png)
+![Mini program, SVGA tab icons in WeChat DevTools](assets/miniprogram-svga-tab-icons-devtools.png) (commit fb15432, 2026-11-16)
 
 Flutter example on iOS with SVGA tab icons (CYL 17Pro, iOS 26.3, debug, base 7856311, 2026-11-16 14:14). The new
 CYLTabBarController pin needed the plugin's platform views to be `@MainActor` (the core's views are main-actor isolated).
 
-![Flutter iOS, SVGA tab icons](assets/flutter-ios-svga-tab-icons-ios26.3.png)
+![Flutter iOS, SVGA tab icons](assets/flutter-ios-svga-tab-icons-ios26.3.png) (commit de27d60, 2026-11-16)
 
 ## DONE (2026-11-18; TODO 2026-11-17): fix the React Native Android tab icons
 
@@ -329,7 +329,7 @@ CYLTabBarController pin needed the plugin's platform views to be `@MainActor` (t
   needed on this Windows machine, none of them a code change: an SDK path without spaces (above); a corrupt Gradle
   transforms lock (one file with protocol byte 0, deleted); the JavaScript bundled into the debug APK's assets (`react-native
   bundle`), because the release build overflows the 260-character path limit and Metro fails on a `subst` drive.
-- Bugs recorded (rule "Bugs of the animated components"), with `assets/android-medium-phone-api37-20261117-rn-tab-icons-pale.png`:
+- Bugs recorded (rule "Bugs of the animated components"), with `assets/android-medium-phone-api37-20261117-rn-tab-icons-pale.png`: (commit 2bc4727, 2026-11-17)
   1. At CYLTabBarController `5682b9e` (the example's old vendored copy) the Rive tab icons never load: `RiveAnimationView:
      loadResource: no resource to load` once per tab, the icons stay as pale fallback images, the selected tab's icon is
      not tinted; `assets/icons.riv` is in the APK.
@@ -340,7 +340,7 @@ CYLTabBarController pin needed the plugin's platform views to be `@MainActor` (t
 
 - Progress (2026-11-17, CYLTabBarController `4635ef7b`): the example builds (its B9 fix: the React Native bridge depends on
   the included build's `:cylanimateditem` instead of compiling a second copy) and the Rive tab icons load: the CHAT, BELL,
-  SEARCH and USER artboards of `icons.riv` draw and react to selection (`assets/android-medium-phone-api37-20261117-rn-rive-icons-faint.png`;
+  SEARCH and USER artboards of `icons.riv` draw and react to selection (`assets/android-medium-phone-api37-20261117-rn-rive-icons-faint.png`; (commit cc65415, 2026-11-17)
   before, at `5682b9e`, only the pale fallback images: `…-rn-tab-icons-pale.png`).
 - Bug recorded, open (reported by the user too, 2026-11-17: "android tabbar item icon 显示失败", `assets/android-20261117-rn-tab-icons-user-report.png`): the icons are almost invisible and the selected one is not highlighted. `icons.riv` draws light
   strokes (CYLTabBarController's Rive example has a dark bar), and the Android Rive player has no color API
@@ -351,13 +351,13 @@ CYLTabBarController pin needed the plugin's platform views to be `@MainActor` (t
 - Fixed (2026-11-17, checked on the Android emulator with CYLTabBarController `fe5c3ae3` in the build mirror): the Rive
   icons take the tab's title color through CYLTabBarController's new tint option (its B12, `tint: 'title'` in
   `CYLTabBarAnimationOptions`, set in `src/App.tsx`): gray when normal, blue when selected
-  (`assets/android-medium-phone-api37-20261117-rn-rive-tint-list-selected.png`, `…-rn-rive-tint-tag-selected.png`). The repository's
+  (`assets/android-medium-phone-api37-20261117-rn-rive-tint-list-selected.png`, `…-rn-rive-tint-tag-selected.png`). The repository's (commit cc65415, 2026-11-17)
   pin is `fe5c3ae3` since 2026-11-17, with CollectionViewClassifyMenu `333b349` (re-vendored there).
 - Plus button (the user's request, 2026-11-17: the core lays out the plus button, so the examples stop adjusting it):
   `size`, `centerYMultiplier` and `alignsTitle` removed from the React Native example; `CYLPlusButtonCenterYMultiplier`
   from the native Android configurations; `CYLPlusButtonCenterYOffset` and the tall `CYLPlusButtonSize` from the Flutter
   configurations. React Native on the emulator: the core raises the button and puts its title on the tab titles' line
-  (same screenshots); native Android likewise (`assets/android-medium-phone-api37-20261117-plus-button-core-layout.png`): raised, its
+  (same screenshots); native Android likewise (`assets/android-medium-phone-api37-20261117-plus-button-core-layout.png`): raised, its (commit a3b51c4, 2026-11-17)
   title on the tab titles' line, no CYLTabBarController change needed. Flutter is not rebuilt here yet. The mini program keeps its own `CYLPlusButtonCenterYMultiplier` (its tab bar core is separate).
 
 ## DONE (2026-11-19; TODO 2026-11-16): Rive tab icons in the Flutter and React Native examples, iOS and Android
@@ -566,7 +566,7 @@ Flutter 2503, 919, 833, 355, then 0.
   verbatim: "tag 的编辑状态下 CYlAnimated StackView右侧间距过大，item 间距过小，直接调整自定义间距实现，完成合适间距默认值，在本example中无须修改自定义间距就可实现合理间距效果。修改CYlAnimated StackView 代码后 repin无须修改example，测试效果。效果不佳继续修改。修改CYlAnimated StackView 代码后 repin无须修改example，测试效果";
   then, after "space is not good enough continue fix", icons sized to their glyphs (`3af1b7cd`): left padding 14 pt,
   title to edit icon about 12.7 pt, between the icons about 12.7 pt, cross to the edge about 14.7 pt:
-  [assets/ios-iphone18pro-20261119-contact-tags-editing-icons-spacing.png](assets/ios-iphone18pro-20261119-contact-tags-editing-icons-spacing.png));
+  [assets/ios-iphone18pro-20261119-contact-tags-editing-icons-spacing.png](assets/ios-iphone18pro-20261119-contact-tags-editing-icons-spacing.png)); (commit 662f263, 2026-11-19)
   the add field is the same editing bar as renaming, riding on the keyboard
   ([assets/ios-iphone18pro-20261119-contact-tags-clear-add-bar.png](assets/ios-iphone18pro-20261119-contact-tags-clear-add-bar.png), iOS 27.2, iPhone 18 Pro simulator, macOS 27.3, Xcode 27.2 (27B52), 2026-11-19).
   Score: 100/100 for iOS.
@@ -648,7 +648,7 @@ Flutter 2503, 919, 833, 355, then 0.
   the example; "+ New Tag" opens Manage (no cross-platform prompt). Jest 4/4
   ([assets/react-native-android-api37-20261119-contact-tags.png](assets/react-native-android-api37-20261119-contact-tags.png) and [assets/react-native-android-api37-20261119-contact-tags-remark-empty.png](assets/react-native-android-api37-20261119-contact-tags-remark-empty.png), React Native 0.88.0, Android API 37 Medium Phone emulator, Windows 11, 2026-11-19 +13:00, after 274ba00).
   The tags use the bridge's default look (no style prop yet). React Native iOS DONE by the macOS session: f88d6fd
-  ([assets/react-native-ios27.2-iphone18pro-20261119-contact-tags.png](assets/react-native-ios27.2-iphone18pro-20261119-contact-tags.png)).
+  ([assets/react-native-ios27.2-iphone18pro-20261119-contact-tags.png](assets/react-native-ios27.2-iphone18pro-20261119-contact-tags.png)). (commit f88d6fd, 2026-11-19)
   Flutter DONE on Android (2026-11-19): plugin and example 8989d69 (Dart: `CYLTagListView` ids, selection, header and clear
   button, editing with `onTagDeleted` / `onTagMoved` / `onRenameRequested`; `CYLSearchBarView` `editingBar` + `actionTitle` /
   `onEditingSubmitted`; new `CYLPlaceholderView`), Android platform views ported from the React Native bridge, iOS platform
@@ -687,7 +687,7 @@ Flutter 2503, 919, 833, 355, then 0.
     27.2, Release build, `-initialTab tags`): download and upload with the HUD, Recent's clear button, My Tags folded,
     Manage with the edit icon and cross, a title tap renames in the editing bar above the keyboard ("Family" to "Home
     Folks", same id, still selected), no match shows the placeholder under "+ New Tag", both empty states
-    ([assets/react-native-ios27.2-iphone18pro-20261119-contact-tags.png](assets/react-native-ios27.2-iphone18pro-20261119-contact-tags.png)).
+    ([assets/react-native-ios27.2-iphone18pro-20261119-contact-tags.png](assets/react-native-ios27.2-iphone18pro-20261119-contact-tags.png)). (commit f88d6fd, 2026-11-19)
     Found: a simulated tap on a React Native iOS tab (axe, by label or point) highlights it without switching the page,
     at CYLTabBarController `9a4ad95e` and also at `5744917d` (not a regression of its Swift tab bar); reported to the
     CYLTabBarController sessions. React Native is done on both platforms; Flutter remains.
@@ -735,7 +735,7 @@ Flutter 2503, 919, 833, 355, then 0.
   Still unknown: the build where it did nothing; left: a real tap in the mini program (a phone) and HarmonyOS.
 - **HarmonyOS (2026-11-19, macOS session, Mate 70 Pro emulator, unsigned HAP built from this branch at the same pins)**:
   the cross deletes: 家人, then 朋友, removed at once, the others move up
-  ([assets/harmonyos-mate70pro-20261119-contact-tags-delete.png](assets/harmonyos-mate70pro-20261119-contact-tags-delete.png)).
+  ([assets/harmonyos-mate70pro-20261119-contact-tags-delete.png](assets/harmonyos-mate70pro-20261119-contact-tags-delete.png)). (commit 8dde55c, 2026-11-19)
   CollectionViewClassifyMenu's own Android and HarmonyOS examples have no contacts or Manage demo, so the report is about
   this example. With the Windows session's Android check (native, React Native, Flutter), deleting works on every platform
   that can be run at these pins; the user reported Android or HarmonyOS, so the failing build is likely an older install
@@ -905,7 +905,7 @@ Flutter 2503, 919, 833, 355, then 0.
   drag gesture is wired (record before doing).
 React Native on iOS with SVGA tab icons (CYL 17Pro, iOS 26.3, Release, base ae8a4ea, 2026-11-16 19:26).
 
-![React Native iOS, SVGA tab icons](assets/rn-ios-svga-tab-icons-ios26.3.png)
+![React Native iOS, SVGA tab icons](assets/rn-ios-svga-tab-icons-ios26.3.png) (commit cf0ffcc, 2026-11-16)
 
 Android check at the shared pin `c795d08` (2026-11-17, emulator-5554, base cf0ffcc): `android/merged` builds, its unit
 tests pass, and `--es CYLDemoTabIconSource 2` shows the SVGA tab icons; the React Native Android release build needed
@@ -914,8 +914,8 @@ that pointed into an old worktree, then it launches. Found: its tab icons are em
 names), TODO; SVGA on React Native Android (`SVGA_ON_ANDROID`) not run. Top to bottom: Android with SVGA; React Native
 Android.
 
-![Android, SVGA tab icons at c795d08](assets/android-svga-tab-icons-c795d08.png)
-![React Native Android at c795d08](assets/rn-android-c795d08.png)
+![Android, SVGA tab icons at c795d08](assets/android-svga-tab-icons-c795d08.png) (commit 4163506, 2026-11-17)
+![React Native Android at c795d08](assets/rn-android-c795d08.png) (commit 4163506, 2026-11-17)
 
 ## TODO (2026-11-20): tab switch mid-animation must leave exactly one item selected, on every platform (the iOS contract)
 
@@ -929,7 +929,7 @@ Android.
   its unselected look (image, tint, title, resting frame) and plays nothing; then the new item plays.
 - **iOS (macOS session, simulator, native example with SVGA tab icons)**: holds: Examples then Discover tapped without a pause,
   one selected item in every frame
-  ([assets/ios-iphone18pro-20261120-tab-switch-one-selected.png](assets/ios-iphone18pro-20261120-tab-switch-one-selected.png)).
+  ([assets/ios-iphone18pro-20261120-tab-switch-one-selected.png](assets/ios-iphone18pro-20261120-tab-switch-one-selected.png)). (commit e10787b, 2026-11-20)
   React Native iOS and Flutter iOS draw the same native tab bar (react-native-cyltabbar / the Flutter platform view wrap
   `CYLTabBar`), so they follow it by construction; not run separately.
 - **Owners / status**: mini program: Mac-CYLTabBarController 小程序开发 (fix + test, asked 2026-11-20); HarmonyOS: winCYLTabBarController 鸿蒙开发
@@ -937,7 +937,7 @@ Android.
   Native Android, Flutter Android: winCYLSearchViewController文件夹 (audit asked 2026-11-20).
 - **Audit results (2026-11-20)**:
   - **HarmonyOS** (macOS session, Mate 70 Pro emulator on this Mac, example at the shared pins, SVGA tab icons): holds, one selected
-    item in every frame ([assets/harmonyos-mate70pro-20261120-tab-switch-one-selected.png](assets/harmonyos-mate70pro-20261120-tab-switch-one-selected.png));
+    item in every frame ([assets/harmonyos-mate70pro-20261120-tab-switch-one-selected.png](assets/harmonyos-mate70pro-20261120-tab-switch-one-selected.png)); (commit 3c3655b, 2026-11-20)
     the Windows session's emulator would not start (C: nearly full), its code reading agrees (one `selectedIndex` source; each
     engine stops on `selected` false). One gap by reading, GIF images only: a `selectedIndex` changed from outside does not stop the
     old tab's GIF (`cylOnSelectedIndexChange`); fix with winCYLTabBarController 鸿蒙开发, not reproduced.
@@ -1066,7 +1066,7 @@ Android.
 | iOS React Native (same session) | n/a | **holds**: the first tag lifts and floats over the list, the "Recent" and "My Tags" headers stay put | the native `CYLTagListView` inside RN's scroll view: its long press wins |
 | iOS Flutter (same session) | n/a | **does NOT hold**: the page is pulled down with the drag and the first tag never lifts | the Dart scroll view wins the gesture arena over the platform view (same cause as Flutter Android) |
 
-  iOS screenshot (React Native holds, Flutter does not): [assets/ios-iphone18pro-20261120-tag-drag-scroll-rn-flutter.png](assets/ios-iphone18pro-20261120-tag-drag-scroll-rn-flutter.png) (iPhone 18 Pro simulator, iOS 27.2, at ClassifyMenu `954edf8c` / tab bar `41660d24`).
+  iOS screenshot (React Native holds, Flutter does not): [assets/ios-iphone18pro-20261120-tag-drag-scroll-rn-flutter.png](assets/ios-iphone18pro-20261120-tag-drag-scroll-rn-flutter.png) (iPhone 18 Pro simulator, iOS 27.2, at ClassifyMenu `954edf8c` / tab bar `41660d24`). (commit 21e23d7, 2026-11-20)
 
   [assets/android-tag-drag-scroll-native-vs-flutter-20261120.png](assets/android-tag-drag-scroll-native-vs-flutter-20261120.png) (Android API 37 emulator, Windows 11, 2026-11-20 +13:00, after a17131a).
 - **Plan, the same names on every platform**:
@@ -1082,7 +1082,7 @@ Android.
   (Family stays first, nothing floats; a plain swipe with fine samples scrolls the page, so scrolling itself works; native and React Native iOS lift the tag
   in the same test): so on iOS the long press won in the arena yet the native `CYLTagListView` did not start its drag, i.e. the held touches did not reach
   the UIKit recognizer the way they do on Android
-  ([assets/ios-iphone18pro-20261120-flutter-tag-drag-after-arena-fix.png](assets/ios-iphone18pro-20261120-flutter-tag-drag-after-arena-fix.png)).
+  ([assets/ios-iphone18pro-20261120-flutter-tag-drag-after-arena-fix.png](assets/ios-iphone18pro-20261120-flutter-tag-drag-after-arena-fix.png)). (commit a4c3103, 2026-11-20)
   Hint: CYLTabBarController's own Flutter iOS platform view needed an `EagerGestureRecognizer` (`3ee06877`) for the same reason (UIKit platform views get their
   touches replayed by the embedder after the arena decides); to try next on iOS: an eager recognizer in the `UiKitView` (`gestureRecognizers`) or the embedder's
   `FlutterPlatformViewGestureRecognizersBlockingPolicy`. Sent to the Windows session (owner of `flutter_cylsearch`'s Dart core).

@@ -11,7 +11,7 @@ Cancel (plus page); the Issue #1317 screen with its pinned search bar; `CYLSearc
 MaterialSearchView "Default" port); `CYLSearchBarView` in its multiple mode (`mode = .multiple`)
 with two searches and its event log.
 
-![Key details of the iOS example](docs/assets/readme-ios-key-details.png)
+![Key details of the iOS example](docs/assets/readme-ios-key-details.png) (commit 1416a3e, 2026-11-12)
 
 | Field | Value |
 |:---|:---|
@@ -51,7 +51,7 @@ top to bottom: the Search tab (the Issue #1317 reproduction); the Examples tab; 
 suggestions as tags folded to two rows, the chevron as the last tag; the Discover tab; the Themed sample; the
 placeholder styles.
 
-![Key details of the mini program example](docs/assets/readme-miniprogram-ios-replica.png)
+![Key details of the mini program example](docs/assets/readme-miniprogram-ios-replica.png) (commit 30f9eda, 2026-11-15)
 
 | Field | Value |
 |:---|:---|
@@ -78,7 +78,7 @@ table `docs/android-api-alignment.md`.
 `CYLSearchView.suggestionStyle` shows suggestions as tags from CollectionViewClassifyMenu (the default since
 2026-11-22: folded to two rows, the fold control as the last tag) or as a list (top: list, bottom: tags); both tabs of the example filter the same suggestions for "a":
 
-![Android suggestion styles: list and tags](docs/assets/android-suggestion-styles-readme.png)
+![Android suggestion styles: list and tags](docs/assets/android-suggestion-styles-readme.png) (commit 79cf4b6, 2026-11-12)
 
 | Field | Value |
 |:---|:---|

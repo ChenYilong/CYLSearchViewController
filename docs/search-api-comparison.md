@@ -275,19 +275,19 @@ simulator, iOS 26.1, English; iOS SDK 27.2; repository
 
 | State | Screenshot |
 |:---|:---|
-| lapism/search: the bar over the list (magnifier navigation icon, hint) | ![lapism bar](assets/port-lapism-bar.png) |
-| lapism/search: the search view with the filtered list ("1") | ![lapism search](assets/port-lapism-search.png) |
-| MaterialSearchView Default: suggestions for "A", one line each | ![default](assets/port-materialsearchview-default.png) |
-| MaterialSearchView Default: "Query: A" after submitting | ![query](assets/port-materialsearchview-query.png) |
-| MaterialSearchView Themed: white text on the primary color | ![themed](assets/port-materialsearchview-themed.png) |
-| MaterialSearchView Voice: the microphone in the empty field | ![voice](assets/port-materialsearchview-voice.png) |
-| MaterialSearchView Tabs: three pages under tabs | ![tabs](assets/port-materialsearchview-tabs.png) |
-| MaterialSearchView Input type: password input | ![input type](assets/port-materialsearchview-inputtype.png) |
-| yechaoa SearchView: iconified in the toolbar | ![iconified](assets/port-yechaoa-iconified.png) |
-| yechaoa SearchView: open, submit button, snackbar and result | ![submitted](assets/port-yechaoa-submitted.png) |
-| android-cjj: the round button in the middle | ![button](assets/port-cjj-button.png) |
-| android-cjj: the card after the circular reveal | ![card](assets/port-cjj-card.png) |
-| iammert MultiSearchView: two searches and the event log | ![multi search](assets/port-multisearchview.png) |
+| lapism/search: the bar over the list (magnifier navigation icon, hint) | ![lapism bar](assets/port-lapism-bar.png) (commit 63825b0, 2026-11-12) |
+| lapism/search: the search view with the filtered list ("1") | ![lapism search](assets/port-lapism-search.png) (commit 63825b0, 2026-11-12) |
+| MaterialSearchView Default: suggestions for "A", one line each | ![default](assets/port-materialsearchview-default.png) (commit 63825b0, 2026-11-12) |
+| MaterialSearchView Default: "Query: A" after submitting | ![query](assets/port-materialsearchview-query.png) (commit 63825b0, 2026-11-12) |
+| MaterialSearchView Themed: white text on the primary color | ![themed](assets/port-materialsearchview-themed.png) (commit 63825b0, 2026-11-12) |
+| MaterialSearchView Voice: the microphone in the empty field | ![voice](assets/port-materialsearchview-voice.png) (commit 63825b0, 2026-11-12) |
+| MaterialSearchView Tabs: three pages under tabs | ![tabs](assets/port-materialsearchview-tabs.png) (commit 63825b0, 2026-11-12) |
+| MaterialSearchView Input type: password input | ![input type](assets/port-materialsearchview-inputtype.png) (commit 63825b0, 2026-11-12) |
+| yechaoa SearchView: iconified in the toolbar | ![iconified](assets/port-yechaoa-iconified.png) (commit 63825b0, 2026-11-12) |
+| yechaoa SearchView: open, submit button, snackbar and result | ![submitted](assets/port-yechaoa-submitted.png) (commit 63825b0, 2026-11-12) |
+| android-cjj: the round button in the middle | ![button](assets/port-cjj-button.png) (commit 63825b0, 2026-11-12) |
+| android-cjj: the card after the circular reveal | ![card](assets/port-cjj-card.png) (commit 63825b0, 2026-11-12) |
+| iammert MultiSearchView: two searches and the event log | ![multi search](assets/port-multisearchview.png) (commit 63825b0, 2026-11-12) |
 
 ## DONE (2026-11-12): the "Default" port: the whole search bar inside the navigation bar
 
@@ -300,7 +300,7 @@ simulator, iOS 26.1, English; iOS SDK 27.2; repository
   still never covers a view (AGENTS.md, "Search bar placement").
 - Screenshot (the user's):
 
-  ![README key details, "Default" in the third block](assets/user-2026-11-12-readme-key-details-default.png)
+  ![README key details, "Default" in the third block](assets/user-2026-11-12-readme-key-details-default.png) (commit 6dcb8ea, 2026-11-12)
 
 - Prompt (verbatim): "找到截图中第二张截图所在example，执行以下修复：标题为default的example，该样式更适合将搜索框所在组件整体放在导航栏内部，而非放在导航栏底部。先在相关文档中标记为TODO。continue"
 - Prompt (English): "Find the example of the second screenshot and fix it: for the example titled Default, this style
@@ -320,11 +320,11 @@ simulator, iOS 26.1, English; iOS SDK 27.2; repository
   - Screenshots (originals), top to bottom: iOS Default before searching; iOS with the search open (tag style tab,
     "a" typed); Android with the search open.
 
-    ![iOS Default](assets/ios-default-closed.png)
+    ![iOS Default](assets/ios-default-closed.png) (commit b443252, 2026-11-12)
 
-    ![iOS search in the navigation bar](assets/ios-default-search-in-navigation-bar.png)
+    ![iOS search in the navigation bar](assets/ios-default-search-in-navigation-bar.png) (commit b443252, 2026-11-12)
 
-    ![Android search in the toolbar](assets/android-default-search-in-toolbar.png)
+    ![Android search in the toolbar](assets/android-default-search-in-toolbar.png) (commit b443252, 2026-11-12)
 
     | Field | Value |
     |:---|:---|

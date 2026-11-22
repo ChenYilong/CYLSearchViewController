@@ -17,7 +17,7 @@ packages). A test checks each rule.
   off; the person then taps the field (cursor and keyboard) without typing. The area below the bar must stay as it was
   before the tap; the core must not refresh it on focus, only on text changes (rule 1 above).
 
-  ![Report: focus without typing](assets/focus-without-typing-report.png)
+  ![Report: focus without typing](assets/focus-without-typing-report.png) (commit 3a45eac, 2026-11-13)
 
 - Requirements:
   1. Record the bug as a TODO with the screenshot (this entry).
@@ -94,11 +94,11 @@ packages). A test checks each rule.
     opens with the keyboard down and the empty placeholder; after two searches, "Recent searches" lists them newest
     first with the trash button; the trash button clears them and the placeholder comes back.
 
-    ![Android: focus off, empty cache](assets/android-cache-empty-focus-off.png)
+    ![Android: focus off, empty cache](assets/android-cache-empty-focus-off.png) (commit 59d01d3, 2026-11-13)
 
-    ![Android: recent searches](assets/android-cache-recent-searches.png)
+    ![Android: recent searches](assets/android-cache-recent-searches.png) (commit 59d01d3, 2026-11-13)
 
-    ![Android: cleared](assets/android-cache-cleared.png)
+    ![Android: cleared](assets/android-cache-cleared.png) (commit 59d01d3, 2026-11-13)
 
   - Animated placeholder, iOS (2026-11-13): CYLTableViewPlaceHolder is pinned at `9d49d16` (`feat/android-refresh-port`,
     the newest code commit; the only newer commit, `92a8a00`, is the automatic `ci-screenshots` branch). There every
@@ -113,9 +113,9 @@ packages). A test checks each rule.
     empty cache, and shows the animated cactus (`CYLPlaceholderNoDrafts.json`) with "Nothing here yet"; three frames
     0.6 s apart differ (below: the page, then the three frames side by side). iOS tests 25/25.
 
-    ![iOS: animated empty-cache placeholder](assets/ios-empty-cache-animated-placeholder.png)
+    ![iOS: animated empty-cache placeholder](assets/ios-empty-cache-animated-placeholder.png) (commit 3a74cb3, 2026-11-13)
 
-    ![iOS: three frames of the animation](assets/ios-empty-cache-animation-frames.png)
+    ![iOS: three frames of the animation](assets/ios-empty-cache-animation-frames.png) (commit 3a74cb3, 2026-11-13)
 
   - Pin update (2026-11-14): CYLTableViewPlaceHolder is pinned at `bdd78c7` everywhere (main `Podfile`, the Flutter
     and React Native example Podfiles, `android/merged/gradle.properties`): the newest commit on any branch, a merge of
@@ -162,7 +162,7 @@ packages). A test checks each rule.
   36/36, placeholder-lottie 3/3, cylsearch 16/16. Verified on the Android 15 emulator: the Tag style search with an
   empty cache shows the animated cactus; three frames 0.6 s apart differ in the face.
 
-  ![Android: animated empty-cache placeholder](assets/android-empty-cache-lottie-placeholder.png)
+  ![Android: animated empty-cache placeholder](assets/android-empty-cache-lottie-placeholder.png) (commit f117574, 2026-11-15)
 
   HarmonyOS: done, see its entry
   ([harmonyos-api-alignment.md](harmonyos-api-alignment.md)).
@@ -219,11 +219,11 @@ packages). A test checks each rule.
   CYLTableViewPlaceHolder's own placeholder (`cyl_reloadData`), which CYLTableViewPlaceHolder centres in the whole
   table; it still sits under the keyboard there (a CYLTableViewPlaceHolder TODO). Rechecked with CYLTableViewPlaceHolder
   `f7e0c4d` (its keyboard fix, 2026-11-19): still on the keyboard on that tab
-  ([assets/ios-iphone18pro-20261119-search-tab-placeholder-keyboard-f7e0c4d.png](assets/ios-iphone18pro-20261119-search-tab-placeholder-keyboard-f7e0c4d.png));
+  ([assets/ios-iphone18pro-20261119-search-tab-placeholder-keyboard-f7e0c4d.png](assets/ios-iphone18pro-20261119-search-tab-placeholder-keyboard-f7e0c4d.png)); (commit 49d1f38, 2026-11-19)
   reported back to that session (the delegate's `makePlaceHolderView` path). Fixed in CYLTableViewPlaceHolder `d19120f` (keyboard
   tracking from launch; the legacy frame loses the top inset under a raised keyboard), pinned on every platform: the
   placeholder is centred above the keyboard
-  ([assets/ios-iphone18pro-20261119-search-tab-placeholder-keyboard-d19120f.png](assets/ios-iphone18pro-20261119-search-tab-placeholder-keyboard-d19120f.png), before f7e0c4d and after d19120f). Left: HarmonyOS and the mini program
+  ([assets/ios-iphone18pro-20261119-search-tab-placeholder-keyboard-d19120f.png](assets/ios-iphone18pro-20261119-search-tab-placeholder-keyboard-d19120f.png), before f7e0c4d and after d19120f). Left: HarmonyOS and the mini program (commit 5a72ac9, 2026-11-19)
   checks. Score: 70/100 (iOS, Android, React Native on both, Flutter already right).
   HarmonyOS passes without a code change (2026-11-19): the system keyboard avoidance lifts the page, so the placeholder stays whole above the keyboard ([assets/harmonyos-mate70pro-20261119-placeholder-above-keyboard.png](assets/harmonyos-mate70pro-20261119-placeholder-above-keyboard.png), HarmonyOS 6 Mate 70 Pro emulator, DevEco Studio 6, Windows 11, 2026-11-19 +13:00, at d7651e0).
   Mini program: WeChat DevTools draws no keyboard, so it cannot be checked there; the `<input>` keeps WeChat's default `adjust-position` (the page is pushed up as on HarmonyOS). It needs a real phone (WeChat preview). Score: 90/100; TODO: the mini program on a phone (2026-11-21: still open; it

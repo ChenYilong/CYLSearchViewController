@@ -109,7 +109,7 @@ Score: 5/5 = 100.
     down (`focusesSearchFieldOnShow` false); the page after submitting "Swift". Still open: a search icon image, Lottie
     placeholders, an API table.
 
-    ![WeChat Mini Program in DevTools](assets/miniprogram-search-devtools.png)
+    ![WeChat Mini Program in DevTools](assets/miniprogram-search-devtools.png) (commit 918a194, 2026-11-15)
   - TODO (2026-11-15): publish the mini program library to npm. Prompt (verbatim): "在跨端相关文档中标记TODO：小程序封装成库
     cyl- 开头的小程序库，用 npm 打包加「构建 npm」实际验证过。提醒我的话先运行 ! npm login。 然后继续你未完成的任务。"
     - Done: the mini program is packaged as the library `cyl-search-miniprogram` (`cyl-` like CYLTableViewPlaceHolder's
@@ -159,19 +159,19 @@ Score: 5/5 = 100.
   - Screenshots (originals), top to bottom: iOS bar after typing; iOS list style; iOS tag style; iOS empty results;
     Android bar after typing; Android tag style; Android empty results.
 
-    ![Flutter iOS search bar](assets/flutter-ios-search-bar.png)
+    ![Flutter iOS search bar](assets/flutter-ios-search-bar.png) (commit 8a80355, 2026-11-13)
 
-    ![Flutter iOS list style](assets/flutter-ios-search-list.png)
+    ![Flutter iOS list style](assets/flutter-ios-search-list.png) (commit 8a80355, 2026-11-13)
 
-    ![Flutter iOS tag style](assets/flutter-ios-search-tags.png)
+    ![Flutter iOS tag style](assets/flutter-ios-search-tags.png) (commit 8a80355, 2026-11-13)
 
-    ![Flutter iOS empty results](assets/flutter-ios-empty-results.png)
+    ![Flutter iOS empty results](assets/flutter-ios-empty-results.png) (commit 8a80355, 2026-11-13)
 
-    ![Flutter Android search bar](assets/flutter-android-search-bar.png)
+    ![Flutter Android search bar](assets/flutter-android-search-bar.png) (commit 8a80355, 2026-11-13)
 
-    ![Flutter Android tag style](assets/flutter-android-search-tags.png)
+    ![Flutter Android tag style](assets/flutter-android-search-tags.png) (commit 8a80355, 2026-11-13)
 
-    ![Flutter Android empty results](assets/flutter-android-empty-results.png)
+    ![Flutter Android empty results](assets/flutter-android-empty-results.png) (commit 8a80355, 2026-11-13)
 
     | Field | Value |
     |:---|:---|
@@ -206,17 +206,17 @@ Score: 5/5 = 100.
     - Screenshots (originals), top to bottom: Android tab bar (cropped: the plus button rises above the bar); Android
       plus page; Android No content; iOS Tag style tab; iOS plus page; iOS No content.
 
-      ![Flutter Android tab bar](assets/flutter-android-tab-bar.png)
+      ![Flutter Android tab bar](assets/flutter-android-tab-bar.png) (commit 0521fe2, 2026-11-13)
 
-      ![Flutter Android plus page](assets/flutter-android-plus-page.png)
+      ![Flutter Android plus page](assets/flutter-android-plus-page.png) (commit 0521fe2, 2026-11-13)
 
-      ![Flutter Android No content](assets/flutter-android-no-content.png)
+      ![Flutter Android No content](assets/flutter-android-no-content.png) (commit 0521fe2, 2026-11-13)
 
-      ![Flutter iOS Tag style tab](assets/flutter-ios-tab-bar.png)
+      ![Flutter iOS Tag style tab](assets/flutter-ios-tab-bar.png) (commit 0521fe2, 2026-11-13)
 
-      ![Flutter iOS plus page](assets/flutter-ios-plus-page.png)
+      ![Flutter iOS plus page](assets/flutter-ios-plus-page.png) (commit 0521fe2, 2026-11-13)
 
-      ![Flutter iOS No content](assets/flutter-ios-no-content.png)
+      ![Flutter iOS No content](assets/flutter-ios-no-content.png) (commit 0521fe2, 2026-11-13)
 
       | Field | Value |
       |:---|:---|
@@ -242,15 +242,15 @@ Score: 5/5 = 100.
       (bar text, the recent searches reordered, "Searching: …"); Android Empty results tab; iOS Discover; iOS after
       tapping the "Dark mode colors" tag (the tag list grew a row and the page followed).
 
-      ![Flutter Android Discover](assets/flutter-android-discover.png)
+      ![Flutter Android Discover](assets/flutter-android-discover.png) (commit 40f9765, 2026-11-13)
 
-      ![Flutter Android Discover after a topic tap](assets/flutter-android-discover-search.png)
+      ![Flutter Android Discover after a topic tap](assets/flutter-android-discover-search.png) (commit 40f9765, 2026-11-13)
 
-      ![Flutter Android Empty results tab](assets/flutter-android-empty-results-tab.png)
+      ![Flutter Android Empty results tab](assets/flutter-android-empty-results-tab.png) (commit 40f9765, 2026-11-13)
 
-      ![Flutter iOS Discover](assets/flutter-ios-discover.png)
+      ![Flutter iOS Discover](assets/flutter-ios-discover.png) (commit 40f9765, 2026-11-13)
 
-      ![Flutter iOS Discover after a tag tap](assets/flutter-ios-discover-search.png)
+      ![Flutter iOS Discover after a tag tap](assets/flutter-ios-discover-search.png) (commit 40f9765, 2026-11-13)
 
       | Field | Value |
       |:---|:---|
@@ -305,17 +305,17 @@ Score: 5/5 = 100.
     crashed once inside React Native's dev-tools inspector connection (`CxxInspectorPackagerConnection`, not this
     library), so the screenshots use the release build.
 
-    ![React Native Android: list search](assets/rn-android-list-typed.png)
+    ![React Native Android: list search](assets/rn-android-list-typed.png) (commit d2c7aa1, 2026-11-14)
 
-    ![React Native Android: tag style, keyboard down](assets/rn-android-tags-history.png)
+    ![React Native Android: tag style, keyboard down](assets/rn-android-tags-history.png) (commit d2c7aa1, 2026-11-14)
 
-    ![React Native Android: no content](assets/rn-android-nocontent.png)
+    ![React Native Android: no content](assets/rn-android-nocontent.png) (commit d2c7aa1, 2026-11-14)
 
-    ![React Native Android: search bar](assets/rn-android-bar.png)
+    ![React Native Android: search bar](assets/rn-android-bar.png) (commit d2c7aa1, 2026-11-14)
 
-    ![React Native Android: Discover folded](assets/rn-android-discover.png)
+    ![React Native Android: Discover folded](assets/rn-android-discover.png) (commit d2c7aa1, 2026-11-14)
 
-    ![React Native Android: Discover unfolded](assets/rn-android-unfolded.png)
+    ![React Native Android: Discover unfolded](assets/rn-android-unfolded.png) (commit d2c7aa1, 2026-11-14)
 
   - iOS (2026-11-14): the Debug and Release builds succeed and the Release app launched to the List style page, but
     under the host's load (load average 900 to 970 for hours, other sessions' builds) the simulator ignored taps and
@@ -331,7 +331,7 @@ Score: 5/5 = 100.
     two rows behind the inline chevron; Search bar shows the plain bar with its magnifier and Cancel. Still to check
     by touch: typing, the search page, unfolding.
 
-    ![React Native iOS: Discover (items inside the bordered bar), then Search bar; iPhone 17, iOS 26.3.1, Release, 2026-11-14 14:29 and 14:31](assets/rn-ios-discover-and-search-bar-stitched.png)
+    ![React Native iOS: Discover (items inside the bordered bar), then Search bar; iPhone 17, iOS 26.3.1, Release, 2026-11-14 14:29 and 14:31](assets/rn-ios-discover-and-search-bar-stitched.png) (commit 496ac41, 2026-11-14)
 
   - Tab bar (2026-11-14): DONE. The example uses CYLTabBarController's `react-native-cyltabbar`: four tabs and a plus
     button for the search bar page, `<CYLTabBar items plusButton tapAnimation="scale" onTabSelect>`.
@@ -350,7 +350,7 @@ Score: 5/5 = 100.
       22:51) the floating glass tab bar shows four tabs and the plus button with its title, Discover selected.
       The plus button is not raised above the bar on iOS 26 (fixed 2026-11-16 with `alignsTitle: false`, see "Open TODOs").
 
-      ![React Native iOS: Discover with CYLTabBarController's tab bar; iPhone 17, iOS 26.3.1, Release, 2026-11-14 22:51](assets/rn-ios-discover-cyltabbar-iphone17-ios26.3.1.png)
+      ![React Native iOS: Discover with CYLTabBarController's tab bar; iPhone 17, iOS 26.3.1, Release, 2026-11-14 22:51](assets/rn-ios-discover-cyltabbar-iphone17-ios26.3.1.png) (commit 94b6621, 2026-11-14)
 
   - Touch checks on iOS: DONE 2026-11-15 (next item). The pins are done: CYLTableViewPlaceHolder `bdd78c7`, CYLTabBarController `2a12582` on every
     platform.
@@ -359,9 +359,9 @@ Score: 5/5 = 100.
   the native search page; typing "sw" filters the list to "Swift"; on Discover, "More" unfolds the recent searches and
   the chevron becomes the last tag.
 
-  ![React Native iOS: typing filters the suggestions](assets/rn-ios-typing-iphone17-ios26.3.1.png)
+  ![React Native iOS: typing filters the suggestions](assets/rn-ios-typing-iphone17-ios26.3.1.png) (commit a3f48b0, 2026-11-15)
 
-  ![React Native iOS: Discover unfolded](assets/rn-ios-unfolded-iphone17-ios26.3.1.png)
+  ![React Native iOS: Discover unfolded](assets/rn-ios-unfolded-iphone17-ios26.3.1.png) (commit a3f48b0, 2026-11-15)
 
 - Status: DONE (2026-11-15): the library, its three views, the tab bar, the Android and iOS builds, touch checks and
   screenshots.
@@ -374,7 +374,7 @@ Score: 5/5 = 100.
   button's own page selected: the Liquid Glass selection does not appear under the plus button and its title
   "Search bar" is gone (List style, Tag style, "+", No results, No content); the No content search.
 
-  ![Report: the plus button's title disappears on its own page](assets/flutter-ios-plus-title-missing-report.png)
+  ![Report: the plus button's title disappears on its own page](assets/flutter-ios-plus-title-missing-report.png) (commit 9a9af2e, 2026-11-13)
 
 - Requirements:
   1. Record the bug here as a TODO (this entry).
@@ -416,9 +416,9 @@ Score: 5/5 = 100.
     selected (below, top to bottom: List style, the plus button, Discover, the plus button again; cropped tab bars,
     then the full plus page). CYLTabBarController unit tests: 135, 0 failures, 2 skipped (iPhone 17, iOS 26.3).
 
-    ![Fixed: the plus page shows its title](assets/flutter-ios-plus-title-fixed.png)
+    ![Fixed: the plus page shows its title](assets/flutter-ios-plus-title-fixed.png) (commit 39b1c7d, 2026-11-13)
 
-    ![Fixed: the full plus page](assets/flutter-ios-plus-page-fixed-full.png)
+    ![Fixed: the full plus page](assets/flutter-ios-plus-page-fixed-full.png) (commit 39b1c7d, 2026-11-13)
 
     | Field | Value |
     |:---|:---|
@@ -502,7 +502,7 @@ Score: 5/5 = 100.
 - Run (2026-11-16, Mate 70 Pro emulator, HarmonyOS 6.0.1, unsigned HAP, base 7158911): the build with the accessibility
   labels and the 30 locales installs and starts; Examples tab (system language zh-CN):
 
-  ![HarmonyOS Examples tab, emulator, 2026-11-16](assets/harmonyos-examples-emulator-unsigned.jpeg)
+  ![HarmonyOS Examples tab, emulator, 2026-11-16](assets/harmonyos-examples-emulator-unsigned.png) (commit 329e50f, 2026-11-16)
 
   Search tab after the switch to CYLTabBarController's HarmonyOS tab bar (`vendor/cyltabbar` `8c56e0c`, raised plus
   button; Mate 70 Pro emulator, unsigned HAP, base de27d60, 2026-11-16 09:24 emulator time). Set-up before a build:
@@ -510,7 +510,7 @@ Score: 5/5 = 100.
   ids any more, so `CYLSearchUI.test.ets` needs new locators (localized tab titles or the tab bar's ids); taps sent
   with `uitest uiInput click` did not reach the app in this run (the emulator is shared with another session).
 
-  ![HarmonyOS Search tab with CYLTabBarController's tab bar](assets/harmonyos-search-tab-cyltabbar-emulator-unsigned.jpeg)
+  ![HarmonyOS Search tab with CYLTabBarController's tab bar](assets/harmonyos-search-tab-cyltabbar-emulator-unsigned.png) (commit 85760c9, 2026-11-16)
 
 - Not a bug (corrected 2026-11-16): taps did work. `uitest dumpLayout` returned a stale tree, so the check read the
   old screen; screenshots (`snapshot_display`) after each tap show the right page. Rule for checks: confirm with a
@@ -518,14 +518,14 @@ Score: 5/5 = 100.
   vendor/cyltabbar `9fb874c`), top to bottom: Examples; its four pushed pages (Search and refresh, Placeholder styles,
   Search bar, Other libraries' examples); Tag style; Discover; the plus button's page (Search bar).
 
-  ![Examples](assets/harmonyos-examples-cyltabbar-emulator.jpeg)
-  ![Examples, Search and refresh](assets/harmonyos-examples-1-search-refresh-emulator.jpeg)
-  ![Examples, Placeholder styles](assets/harmonyos-examples-2-placeholder-styles-emulator.jpeg)
-  ![Examples, Search bar](assets/harmonyos-examples-3-search-bar-emulator.jpeg)
-  ![Examples, Other libraries' examples](assets/harmonyos-examples-4-other-libraries-emulator.jpeg)
-  ![Tag style tab](assets/harmonyos-tag-style-tab-emulator.jpeg)
-  ![Discover tab](assets/harmonyos-discover-tab-cyltabbar-emulator.jpeg)
-  ![Plus button page](assets/harmonyos-plus-page-emulator.jpeg)
+  ![Examples](assets/harmonyos-examples-cyltabbar-emulator.png) (commit 4772c7f, 2026-11-16)
+  ![Examples, Search and refresh](assets/harmonyos-examples-1-search-refresh-emulator.png) (commit 4772c7f, 2026-11-16)
+  ![Examples, Placeholder styles](assets/harmonyos-examples-2-placeholder-styles-emulator.png) (commit 4772c7f, 2026-11-16)
+  ![Examples, Search bar](assets/harmonyos-examples-3-search-bar-emulator.png) (commit 4772c7f, 2026-11-16)
+  ![Examples, Other libraries' examples](assets/harmonyos-examples-4-other-libraries-emulator.png) (commit 4772c7f, 2026-11-16)
+  ![Tag style tab](assets/harmonyos-tag-style-tab-emulator.png) (commit 4772c7f, 2026-11-16)
+  ![Discover tab](assets/harmonyos-discover-tab-cyltabbar-emulator.png) (commit 4772c7f, 2026-11-16)
+  ![Plus button page](assets/harmonyos-plus-page-emulator.png) (commit 4772c7f, 2026-11-16)
 
   Tests: 13 run, 10–11 pass; the UI tests for the tag style sample and Discover error ("click of null"). Cause found:
   another session drives the same emulator (its apps `com.cyl.tabbar.harmony` and `com.cyl.classifymenu.rn` came to the
@@ -624,19 +624,19 @@ Score: 5/5 = 100.
   - Screenshots (originals), top to bottom: search tab, examples menu, search bar page, placeholder styles,
     reveal port open, yechaoa port after a search, MultiSearchView port with two searches.
 
-    ![Search tab](assets/android-example-search.png)
+    ![Search tab](assets/android-example-search.png) (commit 79cf4b6, 2026-11-12)
 
-    ![Examples menu](assets/android-example-menu.png)
+    ![Examples menu](assets/android-example-menu.png) (commit 79cf4b6, 2026-11-12)
 
-    ![Search bar page](assets/android-example-search-bar.png)
+    ![Search bar page](assets/android-example-search-bar.png) (commit 79cf4b6, 2026-11-12)
 
-    ![Placeholder styles](assets/android-example-placeholders.png)
+    ![Placeholder styles](assets/android-example-placeholders.png) (commit 79cf4b6, 2026-11-12)
 
-    ![Reveal port](assets/android-port-reveal.png)
+    ![Reveal port](assets/android-port-reveal.png) (commit 79cf4b6, 2026-11-12)
 
-    ![yechaoa port](assets/android-port-yechaoa.png)
+    ![yechaoa port](assets/android-port-yechaoa.png) (commit 79cf4b6, 2026-11-12)
 
-    ![MultiSearchView port](assets/android-port-multisearch.png)
+    ![MultiSearchView port](assets/android-port-multisearch.png) (commit 79cf4b6, 2026-11-12)
 
 | Field | Value |
 |:---|:---|
@@ -699,7 +699,7 @@ Open issues: `docs/android-upstream-issues.md`.
 - Verified (Mate 70 Pro emulator, unsigned HAP, base 7cc3d83): builds; Examples → Search and refresh (pull to refresh),
   Placeholder styles → a placeholder detail; the app keeps one process (no crash), the emulator stays up.
 
-  ![HarmonyOS placeholder detail with the fixed library](assets/harmonyos-placeholder-detail-rive-fix-emulator.jpeg)
+  ![HarmonyOS placeholder detail with the fixed library](assets/harmonyos-placeholder-detail-rive-fix-emulator.png) (commit 73244ca, 2026-11-16)
 
 | Platform | Rive in this project | Status |
 |:---|:---|:---|

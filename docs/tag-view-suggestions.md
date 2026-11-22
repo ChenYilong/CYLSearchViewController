@@ -47,9 +47,9 @@ CollectionViewClassifyMenu).
   host macOS 27.3 (26C5035r), compileSdk 35, CYLSearchViewController commit `d459b91`, 2026-11-12 18:19 NZDT.
   Left: typing "a" lists the suggestions; right: tapping "Android" fills the query.
 
-  ![MaterialSearchView suggestions in android/merged](assets/android-merged-materialsearchview-suggestions.png)
+  ![MaterialSearchView suggestions in android/merged](assets/android-merged-materialsearchview-suggestions.png) (commit 1d3bdbc, 2026-11-12)
 
-  Full-size original of the left state: [android-merged-suggestions-list-original.png](assets/android-merged-suggestions-list-original.png).
+  Full-size original of the left state: [android-merged-suggestions-list-original.png](assets/android-merged-suggestions-list-original.png). (commit 1d3bdbc, 2026-11-12)
 - Prompt (verbatim): "该演示，复制一份，使用cyltabbarcontroller不同items管理，演示搜索备选项内容，一个item使用现在的样式，一个item 使用使用新的新的collectionview 也就是tagview 也就是 CollectionViewClassifyMenu提供的样式展示。写入文档中 标注todo附带截图。continue"
 - Prompt (English): "Copy this demo and manage it with different CYLTabBarController items to show the search
   suggestions: one item uses the current style, the other the new collection view, i.e. the tag view, the style
@@ -68,11 +68,11 @@ CollectionViewClassifyMenu).
     query to "Android"; no crash.
   - Screenshots (originals), from top to bottom: list style, tag style, tag style after tapping "Android".
 
-    ![List style](assets/android-suggestions-list-style.png)
+    ![List style](assets/android-suggestions-list-style.png) (commit 79cf4b6, 2026-11-12)
 
-    ![Tag style](assets/android-suggestions-tag-style.png)
+    ![Tag style](assets/android-suggestions-tag-style.png) (commit 79cf4b6, 2026-11-12)
 
-    ![Tag tapped](assets/android-suggestions-tag-picked.png)
+    ![Tag tapped](assets/android-suggestions-tag-picked.png) (commit 79cf4b6, 2026-11-12)
 
 | Field | Value |
 |:---|:---|
@@ -101,11 +101,11 @@ CollectionViewClassifyMenu).
   4. iOS first; then Android and the cross-platform versions (React Native, Flutter) with the same requirements.
 - Screenshots (the user's), top to bottom: the discover search page; its states in four languages; the tag editor.
 
-  ![Discover search page](assets/user-2026-11-12-classifymenu-discover-search.png)
+  ![Discover search page](assets/user-2026-11-12-classifymenu-discover-search.png) (commit 6dcb8ea, 2026-11-12)
 
-  ![Discover states](assets/user-2026-11-12-classifymenu-discover-states.jpg)
+  ![Discover states](assets/user-2026-11-12-classifymenu-discover-states.png) (commit 6dcb8ea, 2026-11-12)
 
-  ![Tag editor](assets/user-2026-11-12-classifymenu-tag-editor.jpg)
+  ![Tag editor](assets/user-2026-11-12-classifymenu-tag-editor.png) (commit 6dcb8ea, 2026-11-12)
 
 - Prompt (verbatim): "新增tag 形式展示备选搜索内容的样式demo，你可以直接从CollectionViewClassifyMenu文件夹  中复制已经实现的内容，具体代码效果见截图，使用我们的新建的样式属性，以及新组织的 依赖关系 使用 CollectionViewClassifyMenu作为子依赖。进行代码改造。使用example中cyltabbarcontroller中的 空的没有内容的tabbaritem进行区分上面的不同演示页面。先实现iOS端展示，然后再 按照相同要求执行其他平台比如android和跨端平台rn flutter。continue"
 - Prompt (English): "Add a style demo that shows the candidate search content as tags. You can copy what is already
@@ -134,11 +134,11 @@ CollectionViewClassifyMenu).
     source is the same as CollectionViewClassifyMenu's.
   - Screenshots (originals), top to bottom: the Tag style tab; its Default sample after typing "a"; the Discover tab.
 
-    ![Tag style tab](assets/ios-tag-style-menu.png)
+    ![Tag style tab](assets/ios-tag-style-menu.png) (commit eb4fcd5, 2026-11-12)
 
-    ![Tag style, Default sample](assets/ios-tag-style-default.png)
+    ![Tag style, Default sample](assets/ios-tag-style-default.png) (commit eb4fcd5, 2026-11-12)
 
-    ![Discover tab](assets/ios-discover-tab.png)
+    ![Discover tab](assets/ios-discover-tab.png) (commit eb4fcd5, 2026-11-12)
 
 | Field | Value |
 |:---|:---|
@@ -159,11 +159,11 @@ CollectionViewClassifyMenu).
     topics; no crash. Not a difference to keep: long titles are cut by the cell's edge; see the bug TODO below.
   - Screenshots (originals), top to bottom: the Discover tab; Recent searches expanded; Discover after More (cropped).
 
-    ![Android Discover tab](assets/android-discover-tab.png)
+    ![Android Discover tab](assets/android-discover-tab.png) (commit 6763106, 2026-11-12)
 
-    ![Recent searches expanded](assets/android-discover-expanded.png)
+    ![Recent searches expanded](assets/android-discover-expanded.png) (commit 6763106, 2026-11-12)
 
-    ![Discover after More](assets/android-discover-refreshed.png)
+    ![Discover after More](assets/android-discover-refreshed.png) (commit 6763106, 2026-11-12)
 
 | Field | Value |
 |:---|:---|
@@ -202,7 +202,7 @@ CollectionViewClassifyMenu).
   4. Screenshots after the fix, labeled; mark this TODO done.
 - Screenshot (the user's):
 
-  ![Android Discover titles cut at the cell edge](assets/user-2026-11-12-android-discover-clipped-titles.png)
+  ![Android Discover titles cut at the cell edge](assets/user-2026-11-12-android-discover-clipped-titles.png) (commit 6763106, 2026-11-12)
 
 - Prompt (verbatim): "No  I don't think so. Android tests pass (9/9). The alignment table has grown to 299 rows (the new iOS suggestionStyle API), all aligned. Regenerating it and writing the Android progress with screenshots: tag cell text are cut by boundary of cell , it should got gap between text and boundary of cell, if text is too long it should show text end with ... please mark this bug as TODO in docs files related."
 - Status: DONE (2026-11-12, [`74b75a6`](https://github.com/ChenYilong/CYLSearchViewController/commit/74b75a6)).
@@ -221,7 +221,7 @@ CollectionViewClassifyMenu).
     [`74b75a6`](https://github.com/ChenYilong/CYLSearchViewController/commit/74b75a6)'s pin, 2026-11-12 23:5x NZDT): long titles
     end with "…" inside the cell, with a gap before the next column.
 
-    ![Android Discover titles end with an ellipsis](assets/android-discover-titles-ellipsis.png)
+    ![Android Discover titles end with an ellipsis](assets/android-discover-titles-ellipsis.png) (commit e63ec0d, 2026-11-12)
 
 ## BUG DONE (2026-11-13): the tag list lost its fold button on later platforms
 
@@ -234,9 +234,9 @@ CollectionViewClassifyMenu).
   Flutter Discover, all ten recent searches shown; second: the Android reference, folded with the chevron, then
   unfolded with the up chevron).
 
-  ![Flutter Discover without the fold button](assets/fold-missing-flutter-discover.png)
+  ![Flutter Discover without the fold button](assets/fold-missing-flutter-discover.png) (commit 2027deb, 2026-11-13)
 
-  ![Android Discover with the fold button (reference)](assets/fold-reference-android-discover.png)
+  ![Android Discover with the fold button (reference)](assets/fold-reference-android-discover.png) (commit 2027deb, 2026-11-13)
 
 - Requirements:
   1. The core supports the fold button through parameters an app can customize: on `CYLSearchView` (the tag
@@ -268,7 +268,7 @@ CollectionViewClassifyMenu).
     to two rows with the chevron ("More") as the last tag; after tapping it, every recent search with the up chevron
     ("Less") last, and the page below moved down.
 
-    ![Flutter Discover: folded, then unfolded](assets/fold-fixed-flutter-ios.png)
+    ![Flutter Discover: folded, then unfolded](assets/fold-fixed-flutter-ios.png) (commit f0f63e4, 2026-11-13)
 
   - Android (Flutter, `CYL_API35_arm64` read-only instance, Android 15 / API 35, 2026-11-13 19:42 NZDT): the first run
     showed the folded list one row short (the row with the chevron clipped): the plugin reported `heightThatFitsWidth`
@@ -276,7 +276,7 @@ CollectionViewClassifyMenu).
     list updates through `menuDidChangeContentHeight`. Left to right: folded (two rows, the chevron last), unfolded
     (the up chevron last), folded again.
 
-    ![Flutter Discover on Android: folded, unfolded, folded again](assets/fold-fixed-flutter-android.png)
+    ![Flutter Discover on Android: folded, unfolded, folded again](assets/fold-fixed-flutter-android.png) (commit 31317f2, 2026-11-13)
 
 - Status: `BUG DONE`.
 
@@ -300,11 +300,11 @@ CollectionViewClassifyMenu).
 - Android first and last tag rows cut by about 5 px: NOT fixed, located in CollectionViewClassifyMenu's Android `CYLTagListView` (not the core's layout). The rows between are whole, and the first row's top edge and the last row's bottom edge are missing, as if the list's content were taller than its measured height and scrolled by about 5 px. A margin or padding change in `CYLSearchView` made no difference (tried, reverted). Next step, in CollectionViewClassifyMenu: compare `heightThatFitsWidth` with `computeFrames`' `totalHeight` for a folded inline fold control.
 - Screenshots (originals), from top to bottom: list style, tag style, tag style after tapping "Android".
 
-    ![List style](assets/android-suggestions-list-style.png)
+    ![List style](assets/android-suggestions-list-style.png) (commit 79cf4b6, 2026-11-12)
 
-    ![Tag style](assets/android-suggestions-tag-style.png)
+    ![Tag style](assets/android-suggestions-tag-style.png) (commit 79cf4b6, 2026-11-12)
 
-    ![Tag tapped](assets/android-suggestions-tag-picked.png)
+    ![Tag tapped](assets/android-suggestions-tag-picked.png) (commit 79cf4b6, 2026-11-12)
 
 | Field | Value |
 |:---|:---|
@@ -333,11 +333,11 @@ CollectionViewClassifyMenu).
   4. iOS first; then Android and the cross-platform versions (React Native, Flutter) with the same requirements.
 - Screenshots (the user's), top to bottom: the discover search page; its states in four languages; the tag editor.
 
-  ![Discover search page](assets/user-2026-11-12-classifymenu-discover-search.png)
+  ![Discover search page](assets/user-2026-11-12-classifymenu-discover-search.png) (commit 6dcb8ea, 2026-11-12)
 
-  ![Discover states](assets/user-2026-11-12-classifymenu-discover-states.jpg)
+  ![Discover states](assets/user-2026-11-12-classifymenu-discover-states.png) (commit 6dcb8ea, 2026-11-12)
 
-  ![Tag editor](assets/user-2026-11-12-classifymenu-tag-editor.jpg)
+  ![Tag editor](assets/user-2026-11-12-classifymenu-tag-editor.png) (commit 6dcb8ea, 2026-11-12)
 
 - Prompt (verbatim): "新增tag 形式展示备选搜索内容的样式demo，你可以直接从CollectionViewClassifyMenu文件夹  中复制已经实现的内容，具体代码效果见截图，使用我们的新建的样式属性，以及新组织的 依赖关系 使用 CollectionViewClassifyMenu作为子依赖。进行代码改造。使用example中cyltabbarcontroller中的 空的没有内容的tabbaritem进行区分上面的不同演示页面。先实现iOS端展示，然后再 按照相同要求执行其他平台比如android和跨端平台rn flutter。continue"
 - Prompt (English): "Add a style demo that shows the candidate search content as tags. You can copy what is already
@@ -366,11 +366,11 @@ CollectionViewClassifyMenu).
     source is the same as CollectionViewClassifyMenu's.
   - Screenshots (originals), top to bottom: the Tag style tab; its Default sample after typing "a"; the Discover tab.
 
-    ![Tag style tab](assets/ios-tag-style-menu.png)
+    ![Tag style tab](assets/ios-tag-style-menu.png) (commit eb4fcd5, 2026-11-12)
 
-    ![Tag style, Default sample](assets/ios-tag-style-default.png)
+    ![Tag style, Default sample](assets/ios-tag-style-default.png) (commit eb4fcd5, 2026-11-12)
 
-    ![Discover tab](assets/ios-discover-tab.png)
+    ![Discover tab](assets/ios-discover-tab.png) (commit eb4fcd5, 2026-11-12)
 
 | Field | Value |
 |:---|:---|
@@ -391,11 +391,11 @@ CollectionViewClassifyMenu).
     topics; no crash. Not a difference to keep: long titles are cut by the cell's edge; see the bug TODO below.
   - Screenshots (originals), top to bottom: the Discover tab; Recent searches expanded; Discover after More (cropped).
 
-    ![Android Discover tab](assets/android-discover-tab.png)
+    ![Android Discover tab](assets/android-discover-tab.png) (commit 6763106, 2026-11-12)
 
-    ![Recent searches expanded](assets/android-discover-expanded.png)
+    ![Recent searches expanded](assets/android-discover-expanded.png) (commit 6763106, 2026-11-12)
 
-    ![Discover after More](assets/android-discover-refreshed.png)
+    ![Discover after More](assets/android-discover-refreshed.png) (commit 6763106, 2026-11-12)
 
 | Field | Value |
 |:---|:---|
@@ -434,7 +434,7 @@ CollectionViewClassifyMenu).
   4. Screenshots after the fix, labeled; mark this TODO done.
 - Screenshot (the user's):
 
-  ![Android Discover titles cut at the cell edge](assets/user-2026-11-12-android-discover-clipped-titles.png)
+  ![Android Discover titles cut at the cell edge](assets/user-2026-11-12-android-discover-clipped-titles.png) (commit 6763106, 2026-11-12)
 
 - Prompt (verbatim): "No  I don't think so. Android tests pass (9/9). The alignment table has grown to 299 rows (the new iOS suggestionStyle API), all aligned. Regenerating it and writing the Android progress with screenshots: tag cell text are cut by boundary of cell , it should got gap between text and boundary of cell, if text is too long it should show text end with ... please mark this bug as TODO in docs files related."
 - Status: DONE (2026-11-12, [`74b75a6`](https://github.com/ChenYilong/CYLSearchViewController/commit/74b75a6)).
@@ -453,7 +453,7 @@ CollectionViewClassifyMenu).
     [`74b75a6`](https://github.com/ChenYilong/CYLSearchViewController/commit/74b75a6)'s pin, 2026-11-12 23:5x NZDT): long titles
     end with "…" inside the cell, with a gap before the next column.
 
-    ![Android Discover titles end with an ellipsis](assets/android-discover-titles-ellipsis.png)
+    ![Android Discover titles end with an ellipsis](assets/android-discover-titles-ellipsis.png) (commit e63ec0d, 2026-11-12)
 
 ## BUG DONE (2026-11-13): the tag list lost its fold button on later platforms
 
@@ -466,9 +466,9 @@ CollectionViewClassifyMenu).
   Flutter Discover, all ten recent searches shown; second: the Android reference, folded with the chevron, then
   unfolded with the up chevron).
 
-  ![Flutter Discover without the fold button](assets/fold-missing-flutter-discover.png)
+  ![Flutter Discover without the fold button](assets/fold-missing-flutter-discover.png) (commit 2027deb, 2026-11-13)
 
-  ![Android Discover with the fold button (reference)](assets/fold-reference-android-discover.png)
+  ![Android Discover with the fold button (reference)](assets/fold-reference-android-discover.png) (commit 2027deb, 2026-11-13)
 
 - Requirements:
   1. The core supports the fold button through parameters an app can customize: on `CYLSearchView` (the tag
@@ -500,7 +500,7 @@ CollectionViewClassifyMenu).
     to two rows with the chevron ("More") as the last tag; after tapping it, every recent search with the up chevron
     ("Less") last, and the page below moved down.
 
-    ![Flutter Discover: folded, then unfolded](assets/fold-fixed-flutter-ios.png)
+    ![Flutter Discover: folded, then unfolded](assets/fold-fixed-flutter-ios.png) (commit f0f63e4, 2026-11-13)
 
   - Android (Flutter, `CYL_API35_arm64` read-only instance, Android 15 / API 35, 2026-11-13 19:42 NZDT): the first run
     showed the folded list one row short (the row with the chevron clipped): the plugin reported `heightThatFitsWidth`
@@ -508,7 +508,7 @@ CollectionViewClassifyMenu).
     list updates through `menuDidChangeContentHeight`. Left to right: folded (two rows, the chevron last), unfolded
     (the up chevron last), folded again.
 
-    ![Flutter Discover on Android: folded, unfolded, folded again](assets/fold-fixed-flutter-android.png)
+    ![Flutter Discover on Android: folded, unfolded, folded again](assets/fold-fixed-flutter-android.png) (commit 31317f2, 2026-11-13)
 
 - Status: `BUG DONE`.
 

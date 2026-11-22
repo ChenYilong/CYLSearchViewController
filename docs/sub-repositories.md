@@ -8,7 +8,7 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
 | CollectionViewClassifyMenu | Suggestions as tags (`CYLSearchSuggestionStyle`); `CYLTagButton`, which draws every search bar item and the example's SVGA demo | Tags: Android done (`eb3590e`); iOS done (`e1a771a`, tag-style demos 2026-11-14; [tag-view-suggestions.md](tag-view-suggestions.md)). `CYLTagButton`: every platform, pinned at `71562ca` on HarmonyOS (`harmonyos/oh-package.json5` `collectionViewClassifyMenuCommit`, `harmonyos/vendor/classifymenu`, with CYLTabBarController's `cylanimateditem` in `harmonyos/vendor/cylanimateditem`) and the mini program (`package.json` `collectionViewClassifyMenuCommit`) ([animated-icon-component.md](animated-icon-component.md)) |
 | CYLTableViewPlaceHolder | The placeholder sub-dependency: the empty-content placeholder (`CYLPlaceholderView` scenarios shown by `CYLSearchView`) when a search has no results, and the pull-to-refresh header inside `CYLSearchView`'s refresh API; pinned at `62e40c0` (its newest commit, on `CYLAnimatedItem`) on every platform | Done on iOS, Android, HarmonyOS, the mini program, React Native and Flutter ([search-core-merge.md](search-core-merge.md)) |
 
-## DONE (2026-11-16; TODO 2026-11-12): CYLTableViewPlaceHolder as a sub-repository, empty search results on every platform (iOS, Android, Flutter, React Native, mini programs; HarmonyOS through `cylplaceholder`, run on the Mate 70 Pro emulator: the empty placeholder in `harmonyos-search-empty-cache-emulator-unsigned.jpeg`, touches checked 2026-11-16)
+## DONE (2026-11-16; TODO 2026-11-12): CYLTableViewPlaceHolder as a sub-repository, empty search results on every platform (iOS, Android, Flutter, React Native, mini programs; HarmonyOS through `cylplaceholder`, run on the Mate 70 Pro emulator: the empty placeholder in `harmonyos-search-empty-cache-emulator-unsigned.png`, touches checked 2026-11-16) (commit f9cf929, 2026-11-15)
 
 - Context:
   - The requirements for CollectionViewClassifyMenu as a sub-repository ([tag-view-suggestions.md](tag-view-suggestions.md))
@@ -68,7 +68,7 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
     styles; hidden for a match and an empty query; the scenario parameter). 20/20 pass on iPhone 17.
   - Screenshot (original): the Tag style tab's Default sample, "zzz" typed.
 
-    ![Empty search results placeholder](assets/ios-empty-search-results-placeholder.png)
+    ![Empty search results placeholder](assets/ios-empty-search-results-placeholder.png) (commit 84bf902, 2026-11-13)
 
     | Field | Value |
     |:---|:---|
@@ -92,9 +92,9 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   - Tests: 10/10 `cylsearch` (new empty-results test); the API table now has 302 rows, score 100.
   - Screenshots (originals), top to bottom: List style tab and Tag style tab, "zzz" typed.
 
-    ![Android empty results, list style](assets/android-empty-search-results-list.png)
+    ![Android empty results, list style](assets/android-empty-search-results-list.png) (commit bce148b, 2026-11-13)
 
-    ![Android empty results, tag style](assets/android-empty-search-results-tags.png)
+    ![Android empty results, tag style](assets/android-empty-search-results-tags.png) (commit bce148b, 2026-11-13)
 
     | Field | Value |
     |:---|:---|
@@ -163,7 +163,7 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   `Podfile.lock` files at `8dc39c3`, subspecs Core, Lottie, LottieSwift); clean builds of the three apps; each shows the
   empty-results placeholder with its icon on the iPhone 18 Pro simulator (iOS 27.2, Xcode 27.2): native the no-results
   icon, Flutter the magnifier, React Native the looping Lottie magnifier
-  ([assets/ios-iphone18pro-20261119-placeholder-icons-at-8dc39c3.png](assets/ios-iphone18pro-20261119-placeholder-icons-at-8dc39c3.png)).
+  ([assets/ios-iphone18pro-20261119-placeholder-icons-at-8dc39c3.png](assets/ios-iphone18pro-20261119-placeholder-icons-at-8dc39c3.png)). (commit 638cd47, 2026-11-19)
   Seen, not changed: native and React Native center the placeholder in the whole list, so the open keyboard covers
   its subtitle (Flutter places it above the keyboard).
   Commit: `de35153` (its message wrongly repeats "Rive tab icons on Android

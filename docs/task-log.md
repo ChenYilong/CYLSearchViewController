@@ -134,7 +134,7 @@ begins and becomes `DONE` when it ends.
 - Status: DONE (2026-11-16). Every item of the order is done: the sibling-checkout pull request; the "iPhone Duo"
   overlap (`search-bar-view.md`); the iOS raised plus button; the tag-style, placeholder, cache and focus entries; React
   Native (touch checks and tab bar, `android-and-cross-platform.md`, Open TODOs 5/5); the native iOS Discover screenshot
-  (`assets/ios-discover-tab.png`); Android's animated placeholder (CYLTableViewPlaceHolder PR #28, pin `6d8b264`);
+  (`assets/ios-discover-tab.png`); Android's animated placeholder (CYLTableViewPlaceHolder PR #28, pin `6d8b264`); (commit eb4fcd5, 2026-11-12)
   HarmonyOS (Scorecards 1 to 3 at 100, the last screenshot checks listed in `harmonyos-cross-platform.md`); mini programs.
   Left outside this entry: SVGA tab icons in the React Native example (`CYLTabBarController-Integration.md`).
 - Progress (2026-11-14, usage limit reached mid-task):
@@ -194,7 +194,7 @@ begins and becomes `DONE` when it ends.
   `sync()` wrote the `suggestions` property, whose observer calls `sync()`; the drawn list is now `shownSuggestions`);
   the example uses the AppID of CYLTabBarController's mini program example, since the tourist AppID cannot be automated.
   Verified: bar with items, search page with the empty-cache placeholder and the keyboard down, `submit: Swift`;
-  screenshot `docs/assets/miniprogram-search-devtools.png`. Node tests 8/8. Still open: a search icon image in the
+  screenshot `docs/assets/miniprogram-search-devtools.png`. Node tests 8/8. Still open: a search icon image in the (commit 918a194, 2026-11-15)
   field; Lottie in the mini program placeholders.
 - Progress (2026-11-15, mini program core and example): DONE, see `docs/miniprogram-api-alignment.md` (397/397, the
   tab bar example, screenshot). The HarmonyOS project moved to `~/develop/CYLSearchViewController-swift-core/harmonyos`
@@ -214,8 +214,8 @@ begins and becomes `DONE` when it ends.
   (use the emulator for HarmonyOS, ignore signing, keep developing). hvigor `assembleHap` skips signing and builds
   `entry-default-unsigned.hap`; `hdc install` accepts it on the Mate 70 Pro emulator (HarmonyOS 6.0.1, API 21),
   and `aa start` opens it. Screenshots (commit `ca56d68`, original 1316×2832), top to bottom:
-  1. ![Discover](assets/harmonyos-discover-emulator-unsigned.jpeg)
-  2. ![Search, empty cache](assets/harmonyos-search-empty-cache-emulator-unsigned.jpeg)
+  1. ![Discover](assets/harmonyos-discover-emulator-unsigned.png) (commit f9cf929, 2026-11-15)
+  2. ![Search, empty cache](assets/harmonyos-search-empty-cache-emulator-unsigned.png) (commit f9cf929, 2026-11-15)
 - Progress (2026-11-15, "小程序example层要一比一复刻", branch `feat/swift-core-next`): DONE. The mini program example is a
   1:1 copy of the iOS example (tabs, pages, texts in four languages, data, images, interactions), with the core
   components it needed (`d19e0bb`); see `docs/miniprogram-api-alignment.md`. Verified in WeChat DevTools: 18 pages,
@@ -264,7 +264,7 @@ begins and becomes `DONE` when it ends.
 - 2026-11-15 Screenshot: Back closes the search page (Mate 70 Pro emulator, HarmonyOS 6.0.1, API 21, unsigned,
   commit `82797a4`, originals 1316×2832 stacked top to bottom): the search page with "Kot" typed, then Discover after
   one Back press (the keyboard was already hidden).
-  ![Back closes the search page](assets/harmonyos-back-closes-search-emulator.jpeg)
+  ![Back closes the search page](assets/harmonyos-back-closes-search-emulator.png) (commit 2a7ee21, 2026-11-15)
 
 - 2026-11-15 Back gesture parity on Android and mini programs. Prompt: "screenshot back continue" (the screenshot was
   already in; continued with the parity check offered next).

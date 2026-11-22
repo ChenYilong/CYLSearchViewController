@@ -43,7 +43,7 @@ Dated task entries below record the work in their own time and name the componen
   the plus page's plain, bordered and slotted bars; no console errors. The script waits for the first page before
   relaunching (an earlier relaunch fails with "Uncaught").
 
-  ![Mini program example with the CYLTabBarController tab bar](assets/miniprogram-example-tabbar-devtools.png)
+  ![Mini program example with the CYLTabBarController tab bar](assets/miniprogram-example-tabbar-devtools.png) (commit 503635b, 2026-11-15)
 
 - Progress (2026-11-15, later): Lottie placeholders DONE. `cyl-search` has an optional abstract node
   `cyl-animation-view` (default: `cyl-search-animation-placeholder`, draws nothing) and the properties
@@ -212,7 +212,7 @@ Dated task entries below record the work in their own time and name the componen
 | Platform | Screenshot | Environment |
 | :--- | :--- | :--- |
 | Mini program | ![The tabs and the pushed reproduction](assets/miniprogram-example-ios-replica-tabs.png) | Left to right, top to bottom: Search tab, Examples tab, Search bar tab after a search, Tag style tab, Discover tab, the pushed reproduction ("Overlay" in place of the back button). Windows 11 Pro 10.0.22631; WeChat DevTools 2.02.2609250 simulator (390 x 844 window, screenshots at 289 x 625 px); base library 3.6.6; [`d19e0bb`](https://github.com/ChenYilong/CYLSearchViewController/commit/d19e0bb); 2026-11-15 13:22–13:38 NZDT (UTC+13) |
-| Mini program | ![The pages and interactions](assets/miniprogram-example-ios-replica-pages.png) | Placeholder styles; custom image and text; NoInternet with the network message; Other libraries' examples; lapism filtered; Themed suggestions; tags folded; the overlay filtering; Repro ON with no results; yechaoa after a submit (snackbar); the circular reveal opened; MultiSearchView with its event log. Same environment |
+| Mini program | ![The pages and interactions](assets/miniprogram-example-ios-replica-pages.png) | Placeholder styles; custom image and text; NoInternet with the network message; Other libraries' examples; lapism filtered; Themed suggestions; tags folded; the overlay filtering; Repro ON with no results; yechaoa after a submit (snackbar); the circular reveal opened; MultiSearchView with its event log. Same environment (commit 30f9eda, 2026-11-15) |
 
 ## DONE (2026-11-15): playback controls on the animated placeholders; WeChat DevTools Skills
 
@@ -248,7 +248,7 @@ MaterialSearchView sample (`pages/materialSample`), the pages that show the anim
 | Platform | Screenshot | Environment |
 | :--- | :--- | :--- |
 | Mini program | ![Tag style: speed 2x, loop off](assets/miniprogram-playback-controls-tag-style.png) | Windows 11 Pro 10.0.22631; WeChat DevTools 2.02.2609250 simulator (iPhone frame, original 289 x 625 px); base library 3.6.6; branch `feat/swift-core-next` on `bab8444`; 2026-11-15 12:05 NZDT (UTC+13) |
-| Mini program | ![List style: no results, controls under the animation](assets/miniprogram-playback-controls-list-style.png) | Same; 2026-11-15 12:05 NZDT (UTC+13) |
+| Mini program | ![List style: no results, controls under the animation](assets/miniprogram-playback-controls-list-style.png) | Same; 2026-11-15 12:05 NZDT (UTC+13) (commit f485062, 2026-11-15) |
 
 <!-- miniprogram-api-alignment:begin -->
 Rows: 289; implemented or N/A 289, TODO 0; score 100/100.

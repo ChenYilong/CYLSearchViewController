@@ -117,9 +117,9 @@ text size.
   `cancelButton`) and `trailingAccessoryViews` (any views after the field), and each example assembles the camera,
   divider and Search button itself, so they look different on each platform.
 
-  ![Report: the Flutter Discover search bar (left) and the Android reference (right of it)](assets/search-bar-items-report-flutter.png)
+  ![Report: the Flutter Discover search bar (left) and the Android reference (right of it)](assets/search-bar-items-report-flutter.png) (commit 2027deb, 2026-11-13)
 
-  ![Reference: the Android Discover search bar](assets/search-bar-items-reference-android.png)
+  ![Reference: the Android Discover search bar](assets/search-bar-items-reference-android.png) (commit 8ca120b, 2026-11-13)
 
 - Requirements:
   1. Fix it in the core first: a fixed style as an enum value; the field on the left is the permanent component; the
@@ -254,7 +254,7 @@ text size.
   APK build, Flutter Dart tests 8/8, React Native `tsc` clean.
 - Screenshot (React Native on iOS, the core items through the Fabric view; originals in `assets/`):
 
-  ![React Native iOS Discover: the field, then the camera, a divider and Search inside one bordered capsule; iPhone 17, iOS 26.3.1, Release, 2026-11-14 14:29](assets/rn-ios-discover-items-iphone17-ios26.3.1.png)
+  ![React Native iOS Discover: the field, then the camera, a divider and Search inside one bordered capsule; iPhone 17, iOS 26.3.1, Release, 2026-11-14 14:29](assets/rn-ios-discover-items-iphone17-ios26.3.1.png) (commit 3874c27, 2026-11-14)
 
 - Screenshots (Android 15 / API 35 emulator `CYL_API35_arm64`, read-only instance, `496ac41`, 2026-11-14 14:50 and
   14:51): top, the native Android example's Discover tab (`--ei CYLDemoTab 4`); bottom, the Flutter example's
@@ -262,12 +262,12 @@ text size.
   divider and Search inside one bordered capsule. The Flutter page is the one reported (its camera and Search sat
   outside the field): fixed.
 
-  ![Discover with the search bar items: native Android (top), Flutter on Android (bottom); API 35 emulator, 2026-11-14](assets/discover-items-android-flutter-stitched.png)
+  ![Discover with the search bar items: native Android (top), Flutter on Android (bottom); API 35 emulator, 2026-11-14](assets/discover-items-android-flutter-stitched.png) (commit 6a9b5d9, 2026-11-14)
 
 - Screenshot (native iOS example, Discover tab, `-CYLDemoTab 4`; iPhone 17, iOS 26.3.1, Debug, `7d254d6` core,
   2026-11-14 15:04): the field, then the camera, a divider and Search inside one bordered capsule.
 
-  ![Native iOS Discover with the search bar items; iPhone 17, iOS 26.3.1, 2026-11-14 15:04](assets/ios-discover-items-iphone17-ios26.3.1.png)
+  ![Native iOS Discover with the search bar items; iPhone 17, iOS 26.3.1, 2026-11-14 15:04](assets/ios-discover-items-iphone17-ios26.3.1.png) (commit 3874c27, 2026-11-14)
 
 - Status: DONE (2026-11-14): the cores, the wrappers, all four Discover examples (native iOS, native Android,
   Flutter, React Native), their tests and their screenshots. Table 58/58, no `TODO`.
