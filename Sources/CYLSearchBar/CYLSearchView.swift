@@ -573,6 +573,8 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
             self?.selectSuggestion(at: index)
         }
         pageView.addSubview(suggestionsTagView)
+        // iOS 26 softens the top edge of a scroll view with a blur: it would blur the first tag row under the search bar.
+        Self.hidesTopEdgeEffect(in: suggestionsTagView)
         suggestionCacheTitleLabel.text = CYLSearchResources.localizedString(forKey: "search.recent")
         suggestionCacheTitleLabel.font = .preferredFont(forTextStyle: .subheadline)
         suggestionCacheTitleLabel.adjustsFontForContentSizeCategory = true
@@ -932,6 +934,13 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         emptySuggestionsVisible = false
         showsCachedQueries = false
         updateSuggestionsVisibility()
+    }
+
+    private static func hidesTopEdgeEffect(in view: UIView) {
+        if #available(iOS 26.0, *) {
+            (view as? UIScrollView)?.topEdgeEffect.isHidden = true
+            view.subviews.forEach { hidesTopEdgeEffect(in: $0) }
+        }
     }
 
     private func updateSuggestionsVisibility() {
