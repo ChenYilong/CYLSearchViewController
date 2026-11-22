@@ -78,9 +78,18 @@ async function backToTabBar(driver: Driver): Promise<void> {
 export default function cylSearchUITest() {
   describe('CYLSearchUI', () => {
     beforeAll(async () => {
+      // The suite hung forever when the emulator's display was off or locked: `startAbility` never returned and no test
+      // started (2026-11-22, reproduced with `power-shell suspend`). Wake the display and swipe the lock screen away first.
+      const driver = Driver.create();
+      await driver.wakeUpDisplay();
+      await driver.delayMs(1000);
+      const size = await driver.getDisplaySize();
+      await driver.swipe(Math.round(size.x / 2), Math.round(size.y * 0.9), Math.round(size.x / 2),
+        Math.round(size.y * 0.3), 600);
+      await driver.delayMs(1000);
       const want: Want = { bundleName: BUNDLE, abilityName: 'EntryAbility' };
       await abilityDelegatorRegistry.getAbilityDelegator().startAbility(want);
-      await Driver.create().delayMs(2000);
+      await driver.delayMs(2000);
     });
 
     it('searchTabShowsResultsAndReproductionToggle', 0, async () => {
@@ -201,6 +210,36 @@ export default function cylSearchUITest() {
       await assertLabel(driver, libString('demo.port.open'), OPEN_SEARCH);
       await driver.pressBack();
       await driver.delayMs(800);
+    });
+
+    // The Search controller screen sets only core options (suggestions, showsSuggestionsLaunchView,
+    // highlightsResultMatches, noResultsText): the launch area is the tag list, a tapped tag submits, and the core shows
+    // the empty view.
+    it('searchControllerScreenUsesTheCoreOptions', 0, async () => {
+      const driver = Driver.create();
+      await backToTabBar(driver);
+      await tapLabel(driver, appString('tab_examples'));
+      await tapLabel(driver, libString('demo.searchController'), 1000);
+      const fields = await driver.findComponents(ON.type('TextInput'));
+      expect(fields.length > 0).assertTrue();
+      await fields[0].click();
+      await driver.delayMs(1000);
+      // The tags of the suggestion area (CollectionViewClassifyMenu's tag list), the first one a tag of the history.
+      const tag = await driver.findComponent(ON.id('CYLTagListItem-0-0'));
+      expect(tag !== undefined && tag !== null).assertTrue();
+      await tag.click();
+      await driver.delayMs(1000);
+      const searchField = (await driver.findComponents(ON.type('TextInput'))).pop() as Component;
+      expect((await searchField.getText()).length > 0).assertTrue();
+      await searchField.clearText();
+      await searchField.inputText('Hzzz');
+      await driver.delayMs(800);
+      await assertLabel(driver, libString('controller.noResults'));
+      for (let i = 0; i < 4 && !(await driver.findComponent(ON.text(appString('tab_examples')).inWindow(BUNDLE))); i++) {
+        await driver.pressBack();
+        await driver.delayMs(800);
+      }
+      await backToTabBar(driver);
     });
 
     it('discoverTabShowsRecentSearches', 0, async () => {
