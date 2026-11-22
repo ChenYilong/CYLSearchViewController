@@ -1014,3 +1014,19 @@ begins and becomes `DONE` when it ends.
 - **Status**: DONE (2026-11-22), 100/100. `327d9c5` (merged with the macOS session's `44f8103`, which skips samples drawn at
   y 0): B7 keeps the samples taken in the window at a real position, else all samples. Run 44969395687 (`a84f551`, with
   `44f8103` only) and run 44973402168 (`3705a5a`, with both) are green in all seven jobs.
+
+## DONE (2026-11-22): CI: screenshot labels, a deprecation warning in Sources/, a flaky unit test
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: after the macOS session's merge phase 4, Screenshot labels failed
+  on `493efbd` (seven "after phase 4" rows in `docs/qmui-search-controller.md` without a label), and iOS run 44980907380
+  (`815bb9b`) failed "Example build and analyze" (`contentEdgeInsets`, deprecated since iOS 15, in
+  `CYLSearchClearFooterView`, `Sources/CYLSearchBar/CYLSearchResultsComponent.swift`) and "Unit tests"
+  (`CYLSearchMergePhase3Tests.testShowDuringCloseKeepsTheViewOnScreen`: no `didShow` after 0.9 s; the same code passed
+  unit tests in run 44981948502).
+- **Prompt (verbatim)**: "continue fix todo and watch and fix ci fail"
+- **Acceptance**: 100 = the three fixed and both workflows green on a head with the fixes. 60 = the fixes pushed with the reasons.
+- **Status**: DONE (2026-11-22), 100/100. `782cc10`: labels added (platform, device, OS, Xcode, commit `815bb9b`, date);
+  Screenshot labels green on every push since. `54623ac`: the footer button takes its insets and footnote font from a
+  plain `UIButton.Configuration` (as the other core buttons). `93fd2af`: the test waits up to 3 s more for `didShow`; the
+  event order check is unchanged. iOS run 44982954660 (`54623ac`) is green in all seven jobs. It ran for 80 minutes
+  waiting on macOS runners and held the concurrency group, so every later iOS run was cancelled or kept pending.
