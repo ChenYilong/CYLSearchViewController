@@ -833,7 +833,7 @@ same knob names through shared helpers. Dropping it would drop navigation-item s
    beside `scrimColor`), launch views on the ClassifyMenu tag list.
 6. ClassifyMenu `CYLMenuStyle.minimumItemSize` and the pin move (own branch / PR in that repository).
 
-Status: TODO (design written; phase 0 next).
+Status: phase 0 DONE (2026-11-22, see "Merge phase 0 log"); phase 1 next.
 
 
 ### Flutter (CrossPlatform/flutter_cylsearch): QMUI search port (2026-11-22)
@@ -883,9 +883,6 @@ Status: TODO (design written; phase 0 next).
   - Search bar styles on Android: ![Search bar styles on Android](assets/flutter-qmui-search-bar-styles-android-api35-20261122.png) Flutter on Android 15 (API 35) emulator CYL_Flutter_QMUI_API35, Android SDK 35, macOS 27.3, repo commit a338a3c, 2026-11-22 13:25 NZDT.
 - **Score: 86 / 100**: rows done or N/A with reason 34/40 (iOS native gaps below), example screens 15/15, tests 12/15 (Dart side tested; native bridges checked by hand only), screenshots 10/10 (iOS and Android, both screens), docs, licenses and strings 5/5 (no QMUI code is copied into the Flutter package; strings are the core's), verification depth 10/15 (see TODO).
 - **TODO** (missing 14 points): (1) iOS: `centersPlaceholder`, field and Cancel margins per state, `cancelButtonFontSize` and the animated Cancel are sent by Dart and marked `TODO: waiting for the iOS merge` in `applyStyle` / `setShowsCancelButton` of the iOS wrapper; wire them when `CYLSearchBarView` has the members (the iOS screenshot shows "Center placeholder", "Adjust the field at rest" and "Adjust Cancel" doing nothing). (2) The iOS history event is a run-loop turn after `didSubmitText`; replace it with the core's notification once `CYLSearchView` posts it. (3) Android `cancelButtonFontSize` has no counterpart (the core has a typeface). (4) The launch view's tags only display; a tap on a recent search does not search it (QMUI's demo does nothing either) and the Dart API has no `setQuery`. (5) No native (XCTest / Robolectric) tests of the plugin bridges, no dark mode, ja / zh or large font screenshots, no real touch swipe-to-dismiss and no real drag run of the short list on a device (Dart widget tests only). (6) The commit a338a3c named in the screenshot labels is `0a0d8f7` before the rebase onto `282f522`.
-
-Status: phase 0 DONE (2026-11-22, see "Merge phase 0 log"); phase 1 next.
-
 
 ### Merge phase 0 log (2026-11-22)
 
