@@ -314,7 +314,14 @@ final class CYLSearchClearFooterView: UIView {
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.separator.cgColor
         button.layer.cornerRadius = 4
-        button.contentEdgeInsets = UIEdgeInsets(top: 6, left: 24, bottom: 6, right: 24)
+        var configuration = UIButton.Configuration.plain()
+        configuration.contentInsets = NSDirectionalEdgeInsets(top: 6, leading: 24, bottom: 6, trailing: 24)
+        configuration.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { attributes in
+            var attributes = attributes
+            attributes.font = UIFont.preferredFont(forTextStyle: .footnote)
+            return attributes
+        }
+        button.configuration = configuration
         button.accessibilityIdentifier = "CYLSearchSuggestionCacheFooterButton"
         button.addAction(UIAction { [weak self] _ in self?.onTap?() }, for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
