@@ -137,6 +137,23 @@ describe('merged names', () => {
     });
   });
 
+  it('answers the presentation events under both spellings, the core names first', () => {
+    const willShow = jest.fn();
+    const willPresent = jest.fn();
+    const didClose = jest.fn();
+    const forwards = cylListForwards({
+      onWillShow: willShow,
+      onWillPresent: willPresent,
+      onDidClose: didClose,
+    });
+    expect(forwards.onWillPresent).toBe(willPresent);
+    expect(forwards.onDidDismiss).toBe(didClose);
+    expect(forwards.onDidPresent).toBeUndefined();
+    expect(cylListForwards({ onWillShow: willShow }).onWillPresent).toBe(
+      willShow
+    );
+  });
+
   it('forwards the first port accessory names to the iOS ones', () => {
     const forwards = cylBarForwards({
       leadingAccessory: { kind: 'square' },

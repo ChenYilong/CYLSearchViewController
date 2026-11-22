@@ -329,11 +329,20 @@ export type SearchListProps = NativeListProps & {
    * @deprecated Use `suggestionCacheName`.
    */
   historyName?: string;
+  /**
+   * The presentation events under the names of `CYLSearchViewDelegate` (`searchViewWillShow`, `searchViewDidShow`,
+   * `searchViewWillClose`, `searchViewDidClose`); the same events as `onWillPresent`, `onDidPresent`, `onWillDismiss` and
+   * `onDidDismiss` (the names of the core's presentation state), either spelling works.
+   */
+  onWillShow?: NativeListProps['onWillPresent'];
+  onDidShow?: NativeListProps['onDidPresent'];
+  onWillClose?: NativeListProps['onWillDismiss'];
+  onDidClose?: NativeListProps['onDidDismiss'];
 };
 
 /**
- * The list of CYLSearchViewController whose first item is the search bar (iOS `CYLSearchTableViewController`, Android
- * `CYLSearchListView`) with its search: the `rows`, the `results` of the text (answer `onUpdateResults`) with the match
+ * The list of CYLSearchViewController whose first item is the search bar (iOS: a table under a `CYLSearchBarView` that opens
+ * the core's `CYLSearchView`; Android: `CYLSearchListView`) with its search: the `rows`, the `results` of the text (answer `onUpdateResults`) with the match
  * highlighted (`highlightsResultMatches`), the launch area (the core's suggestion area: `suggestions`, the history, tags that
  * submit), `scrimColor`, `noResultsText`, the presentation events, `setActive`, the history and its change event, swipe to
  * dismiss. iOS: `CYLSearchView` over a table of the rows; Android: `CYLSearchListView` and `CYLSearchView`.
@@ -345,6 +354,10 @@ export function CYLSearchListView({
   launchSuggestions,
   historyPolicy,
   historyName,
+  onWillShow,
+  onDidShow,
+  onWillClose,
+  onDidClose,
   ...props
 }: SearchListProps) {
   const scheme = useColorScheme();
@@ -370,6 +383,10 @@ export function CYLSearchListView({
         launchSuggestions,
         historyPolicy,
         historyName,
+        onWillShow,
+        onDidShow,
+        onWillClose,
+        onDidClose,
       })}
     />
   );

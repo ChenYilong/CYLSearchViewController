@@ -29,7 +29,7 @@ type ResultSelectEvent = Readonly<{
 
 export interface NativeProps extends ViewProps {
   /**
-   * The rows of the list under the bar (iOS `CYLSearchTableViewController`, Android `CYLSearchListView`).
+   * The rows of the list under the bar (iOS: a table under a `CYLSearchBarView` that opens the core's `CYLSearchView`; Android: `CYLSearchListView`).
    */
   rows?: ReadonlyArray<string>;
   /**

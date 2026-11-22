@@ -272,9 +272,10 @@ export function cylBarForwards(props: {
 /**
  * The native values of a list's props that were renamed for the iOS names: `noResultsText` (was `emptyViewText`),
  * `scrimColor` (`dimmingColor`), `suggestions` (`launchSuggestions`), `suggestionCachePolicy` (`historyPolicy`) and
- * `suggestionCacheName` (`historyName`); the old names still work.
+ * `suggestionCacheName` (`historyName`); the old names still work. The presentation events answer to the names of
+ * `CYLSearchViewDelegate` too: `onWillShow` for `onWillPresent`, `onDidShow`, `onWillClose` for `onWillDismiss`, `onDidClose`.
  */
-export function cylListForwards(props: {
+export function cylListForwards<Handler>(props: {
   noResultsText?: string;
   scrimColor?: string;
   suggestions?: ReadonlyArray<string>;
@@ -285,8 +286,20 @@ export function cylListForwards(props: {
   launchSuggestions?: ReadonlyArray<string>;
   historyPolicy?: string;
   historyName?: string;
+  onWillPresent?: Handler;
+  onDidPresent?: Handler;
+  onWillDismiss?: Handler;
+  onDidDismiss?: Handler;
+  onWillShow?: Handler;
+  onDidShow?: Handler;
+  onWillClose?: Handler;
+  onDidClose?: Handler;
 }) {
   return {
+    onWillPresent: props.onWillPresent ?? props.onWillShow,
+    onDidPresent: props.onDidPresent ?? props.onDidShow,
+    onWillDismiss: props.onWillDismiss ?? props.onWillClose,
+    onDidDismiss: props.onDidDismiss ?? props.onDidClose,
     noResultsText: props.noResultsText ?? props.emptyViewText,
     scrimColor: props.scrimColor ?? props.dimmingColor,
     suggestions: props.suggestions ?? props.launchSuggestions,
