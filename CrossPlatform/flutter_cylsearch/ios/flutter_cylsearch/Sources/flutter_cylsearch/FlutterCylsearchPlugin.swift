@@ -453,11 +453,11 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
             bar.searchIcon = arguments["showsSearchIcon"] as? Bool ?? true ? UIImage(systemName: "magnifyingglass") : nil
         }
         let items = arguments["items"] as? [[String: Any]] ?? []
-        // Rebuilt only when Dart sends other items, so a rebuild of the widget keeps the native selection.
+        // Rebuilt only when Dart sends other items, so a rebuild of the widget keeps the native selection; a change of
+        // animationLoops or animationSpeed alone keeps the items (the core's setItems).
         if (items as NSArray) != (appliedItems as NSArray) {
             appliedItems = items
-            bar.removeAllItems()
-            items.forEach { bar.addItem(CYLSearchBarItem.item(dictionary: $0)) }
+            bar.setItems(dictionaries: items)
         }
     }
 

@@ -625,6 +625,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      */
     @objc(insertItem:atIndex:)
     public func insertItem(_ item: CYLSearchBarItem, at index: Int) {
+        itemShapes = nil
         item.searchBarView?.removeItem(item)
         items.insert(item, at: min(max(0, index), items.count))
         item.searchBarView = self
@@ -657,6 +658,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         guard let index = items.firstIndex(of: item) else {
             return
         }
+        itemShapes = nil
         items.remove(at: index)
         item.searchBarView = nil
         item.itemView.removeTarget(self, action: nil, for: .allEvents)
@@ -670,6 +672,32 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     @objc public func removeAllItems() {
         items.forEach { removeItem($0) }
     }
+
+    /**
+     * Replaces the items with the ones the dictionaries describe (`+itemWithDictionary:`), as the cross-platform bridges
+     * send them. When only `animationLoops` and `animationSpeed` differ from the last call, the items stay and take the
+     * two values, so the animation is not reloaded; any other difference rebuilds the items.
+     */
+    @objc(setItemsWithDictionaries:)
+    public func setItems(dictionaries: [[String: Any]]) {
+        let shapes = dictionaries.map { $0.filter { !Self.playbackKeys.contains($0.key) } }
+        if let itemShapes, (itemShapes as NSArray).isEqual(to: shapes), items.count == shapes.count {
+            for (item, dictionary) in zip(items, dictionaries) {
+                item.animationLoops = dictionary["animationLoops"] as? Bool ?? false
+                item.animationSpeed = CGFloat((dictionary["animationSpeed"] as? NSNumber)?.doubleValue ?? 1)
+            }
+            return
+        }
+        removeAllItems()
+        dictionaries.forEach { addItem(CYLSearchBarItem.item(dictionary: $0)) }
+        itemShapes = shapes
+    }
+
+    private static let playbackKeys: Set<String> = ["animationLoops", "animationSpeed"]
+
+    // The item dictionaries of the last `setItems(dictionaries:)` without the playback keys; nil once an item was added
+    // or removed in any other way.
+    private var itemShapes: [[String: Any]]?
 
     /**
      * YES when an item of the style was appended (a text "Search" button), like `-hasPlusButton`.

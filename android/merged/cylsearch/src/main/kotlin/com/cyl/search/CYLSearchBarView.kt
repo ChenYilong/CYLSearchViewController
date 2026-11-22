@@ -572,6 +572,7 @@ class CYLSearchBarView @JvmOverloads constructor(
      * Inserts an item at an index (clamped to `items`); an item already in a bar moves here.
      */
     fun insertItem(item: CYLSearchBarItem, index: Int) {
+        itemShapes = null
         item.searchBarView?.removeItem(item)
         mutableItems.add(index.coerceIn(0, mutableItems.size), item)
         item.searchBarView = this
@@ -604,6 +605,7 @@ class CYLSearchBarView @JvmOverloads constructor(
         if (!mutableItems.remove(item)) {
             return
         }
+        itemShapes = null
         item.searchBarView = null
         item.itemView?.let { (it.parent as? ViewGroup)?.removeView(it) }
         updateAccessories()
@@ -615,6 +617,29 @@ class CYLSearchBarView @JvmOverloads constructor(
     fun removeAllItems() {
         mutableItems.toList().forEach { removeItem(it) }
     }
+
+    /**
+     * Replaces the items with the ones the maps describe (`CYLSearchBarItem.fromMap`), as the cross-platform bridges send
+     * them. When only `animationLoops` and `animationSpeed` differ from the last call, the items stay and take the two
+     * values, so the animation is not reloaded; any other difference rebuilds the items.
+     */
+    fun setItems(maps: List<Map<String, Any?>>) {
+        val playbackKeys = setOf("animationLoops", "animationSpeed")
+        val shapes = maps.map { map -> map.filterKeys { it !in playbackKeys } }
+        if (itemShapes == shapes && mutableItems.size == shapes.size) {
+            mutableItems.zip(maps).forEach { (item, map) ->
+                item.animationLoops = map["animationLoops"] as? Boolean ?: false
+                item.animationSpeed = (map["animationSpeed"] as? Number)?.toFloat() ?: 1f
+            }
+            return
+        }
+        removeAllItems()
+        maps.forEach { addItem(CYLSearchBarItem.fromMap(context, it)) }
+        itemShapes = shapes
+    }
+
+    // The item maps of the last `setItems` without the playback keys; null once an item was added or removed in any other way.
+    private var itemShapes: List<Map<String, Any?>>? = null
 
     /**
      * True when an item of the style was appended (a text "Search" button), like `-hasPlusButton`.

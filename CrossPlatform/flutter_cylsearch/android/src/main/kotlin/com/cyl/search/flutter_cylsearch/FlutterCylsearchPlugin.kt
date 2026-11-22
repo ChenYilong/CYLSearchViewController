@@ -382,11 +382,11 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
         bar.searchIcon = if (arguments["showsSearchIcon"] as? Boolean != false) ContextCompat.getDrawable(bar.context, com.cyl.search.R.drawable.cyl_search_ic_search) else null
         @Suppress("UNCHECKED_CAST")
         val items = (arguments["items"] as? List<Map<String, Any?>>) ?: emptyList()
-        // Rebuilt only when Dart sends other items, so a rebuild of the widget keeps the native selection.
+        // Rebuilt only when Dart sends other items, so a rebuild of the widget keeps the native selection; a change of
+        // animationLoops or animationSpeed alone keeps the items (the core's setItems).
         if (items != appliedItems) {
             appliedItems = items
-            bar.removeAllItems()
-            items.forEach { bar.addItem(CYLSearchBarItem.fromMap(bar.context, it)) }
+            bar.setItems(items)
         }
     }
 

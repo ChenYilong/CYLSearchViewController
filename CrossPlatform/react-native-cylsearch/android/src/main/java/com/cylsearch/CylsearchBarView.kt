@@ -221,12 +221,9 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
     val json = value.orEmpty()
     if (json == itemsJSON) return
     itemsJSON = json
-    bar.removeAllItems()
-    val array = runCatching { JSONArray(json) }.getOrNull() ?: return
-    for (i in 0 until array.length()) {
-      val objectValue = array.optJSONObject(i) ?: continue
-      bar.addItem(CYLSearchBarItem.fromMap(context, objectValue.toMap()))
-    }
+    val array = runCatching { JSONArray(json) }.getOrNull()
+    // A change of animationLoops or animationSpeed alone keeps the items (the core's setItems).
+    bar.setItems(if (array == null) emptyList() else (0 until array.length()).mapNotNull { array.optJSONObject(it)?.toMap() })
   }
 
   /** The `restartItemAnimation` command: plays the animation of the item at `index` again from the start. */

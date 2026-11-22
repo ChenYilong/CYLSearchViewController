@@ -116,14 +116,16 @@ using namespace facebook::react;
   NSString *itemsJSON = CYLRNString(p.itemsJSON) ?: @"";
   if (![itemsJSON isEqualToString:_itemsJSON ?: @""]) {
     _itemsJSON = itemsJSON;
-    [_bar removeAllItems];
     NSData *data = [itemsJSON dataUsingEncoding:NSUTF8StringEncoding];
     NSArray *values = data.length > 0 ? [NSJSONSerialization JSONObjectWithData:data options:0 error:nil] : nil;
+    NSMutableArray<NSDictionary *> *dictionaries = [NSMutableArray array];
     for (id value in [values isKindOfClass:[NSArray class]] ? values : @[]) {
       if ([value isKindOfClass:[NSDictionary class]]) {
-        [_bar addItem:[CYLSearchBarItem itemWithDictionary:value]];
+        [dictionaries addObject:value];
       }
     }
+    // A change of animationLoops or animationSpeed alone keeps the items (the core's setItemsWithDictionaries:).
+    [_bar setItemsWithDictionaries:dictionaries];
   }
   CYLSearchBarMode mode = [CYLRNString(p.mode) isEqualToString:@"multiple"] ? CYLSearchBarModeMultiple : CYLSearchBarModeSingle;
   BOOL modeChanged = mode != _bar.mode;
