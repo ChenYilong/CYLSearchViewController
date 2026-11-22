@@ -174,6 +174,8 @@ class CYLMaterialSearchSampleFragment : CYLExamplePage(), CYLSearchViewDelegate 
         val themed = sample == CYLMaterialSearchSample.Themed || sample == CYLMaterialSearchSample.Voice
         // searchView.setVoiceSearch, setCursorDrawable, setEllipsize, setSuggestions and the two listeners.
         searchView = CYLSearchView(context).apply {
+            // A list replica of MaterialSearchView's samples (the core's default is tags).
+            suggestionStyle = com.cyl.search.CYLSearchSuggestionStyle.List
             searchBarView.showsVoiceButton = sample == CYLMaterialSearchSample.Voice
             searchBarView.cursorColor = if (themed) Color.WHITE else Color.rgb(255, 45, 85)
             suggestionLineBreakMode = if (sample == CYLMaterialSearchSample.Standard || sample == CYLMaterialSearchSample.InputType) {
