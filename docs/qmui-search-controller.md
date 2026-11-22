@@ -433,8 +433,9 @@ Updated 2026-11-22 (`fix/ios-todos-qmui`, task "continue the iOS TODOs in docs/"
 6. **The history launch view refresh. DONE (`0b3cbcf`)**: the controller posts `historyDidChangeNotification` after a
    submitted query and the launch view reloads on screen; covered by `testSubmittedSearchesFormTheHistoryOfTheLaunchView`
    and the post test.
-7. `Podfile.lock` is not committed: `pod install` rewrites it, and three pin moves are still open in
-   `docs/task-log.md`, each of which rewrites it again. Commit it after the last pin move.
+7. **`Podfile.lock`. DONE (2026-11-23, `fix/i2-i5-offset`)**: every pin move in `docs/task-log.md` is done, so the lock
+   is committed in sync with the Podfile (CYLTabBarController and CYLAnimatedItem `c4a1f8fd`, CollectionViewClassifyMenu
+   `04b39e26`, CYLTableViewPlaceHolder `f4cf978`). A later pin move commits its own `pod install` result.
 
 
 ## Other platforms: parity table (2026-11-22, `feat/harmonyos-parity`, PR #11)
