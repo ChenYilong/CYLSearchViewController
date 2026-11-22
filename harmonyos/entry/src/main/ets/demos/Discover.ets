@@ -92,9 +92,13 @@ export struct DiscoverView {
   @Local curveWidth: number = 0;
   @Local listWidth: number = 0;
   @Local hint: string = '';
+  // Playback of the animated search bar item (index 1): the loop switch and the speed slider write to the item.
+  @Local animationLoops: boolean = false;
+  @Local animationSpeed: number = 1;
   private context: common.Context = this.getUIContext().getHostContext() as common.Context;
   private data: CYLSearchDiscoverData = { version: 1, discoverCount: 6, recentSearches: [], discover: [] };
   private searchBar: CYLSearchBarView = new CYLSearchBarView();
+  private animatedItem: CYLSearchBarItem | undefined = undefined;
 
   private text(name: string, ...args: string[]): string {
     return cylAppText(this.context, name, ...args);
@@ -122,7 +126,15 @@ export struct DiscoverView {
     camera.imageSize = 22;
     const search = CYLSearchBarItem.textItem(this.text('discover_search'), () => this.searchTapped());
     search.itemAccessibilityIdentifier = 'CYLSearchDiscoverSearchButton';
+    // The animated item (index 1): the same still image as the camera, with the SVGA file from the rawfile folder.
+    const animated = CYLSearchBarItem.iconItem($r('sys.symbol.camera'), this.text('discover_animationItem'));
+    animated.imageSize = 22;
+    animated.animationURL = 'asset:svga/tab_activity.svga';
+    animated.animationLoops = this.animationLoops;
+    animated.animationSpeed = this.animationSpeed;
+    this.animatedItem = animated;
     bar.addItem(camera);
+    bar.addItem(animated);
     bar.addItem(CYLSearchBarItem.divider());
     bar.addItem(search);
     bar.delegate = {
@@ -300,6 +312,44 @@ export struct DiscoverView {
         CYLSearchBarComponent({ searchBarView: this.searchBar }).layoutWeight(1)
       }
       .padding({ left: this.showsBack ? 6 : 14, right: 14, top: 8 })
+
+      // Playback of the animated item: loop switch, speed slider (0.25 to 3) with its value, and Play again.
+      Row({ space: 8 }) {
+        Toggle({ type: ToggleType.Switch, isOn: this.animationLoops })
+          .constraintSize({ minWidth: 44, minHeight: 44 })
+          .accessibilityText(this.text('discover_animationLoops'))
+          .id('CYLSearchDiscoverAnimationLoops')
+          .onChange((isOn: boolean) => {
+            this.animationLoops = isOn;
+            if (this.animatedItem !== undefined) {
+              this.animatedItem.animationLoops = isOn;
+            }
+          })
+        Slider({ value: this.animationSpeed, min: 0.25, max: 3, step: 0.25, style: SliderStyle.OutSet })
+          .layoutWeight(1)
+          .height(44)
+          .accessibilityText(this.text('discover_animationSpeed'))
+          .accessibilityValue({ text: `${this.animationSpeed.toFixed(2)}x` })
+          .id('CYLSearchDiscoverAnimationSpeed')
+          .onChange((value: number) => {
+            this.animationSpeed = value;
+            if (this.animatedItem !== undefined) {
+              this.animatedItem.animationSpeed = value;
+            }
+          })
+        Text(`${this.animationSpeed.toFixed(2)}x`)
+          .fontSize(14)
+          .fontColor($r('sys.color.font_secondary'))
+          .accessibilityLevel('no')
+        Button(this.text('discover_animationPlay'), { type: ButtonType.Capsule })
+          .fontSize(14)
+          .constraintSize({ minWidth: 44, minHeight: 44 })
+          .accessibilityText(this.text('discover_animationPlay'))
+          .id('CYLSearchDiscoverAnimationPlay')
+          .onClick(() => this.animatedItem?.restartAnimation())
+      }
+      .width('100%')
+      .padding({ left: 14, right: 14, top: 4 })
 
       Scroll() {
         Column({ space: 4 }) {

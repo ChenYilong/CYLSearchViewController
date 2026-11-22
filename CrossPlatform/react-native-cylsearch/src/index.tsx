@@ -134,7 +134,8 @@ export type SearchBarProps = Omit<
    */
   appearance?: CYLSearchBarAppearance;
   /**
-   * The handle: `setActive(true)` starts the search (focus, the keyboard rises), `setActive(false)` ends it.
+   * The handle: `setActive(true)` starts the search (focus, the keyboard rises), `setActive(false)` ends it;
+   * `restartItemAnimation(index)` plays that item's animation again from the start.
    */
   ref?: Ref<CYLSearchBarHandle>;
   /**
@@ -208,6 +209,10 @@ export function CYLSearchBarView({
   useImperativeHandle(ref, () => ({
     setActive: (active: boolean) => {
       if (native.current) BarCommands.setActive(native.current, active);
+    },
+    restartItemAnimation: (index: number) => {
+      if (native.current)
+        BarCommands.restartItemAnimation(native.current, index);
     },
   }));
   return (
@@ -287,6 +292,10 @@ export type CYLSearchBarHandle = {
    * Starts (focus, the keyboard rises) or ends the search from code (`isActive`).
    */
   setActive: (active: boolean) => void;
+  /**
+   * Plays the animation of the item at `index` again from the start (`CYLSearchBarItem.restartAnimation()`).
+   */
+  restartItemAnimation: (index: number) => void;
 };
 
 /**

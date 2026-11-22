@@ -25,6 +25,10 @@
     <string name="cyl_discover_ok">好</string>
     <string name="cyl_discover_holdMic">請按住麥克風按鈕說出問題</string>
     <string name="cyl_discover_hot">熱門</string>
+    <string name="cyl_discover_animationItem">動畫</string>
+    <string name="cyl_discover_animationLoops">循環播放動畫</string>
+    <string name="cyl_discover_animationSpeed">動畫速度</string>
+    <string name="cyl_discover_animationPlay">再播放一次</string>
     <!-- The SVGA demo above the Examples list (iOS CYLSearchTabs.strings "svga.demo", "svga.demo.hint"). -->
     <string name="svga_demo">SVGA 動畫：點按再次播放</string>
     <string name="svga_demo_hint">再次播放 SVGA 動畫</string>

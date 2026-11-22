@@ -86,6 +86,7 @@
             selectedImage="{{item.button.selectedImage}}" animationURL="{{item.button.animationURL}}"
             gifFirstFrame="{{item.button.gifFirstFrame}}" gifLastFrame="{{item.button.gifLastFrame}}"
             gifDuration="{{item.button.gifDuration}}" autoplay="{{item.button.autoplay}}" embedded="{{item.button.embedded}}"
+            animationLoops="{{item.button.animationLoops}}" animationSpeed="{{item.button.animationSpeed}}"
             badgeValue="{{item.button.badgeValue}}" badgeColor="{{item.button.badgeColor}}"
             accessibilityLabel="{{item.button.accessibilityLabel}}" selected="{{item.button.selected}}"
             enabled="{{item.isEnabled !== false}}"

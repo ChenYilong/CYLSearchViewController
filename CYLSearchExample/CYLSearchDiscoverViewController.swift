@@ -120,6 +120,15 @@ final class CYLSearchDiscoverViewController: UIViewController {
     let discoverList = CYLTagListView()
     let hintLabel = UILabel()
     let micButton = UIButton(type: .system)
+    /**
+     * The animation demo: the bar's SVGA item and the row of controls that change its playback properties.
+     */
+    private var animationItem: CYLSearchBarItem!
+    private let loopSwitch = UISwitch()
+    private let speedSlider = UISlider()
+    private let speedLabel = UILabel()
+    private let playButton = UIButton(type: .system)
+    private let playbackRow = UIStackView()
     private let scrollView = UIScrollView()
     private let stackView = UIStackView()
     private let bottomView = CYLAskBackgroundView()
@@ -196,6 +205,7 @@ final class CYLSearchDiscoverViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
         setUpSearchBar()
+        setUpPlaybackRow()
         setUpLists()
         setUpAskArea()
         layOut()
@@ -282,8 +292,77 @@ final class CYLSearchDiscoverViewController: UIViewController {
         search.itemAccessibilityIdentifier = "CYLSearchDiscoverSearchButton"
         searchBar.itemTintColor = .label
         searchBar.addItem(camera)
+        // The playback properties demo: an SVGA icon item right after the camera (index 1), driven by the row below the bar.
+        animationItem = CYLSearchBarItem.iconItem(image: UIImage(systemName: "camera.viewfinder"), title: cylDiscoverText("discover.animationItem")) { _ in }
+        animationItem.imageSize = CGSize(width: 22, height: 22)
+        animationItem.animationURL = Bundle.main.url(forResource: "tab_activity", withExtension: "svga")
+        animationItem.animationLoops = false
+        animationItem.animationSpeed = 1
+        searchBar.addItem(animationItem)
         searchBar.addItem(.divider())
         searchBar.addItem(search)
+    }
+
+    /**
+     * The compact row under the bar: loop switch, speed slider with its value, and Play again.
+     */
+    private func setUpPlaybackRow() {
+        loopSwitch.isOn = false
+        loopSwitch.accessibilityLabel = cylDiscoverText("discover.animationLoops")
+        loopSwitch.accessibilityIdentifier = "CYLSearchDiscoverAnimationLoops"
+        loopSwitch.addTarget(self, action: #selector(loopChanged), for: .valueChanged)
+
+        speedSlider.minimumValue = 0.25
+        speedSlider.maximumValue = 3
+        speedSlider.value = 1
+        speedSlider.accessibilityLabel = cylDiscoverText("discover.animationSpeed")
+        speedSlider.accessibilityIdentifier = "CYLSearchDiscoverAnimationSpeed"
+        speedSlider.addTarget(self, action: #selector(speedChanged), for: .valueChanged)
+        speedSlider.setContentHuggingPriority(.defaultLow, for: .horizontal)
+
+        speedLabel.font = UIFontMetrics(forTextStyle: .footnote).scaledFont(for: .monospacedDigitSystemFont(ofSize: 13, weight: .regular))
+        speedLabel.adjustsFontForContentSizeCategory = true
+        speedLabel.textColor = .secondaryLabel
+        speedLabel.isAccessibilityElement = false
+        speedLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+
+        playButton.setTitle(cylDiscoverText("discover.animationPlay"), for: .normal)
+        playButton.titleLabel?.font = UIFontMetrics(forTextStyle: .footnote).scaledFont(for: .systemFont(ofSize: 14))
+        playButton.titleLabel?.adjustsFontForContentSizeCategory = true
+        playButton.accessibilityLabel = cylDiscoverText("discover.animationPlay")
+        playButton.accessibilityIdentifier = "CYLSearchDiscoverAnimationPlay"
+        playButton.addTarget(self, action: #selector(playAgain), for: .touchUpInside)
+        playButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+
+        playbackRow.axis = .horizontal
+        playbackRow.alignment = .center
+        playbackRow.spacing = 8
+        for control in [loopSwitch, speedSlider, speedLabel, playButton] as [UIView] {
+            playbackRow.addArrangedSubview(control)
+        }
+        updateSpeedValue()
+    }
+
+    /**
+     * Shows the speed beside the slider and gives VoiceOver the same value.
+     */
+    private func updateSpeedValue() {
+        let text = String(format: "%.2fx", speedSlider.value)
+        speedLabel.text = text
+        speedSlider.accessibilityValue = text
+    }
+
+    @objc private func loopChanged() {
+        animationItem.animationLoops = loopSwitch.isOn
+    }
+
+    @objc private func speedChanged() {
+        animationItem.animationSpeed = CGFloat(speedSlider.value)
+        updateSpeedValue()
+    }
+
+    @objc private func playAgain() {
+        animationItem.restartAnimation()
     }
 
     private func setUpLists() {
@@ -360,7 +439,7 @@ final class CYLSearchDiscoverViewController: UIViewController {
         scrollView.alwaysBounceVertical = true
         scrollView.keyboardDismissMode = .onDrag
 
-        for subview in [backButton, searchBar, scrollView, bottomView, hintLabel, micButton] as [UIView] {
+        for subview in [backButton, searchBar, playbackRow, scrollView, bottomView, hintLabel, micButton] as [UIView] {
             subview.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview(subview)
         }
@@ -377,7 +456,11 @@ final class CYLSearchDiscoverViewController: UIViewController {
             searchBar.trailingAnchor.constraint(equalTo: guide.trailingAnchor, constant: -14),
             searchBar.heightAnchor.constraint(greaterThanOrEqualToConstant: 46),
 
-            scrollView.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 10),
+            // The playback row sits between the bar and the content, against the safe area.
+            playbackRow.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 6),
+            playbackRow.leadingAnchor.constraint(equalTo: guide.leadingAnchor, constant: 16),
+            playbackRow.trailingAnchor.constraint(equalTo: guide.trailingAnchor, constant: -16),
+            scrollView.topAnchor.constraint(equalTo: playbackRow.bottomAnchor, constant: 6),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: hintLabel.topAnchor, constant: -8),

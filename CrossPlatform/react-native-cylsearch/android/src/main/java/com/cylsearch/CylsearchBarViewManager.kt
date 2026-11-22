@@ -138,6 +138,9 @@ class CylsearchBarViewManager : SimpleViewManager<CylsearchBarView>(), Cylsearch
     if (active) view.bar.showKeyboard() else view.bar.hideKeyboard()
   }
 
+  /** The `restartItemAnimation` command: plays that item's animation again from the start. */
+  override fun restartItemAnimation(view: CylsearchBarView, index: Int) = view.restartItemAnimation(index)
+
   /**
    * The views use the activity's theme (DayNight), which follows the system like React Native's color scheme.
    */

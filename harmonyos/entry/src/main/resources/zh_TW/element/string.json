@@ -145,6 +145,22 @@
       "value": "熱門"
     },
     {
+      "name": "discover_animationItem",
+      "value": "動畫"
+    },
+    {
+      "name": "discover_animationLoops",
+      "value": "循環播放動畫"
+    },
+    {
+      "name": "discover_animationSpeed",
+      "value": "動畫速度"
+    },
+    {
+      "name": "discover_animationPlay",
+      "value": "再播放一次"
+    },
+    {
       "name": "contactTags_row",
       "value": "聯絡人標籤（CollectionViewClassifyMenu）"
     },

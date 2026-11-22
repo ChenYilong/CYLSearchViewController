@@ -8,6 +8,14 @@
       fieldBackgroundColor="#ffffff" searchBarStyle="bordered" fontSize="{{16}}" items="{{items}}"
       bind:textchange="onTextChange" bind:submit="onSubmit" bind:itemselect="onItemSelect" />
   </view>
+  <!-- Playback of the animated bar item: loop switch, speed slider with its value, Play again. -->
+  <view class="playback" style="top: {{barTop + 46 + 4}}px">
+    <switch class="playback-switch" checked="{{loops}}" bindchange="onLoopsChange" aria-role="switch" aria-label="{{texts.animationLoops}}" />
+    <slider class="playback-slider" min="{{0.25}}" max="{{3}}" step="{{0.25}}" value="{{speed}}" block-size="{{18}}"
+      bindchanging="onSpeedChanging" bindchange="onSpeedChange" aria-role="slider" aria-label="{{texts.animationSpeed}} {{speedText}}" />
+    <text class="playback-value" aria-hidden="true">{{speedText}}</text>
+    <view class="playback-play" role="button" aria-label="{{texts.animationPlay}}" bindtap="onPlayAgain">{{texts.animationPlay}}</view>
+  </view>
 
   <scroll-view scroll-y class="content" style="top: {{contentTop}}px">
     <!-- Recent searches: square-cornered bordered tags, folded to two rows, the chevron as the last tag. -->

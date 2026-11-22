@@ -145,6 +145,22 @@
       "value": "人気"
     },
     {
+      "name": "discover_animationItem",
+      "value": "アニメーション"
+    },
+    {
+      "name": "discover_animationLoops",
+      "value": "アニメーションをループ"
+    },
+    {
+      "name": "discover_animationSpeed",
+      "value": "アニメーションの速度"
+    },
+    {
+      "name": "discover_animationPlay",
+      "value": "もう一度再生"
+    },
+    {
       "name": "contactTags_row",
       "value": "連絡先のタグ（CollectionViewClassifyMenu）"
     },

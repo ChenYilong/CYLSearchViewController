@@ -2378,6 +2378,29 @@ class CYLSearchBarItem @JvmOverloads constructor(
         set(value) { field = value; itemChanged() }
 
     /**
+     * Whether `animationURL` plays again after each pass; false plays once on each tap. The same on every platform.
+     */
+    var animationLoops: Boolean = false
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * The playback speed of `animationURL`; 1 is the file's own. An engine without speed ignores it. The same on every
+     * platform.
+     */
+    var animationSpeed: Float = 1f
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * Plays `animationURL` again from the start, as a tap does. Does nothing without an animation. The same on every
+     * platform.
+     */
+    fun restartAnimation() {
+        if (animationURL != null) {
+            loadedItemView?.restartAnimation()
+        }
+    }
+
+    /**
      * The icon size in dp; null uses 20 x 20 dp.
      */
     var imageSize: SizeF? = null
@@ -2613,6 +2636,12 @@ class CYLSearchBarItem @JvmOverloads constructor(
                 isSelectable = map["isSelectable"] as? Boolean ?: false
                 isSelected = map["isSelected"] as? Boolean ?: false
                 badgeValue = map["badgeValue"] as? String
+                // A name with no scheme and no leading slash is an asset of the app ("tab_activity.svga").
+                animationURL = (map["animationURL"] as? String)?.takeIf { it.isNotEmpty() }?.let {
+                    Uri.parse(if (it.contains(':') || it.startsWith('/')) it else "file:///android_asset/$it")
+                }
+                animationLoops = map["animationLoops"] as? Boolean ?: false
+                animationSpeed = (map["animationSpeed"] as? Number)?.toFloat() ?: 1f
                 if (style == CYLSearchBarItemStyle.Icon) imageSize = SizeF(22f, 22f)
             }
         }
@@ -2742,6 +2771,8 @@ internal class CYLSearchBarItemButton(context: Context, item: CYLSearchBarItem) 
         image = if (isDivider) null else item.animatedImage ?: item.image
         selectedImage = if (isDivider || item.animatedImage != null) null else item.selectedImage
         animationURL = if (isDivider) null else item.animationURL?.toString()
+        animationLoops = item.animationLoops
+        animationSpeed = item.animationSpeed
         badgeValue = if (isDivider) null else item.badgeValue
         badgeColor = item.badgeColor
         isEnabled = item.isEnabled

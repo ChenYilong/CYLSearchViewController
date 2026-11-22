@@ -145,6 +145,22 @@
       "value": "热门"
     },
     {
+      "name": "discover_animationItem",
+      "value": "动画"
+    },
+    {
+      "name": "discover_animationLoops",
+      "value": "循环播放动画"
+    },
+    {
+      "name": "discover_animationSpeed",
+      "value": "动画速度"
+    },
+    {
+      "name": "discover_animationPlay",
+      "value": "再播放一次"
+    },
+    {
       "name": "contactTags_row",
       "value": "联系人标签（CollectionViewClassifyMenu）"
     },

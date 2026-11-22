@@ -1,6 +1,32 @@
 {
   "comment": "Sample data of the search history and discover demo (CYLSearchDiscoverViewController), one file per language (the same topics, in the same order): recent searches, and a pool of discover topics; the More button shows another random selection of discoverCount topics. icon 'hot' adds the localized hot icon (discover-hot.png of the same .lproj) after the title.",
   "version": 1,
+  "strings": {
+    "en": {
+      "discover.animationItem": "Animated icon",
+      "discover.animationLoops": "Loop",
+      "discover.animationSpeed": "Speed",
+      "discover.animationPlay": "Play again"
+    },
+    "ja": {
+      "discover.animationItem": "アニメーションアイコン",
+      "discover.animationLoops": "ループ",
+      "discover.animationSpeed": "速度",
+      "discover.animationPlay": "もう一度再生"
+    },
+    "zh-Hans": {
+      "discover.animationItem": "动画图标",
+      "discover.animationLoops": "循环",
+      "discover.animationSpeed": "速度",
+      "discover.animationPlay": "再播放一次"
+    },
+    "zh-Hant": {
+      "discover.animationItem": "動畫圖示",
+      "discover.animationLoops": "循環",
+      "discover.animationSpeed": "速度",
+      "discover.animationPlay": "再播放一次"
+    }
+  },
   "discoverCount": 6,
   "recentSearches": [
     "Swift concurrency",

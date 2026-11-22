@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Platform, Pressable, ScrollView, Settings, StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import { Platform, Pressable, ScrollView, Settings, StatusBar, StyleSheet, Switch, Text, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { CYLSearchBarView, CYLSearchView, CYLTagListView } from 'react-native-cylsearch';
+import { CYLSearchBarView, CYLSearchView, CYLTagListView, type CYLSearchBarHandle } from 'react-native-cylsearch';
 import { CYLTabBar, type CYLTabBarItem, type CYLTabBarPlusButton } from 'react-native-cyltabbar';
 import discoverData from './search-discover.json';
 import { ContactTagsDemo } from './ContactTagsDemo';
@@ -316,12 +316,24 @@ function SearchBarDemo() {
   );
 }
 
+/** The discover demo's texts for the device language (en, ja, zh-Hans, zh-Hant), English when it is not held. */
+function discoverStrings() {
+  const tag = Intl.DateTimeFormat().resolvedOptions().locale;
+  const language = /^zh-(Hant|TW|HK|MO)/.test(tag) ? 'zh-Hant' : tag.startsWith('zh') ? 'zh-Hans' : tag.slice(0, 2);
+  const all: Record<string, Record<string, string>> = discoverData.strings;
+  return { ...all.en, ...all[language] } as Record<string, string>;
+}
+
 /**
  * The discover demo (iOS CYLSearchDiscoverViewController, Android CYLSearchDiscoverFragment, the Flutter discover
  * page): the native search bar, the recent searches as native tags (folded behind a chevron), topics in two columns.
  */
 function DiscoverDemo() {
   const palette = usePalette();
+  const barRef = useRef<CYLSearchBarHandle>(null);
+  const [animationLoops, setAnimationLoops] = useState(false);
+  const [animationSpeed, setAnimationSpeed] = useState(1);
+  const text = discoverStrings();
   const [recent, setRecent] = useState<string[]>(discoverData.recentSearches);
   const [offset, setOffset] = useState(0);
   const [barText, setBarText] = useState('');
@@ -351,12 +363,29 @@ function DiscoverDemo() {
         fieldShadowOpacity={0.06}
         onTextChange={(event) => { typed.current = event.nativeEvent.text; }}
         onSubmit={(event) => search(event.nativeEvent.text)}
+        ref={barRef}
         items={[
           { style: 'icon', image: 'camera', title: 'Search by image', onPress: () => setMessage('Image search is not available in this demo') },
+          { style: 'icon', title: text['discover.animationItem'], animationURL: 'tab_activity.svga', animationLoops, animationSpeed },
           { style: 'divider' },
           { style: 'text', title: 'Search', accessibilityIdentifier: 'CYLSearchDiscoverSearchButton', onPress: () => search(typed.current) },
         ]}
       />
+      {/* Playback of the animated item (index 1 of `items`): loop, speed and restart. */}
+      <View style={styles.header}>
+        <Text style={[styles.body, { color: palette.text }]}>{text['discover.animationLoops']}</Text>
+        <Switch accessibilityLabel={text['discover.animationLoops']} value={animationLoops} onValueChange={setAnimationLoops} />
+        <Pressable accessibilityRole="button" accessibilityLabel={`${text['discover.animationSpeed']} -`} onPress={() => setAnimationSpeed((value) => Math.max(0.25, value - 0.25))}>
+          <Text style={styles.action}>-</Text>
+        </Pressable>
+        <Text accessibilityLabel={text['discover.animationSpeed']} accessibilityValue={{ text: `${animationSpeed}x` }} style={[styles.body, { color: palette.text }]}>{`${animationSpeed}x`}</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel={`${text['discover.animationSpeed']} +`} onPress={() => setAnimationSpeed((value) => Math.min(3, value + 0.25))}>
+          <Text style={styles.action}>+</Text>
+        </Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel={text['discover.animationPlay']} onPress={() => barRef.current?.restartItemAnimation(1)}>
+          <Text style={styles.action}>{text['discover.animationPlay']}</Text>
+        </Pressable>
+      </View>
       <View style={styles.header}>
         <Text accessibilityRole="header" style={[styles.section, { color: palette.text }]}>Recent searches</Text>
         <Pressable accessibilityRole="button" accessibilityLabel="Clear recent searches" onPress={() => { setRecent([]); setMessage('Recent searches cleared'); }}>

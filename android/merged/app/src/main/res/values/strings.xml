@@ -25,6 +25,10 @@
     <string name="cyl_discover_ok">OK</string>
     <string name="cyl_discover_holdMic">Hold the mic button and say your question</string>
     <string name="cyl_discover_hot">Hot</string>
+    <string name="cyl_discover_animationItem">Animation</string>
+    <string name="cyl_discover_animationLoops">Loop animation</string>
+    <string name="cyl_discover_animationSpeed">Animation speed</string>
+    <string name="cyl_discover_animationPlay">Play again</string>
     <!-- The SVGA demo above the Examples list (iOS CYLSearchTabs.strings "svga.demo", "svga.demo.hint"). -->
     <string name="svga_demo">SVGA animation: tap to play again</string>
     <string name="svga_demo_hint">Plays the SVGA animation again</string>
