@@ -1116,3 +1116,26 @@ begins and becomes `DONE` when it ends.
   CI on `56374a5` (merge of `feat/harmonyos-parity`) then failed twice: "Screenshot labels" (two `tags-default-*` captions
   of `3382ebc` sat on the line after their image; joined onto the image line) and "Unit tests" (`testDelegateLifecycleOrder`
   missed `didDismiss` after a fixed 0.9 s on a slow runner; now waits up to 5 s for it). Lifecycle suite 29 of 29 locally.
+
+## TODO (2026-11-23): rows I2 / I5 (the 116 pt offset while searching) and the uncommitted Podfile.lock
+
+- **Branch**: `fix/i2-i5-offset` (from `feat/harmonyos-parity` at `052919a`, pull request 11 is its base). macOS 27
+  session, Xcode 27.2, the dedicated simulator "iPhone 18 Pro (CYLSearch iOS TODOs)" (iOS 27.2); APFS worktree
+  `/tmp/xpr/csvc-ios`. `fix/ios-todos-qmui` (pull request 14, merged as `9de476f`) deleted at the owner's request.
+- **Context**: `docs/qmui-search-controller.md`, "Remaining TODO":
+  1. Item 2, rows I2 / I5: a `CYLSearchBar` in a plain subview ("Bar in a view", #1251) or in a container we own
+     ("Collection view", #1313) sits 116 pt (one navigation bar height) below its rest position while searching: UIKit
+     puts its own container at the bar's y plus the presentation's safe area top. It was parked for phase 3 of "Merge
+     design"; phases 0 to 4 are done and did not take it, so it is free now. Fix in the core (`CYLSearchController`).
+  2. Item 7: `Podfile.lock` not committed "until the last pin move". All pin moves in this log are DONE (the latest,
+     CYLTabBarController `c4a1f8fd` / ClassifyMenu `04b39e26`, in `d7a7534`), so the lock can be committed.
+- **Requirements**: fix in the core first (AGENTS.md); tests that check the absolute position while searching (not only
+  "did not move"); real-touch check and a labelled before / after screenshot; full iOS suite green; follow AGENTS.md.
+- **Prompt (verbatim)**: "fix/ios-todos-qmui can be deleted。and fix" followed by the pasted "Still open, owned
+  elsewhere" list (I2 / I5 offset; `Podfile.lock` uncommitted).
+- **Prompt (English)**: "fix/ios-todos-qmui can be deleted, and fix: the 116 pt offset of rows I2 / I5 and the
+  uncommitted Podfile.lock."
+- **Acceptance**: 100 = the bar of "Bar in a view" and "Collection view" stays at its rest position while searching
+  (tests with the absolute frame, a touch run, screenshot), `Podfile.lock` committed in sync with the Podfile, suite and
+  CI green. 60 = `Podfile.lock` committed and the offset fixed on one of the two screens.
+- **Status**: TODO.
