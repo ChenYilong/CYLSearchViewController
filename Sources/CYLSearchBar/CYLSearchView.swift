@@ -165,10 +165,11 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
     private lazy var tagMenuObserver = CYLSearchTagMenuObserver { [weak self] in self?.setNeedsLayout() }
 
     /**
-     * How the suggestions are shown: a list (`CYLSearchSuggestionStyleList`, the default) or tags
-     * (`CYLSearchSuggestionStyleTags`). A tapped tag works like a tapped row.
+     * How the suggestions are shown: tags (`CYLSearchSuggestionStyleTags`, the default, folded to
+     * `suggestionsFoldedRowCount` rows with the fold control as the last tag) or a list
+     * (`CYLSearchSuggestionStyleList`). A tapped tag works like a tapped row.
      */
-    @objc public var suggestionStyle: CYLSearchSuggestionStyle = .list { didSet { updateSuggestionsVisibility() } }
+    @objc public var suggestionStyle: CYLSearchSuggestionStyle = .tags { didSet { updateSuggestionsVisibility() } }
 
     /**
      * Shows CYLTableViewPlaceHolder's placeholder for `emptyResultsScenario` under the search bar while a non-empty
