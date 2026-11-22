@@ -77,11 +77,11 @@ Page({
         break;
       case 'leading':
         this.setData({ showsLeading: !this.data.showsLeading });
-        search.setShowsLeadingAccessoryView(this.data.showsLeading, animated);
+        search.setShowsLeadingView(this.data.showsLeading, animated);
         break;
       case 'trailing':
         this.setData({ showsTrailing: !this.data.showsTrailing });
-        search.setShowsTrailingAccessoryView(this.data.showsTrailing, animated);
+        search.setShowsTrailingAccessoryViews(this.data.showsTrailing, animated);
         break;
       default:
         break;

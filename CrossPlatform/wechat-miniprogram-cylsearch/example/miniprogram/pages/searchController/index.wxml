@@ -1,25 +1,15 @@
 <view class="page">
   <cyl-demo-nav title="{{title}}" />
   <!-- QDSearchViewController: the bar is the header of the list; the launch view, the results and the empty view fill the space
-       under it; the search bar never covers a view. -->
-  <cyl-search id="search" class="host" generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga" style="height: {{hostHeight}}px" showsSearchBar showsContent showsLaunchView
-    supportsSwipeToDismissSearch highlightsMatches results="{{results}}" placeholder="{{placeholder}}" cacheName="CYLSearchControllerDemo"
-    closesOnSubmit="{{false}}" navigationIcon="none"    bind:updateresults="onUpdateResults" bind:historychange="onHistoryChange" bind:willpresent="onWillPresent">
+       under it, all from the core's options; the search bar never covers a view. -->
+  <cyl-search id="search" class="host" generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga" style="height: {{hostHeight}}px" showsSearchBar showsContent
+    suggestions="{{suggestions}}" showsSuggestionsLaunchView supportsSwipeToDismissSearch highlightsResultMatches noResultsText="{{noResultsText}}"
+    results="{{results}}" placeholder="{{placeholder}}" cacheName="CYLSearchControllerDemo" closesOnSubmit="{{false}}" navigationIcon="none"
+    bind:updateresults="onUpdateResults">
     <view slot="content" class="keywords">
       <view wx:for="{{keywords}}" wx:key="*this" class="cell" role="button" aria-label="{{item}}" id="CYLSearchControllerRow-{{index}}">
         <text class="cell-title">{{item}}</text>
       </view>
-    </view>
-    <!-- QDRecentSearchView: the title with a bottom border, 26 px of padding, 20 px before the tags (CYLTagListView in iOS,
-         CollectionViewClassifyMenu's cyl-tag-cloud here). -->
-    <view slot="launch-view" class="launch" id="CYLRecentSearchLaunchView" aria-label="{{texts.launch}}">
-      <view class="launch-title-row">
-        <text class="launch-title" role="heading">{{texts.recent}}</text>
-        <view wx:if="{{hasHistory}}" class="launch-clear" id="CYLRecentSearchClearButton" role="button" aria-label="{{texts.clear}}" bindtap="onClearHistory">
-          <view class="trash" aria-hidden="true" />
-        </view>
-      </view>
-      <cyl-tag-cloud class="launch-tags" tags="{{tags}}" listStyle="{{tagStyle}}" selectionMode="none" allowsTapping="{{false}}" />
     </view>
   </cyl-search>
 </view>
