@@ -1060,3 +1060,14 @@ begins and becomes `DONE` when it ends.
   x86_64 emulator 127.0.0.1:5557: 55/55; mini program `npm test`: 0 failures; Flutter plugin 36/36, example 5/5, example
   APK builds; React Native jest 15/15. Left to the macOS session: `pod install` for the Podfile.lock files.
 
+## TODO (2026-11-22): pin CYLTabBarController c4a1f8fd and ClassifyMenu 04b39e26 (non-iOS platforms)
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: ClassifyMenu's newest pin branch `feat/pin-c4a1f8fd` (`04b39e26`)
+  pins CYLTabBarController `c4a1f8fd` (adds the PAG 4.5.102 x86_64 kit beside the Rive one); this repository pins tab bar
+  `c8fee654` and ClassifyMenu `111c73aa`. chen-yilong-b6 reports Rive and PAG OK on the x86_64 HarmonyOS emulator with a
+  `04b39e26` build. The pin is committed only after ClassifyMenu's iOS run on `04b39e26` passes (queued at the time of
+  writing); the placeholder pin stays at `f4cf9785`.
+- **Prompt (verbatim)**: "continue fix todo and watch and fix ci fail"
+- **Acceptance**: 100 = as the `c8fee654` pin entry: every pin file, vendored copies synced, Android, HarmonyOS, mini
+  program, Flutter and React Native tests green, the iOS workflow green on a head with the pin. 60 = local tests green.
+- **Status**: TODO.
