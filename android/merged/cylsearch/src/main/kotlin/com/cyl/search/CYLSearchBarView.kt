@@ -1189,6 +1189,16 @@ class CYLSearchBarView @JvmOverloads constructor(
         }
 
     /**
+     * The text size of the Cancel button in sp, the size half of iOS `cancelButtonFont` (a `UIFont` has both). `fontSize`
+     * when null.
+     */
+    var cancelButtonFontSize: Float? = null
+        set(value) {
+            field = value
+            applyStyle()
+        }
+
+    /**
      * Shows Cancel while the bar is being edited, as a `UISearchBar` does in a search (also when `showsCancelButton` is
      * false). False by default.
      */
@@ -1831,7 +1841,7 @@ class CYLSearchBarView @JvmOverloads constructor(
         placeholderLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
         placeholderLabel.typeface = font ?: Typeface.DEFAULT
         placeholderLabel.setTextColor(hint)
-        cancelButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
+        cancelButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, cancelButtonFontSize ?: size)
         cancelButton.typeface = cancelButtonFont ?: font ?: Typeface.DEFAULT
         cancelButton.setTextColor(tintColor ?: themeColor(android.R.attr.colorAccent))
         cancelButton.text = cancelButtonTitle

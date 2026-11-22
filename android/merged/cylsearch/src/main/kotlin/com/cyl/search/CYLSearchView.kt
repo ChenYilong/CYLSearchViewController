@@ -736,7 +736,8 @@ class CYLSearchView @JvmOverloads constructor(
     /**
      * The text of the "no results" empty view that the search view manages itself (iOS `noResultsText`): after each update
      * of the results it shows the empty view with this text while the query is not empty and nothing is listed, and hides
-     * it otherwise. Null (the default) leaves `showEmptyView` and `hideEmptyView` to the delegate.
+     * it otherwise. Null (the default) leaves `showEmptyView` and `hideEmptyView` to the delegate. The placeholder with
+     * this text is the only one: `showsEmptyResultsPlaceholder` does not add its own beside it.
      */
     var noResultsText: String? = null
         set(value) {
@@ -830,6 +831,7 @@ class CYLSearchView @JvmOverloads constructor(
         view.bringToFront()
     }
 
+    private var filledTagWidth = 0
     private var historyObservation: (() -> Unit)? = null
     private var changingHistory = false
 
@@ -949,6 +951,15 @@ class CYLSearchView @JvmOverloads constructor(
         }
         suggestionsTagView.defaultVisibleRows = 2
         suggestionsTagView.tagClickHandler = { index, _ -> select(index) }
+        // The tags are filled while the page is hidden and has no width (the first open): fill them again once it has one.
+        suggestionsTagView.addOnLayoutChangeListener { view, left, _, right, _, _, _, _, _ ->
+            val width = right - left
+            val hadWidth = filledTagWidth > 0
+            filledTagWidth = width
+            if (width > 0 && !hadWidth && suggestionStyle == CYLSearchSuggestionStyle.Tags && suggestionsVisible) {
+                view.post { suggestionsTagView.setTagsWithTitles(filteredSuggestions) }
+            }
+        }
         val padding = (12 * density).toInt()
         suggestionsTagView.setPadding(padding, padding, padding, padding)
         bodyView.addView(suggestionsTagView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
@@ -966,19 +977,50 @@ class CYLSearchView @JvmOverloads constructor(
         resultsRefreshLayout.visibility = GONE
         bodyView.addView(resultsRefreshLayout, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
-            topInset = bars.top
-            keyboardInset = maxOf(insets.getInsets(WindowInsetsCompat.Type.ime()).bottom, bars.bottom)
-            pageView.setPadding(bars.left, topInset, bars.right, 0)
-            suggestionsTableView.setPadding(0, 0, 0, keyboardInset)
-            resultsTableView.setPadding(0, 0, 0, keyboardInset)
-            // The placeholders are centred in what the keyboard leaves visible, not under it (2026-11-19).
-            emptyResultsSlot.refreshPadding()
-            emptySuggestionsSlot.refreshPadding()
-            explicitEmptySlot.refreshPadding()
+            windowInsets = insets
+            applyWindowInsets(insets)
             insets
         }
+        // The page's place in the window decides how much of the system bars is its own: a host that puts the view below its
+        // own header, or above a navigation bar, moves it, and the insets are applied again.
+        addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            val insets = windowInsets
+            if (insets != null && insetsPlace != placeInWindow()) applyWindowInsets(insets)
+        }
         applyStyle()
+    }
+
+    private var windowInsets: WindowInsetsCompat? = null
+    private var insetsPlace = Pair(0, 0)
+
+    // The distance of the view from the top and from the bottom of the window.
+    private fun placeInWindow(): Pair<Int, Int> {
+        val location = IntArray(2)
+        getLocationInWindow(location)
+        val rootHeight = rootView.height
+        val bottomGap = if (rootHeight > 0) (rootHeight - (location[1] + height)).coerceAtLeast(0) else 0
+        return Pair(location[1].coerceAtLeast(0), bottomGap)
+    }
+
+    /**
+     * Pads the page by the part of the system bars and the keyboard that lies over this view: the bars minus the distance
+     * of the view from the edge of the window, so a view that starts below a header gets no blank band above its bar.
+     */
+    private fun applyWindowInsets(insets: WindowInsetsCompat) {
+        val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+        val place = placeInWindow()
+        insetsPlace = place
+        val (topGap, bottomGap) = place
+        topInset = (bars.top - topGap).coerceAtLeast(0)
+        val keyboard = (insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - bottomGap).coerceAtLeast(0)
+        keyboardInset = maxOf(keyboard, (bars.bottom - bottomGap).coerceAtLeast(0))
+        pageView.setPadding(bars.left, topInset, bars.right, 0)
+        suggestionsTableView.setPadding(0, 0, 0, keyboardInset)
+        resultsTableView.setPadding(0, 0, 0, keyboardInset)
+        // The placeholders are centred in what the keyboard leaves visible, not under it (2026-11-19).
+        emptyResultsSlot.refreshPadding()
+        emptySuggestionsSlot.refreshPadding()
+        explicitEmptySlot.refreshPadding()
     }
 
     private fun themeColor(attribute: Int): Int {
@@ -1300,6 +1342,8 @@ class CYLSearchView @JvmOverloads constructor(
         noResultsText?.let {
             val rows = if (resultsVisible) searchResults.size else filteredSuggestions.size
             if (trimmed.isNotEmpty() && rows == 0) showEmptyView(it) else hideEmptyView()
+            // One empty view: the text's placeholder replaces the one of `showsEmptyResultsPlaceholder`, never stacks on it.
+            emptyResultsVisible = false
         }
         updateSuggestionsVisibility()
     }
