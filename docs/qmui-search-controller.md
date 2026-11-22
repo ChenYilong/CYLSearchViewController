@@ -1570,7 +1570,7 @@ Base `3ea492e` (`feat/harmonyos-parity`, PR #11); worktree `/tmp/xpr/merge-p5b`.
 
 #### Commits (`feat/harmonyos-parity`)
 
-`7a30270` iOS core (noResultsText, notification, snapping, tapped tag; fence lines and tests; it also carries the staged deletion of Flutter's `CYLMatchHighlight` files), `c3be82e` Android core, `c41fa39` React Native, `27ff461` Flutter, then the Android tag refill fix and this log.
+`49006a2` iOS core (noResultsText, notification, snapping, tapped tag; fence lines and tests; it also carries the staged deletion of Flutter's `CYLMatchHighlight` files), `cc3dcf0` Android core, `878126c` React Native, `cdb6c66` Flutter, `d341704` the Android tag refill fix, then this log.
 
 #### Tests
 
