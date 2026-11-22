@@ -971,3 +971,13 @@ How the fence works. Swift: the module is imported without `@testable` (a member
 - No example screen uses `CYLSearchBarView`'s new knobs yet (phase 4); no real-touch check of the animated Cancel, leading and trailing views on a device.
 - A `CYLSearchBarView` with `appearanceStyle` in dark mode and large Dynamic Type is tested only through the existing view tests, not by a new one.
 - The items under "Not mapped" above.
+
+
+### Merge phase 2 log (2026-11-22)
+
+#### TODO (2026-11-22, `feat/harmonyos-parity`, PR #11): merge phase 2, launch area
+
+- Context: phase 2 of "Merge design: one implementation per concept" (pair table row `launchView`). Base `6956748` (phase 1 done).
+- Requirements (the task text, English): 1. `CYLSearchView`'s suggestion area (the tags of `suggestionsTagView`, folded with the trailing fold tag; the history header with `suggestionCacheTitleLabel` and `clearSuggestionCacheButton`; the store) becomes the one launch content: extracted into a reusable core piece that `CYLSearchView` keeps using unchanged and `CYLSearchController` uses as its default launch view (`launchView` stays settable for custom views); no duplicated header, clear or tag code. 2. Delete the example's `CYLRecentSearchLaunchView`: the Search controller demo configures the core through API only; a tapped tag sets the query and submits. 3. One history change signal for submits from both classes; the shared launch content refreshes on it while on screen (`CYLSearchController.historyDidChangeNotification` stays public; match by cache name). 4. The launch content is never covered by the bar in any state (iOS 26 top edge effect: the fix of 4cc5638). 5. Tests: `CYLSearchControllerDemoTests` rewritten against the core API; new tests for tag tap, submit, history refresh while on screen, fold control last, the custom `launchView` path; the API fence compiles unchanged (lines added for new members); after screenshots (`merge-after-p2-...`).
+- Acceptance (100): every item done, the three suites (iOS 17.5, 26.5, 27.2) green, after screenshots, this log complete, pushed. 60: items 1 to 3 with tests on one simulator.
+- Status: IN PROGRESS (2026-11-22).
