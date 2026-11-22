@@ -216,3 +216,13 @@ test('showsSuggestionCacheHeader: false hides the "Recent searches" header, the 
   assert.deepEqual(view.filteredSuggestions, ['Swift']);
   assert.equal(view.showsCachedQueries, true);
 });
+
+test('the suggestions are tags by default, folded to two rows with the fold control as the last tag', () => {
+  const { CYLSearchSuggestionStyle } = require('../src/core/CYLSearchView');
+  const view = new CYLSearchView(memoryStorage());
+  assert.equal(view.suggestionStyle, CYLSearchSuggestionStyle.tags);
+  assert.equal(view.suggestionsFoldedRowCount, 2);
+  assert.equal(view.suggestionsFoldControl.position, 'inline');
+  view.suggestionStyle = CYLSearchSuggestionStyle.list;
+  assert.equal(view.suggestionStyle, 'list', 'the list stays available');
+});

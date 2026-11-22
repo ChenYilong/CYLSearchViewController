@@ -107,7 +107,7 @@ Events: `textchange` `{ text }` (`{ text, index }` in `multiple`), `submit`, `fo
 
 | Property | Default | Meaning |
 | --- | --- | --- |
-| `suggestions`, `suggestionStyle` | `[]`, `list` | The suggestions, as a list or as `tags` folded inline to `foldedRowCount` rows |
+| `suggestions`, `suggestionStyle` | `[]`, `tags` (`list` until 2026-11-22) | The suggestions, as `tags` folded inline to `foldedRowCount` rows with the fold chevron as the last tag, or as a `list` |
 | `cacheName`, `focusesSearchFieldOnShow`, `closesOnSubmit` | `CYLSearchView`, `true`, `true` | Submitted queries are cached and listed first |
 | `results`, `showsResultsForEmptyQuery` | `null`, `false` | An array: the results take the place of the suggestions while the query is not empty (iOS `resultsDataSource`; `setResultsDataSource()` in JavaScript) |
 | `refresherEnabled` | `false` | CYLTableViewPlaceHolder's pull-to-refresh on the results (iOS `refreshHandler`): `refresh` event, `endRefreshing()` |

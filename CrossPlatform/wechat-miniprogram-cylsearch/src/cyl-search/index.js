@@ -37,7 +37,7 @@ Component({
   options: { multipleSlots: true },
   properties: {
     suggestions: { type: Array, value: [], observer: 'onSuggestionsChange' },
-    suggestionStyle: { type: String, value: 'list' },
+    suggestionStyle: { type: String, value: 'tags' },
     placeholder: { type: String, value: '' },
     searchBarStyle: { type: String, value: 'plain' },
     items: { type: Array, value: [] },

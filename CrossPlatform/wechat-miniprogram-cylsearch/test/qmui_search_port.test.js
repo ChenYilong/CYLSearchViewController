@@ -49,7 +49,10 @@ function load(name) {
     };
     instance.triggerEvent = (type, detail) => instance.events.push([type, detail]);
     instance.selectComponent = (selector) => children[selector] || null;
-    instance.createSelectorQuery = () => ({ selectAll() {}, select() {}, exec() {} });
+    instance.createSelectorQuery = () => {
+      const query = { selectAll: () => query, select: () => query, boundingClientRect: () => query, exec() {} };
+      return query;
+    };
     instance.set = (key, value) => {
       instance.properties[key] = value;
       instance.data[key] = value;
