@@ -152,6 +152,62 @@ final class CYLSearchIssueScenarioTests: CYLSearchExampleTestCase {
         XCTAssertNil(weakSearch, "the wrapper leaked")
     }
 
+    /// I3 (black band): the navigation item's bar keeps an opaque background while searching. The default style hides the bar
+    /// background, and while UIKit hides the navigation bar for the search only black is behind the bar.
+    func testI3NavigationItemBarHasNoBlackBandWhileSearching() throws {
+        let screen = CYLSearchNavigationItemDemoViewController(style: .plain)
+        let (window, _) = open(screen)
+        let search = try XCTUnwrap(screen.cylSearchController)
+        XCTAssertTrue(search.searchBar.hostedInNavigationItem)
+        search.setActive(true, animated: true)
+        runLoop(1.0)
+        search.searchBar.text = "H"
+        runLoop(0.4)
+        let bar = search.searchBar.convert(search.searchBar.bounds, to: window)
+        // Beside the field, above it and below it: the bar's own background, not the field.
+        let points = [CGPoint(x: bar.maxX - 2, y: bar.minY + 2), CGPoint(x: 2, y: bar.midY), CGPoint(x: 2, y: bar.maxY - 2)]
+        let expected = UIColor.systemBackground.resolvedColor(with: window.traitCollection)
+        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+        expected.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        for (point, pixel) in zip(points, pixels(window, at: points)) {
+            XCTAssertEqual(Int(pixel[0]), Int(red * 255), accuracy: 3, "red at \(point) in bar \(bar): \(pixel)")
+            XCTAssertEqual(Int(pixel[1]), Int(green * 255), accuracy: 3, "green at \(point) in bar \(bar): \(pixel)")
+            XCTAssertEqual(Int(pixel[2]), Int(blue * 255), accuracy: 3, "blue at \(point) in bar \(bar): \(pixel)")
+        }
+        search.setActive(false, animated: false)
+        window.rootViewController = nil
+        window.isHidden = true
+    }
+
+    /// I3: a header bar keeps the style's hidden background (only a navigation item bar draws one).
+    func testI3HeaderBarKeepsTheHiddenBackground() {
+        let search = CYLSearchController(contentsViewController: UIViewController())
+        search.install(in: UINavigationItem())
+        XCTAssertTrue(search.searchBar.hostedInNavigationItem)
+        search.installSearchBar(asHeaderOf: UITableView())
+        XCTAssertFalse(search.searchBar.hostedInNavigationItem)
+        let image = search.searchBar.backgroundImage(for: .any, barMetrics: .default)
+        XCTAssertEqual(image?.size ?? .zero, .zero, "a hidden background is an empty image")
+    }
+
+    private func pixels(_ window: UIWindow, at points: [CGPoint]) -> [[UInt8]] {
+        let scale = window.screen.scale
+        let width = Int(window.bounds.width * scale), height = Int(window.bounds.height * scale)
+        var data = [UInt8](repeating: 0, count: width * height * 4)
+        guard let space = CGColorSpace(name: CGColorSpace.sRGB),
+              let context = CGContext(data: &data, width: width, height: height, bitsPerComponent: 8, bytesPerRow: width * 4,
+                                      space: space, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return [] }
+        context.translateBy(x: 0, y: CGFloat(height))
+        context.scaleBy(x: scale, y: -scale)
+        UIGraphicsPushContext(context)
+        window.drawHierarchy(in: window.bounds, afterScreenUpdates: true)
+        UIGraphicsPopContext()
+        return points.map { point in
+            let offset = (Int(point.y * scale) * width + Int(point.x * scale)) * 4
+            return Array(data[offset..<offset + 4])
+        }
+    }
+
     // MARK: - I4 (#1160, B10)
 
     /// I4 / B10: with three rows the header scrolls out of sight, settles fully shown or fully hidden when a drag ends, the bar

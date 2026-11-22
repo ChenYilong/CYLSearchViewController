@@ -532,8 +532,6 @@ CollectionViewClassifyMenu).
   `CYLSearchQMUIPort` 12 of 12; the `CYLSearchUI` suite hung (no result after 100 s, also while an older `aa test` runner stayed hung on the emulator; not attributed to this change, rerun needed).
   React Native: unit test added (`cylSearchViewSuggestionStyle`), not run (no node_modules; the RN agent runs jest).
 - Screenshots (originals, stitched):
-  ![iOS tags default](assets/tags-default-ios-20261122.png)
-  iOS 27.2, iPhone 18 Pro simulator, Xcode 27.2, macOS 27.3, CYLSearchViewController 4cc5638, CollectionViewClassifyMenu 9dc1f761, 2026-11-22 14:18 +13:00: default suggestions folded, then unfolded (first row crisp).
-  ![Android tags default](assets/tags-default-android-20261122.png)
-  Android 15 API 35, CYL_API35_test emulator, macOS 27.3, JDK 17, CYLSearchViewController 8df22f8, 2026-11-22 14:21 +13:00: default suggestions folded, then unfolded.
+  ![iOS tags default](assets/tags-default-ios-20261122.png) iOS 27.2, iPhone 18 Pro simulator, Xcode 27.2, macOS 27.3, CYLSearchViewController 4cc5638, CollectionViewClassifyMenu 9dc1f761, 2026-11-22 14:18 +13:00: default suggestions folded, then unfolded (first row crisp).
+  ![Android tags default](assets/tags-default-android-20261122.png) Android 15 API 35, CYL_API35_test emulator, macOS 27.3, JDK 17, CYLSearchViewController 8df22f8, 2026-11-22 14:21 +13:00: default suggestions folded, then unfolded.
 - TODO: the mini program device test (Windows session, WeChat DevTools); rerun the HarmonyOS `CYLSearchUI` suite; fix the Android 5 px row cut in CollectionViewClassifyMenu and pin it.

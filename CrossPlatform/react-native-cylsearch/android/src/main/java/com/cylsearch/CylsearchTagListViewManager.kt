@@ -63,6 +63,11 @@ class CylsearchTagListViewManager : SimpleViewManager<CylsearchTagListView>(),
     view.supportsRenaming = value
   }
 
+  @ReactProp(name = "allowsSmearSelection")
+  override fun setAllowsSmearSelection(view: CylsearchTagListView, value: Boolean) {
+    view.allowsSmearSelection = value
+  }
+
   @ReactProp(name = "foldControlPosition")
   override fun setFoldControlPosition(view: CylsearchTagListView, value: String?) {
     view.foldPosition = value

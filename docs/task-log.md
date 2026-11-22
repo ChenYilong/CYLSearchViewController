@@ -679,8 +679,9 @@ begins and becomes `DONE` when it ends.
      (`df3283a`, `414bdb2`). Not bisected against the 2026-11-20 failure.
   5. Swift migration steps 2 to 4: 100. The demo matches the GIF, the legacy Objective-C is removed, the tests are Swift
      with an Objective-C smoke test (`726a2da`, `f46d814`); 40 of 40 tests.
-  6. React Native iOS drag events: 95. `onReorderingChange` reaches JavaScript (true, then false) on a Release build;
-     `onSmearingChange` wired the same way, not exercised.
+  6. React Native iOS drag events: 100 (was 95). `onReorderingChange` reaches JavaScript (true, then false) on a Release build;
+     `onSmearingChange` too since 2026-11-22: the new `allowsSmearSelection` prop turns smearing on ("continue the iOS TODOs in docs/" below).
+     Score now 98/100 (item 2 is the only one below 100).
   Pins: ClassifyMenu `1f8c1001`, CYLTabBarController `ace1af0e`, CYLTableViewPlaceHolder `a169386` on iOS as on every
   platform, verified locally (40 of 40, `a53a704`); ClassifyMenu's own iOS CI on that commit was still pending when
   pinned (its session watches it). Local checks: public API comments, shellcheck, `pod lib lint`, analyze (0 warnings in
@@ -1074,3 +1075,44 @@ begins and becomes `DONE` when it ends.
   passed; the pin is committed from the stash, no commits landed in between. Results with the pin on Windows: Android core 76/76 (after `2d4ffb8`: the new
   `CYLSearchFoldControlTest` also left views attached, 10 failures before) and example 9/9; HarmonyOS 55/55 on the x86_64
   emulator; mini program 96/96; Flutter 36/36 and 5/5, example APK builds; React Native 15/15.
+
+## DONE (2026-11-22): continue the iOS TODOs in docs/ (QMUI port leftovers, React Native smear)
+
+- **Branch**: `fix/ios-todos-qmui` (from `feat/harmonyos-parity`, pull request 11). macOS 27 session, Xcode 27.2, the
+  dedicated simulator "iPhone 18 Pro (CYLSearch iOS TODOs)" (iOS 27.2); APFS worktree `/tmp/xpr/csvc-ios`.
+- **Context**: after "fix every iOS / Swift TODO in docs/" (97/100, above) the iOS items still open in `docs/` are:
+  1. `qmui-search-controller.md`, "Remaining TODO": items 1 (iOS versions), 5 (E21 on older iOS) and 6 (history refresh)
+     are stale: 17.5 and 26.5 ran green (123 tests) and `0b3cbcf` refreshes the launch view.
+  2. Same list, item 3: the black band behind the bar while searching on the "Navigation item" screen (row I3).
+  3. Same list, item 2: the 116 pt offset of a bar in a plain subview or container (rows I2, I5). A core change in
+     `CYLSearchController`'s presentation, the area the running merge refactor ("merge the QMUI search components",
+     phases 1 to 3; phase 0 is in progress in another session) rewrites: recorded there, not changed here.
+  4. Same list, item 7: `Podfile.lock` not committed. Three pin moves are still open, each rewrites the lock.
+  5. The 97/100 entry, item 6: React Native iOS `onSmearingChange` is wired but never exercised.
+  Owned elsewhere and not touched: the E21 touch check on iOS 17.5 (merge phase 0), the plus title color and the More
+  item icon (CYLTabBarController session), the React Native / Flutter / mini program ports (their sessions).
+- **Requirements**: fix what can be fixed without colliding with the merge refactor (examples and docs; no
+  `CYLSearchController` changes); test with Xcode; labelled screenshots; follow AGENTS.md.
+- **Prompt (verbatim)**: "continue fix todo"
+- **Prompt (English)**: "Continue fixing the TODOs."
+- **Acceptance**: 100 = item 1 updated with its evidence; item 2 explained with a screenshot and fixed if the cause is in
+  the example (or handed to the merge with the cause); items 3 and 4 recorded with the reason and owner; item 5
+  exercised on a simulator with the event reaching JavaScript. 60 = items 1, 3, 4 and either 2 or 5.
+- **Status** (2026-11-22): DONE, score 100/100 (85 before the smear).
+  1. Stale notes: "Remaining TODO" rewritten with its evidence (items 1, 5, 6).
+  2. I3 black band: fixed in the core (`bfbee55`): a bar installed on a navigation item draws `systemBackground` when the
+     style hides the background. Two tests (the band read RGB 10, 10, 10 before the fix), 125 tests with 0 failures on
+     iOS 27.2 (clean derived data), labelled before / after screenshot in light and dark mode.
+  3. I2 / I5: moved into phase 3 of the merge design, with the options to try.
+  4. `Podfile.lock`: kept uncommitted with the reason (open pin moves).
+  5. React Native smear (done later the same day): `onSmearingChange` could not fire because the component had no way to
+     turn smearing on. New prop `allowsSmearSelection` (spec, iOS `.mm`, Android manager; both ClassifyMenu cores have it at
+     `9dc1f76`). One swipe on the React Native iOS Release build selected three tags and JavaScript logged `true` then
+     `false` (labelled screenshot in `CYLTabBarController-Integration.md`); the Android module compiles; `tsc` clean.
+  Score: 100/100.
+  Follow-up prompt (verbatim): "修复ci错误 then \"smear\"" (English: "Fix the CI error, then do the smear"). CI had no failing
+  run in this repository at that time (the last failures, 2026-11-21 on `feat/harmonyos-parity`, were fixed by `ff1e4de`);
+  pull request 14's iOS run on `8bd7255` is green in all jobs.
+  CI on `56374a5` (merge of `feat/harmonyos-parity`) then failed twice: "Screenshot labels" (two `tags-default-*` captions
+  of `3382ebc` sat on the line after their image; joined onto the image line) and "Unit tests" (`testDelegateLifecycleOrder`
+  missed `didDismiss` after a fixed 0.9 s on a slow runner; now waits up to 5 s for it). Lifecycle suite 29 of 29 locally.
