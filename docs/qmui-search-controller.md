@@ -1210,3 +1210,80 @@ Missing points as TODO:
 - Requirements (the task text, English): 1. Audit for parallel members the QMUI port created next to existing ones (accessory widgets beside `leadingView` / `trailingAccessoryViews`, `dimmingColor` beside `scrimColor`, a second empty view, a second history signal, a launch view that rebuilds the suggestion area, a list class duplicating results code); merge each into one implementation with the iOS names; published names keep working (deprecated forward). 2. Every launch view uses the ClassifyMenu tag list (`CYLTagListView`); the example "Search controller" configures the core through API only (no example-built launch view); a tapped tag submits. 3. Highlight option (`highlightsResultMatches` + color, case- and diacritic-insensitive like iOS), `noResultsText`, swipe to dismiss and will/did events with iOS names. Wire the iOS TODOs to `CYLSearchBarView` / `CYLSearchView` (`centersPlaceholder`, margins providers, `cancelButtonFontSize`, animated Cancel, history signal from the core store notification); replace the Dart-only overlays with the native core where a native view can host them (Dart stays only where a platform view cannot host a Flutter widget: documented); add `setQuery` so a tapped recent tag runs the search. 4. Tests for each change, the full suite green, labelled stitched screenshots of the Search controller screen (rest, launch folded and unfolded, results with highlight, empty) as `docs/assets/merge-after-p5-flutter-20261122.png`.
 - Acceptance (100): every item above done on iOS and Android, `flutter test` and `flutter analyze` clean (plugin and example), both platforms run on own devices, screenshots, this log complete, pushed. 60: items 1 to 3 in Dart with tests, iOS verified on the simulator.
 - Status: in progress; the result sections follow below as the work lands.
+
+### Merge phase 5 log: the WeChat mini program (2026-11-22)
+
+Branch `feat/harmonyos-parity` (PR #11), base `493efbd` (iOS phase 4), code commits 67ef166, 791b504; only `CrossPlatform/wechat-miniprogram-cylsearch` (plus this section). Device testing of this platform
+belongs to the Windows session: nothing was run in WeChat DevTools and there are **no screenshots** from this session (owner's instruction; step 4 of the task skipped).
+Pin check: the pinned CollectionViewClassifyMenu commit `405bf49` has `cyl-tag-list` with `defaultVisibleRows`, the fold control (`tail`, `footer`, icon or title) and the `tagtap` event (read in the synced copy `/tmp/xpr/tags-default/.../miniprogram_npm/cyl-tag-list-miniprogram`, whose package pin is `405bf49`); no pin move was needed.
+
+#### 1. Audit: parallel members of the QMUI port, and what each became
+
+| Parallel member (before) | Next to | Now (one implementation, iOS name) | Old name |
+| --- | --- | --- | --- |
+| `.cyl-tags` flex-wrap chips, the hidden `.cyl-measure` row, the fold chevron view, `foldTags()` measuring with `cylFoldTags` in `cyl-search` | CollectionViewClassifyMenu's `cyl-tag-list` (iOS `CYLTagListView`), which the bar items and the example already use | the suggestion area draws `<cyl-tag-list>` through `CYLSearchView.suggestionTagConfiguration(dark)`: one section, `defaultVisibleRows` = `suggestionsFoldedRowCount`, fold control tail/icon last (`CYLMenuFoldControl` inline = tail, bottom = footer), colours of the suggestion knobs in its style; the configuration is set only when the tags or colours change (a keystroke keeps the fold state) | `cylFoldTags` stays exported, deprecated, unused |
+| example-built launch view (`slot="launch-view"`: title row, trash button, `cyl-tag-cloud` with its own 29 pt tinted style, `history()` reload on `historychange` / `willpresent`) | the core's suggestion area (history header, trash, tags, cache) | `showsSuggestionsLaunchView` (iOS name): the suggestion area is the launch view; history newest first with title and trash, else `suggestions`; a tapped tag sets the query, sends `updateresults` and submits; it wins over `showsLaunchView` (slot, for a view of the page's own) | `showsLaunchView` + slot unchanged |
+| `dimmingColor` + `showsDimming` (the model's `scrimColor` was unused) | `scrimColor` | `scrimColor` canonical on the model and the component, one `.cyl-dimming` overlay; `dimmingColor` forwards (model getter/setter, component property) | `dimmingColor` |
+| two copies of the empty-view markup (content level, layer) | `showEmptyView` | one WXML `<template name="cylEmptyView">` used twice; `noResultsText` (iOS name) makes the core show and hide the empty view itself (evaluated on every `reloadResults`, also when the page sets `results` after the text; never replaces or hides a view the page showed) | `showEmptyView` / `hideEmptyView` unchanged |
+| `highlightsMatches` / `highlightColor`, case-sensitive `indexOf` | iOS `highlightsResultMatches` / `resultMatchHighlightColor` | iOS names; `cylHighlightParts` folds case and diacritics per character with an offset map (so "cafe" marks "Café", precomposed or decomposed, and a mark after the last letter stays in the match); the suggestion filter (`matches`) uses the same `cylFold` | old names OR-ed in (component) / forwarded (model) |
+| `showsLeadingAccessory` / `showsTrailingAccessory`, slots `leading-accessory` / `trailing-accessory`, `setShows…AccessoryView` | the bar's existing slots `leading` / `trailing` (iOS `leadingView`, `trailingAccessoryViews`) | one animated container per side holding both slot names; `showsLeadingView`, `showsTrailingAccessoryViews` (default true, as iOS), `setShowsLeadingView`, `setShowsTrailingAccessoryViews`; `cyl-search` forwards `leading` and `trailing` too | every old name forwards; a set old property wins over the new one |
+| edge swipe: any rightward move from x <= 24 | iOS `CYLSearchEdgeSwipe` (24 pt edge, 10 pt slop, more sideways than vertical) | `cylEdgeSwipeBegins` (pure, tested); a first move that fails the rule ends the gesture so the list scrolls | `cylSwipeShouldDismiss` unchanged |
+| `diddismiss` after a present started during the dismiss | iOS phase 3 generation guard | a present counter: an overtaken dismiss sends no `diddismiss` and does not hide the page | events unchanged |
+| the example's `showEmptyView` / `hideEmptyView` on Short list and Search controller | `noResultsText` | both screens set the property; the pages only answer `updateresults` with rows | |
+
+Already one implementation (checked, no change): history (one store: the suggestion cache, one `historychange` event from submit and clear), active state (`open` of `CYLSearchView`; `isActive`, `setActive`, `isSearchOpen`, `showSearch`, `closeSearch` read or drive it), will/did events (one delegate source feeds `show`, `close` and the four iOS-named events), results (one `cyl-refresh` list with the placeholder scenarios).
+
+#### 2. Example: the Search controller screen configures the core through API only
+
+`pages/searchController` sets `suggestions` (QMUI's eight), `showsSuggestionsLaunchView`, `highlightsResultMatches`, `noResultsText`, `supportsSwipeToDismissSearch` and `results`; it declares no component, has no launch view, tag list, scroll view, history or empty-view code, and a tapped tag submits. The tag style changed on purpose, as on iOS in phase 2: the core's default tag style replaces the tinted 29 pt tags (the QMUI size is phase 6).
+
+#### 3. Lines removed, API kept, new API
+
+- `git diff --numstat 493efbd` over `src`: 343 added, 148 deleted; examples: 23 added, 90 deleted (the Search controller page: 49 lines of script, 15 of template, 11 of style and the component entry go; deleted code in the component: the flex-wrap chips (4 style rules, 16 template lines), the measuring row, `foldTags`, `onToggleFold`, `TAG_SPACING`, `TAG_SIDE_INSET`, `FOLD_LABELS` and the two fold labels, the second empty-view copy, the second dimming colour path, the case-sensitive highlight).
+- Kept: every old name still works (table above), `cylFoldTags` stays exported (deprecated); `showsLaunchView` and the slot `launch-view` stay for custom views.
+- New: `showsSuggestionsLaunchView`, `scrimColor`, `highlightsResultMatches`, `resultMatchHighlightColor`, `noResultsText` (component); `showsLeadingView`, `showsTrailingAccessoryViews`, `setShowsLeadingView`, `setShowsTrailingAccessoryViews` (bar and component); model `showsSuggestionsLaunchView`, `noResultsText`, `highlightsResultMatches`, `suggestionTagConfiguration`; `cylFold`, `cylEdgeSwipeBegins`; `updateresults` now also follows `setQuery` and a tapped suggestion.
+- Behaviour changes to note: the leading and trailing accessory containers are shown by default (an empty slot takes no room); the trailing accessory now sits inside the field (as the iOS trailing accessory views do), the leading one before the navigation button; the suggestion filter ignores case and diacritics (iOS).
+
+#### 4. Tests
+
+`cd CrossPlatform/wechat-miniprogram-cylsearch && npm test` (Node 22.23.4, after `rsync -a --delete src/ example/miniprogram/components/`, the copy that the example tests load): **95 tests, 94 pass, 0 fail, 1 skipped** (86 / 85 / 0 / 1 before). New or rewritten: launch view (suggestions, history, header, tap submits, wins over the slot), scrim forwarders and one overlay, `noResultsText`, highlight (case, diacritics, decomposed, old names), diacritic-insensitive filter, the edge swipe rule and its vertical failure, the dismiss/present guard, the accessory names, no flex-wrap in the package, the tag list configuration and its identity across keystrokes, the example screens (no launch view, no component, API only).
+
+#### 5. Screenshots
+
+None (owner's instruction for this platform: DevTools belongs to the Windows session). The Windows session takes `docs/assets/merge-after-p5-wechat-miniprogram-cylsearch-20261122.png`.
+
+#### Merge score (mini program) (2026-11-22): 85 / 90 without the device points (pass 60)
+
+| Criterion | Points | Got | Why |
+| :--- | :---: | :---: | :--- |
+| Parallel members merged into one implementation, old names kept | 40 | 38 | table above; open: the overlay (non header) bar has no accessory slot path of its own (-1), the accessory margins have no iOS counterpart yet (-1) |
+| Suggestion area / launch view on the tag list, example through API only | 20 | 18 | `cyl-tag-list` everywhere in the core; open: the Discover example page still draws flex-wrap tags and chips by hand (-2) |
+| Highlight, noResultsText, swipe, will/did events aligned with iOS | 15 | 14 | `didpresent` and `diddismiss` are timer based, not transition callbacks (-1) |
+| `npm test` green with tests for each change | 15 | 15 | 95 tests |
+| Device test and screenshots (Windows session) | 10 | open | see the TODO below |
+
+Missing points as TODO:
+- TODO (2 points): `example/miniprogram/pages/discover` (`.tags`, `.grid`) draws its tags and chips with flex wrap; move them to `cyl-tag-list` (the iOS Discover page has the same open TODO).
+- TODO (1 point): the overlay `cyl-search` (not `showsSearchBar`) passes the accessory slots only to the header bar; give the layer's bar the same slots.
+- TODO (1 point): `didpresent` / `diddismiss` come from timers (the animation duration).
+- TODO (1 point): delete `cylFoldTags` and the earlier names (`dimmingColor`, `highlightsMatches`, `highlightColor`, `showsLeadingAccessory`, `showsTrailingAccessory`, the `*-accessory` slots, `setShows…AccessoryView`) after one release.
+- TODO (the QMUI tag size, phase 6): the 69 x 29 minimum tag width needs the ClassifyMenu `CYLMenuStyle.minimumItemSize` change and a pin move on every platform.
+
+#### TODO (Windows session): test
+
+Setup: `cd CrossPlatform/wechat-miniprogram-cylsearch && npm test` (expect 95 tests, 94 pass, 1 skipped; run `node scripts/sync-example.js` first), then WeChat DevTools as in the earlier "TODO (Windows session): test" of this platform (clean build: delete `example/miniprogram/components` and `miniprogram_npm`, base library 3.6.6, light and dark, `wechatide` skill). Nothing below was run.
+
+| Screen / row | Do | Expected |
+| --- | --- | --- |
+| Search controller: launch view | tap the bar | page scrolls to the top, Cancel shows; below the bar the eight QMUI suggestions as `cyl-tag-list` tags (no title, no trash while there is no history); the list's own content never shows through; no scrim |
+| fold | add a long history (20 queries) or narrow the window | folded to two rows with the fold control (chevron) as the last tag; a tap unfolds it with the control still last; a second tap folds it; typing a letter and clearing keeps the fold state |
+| tap a tag | tap "Health" | the field shows "Health", the keyboard goes down, the results show 40 rows ("Health" and "Healthy" x20) with the match highlighted case-insensitively; clearing the text shows the launch view with "Health" first, the header "Recent searches" and the trash button; trash goes back to the eight suggestions |
+| highlight | type "h", "HEAL", "healthy" | the match is blue in every row, whatever the case |
+| empty | type "zzz" | "No matching results" under the bar, no flash while typing "H" then "He"; clearing hides it |
+| swipe | real mouse drag from x < 24 px, first right (more than 1/4 of the width, then a short one); then a drag from the edge that starts vertically | the first ends the search, the short one springs back, the vertical one scrolls the list and never moves the page |
+| Search bar styles | toggle Show leading / trailing accessory with Animated on and off | both squares are now in the field (trailing) and before the field (leading); width animates (about 0.25 s); five quick taps end in the last state; Cancel and margins as before |
+| Short list | type "row 2", then "x" | one row, then "No matching results" (now from `noResultsText`) |
+| dark mode | repeat the launch view | tags readable (white text, dark grey border), clear background, fold chevron grey |
+| `wx.getAppBaseInfo().theme` | check it reports `dark` in DevTools | the tag colours follow it (`isDark()`); if it does not, the tags stay light-mode |
+
+Screenshots to take (originals, `docs/assets/`, stitched, English header, captions and footer outside the panels, then `sh scripts/check-screenshot-labels.sh`): Search controller at rest, launch view folded, launch view unfolded, results with the highlight, empty view (5 panels), named `merge-after-p5-wechat-miniprogram-cylsearch-20261122.png`.
