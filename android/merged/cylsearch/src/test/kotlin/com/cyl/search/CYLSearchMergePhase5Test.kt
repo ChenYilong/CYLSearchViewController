@@ -297,6 +297,7 @@ class CYLSearchMergePhase5Test {
         assertEquals("submitted", "Health", submitted)
         assertEquals(listOf("Health"), view.suggestionCache?.cachedQueries())
         assertEquals("the results follow the tag", listOf("Health", "Healthy"), view.searchResults)
+        assertFalse("the keyboard goes down", view.searchBarView.isActive)
     }
 
     // One life cycle

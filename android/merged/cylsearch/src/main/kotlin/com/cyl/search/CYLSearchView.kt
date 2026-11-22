@@ -1376,6 +1376,8 @@ class CYLSearchView @JvmOverloads constructor(
         queryChanged(suggestion)
         if (submitsOnSuggestionSelection) {
             searchBarView.submit()
+            // As a tapped tag of the iOS launch view: the keyboard goes down and the results stay in sight.
+            searchBarView.hideKeyboard()
         }
     }
 
