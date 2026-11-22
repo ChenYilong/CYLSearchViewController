@@ -128,10 +128,10 @@ export function SearchBarStylesDemo({ onClose }: { onClose: () => void }) {
         fieldMargins={fieldMargins}
         cancelMargins={undefined}
         searchingCancelMargins={cancelMargins}
-        leadingAccessory={accessory(1)}
-        trailingAccessory={accessory(2)}
-        showsLeadingAccessory={leading}
-        showsTrailingAccessory={trailing}
+        leadingView={accessory(1)}
+        trailingAccessoryViews={[accessory(2)]}
+        showsLeadingView={leading}
+        showsTrailingAccessoryViews={trailing}
         onActiveChange={(event) => setActive(event.nativeEvent.active)}
       />
       <Text accessibilityLabel="Bar state" style={styles.status}>
