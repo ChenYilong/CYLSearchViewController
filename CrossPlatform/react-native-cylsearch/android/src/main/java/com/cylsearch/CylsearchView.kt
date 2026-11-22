@@ -1,12 +1,12 @@
 package com.cylsearch
 
+import android.graphics.Color
 import android.widget.FrameLayout
 import com.cyl.placeholder.CYLPlaceholderScenario
+import com.cyl.search.CYLSearchBarAppearance
 import com.cyl.search.CYLSearchSuggestionCachePolicy
-import com.cyl.search.CYLSearchSuggestionCell
 import com.cyl.search.CYLSearchSuggestionStyle
 import com.cyl.search.CYLSearchView
-import com.cyl.search.CYLSearchViewDataSource
 import com.cyl.search.CYLSearchViewDelegate
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.UIManagerHelper
@@ -15,10 +15,27 @@ import com.facebook.react.uimanager.UIManagerHelper
  * CYLSearchView of the `cylsearch` module, open from the start: JavaScript leaves the screen in `onClose`. It is the
  * core's `resultsDataSource` (the `results` prop) and owns its `refreshHandler` (`onRefresh`).
  */
-class CylsearchView(private val reactContext: ThemedReactContext) :
-  FrameLayout(reactContext), CYLSearchViewDelegate, CYLSearchViewDataSource {
+class CylsearchView(private val reactContext: ThemedReactContext) : FrameLayout(reactContext), CYLSearchViewDelegate {
 
   val searchView = CYLSearchView(reactContext)
+  // The one results data source of both components; JavaScript filters, so the results belong to every text.
+  private val source = CylsearchResults(CYLSearchBarAppearance.defaultAppearance(reactContext).tintColor ?: Color.rgb(0, 104, 248))
+
+  /**
+   * The match highlight option (`highlightsResultMatches`, `resultMatchHighlightColor`).
+   */
+  var highlightsResultMatches: Boolean
+    get() = source.highlights
+    set(value) {
+      source.highlights = value
+      if (resultsShown) searchView.reloadResults()
+    }
+  var resultMatchHighlightColor: Int?
+    get() = source.highlightColor
+    set(value) {
+      source.highlightColor = value
+      if (resultsShown) searchView.reloadResults()
+    }
 
   /**
    * The fold control's last position and content names, combined into one control.
@@ -31,6 +48,7 @@ class CylsearchView(private val reactContext: ThemedReactContext) :
     // The page stays open after a submit: JavaScript decides what a submitted query does.
     searchView.closesOnSubmit = false
     searchView.installInView(this)
+    cylKeepSystemBarsAbove(this)
   }
 
   override fun onAttachedToWindow() {
@@ -38,19 +56,8 @@ class CylsearchView(private val reactContext: ThemedReactContext) :
     if (!searchView.isSearchOpen) searchView.showSearch(false)
   }
 
-  fun setCachePolicy(policyName: String?, name: String?) {
-    val policy = when (policyName) {
-      "none" -> CYLSearchSuggestionCachePolicy.None
-      "userDefaults" -> CYLSearchSuggestionCachePolicy.UserDefaults
-      "sandboxFile" -> CYLSearchSuggestionCachePolicy.SandboxFile
-      else -> CYLSearchSuggestionCachePolicy.Database
-    }
-    val cacheName = name?.takeIf { it.isNotEmpty() } ?: "CYLSearchView"
-    if (policy != searchView.suggestionCachePolicy || cacheName != searchView.suggestionCacheName) {
-      searchView.suggestionCacheName = cacheName
-      searchView.suggestionCachePolicy = policy
-    }
-  }
+  fun setCachePolicy(policyName: String?, name: String?) =
+    searchView.applySuggestionCache(policyName, name, "CYLSearchView", CYLSearchSuggestionCachePolicy.Database)
 
   fun setStyle(value: String?) {
     searchView.suggestionStyle = if (value == "tags") CYLSearchSuggestionStyle.Tags else CYLSearchSuggestionStyle.List
@@ -60,7 +67,6 @@ class CylsearchView(private val reactContext: ThemedReactContext) :
     searchView.emptyResultsScenario = if (value == "noContent") CYLPlaceholderScenario.NoContent else CYLPlaceholderScenario.NoSearchResults
   }
 
-  private var currentResults: List<String> = emptyList()
   private var resultsShown = false
   private var refreshAllowed = false
   private var refreshRequested = false
@@ -70,8 +76,8 @@ class CylsearchView(private val reactContext: ThemedReactContext) :
    * The `results` prop: reloads the results list when JavaScript sends other results.
    */
   fun setResults(value: List<String>) {
-    if (value == currentResults) return
-    currentResults = value
+    if (value == source.results) return
+    source.results = value
     if (resultsShown) searchView.reloadResults()
   }
 
@@ -82,7 +88,7 @@ class CylsearchView(private val reactContext: ThemedReactContext) :
     if (value == resultsShown) return
     resultsShown = value
     // Setting the data source queries it again.
-    searchView.resultsDataSource = if (value) this else null
+    searchView.resultsDataSource = if (value) source else null
   }
 
   /**
@@ -127,12 +133,6 @@ class CylsearchView(private val reactContext: ThemedReactContext) :
     emit("topRefresh")
   }
 
-  override fun searchViewResultsForQuery(searchView: CYLSearchView, query: String): List<Any> = currentResults
-
-  override fun searchViewConfigureResultCell(searchView: CYLSearchView, cell: CYLSearchSuggestionCell, result: Any) {
-    cell.textLabel.text = result.toString()
-  }
-
   override fun searchViewDidSelectResult(searchView: CYLSearchView, result: Any) {
     val text = result as? String ?: return
     emit("topSelectResult", "result" to text, "index" to searchView.searchResults.indexOf(result))
@@ -165,6 +165,11 @@ class CylsearchView(private val reactContext: ThemedReactContext) :
 
   override fun searchViewDidSelectSuggestion(searchView: CYLSearchView, suggestion: String, index: Int) =
     emit("topSuggestionSelect", "suggestion" to suggestion, "index" to index)
+
+  override fun searchViewDidShow(searchView: CYLSearchView) {
+    // The core fills its tag list while the page is hidden and has no width yet: fill it again now that the page is laid out.
+    post { searchView.reloadResults() }
+  }
 
   override fun searchViewDidClose(searchView: CYLSearchView) = emit("topClose")
 }

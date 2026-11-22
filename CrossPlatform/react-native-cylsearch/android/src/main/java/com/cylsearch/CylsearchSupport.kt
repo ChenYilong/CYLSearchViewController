@@ -1,12 +1,24 @@
 package com.cylsearch
 
+import android.graphics.Color
+import android.graphics.Typeface
+import android.os.Build
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
 import com.cyl.classifymenu.CYLMenuFoldControl
 import com.cyl.classifymenu.CYLMenuFoldControlContent
 import com.cyl.classifymenu.CYLMenuFoldControlPosition
+import com.cyl.search.CYLSearchSuggestionCachePolicy
+import com.cyl.search.CYLSearchSuggestionCell
+import com.cyl.search.CYLSearchView
+import com.cyl.search.CYLSearchViewDataSource
 import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.WritableMap
 import com.facebook.react.uimanager.events.Event
+import java.text.Normalizer
+import java.util.Locale
 
 /**
  * The strings of a JavaScript array.
@@ -58,4 +70,136 @@ internal fun cylEventData(vararg pairs: Pair<String, Any>): WritableMap = Argume
       is Boolean -> putBoolean(key, value)
     }
   }
+}
+
+/**
+ * A color of "#RRGGBB" or "#AARRGGBB"; null for an empty or unreadable value.
+ */
+internal fun cylParseColor(value: String?): Int? = value?.takeIf { it.isNotEmpty() }?.let { runCatching { Color.parseColor(it) }.getOrNull() }
+
+/**
+ * The first match of `query` in `text` as [start, end), case and diacritic insensitive like the core's iOS
+ * `highlightsResultMatches` (`range(of:options:)` with `.caseInsensitive` and `.diacriticInsensitive`); null for none.
+ */
+internal fun cylMatchRange(text: String, query: String): IntRange? {
+  fun fold(value: String) = Normalizer.normalize(value, Normalizer.Form.NFD)
+    .filter { Character.getType(it) != Character.NON_SPACING_MARK.toInt() }
+    .lowercase(Locale.ROOT)
+  val folded = StringBuilder()
+  val starts = ArrayList<Int>()
+  val ends = ArrayList<Int>()
+  var index = 0
+  while (index < text.length) {
+    val length = Character.charCount(text.codePointAt(index))
+    val part = fold(text.substring(index, index + length))
+    repeat(part.length) {
+      starts.add(index)
+      ends.add(index + length)
+    }
+    folded.append(part)
+    index += length
+  }
+  val needle = fold(query)
+  val start = if (needle.isEmpty()) -1 else folded.indexOf(needle)
+  if (start < 0) return null
+  return starts[start] until ends[start + needle.length - 1]
+}
+
+/**
+ * `text` with its first match of `query` in `color`; the plain text when nothing matches.
+ */
+internal fun cylHighlighted(text: String, query: String, color: Int): CharSequence {
+  val range = cylMatchRange(text, query.trim()) ?: return text
+  return SpannableString(text).apply {
+    setSpan(ForegroundColorSpan(color), range.first, range.last + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+  }
+}
+
+/**
+ * The core's history of a search view: `policyName` ("none", "userDefaults", "database" or "sandboxFile") and `name`; set
+ * only when one of them changed (`defaultPolicy` for an unknown name), so the cache is not rebuilt on every prop update.
+ */
+internal fun CYLSearchView.applySuggestionCache(
+  policyName: String?,
+  name: String?,
+  defaultName: String,
+  defaultPolicy: CYLSearchSuggestionCachePolicy,
+) {
+  val policy = when (policyName) {
+    "none" -> CYLSearchSuggestionCachePolicy.None
+    "userDefaults" -> CYLSearchSuggestionCachePolicy.UserDefaults
+    "sandboxFile" -> CYLSearchSuggestionCachePolicy.SandboxFile
+    "database" -> CYLSearchSuggestionCachePolicy.Database
+    else -> defaultPolicy
+  }
+  val cacheName = name?.takeIf { it.isNotEmpty() } ?: defaultName
+  if (policy != suggestionCachePolicy || cacheName != suggestionCacheName) {
+    suggestionCacheName = cacheName
+    suggestionCachePolicy = policy
+  }
+}
+
+/**
+ * The results data source of both components (`CYLSearchView` and `CYLSearchListView`): the `results` of JavaScript, the
+ * rows' text, and the match highlight option. `resultsQuery` null lists the results for every text; a text lists only the
+ * results that belong to it (a late answer never fills the list of a newer text).
+ */
+internal class CylsearchResults(private val tint: Int) : CYLSearchViewDataSource {
+  var results: List<String> = emptyList()
+  var resultsQuery: String? = null
+  var highlights = false
+  var highlightColor: Int? = null
+
+  override fun searchViewResultsForQuery(searchView: CYLSearchView, query: String): List<Any> =
+    if (resultsQuery == null || query == resultsQuery) results else emptyList()
+
+  override fun searchViewConfigureResultCell(searchView: CYLSearchView, cell: CYLSearchSuggestionCell, result: Any) {
+    val text = result.toString()
+    cell.textLabel.text = if (highlights) cylHighlighted(text, searchView.query.orEmpty(), highlightColor ?: tint) else text
+    cell.textLabel.setTypeface(null, Typeface.NORMAL)
+  }
+}
+
+/**
+ * Cancel's title in `font` ({"size":17,"weight":"semibold"}): the weight as the core's `cancelButtonFont` typeface, the size
+ * on the button (the core's font is a typeface without a size). Null or empty JSON keeps the bar's font.
+ */
+internal fun com.cyl.search.CYLSearchBarView.applyCancelButtonFont(json: String?) {
+  val spec = json?.takeIf { it.isNotEmpty() }?.let { runCatching { org.json.JSONObject(it) }.getOrNull() }
+  if (spec == null) {
+    cancelButtonFont = null
+    return
+  }
+  val weight = when (spec.optString("weight")) {
+    "medium" -> 500
+    "semibold" -> 600
+    "bold" -> 700
+    else -> 400
+  }
+  cancelButtonFont = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) Typeface.create(Typeface.DEFAULT, weight, false)
+  else Typeface.defaultFromStyle(if (weight >= 600) Typeface.BOLD else Typeface.NORMAL)
+  if (spec.has("size")) cancelButton.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, spec.optDouble("size").toFloat())
+}
+
+/**
+ * The core's search page pads itself by the window's system bars, as for a page that fills the window. A React Native screen
+ * is usually already below the status bar, so the space above `view` is not the page's: this reduces the system bar and
+ * cutout insets that reach the page by what `view` already keeps clear of them (its distance from the top and the bottom of
+ * the window). It replaces the blank band of about 150 px above the search bar.
+ */
+internal fun cylKeepSystemBarsAbove(view: android.view.View) {
+  androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(view) { host, insets ->
+    val location = IntArray(2)
+    host.getLocationInWindow(location)
+    val bottomGap = (host.rootView.height - (location[1] + host.height)).coerceAtLeast(0)
+    fun reduced(type: Int): androidx.core.graphics.Insets {
+      val bars = insets.getInsets(type)
+      return androidx.core.graphics.Insets.of(bars.left, (bars.top - location[1]).coerceAtLeast(0), bars.right, (bars.bottom - bottomGap).coerceAtLeast(0))
+    }
+    androidx.core.view.WindowInsetsCompat.Builder(insets)
+      .setInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars(), reduced(androidx.core.view.WindowInsetsCompat.Type.systemBars()))
+      .setInsets(androidx.core.view.WindowInsetsCompat.Type.displayCutout(), reduced(androidx.core.view.WindowInsetsCompat.Type.displayCutout()))
+      .build()
+  }
+  view.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> androidx.core.view.ViewCompat.requestApplyInsets(view) }
 }

@@ -1,10 +1,6 @@
 package com.cylsearch
 
 import android.graphics.Color
-import android.graphics.Typeface
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.ForegroundColorSpan
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.ViewGroup
@@ -14,41 +10,56 @@ import androidx.recyclerview.widget.RecyclerView
 import com.cyl.search.CYLSearchBarAppearance
 import com.cyl.search.CYLSearchBarNavigationIcon
 import com.cyl.search.CYLSearchListView
-import com.cyl.search.CYLSearchResources
 import com.cyl.search.CYLSearchSuggestionCachePolicy
-import com.cyl.search.CYLSearchSuggestionCell
 import com.cyl.search.CYLSearchView
-import com.cyl.search.CYLSearchViewDataSource
 import com.cyl.search.CYLSearchViewDelegate
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.UIManagerHelper
 
 /**
  * The core's `CYLSearchListView` (iOS `CYLSearchTableViewController`: a list whose first item is the search bar) with its
- * `CYLSearchView` as the search: the rows, the results of the current text (`results` and `resultsQuery`, drawn with the
- * match in the tint color), the launch view, the dimming, the history, the empty view and the presentation events. React
- * Native owns the data; the core owns the bar, the page, the scrolling and the snapping.
+ * `CYLSearchView` as the search. The page is the core's own: its suggestion area is the launch area (the history, else
+ * `suggestions`, as folded tags, with the title and the clear button), `scrimColor` the dimming, `showEmptyView` the
+ * empty view. React Native owns the data; the core owns the bar, the page, the scrolling and the snapping. The results
+ * and their highlight come from the one data source both components use (`CylsearchResults`).
  */
-class CylsearchListView(private val reactContext: ThemedReactContext) :
-  FrameLayout(reactContext), CYLSearchViewDelegate, CYLSearchViewDataSource {
+class CylsearchListView(private val reactContext: ThemedReactContext) : FrameLayout(reactContext), CYLSearchViewDelegate {
 
   val list = CYLSearchListView(reactContext)
   val searchView: CYLSearchView get() = list.searchView
-  private val launchView = CylsearchLaunchView(reactContext)
-  private val tint = CYLSearchBarAppearance.defaultAppearance(reactContext).tintColor ?: Color.rgb(0, 104, 248)
+  private val source = CylsearchResults(CYLSearchBarAppearance.defaultAppearance(reactContext).tintColor ?: Color.rgb(0, 104, 248))
 
   var rows: List<String> = emptyList()
     set(value) {
       field = value
       adapter.notifyDataSetChanged()
     }
-  var results: List<String> = emptyList()
-  var resultsQuery: String = ""
-  var emptyViewText: String = ""
-  var launchTitle: String = ""
-  var historyPolicy: String? = null
-  var historyName: String? = null
-  private var appliedHistory: Pair<String?, String?>? = null
+  var results: List<String>
+    get() = source.results
+    set(value) {
+      source.results = value
+    }
+  var resultsQuery: String
+    get() = source.resultsQuery.orEmpty()
+    set(value) {
+      source.resultsQuery = value
+    }
+  var highlightsResultMatches: Boolean
+    get() = source.highlights
+    set(value) {
+      source.highlights = value
+    }
+  var resultMatchHighlightColor: Int?
+    get() = source.highlightColor
+    set(value) {
+      source.highlightColor = value
+    }
+  var noResultsText: String = ""
+  var suggestions: List<String> = emptyList()
+  var suggestionCachePolicy: String? = null
+  var suggestionCacheName: String? = null
+  var scrimColor: String? = null
+  var placeholder: String? = null
 
   private val adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun getItemCount() = rows.size
@@ -76,49 +87,35 @@ class CylsearchListView(private val reactContext: ThemedReactContext) :
     list.adapter = adapter
     searchView.apply {
       delegate = this@CylsearchListView
-      resultsDataSource = this@CylsearchListView
+      resultsDataSource = source
       // The bar of the page is Cancel-style, as a UISearchBar that is active.
       searchBarView.navigationIcon = CYLSearchBarNavigationIcon.None
       searchBarView.showsCancelButton = true
       searchBarView.applyDefaultAppearance()
       clearsQueryOnClose = true
       closesOnSubmit = false
-      showsSuggestionCacheHeader = false
-      launchView = this@CylsearchListView.launchView
+      // A tapped tag submits, as the return key does.
+      submitsOnSuggestionSelection = true
+      showsEmptySuggestionsPlaceholder = false
     }
-    launchView.onClear = { emit("topHistoryChange", "query" to "") }
     searchView.addHistoryDidChangeListener {
-      launchView.reload()
       emit("topHistoryChange", "query" to searchView.suggestionCache?.cachedQueries()?.firstOrNull().orEmpty())
     }
     addView(list, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+    cylKeepSystemBarsAbove(this)
   }
 
   /** Applies the props that depend on each other, once per update (the manager's onAfterUpdateTransaction). */
-  fun applyProps(placeholder: String?, launchSuggestions: List<String>, launchLabel: String, clearLabel: String, dimming: String?) {
+  fun applyProps() {
     if (!placeholder.isNullOrEmpty()) {
       searchView.searchBarView.placeholder = placeholder
       list.searchBarView.placeholder = placeholder
     }
-    launchView.titleLabel.text = launchTitle
-    launchView.contentDescription = launchLabel
-    launchView.tagListView.contentDescription = launchLabel
-    launchView.clearButton.contentDescription = clearLabel.ifEmpty { CYLSearchResources.localizedString(context, "search.clearRecent") }
-    val history = historyPolicy to historyName
-    if (history != appliedHistory) {
-      appliedHistory = history
-      searchView.suggestionCachePolicy = when (historyPolicy) {
-        "userDefaults" -> CYLSearchSuggestionCachePolicy.UserDefaults
-        "database" -> CYLSearchSuggestionCachePolicy.Database
-        "sandboxFile" -> CYLSearchSuggestionCachePolicy.SandboxFile
-        else -> CYLSearchSuggestionCachePolicy.None
-      }
-      searchView.suggestionCacheName = historyName?.takeIf { it.isNotEmpty() } ?: "CylsearchListView"
-      launchView.historyStore = searchView.suggestionCache
-    }
-    launchView.suggestions = launchSuggestions
-    searchView.launchView = if (launchTitle.isEmpty()) null else launchView
-    searchView.dimmingColor = dimming?.takeIf { it.isNotEmpty() }?.let { runCatching { Color.parseColor(it) }.getOrNull() }
+    searchView.applySuggestionCache(suggestionCachePolicy, suggestionCacheName, "CylsearchListView", CYLSearchSuggestionCachePolicy.None)
+    searchView.suggestions = suggestions
+    // The launch area shows while the text is empty when there is something to launch with: the history or the suggestions.
+    searchView.showsSuggestionsForEmptyQuery = suggestions.isNotEmpty() || searchView.suggestionCachePolicy != CYLSearchSuggestionCachePolicy.None
+    searchView.scrimColor = cylParseColor(scrimColor)
     searchView.reloadResults()
     updateEmptyView()
   }
@@ -126,8 +123,8 @@ class CylsearchListView(private val reactContext: ThemedReactContext) :
   /** The empty view for a text whose results are known to be empty (QDSearchViewController's updateResults). */
   private fun updateEmptyView() {
     val query = searchView.query.orEmpty()
-    if (emptyViewText.isNotEmpty() && query.isNotEmpty() && resultsQuery == query && results.isEmpty()) {
-      searchView.showEmptyView(emptyViewText)
+    if (noResultsText.isNotEmpty() && query.isNotEmpty() && resultsQuery == query && results.isEmpty()) {
+      searchView.showEmptyView(noResultsText)
     } else {
       searchView.hideEmptyView()
     }
@@ -140,24 +137,17 @@ class CylsearchListView(private val reactContext: ThemedReactContext) :
   }
 
   override fun searchViewWillShow(searchView: CYLSearchView) = emit("topWillPresent")
-  override fun searchViewDidShow(searchView: CYLSearchView) = emit("topDidPresent")
+  override fun searchViewDidShow(searchView: CYLSearchView) {
+    // The core fills its tag list while the page is hidden and has no width yet: fill it again now that the page is laid out.
+    post { searchView.reloadResults() }
+    emit("topDidPresent")
+  }
   override fun searchViewWillClose(searchView: CYLSearchView) = emit("topWillDismiss")
   override fun searchViewDidClose(searchView: CYLSearchView) = emit("topDidDismiss")
 
-  override fun searchViewDidSubmitText(searchView: CYLSearchView, text: String): Boolean = true
-
-  // Results of another text are not shown: a late answer never fills the list of a newer text.
-  override fun searchViewResultsForQuery(searchView: CYLSearchView, query: String): List<Any> =
-    if (query == resultsQuery) results else emptyList()
-
-  override fun searchViewConfigureResultCell(searchView: CYLSearchView, cell: CYLSearchSuggestionCell, result: Any) {
-    val keyword = result.toString()
-    val text = SpannableString(keyword)
-    val query = searchView.query.orEmpty()
-    val start = if (query.isEmpty()) -1 else keyword.indexOf(query)
-    if (start >= 0) text.setSpan(ForegroundColorSpan(tint), start, start + query.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-    cell.textLabel.text = text
-    cell.textLabel.setTypeface(null, Typeface.NORMAL)
+  override fun searchViewDidSubmitText(searchView: CYLSearchView, text: String): Boolean {
+    emit("topSubmit", "text" to text)
+    return true
   }
 
   override fun searchViewDidSelectResult(searchView: CYLSearchView, result: Any) {

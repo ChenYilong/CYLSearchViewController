@@ -17,17 +17,6 @@ import com.facebook.react.viewmanagers.CylsearchListViewManagerInterface
 class CylsearchListViewManager : SimpleViewManager<CylsearchListView>(), CylsearchListViewManagerInterface<CylsearchListView> {
   private val delegate = CylsearchListViewManagerDelegate(this)
 
-  private class Pending {
-    var placeholder: String? = null
-    var suggestions: List<String> = emptyList()
-    var launchLabel = ""
-    var clearLabel = ""
-    var dimming: String? = null
-  }
-
-  private val pending = HashMap<Int, Pending>()
-  private fun pending(view: CylsearchListView) = pending.getOrPut(view.id) { Pending() }
-
   override fun getDelegate(): ViewManagerDelegate<CylsearchListView> = delegate
   override fun getName() = NAME
   override fun createViewInstance(context: ThemedReactContext) = CylsearchListView(context)
@@ -36,7 +25,7 @@ class CylsearchListViewManager : SimpleViewManager<CylsearchListView>(), Cylsear
   override fun setRows(view: CylsearchListView, value: ReadableArray?) { view.rows = value.cylStrings() }
 
   @ReactProp(name = "placeholder")
-  override fun setPlaceholder(view: CylsearchListView, value: String?) { pending(view).placeholder = value }
+  override fun setPlaceholder(view: CylsearchListView, value: String?) { view.placeholder = value }
 
   @ReactProp(name = "centersPlaceholder")
   override fun setCentersPlaceholder(view: CylsearchListView, value: Boolean) {
@@ -62,29 +51,29 @@ class CylsearchListViewManager : SimpleViewManager<CylsearchListView>(), Cylsear
   @ReactProp(name = "resultsQuery")
   override fun setResultsQuery(view: CylsearchListView, value: String?) { view.resultsQuery = value.orEmpty() }
 
-  @ReactProp(name = "emptyViewText")
-  override fun setEmptyViewText(view: CylsearchListView, value: String?) { view.emptyViewText = value.orEmpty() }
+  @ReactProp(name = "noResultsText")
+  override fun setNoResultsText(view: CylsearchListView, value: String?) { view.noResultsText = value.orEmpty() }
 
-  @ReactProp(name = "launchTitle")
-  override fun setLaunchTitle(view: CylsearchListView, value: String?) { view.launchTitle = value.orEmpty() }
+  @ReactProp(name = "suggestions")
+  override fun setSuggestions(view: CylsearchListView, value: ReadableArray?) { view.suggestions = value.cylStrings() }
 
-  @ReactProp(name = "launchSuggestions")
-  override fun setLaunchSuggestions(view: CylsearchListView, value: ReadableArray?) { pending(view).suggestions = value.cylStrings() }
+  @ReactProp(name = "submitsOnSuggestionSelection", defaultBoolean = true)
+  override fun setSubmitsOnSuggestionSelection(view: CylsearchListView, value: Boolean) { view.searchView.submitsOnSuggestionSelection = value }
 
-  @ReactProp(name = "launchLabel")
-  override fun setLaunchLabel(view: CylsearchListView, value: String?) { pending(view).launchLabel = value.orEmpty() }
+  @ReactProp(name = "suggestionCachePolicy")
+  override fun setSuggestionCachePolicy(view: CylsearchListView, value: String?) { view.suggestionCachePolicy = value }
 
-  @ReactProp(name = "clearHistoryLabel")
-  override fun setClearHistoryLabel(view: CylsearchListView, value: String?) { pending(view).clearLabel = value.orEmpty() }
+  @ReactProp(name = "suggestionCacheName")
+  override fun setSuggestionCacheName(view: CylsearchListView, value: String?) { view.suggestionCacheName = value }
 
-  @ReactProp(name = "historyPolicy")
-  override fun setHistoryPolicy(view: CylsearchListView, value: String?) { view.historyPolicy = value }
+  @ReactProp(name = "scrimColor")
+  override fun setScrimColor(view: CylsearchListView, value: String?) { view.scrimColor = value }
 
-  @ReactProp(name = "historyName")
-  override fun setHistoryName(view: CylsearchListView, value: String?) { view.historyName = value }
+  @ReactProp(name = "highlightsResultMatches")
+  override fun setHighlightsResultMatches(view: CylsearchListView, value: Boolean) { view.highlightsResultMatches = value }
 
-  @ReactProp(name = "dimmingColor")
-  override fun setDimmingColor(view: CylsearchListView, value: String?) { pending(view).dimming = value }
+  @ReactProp(name = "resultMatchHighlightColor")
+  override fun setResultMatchHighlightColor(view: CylsearchListView, value: String?) { view.resultMatchHighlightColor = cylParseColor(value) }
 
   @ReactProp(name = "supportsSwipeToDismissSearch")
   override fun setSupportsSwipeToDismissSearch(view: CylsearchListView, value: Boolean) { view.searchView.supportsSwipeToDismissSearch = value }
@@ -95,8 +84,7 @@ class CylsearchListViewManager : SimpleViewManager<CylsearchListView>(), Cylsear
 
   override fun onAfterUpdateTransaction(view: CylsearchListView) {
     super.onAfterUpdateTransaction(view)
-    val p = pending(view)
-    view.applyProps(p.placeholder, p.suggestions, p.launchLabel, p.clearLabel, p.dimming)
+    view.applyProps()
   }
 
   override fun setActive(view: CylsearchListView, active: Boolean, animated: Boolean) {
@@ -105,11 +93,6 @@ class CylsearchListViewManager : SimpleViewManager<CylsearchListView>(), Cylsear
 
   override fun clearHistory(view: CylsearchListView) {
     view.searchView.clearSuggestionCache()
-  }
-
-  override fun onDropViewInstance(view: CylsearchListView) {
-    pending.remove(view.id)
-    super.onDropViewInstance(view)
   }
 
   companion object {

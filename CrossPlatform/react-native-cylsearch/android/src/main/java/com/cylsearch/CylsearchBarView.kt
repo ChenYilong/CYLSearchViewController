@@ -116,11 +116,12 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
   var cancelMargins: List<Double> = emptyList()
   var searchingCancelMargins: List<Double> = emptyList()
   var animatesChanges = true
-  var leadingAccessoryJSON: String? = null
-  var trailingAccessoryJSON: String? = null
-  var showsLeadingAccessory = false
-  var showsTrailingAccessory = false
-  var appearanceJSON: String? = null
+  var leadingViewJSON: String? = null
+  var trailingAccessoryViewsJSON: String? = null
+  var showsLeadingView = false
+  var showsTrailingAccessoryViews = false
+  var appearanceStyleJSON: String? = null
+  var cancelButtonFontJSON: String? = null
   var showsCancel = false
   private var appliedAppearance: Pair<Boolean, String?>? = null
   private var appliedLeading: String? = null
@@ -131,11 +132,11 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
 
   /** Called once per prop update (the manager's onAfterUpdateTransaction). */
   fun applyQMUIStyle() {
-    val appearance = usesDefaultAppearance to appearanceJSON
+    val appearance = usesDefaultAppearance to appearanceStyleJSON
     if (appearance != appliedAppearance) {
       appliedAppearance = appearance
       if (usesDefaultAppearance) bar.applyDefaultAppearance()
-      appearanceJSON?.takeIf { it.isNotEmpty() }?.let { runCatching { appearanceFromJSON(JSONObject(it)).applyTo(bar) } }
+      appearanceStyleJSON?.takeIf { it.isNotEmpty() }?.let { runCatching { appearanceFromJSON(JSONObject(it)).applyTo(bar) } }
     }
     placeholderProp?.takeIf { it.isNotEmpty() }?.let { bar.placeholder = it }
     parseColor(placeholderColor)?.let { bar.placeholderColor = it }
@@ -147,24 +148,27 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
     val cancelActive = rect(searchingCancelMargins)
     bar.textFieldMarginsProvider = if (fieldMargins.isEmpty() && searchingFieldMargins.isEmpty()) null else { b, active -> if (active && searchingFieldMargins.isNotEmpty()) fieldActive else field }
     bar.cancelButtonMarginsProvider = if (cancelMargins.isEmpty() && searchingCancelMargins.isEmpty()) null else { b, active -> if (active && searchingCancelMargins.isNotEmpty()) cancelActive else cancel }
-    if (leadingAccessoryJSON != appliedLeading) {
-      appliedLeading = leadingAccessoryJSON
-      bar.leadingAccessoryView = accessory(leadingAccessoryJSON)
+    bar.applyCancelButtonFont(cancelButtonFontJSON)
+    // TODO (Android merge): the core still has the accessory slots next to `leadingView` / `trailingAccessoryViews`; the
+    // first view of `trailingAccessoryViewsJSON` goes into the slot until the core animates the existing members.
+    if (leadingViewJSON != appliedLeading) {
+      appliedLeading = leadingViewJSON
+      bar.leadingAccessoryView = accessory(leadingViewJSON)
       bar.leadingAccessoryViewMargins = Rect(8, 0, 0, 0)
     }
-    if (trailingAccessoryJSON != appliedTrailing) {
-      appliedTrailing = trailingAccessoryJSON
-      bar.trailingAccessoryView = accessory(trailingAccessoryJSON)
+    if (trailingAccessoryViewsJSON != appliedTrailing) {
+      appliedTrailing = trailingAccessoryViewsJSON
+      bar.trailingAccessoryView = accessory(runCatching { JSONArray(trailingAccessoryViewsJSON).optJSONObject(0)?.toString() }.getOrNull())
       bar.trailingAccessoryViewMargins = Rect(0, 0, 8, 0)
     }
     // Changes of the shown state animate once the first one is on screen (setShows...(_:animated:)).
-    if (shownLeading != showsLeadingAccessory) {
-      bar.setShowsLeadingAccessoryView(showsLeadingAccessory, animatesChanges && shownLeading != null)
-      shownLeading = showsLeadingAccessory
+    if (shownLeading != showsLeadingView) {
+      bar.setShowsLeadingAccessoryView(showsLeadingView, animatesChanges && shownLeading != null)
+      shownLeading = showsLeadingView
     }
-    if (shownTrailing != showsTrailingAccessory) {
-      bar.setShowsTrailingAccessoryView(showsTrailingAccessory, animatesChanges && shownTrailing != null)
-      shownTrailing = showsTrailingAccessory
+    if (shownTrailing != showsTrailingAccessoryViews) {
+      bar.setShowsTrailingAccessoryView(showsTrailingAccessoryViews, animatesChanges && shownTrailing != null)
+      shownTrailing = showsTrailingAccessoryViews
     }
     if (shownCancel != showsCancel) {
       bar.setShowsCancelButton(showsCancel, animatesChanges && shownCancel != null)
@@ -172,7 +176,7 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
     }
   }
 
-  private fun parseColor(value: String?): Int? = value?.takeIf { it.isNotEmpty() }?.let { runCatching { Color.parseColor(it) }.getOrNull() }
+  private fun parseColor(value: String?): Int? = cylParseColor(value)
 
   /** [top, left, bottom, right] as the Rect(left, top, right, bottom) of the core, in dp. */
   private fun rect(values: List<Double>): Rect =
