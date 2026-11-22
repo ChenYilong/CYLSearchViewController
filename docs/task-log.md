@@ -942,3 +942,13 @@ begins and becomes `DONE` when it ends.
   licenses, code-style). `docs/instructions/`: 16 files, 21 to 182 lines; a script compared every old section's body with
   the tag files: none lost; a link check found no broken relative link. The two check scripts now name the tag files in
   their messages. Skill `cyl-docs`: the rule.
+
+## TODO (2026-11-22): move the CYLTableViewPlaceHolder pin past its Swift rename
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: CYLTableViewPlaceHolder renamed its Swift `cyl_` names (S100) in
+  `0c8961f` (`fix/ios-swift-todos-placeholder`, its PR #35; mapping table `docs/Swift-Naming.md` there). Objective-C
+  selectors are unchanged, Swift spellings change and get no deprecated aliases. Our pin is `c473fdc`.
+- **Requirements**: after that commit's CI is green and it reaches the branch we pin from, move the pin on every
+  platform together (skill `cyl-sub-repositories`), update our Swift call sites from the mapping table, all suites green.
+- **Source**: message from the CYLTableViewPlaceHolder session (chenyilong-83), 2026-11-22; no prompt of the owner.
+- **Status**: TODO (after the merge refactor phases).
