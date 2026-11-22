@@ -1070,4 +1070,8 @@ begins and becomes `DONE` when it ends.
 - **Prompt (verbatim)**: "continue fix todo and watch and fix ci fail"
 - **Acceptance**: 100 = as the `c8fee654` pin entry: every pin file, vendored copies synced, Android, HarmonyOS, mini
   program, Flutter and React Native tests green, the iOS workflow green on a head with the pin. 60 = local tests green.
-- **Status**: TODO.
+- **Status**: TODO, 60/100 (local tests green; not committed yet). The pin changes are kept in `git stash` ("pin
+  c4a1f8fd/04b39e26: commit after ClassifyMenu iOS CI passes") until ClassifyMenu's iOS run on `04b39e26` passes (queued
+  for over an hour on 2026-11-22). Results with the pin on Windows: Android core 76/76 (after `2d4ffb8`: the new
+  `CYLSearchFoldControlTest` also left views attached, 10 failures before) and example 9/9; HarmonyOS 55/55 on the x86_64
+  emulator; mini program 96/96; Flutter 36/36 and 5/5, example APK builds; React Native 15/15.
