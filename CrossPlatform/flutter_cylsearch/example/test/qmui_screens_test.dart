@@ -15,7 +15,7 @@ void main() {
       'demo.searchBarStyles', 'demo.searchController', 'styles.section.placeholder', 'styles.section.layout', 'styles.section.accessory',
       'styles.centerPlaceholder', 'styles.changePlaceholder', 'styles.longPlaceholder', 'styles.adjustField', 'styles.adjustCancel',
       'styles.animated', 'styles.show', 'styles.hide', 'styles.cancel', 'styles.leading', 'styles.trailing', 'styles.accessory.label',
-      'controller.recent', 'controller.noResults', 'controller.launch.label', 'search.clearRecent',
+      'controller.noResults',
     ];
     final english = <String, String>{for (final key in keys) key: cylDemoText(key)};
     expect(english['controller.noResults'], 'No matching results');

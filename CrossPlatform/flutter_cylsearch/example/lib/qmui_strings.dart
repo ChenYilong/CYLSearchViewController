@@ -17,7 +17,6 @@ String cylDemoLanguage() {
 
 const Map<String, Map<String, String>> _texts = <String, Map<String, String>>{
   'en': <String, String>{
-    'search.clearRecent': 'Clear recent searches',
     'demo.searchBarStyles': 'Search bar styles',
     'styles.section.placeholder': 'Placeholder',
     'styles.section.layout': 'Layout',
@@ -36,12 +35,9 @@ const Map<String, Map<String, String>> _texts = <String, Map<String, String>>{
     'styles.accessory.label': 'Accessory view',
     'styles.row.hint': 'Changes the search bar above the list',
     'demo.searchController': 'Search controller',
-    'controller.recent': 'Recent searches',
     'controller.noResults': 'No matching results',
-    'controller.launch.label': 'Recent searches: tap a search to see it',
   },
   'zh-Hans': <String, String>{
-    'search.clearRecent': '清除最近搜索',
     'demo.searchBarStyles': '搜索栏样式',
     'styles.section.placeholder': '占位文字',
     'styles.section.layout': '布局',
@@ -60,12 +56,9 @@ const Map<String, Map<String, String>> _texts = <String, Map<String, String>>{
     'styles.accessory.label': '附件视图',
     'styles.row.hint': '修改列表上方的搜索栏',
     'demo.searchController': '搜索控制器',
-    'controller.recent': '最近搜索',
     'controller.noResults': '没有匹配结果',
-    'controller.launch.label': '最近搜索',
   },
   'zh-Hant': <String, String>{
-    'search.clearRecent': '清除最近搜尋',
     'demo.searchBarStyles': '搜尋列樣式',
     'styles.section.placeholder': '預留位置文字',
     'styles.section.layout': '版面',
@@ -84,12 +77,9 @@ const Map<String, Map<String, String>> _texts = <String, Map<String, String>>{
     'styles.accessory.label': '附件檢視',
     'styles.row.hint': '修改清單上方的搜尋列',
     'demo.searchController': '搜尋控制器',
-    'controller.recent': '最近搜尋',
     'controller.noResults': '沒有符合的結果',
-    'controller.launch.label': '最近搜尋',
   },
   'ja': <String, String>{
-    'search.clearRecent': '最近の検索を消去',
     'demo.searchBarStyles': '検索バーのスタイル',
     'styles.section.placeholder': 'プレースホルダー',
     'styles.section.layout': 'レイアウト',
@@ -108,9 +98,7 @@ const Map<String, Map<String, String>> _texts = <String, Map<String, String>>{
     'styles.accessory.label': 'アクセサリビュー',
     'styles.row.hint': 'リストの上の検索バーを変更します',
     'demo.searchController': '検索コントローラ',
-    'controller.recent': '最近の検索',
     'controller.noResults': '一致する結果はありません',
-    'controller.launch.label': '最近の検索',
   },
 };
 
