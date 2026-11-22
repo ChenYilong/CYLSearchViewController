@@ -981,3 +981,18 @@ begins and becomes `DONE` when it ends.
   rules); tag `behavioral` in `AGENTS.md` and `instructions.md`; `CLAUDE.md`, the skills, `meta.md` and the task log point
   to it; no link to the old names; links resolve; root files within 200 lines.
 - **Status**: DONE (2026-11-22), 100/100. `git mv` keeps the guidelines' history; `behavior.md` merged into it and removed.
+
+
+## DONE (2026-11-22): read the git tag file in full before any git operation
+
+- **Branch**: `feat/harmonyos-parity` (PR #11).
+- **Prompt (verbatim)**: see `docs/instructions/git.md`, "Read this file in full before any git operation" (quoted there).
+- **Prompt (English)**: before any git operation, read the git tag file in full, then run it; write the rule into the
+  instruction and skill files and apply it once in this task.
+- **Acceptance**: 100 = the rule in `git.md` (prompt, rules), one line under the `git` heading of `AGENTS.md` and
+  `instructions.md` (within 200 lines), skill `cyl-commit`; applied once: `git.md` read in full before this commit, and what
+  it asks done (open pull request checked: #11; two open pull requests, #11 and #14; the `commit-msg` hook inspected:
+  none, installed as written; message checked).
+- **Status**: DONE (2026-11-22), 100/100. Reading it showed one rule this session had not applied: the `commit-msg` hook
+  that removes `Co-Authored-By:` lines was never installed in this clone; installed now, so commits from here on carry no
+  such trailer (earlier commits of this session have one).

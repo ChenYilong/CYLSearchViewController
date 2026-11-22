@@ -2,6 +2,25 @@
 
 Details of the `git` tag of [AGENTS.md](../../AGENTS.md) and [instructions.md](../../instructions.md). Moved here unchanged on 2026-11-22 (the instruction files keep a short summary per tag); where `AGENTS.md` and `instructions.md` worded a section differently, both wordings are kept. Code wins over the text, as before.
 
+## Read this file in full before any git operation (added 2026-11-22)
+
+- Prompt (verbatim): "找到本项目instructions 相关文件（可能包含根目录的agent Claude文件instructions 文件， 首先确认下面内容的归类。如果agent Claude文件文件超出每个文件200行限制，则优先放入docs 里的instructions文件夹合适文件，）以及skills相关文件，如果没有就新增文件保证写入成功，全英文写入，并且在本次任务中就执行一次下面的指令： 执行git 操作前，必须全文阅读git 对应的tag文件。再进行git操作。"
+- Prompt (English): "Find the instruction files (the root agent / Claude / instructions files; first decide where this
+  belongs; when an agent or Claude file would pass 200 lines, put the text into a fitting file in `docs/instructions`) and the
+  skill files (add files when missing, make sure the write succeeds), write in English, and carry this out once in this
+  task: before any git operation, read the git tag file in full; only then run the git operation."
+- Rules:
+  1. Before any git operation (commit, push, pull, fetch with rebase, rebase, merge, cherry-pick, reset, revert, stash,
+     branch, checkout or switch of a branch, tag, worktree, and `gh pr` / `gh api` calls that write), read this file,
+     `docs/instructions/git.md`, in full, every line. An excerpt, a summary or memory of an earlier reading does not count.
+  2. Once per task is enough while the file is unchanged; read it again when it changed since (`git log -1 --format=%H --
+     docs/instructions/git.md` differs from the reading) and after a session restart or a context summary.
+  3. Then follow every rule in it for that operation (open pull request, `git cz` message checked by
+     `scripts/check-commit-message.sh`, the author line, `NO_AUTO_SYNC`, the `commit-msg` hook, the image label check, …).
+  4. Read-only git commands (`status`, `log`, `diff`, `show`, `grep`, `ls-remote`) need no reading first.
+- First applied 2026-11-22: this file read in full before the commit that adds this section; the `commit-msg` hook below,
+  never installed in this clone before, was installed then. Skill: `cyl-commit`.
+
 ## Commit readiness
 
 - **Every branch with commits has an open pull request (added 2026-11-16).** Never create a branch and keep committing

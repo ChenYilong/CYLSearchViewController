@@ -3,6 +3,9 @@ name: cyl-commit
 description: "Write and check every commit message of this project: git cz (Commitizen) style, the whole message in English with no Chinese characters, the author line, and the steps before committing."
 ---
 
+> **Before any git operation, read [docs/instructions/git.md](../../../docs/instructions/git.md) in full**, every line
+> (again when it changed), then follow it: open pull request, `git cz` message, author line, `NO_AUTO_SYNC`, `commit-msg` hook.
+
 # Commits
 
 Full rules: `AGENTS.md`, "Commit readiness"; `instructions.md`, "Commitizen defaults" and "Commitizen commits".

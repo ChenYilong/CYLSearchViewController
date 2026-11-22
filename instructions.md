@@ -57,6 +57,8 @@ The content is grouped by tag. Every category below has a short summary; its ful
 
 ## Git, commits and pull requests (tag: `git`)
 
+- **Before any git operation, read [docs/instructions/git.md](docs/instructions/git.md) in full** (every line; again
+  when it changed); then run it. Read-only commands (`status`, `log`, `diff`) excepted.
 - Every branch with commits has an open pull request (base: the previously active PR's branch, else `master`); more
   than two open PRs: ask first. On a branch other than `master` / `main`, commit and push without asking.
 - Messages: `git cz` style `<type>(<scope>): <emoji> <subject>`, 3 to 64 characters, English only, the author line
