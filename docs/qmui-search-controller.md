@@ -833,7 +833,7 @@ same knob names through shared helpers. Dropping it would drop navigation-item s
    beside `scrimColor`), launch views on the ClassifyMenu tag list.
 6. ClassifyMenu `CYLMenuStyle.minimumItemSize` and the pin move (own branch / PR in that repository).
 
-Status: phase 0 DONE (2026-11-22, see "Merge phase 0 log"); phase 1 DONE (2026-11-22, see "Merge phase 1 log"); phase 2 DONE (2026-11-22, see "Merge phase 2 log"); phase 3 DONE (2026-11-22, see "Merge phase 3 log"); phase 4 next.
+Status: phase 0 DONE (2026-11-22, see "Merge phase 0 log"); phase 1 DONE (2026-11-22, see "Merge phase 1 log"); phase 2 DONE (2026-11-22, see "Merge phase 2 log"); phase 3 DONE (2026-11-22, see "Merge phase 3 log"); phase 4 DONE (2026-11-22, see "Merge phase 4 log"); phases 5 and 6 next.
 
 
 ### Flutter (CrossPlatform/flutter_cylsearch): QMUI search port (2026-11-22)
@@ -1081,4 +1081,103 @@ Found while taking them, fixed in the core: the empty view of `CYLSearchControll
 - Requirements (the task text, English): 1. Audit every example screen in `CYLSearchExample/` for UI the core already offers but the example rebuilds with native views (hand-made tag rows, headers, clear buttons, highlight, empty views, result tables duplicating the core's results, custom dimming, own history storage, own fold controls); replace each with core API; where an example needs a customisation the core lacks, add it to the core (parameter or mode, public API comment, fence line, test); keep each screen's look and the 1:1 replicas' behaviour; list every replacement (file, lines removed). 2. Decide per QMUI issue screen (Navigation item, Bar in a view, Short list, Collection view) whether it stays on `CYLSearchController` / `CYLSearchBar` (the UIKit adapter) or can use `CYLSearchBarView` / `CYLSearchView`, with the reason. 3. Swipe-to-dismiss regression check: phase 3 reported that `CYLSearchController`'s edge swipe does not start by real touch; check the same stroke on `6014474` (worktree `/tmp/xpr/merge-p4-old`); if it worked, bisect and fix in the core; if it never worked, find the cause anyway and fix it with public API; verify by real touch on 27.2 and 17.5 and record a short stitched screenshot sequence. 4. Final: full suites on 17.5 / 26.5 / 27.2; after screenshots of every screen that has a merge-before image (`merge-after-<screen>-ios27.2-20261122.png`); update the design's Status line; write "Merge score (iOS)" with points per criterion of the task-log entry "merge the QMUI search components with ours" and missing points as TODO. The task-log entry is not marked done (phases 5 and 6 remain).
 - Prompt (verbatim, English; the task came as an English message): "Phase 4 tasks (design: examples free of native re-implementations; final iOS score of the merge): 1. Audit every example screen in CYLSearchExample/ for UI the core already offers but the example rebuilds with native views (hand-made tag rows, headers, clear buttons, highlight, empty views, result tables duplicating CYLSearchView/CYLSearchController results, custom dimming, own history storage, own fold controls). Replace each with core API; where an example needs a customisation the core lacks, add it to the core (parameter or mode, public API comment, fence line, test) instead of rebuilding. Keep each screen's look and the 1:1 replica screens' behaviour (QMUI replicas, the original/port demos). List every replacement (file, lines removed) in the log. 2. Decide per QMUI issue screen (Navigation item, Bar in a view, Short list, Collection view) whether it stays on CYLSearchController/CYLSearchBar (the UIKit adapter is required: navigationItem.searchController, UISearchController behaviour) or can use CYLSearchBarView/CYLSearchView; write the reason per screen. 3. Swipe-to-dismiss regression check: phase 3 reported that CYLSearchController's edge swipe no longer starts by real touch (axe draw strokes 0.35-4 s on the Search controller demo, which sets supportsSwipeToDismissSearch = true). Check the same real-touch stroke on the pre-merge commit 6014474 (a separate worktree /tmp/xpr/merge-p4-old) to see whether it worked before. If it worked before, it is a merge regression: bisect between 6014474 and HEAD and fix it in the core. If it never worked by real touch, find the cause anyway (e.g. the navigation controller's interactive pop recognizer winning; use gestureRecognizer(_:shouldRequireFailureOf:)/shouldBeRequiredToFailBy or require-failure wiring with interactivePopGestureRecognizer, public API only) and fix it; verify by real touch on 27.2 and 17.5 and record a short stitched screenshot sequence. 4. Final: full suites on 17.5/26.5/27.2; after screenshots of every screen that has a merge-before image (same states, merge-after-<screen>-ios27.2-20261122.png); update the 'Merge design' Status line and write 'Merge score (iOS)' in docs/qmui-search-controller.md: criteria from the task-log entry 'merge the QMUI search components with ours' (one class per concept, old API compiles = fence, examples free of native re-implementations, suites green on three iOS versions, before/after screenshots), points per criterion, missing points as TODO. Do not mark the task-log entry done (phases 5-6 remain)."
 - Acceptance (100): items 1 to 4 done, old public API compiling (the fence unchanged plus lines for new members), the three suites green, after screenshots with labels, the swipe verified by real touch on 27.2 and 17.5 with a stitched sequence, this log complete, pushed. 60: items 1 and 2 with tests on one simulator and the swipe finding written.
-- Status: TODO (started 2026-11-22), see below.
+- Status: DONE (2026-11-22), see below.
+
+**Result** (base `252a697`, commits `df5f0da` swipe fix, `6c1d161` core options, `815bb9b` examples on `feat/harmonyos-parity`; code under test: `815bb9b`; the docs and the images came after).
+
+#### 1. The audit: what the examples rebuilt, what the core offers now
+
+Every example screen was read (all 28 Swift files of `CYLSearchExample/`). Replaced, with the lines (git numstat against `252a697`: **26 added, 89 deleted** in `CYLSearchExample/`; **289 added, 1 deleted** in `Sources/`, because three options and the swipe are new core code):
+
+| Screen (file) | Hand-made | Replaced by | Lines (+ / -) |
+| :--- | :--- | :--- | :--- |
+| Original demo (`CYLOriginalSearchDemoViewController.swift`) | a `UIButton` laid over the field that opened the search (10 lines with its constraints) | the field's own non-editable tap: `searchBarViewShouldBeginEditing` returns NO, `searchBarViewDidTapWhileNotEditable` opens the search (existing core API, as the lapism port does) | |
+| same | `makeClearFooter`: a bordered "clear history" `UIButton` in a footer view (29 lines) | new core option `CYLSearchView.suggestionCacheFooterTitle` | |
+| same | `updateResultsHeader`: a `UILabel` as the results table's header, rebuilt on every change and submit (14 lines), and the `term` variable | new core options `CYLSearchView.resultsHeaderTitleProvider` and `resultsHeaderTextColor` | 21 / 59 |
+| Search controller, Navigation item, Bar in a view, Short list, Collection view (5 files) | the same 6 lines each: reload the results table, then show or hide the "No matching results" empty view by the match count | new core option `CYLSearchController.noResultsText` (the controller shows the empty view while the text is not empty and `tableView` has no row) | 1 / 6 each, 5 / 30 |
+
+New core API (three-line comments, fence lines in both fence files, three tests in `CYLSearchMergePhase4Tests`): `CYLSearchView.resultsHeaderTitleProvider`, `resultsHeaderTextColor`, `suggestionCacheFooterTitle`; `CYLSearchController.noResultsText`, and `gestureRecognizer(_:shouldBeRequiredToFailBy:)` (item 3). Internal: `CYLSearchResultsHeaderView`, `CYLSearchClearFooterView` (in `CYLSearchResultsComponent.swift`, +80 lines), `CYLSearchEdgePanGestureRecognizer` (item 3).
+
+Read and kept, with the reason (the design's test: does the core already offer it, and is the screen not a replica of something else?):
+
+| Screen | Why nothing more is replaced |
+| :--- | :--- |
+| Styles (`CYLSearchBarStylesViewController`) | `CYLSearchTableViewController` is the QMUI replica; the accessory views are the demo's own 30 x 30 stroked squares (example-only content), every knob is core API |
+| #1317 page (`CYLSearchExampleViewController`) | a raw `UISearchController` is the reproduction of the issue, and its overlay already uses `scrimColor` and `highlightsResultMatches` of the core |
+| Search bar, Yechaoa, Reveal, Multi (`CYLSearchBarDemoViewController`, ...) | `CYLSearchBarView` only; the status label, the result label and the event log are the demos' own output |
+| Lapism (`CYLLapismSearchViewController`) | port of `addView(recyclerView)`: the list that the original embeds is passed to the core's `contentView`; the list under the bar is the page's own content |
+| Material menu (`CYLMaterialSearchMenuViewController`) | calls the core's suggestion options (tags, fold control, cache, colors); the `UIStackView` is the demo's tab strip |
+| Contact tags (`CYLContact*`) | `CYLTagListView` of the sub-repository (the design's tag list), `CYLSearchBarView`, the list's built-in clear button (`menuShowsClearButton`); the store is the demo's data |
+| Discover (`CYLSearchDiscoverViewController`) | a copy of CollectionViewClassifyMenu's Discover page (two `CYLTagListView` sections with the fold control and a trash accessory from the sub-repository's menu API, data from the bundled JSON): a page, not a search flow. TODO: it could use the suggestion area if that became public |
+| `CYLSnackbar`, the menu, the placeholder gallery, `CYLKenBurnsView`, the SVGA pages | example-only: the core has no such code |
+| the detail screens (`UILabel` in the Search controller demo, the Original demo's centered button) | example-only content of the replicas |
+
+Not replaced, a duplication and not a native re-implementation: the four issue screens and the Search controller screen each filter the ten keywords and answer the results table's data source themselves (about 12 lines each). A core "searchable items" option would remove it; TODO.
+
+#### 2. The four issue screens: stay on the UIKit adapter
+
+All four stay on `CYLSearchController` / `CYLSearchBar`, because each exists to exercise a behaviour of `UISearchController` that `CYLSearchBarView` + `CYLSearchView` (our own overlay) do not have:
+
+| Screen | Reason |
+| :--- | :--- |
+| Navigation item (#1229) | `navigationItem.searchController` takes a `UISearchController`, whose bar must be a `UISearchBar`; `install(in:)` is the fix under test |
+| Bar in a view (#1251) | `hidesNavigationBarDuringPresentation = false` with a bar that is a plain subview: UIKit's presentation context is the thing tested |
+| Short list (#1160) | the bar is the table header under a `UISearchController`, settled by `CYLSearchHeaderSnapper` (which now also works on any header, including a `CYLSearchBarView`, but the issue is about UIKit's header) |
+| Collection view (#1313) | UIKit returns the bar to its original superview after Cancel; the container that holds it is the fix under test |
+
+A `CYLSearchBarView` + `CYLSearchView` version of each would pass trivially and drop the regression coverage; the Original demo, Lapism and Material screens already show that pair.
+
+#### 3. Swipe to dismiss by real touch: never worked, fixed
+
+- **Regression?** No. On `6014474` (worktree `/tmp/xpr/merge-p4-old`, built and run on 27.2) the same strokes (2.5 s and 4 s from x = 2, on the Search controller screen with the keyboard up) left the launch view on screen. The swipe never started by touch there either, so no bisect was needed.
+- **Cause, as far as it can be seen.** `UIScreenEdgePanGestureRecognizer` received the touch (`gestureRecognizer(_:shouldReceive:)` was called at (2, 450)) and never left the possible state: `gestureRecognizerShouldBegin` was never asked. A plain `UIPanGestureRecognizer` on the same view began at x about 12 with the same stroke, on 27.2 and on 17.5. No change with: the recognizer on the window, on the root view or on the search view, no delegate, the navigation controller's pop recognizer disabled, simultaneous recognition allowed. With `hidesNavigationBarDuringPresentation = false` the navigation controller's swipe back worked (the screen popped, our recognizer still did not begin). The same recognizer on `CYLSearchView` does begin (checked on 27.2), so the failure is tied to an active `UISearchController`. UIKit's internal reason was not found.
+- **Fix** (`df5f0da`): `CYLSearchEdgeSwipe.makeGesture` now returns `CYLSearchEdgePanGestureRecognizer`, an internal subclass of `UIScreenEdgePanGestureRecognizer` that follows the touch itself: it begins when the touch went down within 24 pt of the left edge of the window and moved right past a 10 pt slop, more than up or down; it fails for other touches, and reports translation and a smoothed velocity. The public property keeps its type, `edges` stays `.left`, the delegate and the window stay; both `CYLSearchController` and `CYLSearchView` use it (one implementation). `CYLSearchController` also answers `gestureRecognizer(_:shouldBeRequiredToFailBy:)` for the navigation controller's `interactivePopGestureRecognizer` (and `interactiveContentPopGestureRecognizer` on iOS 26): the swipe back waits for the search swipe to fail, so the swipe leaves the search first (dynamic, public API; no permanent `require(toFail:)`).
+- **Verified by real touch** (`axe draw` 2,450 to 280,450 over 3 s, started in the background): mid swipe the page and the snapshot follow the finger; at the end the search is left and the Search controller screen is still on top, on 27.2 and on 17.5; a 0.35 s stroke works too (27.2).
+- Tests: `testGestureFollowsTheTouchItself` (the type, `edges`, one touch, the rule: inside the slop, right, left, up, down, more vertical than horizontal), `testNavigationSwipeBackWaitsForTheSearchSwipe`; XCTest cannot make a screen-edge touch, so the begin / change / end methods stay driven as before.
+
+#### 4. API kept, forwarded, new
+
+Kept: the whole fence (`CYLSearchAPIFenceTests.swift` and the Objective-C fence compile unchanged; 5 + 5 lines added for the five new members). Forwarded: nothing was renamed in this phase. New: the five members above.
+
+#### 5. Test results
+
+`xcodebuild test`, new derived data each, `CODE_SIGNING_ALLOWED=NO`, sandbox off, code at `815bb9b` (the three suites were run one after another, because two builds at the same time in one checkout broke the shared `Pods/` copy step once): iOS 17.5 (iPhone 15): Executed 181 tests, with 0 failures; iOS 26.5 (iPhone 17 Pro): Executed 181 tests, with 0 failures; iOS 27.2 (iPhone 18 Pro): Executed 181 tests, with 0 failures (176 before the phase plus the 2 swipe tests and the 3 tests of `CYLSearchMergePhase4Tests`; the counts are equal on all three). `bash scripts/check-public-api-comments.sh`, `bash scripts/check-licenses.sh` and `sh scripts/check-screenshot-labels.sh` pass. `bash scripts/ci-build-example.sh analyze` (generic iOS Simulator, Xcode 27.2): ANALYZE SUCCEEDED.
+
+#### 6. After screenshots
+
+iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `815bb9b`, `feat/harmonyos-parity`, 2026-11-22 16:32 to 16:36 NZDT; originals 1206 x 2622 px in `docs/assets/raw/merge-after-*`, stitched with `scripts/stitch-screenshots.swift` (two columns: one column would be taller than one phone screen); the same states as the `merge-before-*` images of phase 0; status bar 9:41; `axe` input.
+
+| Image | Label |
+| --- | --- |
+| ![Search bar styles, after phase 4](assets/merge-after-styles-ios27.2-20261122.png) | Search bar styles (menu row 7): rest and accessories shown; the look of the before image |
+| ![Search controller, after phase 4](assets/merge-after-controller-ios27.2-20261122.png) | Search controller (row 8): rest, launch view, "H" results, "Hzzz" empty view (now from `noResultsText`) |
+| ![The four issue screens, after phase 4](assets/merge-after-issue-screens-ios27.2-20261122.png) | #1229, #1251, #1160 (header hidden), #1313 searching; the Collection view now shows the empty view above the keyboard (the phase 3 fix; the before image showed a blank area) |
+| ![CYLSearchExampleViewController, after phase 4](assets/merge-after-demo-example-ios27.2-20261122.png) | Menu row 0: rest and overlay search |
+| ![CYLSearchBarDemoViewController, after phase 4](assets/merge-after-demo-searchbar-ios27.2-20261122.png) | Menu row 2: rest and focused |
+| ![CYLOriginalSearchDemoViewController, after phase 4](assets/merge-after-demo-original-ios27.2-20261122.png) | Menu row 6: rest, searching "a" with the results header (core option), and the history with the clear text button below the list (core option) |
+| ![CYLMaterialSearchMenuViewController, after phase 4](assets/merge-after-demo-material-ios27.2-20261122.png) | Menu row 3, MiguelCatalan row: menu, Default demo, its search with "Sw" typed |
+| ![Edge swipe by real touch](assets/merge-after-swipe-real-touch-ios27.2-20261122.png) | iOS 27.2 (iPhone 18 Pro) and iOS 17.5 (iPhone 15) simulators, Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `df5f0da`, `feat/harmonyos-parity`, 2026-11-22 16:20 NZDT. Search controller: search open, mid swipe, search left |
+
+#### Merge score (iOS) (2026-11-22): 88 / 100 (pass 60)
+
+Criteria of the task-log entry "merge the QMUI search components with ours" (iOS part):
+
+| Criterion | Points | Got | Why |
+| :--- | :---: | :---: | :--- |
+| Design document with the evaluation and the decisions | 10 | 10 | "Merge design: one implementation per concept" (evaluation, one limit, pair table, rules, phases) |
+| One class per concept on iOS | 30 | 25 | one appearance helper, one launch area, one results and empty-view component, one overlay, one active state, one edge swipe; `CYLSearchBar` stays only as the `UISearchController` adapter (design's one limit) |
+| Old public API compiles (the fence) | 15 | 14 | the fence compiles unchanged through five phases and gained lines for every new member; it has no negative test |
+| Examples free of native re-implementations | 20 | 15 | audit above; open: Discover page, the `contentView` lists of the ports, the repeated keyword filtering |
+| Suites green on iOS 17.5, 26.5 and 27.2 | 15 | 15 | 181 tests, 0 failures, each |
+| Before and after screenshots | 10 | 9 | seven screens before and after plus the swipe sequence; 27.2 only |
+
+Missing points as TODO:
+- TODO (2 points, one class per concept): `CYLSearchBar`'s `leadingAccessoryView` and `trailingAccessoryView` (and their margins) are not yet deprecated forwards of `leadingView` / `trailingAccessoryViews` of the pair table (phase 5, with the other platforms).
+- TODO (1 point): `CYLSearchBarAppearance.searchBarStyle`, `clearIconImage`, `barBackgroundImage` and `barBorderColor` have no field on `CYLSearchBarView` (phase 1 list).
+- TODO (1 point): the results tables of `CYLSearchView`, `CYLSearchController` and `CYLSearchTableViewController` are three instances that share what they do with the table (phase 3 decision).
+- TODO (1 point): `CYLSearchView` has no store mode, so its "history, else suggestions" choice and the controller's launch view use the same `resolve` but two call sites (phase 2 TODO).
+- TODO (1 point, fence): a script that regenerates the Objective-C fence and a negative test (a deliberately removed member).
+- TODO (3 points, examples): the Discover page's recent list and trash accessory (public suggestion area, or a core option for the sub-repository's menu); 1 point: the port screens' `contentView` lists; 1 point: a core "searchable items" option for the repeated keyword filtering of five screens.
+- TODO (1 point, screenshots): the after images are iOS 27.2 only; no dark mode or large Dynamic Type run of the new header, footer and empty view.
+- Other TODO: the swipe was checked by `axe` input on simulators only (no device); the edge strip is 24 pt at the left edge (a right-to-left layout is not mirrored); UIKit's reason for the unrecognized edge pan stays unknown (a Feedback Assistant report is worth filing); `CYLSearchView`'s demo does not enable `supportsSwipeToDismissSearch`; iOS 15, 16 and 18 to 25 are not run; `CYLSearchController.isActive` still mirrors UIKit's state (phase 3 TODO).
+- Phases 5 (other platforms: audit for parallel members, launch views on the ClassifyMenu tag list) and 6 (ClassifyMenu `CYLMenuStyle.minimumItemSize` and the pin move) remain; the task-log entry is not marked done.
