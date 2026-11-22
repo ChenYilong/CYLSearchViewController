@@ -166,56 +166,85 @@ class CYLSearchBarQMUIPortTest {
     @Test
     fun accessoryViewsShowHideAndShrinkTheField() {
         val bar = bar()
+        val density = activity.resources.displayMetrics.density
+        val gap = (8 * density + 0.5f).toInt()
         val leading = View(activity)
         val trailing = View(activity)
-        leading.layoutParams = ViewGroup.LayoutParams(90, 90)
-        trailing.layoutParams = ViewGroup.LayoutParams(90, 90)
-        bar.leadingAccessoryView = leading
-        bar.trailingAccessoryView = trailing
-        bar.leadingAccessoryViewMargins = Rect(8, 0, 0, 0)
-        bar.trailingAccessoryViewMargins = Rect(0, 0, 8, 0)
+        // The view before the field is the one leadingView; its margins are its own (6 dp + the slot's 2 dp = QMUI's 8 dp gap).
+        leading.layoutParams = FrameLayout.LayoutParams(90, 90).apply { setMargins(gap, 0, gap - (2 * density + 0.5f).toInt(), 0) }
+        trailing.layoutParams = ViewGroup.LayoutParams(30, 30)
+        bar.leadingView = leading
+        bar.trailingAccessoryViews = listOf(trailing)
         layout(bar)
         val full = bar.fieldView.width
-        assertEquals("shown by default", View.VISIBLE, (leading.parent as View).visibility)
+        val fullText = bar.textField.width
+        assertTrue("shown by default", bar.showsLeadingView && bar.showsTrailingAccessoryViews)
+        assertEquals(View.VISIBLE, (leading.parent as View).visibility)
         assertTrue("the field shares the row: $full", full < 1080)
-        bar.setShowsLeadingAccessoryView(false, false)
-        bar.setShowsTrailingAccessoryView(false, false)
+        bar.setShowsLeadingView(false, false)
+        bar.setShowsTrailingAccessoryViews(false, false)
         layout(bar)
-        val wide = bar.fieldView.width
-        assertTrue("hidden: the field is wider: $wide > $full", wide > full)
+        assertTrue("hidden: the field is wider: ${bar.fieldView.width} > $full", bar.fieldView.width > full)
+        assertTrue("hidden: the text has more room: ${bar.textField.width} > $fullText", bar.textField.width > fullText)
         assertEquals(View.GONE, (leading.parent as View).visibility)
-        bar.setShowsLeadingAccessoryView(true, true)
-        bar.setShowsLeadingAccessoryView(false, true)
-        bar.setShowsLeadingAccessoryView(true, true)
-        bar.setShowsTrailingAccessoryView(true, true)
-        bar.setShowsTrailingAccessoryView(false, true)
+        assertEquals(View.GONE, (trailing.parent as View).visibility)
+        bar.setShowsLeadingView(true, true)
+        bar.setShowsLeadingView(false, true)
+        bar.setShowsLeadingView(true, true)
+        bar.setShowsTrailingAccessoryViews(true, true)
+        bar.setShowsTrailingAccessoryViews(false, true)
         idle()
         layout(bar)
         assertEquals("quick toggles: the last call wins (shown)", View.VISIBLE, (leading.parent as View).visibility)
         assertEquals("quick toggles: the last call wins (hidden)", View.GONE, (trailing.parent as View).visibility)
-        bar.setShowsTrailingAccessoryView(true, false)
+        bar.setShowsTrailingAccessoryViews(true, false)
         layout(bar)
         val both = frame(bar.fieldView, bar)
         val leadingRect = frame(leading, bar)
         val trailingRect = frame(trailing, bar)
         assertFalse("leading does not cover the field", Rect.intersects(both, leadingRect))
-        assertFalse("trailing does not cover the field", Rect.intersects(both, trailingRect))
-        assertTrue(leadingRect.right <= both.left && trailingRect.left >= both.right)
-        // The accessory views sit 8 dp from the field (QMUI's gap) once their container is counted.
-        val gap = (8 * activity.resources.displayMetrics.density + 0.5f).toInt()
+        assertTrue("trailing sits inside the field: $trailingRect in $both", both.contains(trailingRect))
+        assertEquals("shown again: the text has the width it had with it", fullText, bar.textField.width)
         assertTrue("gap: ${both.left - leadingRect.right}", both.left - leadingRect.right >= gap)
-        assertTrue("gap: ${trailingRect.left - both.right}", trailingRect.left - both.right >= gap)
         bar.showsCancelButton = true
         layout(bar)
         assertFalse("trailing does not cover Cancel", Rect.intersects(frame(bar.cancelButton, bar), frame(trailing, bar)))
         assertNoOverlap(bar)
-        bar.leadingAccessoryView = null
-        bar.trailingAccessoryView = null
+        bar.leadingView = null
+        bar.trailingAccessoryViews = emptyList()
         layout(bar)
-        assertEquals(0, leadingAccessoryChildren(bar))
+        assertEquals("the slot is empty again", 0, (leading.parent as? ViewGroup)?.childCount ?: 0)
     }
 
-    private fun leadingAccessoryChildren(bar: CYLSearchBarView): Int = if (bar.leadingAccessoryView == null) 0 else 1
+    @Suppress("DEPRECATION")
+    @Test
+    fun oldAccessoryNamesForwardToTheOneSlot() {
+        val bar = bar()
+        val leading = View(activity)
+        val trailing = View(activity)
+        bar.leadingAccessoryView = leading
+        bar.trailingAccessoryView = trailing
+        assertSame("one slot before the field", leading, bar.leadingView)
+        assertSame(leading, bar.leadingAccessoryView)
+        assertEquals(listOf(trailing), bar.trailingAccessoryViews)
+        assertSame(trailing, bar.trailingAccessoryView)
+        bar.setShowsLeadingAccessoryView(false, false)
+        assertFalse(bar.showsLeadingView)
+        assertFalse(bar.showsLeadingAccessoryView)
+        bar.showsTrailingAccessoryView = false
+        assertFalse(bar.showsTrailingAccessoryViews)
+        layout(bar)
+        assertEquals(View.GONE, (leading.parent as View).visibility)
+        // The margins are padding of the slot and margins of the views: still there, no second container.
+        bar.setShowsLeadingAccessoryView(true, false)
+        bar.setShowsTrailingAccessoryView(true, false)
+        bar.leadingAccessoryViewMargins = Rect(8, 0, 0, 0)
+        bar.trailingAccessoryViewMargins = Rect(0, 0, 8, 0)
+        layout(bar)
+        assertEquals((8 * activity.resources.displayMetrics.density + 0.5f).toInt(), (leading.parent as View).paddingLeft)
+        assertEquals((8 * activity.resources.displayMetrics.density + 0.5f).toInt(), (trailing.layoutParams as ViewGroup.MarginLayoutParams).rightMargin)
+        assertSame("the same container as leadingView", bar.fieldView.parent, (leading.parent as View).parent)
+    }
 
     @Test
     fun defaultAppearanceLandsOnTheBar() {
@@ -245,8 +274,8 @@ class CYLSearchBarQMUIPortTest {
     fun shortGapsKeepTheBarFromCoveringAnything() {
         val bar = bar()
         bar.showsCancelButton = true
-        bar.leadingAccessoryView = View(activity).apply { layoutParams = ViewGroup.LayoutParams(60, 60) }
-        bar.trailingAccessoryView = View(activity).apply { layoutParams = ViewGroup.LayoutParams(60, 60) }
+        bar.leadingView = View(activity).apply { layoutParams = ViewGroup.LayoutParams(60, 60) }
+        bar.trailingAccessoryViews = listOf(View(activity).apply { layoutParams = ViewGroup.LayoutParams(60, 60) })
         bar.fontSize = 30f
         layout(bar)
         assertNoOverlap(bar)

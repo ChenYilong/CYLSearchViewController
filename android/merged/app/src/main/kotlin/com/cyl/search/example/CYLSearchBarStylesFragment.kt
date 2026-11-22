@@ -10,6 +10,7 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Switch
 import android.widget.TextView
@@ -73,12 +74,16 @@ class CYLSearchBarStylesFragment : CYLExamplePage() {
         val colors = intArrayOf(Color.RED, Color.BLUE, Color.rgb(0, 160, 0), Color.rgb(255, 140, 0), Color.rgb(130, 60, 200), Color.rgb(0, 150, 150))
         list.searchBarView.apply {
             // As QMUI's demo: the accessories are hidden first, shown by the person.
-            leadingAccessoryView = CYLStrokedSquareView(context, colors[Random.nextInt(colors.size)])
-            trailingAccessoryView = CYLStrokedSquareView(context, colors[Random.nextInt(colors.size)])
-            leadingAccessoryViewMargins = Rect(8, 0, 0, 0)
-            trailingAccessoryViewMargins = Rect(0, 0, 8, 0)
-            showsLeadingAccessoryView = false
-            showsTrailingAccessoryView = false
+            val density = context.resources.displayMetrics.density
+            leadingView = CYLStrokedSquareView(context, colors[Random.nextInt(colors.size)]).apply {
+                // The view's own margins: 16 dp before it (8 dp from the bar's edge, QMUI's margin) and 6 dp to the field.
+                layoutParams = FrameLayout.LayoutParams(layoutParams.width, layoutParams.height).apply {
+                    setMargins((16 * density).toInt(), 0, (6 * density).toInt(), 0)
+                }
+            }
+            trailingAccessoryViews = listOf(CYLStrokedSquareView(context, colors[Random.nextInt(colors.size)]))
+            showsLeadingView = false
+            showsTrailingAccessoryViews = false
         }
         return list
     }
@@ -93,8 +98,8 @@ class CYLSearchBarStylesFragment : CYLExamplePage() {
             Row.AdjustCancel -> context.cylDemoText("styles.adjustCancel")
             Row.Animated -> context.cylDemoText("styles.animated")
             Row.ToggleCancel -> toggle(bar.showsCancelButton, "styles.cancel")
-            Row.ToggleLeading -> toggle(bar.showsLeadingAccessoryView, "styles.leading")
-            Row.ToggleTrailing -> toggle(bar.showsTrailingAccessoryView, "styles.trailing")
+            Row.ToggleLeading -> toggle(bar.showsLeadingView, "styles.leading")
+            Row.ToggleTrailing -> toggle(bar.showsTrailingAccessoryViews, "styles.trailing")
         }
     }
 
@@ -110,8 +115,8 @@ class CYLSearchBarStylesFragment : CYLExamplePage() {
                 list.recyclerView.post { if (!bar.isActive) bar.showKeyboard() }
             }
             Row.ToggleCancel -> { bar.setShowsCancelButton(!bar.showsCancelButton, animated); adapter.notifyItemChanged(position) }
-            Row.ToggleLeading -> { bar.setShowsLeadingAccessoryView(!bar.showsLeadingAccessoryView, animated); adapter.notifyItemChanged(position) }
-            Row.ToggleTrailing -> { bar.setShowsTrailingAccessoryView(!bar.showsTrailingAccessoryView, animated); adapter.notifyItemChanged(position) }
+            Row.ToggleLeading -> { bar.setShowsLeadingView(!bar.showsLeadingView, animated); adapter.notifyItemChanged(position) }
+            Row.ToggleTrailing -> { bar.setShowsTrailingAccessoryViews(!bar.showsTrailingAccessoryViews, animated); adapter.notifyItemChanged(position) }
             Row.CenterPlaceholder, Row.Animated -> Unit
         }
     }
