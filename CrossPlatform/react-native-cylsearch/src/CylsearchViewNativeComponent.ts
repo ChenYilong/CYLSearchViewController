@@ -29,7 +29,7 @@ export interface NativeProps extends ViewProps {
    */
   suggestions?: ReadonlyArray<string>;
   /**
-   * "list" (one row each) or "tags" (CollectionViewClassifyMenu's tag list).
+   * "tags" (CollectionViewClassifyMenu's tag list, the default) or "list" (one row each).
    */
   suggestionStyle?: string;
   /**
@@ -69,6 +69,11 @@ export interface NativeProps extends ViewProps {
    */
   focusesSearchFieldOnShow?: CodegenTypes.WithDefault<boolean, true>;
   /**
+   * Shows the header above the cached queries (the title and the trash button); false takes it away, for a page that
+   * clears the history with its own control (iOS `showsSuggestionCacheHeader`).
+   */
+  showsSuggestionCacheHeader?: CodegenTypes.WithDefault<boolean, true>;
+  /**
    * The tag suggestions' fold control: "none", "inline" (default), "bottom", "topTrailing" or "topLeading".
    */
   suggestionsFoldControlPosition?: string;
@@ -93,6 +98,12 @@ export interface NativeProps extends ViewProps {
    * Lists `results` (sets the core's `resultsDataSource`); false keeps the suggestions only.
    */
   showsResults?: boolean;
+  /**
+   * The first match of the text in each result is drawn in `resultMatchHighlightColor` (the tint color by default), case and
+   * diacritic insensitive (`highlightsResultMatches`).
+   */
+  highlightsResultMatches?: boolean;
+  resultMatchHighlightColor?: string;
   /**
    * Adds pull-to-refresh to the results list (the core's `refreshHandler`, CYLTableViewPlaceHolder's header).
    */

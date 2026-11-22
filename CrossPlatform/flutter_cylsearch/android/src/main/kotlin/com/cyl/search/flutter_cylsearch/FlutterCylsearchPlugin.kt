@@ -1,6 +1,7 @@
 package com.cyl.search.flutter_cylsearch
 
 import android.content.Context
+import android.graphics.Rect
 import android.view.ContextThemeWrapper
 import android.view.View
 import android.widget.FrameLayout
@@ -12,6 +13,7 @@ import com.cyl.classifymenu.CYLTagListView
 import com.cyl.placeholder.CYLPlaceholderStyle
 import com.cyl.placeholder.CYLPlaceholderView
 import com.cyl.placeholder.CYLPlaceholderScenario
+import com.cyl.search.CYLSearchBarAppearance
 import com.cyl.search.CYLSearchBarItem
 import com.cyl.search.CYLSearchBarMode
 import com.cyl.search.CYLSearchBarStyle
@@ -86,6 +88,8 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
     private val searchView = CYLSearchView(context)
     private val resultsDataSource = CYLFlutterSearchResultsDataSource()
     private var appliedResults: List<String>? = null
+    // The last history reported to Dart: an event goes out only for a change.
+    private var reportedHistory: List<String> = emptyList()
 
     init {
         searchView.delegate = this
@@ -94,6 +98,12 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
         apply(arguments)
         searchView.installInView(container)
         searchView.showSearch(false)
+        reportedHistory = history()
+        // The core's history signal: a submitted query, a clear and the trash button of its header. Only a changed history
+        // reaches Dart.
+        searchView.addHistoryDidChangeListener { reportHistory() }
+        container.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> reportSearchBar() }
+        searchView.searchBarView.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> reportSearchBar() }
         channel.setMethodCallHandler { call, result ->
             when (call.method) {
                 "update" -> {
@@ -115,9 +125,47 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
                     searchView.reloadResults()
                     result.success(null)
                 }
+                "setActive" -> {
+                    val arguments = call.arguments as? Map<*, *>
+                    searchView.setActive(arguments?.get("active") as? Boolean ?: true, arguments?.get("animated") as? Boolean ?: true)
+                    result.success(null)
+                }
+                "history" -> result.success(history())
+                "clearHistory" -> {
+                    searchView.clearSuggestionCache()
+                    result.success(null)
+                }
+                "setQuery" -> {
+                    val arguments = call.arguments as? Map<*, *>
+                    searchView.setQuery(arguments?.get("query") as? String, arguments?.get("submit") as? Boolean ?: false)
+                    result.success(null)
+                }
                 else -> result.notImplemented()
             }
         }
+    }
+
+    /**
+     * The submitted queries in the page's cache, newest first (the history of the launch view).
+     */
+    private fun history(): List<String> = searchView.suggestionCache?.cachedQueries().orEmpty()
+
+    /**
+     * Tells Dart the history when it differs from the one it has.
+     */
+    private fun reportHistory() {
+        val current = history()
+        if (current == reportedHistory) return
+        reportedHistory = current
+        channel.invokeMethod("historyDidChange", mapOf("history" to current))
+    }
+
+    /**
+     * Tells Dart where the bar ends, in dp: Dart lays the launch view, the dimming and the empty view from there down.
+     */
+    private fun reportSearchBar() {
+        val density = container.resources.displayMetrics.density
+        channel.invokeMethod("didLayoutSearchBar", mapOf("bottom" to searchView.searchBarMaxY / density.toDouble()))
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -159,8 +207,26 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
             searchView.suggestionCachePolicy = policy
         }
         searchView.focusesSearchFieldOnShow = arguments["focusesSearchFieldOnShow"] as? Boolean ?: true
+        searchView.showsSuggestionCacheHeader = arguments["showsSuggestionCacheHeader"] as? Boolean ?: true
         searchView.suggestionsFoldControl = cylFoldControl(arguments["suggestionsFoldControlPosition"], arguments["suggestionsFoldControlContent"])
         searchView.suggestionsFoldedRowCount = maxOf(0, (arguments["suggestionsFoldedRowCount"] as? Number)?.toInt() ?: 2)
+        searchView.highlightsResultMatches = arguments["highlightsResultMatches"] as? Boolean ?: false
+        searchView.resultMatchHighlightColor = (arguments["resultMatchHighlightColor"] as? Number)?.toInt()
+        searchView.scrimColor = (arguments["scrimColor"] as? Number)?.toInt()
+        searchView.supportsSwipeToDismissSearch = arguments["supportsSwipeToDismissSearch"] as? Boolean ?: false
+        searchView.noResultsText = (arguments["noResultsText"] as? String)?.takeIf { it.isNotEmpty() }
+    }
+
+    override fun searchViewWillShow(searchView: CYLSearchView) {
+        channel.invokeMethod("willShow", null)
+    }
+
+    override fun searchViewWillClose(searchView: CYLSearchView) {
+        channel.invokeMethod("willClose", null)
+    }
+
+    override fun searchViewDidShow(searchView: CYLSearchView) {
+        channel.invokeMethod("didShow", null)
     }
 
     override fun getView(): View = container
@@ -174,6 +240,7 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
     }
 
     override fun searchViewDidSubmitText(searchView: CYLSearchView, text: String): Boolean {
+        // A tapped tag reports its text as a change before this submit (the core does), so Dart's results follow.
         channel.invokeMethod("didSubmit", mapOf("text" to text))
         return true
     }
@@ -208,7 +275,8 @@ internal class CYLFlutterSearchResultsDataSource : CYLSearchViewDataSource {
         results.mapIndexed { index, text -> CYLFlutterSearchResult(text, index) }
 
     override fun searchViewConfigureResultCell(searchView: CYLSearchView, cell: CYLSearchSuggestionCell, result: Any) {
-        cell.textLabel.text = (result as? CYLFlutterSearchResult)?.text
+        // The core draws the match (`highlightsResultMatches`) after this row is configured.
+        cell.textLabel.text = (result as? CYLFlutterSearchResult)?.text ?: return
     }
 }
 
@@ -257,6 +325,9 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
                 "addSearch" -> bar.addSearch(callArguments["text"] as? String ?: "")
                 "selectSearch" -> bar.selectSearch(index)
                 "removeSearch" -> bar.removeSearch(index)
+                "setShowsCancelButton" ->
+                    bar.setShowsCancelButton(callArguments["shows"] as? Boolean ?: false, callArguments["animated"] as? Boolean ?: true)
+                "showKeyboard" -> bar.showKeyboard()
                 "searches" -> return@setMethodCallHandler result.success(bar.searches)
                 "selectedSearchIndex" -> return@setMethodCallHandler result.success(bar.selectedSearchIndex)
                 else -> return@setMethodCallHandler result.notImplemented()
@@ -303,6 +374,7 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
             return
         }
         text?.takeIf { it != bar.text }?.let { bar.text = it }
+        applyStyle(arguments)
         bar.showsCancelButton = arguments["showsCancelButton"] as? Boolean ?: false
         bar.fieldShadowOpacity = (arguments["fieldShadowOpacity"] as? Number)?.toFloat() ?: 0f
         bar.searchBarStyle = if (arguments["searchBarStyle"] == "bordered") CYLSearchBarStyle.Bordered else CYLSearchBarStyle.Plain
@@ -318,6 +390,44 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
     }
 
     private var appliedItems: List<Map<String, Any?>> = emptyList()
+
+    /**
+     * The QMUI style options of the bar (iOS `CYLSearchBar` members, here on `CYLSearchBarView`): appearance first, so
+     * an option set beside it wins; margins in dp for both states.
+     */
+    private fun applyStyle(arguments: Map<String, Any?>) {
+        (arguments["appearance"] as? Map<*, *>)?.let { bar.appearanceStyle = appearance(it) }
+        bar.centersPlaceholder = arguments["centersPlaceholder"] as? Boolean ?: false
+        (arguments["placeholderColor"] as? Number)?.let { bar.placeholderColor = it.toInt() }
+        (arguments["textColor"] as? Number)?.let { bar.textColor = it.toInt() }
+        (arguments["fontSize"] as? Number)?.let { bar.fontSize = it.toFloat() }
+        bar.cancelButtonFontSize = (arguments["cancelButtonFontSize"] as? Number)?.toFloat()
+        val field = rects(arguments["textFieldMargins"], arguments["activeTextFieldMargins"])
+        bar.textFieldMarginsProvider = field?.let { (rest, active) -> { _, isActive -> if (isActive) active else rest } }
+        val cancel = rects(arguments["cancelButtonMargins"], arguments["activeCancelButtonMargins"])
+        bar.cancelButtonMarginsProvider = cancel?.let { (rest, active) -> { _, isActive -> if (isActive) active else rest } }
+    }
+
+    private fun appearance(map: Map<*, *>): CYLSearchBarAppearance = CYLSearchBarAppearance().also {
+        it.fieldBackgroundColor = (map["fieldBackgroundColor"] as? Number)?.toInt()
+        it.fieldBorderColor = (map["fieldBorderColor"] as? Number)?.toInt()
+        (map["fieldCornerRadius"] as? Number)?.let { radius -> it.fieldCornerRadius = radius.toFloat() }
+        it.tintColor = (map["tintColor"] as? Number)?.toInt()
+        it.barBackgroundColor = (map["barBackgroundColor"] as? Number)?.toInt()
+        it.cancelTitle = map["cancelTitle"] as? String
+    }
+
+    /**
+     * Dart's [left, top, right, bottom] lists as dp rectangles (rest, active), or null when both are zero.
+     */
+    private fun rects(rest: Any?, active: Any?): Pair<Rect, Rect>? {
+        fun rect(value: Any?): Rect {
+            val list = (value as? List<*>)?.mapNotNull { (it as? Number)?.toInt() } ?: return Rect()
+            return if (list.size == 4) Rect(list[0], list[1], list[2], list[3]) else Rect()
+        }
+        val pair = rect(rest) to rect(active)
+        return if (pair.first == Rect() && pair.second == Rect()) null else pair
+    }
 
     /**
      * The editing bar's `text` as Dart sent it last.

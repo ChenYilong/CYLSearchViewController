@@ -34,6 +34,23 @@ public final class CYLSearchResources: NSObject {
     }()
 
     /**
+     * Posted after a built-in history store changed (a query was added or removed, or the history cleared), whoever
+     * changed it: the object is the store, and `userInfo` holds `"policy"` (the raw value of
+     * `CYLSearchSuggestionCachePolicy`) and `"name"` of that history, so an observer of one history compares both and
+     * ignores another screen's. A cache of your own that `CYLSearchView` changes posts it with no `userInfo`.
+     */
+    @objc public static let historyDidChangeNotification = Notification.Name("CYLSearchSuggestionStoreDidChange")
+
+    /**
+     * The built-in store of submitted queries (database, `NSUserDefaults` or file, newest first, no duplicates) that
+     * `CYLSearchView` uses, for other search screens such as `CYLSearchController.historyStore`; nil for the policy none.
+     */
+    @objc(suggestionCacheWithPolicy:name:)
+    public static func suggestionCache(policy: CYLSearchSuggestionCachePolicy, name: String) -> CYLSearchSuggestionCache? {
+        CYLSearchSuggestionStore.cache(policy: policy, name: name)
+    }
+
+    /**
      * An image of the resource bundle, or nil (logged) when it is missing.
      */
     @objc(imageNamed:)
@@ -198,6 +215,7 @@ final class CYLSearchSuggestionStore: NSObject, CYLSearchSuggestionCache {
         guard !trimmed.isEmpty else {
             return
         }
+        defer { postDidChange() }
         if policy == .database, database != nil {
             execute("INSERT OR REPLACE INTO queries (cache, query, time) VALUES (?, ?, ?)", [name, trimmed], time: Self.nextTime())
             execute("DELETE FROM queries WHERE cache = ? AND query NOT IN (SELECT query FROM queries WHERE cache = ? ORDER BY time DESC LIMIT \(max(1, maximumCount)))", [name, name])
@@ -212,6 +230,7 @@ final class CYLSearchSuggestionStore: NSObject, CYLSearchSuggestionCache {
      * Removes `query`.
      */
     func removeQuery(_ query: String) {
+        defer { postDidChange() }
         if policy == .database, database != nil {
             execute("DELETE FROM queries WHERE cache = ? AND query = ?", [name, query])
             return
@@ -223,11 +242,17 @@ final class CYLSearchSuggestionStore: NSObject, CYLSearchSuggestionCache {
      * Removes every cached query.
      */
     func removeAllQueries() {
+        defer { postDidChange() }
         if policy == .database, database != nil {
             execute("DELETE FROM queries WHERE cache = ?", [name])
             return
         }
         save([])
+    }
+
+    private func postDidChange() {
+        NotificationCenter.default.post(name: CYLSearchResources.historyDidChangeNotification, object: self,
+                                        userInfo: ["policy": policy.rawValue, "name": name])
     }
 
     // MARK: - Storage

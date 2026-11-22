@@ -37,6 +37,7 @@ COMPONENT = {
     ('CYLSearchView', 'emptySuggestionsView'): '`<cyl-search>` `emptySuggestionsView()` (the `cyl-placeholder` of CYLTableViewPlaceHolder)',
     ('CYLSearchView', 'resultsTableView'): '`<cyl-search>` results list, drawn from `results` / `setResultsDataSource()` inside `cyl-refresh`',
     ('CYLSearchView', 'install(in:)'): '`<cyl-search inline>` (drawn in place, always open)',
+    ('CYLSearchBarView', 'pinToKeyboard(in:)'): '`<cyl-search-bar pinsToKeyboard>` (fixed at the page\'s bottom, lifted by `wx.onKeyboardHeightChange`)',
     ('CYLSearchBarView', 'autocorrectionType'): 'N/A: the mini program `<input>` has no autocorrection trait',
     ('CYLSearchBarView', 'tintColorDidChange()'): 'N/A: no inherited tint in the mini program (`searchIndicatorColor` and the colors are properties)',
     ('CYLSearchView', 'safeAreaInsetsDidChange()'): 'N/A: `<cyl-search>` reads the safe area from the navigation metrics (`CYLSearchResources`)',

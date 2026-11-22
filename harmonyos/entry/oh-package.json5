@@ -1,13 +1,14 @@
 {
   "name": "entry",
   "version": "1.0.0",
-  "description": "The CYLSearchViewController example for HarmonyOS: a 1:1 copy of the iOS example, on cylsearch, CYLTabBarController's cyltabbar, CYLTableViewPlaceHolder's cylplaceholder and CollectionViewClassifyMenu's classifymenu (on CYLTabBarController's cylanimateditem, which it re-exports); the animation libraries (Lottie, PAG, Rive) are the example's own, registered in entry/src/main/ets/animation.",
+  "description": "The CYLSearchViewController example for HarmonyOS: a 1:1 copy of the iOS example, on cylsearch, CYLTabBarController's cyltabbar, CYLTableViewPlaceHolder's cylplaceholder and CollectionViewClassifyMenu's classifymenu (on CYLTabBarController's cylanimateditem, which it re-exports); Rive is CYLTabBarController's shared engine (cylanimateditemrive); the Lottie and PAG libraries are registered in entry/src/main/ets/animation.",
   "main": "",
   "author": "ChenYilong",
   "license": "MIT",
   "dependencies": {
     "cylsearch": "file:../cylsearch",
     "cyltabbar": "file:../vendor/cyltabbar",
+    "cylanimateditemrive": "file:../vendor/cylanimateditemrive",
     "cylplaceholder": "file:../vendor/cylplaceholder",
     "@cyl/classifymenu": "file:../vendor/classifymenu",
     "@ohos/lottie": "2.0.38",

@@ -12,7 +12,7 @@ made as the [Android table](android-api-alignment.md) was. Rules and prompt: the
   from the Swift sources, keeps the third column, and prints the score. Repeat until 100.
 - Before the search bar: study [Applib-HarmonyOS/FlexibleSearchBar](https://github.com/Applib-HarmonyOS/FlexibleSearchBar)
   and note what is reused.
-- Status: `TODO`, score 0 (no HarmonyOS module yet).
+- Status (2026-11-13): score 0 (no HarmonyOS module yet).
 - Status (2026-11-14): score 100/100 (declarations; compiled, not run). The module exists (`harmonyos/cylsearch`); the score below is computed from its
   sources.
 
@@ -28,7 +28,7 @@ Score = rows whose third column is not `TODO` / rows × 100.
 ## Table
 
 <!-- harmonyos-api-alignment:begin -->
-Rows: 284; implemented or N/A 284, TODO 0; score 100/100.
+Rows: 289; implemented or N/A 289, TODO 0; score 100/100.
 
 | iOS public API | Doc comment | HarmonyOS |
 | :--- | :--- | :--- |
@@ -115,6 +115,10 @@ Rows: 284; implemented or N/A 284, TODO 0; score 100/100.
 | `CYLSearchBarView.cancelButtonTitle` | The Cancel title. The localized "Cancel" by default. | `CYLSearchBarView.cancelButtonTitle` |
 | `CYLSearchBarView.cancelButtonEndsEditing` | Taps on Cancel also end editing and clear nothing. YES by default. | `CYLSearchBarView.cancelButtonEndsEditing` |
 | `CYLSearchBarView.clearsTextOnCancel` | Taps on Cancel also clear the text (lapism `setTextClearOnBackPressed`). NO by default. | `CYLSearchBarView.clearsTextOnCancel` |
+| `CYLSearchBarView.isEditingBar` | Whether the bar is an editing bar (`editingBar(placeholder:actionTitle:)`): an edit field in the search bar's look, whose trailing button submits instead of cancelling. | `CYLSearchBarView.isEditingBar` |
+| `CYLSearchBarView.editingSubmitHandler` | An editing bar's submit: the trimmed text, when its action button or the return key is tapped (after `-searchBarView:shouldSubmitText:` and `-searchBarViewSearchButtonClicked:`). Empty text submits nothing. | `CYLSearchBarView.editingSubmitHandler` |
+| `CYLSearchBarView.editingBar(placeholder:actionTitle:)` | An editing bar: the search bar's field and look for editing a name (a tag, a title), without the magnifier, with `actionTitle` ("Add", "Done") as its trailing button, which submits through `editingSubmitHandler`, as the return key does.… | `CYLSearchBarView.editingBar` |
+| `CYLSearchBarView.pinToKeyboard(in:)` | Pins the bar to the top of the keyboard in `view` (its keyboard layout guide, iOS 15): full width within the safe area, at the bottom while the keyboard is down, riding on the keyboard while it is up, docked or not. | `CYLSearchBarView.pinToKeyboard` |
 | `CYLSearchBarView.clearsTextOnEndEditing` | Ending editing also clears the text (lapism `setTextClearOnClearFocus`). NO by default. | `CYLSearchBarView.clearsTextOnEndEditing` |
 | `CYLSearchBarView.navigationIcon` | A built-in navigation icon. `CYLSearchBarNavigationIconNone` by default. | `CYLSearchBarView.navigationIcon` |
 | `CYLSearchBarView.navigationImage` | A custom navigation icon; it wins over `navigationIcon`. | `CYLSearchBarView.navigationImage` |
@@ -243,7 +247,7 @@ Rows: 284; implemented or N/A 284, TODO 0; score 100/100.
 | `CYLSearchView.suggestionsTagView` | The tags that show the suggestions when `suggestionStyle` is `CYLSearchSuggestionStyleTags` (CollectionViewClassifyMenu's `CYLTagListView`). Style it directly: `style`, spacing, rows, colors. | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchComponent` draws the tags (`suggestionsFoldControl`) |
 | `CYLSearchView.suggestionsFoldControl` | The fold control of the tag suggestions (CollectionViewClassifyMenu's `CYLMenuFoldControl`). An inline chevron as the last tag by default, as in the example's Discover page: tap it to show every row, again to fold. Position `CYLMenuFoldC… | `CYLSearchView.suggestionsFoldControl` |
 | `CYLSearchView.suggestionsFoldedRowCount` | The rows of tag suggestions shown while folded. 2 by default; 0 shows every row. | `CYLSearchView.suggestionsFoldedRowCount` |
-| `CYLSearchView.suggestionStyle` | How the suggestions are shown: a list (`CYLSearchSuggestionStyleList`, the default) or tags (`CYLSearchSuggestionStyleTags`). A tapped tag works like a tapped row. | `CYLSearchView.suggestionStyle` |
+| `CYLSearchView.suggestionStyle` | How the suggestions are shown: tags (`CYLSearchSuggestionStyleTags`, the default since 2026-11-22: folded to `suggestionsFoldedRowCount` rows, the fold control as the last tag) or a list (`CYLSearchSuggestionStyleList`, the default until then). A tapped tag works like a tapped row. | `CYLSearchView.suggestionStyle` |
 | `CYLSearchView.showsEmptyResultsPlaceholder` | Shows CYLTableViewPlaceHolder's placeholder for `emptyResultsScenario` under the search bar while a non-empty query matches no suggestion, in both suggestion styles, or `resultsDataSource` returns no result. NO by default. | `CYLSearchView.showsEmptyResultsPlaceholder` |
 | `CYLSearchView.emptyResultsScenario` | The CYLTableViewPlaceHolder scenario of that placeholder. `CYLPlaceholderScenarioNoSearchResults` (an icon, a title and a hint) by default; `CYLPlaceholderScenarioNoContent` shows the plain empty state. | `CYLSearchView.emptyResultsScenario` |
 | `CYLSearchView.emptyResultsView` | The placeholder shown for empty results (CYLTableViewPlaceHolder's `CYLPlaceholderStackView`), created the first time it is shown; nil before. Style it after it appears, or change `emptyResultsScenario`. | `CYLSearchView.emptyResultsView` |
@@ -276,6 +280,7 @@ Rows: 284; implemented or N/A 284, TODO 0; score 100/100.
 | `CYLSearchView.suggestionCacheName` | Separates the caches of different search screens. "CYLSearchView" by default. | `CYLSearchView.suggestionCacheName` |
 | `CYLSearchView.suggestionCache` | The cache in use: the built-in store of `suggestionCachePolicy`, or a store of yours (set it after the policy). Nil when the policy is `CYLSearchSuggestionCachePolicyNone`. | `CYLSearchView.suggestionCache` |
 | `CYLSearchView.suggestionCacheHeaderView` | The header above the cached queries: a title and, at its trailing edge, `clearSuggestionCacheButton`. | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchComponent.cacheHeader` draws it |
+| `CYLSearchView.showsSuggestionCacheHeader` | Whether `suggestionCacheHeaderView` (the title and the trash icon) shows above the cached queries. YES by default; NO takes the header away, for a host that clears the history with its own control, for example a button in `suggestionsTab… | `CYLSearchView.showsSuggestionCacheHeader` |
 | `CYLSearchView.suggestionCacheTitleLabel` | The title of `suggestionCacheHeaderView` ("Recent searches"). | `CYLSearchView.suggestionCacheTitle` |
 | `CYLSearchView.clearSuggestionCacheButton` | Clears the whole cache (a trash icon at the top right of the suggestion list). | `CYLSearchView.clearSuggestionCache()` (the header button calls it) |
 | `CYLSearchView.showsEmptySuggestionsPlaceholder` | Shows CYLTableViewPlaceHolder's placeholder for `emptySuggestionsScenario` while the query is empty and the cache holds nothing, so an open search is never a blank page. YES by default. | `CYLSearchView.showsEmptySuggestionsPlaceholder` |

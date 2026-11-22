@@ -107,7 +107,7 @@ Events: `textchange` `{ text }` (`{ text, index }` in `multiple`), `submit`, `fo
 
 | Property | Default | Meaning |
 | --- | --- | --- |
-| `suggestions`, `suggestionStyle` | `[]`, `list` | The suggestions, as a list or as `tags` folded inline to `foldedRowCount` rows |
+| `suggestions`, `suggestionStyle` | `[]`, `tags` (`list` until 2026-11-22) | The suggestions, as `tags` (CollectionViewClassifyMenu's tag list, `cyl-tag-list`, folded to `foldedRowCount` rows with its fold control as the last tag; a tapped tag fills the field) or as a `list` |
 | `cacheName`, `focusesSearchFieldOnShow`, `closesOnSubmit` | `CYLSearchView`, `true`, `true` | Submitted queries are cached and listed first |
 | `results`, `showsResultsForEmptyQuery` | `null`, `false` | An array: the results take the place of the suggestions while the query is not empty (iOS `resultsDataSource`; `setResultsDataSource()` in JavaScript) |
 | `refresherEnabled` | `false` | CYLTableViewPlaceHolder's pull-to-refresh on the results (iOS `refreshHandler`): `refresh` event, `endRefreshing()` |
@@ -128,6 +128,30 @@ result)`), `reloadResults()`, `searchResults()`, `setRefreshHandler(handler)`, `
 `CYLSearchView.setRefreshHandler(handler, target)`, `beginRefreshing(target)`, `endRefreshing(target)` and
 `isRefreshing(target)` take a `<cyl-search>` instance or a `CYLSearchView`. Slots: `content`, `placeholder-footer`.
 Abstract node: `cyl-empty-view` (properties `scenario`, `animated`, `loop`, `speed`; method `playAll()`).
+
+### QMUI search bar and controller (the iOS CYLSearchBar / CYLSearchController)
+
+All of it is opt-in; the defaults change nothing.
+
+- `<cyl-search-bar>`: `centersPlaceholder`; `textFieldMargins` / `activeTextFieldMargins` and `cancelButtonMargins` /
+  `activeCancelButtonMargins` (`{ top, left, bottom, right }` in px, at rest and while editing), or the functions
+  `setTextFieldMarginsProvider((bar, active) => insets)` and `setCancelButtonMarginsProvider`; `cancelButtonFont`
+  (`{ size, weight }`); `setShowsCancelButton(shows, animated)`; the leading view and the trailing accessory views: slots `leading`
+  and `trailing` (one animated container each; `leading-accessory` and `trailing-accessory` are the same views under their earlier names),
+  `showsLeadingView` / `showsTrailingAccessoryViews` (shown by default), their margins `leadingAccessoryMargins` / `trailingAccessoryMargins`, and
+  `setShowsLeadingView(shows, animated)` / `setShowsTrailingAccessoryViews` (deprecated: `showsLeadingAccessory`, `showsTrailingAccessory`,
+  `setShowsLeadingAccessoryView`, `setShowsTrailingAccessoryView`); `appearance` (`CYLSearchBarAppearance.default()`).
+- `<cyl-search>`: `showsSearchBar` with `showsContent` is the list screen (iOS CYLSearchTableViewController): the bar is the header of
+  the content's scroller, `hidesSearchBarInitially`, `hidesSearchBarWhenEmptyViewShowing`, `snapsHeaderSearchBar` (a half hidden
+  bar settles, a short list can scroll it out); focusing it starts the search. `showsSuggestionsLaunchView` (the launch view is the
+  suggestion area: the history newest first with its title and trash button, else `suggestions`, as the tag list; a tapped tag submits; it wins over
+  `showsLaunchView` and its slot `launch-view`, for a view of your own), `scrimColor` (deprecated: `dimmingColor`), `highlightsResultMatches` /
+  `resultMatchHighlightColor` (case and diacritic insensitive; deprecated: `highlightsMatches` / `highlightColor`), `noResultsText`,
+  `supportsSwipeToDismissSearch` (from the left edge: 24 px, 10 px slop, more sideways than vertical); events `updateresults` (every change,
+  also "" on activation), `willpresent`, `didpresent`, `willdismiss`, `diddismiss`, `historychange`; methods `setActive(active,
+  animated)`, `isActive()`, `showEmptyView(text, detailText, buttonTitle, buttonAction)`, `hideEmptyView()`,
+  `isEmptyViewShowing()`, `history()`, `clearHistory()`, and the bar's methods above. Design and parity:
+  `docs/qmui-search-controller.md` of the repository.
 
 ## Example
 

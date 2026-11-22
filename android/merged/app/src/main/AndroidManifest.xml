@@ -5,6 +5,7 @@
     <application
         tools:replace="android:label"
         android:allowBackup="true"
+        android:enableOnBackInvokedCallback="true"
         android:label="CYLSearch"
         android:supportsRtl="true"
         android:theme="@style/Theme.CYLSearch">

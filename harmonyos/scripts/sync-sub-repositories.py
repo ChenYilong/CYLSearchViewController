@@ -10,6 +10,8 @@
   animated icon + title component, `CYLAnimatedItemView`, vendored by CollectionViewClassifyMenu at CYLTabBarController
   commit 57a527e; the vendored classifymenu names it `file:../cylanimateditem`, so the two stay side by side). It
   depends on no animation library: the example registers the engines it plays (entry/src/main/ets/animation).
+- CYLTabBarController `CrossPlatform/harmonyos-cyltabbar/cylanimateditemrive` -> harmonyos/vendor/cylanimateditemrive (the
+  one shared Rive engine: `CYLRiveIcon`, the loop policies, `cylRegisterRiveEngine`; no own Rive player anywhere).
 
 The commits are in harmonyos/oh-package.json5 (`cylTabBarControllerCommit`, `cylTableViewPlaceHolderCommit`,
 `collectionViewClassifyMenuCommit`; the newest commit on any branch that has the HarmonyOS library,
@@ -30,6 +32,8 @@ REPOS = [
      'harmony/classifymenu', 'CYL_CLASSIFYMENU_DIR', []),
     ('cylanimateditem', 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', 'collectionViewClassifyMenuCommit',
      'harmony/cylanimateditem', 'CYL_CLASSIFYMENU_DIR', []),
+    ('cylanimateditemrive', 'https://github.com/ChenYilong/CYLTabBarController.git', 'cylTabBarControllerCommit',
+     'CrossPlatform/harmonyos-cyltabbar/cylanimateditemrive', 'CYL_TABBAR_DIR', ['LICENSE']),
 ]
 
 

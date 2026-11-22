@@ -13,3 +13,9 @@ CYLSearchEmpty.png is the placeholder image from
 CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.bundle, originating from
 KLTableViewAndCollectionViewPlaceholder. Its MIT license and copyright notice
 are reproduced in LICENSE.placeholder-third-party.
+
+CYLSearchBarAppearance.kt, CYLSearchListView.kt and the QMUI-derived behaviour of CYLSearchBarView.kt and
+CYLSearchView.kt (centered placeholder, field and Cancel margins, accessory views, launch view, dimming, empty view,
+swipe to dismiss, header snapping) are ported from QMUI_iOS by Tencent (QMUISearchBar, QMUISearchController,
+UISearchBar+QMUI, UISearchController+QMUI, QMUICommonTableViewController (Search)), licensed under the MIT License; see
+LICENSE.QMUI.

@@ -57,4 +57,28 @@
     <string name="cyl_search_recent">Recent searches</string>
     <string name="cyl_search_clearRecent">Clear recent searches</string>
     <string name="cyl_search_recentCleared">Recent searches cleared</string>
+    <!-- The QMUI search port screens (iOS CYLSearchViewController.strings, 2026-11-22). -->
+    <string name="cyl_demo_searchController">Search controller</string>
+    <string name="cyl_demo_searchBarStyles">Search bar styles</string>
+    <string name="cyl_demo_shortList">Short list</string>
+    <string name="cyl_styles_section_placeholder">Placeholder</string>
+    <string name="cyl_styles_section_layout">Layout</string>
+    <string name="cyl_styles_section_accessory">Accessory view</string>
+    <string name="cyl_styles_centerPlaceholder">Center placeholder</string>
+    <string name="cyl_styles_changePlaceholder">Change placeholder</string>
+    <string name="cyl_styles_longPlaceholder">A very very very long placeholder</string>
+    <string name="cyl_styles_adjustField">Adjust the field at rest</string>
+    <string name="cyl_styles_adjustCancel">Adjust Cancel while searching</string>
+    <string name="cyl_styles_animated">Animated</string>
+    <string name="cyl_styles_show" formatted="true">Show %s</string>
+    <string name="cyl_styles_hide" formatted="true">Hide %s</string>
+    <string name="cyl_styles_cancel">Cancel</string>
+    <string name="cyl_styles_leading">leading accessory</string>
+    <string name="cyl_styles_trailing">trailing accessory</string>
+    <string name="cyl_styles_accessory_label">Accessory view</string>
+    <string name="cyl_styles_row_hint">Changes the search bar above the list</string>
+    <string name="cyl_controller_recent">Recent searches</string>
+    <string name="cyl_controller_noResults">No matching results</string>
+    <string name="cyl_controller_launch_label">Recent searches: tap a search to see it</string>
+    <string name="cyl_shortList_row" formatted="true">Row %d</string>
 </resources>

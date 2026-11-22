@@ -334,3 +334,11 @@ simulator, iOS 26.1, English; iOS SDK 27.2; repository
     | SDK | iOS SDK 27.2 (deployment iOS 15.0); Android compileSdk 35 |
     | Repository | [`e358ebd`](https://github.com/ChenYilong/CYLSearchViewController/commit/e358ebd) on `feat/swift-core` |
     | Taken | 2026-11-12 23:29–23:33 NZDT |
+
+## See also: the QMUI search classes in Swift (2026-11-22)
+
+`CYLSearchBar` (a `UISearchBar` subclass), `CYLSearchController` (the wrapper around `UISearchController`) and
+`CYLSearchTableViewController` are the Swift port of QMUI_iOS's `QMUISearchBar` and `QMUISearchController`, with the edge
+cases of their source comments and the search issues #1160, #1229, #1251, #1313 and #1319. They sit beside
+`CYLSearchBarView` and `CYLSearchView`, which keep their API. Names, the edge-case table, the examples and the score:
+[qmui-search-controller.md](qmui-search-controller.md).

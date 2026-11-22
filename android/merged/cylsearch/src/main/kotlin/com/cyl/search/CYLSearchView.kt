@@ -32,13 +32,17 @@ import com.cyl.classifymenu.CYLMenuFoldControl
 import com.cyl.classifymenu.CYLMenuFoldControlPosition
 import com.cyl.classifymenu.CYLMenuFoldControlContent
 import com.cyl.classifymenu.CYLTagListView
+import androidx.activity.BackEventCompat
+import com.cyl.placeholder.CYLPlaceholderAction
+import com.cyl.placeholder.CYLPlaceholderActionHandler
+import com.cyl.placeholder.CYLPlaceholderButtonStyle
+import com.cyl.placeholder.CYLPlaceholderComponent
 import com.cyl.placeholder.CYLPlaceholderScenario
+import com.cyl.placeholder.CYLPlaceholderStyle
 import com.cyl.placeholder.CYLPlaceholderStackView
 import com.cyl.refresh.CYLRefreshNormalHeader
 import com.cyl.refresh.cyl_header
 import com.cyl.refresh.layout.CYLRefreshLayout
-import java.text.Normalizer
-import java.util.Locale
 
 /**
  * How a long suggestion is cut (iOS `NSLineBreakMode`).
@@ -106,6 +110,27 @@ interface CYLSearchViewDelegate {
      * The search view finished closing (MaterialSearchView `onSearchViewClosed`).
      */
     fun searchViewDidClose(searchView: CYLSearchView) {}
+
+    /**
+     * The search view is about to open (iOS `willPresentSearchController`).
+     */
+    fun searchViewWillShow(searchView: CYLSearchView) {}
+
+    /**
+     * The search view is about to close (iOS `willDismissSearchController`).
+     */
+    fun searchViewWillClose(searchView: CYLSearchView) {}
+
+    /**
+     * Update the results for `searchString`: called on every text change, also with "" (the first opening, all text
+     * deleted, the clear button, the close with `clearsQueryOnClose`), as UIKit does (iOS `updateResultsFor`).
+     */
+    fun searchViewUpdateResults(searchView: CYLSearchView, searchString: String) {}
+
+    /**
+     * `showEmptyView` is about to put its placeholder under the bar (QMUI `willShowEmptyView`).
+     */
+    fun searchViewWillShowEmptyView(searchView: CYLSearchView, emptyView: View) {}
 
     /**
      * The query changed (`onQueryTextChange`).
@@ -219,6 +244,9 @@ class CYLSearchView @JvmOverloads constructor(
     private val pageView = LinearLayout(context)
     private val bodyView = FrameLayout(context)
     private val scrimView = View(context)
+    private val emptyResultsSlot = CYLSearchEmptyViewSlot(bodyView, 0) { keyboardInset }
+    private val emptySuggestionsSlot = CYLSearchEmptyViewSlot(bodyView, 0) { keyboardInset }
+    private val explicitEmptySlot = CYLSearchEmptyViewSlot(bodyView, -1) { keyboardInset }
     private val adapter = SuggestionAdapter()
     private val resultsAdapter = ResultsAdapter()
     private val resultsRefreshLayout = CYLRefreshContainer(context)
@@ -229,7 +257,28 @@ class CYLSearchView @JvmOverloads constructor(
     private var topInset = 0
     private var keyboardInset = 0
     private val backCallback = object : OnBackPressedCallback(false) {
-        override fun handleOnBackPressed() = closeSearch()
+        override fun handleOnBackPressed() {
+            if (isCovered()) {
+                passBackThrough()
+            } else {
+                closeSearch()
+            }
+        }
+
+        override fun handleOnBackStarted(backEvent: BackEventCompat) {
+            if (!isCovered()) pageView.animate().cancel()
+        }
+
+        override fun handleOnBackProgressed(backEvent: BackEventCompat) {
+            if (!supportsSwipeToDismissSearch || isCovered()) return
+            val direction = if (backEvent.swipeEdge == BackEventCompat.EDGE_RIGHT) -1 else 1
+            pageView.translationX = direction * backEvent.progress * width * SWIPE_TRAVEL
+            pageView.alpha = 1f - 0.5f * backEvent.progress
+        }
+
+        override fun handleOnBackCancelled() {
+            pageView.animate().translationX(0f).alpha(1f).setDuration((animationDuration * 1000).toLong()).start()
+        }
     }
 
     /**
@@ -281,9 +330,10 @@ class CYLSearchView @JvmOverloads constructor(
         }
 
     /**
-     * How the suggestions are shown: a list (`List`, the default) or tags (`Tags`).
+     * How the suggestions are shown: tags (`Tags`, the default, folded to `suggestionsFoldedRowCount` rows with the
+     * fold control as the last tag) or a list (`List`).
      */
-    var suggestionStyle: CYLSearchSuggestionStyle = CYLSearchSuggestionStyle.List
+    var suggestionStyle: CYLSearchSuggestionStyle = CYLSearchSuggestionStyle.Tags
         set(value) {
             field = value
             updateSuggestionsVisibility()
@@ -306,8 +356,7 @@ class CYLSearchView @JvmOverloads constructor(
     var emptyResultsScenario: CYLPlaceholderScenario = CYLPlaceholderScenario.NoSearchResults
         set(value) {
             field = value
-            emptyResultsView?.let { bodyView.removeView(it) }
-            emptyResultsView = null
+            emptyResultsSlot.remove()
             refilter()
         }
 
@@ -315,8 +364,8 @@ class CYLSearchView @JvmOverloads constructor(
      * The placeholder shown for empty results (CYLTableViewPlaceHolder's `CYLPlaceholderStackView`), created the first
      * time it is shown; null before.
      */
-    var emptyResultsView: CYLPlaceholderStackView? = null
-        private set
+    val emptyResultsView: CYLPlaceholderStackView?
+        get() = emptyResultsSlot.view
 
     private var emptyResultsVisible = false
 
@@ -351,6 +400,9 @@ class CYLSearchView @JvmOverloads constructor(
         CYLSearchSuggestionStore.cacheWithPolicy(context, CYLSearchSuggestionCachePolicy.Database, "CYLSearchView")
         set(value) {
             field = value
+            if (isAttachedToWindow) {
+                observeHistory()
+            }
             refilter()
         }
 
@@ -385,16 +437,15 @@ class CYLSearchView @JvmOverloads constructor(
     var emptySuggestionsScenario: CYLPlaceholderScenario = CYLPlaceholderScenario.NoContent
         set(value) {
             field = value
-            emptySuggestionsView?.let { bodyView.removeView(it) }
-            emptySuggestionsView = null
+            emptySuggestionsSlot.remove()
             refilter()
         }
 
     /**
      * The placeholder shown for an empty cache, created the first time it is shown; null before.
      */
-    var emptySuggestionsView: CYLPlaceholderStackView? = null
-        private set
+    val emptySuggestionsView: CYLPlaceholderStackView?
+        get() = emptySuggestionsSlot.view
 
     /**
      * Focuses the search field when the search opens, which raises the keyboard (iOS `focusesSearchFieldOnShow`). True
@@ -402,6 +453,17 @@ class CYLSearchView @JvmOverloads constructor(
      * field is focused when the person taps it.
      */
     var focusesSearchFieldOnShow = true
+
+    /**
+     * Shows `suggestionCacheHeaderView` (the title and `clearSuggestionCacheButton`) above the cached queries (iOS
+     * `showsSuggestionCacheHeader`). True by default. False takes the header away, for a host that clears the history with
+     * its own control that calls `clearSuggestionCache()`.
+     */
+    var showsSuggestionCacheHeader = true
+        set(value) {
+            field = value
+            refilter()
+        }
 
     private var showsCachedQueries = false
     private var emptySuggestionsVisible = false
@@ -624,6 +686,199 @@ class CYLSearchView @JvmOverloads constructor(
     var animationDuration: Double = 0.25
 
     /**
+     * A view of yours under the search bar while the query is empty (QMUI `launchView`): recent searches, hot
+     * topics. It fills the space under the bar, replaces the cached-query list and the empty placeholders while it
+     * shows, and is hidden as soon as the person types. Null by default.
+     */
+    var launchView: View? = null
+        set(value) {
+            field?.let { bodyView.removeView(it) }
+            field = value
+            value?.let {
+                (it.parent as? ViewGroup)?.removeView(it)
+                bodyView.addView(it, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+            }
+            refilter()
+        }
+
+    /**
+     * The same overlay as `scrimColor` (QMUI `dimmingColor`): one view dims the host below the page for the whole time
+     * the search is open, and a tap on it ends the search.
+     */
+    @Deprecated("One overlay: use scrimColor.", ReplaceWith("scrimColor"))
+    var dimmingColor: Int?
+        get() = scrimColor
+        set(value) {
+            scrimColor = value
+        }
+    private var launchVisible = false
+
+    /**
+     * Gives the first match of the query in the text of each result row `resultMatchHighlightColor` (the tint color by
+     * default), after `searchViewConfigureResultCell` configured the row (iOS `highlightsResultMatches`). The match ignores
+     * case and diacritics, like the suggestion filter. False by default.
+     */
+    var highlightsResultMatches: Boolean = false
+        set(value) {
+            field = value
+            reloadResultsTableView()
+        }
+
+    /**
+     * The color of the highlighted match (iOS `resultMatchHighlightColor`). Null uses the tint color of the bar.
+     */
+    var resultMatchHighlightColor: Int? = null
+        set(value) {
+            field = value
+            reloadResultsTableView()
+        }
+
+    /**
+     * The text of the "no results" empty view that the search view manages itself (iOS `noResultsText`): after each update
+     * of the results it shows the empty view with this text while the query is not empty and nothing is listed, and hides
+     * it otherwise. Null (the default) leaves `showEmptyView` and `hideEmptyView` to the delegate. The placeholder with
+     * this text is the only one: `showsEmptyResultsPlaceholder` does not add its own beside it.
+     */
+    var noResultsText: String? = null
+        set(value) {
+            field = value
+            refilter()
+        }
+
+    /**
+     * Clears the query when the search view closes and reports the empty text to `searchViewUpdateResults`, as
+     * `UISearchController` does when Cancel is tapped. False by default.
+     */
+    var clearsQueryOnClose: Boolean = false
+
+    /**
+     * Lets the back swipe (predictive back, API 34 and later with `android:enableOnBackInvokedCallback`) drag the page
+     * sideways and ends the search when it is completed (QMUI `supportsSwipeToDismissSearch`); cancelling it springs
+     * the page back. The back key and the 3-button navigation always close the search. False by default.
+     */
+    var supportsSwipeToDismissSearch: Boolean = false
+
+    /**
+     * True while the search view is open (iOS `isActive`); the same as `isSearchOpen`.
+     */
+    val isActive: Boolean
+        get() = isSearchOpen
+
+    /**
+     * Opens or closes the search view (iOS `setActive(_:animated:)`): `showSearch` and `closeSearch`.
+     */
+    fun setActive(active: Boolean, animated: Boolean) {
+        if (active) showSearch(animated) else closeSearch(animated)
+    }
+
+    /**
+     * The bottom edge of the search bar in this view, in pixels (iOS `searchBarMaxY`): the content starts here.
+     */
+    val searchBarMaxY: Int
+        get() = pageView.top + searchBarView.bottom
+
+    // The empty view and the history
+
+    private val historyListeners = mutableListOf<(CYLSearchView) -> Unit>()
+
+    /**
+     * The placeholder shown by `showEmptyView`, or null (iOS `emptyView`).
+     */
+    val emptyView: CYLPlaceholderStackView?
+        get() = explicitEmptySlot.view
+
+    /**
+     * True while `showEmptyView` has put its placeholder under the bar (iOS `isEmptyViewShowing`).
+     */
+    val isEmptyViewShowing: Boolean
+        get() = explicitEmptySlot.view != null
+
+    /**
+     * Shows CYLTableViewPlaceHolder's placeholder with a title, an optional detail and an optional button under the
+     * bar, over the results (QMUI `showEmptyViewWithText:detailText:buttonTitle:buttonAction:`). Does nothing while
+     * the query is empty (the launch view or the dimming is there then). It stays until `hideEmptyView`, the query is
+     * emptied or the search view closes.
+     */
+    @JvmOverloads
+    fun showEmptyView(text: String?, detailText: String? = null, buttonTitle: String? = null, buttonAction: (() -> Unit)? = null) {
+        if (searchBarView.text.isNullOrEmpty()) {
+            return
+        }
+        present(emptyPlaceholder(context, text, detailText, buttonTitle, buttonAction))
+    }
+
+    /**
+     * Shows one of CYLTableViewPlaceHolder's scenarios under the bar (the placeholder of `emptyResultsScenario`).
+     * Does nothing while the query is empty.
+     */
+    fun showEmptyView(scenario: CYLPlaceholderScenario) {
+        if (searchBarView.text.isNullOrEmpty()) {
+            return
+        }
+        present(CYLPlaceholderStackView(context, scenario))
+    }
+
+    /**
+     * Removes the placeholder of `showEmptyView` (closing the search view always does).
+     */
+    fun hideEmptyView() {
+        explicitEmptySlot.remove()
+    }
+
+    private fun present(view: CYLPlaceholderStackView) {
+        delegate?.searchViewWillShowEmptyView(this, view)
+        explicitEmptySlot.adopt(view, pageBackgroundColor ?: themeColor(android.R.attr.colorBackground))
+        view.bringToFront()
+    }
+
+    private var filledTagWidth = 0
+    private var historyObservation: (() -> Unit)? = null
+    private var changingHistory = false
+
+    // The one history signal (CYLSearchHistorySignal) reaches the open search view, which lists the history again, and the
+    // listeners below; the view's own submit and clear are listed again by the code that made them.
+    private fun observeHistory() {
+        historyObservation?.invoke()
+        historyObservation = suggestionCache?.let { cache -> CYLSearchHistorySignal.observe(cache) { historyChanged() } }
+    }
+
+    private fun historyChanged() {
+        if (isSearchOpen && !changingHistory) {
+            refilter()
+        }
+        historyListeners.toList().forEach { it(this) }
+    }
+
+    private fun changeHistory(change: (CYLSearchSuggestionCache) -> Unit) {
+        val cache = suggestionCache ?: return
+        changingHistory = true
+        try {
+            change(cache)
+            if (cache !is CYLSearchSuggestionStore) {
+                CYLSearchHistorySignal.post(cache)
+            }
+        } finally {
+            changingHistory = false
+        }
+    }
+
+    /**
+     * Calls `listener` after the history changed (iOS `historyDidChangeNotification`): a submitted query went into the
+     * suggestion cache, the cache was cleared, or another search view changed the same history (same policy and name). A
+     * view that stays on screen while the person searches reads the history again here.
+     */
+    fun addHistoryDidChangeListener(listener: (CYLSearchView) -> Unit) {
+        historyListeners.add(listener)
+    }
+
+    /**
+     * Stops calling `listener`.
+     */
+    fun removeHistoryDidChangeListener(listener: (CYLSearchView) -> Unit) {
+        historyListeners.remove(listener)
+    }
+
+    /**
      * Closes the search view after a submitted query that the delegate did not handle. True by default.
      */
     var closesOnSubmit: Boolean = true
@@ -696,9 +951,20 @@ class CYLSearchView @JvmOverloads constructor(
         }
         suggestionsTagView.defaultVisibleRows = 2
         suggestionsTagView.tagClickHandler = { index, _ -> select(index) }
+        // The tags are filled while the page is hidden and has no width (the first open): fill them again once it has one.
+        suggestionsTagView.addOnLayoutChangeListener { view, left, _, right, _, _, _, _, _ ->
+            val width = right - left
+            val hadWidth = filledTagWidth > 0
+            filledTagWidth = width
+            if (width > 0 && !hadWidth && suggestionStyle == CYLSearchSuggestionStyle.Tags && suggestionsVisible) {
+                view.post { updateSuggestionsVisibility() }
+            }
+        }
         val padding = (12 * density).toInt()
-        suggestionsTagView.setPadding(padding, padding, padding, padding)
-        bodyView.addView(suggestionsTagView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
+        // Margins, not padding: the tag list measures its height from its own width and would clip rows under padding.
+        bodyView.addView(suggestionsTagView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
+            setMargins(padding, padding, padding, padding)
+        })
         resultsTableView.layoutManager = LinearLayoutManager(context)
         resultsTableView.adapter = resultsAdapter
         resultsTableView.clipToPadding = false
@@ -713,18 +979,50 @@ class CYLSearchView @JvmOverloads constructor(
         resultsRefreshLayout.visibility = GONE
         bodyView.addView(resultsRefreshLayout, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
-            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
-            topInset = bars.top
-            keyboardInset = maxOf(insets.getInsets(WindowInsetsCompat.Type.ime()).bottom, bars.bottom)
-            pageView.setPadding(bars.left, topInset, bars.right, 0)
-            suggestionsTableView.setPadding(0, 0, 0, keyboardInset)
-            resultsTableView.setPadding(0, 0, 0, keyboardInset)
-            // The placeholders are centred in what the keyboard leaves visible, not under it (2026-11-19).
-            emptyResultsView?.setPadding(0, 0, 0, keyboardInset)
-            emptySuggestionsView?.setPadding(0, 0, 0, keyboardInset)
+            windowInsets = insets
+            applyWindowInsets(insets)
             insets
         }
+        // The page's place in the window decides how much of the system bars is its own: a host that puts the view below its
+        // own header, or above a navigation bar, moves it, and the insets are applied again.
+        addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            val insets = windowInsets
+            if (insets != null && insetsPlace != placeInWindow()) applyWindowInsets(insets)
+        }
         applyStyle()
+    }
+
+    private var windowInsets: WindowInsetsCompat? = null
+    private var insetsPlace = Pair(0, 0)
+
+    // The distance of the view from the top and from the bottom of the window.
+    private fun placeInWindow(): Pair<Int, Int> {
+        val location = IntArray(2)
+        getLocationInWindow(location)
+        val rootHeight = rootView.height
+        val bottomGap = if (rootHeight > 0) (rootHeight - (location[1] + height)).coerceAtLeast(0) else 0
+        return Pair(location[1].coerceAtLeast(0), bottomGap)
+    }
+
+    /**
+     * Pads the page by the part of the system bars and the keyboard that lies over this view: the bars minus the distance
+     * of the view from the edge of the window, so a view that starts below a header gets no blank band above its bar.
+     */
+    private fun applyWindowInsets(insets: WindowInsetsCompat) {
+        val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout())
+        val place = placeInWindow()
+        insetsPlace = place
+        val (topGap, bottomGap) = place
+        topInset = (bars.top - topGap).coerceAtLeast(0)
+        val keyboard = (insets.getInsets(WindowInsetsCompat.Type.ime()).bottom - bottomGap).coerceAtLeast(0)
+        keyboardInset = maxOf(keyboard, (bars.bottom - bottomGap).coerceAtLeast(0))
+        pageView.setPadding(bars.left, topInset, bars.right, 0)
+        suggestionsTableView.setPadding(0, 0, 0, keyboardInset)
+        resultsTableView.setPadding(0, 0, 0, keyboardInset)
+        // The placeholders are centred in what the keyboard leaves visible, not under it (2026-11-19).
+        emptyResultsSlot.refreshPadding()
+        emptySuggestionsSlot.refreshPadding()
+        explicitEmptySlot.refreshPadding()
     }
 
     private fun themeColor(attribute: Int): Int {
@@ -757,6 +1055,41 @@ class CYLSearchView @JvmOverloads constructor(
             suggestionsTableView.layoutParams = it
         }
         scrimView.visibility = if (scrimColor == null) GONE else VISIBLE
+    }
+
+
+
+    // True while a page of the host lies over this view (a detail page pushed from a result): Back then belongs to that
+    // page, not to the search that stays open behind it.
+    private fun isCovered(): Boolean {
+        val bounds = android.graphics.Rect()
+        if (!getGlobalVisibleRect(bounds)) {
+            return false
+        }
+        var child: View = this
+        var parent = child.parent
+        while (parent is ViewGroup) {
+            for (index in parent.indexOfChild(child) + 1 until parent.childCount) {
+                val sibling = parent.getChildAt(index)
+                val area = android.graphics.Rect()
+                if (sibling.visibility == VISIBLE && sibling.width > 0 && sibling.getGlobalVisibleRect(area) && area.contains(bounds)) {
+                    return true
+                }
+            }
+            child = parent
+            parent = parent.parent
+        }
+        return false
+    }
+
+    // Hands Back to the next callback of the activity (the covering page's) without closing the search.
+    private fun passBackThrough() {
+        backCallback.isEnabled = false
+        try {
+            (activity() as? ComponentActivity)?.onBackPressedDispatcher?.onBackPressed()
+        } finally {
+            backCallback.isEnabled = isSearchOpen
+        }
     }
 
     // Opening and closing
@@ -808,9 +1141,11 @@ class CYLSearchView @JvmOverloads constructor(
             return
         }
         isSearchOpen = true
+        delegate?.searchViewWillShow(this)
         visibility = VISIBLE
         backCallback.isEnabled = true
         refilter()
+        delegate?.searchViewUpdateResults(this, searchBarView.text.orEmpty())
         ViewCompat.requestApplyInsets(this)
         // `focusesSearchFieldOnShow` decides when the keyboard appears: now, or when the person taps the field.
         if (focusesSearchFieldOnShow) searchBarView.showKeyboard()
@@ -869,13 +1204,21 @@ class CYLSearchView @JvmOverloads constructor(
         }
         isSearchOpen = false
         closing = true
+        delegate?.searchViewWillClose(this)
         backCallback.isEnabled = false
         searchBarView.hideKeyboard()
         val finish = {
             visibility = GONE
             alpha = 1f
             pageView.translationY = 0f
+            pageView.translationX = 0f
+            pageView.alpha = 1f
             closing = false
+            hideEmptyView()
+            if (clearsQueryOnClose && !searchBarView.text.isNullOrEmpty()) {
+                searchBarView.text = ""
+                queryChanged("")
+            }
             delegate?.searchViewDidClose(this)
             runCloseCompletions()
         }
@@ -909,9 +1252,12 @@ class CYLSearchView @JvmOverloads constructor(
         super.onAttachedToWindow()
         (activity() as? ComponentActivity)?.onBackPressedDispatcher?.addCallback(backCallback)
         backCallback.isEnabled = isSearchOpen
+        observeHistory()
     }
 
     override fun onDetachedFromWindow() {
+        historyObservation?.invoke()
+        historyObservation = null
         backCallback.remove()
         super.onDetachedFromWindow()
     }
@@ -984,6 +1330,23 @@ class CYLSearchView @JvmOverloads constructor(
             emptyResultsVisible = showsEmptyResultsPlaceholder && trimmed.isNotEmpty() && filteredSuggestions.isEmpty()
             emptySuggestionsVisible = showsEmptySuggestionsPlaceholder && suggestionCache != null && trimmed.isEmpty() && filteredSuggestions.isEmpty()
         }
+        // The launch view owns the space under the bar while the query is empty.
+        launchVisible = launchView != null && trimmed.isEmpty()
+        if (launchVisible) {
+            suggestionsVisible = false
+            showsCachedQueries = false
+            emptyResultsVisible = false
+            emptySuggestionsVisible = false
+        }
+        if (trimmed.isEmpty()) {
+            hideEmptyView()
+        }
+        noResultsText?.let {
+            val rows = if (resultsVisible) searchResults.size else filteredSuggestions.size
+            if (trimmed.isNotEmpty() && rows == 0) showEmptyView(it) else hideEmptyView()
+            // One empty view: the text's placeholder replaces the one of `showsEmptyResultsPlaceholder`, never stacks on it.
+            emptyResultsVisible = false
+        }
         updateSuggestionsVisibility()
     }
 
@@ -1011,21 +1374,11 @@ class CYLSearchView @JvmOverloads constructor(
         if (tags) {
             suggestionsTagView.setTagsWithTitles(if (suggestionsVisible) filteredSuggestions else emptyList())
         }
-        if (emptyResultsVisible && emptyResultsView == null) {
-            emptyResultsView = CYLPlaceholderStackView(context, emptyResultsScenario).also {
-                it.setPadding(0, 0, 0, keyboardInset)
-                bodyView.addView(it, 0, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
-            }
-        }
-        emptyResultsView?.visibility = if (emptyResultsVisible) VISIBLE else GONE
-        if (emptySuggestionsVisible && emptySuggestionsView == null) {
-            emptySuggestionsView = CYLPlaceholderStackView(context, emptySuggestionsScenario).also {
-                it.setPadding(0, 0, 0, keyboardInset)
-                bodyView.addView(it, 0, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
-            }
-        }
-        emptySuggestionsView?.visibility = if (emptySuggestionsVisible) VISIBLE else GONE
-        suggestionCacheHeaderView.visibility = if (suggestionsVisible && showsCachedQueries) VISIBLE else GONE
+        emptyResultsSlot.setShowing(emptyResultsVisible) { CYLPlaceholderStackView(context, emptyResultsScenario) }
+        launchView?.visibility = if (launchVisible) VISIBLE else GONE
+        emptySuggestionsSlot.setShowing(emptySuggestionsVisible) { CYLPlaceholderStackView(context, emptySuggestionsScenario) }
+        suggestionCacheHeaderView.visibility =
+            if (suggestionsVisible && showsCachedQueries && showsSuggestionCacheHeader) VISIBLE else GONE
         // The results list sits under the empty results placeholder, so the list (and its pull-to-refresh) stays.
         resultsRefreshLayout.visibility = if (resultsVisible) VISIBLE else GONE
         if (emptyResultsVisible) {
@@ -1050,7 +1403,7 @@ class CYLSearchView @JvmOverloads constructor(
      * `clearSuggestionCache`).
      */
     fun clearSuggestionCache() {
-        suggestionCache?.removeAllQueries()
+        changeHistory { it.removeAllQueries() }
         refilter()
         announceForAccessibility(CYLSearchResources.localizedString(context, "search.recentCleared"))
     }
@@ -1058,16 +1411,19 @@ class CYLSearchView @JvmOverloads constructor(
     private fun queryChanged(text: String) {
         refilter()
         delegate?.searchViewTextDidChange(this, text)
+        delegate?.searchViewUpdateResults(this, text)
     }
 
     private fun select(index: Int) {
         val suggestion = filteredSuggestions.getOrNull(index) ?: return
         searchBarView.text = suggestion
         delegate?.searchViewDidSelectSuggestion(this, suggestion, index)
+        // A programmatic text change does not reach the bar's delegate: the results follow the tapped tag either way.
+        queryChanged(suggestion)
         if (submitsOnSuggestionSelection) {
             searchBarView.submit()
-        } else {
-            queryChanged(suggestion)
+            // As a tapped tag of the iOS launch view: the keyboard goes down and the results stay in sight.
+            searchBarView.hideKeyboard()
         }
     }
 
@@ -1076,7 +1432,10 @@ class CYLSearchView @JvmOverloads constructor(
 
         override fun searchBarViewSearchButtonClicked(searchBarView: CYLSearchBarView) {
             // Every submitted query is cached, so the list shows it the next time.
-            suggestionCache?.addQuery(searchBarView.text.orEmpty())
+            val submitted = searchBarView.text.orEmpty().trim()
+            if (submitted.isNotEmpty()) {
+                changeHistory { it.addQuery(submitted) }
+            }
             val handled = delegate?.searchViewDidSubmitText(this@CYLSearchView, searchBarView.text.orEmpty()) ?: false
             if (!handled && closesOnSubmit) closeSearch() else dismissSuggestions()
         }
@@ -1147,6 +1506,10 @@ class CYLSearchView @JvmOverloads constructor(
             cell.imageView.visibility = GONE
             cell.textLabel.setTextColor(themeColor(android.R.attr.textColorPrimary))
             resultsDataSource?.searchViewConfigureResultCell(this@CYLSearchView, cell, result)
+            if (highlightsResultMatches) {
+                val color = resultMatchHighlightColor ?: searchBarView.tintColor ?: themeColor(android.R.attr.colorAccent)
+                CYLSearchResultHighlight.apply(cell.textLabel, searchBarView.text.orEmpty(), color)
+            }
             cell.setOnClickListener {
                 searchResults.getOrNull(holder.bindingAdapterPosition)?.let {
                     delegate?.searchViewDidSelectResult(this@CYLSearchView, it)
@@ -1214,11 +1577,32 @@ class CYLSearchView @JvmOverloads constructor(
      */
     companion object {
         private const val STATE_SUPER = "CYLSearchViewSuper"
+        private const val SWIPE_TRAVEL = 0.3f
+
+        /**
+         * CYLTableViewPlaceHolder's "no results" placeholder with a title, an optional detail and an optional button: the
+         * view of `showEmptyView`, also used by `CYLSearchListView`.
+         */
+        @JvmStatic
+        @JvmOverloads
+        fun emptyPlaceholder(context: Context, text: String?, detailText: String? = null, buttonTitle: String? = null, buttonAction: (() -> Unit)? = null): CYLPlaceholderStackView {
+            val components = mutableListOf(
+                CYLPlaceholderComponent.componentWithBundledAnimation("CYLPlaceholderNoResults.json", CYLPlaceholderStyle.NoResults, text),
+            )
+            if (!detailText.isNullOrEmpty()) {
+                components.add(CYLPlaceholderComponent.hintComponentWithText(detailText))
+            }
+            val actions = mutableMapOf<String, CYLPlaceholderActionHandler>()
+            if (!buttonTitle.isNullOrEmpty()) {
+                components.add(CYLPlaceholderComponent.buttonComponentWithTitle(buttonTitle, CYLPlaceholderButtonStyle.Outlined, CYLPlaceholderAction.Retry))
+                actions[CYLPlaceholderAction.Retry] = { buttonAction?.invoke() }
+            }
+            return CYLPlaceholderStackView(context, components, actions)
+        }
         private const val STATE_QUERY = "CYLSearchViewQuery"
         private const val STATE_OPEN = "CYLSearchViewOpen"
 
-        private fun fold(text: String): String =
-            Normalizer.normalize(text, Normalizer.Form.NFD).replace(Regex("\\p{Mn}+"), "").lowercase(Locale.ROOT)
+        private fun fold(text: String): String = CYLSearchResultHighlight.fold(text)
 
         /**
          * Adds pull-to-refresh to `scrollView` (a `RecyclerView`, `ScrollView`, `ListView` or `NestedScrollView` that

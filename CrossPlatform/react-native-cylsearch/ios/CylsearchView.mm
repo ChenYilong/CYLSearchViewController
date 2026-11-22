@@ -1,5 +1,6 @@
 #import "CylsearchView.h"
 #import "CYLRNSearchSupport.h"
+#import "CYLRNSearchResults.h"
 #import <CYLTableViewPlaceHolder/CYLTableViewPlaceHolder.h>
 
 #import <react/renderer/components/CylsearchViewSpec/ComponentDescriptors.h>
@@ -9,17 +10,17 @@
 
 using namespace facebook::react;
 
-@interface CylsearchView () <CYLSearchViewDelegate, CYLSearchViewDataSource>
+@interface CylsearchView () <CYLSearchViewDelegate>
 @end
 
 /*!
  * CYLSearchView, open from the start: React Native leaves the screen in `onClose`. It is the core's
- * `resultsDataSource` (the `results` prop) and owns its `refreshHandler` (`onRefresh`).
+ * `resultsDataSource` (the `results` prop, through the one data source of both components) and owns its `refreshHandler` (`onRefresh`).
  */
 @implementation CylsearchView {
   UIView *_container;
   CYLSearchView *_searchView;
-  NSArray<NSString *> *_results;
+  CYLRNSearchResults *_results;
   BOOL _refreshing;
   BOOL _refreshFromProps;
 }
@@ -35,6 +36,7 @@ using namespace facebook::react;
     static const auto defaultProps = std::make_shared<const CylsearchViewProps>();
     _props = defaultProps;
     _container = [[UIView alloc] initWithFrame:self.bounds];
+    _results = [CYLRNSearchResults new];
     _searchView = [[CYLSearchView alloc] initWithFrame:CGRectZero];
     _searchView.delegate = self;
     // The page stays open after a submit: JavaScript decides what a submitted query does.
@@ -61,17 +63,12 @@ using namespace facebook::react;
   _searchView.emptyResultsScenario = [CYLRNString(p.emptyResultsScenario) isEqualToString:@"noContent"]
       ? CYLPlaceholderScenarioNoContent : CYLPlaceholderScenarioNoSearchResults;
   _searchView.showsEmptyResultsPlaceholder = p.showsEmptyResultsPlaceholder;
-  NSDictionary<NSString *, NSNumber *> *policies = @{
-    @"none": @(CYLSearchSuggestionCachePolicyNone), @"database": @(CYLSearchSuggestionCachePolicyDatabase),
-    @"userDefaults": @(CYLSearchSuggestionCachePolicyUserDefaults), @"sandboxFile": @(CYLSearchSuggestionCachePolicySandboxFile)
-  };
-  CYLSearchSuggestionCachePolicy policy = (CYLSearchSuggestionCachePolicy)(policies[CYLRNString(p.suggestionCachePolicy)] ?: @(CYLSearchSuggestionCachePolicyDatabase)).integerValue;
-  NSString *cacheName = CYLRNString(p.suggestionCacheName).length > 0 ? CYLRNString(p.suggestionCacheName) : @"CYLSearchView";
-  if (policy != _searchView.suggestionCachePolicy || ![cacheName isEqualToString:_searchView.suggestionCacheName]) {
-    _searchView.suggestionCacheName = cacheName;
-    _searchView.suggestionCachePolicy = policy;
-  }
+  CYLRNApplySuggestionCache(_searchView, CYLRNString(p.suggestionCachePolicy), CYLRNString(p.suggestionCacheName), @"CYLSearchView",
+                            CYLSearchSuggestionCachePolicyDatabase);
+  _searchView.highlightsResultMatches = p.highlightsResultMatches;
+  _searchView.resultMatchHighlightColor = CYLRNColor(CYLRNString(p.resultMatchHighlightColor));
   _searchView.focusesSearchFieldOnShow = p.focusesSearchFieldOnShow;
+  _searchView.showsSuggestionCacheHeader = p.showsSuggestionCacheHeader;
   _searchView.suggestionsFoldControl = CYLRNFoldControl(CYLRNString(p.suggestionsFoldControlPosition), CYLRNString(p.suggestionsFoldControlContent));
   _searchView.suggestionsFoldedRowCount = (NSUInteger)MAX(0, p.suggestionsFoldedRowCount);
   [self updateResults:CYLRNStrings(p.results) shows:p.showsResults];
@@ -84,9 +81,9 @@ using namespace facebook::react;
  */
 - (void)updateResults:(NSArray<NSString *> *)results shows:(BOOL)shows
 {
-  BOOL changed = ![results isEqualToArray:_results ?: @[]];
-  _results = results;
-  id<CYLSearchViewDataSource> dataSource = shows ? self : nil;
+  BOOL changed = ![results isEqualToArray:_results.results];
+  _results.results = results;
+  id<CYLSearchViewDataSource> dataSource = shows ? _results : nil;
   if (_searchView.resultsDataSource != dataSource) {
     // Setting the data source queries it again.
     _searchView.resultsDataSource = dataSource;
@@ -150,7 +147,7 @@ using namespace facebook::react;
   [_searchView endRefreshing];
   _searchView.refreshHandler = nil;
   _searchView.resultsDataSource = nil;
-  _results = nil;
+  _results.results = @[];
   _refreshing = NO;
   _refreshFromProps = NO;
   [_searchView closeSearchAnimated:NO];
@@ -200,23 +197,6 @@ using namespace facebook::react;
   if (_eventEmitter) {
     std::static_pointer_cast<CylsearchViewEventEmitter const>(_eventEmitter)->onClose(CylsearchViewEventEmitter::OnClose{});
   }
-}
-
-#pragma mark - CYLSearchViewDataSource
-
-- (NSArray *)searchView:(CYLSearchView *)searchView resultsForQuery:(NSString *)query
-{
-  // JavaScript filters: the `results` prop already belongs to the current query.
-  return _results ?: @[];
-}
-
-- (void)searchView:(CYLSearchView *)searchView configureResultCell:(UITableViewCell *)cell withResult:(id)result
-{
-  UIListContentConfiguration *configuration = [cell defaultContentConfiguration];
-  configuration.text = [result isKindOfClass:[NSString class]] ? result : [result description];
-  configuration.textProperties.numberOfLines = 0;
-  cell.contentConfiguration = configuration;
-  cell.accessibilityTraits |= UIAccessibilityTraitButton;
 }
 
 

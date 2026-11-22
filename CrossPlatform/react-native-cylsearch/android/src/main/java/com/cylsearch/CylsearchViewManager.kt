@@ -76,6 +76,11 @@ class CylsearchViewManager : SimpleViewManager<CylsearchView>(), CylsearchViewMa
     view.searchView.focusesSearchFieldOnShow = value
   }
 
+  @ReactProp(name = "showsSuggestionCacheHeader", defaultBoolean = true)
+  override fun setShowsSuggestionCacheHeader(view: CylsearchView, value: Boolean) {
+    view.searchView.showsSuggestionCacheHeader = value
+  }
+
   @ReactProp(name = "suggestionsFoldControlPosition")
   override fun setSuggestionsFoldControlPosition(view: CylsearchView, value: String?) {
     view.searchView.suggestionsFoldControl = cylFoldControl(value, view.foldContent)
@@ -95,6 +100,12 @@ class CylsearchViewManager : SimpleViewManager<CylsearchView>(), CylsearchViewMa
 
   @ReactProp(name = "results")
   override fun setResults(view: CylsearchView, value: ReadableArray?) = view.setResults(value.cylStrings())
+
+  @ReactProp(name = "highlightsResultMatches")
+  override fun setHighlightsResultMatches(view: CylsearchView, value: Boolean) { view.searchView.highlightsResultMatches = value }
+
+  @ReactProp(name = "resultMatchHighlightColor")
+  override fun setResultMatchHighlightColor(view: CylsearchView, value: String?) { view.searchView.resultMatchHighlightColor = cylParseColor(value) }
 
   @ReactProp(name = "showsResults")
   override fun setShowsResults(view: CylsearchView, value: Boolean) = view.setShowsResults(value)

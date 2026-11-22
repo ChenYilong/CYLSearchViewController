@@ -96,6 +96,7 @@ using namespace facebook::react;
   }
   _selectedIds = [NSSet setWithArray:CYLRNStrings(p.selectedIds)];
   [self applySelection];
+  _tagListView.allowsSmearSelection = p.allowsSmearSelection;
   if ((BOOL)p.editing != _tagListView.isEditing) {
     [_tagListView setEditing:p.editing animated:YES];
   }
@@ -230,6 +231,28 @@ using namespace facebook::react;
 }
 
 #pragma mark - CYLMenuDelegate
+
+/*!
+ * A tag drag started or ended (CollectionViewClassifyMenu `-menu:didChangeReordering:`), as Android sends it.
+ */
+- (void)menu:(id)menu didChangeReordering:(BOOL)reordering
+{
+  if (_eventEmitter) {
+    std::static_pointer_cast<CylsearchTagListViewEventEmitter const>(_eventEmitter)
+        ->onReorderingChange(CylsearchTagListViewEventEmitter::OnReorderingChange{.reordering = (bool)reordering});
+  }
+}
+
+/*!
+ * A smear selection started or ended (CollectionViewClassifyMenu `-menu:didChangeSmearing:`), as Android sends it.
+ */
+- (void)menu:(id)menu didChangeSmearing:(BOOL)smearing
+{
+  if (_eventEmitter) {
+    std::static_pointer_cast<CylsearchTagListViewEventEmitter const>(_eventEmitter)
+        ->onSmearingChange(CylsearchTagListViewEventEmitter::OnSmearingChange{.smearing = (bool)smearing});
+  }
+}
 
 - (void)menu:(id)menu didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {

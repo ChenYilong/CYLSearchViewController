@@ -9,8 +9,28 @@
       "value": "浮层"
     },
     {
+      "name": "cyl_controller_launch_label",
+      "value": "最近搜索"
+    },
+    {
+      "name": "cyl_controller_noResults",
+      "value": "没有匹配结果"
+    },
+    {
+      "name": "cyl_controller_recent",
+      "value": "最近搜索"
+    },
+    {
+      "name": "cyl_demo_barInView",
+      "value": "视图内的搜索栏"
+    },
+    {
       "name": "cyl_demo_choose",
       "value": "图片与提示"
+    },
+    {
+      "name": "cyl_demo_collectionView",
+      "value": "集合视图"
     },
     {
       "name": "cyl_demo_custom",
@@ -31,6 +51,10 @@
     {
       "name": "cyl_demo_custom_textOnly",
       "value": "内置图片，自定义文字"
+    },
+    {
+      "name": "cyl_demo_navigationItem",
+      "value": "导航栏"
     },
     {
       "name": "cyl_demo_port_default",
@@ -109,6 +133,10 @@
       "value": "搜索栏"
     },
     {
+      "name": "cyl_demo_searchBarStyles",
+      "value": "搜索栏样式"
+    },
+    {
       "name": "cyl_demo_searchBar_camera",
       "value": "相机"
     },
@@ -125,12 +153,28 @@
       "value": "文字：%s"
     },
     {
+      "name": "cyl_demo_searchController",
+      "value": "搜索控制器"
+    },
+    {
+      "name": "cyl_demo_shortList",
+      "value": "短列表"
+    },
+    {
       "name": "cyl_demo_styles",
       "value": "占位样式"
     },
     {
       "name": "cyl_demo_title",
       "value": "搜索示例"
+    },
+    {
+      "name": "cyl_issue_item",
+      "value": "项目 %d"
+    },
+    {
+      "name": "cyl_issue_row",
+      "value": "第 %d 行"
     },
     {
       "name": "cyl_multisearch_add",
@@ -239,6 +283,70 @@
     {
       "name": "cyl_search_voice",
       "value": "语音搜索"
+    },
+    {
+      "name": "cyl_styles_accessory_label",
+      "value": "附件视图"
+    },
+    {
+      "name": "cyl_styles_adjustCancel",
+      "value": "调整搜索状态取消按钮布局"
+    },
+    {
+      "name": "cyl_styles_adjustField",
+      "value": "调整默认状态输入框布局"
+    },
+    {
+      "name": "cyl_styles_animated",
+      "value": "以动画形式展示"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "取消按钮"
+    },
+    {
+      "name": "cyl_styles_centerPlaceholder",
+      "value": "占位文字居中"
+    },
+    {
+      "name": "cyl_styles_changePlaceholder",
+      "value": "更换占位文字"
+    },
+    {
+      "name": "cyl_styles_hide",
+      "value": "隐藏%s"
+    },
+    {
+      "name": "cyl_styles_leading",
+      "value": "左侧附件视图"
+    },
+    {
+      "name": "cyl_styles_longPlaceholder",
+      "value": "很长很长很长的占位文字"
+    },
+    {
+      "name": "cyl_styles_row_hint",
+      "value": "修改列表上方的搜索栏"
+    },
+    {
+      "name": "cyl_styles_section_accessory",
+      "value": "附件视图"
+    },
+    {
+      "name": "cyl_styles_section_layout",
+      "value": "布局"
+    },
+    {
+      "name": "cyl_styles_section_placeholder",
+      "value": "占位文字"
+    },
+    {
+      "name": "cyl_styles_show",
+      "value": "显示%s"
+    },
+    {
+      "name": "cyl_styles_trailing",
+      "value": "右侧附件视图"
     }
   ]
 }

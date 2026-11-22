@@ -1,0 +1,9 @@
+@import "/utils/cyl_table.wxss";
+.page { height: 100vh; overflow: hidden; background: #f2f2f7; }
+.host { display: block; }
+.styles { min-height: 100%; padding-bottom: 24px; }
+/* QDSearchBarViewController's accessory views: 30 x 30 rounded squares with a 3 px stroke. */
+.accessory { width: 30px; height: 30px; box-sizing: border-box; border: 3px solid #007aff; border-radius: 6px; }
+@media (prefers-color-scheme: dark) {
+  .page { background: #000; }
+}

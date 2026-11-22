@@ -83,6 +83,10 @@ class CYLSearchDemoMenuFragment : CYLExamplePage() {
             Triple(context.getString(R.string.example_originals), context.getString(R.string.example_originals_subtitle)) { push(CYLOriginalSamplesFragment()) },
             // Row 6 (iOS `-CYLDemoRow 5`): CollectionViewClassifyMenu's contact tags example on CYLSearchViewController.
             Triple(com.cyl.search.example.contacttags.cylContactTagsText(context, "row"), null) { push(com.cyl.search.example.contacttags.CYLContactRemarkPage()) },
+            // The QMUI search port (docs/qmui-search-controller.md): the two replica screens of QMUI's demo and the short list.
+            Triple(context.cylDemoText("demo.searchController"), null) { push(CYLSearchControllerDemoFragment()) },
+            Triple(context.cylDemoText("demo.searchBarStyles"), null) { push(CYLSearchBarStylesFragment()) },
+            Triple(context.cylDemoText("demo.shortList"), null) { push(CYLSearchShortListFragment()) },
         )), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         return page
     }
@@ -92,6 +96,16 @@ class CYLSearchDemoMenuFragment : CYLExamplePage() {
         // `--ez CYLContactTags true` opens the contact tags demo at launch (iOS `-CYLDemoRow 5`), for screenshots.
         if (savedInstanceState == null && activity?.intent?.getBooleanExtra(com.cyl.search.example.contacttags.CYLContactTagsOptions.OPEN, false) == true) {
             view.post { push(com.cyl.search.example.contacttags.CYLContactRemarkPage()) }
+        }
+        // `--es CYLDemoPage controller|styles|short` opens a page of the QMUI search port at launch, for screenshots.
+        if (savedInstanceState == null) {
+            val page = when (activity?.intent?.getStringExtra("CYLDemoPage")) {
+                "controller" -> CYLSearchControllerDemoFragment()
+                "styles" -> CYLSearchBarStylesFragment()
+                "short" -> CYLSearchShortListFragment()
+                else -> null
+            }
+            page?.let { view.post { push(it) } }
         }
     }
 }

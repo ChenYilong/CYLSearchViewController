@@ -31,7 +31,7 @@
       "optional": true
     }
   },
-  "cylTabBarControllerCommit": "41660d2477b14b7ec905c1b550b1419f5cab9206",
-  "cylTableViewPlaceHolderCommit": "c84fce90f6b9b526352a1d2b3de00887646c2793",
-  "collectionViewClassifyMenuCommit": "cf478388a6c6784b9652b7fe4b87b438c6dd1039"
+  "cylTabBarControllerCommit": "c4a1f8fda52aef766039893d8476f4b09493db23",
+  "cylTableViewPlaceHolderCommit": "f4cf978567e43288b44f6ddc266510fa837a0e72",
+  "collectionViewClassifyMenuCommit": "04b39e26ea3a8a995c81b261367dfb542449556e"
 }

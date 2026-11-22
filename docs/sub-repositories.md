@@ -5,7 +5,7 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
 
 | Sub-repository | What it adds | Status |
 |:---|:---|:---|
-| CollectionViewClassifyMenu | Suggestions as tags (`CYLSearchSuggestionStyle`); `CYLTagButton`, which draws every search bar item and the example's SVGA demo | Tags: Android done (`eb3590e`); iOS `TODO` ([tag-view-suggestions.md](tag-view-suggestions.md)). `CYLTagButton`: every platform, pinned at `71562ca` on HarmonyOS (`harmonyos/oh-package.json5` `collectionViewClassifyMenuCommit`, `harmonyos/vendor/classifymenu`, with CYLTabBarController's `cylanimateditem` in `harmonyos/vendor/cylanimateditem`) and the mini program (`package.json` `collectionViewClassifyMenuCommit`) ([animated-icon-component.md](animated-icon-component.md)) |
+| CollectionViewClassifyMenu | Suggestions as tags (`CYLSearchSuggestionStyle`); `CYLTagButton`, which draws every search bar item and the example's SVGA demo | Tags: Android done (`eb3590e`); iOS done (`e1a771a`, tag-style demos 2026-11-14; [tag-view-suggestions.md](tag-view-suggestions.md)). `CYLTagButton`: every platform, pinned at `71562ca` on HarmonyOS (`harmonyos/oh-package.json5` `collectionViewClassifyMenuCommit`, `harmonyos/vendor/classifymenu`, with CYLTabBarController's `cylanimateditem` in `harmonyos/vendor/cylanimateditem`) and the mini program (`package.json` `collectionViewClassifyMenuCommit`) ([animated-icon-component.md](animated-icon-component.md)) |
 | CYLTableViewPlaceHolder | The placeholder sub-dependency: the empty-content placeholder (`CYLPlaceholderView` scenarios shown by `CYLSearchView`) when a search has no results, and the pull-to-refresh header inside `CYLSearchView`'s refresh API; pinned at `62e40c0` (its newest commit, on `CYLAnimatedItem`) on every platform | Done on iOS, Android, HarmonyOS, the mini program, React Native and Flutter ([search-core-merge.md](search-core-merge.md)) |
 
 ## DONE (2026-11-16; TODO 2026-11-12): CYLTableViewPlaceHolder as a sub-repository, empty search results on every platform (iOS, Android, Flutter, React Native, mini programs; HarmonyOS through `cylplaceholder`, run on the Mate 70 Pro emulator: the empty placeholder in `harmonyos-search-empty-cache-emulator-unsigned.jpeg`, touches checked 2026-11-16)
@@ -122,8 +122,9 @@ Sibling projects in the same local folder that this library uses. Rules: `AGENTS
   plus title fixes of `127b8ae8` and `16a19bbf`, the badge border width of PR #805 and the demo translations;
   Scorecard 3 rows 1 to 4, 12 and 13). Before: `94eb7b1`. Their
   minimum is API 21, so the example's `compatibleSdkVersion` is 6.0.1(21).
-- Status: `TODO` (iOS, Android, Flutter and React Native done; HarmonyOS uses CYLTableViewPlaceHolder's `cylplaceholder` library
-  (above) and compiles, not run yet; mini programs done, see below).
+- Status: DONE (2026-11-17; see the heading). Was: iOS, Android, Flutter and React Native done; HarmonyOS uses CYLTableViewPlaceHolder's `cylplaceholder` library
+  (above) and compiles, not run yet (run on the Mate 70 Pro emulator since: Scorecard 2 rows 7 to 9 in
+  [harmonyos-cross-platform.md](harmonyos-cross-platform.md)); mini programs done, see below.
 - Progress (2026-11-15): mini programs DONE: the empty results and the empty cache of `cyl-search` play
   CYLTableViewPlaceHolder's `CYLPlaceholderNoResults.json` / `CYLPlaceholderNoDrafts.json` (with their licenses) through
   CYLTabBarController's `cyl-lottie`; screenshot in [miniprogram-api-alignment.md](miniprogram-api-alignment.md).

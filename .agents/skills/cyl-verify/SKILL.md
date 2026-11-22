@@ -102,7 +102,7 @@ A search bar never covers the main view, the view controller's view
 at every Dynamic Type size. Full rule: `AGENTS.md`, "Search bar placement".
 
 - Check frames in a window, not in a detached view: `testSearchBarsCoverNoView`
-  (`CYLViewsCoveredByView`) runs every search bar with
+  (`viewsCoveredByView`) runs every search bar with
   `hidesSearchBarWhenScrolling` NO and YES and at the largest text size.
 - On the simulator, look at the first rows and the refresh header under the
   search field: nothing may sit behind it.
@@ -155,6 +155,13 @@ three. Correction (user, 2026-11-12): the original wording, "prefer the horizont
 When an Objective-C to Swift change of the core breaks an example's build, fix the example: example code has the lowest weight of all code here. Change any example code as needed; never keep a core API, overload, shim or deprecated alias only because an example uses it, and never lower the Swift core's quality (naming, types, optionality, access control) to fit an example. Compatibility matters only for callers outside the examples (published API users). The Swift coding standard (docs/swift-coding-standard.md) decides. Rule and context: [docs/swift-migration.md](../../../docs/swift-migration.md).
 
 ## HarmonyOS
+
+- x86_64 emulator (Windows): build `entry@emulator` and the ohosTest HAP with `-p buildMode=emulatorTest`; the default
+  HAPs carry the arm64-only Rive and PAG libraries and do not install there. Rive and PAG are checked on arm64 only
+  (`cyl-harmonyos-setup`, "Arm64-only native libraries on the x86_64 emulator").
+- Rive and PAG playback that needs arm64: plan 1 (x86_64 builds in CYLTabBarController's `cylanimateditem`, behind a
+  debug guard until the user approves removing it), else plan 2 (the macOS session tests on arm64)
+  (`cyl-harmonyos-setup`, "Rive and PAG tests that need arm64").
 
 Before the first HarmonyOS build or emulator run on a machine, follow `cyl-harmonyos-setup`: DevEco Studio 6.0.1
 and its SDK paths, the emulator prerequisites (virtualization, Hyper-V, Huawei ID), and the region set to China in

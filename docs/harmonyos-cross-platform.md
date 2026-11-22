@@ -67,7 +67,7 @@ The HarmonyOS port of CYLSearchViewController: the ArkTS library `harmonyos/cyls
 | 22 | DONE (`assets/harmonyos-mate70pro-api21-20261117-discover.jpeg`: no outline around the curve; Mate 70 Pro emulator 127.0.0.1:5555, HarmonyOS 6.0.1 (API 21), CYLSearchViewController after `709f481`, cyltabbar `b2ec2f3`, 2026-11-17 05:5x emulator time (UTC+8)) | CYLSearchViewController (`harmonyos/entry`) | Discover screenshot | The curve under the mic button has a black outline (and is the old 360 px shape: the build predates row 18's fix `d9376af`) | `Path` draws a default black stroke | `.stroke(Color.Transparent).strokeWidth(0)`; row 18's width fix waits for a new build |
 | 23 | DONE (emulator 127.0.0.1:5555, HarmonyOS 6.0.1.112 API 21, 2026-11-16: the SVGA animation, its label and "Tab icons: SF Symbols" above the Examples card) | CYLSearchViewController (`harmonyos/entry`) | Examples screenshot | No SVGA header or "Tab icons: …" button above the Examples list | The build (base `5a30019`) predates `6eb2d6a` | Nothing to change; check on a new build |
 | 24 | DONE (`assets/harmonyos-mate70pro-api21-20261117-examples-card.jpeg`: the card ends right after its last row; Mate 70 Pro emulator 127.0.0.1:5555, HarmonyOS 6.0.1 (API 21), CYLSearchViewController after `709f481`, cyltabbar `b2ec2f3`, 2026-11-17 05:5x emulator time (UTC+8)) | CYLSearchViewController (`harmonyos/entry`) | emulator 127.0.0.1:5555 (2026-11-16) | The Examples card has a white strip under its last row | Row 20's `contentEndOffset` also went onto the short card lists, whose card background includes the offset | Removed from the three card menus (Examples, Other libraries, MaterialSearchView samples); kept on the long full-height lists |
-| 25 | TODO need 模拟器截图验证 (2026-11-19: the committed `emulator` target of `entry` leaves the arm64-v8a libraries out: `hvigorw --mode module -p module=entry@emulator -p product=default assembleHap` builds `entry-emulator-unsigned.hap`, 28.7 MB with no `libs/`, against 38.4 MB with `libs/arm64-v8a/libohos_rive.so`, `libpag.so`, `libc++_shared.so` in `default`; the same filter installed on 127.0.0.1:5555 before as a mirror-only edit. Not installed again today: the emulator would not start, first "can not read uuid file" (started without `-imageRoot`), then "No enough space to start Emulator" at 3.3 GB free) | CYLTabBarController (`harmonyos-cyltabbar`) and CYLTableViewPlaceHolder (`cylplaceholder`) | install on emulator 127.0.0.1:5555 (x86_64) | The app does not install on an x86_64 emulator: "install parse native so failed … Abi type" | Both libraries depend on `@ohos/rive` 1.0.4 and `@tencent/libpag` 4.5.102, whose packages ship arm64-v8a .so files only | Open in the two sub-repositories (an x86_64 build of the native packages, or Rive / PAG as optional dependencies). For emulator runs, the `emulator` target (`entry/build-profile.json5`, `buildOptionSet` + `buildModeBinder`, committed) excludes `**/arm64-v8a/*.so`; Rive and PAG animations are unavailable in it. Still open upstream: x86_64 builds of `@ohos/rive` and `@tencent/libpag` |
+| 25 | DONE (2026-11-21: the `emulator` target installs on the x86_64 emulator and the example runs; the ohosTest HAP had the same .so files, so `-p buildMode=emulatorTest` (new, `harmonyos/build-profile.json5` and `entry/build-profile.json5`) builds it without them: hypium 29 of 29 on the emulator; [harmonyos-mate70pro-20261121-emulator-target-x86.png](assets/harmonyos-mate70pro-20261121-emulator-target-x86.png), Mate 70 Pro emulator 127.0.0.1:5557, HarmonyOS 6.0.0.112 (API 21), DevEco Studio 6.0.1.251, Windows 11 Pro 10.0.22631, CYLSearchViewController efb3b78, 2026-11-21 23:01 +13:00. Earlier: 2026-11-19: the committed `emulator` target of `entry` leaves the arm64-v8a libraries out: `hvigorw --mode module -p module=entry@emulator -p product=default assembleHap` builds `entry-emulator-unsigned.hap`, 28.7 MB with no `libs/`, against 38.4 MB with `libs/arm64-v8a/libohos_rive.so`, `libpag.so`, `libc++_shared.so` in `default`; the same filter installed on 127.0.0.1:5555 before as a mirror-only edit. Not installed again today: the emulator would not start, first "can not read uuid file" (started without `-imageRoot`), then "No enough space to start Emulator" at 3.3 GB free) | CYLTabBarController (`harmonyos-cyltabbar`) and CYLTableViewPlaceHolder (`cylplaceholder`) | install on emulator 127.0.0.1:5555 (x86_64) | The app does not install on an x86_64 emulator: "install parse native so failed … Abi type" | Both libraries depend on `@ohos/rive` 1.0.4 and `@tencent/libpag` 4.5.102, whose packages ship arm64-v8a .so files only | Open in the two sub-repositories (an x86_64 build of the native packages, or Rive / PAG as optional dependencies). For emulator runs, the `emulator` target (`entry/build-profile.json5`, `buildOptionSet` + `buildModeBinder`, committed) excludes `**/arm64-v8a/*.so`; Rive and PAG animations are unavailable in it. Still open upstream: x86_64 builds of `@ohos/rive` and `@tencent/libpag` |
 | 26 | DONE (`assets/harmonyos-mate70pro-api21-20261117-discover.jpeg`, after the fix; Mate 70 Pro emulator 127.0.0.1:5555, HarmonyOS 6.0.1 (API 21), CYLSearchViewController after `709f481`, cyltabbar `b2ec2f3`, 2026-11-17 05:5x emulator time (UTC+8)) | CYLSearchViewController (`harmonyos/entry`) | emulator, 2026-11-17 | Discover: a white strip about 24 vp tall between the grey curved area and the tab bar | The page's bottom padding (`CYL_PLUS_OVERHANG`, which keeps the mic button clear of the plus button) lay outside the grey area, on the white page background | Example-only (the core has no such code): the space is now a grey row under the curve, so the area reaches the tab bar and the mic button stays above the plus button |
 
 - Third review (2026-11-16, 15:10): no new screenshot in either repository since the second review. CYLTabBarController
@@ -105,7 +105,7 @@ The HarmonyOS port of CYLSearchViewController: the ArkTS library `harmonyos/cyls
   | 25 | Core of the sub-repositories (open) | `@ohos/rive` and `@tencent/libpag` are dependencies of CYLTabBarController's and CYLTableViewPlaceHolder's libraries |
 
 <!-- harmonyos-score3:begin -->
-Score: 100/100 (26 of 26 rows not `TODO`; row 25 waits for an emulator check).
+Score: 100/100 (26 of 26 rows not `TODO`; row 25 checked on the emulator 2026-11-21).
 <!-- harmonyos-score3:end -->
 
 - Prompt (verbatim): "全英文写入instructions相关文件以及 skills相关文件： 鸿蒙系统 ide 准备工作，模拟器安装的必要条件， region should be set to china (NZ) in country.region.xml to china make sure The region file now says China: <countryregion name="CN"/>"
@@ -121,8 +121,8 @@ Score: 100/100 (26 of 26 rows not `TODO`; row 25 waits for an emulator check).
   `%APPDATA%\Huawei\DevEcoStudio6.0\options\country.region.xml` contains `<countryregion name="CN"/>` (the original
   `NZ` file is kept as `country.region.xml.bak-NZ`); `HypervisorPresent = True`; 64 GB RAM; the HarmonyOS 6.0.1
   `phone_all_x86` system image was downloading in `%LOCALAPPDATA%\Huawei\Sdk`.
-- TODO: N/A on HarmonyOS: no emulator instance on this machine (the image is downloaded; Device Manager only);
-  development continues without one. See Scorecard 2, row 7.
+- Emulator instance: DONE (2026-11-16): the Mate 70 Pro emulator was created and is listed by `hdc list targets`
+  (Scorecard 2, row 7).
 
 ## DONE (2026-11-16; TODO 2026-11-16): the HarmonyOS scorecard, scored to 100
 
@@ -224,7 +224,7 @@ DevEco Studio > Device Manager, then `hdc install` the HAP and run the hypium te
 sub-repositories' HarmonyOS libraries: run `python3 harmonyos/scripts/sync-sub-repositories.py` before building.
 
 <!-- harmonyos-score:begin -->
-Score: 100/100 (309 of 309 rows; API 284/284, demos 25/25; TODO left 0).
+Score: 100/100 (314 of 314 rows; API 289/289, demos 25/25; TODO left 0).
 <!-- harmonyos-score:end -->
 
 | Date | Change | Score |
@@ -323,6 +323,10 @@ Score: 100/100 (309 of 309 rows; API 284/284, demos 25/25; TODO left 0).
 | `CYLSearchBarView.cancelButtonTitle` | `CYLSearchBarView.cancelButtonTitle` |
 | `CYLSearchBarView.cancelButtonEndsEditing` | `CYLSearchBarView.cancelButtonEndsEditing` |
 | `CYLSearchBarView.clearsTextOnCancel` | `CYLSearchBarView.clearsTextOnCancel` |
+| `CYLSearchBarView.isEditingBar` | `CYLSearchBarView.isEditingBar` |
+| `CYLSearchBarView.editingSubmitHandler` | `CYLSearchBarView.editingSubmitHandler` |
+| `CYLSearchBarView.editingBar(placeholder:actionTitle:)` | `CYLSearchBarView.editingBar` |
+| `CYLSearchBarView.pinToKeyboard(in:)` | `CYLSearchBarView.pinToKeyboard` |
 | `CYLSearchBarView.clearsTextOnEndEditing` | `CYLSearchBarView.clearsTextOnEndEditing` |
 | `CYLSearchBarView.navigationIcon` | `CYLSearchBarView.navigationIcon` |
 | `CYLSearchBarView.navigationImage` | `CYLSearchBarView.navigationImage` |
@@ -484,6 +488,7 @@ Score: 100/100 (309 of 309 rows; API 284/284, demos 25/25; TODO left 0).
 | `CYLSearchView.suggestionCacheName` | `CYLSearchView.suggestionCacheName` |
 | `CYLSearchView.suggestionCache` | `CYLSearchView.suggestionCache` |
 | `CYLSearchView.suggestionCacheHeaderView` | TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchComponent.cacheHeader` draws it |
+| `CYLSearchView.showsSuggestionCacheHeader` | `CYLSearchView.showsSuggestionCacheHeader` |
 | `CYLSearchView.suggestionCacheTitleLabel` | `CYLSearchView.suggestionCacheTitle` |
 | `CYLSearchView.clearSuggestionCacheButton` | `CYLSearchView.clearSuggestionCache()` (the header button calls it) |
 | `CYLSearchView.showsEmptySuggestionsPlaceholder` | `CYLSearchView.showsEmptySuggestionsPlaceholder` |

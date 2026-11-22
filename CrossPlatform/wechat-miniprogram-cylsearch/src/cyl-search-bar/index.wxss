@@ -24,7 +24,17 @@
 .cyl-multi-remove, .cyl-multi-button { flex: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
 .cyl-multi-remove { width: 32px; }
 .cyl-multi-remove .cyl-mask-clear { background-color: #007aff; }
-.cyl-cancel { flex: none; padding: 0 0 0 12px; color: #007aff; font-size: 17px; }
+.cyl-cancel { flex: none; padding: 0 0 0 12px; color: #007aff; font-size: 17px; max-width: 200px; overflow: hidden; white-space: nowrap; }
+.cyl-cancel-animated, .cyl-accessory-animated { transition: max-width 0.25s ease-out, opacity 0.25s ease-out; }
+.cyl-cancel-hidden { max-width: 0; padding-left: 0; margin: 0 !important; opacity: 0; pointer-events: none; }
+/* The accessory views beside the field (iOS leadingAccessoryView / trailingAccessoryView): a width that grows from 0. */
+.cyl-accessory { flex: none; display: flex; align-items: center; overflow: hidden; }
+.cyl-accessory-inner { flex: none; display: flex; align-items: center; box-sizing: content-box; }
+.cyl-accessory-hidden { max-width: 0; opacity: 0; pointer-events: none; }
+/* centersPlaceholder: magnifier and placeholder centred over the resting field; the input stays under them. */
+.cyl-center-group { position: absolute; top: 0; right: 0; bottom: 0; left: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.cyl-center-icon { width: 18px; height: 18px; margin-right: 6px; background-color: rgba(60, 60, 67, 0.6); }
+.cyl-center-text { color: rgba(60, 60, 67, 0.3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* The expansion animations: the field fades in from the icon, or a circle grows from the icon until it uncovers it. */
 .cyl-anim-fade.cyl-field-revealing { opacity: 0; transform: scaleX(0.2); }

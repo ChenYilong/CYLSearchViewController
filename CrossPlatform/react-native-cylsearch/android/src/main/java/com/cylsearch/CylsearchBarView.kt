@@ -1,6 +1,11 @@
 package com.cylsearch
 
 import android.widget.FrameLayout
+import android.graphics.Color
+import android.graphics.Rect
+import android.graphics.drawable.GradientDrawable
+import android.view.View
+import com.cyl.search.CYLSearchBarAppearance
 import com.cyl.search.CYLSearchBarItem
 import com.cyl.search.CYLSearchBarMode
 import com.cyl.search.CYLSearchBarView
@@ -90,6 +95,119 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
   }
 
   override fun searchBarViewCancelButtonClicked(searchBarView: CYLSearchBarView) = emit("topCancel")
+
+  override fun searchBarViewDidBeginEditing(searchBarView: CYLSearchBarView) = emitActive(true)
+
+  override fun searchBarViewDidEndEditing(searchBarView: CYLSearchBarView) = emitActive(false)
+
+  private fun emitActive(active: Boolean) {
+    emit("topActiveChange", "active" to active)
+  }
+
+  // The QMUI options (iOS: CYLSearchBar members, Android: CYLSearchBarView members). They are kept here and applied together
+  // after each prop update, so the default appearance never overwrites what JavaScript set after it.
+  var usesDefaultAppearance = false
+  var centersPlaceholder = false
+  var placeholderProp: String? = null
+  var placeholderColor: String? = null
+  var textColor: String? = null
+  var fieldMargins: List<Double> = emptyList()
+  var searchingFieldMargins: List<Double> = emptyList()
+  var cancelMargins: List<Double> = emptyList()
+  var searchingCancelMargins: List<Double> = emptyList()
+  var animatesChanges = true
+  var leadingViewJSON: String? = null
+  var trailingAccessoryViewsJSON: String? = null
+  var showsLeadingView = false
+  var showsTrailingAccessoryViews = false
+  var appearanceStyleJSON: String? = null
+  var cancelButtonFontJSON: String? = null
+  var showsCancel = false
+  private var appliedAppearance: Pair<Boolean, String?>? = null
+  private var appliedLeading: String? = null
+  private var appliedTrailing: String? = null
+  private var shownLeading: Boolean? = null
+  private var shownTrailing: Boolean? = null
+  private var shownCancel: Boolean? = null
+
+  /** Called once per prop update (the manager's onAfterUpdateTransaction). */
+  fun applyQMUIStyle() {
+    val appearance = usesDefaultAppearance to appearanceStyleJSON
+    if (appearance != appliedAppearance) {
+      appliedAppearance = appearance
+      if (usesDefaultAppearance) bar.applyDefaultAppearance()
+      appearanceStyleJSON?.takeIf { it.isNotEmpty() }?.let { runCatching { appearanceFromJSON(JSONObject(it)).applyTo(bar) } }
+    }
+    placeholderProp?.takeIf { it.isNotEmpty() }?.let { bar.placeholder = it }
+    parseColor(placeholderColor)?.let { bar.placeholderColor = it }
+    parseColor(textColor)?.let { bar.textColor = it }
+    bar.centersPlaceholder = centersPlaceholder
+    val field = rect(fieldMargins)
+    val fieldActive = rect(searchingFieldMargins)
+    val cancel = rect(cancelMargins)
+    val cancelActive = rect(searchingCancelMargins)
+    bar.textFieldMarginsProvider = if (fieldMargins.isEmpty() && searchingFieldMargins.isEmpty()) null else { b, active -> if (active && searchingFieldMargins.isNotEmpty()) fieldActive else field }
+    bar.cancelButtonMarginsProvider = if (cancelMargins.isEmpty() && searchingCancelMargins.isEmpty()) null else { b, active -> if (active && searchingCancelMargins.isNotEmpty()) cancelActive else cancel }
+    bar.applyCancelButtonFont(cancelButtonFontJSON)
+    if (leadingViewJSON != appliedLeading) {
+      appliedLeading = leadingViewJSON
+      bar.leadingView = accessory(leadingViewJSON, start = 8)
+    }
+    if (trailingAccessoryViewsJSON != appliedTrailing) {
+      appliedTrailing = trailingAccessoryViewsJSON
+      val specs = runCatching { JSONArray(trailingAccessoryViewsJSON) }.getOrNull()
+      bar.trailingAccessoryViews = (0 until (specs?.length() ?: 0)).mapNotNull { accessory(specs?.optJSONObject(it)?.toString(), end = 8) }
+    }
+    // Changes of the shown state animate once the first one is on screen (setShows...(_:animated:)).
+    if (shownLeading != showsLeadingView) {
+      bar.setShowsLeadingView(showsLeadingView, animatesChanges && shownLeading != null)
+      shownLeading = showsLeadingView
+    }
+    if (shownTrailing != showsTrailingAccessoryViews) {
+      bar.setShowsTrailingAccessoryViews(showsTrailingAccessoryViews, animatesChanges && shownTrailing != null)
+      shownTrailing = showsTrailingAccessoryViews
+    }
+    if (shownCancel != showsCancel) {
+      bar.setShowsCancelButton(showsCancel, animatesChanges && shownCancel != null)
+      shownCancel = showsCancel
+    }
+  }
+
+  private fun parseColor(value: String?): Int? = cylParseColor(value)
+
+  /** [top, left, bottom, right] as the Rect(left, top, right, bottom) of the core, in dp. */
+  private fun rect(values: List<Double>): Rect =
+    if (values.size < 4) Rect() else Rect(values[1].toInt(), values[0].toInt(), values[3].toInt(), values[2].toInt())
+
+  private fun appearanceFromJSON(json: JSONObject) = CYLSearchBarAppearance().also { a ->
+    parseColor(json.optString("textColor"))?.let { a.textColor = it }
+    parseColor(json.optString("placeholderColor"))?.let { a.placeholderColor = it }
+    parseColor(json.optString("tintColor"))?.let { a.tintColor = it }
+    parseColor(json.optString("fieldBackgroundColor"))?.let { a.fieldBackgroundColor = it }
+    json.optString("cancelTitle").takeIf { it.isNotEmpty() }?.let { a.cancelTitle = it }
+    if (json.has("fieldCornerRadius")) a.fieldCornerRadius = json.optDouble("fieldCornerRadius").toFloat()
+    if (json.has("fontSize")) a.fontSize = json.optDouble("fontSize").toFloat()
+  }
+
+  /** The accessory of a JSON spec: a stroked rounded square (QDSearchBarViewController's 30 x 30 view). */
+  private fun accessory(json: String?, start: Int = 0, end: Int = 0): View? {
+    if (json.isNullOrEmpty()) return null
+    val spec = runCatching { JSONObject(json) }.getOrNull() ?: return null
+    val density = resources.displayMetrics.density
+    val size = (spec.optDouble("size", 30.0) * density).toInt()
+    val view = View(context)
+    view.background = GradientDrawable().apply {
+      cornerRadius = 6 * density
+      setStroke((3 * density).toInt(), parseColor(spec.optString("color")) ?: Color.rgb(0, 122, 255))
+    }
+    view.contentDescription = spec.optString("label")
+    // The gap to the field is the view's own margin (the core's accessory margins are deprecated).
+    view.layoutParams = LayoutParams(size, size).apply {
+      marginStart = (start * density).toInt()
+      marginEnd = (end * density).toInt()
+    }
+    return view
+  }
 
   override fun searchBarViewDidSelectItem(searchBarView: CYLSearchBarView, item: CYLSearchBarItem) =
     emit("topItemSelect", "index" to item.index, "selected" to item.isSelected)

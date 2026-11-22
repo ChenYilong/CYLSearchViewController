@@ -126,6 +126,9 @@ public final class CYLSearchExampleViewController: UITableViewController, UISear
         navigationItem.leftBarButtonItem?.accessibilityIdentifier = "CYLSearchOverlayButton"
         overlaySearchView.resultsDataSource = searchDataSource
         overlaySearchView.showsEmptyResultsPlaceholder = true
+        // The core dims the host below the short results and highlights the match in each row.
+        overlaySearchView.scrimColor = UIColor.black.withAlphaComponent(0.4)
+        overlaySearchView.highlightsResultMatches = true
         installRefresh()
         reloadResults()
     }

@@ -13,7 +13,8 @@
     ],
     "buildModeSet": [
       { "name": "debug" },
-      { "name": "release" }
+      { "name": "release" },
+      { "name": "emulatorTest" }
     ]
   },
   "modules": [
@@ -44,6 +45,10 @@
     {
       "name": "cylanimateditem",
       "srcPath": "./vendor/cylanimateditem"
+    },
+    {
+      "name": "cylanimateditemrive",
+      "srcPath": "./vendor/cylanimateditemrive"
     }
   ]
 }

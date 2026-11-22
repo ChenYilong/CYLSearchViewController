@@ -96,8 +96,9 @@ this repository. The document is about the animated component.")
   the change to all of them. My requirement: in the future, adding a new animation type only needs a change to this
   component, and every component that shows animations supports the new type with no change in a second place."
 - **Status (2026-11-17)**: step 1 DONE, step 2 DONE on every platform (iOS, Android, HarmonyOS, the mini program; React
-  Native and Flutter through the native cores), step 3 TODO. Nothing is compiled or run here (no Xcode, no Android SDK,
-  no DevEco Studio, no WeChat DevTools): see "Unverified".
+  Native and Flutter through the native cores), step 3 TODO (DONE another way on 2026-11-19, "Step 3" below; every platform
+  built and run since, row 37). Nothing was compiled or run when this status was written (no Xcode, no Android SDK, no DevEco
+  Studio, no WeChat DevTools): see "Unverified".
 
 ### Step 1: DONE (2026-11-17), CollectionViewClassifyMenu `1e43253` + `a0c8232`
 
@@ -188,8 +189,9 @@ this repository. The document is about the animated component.")
   `CYLAnimatedItem` directly (not on `CYLTagButton`; no CollectionViewClassifyMenu dependency) on every platform, branch
   `feat/android-refresh-port-followup` (PR #31): iOS `f0320c8`, Android `933ba13`, mini program `bfeb678`, HarmonyOS
   `0847ffe` + `d54eef1`; head `8dc39c3`. The goal (one animated icon component, no separate placeholder engine) is met.
-  Left (TODO): pin CYLTableViewPlaceHolder `8dc39c3` here (now `62e40c0`), once its CYLAnimatedItem commit matches our
-  CYLTabBarController pin `b376c278` (HarmonyOS must keep one `cylanimateditem`; asked).
+  Left: pin CYLTableViewPlaceHolder `8dc39c3` here (now `62e40c0`), once its CYLAnimatedItem commit matches our
+  CYLTabBarController pin `b376c278` (HarmonyOS must keep one `cylanimateditem`; asked). DONE (2026-11-19): `8dc39c3`
+  pinned on every platform (`49d1f38`, [sub-repositories.md](sub-repositories.md)); the pin is `c84fce9` today.
 
 ### Unverified (resolved 2026-11-19)
 
@@ -248,7 +250,7 @@ this repository. The document is about the animated component.")
 - **Guide link (user, 2026-11-17)**: "更新该文档地址 最新地址https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md"
   ("Update the document's address to the newest one: …"). The guide is linked on its branch, so it always shows the
   newest version: <https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md>.
-- **Status**: done; the verification items below stay TODO. The guide's "Downstream migration status" row for this
+- **Status**: done; the verification items below were open then, all DONE since (2026-11-19, see each item). The guide's "Downstream migration status" row for this
   repository says it follows CollectionViewClassifyMenu (its search bar items subclass `CYLTagButton`); the commits are
   CollectionViewClassifyMenu `45101fb` (task log) and `1813025` (the migration), and this repository's checkpoint
   `31d8b8a` plus the commit after it.
@@ -289,10 +291,13 @@ this repository. The document is about the animated component.")
     `harmonyos-api-alignment.py` 100, `harmonyos-scorecard.py` 100 (309 / 309), `miniprogram-api-alignment.py` 100;
     HarmonyOS host tests (`host-logic-test.mjs` 30 pass, `check-accessibility-i18n.mjs` 0 problems,
     `check-ios-parity.mjs` 397 / 397); mini program `npm test` 48 pass.
-- **TODO (blocked upstream)**: HarmonyOS and the mini program. CYLTabBarController has no `CYLAnimatedItem` component
+- **DONE (2026-11-19; was blocked upstream)**: the component shipped on both (CYLTabBarController `842aef8`), and both
+  platforms moved onto it: "the guide re-read at `57a527e`" below. Original note: HarmonyOS and the mini program. CYLTabBarController has no `CYLAnimatedItem` component
   there yet (the guide's TODO 3 and 4), so `harmonyos/cylsearch` and the mini program's `cyl-search-bar` keep the
   animated icon code of CollectionViewClassifyMenu's `CYLTagButton` ports; move them onto the component when it ships.
-- **TODO (verification)**: no Xcode, Android SDK or DevEco here, so nothing was compiled or run: (1) `pod install`, the
+- **DONE (verification, 2026-11-18 to 2026-11-19)**: rows 31 and 34 to 38 of the table above ran all of it: `pod install`
+  and the iOS builds on macOS (`a370400`), the Android build and unit tests, the React Native and Flutter Android builds,
+  HarmonyOS ohosTest 29 of 29, the mini program `npm test`. Original note: no Xcode, Android SDK or DevEco here, so nothing was compiled or run: (1) `pod install`, the
   example build and analyzer, the unit tests and `scripts/pod-lint.sh lib` in iOS CI; (2) the Android build and tests
   (`./gradlew :cylsearch:testDebugUnitTest :app:assembleDebug`), including the `:cylanimateditem` substitution; (3)
   the React Native and Flutter Android builds: `react-native-cyltabbar` / `flutter_cyltabbar` compile
@@ -354,8 +359,9 @@ this repository. The document is about the animated component.")
   (`animationURL`, `playAnimation`, the hooks) and checks the engine at run time; tests read `animationPlayer` by key.
 - **Pin kept at `fbd05d5`, not the branch tip `ee106e8`** (05:18 UTC, "license notice in every published package"):
   the tip does not contain PR #814 (`CYLAnimatedItem.podspec` `DEFINES_MODULE`, no Lottie view for an unplayable
-  file), so pinning it would bring back two CI failures. TODO: move the pin to the branch once PR #814 is merged into
-  it.
+  file), so pinning it would bring back two CI failures. Move the pin to the branch once PR #814 is merged into
+  it: DONE. PR #814 was merged on 2026-11-17 05:24 UTC, and every pin since (today `41660d24`) contains it (`git merge-base
+  --is-ancestor`, checked 2026-11-21).
 
 ## DONE (2026-11-17): the guide re-read at `ec12a9d`
 
@@ -420,7 +426,8 @@ this repository. The document is about the animated component.")
   DevTools).
 - **Pin** (2026-11-17): CollectionViewClassifyMenu `71562ca` (HarmonyOS `CYLTagButton` on `cylanimateditem`, mini program tags on `cyl-animated-item`, both by commit `57a527e`). The HarmonyOS vendor copy and the mini program search bar follow next.
 - **Status** (2026-11-17, HarmonyOS and mini program on the pinned CollectionViewClassifyMenu `71562ca`): done in code, not
-  compiled or run (no DevEco Studio, no WeChat DevTools here), so the heading stays `TODO`.
+  compiled or run (no DevEco Studio, no WeChat DevTools here), so the heading stayed `TODO` until the Windows runs of
+  2026-11-18 and 2026-11-19 (table rows 31, 34 to 38).
   - **How the component arrives, by commit.** Both platforms take CYLTabBarController's component through
     CollectionViewClassifyMenu's vendored copy at `57a527e` (checked here: the same files as CYLTabBarController
     `57a527e`, plus ClassifyMenu's `README.md` / `COMMIT` / `LICENSE`).

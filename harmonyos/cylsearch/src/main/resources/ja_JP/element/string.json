@@ -9,8 +9,28 @@
       "value": "オーバーレイ"
     },
     {
+      "name": "cyl_controller_launch_label",
+      "value": "最近の検索"
+    },
+    {
+      "name": "cyl_controller_noResults",
+      "value": "一致する結果はありません"
+    },
+    {
+      "name": "cyl_controller_recent",
+      "value": "最近の検索"
+    },
+    {
+      "name": "cyl_demo_barInView",
+      "value": "ビュー内のバー"
+    },
+    {
       "name": "cyl_demo_choose",
       "value": "画像とメッセージ"
+    },
+    {
+      "name": "cyl_demo_collectionView",
+      "value": "コレクションビュー"
     },
     {
       "name": "cyl_demo_custom",
@@ -31,6 +51,10 @@
     {
       "name": "cyl_demo_custom_textOnly",
       "value": "標準画像とカスタム文字"
+    },
+    {
+      "name": "cyl_demo_navigationItem",
+      "value": "ナビゲーション項目"
     },
     {
       "name": "cyl_demo_port_default",
@@ -109,6 +133,10 @@
       "value": "検索バー"
     },
     {
+      "name": "cyl_demo_searchBarStyles",
+      "value": "検索バーのスタイル"
+    },
+    {
       "name": "cyl_demo_searchBar_camera",
       "value": "カメラ"
     },
@@ -125,12 +153,28 @@
       "value": "テキスト：%s"
     },
     {
+      "name": "cyl_demo_searchController",
+      "value": "検索コントローラ"
+    },
+    {
+      "name": "cyl_demo_shortList",
+      "value": "短いリスト"
+    },
+    {
       "name": "cyl_demo_styles",
       "value": "プレースホルダーのスタイル"
     },
     {
       "name": "cyl_demo_title",
       "value": "検索サンプル"
+    },
+    {
+      "name": "cyl_issue_item",
+      "value": "項目 %d"
+    },
+    {
+      "name": "cyl_issue_row",
+      "value": "行 %d"
     },
     {
       "name": "cyl_multisearch_add",
@@ -239,6 +283,70 @@
     {
       "name": "cyl_search_voice",
       "value": "音声検索"
+    },
+    {
+      "name": "cyl_styles_accessory_label",
+      "value": "アクセサリビュー"
+    },
+    {
+      "name": "cyl_styles_adjustCancel",
+      "value": "検索中のキャンセルを調整"
+    },
+    {
+      "name": "cyl_styles_adjustField",
+      "value": "通常時の入力欄を調整"
+    },
+    {
+      "name": "cyl_styles_animated",
+      "value": "アニメーションで表示"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "キャンセルボタン"
+    },
+    {
+      "name": "cyl_styles_centerPlaceholder",
+      "value": "プレースホルダーを中央に"
+    },
+    {
+      "name": "cyl_styles_changePlaceholder",
+      "value": "プレースホルダーを変更"
+    },
+    {
+      "name": "cyl_styles_hide",
+      "value": "%sを非表示"
+    },
+    {
+      "name": "cyl_styles_leading",
+      "value": "左のアクセサリ"
+    },
+    {
+      "name": "cyl_styles_longPlaceholder",
+      "value": "とても とても とても 長いプレースホルダー"
+    },
+    {
+      "name": "cyl_styles_row_hint",
+      "value": "リストの上の検索バーを変更します"
+    },
+    {
+      "name": "cyl_styles_section_accessory",
+      "value": "アクセサリビュー"
+    },
+    {
+      "name": "cyl_styles_section_layout",
+      "value": "レイアウト"
+    },
+    {
+      "name": "cyl_styles_section_placeholder",
+      "value": "プレースホルダー"
+    },
+    {
+      "name": "cyl_styles_show",
+      "value": "%sを表示"
+    },
+    {
+      "name": "cyl_styles_trailing",
+      "value": "右のアクセサリ"
     }
   ]
 }

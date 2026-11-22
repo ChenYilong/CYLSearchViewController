@@ -10,6 +10,11 @@ const ROWS = [
   { key: 'demo.ports', url: '/pages/ports/index' },
   // Row 5 (iOS row 6, -CYLDemoRow 5): CollectionViewClassifyMenu's contact tags example on CYLSearchViewController.
   { key: 'contactTags.row', url: '/pages/contactTags/index' },
+  // Rows 7 and 8 of the iOS menu: QMUI's QDSearchBarViewController and QDSearchViewController; row 11 (the "Short list" issue
+  // scenario, I4). The other issue rows (I1 to I3, I5) are UIKit defects without a mini program code path.
+  { key: 'demo.searchBarStyles', url: '/pages/searchBarStyles/index' },
+  { key: 'demo.searchController', url: '/pages/searchController/index' },
+  { key: 'demo.shortList', url: '/pages/shortList/index' },
 ];
 
 // The SVGA demo's icon side (iOS CYLSVGADemoTagButton.iconSide) and style: icon before the title, no border, grey 13 pt.

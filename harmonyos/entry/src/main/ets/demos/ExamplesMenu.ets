@@ -127,9 +127,10 @@ export struct ExamplesMenuView {
     .width('100%')
   }
   // Row 5 (iOS row 6, `-CYLDemoRow 5`): CollectionViewClassifyMenu's contact tags example on CYLSearchViewController.
-  private rows: string[] = ['demo.reproduction', 'demo.styles', 'demo.searchBar', 'demo.ports', 'contactTags_row'];
+  private rows: string[] = ['demo.reproduction', 'demo.styles', 'demo.searchBar', 'demo.ports', 'contactTags_row',
+    'demo.searchController', 'demo.searchBarStyles'];
   private routes: string[] = [CYLDemoRoute.reproduction, CYLDemoRoute.styles, CYLDemoRoute.searchBar, CYLDemoRoute.ports,
-    CYLDemoRoute.contactTags];
+    CYLDemoRoute.contactTags, CYLDemoRoute.searchController, CYLDemoRoute.searchBarStyles];
 
   // The library's `demo.*` texts, or the example's own (`contactTags_row`).
   private rowText(key: string): string {

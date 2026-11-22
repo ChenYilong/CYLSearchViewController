@@ -12,7 +12,9 @@
  */
 import lottie, { AnimationItem } from '@ohos/lottie';
 import { PAGFile, PAGView, PAGViewController } from '@tencent/libpag';
-import { CYLRiveIcon, CYLTabBarAnimationURLWithOptions } from 'cyltabbar';
+import { CYLRiveIcon, CYLRiveLoopPolicy, cylRegisterRiveEngine } from 'cylanimateditemrive';
+import { CYLTabBarAnimationURLWithOptions } from 'cyltabbar';
+import { common } from '@kit.AbilityKit';
 import { image } from '@kit.ImageKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { util } from '@kit.ArkTS';
@@ -140,8 +142,9 @@ struct CYLPAGIconView {
 }
 
 /**
- * Rive: CYLTabBarController's `CYLRiveIcon` (the tab bar's Rive icon) with the item's file and options (`artboard`,
- * `stateMachine`, `input` / `triggerInput`, `numberInput` / `values`, `animation`), so the tags and the tab bar play
+ * Rive: CYLTabBarController's shared Rive engine (`CYLRiveIcon` of the `cylanimateditemrive` module, loop policy
+ * `WhilePlaying`, the same one the tab bar and CollectionViewClassifyMenu use; no Rive player of our own) with the
+ * item's file and options (`artboard`, `stateMachine`, `input` / `triggerInput`, `numberInput` / `values`, `animation`), so the tags and the tab bar play
  * Rive alike; it picks the Canvas renderer on emulators. A file that cannot load (or @ohos/rive, arm64 only, cannot
  * run) calls `onFailed()`: the tag shows its static image.
  */
@@ -190,6 +193,7 @@ struct CYLRiveIconView {
           selected: this.selected,
           replayToken: this.replayToken,
           loops: this.loops,
+          loopPolicy: CYLRiveLoopPolicy.WhilePlaying,
           onLoadError: (message: string) => this.onFailed?.()
         })
       }
@@ -535,13 +539,13 @@ const CYL_EXAMPLE_ANIMATION_BUILDER: WrappedBuilder<[CYLTagAnimationContext]> =
 
 /**
  * Registers the engines the example plays with CYLTabBarController's `CYLAnimatedItemEngines` (Lottie, PAG, Rive, SVGA,
- * GIF) and the views that play them with the library (`CYLTagAnimationBuilder`). Called once, before any tag is shown
- * (`EntryAbility.onCreate`).
+ * GIF; Rive through `cylRegisterRiveEngine(context)` of the shared `cylanimateditemrive` module) and the views that play
+ * them with the library (`CYLTagAnimationBuilder`). Called once, before any tag is shown (`EntryAbility.onCreate`).
  */
-export function cylRegisterExampleAnimationEngines(): void {
+export function cylRegisterExampleAnimationEngines(context?: common.Context): void {
   CYLAnimatedItemEngines.register('Lottie');
   CYLAnimatedItemEngines.register('PAG');
-  CYLAnimatedItemEngines.register('Rive');
+  cylRegisterRiveEngine(context);
   CYLAnimatedItemEngines.register('SVGA');
   CYLAnimatedItemEngines.register('GIF');
   CYLTagAnimationBuilder.register(CYL_EXAMPLE_ANIMATION_BUILDER);

@@ -20,6 +20,7 @@ void main() {
         suggestionCachePolicy: CYLSearchSuggestionCachePolicy.sandboxFile,
         suggestionCacheName: 'Demo',
         focusesSearchFieldOnShow: false,
+        showsSuggestionCacheHeader: false,
       ));
       expect(parameters, <String, Object?>{
         'brightness': 'light',
@@ -36,9 +37,15 @@ void main() {
         'suggestionCachePolicy': 'sandboxFile',
         'suggestionCacheName': 'Demo',
         'focusesSearchFieldOnShow': false,
+        'showsSuggestionCacheHeader': false,
         'suggestionsFoldControlPosition': 'inline',
         'suggestionsFoldControlContent': 'icon',
         'suggestionsFoldedRowCount': 2,
+        'highlightsResultMatches': false,
+        'resultMatchHighlightColor': null,
+        'noResultsText': null,
+        'scrimColor': null,
+        'supportsSwipeToDismissSearch': false,
       });
     });
 
@@ -49,12 +56,17 @@ void main() {
 
     test('defaults match the native defaults', () {
       final parameters = cylSearchViewParameters(const CYLSearchView());
-      expect(parameters['suggestionStyle'], 'list');
+      expect(parameters['suggestionStyle'], 'tags');
+      expect(
+        cylSearchViewParameters(const CYLSearchView(suggestionStyle: CYLSearchSuggestionStyle.list))['suggestionStyle'],
+        'list',
+      );
       expect(parameters['showsEmptyResultsPlaceholder'], false);
       expect(parameters['emptyResultsScenario'], 'noSearchResults');
       expect(parameters['suggestionCachePolicy'], 'database');
       expect(parameters['suggestionCacheName'], 'CYLSearchView');
       expect(parameters['focusesSearchFieldOnShow'], true);
+      expect(parameters['showsSuggestionCacheHeader'], true);
       expect(parameters['suggestionsFoldControlPosition'], 'inline', reason: 'the last tag is the fold chevron');
       expect(parameters['suggestionsFoldControlContent'], 'icon');
       expect(parameters['suggestionsFoldedRowCount'], 2);
@@ -153,6 +165,16 @@ void main() {
             'items': <Object?>[],
             'editingBar': false,
             'actionTitle': null,
+            'placeholderColor': null,
+            'textColor': null,
+            'fontSize': null,
+            'centersPlaceholder': false,
+            'textFieldMargins': <double>[0, 0, 0, 0],
+            'activeTextFieldMargins': <double>[0, 0, 0, 0],
+            'cancelButtonMargins': <double>[0, 0, 0, 0],
+            'activeCancelButtonMargins': <double>[0, 0, 0, 0],
+            'cancelButtonFontSize': null,
+            'appearance': null,
           });
       cylSearchBarViewDispatch(bar, const MethodCall('textDidChange', <String, Object?>{'text': 'a'}));
       cylSearchBarViewDispatch(bar, const MethodCall('didSubmit', <String, Object?>{'text': 'a'}));

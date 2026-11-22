@@ -70,10 +70,15 @@ ArkTS and JavaScript ports follow the same table.
 - Public API comments: every documentation comment in the core's Swift
   files is a three-line `/** … */` block; `scripts/check-public-api-comments.sh`
   (run in CI) is the checker for `Sources/CYLSearchBar`.
-- Quick Help and the Swift interface: Xcode reads the `/** */` blocks of the
-  Swift core directly, and the generated Objective-C header carries the
-  `@objc` names. Not yet measured on Xcode for `Sources/CYLSearchBar`
-  (`TODO`: needs a Mac; the first compile is iOS CI on PR #11).
+- Quick Help and the Swift interface: DONE (2026-11-21, Xcode 27.2, macOS 27, branch `fix/ios-swift-todos` from
+  `efb3b78`). `scripts/public-api-doc-coverage.sh <products dir>` runs `swift-symbolgraph-extract` (the data Quick Help
+  and DocC read) on the built `CYLSearchViewController` module: 291 of 301 public symbols of `Sources/CYLSearchBar`
+  carry their `/** */` block (`CYLSearchBarView.swift` 181/187, `CYLSearchView.swift` 95/99,
+  `CYLSearchResources.swift` 15/15). The 10 without one are UIKit overrides (`init(frame:)`, `layoutSubviews()`,
+  `sizeThatFits(_:)`, `intrinsicContentSize`, `traitCollectionDidChange(_:)`, `tintColorDidChange()`,
+  `safeAreaInsetsDidChange()`, `accessibilityPerformEscape()`): they inherit UIKit's documentation by design
+  (`scripts/check-public-api-comments.sh`), and Quick Help shows that one. The generated
+  `CYLSearchViewController-Swift.h` carries the comments as `///` lines (383) above the `@objc` names. Score: 100/100.
 - Example integration (2026-11-12, 10/10):
   - `Podfile` pins `d36c7080157c49c552a3a352d72a9d00a2be11a9`, the newest
     commit on any branch (`feat/cross-platform-components`) when it was read.
@@ -118,7 +123,7 @@ ArkTS and JavaScript ports follow the same table.
     last rows of the list.
   - `testSearchBarsCoverNoView` checks the results screen (bar pinned and
     hiding on scroll), the search bar demo at the default and the largest
-    text size, and the `CYLSearchView` overlay, with `CYLViewsCoveredByView`: every visible
+    text size, and the `CYLSearchView` overlay, with `viewsCoveredByView`: every visible
     view of the window except the bar's own subviews and containers, system
     bar backgrounds, views that draw nothing and parts clipped away.
     `testSearchBarNeverCoversTheViewControllersView` checks the view's frame.
@@ -177,8 +182,8 @@ plus page; the Examples tab at the largest accessibility text size.
   and `instructions.md`, and in the `cyl-plus-button` and `cyl-tabbar-integration` skills. The Android example
   already follows it (56 dp, `CYLPlusButtonCenterYMultiplier` 0.3; screenshots in
   [android-and-cross-platform.md](android-and-cross-platform.md)).
-- Follow-up `TODO`: the iOS example's plus button (`CYLSearchExample/CYLTabBarConfiguration.json`) is not raised
-  yet; give it the raised effect, build and screenshot it (iOS example layer).
+- Follow-up DONE (2026-11-21, `a5158b8`; was `TODO`): the iOS example's plus button (`CYLSearchExample/CYLTabBarConfiguration.json`)
+  is raised, built and screenshotted (the "iOS example" sub-entry below; the earlier attempt is kept as history).
   - Tried (2026-11-14, iPhone 17, iOS 26.3.1): `CYLPlusButtonSize` `{56, 56}` and `CYLPlusButtonCenterYMultiplier` 0.3
     in `CYLSearchExample/CYLTabBarConfiguration.json` (the keys the Android example uses, read by the iOS parser) change
     nothing: the plus button stays level with the tab icons in the floating Liquid Glass bar. The same in the React
@@ -186,10 +191,27 @@ plus page; the Examples tab at the largest accessibility text size.
     button replaces only the item's icon (`cyl_showsTitleInTabBarItem`), so it is placed inside the item, not by
     `+multiplierOfTabBarHeight:`; the multiplier applies to a title-less button with
     `cyl_appliesCenterYOffsetWithoutTitle` YES, or in the other styles. Decision needed in CYLTabBarController (raised
-    effect with a title on Liquid Glass), so it stays `TODO` here; the config was reverted.
+    effect with a title on Liquid Glass), so it stayed `TODO` then; the config was reverted. Superseded 2026-11-21: `CYLPlusButtonAlignsTitle`
+    false makes the multiplier apply (below).
   - React Native: DONE 2026-11-16. `CYLPlusButtonAlignsTitle` false (RN `alignsTitle: false`) keeps the title on the
-    button, so the multiplier applies; see `android-and-cross-platform.md`, "Open TODOs". The iOS example can use the
-    same key in `CYLTabBarConfiguration.json` (still `TODO`, iOS example layer).
+    button, so the multiplier applies; see `android-and-cross-platform.md`, "Open TODOs".
+  - iOS example: DONE (2026-11-21, `a5158b8`, iPhone 18 Pro simulator, iOS 27.2, Xcode 27.2). The iOS core has no default
+    raise (its center comes only from `+multiplierOfTabBarHeight:`, which a configuration gives with
+    `CYLPlusButtonCenterYMultiplier`), so the three configurations (`CYLTabBarConfiguration.json`, `…_svga.json`,
+    `…_svga_swiftui.json`) set `CYLPlusButtonAlignsTitle` false, `CYLPlusButtonSize` `{64, 84}` and
+    `CYLPlusButtonCenterYMultiplier` 0.3, the React Native values, with React Native's 52 pt green image
+    (`CYLPlusButton` in `CYLSearchViewController/Images.xcassets`; `CYLPlusButtonImageSize` would redraw the SF Symbol
+    black). Tried first: `CYLPlusButtonAlignsTitle` false alone (the button barely moves) and multiplier 0.15 (raised
+    further, but the title sits 7 pt above the tab titles). Result: the circle rises about 10 pt above the bar and the
+    title sits on the tab titles' line; its page shows the Liquid Glass lens under it. Test
+    `testPlusButtonIsRaisedAboveTheTabBar` (the button's top above the bar's top, centred, the 52 pt image); 37 of 37
+    tests pass.
+    ![iOS plus button before and after, a5158b8, 2026-11-21](assets/ios-iphone18pro-20261121-plus-button-raised.png)
+    (iOS 27.2 simulator, iPhone 18 Pro, Xcode 27.2 27B52, macOS 27, CYLSearchViewController `a5158b8`, CYLTabBarController
+    `41660d24`, 2026-11-21 23:29 +13:00.)
+  - Left (minor, CYLTabBarController): the button draws its own title in the core's default gray, not in the tab titles'
+    color. `CYLTabBarItemTitleColor` takes a hex color only, which would not follow dark mode, so the example keeps
+    the default. A dynamic title color for a non-aligned plus title is a CYLTabBarController option to ask for.
 
 ## DONE (2026-11-19; TODO 2026-11-16): SVGA animations from CYLTabBarController, with one SVGA demo for every Rive demo
 
@@ -926,11 +948,27 @@ Android.
   - **Mini program**: fixed in CYLTabBarController `41660d24` (container stops and rests every other tab before the new one plays;
     item halts on deselect; pending plays cancelled; 8 tests); bundled in ClassifyMenu `954edf8c`; iOS pins `049b108`; not yet
     verified on DevTools or a phone with the SVGA tab bar.
-  - **iOS More tab** (more than five tabs): not run, asked of Mac-CYLTabBarController文件夹.
-- **Status**: TODO. Score: 70/100 (iOS and HarmonyOS verified, mini program fixed and bundled, Android More patch and the iOS More check
-  open; the user's phone retest of the mini program is the last step).
+  - **iOS More tab** (more than five tabs): DONE (2026-11-21, macOS session, iPhone 18 Pro simulator, iOS 27.2, Xcode 27.2,
+    CYLSearchViewController `3018f02`, CYLTabBarController `41660d24`): holds. Method: a temporary sixth page in
+    `CYLTabBarConfiguration_svga.json` (not committed; the shipped file keeps four tabs and the plus button) so UIKit adds
+    "More", launched with `-CYLDemoTabIconSource 2`; eight quick switches (Search, Examples or Tag style tapped, then More
+    0.1, 0.25, 0.5 or 0.9 s later; the Android method), a screenshot 3.8 s after each. 8 of 8: only More is coloured, the
+    tab left behind rests in gray; a frame taken right after the More tap shows Examples already stopped. On iOS the
+    More tab goes through the same selection path as any tab, so the Android `cyl_moreButtonTapped` gap does not exist here.
+    ![iOS quick switch to More, 3018f02, 2026-11-21](assets/ios-iphone18pro-20261121-more-tab-switch-one-selected.png)
+    (iOS 27.2 simulator, iPhone 18 Pro, Xcode 27.2 27B52, macOS 27, CYLSearchViewController `3018f02` plus the temporary
+    tab, CYLTabBarController `41660d24`, 2026-11-21 23:40 +13:00.) Found on the way, for CYLTabBarController (not this
+    contract): the More item draws the SVGA icon of the first tab moved into the More list (Discover's `tab_home`, an
+    orange house when selected) in place of UIKit's More icon.
+- **Status**: TODO. Score: 80/100 (iOS, the iOS More tab and HarmonyOS verified, mini program fixed and bundled; open: the Android More
+  patch re-pin (blocked by the `style` clash below) and the user's phone retest of the mini program). 2026-11-21: the Android More patch is blocked by the
+  `style` clash (the next entry); the iOS More check is the macOS session's; the phone retest is the user's.
+  2026-11-22: the Android More patch is DONE at the pin `ace1af0e` (the next entry). Score: 85/100; left: the iOS More check (macOS
+  session) and the mini program retest on the user's phone.
+  2026-11-22 (macOS session): the iOS More check is DONE (8 of 8, above, `2fa5667`). Score: 95/100; left: the mini program retest on the
+  user's phone.
 
-## TODO (2026-11-20): two tab items stay selected after a quick switch in the SVGA tab bar: the Android audit
+## DONE (2026-11-22; TODO 2026-11-20): two tab items stay selected after a quick switch in the SVGA tab bar: the Android audit
 
 - **Branch**: `feat/harmonyos-parity`. Platforms of this entry: native Android, React Native Android, Flutter Android (the mini
   program: Mac-CYLTabBarController 小程序开发; HarmonyOS: winCYLTabBarController 鸿蒙开发; iOS React Native and Flutter: the macOS session).
@@ -957,15 +995,51 @@ Android.
   previous tab only when its animator implements one, and the SVGA animator does not, so the previous tab keeps playing and ends on
   its selected frame. Hence React Native and Flutter, whose tabs are all animated, did not show it; any app of the Android library with
   more than five tabs (a "More" tab) would.
-- **Fix, verified locally** (not yet committed in CYLTabBarController): a shared `internal fun CYLTabBar.cyl_stopAnimationsOfAllTabBarItemsExcept(selectedControl)`
-  in `CYLTabBarItemAnimationHost.kt` (`cyl_animationLottieImageWithSelectedControl` calls it too) and one call to it in
-  `cyl_moreButtonTapped` before `cyl_playTabButtonAnimationForControl(button)`. With it, the same eight switches on the native example
-  leave only the selected tab marked, and the three switches to "More" are fixed
-  ([assets/android-svga-tab-switch-more-20261120.png](assets/android-svga-tab-switch-more-20261120.png), Android API 37 emulator, Windows 11, 2026-11-20 +13:00, after 1b3541f). The patch is
-  `C:\cylbuild\cyltabbar-more-animation.patch` on the Windows machine, for CYLTabBarController's Android owner to commit.
-  A unit test in that repository needs a seam: the test classpath has no SVGA, Lottie or Rive library and the animation state is private.
-- **Status**: TODO. Score: 70/100 (audited on three apps, the cause found, the fix verified on the emulator; left: the fix and its test
-  committed in CYLTabBarController, re-bundled by CollectionViewClassifyMenu and pinned here, then the same check again).
+- **Fix, committed in CYLTabBarController (2026-11-20, `c1abdffe` on `feat/cross-platform-components`, pull request 788)**: a shared
+  `internal fun CYLTabBar.cyl_stopAnimationsOfAllTabBarItemsExcept(selectedControl)` in `CYLTabBarItemAnimationHost.kt`
+  (`cyl_animationLottieImageWithSelectedControl` calls it too) and one call to it in `cyl_moreButtonTapped` before
+  `cyl_playTabButtonAnimationForControl(button)`. With it, the same eight switches on the native example leave only the selected tab
+  marked, and the three switches to "More" are fixed
+  ([assets/android-svga-tab-switch-more-20261120.png](assets/android-svga-tab-switch-more-20261120.png), Android API 37 emulator, Windows 11, 2026-11-20 +13:00, after 1b3541f). The seam the unit test needed (the test classpath has no SVGA, Lottie or Rive
+  library and the animation state is private) is a recording `CYLTabBarItemAnimator` / `CYLTabBarItemAnimationPlayer` test double that
+  tracks whether it is playing, the same shape SVGA has (no deselect step, only `stop()`); test
+  `CYLTabBarMoreAnimationTest.moreStopsTheAnimationOfTheTabSelectedBefore` fails on the commit before this fix and passes after;
+  `:cyltabbar` 130 tests, 0 failures (Gradle 9.3.1, JDK 17, no Mac in this session, documented in CYLTabBarController's
+  `docs/Android-Library.md`).
+- **New blocker found while re-pinning here (2026-11-20)**: bumping `cyl.tabbar.commit` to `c1abdffe` to pick up the fix breaks
+  `:classifymenu:compileDebugKotlin` in CollectionViewClassifyMenu: `CYLTagButton.kt:157:9 'style' hides member of supertype
+  'CYLAnimatedItemView' and needs an 'override' modifier`. Cause: CYLTabBarController's `cylanimateditem` gained a public
+  `var style: CYLAnimatedItemStyle` on `CYLAnimatedItemView` for the Countdown style feature (commits `e7053169`/`d5de5008`,
+  already in the pin before this fix, so unrelated to it); `CYLTagButton` (CollectionViewClassifyMenu) already has its own,
+  long-established `var style: CYLMenuStyle?` (a null-resettable per-tag style copy, used throughout `CYLTagButton.kt` and by
+  `CYLTagFoldButton`, two `androidTest` files, and read everywhere a tag or a fold button is styled), an unrelated type for an
+  unrelated purpose that happens to share the English word "style". The two names cannot both exist unqualified on the same class:
+  `override` is not actually possible (the types, `CYLAnimatedItemStyle` vs `CYLMenuStyle?`, do not match), so one of the two
+  must be renamed; `CYLTagListView`'s own `style: CYLMenuStyle?` (an unrelated `ViewGroup` subclass) and `CYLTag`'s own
+  `style: CYLMenuStyle?` (unrelated, not a view) are not affected, only `CYLTagButton` and its subclass `CYLTagFoldButton`. **Not
+  fixed here**: renaming either property is a public API change on a widely used member (cross-platform parity: `CYLTagButton.style`
+  likely mirrors an iOS property of the same name; `CYLAnimatedItemView.style` is used the same way on every platform
+  CYLAnimatedItemView ships on), so it needs the owning session's decision, not a guess made while chasing an unrelated bug.
+  **Left as its own TODO** (CollectionViewClassifyMenu `docs/animated-item-migration.md` or its API map, whichever session owns
+  that repository next): decide which `style` is renamed (or qualify one with its class, e.g. Kotlin's `@JvmName` does not help
+  here since the clash is at the Kotlin property level, not the JVM signature), rename every reference, re-pin CYLTabBarController
+  at `c1abdffe` or newer here, and rerun this row's check.
+- **Status**: TODO. Score: 80/100 (the fix is committed and tested in CYLTabBarController; re-pinning here and the final check are
+  blocked by the unrelated `style` name collision above, not by this bug).
+  2026-11-21: still blocked. The CYLTabBarController tip `e96c4979` contains `c1abdffe`, but `:classifymenu:compileDebugKotlin`
+  still fails at CollectionViewClassifyMenu `cf478388` (and on every branch there: `feat/harmony` `7b7051ab`, `master` `76e7a8cd`).
+  The CollectionViewClassifyMenu session found that iOS clashes too (`CYLAnimatedItemView.swift` `style` against `CYLTagButton.swift`
+  `style`; HarmonyOS named it `itemStyle`) and asked the user which property to rename (its proposal: `itemStyle` upstream on
+  iOS and Android). Re-pin and re-check once it sends the commit.
+  2026-11-21, later: fixed upstream in CYLTabBarController PR #822 (`CYLAnimatedItemView.style` renamed `itemStyle` on iOS and Android,
+  head `f9827fef`, code `39b274c9`, contains `c1abdffe`), not merged yet. Checked here with `cyl.tabbar.commit=39b274c9` set locally
+  (not committed: the pin follows the newest branch once #822 is merged): `:cylsearch` 26 of 26, the example builds, and the four
+  switches to More that failed before now leave only More selected ([android-medium-phone-api37-20261121-more-switch-at-39b274c9.png](assets/android-medium-phone-api37-20261121-more-switch-at-39b274c9.png), Medium Phone API 37 emulator, JDK 17, Windows 11 Pro 10.0.22631, CYLSearchViewController d6f22c3 + tab bar 39b274c9, ClassifyMenu cf478388, 2026-11-21 23:25 +13:00).
+  Left: pin the merged commit on every platform (with the ClassifyMenu commit that session sends) and re-run this check at the pin.
+- **DONE (2026-11-22)**: #822 merged as `ace1af0e`; pinned with CollectionViewClassifyMenu `1f8c1001` on every platform (Podfiles,
+  `android/merged/gradle.properties`, `harmonyos/oh-package.json5` and its vendor copies, the mini program `package.json`, the Flutter
+  `pubspec.yaml` and `pubspec.lock`). Eight quick switches to More (Search or Examples, then More 0.1 to 0.9 s later): only More stays
+  selected in all eight ([android-medium-phone-api37-20261122-more-switch-at-ace1af0e.png](assets/android-medium-phone-api37-20261122-more-switch-at-ace1af0e.png), Medium Phone API 37 emulator, JDK 17, Windows 11 Pro 10.0.22631, CYLSearchViewController 2d907ea + pins ace1af0e / 1f8c1001, 2026-11-22 00:10 +13:00). React Native Android and Flutter Android build and launch at the pin. Score: 100/100.
 
 ## TODO (2026-11-20): the tag list drag holds the scrolling on every platform, like the mini program
 
@@ -1012,7 +1086,7 @@ Android.
   Hint: CYLTabBarController's own Flutter iOS platform view needed an `EagerGestureRecognizer` (`3ee06877`) for the same reason (UIKit platform views get their
   touches replayed by the embedder after the arena decides); to try next on iOS: an eager recognizer in the `UiKitView` (`gestureRecognizers`) or the embedder's
   `FlutterPlatformViewGestureRecognizersBlockingPolicy`. Sent to the Windows session (owner of `flutter_cylsearch`'s Dart core).
-- **iOS plan (macOS session)**: native and React Native iOS need no hold today. Needed: the ClassifyMenu callbacks `menuDidChangeReordering` / `menuDidChangeSmearing` on iOS
+- **iOS plan (macOS session)** (DONE 2026-11-22, see "iOS: Flutter and React Native DONE" below): native and React Native iOS need no hold today. Needed: the ClassifyMenu callbacks `menuDidChangeReordering` / `menuDidChangeSmearing` on iOS
   (asked of Mac-CollectionViewClassifyMenu文件夹) for API parity and for the Flutter iOS fix (the platform view forwards `didChangeDragging` and the Dart core claims the drag, same as
   Android); the iOS search core's content scroll view (`isScrollEnabled`) holds while a drag/smear is active, if a host puts a scroll view in its content slot.
 - **Progress (2026-11-20, Windows)**: Flutter Android fixed and verified; iOS audit by the macOS session: native and React Native hold, Flutter does
@@ -1027,10 +1101,41 @@ Android.
     drag state event).
   - **Flutter Android after the fix** (same drag test, 450 px up and 300 px down): the tag moves, the content stays; a swipe on a tag scrolls
     ([assets/flutter-android-tag-drag-fixed-20261120.png](assets/flutter-android-tag-drag-fixed-20261120.png), Android API 37 emulator, Windows 11, 2026-11-20 +13:00, after a17131a).
-  - **Left**: Flutter iOS (the macOS session verifies the same Dart core on iOS and forwards `didChangeDragging` once the iOS ClassifyMenu callbacks land); HarmonyOS
+  - **Left** (Flutter iOS and React Native iOS DONE 2026-11-22, below): Flutter iOS (the macOS session verifies the same Dart core on iOS and forwards `didChangeDragging` once the iOS ClassifyMenu callbacks land); HarmonyOS
     (the core's content `Scroll` holds only while a drag is active, from the ClassifyMenu callbacks; the callbacks reach the app through the tag list's delegate, so the
     search core needs a way to hear them, to be designed with the ClassifyMenu session; then a device run); React Native: forward the events for parity.
-  - **Score**: 55/100.
+  - **React Native events (2026-11-21, Windows)**: `<CYLTagListView onReorderingChange onSmearingChange>` (`CylsearchTagListViewNativeComponent.ts`),
+    sent by the Android view from ClassifyMenu's `menuDidChangeReordering` / `menuDidChangeSmearing` (the same callbacks as Flutter's `didChangeDragging`).
+    Checked: the React Native Android example builds (Gradle, JDK 17, React Native 0.88.0) and codegen emits both events (`EventEmitters.h`); jest 4 of 4.
+    iOS sends nothing yet: the iOS ClassifyMenu has no such callbacks (checked at `feat/harmony` 7b7051ab, 2026-11-21); once they land, `CylsearchTagListView.mm`
+    forwards them the same way (the macOS session).
+  - **iOS: Flutter and React Native DONE (2026-11-22, macOS session, `df3283a`, iPhone 18 Pro simulator, iOS 27.2, Xcode 27.2)**. The callbacks
+    existed on iOS already (ClassifyMenu `CYLMenuDelegate` `menu(_:didChangeReordering:)` / `menu(_:didChangeSmearing:)`, logged DONE there on
+    2026-11-20), but the iOS pins (`954edf8c`) predated them. Now: ClassifyMenu `1f8c1001` and CYLTabBarController `ace1af0e` in the three iOS
+    Podfiles (the commit every platform pins; `cyl.tabbar.ios.commit` in `android/merged/gradle.properties` for React Native iOS's fetch until the
+    shared key moves); `CylsearchTagListView.mm` emits `onReorderingChange` / `onSmearingChange`; the Flutter iOS platform view sends
+    `didChangeDragging` (reordering or smearing), the same code as Android.
+    - Flutter iOS (debug, `--hold` 0.6, 1.2 and 2.0 s, an `axe drag` of "Family" in Manage): the tag lifts and floats, lands at its new place, and "My
+      Tags" stays where it was, so the page does not scroll with the drag; a swipe without a hold still scrolls the page. The 2026-11-20 failure (the
+      tag never lifted) does not reproduce with this build; it was not bisected between the new pins and the new `didChangeDragging`.
+      A temporary `NSLog` in `reportDragging` (not committed) logged `didChangeDragging true` at the drag's start and `false` at
+      the drop (2026-11-22 01:25 +13:00), so the forwarding fires on iOS.
+    - React Native iOS (Release): the same drag; a temporary `console.error` in the example's handler (not committed) logged
+      `reordering true` when the drag started and `reordering false` at the drop. The smear path: see the next item.
+    ![Flutter and React Native iOS tag drag, df3283a, 2026-11-22](assets/ios-iphone18pro-20261122-tag-drag-holds-flutter-rn.png)
+  - **React Native smear selection (2026-11-22, macOS session, `fix/ios-todos-qmui`)**: `onSmearingChange` could never fire: the
+    component had no way to turn smearing on. New prop `allowsSmearSelection` on `<CYLTagListView>` (spec
+    `CylsearchTagListViewNativeComponent.ts`; iOS `CylsearchTagListView.mm` and Android `CylsearchTagListViewManager.kt` set the core's
+    `allowsSmearSelection`, which both ClassifyMenu cores have at pin `9dc1f76`); default false, so the example (a 1:1 copy of the iOS example,
+    which does not smear) is unchanged. React Native iOS, Release, iPhone 18 Pro simulator, iOS 27.2: with a temporary example change (My Tags with
+    `allowsSmearSelection` and a `console.error` handler, not committed) one `axe swipe` from "Friends" to "High School Classmates" selected the three
+    tags, and JavaScript logged `CYLSMEAR true` then `CYLSMEAR false`; the selection stayed after the re-render. Android: the Kotlin module compiles
+    (`compileDebugKotlin`); not run on an emulator.
+    ![React Native iOS smear selection](assets/rn-ios-smear-selection-ios27.2-20261122.png) React Native 0.88.0, iOS 27.2, iPhone 18 Pro simulator, Xcode 27.2, base `8bd7255`, 2026-11-22 13:53 NZDT.
+    (iOS 27.2 simulator, iPhone 18 Pro, Xcode 27.2 27B52, Flutter 3.47.9, CYLSearchViewController `df3283a`, ClassifyMenu `1f8c1001`,
+    CYLTabBarController `ace1af0e`, 2026-11-22 00:43 to 00:47 +13:00.)
+  - **Score**: 85/100 (Android native, React Native and Flutter on Android and iOS, iOS native hold; left: HarmonyOS, the real drag signal from
+    the ClassifyMenu callbacks and a device run).
   - **HarmonyOS hold check (2026-11-20, macOS emulator, `e6f25d4`)**: launch `--ps CYLDebugQuery i --pi CYLDebugNoFocus 1 --pi CYLDebugTagGestureActive 1|0`
     (`--pi` carries integers only, the query needs `--ps`); Examples, other libraries' examples, MiguelCatalan, Default, search icon. The suggestion list
     (query "i", longer than the screen) swiped 700,2200 to 700,900: flag 1 did not scroll, flag 0 scrolled. Before `e6f25d4` the list-style

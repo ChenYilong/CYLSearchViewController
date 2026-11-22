@@ -226,7 +226,28 @@ packages). A test checks each rule.
   ([assets/ios-iphone18pro-20261119-search-tab-placeholder-keyboard-d19120f.png](assets/ios-iphone18pro-20261119-search-tab-placeholder-keyboard-d19120f.png), before f7e0c4d and after d19120f). Left: HarmonyOS and the mini program
   checks. Score: 70/100 (iOS, Android, React Native on both, Flutter already right).
   HarmonyOS passes without a code change (2026-11-19): the system keyboard avoidance lifts the page, so the placeholder stays whole above the keyboard ([assets/harmonyos-mate70pro-20261119-placeholder-above-keyboard.png](assets/harmonyos-mate70pro-20261119-placeholder-above-keyboard.png), HarmonyOS 6 Mate 70 Pro emulator, DevEco Studio 6, Windows 11, 2026-11-19 +13:00, at d7651e0).
-  Mini program: WeChat DevTools draws no keyboard, so it cannot be checked there; the `<input>` keeps WeChat's default `adjust-position` (the page is pushed up as on HarmonyOS). It needs a real phone (WeChat preview). Score: 90/100; TODO: the mini program on a phone.
+  Mini program: WeChat DevTools draws no keyboard, so it cannot be checked there; the `<input>` keeps WeChat's default `adjust-position` (the page is pushed up as on HarmonyOS). It needs a real phone (WeChat preview). Score: 90/100; TODO: the mini program on a phone (2026-11-21: still open; it
+  needs the user's phone, since neither the DevTools simulator nor automation draws the keyboard).
+
+## DONE (2026-11-21): `showsSuggestionCacheHeader` on every platform
+
+- **Context**: iOS added `CYLSearchView.showsSuggestionCacheHeader` for the Swift rebuild of the original demo
+  (`swift-migration.md`, step 2: its history clears with a text button below the list, not the header's trash icon),
+  and left "the other platforms' row" here. Task: `task-log.md`, "fix every open TODO in docs".
+- **Result** (`efb3b78`): true by default; false hides the "Recent searches" header and its trash button, the cached
+  queries stay.
+
+  | Platform | API | Evidence |
+  |:---|:---|:---|
+  | iOS | `CYLSearchView.showsSuggestionCacheHeader` | `testOriginalDemoRebuiltOnTheCore` (macOS session) |
+  | Android | `CYLSearchView.showsSuggestionCacheHeader` | `CYLSearchSuggestionCacheTest`, `:cylsearch` 26 of 26 (JDK 17) |
+  | HarmonyOS | `CYLSearchView.showsSuggestionCacheHeader` (`@Trace`) | builds; hypium 29 of 29 on the Mate 70 Pro emulator |
+  | Mini program | core `showsSuggestionCacheHeader`, `<cyl-search showsSuggestionCacheHeader>` | `npm test` 61 of 61 |
+  | Flutter | `CYLSearchView(showsSuggestionCacheHeader:)` (Android and iOS plugins) | `flutter test` 18 of 18 |
+  | React Native | `<CylsearchView showsSuggestionCacheHeader>` (Android and iOS) | the Android example builds (`1a2a7cb`) |
+
+  Not compiled here: the iOS sides of Flutter and React Native (one line each, no Xcode on Windows).
+  API tables: Android, HarmonyOS and mini program 289 of 289.
 
 ## DONE (2026-11-19): the editing bar, the search bar as an edit field above the keyboard
 
@@ -260,7 +281,8 @@ packages). A test checks each rule.
   `editingsubmit` {text}) and `pinsToKeyboard` (fixed at the page's bottom, lifted by `wx.onKeyboardHeightChange`, the field
   does not push the page) properties. Test `editing bar submits the trimmed text…` (test/cyl_search_bar_view.test.js); used by
   the mini program contact tags example ([assets/wechat-devtools-20261119-contact-tags.png](assets/wechat-devtools-20261119-contact-tags.png), WeChat DevTools simulator, base library 3.6.6, Windows 11, 2026-11-19 +13:00, after 34b8cd3).
-  TODO: Flutter and React Native.
+  Flutter and React Native: DONE (2026-11-19): Flutter `CYLSearchView(editingBar: true)` (`8989d69`), React Native
+  `<CylsearchBarView editingBar>` (`274ba00`), both on the native cores above; used by their contact tags examples.
 
 ## DONE (2026-11-19; TODO 2026-11-19): the mini program editing bar focuses every rename, not only the first
 

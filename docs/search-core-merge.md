@@ -112,26 +112,37 @@ What each platform did differently from the target design below.
   …/cyl-placeholder-miniprogram/cyl-refresh/index". `cyl-search` uses its `cyl-refresh` and, by default, its
   `cyl-placeholder`, so the package is required; the README said "optional" (only so npm does not try the registry) and
   now says required ([assets/miniprogram-devtools-20261119-without-cyl-placeholder.png](assets/miniprogram-devtools-20261119-without-cyl-placeholder.png), WeChat DevTools 2.02.2609250, Windows 11, 2026-11-19 +13:00, after 4885f35).
-- Still open, for the Windows session: the HarmonyOS refresh helpers' `WeakMap` and V1 `cylplaceholder` components in
-  V2 components on a device. The V1 placeholder inside the V2 search view ran on the emulator on 2026-11-16 (the empty
+- DONE (2026-11-21), was "still open, for the Windows session": the pull-to-refresh path on the emulator. Pulled
+  twice on the Search tab: the first pull's header says "最后更新：无记录" (no update yet), the second "今天 18:07", so the
+  handler ran and `CYLSearchView.endRefreshingIn(scroller)` found its model in the `WeakMap` and ended the refresh
+  ([harmonyos-mate70pro-20261121-pull-to-refresh.png](assets/harmonyos-mate70pro-20261121-pull-to-refresh.png), Mate 70 Pro emulator 127.0.0.1:5557, HarmonyOS 6.0.0.112 (API 21), DevEco Studio 6.0.1.251, Windows 11 Pro 10.0.22631, CYLSearchViewController 90b3dcf, 2026-11-21 23:07 +13:00). Original note: the HarmonyOS refresh helpers' `WeakMap`
+  and V1 `cylplaceholder` components in V2 components on a device. The V1 placeholder inside the V2 search view ran on the emulator on 2026-11-16 (the empty
   results screenshot) and ohosTest passes 29/29, but the pull-to-refresh path was not driven on a device; the emulator
   does not start today ("can not read uuid file": started without `-imageRoot`; with it, "No enough space to start Emulator" at 3.3 GB free).
 
-### TODO: not verified yet (2026-11-16, kept as written)
+### Not verified yet (2026-11-16): rechecked 2026-11-21
 
 - Nothing was compiled in this session: no Xcode, no Android SDK, no DevEco Studio, no WeChat DevTools (Linux).
-- iOS CI on PR #11 is the first compile of `Sources/CYLSearchBar` and the example.
-- The three `Podfile.lock` files still name the old commits (the CocoaPods CDN is unreachable here); CI's
-  `pod install` resolves them again.
-- iOS read CYLTableViewPlaceHolder from a cached copy; its API was not checked at `f488e2f`.
-- HarmonyOS: mixing V1 `cylplaceholder` components into V2 components, and the `WeakMap` used by the refresh
-  helpers, are untested on a device or emulator.
-- Mini program: the default path of the component generics (no `cyl-placeholder-miniprogram` installed) is untested.
-- Android: the timing of the refresh tests under Robolectric is unverified.
-- React Native: the native code (iOS and Android bridges) was not compiled (no Xcode, no Android SDK); TypeScript
-  type-checks and its 5 jest tests pass.
-- Flutter: the native code (iOS and Android plugins) was not compiled; `flutter analyze` (3 existing deprecation
-  notices) and `flutter test` (13 plugin tests, 3 example tests) pass.
+- iOS CI on PR #11 is the first compile of `Sources/CYLSearchBar` and the example. DONE: run 44060850353 (2026-11-17)
+  is fully green: `pod lib lint`, the example build and analyze, the unit tests.
+- The three `Podfile.lock` files still name the old commits. DONE: the macOS session's `pod install` updates all three
+  at every pin since (`a370400`, 2026-11-19).
+- iOS read CYLTableViewPlaceHolder from a cached copy. DONE: it has been built from its pins since (`8dc39c3`, now
+  `c84fce9`).
+- HarmonyOS: V1 `cylplaceholder` components inside V2 components. DONE: they run on the emulator (the empty results,
+  Scorecard 2). The `WeakMap` of the refresh helpers: DONE on the emulator (2026-11-21, the pull-to-refresh
+  screenshot above).
+- Mini program: the default path of the component generics (no `cyl-placeholder-miniprogram` installed). DONE: it
+  is not a supported install. `cyl-search` loads `cyl-refresh` and its default `cyl-placeholder` from that package,
+  so WeChat DevTools does not compile without it ("component not found in the path", checked 2026-11-19); the
+  package README says it is required. `package.json` keeps it an optional peer only so that npm does not try to
+  fetch it (it is not on the registry).
+- Android: the timing of the refresh tests under Robolectric. DONE: `:cylsearch` unit tests pass on every Android
+  pin since 2026-11-16 (`animated-icon-component.md`, rows 31 to 38).
+- React Native: the native code was not compiled. DONE: React Native iOS builds and runs (2026-11-18, macOS) and
+  React Native Android builds (rows 35 to 38).
+- Flutter: the native code was not compiled. DONE: Flutter iOS (2026-11-18) and Flutter Android builds (rows 32 and 36
+  to 38).
 
 ## Target design
 

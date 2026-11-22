@@ -25,6 +25,7 @@ test('the search view lists the cache first, filters while typing and caches on 
   assert.deepEqual(view.filteredSuggestions, ['Kotlin', 'Flutter']);
   assert.equal(view.showsCachedQueries, true);
   assert.equal(view.showsEmptySuggestions, false);
+  assert.equal(view.showsSuggestionCacheHeader, true, 'the header shows by default (iOS showsSuggestionCacheHeader)');
   view.textChanged('t');
   assert.deepEqual(view.filteredSuggestions, ['Kotlin', 'Flutter', 'Swift'], 'cached matches first, no repeats');
   view.textChanged('');
@@ -194,4 +195,34 @@ test('the restorable state reopens the search view with its query', () => {
   assert.equal(copy.query, 'Swift');
   assert.equal(copy.accessibilityPerformEscape(), true);
   assert.equal(copy.isSearchOpen, false);
+});
+
+test('showsSuggestionCacheHeader: false hides the "Recent searches" header, the cached queries stay', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const dir = path.join(__dirname, '../src/cyl-search');
+  const js = fs.readFileSync(path.join(dir, 'index.js'), 'utf8');
+  const wxml = fs.readFileSync(path.join(dir, 'index.wxml'), 'utf8');
+  assert.match(js, /showsSuggestionCacheHeader: \{ type: Boolean, value: true \}/, 'a property, true by default');
+  assert.match(js, /model\.showsSuggestionCacheHeader = p\.showsSuggestionCacheHeader/, 'passed to the core');
+  assert.match(js, /showsCacheHeader: model\.showsCachedQueries && model\.showsSuggestionCacheHeader/, 'drawn only when both hold');
+  assert.match(wxml, /wx:if="\{\{showsCacheHeader\}\}" class="cyl-header"/);
+  const view = new CYLSearchView(memoryStorage());
+  view.suggestions = ['Swift'];
+  view.setQuery('Swift', true);
+  view.setQuery('', false);
+  view.showsSuggestionCacheHeader = false;
+  view.refilter();
+  assert.deepEqual(view.filteredSuggestions, ['Swift']);
+  assert.equal(view.showsCachedQueries, true);
+});
+
+test('the suggestions are tags by default, folded to two rows with the fold control as the last tag', () => {
+  const { CYLSearchSuggestionStyle } = require('../src/core/CYLSearchView');
+  const view = new CYLSearchView(memoryStorage());
+  assert.equal(view.suggestionStyle, CYLSearchSuggestionStyle.tags);
+  assert.equal(view.suggestionsFoldedRowCount, 2);
+  assert.equal(view.suggestionsFoldControl.position, 'inline');
+  view.suggestionStyle = CYLSearchSuggestionStyle.list;
+  assert.equal(view.suggestionStyle, 'list', 'the list stays available');
 });

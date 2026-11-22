@@ -1,12 +1,5 @@
-const { CYLSearchView, cylFoldTags, cylClampAnimationSpeed } = require('../core/CYLSearchView');
+const { CYLSearchView, cylClampAnimationSpeed, cylSnapHeaderOffset, cylSwipeShouldDismiss, cylEdgeSwipeBegins } = require('../core/CYLSearchView');
 const { CYLSearchResources, cylNavigationMetrics } = require('../core/CYLSearchResources');
-
-const TAG_SPACING = 12;
-const TAG_SIDE_INSET = 16;
-// The fold chevron's labels: CollectionViewClassifyMenu's CYLMenuExpand / CYLMenuCollapse (CYLClassifyMenu.strings).
-const FOLD_LABELS = {
-  en: ['More', 'Less'], 'zh-Hans': ['更多', '收起'], 'zh-Hant': ['更多', '收合'],
-};
 
 const text = (key) => CYLSearchResources.localizedString(undefined, key);
 
@@ -37,12 +30,14 @@ Component({
   options: { multipleSlots: true },
   properties: {
     suggestions: { type: Array, value: [], observer: 'onSuggestionsChange' },
-    suggestionStyle: { type: String, value: 'list' },
+    suggestionStyle: { type: String, value: 'tags' },
     placeholder: { type: String, value: '' },
     searchBarStyle: { type: String, value: 'plain' },
     items: { type: Array, value: [] },
     cacheName: { type: String, value: 'CYLSearchView', observer: 'onCacheNameChange' },
     focusesSearchFieldOnShow: { type: Boolean, value: true },
+    // false hides the "Recent searches" header and its trash button (iOS showsSuggestionCacheHeader).
+    showsSuggestionCacheHeader: { type: Boolean, value: true },
     showsEmptyResultsPlaceholder: { type: Boolean, value: false },
     // NO keeps the page open after a submitted query (iOS closesOnSubmit, or a delegate that handles the query).
     closesOnSubmit: { type: Boolean, value: true },
@@ -99,14 +94,64 @@ Component({
     showsContent: { type: Boolean, value: false },
     // YES puts the bar where the navigation bar of a "navigationStyle": "custom" page is, clear of the menu button.
     coversNavigationBar: { type: Boolean, value: false },
+    // The list screen (iOS CYLSearchTableViewController): with `showsContent`, the bar is the header of the content page, in
+    // the content's own scroller. Focusing it starts the search: the page scrolls to the top, and the launch view, the
+    // dimming, the suggestions, the results or the empty view fill the space under the bar, never over it.
+    showsSearchBar: { type: Boolean, value: false },
+    // The bar starts scrolled out of sight (iOS hidesSearchBarInitially).
+    hidesSearchBarInitially: { type: Boolean, value: false },
+    // The bar leaves while the content's empty view shows (iOS hidesSearchBarWhenEmptyViewShowing).
+    hidesSearchBarWhenEmptyViewShowing: { type: Boolean, value: false },
+    // A header bar half scrolled out settles fully shown or fully hidden when the scrolling ends, and a short list can
+    // scroll it out (iOS snapsHeaderSearchBar, QMUI #1160).
+    snapsHeaderSearchBar: { type: Boolean, value: true },
+    // The launch view under the bar while the query is empty (iOS showsSuggestionsLaunchView): the suggestion area itself,
+    // CollectionViewClassifyMenu's tag list with the history (newest first, with the header and its trash button) or,
+    // without one, `suggestions`; a tapped tag sets the query and submits it. It wins over `showsLaunchView`.
+    showsSuggestionsLaunchView: { type: Boolean, value: false },
+    // Your own view under the bar while the query is empty (iOS launchView): the slot `launch-view`.
+    showsLaunchView: { type: Boolean, value: false },
+    // The color of the one scrim under the bar while the query is empty and there is no launch view; a tap ends the search
+    // (iOS scrimColor). `dimmingColor` is the earlier name and forwards to it.
+    scrimColor: { type: String, value: '' },
+    dimmingColor: { type: String, value: '' },
+    // The result rows mark the first match of the query, ignoring case and diacritics, in `resultMatchHighlightColor` (the
+    // tint color by default; iOS highlightsResultMatches). `highlightsMatches` and `highlightColor` are the earlier names.
+    highlightsResultMatches: { type: Boolean, value: false },
+    resultMatchHighlightColor: { type: String, value: '' },
+    highlightsMatches: { type: Boolean, value: false },
+    highlightColor: { type: String, value: '' },
+    // The empty view's text while the query is not empty and the results are empty (iOS noResultsText).
+    noResultsText: { type: String, value: '' },
+    // A swipe from the left edge ends the search (iOS supportsSwipeToDismissSearch).
+    supportsSwipeToDismissSearch: { type: Boolean, value: false },
+    // The bar's own style, passed to the header bar (see cyl-search-bar): iOS CYLSearchBar.
+    centersPlaceholder: { type: Boolean, value: false },
+    textFieldMargins: { type: Object, value: null },
+    activeTextFieldMargins: { type: Object, value: null },
+    cancelButtonMargins: { type: Object, value: null },
+    activeCancelButtonMargins: { type: Object, value: null },
+    cancelButtonFont: { type: Object, value: null },
+    // The leading view and the trailing accessory views of the bar (iOS showsLeadingView / showsTrailingAccessoryViews; the
+    // slots `leading` and `trailing`); showsLeadingAccessory / showsTrailingAccessory and the slots `leading-accessory` /
+    // `trailing-accessory` are the earlier names.
+    showsLeadingView: { type: Boolean, value: true },
+    showsTrailingAccessoryViews: { type: Boolean, value: true },
+    showsLeadingAccessory: { type: null, value: null },
+    showsTrailingAccessory: { type: null, value: null },
+    leadingAccessoryMargins: { type: Object, value: null },
+    trailingAccessoryMargins: { type: Object, value: null },
+    appearance: { type: Object, value: null },
   },
   data: {
-    playbackSpeed: 1, shownSuggestions: [], visibleTags: [], needsFold: false, open: false, visible: false, entered: false,
-    focus: false, query: '', folded: true, showsCachedQueries: false, showsEmptyResults: false, showsEmptySuggestions: false,
+    playbackSpeed: 1, shownSuggestions: [], tagConfiguration: null, open: false, visible: false, entered: false,
+    focus: false, query: '', showsCachedQueries: false, showsCacheHeader: false, showsEmptyResults: false, showsEmptySuggestions: false,
     showsResults: false, shownResults: [], refreshes: false, labels: {}, pageStyle: '', barInsets: '', contentScrollHeld: false,
+    showsLaunch: false, showsDimming: false, emptyView: null, emptyInContent: false, headerHidden: false, headerHeight: 56,
+    scrollTop: 0, scrollAnimated: false, swipeX: 0,
   },
   observers: {
-    'showsEmptyResultsPlaceholder, closesOnSubmit, showsResultsForEmptyQuery, focusesSearchFieldOnShow, suggestionStyle, emptyResultsScenario, emptySuggestionsScenario': function () {
+    'showsSuggestionsLaunchView, showsLaunchView, scrimColor, dimmingColor, highlightsResultMatches, highlightsMatches, noResultsText, foldedRowCount, showsSearchBar, hidesSearchBarWhenEmptyViewShowing, showsEmptyResultsPlaceholder, closesOnSubmit, showsResultsForEmptyQuery, focusesSearchFieldOnShow, showsSuggestionCacheHeader, suggestionStyle, suggestionTextColor, suggestionImageTintColor, dividerColor, emptyResultsScenario, emptySuggestionsScenario': function () {
       if (!this.model) return;
       this.applyProperties();
       this.model.refilter();
@@ -129,6 +174,11 @@ Component({
         searchViewDidSelectSuggestion: (_, suggestion, index) => this.triggerEvent('suggestionselect', { suggestion, index }),
         searchViewDidSelectResult: (_, result, index) => this.triggerEvent('selectresult', { result, index }),
         searchViewVoiceButtonClicked: () => this.triggerEvent('voicetap'),
+        // UIKit's updateSearchResults: every change of the text, the empty text on the first activation and on clear.
+        searchViewUpdateResults: (_, query) => this.triggerEvent('updateresults', { text: query }),
+        searchViewHistoryDidChange: (_, history) => this.triggerEvent('historychange', { history }),
+        searchViewWillShow: () => this.triggerEvent('willpresent'),
+        searchViewWillClose: () => this.triggerEvent('willdismiss'),
       };
       model.searchBarView.keyboardHandler = (shown) => this.setData({ focus: shown });
       // The pull of the results list (or beginRefreshing()) calls this: the JavaScript handler, then the event.
@@ -152,18 +202,17 @@ Component({
         pageStyle = `padding-top: ${metrics.statusBarHeight}px;`;
         barInsets = `${(metrics.navigationBarHeight - 36) / 2}px ${metrics.trailingInset}px ${(metrics.navigationBarHeight - 36) / 2}px 4px`;
       }
-      const language = CYLSearchResources.languageFor();
       this.setData({
         pageStyle,
         barInsets,
         labels: {
-          recent: text('search.recent'), clear: text('search.clearRecent'), suggestions: text('search.suggestions'),
-          showMore: (FOLD_LABELS[language] || FOLD_LABELS.en)[0],
-          showLess: (FOLD_LABELS[language] || FOLD_LABELS.en)[1],
+          dismiss: text('search.cancel'), recent: text('search.recent'), clear: text('search.clearRecent'), suggestions: text('search.suggestions'),
         },
       });
       this.updateRefreshes();
-      if (this.properties.inline) {
+      // The list screen draws the content itself, in its scroller with the bar; the chain below is the search's layer.
+      if (this.properties.showsSearchBar) this.setData({ showsContent: false });
+      if (this.properties.inline && !this.properties.showsSearchBar) {
         // Inline: open at once, without raising the keyboard.
         model.focusesSearchFieldOnShow = false;
         model.showSearch(false);
@@ -172,6 +221,9 @@ Component({
       model.reloadResults();
       this.sync();
     },
+    ready() {
+      if (this.properties.showsSearchBar) this.measureHeader();
+    },
   },
   methods: {
     applyProperties() {
@@ -179,12 +231,27 @@ Component({
       const model = this.model;
       model.suggestionStyle = p.suggestionStyle;
       model.focusesSearchFieldOnShow = p.focusesSearchFieldOnShow;
+      model.showsSuggestionCacheHeader = p.showsSuggestionCacheHeader;
       model.showsEmptyResultsPlaceholder = p.showsEmptyResultsPlaceholder;
       // An inline search view never closes, so a submitted query keeps it open.
       model.closesOnSubmit = p.closesOnSubmit && !p.inline;
       model.showsResultsForEmptyQuery = p.showsResultsForEmptyQuery;
       model.emptyResultsScenario = p.emptyResultsScenario;
       model.emptySuggestionsScenario = p.emptySuggestionsScenario;
+      model.showsSuggestionsLaunchView = p.showsSuggestionsLaunchView;
+      model.showsLaunchView = p.showsLaunchView;
+      model.scrimColor = p.scrimColor || p.dimmingColor || undefined;
+      model.highlightsResultMatches = p.highlightsResultMatches || p.highlightsMatches;
+      model.noResultsText = p.noResultsText || undefined;
+      model.suggestionsFoldedRowCount = p.foldedRowCount;
+      model.suggestionTextColor = p.suggestionTextColor || undefined;
+      model.suggestionImageTintColor = p.suggestionImageTintColor || undefined;
+      model.dividerColor = p.dividerColor || undefined;
+      model.showsSearchBar = p.showsSearchBar;
+      model.hidesSearchBarInitially = p.hidesSearchBarInitially;
+      model.hidesSearchBarWhenEmptyViewShowing = p.hidesSearchBarWhenEmptyViewShowing;
+      model.snapsHeaderSearchBar = p.snapsHeaderSearchBar;
+      model.supportsSwipeToDismissSearch = p.supportsSwipeToDismissSearch;
     },
     onAnimationSpeedChange(value) {
       this.setData({ playbackSpeed: cylClampAnimationSpeed(value) });
@@ -212,56 +279,60 @@ Component({
     // Copies the model's state into the data the template draws.
     sync() {
       const model = this.model;
+      // The tag list takes a new configuration only when the tags or the colors changed: a keystroke keeps the fold state.
+      const tagConfiguration = this.properties.suggestionStyle === 'tags' ? model.suggestionTagConfiguration(this.isDark()) : null;
+      const tagKey = JSON.stringify(tagConfiguration);
+      const tagsChanged = tagKey !== this.tagKey;
+      this.tagKey = tagKey;
       this.setData({
+        ...(tagsChanged ? { tagConfiguration } : {}),
         open: model.isSearchOpen,
         query: model.query,
         shownSuggestions: model.filteredSuggestions,
         showsCachedQueries: model.showsCachedQueries,
+        showsCacheHeader: model.showsCachedQueries && model.showsSuggestionCacheHeader,
         showsEmptyResults: model.showsEmptyResults,
         showsEmptySuggestions: model.showsEmptySuggestions,
         showsResults: model.showsResults,
         shownResults: model.searchResults.map((result) => model.resultCell(result)),
+        showsLaunch: model.showsLaunch,
+        showsDimming: model.showsDimming,
+        emptyView: model.emptyView ? { text: model.emptyView.text, detailText: model.emptyView.detailText, buttonTitle: model.emptyView.buttonTitle } : null,
+        emptyInContent: model.emptyViewInContent,
+        headerHidden: model.hidesHeaderBar,
       });
-      if (this.properties.suggestionStyle === 'tags' && !model.showsResults) this.foldTags();
     },
-    // The tags end with the fold chevron, `foldedRowCount` rows while folded (iOS suggestionsFoldControl inline, as on
-    // the Discover page): every tag is measured on one hidden line, then the tags of the first rows are kept.
-    foldTags() {
-      const all = this.data.shownSuggestions;
-      const rows = this.properties.foldedRowCount;
-      if (!all.length || rows <= 0) {
-        this.setData({ visibleTags: all, needsFold: false });
-        return;
+    // The system's dark mode, for the tag colors the page did not set.
+    isDark() {
+      try {
+        return (wx.getAppBaseInfo ? wx.getAppBaseInfo() : {}).theme === 'dark';
+      } catch (error) {
+        return false;
       }
-      wx.nextTick(() => {
-        const query = this.createSelectorQuery();
-        query.selectAll('.cyl-measure-tag').boundingClientRect();
-        query.select('.cyl-measure-chevron').boundingClientRect();
-        query.select('.cyl-page').boundingClientRect();
-        query.exec(([tags, chevron, page]) => {
-          if (!tags || tags.length !== all.length || !page) return;
-          const { visibleCount, needsFold } = cylFoldTags(tags.map((tag) => tag.width), page.width - TAG_SIDE_INSET * 2,
-            TAG_SPACING, chevron ? chevron.width : 40, rows);
-          this.setData({ needsFold, visibleTags: needsFold && this.data.folded ? all.slice(0, visibleCount) : all });
-        });
-      });
     },
     // The model opened: the page is drawn hidden, then the next frame runs the open transition.
     onModelShown() {
       const animated = this.showAnimated !== false;
+      this.presents = (this.presents || 0) + 1;
       this.setData({ visible: true, entered: !animated });
       if (animated) setTimeout(() => this.setData({ entered: true }), 30);
       this.triggerEvent('show');
+      setTimeout(() => this.triggerEvent('didpresent'), animated ? this.model.animationDuration * 1000 : 0);
     },
     // The model closed (a call, the back arrow, Cancel, a submitted query): the close transition, then the page goes.
     onModelClosed() {
       const animated = this.closeAnimated !== false;
       this.closeAnimated = true;
-      this.setData({ entered: false, focus: false });
+      // A present that started while this dismiss ran overtakes it: no diddismiss for it (iOS generation guard).
+      const presents = this.presents || 0;
+      this.setData({ entered: false, focus: false, swipeX: 0 });
       setTimeout(() => {
+        if (presents !== (this.presents || 0)) return;
         if (!this.model.isSearchOpen) this.setData({ visible: false });
+        this.triggerEvent('diddismiss');
       }, animated ? this.model.animationDuration * 1000 : 0);
       this.triggerEvent('close');
+      this.endHeaderSearch();
     },
     /**
      * Opens the search view (iOS `showSearch(animated:)`); `completion` runs once it is open.
@@ -390,8 +461,229 @@ Component({
     },
     onFocusChange(event) {
       this.model.focusChanged(event.detail.focused);
+      // The list screen: focusing the header bar starts the search (UIKit activates on a tap in the bar).
+      if (event.detail.focused && this.properties.showsSearchBar && !this.model.isSearchOpen) this.beginHeaderSearch(false);
     },
     onBarClose() {
+      // Cancel clears the text (UIKit) and ends the search.
+      if (this.properties.showsSearchBar) this.model.setQuery('', false);
+      this.closeSearch();
+    },
+    // The list screen's search starts: the page scrolls to the top and holds, the bar shows Cancel unless the host did.
+    beginHeaderSearch(focus) {
+      const bar = this.barComponent();
+      this.autoCancel = !!bar && bar.model && !bar.model.showsCancelButton;
+      if (this.autoCancel) bar.setShowsCancelButton(true, true);
+      this.setData({ scrollTop: 0, scrollAnimated: true });
+      const keep = this.model.focusesSearchFieldOnShow;
+      this.model.focusesSearchFieldOnShow = focus;
+      this.showSearch(true);
+      this.model.focusesSearchFieldOnShow = keep;
+    },
+    // The search ended: Cancel goes again if it came with the search.
+    endHeaderSearch() {
+      if (!this.properties.showsSearchBar) return;
+      const bar = this.barComponent();
+      if (this.autoCancel && bar) bar.setShowsCancelButton(false, true);
+      this.autoCancel = false;
+    },
+    // The bar of the page: the header bar of the list screen, else the page's own.
+    barComponent() {
+      return this.selectComponent('#cyl-header-bar') || this.selectComponent('#cyl-bar');
+    },
+    /**
+     * Starts or ends the search from code (iOS `setActive(_:animated:)`).
+     */
+    setActive(active, animated = true) {
+      if (!active) {
+        this.closeSearch(animated);
+      } else if (this.properties.showsSearchBar) {
+        if (!this.model.isSearchOpen) this.beginHeaderSearch(true);
+      } else {
+        this.showSearch(animated);
+      }
+    },
+    /**
+     * True while the search is active (iOS `isActive`).
+     */
+    isActive() {
+      return this.model.isSearchOpen;
+    },
+    /**
+     * Shows the empty view with your text under the bar (iOS `showEmptyView(text:detailText:buttonTitle:buttonAction:)`);
+     * while the search is not active it takes the content's place, and the bar leaves with it when
+     * `hidesSearchBarWhenEmptyViewShowing` is set. Nothing shows while the text is empty and the search is active.
+     */
+    showEmptyView(text, detailText, buttonTitle, buttonAction) {
+      this.emptyButtonAction = typeof buttonAction === 'function' ? buttonAction : undefined;
+      this.model.showEmptyView(text, detailText, buttonTitle, buttonAction);
+      this.sync();
+      if (this.data.headerHidden) this.setData({ scrollTop: 0 });
+    },
+    /**
+     * Hides the empty view (iOS `hideEmptyView()`); the bar of the list screen comes back scrolled out when
+     * `hidesSearchBarInitially` is set.
+     */
+    hideEmptyView() {
+      this.model.hideEmptyView();
+      this.emptyButtonAction = undefined;
+      this.sync();
+      if (this.properties.hidesSearchBarInitially) this.setData({ scrollTop: this.data.headerHeight });
+    },
+    /**
+     * True while the empty view shows (iOS `isEmptyViewShowing`).
+     */
+    isEmptyViewShowing() {
+      return this.model.isEmptyViewShowing;
+    },
+    onEmptyButtonTap() {
+      if (this.emptyButtonAction) this.emptyButtonAction();
+    },
+    /**
+     * The submitted queries, newest first, no duplicates (iOS `historyStore.cachedQueries()`); `historychange` tells
+     * when they change, also while a launch view stays on screen.
+     */
+    history() {
+      return this.model.history;
+    },
+    /**
+     * Clears the history (iOS `historyStore.removeAllQueries()`).
+     */
+    clearHistory() {
+      this.model.clearHistory();
+      this.sync();
+    },
+    /**
+     * Shows or hides Cancel on the bar, animated or not (iOS `setShowsCancelButton(_:animated:)`).
+     */
+    setShowsCancelButton(shows, animated) {
+      const bar = this.barComponent();
+      if (bar) bar.setShowsCancelButton(shows, animated);
+    },
+    /**
+     * Shows or hides the leading view before the field (iOS `setShowsLeadingView(_:animated:)`).
+     */
+    setShowsLeadingView(shows, animated) {
+      const bar = this.barComponent();
+      if (bar) bar.setShowsLeadingView(shows, animated);
+    },
+    /**
+     * Shows or hides the trailing accessory views of the field (iOS `setShowsTrailingAccessoryViews(_:animated:)`).
+     */
+    setShowsTrailingAccessoryViews(shows, animated) {
+      const bar = this.barComponent();
+      if (bar) bar.setShowsTrailingAccessoryViews(shows, animated);
+    },
+    /**
+     * Deprecated: `setShowsLeadingView`.
+     */
+    setShowsLeadingAccessoryView(shows, animated) {
+      this.setShowsLeadingView(shows, animated);
+    },
+    /**
+     * Deprecated: `setShowsTrailingAccessoryViews`.
+     */
+    setShowsTrailingAccessoryView(shows, animated) {
+      this.setShowsTrailingAccessoryViews(shows, animated);
+    },
+    /**
+     * The field's margins per state from a function `(bar, active) => { top, left, bottom, right }` (iOS
+     * `textFieldMarginsProvider`).
+     */
+    setTextFieldMarginsProvider(provider) {
+      const bar = this.barComponent();
+      if (bar) bar.setTextFieldMarginsProvider(provider);
+    },
+    /**
+     * The Cancel button's margins per state from a function (iOS `cancelButtonMarginsProvider`).
+     */
+    setCancelButtonMarginsProvider(provider) {
+      const bar = this.barComponent();
+      if (bar) bar.setCancelButtonMarginsProvider(provider);
+    },
+    // The header bar's height, measured; with `hidesSearchBarInitially` the content starts scrolled by it.
+    measureHeader() {
+      const query = this.createSelectorQuery();
+      query.select('.cyl-header-bar').boundingClientRect();
+      query.exec(([rect]) => {
+        if (!rect || !(rect.height > 0)) return;
+        this.setData({ headerHeight: Math.ceil(rect.height) });
+        if (this.properties.hidesSearchBarInitially) this.setData({ scrollTop: Math.ceil(rect.height) });
+      });
+    },
+    // The content scrolled: once it stops (and no finger is down), a bar half scrolled out settles (iOS #1160).
+    onContentScroll(event) {
+      this.scrollTopNow = event.detail.scrollTop;
+      this.scheduleSettle();
+    },
+    onContentTouchStart() {
+      this.touching = true;
+      clearTimeout(this.settleTimer);
+    },
+    onContentTouchEnd() {
+      this.touching = false;
+      this.scheduleSettle();
+    },
+    scheduleSettle() {
+      clearTimeout(this.settleTimer);
+      if (this.touching) return;
+      this.settleTimer = setTimeout(() => this.settleHeader(), 120);
+    },
+    /**
+     * Settles the header bar fully shown or fully hidden when the scrolling ended inside its band (iOS
+     * `snapsHeaderSearchBar`); returns the offset it moved to, or undefined.
+     */
+    settleHeader() {
+      const p = this.properties;
+      if (!p.showsSearchBar || !p.snapsHeaderSearchBar || this.model.isSearchOpen || this.data.headerHidden) return undefined;
+      const offset = this.scrollTopNow || 0;
+      const target = cylSnapHeaderOffset(offset, this.data.headerHeight);
+      if (target === offset) return undefined;
+      // Scroll-top follows the data only when it changes: set the real offset first, then the target animated.
+      this.setData({ scrollTop: offset, scrollAnimated: false });
+      wx.nextTick(() => this.setData({ scrollTop: target, scrollAnimated: true }));
+      return target;
+    },
+    // A swipe from the left edge ends the search (iOS supportsSwipeToDismissSearch): the page follows the finger.
+    onPageTouchStart(event) {
+      if (!this.properties.supportsSwipeToDismissSearch || !this.model.isSearchOpen) return;
+      const touch = event.touches[0];
+      this.swipe = touch.clientX <= 24 ? { startX: touch.clientX, startY: touch.clientY || 0, startTime: Date.now(), began: false } : undefined;
+    },
+    // The swipe begins when the touch moved right past the slop, more than up or down (cylEdgeSwipeBegins, iOS
+    // CYLSearchEdgeSwipe); any other first move fails it, so a vertical drag from the edge scrolls as usual.
+    onPageTouchMove(event) {
+      const swipe = this.swipe;
+      if (!swipe) return;
+      const touch = event.touches[0];
+      const deltaX = touch.clientX - swipe.startX;
+      const deltaY = (touch.clientY || 0) - swipe.startY;
+      if (!swipe.began) {
+        if (Math.abs(deltaX) <= 10 && Math.abs(deltaY) <= 10) return;
+        if (!cylEdgeSwipeBegins(swipe.startX, deltaX, deltaY)) {
+          this.swipe = undefined;
+          return;
+        }
+        swipe.began = true;
+      }
+      if (deltaX > 0) this.setData({ swipeX: deltaX });
+    },
+    onPageTouchEnd(event) {
+      const swipe = this.swipe;
+      this.swipe = undefined;
+      if (!swipe || !swipe.began) return;
+      const deltaX = event.changedTouches[0].clientX - swipe.startX;
+      const velocity = deltaX / Math.max(1, Date.now() - swipe.startTime);
+      let width = 375;
+      try {
+        width = (wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync()).windowWidth || width;
+      } catch (error) {
+        width = 375;
+      }
+      if (cylSwipeShouldDismiss(swipe.startX, deltaX, width, velocity)) this.closeSearch(false);
+      else this.setData({ swipeX: 0 });
+    },
+    onDimmingTap() {
       this.closeSearch();
     },
     onVoiceTap() {
@@ -415,8 +707,9 @@ Component({
         this.sync();
       }
     },
+    // A tag of the tag list (`tagtap` { item }) or a row of the list style (`data-index`).
     onSuggestionTap(event) {
-      const index = Number(event.currentTarget.dataset.index);
+      const index = event.detail && event.detail.item !== undefined ? event.detail.item : Number(event.currentTarget.dataset.index);
       this.model.suggestionSelected(this.data.shownSuggestions[index], index);
       this.triggerEvent('textchange', { text: this.model.query });
       this.sync();
@@ -428,10 +721,6 @@ Component({
     onClear() {
       this.model.clearSuggestionCache();
       this.sync();
-    },
-    onToggleFold() {
-      this.setData({ folded: !this.data.folded });
-      this.foldTags();
     },
   },
 });

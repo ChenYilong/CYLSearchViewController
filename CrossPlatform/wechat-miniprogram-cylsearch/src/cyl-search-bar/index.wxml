@@ -26,13 +26,18 @@
     <view class="cyl-mask-icon cyl-mask-search" style="{{searchIndicatorColor ? 'background-color: ' + searchIndicatorColor : ''}}" aria-hidden="true" />
   </view>
 </view>
-<view wx:else class="cyl-bar {{searchBarStyle === 'bordered' ? 'cyl-bar-bordered' : ''}} cyl-icon-{{iconPosition}} {{pinsToKeyboard ? 'cyl-bar-pinned' : ''}}" style="{{contentInsets ? 'padding: ' + contentInsets + ';' : ''}}{{pinsToKeyboard ? 'bottom: ' + keyboardHeight + 'px' : ''}}">
+<view wx:else class="cyl-bar {{searchBarStyle === 'bordered' ? 'cyl-bar-bordered' : ''}} cyl-icon-{{iconPosition}} {{pinsToKeyboard ? 'cyl-bar-pinned' : ''}}" style="{{barStyle ? barStyle + ';' : ''}}{{contentInsets ? 'padding: ' + contentInsets + ';' : ''}}{{pinsToKeyboard ? 'bottom: ' + keyboardHeight + 'px' : ''}}">
   <view wx:if="{{collapsed}}" class="cyl-icon-button" role="button" aria-label="{{labels.search}}" bindtap="onIconTap"
     style="{{iconButtonBackgroundColor ? 'background: ' + iconButtonBackgroundColor + ';' : ''}}">
     <view class="cyl-mask-icon cyl-mask-search" style="{{iconButtonColor ? 'background-color: ' + iconButtonColor : ''}}" aria-hidden="true" />
   </view>
   <block wx:else>
-    <slot name="leading" />
+    <!-- The leading view (iOS leadingView, shown by showsLeadingView): the slot `leading`, also under its earlier name
+         `leading-accessory`; before the field, outside it, so the field gives up its width. -->
+    <view class="cyl-accessory {{accessoryAnimated ? 'cyl-accessory-animated' : ''}} {{leadingShown ? '' : 'cyl-accessory-hidden'}}"
+      style="{{leadingShown ? (leadingWidth > 0 ? 'max-width: ' + leadingWidth + 'px' : 'max-width: none') : ''}}" aria-hidden="{{!leadingShown}}">
+      <view class="cyl-accessory-inner cyl-leading-inner" style="{{leadingStyle}}"><slot name="leading" /><slot name="leading-accessory" /></view>
+    </view>
     <view wx:if="{{navigationIcon !== 'none'}}" class="cyl-navigation" role="button"
       aria-label="{{navigationAccessibilityLabel || (navigationIcon === 'arrow' ? labels.back : labels.search)}}" bindtap="onNavigationTap">
       <view class="cyl-mask-icon {{navigationIcon === 'arrow' ? 'cyl-mask-back' : 'cyl-mask-search'}}"
@@ -40,9 +45,14 @@
     </view>
     <view class="cyl-field cyl-anim-{{expansionAnimation}} {{revealing ? 'cyl-field-revealing' : ''}}"
       style="{{fieldStyle}}; transition-duration: {{animationDuration}}s">
-      <view wx:if="{{showsSearchIcon && !editingBar && searchIconTintColor}}" class="cyl-mask-icon cyl-mask-search cyl-field-icon" style="background-color: {{searchIconTintColor}}" aria-hidden="true" />
-      <image wx:elif="{{showsSearchIcon && !editingBar && searchIcon}}" class="cyl-field-icon" src="{{searchIcon}}" aria-hidden="true" />
-      <input class="cyl-input" value="{{text}}" placeholder="{{placeholder}}" placeholder-style="{{placeholderStyle}}"
+      <!-- centersPlaceholder: the magnifier and the placeholder centred while the field rests (iOS centersPlaceholder). -->
+      <view wx:if="{{centered}}" class="cyl-center-group" aria-hidden="true">
+        <view wx:if="{{showsSearchIcon && !editingBar}}" class="cyl-mask-icon cyl-mask-search cyl-center-icon" aria-hidden="true" />
+        <text class="cyl-center-text" style="font-size: {{fontSize}}px; {{placeholderStyle}}">{{placeholder || labels.search}}</text>
+      </view>
+      <view wx:if="{{showsSearchIcon && !editingBar && searchIconTintColor && !centered}}" class="cyl-mask-icon cyl-mask-search cyl-field-icon" style="background-color: {{searchIconTintColor}}" aria-hidden="true" />
+      <image wx:elif="{{showsSearchIcon && !editingBar && searchIcon && !centered}}" class="cyl-field-icon" src="{{searchIcon}}" aria-hidden="true" />
+      <input class="cyl-input" value="{{text}}" placeholder="{{centered ? '' : placeholder}}" placeholder-style="{{placeholderStyle}}" aria-label="{{placeholder || labels.search}}"
         style="{{inputStyle}}" focus="{{inputFocus}}" password="{{secure}}" maxlength="{{maximumTextLength > 0 ? maximumTextLength : -1}}"
         confirm-type="{{editingBar ? 'done' : returnKeyType}}" cursor-color="{{cursorColor}}" disabled="{{!editable}}"
         adjust-position="{{!pinsToKeyboard}}" bindinput="onInput" bindconfirm="onConfirm" bindfocus="onFocus" bindblur="onBlur" />
@@ -56,7 +66,12 @@
       <view wx:if="{{showsSubmitButton && text}}" class="cyl-field-button" role="button" aria-label="{{labels.submit}}" bindtap="onSubmitTap">
         <view class="cyl-mask-icon cyl-mask-submit" aria-hidden="true" />
       </view>
-      <slot name="trailing" />
+      <!-- The trailing accessory views (iOS trailingAccessoryViews, shown by showsTrailingAccessoryViews): the slot `trailing`, also
+           under its earlier name `trailing-accessory`; the text gives up their width. -->
+      <view class="cyl-accessory {{accessoryAnimated ? 'cyl-accessory-animated' : ''}} {{trailingShown ? '' : 'cyl-accessory-hidden'}}"
+        style="{{trailingShown ? (trailingWidth > 0 ? 'max-width: ' + trailingWidth + 'px' : 'max-width: none') : ''}}" aria-hidden="{{!trailingShown}}">
+        <view class="cyl-accessory-inner cyl-trailing-inner" style="{{trailingStyle}}"><slot name="trailing" /><slot name="trailing-accessory" /></view>
+      </view>
       <!-- The appended items (iOS CYLSearchBarItem): a divider, or CollectionViewClassifyMenu's cyl-tag-button (the one
            icon + title + animated icon component, with the badge), at least 36 px square; it reads the item's label.
            The four engine slots go on to cyl-tag-button, which hands them to CYLTabBarController's cyl-animated-item:
@@ -78,6 +93,8 @@
         </view>
       </block>
     </view>
-    <view wx:if="{{showsCancelButton || editingBar}}" class="cyl-cancel" role="button" bindtap="onCancel">{{cancelButtonTitle || labels.cancel}}</view>
+    <!-- Cancel stays in the tree so that showing and hiding it can animate (iOS setShowsCancelButton(_:animated:)). -->
+    <view class="cyl-cancel {{cancelAnimated ? 'cyl-cancel-animated' : ''}} {{(cancelShown || editingBar) ? '' : 'cyl-cancel-hidden'}}" role="button"
+      aria-hidden="{{!(cancelShown || editingBar)}}" style="{{cancelStyle}}" bindtap="onCancel">{{cancelButtonTitle || labels.cancel}}</view>
   </block>
 </view>

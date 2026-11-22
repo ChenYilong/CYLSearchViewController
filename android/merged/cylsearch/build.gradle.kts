@@ -2,9 +2,16 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    `maven-publish`
 }
 
 android {
+    // Published as a Maven artifact (docs/licenses.md): the release AAR with its sources.
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+        }
+    }
     namespace = "com.cyl.search"
     compileSdk = 35
 
@@ -56,4 +63,47 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)
     testImplementation(libs.androidx.test.core)
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+                groupId = "com.cyl"
+                artifactId = "cylsearch"
+                // The version of the iOS pod (CYLSearchViewController.podspec).
+                version = "0.1.0"
+                // The AAR carries META-INF/cylsearch/LICENSE (MIT) and the notices of the icons it ships
+                // (LICENSE.material-design-icons, Apache-2.0); AGENTS.md, "Licenses in published packages".
+                pom {
+                    name.set("CYLSearchViewController for Android")
+                    description.set("The CYL search core for Android: CYLSearchBarView, CYLSearchView and CYLSearchResources, with the iOS API.")
+                    url.set("https://github.com/ChenYilong/CYLSearchViewController")
+                    licenses {
+                        license {
+                            name.set("MIT License")
+                            url.set("https://opensource.org/licenses/MIT")
+                        }
+                        license {
+                            name.set("The Apache License, Version 2.0")
+                            url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                            comments.set("The Material Design icons in the resources (META-INF/cylsearch/LICENSE.material-design-icons)")
+                        }
+                    }
+                    scm {
+                        url.set("https://github.com/ChenYilong/CYLSearchViewController")
+                    }
+                }
+            }
+        }
+        repositories {
+            // `publishReleasePublicationToBuildRepository` checks the artifact locally (build/repo); a Maven Central
+            // repository with credentials is added here for a release.
+            maven {
+                name = "build"
+                url = uri(layout.buildDirectory.dir("repo"))
+            }
+        }
+    }
 }

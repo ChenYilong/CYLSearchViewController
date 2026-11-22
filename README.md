@@ -15,12 +15,34 @@ with two searches and its event log.
 
 | Field | Value |
 |:---|:---|
-| Platform | iOS (the core is Swift; the example is Objective-C and Swift) |
+| Platform | iOS (the core is Swift; so was the example at this commit except its tests, Swift since 2026-11-21) |
 | Host | macOS 27.3 (26C5035r), Xcode 27.2 (27B52) |
 | Simulator | iPhone 17, iOS 26.1 |
 | SDK | iOS SDK 27.2, Swift 5 language mode, deployment target iOS 15.0 |
 | Repository | [`9735f79`](https://github.com/ChenYilong/CYLSearchViewController/commit/9735f79) on `feat/swift-core` |
 | Taken | 2026-11-12 16:14–16:17 NZDT |
+
+### iOS milestone (2026-11-22): Swift migration 100/100, raised plus button
+
+The example app and its tests are Swift; one Objective-C smoke test keeps the core's Objective-C surface checked
+(`docs/swift-migration.md`). The original demo (the GIF above) is rebuilt on `CYLSearchView`: the page, the history
+with "清除搜索历史" and Cancel, the results under "与Gf有关的咨询", a result's page.
+
+![The original demo rebuilt on CYLSearchView, compared with the GIF](docs/assets/ios-iphone18pro-20261121-original-demo-vs-gif.png)
+
+The plus button rises above the Liquid Glass tab bar, its title on the tab titles' line
+(`docs/CYLTabBarController-Integration.md`, "Raised plus button"): before, after, and its page selected.
+
+![The plus button raised above the tab bar](docs/assets/ios-iphone18pro-20261121-plus-button-raised.png)
+
+| Field | Value |
+|:---|:---|
+| Platform | iOS (Swift core, Swift example and tests) |
+| Host | macOS 27, Xcode 27.2 (27B52) |
+| Simulator | iPhone 18 Pro, iOS 27.2 |
+| SDK | iOS SDK 27.2, Swift 5 language mode, deployment target iOS 15.0 |
+| Repository | [`726a2da`](https://github.com/ChenYilong/CYLSearchViewController/commit/726a2da) (demo) and [`a5158b8`](https://github.com/ChenYilong/CYLSearchViewController/commit/a5158b8) (plus button) on `fix/ios-swift-todos` |
+| Taken | 2026-11-21 23:29–23:50 +13:00 |
 
 ### WeChat Mini Program
 
@@ -53,8 +75,8 @@ button; CYLTabBarController and CollectionViewClassifyMenu are pinned by commit.
 `cd android/merged && ./gradlew assembleDebug` (JDK 17). Details: `docs/android-and-cross-platform.md`, the API
 table `docs/android-api-alignment.md`.
 
-`CYLSearchView.suggestionStyle` shows suggestions as a list (top) or as tags from CollectionViewClassifyMenu
-(bottom); both tabs of the example filter the same suggestions for "a":
+`CYLSearchView.suggestionStyle` shows suggestions as tags from CollectionViewClassifyMenu (the default since
+2026-11-22: folded to two rows, the fold control as the last tag) or as a list (top: list, bottom: tags); both tabs of the example filter the same suggestions for "a":
 
 ![Android suggestion styles: list and tags](docs/assets/android-suggestion-styles-readme.png)
 

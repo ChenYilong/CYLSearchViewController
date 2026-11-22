@@ -18,6 +18,21 @@ type TagSelectEvent = Readonly<{
   selected: boolean;
 }>;
 
+type ReorderingChangeEvent = Readonly<{
+  /**
+   * True while a tag is being dragged to a new place (from the long press until the finger lifts or the drag is
+   * cancelled).
+   */
+  reordering: boolean;
+}>;
+
+type SmearingChangeEvent = Readonly<{
+  /**
+   * True while a finger smears across tags to select them.
+   */
+  smearing: boolean;
+}>;
+
 type HeightChangeEvent = Readonly<{
   height: CodegenTypes.Double;
 }>;
@@ -78,6 +93,11 @@ export interface NativeProps extends ViewProps {
    */
   supportsRenaming?: boolean;
   /**
+   * A drag that starts on a tag selects every tag it crosses (CollectionViewClassifyMenu `allowsSmearSelection`), with
+   * `selectionMode` "multiple" and not while editing; `onSmearingChange` reports it. Default false.
+   */
+  allowsSmearSelection?: boolean;
+  /**
    * The fold control: "none", "inline" (default), "bottom", "topTrailing" or "topLeading".
    */
   foldControlPosition?: string;
@@ -102,6 +122,17 @@ export interface NativeProps extends ViewProps {
   onTagMove?: CodegenTypes.DirectEventHandler<TagMoveEvent>;
   onRenameRequest?: CodegenTypes.DirectEventHandler<RenameRequestEvent>;
   onClearButtonTap?: CodegenTypes.DirectEventHandler<EmptyEvent>;
+  /**
+   * A drag to reorder started or ended (CollectionViewClassifyMenu `menuDidChangeReordering`; the mini program's
+   * `reorderingchange`). The native list already holds an ancestor scroll view during the drag; this reports the state.
+   * Android and iOS (iOS: `-menu:didChangeReordering:`, CollectionViewClassifyMenu `c73ae8bd` or newer).
+   */
+  onReorderingChange?: CodegenTypes.DirectEventHandler<ReorderingChangeEvent>;
+  /**
+   * A smear selection started or ended (CollectionViewClassifyMenu `menuDidChangeSmearing`; the mini program's
+   * `smearingchange`). Android and iOS, as `onReorderingChange`.
+   */
+  onSmearingChange?: CodegenTypes.DirectEventHandler<SmearingChangeEvent>;
 }
 
 export default codegenNativeComponent<NativeProps>('CylsearchTagListView') as HostComponent<NativeProps>;

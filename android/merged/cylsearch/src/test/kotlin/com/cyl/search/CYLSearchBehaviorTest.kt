@@ -35,6 +35,14 @@ class CYLSearchBehaviorTest {
     /**
      * The suggestion cache persists by design (docs/core-todo.md): every test starts from an empty default cache.
      */
+    /**
+     * Takes the test's views off the window, so their history observers end (Robolectric keeps the activity alive).
+     */
+    @org.junit.After
+    fun detachTheViews() {
+        activity.setContentView(FrameLayout(activity))
+    }
+
     @org.junit.Before
     fun clearTheDefaultSuggestionCache() {
         CYLSearchSuggestionStore.cacheWithPolicy(activity, CYLSearchSuggestionCachePolicy.Database, "CYLSearchView")?.removeAllQueries()
@@ -107,6 +115,7 @@ class CYLSearchBehaviorTest {
                 selected = index
             }
         }
+        view.suggestionStyle = CYLSearchSuggestionStyle.List
         view.suggestions = listOf("Android", "Apple")
         view.showSearch(false)
         view.query = "a"
@@ -252,6 +261,7 @@ class CYLSearchBehaviorTest {
     @Test
     fun resultsDataSourceListsResultsInsteadOfSuggestions() {
         val view = searchView()
+        view.suggestionStyle = CYLSearchSuggestionStyle.List
         view.suggestions = listOf("Android", "Kotlin")
         val source = Source(listOf("Apple", "Apricot", "Banana"))
         var selected: Any? = null

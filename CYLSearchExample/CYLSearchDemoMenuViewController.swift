@@ -186,7 +186,11 @@ public final class CYLSearchDemoMenuViewController: UITableViewController {
         // The fifth row: the SVGA tab bar hosted in SwiftUI (CYLSVGASwiftUIDemo.swift); the sixth: the contact tags demo
         // ported from CollectionViewClassifyMenu (CYLContactTagStore.swift); the seventh: the original demo of the README
         // screenshot, rebuilt on CYLSearchView (CYLOriginalSearchDemoViewController.swift).
-        7
+        // The eighth: the QMUI search bar styles screen (CYLSearchBarStylesViewController.swift); the ninth: the QMUI search
+        // controller screen (CYLSearchControllerDemoViewController.swift); the tenth to the thirteenth: the owner's issue
+        // scenarios (docs/qmui-search-controller.md): navigation item (#1229), bar in a view (#1251), short list (#1160) and
+        // collection view (#1313).
+        13
     }
 
     public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -197,6 +201,13 @@ public final class CYLSearchDemoMenuViewController: UITableViewController {
             cell.textLabel?.text = cylDemoText(rows[indexPath.row])
         } else if indexPath.row == 4 {
             cell.textLabel?.text = cylExampleText("svga.swiftui")
+        } else if indexPath.row >= 9 {
+            cell.textLabel?.text = cylDemoText(["demo.navigationItem", "demo.barInView", "demo.shortList",
+                                                "demo.collectionView"][indexPath.row - 9])
+        } else if indexPath.row == 8 {
+            cell.textLabel?.text = cylDemoText("demo.searchController")
+        } else if indexPath.row == 7 {
+            cell.textLabel?.text = cylDemoText("demo.searchBarStyles")
         } else if indexPath.row == 6 {
             cell.textLabel?.text = CYLOriginalSearchDemoViewController.rowTitle()
         } else {
@@ -223,6 +234,20 @@ public final class CYLSearchDemoMenuViewController: UITableViewController {
         case 6:
             // The original demo (the README screenshot): a Ken Burns sky, the history, the results.
             controller = CYLOriginalSearchDemoViewController()
+        case 9:
+            controller = CYLSearchNavigationItemDemoViewController(style: .plain)
+        case 10:
+            controller = CYLSearchBarInViewDemoViewController()
+        case 11:
+            controller = CYLSearchShortListDemoViewController(style: .plain)
+        case 12:
+            controller = CYLSearchCollectionViewDemoViewController()
+        case 8:
+            // QMUI's QDSearchViewController: CYLSearchController with a launch view and swipe to dismiss.
+            controller = CYLSearchControllerDemoViewController(style: .plain)
+        case 7:
+            // QMUI's QDSearchBarViewController: the styles of CYLSearchBar.
+            controller = CYLSearchBarStylesViewController(style: .grouped)
         case 0:
             let source = CYLSearchExampleDataSource()
             controller = CYLSearchExampleViewController(searchDataSource: source, refreshProvider: source)
