@@ -139,7 +139,7 @@ Install `outputs\emulator\entry-emulator-unsigned.hap` and `outputs\ohosTest\ent
 5. After a sub-repository sync, delete the mirror's `build`, `.hvigor` and `oh_modules` first: robocopy `/XD` keeps them,
    and a stale incremental build once missed a new `@cyl/classifymenu` export ("App died" in the UI tests).
 
-   From Git Bash, robocopy needs `MSYS2_ARG_CONV_EXCL='*'` (or Git Bash turns `/MIR` and `/XD` into paths) and quoted
+   From Git Bash, robocopy needs `MSYS2_ARG_CONV_EXCL='*'` (set it for robocopy only: hvigor fails silently with it) (or Git Bash turns `/MIR` and `/XD` into paths) and quoted
    Windows paths (an unquoted `C:\cylbuild\harmonyos` loses its backslashes and lands in `C:cylbuildharmonyos` under the
    current folder). A failed robocopy prints its usage and leaves the old mirror: check the mirror's `oh-package.json5`
    names the new commits before building (2026-11-22, a stale mirror once passed tests at the old pins).

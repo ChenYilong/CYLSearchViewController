@@ -807,8 +807,10 @@ begins and becomes `DONE` when it ends.
   still image when a native library is missing, the build recipe or helper, tests on x86_64), this repository pins that
   commit and drops its local build-profile copy, hypium passes on the x86_64 emulator. 60 = the rule written and the
   request accepted by the CYLTabBarController session.
-- **Status**: 60/100. Rule written (`AGENTS.md`, `instructions.md`, `cyl-harmonyos-setup` rule 6). The CYLTabBarController
-  session accepted it (recorded there in `917fa5ad`) and is building it; it will send the commit.
+- **Status**: DONE (2026-11-22), 100/100. Rule written (`AGENTS.md`, `instructions.md`, `cyl-harmonyos-setup` rule 6).
+  CYLTabBarController shipped it in `62715829` and `882ece17` (6 hypium tests on x86_64); pinned here with ClassifyMenu
+  `405bf498` and adopted (the entry "pin CYLTabBarController 882ece17 …" below), hypium 41 of 41 on the x86_64 emulator.
+  Rive and PAG playback on x86_64 is the next entry (two plans).
 
 
 ## TODO (2026-11-22): merge the QMUI search components with ours (one implementation each)
@@ -873,7 +875,18 @@ begins and becomes `DONE` when it ends.
   Android, HarmonyOS (hypium on the x86_64 emulator), mini program, Flutter and React Native tests pass and the examples
   build; the x86_64 plan adopted (our recipe matches `cylanimateditem`'s README; any PAG or Rive view this repository
   builds itself guarded by `isSupportedOnDevice`). 60 = pins moved, Android and HarmonyOS green.
-- **Status**: in progress.
+- **Status**: DONE (2026-11-22), score 100/100 (`Podfile.lock` files and the iOS build left to the macOS session). Pins
+  moved in the three Podfiles, `android/merged/gradle.properties`, `harmonyos/oh-package.json5`, the mini program
+  `package.json` and the Flutter example `pubspec.yaml` / `pubspec.lock`; vendor copies synced; the HarmonyOS mirror
+  checked to name `882ece17`, `405bf498` and `f4cf9785`. Android `:cylsearch` 51 of 51 and `assembleDebug`; HarmonyOS both
+  HAPs built clean (no `arm64-v8a` entry in the emulator HAP), the app reinstalled, hypium 41 of 41 on the x86_64 Mate 70
+  Pro emulator; mini program 84 of 84; Flutter 18 of 18 and 3 of 3, the example APK builds; React Native jest 4 of 4, the
+  example APK builds with the vendor copy at `882ece17`. Adoption of the x86_64 plan: our `emulator` target and
+  `emulatorTest` mode are the recipe of `cylanimateditem`'s README "x86_64 emulator"; a HAR cannot filter the native
+  libraries of the app that bundles it, so the app keeps that build profile. The example builds its PAG and Rive views only
+  in `cylExampleAnimationBuilder`, the `animationBuilder` that `CYLAnimatedItemView` calls only when
+  `CYLAnimatedItemEngines.canPlay` is true (false for PAG and Rive on x86_64 since `62715829`), so no extra
+  `isSupportedOnDevice` guard is needed here.
 
 
 ## TODO (2026-11-22): Rive and PAG tests that need arm64: plan 1 (x86_64 builds in cylanimateditem), else plan 2 (macOS)
