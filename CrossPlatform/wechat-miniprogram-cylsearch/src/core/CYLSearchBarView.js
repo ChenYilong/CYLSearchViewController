@@ -463,8 +463,10 @@ class CYLSearchBarView {
     this.cancelButtonMargins = undefined;
     this.cancelButtonMarginsProvider = undefined;
     this.cancelButtonFont = undefined;
-    this.showsLeadingAccessoryView = false;
-    this.showsTrailingAccessoryView = false;
+    // The existing leading view and trailing accessory views, shown by default (iOS `showsLeadingView`,
+    // `showsTrailingAccessoryViews`); showing and hiding them animates the width.
+    this.showsLeadingView = true;
+    this.showsTrailingAccessoryViews = true;
     this.cancelButtonTitle = $r('app.string.cyl_search_cancel');
     this.cancelButtonEndsEditing = true;
     this.clearsTextOnCancel = false;
@@ -631,20 +633,56 @@ class CYLSearchBarView {
   }
 
   /**
-   * Shows or hides the leading accessory beside the field (iOS `setShowsLeadingAccessoryView(_:animated:)`). The
-   * request is a state flag, so fast toggling ends in the last request.
+   * Shows or hides the leading view before the field (iOS `setShowsLeadingView(_:animated:)`). The request is a state
+   * flag, so fast toggling ends in the last request.
    */
-  setShowsLeadingAccessoryView(shows, animated = false) {
-    this.showsLeadingAccessoryView = !!shows;
-    if (this.accessoryHandler) this.accessoryHandler('leading', this.showsLeadingAccessoryView, !!animated);
+  setShowsLeadingView(shows, animated = false) {
+    this.showsLeadingView = !!shows;
+    if (this.accessoryHandler) this.accessoryHandler('leading', this.showsLeadingView, !!animated);
   }
 
   /**
-   * Shows or hides the trailing accessory beside the field (iOS `setShowsTrailingAccessoryView(_:animated:)`).
+   * Shows or hides the trailing accessory views of the field (iOS `setShowsTrailingAccessoryViews(_:animated:)`).
+   */
+  setShowsTrailingAccessoryViews(shows, animated = false) {
+    this.showsTrailingAccessoryViews = !!shows;
+    if (this.accessoryHandler) this.accessoryHandler('trailing', this.showsTrailingAccessoryViews, !!animated);
+  }
+
+  /**
+   * Deprecated: `setShowsLeadingView` (iOS `CYLSearchBar.setShowsLeadingAccessoryView`).
+   */
+  setShowsLeadingAccessoryView(shows, animated = false) {
+    this.setShowsLeadingView(shows, animated);
+  }
+
+  /**
+   * Deprecated: `setShowsTrailingAccessoryViews` (iOS `CYLSearchBar.setShowsTrailingAccessoryView`).
    */
   setShowsTrailingAccessoryView(shows, animated = false) {
-    this.showsTrailingAccessoryView = !!shows;
-    if (this.accessoryHandler) this.accessoryHandler('trailing', this.showsTrailingAccessoryView, !!animated);
+    this.setShowsTrailingAccessoryViews(shows, animated);
+  }
+
+  /**
+   * Deprecated: `showsLeadingView`.
+   */
+  get showsLeadingAccessoryView() {
+    return this.showsLeadingView;
+  }
+
+  set showsLeadingAccessoryView(value) {
+    this.showsLeadingView = !!value;
+  }
+
+  /**
+   * Deprecated: `showsTrailingAccessoryViews`.
+   */
+  get showsTrailingAccessoryView() {
+    return this.showsTrailingAccessoryViews;
+  }
+
+  set showsTrailingAccessoryView(value) {
+    this.showsTrailingAccessoryViews = !!value;
   }
 
   /**

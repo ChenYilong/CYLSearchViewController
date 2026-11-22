@@ -110,11 +110,15 @@ Component({
     cancelButtonMargins: { type: Object, value: null },
     activeCancelButtonMargins: { type: Object, value: null },
     cancelButtonFont: { type: Object, value: null },
-    // The accessory views beside the field, outside it (iOS leadingAccessoryView / trailingAccessoryView): slots
-    // `leading-accessory` and `trailing-accessory`, their margins, and whether they show (setShowsLeadingAccessoryView
-    // and setShowsTrailingAccessoryView(shows, animated) change it, animated).
-    showsLeadingAccessory: { type: Boolean, value: false, observer: 'onAccessoryProperty' },
-    showsTrailingAccessory: { type: Boolean, value: false, observer: 'onAccessoryProperty' },
+    // The leading view before the field (slot `leading`) and the trailing accessory views in it (slot `trailing`), one
+    // animated container each, and whether they show (iOS showsLeadingView / showsTrailingAccessoryViews; the methods
+    // setShowsLeadingView and setShowsTrailingAccessoryViews(shows, animated) change it, animated). The slots
+    // `leading-accessory` and `trailing-accessory` and the properties `showsLeadingAccessory` and
+    // `showsTrailingAccessory` are the earlier names of the same views: a set property wins over the new one.
+    showsLeadingView: { type: Boolean, value: true, observer: 'onAccessoryProperty' },
+    showsTrailingAccessoryViews: { type: Boolean, value: true, observer: 'onAccessoryProperty' },
+    showsLeadingAccessory: { type: null, value: null, observer: 'onAccessoryProperty' },
+    showsTrailingAccessory: { type: null, value: null, observer: 'onAccessoryProperty' },
     leadingAccessoryMargins: { type: Object, value: null },
     trailingAccessoryMargins: { type: Object, value: null },
     // iOS CYLSearchBarAppearance: plain values of CYLSearchBarAppearance.default(), applied under the bar's own properties.
@@ -179,8 +183,9 @@ Component({
       model.minimumTextLength = p.minimumTextLength;
       model.iconified = p.iconified || (p.iconifiedByDefault && !p.value);
       model.showsCancelButton = p.showsCancelButton;
-      model.showsLeadingAccessoryView = p.showsLeadingAccessory;
-      model.showsTrailingAccessoryView = p.showsTrailingAccessory;
+      const shows = this.accessoryShows();
+      model.showsLeadingView = shows.leading;
+      model.showsTrailingAccessoryViews = shows.trailing;
       if (p.editingBar) {
         model.isEditingBar = true;
         model.cancelButtonEndsEditing = false;
@@ -194,8 +199,8 @@ Component({
         text: model.text,
         collapsed: model.iconified,
         cancelShown: p.showsCancelButton,
-        leadingShown: p.showsLeadingAccessory,
-        trailingShown: p.showsTrailingAccessory,
+        leadingShown: shows.leading,
+        trailingShown: shows.trailing,
         labels: {
           back: text('search.back'), search: text('search.field'), voice: text('search.voice'),
           submit: text('search.submit'), clear: text('search.clear'), cancel: text('search.cancel'),
@@ -260,10 +265,17 @@ Component({
         fieldCursor: p.cursorColor || (ap && ap.tintColor) || '',
       });
     },
+    // Whether the views show, from the properties: an earlier-name property that was set wins over the new one.
+    accessoryShows() {
+      const p = this.properties;
+      const set = (old, value) => (old === null || old === undefined ? !!value : !!old);
+      return { leading: set(p.showsLeadingAccessory, p.showsLeadingView), trailing: set(p.showsTrailingAccessory, p.showsTrailingAccessoryViews) };
+    },
     onAccessoryProperty() {
       if (!this.model) return;
-      this.model.setShowsLeadingAccessoryView(this.properties.showsLeadingAccessory, false);
-      this.model.setShowsTrailingAccessoryView(this.properties.showsTrailingAccessory, false);
+      const shows = this.accessoryShows();
+      this.model.setShowsLeadingView(shows.leading, false);
+      this.model.setShowsTrailingAccessoryViews(shows.trailing, false);
     },
     /**
      * Shows or hides Cancel, animated or not (iOS `setShowsCancelButton(_:animated:)`).
@@ -272,16 +284,28 @@ Component({
       this.model.setShowsCancelButton(shows, animated === true);
     },
     /**
-     * Shows or hides the leading accessory beside the field (iOS `setShowsLeadingAccessoryView(_:animated:)`).
+     * Shows or hides the leading view before the field (iOS `setShowsLeadingView(_:animated:)`).
      */
-    setShowsLeadingAccessoryView(shows, animated) {
-      this.model.setShowsLeadingAccessoryView(shows, animated === true);
+    setShowsLeadingView(shows, animated) {
+      this.model.setShowsLeadingView(shows, animated === true);
     },
     /**
-     * Shows or hides the trailing accessory beside the field (iOS `setShowsTrailingAccessoryView(_:animated:)`).
+     * Shows or hides the trailing accessory views of the field (iOS `setShowsTrailingAccessoryViews(_:animated:)`).
+     */
+    setShowsTrailingAccessoryViews(shows, animated) {
+      this.model.setShowsTrailingAccessoryViews(shows, animated === true);
+    },
+    /**
+     * Deprecated: `setShowsLeadingView`.
+     */
+    setShowsLeadingAccessoryView(shows, animated) {
+      this.setShowsLeadingView(shows, animated);
+    },
+    /**
+     * Deprecated: `setShowsTrailingAccessoryViews`.
      */
     setShowsTrailingAccessoryView(shows, animated) {
-      this.model.setShowsTrailingAccessoryView(shows, animated === true);
+      this.setShowsTrailingAccessoryViews(shows, animated);
     },
     /**
      * The margins of the field per state, from a function (iOS `textFieldMarginsProvider`): `(bar, active) => { top,
