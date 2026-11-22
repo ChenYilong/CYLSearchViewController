@@ -1168,4 +1168,31 @@ begins and becomes `DONE` when it ends.
   copies `cylanimateditemrive`; (2) the example's Rive glue replaced by the shared engine as ClassifyMenu `653452e6`;
   (3) build and tests; (4) emulator 127.0.0.1:5555 only; (5) survey of the other platforms (report only).
 - **Acceptance**: 100 = 1 to 5 done with numbers; 60 = 1 and 2 build and the app starts.
-- **Status**: TODO (started).
+- **Status**: DONE (2026-11-23), score 100/100 for the HarmonyOS part (the other platforms are surveyed only, as asked).
+  - **Pins** (`harmonyos/oh-package.json5`): `cylTabBarControllerCommit` `c4a1f8fd` -> `f51057a7` (newest on `feat/cross-platform-components`,
+    contains `3074c51d`); `collectionViewClassifyMenuCommit` `04b39e26` -> `e474f469` (newest on `feat/harmony`, contains
+    `653452e6`). Agreement check: `diff -r` of CYLTabBarController `f51057a7` `cylanimateditem` against ClassifyMenu `e474f469`
+    `harmony/cylanimateditem` (VENDORED.md says `3074c51d`): identical except ClassifyMenu's own `VENDORED.md`; the
+    `harmonyos-cyltabbar` tree did not change between `3074c51d` and `f51057a7`.
+  - **Sync**: `sync-sub-repositories.sh` (and the `.py` twin) also copy `cylanimateditemrive` (+ `LICENSE`) from the tab bar pin into
+    `vendor/cylanimateditemrive` (git-ignored); registered in `harmonyos/build-profile.json5`; `entry` depends on it.
+  - **Example**: `CYLRiveIconView` passes `loopPolicy: CYLRiveLoopPolicy.WhilePlaying` to `CYLRiveIcon` imported from
+    `cylanimateditemrive`; `cylRegisterExampleAnimationEngines(context)` calls `cylRegisterRiveEngine(context)` (EntryAbility passes
+    `this.context`), exactly as ClassifyMenu `653452e6`. `CYLRivePlayer` / `CYLRiveIconHost` stay as the thin adapter between the
+    tag button's player API and `CYLRiveIcon` (ClassifyMenu keeps the same adapter); no @ohos/rive call and no Rive
+    renderer / init code is left in the example, and `cylsearch` has no Rive reference.
+  - **Build and tests** (DevEco Studio 6.0.1, macOS, arm64 emulator 127.0.0.1:5555 only): `ohpm install --all` ok; `hvigorw
+    assembleHap` `entry@default` and `entry@ohosTest` BUILD SUCCESSFUL (no warning in changed files); host: `host-logic-test.mjs` 39 / 39,
+    `check-ios-parity.mjs` 657 match, 0 problems, `check-accessibility-i18n.mjs` 0 problems; hypium `aa test` 55 run, 48 pass, 7 errors:
+    the same 7 UI tests (`overlayShowsResultsOfTheDataSource` first, then six that no longer find their tab labels) fail on the
+    unchanged previous commit rebuilt with its own pins (55 run, 48 pass, 7 errors), so they are not caused by this change; open.
+  - **Device**: installed, `com.cyl.search.harmonyos` starts, tab bar with plus button and the Examples page (SVGA header "tap to
+    play again") render, `libohos_rive.so` loads through the shared engine, no crash in hilog; tab icon sources 0/1/2 launch.
+    No `.riv` file ships in this repository's screens (only the placeholder library's own), so Rive here is code-path only.
+  - **Not verified**: a Rive file playing (no .riv tag); frame-by-frame motion of Lottie / PAG / GIF / SVGA (only that they render and
+    nothing crashes); the 7 failing UI tests' cause; other platforms' pins (still `c4a1f8fd` / `04b39e26`).
+  - **Survey of other platforms**: see the report in the commit's pull request thread; Android (`android/merged`): CYLAnimatedItemView
+    through `cyltabbarcontroller-animateditem`, Lottie and SVGA only, no Rive player; RN and Flutter: tab bars from
+    CYLTabBarController's `react-native-cyltabbar` / `flutter_cyltabbar`, iOS side CYLAnimatedItem pods (Flutter iOS with the
+    `Rive` subspec), no Rive player of their own in this repository; mini program: `cyl-tab-bar` of CYLTabBarController's package, SVGA
+    only, no Rive; iOS: `CYLAnimatedItem` pod (Core, SVGA, LottieSwift).

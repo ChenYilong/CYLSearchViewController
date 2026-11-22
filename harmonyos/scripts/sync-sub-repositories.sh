@@ -6,6 +6,8 @@
 # - CYLTableViewPlaceHolder CrossPlatform/harmonyos-cylplaceholder/cylplaceholder (+ LICENSE) -> vendor/cylplaceholder
 # - CollectionViewClassifyMenu harmony/classifymenu                                    -> vendor/classifymenu
 # - CollectionViewClassifyMenu harmony/cylanimateditem                                 -> vendor/cylanimateditem
+# - CYLTabBarController CrossPlatform/harmonyos-cyltabbar/cylanimateditemrive (+ LICENSE) -> vendor/cylanimateditemrive
+#   (the one shared Rive engine: CYLRiveIcon, loop policies, cylRegisterRiveEngine)
 #
 # The commits are read from harmonyos/oh-package.json5 (cylTabBarControllerCommit, cylTableViewPlaceHolderCommit,
 # collectionViewClassifyMenuCommit). A local clone is used when CYL_TABBAR_DIR, CYL_PLACEHOLDER_DIR or
@@ -56,3 +58,5 @@ sync classifymenu https://github.com/ChenYilong/CollectionViewClassifyMenu.git c
   harmony/classifymenu CYL_CLASSIFYMENU_DIR
 sync cylanimateditem https://github.com/ChenYilong/CollectionViewClassifyMenu.git collectionViewClassifyMenuCommit \
   harmony/cylanimateditem CYL_CLASSIFYMENU_DIR
+sync cylanimateditemrive https://github.com/ChenYilong/CYLTabBarController.git cylTabBarControllerCommit \
+  CrossPlatform/harmonyos-cyltabbar/cylanimateditemrive CYL_TABBAR_DIR LICENSE
