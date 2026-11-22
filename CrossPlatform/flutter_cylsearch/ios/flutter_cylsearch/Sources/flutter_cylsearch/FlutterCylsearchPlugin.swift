@@ -103,10 +103,8 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
     // `resultsDataSource` is weak: the platform view keeps it.
     private let resultsDataSource = CYLFlutterSearchResultsDataSource()
     private var appliedResults: [String]?
-    // The last query reported to Dart and the last history reported: an event goes out only for a change.
-    private var reportedText = ""
+    // The last history reported to Dart: an event goes out only for a change.
     private var reportedHistory: [String] = []
-    private var noResultsText: String?
 
     init(frame: CGRect, arguments: [String: Any], channel: FlutterMethodChannel) {
         let layoutContainer = CYLFlutterLayoutReportingView(frame: frame)
@@ -120,11 +118,10 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
         apply(arguments)
         searchView.install(in: container)
         searchView.showSearch(animated: false)
-        reportedText = searchView.query ?? ""
         reportedHistory = history()
         // The core's history signal: its stores post a notification after each change (a submit, the trash button, another
-        // page of the same name). The notification is internal to the core, so it is observed by name (TODO in the docs).
-        NotificationCenter.default.addObserver(self, selector: #selector(historyChanged), name: Notification.Name("CYLSearchSuggestionStoreDidChange"), object: nil)
+        // page of the same name), with the policy and the name of that history.
+        NotificationCenter.default.addObserver(self, selector: #selector(historyChanged(_:)), name: CYLSearchResources.historyDidChangeNotification, object: nil)
         channel.setMethodCallHandler { [weak self] call, result in
             guard let self else {
                 result(nil)
@@ -182,7 +179,9 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
     }
 
     /// Tells Dart the history when it differs from the one it has (the core's store notification).
-    @objc private func historyChanged() {
+    @objc private func historyChanged(_ notification: Notification) {
+        guard notification.userInfo?["policy"] as? Int == searchView.suggestionCachePolicy.rawValue,
+              notification.userInfo?["name"] as? String == searchView.suggestionCacheName else { return }
         let current = history()
         guard current != reportedHistory else { return }
         reportedHistory = current
@@ -250,16 +249,7 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
         searchView.resultMatchHighlightColor = color(arguments["resultMatchHighlightColor"])
         searchView.scrimColor = color(arguments["scrimColor"])
         searchView.supportsSwipeToDismissSearch = arguments["supportsSwipeToDismissSearch"] as? Bool ?? false
-        noResultsText = arguments["noResultsText"] as? String
-        applyNoResultsText()
-    }
-
-    /// The core's `CYLSearchView` has no `noResultsText` (the controller has): the title of its empty results placeholder is
-    /// set here, after every change of the query or the results (a new scenario makes a new placeholder).
-    /// TODO: move it into the core (docs/qmui-search-controller.md, merge phase 5 log: Flutter).
-    private func applyNoResultsText() {
-        guard let noResultsText, let placeholder = searchView.emptyResultsView else { return }
-        placeholder.titleLabel.text = noResultsText
+        searchView.noResultsText = (arguments["noResultsText"] as? String).flatMap { $0.isEmpty ? nil : $0 }
     }
 
     private func color(_ value: Any?) -> UIColor? {
@@ -281,19 +271,11 @@ final class CYLFlutterSearchView: NSObject, @preconcurrency FlutterPlatformView,
     }
 
     func searchView(_ searchView: CYLSearchView, textDidChange text: String) {
-        reportText(text)
-    }
-
-    private func reportText(_ text: String) {
-        reportedText = text
-        applyNoResultsText()
         channel.invokeMethod("textDidChange", arguments: ["text": text])
     }
 
     func searchView(_ searchView: CYLSearchView, didSubmitText text: String) -> Bool {
-        // A tapped tag with `submitsOnSuggestionSelection` sets the text and submits without a text change: tell Dart the
-        // query first, so its results follow.
-        if text != reportedText { reportText(text) }
+        // A tapped tag reports its text as a change before this submit (the core does), so Dart's results follow.
         channel.invokeMethod("didSubmit", arguments: ["text": text])
         return true
     }

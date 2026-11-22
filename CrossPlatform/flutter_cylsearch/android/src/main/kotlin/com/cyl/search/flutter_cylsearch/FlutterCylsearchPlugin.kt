@@ -2,10 +2,6 @@ package com.cyl.search.flutter_cylsearch
 
 import android.content.Context
 import android.graphics.Rect
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.ForegroundColorSpan
-import android.util.TypedValue
 import android.view.ContextThemeWrapper
 import android.view.View
 import android.widget.FrameLayout
@@ -92,10 +88,8 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
     private val searchView = CYLSearchView(context)
     private val resultsDataSource = CYLFlutterSearchResultsDataSource()
     private var appliedResults: List<String>? = null
-    // The last query and history reported to Dart: an event goes out only for a change.
-    private var reportedText = ""
+    // The last history reported to Dart: an event goes out only for a change.
     private var reportedHistory: List<String> = emptyList()
-    private var noResultsText: String? = null
 
     init {
         searchView.delegate = this
@@ -104,10 +98,9 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
         apply(arguments)
         searchView.installInView(container)
         searchView.showSearch(false)
-        reportedText = searchView.query.orEmpty()
         reportedHistory = history()
-        // The core's history signal (after a submitted query); the core does not post one for the trash button yet, so a
-        // clear reports itself (TODO in docs/qmui-search-controller.md). Only a changed history reaches Dart.
+        // The core's history signal: a submitted query, a clear and the trash button of its header. Only a changed history
+        // reaches Dart.
         searchView.addHistoryDidChangeListener { reportHistory() }
         container.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> reportSearchBar() }
         searchView.searchBarView.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> reportSearchBar() }
@@ -140,7 +133,6 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
                 "history" -> result.success(history())
                 "clearHistory" -> {
                     searchView.clearSuggestionCache()
-                    reportHistory()
                     result.success(null)
                 }
                 "setQuery" -> {
@@ -166,17 +158,6 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
         if (current == reportedHistory) return
         reportedHistory = current
         channel.invokeMethod("historyDidChange", mapOf("history" to current))
-    }
-
-    /**
-     * The core's `CYLSearchView` has no `noResultsText` (the iOS controller has): the title of its empty results
-     * placeholder is set here, after every change of the results (a new scenario makes a new placeholder). Not
-     * `showEmptyView`: that adds a second placeholder over the core's own one.
-     * TODO: move it into the core (docs/qmui-search-controller.md, merge phase 5 log: Flutter).
-     */
-    private fun updateNoResultsText() {
-        val text = noResultsText ?: return
-        searchView.emptyResultsView?.titleLabel?.text = text
     }
 
     /**
@@ -229,12 +210,11 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
         searchView.showsSuggestionCacheHeader = arguments["showsSuggestionCacheHeader"] as? Boolean ?: true
         searchView.suggestionsFoldControl = cylFoldControl(arguments["suggestionsFoldControlPosition"], arguments["suggestionsFoldControlContent"])
         searchView.suggestionsFoldedRowCount = maxOf(0, (arguments["suggestionsFoldedRowCount"] as? Number)?.toInt() ?: 2)
-        resultsDataSource.highlightsMatches = arguments["highlightsResultMatches"] as? Boolean ?: false
-        resultsDataSource.highlightColor = (arguments["resultMatchHighlightColor"] as? Number)?.toInt()
+        searchView.highlightsResultMatches = arguments["highlightsResultMatches"] as? Boolean ?: false
+        searchView.resultMatchHighlightColor = (arguments["resultMatchHighlightColor"] as? Number)?.toInt()
         searchView.scrimColor = (arguments["scrimColor"] as? Number)?.toInt()
         searchView.supportsSwipeToDismissSearch = arguments["supportsSwipeToDismissSearch"] as? Boolean ?: false
-        noResultsText = arguments["noResultsText"] as? String
-        updateNoResultsText()
+        searchView.noResultsText = (arguments["noResultsText"] as? String)?.takeIf { it.isNotEmpty() }
     }
 
     override fun searchViewWillShow(searchView: CYLSearchView) {
@@ -256,19 +236,11 @@ internal class CYLFlutterSearchView(context: Context, arguments: Map<String, Any
     }
 
     override fun searchViewTextDidChange(searchView: CYLSearchView, text: String) {
-        reportText(text)
-    }
-
-    private fun reportText(text: String) {
-        reportedText = text
-        updateNoResultsText()
         channel.invokeMethod("textDidChange", mapOf("text" to text))
     }
 
     override fun searchViewDidSubmitText(searchView: CYLSearchView, text: String): Boolean {
-        // A tapped tag with `submitsOnSuggestionSelection` sets the text and submits without a text change: tell Dart the
-        // query first, so its results follow.
-        if (text != reportedText) reportText(text)
+        // A tapped tag reports its text as a change before this submit (the core does), so Dart's results follow.
         channel.invokeMethod("didSubmit", mapOf("text" to text))
         return true
     }
@@ -299,30 +271,12 @@ internal data class CYLFlutterSearchResult(val text: String, val index: Int)
 internal class CYLFlutterSearchResultsDataSource : CYLSearchViewDataSource {
     var results: List<String> = emptyList()
 
-    /**
-     * Colors the first part of each result that matches the query, ignoring case and diacritics (the iOS core's
-     * `highlightsResultMatches`), in `highlightColor`: the accent color when null.
-     */
-    var highlightsMatches = false
-
-    var highlightColor: Int? = null
-
     override fun searchViewResultsForQuery(searchView: CYLSearchView, query: String): List<Any> =
         results.mapIndexed { index, text -> CYLFlutterSearchResult(text, index) }
 
     override fun searchViewConfigureResultCell(searchView: CYLSearchView, cell: CYLSearchSuggestionCell, result: Any) {
-        val text = (result as? CYLFlutterSearchResult)?.text ?: return
-        val query = searchView.query.orEmpty()
-        val match = if (highlightsMatches) CYLMatchHighlight.firstMatch(text, query) else null
-        if (match == null) {
-            cell.textLabel.text = text
-            return
-        }
-        val color = highlightColor
-            ?: TypedValue().also { cell.textLabel.context.theme.resolveAttribute(androidx.appcompat.R.attr.colorAccent, it, true) }.data
-        cell.textLabel.text = SpannableString(text).apply {
-            setSpan(ForegroundColorSpan(color), match.first, match.last + 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        }
+        // The core draws the match (`highlightsResultMatches`) after this row is configured.
+        cell.textLabel.text = (result as? CYLFlutterSearchResult)?.text ?: return
     }
 }
 
@@ -447,8 +401,7 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
         (arguments["placeholderColor"] as? Number)?.let { bar.placeholderColor = it.toInt() }
         (arguments["textColor"] as? Number)?.let { bar.textColor = it.toInt() }
         (arguments["fontSize"] as? Number)?.let { bar.fontSize = it.toFloat() }
-        // TODO: `cancelButtonFontSize` has no counterpart on the Android core (`cancelButtonFont` is a typeface); the
-        // Cancel text keeps `fontSize`. Listed in docs/qmui-search-controller.md.
+        bar.cancelButtonFontSize = (arguments["cancelButtonFontSize"] as? Number)?.toFloat()
         val field = rects(arguments["textFieldMargins"], arguments["activeTextFieldMargins"])
         bar.textFieldMarginsProvider = field?.let { (rest, active) -> { _, isActive -> if (isActive) active else rest } }
         val cancel = rects(arguments["cancelButtonMargins"], arguments["activeCancelButtonMargins"])
