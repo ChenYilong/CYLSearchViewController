@@ -113,6 +113,15 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
   List<CYLDiscoverTopic> _topics = <CYLDiscoverTopic>[];
   String _typed = '';
   String? _barText;
+  bool _loops = false;
+  double _speed = 1.0;
+  final CYLSearchBarWidgetController _barController = CYLSearchBarWidgetController();
+
+  @override
+  void dispose() {
+    _barController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -193,6 +202,7 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
             child: SizedBox(
               height: 56,
               child: CYLSearchBarView(
+                controller: _barController,
                 text: _barText,
                 searchBarStyle: CYLSearchBarStyle.bordered,
                 showsSearchIcon: false,
@@ -202,6 +212,14 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                     image: 'camera',
                     title: data.text('discover.imageSearch'),
                     onTap: (_) => _show(data.text('discover.imageSearchUnavailable')),
+                  ),
+                  // The animated item (index 1): a bare file name, resolved by the core to the app's bundle / assets.
+                  CYLSearchBarItem.icon(
+                    image: 'camera',
+                    title: data.text('discover.animationItem'),
+                    animationURL: 'tab_activity.svga',
+                    animationLoops: _loops,
+                    animationSpeed: _speed,
                   ),
                   const CYLSearchBarItem.divider(),
                   CYLSearchBarItem.text(
@@ -213,6 +231,36 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                 onTextChanged: (text) => _typed = text,
                 onSubmitted: _search,
               ),
+            ),
+          ),
+          // Playback of the animated item: loop switch, speed slider and Play again.
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: <Widget>[
+                Semantics(
+                  label: data.text('discover.animationLoops'),
+                  child: Tooltip(
+                    message: data.text('discover.animationLoops'),
+                    child: Switch(value: _loops, onChanged: (value) => setState(() => _loops = value)),
+                  ),
+                ),
+                Expanded(
+                  child: Slider(
+                    value: _speed,
+                    min: 0.25,
+                    max: 3,
+                    label: '${data.text('discover.animationSpeed')} ${_speed.toStringAsFixed(2)}x',
+                    semanticFormatterCallback: (value) => '${data.text('discover.animationSpeed')} ${value.toStringAsFixed(2)}x',
+                    onChanged: (value) => setState(() => _speed = value),
+                  ),
+                ),
+                Text('${_speed.toStringAsFixed(2)}x'),
+                TextButton(
+                  onPressed: () => _barController.restartItemAnimation(1),
+                  child: Text(data.text('discover.animationPlay')),
+                ),
+              ],
             ),
           ),
           Expanded(
