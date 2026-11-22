@@ -1117,6 +1117,19 @@ begins and becomes `DONE` when it ends.
   of `3382ebc` sat on the line after their image; joined onto the image line) and "Unit tests" (`testDelegateLifecycleOrder`
   missed `didDismiss` after a fixed 0.9 s on a slow runner; now waits up to 5 s for it). Lifecycle suite 29 of 29 locally.
 
+
+## DONE (2026-11-23, `feat/harmonyos-parity`, chenyilong-e4): Rive on HarmonyOS in CYLSearchViewController
+
+- **Request (verbatim):** "fix" (answer to: "CYLSearch's HarmonyOS build probably uses the same old component copy, so Rive
+  is likely broken there too. Should I check it and move its pin?")
+- **Context:** ClassifyMenu `feat/harmony` lacked CYLTabBarController's Rive fixes (`c5ef58d4`, x86_64 kit, in `c4a1f8fd`)
+  and its own `03de656d`; fixed there by merging its master (`ea988cff`).
+- **Result (no change needed here):** `harmonyos/oh-package.json5` already pins CYLTabBarController `c4a1f8fd` and
+  ClassifyMenu `04b39e26` (`d7a7534`, another session), which contain all three fixes, and the tab bar pin matches the
+  commit ClassifyMenu `04b39e26` vendors. The example plays Rive through CYLTabBarController's `CYLRiveIcon`. No
+  screen of this repository ships a `.riv` file on any platform (only Lottie, PAG, SVGA, GIF), so there is no Rive item
+  to check on the emulator.
+
 ## DONE (2026-11-23): rows I2 / I5 (the 116 pt offset while searching) and the uncommitted Podfile.lock
 
 - **Branch**: `fix/i2-i5-offset` (from `feat/harmonyos-parity` at `052919a`, pull request 11 is its base). macOS 27
