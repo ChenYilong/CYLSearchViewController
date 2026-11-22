@@ -96,6 +96,7 @@ using namespace facebook::react;
   }
   _selectedIds = [NSSet setWithArray:CYLRNStrings(p.selectedIds)];
   [self applySelection];
+  _tagListView.allowsSmearSelection = p.allowsSmearSelection;
   if ((BOOL)p.editing != _tagListView.isEditing) {
     [_tagListView setEditing:p.editing animated:YES];
   }

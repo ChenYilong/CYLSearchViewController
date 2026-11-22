@@ -679,8 +679,9 @@ begins and becomes `DONE` when it ends.
      (`df3283a`, `414bdb2`). Not bisected against the 2026-11-20 failure.
   5. Swift migration steps 2 to 4: 100. The demo matches the GIF, the legacy Objective-C is removed, the tests are Swift
      with an Objective-C smoke test (`726a2da`, `f46d814`); 40 of 40 tests.
-  6. React Native iOS drag events: 95. `onReorderingChange` reaches JavaScript (true, then false) on a Release build;
-     `onSmearingChange` wired the same way, not exercised.
+  6. React Native iOS drag events: 100 (was 95). `onReorderingChange` reaches JavaScript (true, then false) on a Release build;
+     `onSmearingChange` too since 2026-11-22: the new `allowsSmearSelection` prop turns smearing on ("continue the iOS TODOs in docs/" below).
+     Score now 98/100 (item 2 is the only one below 100).
   Pins: ClassifyMenu `1f8c1001`, CYLTabBarController `ace1af0e`, CYLTableViewPlaceHolder `a169386` on iOS as on every
   platform, verified locally (40 of 40, `a53a704`); ClassifyMenu's own iOS CI on that commit was still pending when
   pinned (its session watches it). Local checks: public API comments, shellcheck, `pod lib lint`, analyze (0 warnings in
@@ -875,7 +876,7 @@ begins and becomes `DONE` when it ends.
   builds itself guarded by `isSupportedOnDevice`). 60 = pins moved, Android and HarmonyOS green.
 - **Status**: in progress.
 
-## TODO (2026-11-22): continue the iOS TODOs in docs/ (QMUI port leftovers, React Native smear)
+## DONE (2026-11-22): continue the iOS TODOs in docs/ (QMUI port leftovers, React Native smear)
 
 - **Branch**: `fix/ios-todos-qmui` (from `feat/harmonyos-parity`, pull request 11). macOS 27 session, Xcode 27.2, the
   dedicated simulator "iPhone 18 Pro (CYLSearch iOS TODOs)" (iOS 27.2); APFS worktree `/tmp/xpr/csvc-ios`.
@@ -897,12 +898,18 @@ begins and becomes `DONE` when it ends.
 - **Acceptance**: 100 = item 1 updated with its evidence; item 2 explained with a screenshot and fixed if the cause is in
   the example (or handed to the merge with the cause); items 3 and 4 recorded with the reason and owner; item 5
   exercised on a simulator with the event reaching JavaScript. 60 = items 1, 3, 4 and either 2 or 5.
-- **Status** (2026-11-22): score 85/100, a pass.
+- **Status** (2026-11-22): DONE, score 100/100 (85 before the smear).
   1. Stale notes: "Remaining TODO" rewritten with its evidence (items 1, 5, 6).
   2. I3 black band: fixed in the core (`bfbee55`): a bar installed on a navigation item draws `systemBackground` when the
      style hides the background. Two tests (the band read RGB 10, 10, 10 before the fix), 125 tests with 0 failures on
      iOS 27.2 (clean derived data), labelled before / after screenshot in light and dark mode.
   3. I2 / I5: moved into phase 3 of the merge design, with the options to try.
   4. `Podfile.lock`: kept uncommitted with the reason (open pin moves).
-  5. Missing 15 points: React Native iOS `onSmearingChange` is still not exercised. Paused for the newer prompt (the
-     `cyl_` / `CYL` prefix review).
+  5. React Native smear (done later the same day): `onSmearingChange` could not fire because the component had no way to
+     turn smearing on. New prop `allowsSmearSelection` (spec, iOS `.mm`, Android manager; both ClassifyMenu cores have it at
+     `9dc1f76`). One swipe on the React Native iOS Release build selected three tags and JavaScript logged `true` then
+     `false` (labelled screenshot in `CYLTabBarController-Integration.md`); the Android module compiles; `tsc` clean.
+  Score: 100/100.
+  Follow-up prompt (verbatim): "修复ci错误 then \"smear\"" (English: "Fix the CI error, then do the smear"). CI had no failing
+  run in this repository at that time (the last failures, 2026-11-21 on `feat/harmonyos-parity`, were fixed by `ff1e4de`);
+  pull request 14's iOS run on `8bd7255` is green in all jobs.

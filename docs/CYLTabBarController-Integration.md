@@ -1121,8 +1121,17 @@ Android.
       A temporary `NSLog` in `reportDragging` (not committed) logged `didChangeDragging true` at the drag's start and `false` at
       the drop (2026-11-22 01:25 +13:00), so the forwarding fires on iOS.
     - React Native iOS (Release): the same drag; a temporary `console.error` in the example's handler (not committed) logged
-      `reordering true` when the drag started and `reordering false` at the drop. The smear path is wired the same way and was not exercised.
+      `reordering true` when the drag started and `reordering false` at the drop. The smear path: see the next item.
     ![Flutter and React Native iOS tag drag, df3283a, 2026-11-22](assets/ios-iphone18pro-20261122-tag-drag-holds-flutter-rn.png)
+  - **React Native smear selection (2026-11-22, macOS session, `fix/ios-todos-qmui`)**: `onSmearingChange` could never fire: the
+    component had no way to turn smearing on. New prop `allowsSmearSelection` on `<CYLTagListView>` (spec
+    `CylsearchTagListViewNativeComponent.ts`; iOS `CylsearchTagListView.mm` and Android `CylsearchTagListViewManager.kt` set the core's
+    `allowsSmearSelection`, which both ClassifyMenu cores have at pin `9dc1f76`); default false, so the example (a 1:1 copy of the iOS example,
+    which does not smear) is unchanged. React Native iOS, Release, iPhone 18 Pro simulator, iOS 27.2: with a temporary example change (My Tags with
+    `allowsSmearSelection` and a `console.error` handler, not committed) one `axe swipe` from "Friends" to "High School Classmates" selected the three
+    tags, and JavaScript logged `CYLSMEAR true` then `CYLSMEAR false`; the selection stayed after the re-render. Android: the Kotlin module compiles
+    (`compileDebugKotlin`); not run on an emulator.
+    ![React Native iOS smear selection](assets/rn-ios-smear-selection-ios27.2-20261122.png) React Native 0.88.0, iOS 27.2, iPhone 18 Pro simulator, Xcode 27.2, base `8bd7255`, 2026-11-22 13:53 NZDT.
     (iOS 27.2 simulator, iPhone 18 Pro, Xcode 27.2 27B52, Flutter 3.47.9, CYLSearchViewController `df3283a`, ClassifyMenu `1f8c1001`,
     CYLTabBarController `ace1af0e`, 2026-11-22 00:43 to 00:47 +13:00.)
   - **Score**: 85/100 (Android native, React Native and Flutter on Android and iOS, iOS native hold; left: HarmonyOS, the real drag signal from

@@ -93,6 +93,11 @@ export interface NativeProps extends ViewProps {
    */
   supportsRenaming?: boolean;
   /**
+   * A drag that starts on a tag selects every tag it crosses (CollectionViewClassifyMenu `allowsSmearSelection`), with
+   * `selectionMode` "multiple" and not while editing; `onSmearingChange` reports it. Default false.
+   */
+  allowsSmearSelection?: boolean;
+  /**
    * The fold control: "none", "inline" (default), "bottom", "topTrailing" or "topLeading".
    */
   foldControlPosition?: string;
