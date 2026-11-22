@@ -136,7 +136,10 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
      * The tags that show the suggestions when `suggestionStyle` is `CYLSearchSuggestionStyleTags`
      * (CollectionViewClassifyMenu's `CYLTagListView`). Style it directly: `style`, spacing, rows, colors.
      */
-    @objc public let suggestionsTagView = CYLTagListView(foldControl: CYLMenuFoldControl(position: .tail, content: .icon))
+    @objc public var suggestionsTagView: CYLTagListView { suggestionArea.tagView }
+
+    // The tags and the history header, one implementation shared with `CYLSearchController`'s launch view.
+    private let suggestionArea = CYLSearchSuggestionArea()
 
     /**
      * The fold control of the tag suggestions (CollectionViewClassifyMenu's `CYLMenuFoldControl`). An inline chevron as
@@ -161,8 +164,6 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
             updateSuggestionsVisibility()
         }
     }
-
-    private lazy var tagMenuObserver = CYLSearchTagMenuObserver { [weak self] in self?.setNeedsLayout() }
 
     /**
      * How the suggestions are shown: tags (`CYLSearchSuggestionStyleTags`, the default, folded to
@@ -421,7 +422,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
     /**
      * The header above the cached queries: a title and, at its trailing edge, `clearSuggestionCacheButton`.
      */
-    @objc public let suggestionCacheHeaderView = UIView()
+    @objc public var suggestionCacheHeaderView: UIView { suggestionArea.headerView }
 
     /**
      * Whether `suggestionCacheHeaderView` (the title and the trash icon) shows above the cached queries. YES by default;
@@ -433,12 +434,12 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
     /**
      * The title of `suggestionCacheHeaderView` ("Recent searches").
      */
-    @objc public let suggestionCacheTitleLabel = UILabel()
+    @objc public var suggestionCacheTitleLabel: UILabel { suggestionArea.titleLabel }
 
     /**
      * Clears the whole cache (a trash icon at the top right of the suggestion list).
      */
-    @objc public let clearSuggestionCacheButton = UIButton(type: .system)
+    @objc public var clearSuggestionCacheButton: UIButton { suggestionArea.clearButton }
 
     /**
      * Shows CYLTableViewPlaceHolder's placeholder for `emptySuggestionsScenario` while the query is empty and the cache
@@ -475,7 +476,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
      * The height of the cached queries' header: 0 without cached queries or with `showsSuggestionCacheHeader` off.
      */
     private var cacheHeaderHeight: CGFloat {
-        showsCachedQueries && showsSuggestionCacheHeader ? max(44, ceil(suggestionCacheTitleLabel.font.lineHeight) + 16) : 0
+        suggestionArea.headerHeight(shown: showsCachedQueries && showsSuggestionCacheHeader)
     }
     private var emptySuggestionsVisible = false
 
@@ -563,32 +564,10 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         suggestionsTableView.isHidden = true
         suggestionsTableView.register(UITableViewCell.self, forCellReuseIdentifier: Self.cellIdentifier)
         pageView.addSubview(suggestionsTableView)
-        suggestionsTagView.isHidden = true
-        suggestionsTagView.showsSectionHeaders = false
-        suggestionsTagView.accessibilityLabel = CYLSearchResources.localizedString(forKey: "search.suggestions")
-        suggestionsTagView.defaultVisibleRows = 2
-        // Folding and unfolding change the tags' height: lay the page out again (it can be as tall as its content).
-        suggestionsTagView.menuDelegate = tagMenuObserver
-        suggestionsTagView.tagClickHandler = { [weak self] index, _ in
-            self?.selectSuggestion(at: index)
-        }
-        pageView.addSubview(suggestionsTagView)
-        // iOS 26 softens the top edge of a scroll view with a blur: it would blur the first tag row under the search bar.
-        Self.hidesTopEdgeEffect(in: suggestionsTagView)
-        suggestionCacheTitleLabel.text = CYLSearchResources.localizedString(forKey: "search.recent")
-        suggestionCacheTitleLabel.font = .preferredFont(forTextStyle: .subheadline)
-        suggestionCacheTitleLabel.adjustsFontForContentSizeCategory = true
-        suggestionCacheTitleLabel.textColor = .secondaryLabel
-        suggestionCacheTitleLabel.accessibilityTraits = .header
-        suggestionCacheHeaderView.addSubview(suggestionCacheTitleLabel)
-        clearSuggestionCacheButton.setImage(UIImage(systemName: "trash"), for: .normal)
-        clearSuggestionCacheButton.tintColor = .secondaryLabel
-        clearSuggestionCacheButton.accessibilityLabel = CYLSearchResources.localizedString(forKey: "search.clearRecent")
-        clearSuggestionCacheButton.accessibilityIdentifier = "CYLSearchClearSuggestionCache"
-        clearSuggestionCacheButton.addTarget(self, action: #selector(clearSuggestionCache), for: .touchUpInside)
-        suggestionCacheHeaderView.addSubview(clearSuggestionCacheButton)
-        suggestionCacheHeaderView.isHidden = true
-        pageView.addSubview(suggestionCacheHeaderView)
+        suggestionArea.onHeightChange = { [weak self] in self?.setNeedsLayout() }
+        suggestionArea.onSelect = { [weak self] index, _ in self?.selectSuggestion(at: index) }
+        suggestionArea.onClear = { [weak self] in self?.clearSuggestionCache() }
+        suggestionArea.install(in: pageView)
         rebuildSuggestionCache()
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardChanged(_:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardHidden(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -641,12 +620,8 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         resultsTableView.frame = below
         // The cached queries' header takes the top of the list area; the list starts under it.
         let headerHeight = cacheHeaderHeight
-        suggestionCacheHeaderView.frame = CGRect(x: below.minX, y: below.minY, width: below.width, height: headerHeight)
-        clearSuggestionCacheButton.frame = CGRect(x: below.width - 44 - 4, y: 0, width: 44, height: headerHeight)
-        suggestionCacheTitleLabel.frame = CGRect(x: 16, y: 0, width: max(0, below.width - 16 - 52), height: headerHeight)
-        let list = below.inset(by: UIEdgeInsets(top: headerHeight, left: 0, bottom: 0, right: 0))
+        let list = suggestionArea.layout(in: below, headerHeight: headerHeight)
         suggestionsTableView.frame = list
-        suggestionsTagView.frame = list
         // The keyboard's part over the page: the lists scroll above it, and the placeholders end at it, so they centre in
         // the part the keyboard leaves visible (docs/core-todo.md, "the empty-results placeholder sits under the keyboard").
         let keyboardInset = max(0, keyboardOverlap - (bottom - pageHeight))
@@ -936,19 +911,12 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         updateSuggestionsVisibility()
     }
 
-    private static func hidesTopEdgeEffect(in view: UIView) {
-        if #available(iOS 26.0, *) {
-            (view as? UIScrollView)?.topEdgeEffect.isHidden = true
-            view.subviews.forEach { hidesTopEdgeEffect(in: $0) }
-        }
-    }
-
     private func updateSuggestionsVisibility() {
         let tags = suggestionStyle == .tags
         suggestionsTableView.isHidden = !suggestionsVisible || tags
         suggestionsTagView.isHidden = !suggestionsVisible || !tags
         if tags {
-            suggestionsTagView.setTags(withTitles: suggestionsVisible ? filteredSuggestions : [])
+            suggestionArea.setTitles(suggestionsVisible ? filteredSuggestions : [])
         }
         if emptyResultsVisible, emptyResultsView == nil {
             let placeholder = CYLPlaceholderStackView(scenario: emptyResultsScenario, actions: nil)
@@ -980,6 +948,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
      */
     @objc public func clearSuggestionCache() {
         suggestionCache?.removeAllQueries()
+        suggestionCache.map(CYLSearchSuggestionStore.announceChange(of:))
         refilter()
         UIAccessibility.post(notification: .announcement, argument: CYLSearchResources.localizedString(forKey: "search.recentCleared"))
     }
@@ -1005,6 +974,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         let text = searchBarView.text ?? ""
         // Every submitted query is cached, so the list shows it the next time.
         suggestionCache?.addQuery(text)
+        suggestionCache.map(CYLSearchSuggestionStore.announceChange(of:))
         let handled = delegate?.searchView?(self, didSubmitText: text) ?? false
         if !handled && closesOnSubmit {
             closeSearch()
@@ -1128,23 +1098,3 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         }
     }
 }
-
-/**
- * Forwards the tag list's height changes (folding, unfolding) to its search view, which keeps the conformance private.
- */
-private final class CYLSearchTagMenuObserver: NSObject, CYLMenuDelegate {
-    private let heightChanged: () -> Void
-
-    init(heightChanged: @escaping () -> Void) {
-        self.heightChanged = heightChanged
-    }
-
-    func menu(_ menu: Any, didChangeContentHeight height: CGFloat) {
-        heightChanged()
-    }
-
-    func menu(_ menu: Any, didChangeExpanded expanded: Bool, inSection section: Int) {
-        heightChanged()
-    }
-}
-
