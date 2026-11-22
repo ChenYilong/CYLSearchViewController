@@ -961,8 +961,10 @@ class CYLSearchView @JvmOverloads constructor(
             }
         }
         val padding = (12 * density).toInt()
-        suggestionsTagView.setPadding(padding, padding, padding, padding)
-        bodyView.addView(suggestionsTagView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT))
+        // Margins, not padding: the tag list measures its height from its own width and would clip rows under padding.
+        bodyView.addView(suggestionsTagView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT).apply {
+            setMargins(padding, padding, padding, padding)
+        })
         resultsTableView.layoutManager = LinearLayoutManager(context)
         resultsTableView.adapter = resultsAdapter
         resultsTableView.clipToPadding = false

@@ -125,16 +125,18 @@ class CYLSearchMergePhase5bTest {
     fun theTagsAreFilledAgainOnceThePageHasAWidth() {
         val view = CYLSearchView(activity)
         view.suggestionCachePolicy = CYLSearchSuggestionCachePolicy.None
-        view.suggestions = listOf("Swift", "Kotlin", "Dart")
+        view.suggestions = listOf("Helps", "Maintain", "Liver", "Health", "Function", "Supports", "Healthy", "Fat", "Metabolism", "Naturally")
         view.showsSuggestionsForEmptyQuery = true
         column.addView(view, LinearLayout.LayoutParams(-1, -1))
         // Opened while the page has no width yet: the tags were filled for width 0.
         view.showSearch(false)
         layoutWindow()
         idle()
-        assertTrue("the tag list has its width now", view.suggestionsTagView.width > 0)
-        assertEquals("every suggestion is a tag", 3, view.suggestionsTagView.menuDataSource?.menuNumberOfItemsInSection(0) ?: 3)
-        assertTrue("and the list needs height for them", view.suggestionsTagView.contentHeight > 0f)
+        layoutWindow()
+        val tags = view.suggestionsTagView
+        assertTrue("the tag list has its width now", tags.width > 0)
+        val needed = Math.ceil(maxOf(tags.heightThatFitsWidth(tags.width / activity.resources.displayMetrics.density), tags.contentHeight).toDouble()).toInt()
+        assertTrue("the tag list has height for its rows (${tags.height} of $needed)", needed > 0 && tags.height >= needed)
     }
 
     @Test
