@@ -2,6 +2,11 @@
 .top { position: absolute; display: flex; align-items: center; height: 46px; }
 .back { flex: none; display: flex; align-items: center; justify-content: center; width: 32px; height: 44px; margin-right: 2px; }
 .bar { flex: 1; min-width: 0; }
+.playback { position: absolute; left: 16px; right: 16px; display: flex; align-items: center; height: 36px; }
+.playback-switch { flex: none; transform: scale(0.75); transform-origin: left center; width: 52px; }
+.playback-slider { flex: 1; min-width: 0; margin: 0 8px; }
+.playback-value { flex: none; width: 44px; font-size: 13px; color: rgba(60, 60, 67, 0.6); }
+.playback-play { flex: none; min-height: 32px; padding: 0 12px; line-height: 32px; font-size: 14px; color: #007aff; border: 1px solid #007aff; border-radius: 16px; box-sizing: border-box; }
 .content { position: absolute; left: 0; right: 0; bottom: 160px; }
 .section { padding-bottom: 8px; }
 .header { display: flex; align-items: center; justify-content: space-between; height: 44px; padding: 0 4px 0 16px; }
@@ -32,6 +37,7 @@
 @media (prefers-color-scheme: dark) {
   .screen { background: #000; }
   .header-title, .topic-title { color: #fff; }
+  .playback-value { color: rgba(235, 235, 245, 0.6); }
   .tag { background: #000; color: #fff; border-color: #38383a; }
   .ask-curve { background: #1c1c1e; }
   .mic { background: #1c1c1e; }

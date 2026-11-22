@@ -13,13 +13,19 @@ const { cylNavigationMetrics } = require('../../components/core/CYLSearchResourc
 const TAG_SPACING = 12;
 const SIDE_INSET = 16;
 const FIELD_HEIGHT = 46;
+// The playback row under the bar (switch, slider, value, Play again).
+const PLAYBACK_HEIGHT = 40;
 // The fold chevron's labels: CollectionViewClassifyMenu's CYLMenuExpand / CYLMenuCollapse (CYLClassifyMenu.strings).
 const FOLD_LABELS = { en: ['More', 'Less'], 'zh-Hans': ['更多', '收起'], 'zh-Hant': ['更多', '收合'] };
+// The animated bar item (index 1): the SVGA the Examples page plays, as the other platforms' Discover pages do.
+const ANIMATION_ITEM_INDEX = 1;
+const ANIMATION_URL = '/assets/tab/svga/tab_activity.svga.bin';
+const CAMERA_IMAGE = '/assets/discover/camera.viewfinder.svg';
 
 Page({
   data: {
     texts: {}, showsBack: false, barTop: 0, barRight: 14, contentTop: 0,
-    query: '', placeholder: '', items: [],
+    query: '', placeholder: '', items: [], loops: false, speed: 1, speedText: '1.00x',
     recent: [], visibleRecent: [], needsFold: false, folded: true,
     topics: [], hotIcon: '', hint: '', announcement: '', foldLabels: FOLD_LABELS.en,
   },
@@ -35,16 +41,14 @@ Page({
         back: cylDemoText('discover.back'), clear: cylDemoText('discover.clear'), tapToSearch: cylDemoText('discover.tapToSearch'),
         ask: cylDemoText('discover.ask'), askHint: cylDemoText('discover.askAccessibilityHint'), hot: cylDemoText('discover.hot'),
         search: cylDemoText('discover.search'),
+        animationLoops: cylDemoText('discover.animationLoops'), animationSpeed: cylDemoText('discover.animationSpeed'),
+        animationPlay: cylDemoText('discover.animationPlay'),
       },
       showsBack: getCurrentPages().length > 1,
       barTop,
       barRight: metrics.trailingInset || 14,
-      contentTop: barTop + FIELD_HEIGHT + 10,
-      items: [
-        { style: 'icon', title: cylDemoText('discover.imageSearch'), image: '/assets/discover/camera.viewfinder.svg', accessibilityIdentifier: 'camera' },
-        { style: 'divider' },
-        { style: 'text', title: cylDemoText('discover.search'), accessibilityIdentifier: 'CYLSearchDiscoverSearchButton' },
-      ],
+      contentTop: barTop + FIELD_HEIGHT + 10 + PLAYBACK_HEIGHT,
+      items: this.barItems(false, 1),
       recent: data.recentSearches.slice(),
       topics: data.discover.slice(0, Math.max(0, data.discoverCount)),
       hotIcon: cylHotIcon(),
@@ -55,6 +59,38 @@ Page({
   },
   onShow() {
     cylSelectTab(this, 'discover');
+  },
+  // The bar's items: the camera, the animated item (its loop and speed come from the controls below the bar), the
+  // divider and the Search button.
+  barItems(loops, speed) {
+    return [
+      { style: 'icon', title: cylDemoText('discover.imageSearch'), image: CAMERA_IMAGE, accessibilityIdentifier: 'camera' },
+      {
+        style: 'icon', title: cylDemoText('discover.animationItem'), image: CAMERA_IMAGE, accessibilityIdentifier: 'animation',
+        animationURL: ANIMATION_URL, animationLoops: loops, animationSpeed: speed,
+      },
+      { style: 'divider' },
+      { style: 'text', title: cylDemoText('discover.search'), accessibilityIdentifier: 'CYLSearchDiscoverSearchButton' },
+    ];
+  },
+  // The loop switch: the animated item loops (or plays once on each tap).
+  onLoopsChange(event) {
+    const loops = event.detail.value === true;
+    this.setData({ loops, items: this.barItems(loops, this.data.speed) });
+  },
+  // The speed slider (0.25 to 3): the value text follows while dragging, the item takes the speed on release.
+  onSpeedChanging(event) {
+    this.setData({ speedText: `${event.detail.value.toFixed(2)}x` });
+  },
+  onSpeedChange(event) {
+    const speed = event.detail.value;
+    this.setData({ speed, speedText: `${speed.toFixed(2)}x`, items: this.barItems(this.data.loops, speed) });
+  },
+  // Play again: the bar model's CYLSearchBarItem.restartAnimation().
+  onPlayAgain() {
+    const bar = this.selectComponent('#bar');
+    const item = bar && bar.model && bar.model.items[ANIMATION_ITEM_INDEX];
+    if (item) item.restartAnimation();
   },
   onReady() {
     this.measureRecent();
