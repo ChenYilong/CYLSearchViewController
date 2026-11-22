@@ -17,3 +17,7 @@
 "discover.ok" = "好";
 "discover.holdMic" = "请按住麦克风按钮说出问题";
 "discover.hot" = "热门";
+"discover.animationItem" = "动画";
+"discover.animationLoops" = "循环播放动画";
+"discover.animationSpeed" = "动画速度";
+"discover.animationPlay" = "再播放一次";
