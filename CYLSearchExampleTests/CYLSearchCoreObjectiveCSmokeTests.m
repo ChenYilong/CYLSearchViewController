@@ -596,6 +596,9 @@
     { __typeof__(sv.suggestionCachePolicy) value101 = sv.suggestionCachePolicy; sv.suggestionCachePolicy = value101; }
     { __typeof__(sv.suggestionCacheName) value102 = sv.suggestionCacheName; sv.suggestionCacheName = value102; }
     { __typeof__(sv.suggestionCache) value103 = sv.suggestionCache; sv.suggestionCache = value103; }
+    { __typeof__(sv.noResultsText) value163 = sv.noResultsText; sv.noResultsText = value163; }
+    XCTAssertTrue([sv respondsToSelector:@selector(setSnapsHeader:forHeaderView:inTableView:)], @"CYLSearchView setSnapsHeader:forHeaderView:inTableView:");
+    XCTAssertEqualObjects(CYLSearchResources.historyDidChangeNotification, @"CYLSearchSuggestionStoreDidChange");
     (void)sv.suggestionCacheHeaderView;
     { __typeof__(sv.showsSuggestionCacheHeader) value104 = sv.showsSuggestionCacheHeader; sv.showsSuggestionCacheHeader = value104; }
     (void)sv.suggestionCacheTitleLabel;

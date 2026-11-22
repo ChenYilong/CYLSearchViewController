@@ -353,6 +353,8 @@ final class CYLSearchAPIFenceTests: XCTestCase {
         touch(view, \.suggestionCachePolicy)
         touch(view, \.suggestionCacheName)
         touch(view, \.suggestionCache)
+        touch(view, \.noResultsText)
+        let _: (Bool, UIView, UITableView) -> Void = view.setSnapsHeader
         _ = view.suggestionCacheHeaderView
         touch(view, \.showsSuggestionCacheHeader)
         _ = view.suggestionCacheTitleLabel
@@ -534,6 +536,7 @@ final class CYLSearchAPIFenceTests: XCTestCase {
         _ = sc.isEmptyViewShowing
         touch(sc, \.historyStore)
         _ = CYLSearchController.historyDidChangeNotification
+        _ = CYLSearchResources.historyDidChangeNotification
         touch(sc, \.snapsHeaderSearchBar)
         let _: (Bool, Bool) -> Void = sc.setActive
         let _: (UITableView) -> Void = sc.installSearchBar(asHeaderOf:)

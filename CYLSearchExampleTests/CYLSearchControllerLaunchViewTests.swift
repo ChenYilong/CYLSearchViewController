@@ -931,3 +931,127 @@ final class CYLSearchMergePhase4Tests: CYLSearchExampleTestCase {
         open.window.isHidden = true
     }
 }
+
+// MARK: - Merge phase 5b
+
+/**
+ * Merge phase 5b (docs/qmui-search-controller.md, "Merge phase 5b log"): the gaps of the core that the React Native and
+ * Flutter wrappers worked around: `noResultsText` of `CYLSearchView`, the public history notification with its
+ * `userInfo`, the header snapping through `CYLSearchView`, and `textDidChange` for a tapped suggestion.
+ */
+final class CYLSearchMergePhase5bTests: CYLSearchExampleTestCase {
+
+    private final class EventRecorder: NSObject, CYLSearchViewDelegate {
+        var events: [String] = []
+        func searchView(_ searchView: CYLSearchView, textDidChange text: String) { events.append("text:\(text)") }
+        func searchView(_ searchView: CYLSearchView, didSubmitText text: String) -> Bool {
+            events.append("submit:\(text)")
+            return true
+        }
+    }
+
+    private func openSearchView(configure: ((CYLSearchView) -> Void)? = nil)
+        -> (view: CYLSearchView, window: UIWindow, host: UIViewController) {
+        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let host = UIViewController()
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        let searchView = CYLSearchView(frame: .zero)
+        searchView.suggestionCachePolicy = .none
+        searchView.animationDuration = 0
+        configure?(searchView)
+        searchView.showSearch(in: host, animated: false)
+        searchView.layoutIfNeeded()
+        return (searchView, window, host)
+    }
+
+    /// `noResultsText` of the search view: the same placeholder component as the controller's, with that title.
+    func testSearchViewNoResultsTextTitlesTheEmptyResultsPlaceholder() throws {
+        let source = CYLSearchWordDataSource()
+        let open = openSearchView { $0.resultsDataSource = source }
+        let view = open.view
+        view.setQuery("Zzz", submit: false)
+        XCTAssertNil(view.emptyResultsView, "off by default")
+        view.noResultsText = "Nothing found"
+        let placeholder = try XCTUnwrap(view.emptyResultsView, "a text turns the placeholder on")
+        XCTAssertEqual(placeholder.titleLabel.text, "Nothing found")
+        XCTAssertFalse(placeholder.isHidden)
+        view.setQuery("Swift", submit: false)
+        XCTAssertTrue(view.emptyResultsView?.isHidden ?? true, "rows again")
+        view.setQuery("Qqq", submit: false)
+        XCTAssertEqual(view.emptyResultsView?.titleLabel.text, "Nothing found")
+        view.setQuery("", submit: false)
+        XCTAssertTrue(view.emptyResultsView?.isHidden ?? true, "an empty text is never an empty result")
+        view.noResultsText = nil
+        view.setQuery("Zzz", submit: false)
+        XCTAssertNil(view.emptyResultsView, "nil and no switch: no placeholder")
+        view.showsEmptyResultsPlaceholder = true
+        XCTAssertNotNil(view.emptyResultsView, "the switch keeps its scenario placeholder")
+        open.window.isHidden = true
+    }
+
+    /// The history notification is public, carries policy and name, and is told apart per history.
+    func testHistoryNotificationCarriesPolicyAndName() throws {
+        let name = "CYLMerge5bHistory\(UUID().uuidString)"
+        var received: [(Int?, String?)] = []
+        let token = NotificationCenter.default.addObserver(forName: CYLSearchResources.historyDidChangeNotification,
+                                                           object: nil, queue: nil) { note in
+            received.append((note.userInfo?["policy"] as? Int, note.userInfo?["name"] as? String))
+        }
+        defer { NotificationCenter.default.removeObserver(token) }
+        let store = try XCTUnwrap(CYLSearchResources.suggestionCache(policy: .userDefaults, name: name))
+        defer { store.removeAllQueries() }
+        received.removeAll()
+        store.addQuery("kiwi")
+        XCTAssertEqual(received.count, 1)
+        XCTAssertEqual(received.first?.0, CYLSearchSuggestionCachePolicy.userDefaults.rawValue)
+        XCTAssertEqual(received.first?.1, name)
+        store.removeQuery("kiwi")
+        store.removeAllQueries()
+        XCTAssertEqual(received.map { $0.1 }, [name, name, name], "remove, remove all")
+        XCTAssertEqual(CYLSearchResources.historyDidChangeNotification.rawValue, "CYLSearchSuggestionStoreDidChange")
+    }
+
+    /// A header search bar of a table view of the host snaps through `CYLSearchView`, with the controller's rules.
+    func testSearchViewSnapsAHeaderOfAHostTable() throws {
+        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let host = UIViewController()
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        let table = UITableView(frame: host.view.bounds, style: .plain)
+        host.view.addSubview(table)
+        let header = UIView(frame: CGRect(x: 0, y: 0, width: 402, height: 56))
+        table.tableHeaderView = header
+        table.reloadData()
+        table.layoutIfNeeded()
+        let view = CYLSearchView(frame: .zero)
+        view.suggestionCachePolicy = .none
+        XCTAssertEqual(table.contentInset.bottom, 0)
+        view.setSnapsHeader(true, for: header, in: table)
+        XCTAssertGreaterThan(table.contentInset.bottom, 0, "an empty table gets the room the header needs to leave the screen")
+        view.setSnapsHeader(false, for: header, in: table)
+        XCTAssertEqual(table.contentInset.bottom, 0, "off takes the inset away")
+        view.setSnapsHeader(true, for: header, in: table)
+        XCTAssertGreaterThan(table.contentInset.bottom, 0)
+        window.isHidden = true
+    }
+
+    /// A tapped suggestion reports `textDidChange` before the submit, with and without `submitsOnSuggestionSelection`.
+    func testTappedSuggestionReportsTextDidChangeBeforeSubmit() {
+        for submits in [true, false] {
+            let recorder = EventRecorder()
+            let open = openSearchView {
+                $0.suggestions = ["Swift", "Kotlin"]
+                $0.suggestionStyle = .list
+                $0.showsSuggestionsForEmptyQuery = true
+                $0.submitsOnSuggestionSelection = submits
+                $0.closesOnSubmit = false
+                $0.delegate = recorder
+            }
+            let view = open.view
+            view.tableView(view.suggestionsTableView, didSelectRowAt: IndexPath(row: 0, section: 0))
+            XCTAssertEqual(recorder.events, submits ? ["text:Swift", "submit:Swift"] : ["text:Swift"], "submits: \(submits)")
+            open.window.isHidden = true
+        }
+    }
+}
