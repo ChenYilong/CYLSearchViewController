@@ -1547,3 +1547,44 @@ Missing points as TODO:
 - TODO (design): `leadingView` and `trailingAccessoryViews` are Flutter widgets in a row, not the core's accessory slots (the native `leadingView` cannot hold a Flutter widget); `launchViewBuilder` is a Dart overlay. A native bridge that renders a Flutter widget to a texture would remove both, at a cost not worth it here.
 - TODO (tests): no native unit tests for the Swift and Kotlin bridges (the Flutter tests use a fake platform view); the Android highlight is the only native test. Add RunnerTests / instrumented tests that create the platform views.
 - TODO (example): the example's filter of the ten keywords is case sensitive like the iOS demo, so the case-insensitive highlight is shown only by the core's own tests and the JVM test; `CYLSearchListView.emptyView` and the Short list screen were not changed.
+
+### Merge phase 5b log (2026-11-22)
+
+Base `3ea492e` (`feat/harmonyos-parity`, PR #11); worktree `/tmp/xpr/merge-p5b`. Task: close in the cores the gaps that the React Native and Flutter wrappers worked around (the TODO lists of the merge phase 5 logs), then delete the workarounds.
+
+#### Gap, core change, workaround removed
+
+| Gap (phase 5 TODO) | Core change | Workaround removed |
+| :--- | :--- | :--- |
+| iOS `CYLSearchView` had no `noResultsText` | `CYLSearchView.noResultsText`: the `CYLSearchEmptyView.message` component that `CYLSearchController.noResultsText` shows; a text also turns the empty results placeholder on (`showsEmptyResultsPlaceholder` or a text) | RN `applyNoResultsText` (and its `dispatch_async` after each text change); Flutter iOS `applyNoResultsText` |
+| Android `noResultsText` stacked a second placeholder over the scenario placeholder (found by Flutter) | with a text the text's placeholder is the only empty view (`emptyResultsVisible` is off while `noResultsText` is set) | Flutter Android `updateNoResultsText` (set the title of `emptyResultsView`) |
+| History notification internal, observed by the string `CYLSearchSuggestionStoreDidChange`; fired for another screen's history | `CYLSearchResources.historyDidChangeNotification` (public, three-line comment, fence lines in the Swift and Objective-C fence tests); the stores post `userInfo` `policy` (raw value) and `name` | RN `onHistoryChange` and Flutter iOS observe the symbol and compare policy and name (RN fired for another screen's history before) |
+| Header snapping only for `CYLSearchController`'s own bar | `CYLSearchHeaderSnapper` takes any header view and an `isSearching` closure; public `CYLSearchView.setSnapsHeader(_:for:in:)` (a parameter `snaps`, no new public class; the handling is kept on the table view) | RN iOS list: `snapsHeaderSearchBar` was accepted and ignored, now `setSnapsHeader` |
+| A tapped tag with `submitsOnSuggestionSelection` sent no `textDidChange` (iOS; Android already did via `queryChanged`) | iOS `selectSuggestion` calls `queryChanged` first, then submits; Android covered by a new test | RN iOS `_updatedText` bookkeeping and the `didSubmitText` `onUpdateResults`; Flutter iOS and Android `reportedText`/`reportText` before `didSubmit` |
+| Android inset listener padded the page by the full window insets | the listener pads by the part of the system bars that lies over the view (bars minus the distance from the top/bottom of the window, applied again when the view moves) | RN `cylKeepSystemBarsAbove` (both Android components) |
+| Android `cancelButtonFont` had no size | `CYLSearchBarView.cancelButtonFontSize` (sp, null follows `fontSize`), the size half of iOS `cancelButtonFont`, as `font`/`fontSize` already pair | RN `applyCancelButtonFont` set the size on the button itself; Flutter Android TODO for `cancelButtonFontSize` (now wired) |
+| Android tag list filled before the page had a width | a layout listener on `suggestionsTagView` fills again when it gets a width | RN `post { reloadResults() }` after `searchViewDidShow` |
+| Android history signal for the trash button / clear | already in the core (`addHistoryDidChangeListener`, `clearSuggestionCache` goes through `changeHistory`); a test now clicks the trash button | Flutter Android manual `reportHistory()` after `clearHistory` |
+| Flutter Android `CYLMatchHighlight` | the core's `highlightsResultMatches` + `resultMatchHighlightColor` (already in the Android core) | `CYLMatchHighlight.kt` and `CYLMatchHighlightTest.kt` deleted; the data source only sets the row text |
+| Deprecated names in RN and Flutter | none left: the Kotlin, Swift and Objective-C sources call the iOS names; the JavaScript forwards of RN (`dimmingColor`, ...) stay as its own deprecated props, no example uses them | the build logs show no deprecation warning in the wrapper sources |
+
+#### Commits (`feat/harmonyos-parity`)
+
+`7a30270` iOS core (noResultsText, notification, snapping, tapped tag; fence lines and tests; it also carries the staged deletion of Flutter's `CYLMatchHighlight` files), `c3be82e` Android core, `c41fa39` React Native, `27ff461` Flutter, then the Android tag refill fix and this log.
+
+#### Tests
+
+- iOS (`xcodebuild test`, clean derived data, `CODE_SIGNING_ALLOWED=NO`, sandbox off): full suite **185 tests, 0 failures** on 27.2 (CF8CABFE), 26.5 (36C5761F) and 17.5 (AC24E128). New `CYLSearchMergePhase5bTests` (4): `noResultsText` of the search view, the notification with policy and name, `setSnapsHeader` on a host table, textDidChange before submit with and without `submitsOnSuggestionSelection`; fence lines in `CYLSearchAPIFenceTests` and `CYLSearchCoreObjectiveCSmokeTests`. `check-public-api-comments.sh` and `check-licenses.sh`: OK.
+- Android (JDK 17.0.21, `--rerun-tasks`): `:cylsearch:testDebugUnitTest` **74 tests, 0 failures** (8 new in `CYLSearchMergePhase5bTest`: insets below a header, full insets at the top, insets again when the view moves, cancel font size, tags refilled with a width, trash button reaches the history listener, `noResultsText` the only empty view, textDidChange before submit), `:app:testDebugUnitTest` **9, 0 failures**.
+- React Native: `yarn jest --no-watchman` 15 passed, `yarn tsc` clean; Release builds: `gradlew clean :app:assembleRelease` (arm64-v8a) BUILD SUCCESSFUL, `xcodebuild` Release for the simulator with clean derived data BUILD SUCCEEDED (`pod install` there, lockfiles not committed). Android run on the emulator below.
+- Flutter: plugin `flutter test` 36 passed, example `flutter test` 5 passed, `flutter analyze` no issues; `flutter build apk --debug` and `flutter build ios --simulator --debug` succeed.
+- Devices (own, shut down after): AVD `CYL_P5B_API35` (port 5594, killed with `adb emu kill`) and simulator "iPhone 18 Pro (CYLSearch P5b)" 91CAB33B (shut down). RN Android Release: the Search controller opens with the bar directly under the header (no blank band, with `cylKeepSystemBarsAbove` gone), the launch tags are there at the first open, a tapped tag submits into the history. Flutter Android: highlight drawn by the core, "no matching results" is one placeholder with the text. Flutter iOS: launch tags, a tapped tag updates the results with the highlight.
+
+#### Merge score (5b) (2026-11-22): 90 / 100 (pass 60)
+
+Closed in the cores with tests (35 of 40: the Android history signal needed no change, only a test); wrapper workarounds deleted (25 of 25); wrappers call the new API and build (15 of 15 less 2: no RN iOS device run); suites green on three iOS versions and Android (15 of 15); screenshots, none new (0 of 5: not asked, only the checks above); log (5 of 5 less 0).
+
+- TODO: `hidesSearchBarWhenEmptyViewShowing` on the RN iOS list is still accepted and ignored (the list has no empty view of its own, on Android neither); `setSnapsHeader` has no RN device check (host test only).
+- TODO: with no history and only `suggestions`, the Android launch area is clipped (tags cut at the top and bottom, no fold control); the same on the build before this phase, so not caused by it; to look at in the core.
+- TODO: the Flutter plugin has no native unit test left on Android (`CYLMatchHighlightTest` went with the code, the core tests cover the highlight); no native tests of the bridges.
+- TODO: RN iOS Release not run on a simulator in this phase (built only); `cancelButtonFontSize` and the history signal of the Flutter Android trash button were not exercised on the device; the Android core's `cancelButtonFontSize` is a second property beside `cancelButtonFont` (as `fontSize` beside `font`), not one font object.
