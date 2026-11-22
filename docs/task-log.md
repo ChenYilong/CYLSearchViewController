@@ -1031,7 +1031,7 @@ begins and becomes `DONE` when it ends.
   event order check is unchanged. iOS run 44982954660 (`54623ac`) is green in all seven jobs. It ran for 80 minutes
   waiting on macOS runners and held the concurrency group, so every later iOS run was cancelled or kept pending.
 
-## TODO (2026-11-22): pin CYLTabBarController c8fee654 and ClassifyMenu 111c73aa (non-iOS platforms)
+## DONE (2026-11-22): pin CYLTabBarController c8fee654 and ClassifyMenu 111c73aa (non-iOS platforms)
 
 - **Branch**: `feat/harmonyos-parity` (PR #11). Context: ClassifyMenu's newest commit `111c73aa` (branch
   `feat/pin-c8fee654`, its PR #28 CI passed) pins CYLTabBarController `c8fee654` (the x86_64 Rive kit for debug builds
@@ -1042,4 +1042,11 @@ begins and becomes `DONE` when it ends.
   program package.json, the Flutter pubspec and lock), the vendored copies synced, and the tests green: Android unit tests,
   HarmonyOS 41 tests on the emulator, mini program tests, Flutter tests and example build, React Native jest; the iOS
   workflow green. Podfile.lock files are left to the macOS session. 60 = pins changed and Android + HarmonyOS green.
-- **Status**: TODO.
+- **Status**: DONE (2026-11-22), 95/100 (iOS CI pending). `a06d576`: both commits in every pin; vendored copies synced
+  (HarmonyOS `sync-sub-repositories.sh`, mini program `npm run sync-example`, React Native `fetch-cyltabbar.sh`).
+  Results on Windows: Android core 66/66 and example 9/9 (`efc20a1` first: the core tests failed 22 of 66 at the old and
+  new pins alike, from views of earlier tests still observing the history signal under Robolectric's legacy SQLite mode;
+  the two classes now detach their views after each test); HarmonyOS `entry@emulator` + `emulatorTest` HAPs on the
+  x86_64 emulator 127.0.0.1:5557: 55/55; mini program `npm test`: 0 failures; Flutter plugin 36/36, example 5/5, example
+  APK builds; React Native jest 15/15. Missing (5): the iOS workflow on a head with this pin, and `pod install` (macOS).
+
