@@ -286,7 +286,7 @@ extension CYLSearchSuggestionStore {
      * own. A listener compares the stores with `matches(_:_:)`: `CYLSearchResources.suggestionCache(policy:name:)` returns
      * a new instance on each call, so the instances of one history are told apart by policy and name.
      */
-    static let didChangeNotification = Notification.Name("CYLSearchSuggestionStoreDidChange")
+    static let didChangeNotification = CYLSearchResources.historyDidChangeNotification
 
     /**
 

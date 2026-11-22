@@ -193,6 +193,21 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
     @objc public var showsEmptyResultsPlaceholder = false { didSet { refilter() } }
 
     /**
+     * The title of the empty results placeholder, with the bundled "no results" animation (the component
+     * `CYLSearchController.noResultsText` shows). A text that is not empty also turns the placeholder on, as
+     * `showsEmptyResultsPlaceholder` does; nil (the default) keeps `emptyResultsScenario`.
+     */
+    @objc public var noResultsText: String? {
+        didSet {
+            emptyResultsSlot.remove()
+            refilter()
+        }
+    }
+
+    // Whether the placeholder for empty results is on: its switch, or a text of its own.
+    private var showsEmptyResults: Bool { showsEmptyResultsPlaceholder || !(noResultsText ?? "").isEmpty }
+
+    /**
      * The CYLTableViewPlaceHolder scenario of that placeholder. `CYLPlaceholderScenarioNoSearchResults` (an icon, a
      * title and a hint) by default; `CYLPlaceholderScenarioNoContent` shows the plain empty state.
      */
@@ -256,6 +271,31 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
     }
 
     private var resultsVisible = false
+
+    /**
+     * Titles the results: while results show, a header above the first row says what this closure returns for the query
+     * (a footnote, `resultsHeaderTextColor`, a header trait for VoiceOver); nil from the closure, or no closure (the
+     * default), shows none.
+     */
+    @objc public var resultsHeaderTitleProvider: ((String) -> String?)? { didSet { updateResultsHeader() } }
+
+    /**
+     * The color of the results header text. Nil (the default) is the secondary label color.
+     */
+    @objc public var resultsHeaderTextColor: UIColor? { didSet { updateResultsHeader() } }
+
+    private let resultsHeaderView = CYLSearchResultsHeaderView()
+
+    private func updateResultsHeader() {
+        let query = searchBarView.text ?? ""
+        guard resultsVisible, let title = resultsHeaderTitleProvider?(query) else {
+            if resultsTableView.tableHeaderView === resultsHeaderView { resultsTableView.tableHeaderView = nil }
+            return
+        }
+        resultsHeaderView.configure(title: title, color: resultsHeaderTextColor ?? .secondaryLabel)
+        resultsHeaderView.frame.size = CGSize(width: resultsTableView.bounds.width, height: CYLSearchResultsHeaderView.height)
+        resultsTableView.tableHeaderView = resultsHeaderView
+    }
 
     // MARK: - Refresh
 
@@ -469,6 +509,25 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
      * `suggestionsTableView.tableFooterView` that calls `clearSuggestionCache()`.
      */
     @objc public var showsSuggestionCacheHeader = true { didSet { setNeedsLayout(); refilter() } }
+
+    /**
+     * A text button under the cached queries and the suggestions of the list style that clears the cache, with this
+     * title (a bordered footnote button centered below the last row). Nil (the default) shows none; with it, set
+     * `showsSuggestionCacheHeader` to NO to have the text button instead of the trash icon.
+     */
+    @objc public var suggestionCacheFooterTitle: String? { didSet { updateSuggestionCacheFooter() } }
+
+    private func updateSuggestionCacheFooter() {
+        guard let title = suggestionCacheFooterTitle else {
+            if suggestionsTableView.tableFooterView is CYLSearchClearFooterView { suggestionsTableView.tableFooterView = nil }
+            return
+        }
+        let footer = (suggestionsTableView.tableFooterView as? CYLSearchClearFooterView) ?? CYLSearchClearFooterView()
+        footer.button.setTitle(title, for: .normal)
+        footer.onTap = { [weak self] in self?.clearSuggestionCache() }
+        footer.frame.size = CGSize(width: suggestionsTableView.bounds.width, height: CYLSearchClearFooterView.height)
+        suggestionsTableView.tableFooterView = footer
+    }
 
     /**
      * The title of `suggestionCacheHeaderView` ("Recent searches").
@@ -957,6 +1016,31 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         item.action = #selector(showSearch as () -> Void)
     }
 
+    // MARK: - Header snapping
+
+    private static var snapperKey = 0
+
+    /**
+     * Keeps `header`, a search bar that is the header of `tableView`, scrollable out of sight above a short list and
+     * settles it fully shown or fully hidden when a drag ends, while this search view is not open (what
+     * `CYLSearchController.snapsHeaderSearchBar` does for its bar, QMUI issues #1160 and #1207). `snaps` NO takes the
+     * inset and the settling away. A table view keeps one such handling, which a second call updates.
+     */
+    @objc(setSnapsHeader:forHeaderView:inTableView:)
+    public func setSnapsHeader(_ snaps: Bool, for header: UIView, in tableView: UITableView) {
+        let existing = objc_getAssociatedObject(tableView, &CYLSearchView.snapperKey) as? CYLSearchHeaderSnapper
+        if let existing, existing.header === header {
+            existing.isEnabled = snaps
+            return
+        }
+        existing?.detach()
+        let snapper = CYLSearchHeaderSnapper(tableView: tableView, searchBar: header) { [weak self] in
+            self?.searchOpen == true
+        }
+        snapper.isEnabled = snaps
+        objc_setAssociatedObject(tableView, &CYLSearchView.snapperKey, snapper, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+    }
+
     // MARK: - Query and suggestions
 
     /**
@@ -981,13 +1065,15 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
             showsCachedQueries = false
             filteredSuggestions = []
             suggestionsVisible = false
-            emptyResultsVisible = showsEmptyResultsPlaceholder && searchResults.isEmpty
+            emptyResultsVisible = showsEmptyResults && searchResults.isEmpty
             emptySuggestionsVisible = false
             updateSuggestionsVisibility()
+            updateResultsHeader()
             return
         }
         searchResults = []
         resultsVisible = false
+        updateResultsHeader()
         // An empty query lists the cached queries, newest first, under the header that clears them; the choice is the
         // suggestion area's.
         let resolution = CYLSearchSuggestionArea.resolve(cache: suggestionCache, suggestions: suggestions, query: query,
@@ -996,7 +1082,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         showsCachedQueries = resolution.showsHistory
         filteredSuggestions = resolution.titles
         suggestionsVisible = !filteredSuggestions.isEmpty
-        emptyResultsVisible = showsEmptyResultsPlaceholder && !trimmed.isEmpty && filteredSuggestions.isEmpty
+        emptyResultsVisible = showsEmptyResults && !trimmed.isEmpty && filteredSuggestions.isEmpty
         emptySuggestionsVisible = showsEmptySuggestionsPlaceholder && suggestionCache != nil && trimmed.isEmpty && filteredSuggestions.isEmpty
         updateSuggestionsVisibility()
     }
@@ -1037,7 +1123,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
             suggestionArea.setTitles(suggestionsVisible ? filteredSuggestions : [])
         }
         showOrHide(emptyResultsSlot, visible: emptyResultsVisible, scenario: emptyResultsScenario,
-                   identifier: "CYLSearchEmptyResults")
+                   identifier: "CYLSearchEmptyResults", text: noResultsText)
         showOrHide(emptySuggestionsSlot, visible: emptySuggestionsVisible, scenario: emptySuggestionsScenario,
                    identifier: "CYLSearchEmptySuggestions")
         suggestionCacheHeaderView.isHidden = !(suggestionsVisible && showsCachedQueries && showsSuggestionCacheHeader)
@@ -1047,12 +1133,21 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         setNeedsLayout()
     }
 
-    private func showOrHide(_ slot: CYLSearchEmptyViewSlot, visible: Bool, scenario: CYLPlaceholderScenario, identifier: String) {
+    private func showOrHide(_ slot: CYLSearchEmptyViewSlot, visible: Bool, scenario: CYLPlaceholderScenario, identifier: String,
+                            text: String? = nil) {
         guard visible else {
             slot.hide()
             return
         }
-        if slot.view == nil { slot.adopt(CYLSearchEmptyView.scenario(scenario, identifier: identifier)) }
+        if slot.view == nil {
+            if let text, !text.isEmpty {
+                let message = CYLSearchEmptyView.message(text: text, detailText: nil)
+                message.accessibilityIdentifier = identifier
+                slot.adopt(message)
+            } else {
+                slot.adopt(CYLSearchEmptyView.scenario(scenario, identifier: identifier))
+            }
+        }
         slot.show(in: pageView, below: suggestionsTableView)
     }
 
@@ -1213,10 +1308,10 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         let suggestion = filteredSuggestions[index]
         searchBarView.text = suggestion
         delegate?.searchView?(self, didSelectSuggestion: suggestion, at: UInt(index))
+        // Setting the text in code sends no change from the bar: the results follow the tapped tag, then it is submitted.
+        queryChanged(suggestion)
         if submitsOnSuggestionSelection {
             searchBarView.submit()
-        } else {
-            queryChanged(suggestion)
         }
     }
 }

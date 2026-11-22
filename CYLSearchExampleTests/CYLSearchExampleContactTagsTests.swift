@@ -32,7 +32,7 @@ final class CYLSearchExampleContactTagsTests: CYLSearchExampleTestCase {
         let title = CYLContactTagsDemo.rowTitle()
         XCTAssertFalse(title.hasPrefix("contactTags."), "the row title is localized: \(title)")
         let remark = try XCTUnwrap(CYLContactTagsDemo.viewController() as? CYLContactRemarkViewController)
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         window.rootViewController = UINavigationController(rootViewController: remark)
         window.makeKeyAndVisible()
         remark.view.layoutIfNeeded()
@@ -80,7 +80,7 @@ final class CYLSearchExampleContactTagsTests: CYLSearchExampleTestCase {
         // docs/CYLTabBarController-Integration.md, "CYLPlaceholderView in the contact tags example": a search without a
         // match and an empty tag list show CYLTableViewPlaceHolder's placeholder; a match or a tag hides it.
         let remark = try XCTUnwrap(CYLContactTagsDemo.viewController() as? CYLContactRemarkViewController)
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         window.rootViewController = UINavigationController(rootViewController: remark)
         window.makeKeyAndVisible()
         remark.view.layoutIfNeeded()
@@ -144,7 +144,7 @@ final class CYLSearchExampleContactTagsTests: CYLSearchExampleTestCase {
         CYLContactTagsDemo.resetCache()
         addTeardownBlock { CYLContactTagsDemo.resetCache() }
         let remark = try XCTUnwrap(CYLContactTagsDemo.viewController() as? CYLContactRemarkViewController)
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         window.rootViewController = UINavigationController(rootViewController: remark)
         window.makeKeyAndVisible()
         remark.view.layoutIfNeeded()
@@ -226,19 +226,19 @@ final class CYLSearchExampleContactTagsTests: CYLSearchExampleTestCase {
             UserDefaults.standard.removeObject(forKey: "CYLContactTagsServerLatency")
         }
         let spin = {
-            CYLRunLoop(0.3)
+            runLoop(0.3)
         }
         // The upload and the sync finish on the main queue a moment later (the HUD's zero latency); a slow runner needs more
         // than a fixed wait, so poll for the result (up to 15 s).
         let waitUntil: (() -> Bool) -> Bool = { condition in
             let deadline = Date(timeIntervalSinceNow: 15)
             while !condition() && deadline.timeIntervalSinceNow > 0 {
-                CYLRunLoop(0.1)
+                runLoop(0.1)
             }
             return condition()
         }
         let remark = try XCTUnwrap(CYLContactTagsDemo.viewController() as? CYLContactRemarkViewController)
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         window.rootViewController = UINavigationController(rootViewController: remark)
         window.makeKeyAndVisible()
         remark.view.layoutIfNeeded()
@@ -309,19 +309,19 @@ final class CYLSearchExampleContactTagsTests: CYLSearchExampleTestCase {
             UserDefaults.standard.removeObject(forKey: "CYLContactTagsServerLatency")
         }
         let spin = {
-            CYLRunLoop(0.3)
+            runLoop(0.3)
         }
         // The upload and the sync finish on the main queue a moment later (the HUD's zero latency); a slow runner needs more
         // than a fixed wait, so poll for the result (up to 15 s).
         let waitUntil: (() -> Bool) -> Bool = { condition in
             let deadline = Date(timeIntervalSinceNow: 15)
             while !condition() && deadline.timeIntervalSinceNow > 0 {
-                CYLRunLoop(0.1)
+                runLoop(0.1)
             }
             return condition()
         }
         let remark = try XCTUnwrap(CYLContactTagsDemo.viewController() as? CYLContactRemarkViewController)
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         window.rootViewController = UINavigationController(rootViewController: remark)
         window.makeKeyAndVisible()
         remark.view.layoutIfNeeded()
@@ -389,7 +389,7 @@ final class CYLSearchExampleContactTagsTests: CYLSearchExampleTestCase {
         XCTAssertFalse(bar.textFieldShouldReturn(bar.textField))
         XCTAssertEqual(submitted, "Hiking", "so does the return key")
 
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         let host = UIViewController()
         window.rootViewController = host
         window.makeKeyAndVisible()

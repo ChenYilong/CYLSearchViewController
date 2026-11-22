@@ -2,16 +2,6 @@
 .page { height: 100vh; overflow: hidden; background: #fff; }
 .host { display: block; }
 .keywords { min-height: 100%; background: #fff; }
-.launch { padding: 26px; background: #fff; }
-.launch-title-row { display: flex; align-items: center; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid #c6c6c8; }
-.launch-title { color: #000; font-size: 14px; }
-.launch-clear { width: 36px; height: 36px; margin: -8px 0; display: flex; align-items: center; justify-content: center; }
-.trash { width: 20px; height: 20px; background-color: #007aff; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
-  -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 7h16M10 11v6M14 11v6M5 7l1 13h12l1-13M9 7V4h6v3'/></svg>");
-  mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M4 7h16M10 11v6M14 11v6M5 7l1 13h12l1-13M9 7V4h6v3'/></svg>"); }
-.launch-tags { display: block; margin-top: 20px; }
 @media (prefers-color-scheme: dark) {
-  .page, .keywords, .launch { background: #000; }
-  .launch-title { color: #fff; }
-  .launch-title-row { border-color: #38383a; }
+  .page, .keywords { background: #000; }
 }

@@ -1,12 +1,5 @@
-const { CYLSearchView, cylFoldTags, cylClampAnimationSpeed, cylSnapHeaderOffset, cylSwipeShouldDismiss } = require('../core/CYLSearchView');
+const { CYLSearchView, cylClampAnimationSpeed, cylSnapHeaderOffset, cylSwipeShouldDismiss, cylEdgeSwipeBegins } = require('../core/CYLSearchView');
 const { CYLSearchResources, cylNavigationMetrics } = require('../core/CYLSearchResources');
-
-const TAG_SPACING = 12;
-const TAG_SIDE_INSET = 16;
-// The fold chevron's labels: CollectionViewClassifyMenu's CYLMenuExpand / CYLMenuCollapse (CYLClassifyMenu.strings).
-const FOLD_LABELS = {
-  en: ['More', 'Less'], 'zh-Hans': ['更多', '收起'], 'zh-Hant': ['更多', '收合'],
-};
 
 const text = (key) => CYLSearchResources.localizedString(undefined, key);
 
@@ -112,13 +105,24 @@ Component({
     // A header bar half scrolled out settles fully shown or fully hidden when the scrolling ends, and a short list can
     // scroll it out (iOS snapsHeaderSearchBar, QMUI #1160).
     snapsHeaderSearchBar: { type: Boolean, value: true },
+    // The launch view under the bar while the query is empty (iOS showsSuggestionsLaunchView): the suggestion area itself,
+    // CollectionViewClassifyMenu's tag list with the history (newest first, with the header and its trash button) or,
+    // without one, `suggestions`; a tapped tag sets the query and submits it. It wins over `showsLaunchView`.
+    showsSuggestionsLaunchView: { type: Boolean, value: false },
     // Your own view under the bar while the query is empty (iOS launchView): the slot `launch-view`.
     showsLaunchView: { type: Boolean, value: false },
-    // A color under the bar while the query is empty and there is no launch view; a tap ends the search (iOS dimmingColor).
+    // The color of the one scrim under the bar while the query is empty and there is no launch view; a tap ends the search
+    // (iOS scrimColor). `dimmingColor` is the earlier name and forwards to it.
+    scrimColor: { type: String, value: '' },
     dimmingColor: { type: String, value: '' },
-    // The result rows mark the first match of the query in `highlightColor` (the tint color by default).
+    // The result rows mark the first match of the query, ignoring case and diacritics, in `resultMatchHighlightColor` (the
+    // tint color by default; iOS highlightsResultMatches). `highlightsMatches` and `highlightColor` are the earlier names.
+    highlightsResultMatches: { type: Boolean, value: false },
+    resultMatchHighlightColor: { type: String, value: '' },
     highlightsMatches: { type: Boolean, value: false },
     highlightColor: { type: String, value: '' },
+    // The empty view's text while the query is not empty and the results are empty (iOS noResultsText).
+    noResultsText: { type: String, value: '' },
     // A swipe from the left edge ends the search (iOS supportsSwipeToDismissSearch).
     supportsSwipeToDismissSearch: { type: Boolean, value: false },
     // The bar's own style, passed to the header bar (see cyl-search-bar): iOS CYLSearchBar.
@@ -128,21 +132,26 @@ Component({
     cancelButtonMargins: { type: Object, value: null },
     activeCancelButtonMargins: { type: Object, value: null },
     cancelButtonFont: { type: Object, value: null },
-    showsLeadingAccessory: { type: Boolean, value: false },
-    showsTrailingAccessory: { type: Boolean, value: false },
+    // The leading view and the trailing accessory views of the bar (iOS showsLeadingView / showsTrailingAccessoryViews; the
+    // slots `leading` and `trailing`); showsLeadingAccessory / showsTrailingAccessory and the slots `leading-accessory` /
+    // `trailing-accessory` are the earlier names.
+    showsLeadingView: { type: Boolean, value: true },
+    showsTrailingAccessoryViews: { type: Boolean, value: true },
+    showsLeadingAccessory: { type: null, value: null },
+    showsTrailingAccessory: { type: null, value: null },
     leadingAccessoryMargins: { type: Object, value: null },
     trailingAccessoryMargins: { type: Object, value: null },
     appearance: { type: Object, value: null },
   },
   data: {
-    playbackSpeed: 1, shownSuggestions: [], visibleTags: [], needsFold: false, open: false, visible: false, entered: false,
-    focus: false, query: '', folded: true, showsCachedQueries: false, showsCacheHeader: false, showsEmptyResults: false, showsEmptySuggestions: false,
+    playbackSpeed: 1, shownSuggestions: [], tagConfiguration: null, open: false, visible: false, entered: false,
+    focus: false, query: '', showsCachedQueries: false, showsCacheHeader: false, showsEmptyResults: false, showsEmptySuggestions: false,
     showsResults: false, shownResults: [], refreshes: false, labels: {}, pageStyle: '', barInsets: '', contentScrollHeld: false,
     showsLaunch: false, showsDimming: false, emptyView: null, emptyInContent: false, headerHidden: false, headerHeight: 56,
     scrollTop: 0, scrollAnimated: false, swipeX: 0,
   },
   observers: {
-    'showsLaunchView, dimmingColor, highlightsMatches, showsSearchBar, hidesSearchBarWhenEmptyViewShowing, showsEmptyResultsPlaceholder, closesOnSubmit, showsResultsForEmptyQuery, focusesSearchFieldOnShow, showsSuggestionCacheHeader, suggestionStyle, emptyResultsScenario, emptySuggestionsScenario': function () {
+    'showsSuggestionsLaunchView, showsLaunchView, scrimColor, dimmingColor, highlightsResultMatches, highlightsMatches, noResultsText, foldedRowCount, showsSearchBar, hidesSearchBarWhenEmptyViewShowing, showsEmptyResultsPlaceholder, closesOnSubmit, showsResultsForEmptyQuery, focusesSearchFieldOnShow, showsSuggestionCacheHeader, suggestionStyle, suggestionTextColor, suggestionImageTintColor, dividerColor, emptyResultsScenario, emptySuggestionsScenario': function () {
       if (!this.model) return;
       this.applyProperties();
       this.model.refilter();
@@ -193,14 +202,11 @@ Component({
         pageStyle = `padding-top: ${metrics.statusBarHeight}px;`;
         barInsets = `${(metrics.navigationBarHeight - 36) / 2}px ${metrics.trailingInset}px ${(metrics.navigationBarHeight - 36) / 2}px 4px`;
       }
-      const language = CYLSearchResources.languageFor();
       this.setData({
         pageStyle,
         barInsets,
         labels: {
           dismiss: text('search.cancel'), recent: text('search.recent'), clear: text('search.clearRecent'), suggestions: text('search.suggestions'),
-          showMore: (FOLD_LABELS[language] || FOLD_LABELS.en)[0],
-          showLess: (FOLD_LABELS[language] || FOLD_LABELS.en)[1],
         },
       });
       this.updateRefreshes();
@@ -232,9 +238,15 @@ Component({
       model.showsResultsForEmptyQuery = p.showsResultsForEmptyQuery;
       model.emptyResultsScenario = p.emptyResultsScenario;
       model.emptySuggestionsScenario = p.emptySuggestionsScenario;
+      model.showsSuggestionsLaunchView = p.showsSuggestionsLaunchView;
       model.showsLaunchView = p.showsLaunchView;
-      model.dimmingColor = p.dimmingColor || undefined;
-      model.highlightsMatches = p.highlightsMatches;
+      model.scrimColor = p.scrimColor || p.dimmingColor || undefined;
+      model.highlightsResultMatches = p.highlightsResultMatches || p.highlightsMatches;
+      model.noResultsText = p.noResultsText || undefined;
+      model.suggestionsFoldedRowCount = p.foldedRowCount;
+      model.suggestionTextColor = p.suggestionTextColor || undefined;
+      model.suggestionImageTintColor = p.suggestionImageTintColor || undefined;
+      model.dividerColor = p.dividerColor || undefined;
       model.showsSearchBar = p.showsSearchBar;
       model.hidesSearchBarInitially = p.hidesSearchBarInitially;
       model.hidesSearchBarWhenEmptyViewShowing = p.hidesSearchBarWhenEmptyViewShowing;
@@ -267,7 +279,13 @@ Component({
     // Copies the model's state into the data the template draws.
     sync() {
       const model = this.model;
+      // The tag list takes a new configuration only when the tags or the colors changed: a keystroke keeps the fold state.
+      const tagConfiguration = this.properties.suggestionStyle === 'tags' ? model.suggestionTagConfiguration(this.isDark()) : null;
+      const tagKey = JSON.stringify(tagConfiguration);
+      const tagsChanged = tagKey !== this.tagKey;
+      this.tagKey = tagKey;
       this.setData({
+        ...(tagsChanged ? { tagConfiguration } : {}),
         open: model.isSearchOpen,
         query: model.query,
         shownSuggestions: model.filteredSuggestions,
@@ -283,33 +301,19 @@ Component({
         emptyInContent: model.emptyViewInContent,
         headerHidden: model.hidesHeaderBar,
       });
-      if (this.properties.suggestionStyle === 'tags' && !model.showsResults) this.foldTags();
     },
-    // The tags end with the fold chevron, `foldedRowCount` rows while folded (iOS suggestionsFoldControl inline, as on
-    // the Discover page): every tag is measured on one hidden line, then the tags of the first rows are kept.
-    foldTags() {
-      const all = this.data.shownSuggestions;
-      const rows = this.properties.foldedRowCount;
-      if (!all.length || rows <= 0) {
-        this.setData({ visibleTags: all, needsFold: false });
-        return;
+    // The system's dark mode, for the tag colors the page did not set.
+    isDark() {
+      try {
+        return (wx.getAppBaseInfo ? wx.getAppBaseInfo() : {}).theme === 'dark';
+      } catch (error) {
+        return false;
       }
-      wx.nextTick(() => {
-        const query = this.createSelectorQuery();
-        query.selectAll('.cyl-measure-tag').boundingClientRect();
-        query.select('.cyl-measure-chevron').boundingClientRect();
-        query.select('.cyl-page').boundingClientRect();
-        query.exec(([tags, chevron, page]) => {
-          if (!tags || tags.length !== all.length || !page) return;
-          const { visibleCount, needsFold } = cylFoldTags(tags.map((tag) => tag.width), page.width - TAG_SIDE_INSET * 2,
-            TAG_SPACING, chevron ? chevron.width : 40, rows);
-          this.setData({ needsFold, visibleTags: needsFold && this.data.folded ? all.slice(0, visibleCount) : all });
-        });
-      });
     },
     // The model opened: the page is drawn hidden, then the next frame runs the open transition.
     onModelShown() {
       const animated = this.showAnimated !== false;
+      this.presents = (this.presents || 0) + 1;
       this.setData({ visible: true, entered: !animated });
       if (animated) setTimeout(() => this.setData({ entered: true }), 30);
       this.triggerEvent('show');
@@ -319,8 +323,11 @@ Component({
     onModelClosed() {
       const animated = this.closeAnimated !== false;
       this.closeAnimated = true;
+      // A present that started while this dismiss ran overtakes it: no diddismiss for it (iOS generation guard).
+      const presents = this.presents || 0;
       this.setData({ entered: false, focus: false, swipeX: 0 });
       setTimeout(() => {
+        if (presents !== (this.presents || 0)) return;
         if (!this.model.isSearchOpen) this.setData({ visible: false });
         this.triggerEvent('diddismiss');
       }, animated ? this.model.animationDuration * 1000 : 0);
@@ -554,18 +561,30 @@ Component({
       if (bar) bar.setShowsCancelButton(shows, animated);
     },
     /**
-     * Shows or hides the leading accessory beside the field (iOS `setShowsLeadingAccessoryView(_:animated:)`).
+     * Shows or hides the leading view before the field (iOS `setShowsLeadingView(_:animated:)`).
      */
-    setShowsLeadingAccessoryView(shows, animated) {
+    setShowsLeadingView(shows, animated) {
       const bar = this.barComponent();
-      if (bar) bar.setShowsLeadingAccessoryView(shows, animated);
+      if (bar) bar.setShowsLeadingView(shows, animated);
     },
     /**
-     * Shows or hides the trailing accessory beside the field (iOS `setShowsTrailingAccessoryView(_:animated:)`).
+     * Shows or hides the trailing accessory views of the field (iOS `setShowsTrailingAccessoryViews(_:animated:)`).
+     */
+    setShowsTrailingAccessoryViews(shows, animated) {
+      const bar = this.barComponent();
+      if (bar) bar.setShowsTrailingAccessoryViews(shows, animated);
+    },
+    /**
+     * Deprecated: `setShowsLeadingView`.
+     */
+    setShowsLeadingAccessoryView(shows, animated) {
+      this.setShowsLeadingView(shows, animated);
+    },
+    /**
+     * Deprecated: `setShowsTrailingAccessoryViews`.
      */
     setShowsTrailingAccessoryView(shows, animated) {
-      const bar = this.barComponent();
-      if (bar) bar.setShowsTrailingAccessoryView(shows, animated);
+      this.setShowsTrailingAccessoryViews(shows, animated);
     },
     /**
      * The field's margins per state from a function `(bar, active) => { top, left, bottom, right }` (iOS
@@ -629,17 +648,30 @@ Component({
     onPageTouchStart(event) {
       if (!this.properties.supportsSwipeToDismissSearch || !this.model.isSearchOpen) return;
       const touch = event.touches[0];
-      this.swipe = touch.clientX <= 24 ? { startX: touch.clientX, startTime: Date.now() } : undefined;
+      this.swipe = touch.clientX <= 24 ? { startX: touch.clientX, startY: touch.clientY || 0, startTime: Date.now(), began: false } : undefined;
     },
+    // The swipe begins when the touch moved right past the slop, more than up or down (cylEdgeSwipeBegins, iOS
+    // CYLSearchEdgeSwipe); any other first move fails it, so a vertical drag from the edge scrolls as usual.
     onPageTouchMove(event) {
-      if (!this.swipe) return;
-      const deltaX = event.touches[0].clientX - this.swipe.startX;
+      const swipe = this.swipe;
+      if (!swipe) return;
+      const touch = event.touches[0];
+      const deltaX = touch.clientX - swipe.startX;
+      const deltaY = (touch.clientY || 0) - swipe.startY;
+      if (!swipe.began) {
+        if (Math.abs(deltaX) <= 10 && Math.abs(deltaY) <= 10) return;
+        if (!cylEdgeSwipeBegins(swipe.startX, deltaX, deltaY)) {
+          this.swipe = undefined;
+          return;
+        }
+        swipe.began = true;
+      }
       if (deltaX > 0) this.setData({ swipeX: deltaX });
     },
     onPageTouchEnd(event) {
       const swipe = this.swipe;
       this.swipe = undefined;
-      if (!swipe) return;
+      if (!swipe || !swipe.began) return;
       const deltaX = event.changedTouches[0].clientX - swipe.startX;
       const velocity = deltaX / Math.max(1, Date.now() - swipe.startTime);
       let width = 375;
@@ -675,8 +707,9 @@ Component({
         this.sync();
       }
     },
+    // A tag of the tag list (`tagtap` { item }) or a row of the list style (`data-index`).
     onSuggestionTap(event) {
-      const index = Number(event.currentTarget.dataset.index);
+      const index = event.detail && event.detail.item !== undefined ? event.detail.item : Number(event.currentTarget.dataset.index);
       this.model.suggestionSelected(this.data.shownSuggestions[index], index);
       this.triggerEvent('textchange', { text: this.model.query });
       this.sync();
@@ -688,10 +721,6 @@ Component({
     onClear() {
       this.model.clearSuggestionCache();
       this.sync();
-    },
-    onToggleFold() {
-      this.setData({ folded: !this.data.folded });
-      this.foldTags();
     },
   },
 });

@@ -741,6 +741,11 @@ begins and becomes `DONE` when it ends.
 - **Acceptance**: 100 = the 122 tests green on iOS 17.5, 26.5 and 27.2; the refresh covered by a test; every platform
   has the six screens with its own test or screenshot; CI green. 60 = items 1 and 2 done, the parity table written.
 - **Status**: in progress.
+- **Status (2026-11-22)**: DONE, 90/100. iOS: 123 → 185 tests green on 17.5, 26.5 and 27.2 (fixes `f94d2c4`,
+  `15a5876`; iOS 15 / 16 cannot run on this host). Launch view refresh: `0b3cbcf`. Other platforms: Android 92,
+  HarmonyOS 90, Flutter 86, React Native 72 then merged (87), mini program 79/85 (device test: Windows session); parity
+  table filled. Missing: iOS 15–16 and 18–25 unverified (−4), mini program device test (−3), dark mode / large type
+  screenshots (−3).
 
 
 ## TODO (2026-11-22): pin CYLTabBarController 618ac11a, ClassifyMenu 9dc1f761, CYLTableViewPlaceHolder 6117fcf
@@ -842,6 +847,10 @@ begins and becomes `DONE` when it ends.
   native re-implementations; all suites green on iOS 17.5 / 26.5 / 27.2 and the platforms' own tests; screenshots before
   and after. 60 = design doc plus the iOS merge with green tests.
 - **Status**: TODO (after the React Native and Flutter ports of the previous entry finish).
+- **Status (2026-11-22)**: phases 0–5b DONE (`faf68da` … `4f8e22f`, logs in `docs/qmui-search-controller.md`): iOS
+  merge 88/100 (185 tests green on 17.5 / 26.5 / 27.2), Android 91, HarmonyOS 90, Flutter 88, React Native 87, mini
+  program 85/90, core gaps 90. TODO: phase 6 in CollectionViewClassifyMenu (69 × 29 minimum tag size, Android tag
+  border clip, owner's decision on a fold control when the tags fit), mini program device test (Windows session).
 
 
 ## DONE (rules) / TODO (code) (2026-11-22): re-evaluate the CYL / cyl_ prefixes against static analysis
@@ -863,6 +872,7 @@ begins and becomes `DONE` when it ends.
   `instructions.md` ("Naming"), `AGENTS.md` ("Project rules" and the skills table), `docs/swift-coding-standard.md`.
 - **TODO**: rename the test helpers to lowerCamelCase after the merge phases (they edit the same test files); the
   CYLTabBarController renames belong to that repository's session and pull request.
+- **Status (code)**: rename DONE (2026-11-22), commit `fe82e0c` ("refactor: ♻️ lowerCamelCase test helpers (S100)"): the 14 global test helpers (`CYLRunLoop` -> `runLoop`, `CYLTestWindow` -> `testWindow`, `CYLMakeSearchRun` / `CYLActivateSearch` / `CYLTearDownSearchRun` -> `makeSearchRun` / `activateSearch` / `tearDownSearchRun`, `CYLViewsCoveredByView` -> `viewsCoveredByView`, and the rest) are lowerCamelCase with every call site updated; no public API or `@objc` selector touched; Sources/ and CYLSearchExample/ have no other S115/S116/S117 case of ours. Full suites: iOS 27.2 (CF8CABFE), 26.5 (36C5761F) and 17.5 (AC24E128), 185 tests each, 0 failures, clean derived data each.
 ## TODO (2026-11-22): pin CYLTabBarController 882ece17, ClassifyMenu 405bf498, CYLTableViewPlaceHolder f4cf978; adopt the x86_64 plan
 
 - **Branch**: `feat/harmonyos-parity` (PR #11). Context: CYLTabBarController `882ece17` ships the x86_64 emulator test plan
@@ -1015,6 +1025,41 @@ begins and becomes `DONE` when it ends.
 - **Status**: DONE (2026-11-22), 100/100. `327d9c5` (merged with the macOS session's `44f8103`, which skips samples drawn at
   y 0): B7 keeps the samples taken in the window at a real position, else all samples. Run 44969395687 (`a84f551`, with
   `44f8103` only) and run 44973402168 (`3705a5a`, with both) are green in all seven jobs.
+
+## DONE (2026-11-22): CI: screenshot labels, a deprecation warning in Sources/, a flaky unit test
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: after the macOS session's merge phase 4, Screenshot labels failed
+  on `493efbd` (seven "after phase 4" rows in `docs/qmui-search-controller.md` without a label), and iOS run 44980907380
+  (`815bb9b`) failed "Example build and analyze" (`contentEdgeInsets`, deprecated since iOS 15, in
+  `CYLSearchClearFooterView`, `Sources/CYLSearchBar/CYLSearchResultsComponent.swift`) and "Unit tests"
+  (`CYLSearchMergePhase3Tests.testShowDuringCloseKeepsTheViewOnScreen`: no `didShow` after 0.9 s; the same code passed
+  unit tests in run 44981948502).
+- **Prompt (verbatim)**: "continue fix todo and watch and fix ci fail"
+- **Acceptance**: 100 = the three fixed and both workflows green on a head with the fixes. 60 = the fixes pushed with the reasons.
+- **Status**: DONE (2026-11-22), 100/100. `782cc10`: labels added (platform, device, OS, Xcode, commit `815bb9b`, date);
+  Screenshot labels green on every push since. `54623ac`: the footer button takes its insets and footnote font from a
+  plain `UIButton.Configuration` (as the other core buttons). `93fd2af`: the test waits up to 3 s more for `didShow`; the
+  event order check is unchanged. iOS run 44982954660 (`54623ac`) is green in all seven jobs. It ran for 80 minutes
+  waiting on macOS runners and held the concurrency group, so every later iOS run was cancelled or kept pending.
+
+## DONE (2026-11-22): pin CYLTabBarController c8fee654 and ClassifyMenu 111c73aa (non-iOS platforms)
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: ClassifyMenu's newest commit `111c73aa` (branch
+  `feat/pin-c8fee654`, its PR #28 CI passed) pins CYLTabBarController `c8fee654` (the x86_64 Rive kit for debug builds
+  on the HarmonyOS emulator); this repository pins tab bar `882ece17` and ClassifyMenu `405bf498`. The placeholder pin
+  stays at `f4cf9785` (the macOS session owns moving it past its Swift rename).
+- **Prompt (verbatim)**: "continue fix todo and watch and fix ci fail"
+- **Acceptance**: 100 = both commits in every pin (three Podfiles' text, gradle.properties, oh-package.json5, the mini
+  program package.json, the Flutter pubspec and lock), the vendored copies synced, and the tests green: Android unit tests,
+  HarmonyOS 41 tests on the emulator, mini program tests, Flutter tests and example build, React Native jest; the iOS
+  workflow green. Podfile.lock files are left to the macOS session. 60 = pins changed and Android + HarmonyOS green.
+- **Status**: DONE (2026-11-22), 100/100 (iOS run 44990947089 on `809dfb5`, which contains the pin: all seven jobs green). `a06d576`: both commits in every pin; vendored copies synced
+  (HarmonyOS `sync-sub-repositories.sh`, mini program `npm run sync-example`, React Native `fetch-cyltabbar.sh`).
+  Results on Windows: Android core 66/66 and example 9/9 (`efc20a1` first: the core tests failed 22 of 66 at the old and
+  new pins alike, from views of earlier tests still observing the history signal under Robolectric's legacy SQLite mode;
+  the two classes now detach their views after each test); HarmonyOS `entry@emulator` + `emulatorTest` HAPs on the
+  x86_64 emulator 127.0.0.1:5557: 55/55; mini program `npm test`: 0 failures; Flutter plugin 36/36, example 5/5, example
+  APK builds; React Native jest 15/15. Left to the macOS session: `pod install` for the Podfile.lock files.
 
 ## DONE (2026-11-22): continue the iOS TODOs in docs/ (QMUI port leftovers, React Native smear)
 

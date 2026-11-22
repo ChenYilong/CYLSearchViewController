@@ -9,7 +9,7 @@ const {
   CYLSearchBarAppearance, cylInsetsCSS, CYLSearchBarView,
 } = require('../src/core/CYLSearchBarView');
 const {
-  CYLSearchView, cylHighlightParts, cylSnapHeaderOffset, cylSwipeShouldDismiss,
+  CYLSearchView, cylHighlightParts, cylSnapHeaderOffset, cylSwipeShouldDismiss, cylEdgeSwipeBegins,
 } = require('../src/core/CYLSearchView');
 
 global.wx = {
@@ -154,21 +154,23 @@ test('Cancel: margins per state, font, provider, and setShowsCancelButton(shows,
   assert.equal(bar.data.cancelShown, true, 'the property still works');
 });
 
-test('accessory views: margins, shows..., animated, and fast toggling ends in the last request', () => {
-  const bar = load('cyl-search-bar')({ leadingAccessoryMargins: { top: 0, left: 8, bottom: 0, right: 8 }, trailingAccessoryMargins: { top: 0, left: 8, bottom: 0, right: 8 } });
-  assert.deepEqual([bar.data.leadingShown, bar.data.trailingShown], [false, false], 'hidden first');
+test('leading view and trailing accessory views: shown by default, margins, animated, fast toggling ends in the last request', () => {
+  const bar = load('cyl-search-bar')({ leadingAccessoryMargins: { top: 0, left: 8, bottom: 0, right: 8 }, trailingAccessoryMargins: { top: 0, left: 8, bottom: 0, right: 8 },
+    showsLeadingView: false, showsTrailingAccessoryViews: false });
+  assert.deepEqual([bar.data.leadingShown, bar.data.trailingShown], [false, false], 'hidden when the page says so');
   assert.equal(bar.data.leadingStyle, 'padding: 0px 8px 0px 8px');
-  bar.setShowsLeadingAccessoryView(true, true);
+  bar.setShowsLeadingView(true, true);
   assert.deepEqual([bar.data.leadingShown, bar.data.accessoryAnimated], [true, true]);
-  bar.setShowsTrailingAccessoryView(true, false);
+  bar.setShowsTrailingAccessoryViews(true, false);
   assert.deepEqual([bar.data.trailingShown, bar.data.accessoryAnimated], [true, false]);
-  for (let i = 0; i < 5; i += 1) bar.setShowsLeadingAccessoryView(i % 2 === 0, true);
+  for (let i = 0; i < 5; i += 1) bar.setShowsLeadingView(i % 2 === 0, true);
   assert.equal(bar.data.leadingShown, true, 'five requests, the last one is "show"');
-  assert.equal(bar.model.showsLeadingAccessoryView, true);
-  bar.setShowsLeadingAccessoryView(false, true);
+  assert.equal(bar.model.showsLeadingView, true);
+  bar.setShowsLeadingView(false, true);
   assert.equal(bar.data.leadingShown, false);
-  bar.set('showsTrailingAccessory', false);
+  bar.set('showsTrailingAccessoryViews', false);
   assert.equal(bar.data.trailingShown, false);
+  assert.equal(load('cyl-search-bar')({}).data.leadingShown, true, 'shown by default, as the iOS views are');
 });
 
 // ---- CYLSearchController: launch view, dimming, results, empty view, history, life cycle ----
@@ -297,6 +299,7 @@ test('swipe to dismiss: from the left edge, more than a quarter of the width or 
   assert.equal(search.isSearchOpen(), true);
   assert.equal(search.data.swipeX, 0, 'a short swipe springs back');
   search.onPageTouchStart({ touches: [{ clientX: 5 }] });
+  search.onPageTouchMove({ touches: [{ clientX: 250 }] });
   search.onPageTouchEnd({ changedTouches: [{ clientX: 250 }] });
   assert.equal(search.isSearchOpen(), false);
   const off = load('cyl-search')({});
@@ -370,11 +373,14 @@ test('hidesSearchBarInitially / hidesSearchBarWhenEmptyViewShowing: the content 
 
 test('the search bar of the list screen is the one bar: its slots reach the accessory slots', () => {
   const wxml = require('node:fs').readFileSync(path.join(__dirname, '..', 'src', 'cyl-search', 'index.wxml'), 'utf8');
+  assert.match(wxml, /<slot name="leading" slot="leading" \/>/);
+  assert.match(wxml, /<slot name="trailing" slot="trailing" \/>/);
   assert.match(wxml, /<slot name="leading-accessory" slot="leading-accessory" \/>/);
   assert.match(wxml, /<slot name="trailing-accessory" slot="trailing-accessory" \/>/);
   const barWxml = require('node:fs').readFileSync(path.join(__dirname, '..', 'src', 'cyl-search-bar', 'index.wxml'), 'utf8');
-  assert.match(barWxml, /<slot name="leading-accessory" \/>/);
-  assert.match(barWxml, /<slot name="trailing-accessory" \/>/);
+  assert.match(barWxml, /<slot name="leading" \/><slot name="leading-accessory" \/>/, 'one container holds both names of the leading view');
+  assert.match(barWxml, /<slot name="trailing" \/><slot name="trailing-accessory" \/>/, 'one container holds both names of the trailing views');
+  assert.equal((barWxml.match(/class="cyl-accessory /g) || []).length, 2, 'one animated container per side, none beside the old slots');
   assert.match(wxml, /<slot name="launch-view" \/>/);
 });
 
@@ -386,4 +392,196 @@ test('the bar model keeps the iOS names for the new members', () => {
   assert.deepEqual(bar.textFieldMarginsFor(false), { left: 2 });
   bar.cancelButtonMarginsProvider = (view, active) => ({ left: active ? 3 : 4 });
   assert.deepEqual(bar.cancelButtonMarginsFor(true), { left: 3 });
+});
+
+// ---- Merge phase 5 (docs/qmui-search-controller.md, "Merge phase 5 log: the WeChat mini program"): one implementation per concept ----
+
+test('launch view: the suggestion area itself, history newest first with the header, else the suggestions; a tapped tag submits', () => {
+  const eight = ['Helps', 'Maintain', 'Liver', 'Health', 'Function', 'Supports', 'Healthy', 'Fat'];
+  const search = load('cyl-search')({ showsSuggestionsLaunchView: true, suggestions: eight, results: [], cacheName: 'MergeP5Launch' + Date.now(), closesOnSubmit: false });
+  search.showSearch(false);
+  assert.deepEqual(search.data.shownSuggestions, eight, 'no history: the suggestions');
+  assert.equal(search.data.showsCacheHeader, false, 'the header only over a history');
+  assert.deepEqual(search.data.tagConfiguration.sections[0].items.map((item) => item.title), eight, 'drawn by the tag list');
+  assert.equal(search.data.showsLaunch, false, 'the slot is not the launch view here');
+  search.onFocusChange({ detail: { focused: true } });
+  assert.deepEqual(search.data.shownSuggestions, eight, 'focus alone changes nothing');
+  // A tapped tag sets the query and submits it: results follow (updateresults), the history is kept, the tag list refreshes.
+  search.onSuggestionTap({ detail: { section: 0, item: 3, title: 'Health' } });
+  assert.equal(search.data.query, 'Health');
+  const types = search.events.map(([type]) => type);
+  assert.ok(types.includes('updateresults') && types.includes('submit') && types.includes('historychange'));
+  assert.deepEqual(search.events.filter(([type]) => type === 'updateresults').map(([, detail]) => detail.text).slice(-1), ['Health']);
+  assert.deepEqual(search.events.filter(([type]) => type === 'submit').map(([, detail]) => detail.text), ['Health']);
+  assert.deepEqual(search.history(), ['Health']);
+  search.onTextChange({ detail: { text: '' } });
+  assert.deepEqual(search.data.shownSuggestions, ['Health'], 'the history, newest first');
+  assert.equal(search.data.showsCacheHeader, true, 'with the header and its trash button');
+  assert.deepEqual(search.data.tagConfiguration.sections[0].items.map((item) => item.title), ['Health']);
+  search.onClear();
+  assert.deepEqual(search.data.shownSuggestions, eight, 'the trash goes back to the suggestions');
+  const custom = load('cyl-search')({ showsSuggestionsLaunchView: true, showsLaunchView: true, suggestions: eight, results: [] });
+  custom.showSearch(false);
+  assert.equal(custom.data.showsLaunch, false, 'the built-in launch view wins over the slot');
+  assert.equal(load('cyl-search')({}).properties.showsSuggestionsLaunchView, false, 'off by default');
+});
+
+test('scrim: scrimColor is the one overlay color, dimmingColor forwards to it', () => {
+  const view = new CYLSearchView(memoryStorage());
+  view.dimmingColor = 'red';
+  assert.equal(view.scrimColor, 'red');
+  view.scrimColor = 'blue';
+  assert.equal(view.dimmingColor, 'blue');
+  const scrim = load('cyl-search')({ scrimColor: 'rgba(0,0,0,0.4)' });
+  scrim.showSearch(false);
+  assert.equal(scrim.data.showsDimming, true);
+  assert.equal(scrim.model.scrimColor, 'rgba(0,0,0,0.4)');
+  const old = load('cyl-search')({ dimmingColor: 'green' });
+  assert.equal(old.model.scrimColor, 'green', 'the earlier name still works');
+  const wxml = require('node:fs').readFileSync(path.join(__dirname, '..', 'src', 'cyl-search', 'index.wxml'), 'utf8');
+  assert.equal((wxml.match(/class="cyl-dimming"/g) || []).length, 1, 'one overlay view');
+  const withTags = load('cyl-search')({ scrimColor: 'red', showsSuggestionsLaunchView: true });
+  withTags.showSearch(false);
+  assert.equal(withTags.data.showsDimming, false, 'the launch view wins over the scrim');
+});
+
+test('noResultsText: the empty view shows while the query is not empty and the results are empty, and goes with them', () => {
+  const search = load('cyl-search')({ results: [], noResultsText: 'No matching results' });
+  search.showSearch(false);
+  assert.equal(search.isEmptyViewShowing(), false, 'nothing for an empty query');
+  search.onTextChange({ detail: { text: 'zzz' } });
+  assert.equal(search.isEmptyViewShowing(), true);
+  assert.equal(search.data.emptyView.text, 'No matching results');
+  search.set('results', ['Health']);
+  assert.equal(search.isEmptyViewShowing(), false, 'results came: the view goes');
+  search.set('results', []);
+  assert.equal(search.isEmptyViewShowing(), true, 'also when the page sets the results after the text');
+  search.onTextChange({ detail: { text: '' } });
+  assert.equal(search.isEmptyViewShowing(), false);
+  // An empty view the page showed itself is never replaced or hidden by the option.
+  search.onTextChange({ detail: { text: 'zzz' } });
+  search.showEmptyView('Mine', 'detail');
+  search.set('results', ['x']);
+  assert.equal(search.data.emptyView.text, 'Mine');
+  const off = load('cyl-search')({ results: [] });
+  off.showSearch(false);
+  off.onTextChange({ detail: { text: 'zzz' } });
+  assert.equal(off.isEmptyViewShowing(), false, 'off by default');
+  const wxml = require('node:fs').readFileSync(path.join(__dirname, '..', 'src', 'cyl-search', 'index.wxml'), 'utf8');
+  assert.equal((wxml.match(/cyl-custom-empty-title/g) || []).length, 1, 'one empty view markup for the content and the layer');
+});
+
+test('highlight: highlightsResultMatches and resultMatchHighlightColor, case and diacritic insensitive, the old names still work', () => {
+  assert.deepEqual(cylHighlightParts('Health', 'HEAL'), [{ text: 'Heal', highlighted: true }, { text: 'th', highlighted: false }]);
+  assert.deepEqual(cylHighlightParts('Café au lait', 'cafe'), [{ text: 'Café', highlighted: true }, { text: ' au lait', highlighted: false }]);
+  assert.deepEqual(cylHighlightParts('Cafe\u0301 au lait', 'CAFÉ'), [{ text: 'Cafe\u0301', highlighted: true }, { text: ' au lait', highlighted: false }], 'decomposed, the mark stays in the match');
+  assert.deepEqual(cylHighlightParts('Crème brûlée', 'brulee'), [{ text: 'Crème ', highlighted: false }, { text: 'brûlée', highlighted: true }]);
+  assert.deepEqual(cylHighlightParts('Health', ''), [{ text: 'Health', highlighted: false }]);
+  assert.deepEqual(cylHighlightParts('Health', 'xyz'), [{ text: 'Health', highlighted: false }]);
+  const search = load('cyl-search')({ results: ['Healthy'], highlightsResultMatches: true, resultMatchHighlightColor: '#ff0000' });
+  search.showSearch(false);
+  search.onTextChange({ detail: { text: 'ALT' } });
+  assert.deepEqual(search.data.shownResults[0].parts.map((part) => [part.text, part.highlighted]), [['He', false], ['alt', true], ['hy', false]]);
+  const old = load('cyl-search')({ results: ['Healthy'], highlightsMatches: true, highlightColor: '#00ff00' });
+  old.showSearch(false);
+  old.onTextChange({ detail: { text: 'alt' } });
+  assert.equal(old.data.shownResults[0].parts[1].highlighted, true, 'highlightsMatches still turns it on');
+  const wxml = require('node:fs').readFileSync(path.join(__dirname, '..', 'src', 'cyl-search', 'index.wxml'), 'utf8');
+  assert.match(wxml, /resultMatchHighlightColor \|\| highlightColor/);
+  const view = new CYLSearchView(memoryStorage());
+  view.highlightsMatches = true;
+  assert.equal(view.highlightsResultMatches, true, 'the model forwards the old name');
+});
+
+test('the suggestion filter ignores case and diacritics like iOS', () => {
+  const view = new CYLSearchView(memoryStorage());
+  view.suggestions = ['Café', 'Health', 'resume', 'résumé'];
+  view.setQuery('CAFE');
+  assert.deepEqual(view.filteredSuggestions, ['Café']);
+  view.setQuery('resume');
+  assert.deepEqual(view.filteredSuggestions, ['resume', 'résumé']);
+});
+
+test('swipe to dismiss: the touch begins the swipe itself (24 px edge, 10 px slop, more sideways than vertical)', () => {
+  assert.equal(cylEdgeSwipeBegins(2, 11, 0), true);
+  assert.equal(cylEdgeSwipeBegins(2, 10, 0), false, 'inside the slop');
+  assert.equal(cylEdgeSwipeBegins(30, 80, 0), false, 'not from the edge');
+  assert.equal(cylEdgeSwipeBegins(2, -40, 0), false, 'leftwards');
+  assert.equal(cylEdgeSwipeBegins(2, 30, 60), false, 'more vertical than horizontal');
+  const search = load('cyl-search')({ supportsSwipeToDismissSearch: true });
+  search.showSearch(false);
+  search.onPageTouchStart({ touches: [{ clientX: 3, clientY: 300 }] });
+  search.onPageTouchMove({ touches: [{ clientX: 6, clientY: 305 }] });
+  assert.equal(search.data.swipeX, 0, 'inside the slop nothing moves yet');
+  search.onPageTouchMove({ touches: [{ clientX: 40, clientY: 310 }] });
+  assert.equal(search.data.swipeX, 37, 'it began: the page follows the finger');
+  search.swipe.startTime -= 1000;
+  search.onPageTouchEnd({ changedTouches: [{ clientX: 40 }] });
+  assert.equal(search.data.swipeX, 0);
+  assert.equal(search.isSearchOpen(), true, 'a short swipe springs back');
+  search.onPageTouchStart({ touches: [{ clientX: 3, clientY: 300 }] });
+  search.onPageTouchMove({ touches: [{ clientX: 20, clientY: 420 }] });
+  search.onPageTouchMove({ touches: [{ clientX: 300, clientY: 430 }] });
+  search.onPageTouchEnd({ changedTouches: [{ clientX: 300 }] });
+  assert.equal(search.isSearchOpen(), true, 'a vertical first move fails the swipe for good: the list scrolls');
+  assert.equal(search.data.swipeX, 0);
+});
+
+test('events: a present that starts during a dismiss overtakes it, no diddismiss for it', async () => {
+  const search = load('cyl-search')({});
+  search.model.animationDuration = 0.02;
+  search.showSearch(false);
+  search.closeSearch(true);
+  search.showSearch(true);
+  await new Promise((resolve) => setTimeout(resolve, 60));
+  assert.equal(search.isSearchOpen(), true);
+  assert.equal(search.data.visible, true, 'it did not end hidden');
+  assert.equal(names(search).filter((name) => name === 'diddismiss').length, 0);
+  assert.deepEqual(names(search).filter((name) => /^will/.test(name)), ['willpresent', 'willdismiss', 'willpresent']);
+});
+
+test('leading view and trailing accessory views: the earlier names forward, a set earlier property wins', () => {
+  const bar = load('cyl-search-bar')({ showsLeadingAccessory: false, showsTrailingAccessoryViews: true });
+  assert.deepEqual([bar.data.leadingShown, bar.data.trailingShown], [false, true], 'showsLeadingAccessory=false hides it');
+  bar.setShowsLeadingAccessoryView(true, true);
+  assert.equal(bar.model.showsLeadingView, true, 'the deprecated method calls the new one');
+  bar.setShowsTrailingAccessoryView(false, false);
+  assert.equal(bar.model.showsTrailingAccessoryViews, false);
+  const model = new CYLSearchBarView();
+  assert.equal(model.showsLeadingView, true);
+  model.showsLeadingAccessoryView = false;
+  assert.equal(model.showsLeadingView, false, 'the deprecated property forwards');
+  model.setShowsTrailingAccessoryView(false);
+  assert.equal(model.showsTrailingAccessoryViews, false);
+  const search = load('cyl-search')({}, { '#cyl-header-bar': bar });
+  search.barComponent = () => bar;
+  search.setShowsLeadingView(false, false);
+  assert.equal(bar.model.showsLeadingView, false);
+  search.setShowsTrailingAccessoryView(true, false);
+  assert.equal(bar.model.showsTrailingAccessoryViews, true);
+});
+
+test('no component of the package lays tags out by itself: the tag list is CollectionViewClassifyMenu\'s', () => {
+  const fs = require('node:fs');
+  const dir = path.join(__dirname, '..', 'src');
+  ['cyl-search', 'cyl-search-bar'].forEach((name) => {
+    ['index.wxss', 'index.wxml'].forEach((file) => {
+      const content = fs.readFileSync(path.join(dir, name, file), 'utf8');
+      assert.doesNotMatch(content, /flex-wrap/, name + '/' + file);
+    });
+  });
+  assert.equal(typeof require('../src/index.js').cylFoldTags, 'function', 'the deprecated helper stays exported');
+});
+
+// Fold control fix (docs/qmui-search-controller.md, "Fold control fix (2026-11-22)"): the tag list gets every suggestion, folded to two rows with
+// the fold control at the tail (the list's own component folds, and draws the control last, folded or unfolded).
+test('launch tags: ten suggestions and no history go to the tag list whole, 2 folded rows, the fold control at the tail', () => {
+  const ten = ['Helps', 'Maintain', 'Liver', 'Health', 'Function', 'Supports', 'Healthy', 'Fat', 'Metabolism', 'Naturally'];
+  const search = load('cyl-search')({ showsSuggestionsLaunchView: true, suggestions: ten, results: [], cacheName: 'FoldFix' + Date.now() });
+  search.showSearch(false);
+  const configuration = search.data.tagConfiguration;
+  assert.deepEqual(configuration.sections[0].items.map((item) => item.title), ten, 'no tag is dropped before the list');
+  assert.equal(configuration.defaultVisibleRows, 2);
+  assert.deepEqual(configuration.foldControl, { position: 'tail', content: 'icon' });
+  assert.equal(configuration.showsSectionHeaders, false);
 });

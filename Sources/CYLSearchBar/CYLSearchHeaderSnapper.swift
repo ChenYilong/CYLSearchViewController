@@ -20,8 +20,9 @@ import UIKit
 final class CYLSearchHeaderSnapper: NSObject {
 
     private(set) weak var tableView: UITableView?
-    private weak var searchBar: UISearchBar?
-    private weak var systemController: UISearchController?
+    private weak var searchBar: UIView?
+    var header: UIView? { searchBar }
+    private let isSearching: () -> Bool
     private var observations: [NSKeyValueObservation] = []
     private var addedBottomInset: CGFloat = 0
     private var appliedBottomInset: CGFloat?
@@ -34,10 +35,14 @@ final class CYLSearchHeaderSnapper: NSObject {
         }
     }
 
-    init(tableView: UITableView, searchBar: UISearchBar, systemController: UISearchController) {
+    /**
+     * Keeps `searchBar`, the header of `tableView`; `isSearching` answers whether the search is presented (the header is
+     * then not settled).
+     */
+    init(tableView: UITableView, searchBar: UIView, isSearching: @escaping () -> Bool) {
         self.tableView = tableView
         self.searchBar = searchBar
-        self.systemController = systemController
+        self.isSearching = isSearching
         super.init()
         // Estimated heights make the content size (and so the scroll range of a short list) wrong until rows are
         // measured; QMUI's answer to #1160 is to turn them off.
@@ -50,6 +55,12 @@ final class CYLSearchHeaderSnapper: NSObject {
         ]
         tableView.panGestureRecognizer.addTarget(self, action: #selector(handlePan(_:)))
         refresh()
+    }
+
+    convenience init(tableView: UITableView, searchBar: UISearchBar, systemController: UISearchController) {
+        self.init(tableView: tableView, searchBar: searchBar) { [weak systemController] in
+            systemController?.isActive == true
+        }
     }
 
     // Removes the inset and the gesture target; the table view is left as it is otherwise.
@@ -69,7 +80,7 @@ final class CYLSearchHeaderSnapper: NSObject {
     // The header's height while the bar is the table's header and the search is not presented, else `nil`.
     private var headerHeight: CGFloat? {
         guard let tableView, let searchBar, tableView.tableHeaderView === searchBar,
-              systemController?.isActive != true else { return nil }
+              !isSearching() else { return nil }
         let height = searchBar.bounds.height
         return height > 0 ? height : nil
     }

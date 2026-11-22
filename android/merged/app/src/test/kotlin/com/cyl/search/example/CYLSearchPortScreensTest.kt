@@ -12,6 +12,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -78,48 +79,67 @@ class CYLSearchPortScreensTest {
         assertEquals(20, CYLSearchControllerDemoFragment.ROWS_PER_MATCH)
     }
 
+    // Binds row `position` of the results list the way the list does, without a window.
+    private fun resultCell(search: CYLSearchView, position: Int): com.cyl.search.CYLSearchSuggestionCell {
+        val adapter = search.resultsTableView.adapter!!
+        val holder = adapter.createViewHolder(search.resultsTableView, 0)
+        adapter.bindViewHolder(holder, position)
+        return holder.itemView as com.cyl.search.CYLSearchSuggestionCell
+    }
+
     @Test
-    fun searchControllerShowsKeywordsLaunchViewResultsEmptyViewAndHistory() {
+    fun searchControllerConfiguresTheCoreThroughTheApiOnly() {
         val list = show(CYLSearchControllerDemoFragment())
         // Ten keywords under the bar.
         assertEquals(1 + 10 + 1, list.recyclerView.adapter!!.itemCount)
         val search = list.searchView
+        // No view of the example: the launch area is the core's suggestion area, set through properties.
+        assertNull(search.launchView)
+        assertEquals(CYLSearchControllerDemoFragment.SUGGESTIONS, search.suggestions)
+        assertTrue(search.showsSuggestionsForEmptyQuery && search.submitsOnSuggestionSelection && search.highlightsResultMatches)
+        assertEquals(activity.cylDemoText("controller.noResults"), search.noResultsText)
         search.showSearch(list, false)
         layout(list)
-        // The launch view with the eight suggestions while the text is empty.
-        val launch = search.launchView as CYLRecentSearchLaunchView
-        assertEquals(View.VISIBLE, launch.visibility)
-        assertEquals(CYLRecentSearchLaunchView.SUGGESTIONS, launch.queries)
-        assertEquals(View.GONE, launch.clearButton.visibility)
+        // The eight suggestions as CYLTagListView tags, folded to two rows, no history header.
+        assertEquals(View.VISIBLE, search.suggestionsTagView.visibility)
+        assertEquals(CYLSearchControllerDemoFragment.SUGGESTIONS, search.filteredSuggestions)
+        assertEquals(View.GONE, search.suggestionCacheHeaderView.visibility)
+        assertEquals(2, search.suggestionsFoldedRowCount)
         // Twenty rows per match: "Hea" matches two keywords.
         search.query = "Hea"
-        assertEquals(View.GONE, launch.visibility)
+        assertEquals(View.GONE, search.suggestionsTagView.visibility)
         assertEquals(40, search.searchResults.size)
         assertFalse(search.isEmptyViewShowing)
-        // The match is highlighted in the tint color in the result rows.
-        layout(list)
-        val cell = com.cyl.search.CYLSearchSuggestionCell(activity)
-        search.resultsDataSource!!.searchViewConfigureResultCell(search, cell, "Health")
-        val spans = (cell.textLabel.text as android.text.Spanned).getSpans(0, 6, android.text.style.ForegroundColorSpan::class.java)
+        // The core highlights the match (the example sets no span).
+        val cell = resultCell(search, 0)
+        assertEquals("Health", cell.textLabel.text.toString())
+        val spanned = cell.textLabel.text as android.text.Spanned
+        val spans = spanned.getSpans(0, 6, android.text.style.ForegroundColorSpan::class.java)
         assertEquals(1, spans.size)
-        assertEquals(0, (cell.textLabel.text as android.text.Spanned).getSpanStart(spans[0]))
-        assertEquals(3, (cell.textLabel.text as android.text.Spanned).getSpanEnd(spans[0]))
-        // No match: "No matching results".
+        assertEquals(0, spanned.getSpanStart(spans[0]))
+        assertEquals(3, spanned.getSpanEnd(spans[0]))
+        // No match: the core shows "No matching results" (noResultsText).
         search.query = "zzz"
         assertEquals(0, search.searchResults.size)
         assertTrue(search.isEmptyViewShowing)
         assertEquals(activity.cylDemoText("controller.noResults"), search.emptyView?.titleLabel?.text?.toString())
-        // A submitted query is the history: the launch view (on screen while searching) reads it again.
+        search.query = "Hea"
+        assertFalse("the empty view leaves with the match", search.isEmptyViewShowing)
+        // A submitted query is the history: the area (on screen while searching) lists it first, under its header.
         search.query = "Health"
         search.searchBarView.submit()
-        assertFalse("the search stays open after the return key", !search.isSearchOpen)
+        assertTrue("the search stays open after the return key", search.isSearchOpen)
         search.query = ""
-        assertEquals(View.VISIBLE, launch.visibility)
-        assertEquals(listOf("Health"), launch.queries)
-        assertEquals(View.VISIBLE, launch.clearButton.visibility)
-        launch.clearButton.performClick()
-        assertEquals(CYLRecentSearchLaunchView.SUGGESTIONS, launch.queries)
-        // Cancel clears the text: the launch view shows again on the next opening.
+        assertEquals(listOf("Health"), search.filteredSuggestions)
+        assertEquals(View.VISIBLE, search.suggestionCacheHeaderView.visibility)
+        search.clearSuggestionCacheButton.performClick()
+        assertEquals(CYLSearchControllerDemoFragment.SUGGESTIONS, search.filteredSuggestions)
+        // A tapped tag becomes the query and is submitted: the history has it, the results follow.
+        search.suggestionsTagView.tagClickHandler!!.invoke(3, com.cyl.classifymenu.CYLTag(3, "Health", null as Int?))
+        assertEquals("Health", search.query)
+        assertEquals(listOf("Health"), search.suggestionCache!!.cachedQueries())
+        assertEquals("the results follow the tapped tag: two keywords, twenty rows each", 40, search.searchResults.size)
+        // Cancel clears the text: the area shows again on the next opening.
         search.query = "He"
         search.closeSearch(false)
         assertEquals("", search.query)
@@ -130,8 +150,9 @@ class CYLSearchPortScreensTest {
         val list = show(CYLSearchBarStylesFragment())
         val bar = list.searchBarView
         assertFalse(list.opensSearchViewOnTap)
-        assertFalse("accessories hidden first", bar.showsLeadingAccessoryView || bar.showsTrailingAccessoryView)
-        assertNotNull(bar.leadingAccessoryView)
+        assertFalse("accessories hidden first", bar.showsLeadingView || bar.showsTrailingAccessoryViews)
+        assertNotNull(bar.leadingView)
+        assertEquals(1, bar.trailingAccessoryViews.size)
         val rows = (0..7).associateWith { index -> allViews(list).first { it.tag == "CYLSearchBarStylesRow$index" } }
         // Placeholder: the switch centers it; "Change placeholder" sets the long one.
         (rows[0] as ViewGroup).getChildAt(1).performClick()
@@ -155,11 +176,13 @@ class CYLSearchPortScreensTest {
         rows[6]!!.performClick()
         rows[7]!!.performClick()
         layout(list)
-        assertTrue(bar.showsLeadingAccessoryView && bar.showsTrailingAccessoryView)
-        assertEquals(30 * density, (bar.leadingAccessoryView!!.layoutParams.width).toFloat(), 1f)
+        assertTrue(bar.showsLeadingView && bar.showsTrailingAccessoryViews)
+        assertEquals(30 * density, (bar.leadingView!!.layoutParams.width).toFloat(), 1f)
         assertEquals(activity.cylDemoText("styles.hide").format(activity.cylDemoText("styles.leading")), (allViews(list).first { it.tag == "CYLSearchBarStylesRow6" } as ViewGroup).contentDescription)
-        // The bar covers no view: its children do not overlap along the row.
-        val rects = listOf(bar.leadingAccessoryView!!.parent as View, bar.fieldView, bar.trailingAccessoryView!!.parent as View, bar.cancelButton)
+        // The bar covers no view: its children do not overlap along the row (the trailing accessory sits inside the field).
+        val trailing = bar.trailingAccessoryViews[0]
+        assertTrue("inside the field", generateSequence(trailing.parent) { it.parent }.any { it === bar.fieldView })
+        val rects = listOf(bar.leadingView!!.parent as View, bar.fieldView, bar.cancelButton)
             .filter { it.visibility == View.VISIBLE && it.width > 0 }.map { android.graphics.Rect(it.left, it.top, it.right, it.bottom) }
         for (i in rects.indices) for (j in i + 1 until rects.size) assertFalse("$i overlaps $j: ${rects[i]} ${rects[j]}", android.graphics.Rect.intersects(rects[i], rects[j]))
         // The first row of the list starts under the bar.

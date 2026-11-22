@@ -32,16 +32,16 @@
     <view class="cyl-mask-icon cyl-mask-search" style="{{iconButtonColor ? 'background-color: ' + iconButtonColor : ''}}" aria-hidden="true" />
   </view>
   <block wx:else>
-    <slot name="leading" />
+    <!-- The leading view (iOS leadingView, shown by showsLeadingView): the slot `leading`, also under its earlier name
+         `leading-accessory`; before the field, outside it, so the field gives up its width. -->
+    <view class="cyl-accessory {{accessoryAnimated ? 'cyl-accessory-animated' : ''}} {{leadingShown ? '' : 'cyl-accessory-hidden'}}"
+      style="{{leadingShown ? (leadingWidth > 0 ? 'max-width: ' + leadingWidth + 'px' : 'max-width: none') : ''}}" aria-hidden="{{!leadingShown}}">
+      <view class="cyl-accessory-inner cyl-leading-inner" style="{{leadingStyle}}"><slot name="leading" /><slot name="leading-accessory" /></view>
+    </view>
     <view wx:if="{{navigationIcon !== 'none'}}" class="cyl-navigation" role="button"
       aria-label="{{navigationAccessibilityLabel || (navigationIcon === 'arrow' ? labels.back : labels.search)}}" bindtap="onNavigationTap">
       <view class="cyl-mask-icon {{navigationIcon === 'arrow' ? 'cyl-mask-back' : 'cyl-mask-search'}}"
         style="{{navigationColor ? 'background-color: ' + navigationColor : ''}}" aria-hidden="true" />
-    </view>
-    <!-- The leading accessory (iOS leadingAccessoryView): beside the field, outside it; the field gives up its width. -->
-    <view class="cyl-accessory {{accessoryAnimated ? 'cyl-accessory-animated' : ''}} {{leadingShown ? '' : 'cyl-accessory-hidden'}}"
-      style="{{leadingShown ? (leadingWidth > 0 ? 'max-width: ' + leadingWidth + 'px' : 'max-width: none') : ''}}" aria-hidden="{{!leadingShown}}">
-      <view class="cyl-accessory-inner cyl-leading-inner" style="{{leadingStyle}}"><slot name="leading-accessory" /></view>
     </view>
     <view class="cyl-field cyl-anim-{{expansionAnimation}} {{revealing ? 'cyl-field-revealing' : ''}}"
       style="{{fieldStyle}}; transition-duration: {{animationDuration}}s">
@@ -66,7 +66,12 @@
       <view wx:if="{{showsSubmitButton && text}}" class="cyl-field-button" role="button" aria-label="{{labels.submit}}" bindtap="onSubmitTap">
         <view class="cyl-mask-icon cyl-mask-submit" aria-hidden="true" />
       </view>
-      <slot name="trailing" />
+      <!-- The trailing accessory views (iOS trailingAccessoryViews, shown by showsTrailingAccessoryViews): the slot `trailing`, also
+           under its earlier name `trailing-accessory`; the text gives up their width. -->
+      <view class="cyl-accessory {{accessoryAnimated ? 'cyl-accessory-animated' : ''}} {{trailingShown ? '' : 'cyl-accessory-hidden'}}"
+        style="{{trailingShown ? (trailingWidth > 0 ? 'max-width: ' + trailingWidth + 'px' : 'max-width: none') : ''}}" aria-hidden="{{!trailingShown}}">
+        <view class="cyl-accessory-inner cyl-trailing-inner" style="{{trailingStyle}}"><slot name="trailing" /><slot name="trailing-accessory" /></view>
+      </view>
       <!-- The appended items (iOS CYLSearchBarItem): a divider, or CollectionViewClassifyMenu's cyl-tag-button (the one
            icon + title + animated icon component, with the badge), at least 36 px square; it reads the item's label.
            The four engine slots go on to cyl-tag-button, which hands them to CYLTabBarController's cyl-animated-item:
@@ -87,11 +92,6 @@
             tagStyle="{{item.button.tagStyle}}" />
         </view>
       </block>
-    </view>
-    <!-- The trailing accessory (iOS trailingAccessoryView), beside the field and before Cancel. -->
-    <view class="cyl-accessory {{accessoryAnimated ? 'cyl-accessory-animated' : ''}} {{trailingShown ? '' : 'cyl-accessory-hidden'}}"
-      style="{{trailingShown ? (trailingWidth > 0 ? 'max-width: ' + trailingWidth + 'px' : 'max-width: none') : ''}}" aria-hidden="{{!trailingShown}}">
-      <view class="cyl-accessory-inner cyl-trailing-inner" style="{{trailingStyle}}"><slot name="trailing-accessory" /></view>
     </view>
     <!-- Cancel stays in the tree so that showing and hiding it can animate (iOS setShowsCancelButton(_:animated:)). -->
     <view class="cyl-cancel {{cancelAnimated ? 'cyl-cancel-animated' : ''}} {{(cancelShown || editingBar) ? '' : 'cyl-cancel-hidden'}}" role="button"

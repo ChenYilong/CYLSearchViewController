@@ -152,10 +152,24 @@ internal class CYLSearchSuggestionStore(context: Context, val policy: CYLSearchS
     }
 
     override fun addQuery(query: String) {
-        val trimmed = query.trim()
-        if (trimmed.isEmpty()) {
-            return
+        if (query.isNotBlank()) {
+            storeQuery(query)
+            CYLSearchHistorySignal.post(this)
         }
+    }
+
+    override fun removeQuery(query: String) {
+        deleteQuery(query)
+        CYLSearchHistorySignal.post(this)
+    }
+
+    override fun removeAllQueries() {
+        deleteAll()
+        CYLSearchHistorySignal.post(this)
+    }
+
+    private fun storeQuery(query: String) {
+        val trimmed = query.trim()
         if (policy == CYLSearchSuggestionCachePolicy.Database) {
             val db = helper.writableDatabase
             db.insertWithOnConflict(TABLE, null, ContentValues().apply {
@@ -172,7 +186,7 @@ internal class CYLSearchSuggestionStore(context: Context, val policy: CYLSearchS
         save((listOf(trimmed) + cachedQueries().filter { it != trimmed }).take(maxOf(1, maximumCount)))
     }
 
-    override fun removeQuery(query: String) {
+    private fun deleteQuery(query: String) {
         if (policy == CYLSearchSuggestionCachePolicy.Database) {
             helper.writableDatabase.delete(TABLE, "cache = ? AND query = ?", arrayOf(name, query))
             return
@@ -180,7 +194,7 @@ internal class CYLSearchSuggestionStore(context: Context, val policy: CYLSearchS
         save(cachedQueries().filter { it != query })
     }
 
-    override fun removeAllQueries() {
+    private fun deleteAll() {
         if (policy == CYLSearchSuggestionCachePolicy.Database) {
             helper.writableDatabase.delete(TABLE, "cache = ?", arrayOf(name))
             return
@@ -239,5 +253,35 @@ internal class CYLSearchSuggestionStore(context: Context, val policy: CYLSearchS
          */
         fun cacheWithPolicy(context: Context, policy: CYLSearchSuggestionCachePolicy, name: String): CYLSearchSuggestionStore? =
             if (policy == CYLSearchSuggestionCachePolicy.None) null else CYLSearchSuggestionStore(context, policy, name)
+    }
+}
+
+/**
+ * The one change signal of the search history (iOS `CYLSearchSuggestionStore.didChangeNotification`): the built-in store
+ * posts it after every change, and the core posts it for a store of an app's own (the interface) after a submit or a
+ * clear. Observers match by policy and name for the built-in stores (`cacheWithPolicy` returns a new instance per call;
+ * the same name under another policy is another history) and by identity for the others.
+ */
+internal object CYLSearchHistorySignal {
+    private val observers = mutableListOf<Pair<Any, () -> Unit>>()
+
+    private fun key(cache: CYLSearchSuggestionCache): Any =
+        if (cache is CYLSearchSuggestionStore) "${cache.policy}|${cache.name}" else cache
+
+    /**
+     * Calls `listener` whenever the history of `cache` changes; returns the function that stops it.
+     */
+    fun observe(cache: CYLSearchSuggestionCache, listener: () -> Unit): () -> Unit {
+        val entry = key(cache) to listener
+        observers.add(entry)
+        return { observers.remove(entry) }
+    }
+
+    /**
+     * Tells the observers of the history of `cache` that it changed.
+     */
+    fun post(cache: CYLSearchSuggestionCache) {
+        val key = key(cache)
+        observers.toList().filter { it.first == key }.forEach { it.second() }
     }
 }

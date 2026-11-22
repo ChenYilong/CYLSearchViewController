@@ -2,11 +2,11 @@
   <cyl-demo-nav title="{{title}}" />
   <!-- QDSearchBarViewController: the bar is the header of the list. The core's content page is the one scroller. -->
   <cyl-search id="search" class="host" generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga" style="height: {{hostHeight}}px" showsSearchBar showsContent placeholder="{{placeholder}}"
-    centersPlaceholder="{{centersPlaceholder}}" showsLeadingAccessory="{{showsLeading}}" showsTrailingAccessory="{{showsTrailing}}"
+    centersPlaceholder="{{centersPlaceholder}}" showsLeadingView="{{showsLeading}}" showsTrailingAccessoryViews="{{showsTrailing}}"
     leadingAccessoryMargins="{{leadingMargins}}" trailingAccessoryMargins="{{trailingMargins}}"
-    dimmingColor="rgba(0, 0, 0, 0.4)" cacheName="CYLSearchBarStyles" appearance="{{appearance}}" backgroundColor="#f2f2f7">
-    <view slot="leading-accessory" class="accessory" style="border-color: {{leadingColor}}" role="img" aria-label="{{texts.accessory}}" />
-    <view slot="trailing-accessory" class="accessory" style="border-color: {{trailingColor}}" role="img" aria-label="{{texts.accessory}}" />
+    scrimColor="rgba(0, 0, 0, 0.4)" cacheName="CYLSearchBarStyles" appearance="{{appearance}}" backgroundColor="#f2f2f7">
+    <view slot="leading" class="accessory" style="border-color: {{leadingColor}}" role="img" aria-label="{{texts.accessory}}" />
+    <view slot="trailing" class="accessory" style="border-color: {{trailingColor}}" role="img" aria-label="{{texts.accessory}}" />
     <view slot="content" class="styles">
       <block wx:for="{{sections}}" wx:for-item="section" wx:key="title">
         <view class="group-header" role="heading">{{section.title}}</view>

@@ -133,7 +133,7 @@ final class CYLSearchTestNavigationController: UINavigationController {
  * A window in the host app's scene: with the scene life cycle, a window without a scene is never shown, and the search
  * bars of its navigation items are never installed.
  */
-func CYLTestWindow(_ frame: CGRect) -> UIWindow {
+func testWindow(_ frame: CGRect) -> UIWindow {
     let scene = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first
     let window = scene.map { UIWindow(windowScene: $0) } ?? UIWindow(frame: frame)
     window.frame = frame
@@ -143,7 +143,7 @@ func CYLTestWindow(_ frame: CGRect) -> UIWindow {
 /**
  * The text fields of the searches of a bar in `.multiple` mode, in order (the bar's own field excluded).
  */
-func CYLSearchFields(_ bar: CYLSearchBarView) -> [UITextField] {
+func searchFields(_ bar: CYLSearchBarView) -> [UITextField] {
     var fields: [UITextField] = []
     func visit(_ view: UIView) {
         if let field = view as? UITextField, field !== bar.textField { fields.append(field) }
@@ -157,17 +157,17 @@ func CYLSearchFields(_ bar: CYLSearchBarView) -> [UITextField] {
  * What a navigation-item search controller shows: its search bar, or on iOS 26, where the navigation bar hosts the field
  * without the bar, the search text field.
  */
-func CYLVisibleSearchView(_ searchBar: UISearchBar) -> UIView {
+func visibleSearchView(_ searchBar: UISearchBar) -> UIView {
     searchBar.window != nil ? searchBar : searchBar.searchTextField
 }
 
 /**
  * The first view in `root` (itself included) with the accessibility identifier, depth first.
  */
-func CYLViewWithAccessibilityIdentifier(_ root: UIView, _ identifier: String) -> UIView? {
+func viewWithAccessibilityIdentifier(_ root: UIView, _ identifier: String) -> UIView? {
     if root.accessibilityIdentifier == identifier { return root }
     for subview in root.subviews {
-        if let found = CYLViewWithAccessibilityIdentifier(subview, identifier) { return found }
+        if let found = viewWithAccessibilityIdentifier(subview, identifier) { return found }
     }
     return nil
 }
@@ -175,10 +175,10 @@ func CYLViewWithAccessibilityIdentifier(_ root: UIView, _ identifier: String) ->
 /**
  * The first view in `root` (itself included) of the class, depth first.
  */
-func CYLViewOfClass<T: UIView>(_ root: UIView, _ viewClass: T.Type) -> T? {
+func viewOfClass<T: UIView>(_ root: UIView, _ viewClass: T.Type) -> T? {
     if let match = root as? T { return match }
     for subview in root.subviews {
-        if let found = CYLViewOfClass(subview, viewClass) { return found }
+        if let found = viewOfClass(subview, viewClass) { return found }
     }
     return nil
 }
@@ -190,7 +190,7 @@ func CYLViewOfClass<T: UIView>(_ root: UIView, _ viewClass: T.Type) -> T? {
  * scroll views, view controllers' views, and leaf views with a background, contents or a border. Each entry is
  * "<class> <frame> in <superview>".
  */
-func CYLViewsCoveredByView(_ view: UIView, _ root: UIView?) -> [String] {
+func viewsCoveredByView(_ view: UIView, _ root: UIView?) -> [String] {
     guard let window = view.window else { return ["not in a window"] }
     let frame = view.convert(view.bounds, to: window).insetBy(dx: 0.5, dy: 0.5)
     var ancestors = Set<ObjectIdentifier>()
@@ -233,6 +233,6 @@ func CYLViewsCoveredByView(_ view: UIView, _ root: UIView?) -> [String] {
 /**
  * Runs the main run loop for `seconds`, as the Objective-C tests did with `-runUntilDate:`.
  */
-func CYLRunLoop(_ seconds: TimeInterval) {
+func runLoop(_ seconds: TimeInterval) {
     RunLoop.main.run(until: Date(timeIntervalSinceNow: seconds))
 }

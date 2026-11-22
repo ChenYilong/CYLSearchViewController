@@ -42,10 +42,10 @@ final class CYLSearchTableRecorder: CYLSearchTableViewController {
 final class CYLSearchTableViewControllerTests: CYLSearchExampleTestCase {
 
     private func open(_ controller: UIViewController) -> UIWindow {
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         window.rootViewController = UINavigationController(rootViewController: controller)
         window.makeKeyAndVisible()
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         return window
     }
 
@@ -139,13 +139,13 @@ final class CYLSearchTableViewControllerTests: CYLSearchExampleTestCase {
 
         screen.hidesSearchBarWhenEmptyViewShowing = true
         screen.showEmptyView(text: "Nothing", detailText: "Try another word")
-        CYLRunLoop(0.2)
+        runLoop(0.2)
         XCTAssertTrue(screen.isEmptyViewShowing)
         XCTAssertNil(table.tableHeaderView, "the bar leaves the header while the empty view shows")
         XCTAssertNotNil(screen.searchBar, "the bar and the controller live on")
         table.setContentOffset(CGPoint(x: 0, y: -table.adjustedContentInset.top), animated: false)
         screen.hideEmptyView()
-        CYLRunLoop(0.3)
+        runLoop(0.3)
         XCTAssertTrue(table.tableHeaderView === bar, "the bar returns")
         XCTAssertEqual(table.contentOffset.y, hiddenOffset(), accuracy: 0.5, "and is hidden initially again (#128 force)")
 
@@ -155,7 +155,7 @@ final class CYLSearchTableViewControllerTests: CYLSearchExampleTestCase {
         XCTAssertNil(table.tableHeaderView)
         table.setContentOffset(CGPoint(x: 0, y: -table.adjustedContentInset.top), animated: false)
         screen.hideEmptyView()
-        CYLRunLoop(0.3)
+        runLoop(0.3)
         XCTAssertTrue(table.tableHeaderView === bar)
         XCTAssertEqual(table.contentOffset.y, -table.adjustedContentInset.top, accuracy: 0.5)
         window.isHidden = true
@@ -168,7 +168,7 @@ final class CYLSearchTableViewControllerTests: CYLSearchExampleTestCase {
         let window = open(screen)
         let search = try XCTUnwrap(screen.searchController)
         search.setActive(true, animated: false)
-        CYLRunLoop(0.6)
+        runLoop(0.6)
         let results = try XCTUnwrap(search.tableView)
         results.reloadData()
         results.layoutIfNeeded()
@@ -191,9 +191,9 @@ final class CYLSearchTableViewControllerTests: CYLSearchExampleTestCase {
         let window = open(screen)
         let search = try XCTUnwrap(screen.searchController)
         search.setActive(true, animated: false)
-        CYLRunLoop(0.5)
+        runLoop(0.5)
         search.searchBar.text = "Ro"
-        CYLRunLoop(0.3)
+        runLoop(0.3)
         XCTAssertEqual(screen.updates.last, "Ro")
         search.setActive(false, animated: false)
         window.isHidden = true

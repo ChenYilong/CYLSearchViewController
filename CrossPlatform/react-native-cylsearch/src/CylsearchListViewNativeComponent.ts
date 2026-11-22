@@ -29,7 +29,7 @@ type ResultSelectEvent = Readonly<{
 
 export interface NativeProps extends ViewProps {
   /**
-   * The rows of the list under the bar (iOS `CYLSearchTableViewController`, Android `CYLSearchListView`).
+   * The rows of the list under the bar (iOS: a table under a `CYLSearchBarView` that opens the core's `CYLSearchView`; Android: `CYLSearchListView`).
    */
   rows?: ReadonlyArray<string>;
   /**
@@ -66,35 +66,36 @@ export interface NativeProps extends ViewProps {
    */
   resultsQuery?: string;
   /**
-   * The empty view's text ("No matching results") for a text whose results are empty; empty shows none
-   * (`showEmptyView` / `hideEmptyView`).
+   * The empty view's text ("No matching results") for a text whose results are empty; empty shows none (`noResultsText`).
    */
-  emptyViewText?: string;
+  noResultsText?: string;
   /**
-   * The launch view (`launchView`): its title ("Recent searches"), shown under the bar while the text is empty; empty shows none.
+   * The launch area (the core's suggestion area, shown under the bar while the text is empty): these tags while there is no
+   * history, then the history, with its title and clear button (`suggestions`, `showsSuggestionsForEmptyQuery`).
    */
-  launchTitle?: string;
+  suggestions?: ReadonlyArray<string>;
   /**
-   * The tags the launch view shows while there is no history.
+   * A tapped tag submits the query like the return key (`submitsOnSuggestionSelection`).
    */
-  launchSuggestions?: ReadonlyArray<string>;
+  submitsOnSuggestionSelection?: CodegenTypes.WithDefault<boolean, true>;
   /**
-   * Screen reader labels of the launch view's tags and of its clear button.
+   * Where submitted queries are kept (`suggestionCachePolicy`): "none" (default), "userDefaults", "database" or "sandboxFile".
    */
-  launchLabel?: string;
-  clearHistoryLabel?: string;
+  suggestionCachePolicy?: string;
   /**
-   * Where submitted queries are kept (`historyStore`): "none" (default), "userDefaults", "database" or "sandboxFile".
+   * Separates the histories of different screens (`suggestionCacheName`).
    */
-  historyPolicy?: string;
+  suggestionCacheName?: string;
   /**
-   * Separates the histories of different screens.
+   * The color behind the open search, as "#RRGGBB" or "#AARRGGBB"; a tap on it ends the search (`scrimColor`).
    */
-  historyName?: string;
+  scrimColor?: string;
   /**
-   * The dimming under the bar while the text is empty and no launch view shows, as "#RRGGBB" or "#AARRGGBB"; a tap ends the search (`dimmingColor`).
+   * The first match of the text in each result is drawn in `resultMatchHighlightColor` (the tint color by default), case and
+   * diacritic insensitive (`highlightsResultMatches`).
    */
-  dimmingColor?: string;
+  highlightsResultMatches?: boolean;
+  resultMatchHighlightColor?: string;
   /**
    * A swipe from the edge ends the search (`supportsSwipeToDismissSearch`; Android: the predictive back swipe).
    */
@@ -115,6 +116,10 @@ export interface NativeProps extends ViewProps {
    * A submitted query went into the history (`historyDidChangeNotification`).
    */
   onHistoryChange?: CodegenTypes.DirectEventHandler<HistoryEvent>;
+  /**
+   * A query was submitted: the return key or a tapped tag.
+   */
+  onSubmit?: CodegenTypes.DirectEventHandler<TextEvent>;
   onSelectRow?: CodegenTypes.DirectEventHandler<RowSelectEvent>;
   onSelectResult?: CodegenTypes.DirectEventHandler<ResultSelectEvent>;
 }

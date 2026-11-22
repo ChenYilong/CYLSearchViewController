@@ -29,6 +29,7 @@ public final class CYLSearchNavigationItemDemoViewController: UITableViewControl
         navigationItem.title = cylDemoText("demo.navigationItem")
         let search = CYLSearchController(contentsViewController: self)
         search.searchResultsDelegate = self
+        search.noResultsText = cylDemoText("controller.noResults")
         search.install(in: navigationItem)
         navigationItem.hidesSearchBarWhenScrolling = false
         // The bar stays in the navigation bar, under the title: on iOS 26 an iPhone would float it at the bottom of the screen,
@@ -69,11 +70,5 @@ public final class CYLSearchNavigationItemDemoViewController: UITableViewControl
             $0.range(of: searchString, options: .caseInsensitive) != nil
         }
         searchController.tableView?.reloadData()
-        if matches.isEmpty && !searchString.isEmpty {
-            searchController.showEmptyView(text: cylDemoText("controller.noResults"), detailText: nil, buttonTitle: nil,
-                                           buttonAction: nil)
-        } else {
-            searchController.hideEmptyView()
-        }
     }
 }

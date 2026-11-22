@@ -25,14 +25,15 @@ import CylsearchViewNative, {
 } from './CylsearchViewNativeComponent';
 
 import {
-  cylAccessoryJSON,
-  cylAppearanceJSON,
+  cylBarForwards,
+  cylListForwards,
   cylInsetsArray,
   cylSearchBarItemsJSON,
   cylSearchBarSelectedItem,
   cylSearchViewShowsResults,
   cylSearchViewSuggestionStyle,
   type CYLEdgeInsets,
+  type CYLFont,
   type CYLSearchBarAccessory,
   type CYLSearchBarAppearance,
   type CYLSearchBarItem,
@@ -45,11 +46,16 @@ export type {
   CYLSearchBarItem,
   CYLSearchBarMode,
   CYLEdgeInsets,
+  CYLFont,
   CYLSearchBarAccessory,
   CYLSearchBarAppearance,
 };
 export {
+  cylBarForwards,
+  cylListForwards,
+  cylAccessoriesJSON,
   cylAccessoryJSON,
+  cylFontJSON,
   cylAppearanceJSON,
   cylInsetsArray,
   cylResultsForQuery,
@@ -73,11 +79,12 @@ export type SearchBarProps = Omit<
   | 'searchingFieldMargins'
   | 'cancelMargins'
   | 'searchingCancelMargins'
-  | 'leadingAccessoryJSON'
-  | 'trailingAccessoryJSON'
-  | 'showsLeadingAccessory'
-  | 'showsTrailingAccessory'
-  | 'appearanceJSON'
+  | 'leadingViewJSON'
+  | 'trailingAccessoryViewsJSON'
+  | 'showsLeadingView'
+  | 'showsTrailingAccessoryViews'
+  | 'appearanceStyleJSON'
+  | 'cancelButtonFontJSON'
 > & {
   /**
    * The field's margins at rest and while searching (`textFieldMargins` / `textFieldMarginsProvider(bar, active)`).
@@ -90,15 +97,40 @@ export type SearchBarProps = Omit<
   cancelMargins?: CYLEdgeInsets;
   searchingCancelMargins?: CYLEdgeInsets;
   /**
-   * The views beside the field (`leadingAccessoryView`, `trailingAccessoryView`); give the spec to have the view and
-   * `showsLeadingAccessory` / `showsTrailingAccessory` to show it, animated unless `animatesChanges` is false.
+   * The view before the field (`leadingView`) and the views after the text (`trailingAccessoryViews`); give the specs to
+   * have the views and `showsLeadingView` / `showsTrailingAccessoryViews` to show them, animated unless `animatesChanges`
+   * is false (`setShowsLeadingView(_:animated:)`).
+   */
+  leadingView?: CYLSearchBarAccessory;
+  trailingAccessoryViews?: CYLSearchBarAccessory[];
+  showsLeadingView?: boolean;
+  showsTrailingAccessoryViews?: boolean;
+  /**
+   * `CYLSearchBarAppearance` values (`appearanceStyle`).
+   */
+  appearanceStyle?: CYLSearchBarAppearance;
+  /**
+   * The font of Cancel's title (`cancelButtonFont`).
+   */
+  cancelButtonFont?: CYLFont;
+  /**
+   * @deprecated Use `leadingView`.
    */
   leadingAccessory?: CYLSearchBarAccessory;
+  /**
+   * @deprecated Use `trailingAccessoryViews`.
+   */
   trailingAccessory?: CYLSearchBarAccessory;
+  /**
+   * @deprecated Use `showsLeadingView`.
+   */
   showsLeadingAccessory?: boolean;
+  /**
+   * @deprecated Use `showsTrailingAccessoryViews`.
+   */
   showsTrailingAccessory?: boolean;
   /**
-   * `CYLSearchBarAppearance` values.
+   * @deprecated Use `appearanceStyle`.
    */
   appearance?: CYLSearchBarAppearance;
   /**
@@ -129,7 +161,11 @@ export type SearchBarProps = Omit<
  * (`refreshEnabled`, `onRefresh`, `refreshing`) and CYLTableViewPlaceHolder's placeholders. Show it as a full screen
  * and leave it in `onClose`.
  */
-export function CYLSearchView({ showsResults, suggestionStyle, ...props }: SearchViewProps) {
+export function CYLSearchView({
+  showsResults,
+  suggestionStyle,
+  ...props
+}: SearchViewProps) {
   const scheme = useColorScheme();
   return (
     <CylsearchViewNative
@@ -153,6 +189,12 @@ export function CYLSearchBarView({
   searchingFieldMargins,
   cancelMargins,
   searchingCancelMargins,
+  leadingView,
+  trailingAccessoryViews,
+  showsLeadingView,
+  showsTrailingAccessoryViews,
+  appearanceStyle,
+  cancelButtonFont,
   leadingAccessory,
   trailingAccessory,
   showsLeadingAccessory,
@@ -177,11 +219,19 @@ export function CYLSearchBarView({
       searchingFieldMargins={cylInsetsArray(searchingFieldMargins)}
       cancelMargins={cylInsetsArray(cancelMargins)}
       searchingCancelMargins={cylInsetsArray(searchingCancelMargins)}
-      leadingAccessoryJSON={cylAccessoryJSON(leadingAccessory)}
-      trailingAccessoryJSON={cylAccessoryJSON(trailingAccessory)}
-      showsLeadingAccessory={showsLeadingAccessory}
-      showsTrailingAccessory={showsTrailingAccessory}
-      appearanceJSON={cylAppearanceJSON(appearance)}
+      {...cylBarForwards({
+        leadingView,
+        trailingAccessoryViews,
+        showsLeadingView,
+        showsTrailingAccessoryViews,
+        appearanceStyle,
+        cancelButtonFont,
+        leadingAccessory,
+        trailingAccessory,
+        showsLeadingAccessory,
+        showsTrailingAccessory,
+        appearance,
+      })}
       itemsJSON={cylSearchBarItemsJSON(items)}
       onItemSelect={(event) => {
         const { index, selected } = event.nativeEvent;
@@ -254,20 +304,62 @@ export type CYLSearchListHandle = {
 };
 
 /**
- * The props of the list with a search bar: the native props, with `ref`.
+ * The props of the list with a search bar: the native props, with `ref`, and the names of the first QMUI port, which
+ * forward to the iOS names.
  */
 export type SearchListProps = NativeListProps & {
   ref?: Ref<CYLSearchListHandle>;
+  /**
+   * @deprecated Use `noResultsText`.
+   */
+  emptyViewText?: string;
+  /**
+   * @deprecated Use `scrimColor`.
+   */
+  dimmingColor?: string;
+  /**
+   * @deprecated Use `suggestions`.
+   */
+  launchSuggestions?: ReadonlyArray<string>;
+  /**
+   * @deprecated Use `suggestionCachePolicy`.
+   */
+  historyPolicy?: string;
+  /**
+   * @deprecated Use `suggestionCacheName`.
+   */
+  historyName?: string;
+  /**
+   * The presentation events under the names of `CYLSearchViewDelegate` (`searchViewWillShow`, `searchViewDidShow`,
+   * `searchViewWillClose`, `searchViewDidClose`); the same events as `onWillPresent`, `onDidPresent`, `onWillDismiss` and
+   * `onDidDismiss` (the names of the core's presentation state), either spelling works.
+   */
+  onWillShow?: NativeListProps['onWillPresent'];
+  onDidShow?: NativeListProps['onDidPresent'];
+  onWillClose?: NativeListProps['onWillDismiss'];
+  onDidClose?: NativeListProps['onDidDismiss'];
 };
 
 /**
- * The list of CYLSearchViewController whose first item is the search bar (iOS `CYLSearchTableViewController`, Android
- * `CYLSearchListView`) with its search: the `rows`, the `results` of the text (answer `onUpdateResults`), a launch view
- * (`launchTitle`, history and tags), dimming, the empty view, the presentation events, `setActive`, the history and
- * its change event, swipe to dismiss, and the snapping of a bar above a short list (`snapsHeaderSearchBar`). Android
- * only for now: on iOS it waits for the merge of these members into the base classes (docs/qmui-search-controller.md).
+ * The list of CYLSearchViewController whose first item is the search bar (iOS: a table under a `CYLSearchBarView` that opens
+ * the core's `CYLSearchView`; Android: `CYLSearchListView`) with its search: the `rows`, the `results` of the text (answer `onUpdateResults`) with the match
+ * highlighted (`highlightsResultMatches`), the launch area (the core's suggestion area: `suggestions`, the history, tags that
+ * submit), `scrimColor`, `noResultsText`, the presentation events, `setActive`, the history and its change event, swipe to
+ * dismiss. iOS: `CYLSearchView` over a table of the rows; Android: `CYLSearchListView` and `CYLSearchView`.
  */
-export function CYLSearchListView({ ref, ...props }: SearchListProps) {
+export function CYLSearchListView({
+  ref,
+  emptyViewText,
+  dimmingColor,
+  launchSuggestions,
+  historyPolicy,
+  historyName,
+  onWillShow,
+  onDidShow,
+  onWillClose,
+  onDidClose,
+  ...props
+}: SearchListProps) {
   const scheme = useColorScheme();
   const native = useRef<ElementRef<typeof CylsearchListViewNative>>(null);
   useImperativeHandle(ref, () => ({
@@ -284,6 +376,18 @@ export function CYLSearchListView({ ref, ...props }: SearchListProps) {
       ref={native}
       colorScheme={scheme === 'dark' ? 'dark' : 'light'}
       {...props}
+      {...cylListForwards({
+        ...props,
+        emptyViewText,
+        dimmingColor,
+        launchSuggestions,
+        historyPolicy,
+        historyName,
+        onWillShow,
+        onDidShow,
+        onWillClose,
+        onDidClose,
+      })}
     />
   );
 }

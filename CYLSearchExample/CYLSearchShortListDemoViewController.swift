@@ -25,6 +25,7 @@ public final class CYLSearchShortListDemoViewController: CYLSearchTableViewContr
         showsSearchBar = true
         super.viewDidLoad()
         navigationItem.title = cylDemoText("demo.shortList")
+        searchController?.noResultsText = cylDemoText("controller.noResults")
     }
 
     // MARK: - Table
@@ -50,11 +51,5 @@ public final class CYLSearchShortListDemoViewController: CYLSearchTableViewContr
     public override func searchController(_ searchController: CYLSearchController, updateResultsFor searchString: String) {
         matches = searchString.isEmpty ? [] : Self.rows.filter { $0.range(of: searchString, options: .caseInsensitive) != nil }
         searchController.tableView?.reloadData()
-        if matches.isEmpty && !searchString.isEmpty {
-            searchController.showEmptyView(text: cylDemoText("controller.noResults"), detailText: nil, buttonTitle: nil,
-                                           buttonAction: nil)
-        } else {
-            searchController.hideEmptyView()
-        }
     }
 }

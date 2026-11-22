@@ -264,44 +264,32 @@ test('cyl-search: the content page is the one scroller and holds its scrolling o
   assert.equal(search.data.contentScrollHeld, false, 'a cancelled drag releases it too (the list sends false)');
 });
 
-test('cyl-search: tags are the default suggestion style, folded at start, and the fold chevron is the last tag folded or not', () => {
+test('cyl-search: tags are the default suggestion style: CollectionViewClassifyMenu\'s tag list, folded to two rows, its fold control last', () => {
   const fs = require('node:fs');
-  const wxml = fs.readFileSync(path.join(__dirname, '..', 'src', 'cyl-search', 'index.wxml'), 'utf8');
-  const tagsAt = wxml.indexOf('wx:for="{{visibleTags}}"');
-  const foldAt = wxml.indexOf('class="cyl-tag cyl-fold" role="button"');
-  assert.ok(tagsAt > 0 && foldAt > tagsAt, 'the fold chevron is drawn after every visible tag, in both states');
-  const withWidths = (widths, properties) => {
-    const search = load('cyl-search')(properties);
-    search.createSelectorQuery = () => {
-      const query = { selectAll: () => query, select: () => query, boundingClientRect: () => query,
-        exec(done) { done([widths.map((width) => ({ width })), { width: 40 }, { width: 420 }]); } };
-      return query;
-    };
-    return search;
-  };
+  const read = (file) => fs.readFileSync(path.join(__dirname, '..', 'src', 'cyl-search', file), 'utf8');
+  const wxml = read('index.wxml');
+  assert.match(wxml, /<cyl-tag-list configuration="\{\{tagConfiguration\}\}" bind:tagtap="onSuggestionTap" \/>/, 'the tag list draws the tags');
+  assert.doesNotMatch(wxml, /class="cyl-tag[ "]|cyl-measure|visibleTags|cyl-fold/, 'no hand-made chips, measuring row or fold chevron');
+  assert.doesNotMatch(read('index.wxss'), /flex-wrap|\.cyl-tag\b|\.cyl-measure/, 'no flex wrap layout of tags');
+  assert.equal(JSON.parse(read('index.json')).usingComponents['cyl-tag-list'], 'cyl-tag-list-miniprogram/cyl-tag-list/cyl-tag-list');
   const many = Array.from({ length: 10 }, (_, index) => 'Tag ' + index);
-  const search = withWidths(many.map(() => 100), { suggestions: many });
+  const search = load('cyl-search')({ suggestions: many });
   assert.equal(search.properties.suggestionStyle, 'tags', 'the property defaults to tags');
   assert.equal(search.properties.foldedRowCount, 2);
   search.showSearch(false);
   search.onTextChange({ detail: { text: 'tag' } });
   assert.equal(search.data.shownSuggestions.length, 10);
-  assert.equal(search.data.folded, true, 'folded at start');
-  assert.equal(search.data.needsFold, true, 'the fold chevron is the last tag');
-  assert.ok(search.data.visibleTags.length > 0 && search.data.visibleTags.length < 10, 'two rows of tags');
-  search.onToggleFold();
-  assert.equal(search.data.folded, false);
-  assert.equal(search.data.visibleTags.length, 10, 'unfolded: every tag');
-  assert.equal(search.data.needsFold, true, 'unfolded: the chevron is still the last tag');
-  search.onToggleFold();
-  assert.equal(search.data.folded, true);
-  assert.ok(search.data.visibleTags.length < 10);
-  assert.equal(search.data.needsFold, true);
-  const fits = withWidths([100, 100, 100], { suggestions: ['Aa', 'Ab', 'Ac'] });
-  fits.showSearch(false);
-  fits.onTextChange({ detail: { text: 'a' } });
-  assert.equal(fits.data.needsFold, false, 'all tags fit the folded rows: no fold chevron (cyl-search / iOS CYLTagListView canFoldSection)');
-  assert.equal(fits.data.visibleTags.length, 3);
-  const list = withWidths([100], { suggestions: ['A'], suggestionStyle: 'list' });
+  const configuration = search.data.tagConfiguration;
+  assert.equal(configuration.defaultVisibleRows, 2, 'folded to two rows at start');
+  assert.deepEqual(configuration.foldControl, { position: 'tail', content: 'icon' }, 'the fold control is the last tag, as an icon');
+  assert.equal(configuration.selectionMode, 'none');
+  assert.equal(configuration.showsSectionHeaders, false);
+  assert.deepEqual(configuration.sections[0].items.map((item) => item.title), many);
+  search.onTextChange({ detail: { text: 'tag ' } });
+  assert.strictEqual(search.data.tagConfiguration, configuration, 'a keystroke that keeps the tags keeps the configuration (and the fold state)');
+  search.onTextChange({ detail: { text: 'tag 1' } });
+  assert.deepEqual(search.data.tagConfiguration.sections[0].items.map((item) => item.title), ['Tag 1']);
+  const list = load('cyl-search')({ suggestions: ['A'], suggestionStyle: 'list' });
   assert.equal(list.properties.suggestionStyle, 'list', 'the list stays available');
+  assert.equal(list.data.tagConfiguration, null);
 });

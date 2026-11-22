@@ -35,6 +35,14 @@ class CYLSearchBehaviorTest {
     /**
      * The suggestion cache persists by design (docs/core-todo.md): every test starts from an empty default cache.
      */
+    /**
+     * Takes the test's views off the window, so their history observers end (Robolectric keeps the activity alive).
+     */
+    @org.junit.After
+    fun detachTheViews() {
+        activity.setContentView(FrameLayout(activity))
+    }
+
     @org.junit.Before
     fun clearTheDefaultSuggestionCache() {
         CYLSearchSuggestionStore.cacheWithPolicy(activity, CYLSearchSuggestionCachePolicy.Database, "CYLSearchView")?.removeAllQueries()

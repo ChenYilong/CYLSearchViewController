@@ -39,6 +39,7 @@ public final class CYLSearchControllerDemoViewController: UITableViewController,
         search.searchResultsDelegate = self
         search.supportsSwipeToDismissSearch = true
         search.highlightsResultMatches = true
+        search.noResultsText = cylDemoText("controller.noResults")
         // The core's launch view: the history of submitted queries (a return key or a tapped tag submits), else QMUI's eight
         // suggestions, as tags; the title and the trash button come with it.
         search.historyStore = CYLSearchResources.suggestionCache(policy: .userDefaults, name: Self.historyName)
@@ -93,11 +94,5 @@ public final class CYLSearchControllerDemoViewController: UITableViewController,
     public func searchController(_ searchController: CYLSearchController, updateResultsFor searchString: String) {
         matches = searchString.isEmpty ? [] : Self.keywords.filter { $0.range(of: searchString) != nil }
         searchController.tableView?.reloadData()
-        if matches.isEmpty {
-            searchController.showEmptyView(text: cylDemoText("controller.noResults"), detailText: nil, buttonTitle: nil,
-                                           buttonAction: nil)
-        } else {
-            searchController.hideEmptyView()
-        }
     }
 }

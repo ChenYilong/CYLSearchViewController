@@ -10,7 +10,6 @@ import android.widget.FrameLayout
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.cyl.placeholder.CYLPlaceholderStackView
 import kotlin.math.max
 
 /**
@@ -32,7 +31,7 @@ class CYLSearchListView @JvmOverloads constructor(
     private val layoutManager = LinearLayoutManager(context)
     private var contentAdapter: RecyclerView.Adapter<*>? = null
     private var concatAdapter: ConcatAdapter? = null
-    private var emptyPlaceholder: CYLPlaceholderStackView? = null
+    private val emptySlot = CYLSearchEmptyViewSlot(this, 1) { 0 }
     private var needsInitialHide = false
 
     /**
@@ -117,7 +116,7 @@ class CYLSearchListView @JvmOverloads constructor(
      * True while `showEmptyView` has its placeholder over the list (iOS `isEmptyViewShowing`).
      */
     val isEmptyViewShowing: Boolean
-        get() = emptyPlaceholder != null
+        get() = emptySlot.view != null
 
     /**
      * The height of the room below the last row, in pixels: the part of the bar that a short list could not scroll out.
@@ -209,10 +208,7 @@ class CYLSearchListView @JvmOverloads constructor(
     @JvmOverloads
     fun showEmptyView(text: String?, detailText: String? = null, buttonTitle: String? = null, buttonAction: (() -> Unit)? = null) {
         hideEmptyView()
-        val placeholder = CYLSearchView.emptyPlaceholder(context, text, detailText, buttonTitle, buttonAction)
-        placeholder.setBackgroundColor(themeColor(android.R.attr.colorBackground))
-        emptyPlaceholder = placeholder
-        addView(placeholder, 1, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        emptySlot.adopt(CYLSearchView.emptyPlaceholder(context, text, detailText, buttonTitle, buttonAction), themeColor(android.R.attr.colorBackground))
         headerAdapter.refresh()
     }
 
@@ -220,9 +216,10 @@ class CYLSearchListView @JvmOverloads constructor(
      * Removes the placeholder; the bar comes back hidden when `hidesSearchBarInitially` is true.
      */
     fun hideEmptyView() {
-        val placeholder = emptyPlaceholder ?: return
-        removeView(placeholder)
-        emptyPlaceholder = null
+        if (emptySlot.view == null) {
+            return
+        }
+        emptySlot.remove()
         headerAdapter.refresh()
         needsInitialHide = hidesSearchBarInitially
         recyclerView.post { hideBarIfNeeded() }

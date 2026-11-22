@@ -102,7 +102,7 @@ A search bar never covers the main view, the view controller's view
 at every Dynamic Type size. Full rule: `AGENTS.md`, "Search bar placement".
 
 - Check frames in a window, not in a detached view: `testSearchBarsCoverNoView`
-  (`CYLViewsCoveredByView`) runs every search bar with
+  (`viewsCoveredByView`) runs every search bar with
   `hidesSearchBarWhenScrolling` NO and YES and at the largest text size.
 - On the simulator, look at the first rows and the refresh header under the
   search field: nothing may sit behind it.

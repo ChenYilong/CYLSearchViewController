@@ -22,6 +22,13 @@ using namespace facebook::react;
   BOOL _applyingSearches;
   NSString *_actionTitle;
   NSString *_textProp;
+  // What was applied last, so a re-render keeps what the native bar changed itself (the show states animate from the second one).
+  NSString *_appearanceKey;
+  NSString *_leadingJSON;
+  NSString *_trailingJSON;
+  NSNumber *_shownCancel;
+  NSNumber *_shownLeading;
+  NSNumber *_shownTrailing;
 }
 
 + (ComponentDescriptorProvider)componentDescriptorProvider
@@ -60,10 +67,6 @@ using namespace facebook::react;
 
 - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &)oldProps
 {
-  // TODO (waiting for the iOS merge, docs/qmui-search-controller.md): the QMUI options (usesDefaultAppearance,
-  // centersPlaceholder, placeholderColor, textColor, fieldMargins, searchingFieldMargins, cancelMargins,
-  // searchingCancelMargins, animatesChanges, the accessories, appearanceJSON, onActiveChange) belong to the base
-  // CYLSearchBarView once the owner's merge lands; today only CYLSearchBar has them, which is not hosted here.
   const auto &p = *std::static_pointer_cast<CylsearchBarViewProps const>(props);
   NSString *actionTitle = CYLRNString(p.actionTitle);
   if ((BOOL)p.editingBar != _bar.isEditingBar) {
@@ -92,7 +95,11 @@ using namespace facebook::react;
   _bar.searchBarStyle = [CYLRNString(p.searchBarStyle) isEqualToString:@"bordered"] ? CYLSearchBarStyleBordered : CYLSearchBarStylePlain;
   // An editing bar keeps the core's own setup: no magnifier, its action button always shown.
   if (!_bar.isEditingBar) {
-    _bar.showsCancelButton = p.showsCancelButton;
+    // Cancel changes with an animation from the second change on (`setShowsCancelButton(_:animated:)`).
+    if (_shownCancel == nil || _shownCancel.boolValue != (BOOL)p.showsCancelButton) {
+      [_bar setShowsCancelButton:p.showsCancelButton animated:p.animatesChanges && _shownCancel != nil];
+      _shownCancel = @(p.showsCancelButton);
+    }
     _bar.searchIcon = p.showsSearchIcon ? [UIImage systemImageNamed:@"magnifyingglass"] : nil;
   }
   // Rebuilt only when JavaScript sends other items, so a re-render keeps the native selection.
@@ -119,7 +126,114 @@ using namespace facebook::react;
     _searches = searches;
     [self applySearches:searches];
   }
+  [self applyStyleProps:p];
   [super updateProps:props oldProps:oldProps];
+}
+
+/*!
+ * The style options, members of `CYLSearchBarView`: `appearanceStyle` (the default appearance and the values of
+ * `appearanceStyleJSON`), `centersPlaceholder`, the colors, `textFieldMarginsProvider` and `cancelButtonMarginsProvider`
+ * (from the margins at rest and while searching), `cancelButtonFont`, `leadingView`, `trailingAccessoryViews` and their
+ * animated show states. The appearance goes first, so the colors set after it win.
+ */
+- (void)applyStyleProps:(CylsearchBarViewProps const &)p
+{
+  NSString *appearanceJSON = CYLRNString(p.appearanceStyleJSON);
+  NSString *appearanceKey = [NSString stringWithFormat:@"%d|%@", (int)p.usesDefaultAppearance, appearanceJSON];
+  if (![appearanceKey isEqualToString:_appearanceKey ?: @""]) {
+    _appearanceKey = appearanceKey;
+    NSDictionary *values = [CYLRNJSON(appearanceJSON) isKindOfClass:[NSDictionary class]] ? CYLRNJSON(appearanceJSON) : @{};
+    if (p.usesDefaultAppearance || values.count > 0) {
+      CYLSearchBarAppearance *appearance = p.usesDefaultAppearance ? [CYLSearchBarAppearance.defaultAppearance copy] : [CYLSearchBarAppearance new];
+      NSDictionary<NSString *, NSString *> *colors = @{@"textColor": @"textColor", @"placeholderColor": @"placeholderColor", @"tintColor": @"tintColor",
+                                                       @"fieldBackgroundColor": @"textFieldBackgroundColor"};
+      for (NSString *key in colors) {
+        UIColor *color = [values[key] isKindOfClass:[NSString class]] ? CYLRNColor(values[key]) : nil;
+        if (color) {
+          [appearance setValue:color forKey:colors[key]];
+        }
+      }
+      if ([values[@"cancelTitle"] isKindOfClass:[NSString class]] && [values[@"cancelTitle"] length] > 0) {
+        appearance.cancelTitle = values[@"cancelTitle"];
+      }
+      if ([values[@"fieldCornerRadius"] isKindOfClass:[NSNumber class]]) {
+        appearance.textFieldCornerRadius = [values[@"fieldCornerRadius"] doubleValue];
+      }
+      if ([values[@"fontSize"] isKindOfClass:[NSNumber class]]) {
+        appearance.font = [UIFont systemFontOfSize:[values[@"fontSize"] doubleValue]];
+      }
+      _bar.appearanceStyle = appearance;
+    } else {
+      _bar.appearanceStyle = nil;
+    }
+  }
+  // The appearance may carry a placeholder of its own; the prop wins.
+  if (p.placeholder.length() > 0) {
+    _bar.placeholder = CYLRNString(p.placeholder);
+  }
+  UIColor *placeholderColor = CYLRNColor(CYLRNString(p.placeholderColor));
+  if (placeholderColor) {
+    _bar.placeholderColor = placeholderColor;
+  }
+  UIColor *textColor = CYLRNColor(CYLRNString(p.textColor));
+  if (textColor) {
+    _bar.textColor = textColor;
+  }
+  _bar.centersPlaceholder = p.centersPlaceholder;
+  _bar.textFieldMarginsProvider = [self marginsProviderAtRest:p.fieldMargins searching:p.searchingFieldMargins];
+  _bar.cancelButtonMarginsProvider = [self marginsProviderAtRest:p.cancelMargins searching:p.searchingCancelMargins];
+  NSDictionary *fontSpec = [CYLRNJSON(CYLRNString(p.cancelButtonFontJSON)) isKindOfClass:[NSDictionary class]] ? CYLRNJSON(CYLRNString(p.cancelButtonFontJSON)) : nil;
+  if (fontSpec) {
+    NSString *weight = [fontSpec[@"weight"] isKindOfClass:[NSString class]] ? fontSpec[@"weight"] : @"";
+    UIFontWeight fontWeight = [weight isEqualToString:@"bold"] ? UIFontWeightBold : [weight isEqualToString:@"semibold"] ? UIFontWeightSemibold
+        : [weight isEqualToString:@"medium"] ? UIFontWeightMedium : UIFontWeightRegular;
+    CGFloat size = [fontSpec[@"size"] isKindOfClass:[NSNumber class]] ? [fontSpec[@"size"] doubleValue] : 17;
+    _bar.cancelButtonFont = [UIFont systemFontOfSize:size weight:fontWeight];
+  } else {
+    _bar.cancelButtonFont = nil;
+  }
+  NSString *leadingJSON = CYLRNString(p.leadingViewJSON);
+  if (![leadingJSON isEqualToString:_leadingJSON ?: @""]) {
+    _leadingJSON = leadingJSON;
+    _bar.leadingView = CYLRNSquare(CYLRNJSON(leadingJSON));
+  }
+  NSString *trailingJSON = CYLRNString(p.trailingAccessoryViewsJSON);
+  if (![trailingJSON isEqualToString:_trailingJSON ?: @""]) {
+    _trailingJSON = trailingJSON;
+    NSMutableArray<UIView *> *views = [NSMutableArray array];
+    id specs = CYLRNJSON(trailingJSON);
+    for (id spec in [specs isKindOfClass:[NSArray class]] ? specs : @[]) {
+      UIView *view = CYLRNSquare(spec);
+      if (view) {
+        [views addObject:view];
+      }
+    }
+    _bar.trailingAccessoryViews = views;
+  }
+  if (_shownLeading == nil || _shownLeading.boolValue != (BOOL)p.showsLeadingView) {
+    [_bar setShowsLeadingView:p.showsLeadingView animated:p.animatesChanges && _shownLeading != nil];
+    _shownLeading = @(p.showsLeadingView);
+  }
+  if (_shownTrailing == nil || _shownTrailing.boolValue != (BOOL)p.showsTrailingAccessoryViews) {
+    [_bar setShowsTrailingAccessoryViews:p.showsTrailingAccessoryViews animated:p.animatesChanges && _shownTrailing != nil];
+    _shownTrailing = @(p.showsTrailingAccessoryViews);
+  }
+}
+
+/*!
+ * The margins provider (`textFieldMarginsProvider(bar, active)`) of the margins at rest and while searching; nil for none.
+ */
+- (nullable UIEdgeInsets (^)(CYLSearchBarView *, BOOL))marginsProviderAtRest:(const std::vector<double> &)rest searching:(const std::vector<double> &)searching
+{
+  if (rest.empty() && searching.empty()) {
+    return nil;
+  }
+  UIEdgeInsets restInsets = CYLRNInsets(rest);
+  UIEdgeInsets searchingInsets = CYLRNInsets(searching);
+  BOOL hasSearching = !searching.empty();
+  return ^UIEdgeInsets(CYLSearchBarView *bar, BOOL active) {
+    return active && hasSearching ? searchingInsets : restInsets;
+  };
 }
 
 /*!
@@ -132,6 +246,12 @@ using namespace facebook::react;
   _itemsJSON = nil;
   _textProp = nil;
   _searches = nil;
+  _appearanceKey = nil;
+  _leadingJSON = nil;
+  _trailingJSON = nil;
+  _shownCancel = nil;
+  _shownLeading = nil;
+  _shownTrailing = nil;
   if (editing) {
     _bar = [CYLSearchBarView editingBarWithPlaceholder:placeholder
                                            actionTitle:actionTitle.length > 0 ? actionTitle : NSLocalizedString(@"Done", nil)];
@@ -179,6 +299,12 @@ using namespace facebook::react;
   [super prepareForRecycle];
   _searches = nil;
   _itemsJSON = nil;
+  _appearanceKey = nil;
+  _leadingJSON = nil;
+  _trailingJSON = nil;
+  _shownCancel = nil;
+  _shownLeading = nil;
+  _shownTrailing = nil;
   [self applySearches:@[]];
   [_bar removeAllItems];
 }
@@ -249,6 +375,26 @@ using namespace facebook::react;
         ->onSubmit(CylsearchBarViewEventEmitter::OnSubmit{.text = std::string((searchBarView.text ?: @"").UTF8String)});
   }
   [searchBarView hideKeyboard];
+}
+
+- (void)searchBarViewDidBeginEditing:(CYLSearchBarView *)searchBarView
+{
+  [self emitActive:YES];
+}
+
+- (void)searchBarViewDidEndEditing:(CYLSearchBarView *)searchBarView
+{
+  [self emitActive:NO];
+}
+
+/*!
+ * `onActiveChange`: the field gained or lost the focus.
+ */
+- (void)emitActive:(BOOL)active
+{
+  if (_eventEmitter) {
+    std::static_pointer_cast<CylsearchBarViewEventEmitter const>(_eventEmitter)->onActiveChange(CylsearchBarViewEventEmitter::OnActiveChange{.active = (bool)active});
+  }
 }
 
 - (void)searchBarViewCancelButtonClicked:(CYLSearchBarView *)searchBarView

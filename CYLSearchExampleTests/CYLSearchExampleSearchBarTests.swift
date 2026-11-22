@@ -129,16 +129,17 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         menu.tableView(menu.tableView, didSelectRowAt: row)
         let demo = try XCTUnwrap(navigation.lastPushedController)
         XCTAssertTrue(demo is CYLOriginalSearchDemoViewController)
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 390, height: 844))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 390, height: 844))
         window.rootViewController = navigation
         window.makeKeyAndVisible()
         demo.view.frame = CGRect(x: 0, y: 0, width: 390, height: 844)
         demo.view.layoutIfNeeded()
-        let cover = CYLViewWithAccessibilityIdentifier(demo.view, "CYLOriginalDemoSearchField") as? UIButton
-        XCTAssertNotNil(cover, "the field that opens the search")
-        cover?.sendActions(for: .touchUpInside)
-        CYLRunLoop(0.5)
-        let search = try XCTUnwrap(CYLViewOfClass(window, CYLSearchView.self), "the core's search page opened")
+        let field = viewWithAccessibilityIdentifier(demo.view, "CYLOriginalDemoSearchField") as? CYLSearchBarView
+        XCTAssertNotNil(field, "the field that opens the search")
+        // A tap on the field asks to begin editing; the demo refuses and opens the search instead.
+        _ = field?.textField.becomeFirstResponder()
+        runLoop(0.5)
+        let search = try XCTUnwrap(viewOfClass(window, CYLSearchView.self), "the core's search page opened")
         XCTAssertFalse(search.showsSuggestionCacheHeader, "the clear button is the text button below the list")
         XCTAssertNotNil(search.suggestionsTableView.tableFooterView)
         XCTAssertNotNil(search.contentView, "the sky stays under the list")
@@ -151,7 +152,7 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         search.searchBarView(search.searchBarView, textDidChange: "Gf")
         search.searchBarViewSearchButtonClicked(search.searchBarView)
         XCTAssertEqual(search.resultsTableView.numberOfRows(inSection: 0), 4)
-        let header = search.resultsTableView.tableHeaderView as? UILabel
+        let header = search.resultsTableView.tableHeaderView.flatMap { viewOfClass($0, UILabel.self) }
         XCTAssertTrue(header?.text?.contains("Gf") ?? false, String(describing: header?.text))
         search.searchBarView.text = ""
         search.searchBarView(search.searchBarView, textDidChange: "")
@@ -258,7 +259,7 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         // AGENTS.md, "Raised plus button": CYLTabBarConfiguration.json keeps the title on the button
         // (CYLPlusButtonAlignsTitle false), so CYLPlusButtonCenterYMultiplier lifts the 52 pt image above the bar.
         let tabBarController = try XCTUnwrap(CYLSearchExampleAppDelegate.rootViewController() as? CYLTabBarController)
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         window.rootViewController = tabBarController
         window.makeKeyAndVisible()
         window.layoutIfNeeded()
@@ -279,14 +280,14 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         let source = CYLSearchExampleDataSource()
         let controller = CYLSearchExampleViewController(searchDataSource: source, refreshProvider: source)
         let navigation = UINavigationController(rootViewController: controller)
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         window.rootViewController = navigation
         window.makeKeyAndVisible()
         for hides in [false, true] {
             controller.navigationItem.hidesSearchBarWhenScrolling = hides
             navigation.view.setNeedsLayout()
             navigation.view.layoutIfNeeded()
-            let searchBar = CYLVisibleSearchView(controller.searchController.searchBar)
+            let searchBar = visibleSearchView(controller.searchController.searchBar)
             let searchBarFrame = searchBar.convert(searchBar.bounds, to: window)
             let viewFrame = controller.view.convert(controller.view.bounds, to: window)
             XCTAssertGreaterThanOrEqual(viewFrame.minY, navigation.navigationBar.frame.maxY - 0.5, "hides \(hides)")
@@ -300,7 +301,7 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
     }
 
     func testSearchBarsCoverNoView() throws {
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         let sizes: [UIContentSizeCategory] = [.large, .accessibilityExtraExtraExtraLarge]
 
         // The navigation-item search bar of the results screen, with the bar pinned and hiding on scroll.
@@ -311,13 +312,13 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         window.makeKeyAndVisible()
         for hides in [false, true] {
             results.navigationItem.hidesSearchBarWhenScrolling = hides
-            CYLRunLoop(0.3)
+            runLoop(0.3)
             navigation.view.setNeedsLayout()
             navigation.view.layoutIfNeeded()
-            let searchBar = CYLVisibleSearchView(results.searchController.searchBar)
+            let searchBar = visibleSearchView(results.searchController.searchBar)
             if !hides { XCTAssertNotNil(searchBar.window, "the pinned search bar is shown") }
             if searchBar.window != nil && !searchBar.isHidden {
-                let covered = CYLViewsCoveredByView(searchBar, nil)
+                let covered = viewsCoveredByView(searchBar, nil)
                 XCTAssertEqual(covered.count, 0, "results, hides \(hides): \(covered)")
             }
         }
@@ -330,13 +331,13 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
             if #available(iOS 17.0, *) {
                 window.traitOverrides.preferredContentSizeCategory = size
             }
-            CYLRunLoop(0.2)
+            runLoop(0.2)
             navigation.view.setNeedsLayout()
             navigation.view.layoutIfNeeded()
             let foundBar = demo.view.subviews.compactMap { $0 as? CYLSearchBarView }.first
             XCTAssertNotNil(foundBar?.window)
             let bar = try XCTUnwrap(foundBar)
-            let covered = CYLViewsCoveredByView(bar, nil)
+            let covered = viewsCoveredByView(bar, nil)
             XCTAssertEqual(covered.count, 0, "demo at \(size.rawValue): \(covered)")
         }
 
@@ -349,13 +350,13 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
             if #available(iOS 17.0, *) {
                 window.traitOverrides.preferredContentSizeCategory = size
             }
-            CYLRunLoop(0.2)
+            runLoop(0.2)
             navigation.view.setNeedsLayout()
             navigation.view.layoutIfNeeded()
             let foundBar = discover.view.subviews.compactMap { $0 as? CYLSearchBarView }.first
             XCTAssertNotNil(foundBar?.window)
             let bar = try XCTUnwrap(foundBar)
-            let covered = CYLViewsCoveredByView(bar, nil)
+            let covered = viewsCoveredByView(bar, nil)
             XCTAssertEqual(covered.count, 0, "discover at \(size.rawValue): \(covered)")
         }
         if #available(iOS 17.0, *) {
@@ -368,7 +369,7 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         let styles = CYLSearchBarStylesViewController(style: .grouped)
         navigation = UINavigationController(rootViewController: styles)
         window.rootViewController = navigation
-        CYLRunLoop(0.2)
+        runLoop(0.2)
         let stylesBar = try XCTUnwrap(styles.searchBar)
         let stylesSearch = try XCTUnwrap(styles.searchController)
         stylesBar.showsCancelButton = true
@@ -377,17 +378,17 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         for editing in [false, true] {
             if editing {
                 stylesSearch.setActive(true, animated: false)
-                CYLRunLoop(0.5)
+                runLoop(0.5)
             }
             for size in sizes {
                 if #available(iOS 17.0, *) {
                     window.traitOverrides.preferredContentSizeCategory = size
                 }
-                CYLRunLoop(0.3)
+                runLoop(0.3)
                 navigation.view.setNeedsLayout()
                 navigation.view.layoutIfNeeded()
                 XCTAssertNotNil(stylesBar.window, "the styles screen's bar is shown")
-                let covered = CYLViewsCoveredByView(stylesBar, editing ? stylesSearch.searchController.view : nil)
+                let covered = viewsCoveredByView(stylesBar, editing ? stylesSearch.searchController.view : nil)
                 XCTAssertEqual(covered.count, 0, "search bar styles, editing \(editing), at \(size.rawValue): \(covered)")
             }
         }
@@ -403,22 +404,22 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         let controllerDemo = CYLSearchControllerDemoViewController(style: .plain)
         navigation = UINavigationController(rootViewController: controllerDemo)
         window.rootViewController = navigation
-        CYLRunLoop(0.3)
+        runLoop(0.3)
         let search = try XCTUnwrap(controllerDemo.cylSearchController)
         for active in [false, true] {
             if active {
                 search.setActive(true, animated: false)
-                CYLRunLoop(0.5)
+                runLoop(0.5)
             }
             for size in sizes {
                 if #available(iOS 17.0, *) {
                     window.traitOverrides.preferredContentSizeCategory = size
                 }
-                CYLRunLoop(0.4)
+                runLoop(0.4)
                 navigation.view.setNeedsLayout()
                 navigation.view.layoutIfNeeded()
                 XCTAssertNotNil(search.searchBar.window, "the search controller screen's bar is shown")
-                let covered = CYLViewsCoveredByView(search.searchBar, active ? search.searchController.view : nil)
+                let covered = viewsCoveredByView(search.searchBar, active ? search.searchController.view : nil)
                 XCTAssertEqual(covered.count, 0, "search controller, active \(active), at \(size.rawValue): \(covered)")
                 if active {
                     let barBottom = search.searchBar.convert(search.searchBar.bounds, to: window).maxY
@@ -433,12 +434,12 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         }
         for text in ["H", "zzz"] {
             search.searchBar.text = text
-            CYLRunLoop(0.4)
+            runLoop(0.4)
             let barBottom = search.searchBar.convert(search.searchBar.bounds, to: window).maxY
             // The results table's frame spans the whole screen, as UIKit lays it out; its top inset keeps the rows (checked below)
             // and the empty view under the bar, so the table itself is left out.
             let results = try XCTUnwrap(search.searchResultsController?.view)
-            let covered = CYLViewsCoveredByView(search.searchBar, search.searchController.view).filter {
+            let covered = viewsCoveredByView(search.searchBar, search.searchController.view).filter {
                 !$0.hasPrefix("\(NSStringFromClass(type(of: results))) ")
             }
             XCTAssertEqual(covered.count, 0, "search controller with \"\(text)\": \(covered)")
@@ -459,7 +460,7 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
                            _ find: (UIViewController) -> CYLSearchController?) throws {
             let scenarioNavigation = UINavigationController(rootViewController: controller)
             window.rootViewController = scenarioNavigation
-            CYLRunLoop(0.4)
+            runLoop(0.4)
             let scenarioSearch = try XCTUnwrap(find(controller), name)
             func covered(_ bar: UIView, active: Bool) -> [String] {
                 let root: UIView? = active && bar.isDescendant(of: scenarioSearch.searchController.view)
@@ -470,7 +471,7 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
                 // (results, launch view, empty view) sits under the bar, below.
                 let backdrop = bar.isDescendant(of: scenarioNavigation.navigationBar)
                     ? ["UIDimmingView ", "_UISearchControllerView "] : []
-                return CYLViewsCoveredByView(bar, root).filter { entry in
+                return viewsCoveredByView(bar, root).filter { entry in
                     if backdrop.contains(where: { entry.hasPrefix($0) }) { return false }
                     guard let results else { return true }
                     return !entry.hasPrefix("\(NSStringFromClass(type(of: results))) ")
@@ -479,16 +480,16 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
             for active in [false, true] {
                 if active {
                     scenarioSearch.setActive(true, animated: false)
-                    CYLRunLoop(0.5)
+                    runLoop(0.5)
                 }
                 for size in sizes {
                     if #available(iOS 17.0, *) {
                         window.traitOverrides.preferredContentSizeCategory = size
                     }
-                    CYLRunLoop(0.4)
+                    runLoop(0.4)
                     scenarioNavigation.view.setNeedsLayout()
                     scenarioNavigation.view.layoutIfNeeded()
-                    let bar = CYLVisibleSearchView(scenarioSearch.searchBar)
+                    let bar = visibleSearchView(scenarioSearch.searchBar)
                     XCTAssertNotNil(bar.window, "\(name): the bar is shown")
                     if !bar.isDescendant(of: scenarioNavigation.navigationBar) {
                         // Not in the navigation bar: it is under it, not over it.
@@ -505,8 +506,8 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
             }
             for text in ["1", "zzz"] {
                 scenarioSearch.searchBar.text = text
-                CYLRunLoop(0.4)
-                let bar = CYLVisibleSearchView(scenarioSearch.searchBar)
+                runLoop(0.4)
+                let bar = visibleSearchView(scenarioSearch.searchBar)
                 let list = covered(bar, active: true)
                 XCTAssertEqual(list.count, 0, "\(name) with \"\(text)\": \(list)")
                 let barBottom = bar.convert(bar.bounds, to: window).maxY
@@ -520,7 +521,7 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
                 }
             }
             scenarioSearch.setActive(false, animated: false)
-            CYLRunLoop(0.3)
+            runLoop(0.3)
         }
         try checkScenario("navigation item", CYLSearchNavigationItemDemoViewController(style: .plain)) {
             ($0 as? CYLSearchNavigationItemDemoViewController)?.cylSearchController
@@ -540,7 +541,7 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         results = CYLSearchExampleViewController(searchDataSource: source, refreshProvider: source)
         navigation = UINavigationController(rootViewController: results)
         window.rootViewController = navigation
-        CYLRunLoop(0.3)
+        runLoop(0.3)
         window.layoutIfNeeded()
         let overlay = results.overlaySearchView
         overlay.animationDuration = 0
@@ -548,7 +549,7 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         overlay.setQuery("1", submit: false)
         overlay.layoutIfNeeded()
         XCTAssertNotNil(overlay.searchBarView.window, "the overlay's search bar is shown")
-        let overlayCovered = CYLViewsCoveredByView(overlay.searchBarView, overlay)
+        let overlayCovered = viewsCoveredByView(overlay.searchBarView, overlay)
         XCTAssertEqual(overlayCovered.count, 0, "overlay: \(overlayCovered)")
         overlay.closeSearch(animated: false)
 
@@ -558,13 +559,13 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         let multiHost = UIViewController()
         multiHost.edgesForExtendedLayout = []
         window.rootViewController = UINavigationController(rootViewController: multiHost)
-        CYLRunLoop(0.3)
+        runLoop(0.3)
         multi.frame = CGRect(x: 8, y: 16, width: multiHost.view.bounds.width - 16, height: multi.intrinsicContentSize.height)
         multiHost.view.addSubview(multi)
         multi.addSearch("Rive")
         multi.addSearch("Lottie")
         multi.layoutIfNeeded()
-        let multiCovered = CYLViewsCoveredByView(multi, nil)
+        let multiCovered = viewsCoveredByView(multi, nil)
         XCTAssertEqual(multiCovered.count, 0, "multiple searches: \(multiCovered)")
         window.isHidden = true
     }

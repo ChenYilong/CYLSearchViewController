@@ -353,7 +353,7 @@ Commits: `a9f59e6` (`Sources/CYLSearchBar/CYLSearchController.swift`), `1f33609`
   2. #1541 leaks on iOS 27.2 for both paths (`popToRootViewController`, replaced root) without the guard; with the guard contents, wrapper and system controller are released. The guard asks "is the contents view controller in any window?" by walking `parent` / `presentingViewController` to a view in a window, so a push from the results (the contents are only covered) does not dismiss. A full-screen modal over the root removes the root's view from the window too; a first version of the guard dismissed the search there, so the walk also accepts a top that is the root view controller of the window the guard was last in (found in review, test added).
   3. UIKit forwards no appearance calls from the contents to the results controller on iOS 27.2 (E20), so the option is not a no-op.
   4. The results table: with `contentInsetAdjustmentBehavior = .never` (#1473) UIKit's inset left rows under the bar, so the inset is set from the bar's bottom edge. In the navigation-item case on iOS 26 and later the field is at the bottom of the screen and the safe area is used.
-  5. The results table's frame spans the whole screen (UIKit); `CYLViewsCoveredByView` counts it as covered by the bar, so the cover test leaves the table out and checks that the first row and the empty view start under the bar.
+  5. The results table's frame spans the whole screen (UIKit); `viewsCoveredByView` counts it as covered by the bar, so the cover test leaves the table out and checks that the first row and the empty view start under the bar.
   6. A background image set by hand with `setBackgroundImage` on a `CYLSearchBar` was not drawn while searching (row B9); use `appearanceStyle`. Not isolated; a phase 1 area.
 - **Verified only on iOS 27.2** (simulator, Xcode 27.2). Behaviour on iOS 15 to 26 is untested: the private view structure the code avoids (results view's superview, bar container) was only observed on 27.2; the bar's Cancel xmark, bottom search placement for navigation items (iOS 26+) and the field height differ per version.
 - **Not done / for the owner**: E21 on a touch run (cancel an interactive pop, then push; `cyl-verify` real pointer input) and a screenshot of the new screen (phase 4: labeled originals in `docs/assets/`); the mini program twin of the new screen (`AGENTS.md`, "Mini program example"); `docs/licenses.md` entry for the ported file (phase 4); `Podfile.lock` is not committed (`pod install` rewrites it: it was out of date with the Podfile, which pins newer CollectionViewClassifyMenu and CYLTableViewPlaceHolder commits, before the phase).
@@ -853,7 +853,7 @@ same knob names through shared helpers. Dropping it would drop navigation-item s
    beside `scrimColor`), launch views on the ClassifyMenu tag list.
 6. ClassifyMenu `CYLMenuStyle.minimumItemSize` and the pin move (own branch / PR in that repository).
 
-Status: phase 0 DONE (2026-11-22, see "Merge phase 0 log"); phase 1 DONE (2026-11-22, see "Merge phase 1 log"); phase 2 DONE (2026-11-22, see "Merge phase 2 log"); phase 3 DONE (2026-11-22, see "Merge phase 3 log"); phase 4 next.
+Status: phase 0 DONE (2026-11-22, see "Merge phase 0 log"); phase 1 DONE (2026-11-22, see "Merge phase 1 log"); phase 2 DONE (2026-11-22, see "Merge phase 2 log"); phase 3 DONE (2026-11-22, see "Merge phase 3 log"); phase 4 DONE (2026-11-22, see "Merge phase 4 log"); phases 5 and 6 next.
 
 
 ### Flutter (CrossPlatform/flutter_cylsearch): QMUI search port (2026-11-22)
@@ -1091,3 +1091,554 @@ Found while taking them, fixed in the core: the empty view of `CYLSearchControll
 - TODO (2 points): align the other platforms with the highlight rule (case-insensitive) and the new members, phase 5.
 - TODO (2 points): the after screenshots are iOS 27.2 only; no dark mode or large Dynamic Type run of the highlight and the scrim.
 - TODO (1 point): `CYLSearchController.isActive` mirrors UIKit's state instead of being driven by the shared one; and while `highlightsResultMatches` is on, a change of `searchResultsDelegate` reassigns the same proxy as the table's data source, which UIKit may not ask again for the optional selectors (not tested; setting `dataSource` to nil first would be the guard).
+
+
+### Merge phase 4 log (2026-11-22)
+
+#### TODO (2026-11-22, `feat/harmonyos-parity`, PR #11): merge phase 4, examples and iOS score
+
+- Context: phase 4 of "Merge design: one implementation per concept" (examples free of native re-implementations; the final iOS score of the merge). Base `252a697` (phases 0 to 3 done).
+- Requirements (the task text, English): 1. Audit every example screen in `CYLSearchExample/` for UI the core already offers but the example rebuilds with native views (hand-made tag rows, headers, clear buttons, highlight, empty views, result tables duplicating the core's results, custom dimming, own history storage, own fold controls); replace each with core API; where an example needs a customisation the core lacks, add it to the core (parameter or mode, public API comment, fence line, test); keep each screen's look and the 1:1 replicas' behaviour; list every replacement (file, lines removed). 2. Decide per QMUI issue screen (Navigation item, Bar in a view, Short list, Collection view) whether it stays on `CYLSearchController` / `CYLSearchBar` (the UIKit adapter) or can use `CYLSearchBarView` / `CYLSearchView`, with the reason. 3. Swipe-to-dismiss regression check: phase 3 reported that `CYLSearchController`'s edge swipe does not start by real touch; check the same stroke on `6014474` (worktree `/tmp/xpr/merge-p4-old`); if it worked, bisect and fix in the core; if it never worked, find the cause anyway and fix it with public API; verify by real touch on 27.2 and 17.5 and record a short stitched screenshot sequence. 4. Final: full suites on 17.5 / 26.5 / 27.2; after screenshots of every screen that has a merge-before image (`merge-after-<screen>-ios27.2-20261122.png`); update the design's Status line; write "Merge score (iOS)" with points per criterion of the task-log entry "merge the QMUI search components with ours" and missing points as TODO. The task-log entry is not marked done (phases 5 and 6 remain).
+- Prompt (verbatim, English; the task came as an English message): "Phase 4 tasks (design: examples free of native re-implementations; final iOS score of the merge): 1. Audit every example screen in CYLSearchExample/ for UI the core already offers but the example rebuilds with native views (hand-made tag rows, headers, clear buttons, highlight, empty views, result tables duplicating CYLSearchView/CYLSearchController results, custom dimming, own history storage, own fold controls). Replace each with core API; where an example needs a customisation the core lacks, add it to the core (parameter or mode, public API comment, fence line, test) instead of rebuilding. Keep each screen's look and the 1:1 replica screens' behaviour (QMUI replicas, the original/port demos). List every replacement (file, lines removed) in the log. 2. Decide per QMUI issue screen (Navigation item, Bar in a view, Short list, Collection view) whether it stays on CYLSearchController/CYLSearchBar (the UIKit adapter is required: navigationItem.searchController, UISearchController behaviour) or can use CYLSearchBarView/CYLSearchView; write the reason per screen. 3. Swipe-to-dismiss regression check: phase 3 reported that CYLSearchController's edge swipe no longer starts by real touch (axe draw strokes 0.35-4 s on the Search controller demo, which sets supportsSwipeToDismissSearch = true). Check the same real-touch stroke on the pre-merge commit 6014474 (a separate worktree /tmp/xpr/merge-p4-old) to see whether it worked before. If it worked before, it is a merge regression: bisect between 6014474 and HEAD and fix it in the core. If it never worked by real touch, find the cause anyway (e.g. the navigation controller's interactive pop recognizer winning; use gestureRecognizer(_:shouldRequireFailureOf:)/shouldBeRequiredToFailBy or require-failure wiring with interactivePopGestureRecognizer, public API only) and fix it; verify by real touch on 27.2 and 17.5 and record a short stitched screenshot sequence. 4. Final: full suites on 17.5/26.5/27.2; after screenshots of every screen that has a merge-before image (same states, merge-after-<screen>-ios27.2-20261122.png); update the 'Merge design' Status line and write 'Merge score (iOS)' in docs/qmui-search-controller.md: criteria from the task-log entry 'merge the QMUI search components with ours' (one class per concept, old API compiles = fence, examples free of native re-implementations, suites green on three iOS versions, before/after screenshots), points per criterion, missing points as TODO. Do not mark the task-log entry done (phases 5-6 remain)."
+- Acceptance (100): items 1 to 4 done, old public API compiling (the fence unchanged plus lines for new members), the three suites green, after screenshots with labels, the swipe verified by real touch on 27.2 and 17.5 with a stitched sequence, this log complete, pushed. 60: items 1 and 2 with tests on one simulator and the swipe finding written.
+- Status: DONE (2026-11-22), see below.
+
+**Result** (base `252a697`, commits `df5f0da` swipe fix, `6c1d161` core options, `815bb9b` examples on `feat/harmonyos-parity`; code under test: `815bb9b`; the docs and the images came after).
+
+#### 1. The audit: what the examples rebuilt, what the core offers now
+
+Every example screen was read (all 28 Swift files of `CYLSearchExample/`). Replaced, with the lines (git numstat against `252a697`: **26 added, 89 deleted** in `CYLSearchExample/`; **289 added, 1 deleted** in `Sources/`, because three options and the swipe are new core code):
+
+| Screen (file) | Hand-made | Replaced by | Lines (+ / -) |
+| :--- | :--- | :--- | :--- |
+| Original demo (`CYLOriginalSearchDemoViewController.swift`) | a `UIButton` laid over the field that opened the search (10 lines with its constraints) | the field's own non-editable tap: `searchBarViewShouldBeginEditing` returns NO, `searchBarViewDidTapWhileNotEditable` opens the search (existing core API, as the lapism port does) | |
+| same | `makeClearFooter`: a bordered "clear history" `UIButton` in a footer view (29 lines) | new core option `CYLSearchView.suggestionCacheFooterTitle` | |
+| same | `updateResultsHeader`: a `UILabel` as the results table's header, rebuilt on every change and submit (14 lines), and the `term` variable | new core options `CYLSearchView.resultsHeaderTitleProvider` and `resultsHeaderTextColor` | 21 / 59 |
+| Search controller, Navigation item, Bar in a view, Short list, Collection view (5 files) | the same 6 lines each: reload the results table, then show or hide the "No matching results" empty view by the match count | new core option `CYLSearchController.noResultsText` (the controller shows the empty view while the text is not empty and `tableView` has no row) | 1 / 6 each, 5 / 30 |
+
+New core API (three-line comments, fence lines in both fence files, three tests in `CYLSearchMergePhase4Tests`): `CYLSearchView.resultsHeaderTitleProvider`, `resultsHeaderTextColor`, `suggestionCacheFooterTitle`; `CYLSearchController.noResultsText`, and `gestureRecognizer(_:shouldBeRequiredToFailBy:)` (item 3). Internal: `CYLSearchResultsHeaderView`, `CYLSearchClearFooterView` (in `CYLSearchResultsComponent.swift`, +80 lines), `CYLSearchEdgePanGestureRecognizer` (item 3).
+
+Read and kept, with the reason (the design's test: does the core already offer it, and is the screen not a replica of something else?):
+
+| Screen | Why nothing more is replaced |
+| :--- | :--- |
+| Styles (`CYLSearchBarStylesViewController`) | `CYLSearchTableViewController` is the QMUI replica; the accessory views are the demo's own 30 x 30 stroked squares (example-only content), every knob is core API |
+| #1317 page (`CYLSearchExampleViewController`) | a raw `UISearchController` is the reproduction of the issue, and its overlay already uses `scrimColor` and `highlightsResultMatches` of the core |
+| Search bar, Yechaoa, Reveal, Multi (`CYLSearchBarDemoViewController`, ...) | `CYLSearchBarView` only; the status label, the result label and the event log are the demos' own output |
+| Lapism (`CYLLapismSearchViewController`) | port of `addView(recyclerView)`: the list that the original embeds is passed to the core's `contentView`; the list under the bar is the page's own content |
+| Material menu (`CYLMaterialSearchMenuViewController`) | calls the core's suggestion options (tags, fold control, cache, colors); the `UIStackView` is the demo's tab strip |
+| Contact tags (`CYLContact*`) | `CYLTagListView` of the sub-repository (the design's tag list), `CYLSearchBarView`, the list's built-in clear button (`menuShowsClearButton`); the store is the demo's data |
+| Discover (`CYLSearchDiscoverViewController`) | a copy of CollectionViewClassifyMenu's Discover page (two `CYLTagListView` sections with the fold control and a trash accessory from the sub-repository's menu API, data from the bundled JSON): a page, not a search flow. TODO: it could use the suggestion area if that became public |
+| `CYLSnackbar`, the menu, the placeholder gallery, `CYLKenBurnsView`, the SVGA pages | example-only: the core has no such code |
+| the detail screens (`UILabel` in the Search controller demo, the Original demo's centered button) | example-only content of the replicas |
+
+Not replaced, a duplication and not a native re-implementation: the four issue screens and the Search controller screen each filter the ten keywords and answer the results table's data source themselves (about 12 lines each). A core "searchable items" option would remove it; TODO.
+
+#### 2. The four issue screens: stay on the UIKit adapter
+
+All four stay on `CYLSearchController` / `CYLSearchBar`, because each exists to exercise a behaviour of `UISearchController` that `CYLSearchBarView` + `CYLSearchView` (our own overlay) do not have:
+
+| Screen | Reason |
+| :--- | :--- |
+| Navigation item (#1229) | `navigationItem.searchController` takes a `UISearchController`, whose bar must be a `UISearchBar`; `install(in:)` is the fix under test |
+| Bar in a view (#1251) | `hidesNavigationBarDuringPresentation = false` with a bar that is a plain subview: UIKit's presentation context is the thing tested |
+| Short list (#1160) | the bar is the table header under a `UISearchController`, settled by `CYLSearchHeaderSnapper` (which now also works on any header, including a `CYLSearchBarView`, but the issue is about UIKit's header) |
+| Collection view (#1313) | UIKit returns the bar to its original superview after Cancel; the container that holds it is the fix under test |
+
+A `CYLSearchBarView` + `CYLSearchView` version of each would pass trivially and drop the regression coverage; the Original demo, Lapism and Material screens already show that pair.
+
+#### 3. Swipe to dismiss by real touch: never worked, fixed
+
+- **Regression?** No. On `6014474` (worktree `/tmp/xpr/merge-p4-old`, built and run on 27.2) the same strokes (2.5 s and 4 s from x = 2, on the Search controller screen with the keyboard up) left the launch view on screen. The swipe never started by touch there either, so no bisect was needed.
+- **Cause, as far as it can be seen.** `UIScreenEdgePanGestureRecognizer` received the touch (`gestureRecognizer(_:shouldReceive:)` was called at (2, 450)) and never left the possible state: `gestureRecognizerShouldBegin` was never asked. A plain `UIPanGestureRecognizer` on the same view began at x about 12 with the same stroke, on 27.2 and on 17.5. No change with: the recognizer on the window, on the root view or on the search view, no delegate, the navigation controller's pop recognizer disabled, simultaneous recognition allowed. With `hidesNavigationBarDuringPresentation = false` the navigation controller's swipe back worked (the screen popped, our recognizer still did not begin). The same recognizer on `CYLSearchView` does begin (checked on 27.2), so the failure is tied to an active `UISearchController`. UIKit's internal reason was not found.
+- **Fix** (`df5f0da`): `CYLSearchEdgeSwipe.makeGesture` now returns `CYLSearchEdgePanGestureRecognizer`, an internal subclass of `UIScreenEdgePanGestureRecognizer` that follows the touch itself: it begins when the touch went down within 24 pt of the left edge of the window and moved right past a 10 pt slop, more than up or down; it fails for other touches, and reports translation and a smoothed velocity. The public property keeps its type, `edges` stays `.left`, the delegate and the window stay; both `CYLSearchController` and `CYLSearchView` use it (one implementation). `CYLSearchController` also answers `gestureRecognizer(_:shouldBeRequiredToFailBy:)` for the navigation controller's `interactivePopGestureRecognizer` (and `interactiveContentPopGestureRecognizer` on iOS 26): the swipe back waits for the search swipe to fail, so the swipe leaves the search first (dynamic, public API; no permanent `require(toFail:)`).
+- **Verified by real touch** (`axe draw` 2,450 to 280,450 over 3 s, started in the background): mid swipe the page and the snapshot follow the finger; at the end the search is left and the Search controller screen is still on top, on 27.2 and on 17.5; a 0.35 s stroke works too (27.2).
+- Tests: `testGestureFollowsTheTouchItself` (the type, `edges`, one touch, the rule: inside the slop, right, left, up, down, more vertical than horizontal), `testNavigationSwipeBackWaitsForTheSearchSwipe`; XCTest cannot make a screen-edge touch, so the begin / change / end methods stay driven as before.
+
+#### 4. API kept, forwarded, new
+
+Kept: the whole fence (`CYLSearchAPIFenceTests.swift` and the Objective-C fence compile unchanged; 5 + 5 lines added for the five new members). Forwarded: nothing was renamed in this phase. New: the five members above.
+
+#### 5. Test results
+
+`xcodebuild test`, new derived data each, `CODE_SIGNING_ALLOWED=NO`, sandbox off, code at `815bb9b` (the three suites were run one after another, because two builds at the same time in one checkout broke the shared `Pods/` copy step once): iOS 17.5 (iPhone 15): Executed 181 tests, with 0 failures; iOS 26.5 (iPhone 17 Pro): Executed 181 tests, with 0 failures; iOS 27.2 (iPhone 18 Pro): Executed 181 tests, with 0 failures (176 before the phase plus the 2 swipe tests and the 3 tests of `CYLSearchMergePhase4Tests`; the counts are equal on all three). `bash scripts/check-public-api-comments.sh`, `bash scripts/check-licenses.sh` and `sh scripts/check-screenshot-labels.sh` pass. `bash scripts/ci-build-example.sh analyze` (generic iOS Simulator, Xcode 27.2): ANALYZE SUCCEEDED.
+
+#### 6. After screenshots
+
+iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `815bb9b`, `feat/harmonyos-parity`, 2026-11-22 16:32 to 16:36 NZDT; originals 1206 x 2622 px in `docs/assets/raw/merge-after-*`, stitched with `scripts/stitch-screenshots.swift` (two columns: one column would be taller than one phone screen); the same states as the `merge-before-*` images of phase 0; status bar 9:41; `axe` input.
+
+| Image | Label |
+| --- | --- |
+| ![Search bar styles, after phase 4](assets/merge-after-styles-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `815bb9b`, 2026-11-22 NZDT. Search bar styles (menu row 7): rest and accessories shown; the look of the before image |
+| ![Search controller, after phase 4](assets/merge-after-controller-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `815bb9b`, 2026-11-22 NZDT. Search controller (row 8): rest, launch view, "H" results, "Hzzz" empty view (now from `noResultsText`) |
+| ![The four issue screens, after phase 4](assets/merge-after-issue-screens-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `815bb9b`, 2026-11-22 NZDT. #1229, #1251, #1160 (header hidden), #1313 searching; the Collection view now shows the empty view above the keyboard (the phase 3 fix; the before image showed a blank area) |
+| ![CYLSearchExampleViewController, after phase 4](assets/merge-after-demo-example-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `815bb9b`, 2026-11-22 NZDT. Menu row 0: rest and overlay search |
+| ![CYLSearchBarDemoViewController, after phase 4](assets/merge-after-demo-searchbar-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `815bb9b`, 2026-11-22 NZDT. Menu row 2: rest and focused |
+| ![CYLOriginalSearchDemoViewController, after phase 4](assets/merge-after-demo-original-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `815bb9b`, 2026-11-22 NZDT. Menu row 6: rest, searching "a" with the results header (core option), and the history with the clear text button below the list (core option) |
+| ![CYLMaterialSearchMenuViewController, after phase 4](assets/merge-after-demo-material-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `815bb9b`, 2026-11-22 NZDT. Menu row 3, MiguelCatalan row: menu, Default demo, its search with "Sw" typed |
+| ![Edge swipe by real touch](assets/merge-after-swipe-real-touch-ios27.2-20261122.png) | iOS 27.2 (iPhone 18 Pro) and iOS 17.5 (iPhone 15) simulators, Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `df5f0da`, `feat/harmonyos-parity`, 2026-11-22 16:20 NZDT. Search controller: search open, mid swipe, search left |
+
+#### Merge score (iOS) (2026-11-22): 88 / 100 (pass 60)
+
+Criteria of the task-log entry "merge the QMUI search components with ours" (iOS part):
+
+| Criterion | Points | Got | Why |
+| :--- | :---: | :---: | :--- |
+| Design document with the evaluation and the decisions | 10 | 10 | "Merge design: one implementation per concept" (evaluation, one limit, pair table, rules, phases) |
+| One class per concept on iOS | 30 | 25 | one appearance helper, one launch area, one results and empty-view component, one overlay, one active state, one edge swipe; `CYLSearchBar` stays only as the `UISearchController` adapter (design's one limit) |
+| Old public API compiles (the fence) | 15 | 14 | the fence compiles unchanged through five phases and gained lines for every new member; it has no negative test |
+| Examples free of native re-implementations | 20 | 15 | audit above; open: Discover page, the `contentView` lists of the ports, the repeated keyword filtering |
+| Suites green on iOS 17.5, 26.5 and 27.2 | 15 | 15 | 181 tests, 0 failures, each |
+| Before and after screenshots | 10 | 9 | seven screens before and after plus the swipe sequence; 27.2 only |
+
+Missing points as TODO:
+- TODO (2 points, one class per concept): `CYLSearchBar`'s `leadingAccessoryView` and `trailingAccessoryView` (and their margins) are not yet deprecated forwards of `leadingView` / `trailingAccessoryViews` of the pair table (phase 5, with the other platforms).
+- TODO (1 point): `CYLSearchBarAppearance.searchBarStyle`, `clearIconImage`, `barBackgroundImage` and `barBorderColor` have no field on `CYLSearchBarView` (phase 1 list).
+- TODO (1 point): the results tables of `CYLSearchView`, `CYLSearchController` and `CYLSearchTableViewController` are three instances that share what they do with the table (phase 3 decision).
+- TODO (1 point): `CYLSearchView` has no store mode, so its "history, else suggestions" choice and the controller's launch view use the same `resolve` but two call sites (phase 2 TODO).
+- TODO (1 point, fence): a script that regenerates the Objective-C fence and a negative test (a deliberately removed member).
+- TODO (3 points, examples): the Discover page's recent list and trash accessory (public suggestion area, or a core option for the sub-repository's menu); 1 point: the port screens' `contentView` lists; 1 point: a core "searchable items" option for the repeated keyword filtering of five screens.
+- TODO (1 point, screenshots): the after images are iOS 27.2 only; no dark mode or large Dynamic Type run of the new header, footer and empty view.
+- Other TODO: the swipe was checked by `axe` input on simulators only (no device); the edge strip is 24 pt at the left edge (a right-to-left layout is not mirrored); UIKit's reason for the unrecognized edge pan stays unknown (a Feedback Assistant report is worth filing); `CYLSearchView`'s demo does not enable `supportsSwipeToDismissSearch`; iOS 15, 16 and 18 to 25 are not run; `CYLSearchController.isActive` still mirrors UIKit's state (phase 3 TODO).
+- Phases 5 (other platforms: audit for parallel members, launch views on the ClassifyMenu tag list) and 6 (ClassifyMenu `CYLMenuStyle.minimumItemSize` and the pin move) remain; the task-log entry is not marked done.
+
+
+### Merge phase 5 log: Android (2026-11-22)
+
+#### TODO (2026-11-22, `feat/harmonyos-parity`, PR #11): merge phase 5, Android (`android/merged`)
+
+- Context: phase 5 of "Merge design: one implementation per concept", Android part (other platforms run in parallel in their own worktrees). Base `493efbd`. Core: `android/merged/cylsearch`; example: `android/merged/app`.
+- Requirements (the task text, English): 1. Audit for parallel members the QMUI port created next to existing ones (an accessory property beside a leading view, `dimmingColor` beside `scrimColor`, a second empty view, a second history store or signal, a launch view that rebuilds the suggestion header / clear button / tags instead of reusing the core suggestion area, a separate list class duplicating results code) and merge each into one implementation with the iOS names; old public names keep working as deprecated forwards. 2. Every launch view / suggestion area uses ClassifyMenu's `CYLTagListView` (never a chip group or flex wrap); the example "Search controller" screen configures the core through API only (the example-built launch view is deleted); a tapped tag submits. 3. Highlight option (`highlightsResultMatches` + color, case and diacritic insensitive like iOS), `noResultsText`, swipe to dismiss and will / did events aligned with iOS names. 4. Tests for each change, the full suite green (JDK 17, own AVD shut down after), labelled stitched screenshots of the Search controller screen (rest, launch folded / unfolded, results with highlight, empty) in `docs/assets/merge-after-p5-android-20261122.png`.
+- Prompt (verbatim, English; the task came as an English message): "Merge phase 5 for Android in CYLSearchViewController ... apply the same merge to Android: 1. Audit for parallel members/implementations created by the QMUI port next to existing ones (e.g. a new accessory property beside an existing leading view, dimmingColor beside scrimColor, a second empty view, a second history store or signal, a launch view that rebuilds the suggestion header/clear button/tags instead of reusing the core suggestion area, a separate list class duplicating results code). Merge each into one implementation with the iOS names; old public names keep working (deprecated forward) where they were already published. 2. Every launch view / suggestion area uses the ClassifyMenu tag list the platform already integrates (CYLTagListView / its component) - never a native chip group, flex wrap or WXML flex layout. The example 'Search controller' screen configures the core through API only (delete any example-built launch view), a tapped tag submits. 3. Highlight option (highlightsResultMatches + color, case/diacritic-insensitive like iOS), noResultsText, swipe-to-dismiss and will/did events aligned with iOS names. Android: CYLSearchListView vs CYLSearchView results code; CylsearchLaunchView / example launch view; JDK 17; own AVD (shut it down after). 4. Tests for each change; the platform's full test suite green; labelled stitched screenshots of the Search controller screen (rest, launch folded/unfolded, results with highlight, empty) into docs/assets/merge-after-p5-<platform>-20261122.png."
+- Acceptance (100): items 1 to 4 done in the core with old names kept as deprecated forwards, a test per change, `:cylsearch:testDebugUnitTest` and `:app:testDebugUnitTest` green on a clean build, screenshots from an own AVD (shut down), this log complete (merged members, deleted lines, API kept, tests, screenshots, score, TODOs), pushed. 60: items 1 and 2 with tests.
+
+### Merge phase 5 log: HarmonyOS (2026-11-22)
+
+#### TODO (2026-11-22, `feat/harmonyos-parity`, PR #11): merge phase 5, HarmonyOS
+
+- Context: phase 5 of "Merge design: one implementation per concept" for HarmonyOS (`harmonyos/cylsearch`, example `harmonyos/entry`); iOS is done (phases 1 to 4). Other platforms run in parallel in their own worktrees. Base `493efbd`.
+- Requirements (the task text, English): 1. Audit for parallel members created by the QMUI port next to existing ones (a new accessory property beside an existing leading view, dimmingColor beside scrimColor, a second empty view, a second history store or signal, a launch view that rebuilds the suggestion header, clear button and tags instead of reusing the core suggestion area, a separate list class duplicating results code); merge each into one implementation with the iOS names; old public names keep working (deprecated forward) where already published. 2. Every launch view and suggestion area uses the ClassifyMenu tag list the platform already integrates (CYLTagListView), never a native chip group or flex wrap; the example "Search controller" screen configures the core through API only (no example-built launch view), a tapped tag submits. 3. Highlight option (highlightsResultMatches + color, case and diacritic insensitive like iOS), noResultsText, swipe-to-dismiss and will/did events aligned with iOS names; test on the emulator "CYL Search Test" 127.0.0.1:5555; rerun the CYLSearchUI suite that hung earlier and find why it hangs. 4. Tests for each change; the full suite green; labelled stitched screenshots of the Search controller screen (rest, launch folded and unfolded, results with highlight, empty) as docs/assets/merge-after-p5-harmonyos-20261122.png.
+- Prompt (verbatim, English; the task came as an English message): "Merge phase 5 for HarmonyOS in CYLSearchViewController. ... Task: apply the same merge to HarmonyOS: 1. Audit for parallel members/implementations created by the QMUI port next to existing ones ... Merge each into one implementation with the iOS names; old public names keep working (deprecated forward) where they were already published. 2. Every launch view / suggestion area uses the ClassifyMenu tag list the platform already integrates (CYLTagListView / its component) - never a native chip group, flex wrap or WXML flex layout. The example 'Search controller' screen configures the core through API only (delete any example-built launch view), a tapped tag submits. 3. Highlight option (highlightsResultMatches + color, case/diacritic-insensitive like iOS), noResultsText, swipe-to-dismiss and will/did events aligned with iOS names. HarmonyOS: demos/SearchController.ets launch view; CYLSearchTableView/Component vs CYLSearchView; test on the local emulator 'CYL Search Test' 127.0.0.1:5555 (or your own clone; never shut down another session's emulator); rerun the CYLSearchUI suite that hung earlier and find why it hangs. 4. Tests for each change; the platform's full test suite green; labelled stitched screenshots of the Search controller screen (rest, launch folded/unfolded, results with highlight, empty) into docs/assets/merge-after-p5-<platform>-20261122.png."
+- Acceptance (100): items 1 to 4 done in `harmonyos/cylsearch` with the old public names kept, tests for each change, the full suite green (host logic, parity checks, hypium including CYLSearchUI), the hang of CYLSearchUI explained, labelled stitched screenshots, this log complete (merged members, deleted lines, API kept, tests, screenshots, score, TODOs), pushed. 60: items 1 and 2 with tests on the emulator.
+- Status: DONE (2026-11-22), see below. Code under test: `e4a32f1` (`feat/harmonyos-parity`); screenshots taken 2026-11-22 17:47 NZDT.
+
+#### 1. The audit: parallel members of the QMUI port next to existing ones
+
+| Concept | Parallel members found | Merged into (iOS names) | Old names |
+| :--- | :--- | :--- | :--- |
+| Suggestion area / launch view | `CYLSearchComponent.suggestionTags()` was a native `Flex` wrap with hand-made folding (`cylFoldedTagCount`, `visibleTagCount`, `showsFoldControl`, width measuring, a second fold control view); the example built its own launch view (`CYLRecentSearchLaunchView`: title, trash button, `Flex` tags, history reading) | one suggestion area on CollectionViewClassifyMenu's `CYLTagListView`: `suggestionsTagView` (a `CYLTagListState`: fold control `tail` + icon, `defaultVisibleRows` = `suggestionsFoldedRowCount`, no section headers, no selection, a tapped tag chooses its suggestion); the history header with its clear button above it; `showsSuggestionsLaunchView` (the area is the launch content: history, else `suggestions`; a tapped tag submits) | `suggestionsFoldControl`, `suggestionsFoldedRowCount`, `suggestionsFolded`, `launchView` (a custom one turns the area off, the area turns it off), `CYLMenuFoldControl` / `...Position` / `...Content` of cylsearch: kept as deprecated adapters that map onto the tag list's own control (`inline` is `tail`, `bottom` is `footer`) |
+| Empty view | `CYLSearchEmptyViewComponent` (own text, detail and button layout) next to CYLTableViewPlaceHolder's placeholder of `emptyResultsView`; `CYLSearchTableComponent` used the first | one factory `CYLSearchEmptyView.message` builds a `CYLPlaceholderStackViewModel` (the bundled "no results" animation, title, hint, outlined button with a Retry handler); `CYLSearchView`, `CYLSearchTableView` and the scenario placeholder all draw through `CYLSearchPlaceholderHost`; `noResultsText` shows and hides it | `showEmptyView`, `hideEmptyView`, `isEmptyViewShowing`, `emptyView`, `emptyResultsView`, `emptyResultsScenario` unchanged |
+| Scrim | `scrimColor` painted the whole page, `dimmingColor` was a second overlay under the bar | one overlay under the bar (a tap ends the search); `scrimColor` canonical | `dimmingColor` forwards (deprecated); a custom launch view or the suggestion area covers it, as on iOS |
+| History | `historyRevision` bumped by hand in four places, only for the view that submitted | one signal in `CYLSearchResources` (`observeHistory`, `announceHistoryChange`): the built-in stores announce `addQuery`, `removeQuery`, `removeAllQueries` (matched by policy and name, so every view of one history is told); `CYLSearchView` announces for a cache of your own (once); listeners hold the view weakly | `historyRevision`, `historyStore`, `suggestionCache`, `searchViewHistoryDidChange` unchanged |
+| Bar accessories | `leadingAccessoryView` / `trailingAccessoryView` (+ shows flags, animated setters) beside the existing `leadingView` / `trailingAccessoryViews` slots of the component | model-level `leadingView`, `trailingAccessoryViews`, `showsLeadingView`, `showsTrailingAccessoryViews`, `setShowsLeadingView(_, animated)`, `setShowsTrailingAccessoryViews(_, animated)`; one render slot per side (the bar's builder, else the component's `@BuilderParam`) | the QMUI names (`leadingAccessoryView`, `trailingAccessoryView`, `showsLeadingAccessoryView`, `showsTrailingAccessoryView`, `setShowsLeadingAccessoryView`, `setShowsTrailingAccessoryView`) forward (deprecated); the margins keep their names (no iOS `CYLSearchBarView` counterpart) |
+| Highlight | the example split the text by hand (`cylSplitMatch`, `cylHighlightedResult`), case-sensitive | `highlightsResultMatches` + `resultMatchHighlightColor` (default: the brand color) on the default result row; first match, ignoring case and accents (`cylSearchMatchRange` in the pure-logic block, per character, combining marks included) | `resultCellConfiguration` still draws a row of your own |
+| Active state, events | one `open` flag already; the open and close animations could report a stale `didClose` after a reopen | a generation counter guards both `onFinish` callbacks; `searchViewWillShow/DidShow/WillClose/DidClose` keep their order | `isActive`, `isSearchOpen`, `setActive`, `showSearch`, `closeSearch` unchanged |
+| Results list | `CYLSearchTableView` / `CYLSearchTableComponent` is the list whose first row is the bar (iOS `CYLSearchTableViewController`); it has no results code of its own and now shares the empty-view component | not a duplicate: kept | all names unchanged |
+
+New public members: `CYLSearchView.suggestionsTagView`, `suggestionTagsHeight`, `noResultsText`, `highlightsResultMatches`, `resultMatchHighlightColor`, `supportsSwipeToDismissSearch` (default `false`, like iOS), `showsSuggestionsLaunchView`, `historyChanged()`; `CYLSearchEmptyView.placeholder`, `revision`, `message(...)`; `CYLSearchResources.observeHistory`, `announceHistoryChange`; `CYLSearchBarView.leadingView`, `trailingAccessoryViews` and the four members above. `handleBackPress` stays unconditional (the Back key and the system back gesture end the search whatever `supportsSwipeToDismissSearch` is).
+
+**Example**: `demos/SearchController.ets` sets `supportsSwipeToDismissSearch`, `highlightsResultMatches`, `noResultsText`, the history policy and name, `suggestions` and `showsSuggestionsLaunchView`; nothing else below the bar is the example's. The styles screen uses the iOS accessory names.
+
+#### 2. Lines removed
+
+numstat of the phase (`git diff --numstat a016e40..HEAD -- harmonyos`): `CYLSearchView.ets` +394 -220, `CYLSearchBarView.ets` +95 -26, `CYLSearchResources.ets` +80 -0, `SearchController.ets` +17 -163 (503 to 358 lines: the launch view, the highlight split, the empty-view delegate), tests +278 +40 +2, host logic +31 -17. Deleted by deduplication in the core: the Flex tag area and its fold control (about 134 lines: `suggestionTags`, `foldControl`, `visibleTagCount`, `showsFoldControl`, `tagWidth`, `foldControlWidth`, `textWidth`, `resolvedText`), `cylFoldedTagCount` (42 lines) with its host tests (21 lines), the hand-drawn empty view (38 lines), the second accessory render slots and the whole-page scrim paint, four manual `historyRevision` bumps. The core grew by 214 lines overall: the history signal (80), the tag list setup, the highlight, the swipe, the deprecated forwards and the new options.
+
+#### 3. Decisions
+
+- **Fold control types**: cylsearch's own `CYLMenuFoldControl` enums (`inline` / `bottom` / `none`) were a second implementation next to ClassifyMenu's (`tail` / `footer` / ...). They stay as deprecated adapters (the existing tests and `MaterialSearch.ets` compile unchanged); the tag list draws the one control.
+- **Trailing accessory placement**: the QMUI `trailingAccessoryView` sat after the field; `trailingAccessoryViews` of iOS `CYLSearchBarView` sits inside the field after the text. One slot means one place: inside the field. The styles screen's two boxes moved with it (not re-shot; see TODO). On iOS the adapter `CYLSearchBar` still places its own outside; HarmonyOS has one bar class.
+- **Swipe to dismiss**: an in-overlay horizontal pan with the iOS rule (down within 24 of the left edge, right past a slop of 10 and more than vertical; ends the search past a quarter of the width; pure logic `cylSearchSwipeBegins` / `cylSearchSwipeCompletes`, host-tested). The system edge gesture owns the left edge on the emulator: a real swipe from x = 40 px opens the system dock (not ours), from x = 62 px the search closes with the keyboard up in one swipe (a Back key would only lower the keyboard) and the same swipe with the search closed does nothing, so it was our pan.
+- **Highlight rule**: iOS `range(of:options: [.caseInsensitive, .diacriticInsensitive])` with the query as typed; the Search controller screen's data source stays case-sensitive like iOS's `range(of:)`, so "Heal" matches and "heal" does not.
+
+#### 4. The CYLSearchUI hang: found
+
+- **Symptom**: `aa test ... -s class CYLSearchUI` printed `OHOS_REPORT_SUM: 8` and `class=CYLSearchUI` and nothing else, for ever; `CYLSearchCore` and `CYLSearchQMUIPort` (no UI) passed.
+- **Cause**: `beforeAll` awaits `startAbility`, which never returns while the emulator display is off or on the lock screen (screenshot of the hung run: the lock screen, later black). Reproduced on purpose: `power-shell suspend`, run the suite: hung; `power-shell wakeup` and a swipe afterwards did not free the call (the start request is lost). A hung run also left the emulator unreachable once (`hdc list targets` empty, nothing listening on 5555); "CYL Search Test" was restarted from the command line (same `Emulator -hvd` command; the other platform sessions use their own emulators).
+- **A second, different failure**: without `-s timeout` hypium stops a test after 5000 ms ("execute timeout 5000ms"); the next tests then fail with "uitest-api dose not allow calling concurrently". Run the suite with `-s timeout 60000`.
+- **Fix**: `beforeAll` wakes the display (`Driver.wakeUpDisplay`) and swipes the lock screen away before `startAbility`. Verified: display suspended, suite started, 9 of 9 pass.
+
+#### 5. Tests
+
+- `node harmonyos/scripts/host-logic-test.mjs`: 39 pass, 0 fail (new: highlight range with case, accents and combining marks; the swipe rules; the folding tests of the deleted code are gone). `node harmonyos/scripts/check-ios-parity.mjs`: 657 match, 0 problems. `node harmonyos/scripts/check-accessibility-i18n.mjs`: 0 problems. `bash scripts/check-public-api-comments.sh` and `bash scripts/check-licenses.sh`: OK.
+- hypium on the emulator "CYL Search Test" (`aa test -b com.cyl.search.harmonyos -m entry_test -s unittest OpenHarmonyTestRunner -s timeout 60000`, clean `build`, unsigned HAPs): 55 run, 0 failure, 0 error (CYLSearchCore 22, CYLSearchQMUIPort 12, CYLSearchMerge 12 new, CYLSearchUI 9 with the new Search controller screen test). The 34 old tests of Core and QMUIPort pass unchanged: the old names forward.
+- New `CYLSearchMerge` tests: tag list as suggestion area, deprecated fold control forwards, a tapped launch tag submits (and one outside the launch content only fills the field), launch content and custom `launchView` replace each other, one scrim and `dimmingColor`, one history signal for two views of one cache and for a cache of your own (one bump per submit and clear), `noResultsText`, one placeholder with text, hint and button (Retry handler), the accessory name forwards, the option defaults.
+
+#### 6. After screenshots
+
+| Image | Label |
+| --- | --- |
+| ![Search controller after merge phase 5](assets/merge-after-p5-harmonyos-20261122.png) | HarmonyOS 6.0.1 (API 21), Mate 70 Pro arm64 emulator "CYL Search Test", DevEco Studio 6.0.1, macOS 27.3, CYLSearchViewController `e4a32f1`, `feat/harmonyos-parity`, 2026-11-22 17:47 NZDT. Search controller screen: rest; launch folded to two rows with the fold control last; unfolded; "Heal" results with the match highlighted by the core; "Hzzz" empty view (the placeholder of `noResultsText`). The emulator shows the Chinese UI language; the keyboard is cropped |
+
+Originals (the emulator gives JPEG, converted to PNG, full screen 1316 x 2832): `docs/assets/raw/merge-after-p5-harmonyos-{rest,folded,unfolded,results,empty}-20261122.png`. The history was seeded by 13 real submits so that the tags pass two rows.
+
+#### Merge score (HarmonyOS) (2026-11-22): 90 / 100 (pass 60)
+
+| Criterion | Points | Got | Why |
+| :--- | :---: | :---: | :--- |
+| Audit and one implementation per concept, iOS names, old names kept | 30 | 27 | table in 1; the results list is not a second copy but `CYLSearchTableView` and `CYLSearchView` do not share one list instance (as on iOS) |
+| Tag list everywhere, example through the API only | 20 | 18 | core area and launch content on `CYLTagListView`; `Discover.ets` still has a `Flex` wrap (a page, not a launch view) |
+| Highlight, noResultsText, swipe, events | 15 | 13 | all in the core with tests; swipe verified by real touch only in the window between the system's edge zone and 24 vp |
+| Tests and screenshots | 25 | 22 | 55 hypium, 39 host, parity checks; one stitched image, Chinese UI only, no dark mode; no test of the stale-event guard |
+| The CYLSearchUI hang | 10 | 10 | reproduced, explained, fixed, verified |
+
+Missing points as TODO:
+- TODO (2 points): `demos/Discover.ets` builds its tag rows with `Flex({ wrap: FlexWrap.Wrap })`; move it onto `CYLTagListView` (a copy of ClassifyMenu's Discover page, not a launch view).
+- TODO (2 points): the generation guard of `showSearch` / `closeSearch` has no test: it needs a `UIContext` with a running `animateTo`, which the test process has not (`cylAnimate` runs both at once without one).
+- TODO (2 points): the swipe window: the system takes the left 40 px, our pan starts within 24 vp (about 66 px); only 40 to 66 px reaches it. Decide whether the edge zone should be wider, and check `supportsSwipeToDismissSearch` on a device.
+- TODO (1 point): the Search bar styles screen was not re-shot after the trailing accessory moved inside the field; no dark mode, no English UI language, no large font scale of the new area.
+- TODO (1 point): `docs/harmonyos-api-alignment.md` has no rows for the new members (the parity script covers only the iOS list).
+- TODO (1 point): the iOS strings `controller.recent` and `controller.launch.label` stay (HarmonyOS `check-ios-parity.mjs` imports them); the example no longer uses `controller.launch.label`.
+- Other: the tag list's own top inset puts the first tag row about 27 vp under the header (the same default style as iOS); `CYLSearchResources.observeHistory` listeners that are not removed are dropped by the next signal after their view is gone (weak reference).
+
+### Merge phase 5 log: Flutter (2026-11-22)
+
+#### TODO (2026-11-22, `feat/harmonyos-parity`, PR #11): merge phase 5, Flutter (CrossPlatform/flutter_cylsearch)
+
+- Context: phase 5 of "Merge design: one implementation per concept" for Flutter. Base `493efbd` (iOS phases 0 to 4 done). Work only in `CrossPlatform/flutter_cylsearch` and docs; the cores (iOS `Sources/CYLSearchBar`, Android `cylsearch`) are other agents' files: a missing core member is mapped in the plugin and recorded as a TODO.
+- Requirements (the task text, English): 1. Audit for parallel members the QMUI port created next to existing ones (accessory widgets beside `leadingView` / `trailingAccessoryViews`, `dimmingColor` beside `scrimColor`, a second empty view, a second history signal, a launch view that rebuilds the suggestion area, a list class duplicating results code); merge each into one implementation with the iOS names; published names keep working (deprecated forward). 2. Every launch view uses the ClassifyMenu tag list (`CYLTagListView`); the example "Search controller" configures the core through API only (no example-built launch view); a tapped tag submits. 3. Highlight option (`highlightsResultMatches` + color, case- and diacritic-insensitive like iOS), `noResultsText`, swipe to dismiss and will/did events with iOS names. Wire the iOS TODOs to `CYLSearchBarView` / `CYLSearchView` (`centersPlaceholder`, margins providers, `cancelButtonFontSize`, animated Cancel, history signal from the core store notification); replace the Dart-only overlays with the native core where a native view can host them (Dart stays only where a platform view cannot host a Flutter widget: documented); add `setQuery` so a tapped recent tag runs the search. 4. Tests for each change, the full suite green, labelled stitched screenshots of the Search controller screen (rest, launch folded and unfolded, results with highlight, empty) as `docs/assets/merge-after-p5-flutter-20261122.png`.
+- Acceptance (100): every item above done on iOS and Android, `flutter test` and `flutter analyze` clean (plugin and example), both platforms run on own devices, screenshots, this log complete, pushed. 60: items 1 to 3 in Dart with tests, iOS verified on the simulator.
+- Status: in progress; the result sections follow below as the work lands.
+
+### Merge phase 5 log: the WeChat mini program (2026-11-22)
+
+Branch `feat/harmonyos-parity` (PR #11), base `493efbd` (iOS phase 4), code commits 67ef166, 791b504; only `CrossPlatform/wechat-miniprogram-cylsearch` (plus this section). Device testing of this platform
+belongs to the Windows session: nothing was run in WeChat DevTools and there are **no screenshots** from this session (owner's instruction; step 4 of the task skipped).
+Pin check: the pinned CollectionViewClassifyMenu commit `405bf49` has `cyl-tag-list` with `defaultVisibleRows`, the fold control (`tail`, `footer`, icon or title) and the `tagtap` event (read in the synced copy `/tmp/xpr/tags-default/.../miniprogram_npm/cyl-tag-list-miniprogram`, whose package pin is `405bf49`); no pin move was needed.
+
+#### 1. Audit: parallel members of the QMUI port, and what each became
+
+| Parallel member (before) | Next to | Now (one implementation, iOS name) | Old name |
+| --- | --- | --- | --- |
+| `.cyl-tags` flex-wrap chips, the hidden `.cyl-measure` row, the fold chevron view, `foldTags()` measuring with `cylFoldTags` in `cyl-search` | CollectionViewClassifyMenu's `cyl-tag-list` (iOS `CYLTagListView`), which the bar items and the example already use | the suggestion area draws `<cyl-tag-list>` through `CYLSearchView.suggestionTagConfiguration(dark)`: one section, `defaultVisibleRows` = `suggestionsFoldedRowCount`, fold control tail/icon last (`CYLMenuFoldControl` inline = tail, bottom = footer), colours of the suggestion knobs in its style; the configuration is set only when the tags or colours change (a keystroke keeps the fold state) | `cylFoldTags` stays exported, deprecated, unused |
+| example-built launch view (`slot="launch-view"`: title row, trash button, `cyl-tag-cloud` with its own 29 pt tinted style, `history()` reload on `historychange` / `willpresent`) | the core's suggestion area (history header, trash, tags, cache) | `showsSuggestionsLaunchView` (iOS name): the suggestion area is the launch view; history newest first with title and trash, else `suggestions`; a tapped tag sets the query, sends `updateresults` and submits; it wins over `showsLaunchView` (slot, for a view of the page's own) | `showsLaunchView` + slot unchanged |
+| `dimmingColor` + `showsDimming` (the model's `scrimColor` was unused) | `scrimColor` | `scrimColor` canonical on the model and the component, one `.cyl-dimming` overlay; `dimmingColor` forwards (model getter/setter, component property) | `dimmingColor` |
+| two copies of the empty-view markup (content level, layer) | `showEmptyView` | one WXML `<template name="cylEmptyView">` used twice; `noResultsText` (iOS name) makes the core show and hide the empty view itself (evaluated on every `reloadResults`, also when the page sets `results` after the text; never replaces or hides a view the page showed) | `showEmptyView` / `hideEmptyView` unchanged |
+| `highlightsMatches` / `highlightColor`, case-sensitive `indexOf` | iOS `highlightsResultMatches` / `resultMatchHighlightColor` | iOS names; `cylHighlightParts` folds case and diacritics per character with an offset map (so "cafe" marks "Café", precomposed or decomposed, and a mark after the last letter stays in the match); the suggestion filter (`matches`) uses the same `cylFold` | old names OR-ed in (component) / forwarded (model) |
+| `showsLeadingAccessory` / `showsTrailingAccessory`, slots `leading-accessory` / `trailing-accessory`, `setShows…AccessoryView` | the bar's existing slots `leading` / `trailing` (iOS `leadingView`, `trailingAccessoryViews`) | one animated container per side holding both slot names; `showsLeadingView`, `showsTrailingAccessoryViews` (default true, as iOS), `setShowsLeadingView`, `setShowsTrailingAccessoryViews`; `cyl-search` forwards `leading` and `trailing` too | every old name forwards; a set old property wins over the new one |
+| edge swipe: any rightward move from x <= 24 | iOS `CYLSearchEdgeSwipe` (24 pt edge, 10 pt slop, more sideways than vertical) | `cylEdgeSwipeBegins` (pure, tested); a first move that fails the rule ends the gesture so the list scrolls | `cylSwipeShouldDismiss` unchanged |
+| `diddismiss` after a present started during the dismiss | iOS phase 3 generation guard | a present counter: an overtaken dismiss sends no `diddismiss` and does not hide the page | events unchanged |
+| the example's `showEmptyView` / `hideEmptyView` on Short list and Search controller | `noResultsText` | both screens set the property; the pages only answer `updateresults` with rows | |
+
+Already one implementation (checked, no change): history (one store: the suggestion cache, one `historychange` event from submit and clear), active state (`open` of `CYLSearchView`; `isActive`, `setActive`, `isSearchOpen`, `showSearch`, `closeSearch` read or drive it), will/did events (one delegate source feeds `show`, `close` and the four iOS-named events), results (one `cyl-refresh` list with the placeholder scenarios).
+
+#### 2. Example: the Search controller screen configures the core through API only
+
+`pages/searchController` sets `suggestions` (QMUI's eight), `showsSuggestionsLaunchView`, `highlightsResultMatches`, `noResultsText`, `supportsSwipeToDismissSearch` and `results`; it declares no component, has no launch view, tag list, scroll view, history or empty-view code, and a tapped tag submits. The tag style changed on purpose, as on iOS in phase 2: the core's default tag style replaces the tinted 29 pt tags (the QMUI size is phase 6).
+
+#### 3. Lines removed, API kept, new API
+
+- `git diff --numstat 493efbd` over `src`: 343 added, 148 deleted; examples: 23 added, 90 deleted (the Search controller page: 49 lines of script, 15 of template, 11 of style and the component entry go; deleted code in the component: the flex-wrap chips (4 style rules, 16 template lines), the measuring row, `foldTags`, `onToggleFold`, `TAG_SPACING`, `TAG_SIDE_INSET`, `FOLD_LABELS` and the two fold labels, the second empty-view copy, the second dimming colour path, the case-sensitive highlight).
+- Kept: every old name still works (table above), `cylFoldTags` stays exported (deprecated); `showsLaunchView` and the slot `launch-view` stay for custom views.
+- New: `showsSuggestionsLaunchView`, `scrimColor`, `highlightsResultMatches`, `resultMatchHighlightColor`, `noResultsText` (component); `showsLeadingView`, `showsTrailingAccessoryViews`, `setShowsLeadingView`, `setShowsTrailingAccessoryViews` (bar and component); model `showsSuggestionsLaunchView`, `noResultsText`, `highlightsResultMatches`, `suggestionTagConfiguration`; `cylFold`, `cylEdgeSwipeBegins`; `updateresults` now also follows `setQuery` and a tapped suggestion.
+- Behaviour changes to note: the leading and trailing accessory containers are shown by default (an empty slot takes no room); the trailing accessory now sits inside the field (as the iOS trailing accessory views do), the leading one before the navigation button; the suggestion filter ignores case and diacritics (iOS).
+
+#### 4. Tests
+
+`cd CrossPlatform/wechat-miniprogram-cylsearch && npm test` (Node 22.23.4, after `rsync -a --delete src/ example/miniprogram/components/`, the copy that the example tests load): **95 tests, 94 pass, 0 fail, 1 skipped** (86 / 85 / 0 / 1 before). New or rewritten: launch view (suggestions, history, header, tap submits, wins over the slot), scrim forwarders and one overlay, `noResultsText`, highlight (case, diacritics, decomposed, old names), diacritic-insensitive filter, the edge swipe rule and its vertical failure, the dismiss/present guard, the accessory names, no flex-wrap in the package, the tag list configuration and its identity across keystrokes, the example screens (no launch view, no component, API only).
+
+#### 5. Screenshots
+
+None (owner's instruction for this platform: DevTools belongs to the Windows session). The Windows session takes `docs/assets/merge-after-p5-wechat-miniprogram-cylsearch-20261122.png`.
+
+#### Merge score (mini program) (2026-11-22): 85 / 90 without the device points (pass 60)
+
+| Criterion | Points | Got | Why |
+| :--- | :---: | :---: | :--- |
+| Parallel members merged into one implementation, old names kept | 40 | 38 | table above; open: the overlay (non header) bar has no accessory slot path of its own (-1), the accessory margins have no iOS counterpart yet (-1) |
+| Suggestion area / launch view on the tag list, example through API only | 20 | 18 | `cyl-tag-list` everywhere in the core; open: the Discover example page still draws flex-wrap tags and chips by hand (-2) |
+| Highlight, noResultsText, swipe, will/did events aligned with iOS | 15 | 14 | `didpresent` and `diddismiss` are timer based, not transition callbacks (-1) |
+| `npm test` green with tests for each change | 15 | 15 | 95 tests |
+| Device test and screenshots (Windows session) | 10 | open | see the TODO below |
+
+Missing points as TODO:
+- TODO (2 points): `example/miniprogram/pages/discover` (`.tags`, `.grid`) draws its tags and chips with flex wrap; move them to `cyl-tag-list` (the iOS Discover page has the same open TODO).
+- TODO (1 point): the overlay `cyl-search` (not `showsSearchBar`) passes the accessory slots only to the header bar; give the layer's bar the same slots.
+- TODO (1 point): `didpresent` / `diddismiss` come from timers (the animation duration).
+- TODO (1 point): delete `cylFoldTags` and the earlier names (`dimmingColor`, `highlightsMatches`, `highlightColor`, `showsLeadingAccessory`, `showsTrailingAccessory`, the `*-accessory` slots, `setShows…AccessoryView`) after one release.
+- TODO (the QMUI tag size, phase 6): the 69 x 29 minimum tag width needs the ClassifyMenu `CYLMenuStyle.minimumItemSize` change and a pin move on every platform.
+
+#### TODO (Windows session): test
+
+Setup: `cd CrossPlatform/wechat-miniprogram-cylsearch && npm test` (expect 95 tests, 94 pass, 1 skipped; run `node scripts/sync-example.js` first), then WeChat DevTools as in the earlier "TODO (Windows session): test" of this platform (clean build: delete `example/miniprogram/components` and `miniprogram_npm`, base library 3.6.6, light and dark, `wechatide` skill). Nothing below was run.
+
+| Screen / row | Do | Expected |
+| --- | --- | --- |
+| Search controller: launch view | tap the bar | page scrolls to the top, Cancel shows; below the bar the eight QMUI suggestions as `cyl-tag-list` tags (no title, no trash while there is no history); the list's own content never shows through; no scrim |
+| fold | add a long history (20 queries) or narrow the window | folded to two rows with the fold control (chevron) as the last tag; a tap unfolds it with the control still last; a second tap folds it; typing a letter and clearing keeps the fold state |
+| tap a tag | tap "Health" | the field shows "Health", the keyboard goes down, the results show 40 rows ("Health" and "Healthy" x20) with the match highlighted case-insensitively; clearing the text shows the launch view with "Health" first, the header "Recent searches" and the trash button; trash goes back to the eight suggestions |
+| highlight | type "h", "HEAL", "healthy" | the match is blue in every row, whatever the case |
+| empty | type "zzz" | "No matching results" under the bar, no flash while typing "H" then "He"; clearing hides it |
+| swipe | real mouse drag from x < 24 px, first right (more than 1/4 of the width, then a short one); then a drag from the edge that starts vertically | the first ends the search, the short one springs back, the vertical one scrolls the list and never moves the page |
+| Search bar styles | toggle Show leading / trailing accessory with Animated on and off | both squares are now in the field (trailing) and before the field (leading); width animates (about 0.25 s); five quick taps end in the last state; Cancel and margins as before |
+| Short list | type "row 2", then "x" | one row, then "No matching results" (now from `noResultsText`) |
+| dark mode | repeat the launch view | tags readable (white text, dark grey border), clear background, fold chevron grey |
+| `wx.getAppBaseInfo().theme` | check it reports `dark` in DevTools | the tag colours follow it (`isDark()`); if it does not, the tags stay light-mode |
+
+Screenshots to take (originals, `docs/assets/`, stitched, English header, captions and footer outside the panels, then `sh scripts/check-screenshot-labels.sh`): Search controller at rest, launch view folded, launch view unfolded, results with the highlight, empty view (5 panels), named `merge-after-p5-wechat-miniprogram-cylsearch-20261122.png`.
+
+**Result** (base `493efbd`, commits `994404d`, the core commit after it, `e333fee` (rebased hashes differ on the branch), and `8c7725f`; `feat/harmonyos-parity`, PR #11). Core: `android/merged/cylsearch`; example: `android/merged/app`. JDK 17.0.21, Gradle 9.4.1, AGP 9.2.1, own AVD `CYL_P5_Android_API35` (port 5594, shut down after).
+
+#### 1. The audit: parallel members and what they became
+
+| Parallel member made by the QMUI port | Existing counterpart | Merged into |
+| :--- | :--- | :--- |
+| `CYLSearchBarView.leadingAccessoryView`, `showsLeadingAccessoryView`, margins, a second container and slot | `leadingView` (slot before the field) | `leadingView` + new `showsLeadingView` / `setShowsLeadingView(_:animated:)` (iOS names); the old names are deprecated forwards |
+| `trailingAccessoryView`, flag, margins, a second container beside the field | `trailingAccessoryViews` (inside the field) | `trailingAccessoryViews` + `showsTrailingAccessoryViews` / `setShowsTrailingAccessoryViews(_:animated:)`; old names forward (`trailingAccessoryView` = the first view, setting it makes it the only one) |
+| `CYLSearchView.dimmingColor` (own visibility rule, `dimmingShown`, `effectiveScrimColor`) | `scrimColor` | one overlay: `dimmingColor` is a deprecated forward of `scrimColor` |
+| three empty-view holders in `CYLSearchView` (`emptyResultsView`, `emptySuggestionsView`, the view of `showEmptyView`) and a fourth in `CYLSearchListView` | factory `CYLSearchView.emptyPlaceholder` | `CYLSearchEmptyViewSlot` (internal): the one holder; public names stay |
+| history signal only for the view's own submit (`historyListeners`) | the cache stores | `CYLSearchHistorySignal`: stores post it, matched by policy and name (custom stores by identity); an open view lists the history again, listeners get it; the view's own submit and clear are not listed twice |
+| example launch view `CYLRecentSearchLaunchView` (header, trash button, tag styling, history reload, about 140 lines) | `CYLSearchView`'s suggestion area (`suggestionsTagView` = ClassifyMenu's `CYLTagListView`, history header, clear button, fold control last, 2 folded rows) | deleted; the screen sets `suggestions`, `showsSuggestionsForEmptyQuery`, `submitsOnSuggestionSelection`, the cache policy and name |
+| the example's hand-made `ForegroundColorSpan` and its `searchViewUpdateResults` empty-view code | none | core options `highlightsResultMatches` and `noResultsText` |
+| two folding rules (suggestion filter, highlight) | `fold` | one: `CYLSearchResultHighlight.fold` |
+| `CYLSearchListView` vs `CYLSearchView` results code | - | the list owns no results code (its rows are the host's; the results are `CYLSearchView`'s); only its empty view duplicated, now the slot. Its bar uses the one appearance helper (`applyDefaultAppearance`) |
+
+Launch area: Android has no separate controller class, `CYLSearchView` is both, so its suggestion area is the launch content (iOS design); no `showsSuggestionsLaunchView` was added, `launchView` stays for custom views. No native chip group, flex wrap or float layout exists in `android/merged` (grep `ChipGroup`, `Flexbox`: none).
+
+#### 2. New and aligned (iOS names)
+
+`CYLSearchView.highlightsResultMatches`, `resultMatchHighlightColor` (tint of the bar by default, case and diacritic insensitive, composed or decomposed accent, trimmed query, first match), `noResultsText` (shown while the query is not empty and nothing is listed, hidden otherwise; null leaves it to the delegate), `showsLeadingView`, `showsTrailingAccessoryViews` and their animated setters. Will/did events (`searchViewWillShow`, `DidShow`, `WillClose`, `DidClose`) and `supportsSwipeToDismissSearch` (predictive back) already matched; the example manifest now has `android:enableOnBackInvokedCallback="true"`.
+
+**Changes of behaviour, on purpose**: (1) the trailing accessory sits inside the field, as on iOS (QMUI's was beside the field): the "Search bar styles" screen shows it inside. (2) `dimmingColor` dims the whole search like `scrimColor` (it was only while the query was empty and no launch view).
+
+**Core bug found and fixed** (by the test of the tag tap, then confirmed on the AVD): a tapped suggestion set the text without telling the bar's delegate, so with `submitsOnSuggestionSelection` the results (and `noResultsText`) did not follow the tag; it now runs the query change, submits, and takes the keyboard down (the keyboard covered half of the results on the AVD). Test `aTappedSuggestionSubmitsAndTheResultsFollow`. No pre-fix screenshot was taken (found by the test).
+
+#### 3. Lines removed, API kept
+
+`git diff --numstat 493efbd -- android`: 862 added, 361 deleted in total (tests 451 added, 65 deleted); example `CYLSearchControllerDemoFragment.kt` 18 added, 159 deleted; core 5 files: 377 added, 127 deleted including the new 122-line `CYLSearchResultsComponent.kt`. Removed by deduplication in the core: two containers and two slots of the bar, `dimmingShown`, `effectiveScrimColor`, three holders' creation code (about 25 lines), the list's placeholder code, `historyListeners` loop.
+
+Kept as deprecated forwards (nothing removed): `leadingAccessoryView`, `showsLeadingAccessoryView`, `setShowsLeadingAccessoryView`, `leadingAccessoryViewMargins` (padding of the slot), `trailingAccessoryView`, `showsTrailingAccessoryView`, `setShowsTrailingAccessoryView`, `trailingAccessoryViewMargins` (margins of the views), `dimmingColor`. `emptyResultsView` and `emptySuggestionsView` changed from `var ... private set` to `val` (same getter). `scripts/check-public-api-comments.sh` and `scripts/check-licenses.sh`: OK. Android-core users outside `android/merged` (another agent's files, still compile with deprecation warnings): `CrossPlatform/react-native-cylsearch/android/.../CylsearchBarView.kt`, `CylsearchListView.kt`, `CylsearchListViewManager.kt`, and the Flutter Android wrapper if it calls them: TODO, move them to the iOS names.
+
+#### 4. Tests
+
+`sh ./gradlew --no-daemon :cylsearch:testDebugUnitTest :app:testDebugUnitTest` (JDK 17.0.21; the sandbox needs `JAVA_TOOL_OPTIONS=-Drobolectric.dependency.dir=<dir with the android-all jars>` because `~/.m2` is read-only there): core **66 tests, 0 failures** (54 at the base), example **9 tests, 0 failures**. New: `CYLSearchMergePhase5Test` (13: one slot for every empty view, the slot itself, match ignoring case and diacritics, highlight off by default and tint / own color, no highlight leaking into a reused row, `noResultsText`, another view of the same history refreshing an open view and reaching the listeners, a store of an app's own, the view's own submit not listed twice, a tapped suggestion submitting with the results following, will / did once for Cancel, scrim tap, Back, `setActive` and `closeSearch`); `oldAccessoryNamesForwardToTheOneSlot`; `dimmingColorIsTheScrimAndATapEndsTheSearch`; `accessoryViewsShowHideAndShrinkTheField` rewritten for the merged names; `searchControllerConfiguresTheCoreThroughTheApiOnly` (no launch view, tags, history header, highlight span from the core, empty view, tag tap submits).
+
+#### 5. Screenshots
+
+| Image | Label |
+| --- | --- |
+| ![Search controller after merge phase 5](assets/merge-after-p5-android-20261122.png) | Android (Kotlin, android/merged), Pixel 7 AVD CYL_P5_Android_API35 (Android 15, API 35), macOS 27.3, JDK 17.0.21, AGP 9.2.1, CYLSearchViewController `8c7725f`, `feat/harmonyos-parity`, 2026-11-22 17:28 NZDT. Search controller screen: rest; search opened (history of 14 queries seeded in SharedPreferences, tags folded to two rows, fold control last); unfolded; tag "Healthy" tapped (submitted, highlight); "ea" (highlight on the match only); "zzz" (empty view). Originals: `docs/assets/raw/merge-after-p5-android-*-api35-20261122.png` |
+
+On the AVD: Back closes the search, and Back from a result's detail page pops the page and leaves the search open (the `isCovered` fix still works with predictive back enabled).
+
+#### 6. Score (2026-11-22): 91 / 100 (pass 60)
+
+Items 1 and 2 (audit, merges, deprecated forwards, API-only example with tags that submit) 40/40; item 3 (highlight, `noResultsText`, events, swipe) 18/20; item 4 tests 20/20, screenshots 8/10 (no dark mode / large font, history seeded); docs and commits 5/10.
+
+TODO (9 points):
+- TODO (2 points): the swipe to dismiss was not run with a real predictive-back gesture: `adb shell input swipe` from the edge did not start the system gesture on the AVD (Back key and Back from the detail page were checked); needs a real gesture or `adb shell cmd` back-progress injection.
+- TODO (2 points): tags show their top and bottom borders clipped by 2 to 3 px (first and last row; also in `docs/assets/android-cache-recent-searches.png`): the `CYLTagListView` content box is as tall as the rows without their border; fix in CollectionViewClassifyMenu first, then pin.
+- TODO (2 points): CrossPlatform React Native / Flutter Android wrappers use the deprecated names (listed above); `controller.recent` and `controller.launch.label` strings are unused on Android (kept for the cross-platform parity check).
+- TODO (1 point): the trailing accessory of "Search bar styles" now sits inside the field (QMUI: beside it); a core option for a view beside the field would bring that back if wanted.
+- TODO (1 point): no dark mode, ja / zh or large font screenshot; the history of the screenshots was seeded, not typed.
+- TODO (1 point): the example `CYLSearchDiscoverFragment` copies the Discover page (two `CYLTagListView` sections) instead of using the suggestion area, as on iOS.
+### Merge phase 5 log: React Native (2026-11-22)
+
+Phase 5 of the merge design above for CrossPlatform/react-native-cylsearch, `feat/harmonyos-parity`, PR #11. Worktree `/tmp/xpr/merge-p5-react-native-cylsearch`; simulator `iPhone 18 Pro (CYLSearch RN QMUI)` (iOS 27.2, 530EE4E8), AVD `CYL_QRN_API35` on port 5600 (Android 15); Release builds, Xcode 27.2 (27B52), macOS 27.3, JDK 17.0.21, React Native 0.88.0. Code commits `5faf355`, `90fb63a`, `1dc545a`, `5033ce8`, `5c8dcfb` (2026-11-22; the first four were written before the rebase onto the Android and Flutter phase 5 work, the last one adopts what that work added to the Android core). Only CrossPlatform/react-native-cylsearch and this document changed.
+
+#### 1. The audit: parallel members merged into one
+
+None of the first port's names reached master (the package is 0.1.0 and the names exist only on this PR), but the old names still work as deprecated JavaScript forwards (`cylListForwards`, `cylBarForwards` in `src/CYLSearchProps.ts`), so no screen of an app that followed the first port breaks. The native codegen specs carry only the merged names.
+
+| Parallel member (first port) | Merged into (iOS name) | Where |
+| --- | --- | --- |
+| list `dimmingColor` | `scrimColor` | spec, iOS `CylsearchListView.mm`, Android `CylsearchListView.kt` |
+| list `emptyViewText` | `noResultsText` | same |
+| list `launchSuggestions` | `suggestions` (+ `showsSuggestionsForEmptyQuery`, tags, `submitsOnSuggestionSelection`) | same |
+| list `historyPolicy` / `historyName` | `suggestionCachePolicy` / `suggestionCacheName` (the names `CylsearchView` already used: one name per concept in the package) | same |
+| list `launchTitle`, `launchLabel`, `clearHistoryLabel` | removed: the core's suggestion area has its own localized title, trash button and labels | spec, Android |
+| Android `CylsearchLaunchView.kt` (title, border, trash button, `CYLTagListView`) and `cylsearch_ic_delete.xml` | deleted: the core's suggestion area is the launch area (folded tags, fold control last, history header, clear button) | Android |
+| bar `leadingAccessory` / `showsLeadingAccessory` | `leadingView` / `showsLeadingView` | spec, both bars |
+| bar `trailingAccessory` / `showsTrailingAccessory` | `trailingAccessoryViews` (array) / `showsTrailingAccessoryViews` | same |
+| bar `appearance` | `appearanceStyle` | same |
+| two results data sources (`CylsearchView` and `CylsearchListView`, each with its own cell text and cache mapping) | one per platform: iOS `CYLRNSearchResults` + `CYLRNApplySuggestionCache`, Android `CylsearchResults` + `applySuggestionCache` | both |
+| iOS list stub (drew nothing) and the example's iOS composition (bridged bar + `CYLTagListView` + `FlatList`) | `CylsearchListView.mm` hosts the core `CYLSearchView`; the example is one `<CYLSearchListView>` | iOS, example |
+| match highlight drawn by the example (`cylSplitMatch`, case sensitive, returned the query) | the core option `highlightsResultMatches` + `resultMatchHighlightColor` on iOS and Android (a first Android version carried its own `cylMatchRange` / `cylHighlighted`, deleted in `5c8dcfb` once the Android core had the option); the JavaScript `cylSplitMatch` stays for apps that draw their own rows, case and diacritic insensitive, returning the text as written | all |
+| Android bar: the core's accessory slots (`leadingAccessoryView`, `trailingAccessoryView`, margins) and the wrapper's empty view handling | `leadingView`, `trailingAccessoryViews`, `setShowsLeadingView`, `setShowsTrailingAccessoryViews` (the slots are deprecated forwards in the core now), `noResultsText`; the accessory gap is the view's own margin | Android |
+
+Every launch area is the core's suggestion area, whose tags are CollectionViewClassifyMenu's `CYLTagListView`: no native chip group, flex wrap or hand-built tag row remains in the package or the example. A tapped tag submits (`submitsOnSuggestionSelection`, on by default in the list).
+
+#### 2. What is wired now
+
+- iOS bar (`CylsearchBarView.mm` -> `CYLSearchBarView`): `applyDefaultAppearance` / `appearanceStyle`, `centersPlaceholder`, `placeholderColor`, `textColor`, `textFieldMarginsProvider`, `cancelButtonMarginsProvider`, `cancelButtonFont`, `setShowsCancelButton(_:animated:)`, `setShowsLeadingView(_:animated:)`, `setShowsTrailingAccessoryViews(_:animated:)`, `leadingView`, `trailingAccessoryViews`, `onActiveChange` from the editing delegate. Checked on the simulator: margins 32, accessories, Cancel, centred placeholder.
+- `cancelButtonFont` on both platforms (`{"size", "weight"}`): iOS `CYLSearchBarView.cancelButtonFont`; Android the core's typeface for the weight and the button's text size (the core's font is a typeface without a size).
+- iOS list (`CylsearchListView.mm` -> `CYLSearchView`): launch area from `suggestions` + history (folded tags, trash button), `scrimColor`, `highlightsResultMatches`, `noResultsText` (the placeholder's title; its hint is hidden), will / did present and dismiss, `setActive`, `clearHistory`, `onHistoryChange` from the core store's change signal, `supportsSwipeToDismissSearch`, `onSubmit`, rows with `hidesSearchBarInitially`.
+- Android list: the same props on the core's `CYLSearchView` / `CYLSearchListView` (`highlightsResultMatches`, `noResultsText`, `scrimColor`, suggestion area); `onSubmit` is new.
+- The blank band of about 150 px above the bar on Android: the Android core's inset listener pads `pageView` by the full window insets, as if the page started at the top of the window, and a React Native screen is already below the status bar. Any edge-to-edge host that places `CYLSearchView` below its own header would meet it, so the cause is the core's (TODO below); the package mitigates it: `cylKeepSystemBarsAbove` reduces the insets that reach the page by what the view already keeps clear (top and bottom); measured on the 1080 x 2400 emulator: the bar's top edge was 150 px below the header, now it sits directly under it (the Search controller page) and the Open search page's bar moved up by 136 px.
+
+#### 3. Lines removed, API kept
+
+Lines in CrossPlatform/react-native-cylsearch over the five code commits (`git diff --numstat e4a32f1..5c8dcfb`): **545 removed, 1193 added** (the additions are the iOS list and bar wiring, the shared helpers and the tests). Largest removals: `CylsearchLaunchView.kt` -110 and `cylsearch_ic_delete.xml` -11 (deleted), the example's Search controller -137 (the iOS composition, the Android branch and the FlatList), `CylsearchView.mm` -34 and `CylsearchView.kt` -27 and `CylsearchListView.kt` -75 and `CylsearchListViewManager.kt` -35 (their own results, cache and highlight code), and the Android wrapper's own highlight and empty-view code (`c2522fd` / `5c8dcfb`: `cylMatchRange`, `cylHighlighted`, `updateEmptyView`, the accessory slots).
+
+| | Names |
+| --- | --- |
+| Kept as they were | every prop and event of `CYLSearchView`, `CYLTagListView`, `CYLPlaceholderView`; `items`, `mode`, `searches`, `editingBar` and the item and search events of `CYLSearchBarView`; `rows`, `results`, `resultsQuery`, `placeholder`, `centersPlaceholder`, `showsSearchBar`, `hidesSearchBarInitially`, `hidesSearchBarWhenEmptyViewShowing`, `snapsHeaderSearchBar`, `supportsSwipeToDismissSearch`, `onUpdateResults`, `onWillPresent`, `onDidPresent`, `onWillDismiss`, `onDidDismiss`, `onHistoryChange`, `onSelectRow`, `onSelectResult`, `setActive`, `clearHistory` of `CYLSearchListView` |
+| Forwarded (deprecated JavaScript props, tested) | `dimmingColor` -> `scrimColor`, `emptyViewText` -> `noResultsText`, `launchSuggestions` -> `suggestions`, `historyPolicy` / `historyName` -> `suggestionCachePolicy` / `suggestionCacheName`, `leadingAccessory` -> `leadingView`, `trailingAccessory` -> `trailingAccessoryViews`, `showsLeadingAccessory` -> `showsLeadingView`, `showsTrailingAccessory` -> `showsTrailingAccessoryViews`, `appearance` -> `appearanceStyle` |
+| Removed (never reached master; the core's suggestion area has its own title, button and labels) | `launchTitle`, `launchLabel`, `clearHistoryLabel` |
+| New | `cancelButtonFont`, `highlightsResultMatches`, `resultMatchHighlightColor`, `submitsOnSuggestionSelection`, `onSubmit`, the aliases `onWillShow`, `onDidShow`, `onWillClose`, `onDidClose` (the names of `CYLSearchViewDelegate`; the list keeps `onWillPresent` ... `onDidDismiss`, the names of the core's presentation state, so both spellings work: the siblings differ, Flutter's page uses `onWillShow`, the mini program `willpresent`) |
+
+#### 4. Findings
+
+- A tapped tag sets the query in code, and `CYLSearchView` sends no `textDidChange` for it: on iOS the list showed a blank area, because JavaScript never learned the text. `CylsearchListView` answers `onUpdateResults` on the submit when the text differs (core TODO: notify on a programmatic `setQuery`).
+- The Android core fills its tag list while the page is hidden (no width), so the first open showed the header and an empty strip; the wrapper fills it again after `searchViewDidShow` (core TODO).
+- The iOS demo's switch "Center placeholder" did not react to `axe` taps by coordinates; by label it worked.
+
+#### 5. Tests
+
+- `yarn jest --no-watchman`: **15 tests, 0 failures** (6 new: forwards of the old list and bar names, the presentation event spellings, `cancelButtonFont` and views-after-the-text JSON, case and diacritic insensitive highlight splitting incl. "Cafe" / "CAFE" with an accent, text kept as written). These cover the JavaScript only. `yarn tsc`: clean. eslint on the files changed: clean (the three untouched spec files keep their one prettier error each).
+- iOS: `pod install` (codegen), `xcodebuild` Release for the simulator with clean derived data: BUILD SUCCEEDED; run on the simulator by `axe` input: rest, tap on the bar, tag tap submits, return key, history with the trash button, fold and unfold, results, empty view, Cancel; the styles screen.
+- Android: `gradlew clean :app:assembleRelease` (arm64-v8a) on the rebased tree: BUILD SUCCESSFUL in 2m 53s; run on the emulator: the same flow with `adb input`.
+- No native unit tests (the package has no native test target; unchanged from the first port): the native changes (the Android inset fix, the tag-submit `onUpdateResults`, the tag refill, the iOS list and bar wiring) were verified by the builds and by manual runs on the simulator and the emulator, not by automated tests. `Podfile.lock` churn from `pod install` was not committed.
+
+#### 6. After screenshots
+
+React Native 0.88.0, Release builds, CYLSearchViewController `5c8dcfb`, 2026-11-22 17:46 NZDT (retaken after the rebase); originals cropped in `docs/assets/raw/merge-after-p5-rn-*`, stitched with `scripts/stitch-screenshots.swift`. The task names one image per platform; React Native has two, so each carries its platform: rest, launch area folded and unfolded (ten submitted queries, so the history is three rows and the fold control is the last tag), results for "He" with the match highlighted, "Hzzz" with the empty view.
+
+| Image | Label |
+| --- | --- |
+| ![Search controller, React Native iOS, after phase 5](assets/merge-after-p5-react-native-ios-20261122.png) | iOS 27.2, iPhone 18 Pro simulator (CYLSearch RN QMUI), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `5c8dcfb`, 2026-11-22 17:46 NZDT |
+| ![Search controller, React Native Android, after phase 5](assets/merge-after-p5-react-native-android-20261122.png) | Android 15 (API 35) emulator CYL_QRN_API35, JDK 17.0.21, macOS 27.3, CYLSearchViewController `5c8dcfb`, 2026-11-22 17:46 NZDT |
+
+#### Merge score (React Native) (2026-11-22): 87 / 100 (pass 60)
+
+| Criterion | Points | Got | Why |
+| --- | :---: | :---: | --- |
+| Design (the merge rows for this platform audited and written down) | 10 | 10 | tables 1 and 2 |
+| One implementation per concept | 30 | 26 | the names, the launch view, the data source, the cache mapping, the highlight and the accessories are merged onto the core on both platforms; open: iOS `snapsHeaderSearchBar`, two components (`CYLSearchView`, `CYLSearchListView`) host the same core view, and the page component `CYLSearchView` exposes only the highlight of the merged options (no `scrimColor`, `noResultsText`, `supportsSwipeToDismissSearch`, `setActive` or will / did events) |
+| Old API keeps working | 15 | 13 | deprecated forwards, tested; no native negative test |
+| Example free of re-implementations | 20 | 18 | the Search controller is API only on both platforms; the other screens were not in scope |
+| Suites green | 15 | 11 | jest, tsc, eslint, two clean builds and runs; no native tests |
+| Before / after screenshots | 10 | 9 | both platforms, five states; no dark mode or large font |
+
+Missing points as TODO:
+- TODO (2 points): iOS `snapsHeaderSearchBar` and `hidesSearchBarWhenEmptyViewShowing` are accepted and ignored: `CYLSearchHeaderSnapper` is internal to the core (a public API there first), and the empty view lives in the page, not in the list.
+- TODO (4 points, core and follow-ups): the Android core's inset listener should take the page's position in the window into account (the band above; the wrapper compensates, message to the Android owner); the iOS `onHistoryChange` observes the store notification with `object:nil`, so a change of another screen's history with the same policy fires it too (compare policy and name once the store type is public); the page component `CYLSearchView` should offer `scrimColor`, `noResultsText`, `supportsSwipeToDismissSearch`, `setActive` and will / did events like the list; iOS `CYLSearchView` has no `noResultsText` (the wrapper sets the placeholder's title; the Android core has it); the history signal of the iOS store is observed by its notification name `CYLSearchSuggestionStoreDidChange` because the constant is internal; a programmatic `setQuery` (a tapped tag) sends no `textDidChange`; the Android core fills its tag list before the page has a width (the wrapper reloads after `searchViewDidShow`); the Android core's `cancelButtonFont` is a typeface without a size (the wrapper sets the size on the button).
+- TODO (4 points): native tests; dark mode and large font; `supportsSwipeToDismissSearch` (real edge swipe, predictive back), `setActive` and `clearHistory` were wired but never exercised on either platform; `showsSearchBar`, `hidesSearchBarInitially` and the bar options on the list (only on the bar) were not screenshotted.
+- TODO (3 points): arbitrary React children as accessories (still a 30 x 30 square spec); the bar options of the list besides `centersPlaceholder` and `placeholder`.
+
+### Merge phase 5 log: Flutter (2026-11-22), result
+
+**Result** (base `493efbd`; code commits `308b865` bar names and iOS bar wiring, `7c31681` native core hosts scrim, empty view, swipe, `38c7a5a` example, `ff8193b` Android empty text; all on `feat/harmonyos-parity`).
+
+**1. The audit: parallel members and what they became**
+
+| Port member (Dart / plugin) | Existing counterpart | Decision |
+| :--- | :--- | :--- |
+| `leadingAccessoryView`, `trailingAccessoryView` (+ show flags, margins, controller setters) | `leadingView`, `trailingAccessoryViews`, `showsLeadingView`, `setShowsLeadingView(_:animated:)` | merged to the iOS names: `leadingView`, `trailingAccessoryViews` (a list), `showsLeadingView`, `showsTrailingAccessoryViews`, `leadingViewMargins`, `trailingAccessoryViewsMargins`, controller `setShowsLeadingView` / `setShowsTrailingAccessoryViews`. They stay Flutter widgets in a row beside the native field (a platform view cannot host a Flutter widget); native icon and text buttons are `items` |
+| `dimmingColor` + a Dart `ColoredBox` over the page | `scrimColor` | one native overlay: Dart `scrimColor` goes to the core's `scrimColor` on iOS and Android; the Dart overlay and `dimmingColor` are deleted |
+| controller `showEmptyView` / `hideEmptyView` / `isEmptyViewShowing` + a Dart `CYLPlaceholderView` overlay | the core's empty results placeholder (`showsEmptyResultsPlaceholder`) | one empty view, the core's; new `noResultsText` sets its title (iOS: `emptyResultsView.titleLabel`; Android: `emptyResultsView.titleLabel`; not `showEmptyView`, which stacked a second placeholder over the core's, seen on the emulator and fixed in `ff8193b`). The three controller members are deleted |
+| `launchViewBuilder` used by the example (title, divider, trash button, `CYLTagListView`) | the core's suggestion area (`suggestions`, `showsSuggestionsForEmptyQuery`, history header, trash button, fold control last) | the example uses the core's area through API only (its launch view is deleted); `launchViewBuilder` stays only for content that is not tags and is documented as Dart because a platform view cannot host a Flutter widget |
+| `onUpdateResults` | `onTextChanged` | deleted: it differed only by one extra call at opening |
+| `onWillPresent` / `onDidPresent` / `onWillDismiss` / `onDidDismiss`, Dart's `willChangeActive` and `_announcedWillDismiss` | the core delegate's `searchViewWillShow`, `searchViewDidShow`, `searchViewWillClose`, `searchViewDidClose` | `onWillShow`, `onDidShow`, `onWillClose` are the native events; `onClose` is did-close (so `onDidDismiss` is gone); `isActive` follows the native events. Only the first open is announced by Dart, because the native page opens before Dart listens |
+| Dart edge-strip swipe with its animation | `supportsSwipeToDismissSearch` of the core | native on iOS (a real-touch swipe from x = 2 ended the search through the Flutter platform view, simulator); Android uses the core's predictive-back drag; the Dart strip and its `AnimationController` are deleted |
+| plugin attributed text with a case-sensitive match | the core's `highlightsResultMatches` + `resultMatchHighlightColor` | iOS: the core option (case- and diacritic-insensitive), the plugin code is deleted; Android: the core has no option, so the same rule is one pure function (`CYLMatchHighlight`, JVM-tested) |
+| `DispatchQueue.main.async` history read after `didSubmit`, a manual `historyDidChange` after `clearHistory` | the core store's change notification | iOS observes the notification of the core's stores (the trash button of the native header is reported now, it was not before); Android uses the core's history listener and reports a clear itself (the core posts none for the trash button) |
+| hand-mapped appearance (`fieldBorderWidth = 1`, ...) | the core's `CYLSearchBarAppearance` / `appearanceStyle` | iOS assigns one `CYLSearchBarAppearance` (Android already did) |
+| iOS TODOs | `centersPlaceholder`, `textFieldMarginsProvider`, `cancelButtonMarginsProvider`, `cancelButtonFont`, `setShowsCancelButton(_:animated:)` | wired; the field margins are added to `contentInsets` (Dart's are "on top of the native margins", the provider replaces them), Cancel margins are the provider's answer, none is installed for zero margins |
+| new `CYLSearchViewWidgetController.setQuery(query, submit:)` | iOS `setQuery(_:submit:)`, Android `setQuery` | added; a tapped tag with `submitsOnSuggestionSelection` submits without a text change, so the plugin sends the query as a text change before `didSubmit` and Dart's results follow |
+| `CYLSearchListView` | the placeholder component | no duplicate: its `emptyView` takes the shared `CYLPlaceholderView`; unchanged |
+
+**2. Tags.** The native launch area is the ClassifyMenu `CYLTagListView` on both platforms (screenshots: folded to two rows with the fold control last, unfolded). The example "Search controller" sets `suggestions`, `showsSuggestionsForEmptyQuery`, `submitsOnSuggestionSelection`, `highlightsResultMatches`, `noResultsText`, `supportsSwipeToDismissSearch` and the cache: no launch view, no trash button, no empty-view code of its own. A tapped tag submits (iOS and Android checked on the devices). The scrim was checked on the iOS simulator with a temporary local `scrimColor` (it fills the area under the launch tags, a tap on it ends the search and the route pops); the example does not set one.
+
+**3. API kept.** None of the removed names was released: the QMUI-port names were added on 2026-11-22 and `CHANGELOG.md` 0.1.0 is unpublished, so nothing is deprecated and forwarded; the published names (`onClose`, `onTextChanged`, `showsEmptyResultsPlaceholder`, `highlightsResultMatches`, ...) are unchanged. New: `scrimColor`, `noResultsText`, `resultMatchHighlightColor`, `onWillShow`, `onDidShow`, `onWillClose`, `setQuery`, the iOS accessory names.
+
+**4. Lines** (`git diff --numstat 493efbd..HEAD -- CrossPlatform/flutter_cylsearch`): 598 added, 416 deleted over 13 files. Deleted logic: the Dart dimming, empty-view, edge-swipe and animation code and the active-state listener in `lib/src/cyl_search_view.dart` (111 added, 213 deleted), the example's launch view and empty-view code (`qmui_search_controller_page.dart` 23 added, 65 deleted, plus 12 string lines), the plugin's attributed-text highlight and the async history read on iOS. Added: the Android highlight function and its test (88 lines), the iOS bar wiring (137 added in the Swift plugin) and 110 lines of new Dart tests.
+
+**5. Tests.** Plugin `flutter test`: **36 passed** (34 before; the dimming, empty-view, swipe, life-cycle tests of the old Dart overlays were rewritten for the native path, and new ones added in `test/cyl_merge_p5_test.dart`: several trailing widgets in order after the field, `setQuery` with and without submit, a tag's text change before the submit, the history event only from the native store, and in `cyl_qmui_port_test.dart`: the scrim, swipe, highlight colour and empty text go to the native page, the will / did / close order with the controller's `isActive`, no Dart overlay for them); example `flutter test`: **5 passed**; `flutter analyze`: no issues; Android JVM tests (`./gradlew :flutter_cylsearch:testDebugUnitTest`, JDK 17.0.21): **6 passed** (`CYLMatchHighlightTest`: case, diacritics in the result and in the query, original indexes after decomposition, first match only, empty and absent query). The plugin has no native unit tests for the Swift bridge; it was checked on the devices below. Builds: `flutter build ios --simulator --debug` and `flutter build apk --debug`, both from a clean tree.
+
+**6. Devices.** iOS 27.2 simulator "iPhone 18 Pro (CYLSearch Flutter QMUI)" (own device, UDID 1AF18DE0-6557-44DA-A78B-9802CA704B32), Xcode 27.2: launch area (history, trash button, fold), tag tap submits, highlight, empty text, swipe by `axe draw` from x = 2, scrim with its tap. Android 15 (API 35) emulator `CYL_Flutter_QMUI_API35` on port 5592 (own device): launch area, tag tap, highlight, empty view (the stacked placeholders found and fixed), history. The machine's load average was about 900 (parallel sessions) and the emulator was killed by its watchdog four times; each time it was restarted from the command line and the run continued (the history stays on the device).
+
+**7. After screenshots** (originals in `docs/assets/raw/merge-after-p5-flutter-*`, keyboard cropped, stitched by `scripts/stitch-screenshots.swift`; two columns because one column would be taller than one phone screen):
+
+| Image | Label |
+| --- | --- |
+| ![Flutter on iOS after phase 5](assets/merge-after-p5-flutter-20261122.png) | Flutter 3.47.9 on iOS 27.2, iPhone 18 Pro simulator, Xcode 27.2, macOS 27.3, CYLSearchViewController `ff8193b`, `feat/harmonyos-parity`, 2026-11-22 17:45 NZDT. Search controller screen: rest, launch area folded (fold control last) and unfolded, results for "Heal" with the highlight, empty results |
+| ![Flutter on Android after phase 5](assets/merge-after-p5-flutter-android-20261122.png) | Flutter 3.47.9 on Android 15 (API 35) emulator CYL_Flutter_QMUI_API35, macOS 27.3, CYLSearchViewController `ff8193b`, `feat/harmonyos-parity`, 2026-11-22 17:45 NZDT. The same five states |
+
+**Merge score (Flutter) (2026-11-22): 88 / 100 (pass 60)**: parallel members merged with the iOS names and the old names gone (30 of 30 less 2: accessories and `launchViewBuilder` stay Dart, documented), launch, tags and example through API (20 of 20 less 0), highlight, empty text, swipe and events (20 of 20 less 3: `noResultsText` is set by the plugins, not the core; the Android swipe is the core's predictive back and was not checked on the device; Android scrim only through its parameter), iOS TODOs wired and `setQuery` (10 of 10 less 1: no native unit tests of the bridges), tests and screenshots (20 of 20 less 4: the Android run covered five states with an unstable emulator, no dark mode, no large text, one OS version each).
+
+#### TODO (Flutter, after merge phase 5)
+
+- TODO (core, iOS and Android): `CYLSearchView` has no `noResultsText` (only `CYLSearchController` has); the plugins set the title of `emptyResultsView` after each query or results change. Move it into the core and delete `applyNoResultsText` / `updateNoResultsText`.
+- TODO (core, iOS): `CYLSearchSuggestionStore.didChangeNotification` is internal; the plugin observes it by its name `"CYLSearchSuggestionStoreDidChange"`. Make it public (or add a public helper) and use the symbol.
+- TODO (core, Android): no history signal after `clearSuggestionCache()` or the native trash button (iOS has one): the plugin reports its own `clearHistory` call only, so a tap on the native trash button is not reported to `onHistoryChanged` on Android.
+- TODO (core, Android): no `highlightsResultMatches` option (iOS has one); `CYLMatchHighlight` lives in the plugin until it is in the core.
+- TODO (verification): the Android scrim and the predictive-back swipe were not run on the device (the iOS scrim and swipe were); the `scrimColor` of the core Android view lets the page be only as tall as its suggestions, which differs from iOS, to be checked when the Android core's scrim is merged.
+- TODO (verification): dark mode, large Dynamic Type, other OS versions (iOS 17.5, 26.5; Android 13 and 14) of the Flutter screens; real-touch check of the animated Cancel and the margin providers on a device (the iOS bar wiring compiles and runs on 27.2; the styles screen was not re-screenshotted).
+- TODO (design): `leadingView` and `trailingAccessoryViews` are Flutter widgets in a row, not the core's accessory slots (the native `leadingView` cannot hold a Flutter widget); `launchViewBuilder` is a Dart overlay. A native bridge that renders a Flutter widget to a texture would remove both, at a cost not worth it here.
+- TODO (tests): no native unit tests for the Swift and Kotlin bridges (the Flutter tests use a fake platform view); the Android highlight is the only native test. Add RunnerTests / instrumented tests that create the platform views.
+- TODO (example): the example's filter of the ten keywords is case sensitive like the iOS demo, so the case-insensitive highlight is shown only by the core's own tests and the JVM test; `CYLSearchListView.emptyView` and the Short list screen were not changed.
+
+### Merge phase 5b log (2026-11-22)
+
+Base `3ea492e` (`feat/harmonyos-parity`, PR #11); worktree `/tmp/xpr/merge-p5b`. Task: close in the cores the gaps that the React Native and Flutter wrappers worked around (the TODO lists of the merge phase 5 logs), then delete the workarounds.
+
+#### Gap, core change, workaround removed
+
+| Gap (phase 5 TODO) | Core change | Workaround removed |
+| :--- | :--- | :--- |
+| iOS `CYLSearchView` had no `noResultsText` | `CYLSearchView.noResultsText`: the `CYLSearchEmptyView.message` component that `CYLSearchController.noResultsText` shows; a text also turns the empty results placeholder on (`showsEmptyResultsPlaceholder` or a text) | RN `applyNoResultsText` (and its `dispatch_async` after each text change); Flutter iOS `applyNoResultsText` |
+| Android `noResultsText` stacked a second placeholder over the scenario placeholder (found by Flutter) | with a text the text's placeholder is the only empty view (`emptyResultsVisible` is off while `noResultsText` is set) | Flutter Android `updateNoResultsText` (set the title of `emptyResultsView`) |
+| History notification internal, observed by the string `CYLSearchSuggestionStoreDidChange`; fired for another screen's history | `CYLSearchResources.historyDidChangeNotification` (public, three-line comment, fence lines in the Swift and Objective-C fence tests); the stores post `userInfo` `policy` (raw value) and `name` | RN `onHistoryChange` and Flutter iOS observe the symbol and compare policy and name (RN fired for another screen's history before) |
+| Header snapping only for `CYLSearchController`'s own bar | `CYLSearchHeaderSnapper` takes any header view and an `isSearching` closure; public `CYLSearchView.setSnapsHeader(_:for:in:)` (a parameter `snaps`, no new public class; the handling is kept on the table view) | RN iOS list: `snapsHeaderSearchBar` was accepted and ignored, now `setSnapsHeader` |
+| A tapped tag with `submitsOnSuggestionSelection` sent no `textDidChange` (iOS; Android already did via `queryChanged`) | iOS `selectSuggestion` calls `queryChanged` first, then submits; Android covered by a new test | RN iOS `_updatedText` bookkeeping and the `didSubmitText` `onUpdateResults`; Flutter iOS and Android `reportedText`/`reportText` before `didSubmit` |
+| Android inset listener padded the page by the full window insets | the listener pads by the part of the system bars that lies over the view (bars minus the distance from the top/bottom of the window, applied again when the view moves) | RN `cylKeepSystemBarsAbove` (both Android components) |
+| Android `cancelButtonFont` had no size | `CYLSearchBarView.cancelButtonFontSize` (sp, null follows `fontSize`), the size half of iOS `cancelButtonFont`, as `font`/`fontSize` already pair | RN `applyCancelButtonFont` set the size on the button itself; Flutter Android TODO for `cancelButtonFontSize` (now wired) |
+| Android tag list filled before the page had a width, and was clipped | a layout listener on `suggestionsTagView` fills again when it gets a width; the list gets margins instead of padding (it measures its height from its own width, so padding clipped the rows by 12 dp at the top and bottom, seen on the emulator; the new test failed on the padding version) | RN `post { reloadResults() }` after `searchViewDidShow` |
+| Android history signal for the trash button / clear | already in the core (`addHistoryDidChangeListener`, `clearSuggestionCache` goes through `changeHistory`); a test now clicks the trash button | Flutter Android manual `reportHistory()` after `clearHistory` |
+| Flutter Android `CYLMatchHighlight` | the core's `highlightsResultMatches` + `resultMatchHighlightColor` (already in the Android core) | `CYLMatchHighlight.kt` and `CYLMatchHighlightTest.kt` deleted; the data source only sets the row text |
+| Deprecated names in RN and Flutter | none left: the Kotlin, Swift and Objective-C sources call the iOS names; the JavaScript forwards of RN (`dimmingColor`, ...) stay as its own deprecated props, no example uses them | the build logs show no deprecation warning in the wrapper sources |
+
+#### Commits (`feat/harmonyos-parity`)
+
+`49006a2` iOS core (noResultsText, notification, snapping, tapped tag; fence lines and tests; it also carries the staged deletion of Flutter's `CYLMatchHighlight` files), `cc3dcf0` Android core, `878126c` React Native, `cdb6c66` Flutter, `d341704` the Android tag refill fix, then the tag list margins fix and this log. Bisect note: the Flutter `git rm` of `CYLMatchHighlight.kt` and its test was staged before the first commit, so the iOS core commit `49006a2` deleted them while the Flutter plugin still used them until `cdb6c66`: the Flutter Android build is broken for `49006a2` to `878126c` (history was already pushed, not rewritten).
+
+#### Tests
+
+- iOS (`xcodebuild test`, clean derived data, `CODE_SIGNING_ALLOWED=NO`, sandbox off): full suite **185 tests, 0 failures** on 27.2 (CF8CABFE), 26.5 (36C5761F) and 17.5 (AC24E128). New `CYLSearchMergePhase5bTests` (4): `noResultsText` of the search view, the notification with policy and name, `setSnapsHeader` on a host table, textDidChange before submit with and without `submitsOnSuggestionSelection`; fence lines in `CYLSearchAPIFenceTests` and `CYLSearchCoreObjectiveCSmokeTests`. `check-public-api-comments.sh` and `check-licenses.sh`: OK.
+- Android (JDK 17.0.21, `--rerun-tasks`): `:cylsearch:testDebugUnitTest` **74 tests, 0 failures** (rerun on the final tree with `--rerun-tasks`; 8 new in `CYLSearchMergePhase5bTest`: insets below a header, full insets at the top, insets again when the view moves, cancel font size, tags refilled with a width, trash button reaches the history listener, `noResultsText` the only empty view, textDidChange before submit), `:app:testDebugUnitTest` **9, 0 failures**.
+- React Native: `yarn jest --no-watchman` 15 passed, `yarn tsc` clean; Release builds: `gradlew clean :app:assembleRelease` (arm64-v8a) BUILD SUCCESSFUL, `xcodebuild` Release for the simulator with clean derived data BUILD SUCCEEDED (`pod install` there, lockfiles not committed). Android run on the emulator below.
+- Flutter: plugin `flutter test` 36 passed, example `flutter test` 5 passed, `flutter analyze` no issues; `flutter build apk --debug` and `flutter build ios --simulator --debug` succeed.
+- Devices (own, shut down after): AVD `CYL_P5B_API35` (port 5594, killed with `adb emu kill`) and simulator "iPhone 18 Pro (CYLSearch P5b)" 91CAB33B (shut down). RN Android Release: the Search controller opens with the bar directly under the header (no blank band, with `cylKeepSystemBarsAbove` gone), the launch tags are there at the first open, a tapped tag submits into the history. Flutter Android: highlight drawn by the core, "no matching results" is one placeholder with the text. Flutter iOS: launch tags, a tapped tag updates the results with the highlight.
+
+#### Merge score (5b) (2026-11-22): 90 / 100 (pass 60)
+
+Closed in the cores with tests (35 of 40: the Android history signal needed no change, only a test); wrapper workarounds deleted (25 of 25); wrappers call the new API and build (15 of 15 less 2: no RN iOS device run); suites green on three iOS versions and Android (15 of 15); screenshots, none new (0 of 5: not asked, only the checks above); log (5 of 5 less 0).
+
+- TODO (named in the task, not done): `hidesSearchBarWhenEmptyViewShowing` on the RN iOS list is still accepted and ignored (the list has no empty view of its own, on Android neither); `setSnapsHeader` has no RN device check (host test only).
+- TODO: with no history and only `suggestions`, the Android launch area no longer clips its rows (margins fix, checked on the emulator), but the fold control is still missing for 10 tags in 2 folded rows on the first open (8 tags shown); the same on the build before this phase; the list is now an inset white block with 12 dp margins instead of a full-width one; to look at in the core. The wrappers' observers drop notifications without `userInfo` (a cache of your own announced through `announceChange`); no wrapper uses one.
+- TODO: the Flutter plugin has no native unit test left on Android (`CYLMatchHighlightTest` went with the code, the core tests cover the highlight); no native tests of the bridges.
+- TODO: RN iOS Release not run on a simulator in this phase (built only); `cancelButtonFontSize` and the history signal of the Flutter Android trash button were not exercised on the device; the Android core's `cancelButtonFontSize` is a second property beside `cancelButtonFont` (as `fontSize` beside `font`), not one font object.
+
+### Fold control fix (2026-11-22)
+
+Base `4f8e22f` (`feat/harmonyos-parity`, PR #11); worktree `/tmp/xpr/fold-fix`. Task prompt (English, verbatim in substance): on the Android "Search controller" example screen the first-open launch area, with no history and only the 10 `suggestions`, shows 8 of the 10 tags and no fold control, so tags are hidden with no way to unfold; the owner's rule is that, folded or unfolded, the last tag is always the fold control (CollectionViewClassifyMenu's `CYLTagListView` with `CYLMenuFoldControl` at the tail, 2 folded rows) and it toggles; find the cause, fix it in the core or write a ClassifyMenu TODO, check iOS, HarmonyOS and the mini program for the same input.
+
+#### Finding: the premise does not hold, nothing is hidden (misdiagnosis)
+
+| Check | Result |
+| :--- | :--- |
+| The example's `suggestions` | **8**, not 10: `CYLSearchControllerDemoFragment.SUGGESTIONS` (Android), `CYLSearchControllerDemoViewController.suggestions` (iOS), `SearchController.ets` `CYL_LAUNCH_SUGGESTIONS` (HarmonyOS), `pages/searchController/index.js` `SUGGESTIONS` (mini program), `cylQMUISuggestions` (Flutter) and QMUI's own `QDSearchBarViewController.m` (`suggestions`, 8 entries). The list of 10 is `KEYWORDS` (the keywords the results filter, "Nuturally" included), which is not shown as the launch tags. |
+| Android, unchanged example, AVD (1080 x 2400 px, 420 dpi) | All 8 tags in exactly 2 rows, no fold control (screenshot, top). `CYLTagListView.canFoldRowCount` needs more rows than `defaultVisibleRows` (2), so a list that fits has nothing to fold and draws no control: 8 shown of 8, none hidden. The phase 5b TODO ("10 tags in 2 folded rows (8 shown)") describes this screen; it counted the 10 keywords, not the 8 suggestions. |
+| Android, 10 suggestions (local patch of the example, not committed) | 3 rows at 411 dp, so it folds: 9 tags and the fold control last in 2 rows; a tap shows all 10 with the control last (now a chevron up); a second tap folds again (screenshot, middle and bottom). The core and CollectionViewClassifyMenu 405bf49 already behave as the rule asks. |
+| Stale width or refill (the suspected cause) | Not the cause: with 10 tags the list is folded to 2 rows and the control is laid out inside the list (the first-open refill of d341704 and the margins of 4f8e22f work). `numberOfVisibleItemsInSection` trims the last row for the inline control (9 of 10 at 411 dp), which is the designed behavior, not a missing control. |
+
+So there is no defect in the CYLSearch core or in CollectionViewClassifyMenu's Android `CYLTagListView` for this input, and no code change was made. The rule "the last tag is always the fold control" holds whenever there is something to fold; a list that fits in 2 rows has no control, and forcing a control on it would give a toggle that does nothing (and need a hand-built control, which the task forbids). If the owner wants a control even on a list that fits, that is a new option of CollectionViewClassifyMenu's `CYLTagListView` (e.g. always-show for the tail control), to be decided there first.
+
+#### Tests added
+
+- Android: `CYLSearchFoldControlTest` (`:cylsearch`, Robolectric 4.14.1 with `GraphicsMode.NATIVE`, because the legacy text measurement is far too narrow and puts all 10 tags in one row; qualifiers `w411dp-h914dp-420dpi`, the AVD's screen). Ten suggestions: the precondition `numberOfRowsInSection(0) > 2`, folded to 2 rows with exactly one control, the last laid-out cell is the control and lies inside the list; a click unfolds (all 10 tags, the control still last); a second click folds again. Eight suggestions (the example): 2 rows, `canFoldSection` false, all 8 shown, no control. Both pass.
+- Mini program: `test/qmui_search_port.test.js` "launch tags: ten suggestions and no history ...": the tag list gets all 10 suggestions, `defaultVisibleRows` 2 and the fold control at the tail (the list component itself folds).
+- iOS: the existing `testSuggestionsAreTagsFoldedToTwoRowsByDefaultAndTheLastTagIsTheFoldControl` (`CYLSearchExampleCacheFocusItemTests`, precondition more than 2 rows, last tag is the fold control, toggles) already covers the rule; not re-run in this task.
+- HarmonyOS: `node harmonyos/scripts/host-logic-test.mjs` 39 passed; the folding is drawn by the vendored ClassifyMenu `CYLTagListView`, which the host logic test does not load, and no emulator was used, so the HarmonyOS fold is unverified here.
+
+#### Results
+
+- `:cylsearch:testDebugUnitTest` 76 tests, 0 failures (74 + 2 new), `:app:testDebugUnitTest` 9, 0 failures, JDK 17.0.21, `--rerun-tasks`.
+- Mini program `node --test test/*.test.js`: 91 passed, 2 skipped, 3 failed; the 3 failures are the example tests (`example_qmui_search.test.js`: "Search controller", "Search bar styles", "Short list") that cannot find `example/miniprogram/components/core/*` (`MODULE_NOT_FOUND`: the example's `components/` folder is generated and absent in this fresh worktree), not related to folding.
+- Device: own AVD `CYL_Fold_API35` (copy of the Pixel 7 API 35 arm64 AVD, port 5598), shut down with `adb emu kill` and its files deleted afterwards. Screenshot: ![Fold control on Android, 8 and 10 suggestions](assets/fold-fix-android-20261122.png) Android 15 (API 35) emulator CYL_Fold_API35, macOS 27.3, JDK 17.0.21, CYLSearchViewController `4f8e22f` (`feat/harmonyos-parity`), 2026-11-22. Top: the unchanged example (8 suggestions); middle and bottom: a local patch with 10 suggestions, folded and unfolded.
+
+#### TODO (after the fold control fix)
+
+- TODO (decision, owner): the phase 5b TODO about a missing fold control is closed as a misreading (8 of 8 shown); if a control is wanted even when the tags fit in 2 rows, ClassifyMenu's `CYLTagListView` needs an option for it first (iOS, Android, HarmonyOS and the mini program share that component); the example data (8 suggestions, as QMUI) is not changed here.
+- TODO (verification): HarmonyOS and iOS were not run with 10 suggestions on a device or simulator in this task (iOS has its own test for the rule, HarmonyOS only the host logic); the mini program only at the configuration level (DevTools was not used).
+- TODO (tests): the three mini program example tests need the generated `example/miniprogram/components` folder to run in a fresh worktree; a script or a pretest step should create it.

@@ -85,9 +85,8 @@ export interface NativeProps extends ViewProps {
   editingBar?: boolean;
   actionTitle?: string;
   /**
-   * Applies `CYLSearchBarAppearance.default` (`applyDefaultAppearance()`) before the other style options. The QMUI
-   * options below (`centersPlaceholder` to `onActiveChange`) are wired on Android; on iOS they wait for the merge of
-   * the QMUI members into `CYLSearchBarView` (docs/qmui-search-controller.md) and are accepted and ignored.
+   * Applies `CYLSearchBarAppearance.default` (`applyDefaultAppearance()`) before the other style options. The options
+   * below (`centersPlaceholder` to `onActiveChange`) are members of `CYLSearchBarView` on iOS and Android.
    */
   usesDefaultAppearance?: boolean;
   /**
@@ -116,18 +115,22 @@ export interface NativeProps extends ViewProps {
    */
   animatesChanges?: CodegenTypes.WithDefault<boolean, true>;
   /**
-   * A view beside the field before it / after it (`leadingAccessoryView`, `trailingAccessoryView`): a JSON spec drawn by the
-   * core's wrapper (`{"kind":"square","size":30,"color":"#FF3B30","label":"..."}`, a stroked rounded square), 8 points from the field; shown
-   * or hidden by `showsLeadingAccessory` and `showsTrailingAccessory`.
+   * The view before the field (`leadingView`) and the views after the text (`trailingAccessoryViews`, a JSON array), each a
+   * spec drawn by the wrapper (`{"kind":"square","size":30,"color":"#FF3B30","label":"..."}`, a stroked rounded square);
+   * shown or hidden by `showsLeadingView` and `showsTrailingAccessoryViews`, animated unless `animatesChanges` is false.
    */
-  leadingAccessoryJSON?: string;
-  trailingAccessoryJSON?: string;
-  showsLeadingAccessory?: boolean;
-  showsTrailingAccessory?: boolean;
+  leadingViewJSON?: string;
+  trailingAccessoryViewsJSON?: string;
+  showsLeadingView?: boolean;
+  showsTrailingAccessoryViews?: boolean;
   /**
-   * `CYLSearchBarAppearance` as JSON (`{"textColor","placeholderColor","tintColor","cancelTitle","fieldBackgroundColor","fieldCornerRadius","fontSize"}`).
+   * `appearanceStyle`: a `CYLSearchBarAppearance` as JSON (`{"textColor","placeholderColor","tintColor","cancelTitle","fieldBackgroundColor","fieldCornerRadius","fontSize"}`).
    */
-  appearanceJSON?: string;
+  appearanceStyleJSON?: string;
+  /**
+   * The font of Cancel's title (`cancelButtonFont`) as JSON (`{"size":17,"weight":"semibold"}`); empty keeps the bar's font.
+   */
+  cancelButtonFontJSON?: string;
   /**
    * The field gained or lost the focus (iOS: the bar is editing; `searchController.isActive` once a controller owns it).
    */

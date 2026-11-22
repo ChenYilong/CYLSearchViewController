@@ -5,12 +5,13 @@ const { cylDemoText } = require('../../utils/cyl_demo_text');
 const { cylHostHeight } = require('../../utils/cyl_search_page');
 
 Page({
-  data: { title: '', hostHeight: 600, rows: [], results: [], placeholder: '' },
+  data: { title: '', hostHeight: 600, rows: [], results: [], placeholder: '', noResultsText: '' },
   onLoad() {
     this.setData({
       title: cylDemoText('demo.shortList'),
       hostHeight: cylHostHeight(),
       placeholder: cylDemoText('search.field'),
+      noResultsText: cylDemoText('controller.noResults'),
       rows: [1, 2, 3].map((number) => cylDemoText('issue.row', number)),
     });
   },
@@ -18,8 +19,5 @@ Page({
     const text = event.detail.text.toLowerCase();
     const matches = text ? this.data.rows.filter((row) => row.toLowerCase().includes(text)) : [];
     this.setData({ results: matches });
-    const search = this.selectComponent('#search');
-    if (matches.length === 0 && text) search.showEmptyView(cylDemoText('controller.noResults'));
-    else search.hideEmptyView();
   },
 });

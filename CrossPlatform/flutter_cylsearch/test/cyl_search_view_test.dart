@@ -42,6 +42,10 @@ void main() {
         'suggestionsFoldControlContent': 'icon',
         'suggestionsFoldedRowCount': 2,
         'highlightsResultMatches': false,
+        'resultMatchHighlightColor': null,
+        'noResultsText': null,
+        'scrimColor': null,
+        'supportsSwipeToDismissSearch': false,
       });
     });
 

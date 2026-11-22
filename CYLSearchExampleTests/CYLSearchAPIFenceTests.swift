@@ -331,6 +331,9 @@ final class CYLSearchAPIFenceTests: XCTestCase {
         _ = view.searchResults
         touch(view, \.highlightsResultMatches)
         touch(view, \.resultMatchHighlightColor)
+        touch(view, \.resultsHeaderTitleProvider)
+        touch(view, \.resultsHeaderTextColor)
+        touch(view, \.suggestionCacheFooterTitle)
         touch(view, \.refreshHandler)
         _ = view.isRefreshing
         touch(view, \.dividerColor)
@@ -350,6 +353,8 @@ final class CYLSearchAPIFenceTests: XCTestCase {
         touch(view, \.suggestionCachePolicy)
         touch(view, \.suggestionCacheName)
         touch(view, \.suggestionCache)
+        touch(view, \.noResultsText)
+        let _: (Bool, UIView, UITableView) -> Void = view.setSnapsHeader
         _ = view.suggestionCacheHeaderView
         touch(view, \.showsSuggestionCacheHeader)
         _ = view.suggestionCacheTitleLabel
@@ -519,6 +524,7 @@ final class CYLSearchAPIFenceTests: XCTestCase {
         let _: (Bool) -> Void = sc.closeSearch(animated:)
         touch(sc, \.highlightsResultMatches)
         touch(sc, \.resultMatchHighlightColor)
+        touch(sc, \.noResultsText)
         touch(sc, \.hidesNavigationBarDuringPresentation)
         touch(sc, \.alwaysShowsSearchResultsController)
         touch(sc, \.forwardsAppearanceFromContentsViewController)
@@ -530,6 +536,7 @@ final class CYLSearchAPIFenceTests: XCTestCase {
         _ = sc.isEmptyViewShowing
         touch(sc, \.historyStore)
         _ = CYLSearchController.historyDidChangeNotification
+        _ = CYLSearchResources.historyDidChangeNotification
         touch(sc, \.snapsHeaderSearchBar)
         let _: (Bool, Bool) -> Void = sc.setActive
         let _: (UITableView) -> Void = sc.installSearchBar(asHeaderOf:)
@@ -543,6 +550,7 @@ final class CYLSearchAPIFenceTests: XCTestCase {
         let _: (UISearchController) -> Void = sc.willDismissSearchController
         let _: (UISearchController) -> Void = sc.didDismissSearchController
         let _: (UIGestureRecognizer) -> Bool = sc.gestureRecognizerShouldBegin
+        let _: (UIGestureRecognizer, UIGestureRecognizer) -> Bool = sc.gestureRecognizer(_:shouldBeRequiredToFailBy:)
         let delegate = FenceSearchControllerDelegate()
         sc.searchResultsDelegate = delegate
         let d: CYLSearchControllerDelegate = delegate

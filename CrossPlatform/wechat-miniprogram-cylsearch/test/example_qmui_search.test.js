@@ -15,14 +15,6 @@ global.wx = {
   nextTick: (fn) => fn(),
 };
 
-// The tag list package is installed by the example's sync script (git-ignored): a stand-in with its default style shape.
-const Module = require('module');
-const loadModule = Module._load;
-Module._load = function load(request, ...rest) {
-  if (request === 'cyl-tag-list-miniprogram') return { tagCloud: { defaultStyle: () => ({ normal: {}, selected: {}, disabled: {} }) } };
-  return loadModule.call(this, request, ...rest);
-};
-
 function page(name, search) {
   let definition;
   global.Page = (options) => { definition = options; };
@@ -38,49 +30,37 @@ function page(name, search) {
 
 function fakeSearch() {
   const calls = [];
-  const state = { history: [], active: false };
+  const state = { active: false };
   return {
     calls, state,
-    history: () => state.history,
-    clearHistory: () => { state.history = []; calls.push('clearHistory'); },
-    showEmptyView: (text) => calls.push(['showEmptyView', text]),
-    hideEmptyView: () => calls.push('hideEmptyView'),
     isActive: () => state.active,
     setActive: (active) => { state.active = active; calls.push(['setActive', active]); },
     setTextFieldMarginsProvider: (provider) => calls.push(['field', provider({}, false), provider({}, true)]),
     setCancelButtonMarginsProvider: (provider) => calls.push(['cancel', provider({}, true)]),
     setShowsCancelButton: (shows, animated) => calls.push(['cancelShown', shows, animated]),
-    setShowsLeadingAccessoryView: (shows, animated) => calls.push(['leading', shows, animated]),
-    setShowsTrailingAccessoryView: (shows, animated) => calls.push(['trailing', shows, animated]),
+    setShowsLeadingView: (shows, animated) => calls.push(['leading', shows, animated]),
+    setShowsTrailingAccessoryViews: (shows, animated) => calls.push(['trailing', shows, animated]),
   };
 }
 
-test('Search controller: ten keywords, twenty rows per match, "No matching results", the launch view lists history or suggestions', () => {
+test('Search controller: ten keywords, twenty rows per match, the core options do the launch view, the highlight and the empty view', () => {
   const search = fakeSearch();
   const screen = page('searchController', search);
   screen.onLoad();
   assert.equal(screen.data.title, 'Search controller');
   assert.deepEqual(screen.data.keywords, ['Helps', 'Maintain', 'Liver', 'Health', 'Function', 'Supports', 'Healthy', 'Fat', 'Metabolism', 'Nuturally']);
-  screen.onReady();
-  assert.equal(screen.data.tags.length, 8, 'the eight suggestions without a history');
-  assert.equal(screen.data.hasHistory, false);
+  assert.equal(screen.data.suggestions.length, 8, 'the eight suggestions of QDRecentSearchView go to the core');
+  assert.equal(screen.data.noResultsText, 'No matching results', 'the core shows the empty view');
   screen.onUpdateResults({ detail: { text: 'Health' } });
   assert.equal(screen.data.results.length, 40, 'Health and Healthy, twenty rows each');
   assert.equal(screen.data.results.filter((row) => row === 'Health').length, 20);
-  assert.deepEqual(search.calls.at(-1), 'hideEmptyView');
   screen.onUpdateResults({ detail: { text: 'zzz' } });
   assert.deepEqual(screen.data.results, []);
-  assert.deepEqual(search.calls.at(-1), ['showEmptyView', 'No matching results']);
   screen.onUpdateResults({ detail: { text: '' } });
   assert.deepEqual(screen.data.results, []);
-  // A submitted query: historychange makes the launch view read the history again while it stays on screen.
-  search.state.history = ['Liver', 'Fat'];
-  screen.onHistoryChange();
-  assert.deepEqual(screen.data.tags.map((tag) => tag.title), ['Liver', 'Fat']);
-  assert.equal(screen.data.hasHistory, true);
-  screen.onClearHistory();
-  assert.equal(screen.data.hasHistory, false);
-  assert.equal(screen.data.tags.length, 8);
+  assert.deepEqual(search.calls, [], 'the page calls nothing on the component: no launch view, history or empty view of its own');
+  assert.equal(typeof screen.onClearHistory, 'undefined');
+  assert.equal(typeof screen.onHistoryChange, 'undefined');
 });
 
 test('Search bar styles: sections, rows and the bar calls of QDSearchBarViewController', () => {
@@ -121,7 +101,9 @@ test('Short list: three rows under the bar, the matching rows, the empty view', 
   screen.onUpdateResults({ detail: { text: 'row 2' } });
   assert.deepEqual(screen.data.results, ['Row 2']);
   screen.onUpdateResults({ detail: { text: 'x' } });
-  assert.deepEqual(search.calls.at(-1), ['showEmptyView', 'No matching results']);
+  assert.deepEqual(screen.data.results, []);
+  assert.equal(screen.data.noResultsText, 'No matching results', 'the core shows the empty view (noResultsText)');
+  assert.deepEqual(search.calls, []);
 });
 
 test('the screens are registered, in the menu after the contact tags, and the texts exist in four languages', () => {
@@ -138,8 +120,13 @@ test('the screens are registered, in the menu after the contact tags, and the te
     ['en', 'ja', 'zh-Hans', 'zh-Hant'].forEach((language) => assert.ok(resources.strings[language][key], `${language} ${key}`));
   });
   const wxml = fs.readFileSync(path.join(example, 'pages', 'searchController', 'index.wxml'), 'utf8');
-  assert.match(wxml, /<cyl-tag-cloud/, 'the recent searches are the vendored tag list, not hand-drawn tags');
+  assert.doesNotMatch(wxml, /slot="launch-view"|<cyl-tag-|class="launch|flex/, 'no launch view, tag list or chip layout of the example: the core draws them');
+  assert.match(wxml, /showsSuggestionsLaunchView/);
+  assert.match(wxml, /highlightsResultMatches/);
+  assert.match(wxml, /noResultsText=/);
   assert.doesNotMatch(wxml, /<scroll-view/, 'the core owns the one scroller');
+  const json = JSON.parse(fs.readFileSync(path.join(example, 'pages', 'searchController', 'index.json'), 'utf8'));
+  assert.equal(json.usingComponents, undefined, 'the screen declares no component of its own');
   const styles = fs.readFileSync(path.join(example, 'pages', 'searchBarStyles', 'index.wxss'), 'utf8');
   assert.match(styles, /width: 30px; height: 30px;[^}]*border: 3px solid/, '30 x 30 stroked accessories');
 });

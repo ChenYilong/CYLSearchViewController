@@ -38,10 +38,10 @@ final class CYLSearchIssueScenarioTests: CYLSearchExampleTestCase {
 
     private func open(_ controller: UIViewController) -> (window: UIWindow, navigation: UINavigationController) {
         let navigation = UINavigationController(rootViewController: controller)
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         window.rootViewController = navigation
         window.makeKeyAndVisible()
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         return (window, navigation)
     }
 
@@ -67,14 +67,14 @@ final class CYLSearchIssueScenarioTests: CYLSearchExampleTestCase {
         var samples: [CGRect] = []
         let sampler = CYLFrameSampler { samples.append(self.drawnFrame(of: bar, in: window)) }
         search.setActive(true, animated: true)
-        CYLRunLoop(1.2)
+        runLoop(1.2)
         sampler.stop()
         XCTAssertTrue(search.isActive)
         XCTAssertGreaterThan(samples.count, 10, "the animation was sampled")
         let worst = samples.map { abs($0.minY - start.minY) }.max() ?? 0
         XCTAssertLessThanOrEqual(worst, 0.5, "the bar's top edge moved \(worst) pt during activation (start \(start))")
         search.setActive(false, animated: true)
-        CYLRunLoop(1.0)
+        runLoop(1.0)
         let end = drawnFrame(of: bar, in: window)
         XCTAssertEqual(end.minY, start.minY, accuracy: 0.5, "and it is back where it was after Cancel")
         window.isHidden = true
@@ -96,7 +96,7 @@ final class CYLSearchIssueScenarioTests: CYLSearchExampleTestCase {
         var samples: [CGRect] = []
         let sampler = CYLFrameSampler { samples.append(self.drawnFrame(of: bar, in: window)) }
         search.setActive(true, animated: true)
-        CYLRunLoop(1.2)
+        runLoop(1.2)
         sampler.stop()
         XCTAssertTrue(search.isActive)
         XCTAssertFalse(navigation.navigationBar.isHidden, "the navigation bar stays")
@@ -130,24 +130,24 @@ final class CYLSearchIssueScenarioTests: CYLSearchExampleTestCase {
             weakSearch = screen.cylSearchController
             XCTAssertNotNil(weakSearch, "the contents view controller keeps the wrapper")
             XCTAssertTrue(navigation.topViewController?.navigationItem.searchController === weakSearch?.searchController)
-            CYLRunLoop(0.2)
+            runLoop(0.2)
             weakSearch?.setActive(true, animated: true)
-            CYLRunLoop(0.9)
+            runLoop(0.9)
             XCTAssertEqual(weakSearch?.isActive, true)
             for text in ["H", "He", "zzz", ""] {
                 weakSearch?.searchBar.text = text
-                CYLRunLoop(0.3)
+                runLoop(0.3)
                 XCTAssertEqual(screen.searchStrings.last, text, "the delegate got \"\(text)\"")
             }
             XCTAssertNotNil(weakSearch, "still alive while searching")
             weakSearch?.setActive(false, animated: true)
-            CYLRunLoop(0.9)
+            runLoop(0.9)
             XCTAssertEqual(weakSearch?.isActive, false)
             XCTAssertFalse(weakSearch?.searchBar.usedAsTableHeaderView ?? true)
             window.rootViewController = nil
             window.isHidden = true
         }
-        CYLRunLoop(0.6)
+        runLoop(0.6)
         XCTAssertNil(weakScreen, "the screen leaked")
         XCTAssertNil(weakSearch, "the wrapper leaked")
     }
@@ -160,9 +160,9 @@ final class CYLSearchIssueScenarioTests: CYLSearchExampleTestCase {
         let search = try XCTUnwrap(screen.cylSearchController)
         XCTAssertTrue(search.searchBar.hostedInNavigationItem)
         search.setActive(true, animated: true)
-        CYLRunLoop(1.0)
+        runLoop(1.0)
         search.searchBar.text = "H"
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         let bar = search.searchBar.convert(search.searchBar.bounds, to: window)
         // Beside the field, above it and below it: the bar's own background, not the field.
         let points = [CGPoint(x: bar.maxX - 2, y: bar.minY + 2), CGPoint(x: 2, y: bar.midY), CGPoint(x: 2, y: bar.maxY - 2)]
@@ -240,11 +240,11 @@ final class CYLSearchIssueScenarioTests: CYLSearchExampleTestCase {
         // Half of the header away, released with no speed: the nearer edge wins.
         table.contentOffset = CGPoint(x: 0, y: shown + height / 2 - 6)
         XCTAssertTrue(snapper.settle(velocityY: 0))
-        CYLRunLoop(0.7)
+        runLoop(0.7)
         XCTAssertEqual(table.contentOffset.y, shown, accuracy: 0.5, "fully shown")
         table.contentOffset = CGPoint(x: 0, y: shown + height / 2 + 6)
         XCTAssertTrue(snapper.settle(velocityY: 0))
-        CYLRunLoop(0.7)
+        runLoop(0.7)
         XCTAssertEqual(table.contentOffset.y, hidden, accuracy: 0.5, "fully hidden")
         let hiddenFrame = bar.convert(bar.bounds, to: window)
         XCTAssertLessThanOrEqual(hiddenFrame.maxY, navigation.navigationBar.frame.maxY + 0.5, "the bar is out of sight")
@@ -256,7 +256,7 @@ final class CYLSearchIssueScenarioTests: CYLSearchExampleTestCase {
         XCTAssertNil(snapper.settleOffsetY(from: hidden, velocityY: 0), "nothing to settle at the edge")
         // Back down: the bar is visible again, it never stays invisible (B10).
         table.setContentOffset(CGPoint(x: 0, y: shown), animated: false)
-        CYLRunLoop(0.2)
+        runLoop(0.2)
         let shownFrame = bar.convert(bar.bounds, to: window)
         XCTAssertGreaterThanOrEqual(shownFrame.minY, navigation.navigationBar.frame.maxY - 0.5)
         XCTAssertGreaterThan(shownFrame.height, 0)
@@ -360,12 +360,12 @@ final class CYLSearchIssueScenarioTests: CYLSearchExampleTestCase {
         XCTAssertGreaterThan(before.height, 0)
         for round in 1...2 {
             search.setActive(true, animated: true)
-            CYLRunLoop(0.9)
+            runLoop(0.9)
             search.searchBar.text = "1"
-            CYLRunLoop(0.3)
+            runLoop(0.3)
             search.setActive(false, animated: true)
-            CYLRunLoop(1.0)
-            CYLRunLoop(0.1)
+            runLoop(1.0)
+            runLoop(0.1)
             let after = bar.convert(bar.bounds, to: window)
             XCTAssertEqual(after.minX, before.minX, accuracy: 0.5, "round \(round)")
             XCTAssertEqual(after.minY, before.minY, accuracy: 0.5, "round \(round)")

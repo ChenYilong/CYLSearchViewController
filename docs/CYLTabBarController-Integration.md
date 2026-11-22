@@ -123,7 +123,7 @@ ArkTS and JavaScript ports follow the same table.
     last rows of the list.
   - `testSearchBarsCoverNoView` checks the results screen (bar pinned and
     hiding on scroll), the search bar demo at the default and the largest
-    text size, and the `CYLSearchView` overlay, with `CYLViewsCoveredByView`: every visible
+    text size, and the `CYLSearchView` overlay, with `viewsCoveredByView`: every visible
     view of the window except the bar's own subviews and containers, system
     bar backgrounds, views that draw nothing and parts clipped away.
     `testSearchBarNeverCoversTheViewControllersView` checks the view's frame.

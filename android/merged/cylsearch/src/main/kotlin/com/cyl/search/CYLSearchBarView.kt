@@ -1106,15 +1106,11 @@ class CYLSearchBarView @JvmOverloads constructor(
 
     // QMUI search bar port (docs/qmui-search-controller.md, "Android (Kotlin, android/merged...): QMUI search port")
 
-    private val leadingAccessoryContainer = FrameLayout(context)
-    private val trailingAccessoryContainer = FrameLayout(context)
-    init {
-        leadingAccessoryContainer.setPaddingRelative(0, 0, dp(SPACING), 0)
-        trailingAccessoryContainer.setPaddingRelative(dp(SPACING), 0, 0, 0)
-    }
-
-    private val leadingAccessorySlot = AccessorySlot(leadingAccessoryContainer)
-    private val trailingAccessorySlot = AccessorySlot(trailingAccessoryContainer)
+    // The views of `trailingAccessoryViews` sit in their own container at the start of `accessoryContainer`, so that one slot
+    // can animate them without touching the items, the voice and the submit button.
+    private val trailingViewsContainer = LinearLayout(context)
+    private val leadingSlot = AccessorySlot(leadingContainer)
+    private val trailingViewsSlot = AccessorySlot(trailingViewsContainer)
     private val cancelSlot = AccessorySlot(cancelButton)
     private var leadingShown = true
     private var trailingShown = true
@@ -1193,6 +1189,16 @@ class CYLSearchBarView @JvmOverloads constructor(
         }
 
     /**
+     * The text size of the Cancel button in sp, the size half of iOS `cancelButtonFont` (a `UIFont` has both). `fontSize`
+     * when null.
+     */
+    var cancelButtonFontSize: Float? = null
+        set(value) {
+            field = value
+            applyStyle()
+        }
+
+    /**
      * Shows Cancel while the bar is being edited, as a `UISearchBar` does in a search (also when `showsCancelButton` is
      * false). False by default.
      */
@@ -1212,60 +1218,80 @@ class CYLSearchBarView @JvmOverloads constructor(
         }
 
     /**
-     * A view of yours beside the field, before it (QMUI `qmui_leftAccessoryView`), with `leadingAccessoryViewMargins`
-     * around it, centered on the field. `leadingView` is the slot before it, for a back button.
+     * Whether the view before the field (`leadingView`, or the navigation button) is shown (iOS `showsLeadingView`). True
+     * by default; a hidden view gives its room to the field. `setShowsLeadingView` animates it.
      */
-    var leadingAccessoryView: View? = null
+    var showsLeadingView: Boolean
+        get() = leadingShown
+        set(value) = setShowsLeadingView(value, false)
+
+    /**
+     * Whether `trailingAccessoryViews` are shown (iOS `showsTrailingAccessoryViews`). True by default; hidden views give
+     * their room to the text. `setShowsTrailingAccessoryViews` animates them.
+     */
+    var showsTrailingAccessoryViews: Boolean
+        get() = trailingShown
+        set(value) = setShowsTrailingAccessoryViews(value, false)
+
+    /**
+     * The same view as `leadingView` (QMUI `qmui_leftAccessoryView`).
+     */
+    @Deprecated("One slot before the field: use leadingView.", ReplaceWith("leadingView"))
+    var leadingAccessoryView: View?
+        get() = leadingView
         set(value) {
-            field?.let { leadingAccessoryContainer.removeView(it) }
-            field = value
-            value?.let { (it.parent as? ViewGroup)?.removeView(it); leadingAccessoryContainer.addView(it) }
-            syncAccessories(false)
+            leadingView = value
         }
 
     /**
-     * Whether `leadingAccessoryView` is shown. True by default; `setShowsLeadingAccessoryView` animates it.
+     * The same flag as `showsLeadingView`.
      */
+    @Deprecated("Use showsLeadingView.", ReplaceWith("showsLeadingView"))
     var showsLeadingAccessoryView: Boolean
-        get() = leadingShown
-        set(value) = setShowsLeadingAccessoryView(value, false)
+        get() = showsLeadingView
+        set(value) {
+            showsLeadingView = value
+        }
 
     /**
-     * The space around `leadingAccessoryView` in dp (left, top, right, bottom). Zero by default.
+     * The space around the view before the field in dp (left, top, right, bottom), as padding of its slot. Zero by default.
      */
+    @Deprecated("Give the view its own margins in its layout parameters.")
     var leadingAccessoryViewMargins: Rect = Rect()
         set(value) {
             field = value
-            // The 8 dp gap to the field comes on top of the margins (QMUI: accessory views sit 8 pt from the field).
-            leadingAccessoryContainer.setPaddingRelative(dp(value.left.toFloat()), dp(value.top.toFloat()), dp(value.right.toFloat() + SPACING), dp(value.bottom.toFloat()))
+            leadingContainer.setPaddingRelative(dp(value.left.toFloat()), dp(value.top.toFloat()), dp(value.right.toFloat()), dp(value.bottom.toFloat()))
         }
 
     /**
-     * A view of yours beside the field, after it and before Cancel (QMUI `qmui_rightAccessoryView`); the views inside
-     * the field are `trailingAccessoryViews`.
+     * The first of `trailingAccessoryViews` (QMUI `qmui_rightAccessoryView`); setting it makes it the only one.
      */
-    var trailingAccessoryView: View? = null
+    @Deprecated("Use trailingAccessoryViews.", ReplaceWith("trailingAccessoryViews.firstOrNull()"))
+    var trailingAccessoryView: View?
+        get() = trailingAccessoryViews.firstOrNull()
         set(value) {
-            field?.let { trailingAccessoryContainer.removeView(it) }
-            field = value
-            value?.let { (it.parent as? ViewGroup)?.removeView(it); trailingAccessoryContainer.addView(it) }
-            syncAccessories(false)
+            trailingAccessoryViews = listOfNotNull(value)
         }
 
     /**
-     * Whether `trailingAccessoryView` is shown. True by default; `setShowsTrailingAccessoryView` animates it.
+     * The same flag as `showsTrailingAccessoryViews`.
      */
+    @Deprecated("Use showsTrailingAccessoryViews.", ReplaceWith("showsTrailingAccessoryViews"))
     var showsTrailingAccessoryView: Boolean
-        get() = trailingShown
-        set(value) = setShowsTrailingAccessoryView(value, false)
+        get() = showsTrailingAccessoryViews
+        set(value) {
+            showsTrailingAccessoryViews = value
+        }
 
     /**
-     * The space around `trailingAccessoryView` in dp (left, top, right, bottom). Zero by default.
+     * The space around each of `trailingAccessoryViews` in dp (left, top, right, bottom), on top of the 8 dp gap. Zero by
+     * default.
      */
+    @Deprecated("Give the views their own margins in their layout parameters.")
     var trailingAccessoryViewMargins: Rect = Rect()
         set(value) {
             field = value
-            trailingAccessoryContainer.setPaddingRelative(dp(value.left.toFloat() + SPACING), dp(value.top.toFloat()), dp(value.right.toFloat()), dp(value.bottom.toFloat()))
+            updateAccessories()
         }
 
     /**
@@ -1286,21 +1312,34 @@ class CYLSearchBarView @JvmOverloads constructor(
     }
 
     /**
-     * Shows or hides `leadingAccessoryView`, with an animation when `animated` is true. The last call decides: two
-     * quick calls end in the state of the second.
+     * Shows or hides the view before the field, with an animation when `animated` is true (iOS
+     * `setShowsLeadingView(_:animated:)`). The last call decides: two quick calls end in the state of the second.
      */
-    fun setShowsLeadingAccessoryView(shows: Boolean, animated: Boolean) {
+    fun setShowsLeadingView(shows: Boolean, animated: Boolean) {
         leadingShown = shows
         syncAccessories(animated)
     }
 
     /**
-     * Shows or hides `trailingAccessoryView`, with an animation when `animated` is true. The last call decides.
+     * Shows or hides `trailingAccessoryViews`, with an animation when `animated` is true (iOS
+     * `setShowsTrailingAccessoryViews(_:animated:)`). The last call decides.
      */
-    fun setShowsTrailingAccessoryView(shows: Boolean, animated: Boolean) {
+    fun setShowsTrailingAccessoryViews(shows: Boolean, animated: Boolean) {
         trailingShown = shows
         syncAccessories(animated)
     }
+
+    /**
+     * The same as `setShowsLeadingView`.
+     */
+    @Deprecated("Use setShowsLeadingView.", ReplaceWith("setShowsLeadingView(shows, animated)"))
+    fun setShowsLeadingAccessoryView(shows: Boolean, animated: Boolean) = setShowsLeadingView(shows, animated)
+
+    /**
+     * The same as `setShowsTrailingAccessoryViews`.
+     */
+    @Deprecated("Use setShowsTrailingAccessoryViews.", ReplaceWith("setShowsTrailingAccessoryViews(shows, animated)"))
+    fun setShowsTrailingAccessoryView(shows: Boolean, animated: Boolean) = setShowsTrailingAccessoryViews(shows, animated)
 
     /**
      * Shows or hides Cancel, with an animation when `animated` is true (iOS `setShowsCancelButton(_:animated:)`).
@@ -1312,9 +1351,8 @@ class CYLSearchBarView @JvmOverloads constructor(
     }
 
     private fun syncAccessories(animated: Boolean) {
-        val onScreen = !isIconified && mode != CYLSearchBarMode.Multiple
-        leadingAccessorySlot.set(onScreen && leadingShown && leadingAccessoryView != null, animated)
-        trailingAccessorySlot.set(onScreen && trailingShown && trailingAccessoryView != null, animated)
+        leadingSlot.set(leadingShown && (leadingView != null || showsNavigationButton), animated)
+        trailingViewsSlot.set(trailingShown && trailingAccessoryViews.isNotEmpty(), animated)
     }
 
     private fun syncCancelButton(animated: Boolean) {
@@ -1424,8 +1462,6 @@ class CYLSearchBarView @JvmOverloads constructor(
         row.gravity = Gravity.CENTER_VERTICAL
         addView(row, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, Gravity.CENTER_VERTICAL))
         row.addView(leadingContainer, LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
-        leadingAccessoryContainer.visibility = GONE
-        row.addView(leadingAccessoryContainer, LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
         leadingContainer.addView(navigationButton)
         navigationButton.visibility = GONE
         navigationButton.setOnClickListener { navigationTapped() }
@@ -1434,8 +1470,6 @@ class CYLSearchBarView @JvmOverloads constructor(
         fieldView.gravity = Gravity.CENTER_VERTICAL
         fieldView.background = fieldBackground
         row.addView(fieldView, LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1f))
-        trailingAccessoryContainer.visibility = GONE
-        row.addView(trailingAccessoryContainer, LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT))
         searchIconView.scaleType = ImageView.ScaleType.FIT_CENTER
         searchIconView.importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
         fieldView.addView(searchIconView)
@@ -1456,6 +1490,9 @@ class CYLSearchBarView @JvmOverloads constructor(
         fieldView.addView(accessoryContainer, LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT))
         accessoryContainer.orientation = LinearLayout.HORIZONTAL
         accessoryContainer.gravity = Gravity.CENTER_VERTICAL
+        trailingViewsContainer.orientation = LinearLayout.HORIZONTAL
+        trailingViewsContainer.gravity = Gravity.CENTER_VERTICAL
+        accessoryContainer.addView(trailingViewsContainer, LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT))
         voiceButton.contentDescription = CYLSearchResources.localizedString(context, "search.voice")
         voiceButton.setOnClickListener { delegate?.searchBarViewVoiceButtonClicked(this) }
         submitButton.contentDescription = CYLSearchResources.localizedString(context, "search.submit")
@@ -1647,9 +1684,22 @@ class CYLSearchBarView @JvmOverloads constructor(
     }
 
     private fun updateAccessories() {
-        accessoryContainer.removeAllViews()
+        // Everything but the container of `trailingAccessoryViews` (the first child) is rebuilt.
+        if (accessoryContainer.childCount > 1) {
+            accessoryContainer.removeViews(1, accessoryContainer.childCount - 1)
+        }
+        trailingViewsContainer.removeAllViews()
+        val margins = trailingAccessoryViewMargins
+        trailingAccessoryViews.forEach { view ->
+            (view.parent as? ViewGroup)?.removeView(view)
+            val given = view.layoutParams
+            trailingViewsContainer.addView(view, LinearLayout.LayoutParams(given?.width ?: LayoutParams.WRAP_CONTENT, given?.height ?: LayoutParams.WRAP_CONTENT).apply {
+                setMargins(dp(SPACING + margins.left), dp(margins.top.toFloat()), dp(margins.right.toFloat()), dp(margins.bottom.toFloat()))
+            })
+        }
+        syncAccessories(false)
         val hasText = !text.isNullOrEmpty()
-        val views = (trailingAccessoryViews + itemViews).toMutableList()
+        val views = itemViews.toMutableList<View>()
         if (showsVoiceButton && !hasText) {
             views.add(voiceButton)
         }
@@ -1744,7 +1794,6 @@ class CYLSearchBarView @JvmOverloads constructor(
         syncAccessories(false)
         navigationButton.visibility = if (isIconified || !showsNavigationButton) GONE else VISIBLE
         leadingView?.visibility = if (isIconified) GONE else VISIBLE
-        leadingContainer.visibility = if (leadingView == null && !showsNavigationButton) GONE else VISIBLE
     }
 
     private fun notifyIconified() {
@@ -1792,7 +1841,7 @@ class CYLSearchBarView @JvmOverloads constructor(
         placeholderLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
         placeholderLabel.typeface = font ?: Typeface.DEFAULT
         placeholderLabel.setTextColor(hint)
-        cancelButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
+        cancelButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, cancelButtonFontSize ?: size)
         cancelButton.typeface = cancelButtonFont ?: font ?: Typeface.DEFAULT
         cancelButton.setTextColor(tintColor ?: themeColor(android.R.attr.colorAccent))
         cancelButton.text = cancelButtonTitle

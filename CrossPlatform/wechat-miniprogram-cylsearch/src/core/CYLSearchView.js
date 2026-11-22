@@ -126,6 +126,7 @@ class CYLSearchView {
     this.showsResultsForEmptyQuery = false;
     this.dividerColor = undefined;
     this.contentView = undefined;
+    // The one dimming overlay under the bar while the query is empty (iOS `scrimColor`; `dimmingColor` forwards to it).
     this.scrimColor = undefined;
     this.backgroundColor = undefined;
     this.suggestionFilter = undefined;
@@ -139,12 +140,16 @@ class CYLSearchView {
     this.suggestionCellConfiguration = undefined;
     this.suggestionCacheTitle = $r('app.string.cyl_search_recent');
     this.focusesSearchFieldOnShow = true;
-    // iOS CYLSearchController (QMUI): a launch view under the bar while the query is empty (the component's slot
-    // `launch-view`), a dimming color there instead, results that mark the match, the empty view with its own text, and
-    // the list screen mode (the bar as the header of the content: CYLSearchTableViewController).
+    // iOS CYLSearchController (QMUI), as modes of this one class: a launch view under the bar while the query is empty
+    // (`showsSuggestionsLaunchView`: the suggestion area itself; `showsLaunchView`: the component's slot `launch-view`
+    // for a view of the page's own), the scrim there instead, results that mark the match (`highlightsResultMatches`),
+    // the empty view with its own text (`noResultsText`), and the list screen mode (the bar as the header of the
+    // content: CYLSearchTableViewController).
+    this.showsSuggestionsLaunchView = false;
     this.showsLaunchView = false;
-    this.dimmingColor = undefined;
-    this.highlightsMatches = false;
+    this.highlightsResultMatches = false;
+    this.noResultsText = undefined;
+    this.autoEmptyView = false;
     this.emptyView = undefined;
     this.emptyViewInContent = false;
     this.showsSearchBar = false;
@@ -190,6 +195,28 @@ class CYLSearchView {
         }
       },
     };
+  }
+
+  /**
+   * Deprecated: the scrim (iOS `dimmingColor`, which forwards to `scrimColor`).
+   */
+  get dimmingColor() {
+    return this.scrimColor;
+  }
+
+  set dimmingColor(value) {
+    this.scrimColor = value;
+  }
+
+  /**
+   * Deprecated: `highlightsResultMatches` (the earlier name of this port).
+   */
+  get highlightsMatches() {
+    return this.highlightsResultMatches;
+  }
+
+  set highlightsMatches(value) {
+    this.highlightsResultMatches = !!value;
   }
 
   /**
@@ -404,6 +431,7 @@ class CYLSearchView {
     this.searchBarView.setText(text, false);
     this.refilter();
     this.reloadResults();
+    tell(this.delegate, 'searchViewUpdateResults', this, this.query);
     if (submit) this.submitted();
   }
 
@@ -488,6 +516,7 @@ class CYLSearchView {
    * takes the content's place (the list screen's empty view). Returns whether it is showing.
    */
   showEmptyView(text, detailText, buttonTitle, buttonAction) {
+    this.autoEmptyView = false;
     if (this.open && this.query.length === 0) return false;
     this.emptyView = { text: text || '', detailText: detailText || '', buttonTitle: buttonTitle || '', buttonAction };
     this.emptyViewInContent = !this.open;
@@ -500,6 +529,22 @@ class CYLSearchView {
   hideEmptyView() {
     this.emptyView = undefined;
     this.emptyViewInContent = false;
+    this.autoEmptyView = false;
+  }
+
+  // `noResultsText` (iOS `CYLSearchController.noResultsText`): the empty view shows while the query is not empty and the
+  // results are empty, and goes with them; an empty view the page showed itself is never replaced or hidden by it.
+  applyNoResultsText() {
+    if (!this.noResultsText) {
+      if (this.autoEmptyView) this.hideEmptyView();
+      return;
+    }
+    const none = this.showsResults && this.query.length > 0 && this.results.length === 0;
+    if (none && (this.emptyView === undefined || this.autoEmptyView)) {
+      if (this.showEmptyView(this.noResultsText)) this.autoEmptyView = true;
+    } else if (!none && this.autoEmptyView) {
+      this.hideEmptyView();
+    }
   }
 
   /**
@@ -513,14 +558,14 @@ class CYLSearchView {
    * True while the launch view shows: it is on, the query is empty and no results show (iOS `launchView`).
    */
   get showsLaunch() {
-    return this.showsLaunchView && this.query.length === 0 && !this.showsResults && this.emptyView === undefined;
+    return this.showsLaunchView && !this.showsSuggestionsLaunchView && this.query.length === 0 && !this.showsResults && this.emptyView === undefined;
   }
 
   /**
-   * True while the dimming shows under the bar: a dimming color, an empty query, no launch view (iOS `dimmingColor`).
+   * True while the scrim shows under the bar: a scrim color, an empty query, no launch view (iOS `scrimColor`).
    */
   get showsDimming() {
-    return !!this.dimmingColor && this.query.length === 0 && !this.showsLaunchView && !this.showsResults;
+    return !!this.scrimColor && this.query.length === 0 && !this.showsLaunchView && !this.showsSuggestionsLaunchView && !this.showsResults;
   }
 
   /**
@@ -536,11 +581,14 @@ class CYLSearchView {
    * `submitsOnSuggestionSelection`.
    */
   suggestionSelected(suggestion, index) {
+    // A tag of the launch view submits (iOS `showsSuggestionsLaunchView`).
+    const launching = this.showsSuggestionsLaunchView && this.query.length === 0;
     this.searchBarView.setText(suggestion, false);
     this.refilter();
     this.reloadResults();
     tell(this.delegate, 'searchViewDidSelectSuggestion', this, suggestion, index);
-    if (this.submitsOnSuggestionSelection) this.submitted();
+    tell(this.delegate, 'searchViewUpdateResults', this, this.query);
+    if (this.submitsOnSuggestionSelection || launching) this.submitted();
   }
 
   /**
@@ -551,10 +599,11 @@ class CYLSearchView {
     const source = this.resultsDataSource;
     if (!source || !this.showsResults || typeof source.searchViewResultsForQuery !== 'function') {
       this.results = [];
-      return this.searchResults;
+    } else {
+      const results = source.searchViewResultsForQuery(this, this.query);
+      this.results = Array.isArray(results) ? results.slice() : [];
     }
-    const results = source.searchViewResultsForQuery(this, this.query);
-    this.results = Array.isArray(results) ? results.slice() : [];
+    this.applyNoResultsText();
     return this.searchResults;
   }
 
@@ -566,7 +615,7 @@ class CYLSearchView {
     const cell = { title: result === null || result === undefined ? '' : String(result), subtitle: '', accessibilityLabel: '' };
     tell(this.resultsDataSource, 'searchViewConfigureResultCell', this, cell, result);
     if (!cell.accessibilityLabel) cell.accessibilityLabel = cell.subtitle ? `${cell.title}, ${cell.subtitle}` : cell.title;
-    if (this.highlightsMatches) cell.parts = cylHighlightParts(cell.title, this.query);
+    if (this.highlightsResultMatches) cell.parts = cylHighlightParts(cell.title, this.query);
     return cell;
   }
 
@@ -641,7 +690,7 @@ class CYLSearchView {
 
   matches(suggestion, query) {
     if (this.suggestionFilter) return this.suggestionFilter(suggestion, query);
-    return String(suggestion).toLocaleLowerCase().includes(query.toLocaleLowerCase());
+    return cylFold(suggestion).folded.includes(cylFold(query).folded);
   }
 
   /**
@@ -654,7 +703,7 @@ class CYLSearchView {
     if (query.length === 0) {
       this.showsCachedQueries = cached.length > 0;
       if (cached.length > 0) result = cached.slice();
-      else result = this.showsAllForEmptyQuery ? this.allSuggestions.slice() : [];
+      else result = this.showsAllForEmptyQuery || this.showsSuggestionsLaunchView ? this.allSuggestions.slice() : [];
     } else {
       this.showsCachedQueries = false;
       cached.forEach((value) => {
@@ -666,20 +715,73 @@ class CYLSearchView {
     }
     this.filteredSuggestions = result;
   }
+
+  /**
+   * The suggestion tags as the configuration of CollectionViewClassifyMenu's tag list (`<cyl-tag-list>`, the mini
+   * program's `CYLTagListView`): one section without a header, no selection, folded to `suggestionsFoldedRowCount` rows
+   * with the fold control of `suggestionsFoldControl` (inline is its tail, bottom its footer) last; the colors of the
+   * suggestion knobs go in its style. `dark` picks the dark defaults when no color was set.
+   */
+  suggestionTagConfiguration(dark = false) {
+    const control = this.suggestionsFoldControl;
+    const positions = { [CYLMenuFoldControlPosition.inline]: 'tail', [CYLMenuFoldControlPosition.bottom]: 'footer' };
+    const normal = {};
+    const textColor = this.suggestionTextColor || (dark ? '#FFFFFF' : undefined);
+    const borderColor = this.dividerColor || (dark ? '#38383A' : undefined);
+    if (textColor) normal.textColor = textColor;
+    if (borderColor) normal.borderColor = borderColor;
+    const style = { backgroundColor: 'rgba(0, 0, 0, 0)', normal };
+    const foldColor = this.suggestionImageTintColor || (dark ? 'rgba(235, 235, 245, 0.6)' : undefined);
+    if (foldColor) style.foldControlColor = foldColor;
+    return {
+      selectionMode: 'none',
+      showsSectionHeaders: false,
+      defaultVisibleRows: Math.max(0, this.suggestionsFoldedRowCount),
+      foldControl: { position: positions[control.position] || 'tail', content: control.content === CYLMenuFoldControlContent.title ? 'title' : 'icon' },
+      style,
+      sections: [{ items: this.filteredSuggestions.map((title) => ({ title: String(title) })) }],
+    };
+  }
 }
 
 /**
- * A result's title split around the first match of the query (QMUI demo: the match in the tint color):
- * `[{ text, highlighted }]`; the whole title when the query is empty or does not match.
+ * A text with case and diacritics folded away (iOS `range(of:options: [.caseInsensitive, .diacriticInsensitive])`):
+ * `folded` is the folded text and `map[i]` the `[start, end)` of the original characters that produced `folded[i]`, so a
+ * match in the folded text maps back to the original (folding changes the length: "é" is "e" plus a mark).
+ */
+function cylFold(value) {
+  const text = value === null || value === undefined ? '' : String(value);
+  let folded = '';
+  const map = [];
+  let offset = 0;
+  for (const character of text) {
+    const piece = character.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
+    for (let i = 0; i < piece.length; i += 1) map.push([offset, offset + character.length]);
+    folded += piece;
+    offset += character.length;
+  }
+  return { folded, map };
+}
+
+/**
+ * A result's title split around the first match of the query, ignoring case and diacritics like the suggestion filter
+ * (QMUI demo: the match in the tint color): `[{ text, highlighted }]`, the text as it was written; the whole title when
+ * the query is empty or does not match.
  */
 function cylHighlightParts(title, query) {
   const text = String(title);
-  const index = query ? text.indexOf(query) : -1;
+  const wanted = cylFold(query).folded;
+  const { folded, map } = cylFold(text);
+  const index = wanted ? folded.indexOf(wanted) : -1;
   if (index < 0) return [{ text, highlighted: false }];
+  const start = map[index][0];
+  let end = map[index + wanted.length - 1][1];
+  // A mark that follows the last matched letter belongs to it ("e" + U+0301 for "é").
+  while (end < text.length && /^\p{M}/u.test(text.slice(end))) end += text.codePointAt(end) > 0xffff ? 2 : 1;
   return [
-    { text: text.slice(0, index), highlighted: false },
-    { text: text.slice(index, index + query.length), highlighted: true },
-    { text: text.slice(index + query.length), highlighted: false },
+    { text: text.slice(0, start), highlighted: false },
+    { text: text.slice(start, end), highlighted: true },
+    { text: text.slice(end), highlighted: false },
   ].filter((part) => part.text.length > 0);
 }
 
@@ -704,6 +806,17 @@ function cylSwipeShouldDismiss(startX, deltaX, width, velocity = 0, edge = 24) {
 }
 
 /**
+ * Whether a touch that moved by (`deltaX`, `deltaY`) has begun the edge swipe (iOS `CYLSearchEdgeSwipe`, the touch itself):
+ * it went down within `edge` px of the left edge and moved right past `slop` px, more than up or down.
+ */
+function cylEdgeSwipeBegins(startX, deltaX, deltaY, edge = 24, slop = 10) {
+  return startX <= edge && deltaX > slop && Math.abs(deltaX) > Math.abs(deltaY);
+}
+
+/**
+ * Deprecated: the suggestion tags are CollectionViewClassifyMenu's tag list, which folds them itself (`defaultVisibleRows`,
+ * its fold control last); nothing in this package calls this any more.
+ *
  * How many tags fit in `rows` rows of width `available` when the fold chevron must follow the last visible tag
  * (CollectionViewClassifyMenu `CYLMenuFoldControlPositionInline`): `{ visibleCount, needsFold }`.
  */
@@ -763,6 +876,8 @@ module.exports = {
   cylHighlightParts,
   cylSnapHeaderOffset,
   cylSwipeShouldDismiss,
+  cylEdgeSwipeBegins,
+  cylFold,
   CYLSearchAnimationSpeed,
   cylClampAnimationSpeed,
   cylAnimationPlaybackDescription,

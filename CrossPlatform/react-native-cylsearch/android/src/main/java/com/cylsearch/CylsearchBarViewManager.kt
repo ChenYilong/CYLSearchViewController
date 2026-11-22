@@ -109,20 +109,23 @@ class CylsearchBarViewManager : SimpleViewManager<CylsearchBarView>(), Cylsearch
   @ReactProp(name = "animatesChanges", defaultBoolean = true)
   override fun setAnimatesChanges(view: CylsearchBarView, value: Boolean) { view.animatesChanges = value }
 
-  @ReactProp(name = "leadingAccessoryJSON")
-  override fun setLeadingAccessoryJSON(view: CylsearchBarView, value: String?) { view.leadingAccessoryJSON = value }
+  @ReactProp(name = "leadingViewJSON")
+  override fun setLeadingViewJSON(view: CylsearchBarView, value: String?) { view.leadingViewJSON = value }
 
-  @ReactProp(name = "trailingAccessoryJSON")
-  override fun setTrailingAccessoryJSON(view: CylsearchBarView, value: String?) { view.trailingAccessoryJSON = value }
+  @ReactProp(name = "trailingAccessoryViewsJSON")
+  override fun setTrailingAccessoryViewsJSON(view: CylsearchBarView, value: String?) { view.trailingAccessoryViewsJSON = value }
 
-  @ReactProp(name = "showsLeadingAccessory")
-  override fun setShowsLeadingAccessory(view: CylsearchBarView, value: Boolean) { view.showsLeadingAccessory = value }
+  @ReactProp(name = "showsLeadingView")
+  override fun setShowsLeadingView(view: CylsearchBarView, value: Boolean) { view.showsLeadingView = value }
 
-  @ReactProp(name = "showsTrailingAccessory")
-  override fun setShowsTrailingAccessory(view: CylsearchBarView, value: Boolean) { view.showsTrailingAccessory = value }
+  @ReactProp(name = "showsTrailingAccessoryViews")
+  override fun setShowsTrailingAccessoryViews(view: CylsearchBarView, value: Boolean) { view.showsTrailingAccessoryViews = value }
 
-  @ReactProp(name = "appearanceJSON")
-  override fun setAppearanceJSON(view: CylsearchBarView, value: String?) { view.appearanceJSON = value }
+  @ReactProp(name = "appearanceStyleJSON")
+  override fun setAppearanceStyleJSON(view: CylsearchBarView, value: String?) { view.appearanceStyleJSON = value }
+
+  @ReactProp(name = "cancelButtonFontJSON")
+  override fun setCancelButtonFontJSON(view: CylsearchBarView, value: String?) { view.cancelButtonFontJSON = value }
 
   /** Applies the QMUI options together, after every prop of the update is set. */
   override fun onAfterUpdateTransaction(view: CylsearchBarView) {
