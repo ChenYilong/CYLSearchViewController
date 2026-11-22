@@ -883,3 +883,58 @@ Status: TODO (design written; phase 0 next).
   - Search bar styles on Android: ![Search bar styles on Android](assets/flutter-qmui-search-bar-styles-android-api35-20261122.png) Flutter on Android 15 (API 35) emulator CYL_Flutter_QMUI_API35, Android SDK 35, macOS 27.3, repo commit a338a3c, 2026-11-22 13:25 NZDT.
 - **Score: 86 / 100**: rows done or N/A with reason 34/40 (iOS native gaps below), example screens 15/15, tests 12/15 (Dart side tested; native bridges checked by hand only), screenshots 10/10 (iOS and Android, both screens), docs, licenses and strings 5/5 (no QMUI code is copied into the Flutter package; strings are the core's), verification depth 10/15 (see TODO).
 - **TODO** (missing 14 points): (1) iOS: `centersPlaceholder`, field and Cancel margins per state, `cancelButtonFontSize` and the animated Cancel are sent by Dart and marked `TODO: waiting for the iOS merge` in `applyStyle` / `setShowsCancelButton` of the iOS wrapper; wire them when `CYLSearchBarView` has the members (the iOS screenshot shows "Center placeholder", "Adjust the field at rest" and "Adjust Cancel" doing nothing). (2) The iOS history event is a run-loop turn after `didSubmitText`; replace it with the core's notification once `CYLSearchView` posts it. (3) Android `cancelButtonFontSize` has no counterpart (the core has a typeface). (4) The launch view's tags only display; a tap on a recent search does not search it (QMUI's demo does nothing either) and the Dart API has no `setQuery`. (5) No native (XCTest / Robolectric) tests of the plugin bridges, no dark mode, ja / zh or large font screenshots, no real touch swipe-to-dismiss and no real drag run of the short list on a device (Dart widget tests only). (6) The commit a338a3c named in the screenshot labels is `0a0d8f7` before the rebase onto `282f522`.
+
+Status: phase 0 DONE (2026-11-22, see "Merge phase 0 log"); phase 1 next.
+
+
+### Merge phase 0 log (2026-11-22)
+
+Phase 0 (prep) of the merge design above, `feat/harmonyos-parity`, PR #11. No product code moved or deleted: **0 lines removed, 0 lines added in `Sources/`**. Everything in this phase is tests, screenshots and this text.
+
+**What moved where**: nothing yet (phase 1 starts the moves). New files: `CYLSearchExampleTests/CYLSearchAPIFenceTests.swift` (Swift fence), a new "API fence" section of `CYLSearchExampleTests/CYLSearchCoreObjectiveCSmokeTests.m` (Objective-C fence, about 530 lines generated from the generated `CYLSearchViewController-Swift.h`), a wire-up in `CYLSearchExample.xcodeproj` (one file reference, four lines), a paragraph in `CYLSearchExampleTests/instructions.md`.
+
+**API kept / forwarded**: all of it. The fence names every public and open member that exists today (Swift and `@objc`), so phases 1 to 4 must keep it compiling unchanged; a deprecated forward (`@available(*, deprecated, renamed:)`) still compiles, a removal does not.
+
+| Class / type | Properties (read-only ones are only read) and methods in the fence |
+| :--- | :--- |
+| `CYLSearchBarView` | 75 and 33 methods, initializers and delegate methods |
+| `CYLSearchBarItem` | 27 and 14 methods / initializers |
+| `CYLSearchView` | 46 and 36 methods (refresh class methods included) |
+| `CYLSearchBar` | 21 and 10 methods (`placeholder`, `text`, `barTintColor`, `setBackgroundImage` overrides added by hand) |
+| `CYLSearchBarAppearance` | 17 (`default` included) |
+| `CYLSearchController` | 20 and 19 methods |
+| `CYLSearchTableViewController` | 6 and 11 methods |
+| Protocols | `CYLSearchBarViewDelegate` (16 optional methods), `CYLSearchViewDelegate` (9), `CYLSearchViewDataSource` (2), `CYLSearchControllerDelegate` (1 required, 6 optional): a dummy conforms to each with every method and the test calls each through the protocol |
+| Enums | `CYLSearchBarMode`, `CYLSearchBarNavigationIcon`, `CYLSearchBarIconPosition`, `CYLSearchBarExpansionAnimation`, `CYLSearchBarItemStyle`, `CYLSearchBarStyle`, `CYLSearchSuggestionStyle`: every case, with its raw value |
+
+How the fence works. Swift: the module is imported without `@testable` (a member that loses `public` or `open` breaks it too); properties are read, and writable ones are written back through a key path (Swift refuses `x.p = x.p`); methods are taken as typed function references (a changed signature breaks it); the open classes (`CYLSearchBar`, `CYLSearchController`, `CYLSearchTableViewController`) are subclassed and their open members overridden. Objective-C: properties are read and written back, every method and initializer is a `@selector` inside a region compiled with `-Wundeclared-selector` as an error and checked with `respondsToSelector:`; protocol methods are checked with `protocol_getMethodDescription`; one Objective-C class conforms to the four protocols with all 34 methods. Completeness: every `public` / `open` name in the six source files was matched against the Swift test by script; what is missing are UIKit overrides (`layoutSubviews`, `traitCollectionDidChange`, state restoration, and the like) that are not our API. TODO: a new public member needs a new line in both files (the test target's `instructions.md` says so).
+
+**E21 on iOS 17.5** (`testCancelledPopThenPushShowsNoResults`): the search view stays in the window for about 0.9 s after the second push. The test now samples it every 0.1 s (not hidden, alpha above 0.01 up the superview chain, frame intersecting the window, and the topmost view at the middle of the visible part belongs to it; the same for the results table). A first version without the hit test said "visible" for all nine samples, which only showed that the view is in the window and not hidden. With the hit test it is never on top: the pushed screen covers it. A real run on the iPhone 15 simulator (iOS 17.5; Search controller screen, "H", result, Back, result again, screenshots at about 0.5 s, 1 s, 4 s) agrees: only the pushed screen is drawn. **Not visible, so no core change** (`CYLSearchController.swift` untouched).
+
+| Image | Label |
+| --- | --- |
+| ![E21 on iOS 17.5: the search view is not visible while it lingers](assets/merge-e21-visibility-ios17.5-20261122.png) | iOS, iPhone 15 simulator (iOS 17.5), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `faf68da` plus the visibility test, `feat/harmonyos-parity`, 2026-11-22 13:32 NZDT |
+
+**Before screenshots** (iOS 27.2, taken before any refactor; originals, 1206 x 2622 px, in `docs/assets/raw/merge-before-*`; stitched with `scripts/stitch-screenshots.swift`, header, captions and footer outside the panels; `sh scripts/check-screenshot-labels.sh` passes). They are the baseline that the "after" images of each phase are compared with.
+
+| Image | Label |
+| --- | --- |
+| ![Search bar styles, before](assets/merge-before-styles-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `faf68da`, `feat/harmonyos-parity`, 2026-11-22 12:40 to 13:00 NZDT. Search bar styles replica: rest and accessories shown |
+| ![Search controller, before](assets/merge-before-controller-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `faf68da`, `feat/harmonyos-parity`, 2026-11-22 12:40 to 13:00 NZDT. Search controller replica: rest, searching with the launch view, results, empty view |
+| ![The four issue screens, before](assets/merge-before-issue-screens-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `faf68da`, `feat/harmonyos-parity`, 2026-11-22 12:40 to 13:00 NZDT. #1229, #1251, #1160, #1313 searching (the open I2 / I5 offsets and the I3 band are visible) |
+| ![CYLSearchExampleViewController, before](assets/merge-before-demo-example-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `faf68da`, `feat/harmonyos-parity`, 2026-11-22 12:40 to 13:00 NZDT. Menu row 0, rest and overlay search |
+| ![CYLSearchBarDemoViewController, before](assets/merge-before-demo-searchbar-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `faf68da`, `feat/harmonyos-parity`, 2026-11-22 12:40 to 13:00 NZDT. Menu row 2, rest and focused |
+| ![CYLOriginalSearchDemoViewController, before](assets/merge-before-demo-original-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `faf68da`, `feat/harmonyos-parity`, 2026-11-22 12:40 to 13:00 NZDT. Menu row 6, rest and searching |
+| ![CYLMaterialSearchMenuViewController, before](assets/merge-before-demo-material-ios27.2-20261122.png) | iOS, iPhone 18 Pro simulator (iOS 27.2), Xcode 27.2 (27B52), macOS 27.3, CYLSearchViewController `faf68da`, `feat/harmonyos-parity`, 2026-11-22 12:40 to 13:00 NZDT. Menu row 3, MiguelCatalan row: menu, Default demo, its search |
+
+**Test results** (`xcodebuild test`, new derived data each, `CODE_SIGNING_ALLOWED=NO`, sandbox off): iOS 17.5 (iPhone 15): Executed 140 tests, with 0 failures; iOS 26.5 (iPhone 17 Pro): Executed 140 tests, with 0 failures; iOS 27.2 (iPhone 18 Pro): Executed 140 tests, with 0 failures. 140 = 123 before + 8 Swift fence tests + 9 Objective-C fence tests. The first run of the same commit range had one failure on iOS 26.5 (the B7 sample below), fixed and rerun on all three.
+
+**Other findings**
+- Under load (three suites and other sessions' builds at the same time) `testB7CancelDoesNotJitterWhenLeavingSearch` failed once on iOS 26.5: one sample read y 0 while `bar.window` was not nil yet (the one-frame detach of the bar that the test already knew). The test now skips samples at the window's top edge too (test only; the Cancel button is always below the status bar).
+- `axe describe-ui` hung once for minutes; `pkill -f "axe describe-ui"` freed it. Do not kill `axe hid-broker`: it serves other sessions' simulators.
+
+**TODO**
+- Phase 1 to 6 of the design (nothing moved yet). After each phase: the same screens again as "after" images (names `merge-after-...`).
+- The fence has no negative test (a deliberately removed member); its guarantee is the compiler. A script that regenerates the Objective-C part from the header (the generator lived in a throwaway REPL session) is not committed.
+- Material demo "Default": only the first of its six rows was shot; Themed, Voice, Sticky, Tabs and Input type are not in the baseline.
+- iOS 15, 16 and 18 to 25 are not run (see the iOS 17.5 / 26.5 verification above).
