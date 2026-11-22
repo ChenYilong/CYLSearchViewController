@@ -1129,3 +1129,25 @@ begins and becomes `DONE` when it ends.
   commit ClassifyMenu `04b39e26` vendors. The example plays Rive through CYLTabBarController's `CYLRiveIcon`. No
   screen of this repository ships a `.riv` file on any platform (only Lottie, PAG, SVGA, GIF), so there is no Rive item
   to check on the emulator.
+
+## TODO (2026-11-23): animation players from CYLTabBarController's CYLAnimatedItemView, not the example
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: the HarmonyOS example carries its own animation players and views
+  (`harmonyos/entry/src/main/ets/animation/`: Lottie, PAG, Rive through cyltabbar's `CYLRiveIcon`, GIF, SVGA; about 1600
+  lines, an unchanged port of CollectionViewClassifyMenu's example at `71562ca`). The other platforms already configure
+  CYLTabBarController / `CYLAnimatedItemView` and only add the player libraries.
+- **Prompt (verbatim)**: "你应该将CYLRiveIcon 和CYLPagIcon封装进 CYLTabBarController 的CYLAnimatedItemView中， 然后调用的CYLAnimatedItemView中接口来完成example实现。你在 CYLRiveIcon 和CYLPagIcon 修复的bug，其他项目也遇到了， 现在要让你帮忙修复后，他们直接更新  CYLTabBarController 的CYLAnimatedItemView，来共共享你的成果。"
+- **Prompt (English)**: "Wrap CYLRiveIcon and CYLPagIcon into CYLTabBarController's CYLAnimatedItemView, then build the example by
+  calling CYLAnimatedItemView's API. The bugs you fixed in CYLRiveIcon and CYLPagIcon hit other projects too: once fixed
+  there, they update CYLTabBarController's CYLAnimatedItemView and share the result."
+- **Who does what**: the owner gave the move itself, on all platforms, to the CollectionViewClassifyMenu session
+  (chen-yilong-a8): CYLTabBarController branch `feat/harmony-animated-item-engines` (pull request into
+  `feat/cross-platform-components`), one HarmonyOS module per library engine (`cylanimateditem-lottie`, `-pag`,
+  `-rive`), GIF and SVGA inside `cylanimateditem`. This repository sent it the inventory of its animation code
+  (2026-11-23) and does not edit those paths. No `CYLPagIcon` exists in any repository; the PAG view is the examples'
+  `CYLPAGIconView`.
+- **Acceptance**: 100 = the HarmonyOS example's own players and views deleted, the example registers the
+  `cylanimateditem` engine modules and plays every tag and the SVGA header through `CYLAnimatedItemView`; the tab bar
+  and ClassifyMenu pins moved to the commits with the API; HarmonyOS tests green on the x86_64 emulator; screenshots of
+  the animated tags. 60 = the example builds and runs on the new API.
+- **Status**: TODO, waiting for the API in CYLTabBarController (a8 tells this session the modules and commit).
