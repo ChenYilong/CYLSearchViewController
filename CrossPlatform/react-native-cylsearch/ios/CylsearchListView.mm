@@ -25,11 +25,9 @@ using namespace facebook::react;
   CYLSearchView *_searchView;
   CYLRNSearchResults *_results;
   NSArray<NSString *> *_rows;
-  NSString *_noResultsText;
   BOOL _showsSearchBar;
   BOOL _hidesSearchBarInitially;
   BOOL _scrolledInitially;
-  NSString *_updatedText;
   id _historyObserver;
 }
 
@@ -83,12 +81,12 @@ using namespace facebook::react;
     [_searchView installInView:_container];
     self.contentView = _container;
     __weak __typeof(self) weakSelf = self;
-    // The history signal of the core's store: any change of the history this search keeps.
-    _historyObserver = [[NSNotificationCenter defaultCenter] addObserverForName:@"CYLSearchSuggestionStoreDidChange"
+    // The core's history signal: a change of the history this search keeps, not of another screen's.
+    _historyObserver = [[NSNotificationCenter defaultCenter] addObserverForName:CYLSearchResources.historyDidChangeNotification
                                                                         object:nil
                                                                          queue:[NSOperationQueue mainQueue]
                                                                     usingBlock:^(NSNotification *note) {
-      [weakSelf historyChanged];
+      [weakSelf historyChanged:note];
     }];
   }
   return self;
@@ -140,13 +138,15 @@ using namespace facebook::react;
   _headerBar.centersPlaceholder = p.centersPlaceholder;
   _searchView.searchBarView.centersPlaceholder = p.centersPlaceholder;
   [self updateRows:CYLRNStrings(p.rows) showsSearchBar:p.showsSearchBar hidesInitially:p.hidesSearchBarInitially];
+  // A short list lets the bar leave and settles it fully shown or hidden: the core's handling of a header.
+  [_searchView setSnapsHeader:p.snapsHeaderSearchBar forHeaderView:_headerBar.superview inTableView:_table];
   // Results, the highlight and the empty view.
   _results.results = CYLRNStrings(p.results);
   _results.resultsQuery = CYLRNString(p.resultsQuery);
   _searchView.highlightsResultMatches = p.highlightsResultMatches;
   _searchView.resultMatchHighlightColor = CYLRNColor(CYLRNString(p.resultMatchHighlightColor));
-  _noResultsText = CYLRNString(p.noResultsText);
-  _searchView.showsEmptyResultsPlaceholder = _noResultsText.length > 0;
+  NSString *noResultsText = CYLRNString(p.noResultsText);
+  _searchView.noResultsText = noResultsText.length > 0 ? noResultsText : nil;
   [_searchView reloadResults];
   // The launch area: the core's suggestion area, shown while the text is empty when there is something to launch with.
   _searchView.suggestions = CYLRNStrings(p.suggestions);
@@ -156,7 +156,6 @@ using namespace facebook::react;
   _searchView.submitsOnSuggestionSelection = p.submitsOnSuggestionSelection;
   _searchView.scrimColor = CYLRNColor(CYLRNString(p.scrimColor));
   _searchView.supportsSwipeToDismissSearch = p.supportsSwipeToDismissSearch;
-  [self applyNoResultsText];
   [super updateProps:props oldProps:oldProps];
 }
 
@@ -187,25 +186,17 @@ using namespace facebook::react;
 }
 
 /*!
- * The empty view's text (`noResultsText`): the placeholder's title, without its hint, once the placeholder exists.
+ * `onHistoryChange` with the newest query (empty after a clear) when the history this search keeps changed: the policy
+ * and the name of the notification are the ones of this search's cache.
  */
-- (void)applyNoResultsText
-{
-  if (_noResultsText.length == 0) {
-    return;
-  }
-  CYLPlaceholderStackView *placeholder = _searchView.emptyResultsView;
-  placeholder.titleLabel.text = _noResultsText;
-  placeholder.hintLabel.text = nil;
-  placeholder.hintLabel.hidden = YES;
-}
-
-/*!
- * `onHistoryChange` with the newest query (empty after a clear) when the history this search keeps changed.
- */
-- (void)historyChanged
+- (void)historyChanged:(NSNotification *)note
 {
   if (!_eventEmitter || _searchView.suggestionCachePolicy == CYLSearchSuggestionCachePolicyNone) {
+    return;
+  }
+  NSString *name = _searchView.suggestionCacheName.length > 0 ? _searchView.suggestionCacheName : @"CYLSearchView";
+  if ([note.userInfo[@"policy"] integerValue] != (NSInteger)_searchView.suggestionCachePolicy ||
+      ![note.userInfo[@"name"] isEqual:name]) {
     return;
   }
   NSString *query = [_searchView.suggestionCache cachedQueries].firstObject ?: @"";
@@ -257,7 +248,6 @@ using namespace facebook::react;
     // The text is empty when the search opens: JavaScript answers with the results of "" too.
     emitter->onUpdateResults(CylsearchListViewEventEmitter::OnUpdateResults{.text = ""});
   }
-  _updatedText = @"";
 }
 
 - (void)searchViewDidShow:(CYLSearchView *)searchView
@@ -284,32 +274,18 @@ using namespace facebook::react;
 }
 
 /*!
- * `onUpdateResults` with `text`, once for each text.
+ * `onUpdateResults` with the text, for each change (a tapped tag too: the core reports it before the submit).
  */
-- (void)emitUpdateResults:(NSString *)text
+- (void)searchView:(CYLSearchView *)searchView textDidChange:(NSString *)text
 {
-  _updatedText = text;
   if (_eventEmitter) {
     std::static_pointer_cast<CylsearchListViewEventEmitter const>(_eventEmitter)
         ->onUpdateResults(CylsearchListViewEventEmitter::OnUpdateResults{.text = std::string(text.UTF8String ?: "")});
   }
 }
 
-- (void)searchView:(CYLSearchView *)searchView textDidChange:(NSString *)text
-{
-  [self emitUpdateResults:text];
-  // The placeholder appears after the results reload: set its text on the next turn of the run loop.
-  dispatch_async(dispatch_get_main_queue(), ^{
-    [self applyNoResultsText];
-  });
-}
-
 - (BOOL)searchView:(CYLSearchView *)searchView didSubmitText:(NSString *)text
 {
-  // A tapped tag sets the text in code, which sends no `textDidChange`: JavaScript still has to answer with its results.
-  if (![text isEqualToString:_updatedText ?: @""]) {
-    [self emitUpdateResults:text];
-  }
   if (_eventEmitter) {
     std::static_pointer_cast<CylsearchListViewEventEmitter const>(_eventEmitter)
         ->onSubmit(CylsearchListViewEventEmitter::OnSubmit{.text = std::string(text.UTF8String ?: "")});

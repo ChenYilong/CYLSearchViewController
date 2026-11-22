@@ -90,7 +90,6 @@ class CylsearchListView(private val reactContext: ThemedReactContext) : FrameLay
       emit("topHistoryChange", "query" to searchView.suggestionCache?.cachedQueries()?.firstOrNull().orEmpty())
     }
     addView(list, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
-    cylKeepSystemBarsAbove(this)
   }
 
   /** Applies the props that depend on each other, once per update (the manager's onAfterUpdateTransaction). */
@@ -114,11 +113,7 @@ class CylsearchListView(private val reactContext: ThemedReactContext) : FrameLay
   }
 
   override fun searchViewWillShow(searchView: CYLSearchView) = emit("topWillPresent")
-  override fun searchViewDidShow(searchView: CYLSearchView) {
-    // The core fills its tag list while the page is hidden and has no width yet: fill it again now that the page is laid out.
-    post { searchView.reloadResults() }
-    emit("topDidPresent")
-  }
+  override fun searchViewDidShow(searchView: CYLSearchView) = emit("topDidPresent")
   override fun searchViewWillClose(searchView: CYLSearchView) = emit("topWillDismiss")
   override fun searchViewDidClose(searchView: CYLSearchView) = emit("topDidDismiss")
 

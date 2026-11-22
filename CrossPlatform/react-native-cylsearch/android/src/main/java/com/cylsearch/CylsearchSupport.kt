@@ -116,13 +116,14 @@ internal class CylsearchResults : CYLSearchViewDataSource {
 }
 
 /**
- * Cancel's title in `font` ({"size":17,"weight":"semibold"}): the weight as the core's `cancelButtonFont` typeface, the size
- * on the button (the core's font is a typeface without a size). Null or empty JSON keeps the bar's font.
+ * Cancel's title in `font` ({"size":17,"weight":"semibold"}): the weight as the core's `cancelButtonFont` typeface and the
+ * size as its `cancelButtonFontSize`. Null or empty JSON keeps the bar's font.
  */
 internal fun com.cyl.search.CYLSearchBarView.applyCancelButtonFont(json: String?) {
   val spec = json?.takeIf { it.isNotEmpty() }?.let { runCatching { org.json.JSONObject(it) }.getOrNull() }
   if (spec == null) {
     cancelButtonFont = null
+    cancelButtonFontSize = null
     return
   }
   val weight = when (spec.optString("weight")) {
@@ -133,28 +134,5 @@ internal fun com.cyl.search.CYLSearchBarView.applyCancelButtonFont(json: String?
   }
   cancelButtonFont = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) Typeface.create(Typeface.DEFAULT, weight, false)
   else Typeface.defaultFromStyle(if (weight >= 600) Typeface.BOLD else Typeface.NORMAL)
-  if (spec.has("size")) cancelButton.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, spec.optDouble("size").toFloat())
-}
-
-/**
- * The core's search page pads itself by the window's system bars, as for a page that fills the window. A React Native screen
- * is usually already below the status bar, so the space above `view` is not the page's: this reduces the system bar and
- * cutout insets that reach the page by what `view` already keeps clear of them (its distance from the top and the bottom of
- * the window). It replaces the blank band of about 150 px above the search bar.
- */
-internal fun cylKeepSystemBarsAbove(view: android.view.View) {
-  androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(view) { host, insets ->
-    val location = IntArray(2)
-    host.getLocationInWindow(location)
-    val bottomGap = (host.rootView.height - (location[1] + host.height)).coerceAtLeast(0)
-    fun reduced(type: Int): androidx.core.graphics.Insets {
-      val bars = insets.getInsets(type)
-      return androidx.core.graphics.Insets.of(bars.left, (bars.top - location[1]).coerceAtLeast(0), bars.right, (bars.bottom - bottomGap).coerceAtLeast(0))
-    }
-    androidx.core.view.WindowInsetsCompat.Builder(insets)
-      .setInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars(), reduced(androidx.core.view.WindowInsetsCompat.Type.systemBars()))
-      .setInsets(androidx.core.view.WindowInsetsCompat.Type.displayCutout(), reduced(androidx.core.view.WindowInsetsCompat.Type.displayCutout()))
-      .build()
-  }
-  view.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ -> androidx.core.view.ViewCompat.requestApplyInsets(view) }
+  cancelButtonFontSize = if (spec.has("size")) spec.optDouble("size").toFloat() else null
 }

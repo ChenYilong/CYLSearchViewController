@@ -30,7 +30,6 @@ class CylsearchView(private val reactContext: ThemedReactContext) : FrameLayout(
     // The page stays open after a submit: JavaScript decides what a submitted query does.
     searchView.closesOnSubmit = false
     searchView.installInView(this)
-    cylKeepSystemBarsAbove(this)
   }
 
   override fun onAttachedToWindow() {
