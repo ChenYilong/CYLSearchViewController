@@ -219,6 +219,12 @@ public protocol CYLSearchBarViewDelegate: NSObjectProtocol {
 }
 
 /**
+ * Returns the content insets of a `CYLSearchBarView` or the margins of its Cancel button for its state (`true` while
+ * editing); the same shape as `CYLSearchBarMarginsProvider`.
+ */
+public typealias CYLSearchBarViewMarginsProvider = (CYLSearchBarView, Bool) -> UIEdgeInsets
+
+/**
  * A configurable search bar: a rounded field with a magnifier, text and clear button, views of the host inside the
  * field after the text (a camera, a "Search" button) or before the field (a back button), and an optional Cancel
  * button. Use it as a navigation item's title view, a header, or anywhere in a layout. With `mode` set to
@@ -233,6 +239,8 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     private static let maximumCancelShare: CGFloat = 0.3
     private static let minimumScale: CGFloat = 0.5
     private static let minimumAccessoryScale: CGFloat = 0.25
+    private static let accessoryAnimationDuration: TimeInterval = 0.25
+    private var accessoryGeneration = 0
 
     // MARK: - Subviews
 
@@ -377,6 +385,58 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         didSet { invalidateIntrinsicContentSize(); setNeedsLayout() }
     }
 
+    /**
+     * The content insets for the bar's state (`true` while editing); wins over `contentInsets`, the resting value
+     * (the same knob as `CYLSearchBar.textFieldMarginsProvider`). The bar's height is measured with `contentInsets`, so
+     * it does not jump when editing starts.
+     */
+    @objc public var textFieldMarginsProvider: CYLSearchBarViewMarginsProvider? {
+        didSet { setNeedsLayout() }
+    }
+
+    /**
+     * Whether the magnifier and the placeholder are centered in the field while the bar is not editing and has no text
+     * (the same knob as `CYLSearchBar.centersPlaceholder`). NO by default.
+     */
+    @objc public var centersPlaceholder = false {
+        didSet { setNeedsLayout() }
+    }
+
+    /**
+     * The style of the field, one `CYLSearchBarAppearance` for this bar and `CYLSearchBar`; nil by default (the bar keeps
+     * its own look). Assigning a style maps it onto `font`, `textColor`, `placeholderColor`, `placeholder`,
+     * `tintColor`, `searchIcon`, `fieldBackgroundColor`, `fieldBackgroundImage`, `fieldBorderColor`,
+     * `fieldBorderWidth`, `fieldCornerRadius`, `cancelButtonTitle` and, when set, `backgroundColor`.
+     */
+    @objc public var appearanceStyle: CYLSearchBarAppearance? {
+        didSet { applyAppearance() }
+    }
+
+    /**
+     * Applies `CYLSearchBarAppearance.defaultAppearance` (the same method as `CYLSearchBar`).
+     */
+    @objc public func applyDefaultAppearance() {
+        appearanceStyle = CYLSearchBarAppearance.defaultCopy()
+    }
+
+    private func applyAppearance() {
+        guard let style = appearanceStyle else { return }
+        let field = style.resolvedField(traits: traitCollection)
+        font = style.font
+        textColor = style.textColor
+        placeholderColor = style.placeholderColor
+        if let text = style.placeholder { placeholder = text }
+        tintColor = style.tintColor
+        searchIcon = style.searchIconImage ?? UIImage(systemName: "magnifyingglass")
+        fieldBackgroundColor = style.textFieldBackgroundColor
+        fieldBackgroundImage = field.backgroundImage
+        fieldBorderColor = style.textFieldBorderColor
+        fieldBorderWidth = field.borderWidth
+        fieldCornerRadius = field.cornerRadius ?? -1
+        cancelButtonTitle = style.cancelTitle
+        if let color = style.barBackgroundColor { backgroundColor = color }
+    }
+
     private var customFieldBackgroundColor: UIColor?
 
     /**
@@ -432,8 +492,67 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     @objc public var trailingAccessoryViews: [UIView] = [] {
         didSet {
             oldValue.forEach { $0.removeFromSuperview() }
-            trailingAccessoryViews.forEach { fieldView.addSubview($0) }
+            trailingAccessoryViews.forEach {
+                fieldView.addSubview($0)
+                if !trailingAccessoryViewsShow { $0.isHidden = true }
+            }
             setNeedsLayout()
+        }
+    }
+
+    private var trailingAccessoryViewsShow = true
+    private var hidingTrailingAccessoryViews = false
+
+    /**
+     * Whether `trailingAccessoryViews` are shown, without animation. YES by default; hidden views give their room to
+     * the text.
+     */
+    @objc public var showsTrailingAccessoryViews: Bool {
+        get { trailingAccessoryViewsShow }
+        set { setShowsTrailingAccessoryViews(newValue, animated: false) }
+    }
+
+    /**
+     * Shows or hides `trailingAccessoryViews`, optionally fading them with the text taking or giving up their room
+     * (QMUI `qmui_setShowsRightAccessoryView:animated:`, the same knob as `CYLSearchBar`). Toggling quickly ends in the
+     * last requested state.
+     */
+    @objc public func setShowsTrailingAccessoryViews(_ shows: Bool, animated: Bool) {
+        guard shows != trailingAccessoryViewsShow || hidingTrailingAccessoryViews else { return }
+        trailingAccessoryViewsShow = shows
+        let views = trailingAccessoryViews
+        accessoryGeneration += 1
+        let generation = accessoryGeneration
+        guard animated else {
+            hidingTrailingAccessoryViews = false
+            views.forEach { $0.isHidden = !shows; $0.alpha = 1 }
+            setNeedsLayout()
+            return
+        }
+        if shows {
+            hidingTrailingAccessoryViews = false
+            for view in views {
+                if view.bounds.isEmpty {
+                    view.bounds = CGRect(origin: .zero, size: Self.fittingSize(of: view, height: fieldView.bounds.height))
+                }
+                view.alpha = 0
+                view.isHidden = false
+                view.center = CGPoint(x: fieldView.bounds.width, y: fieldView.bounds.height / 2)
+            }
+            UIView.animate(withDuration: Self.accessoryAnimationDuration, delay: 0, options: .curveEaseInOut) {
+                self.layoutIfNeeded()
+                views.forEach { $0.alpha = 1 }
+            }
+        } else {
+            hidingTrailingAccessoryViews = true
+            UIView.animate(withDuration: Self.accessoryAnimationDuration, delay: 0, options: .curveEaseInOut, animations: {
+                self.layoutIfNeeded()
+                views.forEach { $0.alpha = 0 }
+            }, completion: { _ in
+                guard generation == self.accessoryGeneration else { return }
+                self.hidingTrailingAccessoryViews = false
+                views.forEach { $0.isHidden = true; $0.alpha = 1 }
+            })
         }
     }
 
@@ -601,6 +720,55 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         }
     }
 
+    private var leadingViewShows = true
+    private var hidingLeadingView = false
+
+    /**
+     * Whether the view before the field (`leadingView`, or the navigation button) is shown, without animation. YES by
+     * default; a hidden view gives its room to the field.
+     */
+    @objc public var showsLeadingView: Bool {
+        get { leadingViewShows }
+        set { setShowsLeadingView(newValue, animated: false) }
+    }
+
+    /**
+     * Shows or hides the view before the field, optionally sliding it in from or out to the left edge while the field
+     * takes or gives up its room (QMUI `qmui_setShowsLeftAccessoryView:animated:`). Toggling quickly ends in the last
+     * requested state.
+     */
+    @objc public func setShowsLeadingView(_ shows: Bool, animated: Bool) {
+        guard shows != leadingViewShows || hidingLeadingView else { return }
+        leadingViewShows = shows
+        accessoryGeneration += 1
+        let generation = accessoryGeneration
+        guard animated, let view = effectiveLeadingView else {
+            hidingLeadingView = false
+            applyIconifiedVisibility()
+            setNeedsLayout()
+            return
+        }
+        if shows {
+            hidingLeadingView = false
+            applyIconifiedVisibility()
+            view.frame.origin.x = -view.frame.width
+            UIView.animate(withDuration: Self.accessoryAnimationDuration, delay: 0, options: .curveEaseInOut) {
+                self.layoutIfNeeded()
+            }
+        } else {
+            hidingLeadingView = true
+            UIView.animate(withDuration: Self.accessoryAnimationDuration, delay: 0, options: .curveEaseInOut, animations: {
+                self.layoutIfNeeded()
+                view.frame.origin.x = -view.frame.width
+            }, completion: { _ in
+                guard generation == self.accessoryGeneration else { return }
+                self.hidingLeadingView = false
+                self.applyIconifiedVisibility()
+            })
+        }
+        setNeedsLayout()
+    }
+
     // MARK: - Cancel button
 
     /**
@@ -608,6 +776,62 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      */
     @objc public var showsCancelButton = false {
         didSet { applyIconifiedVisibility(); setNeedsLayout() }
+    }
+
+    private var hidingCancelButton = false
+    private var cancelGeneration = 0
+
+    /**
+     * Shows or hides the Cancel button, optionally sliding and fading it while the field takes or gives up its room
+     * (UIKit `setShowsCancelButton:animated:`, the same method as `CYLSearchBar`). Toggling quickly ends in the last
+     * requested state.
+     */
+    @objc public func setShowsCancelButton(_ shows: Bool, animated: Bool) {
+        guard animated, shows != showsCancelButton else {
+            hidingCancelButton = false
+            showsCancelButton = shows
+            return
+        }
+        cancelGeneration += 1
+        let generation = cancelGeneration
+        if shows {
+            hidingCancelButton = false
+            cancelButton.alpha = 0
+            cancelButton.frame.origin.x = bounds.width
+            showsCancelButton = true
+            UIView.animate(withDuration: Self.accessoryAnimationDuration, delay: 0, options: .curveEaseInOut) {
+                self.layoutIfNeeded()
+                self.cancelButton.alpha = 1
+            }
+        } else {
+            hidingCancelButton = true
+            showsCancelButton = false
+            UIView.animate(withDuration: Self.accessoryAnimationDuration, delay: 0, options: .curveEaseInOut, animations: {
+                self.layoutIfNeeded()
+                self.cancelButton.alpha = 0
+                self.cancelButton.frame.origin.x = self.bounds.width
+            }, completion: { _ in
+                guard generation == self.cancelGeneration else { return }
+                self.hidingCancelButton = false
+                self.cancelButton.alpha = 1
+                self.applyIconifiedVisibility()
+            })
+        }
+    }
+
+    /**
+     * Returns the margins applied to the Cancel button's frame for the bar's state (`true` while editing); a negative
+     * left value moves it left and widens it (the same knob as `CYLSearchBar.cancelButtonMarginsProvider`).
+     */
+    @objc public var cancelButtonMarginsProvider: CYLSearchBarViewMarginsProvider? {
+        didSet { setNeedsLayout() }
+    }
+
+    /**
+     * The font of the Cancel button's title; `font` when nil (the same knob as `CYLSearchBar.cancelButtonFont`).
+     */
+    @objc public var cancelButtonFont: UIFont? {
+        didSet { applyStyle() }
     }
 
     private var customCancelButtonTitle: String?
@@ -1172,7 +1396,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     }
 
     private var effectiveAccessoryViews: [UIView] {
-        var views = trailingAccessoryViews + itemViews.map { $0 as UIView }
+        var views = (trailingAccessoryViewsShow ? trailingAccessoryViews : []) + itemViews.map { $0 as UIView }
         let hasText = !(textField.text ?? "").isEmpty
         if showsVoiceButton && !hasText {
             views.append(voiceButton)
@@ -1287,8 +1511,8 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         let multiple = mode == .multiple
         fieldView.isHidden = isIconified || multiple
         iconButton.isHidden = !isIconified || multiple
-        cancelButton.isHidden = isIconified || !showsCancelButton || multiple
-        effectiveLeadingView?.isHidden = isIconified || multiple
+        cancelButton.isHidden = isIconified || (!showsCancelButton && !hidingCancelButton) || multiple
+        effectiveLeadingView?.isHidden = isIconified || multiple || (!leadingViewShows && !hidingLeadingView)
         navigationButton.isHidden = isIconified || !showsNavigationButton || multiple
         multiSearchView.isHidden = !multiple
     }
@@ -1357,7 +1581,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         clearButton.tintColor = searchIconTintColor
         // A configuration updates the title at once (a legacy button could keep drawing the previous one).
         var configuration = cancelButton.configuration ?? .plain()
-        configuration.attributedTitle = AttributedString(NSAttributedString(string: cancelButtonTitle, attributes: [.font: font as UIFont]))
+        configuration.attributedTitle = AttributedString(NSAttributedString(string: cancelButtonTitle, attributes: [.font: cancelFont]))
         configuration.titleLineBreakMode = .byClipping
         cancelButton.configuration = configuration
         // The title may be drawn smaller to fit; VoiceOver and the large content viewer still get the whole title.
@@ -1365,6 +1589,10 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         cancelButton.largeContentTitle = cancelButtonTitle
         multiSearchView.applyStyle()
         setNeedsLayout()
+    }
+
+    private var cancelFont: UIFont {
+        cancelButtonFont ?? font
     }
 
     private func setCancelTitleFont(_ titleFont: UIFont) {
@@ -1420,14 +1648,15 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
             multiSearchView.frame = CGRect(x: contentInsets.left, y: 0, width: width, height: bounds.height)
             return
         }
-        let insets = contentInsets
+        let insets = CYLSearchBarAppearance.margins(of: textFieldMarginsProvider, bar: self, active: isSearchActive,
+                                                    resting: contentInsets)
         let height = bounds.height
         let fieldHeight = min(effectiveFieldHeight, max(0, height - insets.top - insets.bottom))
         let y = floor((height - fieldHeight) / 2)
         var leading = insets.left
         var trailing = bounds.width - insets.right
         navigationButton.isHidden = isIconified || !showsNavigationButton
-        if let leadingView = effectiveLeadingView {
+        if let leadingView = effectiveLeadingView, leadingViewShows {
             var size = Self.fittingSize(of: leadingView, height: max(fieldHeight, 44))
             size.width = max(size.width, 44)
             size.height = max(size.height, min(44, height))
@@ -1448,12 +1677,14 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         let minimumTextWidth = max(44, floor(available * Self.minimumTextShare))
         if showsCancelButton && !isIconified {
             // The title's own width: a button's fitting size can lag behind a title or font set in the same pass.
-            let titleWidth = ceil((cancelButtonTitle as NSString).size(withAttributes: [.font: font as UIFont]).width)
+            let titleWidth = CYLSearchBarAppearance.textWidth(cancelButtonTitle, font: cancelFont)
             let maximumWidth = max(44, floor(available * Self.maximumCancelShare))
             let width = min(max(44, titleWidth + 12), maximumWidth)
             let scale = titleWidth + 12 > width ? max(Self.minimumScale, (width - 12) / max(1, titleWidth)) : 1
-            setCancelTitleFont(font.withSize(font.pointSize * scale))
-            cancelButton.frame = CGRect(x: trailing - width, y: y, width: width, height: fieldHeight)
+            setCancelTitleFont(cancelFont.withSize(cancelFont.pointSize * scale))
+            cancelButton.frame = CGRect(x: trailing - width, y: y, width: width, height: fieldHeight).inset(
+                by: CYLSearchBarAppearance.margins(of: cancelButtonMarginsProvider, bar: self, active: isSearchActive,
+                                                   resting: .zero))
             trailing -= width + Self.spacing
         }
         var field = CGRect(x: leading, y: y, width: max(0, trailing - leading), height: fieldHeight)
@@ -1462,7 +1693,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         }
         field = fieldView.frame
         field.size = CGSize(width: max(0, trailing - leading), height: fieldHeight)
-        fieldView.layer.cornerRadius = fieldCornerRadius < 0 ? fieldHeight / 2 : fieldCornerRadius
+        fieldView.layer.cornerRadius = CYLSearchBarAppearance.cornerRadius(fieldCornerRadius, height: fieldHeight)
         fieldBackgroundImageView.frame = CGRect(origin: .zero, size: field.size)
         fieldBackgroundImageView.layer.cornerRadius = fieldView.layer.cornerRadius
 
@@ -1499,6 +1730,44 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         textField.frame = CGRect(x: x, y: 0, width: max(0, end - x), height: fieldHeight)
         let textRect = textField.textRect(forBounds: textField.bounds)
         placeholderLabel.frame = textRect.offsetBy(dx: textField.frame.minX, dy: textField.frame.minY)
+        centerPlaceholderBlock(fieldWidth: field.width, baseline: inner, textStart: x, end: end)
+    }
+
+    /**
+     * `centersPlaceholder`: moves the magnifier and the placeholder label, not the text field, so that the block is
+     * centered in the field while the bar is not editing and has no text. The shift is limited by the room left of
+     * the accessory views.
+     */
+    private func centerPlaceholderBlock(fieldWidth: CGFloat, baseline: CGFloat, textStart: CGFloat, end: CGFloat) {
+        guard centersPlaceholder, !isSearchActive, (textField.text ?? "").isEmpty,
+              let text = placeholderLabel.text, !text.isEmpty else { return }
+        let iconBlock = searchIcon != nil ? Self.iconSize + 6 : 0
+        let contentWidth = iconBlock + CYLSearchBarAppearance.textWidth(text, font: placeholderLabel.font)
+        let shift = CYLSearchBarAppearance.centeringOffset(
+            fieldWidth: fieldWidth, contentWidth: contentWidth, baseline: baseline, room: end - baseline - contentWidth)
+        guard shift > 0 else { return }
+        searchIconView.frame.origin.x += shift
+        placeholderLabel.frame.origin.x += shift
+        placeholderLabel.frame.size.width = max(0, placeholderLabel.frame.width - shift)
+    }
+
+    /**
+     * The bar is active while its text field is the first responder.
+     */
+    private var isSearchActive: Bool {
+        textField.isFirstResponder
+    }
+
+    /**
+     * Lays the bar out again for the new state: the centered placeholder, the margins and the Cancel margins follow
+     * editing, animated like the system's search bar.
+     */
+    private func relayoutForActiveState() {
+        guard centersPlaceholder || textFieldMarginsProvider != nil || cancelButtonMarginsProvider != nil else { return }
+        UIView.animate(withDuration: Self.accessoryAnimationDuration, delay: 0, options: .curveEaseInOut) {
+            self.setNeedsLayout()
+            self.layoutIfNeeded()
+        }
     }
 
     // MARK: - Events
@@ -1596,6 +1865,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      * Reports the start of editing.
      */
     public func textFieldDidBeginEditing(_ textField: UITextField) {
+        relayoutForActiveState()
         delegate?.searchBarViewDidBeginEditing?(self)
     }
 
@@ -1603,6 +1873,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      * Clears the text and closes to the icon when configured, then reports the end of editing.
      */
     public func textFieldDidEndEditing(_ textField: UITextField) {
+        relayoutForActiveState()
         if clearsTextOnEndEditing, !(textField.text ?? "").isEmpty {
             textField.text = ""
             textChanged()
