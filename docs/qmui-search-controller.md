@@ -1416,6 +1416,8 @@ Missing points as TODO:
 - TODO (4 points): native tests; dark mode and large font; a real edge swipe and predictive back with `supportsSwipeToDismissSearch`; `showsSearchBar`, `hidesSearchBarInitially` and the bar options on the list (only on the bar) were not screenshotted.
 - TODO (3 points): arbitrary React children as accessories (still a 30 x 30 square spec); the bar options of the list besides `centersPlaceholder` and `placeholder`.
 
+### Merge phase 5 log: Flutter (2026-11-22), result
+
 **Result** (base `493efbd`; code commits `308b865` bar names and iOS bar wiring, `7c31681` native core hosts scrim, empty view, swipe, `38c7a5a` example, `ff8193b` Android empty text; all on `feat/harmonyos-parity`).
 
 **1. The audit: parallel members and what they became**
