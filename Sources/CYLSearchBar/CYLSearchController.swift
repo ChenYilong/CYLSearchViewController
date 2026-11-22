@@ -90,11 +90,7 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
      * text and the life cycle. Held weakly.
      */
     @objc public weak var searchResultsDelegate: CYLSearchControllerDelegate? {
-        didSet {
-            guard let table = tableView else { return }
-            table.dataSource = searchResultsDelegate
-            table.delegate = searchResultsDelegate
-        }
+        didSet { connectResultsTable() }
     }
 
     /**
@@ -117,6 +113,33 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
      * The results table view; `nil` unless the results controller is a `UITableViewController`.
      */
     @objc public var tableView: UITableView? { (searchResultsController as? UITableViewController)?.tableView }
+
+    private var resultHighlight = CYLSearchResultHighlight() {
+        didSet {
+            connectResultsTable()
+            tableView?.reloadData()
+        }
+    }
+    private let resultsDataSourceProxy = CYLSearchResultsDataSourceProxy()
+
+    /**
+     * Gives the first match of the search text in each row of the results table `resultMatchHighlightColor` (the tint
+     * color by default), after `searchResultsDelegate` configured the row; the text label and a list content
+     * configuration are both highlighted. While it is on, the table's `dataSource` is a forwarding proxy of
+     * `searchResultsDelegate`. `CYLSearchView` has the same option. NO by default.
+     */
+    @objc public var highlightsResultMatches: Bool {
+        get { resultHighlight.isEnabled }
+        set { resultHighlight.isEnabled = newValue }
+    }
+
+    /**
+     * The color of the highlighted match. Nil (the default) uses the tint color.
+     */
+    @objc public var resultMatchHighlightColor: UIColor? {
+        get { resultHighlight.color }
+        set { resultHighlight.color = newValue }
+    }
 
     /**
      * A view shown while the text is empty, for example the recent searches; it fills the space under the search bar
@@ -229,7 +252,7 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
     /**
      * Whether the empty view is on screen.
      */
-    @objc public var isEmptyViewShowing: Bool { emptyView?.superview != nil }
+    @objc public var isEmptyViewShowing: Bool { emptyViewSlot.isShowing }
 
     /**
      * Where the queries the person submits (the return key of the keyboard) are kept, newest first and without
@@ -258,7 +281,13 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
         return view
     }()
     private(set) weak var contentsViewController: UIViewController?
-    private(set) var emptyView: UIView?
+    private let emptyViewSlot = CYLSearchEmptyViewSlot()
+    private lazy var keyboard = CYLSearchKeyboardOverlap(host: { [weak self] in self?.emptyViewSlot.view?.superview },
+                                                         changed: { [weak self] in self?.layoutEmptyView() })
+    var emptyView: UIView? { emptyViewSlot.view }
+    // The active state, one implementation shared with `CYLSearchView`; it is fed by the `UISearchControllerDelegate`
+    // callbacks below, because UIKit alone presents the wrapped controller.
+    let presentationState = CYLSearchPresentationState()
     private(set) var snapshotView: UIView?
     private(set) var snapshotMaskView: UIView?
     private var dismissBySwipe = false
@@ -291,6 +320,20 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
         systemController.updateObscuring()
         systemController.cylSearchBar.searchTextField.addTarget(self, action: #selector(searchFieldSubmitted(_:)),
                                                                  for: .primaryActionTriggered)
+        resultsDataSourceProxy.decorate = { [weak self] cell in
+            guard let self else { return }
+            self.resultHighlight.apply(to: cell, query: self.searchBar.text ?? "")
+        }
+        _ = keyboard
+        presentationState.onEvent = { [weak self] event in
+            guard let self else { return }
+            switch event {
+            case .willPresent: self.searchResultsDelegate?.willPresentSearchController?(self)
+            case .didPresent: self.searchResultsDelegate?.didPresentSearchController?(self)
+            case .willDismiss: self.searchResultsDelegate?.willDismissSearchController?(self)
+            case .didDismiss: self.searchResultsDelegate?.didDismissSearchController?(self)
+            }
+        }
         presentationGuard.owner = self
         contentsViewController.addChild(presentationGuard)
         presentationGuard.didMove(toParent: contentsViewController)
@@ -377,6 +420,27 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
         }
     }
 
+    /**
+     * Whether the search is presented (`CYLSearchView.searchOpen`); the same as `isActive`.
+     */
+    @objc(isSearchOpen) public var searchOpen: Bool { isActive }
+
+    /**
+     * Presents the search with animation (`CYLSearchView.showSearch(animated:)`); `setActive(true, animated:)`.
+     */
+    @objc(showSearchAnimated:)
+    public func showSearch(animated: Bool) {
+        setActive(true, animated: animated)
+    }
+
+    /**
+     * Leaves the search (`CYLSearchView.closeSearch(animated:)`); `setActive(false, animated:)`.
+     */
+    @objc(closeSearchAnimated:)
+    public func closeSearch(animated: Bool) {
+        setActive(false, animated: animated)
+    }
+
     // MARK: - Installing
 
     /**
@@ -447,16 +511,8 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
     @objc public func showEmptyView(text: String?, detailText: String?, buttonTitle: String?,
                                     buttonAction: (() -> Void)?) {
         guard !(searchBar.text ?? "").isEmpty else { return }
-        var components = [CYLPlaceholderComponent(bundledAnimation: "CYLPlaceholderNoResults.json",
-                                                  fallbackStyle: .noResults, title: text,
-                                                  size: CGSize(width: 96, height: 96), action: nil)]
-        if let detailText, !detailText.isEmpty { components.append(CYLPlaceholderComponent.hint(text: detailText)) }
-        var handlers: [CYLPlaceholderAction: CYLPlaceholderActionHandler] = [:]
-        if let buttonTitle, !buttonTitle.isEmpty {
-            components.append(CYLPlaceholderComponent.button(title: buttonTitle, style: .outlined, action: .retry))
-            handlers[.retry] = { _, _ in buttonAction?() }
-        }
-        present(emptyView: CYLPlaceholderStackView(components: components, actions: handlers))
+        present(emptyView: CYLSearchEmptyView.message(text: text, detailText: detailText, buttonTitle: buttonTitle,
+                                                      buttonAction: buttonAction))
     }
 
     /**
@@ -465,39 +521,46 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
      */
     @objc public func showEmptyView(scenario: CYLPlaceholderScenario) {
         guard !(searchBar.text ?? "").isEmpty else { return }
-        present(emptyView: CYLPlaceholderStackView(scenario: scenario, actions: nil))
+        present(emptyView: CYLSearchEmptyView.scenario(scenario))
     }
 
     /**
      * Removes the empty view (the search leaving always does).
      */
     @objc public func hideEmptyView() {
-        emptyView?.removeFromSuperview()
-        emptyView = nil
+        emptyViewSlot.remove()
     }
 
     private func present(emptyView newView: UIView) {
-        emptyView?.removeFromSuperview()
-        emptyView = newView
+        emptyViewSlot.adopt(newView)
         newView.backgroundColor = .systemBackground
         searchResultsDelegate?.searchController?(self, willShow: newView)
         guard let superview = searchResultsController?.view else { return }
-        superview.addSubview(newView)
+        emptyViewSlot.show(in: superview)
         layoutEmptyView()
     }
 
     func layoutEmptyView() {
         guard let emptyView, let superview = emptyView.superview else { return }
-        // Under the search bar: the bar never sits on a view.
+        // Under the search bar (the bar never sits on a view) and above the keyboard.
         let bounds = superview.bounds
         let minY = systemController.topEdge(in: superview)
-        emptyView.frame = CGRect(x: bounds.minX, y: minY, width: bounds.width, height: max(0, bounds.maxY - minY))
+        emptyView.frame = CGRect(x: bounds.minX, y: minY, width: bounds.width,
+                                 height: max(0, bounds.maxY - minY - keyboard.overlap))
         superview.bringSubviewToFront(emptyView)
     }
 
+    // The results table takes the owner's data source and delegate (the data source behind a proxy while the match
+    // highlight is on).
+    private func connectResultsTable() {
+        guard let table = tableView else { return }
+        resultsDataSourceProxy.target = searchResultsDelegate
+        table.dataSource = resultHighlight.isEnabled ? resultsDataSourceProxy : searchResultsDelegate
+        table.delegate = searchResultsDelegate
+    }
+
     func resultsTableViewDidLoad(_ tableView: UITableView) {
-        tableView.dataSource = searchResultsDelegate
-        tableView.delegate = searchResultsDelegate
+        connectResultsTable()
         searchResultsDelegate?.searchController?(self, didLoad: tableView)
     }
 
@@ -531,14 +594,14 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
             hasSetShowsCancelButton = false
         }
         if systemController.hasStatusBarProviders { systemController.setNeedsStatusBarAppearanceUpdate() }
-        searchResultsDelegate?.willPresentSearchController?(self)
+        presentationState.send(.willPresent)
     }
 
     /**
      * Tells the delegate.
      */
     @objc public func didPresentSearchController(_ searchController: UISearchController) {
-        searchResultsDelegate?.didPresentSearchController?(self)
+        presentationState.send(.didPresent)
     }
 
     /**
@@ -546,7 +609,7 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
      */
     @objc public func willDismissSearchController(_ searchController: UISearchController) {
         if systemController.hasStatusBarProviders { systemController.setNeedsStatusBarAppearanceUpdate() }
-        searchResultsDelegate?.willDismissSearchController?(self)
+        presentationState.send(.willDismiss)
         // A swipe was begun and abandoned, then the Cancel button leaves the search: no snapshot may stay behind.
         if !dismissBySwipe { cleanSnapshotObjects() }
     }
@@ -557,7 +620,7 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
     @objc public func didDismissSearchController(_ searchController: UISearchController) {
         hideEmptyView()
         headerSnapper?.refresh()
-        searchResultsDelegate?.didDismissSearchController?(self)
+        presentationState.send(.didDismiss)
         if supportsSwipeToDismissSearch && !dismissBySwipe { cleanSnapshotObjects() }
     }
 
@@ -587,9 +650,7 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
         if let existing = swipeGestureRecognizer {
             gesture = existing
         } else {
-            gesture = UIScreenEdgePanGestureRecognizer(target: self, action: #selector(handleSwipe(_:)))
-            gesture.edges = .left
-            gesture.delegate = self
+            gesture = CYLSearchEdgeSwipe.makeGesture(target: self, action: #selector(handleSwipe(_:)), delegate: self)
             swipeGestureRecognizer = gesture
         }
         window.addGestureRecognizer(gesture)
@@ -643,7 +704,7 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
         guard swipeIsAvailable, snapshotView?.superview != nil else { return }
         let width = swipeContainerWidth
         let minX = systemController.view.frame.minX
-        if width > 0 && minX > width / 4 && velocityX > 0 {
+        if CYLSearchEdgeSwipe.completes(offset: minX, width: width, velocity: velocityX) {
             completeSwipe(width: width, minX: minX)
         } else {
             swipeCancelled()
@@ -652,7 +713,7 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
 
     private func completeSwipe(width: CGFloat, minX: CGFloat) {
         lockInteraction()
-        let duration = 0.2 * TimeInterval((width - minX) / width)
+        let duration = CYLSearchEdgeSwipe.duration(distance: width - minX, width: width)
         UIView.animate(withDuration: duration, delay: 0, options: .curveEaseInOut, animations: {
             self.systemController.view.transform = CGAffineTransform(translationX: width, y: 0)
             self.snapshotView?.transform = .identity
@@ -679,8 +740,7 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
     func swipeCancelled() {
         guard swipeIsAvailable || snapshotView?.superview != nil else { return }
         lockInteraction()
-        let width = max(swipeContainerWidth, 1)
-        let duration = 0.2 * TimeInterval(systemController.view.frame.minX / width)
+        let duration = CYLSearchEdgeSwipe.duration(distance: systemController.view.frame.minX, width: swipeContainerWidth)
         UIView.animate(withDuration: duration, delay: 0, options: .curveEaseInOut, animations: {
             self.systemController.view.transform = .identity
             self.snapshotView?.transform = CGAffineTransform(translationX: Self.snapshotInitialX, y: 0)
@@ -863,12 +923,9 @@ final class CYLSystemSearchController: UISearchController {
     weak var owner: CYLSearchController?
     var prefersStatusBarHiddenProvider: (() -> Bool)?
     var preferredStatusBarStyleProvider: (() -> UIStatusBarStyle)?
-    private(set) lazy var dimmingView: UIView = {
-        let view = UIView()
-        view.accessibilityIdentifier = "CYLSearchDimmingView"
-        view.isAccessibilityElement = false
-        let tap = UITapGestureRecognizer(target: self, action: #selector(dimmingViewTapped))
-        view.addGestureRecognizer(tap)
+    private(set) lazy var dimmingView: CYLSearchDimmingView = {
+        let view = CYLSearchDimmingView()
+        view.onTap = { [weak self] in self?.dimmingViewTapped() }
         return view
     }()
 
@@ -936,7 +993,7 @@ final class CYLSystemSearchController: UISearchController {
 
     private func layoutOverlays() {
         guard isViewLoaded else { return }
-        dimmingView.backgroundColor = dimmingColor
+        dimmingView.color = dimmingColor
         dimmingView.isHidden = !showsDimming
         for overlay in [launchView, dimmingColor == nil ? nil : dimmingView] {
             guard let overlay, let container = overlay.superview else { continue }
@@ -957,8 +1014,9 @@ final class CYLSystemSearchController: UISearchController {
         return max(bounds.minY, barBottom, bounds.minY + container.safeAreaInsets.top)
     }
 
+    // A tap on the dimming view leaves the search, through the wrapper, as `CYLSearchView`'s scrim does.
     @objc func dimmingViewTapped() {
-        isActive = false
+        if let owner { owner.setActive(false, animated: true) } else { isActive = false }
     }
 
     // MARK: Layout

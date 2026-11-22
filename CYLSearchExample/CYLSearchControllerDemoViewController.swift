@@ -38,6 +38,7 @@ public final class CYLSearchControllerDemoViewController: UITableViewController,
         let search = CYLSearchController(contentsViewController: self)
         search.searchResultsDelegate = self
         search.supportsSwipeToDismissSearch = true
+        search.highlightsResultMatches = true
         // The core's launch view: the history of submitted queries (a return key or a tapped tag submits), else QMUI's eight
         // suggestions, as tags; the title and the trash button come with it.
         search.historyStore = CYLSearchResources.suggestionCache(policy: .userDefaults, name: Self.historyName)
@@ -59,14 +60,8 @@ public final class CYLSearchControllerDemoViewController: UITableViewController,
         if tableView === self.tableView {
             cell.textLabel?.text = Self.keywords[indexPath.row]
         } else {
-            let keyword = matches[indexPath.row / 20]
-            let text = NSMutableAttributedString(string: keyword, attributes: [.foregroundColor: UIColor.label])
-            let search = cylSearchController?.searchBar.text ?? ""
-            if !search.isEmpty, let range = keyword.range(of: search) {
-                let tint = view.tintColor ?? UIColor.systemBlue
-                text.addAttribute(.foregroundColor, value: tint, range: NSRange(range, in: keyword))
-            }
-            cell.textLabel?.attributedText = text
+            // The match is highlighted by the core (`highlightsResultMatches`).
+            cell.textLabel?.text = matches[indexPath.row / 20]
         }
         cell.textLabel?.adjustsFontForContentSizeCategory = true
         return cell

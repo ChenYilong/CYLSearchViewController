@@ -23,6 +23,20 @@ public enum CYLSearchSuggestionStyle: Int {
 @objc(CYLSearchViewDelegate)
 public protocol CYLSearchViewDelegate: NSObjectProtocol {
     /**
+     * The search view is about to open, before the animation starts (`CYLSearchControllerDelegate`'s
+     * `willPresentSearchController:`).
+     */
+    @objc(searchViewWillShow:)
+    optional func searchViewWillShow(_ searchView: CYLSearchView)
+
+    /**
+     * The search view is about to close, before the animation starts (`CYLSearchControllerDelegate`'s
+     * `willDismissSearchController:`).
+     */
+    @objc(searchViewWillClose:)
+    optional func searchViewWillClose(_ searchView: CYLSearchView)
+
+    /**
      * The search view finished opening (MaterialSearchView `onSearchViewShown`).
      */
     @objc(searchViewDidShow:)
@@ -184,17 +198,21 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
      */
     @objc public var emptyResultsScenario: CYLPlaceholderScenario = .noSearchResults {
         didSet {
-            emptyResultsView?.removeFromSuperview()
-            emptyResultsView = nil
+            emptyResultsSlot.remove()
             refilter()
         }
     }
+
+    // The empty views of both placeholders, one component shared with `CYLSearchController` and
+    // `CYLSearchTableViewController`.
+    private let emptyResultsSlot = CYLSearchEmptyViewSlot()
+    private let emptySuggestionsSlot = CYLSearchEmptyViewSlot()
 
     /**
      * The placeholder shown for empty results (CYLTableViewPlaceHolder's `CYLPlaceholderStackView`), created the first
      * time it is shown; nil before. Style it after it appears, or change `emptyResultsScenario`.
      */
-    @objc public private(set) var emptyResultsView: CYLPlaceholderStackView?
+    @objc public var emptyResultsView: CYLPlaceholderStackView? { emptyResultsSlot.view as? CYLPlaceholderStackView }
 
     // MARK: - Results
 
@@ -216,6 +234,26 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
      * The results of the current query, from `resultsDataSource`; empty while the suggestions are shown.
      */
     @objc public private(set) var searchResults: [Any] = []
+
+    private var resultHighlight = CYLSearchResultHighlight() { didSet { resultsTableView.reloadData() } }
+
+    /**
+     * Gives the first match of the query in each result row `resultMatchHighlightColor` (the tint color by default), after
+     * `resultsDataSource` configured the row; the text label and a list content configuration are both highlighted.
+     * `CYLSearchController` has the same option. NO by default.
+     */
+    @objc public var highlightsResultMatches: Bool {
+        get { resultHighlight.isEnabled }
+        set { resultHighlight.isEnabled = newValue }
+    }
+
+    /**
+     * The color of the highlighted match. Nil (the default) uses the tint color.
+     */
+    @objc public var resultMatchHighlightColor: UIColor? {
+        get { resultHighlight.color }
+        set { resultHighlight.color = newValue }
+    }
 
     private var resultsVisible = false
 
@@ -291,9 +329,10 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
 
     private var emptyResultsVisible = false
     private let pageView = UIView()
-    private let scrimView = UIControl()
+    private let scrimView = CYLSearchDimmingView()
     private var suggestionsVisible = false
-    private var keyboardOverlap: CGFloat = 0
+    private var keyboardOverlap: CGFloat { keyboard?.overlap ?? 0 }
+    private var keyboard: CYLSearchKeyboardOverlap?
     private var customDividerColor: UIColor?
     private var customSuggestionTextColor: UIColor?
     private var customSuggestionImageTintColor: UIColor?
@@ -452,8 +491,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
      */
     @objc public var emptySuggestionsScenario: CYLPlaceholderScenario = .noContent {
         didSet {
-            emptySuggestionsView?.removeFromSuperview()
-            emptySuggestionsView = nil
+            emptySuggestionsSlot.remove()
             refilter()
         }
     }
@@ -461,7 +499,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
     /**
      * The placeholder shown for an empty cache, created the first time it is shown; nil before.
      */
-    @objc public private(set) var emptySuggestionsView: CYLPlaceholderStackView?
+    @objc public var emptySuggestionsView: CYLPlaceholderStackView? { emptySuggestionsSlot.view as? CYLPlaceholderStackView }
 
     /**
      * Focuses the search field when the search opens, which raises the keyboard. YES by default. NO opens the search
@@ -485,7 +523,39 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
     /**
      * YES while the search view is open (MaterialSearchView `isSearchOpen`).
      */
-    @objc(isSearchOpen) public private(set) var searchOpen = false
+    @objc(isSearchOpen) public var searchOpen: Bool { presentationState.isActive }
+
+    /**
+     * Whether the search is active, changed without animation (`CYLSearchController.isActive`); the same state as
+     * `searchOpen`: YES opens the search view, NO closes it.
+     */
+    @objc public var isActive: Bool {
+        @objc(isActive) get { searchOpen }
+        @objc(setActive:) set { setActive(newValue, animated: false) }
+    }
+
+    /**
+     * Opens or closes the search view (`CYLSearchController.setActive(_:animated:)`), like `showSearch(animated:)` and
+     * `closeSearch(animated:)`.
+     */
+    @objc public func setActive(_ active: Bool, animated: Bool) {
+        if active { showSearch(animated: animated) } else { closeSearch(animated: animated) }
+    }
+
+    /**
+     * Whether a swipe from the left screen edge leaves the search, as `CYLSearchController.supportsSwipeToDismissSearch`
+     * does: the page follows the finger and the search closes when it was dragged past a quarter of the width, moving
+     * right. NO by default.
+     */
+    @objc public var supportsSwipeToDismissSearch = false {
+        didSet { swipeGestureRecognizer.isEnabled = supportsSwipeToDismissSearch }
+    }
+
+    // The active state, one implementation shared with `CYLSearchController`: its events feed `CYLSearchViewDelegate`.
+    private let presentationState = CYLSearchPresentationState()
+    private var historyObserver: CYLSearchHistoryObserver?
+    private var isRecordingHistory = false
+    private(set) lazy var swipeGestureRecognizer = CYLSearchEdgeSwipe.makeGesture(target: self, action: #selector(handleSwipe(_:)))
 
     /**
      * The length of the open and close animations, in seconds (`setAnimationDuration`). 0.25 by default.
@@ -534,8 +604,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
     private func commonInit() {
         isHidden = true
         super.backgroundColor = .clear
-        scrimView.isAccessibilityElement = false
-        scrimView.addTarget(self, action: #selector(closeSearch as () -> Void), for: .touchUpInside)
+        scrimView.onTap = { [weak self] in self?.closeSearch() }
         addSubview(scrimView)
         pageView.backgroundColor = .systemBackground
         pageView.clipsToBounds = true
@@ -569,14 +638,32 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         suggestionArea.onClear = { [weak self] in self?.clearSuggestionCache() }
         suggestionArea.install(in: pageView)
         rebuildSuggestionCache()
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardChanged(_:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardHidden(_:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        // The history signal: another view or controller changed the history while this search is open.
+        historyObserver = CYLSearchHistoryObserver(cache: { [weak self] in self?.suggestionCache }, changed: { [weak self] in
+            guard let self, self.searchOpen, !self.isRecordingHistory else { return }
+            self.refilter()
+        })
+        presentationState.onEvent = { [weak self] event in
+            guard let self else { return }
+            switch event {
+            case .willPresent: self.delegate?.searchViewWillShow?(self)
+            case .didPresent: self.delegate?.searchViewDidShow?(self)
+            case .willDismiss: self.delegate?.searchViewWillClose?(self)
+            case .didDismiss: self.delegate?.searchViewDidClose?(self)
+            }
+        }
+        swipeGestureRecognizer.isEnabled = false
+        addGestureRecognizer(swipeGestureRecognizer)
+        keyboard = CYLSearchKeyboardOverlap(host: { [weak self] in self }, changed: { [weak self] in self?.setNeedsLayout() })
+        // iOS 26 softens the top edge of a scroll view with a blur: it would blur the first row under the search bar.
+        CYLSearchSuggestionArea.hidesTopEdgeEffect(in: resultsTableView)
+        CYLSearchSuggestionArea.hidesTopEdgeEffect(in: suggestionsTableView)
         applyStyle()
     }
 
     private func applyStyle() {
         dividerView.backgroundColor = dividerColor
-        scrimView.backgroundColor = scrimColor ?? .clear
+        scrimView.color = scrimColor
         setNeedsLayout()
     }
 
@@ -643,20 +730,6 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         setNeedsLayout()
     }
 
-    @objc private func keyboardChanged(_ notification: Notification) {
-        guard let window, let keyboard = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
-            return
-        }
-        let local = convert(keyboard, from: window.screen.coordinateSpace)
-        keyboardOverlap = max(0, bounds.maxY - local.minY)
-        setNeedsLayout()
-    }
-
-    @objc private func keyboardHidden(_ notification: Notification) {
-        keyboardOverlap = 0
-        setNeedsLayout()
-    }
-
     // MARK: - Opening and closing
 
     /**
@@ -707,7 +780,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
             }
             return
         }
-        searchOpen = true
+        presentationState.send(.willPresent)
         isHidden = false
         accessibilityViewIsModal = true
         refilter()
@@ -717,9 +790,12 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         if focusesSearchFieldOnShow {
             searchBarView.showKeyboard()
         }
+        let token = presentationState.generation
         let finish: (Bool) -> Void = { _ in
+            // A close that began meanwhile has overtaken this opening.
+            guard self.presentationState.generation == token else { return }
             UIAccessibility.post(notification: .screenChanged, argument: self.searchBarView.textField)
-            self.delegate?.searchViewDidShow?(self)
+            self.presentationState.send(.didPresent)
         }
         guard animated, animationDuration > 0 else {
             alpha = 1
@@ -772,15 +848,21 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
             completion?()
             return
         }
-        searchOpen = false
+        presentationState.send(.willDismiss)
         searchBarView.hideKeyboard()
+        let token = presentationState.generation
         let finish: (Bool) -> Void = { _ in
+            // A show that began meanwhile has overtaken this closing: the view stays on screen.
+            guard self.presentationState.generation == token else {
+                completion?()
+                return
+            }
             self.isHidden = true
             self.alpha = 1
             self.pageView.transform = .identity
             self.accessibilityViewIsModal = false
             UIAccessibility.post(notification: .screenChanged, argument: nil)
-            self.delegate?.searchViewDidClose?(self)
+            self.presentationState.send(.didDismiss)
             completion?()
         }
         guard animated, animationDuration > 0 else {
@@ -814,6 +896,51 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         if coder.decodeBool(forKey: "CYLSearchViewOpen") {
             showSearch(animated: false)
         }
+    }
+
+    // MARK: - Swipe to dismiss
+
+    @objc private func handleSwipe(_ gesture: UIScreenEdgePanGestureRecognizer) {
+        switch gesture.state {
+        case .began: swipeBegan()
+        case .changed: swipeChanged(translationX: gesture.translation(in: self).x)
+        case .ended: swipeEnded(velocityX: gesture.velocity(in: self).x)
+        case .cancelled, .failed: swipeCancelled()
+        default: break
+        }
+    }
+
+    func swipeBegan() {
+        guard searchOpen else { return }
+        endEditing(true)
+    }
+
+    func swipeChanged(translationX: CGFloat) {
+        guard searchOpen, bounds.width > 0 else { return }
+        pageView.transform = CGAffineTransform(translationX: min(max(0, translationX), bounds.width), y: 0)
+    }
+
+    func swipeEnded(velocityX: CGFloat) {
+        guard searchOpen else { return }
+        let width = bounds.width
+        let offset = pageView.transform.tx
+        guard CYLSearchEdgeSwipe.completes(offset: offset, width: width, velocity: velocityX) else {
+            swipeCancelled()
+            return
+        }
+        UIView.animate(withDuration: CYLSearchEdgeSwipe.duration(distance: width - offset, width: width), delay: 0,
+                       options: .curveEaseInOut, animations: {
+            self.pageView.transform = CGAffineTransform(translationX: width, y: 0)
+        }, completion: { _ in
+            self.closeSearch(animated: false)
+        })
+    }
+
+    func swipeCancelled() {
+        UIView.animate(withDuration: CYLSearchEdgeSwipe.duration(distance: pageView.transform.tx, width: bounds.width), delay: 0,
+                       options: .curveEaseInOut, animations: {
+            self.pageView.transform = .identity
+        })
     }
 
     override public func accessibilityPerformEscape() -> Bool {
@@ -861,22 +988,13 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         }
         searchResults = []
         resultsVisible = false
-        let cached = suggestionCache?.cachedQueries() ?? []
-        // An empty query lists the cached queries, newest first, under the header that clears them.
-        showsCachedQueries = trimmed.isEmpty && !cached.isEmpty
-        let candidates = cached + suggestions.filter { !cached.contains($0) }
-        filteredSuggestions = (showsCachedQueries ? cached : candidates).filter { suggestion in
-            if showsCachedQueries {
-                return true
-            }
-            if trimmed.isEmpty {
-                return showsSuggestionsForEmptyQuery
-            }
-            if let suggestionFilter {
-                return suggestionFilter(suggestion, query)
-            }
-            return suggestion.range(of: trimmed, options: [.caseInsensitive, .diacriticInsensitive]) != nil
-        }
+        // An empty query lists the cached queries, newest first, under the header that clears them; the choice is the
+        // suggestion area's.
+        let resolution = CYLSearchSuggestionArea.resolve(cache: suggestionCache, suggestions: suggestions, query: query,
+                                                         showsForEmptyQuery: showsSuggestionsForEmptyQuery,
+                                                         filter: suggestionFilter)
+        showsCachedQueries = resolution.showsHistory
+        filteredSuggestions = resolution.titles
         suggestionsVisible = !filteredSuggestions.isEmpty
         emptyResultsVisible = showsEmptyResultsPlaceholder && !trimmed.isEmpty && filteredSuggestions.isEmpty
         emptySuggestionsVisible = showsEmptySuggestionsPlaceholder && suggestionCache != nil && trimmed.isEmpty && filteredSuggestions.isEmpty
@@ -918,25 +1036,24 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
         if tags {
             suggestionArea.setTitles(suggestionsVisible ? filteredSuggestions : [])
         }
-        if emptyResultsVisible, emptyResultsView == nil {
-            let placeholder = CYLPlaceholderStackView(scenario: emptyResultsScenario, actions: nil)
-            placeholder.accessibilityIdentifier = "CYLSearchEmptyResults"
-            pageView.insertSubview(placeholder, belowSubview: suggestionsTableView)
-            emptyResultsView = placeholder
-        }
-        emptyResultsView?.isHidden = !emptyResultsVisible
-        if emptySuggestionsVisible, emptySuggestionsView == nil {
-            let placeholder = CYLPlaceholderStackView(scenario: emptySuggestionsScenario, actions: nil)
-            placeholder.accessibilityIdentifier = "CYLSearchEmptySuggestions"
-            pageView.insertSubview(placeholder, belowSubview: suggestionsTableView)
-            emptySuggestionsView = placeholder
-        }
-        emptySuggestionsView?.isHidden = !emptySuggestionsVisible
+        showOrHide(emptyResultsSlot, visible: emptyResultsVisible, scenario: emptyResultsScenario,
+                   identifier: "CYLSearchEmptyResults")
+        showOrHide(emptySuggestionsSlot, visible: emptySuggestionsVisible, scenario: emptySuggestionsScenario,
+                   identifier: "CYLSearchEmptySuggestions")
         suggestionCacheHeaderView.isHidden = !(suggestionsVisible && showsCachedQueries && showsSuggestionCacheHeader)
         resultsTableView.isHidden = !resultsVisible
         resultsTableView.reloadData()
         suggestionsTableView.reloadData()
         setNeedsLayout()
+    }
+
+    private func showOrHide(_ slot: CYLSearchEmptyViewSlot, visible: Bool, scenario: CYLPlaceholderScenario, identifier: String) {
+        guard visible else {
+            slot.hide()
+            return
+        }
+        if slot.view == nil { slot.adopt(CYLSearchEmptyView.scenario(scenario, identifier: identifier)) }
+        slot.show(in: pageView, below: suggestionsTableView)
     }
 
     private func rebuildSuggestionCache() {
@@ -947,8 +1064,10 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
      * Removes every cached query (the delete button of `suggestionCacheHeaderView`) and shows the list again.
      */
     @objc public func clearSuggestionCache() {
+        isRecordingHistory = true
         suggestionCache?.removeAllQueries()
         suggestionCache.map(CYLSearchSuggestionStore.announceChange(of:))
+        isRecordingHistory = false
         refilter()
         UIAccessibility.post(notification: .announcement, argument: CYLSearchResources.localizedString(forKey: "search.recentCleared"))
     }
@@ -973,8 +1092,10 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
     public func searchBarViewSearchButtonClicked(_ searchBarView: CYLSearchBarView) {
         let text = searchBarView.text ?? ""
         // Every submitted query is cached, so the list shows it the next time.
+        isRecordingHistory = true
         suggestionCache?.addQuery(text)
         suggestionCache.map(CYLSearchSuggestionStore.announceChange(of:))
+        isRecordingHistory = false
         let handled = delegate?.searchView?(self, didSubmitText: text) ?? false
         if !handled && closesOnSubmit {
             closeSearch()
@@ -1045,6 +1166,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
                 ?? UITableViewCell(style: .default, reuseIdentifier: Self.resultCellIdentifier)
             if searchResults.indices.contains(indexPath.row) {
                 resultsDataSource?.searchView(self, configureResultCell: cell, withResult: searchResults[indexPath.row])
+                resultHighlight.apply(to: cell, query: searchBarView.text ?? "")
             }
             return cell
         }

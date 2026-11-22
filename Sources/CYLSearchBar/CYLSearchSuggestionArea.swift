@@ -71,6 +71,7 @@ final class CYLSearchSuggestionArea: NSObject {
      */
     private(set) var showsHistory = false
 
+    private var historyObserver: CYLSearchHistoryObserver?
     private lazy var menuObserver = CYLSearchTagMenuObserver { [weak self] in self?.onHeightChange?() }
 
     override init() {
@@ -100,8 +101,7 @@ final class CYLSearchSuggestionArea: NSObject {
         clearButton.addTarget(self, action: #selector(clearTapped), for: .touchUpInside)
         headerView.addSubview(clearButton)
         headerView.isHidden = true
-        NotificationCenter.default.addObserver(self, selector: #selector(storeChanged(_:)),
-                                               name: CYLSearchSuggestionStore.didChangeNotification, object: nil)
+        historyObserver = CYLSearchHistoryObserver(cache: { [weak self] in self?.cache }, changed: { [weak self] in self?.reload() })
     }
 
     /**
@@ -152,12 +152,37 @@ final class CYLSearchSuggestionArea: NSObject {
 
      */
     func reload() {
-        let history = cache?.cachedQueries() ?? []
-        showsHistory = !history.isEmpty
+        let resolution = Self.resolve(cache: cache, suggestions: suggestions, query: "", showsForEmptyQuery: true)
+        showsHistory = resolution.showsHistory
         headerView.isHidden = !showsHistory
         tagView.isHidden = false
-        setTitles(showsHistory ? history : suggestions)
+        setTitles(resolution.titles)
         onHeightChange?()
+    }
+
+    /**
+     * What the area has to show for `query`, the one place that makes the choice for every host: an empty query shows
+     * the history (newest first) when there is one, else the suggestions when `showsForEmptyQuery`; a typed query shows
+     * the cached queries, then the suggestions, that `filter` accepts (a case- and diacritic-insensitive "contains" by
+     * default). `CYLSearchView` passes its typed query, the launch view of `CYLSearchController` never filters.
+     */
+    static func resolve(cache: CYLSearchSuggestionCache?, suggestions: [String], query: String, showsForEmptyQuery: Bool,
+                        filter: ((String, String) -> Bool)? = nil) -> Resolution {
+        let trimmed = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        let cached = cache?.cachedQueries() ?? []
+        if trimmed.isEmpty, !cached.isEmpty { return Resolution(titles: cached, showsHistory: true) }
+        let candidates = cached + suggestions.filter { !cached.contains($0) }
+        let titles = candidates.filter { candidate in
+            if trimmed.isEmpty { return showsForEmptyQuery }
+            if let filter { return filter(candidate, query) }
+            return candidate.range(of: trimmed, options: [.caseInsensitive, .diacriticInsensitive]) != nil
+        }
+        return Resolution(titles: titles, showsHistory: false)
+    }
+
+    struct Resolution {
+        let titles: [String]
+        let showsHistory: Bool
     }
 
     @objc private func clearTapped() {
@@ -171,16 +196,32 @@ final class CYLSearchSuggestionArea: NSObject {
         }
     }
 
-    // The history signal: one notification for every change of a store, whoever made it.
-    @objc private func storeChanged(_ notification: Notification) {
-        if CYLSearchSuggestionStore.matches(notification, cache) { reload() }
-    }
-
-    private static func hidesTopEdgeEffect(in view: UIView) {
+    static func hidesTopEdgeEffect(in view: UIView) {
         if #available(iOS 26.0, *) {
             (view as? UIScrollView)?.topEdgeEffect.isHidden = true
             view.subviews.forEach { hidesTopEdgeEffect(in: $0) }
         }
+    }
+}
+
+/**
+ * Listens to the history signal for one host: `changed` runs when a store that is the history of `cache()` changed,
+ * whoever changed it. The suggestion area (the launch view) and `CYLSearchView` each hold one.
+ */
+final class CYLSearchHistoryObserver: NSObject {
+    private let cache: () -> CYLSearchSuggestionCache?
+    private let changed: () -> Void
+
+    init(cache: @escaping () -> CYLSearchSuggestionCache?, changed: @escaping () -> Void) {
+        self.cache = cache
+        self.changed = changed
+        super.init()
+        NotificationCenter.default.addObserver(self, selector: #selector(storeChanged(_:)),
+                                               name: CYLSearchSuggestionStore.didChangeNotification, object: nil)
+    }
+
+    @objc private func storeChanged(_ notification: Notification) {
+        if CYLSearchSuggestionStore.matches(notification, cache()) { changed() }
     }
 }
 

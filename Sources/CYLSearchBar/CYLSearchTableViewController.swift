@@ -71,11 +71,11 @@ open class CYLSearchTableViewController: UITableViewController, CYLSearchControl
     /**
      * Whether the empty view is on screen.
      */
-    @objc public var isEmptyViewShowing: Bool { emptyView?.superview != nil }
+    @objc public var isEmptyViewShowing: Bool { emptyViewSlot.isShowing }
 
     // MARK: - Private state
 
-    private var emptyView: UIView?
+    private let emptyViewSlot = CYLSearchEmptyViewSlot()
     private var hasHiddenSearchBarInitially = false
 
     // MARK: - View life cycle
@@ -156,11 +156,7 @@ open class CYLSearchTableViewController: UITableViewController, CYLSearchControl
      * `hidesSearchBarWhenEmptyViewShowing` the search bar leaves the header.
      */
     @objc public func showEmptyView(text: String?, detailText: String?) {
-        var components = [CYLPlaceholderComponent(bundledAnimation: "CYLPlaceholderNoResults.json",
-                                                  fallbackStyle: .noResults, title: text,
-                                                  size: CGSize(width: 96, height: 96), action: nil)]
-        if let detailText, !detailText.isEmpty { components.append(CYLPlaceholderComponent.hint(text: detailText)) }
-        present(emptyView: CYLPlaceholderStackView(components: components, actions: [:]))
+        present(emptyView: CYLSearchEmptyView.message(text: text, detailText: detailText))
     }
 
     /**
@@ -168,7 +164,7 @@ open class CYLSearchTableViewController: UITableViewController, CYLSearchControl
      * results).
      */
     @objc public func showEmptyView(scenario: CYLPlaceholderScenario) {
-        present(emptyView: CYLPlaceholderStackView(scenario: scenario, actions: nil))
+        present(emptyView: CYLSearchEmptyView.scenario(scenario))
     }
 
     /**
@@ -176,8 +172,7 @@ open class CYLSearchTableViewController: UITableViewController, CYLSearchControl
      * again if `hidesSearchBarInitially` is on (issue #128).
      */
     @objc public func hideEmptyView() {
-        emptyView?.removeFromSuperview()
-        emptyView = nil
+        emptyViewSlot.remove()
         if showsSearchBar, hidesSearchBarWhenEmptyViewShowing, tableView.tableHeaderView == nil {
             installSearchController()
             tableView.tableHeaderView = searchBar
@@ -187,10 +182,9 @@ open class CYLSearchTableViewController: UITableViewController, CYLSearchControl
     }
 
     private func present(emptyView newView: UIView) {
-        emptyView?.removeFromSuperview()
-        emptyView = newView
+        emptyViewSlot.adopt(newView)
         newView.backgroundColor = .systemBackground
-        tableView.addSubview(newView)
+        emptyViewSlot.show(in: tableView)
         if hidesSearchBarWhenEmptyViewShowing, let bar = searchBar, tableView.tableHeaderView === bar {
             tableView.tableHeaderView = nil
             searchController?.headerSnapper?.refresh()
@@ -199,7 +193,7 @@ open class CYLSearchTableViewController: UITableViewController, CYLSearchControl
     }
 
     private func layoutEmptyView() {
-        guard let emptyView, emptyView.superview === tableView else { return }
+        guard let emptyView = emptyViewSlot.view, emptyView.superview === tableView else { return }
         // Under the header, over the rows: the empty view fills what the table shows below the search bar.
         let top = tableView.tableHeaderView?.frame.maxY ?? 0
         let inset = tableView.adjustedContentInset
