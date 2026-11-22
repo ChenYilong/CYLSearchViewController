@@ -5,6 +5,7 @@ import { CYLPlaceholderScenario } from 'cylplaceholder';
 import { CYLColorKey, CYLImageIsSymbol, CYLTagButton } from '@cyl/classifymenu';
 import {
   CYLMenuFoldControl,
+  CYLMenuFoldControlContent,
   CYLMenuFoldControlPosition,
   CYLSearchBarItem,
   CYLSearchBarMode,
@@ -12,6 +13,7 @@ import {
   CYLSearchResources,
   CYLSearchSuggestionCache,
   CYLSearchSuggestionCachePolicy,
+  CYLSearchSuggestionStyle,
   CYLSearchView,
   CYLSearchViewDataSource
 } from 'cylsearch';
@@ -299,6 +301,18 @@ export default function cylSearchCoreTest() {
       expect(text.title).assertEqual('Search');
       expect(text.badgeValue === undefined).assertTrue();
       expect(views[1].title === undefined && views[1].image === undefined).assertTrue();
+    });
+
+    it('suggestionStyleDefaultsToFoldedTags', 0, () => {
+      // The tags start folded to two rows, the inline icon chevron is the last tag (docs/task-log.md, tags as the default).
+      const view = new CYLSearchView();
+      expect(view.suggestionStyle).assertEqual(CYLSearchSuggestionStyle.tags);
+      expect(view.suggestionsFolded).assertTrue();
+      expect(view.suggestionsFoldedRowCount).assertEqual(2);
+      expect(view.suggestionsFoldControl.position).assertEqual(CYLMenuFoldControlPosition.inline);
+      expect(view.suggestionsFoldControl.content).assertEqual(CYLMenuFoldControlContent.icon);
+      view.suggestionStyle = CYLSearchSuggestionStyle.list;
+      expect(view.suggestionStyle).assertEqual(CYLSearchSuggestionStyle.list);
     });
 
     it('foldControlPositionNone', 0, () => {
