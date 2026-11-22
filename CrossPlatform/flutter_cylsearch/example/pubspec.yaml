@@ -20,7 +20,7 @@ dependencies:
   flutter_cyltabbar:
     git:
       url: https://github.com/ChenYilong/CYLTabBarController.git
-      ref: c8fee654942095e3bda35afba4662b856bf1eef8
+      ref: c4a1f8fda52aef766039893d8476f4b09493db23
       path: CrossPlatform/flutter_cyltabbar
 
   flutter_cylsearch:
