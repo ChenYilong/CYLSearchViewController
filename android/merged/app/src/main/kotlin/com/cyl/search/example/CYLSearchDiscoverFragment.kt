@@ -19,10 +19,14 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.Button
 import android.widget.ScrollView
+import android.widget.SeekBar
+import android.widget.Switch
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import com.cyl.classifymenu.CYLBadgeDrawable
 import com.cyl.classifymenu.CYLControlState
@@ -130,6 +134,9 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
     private lateinit var recentList: CYLTagListView
     private lateinit var discoverList: CYLTagListView
     private lateinit var hintLabel: TextView
+    // The playback state of the animation item (the Switch and the SeekBar under the bar write it).
+    private var animationLoops = false
+    private var animationSpeed = 1f
 
     private inner class RecentSource : CYLMenuDataSource {
         var searches: MutableList<String> = mutableListOf()
@@ -187,10 +194,17 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             searchByImage()
         }
         camera.imageSize = android.util.SizeF(22f, 22f)
+        // The animation item sits right after the camera and shows the same still image when the engine is missing.
+        val animation = CYLSearchBarItem.iconItem(context.getDrawable(R.drawable.cyl_ic_camera), getString(R.string.cyl_discover_animationItem)) {}
+        animation.imageSize = android.util.SizeF(22f, 22f)
+        animation.animationURL = android.net.Uri.parse("file:///android_asset/tab_activity.svga")
+        animation.animationLoops = animationLoops
+        animation.animationSpeed = animationSpeed
         val search = CYLSearchBarItem.textItem(getString(R.string.cyl_discover_search)) { searchTapped() }
         search.itemAccessibilityIdentifier = "CYLSearchDiscoverSearchButton"
         searchBar.itemTintColor = primary
         searchBar.addItem(camera)
+        searchBar.addItem(animation)
         searchBar.addItem(CYLSearchBarItem.divider())
         searchBar.addItem(search)
 
@@ -239,6 +253,60 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             }
             addView(searchBar, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
         }
+        // Playback controls under the bar: loop switch, speed 0.25 to 3 and Play again (each at least 48dp high).
+        val speedLabel = TextView(context).apply {
+            setTextColor(secondary)
+            minWidth = dp(48f)
+            gravity = Gravity.CENTER
+            importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        }
+        val speedBar = SeekBar(context).apply {
+            max = 275
+            progress = ((animationSpeed - 0.25f) * 100f).toInt()
+            minimumHeight = dp(48f)
+            contentDescription = getString(R.string.cyl_discover_animationSpeed)
+        }
+        fun showSpeed() {
+            val text = String.format(Locale.getDefault(), "%.2fx", animationSpeed)
+            speedLabel.text = text
+            ViewCompat.setStateDescription(speedBar, text)
+        }
+        showSpeed()
+        speedBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(bar: SeekBar, progress: Int, fromUser: Boolean) {
+                animationSpeed = 0.25f + progress / 100f
+                animation.animationSpeed = animationSpeed
+                showSpeed()
+            }
+            override fun onStartTrackingTouch(bar: SeekBar) {}
+            override fun onStopTrackingTouch(bar: SeekBar) {}
+        })
+        val loopSwitch = Switch(context).apply {
+            isChecked = animationLoops
+            minimumHeight = dp(48f)
+            minimumWidth = dp(48f)
+            contentDescription = getString(R.string.cyl_discover_animationLoops)
+            setOnCheckedChangeListener { _, checked ->
+                animationLoops = checked
+                animation.animationLoops = checked
+            }
+        }
+        val playAgain = Button(context).apply {
+            text = getString(R.string.cyl_discover_animationPlay)
+            minHeight = dp(48f)
+            minimumWidth = dp(48f)
+            contentDescription = getString(R.string.cyl_discover_animationPlay)
+            setOnClickListener { animation.restartAnimation() }
+        }
+        val playback = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(14f), dp(4f), dp(14f), 0)
+            addView(loopSwitch)
+            addView(speedBar, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+            addView(speedLabel)
+            addView(playAgain)
+        }
         val lists = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             addView(recentList, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
@@ -271,6 +339,7 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             isFocusableInTouchMode = true
             descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS
             addView(top)
+            addView(playback)
             addView(ScrollView(context).apply { addView(lists) }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = dp(10f) })
             addView(hintLabel, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { bottomMargin = dp(4f) })
             addView(bottom, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(110f)))
