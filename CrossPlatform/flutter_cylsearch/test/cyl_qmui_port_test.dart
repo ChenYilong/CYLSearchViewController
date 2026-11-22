@@ -70,10 +70,10 @@ void main() {
             height: 52,
             child: CYLSearchBarView(
               controller: controller,
-              leadingAccessoryView: const SizedBox(key: Key('leading'), width: 30, height: 30),
-              leadingAccessoryViewMargins: const EdgeInsets.only(left: 8),
-              trailingAccessoryView: const SizedBox(key: Key('trailing'), width: 30, height: 30),
-              showsTrailingAccessoryView: false,
+              leadingView: const SizedBox(key: Key('leading'), width: 30, height: 30),
+              leadingViewMargins: const EdgeInsets.only(left: 8),
+              trailingAccessoryViews: const <Widget>[SizedBox(key: Key('trailing'), width: 30, height: 30)],
+              showsTrailingAccessoryViews: false,
             ),
           ),
         ),
@@ -83,13 +83,13 @@ void main() {
       expect(find.byKey(const Key('leading')), findsOneWidget);
       expect(find.byKey(const Key('trailing')), findsNothing, reason: 'hidden first');
       expect(tester.getSize(field).width, 800 - 38, reason: 'the field gives up the accessory and its margin');
-      controller.setShowsTrailingAccessoryView(true, animated: false);
+      controller.setShowsTrailingAccessoryViews(true, animated: false);
       await tester.pump();
       expect(find.byKey(const Key('trailing')), findsOneWidget);
       expect(tester.getSize(field).width, 800 - 38 - 30);
       // Two quick calls end in the state of the second (animated).
-      controller.setShowsLeadingAccessoryView(false);
-      controller.setShowsLeadingAccessoryView(true);
+      controller.setShowsLeadingView(false);
+      controller.setShowsLeadingView(true);
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('leading')), findsOneWidget);
     });

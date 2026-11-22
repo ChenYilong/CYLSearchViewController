@@ -216,8 +216,8 @@ class CYLSearchViewWidgetController extends _CYLPlatformViewController with Chan
 /// Drives a [CYLSearchBarView] in [CYLSearchBarMode.multiple] from code (iOS and Android `CYLSearchBarView`). Pass it as
 /// [CYLSearchBarView.controller]; one controller serves one search bar at a time.
 class CYLSearchBarWidgetController extends _CYLPlatformViewController with ChangeNotifier {
-  bool? _showsLeadingAccessoryView;
-  bool? _showsTrailingAccessoryView;
+  bool? _showsLeadingView;
+  bool? _showsTrailingAccessoryViews;
   bool _animatesAccessoryViews = false;
 
   /// Shows or hides Cancel, with an animation when [animated] is true (iOS `setShowsCancelButton(_:animated:)`, Android
@@ -228,18 +228,18 @@ class CYLSearchBarWidgetController extends _CYLPlatformViewController with Chang
   /// Focuses the field and raises the keyboard (iOS and Android `showKeyboard()`).
   Future<void> showKeyboard() => _invoke<void>('showKeyboard');
 
-  /// Shows or hides [CYLSearchBarView.leadingAccessoryView], with an animation when [animated] is true (iOS
-  /// `setShowsLeadingAccessoryView(_:animated:)`). The last call decides.
-  void setShowsLeadingAccessoryView(bool shows, {bool animated = true}) {
-    _showsLeadingAccessoryView = shows;
+  /// Shows or hides [CYLSearchBarView.leadingView], with an animation when [animated] is true (iOS
+  /// `setShowsLeadingView(_:animated:)`). The last call decides.
+  void setShowsLeadingView(bool shows, {bool animated = true}) {
+    _showsLeadingView = shows;
     _animatesAccessoryViews = animated;
     notifyListeners();
   }
 
-  /// Shows or hides [CYLSearchBarView.trailingAccessoryView], with an animation when [animated] is true (iOS
-  /// `setShowsTrailingAccessoryView(_:animated:)`). The last call decides.
-  void setShowsTrailingAccessoryView(bool shows, {bool animated = true}) {
-    _showsTrailingAccessoryView = shows;
+  /// Shows or hides [CYLSearchBarView.trailingAccessoryViews], with an animation when [animated] is true (iOS
+  /// `setShowsTrailingAccessoryViews(_:animated:)`). The last call decides.
+  void setShowsTrailingAccessoryViews(bool shows, {bool animated = true}) {
+    _showsTrailingAccessoryViews = shows;
     _animatesAccessoryViews = animated;
     notifyListeners();
   }
@@ -882,12 +882,12 @@ class CYLSearchBarView extends StatefulWidget {
     this.activeCancelButtonMargins,
     this.cancelButtonFontSize,
     this.appearance,
-    this.leadingAccessoryView,
-    this.showsLeadingAccessoryView = true,
-    this.leadingAccessoryViewMargins = EdgeInsets.zero,
-    this.trailingAccessoryView,
-    this.showsTrailingAccessoryView = true,
-    this.trailingAccessoryViewMargins = EdgeInsets.zero,
+    this.leadingView,
+    this.showsLeadingView = true,
+    this.leadingViewMargins = EdgeInsets.zero,
+    this.trailingAccessoryViews = const <Widget>[],
+    this.showsTrailingAccessoryViews = true,
+    this.trailingAccessoryViewsMargins = EdgeInsets.zero,
   });
 
   /// The placeholder's color (iOS `placeholderColor`); null keeps the native default.
@@ -924,25 +924,26 @@ class CYLSearchBarView extends StatefulWidget {
   /// The merged default style (iOS `appearanceStyle`); null keeps the native default.
   final CYLSearchBarAppearance? appearance;
 
-  /// A widget of yours beside the field, before it (iOS `leadingAccessoryView`), centered on the field: a native field
-  /// cannot hold a Flutter widget, so the bar lays the widget out in a row with the native field, which takes the
-  /// remaining width. Toggle it with [showsLeadingAccessoryView] or [CYLSearchBarWidgetController.setShowsLeadingAccessoryView].
-  final Widget? leadingAccessoryView;
+  /// A widget of yours beside the field, before it (iOS `leadingView`), centered on the field. Dart only, on purpose: the
+  /// native `leadingView` is a native view, and a platform view cannot host a Flutter widget, so the bar lays this widget
+  /// out in a row with the native field, which takes the remaining width. Native icon buttons and text buttons after the
+  /// text are [items]. Toggle it with [showsLeadingView] or [CYLSearchBarWidgetController.setShowsLeadingView].
+  final Widget? leadingView;
 
-  /// Whether [leadingAccessoryView] is shown (iOS `showsLeadingAccessoryView`); true by default.
-  final bool showsLeadingAccessoryView;
+  /// Whether [leadingView] is shown (iOS `showsLeadingView`); true by default.
+  final bool showsLeadingView;
 
-  /// The space around [leadingAccessoryView] (iOS `leadingAccessoryViewMargins`).
-  final EdgeInsets leadingAccessoryViewMargins;
+  /// The space around [leadingView] (iOS `leadingViewMargins`).
+  final EdgeInsets leadingViewMargins;
 
-  /// A widget of yours beside the field, after it (iOS `trailingAccessoryView`), see [leadingAccessoryView].
-  final Widget? trailingAccessoryView;
+  /// Widgets of yours beside the field, after it, in order (iOS `trailingAccessoryViews`); Dart only like [leadingView].
+  final List<Widget> trailingAccessoryViews;
 
-  /// Whether [trailingAccessoryView] is shown (iOS `showsTrailingAccessoryView`); true by default.
-  final bool showsTrailingAccessoryView;
+  /// Whether [trailingAccessoryViews] is shown (iOS `showsTrailingAccessoryViews`); true by default.
+  final bool showsTrailingAccessoryViews;
 
-  /// The space around [trailingAccessoryView] (iOS `trailingAccessoryViewMargins`).
-  final EdgeInsets trailingAccessoryViewMargins;
+  /// The space around [trailingAccessoryViews] (iOS `trailingAccessoryViewsMargins`).
+  final EdgeInsets trailingAccessoryViewsMargins;
 
   /// The core's editing bar (iOS and Android `CYLSearchBarView.editingBar`) in place of the search bar: a field and an
   /// action button ("Add", "Done") to put above the keyboard. Read when the native view is created; give the widget
@@ -1023,8 +1024,8 @@ class CYLSearchBarView extends StatefulWidget {
 
 class _CYLSearchBarViewState extends State<CYLSearchBarView> {
   MethodChannel? _channel;
-  late bool _showsLeading = widget.showsLeadingAccessoryView;
-  late bool _showsTrailing = widget.showsTrailingAccessoryView;
+  late bool _showsLeading = widget.showsLeadingView;
+  late bool _showsTrailing = widget.showsTrailingAccessoryViews;
   bool _animatesAccessories = false;
 
   @override
@@ -1037,8 +1038,8 @@ class _CYLSearchBarViewState extends State<CYLSearchBarView> {
     final controller = widget.controller;
     if (controller == null) return;
     setState(() {
-      _showsLeading = controller._showsLeadingAccessoryView ?? _showsLeading;
-      _showsTrailing = controller._showsTrailingAccessoryView ?? _showsTrailing;
+      _showsLeading = controller._showsLeadingView ?? _showsLeading;
+      _showsTrailing = controller._showsTrailingAccessoryViews ?? _showsTrailing;
       _animatesAccessories = controller._animatesAccessoryViews;
     });
   }
@@ -1067,8 +1068,8 @@ class _CYLSearchBarViewState extends State<CYLSearchBarView> {
       widget.controller?.attach(_channel);
     }
     // A changed flag of the widget wins over an earlier call of the controller.
-    if (oldWidget.showsLeadingAccessoryView != widget.showsLeadingAccessoryView) _showsLeading = widget.showsLeadingAccessoryView;
-    if (oldWidget.showsTrailingAccessoryView != widget.showsTrailingAccessoryView) _showsTrailing = widget.showsTrailingAccessoryView;
+    if (oldWidget.showsLeadingView != widget.showsLeadingView) _showsLeading = widget.showsLeadingView;
+    if (oldWidget.showsTrailingAccessoryViews != widget.showsTrailingAccessoryViews) _showsTrailing = widget.showsTrailingAccessoryViews;
     _channel?.invokeMethod<void>('update', _parameters);
   }
 
@@ -1087,8 +1088,10 @@ class _CYLSearchBarViewState extends State<CYLSearchBarView> {
   }
 
   /// One accessory slot: nothing while hidden, the widget with its margins while shown, animated in width when asked.
-  Widget _accessory(Widget? child, bool shows, EdgeInsets margins) {
-    final content = child != null && shows ? Padding(padding: margins, child: child) : const SizedBox.shrink();
+  Widget _accessory(List<Widget> children, bool shows, EdgeInsets margins) {
+    final content = children.isNotEmpty && shows
+        ? Padding(padding: margins, child: Row(mainAxisSize: MainAxisSize.min, children: children))
+        : const SizedBox.shrink();
     return _animatesAccessories
         ? AnimatedSize(duration: const Duration(milliseconds: 250), curve: Curves.easeInOut, child: content)
         : content;
@@ -1098,9 +1101,9 @@ class _CYLSearchBarViewState extends State<CYLSearchBarView> {
   Widget build(BuildContext context) => Row(
         // The row's structure never changes, so the native view is not created again when an accessory comes or goes.
         children: <Widget>[
-          _accessory(widget.leadingAccessoryView, _showsLeading, widget.leadingAccessoryViewMargins),
+          _accessory(<Widget>[if (widget.leadingView != null) widget.leadingView!], _showsLeading, widget.leadingViewMargins),
           Expanded(child: _platformView(CYLSearchViewTypes.searchBarView, _parameters, _created)),
-          _accessory(widget.trailingAccessoryView, _showsTrailing, widget.trailingAccessoryViewMargins),
+          _accessory(widget.trailingAccessoryViews, _showsTrailing, widget.trailingAccessoryViewsMargins),
         ],
       );
 }

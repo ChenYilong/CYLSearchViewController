@@ -86,10 +86,10 @@ class _CYLQMUISearchBarStylesPageState extends State<CYLQMUISearchBarStylesPage>
           _controller.setShowsCancelButton(_showsCancel, animated: _animated);
         case _Row.toggleLeading:
           _showsLeading = !_showsLeading;
-          _controller.setShowsLeadingAccessoryView(_showsLeading, animated: _animated);
+          _controller.setShowsLeadingView(_showsLeading, animated: _animated);
         case _Row.toggleTrailing:
           _showsTrailing = !_showsTrailing;
-          _controller.setShowsTrailingAccessoryView(_showsTrailing, animated: _animated);
+          _controller.setShowsTrailingAccessoryViews(_showsTrailing, animated: _animated);
         case _Row.centerPlaceholder || _Row.animated:
           break;
       }
@@ -125,12 +125,12 @@ class _CYLQMUISearchBarStylesPageState extends State<CYLQMUISearchBarStylesPage>
           activeTextFieldMargins: EdgeInsets.zero,
           activeCancelButtonMargins: _cancelAdjusted ? const EdgeInsets.only(left: -16) : null,
           showsCancelButton: _showsCancel,
-          leadingAccessoryView: _accessory(_leadingColor),
-          leadingAccessoryViewMargins: const EdgeInsets.only(left: 8),
-          showsLeadingAccessoryView: false,
-          trailingAccessoryView: _accessory(_trailingColor),
-          trailingAccessoryViewMargins: const EdgeInsets.only(right: 8),
-          showsTrailingAccessoryView: false,
+          leadingView: _accessory(_leadingColor),
+          leadingViewMargins: const EdgeInsets.only(left: 8),
+          showsLeadingView: false,
+          trailingAccessoryViews: <Widget>[_accessory(_trailingColor)],
+          trailingAccessoryViewsMargins: const EdgeInsets.only(right: 8),
+          showsTrailingAccessoryViews: false,
         ),
         itemCount: items.length,
         itemBuilder: (context, index) {

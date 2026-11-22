@@ -341,9 +341,7 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
                 self.bar.removeSearch(at: arguments["index"] as? Int ?? -1)
                 result(nil)
             case "setShowsCancelButton":
-                // TODO: waiting for the iOS merge (docs/qmui-search-controller.md): `setShowsCancelButton(_:animated:)` is
-                // on CYLSearchBar only, so `animated` is not honoured on CYLSearchBarView yet.
-                self.bar.showsCancelButton = arguments["shows"] as? Bool ?? false
+                self.bar.setShowsCancelButton(arguments["shows"] as? Bool ?? false, animated: arguments["animated"] as? Bool ?? true)
                 result(nil)
             case "showKeyboard":
                 self.bar.showKeyboard()
@@ -417,7 +415,12 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
             // The core's own setup stays: no magnifier, its action button always shown.
             if let title = arguments["actionTitle"] as? String, !title.isEmpty { bar.cancelButtonTitle = title }
         } else {
-            bar.showsCancelButton = arguments["showsCancelButton"] as? Bool ?? false
+            // The widget's flag only when it changed: a controller call (animated) must not be undone by the next update.
+            let showsCancel = arguments["showsCancelButton"] as? Bool ?? false
+            if showsCancel != appliedShowsCancelButton {
+                appliedShowsCancelButton = showsCancel
+                bar.showsCancelButton = showsCancel
+            }
             bar.searchIcon = arguments["showsSearchIcon"] as? Bool ?? true ? UIImage(systemName: "magnifyingglass") : nil
         }
         let items = arguments["items"] as? [[String: Any]] ?? []
@@ -437,28 +440,80 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
                        blue: CGFloat(argb & 0xFF) / 255, alpha: CGFloat((argb >> 24) & 0xFF) / 255)
     }
 
-    /// The style options Dart sends. The ones CYLSearchBarView has are applied; the others are marked below.
+    /// The style options Dart sends, applied through the core's one `CYLSearchBarAppearance` (`appearanceStyle`) and the
+    /// bar's own knobs (`centersPlaceholder`, `textFieldMarginsProvider`, `cancelButtonMarginsProvider`, `cancelButtonFont`).
     private func applyStyle(_ arguments: [String: Any]) {
+        let placeholderColor = color(arguments["placeholderColor"])
+        let textColor = color(arguments["textColor"])
+        let font = (arguments["fontSize"] as? Double).map { UIFont.systemFont(ofSize: CGFloat($0)) }
         if let appearance = arguments["appearance"] as? [String: Any] {
-            if let value = color(appearance["fieldBackgroundColor"]) { bar.fieldBackgroundColor = value }
-            if let value = color(appearance["fieldBorderColor"]) {
-                bar.fieldBorderColor = value
-                bar.fieldBorderWidth = 1
+            // One appearance for the bar; assigned again only when Dart sent another one (assigning resets every knob).
+            let key = ["appearance": appearance, "placeholder": arguments["placeholder"] ?? NSNull(),
+                       "placeholderColor": arguments["placeholderColor"] ?? NSNull(), "textColor": arguments["textColor"] ?? NSNull(),
+                       "fontSize": arguments["fontSize"] ?? NSNull()] as NSDictionary
+            if !key.isEqual(appliedAppearance) {
+                appliedAppearance = key
+                let style = CYLSearchBarAppearance()
+                // A null value leaves the bar's own default of that property.
+                style.textFieldBackgroundColor = color(appearance["fieldBackgroundColor"])
+                style.textFieldBorderColor = color(appearance["fieldBorderColor"])
+                style.textFieldCornerRadius = CGFloat(appearance["fieldCornerRadius"] as? Double ?? -1)
+                style.tintColor = color(appearance["tintColor"])
+                style.barBackgroundColor = color(appearance["barBackgroundColor"])
+                // The editing bar's action title is Dart's `actionTitle`, not the appearance's.
+                style.cancelTitle = bar.isEditingBar ? bar.cancelButtonTitle : (appearance["cancelTitle"] as? String ?? style.cancelTitle)
+                style.placeholder = arguments["placeholder"] as? String
+                style.placeholderColor = placeholderColor
+                style.textColor = textColor
+                style.font = font
+                bar.appearanceStyle = style
             }
-            if let radius = appearance["fieldCornerRadius"] as? Double { bar.fieldCornerRadius = CGFloat(radius) }
-            if let value = color(appearance["tintColor"]) { bar.tintColor = value }
-            if let value = color(appearance["barBackgroundColor"]) { bar.backgroundColor = value }
-            if let title = appearance["cancelTitle"] as? String, !bar.isEditingBar { bar.cancelButtonTitle = title }
+        } else {
+            if let value = placeholderColor { bar.placeholderColor = value }
+            if let value = textColor { bar.textColor = value }
+            if let value = font { bar.font = value }
         }
-        if let value = color(arguments["placeholderColor"]) { bar.placeholderColor = value }
-        if let value = color(arguments["textColor"]) { bar.textColor = value }
-        if let size = arguments["fontSize"] as? Double { bar.font = .systemFont(ofSize: CGFloat(size)) }
-        // TODO: waiting for the iOS merge (docs/qmui-search-controller.md): `centersPlaceholder`, the field and Cancel
-        // margins for both states (`textFieldMarginsProvider`, `cancelButtonMarginsProvider`), `cancelButtonFont` and
-        // the animated Cancel exist on CYLSearchBar only today. Dart sends them already (centersPlaceholder,
-        // textFieldMargins, activeTextFieldMargins, cancelButtonMargins, activeCancelButtonMargins,
-        // cancelButtonFontSize); wire them here when CYLSearchBarView has the members.
+        bar.centersPlaceholder = arguments["centersPlaceholder"] as? Bool ?? false
+        applyMargins(arguments)
+        bar.cancelButtonFont = (arguments["cancelButtonFontSize"] as? Double).map { UIFont.systemFont(ofSize: CGFloat($0)) }
     }
+
+    /// Dart's margins as the core's providers: the field's are added to `contentInsets` (Dart's are on top of the native
+    /// margins, the provider replaces them), the Cancel button's are the provider's answer; zero in both states installs none.
+    private func applyMargins(_ arguments: [String: Any]) {
+        func insets(_ value: Any?) -> UIEdgeInsets {
+            guard let list = value as? [Double], list.count == 4 else { return .zero }
+            return UIEdgeInsets(top: CGFloat(list[1]), left: CGFloat(list[0]), bottom: CGFloat(list[3]), right: CGFloat(list[2]))
+        }
+        let field = (insets(arguments["textFieldMargins"]), insets(arguments["activeTextFieldMargins"]))
+        let cancel = (insets(arguments["cancelButtonMargins"]), insets(arguments["activeCancelButtonMargins"]))
+        if field != appliedFieldMargins {
+            appliedFieldMargins = field
+            if field.0 == .zero, field.1 == .zero {
+                bar.textFieldMarginsProvider = nil
+            } else {
+                bar.textFieldMarginsProvider = { bar, active in
+                    let extra = active ? field.1 : field.0
+                    let base = bar.contentInsets
+                    return UIEdgeInsets(top: base.top + extra.top, left: base.left + extra.left,
+                                        bottom: base.bottom + extra.bottom, right: base.right + extra.right)
+                }
+            }
+        }
+        if cancel != appliedCancelMargins {
+            appliedCancelMargins = cancel
+            if cancel.0 == .zero, cancel.1 == .zero {
+                bar.cancelButtonMarginsProvider = nil
+            } else {
+                bar.cancelButtonMarginsProvider = { _, active in active ? cancel.1 : cancel.0 }
+            }
+        }
+    }
+
+    private var appliedAppearance: NSDictionary?
+    private var appliedFieldMargins = (UIEdgeInsets.zero, UIEdgeInsets.zero)
+    private var appliedCancelMargins = (UIEdgeInsets.zero, UIEdgeInsets.zero)
+    private var appliedShowsCancelButton: Bool?
 
     /**
      * Dart's `text` as applied last (an editing bar takes focus when it changes).
