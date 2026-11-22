@@ -999,3 +999,17 @@ begins and becomes `DONE` when it ends.
 - **Status**: DONE (2026-11-22), 100/100. Reading it showed one rule this session had not applied: the `commit-msg` hook
   that removes `Co-Authored-By:` lines was never installed in this clone; installed now, so commits from here on carry no
   such trailer (earlier commits of this session have one).
+
+
+## DONE (2026-11-22): iOS CI: testB7CancelDoesNotJitterWhenLeavingSearch fails on the runner
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: run 44966585183 (head `282f522`) fails one unit test,
+  `CYLSearchBarStyleTests.testB7CancelDoesNotJitterWhenLeavingSearch` at line 440, `XCTAssertFalse(offsets.isEmpty)`; the
+  other six jobs pass. `15a5876` made B7 skip every sample taken while the bar is out of the window (on the macOS session's
+  iOS 26.5 simulator that lasts one frame and reads y 0); on the CI runner (Xcode 26.6, iOS 26.5) the bar is out of the
+  window for the whole 0.6 s, so no sample was left. The run before `15a5876` (44955819321) passed B7.
+- **Prompt (verbatim)**: "continue fix todo and watch and fix ci fail"
+- **Acceptance**: 100 = B7 keeps the in-window samples when there are any and falls back to all samples otherwise (the
+  behaviour that passed CI before), and the iOS workflow is green on the new head. 60 = the change pushed with the reason.
+- **Status**: change pushed (test only; the core is not involved). Waiting for the iOS run on the new head: a running
+  iOS run is never cancelled on this branch (`cancel-in-progress: false`) and each push replaces the pending one.

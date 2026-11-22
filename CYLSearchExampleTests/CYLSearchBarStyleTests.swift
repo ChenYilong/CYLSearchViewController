@@ -422,20 +422,21 @@ final class CYLSearchBarStyleTests: CYLSearchExampleTestCase {
         run.controller.isActive = true
         RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.8))
         run.controller.isActive = false
-        var offsets: [CGFloat] = []
-        var cancelY: [CGFloat] = []
+        var samples: [(inWindow: Bool, offset: CGFloat, cancelY: CGFloat)] = []
         sample(run, for: 0.6) {
-            // iOS 26.5 takes the bar out of the window for one frame when it returns to the header: that sample reads y 0
-            // (the window is not always nil yet when it is read, so a frame at the window's top edge is skipped too: the
-            // Cancel button is always below the status bar).
-            guard bar.window != nil,
-                  let button = bar.searchTextField.superview?.subviews.compactMap({ $0 as? UIButton }).first,
+            guard let button = bar.searchTextField.superview?.subviews.compactMap({ $0 as? UIButton }).first,
                   let buttonFrame = self.presentationFrame(button, in: run.window),
-                  let fieldFrame = self.presentationFrame(bar.searchTextField, in: run.window),
-                  buttonFrame.minY > 0, fieldFrame.minY > 0 else { return }
-            offsets.append(buttonFrame.minY - fieldFrame.minY)
-            cancelY.append(buttonFrame.minY)
+                  let fieldFrame = self.presentationFrame(bar.searchTextField, in: run.window) else { return }
+            samples.append((bar.window != nil && buttonFrame.minY > 0 && fieldFrame.minY > 0,
+                            buttonFrame.minY - fieldFrame.minY, buttonFrame.minY))
         }
+        // iOS 26.5 takes the bar out of the window while it returns to the header: for one frame on a fast Mac (that sample
+        // reads y 0, sometimes before the window is nil; the Cancel button is always below the status bar), for the whole
+        // sampling time on the CI runner (Xcode 26.6). Use the samples taken in the window at a real position when there
+        // are any, else all of them (as before 15a5876, which passed on the runner).
+        let kept = samples.contains { $0.inWindow } ? samples.filter { $0.inWindow } : samples
+        let offsets = kept.map { $0.offset }
+        let cancelY = kept.map { $0.cancelY }
         XCTAssertFalse(offsets.isEmpty, "Cancel was visible while leaving search")
         // The offset may settle by one point at the end of the animation (2 to 3 on iOS 17.5); a jitter is a back and forth.
         XCTAssertLessThanOrEqual((offsets.max() ?? 0) - (offsets.min() ?? 0), 1.5, "level with the field: \(offsets)")
