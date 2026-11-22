@@ -1152,3 +1152,20 @@ begins and becomes `DONE` when it ends.
   the animated tags. 60 = the example builds and runs on the new API.
 - **Audit against PR #824 (2026-11-23)**: prompt (verbatim): "学习这个pr的做法， 排查我们的项目中是否可以向该pr贡献代码的相关代码，尤其是修复了动效相关的bug issue，但是没有将修复的代码提交给这个pr贡献给CYLAnimatedItemView。而是将修复代码保留在了我们项目中。https://github.com/ChenYilong/CYLTabBarController/pull/824" (English: learn how this pull request works, and find code in our project that could go into it, especially animation bug fixes kept here instead of contributed to CYLAnimatedItemView). Found and sent to a8: (1) the Rive tags play through cyltabbar's `CYLRiveIcon` since `615fc30` (fixes a trigger fired at once after `reset()`, which did not restart the state machine); `cylanimateditem-rive` should reuse that one implementation rather than ClassifyMenu's player; (2) Android has no `interactive` option, so `012343f` sets `isClickable = false` on the SVGA demo tag; (3) the x86_64 emulator HAP recipe (`4885f35`, `90b3dcf`) for the `cylanimateditem` README. Otherwise, the HarmonyOS copy differs from ClassifyMenu's only in comment style; the other platforms already use the upstream players.
 - **Status**: TODO, waiting for the API in CYLTabBarController (a8 tells this session the modules and commit).
+
+## TODO (2026-11-23): one shared Rive engine: cylanimateditemrive from CYLTabBarController
+
+- **Branch**: `feat/harmonyos-parity`. Context: CYLTabBarController `3074c51d` moved `CYLRiveIcon` (loop policies, builder,
+  `cylRegisterRiveEngine`) into the HarmonyOS module `cylanimateditemrive`; ClassifyMenu `feat/harmony` vendors it
+  (`669ab5e5`, `653452e6`). This repository's HarmonyOS example still has its own `CYLRiveIconView` / `CYLRiveIconHost` /
+  `CYLRivePlayer` glue.
+- **Prompt (verbatim)**: "你应该通知 CYLSearch's CYLRiveIcon， 让他把 CYLRiveIcon，封装进 CYLTabBarController 里的CYLAnimatedItemView中， 这样所有引用rive的库都能共享修复好的rive动画， 并且其他端也应该这样，统一使用CYLTabBarController 里的CYLAnimatedItemView。 请通知 CYLSearch来重构， 或者你自己修复，通知相关session。"
+- **Prompt (English)**: "Notify CYLSearch's CYLRiveIcon owner to wrap CYLRiveIcon into CYLTabBarController's CYLAnimatedItemView, so
+  every library that uses Rive shares the fixed Rive animation; the other platforms should do the same and use
+  CYLTabBarController's CYLAnimatedItemView. Tell CYLSearch to refactor, or fix it yourself and tell the related sessions."
+  (Every library plays Rive through CYLTabBarController's CYLAnimatedItemView / its shared Rive engine; no own copies.)
+- **Requirements**: (1) pins at the newest CYLTabBarController and ClassifyMenu commits; `sync-sub-repositories.sh` also
+  copies `cylanimateditemrive`; (2) the example's Rive glue replaced by the shared engine as ClassifyMenu `653452e6`;
+  (3) build and tests; (4) emulator 127.0.0.1:5555 only; (5) survey of the other platforms (report only).
+- **Acceptance**: 100 = 1 to 5 done with numbers; 60 = 1 and 2 build and the app starts.
+- **Status**: TODO (started).
