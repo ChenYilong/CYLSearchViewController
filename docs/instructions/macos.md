@@ -29,7 +29,7 @@ Details of the `macos` tag of [AGENTS.md](../../AGENTS.md) and [instructions.md]
   `UIRectEdgeTop`); a `CYLSearchBarView` is laid out against the safe area,
   beside the content, never on top of it, and a colored area behind it ends
   where the bar begins. `testSearchBarsCoverNoView` checks every search bar
-  with `CYLViewsCoveredByView`; add each new one there.
+  with `viewsCoveredByView`; add each new one there.
 
 ## Issue #1317
 

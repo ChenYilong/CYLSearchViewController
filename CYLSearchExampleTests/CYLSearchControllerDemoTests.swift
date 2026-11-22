@@ -16,10 +16,10 @@ final class CYLSearchControllerDemoTests: CYLSearchExampleTestCase {
 
     private func shown() -> (UIWindow, CYLSearchControllerDemoViewController, CYLSearchController) {
         let screen = CYLSearchControllerDemoViewController(style: .plain)
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         window.rootViewController = UINavigationController(rootViewController: screen)
         window.makeKeyAndVisible()
-        CYLRunLoop(0.3)
+        runLoop(0.3)
         guard let search = screen.cylSearchController else { fatalError("the screen creates its search controller") }
         return (window, screen, search)
     }
@@ -41,9 +41,9 @@ final class CYLSearchControllerDemoTests: CYLSearchExampleTestCase {
     func testResultsAreTwentyRowsPerMatchWithTheMatchInTheTintColor() throws {
         let (window, screen, search) = shown()
         search.setActive(true, animated: false)
-        CYLRunLoop(0.5)
+        runLoop(0.5)
         search.searchBar.text = "Heal"
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         let table = try XCTUnwrap(search.tableView)
         XCTAssertEqual(table.numberOfRows(inSection: 0), 2 * 20, "Health and Healthy, twenty rows each")
         XCTAssertTrue(search.highlightsResultMatches, "the core highlights the match, the screen does not")
@@ -55,7 +55,7 @@ final class CYLSearchControllerDemoTests: CYLSearchExampleTestCase {
         XCTAssertEqual(text.attribute(.foregroundColor, at: 5, effectiveRange: nil) as? UIColor, UIColor.label, "the rest is not")
         XCTAssertFalse(search.isEmptyViewShowing)
         search.searchBar.text = "zzz"
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         XCTAssertEqual(table.numberOfRows(inSection: 0), 0)
         XCTAssertTrue(search.isEmptyViewShowing, "No matching results")
         search.setActive(false, animated: false)
@@ -67,12 +67,12 @@ final class CYLSearchControllerDemoTests: CYLSearchExampleTestCase {
         defer { CYLSearchControllerDemoViewController.historyName = "CYLSearchControllerDemo" }
         let (window, _, search) = shown()
         search.setActive(true, animated: false)
-        CYLRunLoop(0.5)
+        runLoop(0.5)
         let launch = try XCTUnwrap(search.launchView as? CYLSearchSuggestionsLaunchView)
         XCTAssertEqual(launch.area.titles, CYLSearchControllerDemoViewController.suggestions, "no history: the eight suggestions")
         XCTAssertEqual(launch.area.titleLabel.text, CYLSearchResources.localizedString(forKey: "search.recent"), "Recent searches")
         XCTAssertTrue(launch.area.headerView.isHidden, "no history: no header and no trash button")
-        XCTAssertFalse(CYLOrderedTagCells(of: launch.area.tagView).isEmpty, "tags on screen")
+        XCTAssertFalse(orderedTagCells(of: launch.area.tagView).isEmpty, "tags on screen")
         XCTAssertGreaterThanOrEqual(launch.area.tagView.frame.minY, 0)
         XCTAssertEqual(launch.frame.maxY, try XCTUnwrap(launch.superview).bounds.maxY, accuracy: 0.5, "it fills the space under the bar")
         search.setActive(false, animated: false)
@@ -90,7 +90,7 @@ final class CYLSearchControllerDemoTests: CYLSearchExampleTestCase {
         let area = launch.area
         XCTAssertEqual(store.cachedQueries(), [])
         search.setActive(true, animated: false)
-        CYLRunLoop(0.5)
+        runLoop(0.5)
         XCTAssertTrue(area.headerView.isHidden, "no history yet: the eight suggestions and no trash button")
         XCTAssertEqual(area.titles.count, 8)
         for text in ["Fat", "Liver", " ", "Fat"] {
@@ -120,12 +120,12 @@ final class CYLSearchControllerDemoTests: CYLSearchExampleTestCase {
         defer { store.removeAllQueries() }
         let launch = try XCTUnwrap(search.launchView as? CYLSearchSuggestionsLaunchView)
         search.setActive(true, animated: false)
-        CYLRunLoop(0.5)
+        runLoop(0.5)
         var posted: [String] = []
         let token = NotificationCenter.default.addObserver(forName: CYLSearchController.historyDidChangeNotification,
                                                            object: search, queue: nil) { posted.append($0.userInfo?["query"] as? String ?? "?") }
         defer { NotificationCenter.default.removeObserver(token) }
-        CYLTapTag(at: 3, in: launch.area.tagView)
+        tapTag(at: 3, in: launch.area.tagView)
         XCTAssertEqual(search.searchBar.text, "Health", "the tapped tag is the query")
         XCTAssertEqual(store.cachedQueries(), ["Health"], "and it is submitted")
         XCTAssertEqual(posted, ["Health"])
@@ -146,7 +146,7 @@ final class CYLSearchControllerDemoTests: CYLSearchExampleTestCase {
         let store = try XCTUnwrap(search.historyStore)
         defer { store.removeAllQueries() }
         search.setActive(true, animated: false)
-        CYLRunLoop(0.3)
+        runLoop(0.3)
         var posted: [String] = []
         let token = NotificationCenter.default.addObserver(forName: CYLSearchController.historyDidChangeNotification,
                                                            object: search, queue: nil) { note in

@@ -26,10 +26,10 @@ final class CYLSearchControllerLaunchViewTests: CYLSearchExampleTestCase {
     /// E15: the launch view fills the space under the bar while the text is empty, is laid out again after a resize, and
     /// sits behind the results once text is entered.
     func testE15LaunchViewFillsTheSpaceUnderTheBar() throws {
-        let run = CYLMakeSearchRun()
+        let run = makeSearchRun()
         let launch = makeLaunchView()
         run.search.launchView = launch
-        CYLActivateSearch(run)
+        activateSearch(run)
         let results = try XCTUnwrap(run.search.searchResultsController)
         let container = try XCTUnwrap(launch.superview)
         XCTAssertTrue(container === results.view.superview, "the launch view sits next to the results")
@@ -49,11 +49,11 @@ final class CYLSearchControllerLaunchViewTests: CYLSearchExampleTestCase {
         XCTAssertGreaterThanOrEqual(launch.convert(launch.bounds, to: run.window).minY, barBottom - 0.5, "not under the bar")
 
         run.window.frame = CGRect(x: 0, y: 0, width: 330, height: 640)
-        CYLRunLoop(0.7)
+        runLoop(0.7)
         check("after a resize")
 
         run.search.searchBar.text = "H"
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         XCTAssertFalse(results.view.isHidden, "the results show once text is entered")
         let subviews = container.subviews
         let launchIndex = try XCTUnwrap(subviews.firstIndex(of: launch))
@@ -61,18 +61,18 @@ final class CYLSearchControllerLaunchViewTests: CYLSearchExampleTestCase {
         XCTAssertLessThan(launchIndex, resultsIndex, "the launch view is behind the results")
 
         run.search.searchBar.text = ""
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         XCTAssertTrue(results.view.isHidden, "all text deleted: the launch view shows again")
 
         run.search.launchView = nil
         XCTAssertNil(launch.superview, "a removed launch view leaves the search view")
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     /// A launch view set after the search view exists is added at once.
     func testLaunchViewSetAfterTheViewIsLoadedIsAdded() {
-        let run = CYLMakeSearchRun()
-        CYLActivateSearch(run)
+        let run = makeSearchRun()
+        activateSearch(run)
         let launch = makeLaunchView()
         run.search.launchView = launch
         XCTAssertNotNil(launch.superview)
@@ -80,7 +80,7 @@ final class CYLSearchControllerLaunchViewTests: CYLSearchExampleTestCase {
         run.search.launchView = other
         XCTAssertNil(launch.superview, "the replaced launch view is removed")
         XCTAssertNotNil(other.superview)
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     // MARK: - E18
@@ -88,22 +88,22 @@ final class CYLSearchControllerLaunchViewTests: CYLSearchExampleTestCase {
     /// E18: alwaysShowsSearchResultsController shows the results at once, clears the launch view and the obscuring, and
     /// turning it off restores the obscuring.
     func testE18AlwaysShowsSearchResultsController() throws {
-        let run = CYLMakeSearchRun()
+        let run = makeSearchRun()
         run.search.launchView = makeLaunchView()
         run.search.alwaysShowsSearchResultsController = true
         XCTAssertNil(run.search.launchView, "the launch view is cleared")
         XCTAssertTrue(run.search.alwaysShowsSearchResultsController)
         XCTAssertFalse(run.search.searchController.obscuresBackgroundDuringPresentation)
-        CYLActivateSearch(run)
+        activateSearch(run)
         let results = try XCTUnwrap(run.search.searchResultsController)
         XCTAssertFalse(results.view.isHidden, "the results show with empty text")
         run.search.setActive(false, animated: true)
-        CYLRunLoop(0.8)
+        runLoop(0.8)
         run.search.alwaysShowsSearchResultsController = false
         XCTAssertTrue(run.search.searchController.obscuresBackgroundDuringPresentation)
-        CYLActivateSearch(run)
+        activateSearch(run)
         XCTAssertTrue(results.view.isHidden, "the results hide again with empty text")
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     // MARK: - E19
@@ -111,13 +111,13 @@ final class CYLSearchControllerLaunchViewTests: CYLSearchExampleTestCase {
     /// E19: the own dimming view has the color, sits under the bar, shows while the text is empty, and a tap leaves the
     /// search; it is ignored when a launch view is set.
     func testE19DimmingViewColorPlacementAndTap() throws {
-        let run = CYLMakeSearchRun()
+        let run = makeSearchRun()
         let color = UIColor.red.withAlphaComponent(0.4)
         run.search.dimmingColor = color
         XCTAssertFalse(run.search.searchController.obscuresBackgroundDuringPresentation, "the own view replaces the system's")
-        CYLActivateSearch(run)
+        activateSearch(run)
         let system = run.search.searchController
-        let dimming = try XCTUnwrap(CYLViewWithAccessibilityIdentifier(system.view, "CYLSearchDimmingView"))
+        let dimming = try XCTUnwrap(viewWithAccessibilityIdentifier(system.view, "CYLSearchDimmingView"))
         XCTAssertEqual(dimming.backgroundColor, color)
         XCTAssertFalse(dimming.isHidden, "shown while the text is empty")
         let barBottom = run.search.searchBar.convert(run.search.searchBar.bounds, to: run.window).maxY
@@ -127,22 +127,22 @@ final class CYLSearchControllerLaunchViewTests: CYLSearchExampleTestCase {
         XCTAssertEqual((dimming as? UIControl)?.allTargets.count, 1, "a tap target")
 
         run.search.searchBar.text = "H"
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         XCTAssertTrue(dimming.isHidden, "hidden once the results show")
         run.search.searchBar.text = ""
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         XCTAssertFalse(dimming.isHidden)
 
         run.search.systemController.dimmingViewTapped()
-        CYLRunLoop(0.9)
+        runLoop(0.9)
         XCTAssertFalse(run.search.isActive, "a tap on the dimming view leaves the search")
 
         run.search.launchView = makeLaunchView()
-        CYLActivateSearch(run)
+        activateSearch(run)
         XCTAssertTrue(dimming.isHidden, "ignored while a launch view is set")
         run.search.dimmingColor = nil
         XCTAssertNil(dimming.superview)
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 }
 
@@ -153,7 +153,7 @@ final class CYLSearchControllerLaunchViewTests: CYLSearchExampleTestCase {
 final class CYLSearchControllerSuggestionsLaunchTests: CYLSearchExampleTestCase {
 
     private func makeRun(suggestions: [String], store: CYLSearchSuggestionCache? = nil) -> CYLSearchRun {
-        let run = CYLMakeSearchRun()
+        let run = makeSearchRun()
         run.search.historyStore = store
         run.search.suggestions = suggestions
         run.search.showsSuggestionsLaunchView = true
@@ -169,7 +169,7 @@ final class CYLSearchControllerSuggestionsLaunchTests: CYLSearchExampleTestCase 
     private let many = (1...14).map { "Suggestion number \($0)" }
 
     func testTheCustomLaunchViewPathStillWorks() throws {
-        let run = CYLMakeSearchRun()
+        let run = makeSearchRun()
         XCTAssertFalse(run.search.showsSuggestionsLaunchView, "off by default: the launch view stays nil")
         XCTAssertNil(run.search.launchView)
         let custom = UIView()
@@ -177,7 +177,7 @@ final class CYLSearchControllerSuggestionsLaunchTests: CYLSearchExampleTestCase 
         XCTAssertFalse(run.search.showsSuggestionsLaunchView)
         run.search.showsSuggestionsLaunchView = false
         XCTAssertTrue(run.search.launchView === custom, "off does not touch a custom view")
-        CYLActivateSearch(run)
+        activateSearch(run)
         XCTAssertNotNil(custom.window, "the custom view is the launch view")
         run.search.showsSuggestionsLaunchView = true
         XCTAssertTrue(run.search.launchView is CYLSearchSuggestionsLaunchView, "on replaces a custom view")
@@ -187,40 +187,40 @@ final class CYLSearchControllerSuggestionsLaunchTests: CYLSearchExampleTestCase 
         run.search.showsSuggestionsLaunchView = true
         run.search.alwaysShowsSearchResultsController = true
         XCTAssertNil(run.search.launchView, "always visible results clear it too")
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     func testTagsAreFoldedAndTheFoldControlIsLast() throws {
         let run = makeRun(suggestions: many)
-        CYLActivateSearch(run)
+        activateSearch(run)
         let area = try launch(run).area
         XCTAssertEqual(area.titles, many)
         XCTAssertTrue(area.headerView.isHidden, "no history: no header")
         XCTAssertEqual(area.tagView.foldControl.position, CYLMenuFoldControlPosition.tail)
         XCTAssertFalse(area.tagView.isSectionExpanded(0), "folded at start")
-        let folded = CYLOrderedTagCells(of: area.tagView)
+        let folded = orderedTagCells(of: area.tagView)
         XCTAssertTrue(folded.last?.cell is CYLTagFoldCell, "folded: the fold control is the last tag")
         XCTAssertEqual(folded.filter { $0.cell is CYLTagFoldCell }.count, 1)
         XCTAssertEqual(Set(folded.map { Int($0.cell.frame.minY.rounded()) }).count, 2, "two rows")
-        CYLTapTag(at: folded.last!.indexPath.item, in: area.tagView)
+        tapTag(at: folded.last!.indexPath.item, in: area.tagView)
         XCTAssertTrue(area.tagView.isSectionExpanded(0), "a tap on the control unfolds")
-        let unfolded = CYLOrderedTagCells(of: area.tagView)
+        let unfolded = orderedTagCells(of: area.tagView)
         XCTAssertTrue(unfolded.last?.cell is CYLTagFoldCell, "unfolded: still the last tag")
         XCTAssertGreaterThan(unfolded.count, folded.count)
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     func testLaunchContentIsNeverCoveredByTheBar() throws {
         let run = makeRun(suggestions: many)
-        CYLActivateSearch(run)
+        activateSearch(run)
         let launch = try launch(run)
         let area = launch.area
         func check(_ state: String) {
             let bar = run.search.searchBar.convert(run.search.searchBar.bounds, to: run.window).maxY
             XCTAssertGreaterThanOrEqual(launch.convert(launch.bounds, to: run.window).minY, bar - 0.5, "\(state): launch view under the bar")
             XCTAssertGreaterThanOrEqual(area.tagView.convert(area.tagView.bounds, to: run.window).minY, bar - 0.5, "\(state): tags under the bar")
-            XCTAssertEqual(CYLTagCollectionView(in: area.tagView)?.adjustedContentInset.top ?? -1, 0, accuracy: 0.5, "\(state): no inset pushes the tags")
-            let first = CYLOrderedTagCells(of: area.tagView).map { area.tagView.convert($0.cell.bounds, from: $0.cell).minY }.min() ?? 0
+            XCTAssertEqual(tagCollectionView(in: area.tagView)?.adjustedContentInset.top ?? -1, 0, accuracy: 0.5, "\(state): no inset pushes the tags")
+            let first = orderedTagCells(of: area.tagView).map { area.tagView.convert($0.cell.bounds, from: $0.cell).minY }.min() ?? 0
             XCTAssertGreaterThanOrEqual(first, -0.5, "\(state): the first row is inside the list")
             if #available(iOS 26.0, *) {
                 var scrollers: [UIScrollView] = []
@@ -230,17 +230,17 @@ final class CYLSearchControllerSuggestionsLaunchTests: CYLSearchExampleTestCase 
             }
         }
         check("active")
-        CYLTapTag(at: CYLOrderedTagCells(of: area.tagView).last!.indexPath.item, in: area.tagView)
+        tapTag(at: orderedTagCells(of: area.tagView).last!.indexPath.item, in: area.tagView)
         check("unfolded")
         run.search.searchBar.text = "S"
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         run.search.searchBar.text = ""
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         check("after typing and clearing")
         run.window.frame = CGRect(x: 0, y: 0, width: 330, height: 640)
-        CYLRunLoop(0.7)
+        runLoop(0.7)
         check("after a resize")
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     func testHistoryChangesOfOneNameReachTheLaunchContentOnScreen() throws {
@@ -248,7 +248,7 @@ final class CYLSearchControllerSuggestionsLaunchTests: CYLSearchExampleTestCase 
         let store = try XCTUnwrap(CYLSearchResources.suggestionCache(policy: .userDefaults, name: name))
         defer { store.removeAllQueries() }
         let run = makeRun(suggestions: ["a", "b"], store: store)
-        CYLActivateSearch(run)
+        activateSearch(run)
         let area = try launch(run).area
         XCTAssertEqual(area.titles, ["a", "b"])
         // Another instance of the same history (cache(policy:name:) returns a new one on each call).
@@ -268,7 +268,7 @@ final class CYLSearchControllerSuggestionsLaunchTests: CYLSearchExampleTestCase 
         XCTAssertEqual(area.titles, ["first"])
         // A submit of a CYLSearchView with the same history reaches the controller's launch content too.
         let host = UIViewController()
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         window.rootViewController = host
         window.makeKeyAndVisible()
         let searchView = CYLSearchView(frame: host.view.bounds)
@@ -277,17 +277,17 @@ final class CYLSearchControllerSuggestionsLaunchTests: CYLSearchExampleTestCase 
         searchView.suggestionCacheName = name
         searchView.showSearch(animated: false)
         searchView.setQuery("from search view", submit: true)
-        CYLRunLoop(0.3)
+        runLoop(0.3)
         XCTAssertEqual(area.titles.first, "from search view", "one signal for both classes")
         searchView.removeFromSuperview()
         window.isHidden = true
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     func testAStoreOfTheAppsOwnIsCoveredToo() throws {
         let store = CYLMemoryHistory()
         let run = makeRun(suggestions: ["a"], store: store)
-        CYLActivateSearch(run)
+        activateSearch(run)
         let area = try launch(run).area
         run.search.searchBar.text = "mine"
         run.search.searchBar.searchTextField.sendActions(for: .primaryActionTriggered)
@@ -295,7 +295,7 @@ final class CYLSearchControllerSuggestionsLaunchTests: CYLSearchExampleTestCase 
         XCTAssertEqual(area.titles, ["mine"], "announced by the core: the store cannot post")
         area.clearButton.sendActions(for: .touchUpInside)
         XCTAssertEqual(area.titles, ["a"])
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 }
 
@@ -339,7 +339,7 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
 
     private func openSearchView(configure: ((CYLSearchView) -> Void)? = nil)
         -> (view: CYLSearchView, window: UIWindow, host: UIViewController) {
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         let host = UIViewController()
         window.rootViewController = host
         window.makeKeyAndVisible()
@@ -373,8 +373,8 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
         open.window.isHidden = true
 
         // CYLSearchController: a text placeholder and a scenario placeholder.
-        let run = CYLMakeSearchRun()
-        CYLActivateSearch(run, text: "zzz")
+        let run = makeSearchRun()
+        activateSearch(run, text: "zzz")
         run.search.showEmptyView(text: "Nothing", detailText: "Try another word", buttonTitle: "Retry", buttonAction: nil)
         XCTAssertTrue(run.search.emptyView is CYLPlaceholderStackView)
         XCTAssertTrue(run.search.isEmptyViewShowing)
@@ -383,17 +383,17 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
         run.search.hideEmptyView()
         XCTAssertFalse(run.search.isEmptyViewShowing)
         XCTAssertNil(run.search.emptyView)
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
 
         // CYLSearchTableViewController: the same two.
         let table = CYLSearchTableViewController(style: .plain)
         table.showsSearchBar = true
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         window.rootViewController = table
         window.makeKeyAndVisible()
         table.showEmptyView(text: "Nothing", detailText: nil)
         XCTAssertTrue(table.isEmptyViewShowing)
-        XCTAssertNotNil(CYLViewOfClass(table.tableView, CYLPlaceholderStackView.self))
+        XCTAssertNotNil(viewOfClass(table.tableView, CYLPlaceholderStackView.self))
         table.showEmptyView(scenario: .noSearchResults)
         XCTAssertEqual(table.tableView.subviews.compactMap { $0 as? CYLPlaceholderStackView }.count, 1, "the previous one left")
         table.hideEmptyView()
@@ -437,8 +437,8 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
 
     /// The empty view of CYLSearchController ends at the keyboard, as CYLSearchView's does; the tables hide the top edge effect.
     func testControllerEmptyViewEndsAtTheKeyboard() throws {
-        let run = CYLMakeSearchRun()
-        CYLActivateSearch(run, text: "zzz")
+        let run = makeSearchRun()
+        activateSearch(run, text: "zzz")
         let empty = try XCTUnwrap(run.search.emptyView)
         let full = empty.frame.height
         XCTAssertGreaterThan(full, 0)
@@ -446,13 +446,13 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
         let screenKeyboard = run.window.convert(keyboard, to: run.window.screen.coordinateSpace)
         NotificationCenter.default.post(name: UIResponder.keyboardWillChangeFrameNotification, object: nil,
                                         userInfo: [UIResponder.keyboardFrameEndUserInfoKey: NSValue(cgRect: screenKeyboard)])
-        CYLRunLoop(0.2)
+        runLoop(0.2)
         XCTAssertLessThanOrEqual(empty.convert(empty.bounds, to: run.window).maxY, keyboard.minY + 0.5, "ends at the keyboard")
         XCTAssertLessThan(empty.frame.height, full)
         NotificationCenter.default.post(name: UIResponder.keyboardWillHideNotification, object: nil, userInfo: nil)
-        CYLRunLoop(0.2)
+        runLoop(0.2)
         XCTAssertEqual(empty.frame.height, full, accuracy: 0.5, "the keyboard gone, full height again")
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     func testSearchViewTablesHideTheTopEdgeEffect() {
@@ -541,11 +541,11 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
     }
 
     func testHighlightInCYLSearchControllerThroughAForwardingDataSource() throws {
-        let run = CYLMakeSearchRun()
+        let run = makeSearchRun()
         let search = run.search
         XCTAssertFalse(search.highlightsResultMatches)
         search.highlightsResultMatches = true
-        CYLActivateSearch(run, text: "ea")
+        activateSearch(run, text: "ea")
         let table = try XCTUnwrap(search.tableView)
         let dataSource = try XCTUnwrap(table.dataSource)
         XCTAssertFalse(dataSource === run.contents, "a proxy stands in front while the option is on")
@@ -569,7 +569,7 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
 
         search.highlightsResultMatches = false
         XCTAssertTrue(table.dataSource === run.contents, "off: the owner's data source again")
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     // MARK: - 3. One dimming overlay
@@ -577,7 +577,7 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
     func testScrimAndDimmingColorAreTheSameOverlayAndATapEndsTheSearch() throws {
         let scrim = UIColor.black.withAlphaComponent(0.4)
         let open = openSearchView { $0.scrimColor = scrim }
-        let viewOverlay = try XCTUnwrap(CYLViewOfClass(open.view, CYLSearchDimmingView.self))
+        let viewOverlay = try XCTUnwrap(viewOfClass(open.view, CYLSearchDimmingView.self))
         XCTAssertEqual(viewOverlay.color, scrim)
         XCTAssertEqual(viewOverlay.backgroundColor, scrim)
         XCTAssertEqual(viewOverlay.accessibilityIdentifier, "CYLSearchDimmingView")
@@ -590,16 +590,16 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
         XCTAssertTrue(open.view.isHidden)
         open.window.isHidden = true
 
-        let run = CYLMakeSearchRun()
+        let run = makeSearchRun()
         run.search.dimmingColor = scrim
-        CYLActivateSearch(run)
+        activateSearch(run)
         let controllerOverlay = run.search.systemController.dimmingView
         XCTAssertEqual(controllerOverlay.color, scrim)
         XCTAssertEqual(controllerOverlay.accessibilityIdentifier, viewOverlay.accessibilityIdentifier, "the same overlay class")
         controllerOverlay.sendActions(for: .touchUpInside)
-        CYLRunLoop(0.9)
+        runLoop(0.9)
         XCTAssertFalse(run.search.isActive, "a tap ends the search in CYLSearchController")
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     // MARK: - 4. The history signal in CYLSearchView
@@ -703,11 +703,11 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
         open.view.closeSearch(animated: true)
         XCTAssertEqual(recorder.events, ["willClose"], "will comes before the animation, did after it")
         XCTAssertFalse(open.view.isActive)
-        CYLRunLoop(0.6)
+        runLoop(0.6)
         XCTAssertEqual(recorder.events, ["willClose", "didClose"])
         open.view.showSearch(animated: true)
         XCTAssertEqual(recorder.events.suffix(1), ["willShow"])
-        CYLRunLoop(0.6)
+        runLoop(0.6)
         XCTAssertEqual(recorder.events, ["willClose", "didClose", "willShow", "didShow"])
         open.window.isHidden = true
     }
@@ -719,13 +719,13 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
         open.view.animationDuration = 0.3
         recorder.events = []
         open.view.closeSearch(animated: true)
-        CYLRunLoop(0.05)
+        runLoop(0.05)
         open.view.showSearch(animated: true)
-        CYLRunLoop(0.9)
+        runLoop(0.9)
         // A slow CI simulator can finish the 0.3 s opening later than 0.9 s: wait up to 3 s more for it.
         let deadline = Date(timeIntervalSinceNow: 3)
         while !recorder.events.contains("didShow") && Date() < deadline {
-            CYLRunLoop(0.05)
+            runLoop(0.05)
         }
         XCTAssertTrue(open.view.searchOpen)
         XCTAssertFalse(open.view.isHidden, "the closing did not win")
@@ -757,23 +757,23 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
 
     /// The controller's state follows UIKit's callbacks, and its alias names run the same state.
     func testControllerActiveStateAndAliases() {
-        let run = CYLMakeSearchRun()
+        let run = makeSearchRun()
         let search = run.search
         XCTAssertFalse(search.searchOpen)
         XCTAssertEqual(search.presentationState.phase, .inactive)
         search.showSearch(animated: false)
-        CYLRunLoop(0.6)
+        runLoop(0.6)
         XCTAssertTrue(search.searchOpen)
         XCTAssertEqual(search.searchOpen, search.isActive)
         XCTAssertEqual(search.presentationState.phase, .active)
         XCTAssertEqual(run.contents.events.filter { $0.hasSuffix("Present") }, ["willPresent", "didPresent"])
         search.closeSearch(animated: false)
-        CYLRunLoop(0.6)
+        runLoop(0.6)
         XCTAssertFalse(search.searchOpen)
         XCTAssertEqual(search.presentationState.phase, .inactive)
         XCTAssertEqual(run.contents.events.filter { $0.hasSuffix("Dismiss") }, ["willDismiss", "didDismiss"])
         XCTAssertEqual(search.presentationState.isActive, search.isActive)
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     // MARK: - 5b. The edge swipe of CYLSearchView
@@ -803,13 +803,13 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
         view.swipeBegan()
         view.swipeChanged(translationX: 40)
         view.swipeEnded(velocityX: 800)
-        CYLRunLoop(0.5)
+        runLoop(0.5)
         XCTAssertTrue(view.searchOpen, "a short swipe stays")
         // Past a quarter but not moving right: it comes back.
         view.swipeBegan()
         view.swipeChanged(translationX: 300)
         view.swipeEnded(velocityX: -50)
-        CYLRunLoop(0.5)
+        runLoop(0.5)
         XCTAssertTrue(view.searchOpen, "a swipe that returns stays")
         XCTAssertFalse(view.isHidden)
 
@@ -819,7 +819,7 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
         view.swipeBegan()
         view.swipeChanged(translationX: 201)
         view.swipeEnded(velocityX: 800)
-        CYLRunLoop(0.7)
+        runLoop(0.7)
         XCTAssertFalse(view.searchOpen, "the swipe ended the search")
         XCTAssertTrue(view.isHidden)
         XCTAssertEqual(recorder.events, ["willClose", "didClose"])
@@ -843,7 +843,7 @@ final class CYLSearchMergePhase4Tests: CYLSearchExampleTestCase {
 
     private func openSearchView(configure: ((CYLSearchView) -> Void)? = nil)
         -> (view: CYLSearchView, window: UIWindow, host: UIViewController) {
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         let host = UIViewController()
         window.rootViewController = host
         window.makeKeyAndVisible()
@@ -858,21 +858,21 @@ final class CYLSearchMergePhase4Tests: CYLSearchExampleTestCase {
 
     /// `noResultsText`: the controller shows and hides the empty view by the row count, the delegate does not.
     func testNoResultsTextManagesTheEmptyView() {
-        let run = CYLMakeSearchRun { $0.showsEmptyViewWithoutMatch = false }
+        let run = makeSearchRun { $0.showsEmptyViewWithoutMatch = false }
         run.search.noResultsText = "Nothing found"
-        CYLActivateSearch(run, text: "Zzz")
+        activateSearch(run, text: "Zzz")
         XCTAssertTrue(run.search.isEmptyViewShowing, "no row for the text")
         run.search.searchBar.text = "He"
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         XCTAssertFalse(run.search.isEmptyViewShowing, "rows again")
         run.search.searchBar.text = ""
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         XCTAssertFalse(run.search.isEmptyViewShowing, "an empty text is never an empty result")
         run.search.noResultsText = nil
         run.search.searchBar.text = "Zzz"
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         XCTAssertFalse(run.search.isEmptyViewShowing, "without the option the delegate decides")
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     /// `suggestionCacheFooterTitle`: a text button below the list clears the cache; nil takes it away again.
@@ -917,12 +917,12 @@ final class CYLSearchMergePhase4Tests: CYLSearchExampleTestCase {
         XCTAssertNil(view.resultsTableView.tableHeaderView, "no results yet")
         view.setQuery("Swift", submit: false)
         let header = try XCTUnwrap(view.resultsTableView.tableHeaderView)
-        let label = try XCTUnwrap(CYLViewOfClass(header, UILabel.self))
+        let label = try XCTUnwrap(viewOfClass(header, UILabel.self))
         XCTAssertEqual(label.text, "About Swift")
         XCTAssertEqual(label.textColor, .systemTeal)
         XCTAssertTrue(label.accessibilityTraits.contains(.header))
         view.setQuery("Kot", submit: false)
-        XCTAssertEqual(CYLViewOfClass(try XCTUnwrap(view.resultsTableView.tableHeaderView), UILabel.self)?.text, "About Kot")
+        XCTAssertEqual(viewOfClass(try XCTUnwrap(view.resultsTableView.tableHeaderView), UILabel.self)?.text, "About Kot")
         view.setQuery("", submit: false)
         XCTAssertNil(view.resultsTableView.tableHeaderView, "the suggestions show again")
         view.resultsHeaderTitleProvider = { _ in nil }
@@ -952,7 +952,7 @@ final class CYLSearchMergePhase5bTests: CYLSearchExampleTestCase {
 
     private func openSearchView(configure: ((CYLSearchView) -> Void)? = nil)
         -> (view: CYLSearchView, window: UIWindow, host: UIViewController) {
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         let host = UIViewController()
         window.rootViewController = host
         window.makeKeyAndVisible()
@@ -1014,7 +1014,7 @@ final class CYLSearchMergePhase5bTests: CYLSearchExampleTestCase {
 
     /// A header search bar of a table view of the host snaps through `CYLSearchView`, with the controller's rules.
     func testSearchViewSnapsAHeaderOfAHostTable() throws {
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         let host = UIViewController()
         window.rootViewController = host
         window.makeKeyAndVisible()

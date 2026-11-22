@@ -120,7 +120,7 @@ final class CYLSearchExampleParityTests: CYLSearchExampleTestCase {
     }
 
     func testSearchViewSuggestionsOpenAndClose() throws {
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 390, height: 844))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 390, height: 844))
         let host = UIViewController()
         window.rootViewController = host
         window.isHidden = false
@@ -178,7 +178,7 @@ final class CYLSearchExampleParityTests: CYLSearchExampleTestCase {
         searchView.showSearch(animated: false)
         searchView.layoutIfNeeded()
         XCTAssertGreaterThanOrEqual(try XCTUnwrap(searchView.contentView).frame.minY, searchView.searchBarView.frame.maxY)
-        let covered = CYLViewsCoveredByView(searchView.searchBarView, searchView)
+        let covered = viewsCoveredByView(searchView.searchBarView, searchView)
         XCTAssertEqual(covered.count, 0, "\(covered)")
         XCTAssertTrue(searchView.accessibilityViewIsModal)
         // State restoration (onSaveInstanceState): the query and the open state come back.
@@ -231,7 +231,7 @@ final class CYLSearchExampleParityTests: CYLSearchExampleTestCase {
 
         // Typing reports the index; completing selects the new search.
         bar.beginNewSearch()
-        var field = CYLSearchFields(bar).last
+        var field = searchFields(bar).last
         XCTAssertNotNil(field)
         field?.text = "Rive"
         field?.sendActions(for: .editingChanged)
@@ -262,7 +262,7 @@ final class CYLSearchExampleParityTests: CYLSearchExampleTestCase {
         // The bar's text style and length limit apply to the searches.
         bar.maximumTextLength = 4
         bar.beginNewSearch()
-        field = CYLSearchFields(bar).last
+        field = searchFields(bar).last
         XCTAssertEqual(field.flatMap { $0.delegate?.textField?($0, shouldChangeCharactersIn: NSRange(location: 0, length: 0), replacementString: "12345") }, false)
         bar.placeholder = "Category"
         XCTAssertEqual(field?.attributedPlaceholder?.string, "Category")
@@ -279,7 +279,7 @@ final class CYLSearchExampleParityTests: CYLSearchExampleTestCase {
 
     func testSwiftPortsOfOtherLibrariesLoad() throws {
         // Each Swift port (docs/search-api-comparison.md) opens in a window, and no visible search bar covers a view.
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 390, height: 844))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 390, height: 844))
         window.isHidden = false
         let ports: [UIViewController.Type] = [CYLSearchPortsViewController.self, CYLLapismSearchViewController.self,
                                               CYLMaterialSearchMenuViewController.self, CYLYechaoaSearchViewController.self,
@@ -296,7 +296,7 @@ final class CYLSearchExampleParityTests: CYLSearchExampleTestCase {
             }
             let navigation = UINavigationController(rootViewController: controller)
             window.rootViewController = navigation
-            CYLRunLoop(0.3)
+            runLoop(0.3)
             navigation.view.layoutIfNeeded()
             XCTAssertNotNil(controller.view.window, "\(name) is shown")
             var bars: [UIView] = []
@@ -314,7 +314,7 @@ final class CYLSearchExampleParityTests: CYLSearchExampleTestCase {
                     parent = current.superview
                 }
                 if !visible { continue }
-                let covered = CYLViewsCoveredByView(bar, controller.view)
+                let covered = viewsCoveredByView(bar, controller.view)
                 XCTAssertEqual(covered.count, 0, "\(name): \(covered)")
             }
         }
@@ -327,7 +327,7 @@ final class CYLSearchExampleParityTests: CYLSearchExampleTestCase {
         XCTAssertEqual(samples, 6, "Default, Themed, Voice, Sticky, Tabs, Input type")
         for row in 0..<samples {
             menu.tableView(menu.tableView, didSelectRowAt: IndexPath(row: row, section: 0))
-            CYLRunLoop(0.4)
+            runLoop(0.4)
             let sample = navigation.topViewController
             XCTAssertNotEqual(sample, menu, "row \(row) opens a sample")
             sample?.loadViewIfNeeded()
@@ -338,11 +338,11 @@ final class CYLSearchExampleParityTests: CYLSearchExampleTestCase {
             let item = sample?.navigationItem.rightBarButtonItem
             XCTAssertIdentical(item?.target, sample, "the search item opens the search")
             UIApplication.shared.sendAction(try XCTUnwrap(item?.action), to: item?.target, from: item, for: nil)
-            CYLRunLoop(0.5)
+            runLoop(0.5)
             XCTAssertEqual(searchView?.searchOpen, true, "row \(row) opens the search")
             XCTAssertTrue(navigation.isNavigationBarHidden, "row \(row): the search bar takes the navigation bar's place")
             searchView?.closeSearch(animated: false)
-            CYLRunLoop(0.5)
+            runLoop(0.5)
             XCTAssertFalse(navigation.isNavigationBarHidden, "row \(row): the navigation bar comes back")
             navigation.popToRootViewController(animated: false)
         }
@@ -352,7 +352,7 @@ final class CYLSearchExampleParityTests: CYLSearchExampleTestCase {
     func testEmptyResultsShowTheCYLTableViewPlaceHolderPlaceholder() {
         // docs/sub-repositories.md: a query that matches no suggestion shows CYLTableViewPlaceHolder's placeholder, in both
         // suggestion styles, only when showsEmptyResultsPlaceholder is on.
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         let host = UIViewController()
         window.rootViewController = host
         window.makeKeyAndVisible()
@@ -385,7 +385,7 @@ final class CYLSearchExampleParityTests: CYLSearchExampleTestCase {
     func testEmptyResultsPlaceholderStaysAboveTheKeyboard() {
         // docs/core-todo.md, "the empty-results placeholder sits under the keyboard": the placeholders take the same bottom
         // keyboard inset as the lists, so a placeholder centres in the part of the page the keyboard leaves visible.
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         let host = UIViewController()
         window.rootViewController = host
         window.makeKeyAndVisible()

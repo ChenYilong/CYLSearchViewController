@@ -16,7 +16,7 @@ final class CYLSearchBarStyleTests: CYLSearchExampleTestCase {
     // MARK: - Helpers
 
     private func makeWindow(_ controller: UIViewController) -> UIWindow {
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         window.rootViewController = controller
         window.makeKeyAndVisible()
         return window
@@ -699,7 +699,7 @@ final class CYLSearchBarViewKnobTests: CYLSearchExampleTestCase {
     private func shownBar(width: CGFloat = 390) -> (CYLSearchBarView, UIWindow) {
         let bar = CYLSearchBarView(frame: CGRect(x: 0, y: 100, width: width, height: 48))
         let controller = UIViewController()
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: width, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: width, height: 874))
         window.rootViewController = controller
         window.makeKeyAndVisible()
         controller.view.addSubview(bar)
@@ -985,7 +985,7 @@ final class CYLSearchBarViewKnobTests: CYLSearchExampleTestCase {
 
         let bar = CYLSearchBar(frame: CGRect(x: 0, y: 100, width: 390, height: 56))
         let controller = UIViewController()
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         window.rootViewController = controller
         window.makeKeyAndVisible()
         controller.view.addSubview(bar)

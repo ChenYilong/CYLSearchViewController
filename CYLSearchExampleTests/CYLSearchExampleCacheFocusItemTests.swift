@@ -63,7 +63,7 @@ final class CYLSearchExampleCacheFocusItemTests: CYLSearchExampleTestCase {
     func testTheSearchViewCachesSubmittedQueriesAndClearsThemFromTheHeader() throws {
         // docs/core-todo.md: a submitted query is cached; an empty query lists the cache under a header whose delete button
         // clears it; an empty cache shows CYLTableViewPlaceHolder's placeholder.
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         let host = UIViewController()
         window.rootViewController = host
         window.makeKeyAndVisible()
@@ -110,7 +110,7 @@ final class CYLSearchExampleCacheFocusItemTests: CYLSearchExampleTestCase {
     @MainActor
     func testFocusesSearchFieldOnShowDecidesWhenTheKeyboardAppears() {
         // docs/core-todo.md: YES (default) focuses the field when the search opens; NO leaves it unfocused until tapped.
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         let host = UIViewController()
         window.rootViewController = host
         window.makeKeyAndVisible()
@@ -132,7 +132,7 @@ final class CYLSearchExampleCacheFocusItemTests: CYLSearchExampleTestCase {
     func testFocusAloneChangesNothingBelowTheSearchBar() {
         // docs/core-todo.md, core behavior rule 1: focusing the field without typing, and losing focus, leave the list,
         // its header and the empty placeholder exactly as they were.
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         let host = UIViewController()
         window.rootViewController = host
         window.makeKeyAndVisible()
@@ -231,7 +231,7 @@ final class CYLSearchExampleCacheFocusItemTests: CYLSearchExampleTestCase {
     func testSuggestionsAreTagsFoldedToTwoRowsByDefaultAndTheLastTagIsTheFoldControl() {
         // docs/task-log.md, "tags as the default suggestion style": the packaged style, folded at start; folded or
         // unfolded the last tag is the fold control and a tap on it toggles the folding.
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         let host = UIViewController()
         window.rootViewController = host
         window.makeKeyAndVisible()
@@ -277,7 +277,7 @@ final class CYLSearchExampleCacheFocusItemTests: CYLSearchExampleTestCase {
     func testTagSuggestionsStartBelowTheSearchBarWithoutAnEdgeBlur() {
         // The first tag row is crisp: the tag list starts under the divider, its first row starts at its top edge, and on
         // iOS 26 and later its scroll view has no top edge effect (that blurred the first row under the search bar).
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         let host = UIViewController()
         window.rootViewController = host
         window.makeKeyAndVisible()
@@ -308,7 +308,7 @@ final class CYLSearchExampleCacheFocusItemTests: CYLSearchExampleTestCase {
     func testTagSuggestionsThatFitTheFoldedRowsShowNoFoldControl() {
         // CollectionViewClassifyMenu's packaged control hides itself when every tag fits the folded rows
         // (CYLTagListView.canFoldSection); the core does not add one. docs/task-log.md, "tags as the default".
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         let host = UIViewController()
         window.rootViewController = host
         window.makeKeyAndVisible()
@@ -325,7 +325,7 @@ final class CYLSearchExampleCacheFocusItemTests: CYLSearchExampleTestCase {
 
     @MainActor
     func testTheListStyleStaysAvailable() {
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         let host = UIViewController()
         window.rootViewController = host
         window.makeKeyAndVisible()

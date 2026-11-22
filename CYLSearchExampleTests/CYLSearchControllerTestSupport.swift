@@ -123,36 +123,36 @@ struct CYLSearchRun {
 /**
  * Opens a window (402 x 874) with the contents in a navigation controller and waits for the first layout.
  */
-func CYLMakeSearchRun(usesHeader: Bool = true, resultsController: UIViewController? = nil,
+func makeSearchRun(usesHeader: Bool = true, resultsController: UIViewController? = nil,
                       configure: ((CYLSearchTestContents) -> Void)? = nil) -> CYLSearchRun {
     let contents = CYLSearchTestContents(style: .plain)
     contents.usesHeader = usesHeader
     contents.resultsController = resultsController
     configure?(contents)
     let navigation = UINavigationController(rootViewController: contents)
-    let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+    let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
     window.rootViewController = navigation
     window.makeKeyAndVisible()
-    CYLRunLoop(0.3)
+    runLoop(0.3)
     return CYLSearchRun(window: window, navigation: navigation, contents: contents)
 }
 
 /**
  * Enters the search without animation, sets the text if given, and waits for the presentation.
  */
-func CYLActivateSearch(_ run: CYLSearchRun, text: String? = nil) {
+func activateSearch(_ run: CYLSearchRun, text: String? = nil) {
     run.search.setActive(true, animated: false)
-    CYLRunLoop(0.6)
+    runLoop(0.6)
     if let text {
         run.search.searchBar.text = text
-        CYLRunLoop(0.4)
+        runLoop(0.4)
     }
 }
 
 /**
  * Removes the window's content so nothing outlives the test.
  */
-func CYLTearDownSearchRun(_ run: CYLSearchRun) {
+func tearDownSearchRun(_ run: CYLSearchRun) {
     run.window.rootViewController = nil
     run.window.isHidden = true
 }
@@ -160,13 +160,13 @@ func CYLTearDownSearchRun(_ run: CYLSearchRun) {
 /**
  * The collection view inside a `CYLTagListView`, and its visible cells in order (the fold control is the last one).
  */
-func CYLTagCollectionView(in view: UIView) -> UICollectionView? {
+func tagCollectionView(in view: UIView) -> UICollectionView? {
     if let found = view as? UICollectionView { return found }
-    return view.subviews.lazy.compactMap { CYLTagCollectionView(in: $0) }.first
+    return view.subviews.lazy.compactMap { tagCollectionView(in: $0) }.first
 }
 
-func CYLOrderedTagCells(of tagView: UIView) -> [(indexPath: IndexPath, cell: UICollectionViewCell)] {
-    guard let collection = CYLTagCollectionView(in: tagView) else { return [] }
+func orderedTagCells(of tagView: UIView) -> [(indexPath: IndexPath, cell: UICollectionViewCell)] {
+    guard let collection = tagCollectionView(in: tagView) else { return [] }
     collection.layoutIfNeeded()
     return collection.visibleCells.compactMap { cell in collection.indexPath(for: cell).map { ($0, cell) } }
         .sorted { $0.0 < $1.0 }
@@ -175,10 +175,10 @@ func CYLOrderedTagCells(of tagView: UIView) -> [(indexPath: IndexPath, cell: UIC
 /**
  * Taps a tag the way the collection view reports a tap.
  */
-func CYLTapTag(at index: Int, in tagView: UIView) {
-    guard let collection = CYLTagCollectionView(in: tagView) else { return }
+func tapTag(at index: Int, in tagView: UIView) {
+    guard let collection = tagCollectionView(in: tagView) else { return }
     collection.delegate?.collectionView?(collection, didSelectItemAt: IndexPath(item: index, section: 0))
-    CYLRunLoop(0.6)
+    runLoop(0.6)
     collection.layoutIfNeeded()
 }
 

@@ -71,9 +71,9 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
     /// E1: the contents view controller defines the presentation context, the results table starts under the bar, and
     /// after a push from the results the bar does not stay on the navigation bar.
     func testE1PresentationContextAndResultsInsetFitTheBar() throws {
-        let run = CYLMakeSearchRun { $0.pushesOnSelect = true }
+        let run = makeSearchRun { $0.pushesOnSelect = true }
         XCTAssertTrue(run.contents.definesPresentationContext)
-        CYLActivateSearch(run, text: "H")
+        activateSearch(run, text: "H")
         let search = run.search
         let table = try XCTUnwrap(search.tableView)
         let barMaxY = search.searchBarMaxY
@@ -85,10 +85,10 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
 
         let pushed = CYLSearchPushedController()
         run.navigation.pushViewController(pushed, animated: false)
-        CYLRunLoop(0.8)
+        runLoop(0.8)
         XCTAssertFalse(search.searchBar.isDescendant(of: pushed.view), "the bar is not in the pushed screen")
         XCTAssertFalse(search.searchBar.isDescendant(of: run.navigation.navigationBar), "the bar did not stay on the navigation bar")
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     // MARK: - E2, E3 (#1541)
@@ -101,23 +101,23 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         autoreleasepool {
             let contents = CYLSearchTestContents(style: .plain)
             let nav = UINavigationController(rootViewController: UIViewController())
-            let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+            let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
             window.rootViewController = nav
             window.makeKeyAndVisible()
             nav.pushViewController(contents, animated: false)
-            CYLRunLoop(0.3)
+            runLoop(0.3)
             contents.search?.setActive(true, animated: false)
-            CYLRunLoop(0.6)
+            runLoop(0.6)
             XCTAssertEqual(contents.search?.isActive, true)
             weakContents = contents
             weakSearch = contents.search
             weakSystem = contents.search?.searchController
             nav.popToRootViewController(animated: false)
-            CYLRunLoop(0.6)
+            runLoop(0.6)
             window.rootViewController = nil
             window.isHidden = true
         }
-        CYLRunLoop(0.6)
+        runLoop(0.6)
         XCTAssertNil(weakContents, "contents leaked")
         XCTAssertNil(weakSearch, "wrapper leaked")
         XCTAssertNil(weakSystem, "system search controller leaked")
@@ -129,53 +129,53 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         weak var weakSearch: CYLSearchController?
         autoreleasepool {
             let contents = CYLSearchTestContents(style: .plain)
-            let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+            let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
             window.rootViewController = UINavigationController(rootViewController: contents)
             window.makeKeyAndVisible()
-            CYLRunLoop(0.3)
+            runLoop(0.3)
             contents.search?.setActive(true, animated: false)
-            CYLRunLoop(0.6)
+            runLoop(0.6)
             XCTAssertEqual(contents.search?.isActive, true)
             weakContents = contents
             weakSearch = contents.search
             window.rootViewController = UIViewController()
-            CYLRunLoop(0.6)
+            runLoop(0.6)
             window.rootViewController = nil
             window.isHidden = true
         }
-        CYLRunLoop(0.6)
+        runLoop(0.6)
         XCTAssertNil(weakContents, "contents leaked")
         XCTAssertNil(weakSearch, "wrapper leaked")
     }
 
     /// The guard must not fire while the contents are only covered: a push from the results keeps the presentation.
     func testGuardDoesNotDismissWhileTheContentsAreCovered() {
-        let run = CYLMakeSearchRun()
-        CYLActivateSearch(run, text: "H")
+        let run = makeSearchRun()
+        activateSearch(run, text: "H")
         run.navigation.pushViewController(CYLSearchPushedController(), animated: false)
-        CYLRunLoop(0.8)
+        runLoop(0.8)
         XCTAssertTrue(run.search.isActive, "the search stays presented under the pushed screen")
         run.navigation.popViewController(animated: false)
-        CYLRunLoop(0.8)
+        runLoop(0.8)
         XCTAssertTrue(run.search.isActive)
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     /// A full-screen modal over the root takes the root's view out of the window: the contents are covered, not gone, so the
     /// guard must keep the presentation (the search is still there when the modal closes).
     func testGuardKeepsTheSearchUnderAFullScreenModal() {
-        let run = CYLMakeSearchRun()
-        CYLActivateSearch(run, text: "H")
+        let run = makeSearchRun()
+        activateSearch(run, text: "H")
         let modal = CYLSearchPushedController()
         modal.modalPresentationStyle = .fullScreen
         run.navigation.present(modal, animated: false)
-        CYLRunLoop(0.8)
+        runLoop(0.8)
         XCTAssertTrue(run.search.isActive, "the search stays presented under the modal")
         run.navigation.dismiss(animated: false)
-        CYLRunLoop(0.8)
+        runLoop(0.8)
         XCTAssertTrue(run.search.isActive, "and when the modal closes")
         XCTAssertEqual(run.contents.updates.last, "H")
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     // MARK: - E4, E5
@@ -216,7 +216,7 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
             weakNeverShown = neverShown
             weakSystem = neverShown.searchController
         }
-        CYLRunLoop(0.3)
+        runLoop(0.3)
         XCTAssertNil(weakShown)
         XCTAssertNil(weakNeverShown)
         XCTAssertNil(weakSystem)
@@ -226,21 +226,21 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
 
     /// E6: leaving without animation hides Cancel (UIKit leaves it), and the next activation shows it again like the first.
     func testE6DeactivateWithoutAnimationHidesCancel() {
-        let run = CYLMakeSearchRun()
+        let run = makeSearchRun()
         let bar = run.search.searchBar
-        CYLActivateSearch(run)
+        activateSearch(run)
         let shownFirst = bar.showsCancelButton
         run.search.setActive(false, animated: false)
-        CYLRunLoop(0.5)
+        runLoop(0.5)
         XCTAssertFalse(bar.showsCancelButton, "Cancel is hidden after setActive(false, animated: false)")
         XCTAssertFalse(run.search.isActive)
-        CYLActivateSearch(run)
+        activateSearch(run)
         XCTAssertEqual(bar.showsCancelButton, shownFirst, "the next activation shows Cancel as the first did")
         XCTAssertTrue(run.search.searchController.automaticallyShowsCancelButton, "UIKit manages Cancel again")
         run.search.setActive(false, animated: true)
-        CYLRunLoop(0.8)
+        runLoop(0.8)
         XCTAssertFalse(run.search.isActive)
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     // MARK: - E7
@@ -248,34 +248,34 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
     /// E7: the results table keeps no automatic inset and dismisses the keyboard on drag; its inset does not change over a
     /// push from the results and back.
     func testE7ResultsTableKeepsItsInsetAcrossPushAndBack() throws {
-        let run = CYLMakeSearchRun()
-        CYLActivateSearch(run, text: "H")
+        let run = makeSearchRun()
+        activateSearch(run, text: "H")
         let table = try XCTUnwrap(run.search.tableView)
         XCTAssertEqual(table.contentInsetAdjustmentBehavior, .never)
         XCTAssertEqual(table.keyboardDismissMode, .onDrag)
         let before = table.contentInset
         run.navigation.pushViewController(CYLSearchPushedController(), animated: false)
-        CYLRunLoop(0.6)
+        runLoop(0.6)
         run.navigation.popViewController(animated: false)
-        CYLRunLoop(0.8)
+        runLoop(0.8)
         XCTAssertEqual(table.contentInset.top, before.top, accuracy: 0.5)
         XCTAssertEqual(table.contentInset.bottom, before.bottom, accuracy: 0.5)
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     // MARK: - E8, E9, E10
 
     /// E8: no empty view while the text is empty (the dimming view or the launch view is there); with text it shows.
     func testE8EmptyViewIsNotShownForEmptyText() {
-        let run = CYLMakeSearchRun { $0.showsEmptyViewWithoutMatch = false }
-        CYLActivateSearch(run)
+        let run = makeSearchRun { $0.showsEmptyViewWithoutMatch = false }
+        activateSearch(run)
         run.search.showEmptyView(text: "Nothing", detailText: nil, buttonTitle: nil, buttonAction: nil)
         XCTAssertFalse(run.search.isEmptyViewShowing)
         run.search.showEmptyView(scenario: .noSearchResults)
         XCTAssertFalse(run.search.isEmptyViewShowing)
         XCTAssertFalse(run.contents.events.contains("willShowEmptyView"))
         run.search.searchBar.text = "zzz"
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         run.search.showEmptyView(text: "Nothing", detailText: "Try again", buttonTitle: "Retry", buttonAction: {})
         XCTAssertTrue(run.search.isEmptyViewShowing)
         XCTAssertTrue(run.contents.events.contains("willShowEmptyView"))
@@ -283,14 +283,14 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         XCTAssertFalse(run.search.isEmptyViewShowing)
         run.search.showEmptyView(scenario: .noSearchResults)
         XCTAssertTrue(run.search.isEmptyViewShowing)
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     /// E9: the empty view fills the results under the bar, is laid out again when the results are, and is gone after the
     /// search is left.
     func testE9EmptyViewIsLaidOutAgainAndHiddenOnDismiss() throws {
-        let run = CYLMakeSearchRun()
-        CYLActivateSearch(run, text: "zzz")
+        let run = makeSearchRun()
+        activateSearch(run, text: "zzz")
         XCTAssertTrue(run.search.isEmptyViewShowing, "no match shows the empty view")
         let results = try XCTUnwrap(run.search.searchResultsController)
         let empty = try XCTUnwrap(run.search.emptyView)
@@ -304,53 +304,53 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         }
         check("after presentation")
         run.window.frame = CGRect(x: 0, y: 0, width: 330, height: 600)
-        CYLRunLoop(0.6)
+        runLoop(0.6)
         check("after a resize")
         run.search.setActive(false, animated: true)
-        CYLRunLoop(0.9)
+        runLoop(0.9)
         XCTAssertFalse(run.search.isEmptyViewShowing, "hidden on dismiss")
         XCTAssertNil(empty.superview)
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     /// E10: the delegate also receives "" (the first activation, all text deleted).
     func testE10UpdateResultsAlsoReceivesEmptyText() {
-        let run = CYLMakeSearchRun()
-        CYLActivateSearch(run)
+        let run = makeSearchRun()
+        activateSearch(run)
         XCTAssertEqual(run.contents.updates.first, "", "the first activation sends \"\"")
         run.search.searchBar.text = "H"
-        CYLRunLoop(0.3)
+        runLoop(0.3)
         XCTAssertEqual(run.contents.updates.last, "H")
         run.search.searchBar.text = ""
-        CYLRunLoop(0.3)
+        runLoop(0.3)
         XCTAssertEqual(run.contents.updates.last, "", "deleting all text sends \"\"")
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     // MARK: - E16, E17
 
     /// E16: searchBarMaxY is the bar's bottom edge in the search view (0 while the bar is not there).
     func testE16SearchBarMaxYIsTheBarsBottomInTheSearchView() {
-        let run = CYLMakeSearchRun()
+        let run = makeSearchRun()
         XCTAssertEqual(run.search.searchBarMaxY, 0, "the bar is in the table header")
-        CYLActivateSearch(run)
+        activateSearch(run)
         let system = run.search.searchController
         XCTAssertTrue(run.search.searchBar.isDescendant(of: system.view))
         let expected = run.search.searchBar.convert(run.search.searchBar.bounds, to: system.view).maxY
         XCTAssertGreaterThan(expected, 0)
         XCTAssertEqual(run.search.searchBarMaxY, expected, accuracy: 0.01)
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     /// E17: activating without animation lays the results out with the right searchBarMaxY.
     func testE17ActivateWithoutAnimationLaysTheResultsOut() throws {
-        let run = CYLMakeSearchRun()
+        let run = makeSearchRun()
         run.search.setActive(true, animated: false)
-        CYLRunLoop(0.6)
+        runLoop(0.6)
         let results = try XCTUnwrap(run.search.searchResultsController as? CYLSearchResultsTableViewController)
         XCTAssertGreaterThan(run.search.searchBarMaxY, 0)
         XCTAssertEqual(results.lastLayoutSearchBarMaxY, run.search.searchBarMaxY, accuracy: 0.5)
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     // MARK: - E20
@@ -362,23 +362,23 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         var recorded: [Bool: [String]] = [:]
         for forwards in [true, false] {
             let recorder = CYLAppearanceRecordingResults(style: .plain)
-            let run = CYLMakeSearchRun(resultsController: recorder)
+            let run = makeSearchRun(resultsController: recorder)
             run.search.forwardsAppearanceFromContentsViewController = forwards
-            CYLActivateSearch(run, text: "H")
+            activateSearch(run, text: "H")
             recorder.calls.removeAll()
             run.navigation.pushViewController(CYLSearchPushedController(), animated: false)
-            CYLRunLoop(0.6)
+            runLoop(0.6)
             let afterPush = recorder.calls
             recorder.calls.removeAll()
             run.navigation.popViewController(animated: false)
-            CYLRunLoop(0.8)
+            runLoop(0.8)
             recorded[forwards] = afterPush + ["|"] + recorder.calls
             if forwards {
                 XCTAssertTrue(afterPush.contains("viewWillDisappear"), "after the push: \(afterPush)")
                 XCTAssertTrue(recorder.calls.contains("viewWillAppear"), "after the pop: \(recorder.calls)")
                 XCTAssertTrue(recorder.calls.contains("viewDidAppear"), "after the pop: \(recorder.calls)")
             }
-            CYLTearDownSearchRun(run)
+            tearDownSearchRun(run)
         }
         print("E20 appearance calls (push | pop), forwarding on: \(recorded[true] ?? []), off: \(recorded[false] ?? [])")
     }
@@ -387,7 +387,7 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
 
     /// Whether `view` can be seen in `window`: it and every superview is shown with alpha above 0.01, and its frame, in window
     /// coordinates, intersects the window's bounds, and the topmost view at its middle belongs to it.
-    private func CYLIsVisibleInWindow(_ view: UIView, _ window: UIWindow) -> Bool {
+    private func isVisibleInWindow(_ view: UIView, _ window: UIWindow) -> Bool {
         var current: UIView? = view
         while let item = current {
             if item.isHidden || item.alpha <= 0.01 { return false }
@@ -407,15 +407,15 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
     /// reproduction needs a cancelled interactive pop (a touch), which XCTest cannot make; this runs the closest sequence:
     /// push, push again, pop and push, and checks that no search view is in the window while a pushed screen is on top.
     func testCancelledPopThenPushShowsNoResults() {
-        let run = CYLMakeSearchRun()
-        CYLActivateSearch(run, text: "H")
+        let run = makeSearchRun()
+        activateSearch(run, text: "H")
         let system = run.search.searchController
         let first = CYLSearchPushedController()
         run.navigation.pushViewController(first, animated: false)
-        CYLRunLoop(0.6)
+        runLoop(0.6)
         XCTAssertNil(system.view.window, "no search view over the pushed screen")
         run.navigation.popViewController(animated: true)
-        CYLRunLoop(0.05)
+        runLoop(0.05)
         run.navigation.pushViewController(CYLSearchPushedController(), animated: true)
         // iOS 17.5 takes the search view out of the window later than 0.9 s (it is gone by 2.4 s). Until then it must not
         // be visible over the pushed screen: sampled every 0.1 s (not hidden, alpha, frame inside the window, and every
@@ -425,12 +425,12 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         let deadline = Date(timeIntervalSinceNow: 4)
         var elapsed = 0.0
         repeat {
-            CYLRunLoop(0.1)
+            runLoop(0.1)
             elapsed += 0.1
             if let window = system.view.window {
                 lingerSamples += 1
-                if CYLIsVisibleInWindow(system.view, window) { visibleSamples.append(String(format: "%.1f s", elapsed)) }
-                if let results = run.search.tableView, results.window != nil, CYLIsVisibleInWindow(results, window) {
+                if isVisibleInWindow(system.view, window) { visibleSamples.append(String(format: "%.1f s", elapsed)) }
+                if let results = run.search.tableView, results.window != nil, isVisibleInWindow(results, window) {
                     visibleSamples.append(String(format: "results %.1f s", elapsed))
                 }
             }
@@ -438,7 +438,7 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         XCTAssertTrue(visibleSamples.isEmpty, "the search view is visible over the pushed screen at \(visibleSamples) (in the window for \(lingerSamples) samples)")
         XCTAssertNil(system.view.window, "no search view over the screen pushed after the pop")
         XCTAssertNil(run.search.tableView?.window, "no results over the pushed screen")
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     /// E21, found by a touch run (docs/qmui-search-controller.md): a cancelled interactive pop while the search is presented
@@ -446,14 +446,14 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
     /// the same). XCTest cannot drag from the edge, so this runs the repair itself: with the search presented it hides and
     /// shows the bar again (two changes of `isHidden`, none left over, the hidden state kept); without a search, nothing.
     func testE21NavigationBarIsSynchronizedAgainOnlyWhileSearching() {
-        let run = CYLMakeSearchRun()
+        let run = makeSearchRun()
         var changes: [Bool] = []
         let observation = run.navigation.navigationBar.observe(\.isHidden, options: [.new]) { _, change in
             if let value = change.newValue { changes.append(value) }
         }
         run.search.resynchronizeNavigationBar()
         XCTAssertEqual(changes, [], "the search is not presented: the bar is left alone")
-        CYLActivateSearch(run, text: "H")
+        activateSearch(run, text: "H")
         let hiddenWhileSearching = run.navigation.isNavigationBarHidden
         changes.removeAll()
         run.search.resynchronizeNavigationBar()
@@ -462,7 +462,7 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         XCTAssertFalse(changes.isEmpty, "the bar is hidden and shown again")
         XCTAssertEqual(changes.last, hiddenWhileSearching)
         observation.invalidate()
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     // MARK: - History store (merge table)
@@ -478,7 +478,7 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
     /// The merge table: `historyStore` is the shared `CYLSearchSuggestionCache` protocol; the return key adds the trimmed
     /// query, a blank one is ignored, and without a store nothing happens. The built-in store comes from CYLSearchResources.
     func testHistoryStoreReceivesTheSubmittedQueries() throws {
-        let run = CYLMakeSearchRun()
+        let run = makeSearchRun()
         let history = MemoryHistory()
         let field = run.search.searchBar.searchTextField
         run.search.searchBar.text = "Liver"
@@ -497,7 +497,7 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         XCTAssertEqual(builtIn.cachedQueries(), ["a", "b"], "the built-in store: newest first, no duplicates")
         builtIn.removeAllQueries()
         XCTAssertNil(CYLSearchResources.suggestionCache(policy: .none, name: "x"))
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     // MARK: - E22
@@ -525,14 +525,14 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
 
     /// The delegate hears willPresent / didPresent / willDismiss / didDismiss in order, and the results table once.
     func testDelegateLifecycleOrder() {
-        let run = CYLMakeSearchRun()
-        CYLActivateSearch(run, text: "H")
+        let run = makeSearchRun()
+        activateSearch(run, text: "H")
         run.search.setActive(false, animated: true)
-        CYLRunLoop(0.9)
+        runLoop(0.9)
         let events = run.contents.events.filter { $0 != "willShowEmptyView" }
         XCTAssertEqual(events.filter { $0 == "didLoadTableView" }.count, 1)
         XCTAssertEqual(events.filter { $0 != "didLoadTableView" }, ["willPresent", "didPresent", "willDismiss", "didDismiss"])
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     // MARK: - B7 to B9 with CYLSearchController
@@ -551,7 +551,7 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
     }
 
     private func headerRun() -> CYLSearchRun {
-        let run = CYLMakeSearchRun { contents in
+        let run = makeSearchRun { contents in
             contents.tableView.backgroundColor = .red
         }
         let system = run.search.searchController
@@ -563,7 +563,7 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         style.barBackgroundColor = .blue
         run.search.searchBar.appearanceStyle = style
         run.search.searchBar.sizeToFit()
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         return run
     }
 
@@ -572,7 +572,7 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         let run = headerRun()
         let bar = run.search.searchBar
         run.search.setActive(true, animated: true)
-        CYLRunLoop(0.8)
+        runLoop(0.8)
         run.search.setActive(false, animated: true)
         var offsets: [CGFloat] = []
         var cancelY: [CGFloat] = []
@@ -589,7 +589,7 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         XCTAssertLessThanOrEqual(spread, 1.5, "level with the field: \(offsets)")
         let steps = zip(cancelY, cancelY.dropFirst()).map { $1 - $0 }
         XCTAssertFalse(steps.contains { $0 > 0.5 } && steps.contains { $0 < -0.5 }, "one direction only: \(cancelY)")
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     /// B8 again: the header bar sits below the status bar while searching, never at a negative y.
@@ -609,7 +609,7 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
             if let frame = self.presentationFrame(bar, in: run.window) { minY = min(minY, frame.minY) }
         }
         XCTAssertGreaterThanOrEqual(minY, -0.5, "no negative y while dismissing")
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     private func pixels(_ window: UIWindow, at points: [CGPoint]) -> [[UInt8]] {
@@ -640,7 +640,7 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         for state in ["rest", "searching"] {
             if state == "searching" {
                 run.search.setActive(true, animated: true)
-                CYLRunLoop(0.8)
+                runLoop(0.8)
             }
             let frame = bar.convert(bar.bounds, to: run.window)
             let rows = pixels(run.window, at: [CGPoint(x: 5, y: frame.minY), CGPoint(x: 5, y: frame.minY + pixel)])
@@ -649,22 +649,22 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
                 XCTAssertGreaterThan(row[2], 100, "\(state): blue: \(row)")
             }
         }
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
 
     /// E21 / the touch run of docs/qmui-search-controller.md: results showing, push a screen with animation, pop it with
     /// animation, the search must be on screen again (the bar, the results) and not a blank page.
     func testE21SearchIsDrawnAgainAfterAnAnimatedPushAndPop() throws {
-        let run = CYLMakeSearchRun()
-        CYLActivateSearch(run, text: "H")
+        let run = makeSearchRun()
+        activateSearch(run, text: "H")
         let results = try XCTUnwrap(run.search.tableView)
         XCTAssertNotNil(results.cellForRow(at: IndexPath(row: 0, section: 0)))
         for round in 1...2 {
             run.navigation.pushViewController(CYLSearchPushedController(), animated: true)
-            CYLRunLoop(1.0)
+            runLoop(1.0)
             run.navigation.popViewController(animated: true)
-            CYLRunLoop(1.0)
+            runLoop(1.0)
             XCTAssertTrue(run.search.isActive, "round \(round)")
             XCTAssertNotNil(run.search.searchBar.window, "round \(round): the bar is on screen")
             XCTAssertNotNil(results.window, "round \(round): the results are on screen")
@@ -672,7 +672,7 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
             XCTAssertFalse(results.isHidden)
             XCTAssertFalse(run.search.searchController.view.isHidden)
         }
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     // MARK: - B9: an explicit background wins
@@ -686,11 +686,11 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
 
     /// A header run whose table is red and whose bar has no appearance background: whatever the bar draws is set by hand.
     private func explicitRun() -> CYLSearchRun {
-        let run = CYLMakeSearchRun { $0.tableView.backgroundColor = .red }
+        let run = makeSearchRun { $0.tableView.backgroundColor = .red }
         run.search.searchController.automaticallyShowsCancelButton = false
         run.search.searchBar.showsCancelButton = true
         run.search.searchBar.sizeToFit()
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         return run
     }
 
@@ -698,7 +698,7 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
     private func barRows(_ run: CYLSearchRun, state: String) -> [[UInt8]] {
         if state == "searching" {
             run.search.setActive(true, animated: true)
-            CYLRunLoop(0.8)
+            runLoop(0.8)
         }
         let frame = run.search.searchBar.convert(run.search.searchBar.bounds, to: run.window)
         let pixel = 1 / run.window.screen.scale
@@ -712,7 +712,7 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
             let run = explicitRun()
             let bar = run.search.searchBar
             bar.setBackgroundImage(solidImage(.blue), for: .any, barMetrics: .default)
-            CYLRunLoop(0.4)
+            runLoop(0.4)
             // The appearance assigned after the explicit image does not replace it.
             let style = bar.appearanceStyle
             style.barBackgroundColor = .green
@@ -721,7 +721,7 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
                 XCTAssertLessThan(row[0], 100, "\(state): no red reads through: \(row)")
                 XCTAssertGreaterThan(row[2], 100, "\(state): the hand-set blue wins over the green appearance: \(row)")
             }
-            CYLTearDownSearchRun(run)
+            tearDownSearchRun(run)
         }
     }
 
@@ -735,13 +735,13 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         bar.appearanceStyle = style
         bar.setBackgroundImage(solidImage(.blue), for: .any, barMetrics: .default)
         bar.setBackgroundImage(nil, for: .any, barMetrics: .default)
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         for row in barRows(run, state: "searching") {
             XCTAssertLessThan(row[0], 100, "no red reads through: \(row)")
             XCTAssertGreaterThan(row[1], 100, "green again: \(row)")
             XCTAssertLessThan(row[2], 100, "not blue: \(row)")
         }
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     /// B9: a barTintColor set by hand draws at rest and while searching, and wins over the appearance's background color;
@@ -759,7 +759,7 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
                 XCTAssertGreaterThan(row[2], 100, "\(state): the bar tint wins over the appearance: \(row)")
                 XCTAssertLessThan(row[1], 100, "\(state): not green: \(row)")
             }
-            CYLTearDownSearchRun(run)
+            tearDownSearchRun(run)
         }
         let run = explicitRun()
         let bar = run.search.searchBar
@@ -768,10 +768,10 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         bar.appearanceStyle = style
         bar.barTintColor = .blue
         bar.barTintColor = nil
-        CYLRunLoop(0.3)
+        runLoop(0.3)
         for row in barRows(run, state: "searching") {
             XCTAssertGreaterThan(row[1], 100, "nil hands the background back to the appearance: \(row)")
         }
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 }

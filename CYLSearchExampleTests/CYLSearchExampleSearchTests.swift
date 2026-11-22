@@ -139,7 +139,7 @@ final class CYLSearchExampleSearchTests: CYLSearchExampleTestCase {
     func testSearchViewShowsResultsOfItsDataSource() throws {
         // docs/search-core-merge.md, "Results behavior": with a results data source and a query, resultsTableView lists the
         // results instead of the suggestions; reloadResults asks again; no result shows the empty-results placeholder.
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         let host = UIViewController()
         window.rootViewController = host
         window.makeKeyAndVisible()
@@ -284,7 +284,7 @@ final class CYLSearchExampleSearchTests: CYLSearchExampleTestCase {
         let source = CYLSearchExampleDataSource()
         let controller = CYLSearchExampleViewController(searchDataSource: source, refreshProvider: source)
         let navigation = UINavigationController(rootViewController: controller)
-        let window = CYLTestWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         window.rootViewController = navigation
         window.makeKeyAndVisible()
         controller.loadViewIfNeeded()

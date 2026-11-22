@@ -15,12 +15,12 @@ import XCTest
 final class CYLSearchControllerSwipeTests: CYLSearchExampleTestCase {
 
     private func makeSwipeRun() -> CYLSearchRun {
-        let run = CYLMakeSearchRun()
+        let run = makeSearchRun()
         run.search.supportsSwipeToDismissSearch = true
         let launch = UIView()
         launch.backgroundColor = .systemYellow
         run.search.launchView = launch
-        CYLActivateSearch(run)
+        activateSearch(run)
         return run
     }
 
@@ -43,16 +43,16 @@ final class CYLSearchControllerSwipeTests: CYLSearchExampleTestCase {
         XCTAssertFalse(search.swipeMayBegin(from: toast), "a toast on the window does not begin")
         XCTAssertTrue(search.gestureRecognizerShouldBegin(UITapGestureRecognizer()), "other recognizers are not judged")
         toast.removeFromSuperview()
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     /// Without supportsSwipeToDismissSearch there is no gesture.
     func testNoGestureWithoutTheOption() {
-        let run = CYLMakeSearchRun()
-        CYLActivateSearch(run)
+        let run = makeSearchRun()
+        activateSearch(run)
         XCTAssertNil(run.search.swipeGestureRecognizer)
         XCTAssertNil(run.search.snapshotView)
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     // MARK: - E12
@@ -72,11 +72,11 @@ final class CYLSearchControllerSwipeTests: CYLSearchExampleTestCase {
         XCTAssertEqual(snapshot.transform.tx, -56, accuracy: 0.5)
         search.swipeEnded(velocityX: 800)
         XCTAssertFalse(run.window.isUserInteractionEnabled, "no touches during the animation")
-        CYLRunLoop(0.7)
+        runLoop(0.7)
         XCTAssertFalse(search.isActive, "the swipe left the search")
         XCTAssertTrue(run.window.isUserInteractionEnabled, "touches again")
         XCTAssertEqual(system.view.transform, .identity)
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     /// E12: a short swipe, or one that returns, springs back and the search stays.
@@ -89,12 +89,12 @@ final class CYLSearchControllerSwipeTests: CYLSearchExampleTestCase {
             search.swipeChanged(translationX: shift)
             search.swipeEnded(velocityX: velocity)
             XCTAssertFalse(run.window.isUserInteractionEnabled)
-            CYLRunLoop(0.5)
+            runLoop(0.5)
             XCTAssertTrue(search.isActive, "shift \(shift): the search stays")
             XCTAssertTrue(run.window.isUserInteractionEnabled, "shift \(shift): touches again")
             XCTAssertEqual(system.view.transform.tx, 0, accuracy: 0.5, "shift \(shift): sprung back")
         }
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     // MARK: - E13
@@ -112,7 +112,7 @@ final class CYLSearchControllerSwipeTests: CYLSearchExampleTestCase {
         var onTop = false
         let start = Date()
         while Date().timeIntervalSince(start) < 0.8 {
-            CYLRunLoop(0.02)
+            runLoop(0.02)
             if snapshot.superview === run.window { onTop = true }
         }
         XCTAssertTrue(onTop, "the snapshot was on top of the window while the search left")
@@ -120,28 +120,28 @@ final class CYLSearchControllerSwipeTests: CYLSearchExampleTestCase {
         XCTAssertNil(search.snapshotView)
         XCTAssertFalse(run.window.gestureRecognizers?.contains(gesture) == true, "the gesture is removed")
         XCTAssertTrue(run.window.isUserInteractionEnabled)
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     // MARK: - E14
 
     /// E14: a swipe is begun and abandoned, then the text is cleared with the x of the bar: the snapshot goes.
     func testE14ClearingTextAfterACancelledSwipeRemovesTheSnapshot() throws {
-        let run = CYLMakeSearchRun()
+        let run = makeSearchRun()
         run.search.supportsSwipeToDismissSearch = true
-        CYLActivateSearch(run, text: "H")
+        activateSearch(run, text: "H")
         let search = run.search
         let snapshot = try XCTUnwrap(search.snapshotView)
         search.swipeBegan()
         XCTAssertNotNil(snapshot.superview)
         search.swipeChanged(translationX: 40)
         search.swipeEnded(velocityX: 0)
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         XCTAssertNotNil(snapshot.superview, "a cancelled swipe leaves the snapshot behind the search view")
         run.search.searchBar.text = ""
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         XCTAssertNil(snapshot.superview, "clearing the text removes it")
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     /// E14: a swipe is begun and abandoned, then Cancel leaves the search: no snapshot stays in the window.
@@ -153,15 +153,15 @@ final class CYLSearchControllerSwipeTests: CYLSearchExampleTestCase {
         search.swipeBegan()
         search.swipeChanged(translationX: 40)
         search.swipeEnded(velocityX: 0)
-        CYLRunLoop(0.4)
+        runLoop(0.4)
         XCTAssertNotNil(snapshot.superview)
         search.setActive(false, animated: true)
-        CYLRunLoop(0.9)
+        runLoop(0.9)
         XCTAssertFalse(search.isActive)
         XCTAssertNil(snapshot.superview, "no snapshot behind or over the window")
-        XCTAssertNil(CYLViewWithAccessibilityIdentifier(run.window, "CYLSearchSwipeSnapshot"))
+        XCTAssertNil(viewWithAccessibilityIdentifier(run.window, "CYLSearchSwipeSnapshot"))
         XCTAssertFalse(run.window.gestureRecognizers?.contains(gesture) == true)
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     // MARK: - Real touch (docs/qmui-search-controller.md, "Merge phase 4 log")
@@ -183,7 +183,7 @@ final class CYLSearchControllerSwipeTests: CYLSearchExampleTestCase {
         XCTAssertEqual(Rule.verdict(from: CGPoint(x: 20, y: 450), to: CGPoint(x: 2, y: 450)), .fails, "left")
         XCTAssertEqual(Rule.verdict(from: origin, to: CGPoint(x: 60, y: 140)), .fails, "more vertical than horizontal")
         XCTAssertEqual(gesture.translation(in: nil), .zero, "no touch yet")
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 
     /// The navigation controller's swipe back waits for this swipe to fail, so the swipe leaves the search first.
@@ -199,6 +199,6 @@ final class CYLSearchControllerSwipeTests: CYLSearchExampleTestCase {
         }
         XCTAssertFalse(search.gestureRecognizer(UITapGestureRecognizer(), shouldBeRequiredToFailBy: pop),
                        "only the search swipe is judged")
-        CYLTearDownSearchRun(run)
+        tearDownSearchRun(run)
     }
 }

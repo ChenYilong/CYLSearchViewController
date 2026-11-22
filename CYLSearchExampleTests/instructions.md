@@ -22,7 +22,7 @@
   Type size. Full rule: `instructions.md` and `AGENTS.md`, "Search bar
   placement".
 - Add every new search bar (screen, state, Dynamic Type size) to
-  `testSearchBarsCoverNoView`, which checks it with `CYLViewsCoveredByView`.
+  `testSearchBarsCoverNoView`, which checks it with `viewsCoveredByView`.
 
 ## Task log before every task
 
