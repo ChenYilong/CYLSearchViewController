@@ -1208,4 +1208,7 @@ begins and becomes `DONE` when it ends.
   added the file, the platform the file name or the document shows; anything else is written "not recorded", never guessed;
   (3) put date and commit on the Markdown line that shows each image; (4) link the 8 unshown images from their document;
   (5) run `sh scripts/check-screenshot-labels.sh BASE HEAD` until it says ok, then check the PR #11 checks.
-- **Status**: TODO.
+- **Status**: DONE (2026-11-23): `sh scripts/check-screenshot-labels.sh BASE HEAD` says ok. 202 images changed: 50 converted to PNG,
+  152 given a header and footer (original pixels; facts only: platform, commit and time of the adding commit, file-name tokens;
+  device, OS and SDK say "not recorded"), date and commit added to the Markdown lines, 14 images with no Markdown line listed in
+  `docs/screenshot-index.md`. Left: the real device, OS and SDK of the old images are still unknown.
