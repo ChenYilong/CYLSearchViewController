@@ -6,6 +6,13 @@
   [docs/instructions/behavioral.md](docs/instructions/behavioral.md). Its rules (think before coding, simplicity first,
   surgical changes, goal-driven execution) apply to every task, together with the rest of this file.
 
+This repository is the CYLSearchViewController search library (iOS Swift core, ports to Android, HarmonyOS, the
+WeChat mini program, Flutter and React Native) and its examples, with the Issue #1317 reproduction. Read
+`instructions.md` and the applicable skill in `.agents/skills/` before making changes.
+
+The content is grouped by tag. Every category below has a short summary; its full text is in
+`docs/instructions/<tag>.md`: read that file whenever the task touches the tag (tag: `meta`).
+
 ## Skills (tag: `skills`)
 
 `.agents/skills` holds the skills (`.claude/skills` points there). Details: [docs/instructions/skills.md](docs/instructions/skills.md).

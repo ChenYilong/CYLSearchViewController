@@ -6,6 +6,13 @@
   [docs/instructions/behavioral.md](docs/instructions/behavioral.md). Its rules (think before coding, simplicity first,
   surgical changes, goal-driven execution) apply to every task, together with the rest of this file.
 
+This repository contains the CYLSearchViewController search library, its ports and examples, and the Issue #1317
+reproduction for `UISearchController` with `CYLTableViewPlaceHolder` refresh. Read this file and `AGENTS.md` before
+changing project files; both keep the same tags.
+
+The content is grouped by tag. Every category below has a short summary; its full text is in
+`docs/instructions/<tag>.md`: read that file whenever the task touches the tag (tag: `meta`).
+
 ## Skills (tag: `skills`)
 
 `.agents/skills` holds the skills (`.claude/skills` points there). Details: [docs/instructions/skills.md](docs/instructions/skills.md).
