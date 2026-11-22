@@ -346,7 +346,7 @@ class CYLSearchView extends StatefulWidget {
     this.refreshEnabled = false,
     this.onRefresh,
     this.suggestions = const <String>[],
-    this.suggestionStyle = CYLSearchSuggestionStyle.list,
+    this.suggestionStyle = CYLSearchSuggestionStyle.tags,
     this.placeholder,
     this.query,
     this.showsSuggestionsForEmptyQuery = false,
@@ -442,7 +442,7 @@ class CYLSearchView extends StatefulWidget {
   /// The suggestions to filter as the text changes (iOS `suggestions`).
   final List<String> suggestions;
 
-  /// How the suggestions are shown (iOS `suggestionStyle`).
+  /// How the suggestions are shown (iOS `suggestionStyle`): tags by default.
   final CYLSearchSuggestionStyle suggestionStyle;
 
   /// The search bar's placeholder (iOS `searchBarView.placeholder`).

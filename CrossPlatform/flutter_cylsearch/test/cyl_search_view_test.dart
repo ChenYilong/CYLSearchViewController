@@ -52,7 +52,11 @@ void main() {
 
     test('defaults match the native defaults', () {
       final parameters = cylSearchViewParameters(const CYLSearchView());
-      expect(parameters['suggestionStyle'], 'list');
+      expect(parameters['suggestionStyle'], 'tags');
+      expect(
+        cylSearchViewParameters(const CYLSearchView(suggestionStyle: CYLSearchSuggestionStyle.list))['suggestionStyle'],
+        'list',
+      );
       expect(parameters['showsEmptyResultsPlaceholder'], false);
       expect(parameters['emptyResultsScenario'], 'noSearchResults');
       expect(parameters['suggestionCachePolicy'], 'database');
