@@ -420,6 +420,18 @@
     (void)bar.selectedIndex;
     { __typeof__(bar.leadingView) value21 = bar.leadingView; bar.leadingView = value21; }
     { __typeof__(bar.showsCancelButton) value22 = bar.showsCancelButton; bar.showsCancelButton = value22; }
+    // Merge phase 1: the knobs CYLSearchBarView shares with CYLSearchBar.
+    { __typeof__(bar.centersPlaceholder) valueP1a = bar.centersPlaceholder; bar.centersPlaceholder = valueP1a; }
+    { __typeof__(bar.textFieldMarginsProvider) valueP1b = bar.textFieldMarginsProvider; bar.textFieldMarginsProvider = valueP1b; }
+    { __typeof__(bar.cancelButtonMarginsProvider) valueP1c = bar.cancelButtonMarginsProvider; bar.cancelButtonMarginsProvider = valueP1c; }
+    { __typeof__(bar.cancelButtonFont) valueP1d = bar.cancelButtonFont; bar.cancelButtonFont = valueP1d; }
+    { __typeof__(bar.appearanceStyle) valueP1e = bar.appearanceStyle; bar.appearanceStyle = valueP1e; }
+    { __typeof__(bar.showsLeadingView) valueP1f = bar.showsLeadingView; bar.showsLeadingView = valueP1f; }
+    { __typeof__(bar.showsTrailingAccessoryViews) valueP1g = bar.showsTrailingAccessoryViews; bar.showsTrailingAccessoryViews = valueP1g; }
+    [bar applyDefaultAppearance];
+    [bar setShowsCancelButton:YES animated:NO];
+    [bar setShowsLeadingView:YES animated:NO];
+    [bar setShowsTrailingAccessoryViews:YES animated:NO];
     { __typeof__(bar.cancelButtonTitle) value23 = bar.cancelButtonTitle; bar.cancelButtonTitle = value23; }
     { __typeof__(bar.cancelButtonEndsEditing) value24 = bar.cancelButtonEndsEditing; bar.cancelButtonEndsEditing = value24; }
     { __typeof__(bar.clearsTextOnCancel) value25 = bar.clearsTextOnCancel; bar.clearsTextOnCancel = value25; }

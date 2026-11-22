@@ -146,6 +146,19 @@ final class CYLSearchAPIFenceTests: XCTestCase {
         _ = bar.selectedIndex
         touch(bar, \.leadingView)
         touch(bar, \.showsCancelButton)
+        // Merge phase 1: the knobs CYLSearchBarView shares with CYLSearchBar.
+        touch(bar, \.centersPlaceholder)
+        touch(bar, \.textFieldMarginsProvider)
+        touch(bar, \.cancelButtonMarginsProvider)
+        touch(bar, \.cancelButtonFont)
+        touch(bar, \.appearanceStyle)
+        touch(bar, \.showsLeadingView)
+        touch(bar, \.showsTrailingAccessoryViews)
+        let _: CYLSearchBarViewMarginsProvider? = bar.textFieldMarginsProvider
+        let _: (Bool, Bool) -> Void = bar.setShowsCancelButton
+        let _: (Bool, Bool) -> Void = bar.setShowsLeadingView
+        let _: (Bool, Bool) -> Void = bar.setShowsTrailingAccessoryViews
+        let _: () -> Void = bar.applyDefaultAppearance
         touch(bar, \.cancelButtonTitle)
         touch(bar, \.cancelButtonEndsEditing)
         touch(bar, \.clearsTextOnCancel)
@@ -441,6 +454,7 @@ final class CYLSearchAPIFenceTests: XCTestCase {
         touch(sb, \.font)
         touch(sb, \.textFieldMargins)
         touch(sb, \.textFieldMarginsProvider)
+        let _: CYLSearchBarMarginsProvider? = sb.textFieldMarginsProvider
         _ = sb.cancelButton
         touch(sb, \.cancelButtonFont)
         touch(sb, \.cancelButtonMarginsProvider)
