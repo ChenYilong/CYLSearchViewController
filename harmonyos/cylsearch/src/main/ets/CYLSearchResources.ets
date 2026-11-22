@@ -109,6 +109,55 @@ export interface CYLSearchSuggestionCache {
 }
 
 /**
+ * A listener of the history signal (iOS `CYLSearchSuggestionStore.didChangeNotification`). `cache` is read when the
+ * signal arrives, so a view follows the cache it has by then.
+ */
+class CYLSearchHistoryListener {
+  readonly cache: () => CYLSearchSuggestionCache | undefined;
+  readonly changed: () => void;
+  readonly isAlive: () => boolean;
+
+  constructor(cache: () => CYLSearchSuggestionCache | undefined, changed: () => void, isAlive: () => boolean) {
+    this.cache = cache;
+    this.changed = changed;
+    this.isAlive = isAlive;
+  }
+}
+
+const cylSearchHistoryListeners: CYLSearchHistoryListener[] = [];
+
+/**
+ * Whether two caches are one history: the same object, or two built-in stores of one policy and name (a new store is
+ * made for each `suggestionCache` call, as iOS `cache(policy:name:)` does).
+ */
+function cylSearchSameHistory(first: CYLSearchSuggestionCache, second: CYLSearchSuggestionCache): boolean {
+  if (first === second) {
+    return true;
+  }
+  if (first instanceof CYLSearchSuggestionStore && second instanceof CYLSearchSuggestionStore) {
+    return first.policy === second.policy && first.name === second.name;
+  }
+  return false;
+}
+
+/**
+ * Tells every listener whose cache is this history that it changed.
+ */
+function cylSearchAnnounceHistory(cache: CYLSearchSuggestionCache): void {
+  cylSearchHistoryListeners.slice().forEach((listener: CYLSearchHistoryListener) => {
+    if (!listener.isAlive()) {
+      // The view that listened is gone: forget the listener.
+      cylSearchHistoryListeners.splice(cylSearchHistoryListeners.indexOf(listener), 1);
+      return;
+    }
+    const own = listener.cache();
+    if (own !== undefined && cylSearchSameHistory(own, cache)) {
+      listener.changed();
+    }
+  });
+}
+
+/**
  * The built-in caches (was the public `CYLSearchSuggestionStore`): one per policy and name, newest first, at most
  * `maximumCount` queries. Private: `CYLSearchView.suggestionCachePolicy` / `suggestionCacheName` create it through
  * `CYLSearchResources.suggestionCache`.
@@ -255,6 +304,7 @@ class CYLSearchSuggestionStore implements CYLSearchSuggestionCache {
     // At least one query is kept (Android `maxOf(1, maximumCount)`).
     const limit = Math.max(1, this.maximumCount);
     this.write(cylQueriesAdding(this.read(), text, limit));
+    cylSearchAnnounceHistory(this);
     if (this.policy === CYLSearchSuggestionCachePolicy.database) {
       const time = cylSuggestionNextTime();
       this.enqueue(async (store: relationalStore.RdbStore) => {
@@ -268,6 +318,7 @@ class CYLSearchSuggestionStore implements CYLSearchSuggestionCache {
 
   removeQuery(query: string): void {
     this.write(this.read().filter((value: string) => value !== query));
+    cylSearchAnnounceHistory(this);
     if (this.policy === CYLSearchSuggestionCachePolicy.database) {
       this.enqueue(async (store: relationalStore.RdbStore) => {
         await store.executeSql(`DELETE FROM ${CYL_SUGGESTION_TABLE} WHERE cache = ? AND query = ?`, [this.name, query]);
@@ -277,6 +328,7 @@ class CYLSearchSuggestionStore implements CYLSearchSuggestionCache {
 
   removeAllQueries(): void {
     this.write([]);
+    cylSearchAnnounceHistory(this);
     if (this.policy === CYLSearchSuggestionCachePolicy.database) {
       this.enqueue(async (store: relationalStore.RdbStore) => {
         await store.executeSql(`DELETE FROM ${CYL_SUGGESTION_TABLE} WHERE cache = ?`, [this.name]);
@@ -406,6 +458,34 @@ export class CYLSearchResources {
     } catch (error) {
       return key;
     }
+  }
+
+  /**
+   * Calls `changed` whenever the history that `cache()` returns changes (iOS `historyDidChangeNotification`, one signal
+   * for every view of one policy and name); the returned function stops listening, and a listener whose `isAlive` says
+   * false is dropped by the next signal.
+   */
+  static observeHistory(cache: () => CYLSearchSuggestionCache | undefined, changed: () => void,
+    isAlive: () => boolean = () => true): () => void {
+    const listener = new CYLSearchHistoryListener(cache, changed, isAlive);
+    cylSearchHistoryListeners.push(listener);
+    return () => {
+      const index = cylSearchHistoryListeners.indexOf(listener);
+      if (index >= 0) {
+        cylSearchHistoryListeners.splice(index, 1);
+      }
+    };
+  }
+
+  /**
+   * Announces that a cache of your own changed (iOS `announceChange(of:)`); the built-in caches announce their own
+   * changes, so this does nothing for them. `CYLSearchView` calls it after a submitted query and after a clear.
+   */
+  static announceHistoryChange(cache: CYLSearchSuggestionCache | undefined): void {
+    if (cache === undefined || cache instanceof CYLSearchSuggestionStore) {
+      return;
+    }
+    cylSearchAnnounceHistory(cache);
   }
 
   /**
