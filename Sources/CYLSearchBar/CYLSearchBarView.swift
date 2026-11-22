@@ -1944,6 +1944,27 @@ public final class CYLSearchBarItem: NSObject {
     @objc public var animationURL: URL? { didSet { itemChanged() } }
 
     /**
+     * Whether `animationURL` plays again after each pass; NO plays once on each tap. The same on every platform.
+     */
+    @objc public var animationLoops = false { didSet { itemChanged() } }
+
+    /**
+     * The playback speed of `animationURL`; 1 is the file's own. An engine without speed ignores it. The same on every
+     * platform.
+     */
+    @objc public var animationSpeed: CGFloat = 1 { didSet { itemChanged() } }
+
+    /**
+     * Plays `animationURL` again from the start, as a tap does. Does nothing without an animation. The same on every
+     * platform.
+     */
+    @objc public func restartAnimation() {
+        if animationURL != nil {
+            itemView.restartAnimation()
+        }
+    }
+
+    /**
      * The icon size; zero uses 20 x 20 pt.
      */
     @objc public var imageSize: CGSize = .zero { didSet { itemChanged() } }
@@ -2326,6 +2347,8 @@ private final class CYLSearchBarItemButton: CYLTagButton {
         image = item.style == .divider ? nil : (item.animatedImage ?? item.image)
         selectedImage = item.style == .divider || item.animatedImage != nil ? nil : item.selectedImage
         animationURL = item.style == .divider ? nil : item.animationURL
+        animationLoops = item.animationLoops
+        animationSpeed = item.animationSpeed
         badgeValue = item.style == .divider ? nil : item.badgeValue
         badgeColor = item.badgeColor
         isEnabled = item.isEnabled

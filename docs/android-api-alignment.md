@@ -208,6 +208,9 @@ Rows: 289; DONE 267, N/A 22, TODO 0; score 100/100.
 | `CYLSearchBarItem.selectedImage` | — | `CYLSearchBarItem.selectedImage` | DONE |
 | `CYLSearchBarItem.animatedImage` | `+[UIImage animatedImageWithImages:duration:]` | `CYLSearchBarItem.animatedImage` | DONE |
 | `CYLSearchBarItem.animationURL` | `CYLAnimatedItem/<Type>`; the core adds none | `CYLSearchBarItem.animationURL` | DONE |
+| `CYLSearchBarItem.animationLoops` | Whether `animationURL` plays again after each pass; false plays once on each tap. | `CYLSearchBarItem.animationLoops` | DONE |
+| `CYLSearchBarItem.animationSpeed` | The playback speed of `animationURL`; 1 is the file's own. An engine without speed ignores it. | `CYLSearchBarItem.animationSpeed` | DONE |
+| `CYLSearchBarItem.restartAnimation` | `restartAnimation()`: plays `animationURL` again from the start, as a tap does. | `CYLSearchBarItem.restartAnimation` | DONE |
 | `CYLSearchBarItem.imageSize` | — | `CYLSearchBarItem.imageSize` | DONE |
 | `CYLSearchBarItem.itemAccessibilityLabel` | — | `CYLSearchBarItem.itemAccessibilityLabel` | DONE |
 | `CYLSearchBarItem.itemAccessibilityIdentifier` | — | `CYLSearchBarItem.itemAccessibilityIdentifier` | DONE |

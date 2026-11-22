@@ -409,6 +409,9 @@ Rows: 289; implemented or N/A 289, TODO 0; score 100/100.
 | `CYLSearchBarItem.selectedImage` | The icon while `selected` is YES; nil uses `image`. | `CYLSearchBarItem.selectedImage` |
 | `CYLSearchBarItem.animatedImage` | An animated icon (`+[UIImage animatedImageWithImages:duration:]`), drawn instead of `image` when set. | `CYLSearchBarItem.animatedImage` |
 | `CYLSearchBarItem.animationURL` | An animated icon file (Lottie .json, .pag, .riv, .svga, .gif), drawn by the item's `CYLTagButton` (a `CYLAnimatedItemView`) when the app adds the engine of its type (`CYLAnimatedItem/<Type>`; the core adds none) and played on each tap. O… | `CYLSearchBarItem.animationURL` |
+| `CYLSearchBarItem.animationLoops` | Whether `animationURL` plays again after each pass; false plays once on each tap. | `CYLSearchBarItem.animationLoops` |
+| `CYLSearchBarItem.animationSpeed` | The playback speed of `animationURL`; 1 is the file's own. An engine without speed ignores it. | `CYLSearchBarItem.animationSpeed` |
+| `CYLSearchBarItem.restartAnimation` | `restartAnimation()`: plays `animationURL` again from the start, as a tap does. | `CYLSearchBarItem.restartAnimation` |
 | `CYLSearchBarItem.imageSize` | The icon size; zero uses 20 x 20 pt. | `CYLSearchBarItem.imageSize` |
 | `CYLSearchBarItem.itemAccessibilityLabel` | What VoiceOver reads; nil reads `title`. | `CYLSearchBarItem.itemAccessibilityLabel` |
 | `CYLSearchBarItem.itemAccessibilityIdentifier` | A test identifier for the item view. | `CYLSearchBarItem.itemAccessibilityIdentifier` |
