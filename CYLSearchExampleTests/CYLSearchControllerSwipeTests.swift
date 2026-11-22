@@ -163,4 +163,42 @@ final class CYLSearchControllerSwipeTests: CYLSearchExampleTestCase {
         XCTAssertFalse(run.window.gestureRecognizers?.contains(gesture) == true)
         CYLTearDownSearchRun(run)
     }
+
+    // MARK: - Real touch (docs/qmui-search-controller.md, "Merge phase 4 log")
+
+    /// UIKit's own edge recognizer never began while a UISearchController was active; the gesture follows the touch itself.
+    func testGestureFollowsTheTouchItself() throws {
+        let run = makeSwipeRun()
+        let gesture = try XCTUnwrap(run.search.swipeGestureRecognizer)
+        XCTAssertTrue(gesture is CYLSearchEdgePanGestureRecognizer)
+        XCTAssertEqual(gesture.edges, .left)
+        XCTAssertEqual(gesture.maximumNumberOfTouches, 1)
+        let origin = CGPoint(x: 2, y: 450)
+        typealias Rule = CYLSearchEdgePanGestureRecognizer
+        XCTAssertEqual(Rule.verdict(from: origin, to: CGPoint(x: 8, y: 450)), .undecided, "inside the slop")
+        XCTAssertEqual(Rule.verdict(from: origin, to: CGPoint(x: 40, y: 452)), .begins, "right, mostly horizontal")
+        XCTAssertEqual(Rule.verdict(from: origin, to: CGPoint(x: 8, y: 456)), .undecided, "right and down, inside the slop")
+        XCTAssertEqual(Rule.verdict(from: origin, to: CGPoint(x: 8, y: 500)), .fails, "down")
+        XCTAssertEqual(Rule.verdict(from: origin, to: CGPoint(x: 40, y: 150)), .fails, "up")
+        XCTAssertEqual(Rule.verdict(from: CGPoint(x: 20, y: 450), to: CGPoint(x: 2, y: 450)), .fails, "left")
+        XCTAssertEqual(Rule.verdict(from: origin, to: CGPoint(x: 60, y: 140)), .fails, "more vertical than horizontal")
+        XCTAssertEqual(gesture.translation(in: nil), .zero, "no touch yet")
+        CYLTearDownSearchRun(run)
+    }
+
+    /// The navigation controller's swipe back waits for this swipe to fail, so the swipe leaves the search first.
+    func testNavigationSwipeBackWaitsForTheSearchSwipe() throws {
+        let run = makeSwipeRun()
+        let search = run.search
+        let gesture = try XCTUnwrap(search.swipeGestureRecognizer)
+        let pop = try XCTUnwrap(run.navigation.interactivePopGestureRecognizer)
+        XCTAssertTrue(search.gestureRecognizer(gesture, shouldBeRequiredToFailBy: pop))
+        XCTAssertFalse(search.gestureRecognizer(gesture, shouldBeRequiredToFailBy: UITapGestureRecognizer()))
+        if #available(iOS 26.0, *), let content = run.navigation.interactiveContentPopGestureRecognizer {
+            XCTAssertTrue(search.gestureRecognizer(gesture, shouldBeRequiredToFailBy: content))
+        }
+        XCTAssertFalse(search.gestureRecognizer(UITapGestureRecognizer(), shouldBeRequiredToFailBy: pop),
+                       "only the search swipe is judged")
+        CYLTearDownSearchRun(run)
+    }
 }

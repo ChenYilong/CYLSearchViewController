@@ -543,6 +543,7 @@ final class CYLSearchAPIFenceTests: XCTestCase {
         let _: (UISearchController) -> Void = sc.willDismissSearchController
         let _: (UISearchController) -> Void = sc.didDismissSearchController
         let _: (UIGestureRecognizer) -> Bool = sc.gestureRecognizerShouldBegin
+        let _: (UIGestureRecognizer, UIGestureRecognizer) -> Bool = sc.gestureRecognizer(_:shouldBeRequiredToFailBy:)
         let delegate = FenceSearchControllerDelegate()
         sc.searchResultsDelegate = delegate
         let d: CYLSearchControllerDelegate = delegate

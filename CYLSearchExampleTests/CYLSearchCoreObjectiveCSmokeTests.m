@@ -756,6 +756,7 @@
     XCTAssertTrue([sc respondsToSelector:@selector(didDismissSearchController:)], @"CYLSearchController didDismissSearchController:");
     XCTAssertTrue([sc respondsToSelector:@selector(initWithNibName:bundle:)], @"CYLSearchController initWithNibName:bundle:");
     XCTAssertTrue([sc respondsToSelector:@selector(gestureRecognizerShouldBegin:)], @"CYLSearchController gestureRecognizerShouldBegin:");
+    XCTAssertTrue([sc respondsToSelector:@selector(gestureRecognizer:shouldBeRequiredToFailByGestureRecognizer:)], @"CYLSearchController gestureRecognizer:shouldBeRequiredToFailByGestureRecognizer:");
 }
 
 - (void)testSearchTableViewControllerObjectiveCMembersAreFenced

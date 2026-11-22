@@ -858,6 +858,19 @@ extension CYLSearchController: UIGestureRecognizerDelegate {
         let touched = gestureRecognizer.view?.hitTest(gestureRecognizer.location(in: gestureRecognizer.view), with: nil)
         return swipeMayBegin(from: touched)
     }
+
+    /**
+     * The navigation controller's swipe back waits for this swipe to fail: while the search is shown, a swipe from the
+     * left edge leaves the search first and goes back only when this swipe did not begin.
+     */
+    @objc public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
+                                        shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        guard gestureRecognizer === swipeGestureRecognizer,
+              let navigation = contentsViewController?.navigationController else { return false }
+        if otherGestureRecognizer === navigation.interactivePopGestureRecognizer { return true }
+        if #available(iOS 26.0, *), otherGestureRecognizer === navigation.interactiveContentPopGestureRecognizer { return true }
+        return false
+    }
 }
 
 // MARK: - Results table view controller
