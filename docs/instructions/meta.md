@@ -25,6 +25,7 @@ Details of the `meta` tag of [AGENTS.md](../../AGENTS.md) and [instructions.md](
   4. A new rule goes into its tag's file in full and, when every agent must know it, as one line under the tag's
      heading. A new category gets a new tag, a heading in both instruction files and a new tag file. When a file
      would pass 200 lines, move text from it into the tag files; never drop a rule.
-  5. `AGENTS.md` and `instructions.md` keep the same tags and headings. Skills (`.agents/skills`) stay as they are and
+  5. The first category is always `behavior` (the behavioral guidelines, read in full first; added 2026-11-22).
+  6. `AGENTS.md` and `instructions.md` keep the same tags and headings. Skills (`.agents/skills`) stay as they are and
      are listed in the `skills` category; a skill that repeats a rule links the tag file.
 - First reorganization: 2026-11-22 (`docs/task-log.md`, "sort the instruction files by tag"). Skill: `cyl-docs`.

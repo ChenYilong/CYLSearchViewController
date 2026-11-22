@@ -952,3 +952,19 @@ begins and becomes `DONE` when it ends.
   platform together (skill `cyl-sub-repositories`), update our Swift call sites from the mapping table, all suites green.
 - **Source**: message from the CYLTableViewPlaceHolder session (chenyilong-83), 2026-11-22; no prompt of the owner.
 - **Status**: TODO (after the merge refactor phases).
+
+
+## DONE (2026-11-22): the behavioral guidelines file at the top of the instruction files, read in full
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). Context: the user added `docs/instructions/Behavioral_guidelines_to_reduce_common_LLM_coding_mistakes.md` (65 lines,
+  untracked until now).
+- **Prompt (verbatim)**: see `docs/instructions/behavior.md` (quoted in full there).
+- **Prompt (English)**: put a relative link to that file at the top of the root instruction files, marked as a file that
+  must be read in full, as a new category with a new tag heading; overflow of the root files goes to `docs/instructions`;
+  write the rule into the instruction and skill files.
+- **Acceptance**: 100 = the file committed unchanged; a first category "Behavioral guidelines: read in full first" (tag
+  `behavior`) at the top of `AGENTS.md` and `instructions.md` with the relative link and the read-in-full note; `CLAUDE.md`
+  loads it; the rule in `docs/instructions/behavior.md` and `meta.md`; skills `cyl-task-start` and `cyl-docs`; all three
+  root files within 200 lines; links resolve.
+- **Status**: DONE (2026-11-22), 100/100. `AGENTS.md` and `instructions.md` 152 lines each, `CLAUDE.md` 4 lines (imports the
+  guidelines, then `AGENTS.md`); the guidelines file is committed as the user wrote it.

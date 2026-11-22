@@ -1,5 +1,12 @@
 # Agent Instructions
 
+## Behavioral guidelines: read in full first (tag: `behavior`)
+
+- **You must read this file in full, every line, before any task:**
+  [docs/instructions/Behavioral_guidelines_to_reduce_common_LLM_coding_mistakes.md](docs/instructions/Behavioral_guidelines_to_reduce_common_LLM_coding_mistakes.md). Its rules (think before coding, simplicity first, surgical changes, goal-driven
+  execution) apply to every task, together with the rest of this file.
+- Details: [docs/instructions/behavior.md](docs/instructions/behavior.md).
+
 This repository is the CYLSearchViewController search library (iOS Swift core, ports to Android, HarmonyOS, the
 WeChat mini program, Flutter and React Native) and its examples, with the Issue #1317 reproduction. Read
 `instructions.md` and the applicable skill in `.agents/skills/` before making changes.
