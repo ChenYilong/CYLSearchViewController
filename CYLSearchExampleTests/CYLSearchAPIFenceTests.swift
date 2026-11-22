@@ -37,6 +37,8 @@ private final class FenceSearchBarViewDelegate: NSObject, CYLSearchBarViewDelega
 }
 
 private final class FenceSearchViewDelegate: NSObject, CYLSearchViewDelegate {
+    @objc func searchViewWillShow(_ searchView: CYLSearchView) {}
+    @objc func searchViewWillClose(_ searchView: CYLSearchView) {}
     @objc func searchViewDidShow(_ searchView: CYLSearchView) {}
     @objc func searchViewDidClose(_ searchView: CYLSearchView) {}
     @objc(searchView:textDidChange:) func searchView(_ searchView: CYLSearchView, textDidChange text: String) {}
@@ -327,6 +329,8 @@ final class CYLSearchAPIFenceTests: XCTestCase {
         touch(view, \.resultsDataSource)
         _ = view.resultsTableView
         _ = view.searchResults
+        touch(view, \.highlightsResultMatches)
+        touch(view, \.resultMatchHighlightColor)
         touch(view, \.refreshHandler)
         _ = view.isRefreshing
         touch(view, \.dividerColor)
@@ -355,6 +359,9 @@ final class CYLSearchAPIFenceTests: XCTestCase {
         _ = view.emptySuggestionsView
         touch(view, \.focusesSearchFieldOnShow)
         _ = view.searchOpen
+        touch(view, \.isActive)
+        let _: (Bool, Bool) -> Void = view.setActive
+        touch(view, \.supportsSwipeToDismissSearch)
         touch(view, \.animationDuration)
         touch(view, \.closesOnSubmit)
         touch(view, \.query)
@@ -399,6 +406,8 @@ final class CYLSearchAPIFenceTests: XCTestCase {
         view.delegate = delegate
         view.resultsDataSource = dataSource
         let d: CYLSearchViewDelegate = delegate
+        d.searchViewWillShow?(view)
+        d.searchViewWillClose?(view)
         d.searchViewDidShow?(view)
         d.searchViewDidClose?(view)
         d.searchView?(view, textDidChange: "a")
@@ -505,6 +514,11 @@ final class CYLSearchAPIFenceTests: XCTestCase {
         touch(sc, \.suggestions)
         touch(sc, \.dimmingColor)
         touch(sc, \.isActive)
+        _ = sc.searchOpen
+        let _: (Bool) -> Void = sc.showSearch(animated:)
+        let _: (Bool) -> Void = sc.closeSearch(animated:)
+        touch(sc, \.highlightsResultMatches)
+        touch(sc, \.resultMatchHighlightColor)
         touch(sc, \.hidesNavigationBarDuringPresentation)
         touch(sc, \.alwaysShowsSearchResultsController)
         touch(sc, \.forwardsAppearanceFromContentsViewController)
