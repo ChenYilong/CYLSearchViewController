@@ -145,6 +145,22 @@
       "value": "Hot"
     },
     {
+      "name": "discover_animationItem",
+      "value": "Animation"
+    },
+    {
+      "name": "discover_animationLoops",
+      "value": "Loop animation"
+    },
+    {
+      "name": "discover_animationSpeed",
+      "value": "Animation speed"
+    },
+    {
+      "name": "discover_animationPlay",
+      "value": "Play again"
+    },
+    {
       "name": "contactTags_row",
       "value": "Contact tags (CollectionViewClassifyMenu)"
     },
