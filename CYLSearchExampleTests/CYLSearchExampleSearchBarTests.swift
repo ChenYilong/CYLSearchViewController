@@ -668,4 +668,17 @@ extension CYLSearchExampleSearchBarTests {
         let afterReset = tag?.animationSpeed
         XCTAssertEqual(afterReset ?? -1, 2, accuracy: 0.001, "the style's speed is the item's, not 1")
     }
+
+    /// The layout contract (docs/animated-icon-component.md, "Default layout contract"): an edge-to-edge bar's capsule
+    /// lines up with the tag list's tags and section header below it, on both sides.
+    @MainActor
+    func testBarCapsuleLinesUpWithTheTagListInset() {
+        let width: CGFloat = 390
+        let bar = CYLSearchBarView(frame: CGRect(x: 0, y: 0, width: width, height: 60))
+        bar.layoutIfNeeded()
+        let tagStyle = CYLMenuStyle()
+        XCTAssertEqual(bar.fieldView.frame.minX, tagStyle.sectionInsets.left, accuracy: 0.5, "leading: capsule = first tag")
+        XCTAssertEqual(bar.fieldView.frame.maxX, width - tagStyle.sectionInsets.right, accuracy: 0.5, "trailing: capsule = last tag")
+        XCTAssertEqual(bar.fieldView.frame.minX, tagStyle.headerHorizontalInset, accuracy: 0.5, "leading: capsule = section title")
+    }
 }

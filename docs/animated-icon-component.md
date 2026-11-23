@@ -83,6 +83,16 @@ User prompt, verbatim: "searchbar页面。你如果想在搜索seachbar加动效
 | HarmonyOS | TODO | TODO |
 | WeChat mini program | TODO | TODO |
 
+## Default layout contract (2026-11-24, owner), every example
+
+Why: Flutter and React Native looked very different from the native pages although both call the same native components; the examples carried their own padding and headers. The measured cause (pixel crops of tags and bar corners matched): the components were identical, the page shells were not. So the alignment lives in the core, and an example places the components edge to edge.
+
+1. **One horizontal inset, 16 pt (16 dp on Android)**: the search bar's capsule (`CYLSearchBarView.contentInsets`, default `(6, 16, 6, 16)` since 2026-11-24, was 12), the tag list's section header title (`CYLMenuStyle.headerHorizontalInset`, 16) and its tags (`sectionInsets`, 16) all start and end at that inset. Placed edge to edge with no padding, the capsule's left and right edges line up with the section title and the first tag.
+2. **The tag list brings its own section header**: `sectionTitle` and `showsClearButton` (built-in trash icon, `onClearButtonTap` / `onClearButtonTapped`) on the Flutter and React Native tag list; an example writes no header for a tag list.
+3. **An example writes no padding for these components.** Padding stays only for its own content (titles, the Loop / speed / Play row).
+4. Checked by the unit test `testBarCapsuleLinesUpWithTheTagListInset` (capsule `minX` / `maxX` equal the tag list's section insets and header inset), and on the iOS simulator: Flutter and React Native show the capsule, the "Recent searches" title, the tags and the trash on the same inset: ![Flutter and React Native Discover on iOS, core layout](assets/flutter-and-rn-ios-27.2-iphone18pro-20261124-discover-core-layout.png) (2026-11-24, commit in the log below).
+5. **Not yet in the core (next candidates)**: the "Discover" section header with its refresh action and the two-column topic grid with the HOT icon (iOS builds it as a `CYLTagListView` grid in the example; Flutter and React Native build their own rows). Other platforms: the same default `contentInsets` 16 (Android 16 dp, HarmonyOS, mini program) is TODO for the Windows session.
+
 ## DONE (2026-11-19; TODO 2026-11-17): one icon + title / animated icon component everywhere
 
 - **Context**: branch `feat/harmonyos-parity` (PR #11). The packaged icon + title component that also plays animated

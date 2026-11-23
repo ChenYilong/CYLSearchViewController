@@ -379,9 +379,10 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     }
 
     /**
-     * The space around the field. (6, 12, 6, 12) by default.
+     * The space around the field. (6, 16, 6, 16) by default: the same 16 pt as the tag list's section insets and
+     * section header (CollectionViewClassifyMenu), so a bar placed edge to edge lines up with the suggestions below it.
      */
-    @objc public var contentInsets = UIEdgeInsets(top: 6, left: 12, bottom: 6, right: 12) {
+    @objc public var contentInsets = UIEdgeInsets(top: 6, left: 16, bottom: 6, right: 16) {
         didSet { invalidateIntrinsicContentSize(); setNeedsLayout() }
     }
 

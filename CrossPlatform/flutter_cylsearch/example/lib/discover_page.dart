@@ -197,9 +197,7 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
         children: <Widget>[
           // The search bar sits under the navigation bar: it covers no view. The field stays; the camera, a divider
           // and the Search button are items appended inside its bordered capsule (core `CYLSearchBarItem`).
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: SizedBox(
+          SizedBox(
               height: 56,
               child: CYLSearchBarView(
                 controller: _barController,
@@ -229,18 +227,20 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                 onSubmitted: _search,
               ),
             ),
-          ),
           Expanded(
             child: ListView(
               children: <Widget>[
                 if (_recent.isNotEmpty) ...<Widget>[
-                  _header(context, data.text('discover.recent'), Icons.delete_outline, data.text('discover.clear'), () {
-                    setState(() => _recent = <String>[]);
-                    _show(data.text('discover.cleared'));
-                  }),
+                  // The native tag list brings its own section header (title and trash) and lines up with the bar.
                   // The last tag is the fold chevron, two rows while folded (the iOS and Android Discover pages).
                   CYLTagListView(
                     tags: _recent,
+                    sectionTitle: data.text('discover.recent'),
+                    showsClearButton: true,
+                    onClearButtonTapped: () {
+                      setState(() => _recent = <String>[]);
+                      _show(data.text('discover.cleared'));
+                    },
                     foldControlPosition: CYLTagFoldControlPosition.inline,
                     foldControlContent: CYLTagFoldControlContent.icon,
                     foldedRowCount: 2,
@@ -258,7 +258,7 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                   ),
                   // Playback of the camera item (the last block of the page, outside the bar): loop switch, speed slider and Play again.
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
                       children: <Widget>[
                         Semantics(

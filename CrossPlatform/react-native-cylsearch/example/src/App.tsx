@@ -389,14 +389,18 @@ function DiscoverDemo() {
           { style: 'text', title: 'Search', accessibilityIdentifier: 'CYLSearchDiscoverSearchButton', onPress: () => search(typed.current) },
         ]}
       />
-      <View style={[styles.header, styles.block]}>
-        <Text accessibilityRole="header" style={[styles.section, { color: palette.text }]}>Recent searches</Text>
-        <Pressable accessibilityRole="button" accessibilityLabel="Clear recent searches" onPress={() => { setRecent([]); setMessage('Recent searches cleared'); }}>
-          <Text style={styles.action}>Clear</Text>
-        </Pressable>
-      </View>
+      {/* The native tag list brings its own section header (title and trash) and lines up with the bar: no custom header. */}
       {recent.length > 0 ? (
-        <CYLTagListView tags={recent} foldControlPosition="inline" foldControlContent="icon" foldedRowCount={2} onTagSelect={(event) => search(event.nativeEvent.title)} />
+        <CYLTagListView
+          tags={recent}
+          sectionTitle="Recent searches"
+          showsClearButton
+          onClearButtonTap={() => { setRecent([]); setMessage('Recent searches cleared'); }}
+          foldControlPosition="inline"
+          foldControlContent="icon"
+          foldedRowCount={2}
+          onTagSelect={(event) => search(event.nativeEvent.title)}
+        />
       ) : null}
       <View style={[styles.header, styles.block]}>
         <Text accessibilityRole="header" style={[styles.section, { color: palette.text }]}>Discover</Text>
@@ -448,7 +452,7 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
   // The Flutter discover page's metrics: 16 pt blocks, a 56 pt bar inset 12 pt, topics 16 pt by 10 pt, a 16 pt hot icon.
   discoverPage: { paddingVertical: 16, gap: 12 },
-  discoverBar: { height: 56, marginHorizontal: 12 },
+  discoverBar: { height: 56 },
   block: { paddingHorizontal: 16 },
   topic: { width: '50%', flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 16 },
   topicTitle: { flexShrink: 1 },
