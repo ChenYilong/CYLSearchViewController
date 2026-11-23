@@ -1313,3 +1313,22 @@ begins and becomes `DONE` when it ends.
 - **Rubric**: 100 = A to E done and verified on the simulator with labeled screenshots; 60 = A done (build, analyzer, unit tests green) and B checked.
 - **Status**: TODO. Nothing in these rows has been built before (the cloud session had no Xcode).
 
+## TODO (2026-11-23): HarmonyOS example plays through CYLTabBarController's engine views (PR #824), own players deleted
+
+- Context: CYLTabBarController PR #824 ships one engine per format for `CYLAnimatedItemView` (`cylanimateditem` GIF and
+  SVGA, `cylanimateditem_lottie`, `cylanimateditem_pag`, `cylanimateditem_rive`). CollectionViewClassifyMenu PR #31
+  (`f10279f0`) deleted its example players and registers those engines (`cylRegisterExampleAnimationEngines`). Our
+  `harmonyos/entry/src/main/ets/animation` still carries a copy of the old players (about 1470 lines: Lottie, PAG, GIF,
+  SVGA, the SVGA parser and inflate). Agreed with a8 and the winsCYLSearchViewController session: this session takes
+  HarmonyOS.
+- Requirements: pin tab bar `9c8cf475` (Android's pin, 9429b9a) and ClassifyMenu `f10279f0` in
+  `harmonyos/oh-package.json5`; vendor `cylanimateditem_pag` and `cylanimateditem_rive`; the example registers the five
+  engines and nothing else; delete `CYLExampleAnimationPlayers.ets` and `svga/`; both HAPs build; host tests and
+  `aa test` pass; the Discover page's animated items play on the emulator (screenshot).
+- Prompt (verbatim): "continue fix todo and watch and fix ci fail"
+- Prompt (English): the same. The switch itself is the earlier request: "你应该将CYLRiveIcon 和CYLPagIcon封装进
+  CYLTabBarController 的CYLAnimatedItemView中， 然后调用的CYLAnimatedItemView中接口来完成example实现。" (wrap them into
+  CYLAnimatedItemView and have the example call its API).
+- Acceptance (100): builds, 55/55 hypium on the emulator, the animated items play (labeled screenshot), ClassifyMenu
+  `f10279f0` has a green iOS run, pushed. (60): builds and the hypium tests pass.
+- Status: TODO.
