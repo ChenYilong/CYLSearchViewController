@@ -1196,6 +1196,40 @@ begins and becomes `DONE` when it ends.
     CYLTabBarController's `react-native-cyltabbar` / `flutter_cyltabbar`, iOS side CYLAnimatedItem pods (Flutter iOS with the
     `Rive` subspec), no Rive player of their own in this repository; mini program: `cyl-tab-bar` of CYLTabBarController's package, SVGA
     only, no Rive; iOS: `CYLAnimatedItem` pod (Core, SVGA, LottieSwift).
+
+## DONE (2026-11-23): rows I2 / I5 (the 116 pt offset while searching) and the uncommitted Podfile.lock
+
+- **Branch**: `fix/i2-i5-offset` (from `feat/harmonyos-parity` at `052919a`, pull request 11 is its base). macOS 27
+  session, Xcode 27.2, the dedicated simulator "iPhone 18 Pro (CYLSearch iOS TODOs)" (iOS 27.2); APFS worktree
+  `/tmp/xpr/csvc-ios`. `fix/ios-todos-qmui` (pull request 14, merged as `9de476f`) deleted at the owner's request.
+- **Context**: `docs/qmui-search-controller.md`, "Remaining TODO":
+  1. Item 2, rows I2 / I5: a `CYLSearchBar` in a plain subview ("Bar in a view", #1251) or in a container we own
+     ("Collection view", #1313) sits 116 pt (one navigation bar height) below its rest position while searching: UIKit
+     puts its own container at the bar's y plus the presentation's safe area top. It was parked for phase 3 of "Merge
+     design"; phases 0 to 4 are done and did not take it, so it is free now. Fix in the core (`CYLSearchController`).
+  2. Item 7: `Podfile.lock` not committed "until the last pin move". All pin moves in this log are DONE (the latest,
+     CYLTabBarController `c4a1f8fd` / ClassifyMenu `04b39e26`, in `d7a7534`), so the lock can be committed.
+- **Requirements**: fix in the core first (AGENTS.md); tests that check the absolute position while searching (not only
+  "did not move"); real-touch check and a labelled before / after screenshot; full iOS suite green; follow AGENTS.md.
+- **Prompt (verbatim)**: "fix/ios-todos-qmui can be deleted。and fix" followed by the pasted "Still open, owned
+  elsewhere" list (I2 / I5 offset; `Podfile.lock` uncommitted).
+- **Prompt (English)**: "fix/ios-todos-qmui can be deleted, and fix: the 116 pt offset of rows I2 / I5 and the
+  uncommitted Podfile.lock."
+- **Acceptance**: 100 = the bar of "Bar in a view" and "Collection view" stays at its rest position while searching
+  (tests with the absolute frame, a touch run, screenshot), `Podfile.lock` committed in sync with the Podfile, suite and
+  CI green. 60 = `Podfile.lock` committed and the offset fixed on one of the two screens.
+- **Status** (2026-11-23): DONE, score 100/100.
+  1. `Podfile.lock` committed in sync with the Podfile (`b0096d9`); "Remaining TODO" item 7 marked done.
+  2. I2 / I5 fixed in the core (`0a7deab`): UIKit placed the bar's container at the bar's window y inside a presentation
+     that starts at the contents view (bar at 232 instead of 116); `CYLSearchController` keeps the rest frame and the
+     system controller moves the container back by the measured difference before the results read `searchBarMaxY`.
+     Three tests check the absolute position while entering and leaving the search (all read 116 pt without the fix); 188
+     tests, 0 failures on iOS 27.2, 26.5 and 17.5 (clean derived data); real taps on both screens, labelled before / after
+     screenshot `qmui-search-i2-i5-offset-fix-ios27.2-20261123.png`.
+  3. CI: a CocoaPods CDN DNS failure on the runner (rerun), then `testB7WithCYLSearchControllerCancelDoesNotJitter` read the
+     tail of a slow presentation as a jitter (a header bar: the I2 / I5 correction is off there); it now waits for
+     `didPresent`.
+
 ## TODO (2026-11-23): label the 338 old screenshots that fail the CI label check on PR #11
 
 - **Prompt (verbatim)**: "PR #11 的 label check： 报 338 个旧截图问题 为截图增加label"

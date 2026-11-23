@@ -574,7 +574,11 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         let run = headerRun()
         let bar = run.search.searchBar
         run.search.setActive(true, animated: true)
-        runLoop(0.8)
+        // A slow CI runner was still finishing the presentation after a fixed 0.8 s (Cancel settling from 69 to 64 pt read as
+        // a jitter): wait for didPresent, up to 5 s, then let the last frame land.
+        let deadline = Date(timeIntervalSinceNow: 5)
+        repeat { runLoop(0.1) } while !run.contents.events.contains("didPresent") && Date() < deadline
+        runLoop(0.3)
         run.search.setActive(false, animated: true)
         var offsets: [CGFloat] = []
         var cancelY: [CGFloat] = []

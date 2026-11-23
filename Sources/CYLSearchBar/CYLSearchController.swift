@@ -617,6 +617,7 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
             hasSetShowsCancelButton = false
         }
         if systemController.hasStatusBarProviders { systemController.setNeedsStatusBarAppearanceUpdate() }
+        rememberPlainBarRestFrame()
         presentationState.send(.willPresent)
     }
 
@@ -642,9 +643,27 @@ open class CYLSearchController: UIViewController, UISearchResultsUpdating, UISea
      */
     @objc public func didDismissSearchController(_ searchController: UISearchController) {
         hideEmptyView()
+        systemController.forgetPlainBarRestFrame()
         headerSnapper?.refresh()
         presentationState.send(.didDismiss)
         if supportsSwipeToDismissSearch && !dismissBySwipe { cleanSnapshotObjects() }
+    }
+
+    /**
+     * Rows I2 / I5 (QMUI #1251, #1313): a bar that is neither a table header nor on a navigation item, with the navigation
+     * bar kept, is moved by UIKit into a container that it places at the bar's window y inside the presentation, which
+     * starts at the contents view: the bar landed one navigation bar height too low. The rest frame is kept so that the
+     * system controller can put the bar back where it was.
+     */
+    private func rememberPlainBarRestFrame() {
+        let bar = searchBar
+        guard !bar.usedAsTableHeaderView, !bar.hostedInNavigationItem, !systemController.hidesNavigationBarDuringPresentation,
+              let contents = contentsViewController?.viewIfLoaded, bar.isDescendant(of: contents) else {
+            systemController.forgetPlainBarRestFrame()
+            return
+        }
+        systemController.plainBarRestFrame = bar.convert(bar.bounds, to: contents)
+        systemController.plainBarReferenceView = contents
     }
 
     // MARK: - Swipe to dismiss
@@ -1070,8 +1089,34 @@ final class CYLSystemSearchController: UISearchController {
         addOverlaysIfNeeded()
     }
 
+    // MARK: Plain bar position (rows I2 / I5)
+
+    // The bar's frame in plainBarReferenceView when the search began; nil for a header or a navigation item bar.
+    var plainBarRestFrame: CGRect?
+    weak var plainBarReferenceView: UIView?
+
+    func forgetPlainBarRestFrame() {
+        plainBarRestFrame = nil
+        plainBarReferenceView = nil
+    }
+
+    /**
+     * Moves the container UIKit put the bar in by the measured difference to the bar's rest frame (0 where UIKit places it
+     * right), so a plain subview bar stays where it was while searching.
+     */
+    func keepPlainBarInPlace() {
+        guard let rest = plainBarRestFrame, let reference = plainBarReferenceView, reference.window != nil,
+              let container = cylSearchBar.superview, container.superview === view else { return }
+        let target = reference.convert(rest, to: view)
+        let current = cylSearchBar.convert(cylSearchBar.bounds, to: view)
+        let offset = target.minY - current.minY
+        if abs(offset) > 0.5 { container.frame.origin.y += offset }
+    }
+
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
+        // First, so that searchBarMaxY (the top of the results and the overlays) reads the corrected bar.
+        keepPlainBarInPlace()
         // Some paths (setActive(true, animated: false)) lay this view out without laying the results out: the results
         // would read a wrong searchBarMaxY.
         if let results = searchResultsController, results.isViewLoaded { results.view.setNeedsLayout() }

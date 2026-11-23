@@ -101,17 +101,53 @@ final class CYLSearchIssueScenarioTests: CYLSearchExampleTestCase {
         XCTAssertTrue(search.isActive)
         XCTAssertFalse(navigation.navigationBar.isHidden, "the navigation bar stays")
         let worst = samples.map { abs($0.minY - start.minY) }.max() ?? 0
-        // Measured on iOS 27.2 (docs/qmui-search-controller.md, row I2, phase 4): UIKit puts the container it moves the bar into at
-        // the bar's y plus the safe area top of the presentation, which is the navigation bar's height here, so the bar ends
-        // one navigation bar height below where it was (still inside the screen, covering no view). This pins that behavior;
-        // when it changes, row I2 can be closed.
-        XCTAssertEqual(worst, navigation.navigationBar.frame.maxY, accuracy: 1, "the bar moved \(worst) pt")
+        // Row I2 (docs/qmui-search-controller.md): UIKit put the container it moves the bar into at the bar's window y inside a
+        // presentation that starts at the contents view, one navigation bar height too low (116 pt on iOS 27.2). The core puts
+        // the bar back: it stays where it was through the whole animation.
+        XCTAssertLessThanOrEqual(worst, 1, "the bar moved \(worst) pt")
         let active = bar.convert(bar.bounds, to: window)
-        XCTAssertGreaterThanOrEqual(active.minY, navigation.navigationBar.frame.maxY - 0.5, "inside the safe area while searching")
+        XCTAssertEqual(active.minY, start.minY, accuracy: 0.5, "the bar stays at its rest position while searching")
+        // The results start at the bar's bottom edge, not 116 pt lower.
+        let table = try XCTUnwrap(search.tableView)
+        let resultsTop = table.convert(table.bounds, to: window).minY + table.adjustedContentInset.top
+        XCTAssertEqual(resultsTop, active.maxY, accuracy: 0.5, "the results start under the bar")
         // A real tap run (docs/qmui-search-controller.md, phase 4) found the bar 0 pt wide while searching when it was laid out
         // with Auto Layout constraints to the screen's view: UIKit moves the bar into its own container and drops them.
         XCTAssertEqual(active.width, window.bounds.width, accuracy: 0.5, "the bar keeps its width while searching")
         XCTAssertLessThanOrEqual(active.maxY, window.bounds.maxY)
+        // Leaving the search starts from the corrected place: no slide on the way back either.
+        var leaving: [CGRect] = []
+        let leaveSampler = CYLFrameSampler { leaving.append(self.drawnFrame(of: bar, in: window)) }
+        search.setActive(false, animated: true)
+        runLoop(1.0)
+        leaveSampler.stop()
+        let worstLeaving = leaving.map { abs($0.minY - start.minY) }.max() ?? 0
+        XCTAssertLessThanOrEqual(worstLeaving, 1, "the bar moved \(worstLeaving) pt while leaving")
+        window.isHidden = true
+    }
+
+    /// I2 with the contents view under the navigation bar (UIKit's default; the demo screen removes `.top`): the bar laid out
+    /// at the safe area top stays there while searching.
+    func testI2PlainBarInAnExtendedViewStaysInPlace() throws {
+        let screen = UIViewController()
+        screen.view.backgroundColor = .systemBackground
+        let search = CYLSearchController(contentsViewController: screen)
+        search.hidesNavigationBarDuringPresentation = false
+        let bar = search.searchBar
+        bar.sizeToFit()
+        screen.view.addSubview(bar)
+        let (window, navigation) = open(screen)
+        bar.frame = CGRect(x: 0, y: screen.view.safeAreaInsets.top, width: screen.view.bounds.width, height: bar.frame.height)
+        let start = bar.convert(bar.bounds, to: window)
+        XCTAssertEqual(start.minY, navigation.navigationBar.frame.maxY, accuracy: 0.5)
+        var samples: [CGRect] = []
+        let sampler = CYLFrameSampler { samples.append(self.drawnFrame(of: bar, in: window)) }
+        search.setActive(true, animated: true)
+        runLoop(1.2)
+        sampler.stop()
+        XCTAssertTrue(search.isActive)
+        let worst = samples.map { abs($0.minY - start.minY) }.max() ?? 0
+        XCTAssertLessThanOrEqual(worst, 1, "the bar moved \(worst) pt")
         search.setActive(false, animated: false)
         window.isHidden = true
     }
@@ -361,11 +397,19 @@ final class CYLSearchIssueScenarioTests: CYLSearchExampleTestCase {
         for round in 1...2 {
             search.setActive(true, animated: true)
             runLoop(0.9)
+            // Row I5: while searching the bar stays where it was (it landed 116 pt lower before the core put it back).
+            XCTAssertEqual(drawnFrame(of: bar, in: window).minY, before.minY, accuracy: 1, "round \(round): searching")
             search.searchBar.text = "1"
             runLoop(0.3)
+            var leaving: [CGRect] = []
+            let sampler = CYLFrameSampler { leaving.append(self.drawnFrame(of: bar, in: window)) }
             search.setActive(false, animated: true)
             runLoop(1.0)
             runLoop(0.1)
+            sampler.stop()
+            // #1313 is a jitter after Cancel: no frame of the way back leaves the rest position.
+            let worst = leaving.map { abs($0.minY - before.minY) }.max() ?? 0
+            XCTAssertLessThanOrEqual(worst, 1, "round \(round): the bar moved \(worst) pt after Cancel")
             let after = bar.convert(bar.bounds, to: window)
             XCTAssertEqual(after.minX, before.minX, accuracy: 0.5, "round \(round)")
             XCTAssertEqual(after.minY, before.minY, accuracy: 0.5, "round \(round)")
