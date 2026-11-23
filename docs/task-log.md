@@ -1278,3 +1278,25 @@ begins and becomes `DONE` when it ends.
 - Acceptance (100): both HAPs build in the mirror, host logic tests pass, `aa test` passes on 127.0.0.1:5557, pushed.
   (60): both HAPs build and the host tests pass; the emulator run is a TODO.
 - Status: TODO.
+
+## TODO (2026-11-23): the open items of "Remaining TODO" in docs/qmui-search-controller.md, score to 100
+
+- **Branch**: `fix/qmui-score-100` (from `feat/harmonyos-parity` at `72197dd`, pull request 11 is its base). macOS 27
+  session, Xcode 27.2, the dedicated simulator "iPhone 18 Pro (CYLSearch iOS TODOs)" (iOS 27.2); APFS worktree
+  `/tmp/xpr/csvc-ios`.
+- **Context**: `docs/qmui-search-controller.md`, "Score (2026-11-22)" shows 94 / 100; the I rows are 15 / 15 since
+  `bfbee55` / `0a7deab`, so 98 / 100 are left to earn back two points, plus the open "Remaining TODO" items:
+  1. Example criterion -1: the recent searches are tags without QMUI's 69 pt minimum width (`CYLMenuStyle` has no
+     minimum size, "Merge design" phase 6) and a tap on a tag does nothing.
+  2. Edge-case criterion -1: E21's real trigger (a cancelled interactive pop) is not started by any automated test.
+  3. Item 1: iOS 18 is unverified (Apple numbered the next release 26, so 19 to 25 do not exist); iOS 15 / 16 have no
+     runtime on a macOS 27 host.
+  4. Item 5: the E21 touch check on iOS 17.5.
+  5. Item 4: the mini program twin of the new screens (parity table, other sessions): check its state.
+- **Requirements**: core first (AGENTS.md); each fix with a test; real-touch check and labelled screenshots; full suite
+  green on a clean build; score table updated with the reason for every point.
+- **Prompt (verbatim)**: "fix to do and score to 100"
+- **Prompt (English)**: "fix the TODOs and score to 100."
+- **Acceptance**: 100 = both lost points earned back with tests, iOS 18 suite green (or the host limit written with
+  evidence), E21 touch check on 17.5 done, score table at 100. 60 = one lost point earned back and the rest documented.
+- **Status**: in progress.
