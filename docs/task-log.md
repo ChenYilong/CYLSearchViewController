@@ -1261,3 +1261,20 @@ begins and becomes `DONE` when it ends.
 - **Labels**: the 64 images are not added by this branch against `master`, so they need no new label; the label check of
   the pull requests (new images only) stays as it is.
 - **Status**: DONE; the next push of a new branch is the check.
+
+## TODO (2026-11-23): the HarmonyOS example does not build at tab bar f66e85d5 and ClassifyMenu 325c7a31
+
+- Context: 8042e92 moved the tab bar pin to `f66e85d5` and e35b74e moved the HarmonyOS ClassifyMenu pin to `325c7a31`,
+  both checked statically only. The build at e35b74e/a6f27b7 fails: `cyltabbar` at f66e85d5 depends on
+  `file:../cylanimateditem_lottie`, which the sync scripts do not vendor, and imports
+  `cylanimateditem/src/main/ets/CYLAnimatedItemGIFTiming`, which ClassifyMenu's vendored copy of cylanimateditem (tab bar
+  `3074c51d`) lacks. Once those resolve, `entry/src/main/ets/demos/Discover.ets` (aa6e60c) calls
+  `accessibilityValue` on a Slider, which API 21 does not have.
+- Requirements: the sync scripts take `cylanimateditem` and `cylanimateditem_lottie` from the tab bar commit;
+  `build-profile.json5` registers `cylanimateditem_lottie`; the speed slider reads its value another way; both HAPs
+  build; the host tests and the emulator unit tests pass.
+- Prompt (verbatim): "continue fix todo and watch and fix ci fail"
+- Prompt (English): the same.
+- Acceptance (100): both HAPs build in the mirror, host logic tests pass, `aa test` passes on 127.0.0.1:5557, pushed.
+  (60): both HAPs build and the host tests pass; the emulator run is a TODO.
+- Status: TODO.
