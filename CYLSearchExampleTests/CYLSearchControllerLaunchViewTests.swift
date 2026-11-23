@@ -695,6 +695,13 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
         open.window.isHidden = true
     }
 
+    private func waitForEvent(_ name: String, in recorder: CYLSearchLifecycleRecorder) {
+        let deadline = Date(timeIntervalSinceNow: 3)
+        while !recorder.events.contains(name) && Date() < deadline {
+            runLoop(0.05)
+        }
+    }
+
     func testSearchViewActiveStateWithAnimation() {
         let recorder = CYLSearchLifecycleRecorder()
         let open = openSearchView { $0.delegate = recorder }
@@ -703,11 +710,12 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
         open.view.closeSearch(animated: true)
         XCTAssertEqual(recorder.events, ["willClose"], "will comes before the animation, did after it")
         XCTAssertFalse(open.view.isActive)
-        runLoop(0.6)
+        // A slow CI simulator can finish a 0.2 s animation later than 0.6 s: wait up to 3 s for each "did" event.
+        waitForEvent("didClose", in: recorder)
         XCTAssertEqual(recorder.events, ["willClose", "didClose"])
         open.view.showSearch(animated: true)
         XCTAssertEqual(recorder.events.suffix(1), ["willShow"])
-        runLoop(0.6)
+        waitForEvent("didShow", in: recorder)
         XCTAssertEqual(recorder.events, ["willClose", "didClose", "willShow", "didShow"])
         open.window.isHidden = true
     }
