@@ -1,4 +1,9 @@
 #import <UIKit/UIKit.h>
+// CYLAnimatedItem's Swift header declares an SVGAPlayer subclass (CYLSVGATabBarItemAnimationView); Objective-C++ cannot use the
+// header's @import either, so SVGAPlayerLite's types come first.
+#if __has_include(<SVGAPlayerLite/SVGA.h>)
+#import <SVGAPlayerLite/SVGA.h>
+#endif
 // CYLTagButton's superclass, CYLAnimatedItemView: Objective-C++ cannot use the Swift header's @import, so it comes first.
 #import <CYLAnimatedItem/CYLAnimatedItem.h>
 #import <CollectionViewClassifyMenu/CollectionViewClassifyMenu-Swift.h>
