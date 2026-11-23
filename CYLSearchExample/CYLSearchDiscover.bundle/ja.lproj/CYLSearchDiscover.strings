@@ -17,7 +17,6 @@
 "discover.ok" = "OK";
 "discover.holdMic" = "マイクボタンを長押しして質問を話してください";
 "discover.hot" = "人気";
-"discover.animationItem" = "アニメーション";
 "discover.animationLoops" = "アニメーションをループ";
 "discover.animationSpeed" = "アニメーションの速度";
 "discover.animationPlay" = "もう一度再生";

@@ -121,7 +121,8 @@ final class CYLSearchDiscoverViewController: UIViewController {
     let hintLabel = UILabel()
     let micButton = UIButton(type: .system)
     /**
-     * The animation demo: the bar's SVGA item and the row of controls that change its playback properties.
+     * The animation demo: the camera item (animated) and the row of controls, below the search options, that changes its
+     * playback properties.
      */
     private var animationItem: CYLSearchBarItem!
     private let loopSwitch = UISwitch()
@@ -286,25 +287,25 @@ final class CYLSearchDiscoverViewController: UIViewController {
             self?.searchByImage()
         }
         camera.imageSize = CGSize(width: 22, height: 22)
+        // The animation demo: the camera button's static image is replaced by its animated version (a search-camera Lottie,
+        // the same file on every platform); the static symbol stays as the fallback. The bar keeps its original layout.
+        camera.animationURL = CYLSearchDiscoverLocalization.resourceBundle?.url(forResource: "search_camera", withExtension: "json")
+        camera.animationLoops = false
+        camera.animationSpeed = 1
+        animationItem = camera
         let search = CYLSearchBarItem.textItem(title: cylDiscoverText("discover.search")) { [weak self] _ in
             self?.searchTapped()
         }
         search.itemAccessibilityIdentifier = "CYLSearchDiscoverSearchButton"
         searchBar.itemTintColor = .label
         searchBar.addItem(camera)
-        // The playback properties demo: an SVGA icon item right after the camera (index 1), driven by the row below the bar.
-        animationItem = CYLSearchBarItem.iconItem(image: UIImage(systemName: "camera.viewfinder"), title: cylDiscoverText("discover.animationItem")) { _ in }
-        animationItem.imageSize = CGSize(width: 22, height: 22)
-        animationItem.animationURL = Bundle.main.url(forResource: "tab_activity", withExtension: "svga")
-        animationItem.animationLoops = false
-        animationItem.animationSpeed = 1
-        searchBar.addItem(animationItem)
         searchBar.addItem(.divider())
         searchBar.addItem(search)
     }
 
     /**
-     * The compact row under the bar: loop switch, speed slider with its value, and Play again.
+     * The compact row of controls at the bottom of the page's search options (never in the bar): loop switch, speed slider
+     * with its value, and Play again.
      */
     private func setUpPlaybackRow() {
         loopSwitch.isOn = false
@@ -436,10 +437,14 @@ final class CYLSearchDiscoverViewController: UIViewController {
         stackView.spacing = 4
         stackView.addArrangedSubview(recentList)
         stackView.addArrangedSubview(discoverList)
+        // The demo controls close the search options, outside the search bar, so the bar's layout is untouched.
+        playbackRow.isLayoutMarginsRelativeArrangement = true
+        playbackRow.layoutMargins = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        stackView.addArrangedSubview(playbackRow)
         scrollView.alwaysBounceVertical = true
         scrollView.keyboardDismissMode = .onDrag
 
-        for subview in [backButton, searchBar, playbackRow, scrollView, bottomView, hintLabel, micButton] as [UIView] {
+        for subview in [backButton, searchBar, scrollView, bottomView, hintLabel, micButton] as [UIView] {
             subview.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview(subview)
         }
@@ -456,11 +461,7 @@ final class CYLSearchDiscoverViewController: UIViewController {
             searchBar.trailingAnchor.constraint(equalTo: guide.trailingAnchor, constant: -14),
             searchBar.heightAnchor.constraint(greaterThanOrEqualToConstant: 46),
 
-            // The playback row sits between the bar and the content, against the safe area.
-            playbackRow.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 6),
-            playbackRow.leadingAnchor.constraint(equalTo: guide.leadingAnchor, constant: 16),
-            playbackRow.trailingAnchor.constraint(equalTo: guide.trailingAnchor, constant: -16),
-            scrollView.topAnchor.constraint(equalTo: playbackRow.bottomAnchor, constant: 6),
+            scrollView.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 6),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: hintLabel.topAnchor, constant: -8),
