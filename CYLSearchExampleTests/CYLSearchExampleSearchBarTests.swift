@@ -639,5 +639,10 @@ extension CYLSearchExampleSearchBarTests {
         let second = tag?.animationSpeed
         XCTAssertTrue(sameTag, "a speed-only change keeps the tag")
         XCTAssertEqual(second ?? -1, 2, accuracy: 0.001)
+
+        // The tag's style carries the item's speed too: going back to the style keeps it.
+        tag?.resetAnimationSpeed()
+        let afterReset = tag?.animationSpeed
+        XCTAssertEqual(afterReset ?? -1, 2, accuracy: 0.001, "the style's speed is the item's, not 1")
     }
 }

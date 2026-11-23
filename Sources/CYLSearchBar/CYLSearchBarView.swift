@@ -2354,6 +2354,9 @@ private final class CYLSearchBarItemButton: CYLTagButton {
         let hasBackground = item.backgroundColor != nil || item.selectedBackgroundColor != nil
         style.imageSize = resolvedImageSize
         style.animationSize = resolvedImageSize
+        // The item is the only source of the speed: the style agrees with it, so a tag that goes back to its style's
+        // speed (`resetAnimationSpeed()`) does not fall back to 1.
+        style.animationSpeed = item.animationSpeed
         style.imageTitleSpacing = Self.imageTitleSpacing
         style.itemHeight = item.style == .divider ? Self.dividerHeight : Self.minimumTouchSide
         style.imagePositionAdjustment = item.imagePositionAdjustment
