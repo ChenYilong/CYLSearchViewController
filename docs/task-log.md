@@ -1262,7 +1262,7 @@ begins and becomes `DONE` when it ends.
   the pull requests (new images only) stays as it is.
 - **Status**: DONE; the next push of a new branch is the check.
 
-## TODO (2026-11-23): the HarmonyOS example does not build at tab bar f66e85d5 and ClassifyMenu 325c7a31
+## DONE (2026-11-23): the HarmonyOS example does not build at tab bar f66e85d5 and ClassifyMenu 325c7a31
 
 - Context: 8042e92 moved the tab bar pin to `f66e85d5` and e35b74e moved the HarmonyOS ClassifyMenu pin to `325c7a31`,
   both checked statically only. The build at e35b74e/a6f27b7 fails: `cyltabbar` at f66e85d5 depends on
@@ -1277,4 +1277,6 @@ begins and becomes `DONE` when it ends.
 - Prompt (English): the same.
 - Acceptance (100): both HAPs build in the mirror, host logic tests pass, `aa test` passes on 127.0.0.1:5557, pushed.
   (60): both HAPs build and the host tests pass; the emulator run is a TODO.
-- Status: TODO.
+- Status: DONE, score 100. 72197dd: both HAPs build in `C:\cylbuild\harmonyos` (DevEco Studio 6.0.1, API 21; `jbr/bin`
+  must be on PATH for PackageHap); `node scripts/host-logic-test.mjs` passes; `aa test` on the Mate 70 Pro emulator
+  (127.0.0.1:5555 after 3a's restart): Tests run: 55, Failure: 0, Pass: 55.
