@@ -49,6 +49,10 @@
     {
       "name": "cylanimateditemrive",
       "srcPath": "./vendor/cylanimateditemrive"
+    },
+    {
+      "name": "cylanimateditem_lottie",
+      "srcPath": "./vendor/cylanimateditem_lottie"
     }
   ]
 }

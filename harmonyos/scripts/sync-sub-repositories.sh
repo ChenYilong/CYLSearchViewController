@@ -5,7 +5,10 @@
 # - CYLTabBarController CrossPlatform/harmonyos-cyltabbar/cyltabbar (+ LICENSE)        -> vendor/cyltabbar
 # - CYLTableViewPlaceHolder CrossPlatform/harmonyos-cylplaceholder/cylplaceholder (+ LICENSE) -> vendor/cylplaceholder
 # - CollectionViewClassifyMenu harmony/classifymenu                                    -> vendor/classifymenu
-# - CollectionViewClassifyMenu harmony/cylanimateditem                                 -> vendor/cylanimateditem
+# - CYLTabBarController CrossPlatform/harmonyos-cyltabbar/cylanimateditem             -> vendor/cylanimateditem
+#   (from the tab bar commit: cyltabbar imports files that ClassifyMenu's older vendored copy lacks)
+# - CYLTabBarController CrossPlatform/harmonyos-cyltabbar/cylanimateditem_lottie      -> vendor/cylanimateditem_lottie
+#   (the Lottie engine of CYLAnimatedItemView; cyltabbar depends on it)
 # - CYLTabBarController CrossPlatform/harmonyos-cyltabbar/cylanimateditemrive (+ LICENSE) -> vendor/cylanimateditemrive
 #   (the one shared Rive engine: CYLRiveIcon, loop policies, cylRegisterRiveEngine)
 #
@@ -56,7 +59,9 @@ sync cylplaceholder https://github.com/ChenYilong/CYLTableViewPlaceHolder.git cy
   CrossPlatform/harmonyos-cylplaceholder/cylplaceholder CYL_PLACEHOLDER_DIR LICENSE
 sync classifymenu https://github.com/ChenYilong/CollectionViewClassifyMenu.git collectionViewClassifyMenuCommit \
   harmony/classifymenu CYL_CLASSIFYMENU_DIR
-sync cylanimateditem https://github.com/ChenYilong/CollectionViewClassifyMenu.git collectionViewClassifyMenuCommit \
-  harmony/cylanimateditem CYL_CLASSIFYMENU_DIR
+sync cylanimateditem https://github.com/ChenYilong/CYLTabBarController.git cylTabBarControllerCommit \
+  CrossPlatform/harmonyos-cyltabbar/cylanimateditem CYL_TABBAR_DIR
+sync cylanimateditem_lottie https://github.com/ChenYilong/CYLTabBarController.git cylTabBarControllerCommit \
+  CrossPlatform/harmonyos-cyltabbar/cylanimateditem_lottie CYL_TABBAR_DIR
 sync cylanimateditemrive https://github.com/ChenYilong/CYLTabBarController.git cylTabBarControllerCommit \
   CrossPlatform/harmonyos-cyltabbar/cylanimateditemrive CYL_TABBAR_DIR LICENSE

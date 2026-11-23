@@ -329,7 +329,8 @@ export struct DiscoverView {
           .layoutWeight(1)
           .height(44)
           .accessibilityText(this.text('discover_animationSpeed'))
-          .accessibilityValue({ text: `${this.animationSpeed.toFixed(2)}x` })
+          // The current speed, read after the label (ArkUI's Slider has no accessibilityValue).
+          .accessibilityDescription(`${this.animationSpeed.toFixed(2)}x`)
           .id('CYLSearchDiscoverAnimationSpeed')
           .onChange((value: number) => {
             this.animationSpeed = value;

@@ -6,10 +6,13 @@
   (CYLRefreshNormalHeader and the placeholder scenarios);
 - CollectionViewClassifyMenu `harmony/classifymenu` -> harmonyos/vendor/classifymenu (`CYLTagButton`, the one icon +
   title + animated icon component that draws the search bar items);
-- CollectionViewClassifyMenu `harmony/cylanimateditem` -> harmonyos/vendor/cylanimateditem (CYLTabBarController's shared
-  animated icon + title component, `CYLAnimatedItemView`, vendored by CollectionViewClassifyMenu at CYLTabBarController
-  commit 57a527e; the vendored classifymenu names it `file:../cylanimateditem`, so the two stay side by side). It
+- CYLTabBarController `CrossPlatform/harmonyos-cyltabbar/cylanimateditem` -> harmonyos/vendor/cylanimateditem (the shared
+  animated icon + title component, `CYLAnimatedItemView`). It comes from the tab bar commit, not from
+  CollectionViewClassifyMenu's vendored copy: cyltabbar imports files of its own commit's copy (CYLAnimatedItemGIFTiming
+  since f66e85d5) that an older copy lacks. classifymenu and cylplaceholder name it `file:../cylanimateditem`. It
   depends on no animation library: the example registers the engines it plays (entry/src/main/ets/animation).
+- CYLTabBarController `CrossPlatform/harmonyos-cyltabbar/cylanimateditem_lottie` -> harmonyos/vendor/cylanimateditem_lottie
+  (the Lottie engine of CYLAnimatedItemView; cyltabbar depends on it with `file:../cylanimateditem_lottie`).
 - CYLTabBarController `CrossPlatform/harmonyos-cyltabbar/cylanimateditemrive` -> harmonyos/vendor/cylanimateditemrive (the
   one shared Rive engine: `CYLRiveIcon`, the loop policies, `cylRegisterRiveEngine`; no own Rive player anywhere).
 
@@ -30,8 +33,10 @@ REPOS = [
      'CrossPlatform/harmonyos-cylplaceholder/cylplaceholder', 'CYL_PLACEHOLDER_DIR', ['LICENSE']),
     ('classifymenu', 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', 'collectionViewClassifyMenuCommit',
      'harmony/classifymenu', 'CYL_CLASSIFYMENU_DIR', []),
-    ('cylanimateditem', 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', 'collectionViewClassifyMenuCommit',
-     'harmony/cylanimateditem', 'CYL_CLASSIFYMENU_DIR', []),
+    ('cylanimateditem', 'https://github.com/ChenYilong/CYLTabBarController.git', 'cylTabBarControllerCommit',
+     'CrossPlatform/harmonyos-cyltabbar/cylanimateditem', 'CYL_TABBAR_DIR', []),
+    ('cylanimateditem_lottie', 'https://github.com/ChenYilong/CYLTabBarController.git', 'cylTabBarControllerCommit',
+     'CrossPlatform/harmonyos-cyltabbar/cylanimateditem_lottie', 'CYL_TABBAR_DIR', []),
     ('cylanimateditemrive', 'https://github.com/ChenYilong/CYLTabBarController.git', 'cylTabBarControllerCommit',
      'CrossPlatform/harmonyos-cyltabbar/cylanimateditemrive', 'CYL_TABBAR_DIR', ['LICENSE']),
 ]
@@ -57,7 +62,7 @@ def main():
         if local:
             repo_dir = local
         else:
-            # One cache per repository: classifymenu and cylanimateditem come from the same commit of the same one.
+            # One cache per repository: cyltabbar, cylanimateditem, cylanimateditem_lottie and cylanimateditemrive share one.
             cache = os.path.basename(url)[:-len('.git')].lower()
             repo_dir = os.path.join(tempfile.gettempdir(), 'cyl-harmony-' + cache + '.git')
             if not os.path.isdir(repo_dir):
