@@ -1375,3 +1375,9 @@ begins and becomes `DONE` when it ends.
 - **Rubric**: 100 = every example follows the rule, verified with a labeled screenshot per platform and the document updated; 60 = iOS done and verified, the rule documented, the other platforms handed over.
 - **Status**: TODO.
 
+
+## IN PROGRESS (2026-11-24): move every CYLTabBarController / CYLAnimatedItem pin to PR #824's newest commit `f45a8f1d`
+
+- **Branch**: `feat/harmonyos-parity` (PR #11). **Prompt (owner, via /advisor)**: "advisor点评目前全平台接口实现得分 以及下一步计划与建议。并立即让默认模型sonnet按照建议去实现。将得分优化到100" / EN: have the advisor review the cross-platform interface score and next steps, then implement its advice, raising the score to 100. The owner approved merging ClassifyMenu PR #26 (it was already merged on 2026-11-22, merge `1fc954a4`; master is `e981de01`).
+- **Done**: iOS Podfile and Podfile.lock, the Flutter example Podfile and the mini program `package.json` now pin `f45a8f1d` (was `f66e85d5` / `c4a1f8fd`).
+- **Open**: CI must pass with the new pin (Podfile.lock was edited by text, not by `pod install`); ClassifyMenu's own Podfile still bundles `c4a1f8fd`, so its pin must move in a ClassifyMenu PR to keep "pins move together"; HarmonyOS and Android pins and the Discover rule for Flutter, RN, Android, HarmonyOS and the mini program are still with the Windows session.
