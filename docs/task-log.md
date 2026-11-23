@@ -1280,3 +1280,24 @@ begins and becomes `DONE` when it ends.
 - Status: DONE, score 100. 72197dd: both HAPs build in `C:\cylbuild\harmonyos` (DevEco Studio 6.0.1, API 21; `jbr/bin`
   must be on PATH for PackageHap); `node scripts/host-logic-test.mjs` passes; `aa test` on the Mate 70 Pro emulator
   (127.0.0.1:5555 after 3a's restart): Tests run: 55, Failure: 0, Pass: 55.
+
+## TODO (2026-11-23): switch to the shared animation engines of CYLTabBarController PR #824
+
+- Context: a request from the CollectionViewClassifyMenu session (user approved): delete own animation players and
+  engine views on every platform and call the `CYLAnimatedItemView` / `cylanimateditem` engine API of CYLTabBarController
+  `feat/harmony-animated-item-engines`.
+- Done: Android. The example has no player of its own (it builds `:cylanimateditem` from the pinned checkout), so only
+  `cyl.tabbar.commit` moved from f66e85d5 to 9c8cf475; `:cylsearch:testDebugUnitTest` (`CYLSearchBarItemTest`) passes.
+- TODO, HarmonyOS: `harmonyos/entry/.../animation` (`CYLExampleAnimationPlayers.ets`, `CYLExampleAnimationViews.ets`,
+  `svga/CYLInflate.ets`, `svga/CYLSVGAMovie.ets`) stay until CollectionViewClassifyMenu has a commit whose
+  `harmony/classifymenu` plays through engine views; the pinned 325c7a3 still needs a host-registered
+  `CYLTagAnimationBuilder`. Then pin CYLTabBarController 9c8cf475 or newer, add `cylanimateditem_pag` and
+  `cylanimateditem_rive` to the vendor sync, register `CYLAnimatedItemGIF/SVGA/Lottie/PAG/Rive`, delete the copies,
+  build with hvigor and run the hypium tests.
+- TODO, mini program: it has no engine component of its own (`cyl-lottie` / `cyl-svga` come from CYLTabBarController;
+  PAG and Rive bind the placeholder). Raising `cylTabBarControllerCommit` needs CollectionViewClassifyMenu's
+  `cyl-tag-list-miniprogram` at the same commit: `test/package.test.js` ("cyl-animated-item at the pinned
+  CYLTabBarController commit") already fails before any change (the synced package carries c4a1f8fd, the pin is f66e85d5).
+  Binding PAG and Rive needs their wasm files in the code package and a subpackage wrapper component (generics bound to
+  an async subpackage show "no animation component").
+- TODO, iOS: assigned to the Mac session. Not verified here: Android emulator run and screenshot.
