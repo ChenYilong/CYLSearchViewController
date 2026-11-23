@@ -1321,7 +1321,8 @@ begins and becomes `DONE` when it ends.
   `harmonyos/entry/src/main/ets/animation` still carries a copy of the old players (about 1470 lines: Lottie, PAG, GIF,
   SVGA, the SVGA parser and inflate). Agreed with a8 and the winsCYLSearchViewController session: this session takes
   HarmonyOS.
-- Requirements: pin tab bar `9c8cf475` (Android's pin, 9429b9a) and ClassifyMenu `f10279f0` in
+- Requirements: pin ClassifyMenu `14b6b955` (feat/engine-api-core; green iOS run; its `harmony/classifymenu` and
+  `harmony/cylanimateditem` are identical to PR #31's `f10279f0`) and the tab bar commit it pins, `a5e4434c`, in
   `harmonyos/oh-package.json5`; vendor `cylanimateditem_pag` and `cylanimateditem_rive`; the example registers the five
   engines and nothing else; delete `CYLExampleAnimationPlayers.ets` and `svga/`; both HAPs build; host tests and
   `aa test` pass; the Discover page's animated items play on the emulator (screenshot).
@@ -1330,5 +1331,5 @@ begins and becomes `DONE` when it ends.
   CYLTabBarController 的CYLAnimatedItemView中， 然后调用的CYLAnimatedItemView中接口来完成example实现。" (wrap them into
   CYLAnimatedItemView and have the example call its API).
 - Acceptance (100): builds, 55/55 hypium on the emulator, the animated items play (labeled screenshot), ClassifyMenu
-  `f10279f0` has a green iOS run, pushed. (60): builds and the hypium tests pass.
+  `14b6b955` has a green iOS run, pushed. (60): builds and the hypium tests pass.
 - Status: TODO.

@@ -9,6 +9,9 @@
 #   (from the tab bar commit: cyltabbar imports files that ClassifyMenu's older vendored copy lacks)
 # - CYLTabBarController CrossPlatform/harmonyos-cyltabbar/cylanimateditem_lottie      -> vendor/cylanimateditem_lottie
 #   (the Lottie engine of CYLAnimatedItemView; cyltabbar depends on it)
+# - CYLTabBarController CrossPlatform/harmonyos-cyltabbar/cylanimateditem_pag         -> vendor/cylanimateditem_pag
+# - CYLTabBarController CrossPlatform/harmonyos-cyltabbar/cylanimateditem_rive        -> vendor/cylanimateditem_rive
+#   (the PAG and Rive engines the example registers)
 # - CYLTabBarController CrossPlatform/harmonyos-cyltabbar/cylanimateditemrive (+ LICENSE) -> vendor/cylanimateditemrive
 #   (the one shared Rive engine: CYLRiveIcon, loop policies, cylRegisterRiveEngine)
 #
@@ -63,5 +66,9 @@ sync cylanimateditem https://github.com/ChenYilong/CYLTabBarController.git cylTa
   CrossPlatform/harmonyos-cyltabbar/cylanimateditem CYL_TABBAR_DIR
 sync cylanimateditem_lottie https://github.com/ChenYilong/CYLTabBarController.git cylTabBarControllerCommit \
   CrossPlatform/harmonyos-cyltabbar/cylanimateditem_lottie CYL_TABBAR_DIR
+sync cylanimateditem_pag https://github.com/ChenYilong/CYLTabBarController.git cylTabBarControllerCommit \
+  CrossPlatform/harmonyos-cyltabbar/cylanimateditem_pag CYL_TABBAR_DIR
+sync cylanimateditem_rive https://github.com/ChenYilong/CYLTabBarController.git cylTabBarControllerCommit \
+  CrossPlatform/harmonyos-cyltabbar/cylanimateditem_rive CYL_TABBAR_DIR
 sync cylanimateditemrive https://github.com/ChenYilong/CYLTabBarController.git cylTabBarControllerCommit \
   CrossPlatform/harmonyos-cyltabbar/cylanimateditemrive CYL_TABBAR_DIR LICENSE
