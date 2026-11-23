@@ -33,6 +33,8 @@ target 'CylsearchExample' do
   # CYLAnimatedItem (the search bar items' base class and CYLTabBarController's CYLUtils dependency): its own pod in the
   # same checkout, not on the trunk yet.
   pod 'CYLAnimatedItem', :path => '../vendor/CYLTabBarController'
+  # The Discover camera button plays search_camera.json (Lottie): the Lottie engine of CYLAnimatedItem.
+  pod 'CYLAnimatedItem/LottieSwift', :path => '../vendor/CYLTabBarController'
   # Rive tab icons (src/App.tsx): CYLTabBarController's Rive subspec brings RiveRuntime.
   pod 'CYLTabBarController/Rive', :path => '../vendor/CYLTabBarController'
   # SVGA tab icons (src/App.tsx, CYLDemoTabIconSource 2): CYLTabBarController's SVGA subspec (CYLAnimatedItem/SVGA) and

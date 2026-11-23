@@ -19,6 +19,7 @@
 		761780EF2CA45674006654EF /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 761780EE2CA45674006654EF /* SceneDelegate.swift */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		F1BE32EEB8A184B2BEADC96B /* tab_activity.svga in Resources */ = {isa = PBXBuildFile; fileRef = EA093BCD28B24FE1772502CC /* tab_activity.svga */; };
+		A1C0DE00000000000000CB01 /* search_camera.json in Resources */ = {isa = PBXBuildFile; fileRef = A1C0DE00000000000000CA01 /* search_camera.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -36,6 +37,7 @@
 		960B8D22D38EAD2A9FEDA8DA /* Pods_CylsearchExample.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CylsearchExample.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4F6FD6C29E1E2EFB10C57E8 /* tab_home.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_home.svga; sourceTree = "<group>"; };
 		EA093BCD28B24FE1772502CC /* tab_activity.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_activity.svga; sourceTree = "<group>"; };
+		A1C0DE00000000000000CA01 /* search_camera.json */ = {isa = PBXFileReference; includeInIndex = 1; path = search_camera.json; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F471B415436D56A9334B4D25 /* tab_list.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_list.svga; sourceTree = "<group>"; };
 		FEC56592460912E09BBD1742 /* tab_profile.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_profile.svga; sourceTree = "<group>"; };
@@ -113,6 +115,7 @@
 				5EAAA51F547B214B209E9252 /* tab_chat.svga */,
 				E4F6FD6C29E1E2EFB10C57E8 /* tab_home.svga */,
 				EA093BCD28B24FE1772502CC /* tab_activity.svga */,
+				A1C0DE00000000000000CA01 /* search_camera.json */,
 				FEC56592460912E09BBD1742 /* tab_profile.svga */,
 			);
 			name = SVGA;
@@ -197,6 +200,7 @@
 				63763E30C109D74511061BDD /* tab_chat.svga in Resources */,
 				18A798D0086865BE55E30ACB /* tab_home.svga in Resources */,
 				F1BE32EEB8A184B2BEADC96B /* tab_activity.svga in Resources */,
+				A1C0DE00000000000000CB01 /* search_camera.json in Resources */,
 				749B5ED6DA41A091021861A7 /* tab_profile.svga in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

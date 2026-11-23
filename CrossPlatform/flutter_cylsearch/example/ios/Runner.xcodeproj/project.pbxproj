@@ -17,6 +17,7 @@
 		7884E8682EC3CC0700C636F2 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7884E8672EC3CC0400C636F2 /* SceneDelegate.swift */; };
 		78A318202AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 78A3181F2AECB46A00862997 /* FlutterGeneratedPluginSwiftPackage */; };
 		7CE7609D4DC9228152CF2305 /* tab_activity.svga in Resources */ = {isa = PBXBuildFile; fileRef = 2B626B7349C6D3BEB14A12CD /* tab_activity.svga */; };
+		A1C0DE00000000000000CB01 /* search_camera.json in Resources */ = {isa = PBXBuildFile; fileRef = A1C0DE00000000000000CA01 /* search_camera.json */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
@@ -55,6 +56,7 @@
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		28FBF9FD87D3F3E1420BF3BC /* tab_home.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_home.svga; sourceTree = "<group>"; };
 		2B626B7349C6D3BEB14A12CD /* tab_activity.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_activity.svga; sourceTree = "<group>"; };
+		A1C0DE00000000000000CA01 /* search_camera.json */ = {isa = PBXFileReference; includeInIndex = 1; path = search_camera.json; sourceTree = "<group>"; };
 		331C807B294A618700263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
@@ -197,6 +199,7 @@
 				CFEFEA328CB9282C8340B7F3 /* tab_chat.svga */,
 				28FBF9FD87D3F3E1420BF3BC /* tab_home.svga */,
 				2B626B7349C6D3BEB14A12CD /* tab_activity.svga */,
+				A1C0DE00000000000000CA01 /* search_camera.json */,
 				082AC340B32287F237A923E1 /* tab_profile.svga */,
 			);
 			name = SVGA;
@@ -315,6 +318,7 @@
 				F543FDB9F5FD183CF9672648 /* tab_chat.svga in Resources */,
 				06124082F2BC313A2AB7961B /* tab_home.svga in Resources */,
 				7CE7609D4DC9228152CF2305 /* tab_activity.svga in Resources */,
+				A1C0DE00000000000000CB01 /* search_camera.json in Resources */,
 				DB371AD79997F0A6655764FE /* tab_profile.svga in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

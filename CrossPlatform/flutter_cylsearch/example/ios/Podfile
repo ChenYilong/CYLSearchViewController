@@ -36,7 +36,7 @@ target 'Runner' do
   # Rive tab icons (the default icon source): CYLTabBarController's Rive subspec brings RiveRuntime.
   pod 'CYLTabBarController', :subspecs => ['Core', 'SVGA', 'Rive'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => 'f45a8f1d12fc87011d0811292f614476731775ef'
   # CYLAnimatedItem: its own pod in CYLTabBarController's repository, not on the trunk yet; the engines the example plays.
-  pod 'CYLAnimatedItem', :subspecs => ['Core', 'SVGA', 'Rive'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => 'f45a8f1d12fc87011d0811292f614476731775ef'
+  pod 'CYLAnimatedItem', :subspecs => ['Core', 'SVGA', 'Rive', 'LottieSwift'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => 'f45a8f1d12fc87011d0811292f614476731775ef'
   # SVGA tab icons (SVGAPlayerLite, the player CYLAnimatedItem/SVGA uses; SVGAPlayer beside it builds the same sources
   # twice and misses Svga.pbobjc.h); static linking needs module maps for these two Objective-C pods.
   pod 'SVGAPlayerLite', :modular_headers => true
