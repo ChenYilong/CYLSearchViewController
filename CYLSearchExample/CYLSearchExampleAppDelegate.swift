@@ -72,9 +72,9 @@ public final class CYLSearchExampleAppDelegate: UIResponder, UIApplicationDelega
                            ("tagStyle", "tab.tagStyle", "tab_chat"), ("discover", "tab.discover", "tab_home")]
         let tabs: [[String: Any]] = definitions.map { identifier, title, file in
             var attributes: [String: Any] = [
-                CYLTabBarItemTitle: cylSearchTabTitle(title),
-                CYLTabBarItemIdentifier: identifier,
-                CYLTabBarItemPageIdentifier: identifier,
+                cylTabBarItemTitle: cylSearchTabTitle(title),
+                cylTabBarItemIdentifier: identifier,
+                cylTabBarItemPageIdentifier: identifier,
                 CYLTabBarSVGAURL: Bundle.main.url(forResource: file, withExtension: "svga") as Any,
                 CYLTabBarSVGASize: NSValue(cgSize: CGSize(width: 28, height: 28)),
             ]
@@ -86,19 +86,19 @@ public final class CYLSearchExampleAppDelegate: UIResponder, UIApplicationDelega
         // `-CYLDemoTabBarStyle flatDesign` (or "liquidGlass", "default"): the same icons in another tab bar style.
         let style = UserDefaults.standard.string(forKey: "CYLDemoTabBarStyle") ?? "default"
         return try CYLTabBarController(configuration: [
-            CYLTabBarControllerContext: "CYLSearchExample",
-            CYLTabBarControllerStyleType: style,
-            CYLTabBarControllerTabBarItemsAttributes: tabs,
-            CYLTabBarControllerTitlePositionAdjustment: NSValue(uiOffset: UIOffset(horizontal: 0, vertical: -2)),
-            CYLTabBarControllerPlusButton: [
-                CYLTabBarItemTitle: cylSearchTabTitle("tab.searchBar"),
-                CYLTabBarItemImage: UIImage(named: "CYLPlusButton") as Any,
-                CYLTabBarItemIdentifier: "plus",
-                CYLTabBarItemPageIdentifier: "plus",
+            cylTabBarControllerContext: "CYLSearchExample",
+            cylTabBarControllerStyleType: style,
+            cylTabBarControllerTabBarItemsAttributes: tabs,
+            cylTabBarControllerTitlePositionAdjustment: NSValue(uiOffset: UIOffset(horizontal: 0, vertical: -2)),
+            cylTabBarControllerPlusButton: [
+                cylTabBarItemTitle: cylSearchTabTitle("tab.searchBar"),
+                cylTabBarItemImage: UIImage(named: "CYLPlusButton") as Any,
+                cylTabBarItemIdentifier: "plus",
+                cylTabBarItemPageIdentifier: "plus",
                 // Raised above the bar, as in CYLTabBarConfiguration.json (AGENTS.md, "Raised plus button").
-                CYLPlusButtonAlignsTitle: false,
-                CYLPlusButtonSize: NSValue(cgSize: CGSize(width: 64, height: 84)),
-                CYLPlusButtonCenterYMultiplier: 0.3,
+                cylPlusButtonAlignsTitle: false,
+                cylPlusButtonSize: NSValue(cgSize: CGSize(width: 64, height: 84)),
+                cylPlusButtonCenterYMultiplier: 0.3,
             ],
         ])
     }

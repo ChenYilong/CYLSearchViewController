@@ -570,3 +570,56 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         window.isHidden = true
     }
 }
+
+/**
+ * Playback of a search bar item's animation (docs/animated-icon-component.md, board rows 41 and 42): loops, speed and
+ * restart, read from the dictionaries the cross-platform bridges send.
+ */
+extension CYLSearchExampleSearchBarTests {
+
+    @MainActor
+    func testItemDictionaryReadsAnimationLoopsAndSpeedWithDefaults() {
+        let plain = CYLSearchBarItem.item(dictionary: ["style": "icon", "title": "A"])
+        let (plainLoops, plainSpeed) = (plain.animationLoops, plain.animationSpeed)
+        XCTAssertFalse(plainLoops)
+        XCTAssertEqual(plainSpeed, 1)
+
+        let playing = CYLSearchBarItem.item(dictionary: [
+            "style": "icon", "title": "A", "animationURL": "tab_activity.svga", "animationLoops": true, "animationSpeed": 0.5,
+        ])
+        let (loops, speed, file) = (playing.animationLoops, playing.animationSpeed, playing.animationURL?.lastPathComponent)
+        XCTAssertTrue(loops)
+        XCTAssertEqual(speed, 0.5)
+        XCTAssertEqual(file, "tab_activity.svga")
+        playing.restartAnimation()
+        // An item without an animation ignores a restart.
+        plain.restartAnimation()
+    }
+
+    @MainActor
+    func testSetItemsKeepsTheItemsWhenOnlyLoopsAndSpeedChange() {
+        let bar = CYLSearchBarView(frame: CGRect(x: 0, y: 0, width: 375, height: 48))
+        let base: [String: Any] = ["style": "icon", "title": "A", "animationURL": "tab_activity.svga"]
+        bar.setItems(dictionaries: [base])
+        let first = bar.items.first
+        let count = bar.items.count
+        XCTAssertEqual(count, 1)
+
+        var changed = base
+        changed["animationLoops"] = true
+        changed["animationSpeed"] = 2
+        bar.setItems(dictionaries: [changed])
+        let kept = bar.items.first === first
+        let (keptLoops, keptSpeed) = (bar.items.first?.animationLoops, bar.items.first?.animationSpeed)
+        XCTAssertTrue(kept, "only loops and speed changed: the item, and its loaded animation, stay")
+        XCTAssertEqual(keptLoops, true)
+        XCTAssertEqual(keptSpeed, 2)
+
+        changed["title"] = "B"
+        bar.setItems(dictionaries: [changed])
+        let rebuilt = bar.items.first !== first
+        let title = bar.items.first?.title
+        XCTAssertTrue(rebuilt, "any other change rebuilds the items")
+        XCTAssertEqual(title, "B")
+    }
+}
