@@ -623,6 +623,29 @@ extension CYLSearchExampleSearchBarTests {
         XCTAssertEqual(title, "B")
     }
 
+    /// A speed-only change does not reload the animation: the same animation view stays in the tag (docs row 42).
+    @MainActor
+    func testSpeedOnlyChangeKeepsTheLoadedAnimationView() throws {
+        let url = try XCTUnwrap(CYLSearchDiscoverLocalization.resourceBundle?.url(forResource: "search_camera", withExtension: "json"))
+        let bar = CYLSearchBarView(frame: CGRect(x: 0, y: 0, width: 375, height: 48))
+        let item: [String: Any] = ["style": "icon", "title": "Camera", "animationURL": url.absoluteString]
+        bar.setItems(dictionaries: [item])
+        bar.layoutIfNeeded()
+        let tag = bar.items.first?.itemView as? CYLTagButton
+        let before = tag?.animationView
+        try XCTSkipIf(before == nil, "no animation engine in this test build")
+
+        var faster = item
+        faster["animationSpeed"] = 2
+        faster["animationLoops"] = true
+        bar.setItems(dictionaries: [faster])
+        bar.layoutIfNeeded()
+        let sameTag = bar.items.first?.itemView === tag
+        let after = tag?.animationView
+        XCTAssertTrue(sameTag)
+        XCTAssertTrue(after === before, "the animation view is the same instance: nothing was reloaded")
+    }
+
     /// The item's speed reaches the drawn tag at once, also when only the speed changes (docs row 42).
     @MainActor
     func testItemSpeedReachesTheTagButtonAndFollowsChanges() {

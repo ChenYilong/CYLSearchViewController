@@ -1366,7 +1366,7 @@ begins and becomes `DONE` when it ends.
 - TODO: no emulator run of the Flutter or React Native example Android builds and no screenshots yet; the mini program
   pin still waits for CollectionViewClassifyMenu (entry above).
 
-## TODO (2026-11-24): Discover page animation demo: animate the camera button, move the controls out of the bar
+## PARTLY DONE (2026-11-24): Discover page animation demo: animate the camera button, move the controls out of the bar (iOS done a746489; Android, HarmonyOS, mini program, Flutter, RN handed to the Windows session)
 
 - **Prompt (verbatim)**: "searchbar页面。你如果想在搜索seachbar加动效演示，你应该替换静态图片为对应的东西版本，应该是搜索相关的。比如上面的静态的图片拍照按钮，可以换成拍照的动效版本。并且loop 这一行的example操作应放在seachbar视图之外，比如页面搜索选项的最下面。或者固定在tabbar顶端。不要像下载这样打乱seachbar的演示布局。写入本次迁移的文档应用到所有example中"
 - **English**: on the search bar page, to demonstrate the animation in the search bar, replace a static image with its animated version, one related to search; for example the static camera button becomes an animated camera. The Loop row of example controls goes outside the search bar view, for example at the very bottom of the page's search options, or pinned just above the tab bar. Do not disturb the search bar's demo layout the way the extra item does. Write this into the migration's document and apply it to all examples.
