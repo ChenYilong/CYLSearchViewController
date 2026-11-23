@@ -1313,7 +1313,7 @@ begins and becomes `DONE` when it ends.
 - **Rubric**: 100 = A to E done and verified on the simulator with labeled screenshots; 60 = A done (build, analyzer, unit tests green) and B checked.
 - **Status**: TODO. Nothing in these rows has been built before (the cloud session had no Xcode).
 
-## TODO (2026-11-23): HarmonyOS example plays through CYLTabBarController's engine views (PR #824), own players deleted
+## DONE (2026-11-23): HarmonyOS example plays through CYLTabBarController's engine views (PR #824), own players deleted
 
 - Context: CYLTabBarController PR #824 ships one engine per format for `CYLAnimatedItemView` (`cylanimateditem` GIF and
   SVGA, `cylanimateditem_lottie`, `cylanimateditem_pag`, `cylanimateditem_rive`). CollectionViewClassifyMenu PR #31
@@ -1332,4 +1332,11 @@ begins and becomes `DONE` when it ends.
   CYLAnimatedItemView and have the example call its API).
 - Acceptance (100): builds, 55/55 hypium on the emulator, the animated items play (labeled screenshot), ClassifyMenu
   `14b6b955` has a green iOS run, pushed. (60): builds and the hypium tests pass.
-- Status: TODO.
+- Status: DONE, score 100. 6d3f2a8: both HAPs build in `C:\cylbuild\harmonyos`, `node scripts/host-logic-test.mjs` 39/39,
+  `aa test` 55/55 on the Mate 70 Pro emulator (127.0.0.1:5555). ClassifyMenu `14b6b955` was pinned instead of
+  `f10279f0`: its iOS run is green (`f10279f0`'s was still queued) and `git diff 14b6b955 f10279f0 -- harmony/classifymenu
+  harmony/cylanimateditem` is empty. The example only plays SVGA (Discover and Examples); it plays through
+  `CYLAnimatedItemSVGA`. Not aligned yet: Android pins tab bar `9c8cf475` (9429b9a), which is not an ancestor of
+  `a5e4434c`; the other platforms still pin `f66e85d5` and ClassifyMenu `04b39e26`.
+- Screenshot (HarmonyOS, Mate 70 Pro emulator, HarmonyOS 6.0.0.112, API 21, x86_64, DevEco Studio 6.0.1, Windows 11 Pro 10.0.22631):
+  ![Discover item playing SVGA through CYLAnimatedItemSVGA](assets/harmonyos-shared-engines-svga-discover-20261123.png) HarmonyOS, Mate 70 Pro emulator (HarmonyOS 6.0.0.112, API 21), DevEco Studio 6.0.1, Windows 11 Pro 10.0.22631, CYLSearchViewController 6d3f2a8, 2026-11-23 23:17 NZDT
