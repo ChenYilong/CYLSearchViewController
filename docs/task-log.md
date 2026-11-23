@@ -1340,3 +1340,14 @@ begins and becomes `DONE` when it ends.
   `a5e4434c`; the other platforms still pin `f66e85d5` and ClassifyMenu `04b39e26`.
 - Screenshot (HarmonyOS, Mate 70 Pro emulator, HarmonyOS 6.0.0.112, API 21, x86_64, DevEco Studio 6.0.1, Windows 11 Pro 10.0.22631):
   ![Discover item playing SVGA through CYLAnimatedItemSVGA](assets/harmonyos-shared-engines-svga-discover-20261123.png) HarmonyOS, Mate 70 Pro emulator (HarmonyOS 6.0.0.112, API 21), DevEco Studio 6.0.1, Windows 11 Pro 10.0.22631, CYLSearchViewController 6d3f2a8, 2026-11-23 23:17 NZDT
+
+## DONE (2026-11-23): Flutter and React Native pins at CYLTabBarController 9c8cf475
+
+- Part of "switch to the shared animation engines of CYLTabBarController PR #824" above. Decision (user): Android, Flutter
+  and React Native stay at 9c8cf475 (a5e4434c, pinned by HarmonyOS, is its ancestor).
+- Flutter: `flutter_cylsearch/example/pubspec.yaml` ref and `pubspec.lock` moved to 9c8cf475; `flutter pub get` ok,
+  `flutter analyze` 0 errors (6 info: `package:flutter/material.dart` deprecated).
+- React Native: no file to change (`example/scripts/fetch-cyltabbar.sh` reads `cyl.tabbar.commit` from
+  `android/merged/gradle.properties`); vendor refreshed to 9c8cf475; `yarn typecheck` ok, `yarn test` 16/16.
+- TODO: no emulator run of the Flutter or React Native example Android builds and no screenshots yet; the mini program
+  pin still waits for CollectionViewClassifyMenu (entry above).
