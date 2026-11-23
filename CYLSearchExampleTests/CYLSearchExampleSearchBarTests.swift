@@ -622,4 +622,22 @@ extension CYLSearchExampleSearchBarTests {
         XCTAssertTrue(rebuilt, "any other change rebuilds the items")
         XCTAssertEqual(title, "B")
     }
+
+    /// The item's speed reaches the drawn tag at once, also when only the speed changes (docs row 42).
+    @MainActor
+    func testItemSpeedReachesTheTagButtonAndFollowsChanges() {
+        let bar = CYLSearchBarView(frame: CGRect(x: 0, y: 0, width: 375, height: 48))
+        bar.setItems(dictionaries: [["style": "icon", "title": "A", "animationURL": "tab_activity.svga", "animationSpeed": 0.5]])
+        bar.layoutIfNeeded()
+        let tag = bar.items.first?.itemView as? CYLTagButton
+        let first = tag?.animationSpeed
+        XCTAssertNotNil(tag)
+        XCTAssertEqual(first ?? -1, 0.5, accuracy: 0.001)
+
+        bar.setItems(dictionaries: [["style": "icon", "title": "A", "animationURL": "tab_activity.svga", "animationSpeed": 2]])
+        let sameTag = bar.items.first?.itemView === tag
+        let second = tag?.animationSpeed
+        XCTAssertTrue(sameTag, "a speed-only change keeps the tag")
+        XCTAssertEqual(second ?? -1, 2, accuracy: 0.001)
+    }
 }
