@@ -1301,3 +1301,15 @@ begins and becomes `DONE` when it ends.
   Binding PAG and Rive needs their wasm files in the code package and a subpackage wrapper component (generics bound to
   an async subpackage show "no animation component").
 - TODO, iOS: assigned to the Mac session. Not verified here: Android emulator run and screenshot.
+
+## TODO (2026-11-23): iOS check of the animated-item changes (board rows 38 to 42), tasks A to E
+
+- **Prompt (verbatim)**: "continue" (after the cloud CYLSearchViewController session's message: "Owner's order: you (Mac) take every iOS task; the Windows session takes everything else.")
+  Its tasks, in English: A pod install, clean build, analyzer, unit tests, fix what breaks (core first; a bug in CYLAnimatedItem goes to CYLTabBarController);
+  B run the Discover page on the simulator: loop switch, speed slider and Play again work live without the SVGA reloading, and
+  `animationSpeed = 1` on every item must not override `CYLTagButton`'s `style.animationSpeed`; C fix UI tests that count items or assume the scroll view top;
+  D iOS halves of Flutter (`CrossPlatform/flutter_cylsearch`) and React Native (`CrossPlatform/react-native-cylsearch`): pod install, build, run the Discover demos;
+  E labeled screenshots in `docs/assets`, shown in `docs/animated-icon-component.md` row 41.
+- **Rubric**: 100 = A to E done and verified on the simulator with labeled screenshots; 60 = A done (build, analyzer, unit tests green) and B checked.
+- **Status**: TODO. Nothing in these rows has been built before (the cloud session had no Xcode).
+
