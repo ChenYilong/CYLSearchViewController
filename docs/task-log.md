@@ -1311,7 +1311,21 @@ begins and becomes `DONE` when it ends.
   D iOS halves of Flutter (`CrossPlatform/flutter_cylsearch`) and React Native (`CrossPlatform/react-native-cylsearch`): pod install, build, run the Discover demos;
   E labeled screenshots in `docs/assets`, shown in `docs/animated-icon-component.md` row 41.
 - **Rubric**: 100 = A to E done and verified on the simulator with labeled screenshots; 60 = A done (build, analyzer, unit tests green) and B checked.
-- **Status**: TODO. Nothing in these rows has been built before (the cloud session had no Xcode).
+- **Status**: PARTLY DONE (2026-11-24), score 85 of 100.
+  - A done: clean build and `scripts/unit-tests.sh` on the own simulator: 188 tests, 0 failures (then 2 new tests for `animationLoops`, `animationSpeed` and
+    `setItems(dictionaries:)`, both pass); 15 deprecated tab bar constants in the example app delegate renamed (own-source warnings 2).
+  - B done: the Discover page on the iOS 27.2 simulator: loop switch, speed slider and Play again work live, the item keeps playing and repeating, the speed label follows
+    the slider; the same-URL guard in upstream's `animationURL` means no reload. `animationSpeed = 1` on bar items does not touch `CYLTagButton`: the tag list's own
+    `animationSpeed` is `nil` by default and nothing here sets it (read from the code, no test).
+  - C done: there are no UI tests; the unit tests pass.
+  - D done: Flutter (`flutter build ios --simulator`, Discover tab) and React Native (Release build, Discover tab) build and run on the simulator; React Native needed
+    `CYLRNSearchSupport.h` to import SVGAPlayerLite first; two other causes were fixed upstream in PR #824 (`6285ccc9`).
+  - E done: labeled screenshots for iOS, Flutter and React Native in `docs/assets`, shown in `docs/animated-icon-component.md` row 41.
+  - TODO (15 points): move every pin to the newest PR #824 commit (the React Native example does not build at `f66e85d5`; the tab bar pin must match ClassifyMenu's
+    bundled commit, so this waits for ClassifyMenu PR #26) (5); run `scripts/ci-build-example.sh analyze` locally (3); a measured check that a speed or loop change does not
+    reload the SVGA (3); a test that `CYLTagButton` keeps its `style.animationSpeed` next to bar items with speed 1 (4).
+  - How the builds ran: GitHub transfers of the 278 MB CYLTabBarController repository stalled, so pods were installed from local blobless checkouts (`/tmp/xpr/cyltab`, `cyltph`,
+    `cvcm`, `cyltab9c`) through temporary, uncommitted `:path` overrides in the Podfiles and the Flutter pubspec; all restored.
 
 ## DONE (2026-11-23): HarmonyOS example plays through CYLTabBarController's engine views (PR #824), own players deleted
 
