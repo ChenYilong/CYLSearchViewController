@@ -1313,3 +1313,41 @@ begins and becomes `DONE` when it ends.
 - **Rubric**: 100 = A to E done and verified on the simulator with labeled screenshots; 60 = A done (build, analyzer, unit tests green) and B checked.
 - **Status**: TODO. Nothing in these rows has been built before (the cloud session had no Xcode).
 
+## DONE (2026-11-23): HarmonyOS example plays through CYLTabBarController's engine views (PR #824), own players deleted
+
+- Context: CYLTabBarController PR #824 ships one engine per format for `CYLAnimatedItemView` (`cylanimateditem` GIF and
+  SVGA, `cylanimateditem_lottie`, `cylanimateditem_pag`, `cylanimateditem_rive`). CollectionViewClassifyMenu PR #31
+  (`f10279f0`) deleted its example players and registers those engines (`cylRegisterExampleAnimationEngines`). Our
+  `harmonyos/entry/src/main/ets/animation` still carries a copy of the old players (about 1470 lines: Lottie, PAG, GIF,
+  SVGA, the SVGA parser and inflate). Agreed with a8 and the winsCYLSearchViewController session: this session takes
+  HarmonyOS.
+- Requirements: pin ClassifyMenu `14b6b955` (feat/engine-api-core; green iOS run; its `harmony/classifymenu` and
+  `harmony/cylanimateditem` are identical to PR #31's `f10279f0`) and the tab bar commit it pins, `a5e4434c`, in
+  `harmonyos/oh-package.json5`; vendor `cylanimateditem_pag` and `cylanimateditem_rive`; the example registers the five
+  engines and nothing else; delete `CYLExampleAnimationPlayers.ets` and `svga/`; both HAPs build; host tests and
+  `aa test` pass; the Discover page's animated items play on the emulator (screenshot).
+- Prompt (verbatim): "continue fix todo and watch and fix ci fail"
+- Prompt (English): the same. The switch itself is the earlier request: "你应该将CYLRiveIcon 和CYLPagIcon封装进
+  CYLTabBarController 的CYLAnimatedItemView中， 然后调用的CYLAnimatedItemView中接口来完成example实现。" (wrap them into
+  CYLAnimatedItemView and have the example call its API).
+- Acceptance (100): builds, 55/55 hypium on the emulator, the animated items play (labeled screenshot), ClassifyMenu
+  `14b6b955` has a green iOS run, pushed. (60): builds and the hypium tests pass.
+- Status: DONE, score 100. 6d3f2a8: both HAPs build in `C:\cylbuild\harmonyos`, `node scripts/host-logic-test.mjs` 39/39,
+  `aa test` 55/55 on the Mate 70 Pro emulator (127.0.0.1:5555). ClassifyMenu `14b6b955` was pinned instead of
+  `f10279f0`: its iOS run is green (`f10279f0`'s was still queued) and `git diff 14b6b955 f10279f0 -- harmony/classifymenu
+  harmony/cylanimateditem` is empty. The example only plays SVGA (Discover and Examples); it plays through
+  `CYLAnimatedItemSVGA`. Not aligned yet: Android pins tab bar `9c8cf475` (9429b9a), which is not an ancestor of
+  `a5e4434c`; the other platforms still pin `f66e85d5` and ClassifyMenu `04b39e26`.
+- Screenshot (HarmonyOS, Mate 70 Pro emulator, HarmonyOS 6.0.0.112, API 21, x86_64, DevEco Studio 6.0.1, Windows 11 Pro 10.0.22631):
+  ![Discover item playing SVGA through CYLAnimatedItemSVGA](assets/harmonyos-shared-engines-svga-discover-20261123.png) HarmonyOS, Mate 70 Pro emulator (HarmonyOS 6.0.0.112, API 21), DevEco Studio 6.0.1, Windows 11 Pro 10.0.22631, CYLSearchViewController 6d3f2a8, 2026-11-23 23:17 NZDT
+
+## DONE (2026-11-23): Flutter and React Native pins at CYLTabBarController 9c8cf475
+
+- Part of "switch to the shared animation engines of CYLTabBarController PR #824" above. Decision (user): Android, Flutter
+  and React Native stay at 9c8cf475 (a5e4434c, pinned by HarmonyOS, is its ancestor).
+- Flutter: `flutter_cylsearch/example/pubspec.yaml` ref and `pubspec.lock` moved to 9c8cf475; `flutter pub get` ok,
+  `flutter analyze` 0 errors (6 info: `package:flutter/material.dart` deprecated).
+- React Native: no file to change (`example/scripts/fetch-cyltabbar.sh` reads `cyl.tabbar.commit` from
+  `android/merged/gradle.properties`); vendor refreshed to 9c8cf475; `yarn typecheck` ok, `yarn test` 16/16.
+- TODO: no emulator run of the Flutter or React Native example Android builds and no screenshots yet; the mini program
+  pin still waits for CollectionViewClassifyMenu (entry above).

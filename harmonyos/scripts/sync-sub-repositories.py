@@ -13,6 +13,8 @@
   depends on no animation library: the example registers the engines it plays (entry/src/main/ets/animation).
 - CYLTabBarController `CrossPlatform/harmonyos-cyltabbar/cylanimateditem_lottie` -> harmonyos/vendor/cylanimateditem_lottie
   (the Lottie engine of CYLAnimatedItemView; cyltabbar depends on it with `file:../cylanimateditem_lottie`).
+- CYLTabBarController `cylanimateditem_pag` and `cylanimateditem_rive` -> harmonyos/vendor (the PAG and Rive engines the
+  example registers in entry/src/main/ets/animation).
 - CYLTabBarController `CrossPlatform/harmonyos-cyltabbar/cylanimateditemrive` -> harmonyos/vendor/cylanimateditemrive (the
   one shared Rive engine: `CYLRiveIcon`, the loop policies, `cylRegisterRiveEngine`; no own Rive player anywhere).
 
@@ -37,6 +39,10 @@ REPOS = [
      'CrossPlatform/harmonyos-cyltabbar/cylanimateditem', 'CYL_TABBAR_DIR', []),
     ('cylanimateditem_lottie', 'https://github.com/ChenYilong/CYLTabBarController.git', 'cylTabBarControllerCommit',
      'CrossPlatform/harmonyos-cyltabbar/cylanimateditem_lottie', 'CYL_TABBAR_DIR', []),
+    ('cylanimateditem_pag', 'https://github.com/ChenYilong/CYLTabBarController.git', 'cylTabBarControllerCommit',
+     'CrossPlatform/harmonyos-cyltabbar/cylanimateditem_pag', 'CYL_TABBAR_DIR', []),
+    ('cylanimateditem_rive', 'https://github.com/ChenYilong/CYLTabBarController.git', 'cylTabBarControllerCommit',
+     'CrossPlatform/harmonyos-cyltabbar/cylanimateditem_rive', 'CYL_TABBAR_DIR', []),
     ('cylanimateditemrive', 'https://github.com/ChenYilong/CYLTabBarController.git', 'cylTabBarControllerCommit',
      'CrossPlatform/harmonyos-cyltabbar/cylanimateditemrive', 'CYL_TABBAR_DIR', ['LICENSE']),
 ]
