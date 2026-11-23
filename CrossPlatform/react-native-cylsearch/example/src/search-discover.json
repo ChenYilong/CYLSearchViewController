@@ -3,21 +3,25 @@
   "version": 1,
   "strings": {
     "en": {
+      "discover.hot": "Hot",
       "discover.animationLoops": "Loop",
       "discover.animationSpeed": "Speed",
       "discover.animationPlay": "Play again"
     },
     "ja": {
+      "discover.hot": "人気",
       "discover.animationLoops": "ループ",
       "discover.animationSpeed": "速度",
       "discover.animationPlay": "もう一度再生"
     },
     "zh-Hans": {
+      "discover.hot": "热门",
       "discover.animationLoops": "循环",
       "discover.animationSpeed": "速度",
       "discover.animationPlay": "再播放一次"
     },
     "zh-Hant": {
+      "discover.hot": "熱門",
       "discover.animationLoops": "循環",
       "discover.animationSpeed": "速度",
       "discover.animationPlay": "再播放一次"

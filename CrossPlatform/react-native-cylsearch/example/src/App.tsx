@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Platform, Pressable, ScrollView, Settings, StatusBar, StyleSheet, Switch, Text, useColorScheme, View } from 'react-native';
+import { Image, Platform, Pressable, ScrollView, Settings, StatusBar, StyleSheet, Switch, Text, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { CYLSearchBarView, CYLSearchView, CYLTagListView, type CYLSearchBarHandle } from 'react-native-cylsearch';
 import { CYLTabBar, type CYLTabBarItem, type CYLTabBarPlusButton } from 'react-native-cyltabbar';
@@ -317,9 +317,26 @@ function SearchBarDemo() {
 }
 
 /** The discover demo's texts for the device language (en, ja, zh-Hans, zh-Hant), English when it is not held. */
-function discoverStrings() {
+function discoverLanguage() {
   const tag = Intl.DateTimeFormat().resolvedOptions().locale;
-  const language = /^zh-(Hant|TW|HK|MO)/.test(tag) ? 'zh-Hant' : tag.startsWith('zh') ? 'zh-Hans' : tag.slice(0, 2);
+  return /^zh-(Hant|TW|HK|MO)/.test(tag) ? 'zh-Hant' : tag.startsWith('zh') ? 'zh-Hans' : tag.slice(0, 2);
+}
+
+/** The localized hot icon (iOS discover-hot.png of the same .lproj; @2x and @3x beside it), English when not held. */
+const ENGLISH_HOT_ICON = { source: require('./assets/discover/discover-hot-en.png') as number, aspect: 30 / 18 };
+const HOT_ICONS: Record<string, { source: number; aspect: number }> = {
+  en: ENGLISH_HOT_ICON,
+  ja: { source: require('./assets/discover/discover-hot-ja.png'), aspect: 30 / 18 },
+  'zh-Hans': { source: require('./assets/discover/discover-hot-zh-Hans.png'), aspect: 1 },
+  'zh-Hant': { source: require('./assets/discover/discover-hot-zh-Hant.png'), aspect: 1 },
+};
+
+function hotIconForLanguage() {
+  return HOT_ICONS[discoverLanguage()] ?? ENGLISH_HOT_ICON;
+}
+
+function discoverStrings() {
+  const language = discoverLanguage();
   const all: Record<string, Record<string, string>> = discoverData.strings;
   return { ...all.en, ...all[language] } as Record<string, string>;
 }
@@ -334,6 +351,7 @@ function DiscoverDemo() {
   const [animationLoops, setAnimationLoops] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(1);
   const text = discoverStrings();
+  const hotIcon = hotIconForLanguage();
   const [recent, setRecent] = useState<string[]>(discoverData.recentSearches);
   const [offset, setOffset] = useState(0);
   const [barText, setBarText] = useState('');
@@ -352,11 +370,11 @@ function DiscoverDemo() {
     setMessage(`Searching: ${query}`);
   };
   return (
-    <ScrollView contentContainerStyle={styles.page}>
-      <Text style={[styles.title, { color: palette.text }]}>Discover</Text>
+    <ScrollView contentContainerStyle={styles.discoverPage}>
+      <Text style={[styles.title, styles.block, { color: palette.text }]}>Discover</Text>
       {/* The field stays; the camera, a divider and the Search button are items appended inside its bordered capsule. */}
       <CYLSearchBarView
-        style={styles.bar}
+        style={styles.discoverBar}
         text={barText}
         searchBarStyle="bordered"
         showsSearchIcon={false}
@@ -371,7 +389,7 @@ function DiscoverDemo() {
           { style: 'text', title: 'Search', accessibilityIdentifier: 'CYLSearchDiscoverSearchButton', onPress: () => search(typed.current) },
         ]}
       />
-      <View style={styles.header}>
+      <View style={[styles.header, styles.block]}>
         <Text accessibilityRole="header" style={[styles.section, { color: palette.text }]}>Recent searches</Text>
         <Pressable accessibilityRole="button" accessibilityLabel="Clear recent searches" onPress={() => { setRecent([]); setMessage('Recent searches cleared'); }}>
           <Text style={styles.action}>Clear</Text>
@@ -380,7 +398,7 @@ function DiscoverDemo() {
       {recent.length > 0 ? (
         <CYLTagListView tags={recent} foldControlPosition="inline" foldControlContent="icon" foldedRowCount={2} onTagSelect={(event) => search(event.nativeEvent.title)} />
       ) : null}
-      <View style={styles.header}>
+      <View style={[styles.header, styles.block]}>
         <Text accessibilityRole="header" style={[styles.section, { color: palette.text }]}>Discover</Text>
         <Pressable accessibilityRole="button" accessibilityLabel="Refresh topics" onPress={() => setOffset((value) => value + discoverData.discoverCount)}>
           <Text style={styles.action}>Refresh</Text>
@@ -389,12 +407,15 @@ function DiscoverDemo() {
       <View style={styles.grid}>
         {topics.map((topic) => (
           <Pressable key={topic.title} accessibilityRole="button" style={styles.topic} onPress={() => search(topic.title)}>
-            <Text numberOfLines={1} style={[styles.body, { color: palette.text }]}>{topic.title}{topic.icon === 'hot' ? '  HOT' : ''}</Text>
+            <Text numberOfLines={1} style={[styles.body, styles.topicTitle, { color: palette.text }]}>{topic.title}</Text>
+            {topic.icon === 'hot' ? (
+              <Image accessibilityLabel={text['discover.hot']} source={hotIcon.source} style={[styles.hot, { width: 16 * hotIcon.aspect }]} />
+            ) : null}
           </Pressable>
         ))}
       </View>
       {/* Playback of the camera item (index 0 of `items`), the last block of the page options, outside the bar: loop, speed and restart. */}
-      <View style={styles.header}>
+      <View style={[styles.header, styles.block]}>
         <Text style={[styles.body, { color: palette.text }]}>{text['discover.animationLoops']}</Text>
         <Switch accessibilityLabel={text['discover.animationLoops']} value={animationLoops} onValueChange={setAnimationLoops} />
         <Pressable accessibilityRole="button" accessibilityLabel={`${text['discover.animationSpeed']} -`} onPress={() => setAnimationSpeed((value) => Math.max(0.25, value - 0.25))}>
@@ -408,7 +429,7 @@ function DiscoverDemo() {
           <Text style={styles.action}>{text['discover.animationPlay']}</Text>
         </Pressable>
       </View>
-      {message ? <Text style={[styles.message, { color: palette.secondary }]}>{message}</Text> : null}
+      {message ? <Text style={[styles.message, styles.block, { color: palette.secondary }]}>{message}</Text> : null}
     </ScrollView>
   );
 }
@@ -425,7 +446,13 @@ const styles = StyleSheet.create({
   section: { fontSize: 17, fontWeight: '600' },
   action: { fontSize: 15, color: '#007AFF' },
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
-  topic: { width: '50%', paddingVertical: 10, paddingRight: 8 },
+  // The Flutter discover page's metrics: 16 pt blocks, a 56 pt bar inset 12 pt, topics 16 pt by 10 pt, a 16 pt hot icon.
+  discoverPage: { paddingVertical: 16, gap: 12 },
+  discoverBar: { height: 56, marginHorizontal: 12 },
+  block: { paddingHorizontal: 16 },
+  topic: { width: '50%', flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 16 },
+  topicTitle: { flexShrink: 1 },
+  hot: { height: 16, marginLeft: 4 },
   message: { fontSize: 14, color: '#666' },
   // In the layout flow under the page: the bar takes its own height, the bottom safe area included.
   tabBar: { alignSelf: 'stretch' },
