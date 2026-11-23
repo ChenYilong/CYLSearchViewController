@@ -3,25 +3,21 @@
   "version": 1,
   "strings": {
     "en": {
-      "discover.animationItem": "Animated icon",
       "discover.animationLoops": "Loop",
       "discover.animationSpeed": "Speed",
       "discover.animationPlay": "Play again"
     },
     "ja": {
-      "discover.animationItem": "アニメーションアイコン",
       "discover.animationLoops": "ループ",
       "discover.animationSpeed": "速度",
       "discover.animationPlay": "もう一度再生"
     },
     "zh-Hans": {
-      "discover.animationItem": "动画图标",
       "discover.animationLoops": "循环",
       "discover.animationSpeed": "速度",
       "discover.animationPlay": "再播放一次"
     },
     "zh-Hant": {
-      "discover.animationItem": "動畫圖示",
       "discover.animationLoops": "循環",
       "discover.animationSpeed": "速度",
       "discover.animationPlay": "再播放一次"

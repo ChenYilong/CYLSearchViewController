@@ -77,8 +77,8 @@ User prompt, verbatim: "searchbar页面。你如果想在搜索seachbar加动效
 | Example | Rule applied | Verified |
 |---|---|---|
 | iOS `CYLSearchExample` | yes (`a746489`) | iOS 27.2 simulator, 2026-11-24: ![Discover animated camera on iOS](assets/ios-27.2-iphone18pro-20261124-discover-animated-camera.png) (commit a746489, 2026-11-24) |
-| Flutter `flutter_cylsearch/example` | TODO | TODO (the Dart page is shared with Android; iOS half runs on the Mac) |
-| React Native `react-native-cylsearch/example` | TODO | TODO (the TypeScript page is shared with Android) |
+| Flutter `flutter_cylsearch/example` | yes (Dart page `lib/discover_page.dart`: camera item plays `search_camera.json`, extra item and its string removed, controls last in the page list, restart index 0; `flutter analyze` passes; commit in the log below) | TODO: no emulator run and no labeled screenshot yet (the Dart page is shared with Android; the iOS half runs on the Mac) |
+| React Native `react-native-cylsearch/example` | yes (`src/App.tsx`: camera item plays `search_camera.json`, extra item and its string removed, controls after the topics, restart index 0; `yarn typecheck` passes; the file is in `ios/.../SVGA` and `android/.../assets`) | TODO: no emulator run and no labeled screenshot yet (the TypeScript page is shared with Android; the iOS half runs on the Mac, and `search_camera.json` still has to be added to the Xcode target) |
 | Android | TODO | TODO |
 | HarmonyOS | TODO | TODO |
 | WeChat mini program | TODO | TODO |

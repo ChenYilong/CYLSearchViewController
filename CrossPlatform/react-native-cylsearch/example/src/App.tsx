@@ -365,27 +365,12 @@ function DiscoverDemo() {
         onSubmit={(event) => search(event.nativeEvent.text)}
         ref={barRef}
         items={[
-          { style: 'icon', image: 'camera', title: 'Search by image', onPress: () => setMessage('Image search is not available in this demo') },
-          { style: 'icon', title: text['discover.animationItem'], animationURL: 'tab_activity.svga', animationLoops, animationSpeed },
+          // The camera button itself plays the animation (Animation demo rule): search_camera.json, the same Lottie file on every platform.
+          { style: 'icon', image: 'camera', title: 'Search by image', animationURL: 'search_camera.json', animationLoops, animationSpeed, onPress: () => setMessage('Image search is not available in this demo') },
           { style: 'divider' },
           { style: 'text', title: 'Search', accessibilityIdentifier: 'CYLSearchDiscoverSearchButton', onPress: () => search(typed.current) },
         ]}
       />
-      {/* Playback of the animated item (index 1 of `items`): loop, speed and restart. */}
-      <View style={styles.header}>
-        <Text style={[styles.body, { color: palette.text }]}>{text['discover.animationLoops']}</Text>
-        <Switch accessibilityLabel={text['discover.animationLoops']} value={animationLoops} onValueChange={setAnimationLoops} />
-        <Pressable accessibilityRole="button" accessibilityLabel={`${text['discover.animationSpeed']} -`} onPress={() => setAnimationSpeed((value) => Math.max(0.25, value - 0.25))}>
-          <Text style={styles.action}>-</Text>
-        </Pressable>
-        <Text accessibilityLabel={text['discover.animationSpeed']} accessibilityValue={{ text: `${animationSpeed}x` }} style={[styles.body, { color: palette.text }]}>{`${animationSpeed}x`}</Text>
-        <Pressable accessibilityRole="button" accessibilityLabel={`${text['discover.animationSpeed']} +`} onPress={() => setAnimationSpeed((value) => Math.min(3, value + 0.25))}>
-          <Text style={styles.action}>+</Text>
-        </Pressable>
-        <Pressable accessibilityRole="button" accessibilityLabel={text['discover.animationPlay']} onPress={() => barRef.current?.restartItemAnimation(1)}>
-          <Text style={styles.action}>{text['discover.animationPlay']}</Text>
-        </Pressable>
-      </View>
       <View style={styles.header}>
         <Text accessibilityRole="header" style={[styles.section, { color: palette.text }]}>Recent searches</Text>
         <Pressable accessibilityRole="button" accessibilityLabel="Clear recent searches" onPress={() => { setRecent([]); setMessage('Recent searches cleared'); }}>
@@ -407,6 +392,21 @@ function DiscoverDemo() {
             <Text numberOfLines={1} style={[styles.body, { color: palette.text }]}>{topic.title}{topic.icon === 'hot' ? '  HOT' : ''}</Text>
           </Pressable>
         ))}
+      </View>
+      {/* Playback of the camera item (index 0 of `items`), the last block of the page options, outside the bar: loop, speed and restart. */}
+      <View style={styles.header}>
+        <Text style={[styles.body, { color: palette.text }]}>{text['discover.animationLoops']}</Text>
+        <Switch accessibilityLabel={text['discover.animationLoops']} value={animationLoops} onValueChange={setAnimationLoops} />
+        <Pressable accessibilityRole="button" accessibilityLabel={`${text['discover.animationSpeed']} -`} onPress={() => setAnimationSpeed((value) => Math.max(0.25, value - 0.25))}>
+          <Text style={styles.action}>-</Text>
+        </Pressable>
+        <Text accessibilityLabel={text['discover.animationSpeed']} accessibilityValue={{ text: `${animationSpeed}x` }} style={[styles.body, { color: palette.text }]}>{`${animationSpeed}x`}</Text>
+        <Pressable accessibilityRole="button" accessibilityLabel={`${text['discover.animationSpeed']} +`} onPress={() => setAnimationSpeed((value) => Math.min(3, value + 0.25))}>
+          <Text style={styles.action}>+</Text>
+        </Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel={text['discover.animationPlay']} onPress={() => barRef.current?.restartItemAnimation(0)}>
+          <Text style={styles.action}>{text['discover.animationPlay']}</Text>
+        </Pressable>
       </View>
       {message ? <Text style={[styles.message, { color: palette.secondary }]}>{message}</Text> : null}
     </ScrollView>

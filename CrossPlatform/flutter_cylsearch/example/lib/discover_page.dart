@@ -208,18 +208,15 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                 showsSearchIcon: false,
                 fieldShadowOpacity: 0.06,
                 items: <CYLSearchBarItem>[
+                  // The camera button itself plays the animation (the Animation demo rule): a search-related Lottie, the same
+                  // search_camera.json on every platform. The static camera stays the fallback; loops, speed and restart below.
                   CYLSearchBarItem.icon(
                     image: 'camera',
                     title: data.text('discover.imageSearch'),
-                    onTap: (_) => _show(data.text('discover.imageSearchUnavailable')),
-                  ),
-                  // The animated item (index 1): a bare file name, resolved by the core to the app's bundle / assets.
-                  CYLSearchBarItem.icon(
-                    image: 'camera',
-                    title: data.text('discover.animationItem'),
-                    animationURL: 'tab_activity.svga',
+                    animationURL: 'search_camera.json',
                     animationLoops: _loops,
                     animationSpeed: _speed,
+                    onTap: (_) => _show(data.text('discover.imageSearchUnavailable')),
                   ),
                   const CYLSearchBarItem.divider(),
                   CYLSearchBarItem.text(
@@ -231,36 +228,6 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                 onTextChanged: (text) => _typed = text,
                 onSubmitted: _search,
               ),
-            ),
-          ),
-          // Playback of the animated item: loop switch, speed slider and Play again.
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              children: <Widget>[
-                Semantics(
-                  label: data.text('discover.animationLoops'),
-                  child: Tooltip(
-                    message: data.text('discover.animationLoops'),
-                    child: Switch(value: _loops, onChanged: (value) => setState(() => _loops = value)),
-                  ),
-                ),
-                Expanded(
-                  child: Slider(
-                    value: _speed,
-                    min: 0.25,
-                    max: 3,
-                    label: '${data.text('discover.animationSpeed')} ${_speed.toStringAsFixed(2)}x',
-                    semanticFormatterCallback: (value) => '${data.text('discover.animationSpeed')} ${value.toStringAsFixed(2)}x',
-                    onChanged: (value) => setState(() => _speed = value),
-                  ),
-                ),
-                Text('${_speed.toStringAsFixed(2)}x'),
-                TextButton(
-                  onPressed: () => _barController.restartItemAnimation(1),
-                  child: Text(data.text('discover.animationPlay')),
-                ),
-              ],
             ),
           ),
           Expanded(
@@ -288,6 +255,36 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                       Expanded(child: _topic(context, data, _topics[row])),
                       Expanded(child: row + 1 < _topics.length ? _topic(context, data, _topics[row + 1]) : const SizedBox()),
                     ],
+                  ),
+                  // Playback of the camera item (the last block of the page, outside the bar): loop switch, speed slider and Play again.
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Row(
+                      children: <Widget>[
+                        Semantics(
+                          label: data.text('discover.animationLoops'),
+                          child: Tooltip(
+                            message: data.text('discover.animationLoops'),
+                            child: Switch(value: _loops, onChanged: (value) => setState(() => _loops = value)),
+                          ),
+                        ),
+                        Expanded(
+                          child: Slider(
+                            value: _speed,
+                            min: 0.25,
+                            max: 3,
+                            label: '${data.text('discover.animationSpeed')} ${_speed.toStringAsFixed(2)}x',
+                            semanticFormatterCallback: (value) => '${data.text('discover.animationSpeed')} ${value.toStringAsFixed(2)}x',
+                            onChanged: (value) => setState(() => _speed = value),
+                          ),
+                        ),
+                        Text('${_speed.toStringAsFixed(2)}x'),
+                        TextButton(
+                          onPressed: () => _barController.restartItemAnimation(0),
+                          child: Text(data.text('discover.animationPlay')),
+                        ),
+                      ],
+                    ),
                   ),
               ],
             ),
