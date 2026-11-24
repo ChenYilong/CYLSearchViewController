@@ -160,6 +160,7 @@ final class CYLSearchDiscoverViewController: UIViewController {
             appearance.textColor = .label
         }
         style.backgroundStyle = .liquidGlass  // the one parameter that makes every tag Liquid Glass (flat below iOS 26)
+        CYLSearchTagListStyle.applyTint(to: style)  // header, trash, refresh and fold chevron follow one tint (dark mode)
         style.itemHeight = 36
         style.interitemSpacing = 12
         style.lineSpacing = 12
@@ -191,7 +192,7 @@ final class CYLSearchDiscoverViewController: UIViewController {
         style.backgroundColor = .systemBackground
         style.headerHeight = 44
         style.headerFont = .systemFont(ofSize: 20, weight: .bold)
-        style.headerTextColor = .label
+        CYLSearchTagListStyle.applyTint(to: style)
         style.headerHorizontalInset = 16
     }
 
@@ -227,7 +228,7 @@ final class CYLSearchDiscoverViewController: UIViewController {
      */
     func updateLayerColors() {
         let contrast = UIAccessibility.isDarkerSystemColorsEnabled
-        let border = contrast ? UIColor.label : UIColor.separator
+        let border = contrast ? UIColor.label : UIColor.secondaryLabel
         searchBar.fieldBorderColor = border
         searchBar.fieldBorderWidth = contrast ? 2 : 1
         micButton.layer.borderColor = border.resolvedColor(with: traitCollection).cgColor
@@ -347,8 +348,8 @@ final class CYLSearchDiscoverViewController: UIViewController {
         recentList.isScrollEnabled = false
         recentList.menuDataSource = recentSource
         recentList.menuDelegate = self
-        recentSource.clearButton.setImage(UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)), for: .normal)
-        recentSource.clearButton.tintColor = .secondaryLabel
+        recentSource.clearButton.setImage(CYLSearchTagListStyle.clearImage, for: .normal)
+        recentSource.clearButton.tintColor = CYLSearchTagListStyle.tagListTintColor
         recentSource.clearButton.accessibilityLabel = cylDiscoverText("discover.clear")
         recentSource.clearButton.addTarget(self, action: #selector(clearRecentSearches), for: .touchUpInside)
         showsLargeContent(recentSource.clearButton)

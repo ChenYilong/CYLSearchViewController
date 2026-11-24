@@ -105,7 +105,7 @@ public enum CYLSearchBarStyle: Int {
      */
     case plain = 0
     /**
-     * A capsule with a 1 pt separator-colored border on the system background, the field and its items inside one
+     * A capsule with a 1 pt secondary-label-colored border on the system background, the field and its items inside one
      * outline (the Discover search bar).
      */
     case bordered
@@ -728,7 +728,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         case .plain:
             break
         case .bordered:
-            fieldBorderColor = .separator
+            fieldBorderColor = .secondaryLabel
             fieldBorderWidth = 1
             fieldBackgroundColor = .systemBackground
             fieldCornerRadius = -1

@@ -200,7 +200,7 @@ final class CYLContactTagEditorViewController: UIViewController {
         style.normalAppearance.backgroundColor = .clear
         style.normalAppearance.textColor = .label
         style.selectedAppearance.backgroundColor = green.withAlphaComponent(0.3)
-        style.selectedAppearance.textColor = green
+        style.selectedAppearance.textColor = .label  // green text on green glass has poor contrast in dark mode
         style.backgroundStyle = .liquidGlass  // the one parameter that makes every tag Liquid Glass (flat below iOS 26)
         style.itemHeight = 36
         style.interitemSpacing = 12
@@ -208,7 +208,7 @@ final class CYLContactTagEditorViewController: UIViewController {
         style.sectionInsets = UIEdgeInsets(top: 4, left: 16, bottom: 20, right: 16)
         style.headerHeight = 40
         style.headerFont = .systemFont(ofSize: 15)
-        style.headerTextColor = .secondaryLabel
+        CYLSearchTagListStyle.applyTint(to: style)
         style.headerHorizontalInset = 16
         style.backgroundColor = .systemBackground
         style.imageSize = CGSize(width: 14, height: 14)
