@@ -81,4 +81,6 @@
     <string name="cyl_controller_noResults">沒有符合的結果</string>
     <string name="cyl_controller_launch_label">最近搜尋</string>
     <string name="cyl_shortList_row" formatted="true">第 %d 列</string>
+    <!-- tagList.refresh: the accessibility label of the built-in refresh icon of a tag list header. -->
+    <string name="cyl_search_tagList_refresh">重新整理</string>
 </resources>

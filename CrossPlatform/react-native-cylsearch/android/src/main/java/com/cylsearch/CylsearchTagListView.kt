@@ -1,11 +1,15 @@
 package com.cylsearch
 
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import com.cyl.classifymenu.CYLIndexPath
 import com.cyl.classifymenu.CYLMenuDataSource
 import com.cyl.classifymenu.CYLMenuDelegate
 import com.cyl.classifymenu.CYLMenuSelectionMode
+import com.cyl.classifymenu.CYLMenuStyle
+import com.cyl.classifymenu.CYLSize
 import com.cyl.classifymenu.CYLTagListView
+import com.cyl.search.CYLSearchTagListHeader
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.UIManagerHelper
 
@@ -30,6 +34,18 @@ class CylsearchTagListView(private val reactContext: ThemedReactContext) : CYLTa
   var sectionTitle: String = ""
   var showsClearButton: Boolean = false
   var supportsRenaming: Boolean = false
+
+  /** The header action is the built-in refresh icon (`onRefreshButtonTap`); it wins over the trash (`showsClearButton`). */
+  var showsRefreshButton: Boolean = false
+
+  /** 0: flowing tags; 2 and more: the grid of that many tags per row (ClassifyMenu's grid style). */
+  var columns: Int = 0
+
+  /** One image location per tag ('' none): a URL, a file URI or a drawable resource name, loaded once and cached. */
+  var tagImages: List<String> = emptyList()
+    private set
+  private val loadedImages = HashMap<String, Drawable>()
+  private val flowingStyle: CYLMenuStyle? = style?.copy()
 
   init {
     showsSectionHeaders = false
@@ -62,8 +78,32 @@ class CylsearchTagListView(private val reactContext: ThemedReactContext) : CYLTa
     allowsEmptySelection = true
   }
 
+  /** The list's style for `columns` and `showsRefreshButton`; apply it before `reload` (a style assignment replaces the icon). */
+  fun applyListStyle() {
+    val base = if (columns > 0) {
+      CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(columns).apply { imageSize = CYLSize(0f, 0f) }
+    } else {
+      flowingStyle?.copy() ?: CYLMenuStyle()
+    }
+    base.backgroundColor = Color.TRANSPARENT
+    if (showsRefreshButton) CYLSearchTagListHeader.applyRefreshIcon(reactContext, base)
+    style = base
+  }
+
+  fun setTagImages(value: List<String>) {
+    tagImages = value
+    value.filter { it.isNotEmpty() && it !in loadedImages }.distinct().forEach { location ->
+      cylLoadImage(reactContext, location) { drawable ->
+        if (drawable != null) {
+          loadedImages[location] = drawable
+          reloadMenuData()
+        }
+      }
+    }
+  }
+
   fun reload() {
-    showsSectionHeaders = sectionTitle.isNotEmpty() || showsClearButton
+    showsSectionHeaders = sectionTitle.isNotEmpty() || showsClearButton || showsRefreshButton
     reloadMenuData()
     applySelection()
     reportHeight()
@@ -81,7 +121,10 @@ class CylsearchTagListView(private val reactContext: ThemedReactContext) : CYLTa
   override fun menuTitleForSection(section: Int) = sectionTitle
   override fun menuTitleForItemAtIndexPath(indexPath: CYLIndexPath) = titles.getOrElse(indexPath.item) { "" }
   override fun menuIdentifierForItemAtIndexPath(indexPath: CYLIndexPath): String = idAt(indexPath.item)
-  override fun menuShowsClearButtonForSection(section: Int) = showsClearButton
+  override fun menuShowsClearButtonForSection(section: Int) = showsClearButton && !showsRefreshButton
+  override fun menuShowsMoreButtonInSection(section: Int) = showsRefreshButton
+  override fun menuAccessibilityLabelForMoreButtonInSection(section: Int) = CYLSearchTagListHeader.refreshLabel(reactContext)
+  override fun menuImageForItemAtIndexPath(indexPath: CYLIndexPath): Drawable? = loadedImages[tagImages.getOrNull(indexPath.item).orEmpty()]
   override fun supportsRenamingItems() = supportsRenaming
   override fun menuRenameItemAtIndexPath(indexPath: CYLIndexPath, title: String) = Unit
   override fun supportsMovingItems() = true
@@ -117,6 +160,7 @@ class CylsearchTagListView(private val reactContext: ThemedReactContext) : CYLTa
   }
 
   override fun menuDidTapClearButtonInSection(menu: Any, section: Int) = emit("topClearButtonTap", "section" to section)
+  override fun menuDidTapMoreButtonInSection(menu: Any, section: Int) = emit("topRefreshButtonTap", "section" to section)
   override fun menuDidChangeContentHeight(menu: Any, height: Float) = reportHeight()
   override fun menuDidChangeExpanded(menu: Any, expanded: Boolean, inSection: Int) = reportHeight()
   override fun menuDidChangeEditing(menu: Any, editing: Boolean) = reportHeight()

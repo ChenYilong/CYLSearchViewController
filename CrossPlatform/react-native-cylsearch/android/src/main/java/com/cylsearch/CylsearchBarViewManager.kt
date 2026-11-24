@@ -60,6 +60,16 @@ class CylsearchBarViewManager : SimpleViewManager<CylsearchBarView>(), Cylsearch
     view.bar.searchIcon = if (value) ContextCompat.getDrawable(view.context, com.cyl.search.R.drawable.cyl_search_ic_search) else null
   }
 
+  @ReactProp(name = "embedsInNavigationBar")
+  override fun setEmbedsInNavigationBar(view: CylsearchBarView, value: Boolean) {
+    view.embedsInNavigationBar = value
+  }
+
+  @ReactProp(name = "showsBackButton")
+  override fun setShowsBackButton(view: CylsearchBarView, value: Boolean) {
+    view.showsBackButton = value
+  }
+
   @ReactProp(name = "editingBar")
   override fun setEditingBar(view: CylsearchBarView, value: Boolean) = view.setEditingBar(value)
 

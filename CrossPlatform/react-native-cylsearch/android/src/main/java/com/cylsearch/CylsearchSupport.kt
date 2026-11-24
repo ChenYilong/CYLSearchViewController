@@ -136,3 +136,36 @@ internal fun com.cyl.search.CYLSearchBarView.applyCancelButtonFont(json: String?
   else Typeface.defaultFromStyle(if (weight >= 600) Typeface.BOLD else Typeface.NORMAL)
   cancelButtonFontSize = if (spec.has("size")) spec.optDouble("size").toFloat() else null
 }
+
+/**
+ * Loads the image of `location` and reports it on the main thread (null when it cannot be read): a URL (the Metro server in
+ * debug builds), a file URI, or a drawable resource name (what a release build resolves a required asset to). A "@3x" / "@2x"
+ * suffix gives the bitmap the matching density so the image shows at its point size.
+ */
+fun cylLoadImage(context: android.content.Context, location: String, onLoaded: (android.graphics.drawable.Drawable?) -> Unit) {
+  val main = android.os.Handler(android.os.Looper.getMainLooper())
+  fun finish(drawable: android.graphics.drawable.Drawable?) { main.post { onLoaded(drawable) } }
+  fun bitmapDrawable(bitmap: android.graphics.Bitmap?): android.graphics.drawable.Drawable? {
+    if (bitmap == null) return null
+    when {
+      location.contains("@3x") -> bitmap.density = 480
+      location.contains("@2x") -> bitmap.density = 320
+    }
+    return android.graphics.drawable.BitmapDrawable(context.resources, bitmap)
+  }
+  when {
+    location.startsWith("http") -> Thread {
+      val bitmap = try {
+        java.net.URL(location).openStream().use { android.graphics.BitmapFactory.decodeStream(it) }
+      } catch (error: Exception) {
+        null
+      }
+      finish(bitmapDrawable(bitmap))
+    }.start()
+    location.startsWith("file://") -> finish(bitmapDrawable(android.graphics.BitmapFactory.decodeFile(android.net.Uri.parse(location).path)))
+    else -> {
+      val id = context.resources.getIdentifier(location.substringBeforeLast('.'), "drawable", context.packageName)
+      finish(if (id != 0) androidx.core.content.ContextCompat.getDrawable(context, id) else bitmapDrawable(android.graphics.BitmapFactory.decodeFile(location)))
+    }
+  }
+}

@@ -53,6 +53,21 @@ class CylsearchTagListViewManager : SimpleViewManager<CylsearchTagListView>(),
     view.showsClearButton = value
   }
 
+  @ReactProp(name = "showsRefreshButton")
+  override fun setShowsRefreshButton(view: CylsearchTagListView, value: Boolean) {
+    view.showsRefreshButton = value
+  }
+
+  @ReactProp(name = "columns", defaultInt = 0)
+  override fun setColumns(view: CylsearchTagListView, value: Int) {
+    view.columns = maxOf(0, value)
+  }
+
+  @ReactProp(name = "tagImages")
+  override fun setTagImages(view: CylsearchTagListView, value: ReadableArray?) {
+    view.setTagImages(value.cylStrings())
+  }
+
   @ReactProp(name = "editing")
   override fun setEditing(view: CylsearchTagListView, value: Boolean) {
     if (value != view.isEditing) view.setEditing(value, true)
@@ -90,6 +105,7 @@ class CylsearchTagListViewManager : SimpleViewManager<CylsearchTagListView>(),
 
   override fun onAfterUpdateTransaction(view: CylsearchTagListView) {
     super.onAfterUpdateTransaction(view)
+    view.applyListStyle()
     val titles = pendingTitles.remove(view.id)
     val ids = pendingIds.remove(view.id)
     if (titles != null || ids != null) view.setTags(titles ?: view.titles, ids ?: view.ids) else view.reload()

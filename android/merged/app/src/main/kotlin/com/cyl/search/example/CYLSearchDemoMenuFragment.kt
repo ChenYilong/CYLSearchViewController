@@ -136,7 +136,7 @@ private fun Context.cylSVGADemoHeader(): View {
                 borderColor = null
                 borderWidth = 0f
                 contentInsets = CYLEdgeInsets(0f, 0f, 0f, 0f)
-                cornerRadius = 0f
+                cornerRadius = 1000f // a capsule: valid before and after the numeric corner radius (ClassifyMenu PR #35)
                 textColor = Color.GRAY
                 font = CYLFont(13f)
             }

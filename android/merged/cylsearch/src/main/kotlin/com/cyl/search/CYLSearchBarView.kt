@@ -2,6 +2,7 @@ package com.cyl.search
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.content.res.ColorStateList
@@ -2255,6 +2256,57 @@ class CYLSearchBarView @JvmOverloads constructor(
             scrollView.post { scrollView.smoothScrollTo(item.left, 0) }
         }
     }
+
+    // Navigation bar
+
+    /**
+     * Puts this bar into `toolbar` as a custom view that FILLS the space between the navigation icon (the back arrow) and the
+     * end of the toolbar: the core sizes it (match parent width inside the Toolbar, which measures a custom view in what the
+     * navigation button and the menu leave), never the page. A page that has a back arrow passes no width, margin or padding
+     * (docs/animated-icon-component.md, "The adaptive width is the core's job"; iOS `embedInNavigationBar(of:)`). The bar leaves
+     * the parent it had. Returns `toolbar` for chaining.
+     */
+    fun embedInToolbar(toolbar: androidx.appcompat.widget.Toolbar): androidx.appcompat.widget.Toolbar {
+        (parent as? ViewGroup)?.removeView(this)
+        embedsInToolbar = true
+        // The toolbar's own start / end content insets (16 dp) would add to this bar's contentInsets and move the capsule off the
+        // 16 dp inset of the tag list: the bar carries the inset itself.
+        toolbar.setContentInsetsRelative(0, 0)
+        toolbar.addView(
+            this,
+            androidx.appcompat.widget.Toolbar.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                Gravity.CENTER_VERTICAL,
+            ),
+        )
+        return toolbar
+    }
+
+    /**
+     * Same, for an activity: the existing action bar's toolbar (the AppCompat decor toolbar) when there is one, otherwise a
+     * toolbar the core creates and inserts at the top of `content` (a vertical LinearLayout or any other ViewGroup, index 0).
+     * After the call the bar always sits in a toolbar. Returns that toolbar.
+     */
+    fun embedInToolbar(activity: Activity, content: ViewGroup): androidx.appcompat.widget.Toolbar {
+        val existing = activity.findViewById<androidx.appcompat.widget.Toolbar>(androidx.appcompat.R.id.action_bar)
+        if (existing != null) {
+            return embedInToolbar(existing)
+        }
+        val created = androidx.appcompat.widget.Toolbar(activity)
+        content.addView(
+            created,
+            0,
+            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT),
+        )
+        return embedInToolbar(created)
+    }
+
+    /**
+     * True once `embedInToolbar` put this bar into a toolbar.
+     */
+    var embedsInToolbar: Boolean = false
+        private set
 
     companion object {
         private const val NO_SELECTION = -1

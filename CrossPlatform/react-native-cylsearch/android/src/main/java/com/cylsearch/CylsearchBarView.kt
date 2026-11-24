@@ -5,6 +5,9 @@ import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
 import android.view.View
+import android.view.ViewGroup
+import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import com.cyl.search.CYLSearchBarAppearance
 import com.cyl.search.CYLSearchBarItem
 import com.cyl.search.CYLSearchBarMode
@@ -25,7 +28,59 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
 
   init {
     bar.delegate = this
-    addView(bar, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+    attachBar()
+  }
+
+  private var toolbar: Toolbar? = null
+
+  /**
+   * `embedsInNavigationBar`: the bar sits in a toolbar (the Android navigation bar) the view creates and the core sizes it
+   * (CYLSearchBarView.embedInToolbar): the bar fills the width beside the back arrow, with no width or margin from here.
+   */
+  var embedsInNavigationBar: Boolean = false
+    set(value) {
+      if (field != value) {
+        field = value
+        attachBar()
+      }
+    }
+
+  /** `showsBackButton` (with `embedsInNavigationBar`): the toolbar's navigation icon is the back arrow; a tap sends `onBackButtonTap`. */
+  var showsBackButton: Boolean = false
+    set(value) {
+      field = value
+      applyBackButton()
+    }
+
+  /** Puts the bar into the toolbar (embedding) or straight into this view; used again whenever the bar is replaced. */
+  private fun attachBar() {
+    (bar.parent as? ViewGroup)?.removeView(bar)
+    if (embedsInNavigationBar) {
+      val target = toolbar ?: Toolbar(reactContext).also {
+        toolbar = it
+        addView(it, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+      }
+      bar.embedInToolbar(target)
+      applyBackButton()
+    } else {
+      toolbar?.let {
+        removeView(it)
+        toolbar = null
+      }
+      addView(bar, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+    }
+  }
+
+  private fun applyBackButton() {
+    val target = toolbar ?: return
+    if (showsBackButton) {
+      target.navigationIcon = ContextCompat.getDrawable(reactContext, androidx.appcompat.R.drawable.abc_ic_ab_back_material)
+      target.navigationContentDescription = reactContext.getString(com.cyl.search.R.string.cyl_search_back)
+      target.setNavigationOnClickListener { emit("topBackButtonTap") }
+    } else {
+      target.navigationIcon = null
+      target.setNavigationOnClickListener(null)
+    }
   }
 
   /** The editing bar's action title ("Add", "Done"), kept for a bar made later. */
@@ -42,7 +97,7 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
   fun setEditingBar(editing: Boolean) {
     if (editing == bar.isEditingBar) return
     val placeholder = bar.placeholder
-    removeView(bar)
+    (bar.parent as? ViewGroup)?.removeView(bar)
     bar = if (editing) CYLSearchBarView.editingBar(reactContext, placeholder, actionTitle) else CYLSearchBarView(reactContext).also { it.placeholder = placeholder }
     bar.delegate = this
     if (editing) {
@@ -51,7 +106,7 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
         view.text = ""
       }
     }
-    addView(bar, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+    attachBar()
   }
 
   override fun requestLayout() {

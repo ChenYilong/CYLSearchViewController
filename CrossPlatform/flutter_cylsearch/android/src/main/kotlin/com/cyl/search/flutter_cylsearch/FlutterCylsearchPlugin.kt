@@ -9,6 +9,8 @@ import com.cyl.classifymenu.CYLIndexPath
 import com.cyl.classifymenu.CYLMenuDataSource
 import com.cyl.classifymenu.CYLMenuDelegate
 import com.cyl.classifymenu.CYLMenuSelectionMode
+import com.cyl.classifymenu.CYLMenuStyle
+import com.cyl.classifymenu.CYLSize
 import com.cyl.classifymenu.CYLTagListView
 import com.cyl.placeholder.CYLPlaceholderStyle
 import com.cyl.placeholder.CYLPlaceholderView
@@ -24,6 +26,7 @@ import com.cyl.search.CYLSearchSuggestionCell
 import com.cyl.search.CYLSearchSuggestionStyle
 import com.cyl.search.CYLSearchView
 import com.cyl.search.CYLSearchViewDataSource
+import com.cyl.search.CYLSearchTagListHeader
 import com.cyl.search.CYLSearchViewDelegate
 import androidx.core.content.ContextCompat
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -296,6 +299,24 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
     }
 
     /**
+     * `embedsInNavigationBar` (read at creation): the bar sits in a toolbar, the Android navigation bar, and the core fills the
+     * width beside the back arrow (CYLSearchBarView.embedInToolbar); `showsBackButton` adds the arrow, a tap calls Dart's
+     * `onBackPressed` (method `didTapBackButton`). The platform view is then the toolbar.
+     */
+    private val toolbar: androidx.appcompat.widget.Toolbar? = if (arguments["embedsInNavigationBar"] == true) {
+        androidx.appcompat.widget.Toolbar(context).also { target ->
+            if (arguments["showsBackButton"] == true) {
+                target.navigationIcon = ContextCompat.getDrawable(context, androidx.appcompat.R.drawable.abc_ic_ab_back_material)
+                target.navigationContentDescription = context.getString(com.cyl.search.R.string.cyl_search_back)
+                target.setNavigationOnClickListener { channel.invokeMethod("didTapBackButton", null) }
+            }
+            bar.embedInToolbar(target)
+        }
+    } else {
+        null
+    }
+
+    /**
      * Dart's `searches` as applied last.
      */
     private var appliedSearches: List<String> = emptyList()
@@ -439,7 +460,7 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
         channel.invokeMethod("didSelectItem", mapOf("index" to item.index, "selected" to item.isSelected))
     }
 
-    override fun getView(): View = bar
+    override fun getView(): View = toolbar ?: bar
 
     override fun dispose() {
         channel.setMethodCallHandler(null)
@@ -492,6 +513,11 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
     private var selected: Set<String> = emptySet()
     private var sectionTitle = ""
     private var showsClearButton = false
+    private var showsRefreshButton = false
+    private var columns = 0
+    private var tagImages: List<String> = emptyList()
+    private val loadedImages = HashMap<String, android.graphics.drawable.Drawable>()
+    private val appContext: Context = context
     private var supportsRenaming = false
 
     private val tagListView = object : CYLTagListView(context) {
@@ -500,6 +526,8 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
             reportHeight()
         }
     }
+
+    private val flowingStyle: CYLMenuStyle? = tagListView.style?.copy()
 
     init {
         tagListView.showsSectionHeaders = false
@@ -535,16 +563,52 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
         tagListView.allowsEmptySelection = true
         sectionTitle = arguments["sectionTitle"] as? String ?: ""
         showsClearButton = arguments["showsClearButton"] as? Boolean ?: false
+        showsRefreshButton = arguments["showsRefreshButton"] as? Boolean ?: false
+        columns = maxOf(0, (arguments["columns"] as? Number)?.toInt() ?: 0)
+        tagImages = (arguments["tagImages"] as? List<String>) ?: emptyList()
+        applyListStyle()
+        loadTagImages()
         supportsRenaming = arguments["supportsRenaming"] as? Boolean ?: false
         titles = (arguments["tags"] as? List<String>) ?: emptyList()
         ids = (arguments["tagIds"] as? List<String>) ?: emptyList()
         selected = ((arguments["selectedIds"] as? List<String>) ?: emptyList()).toSet()
-        tagListView.showsSectionHeaders = sectionTitle.isNotEmpty() || showsClearButton
+        tagListView.showsSectionHeaders = sectionTitle.isNotEmpty() || showsClearButton || showsRefreshButton
         tagListView.reloadMenuData()
         val editing = arguments["editing"] as? Boolean ?: false
         if (editing != tagListView.isEditing) tagListView.setEditing(editing, false)
         applySelection()
         reportHeight()
+    }
+
+    /** The list's style for `columns` and `showsRefreshButton` (a style assignment replaces the icon, so it is applied together). */
+    private fun applyListStyle() {
+        val base = if (columns > 0) {
+            CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(columns).apply { imageSize = CYLSize(0f, 0f) }
+        } else {
+            flowingStyle?.copy() ?: CYLMenuStyle()
+        }
+        base.backgroundColor = android.graphics.Color.TRANSPARENT
+        if (showsRefreshButton) CYLSearchTagListHeader.applyRefreshIcon(appContext, base)
+        tagListView.style = base
+    }
+
+    /** Loads the tag images (Flutter asset keys, '' none) once; the list reloads when one arrives. */
+    private fun loadTagImages() {
+        val loader = io.flutter.FlutterInjector.instance().flutterLoader()
+        tagImages.filter { it.isNotEmpty() && it !in loadedImages }.distinct().forEach { key ->
+            try {
+                appContext.assets.open(loader.getLookupKeyForAsset(key)).use { stream ->
+                    val bitmap = android.graphics.BitmapFactory.decodeStream(stream) ?: return@use
+                    when {
+                        key.contains("@3x") -> bitmap.density = 480
+                        key.contains("@2x") -> bitmap.density = 320
+                    }
+                    loadedImages[key] = android.graphics.drawable.BitmapDrawable(appContext.resources, bitmap)
+                }
+            } catch (error: java.io.IOException) {
+                // A missing asset leaves the tag without an image.
+            }
+        }
     }
 
     private fun applySelection() {
@@ -559,7 +623,11 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
     override fun menuTitleForSection(section: Int) = sectionTitle
     override fun menuTitleForItemAtIndexPath(indexPath: CYLIndexPath) = titles.getOrElse(indexPath.item) { "" }
     override fun menuIdentifierForItemAtIndexPath(indexPath: CYLIndexPath): String = idAt(indexPath.item)
-    override fun menuShowsClearButtonForSection(section: Int) = showsClearButton
+    override fun menuShowsClearButtonForSection(section: Int) = showsClearButton && !showsRefreshButton
+    override fun menuShowsMoreButtonInSection(section: Int) = showsRefreshButton
+    override fun menuAccessibilityLabelForMoreButtonInSection(section: Int) = CYLSearchTagListHeader.refreshLabel(appContext)
+    override fun menuImageForItemAtIndexPath(indexPath: CYLIndexPath): android.graphics.drawable.Drawable? =
+        loadedImages[tagImages.getOrNull(indexPath.item).orEmpty()]
     override fun supportsRenamingItems() = supportsRenaming
     override fun menuRenameItemAtIndexPath(indexPath: CYLIndexPath, title: String) = Unit
     override fun supportsMovingItems() = true
@@ -597,6 +665,9 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
 
     override fun menuDidTapClearButtonInSection(menu: Any, section: Int) {
         channel.invokeMethod("didTapClearButton", mapOf("section" to section))
+    }
+    override fun menuDidTapMoreButtonInSection(menu: Any, section: Int) {
+        channel.invokeMethod("didTapRefreshButton", mapOf("section" to section))
     }
     override fun menuDidChangeContentHeight(menu: Any, height: Float) = reportHeight()
     override fun menuDidChangeExpanded(menu: Any, expanded: Boolean, inSection: Int) = reportHeight()

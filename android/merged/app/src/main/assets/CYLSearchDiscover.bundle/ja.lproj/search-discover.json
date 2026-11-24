@@ -1,5 +1,5 @@
 {
-  "comment": "Sample data of the search history and discover demo (CYLSearchDiscoverViewController), one file per language (the same topics, in the same order): recent searches, and a pool of discover topics; the More button shows another random selection of discoverCount topics. icon 'hot' adds the localized hot icon (discover-hot.png of the same .lproj) after the title.",
+  "comment": "Sample data of the search history and discover demo (CYLSearchDiscoverViewController), one file per language (the same topics, in the same order): recent searches, and pages of discoverCount discover topics; refresh shows the next page, cyclically. A topic with icon 'hot' shows the localized hot icon (discover-hot.png of the same .lproj) after its title; each page has exactly one, at a different slot from the next page (scripts/sync-discover-data.py --check).",
   "version": 1,
   "discoverCount": 6,
   "recentSearches": [
@@ -35,8 +35,7 @@
       "title": "Weekend road trip routes"
     },
     {
-      "title": "City cycling routes",
-      "icon": "hot"
+      "title": "City cycling routes"
     },
     {
       "title": "Contributing to open source"
@@ -45,7 +44,8 @@
       "title": "Minimal desk setup"
     },
     {
-      "title": "Indoor workouts for rainy days"
+      "title": "Indoor workouts for rainy days",
+      "icon": "hot"
     },
     {
       "title": "Film camera basics"
@@ -57,8 +57,7 @@
       "title": "Homemade yogurt"
     },
     {
-      "title": "Reading notes you won't forget",
-      "icon": "hot"
+      "title": "Reading notes you won't forget"
     },
     {
       "title": "Balcony vegetable garden"
@@ -70,17 +69,18 @@
       "title": "Saving money on train trips"
     },
     {
-      "title": "Coding for kids"
+      "title": "Coding for kids",
+      "icon": "hot"
     },
     {
       "title": "Night city photography settings"
     },
     {
-      "title": "Home storage tips"
+      "title": "Home storage tips",
+      "icon": "hot"
     },
     {
-      "title": "Air fryer recipes",
-      "icon": "hot"
+      "title": "Air fryer recipes"
     },
     {
       "title": "Training plan for a first half marathon"

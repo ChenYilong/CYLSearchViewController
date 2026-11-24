@@ -81,4 +81,6 @@
     <string name="cyl_controller_noResults">No matching results</string>
     <string name="cyl_controller_launch_label">Recent searches: tap a search to see it</string>
     <string name="cyl_shortList_row" formatted="true">Row %d</string>
+    <!-- tagList.refresh: the accessibility label of the built-in refresh icon of a tag list header. -->
+    <string name="cyl_search_tagList_refresh">Refresh</string>
 </resources>

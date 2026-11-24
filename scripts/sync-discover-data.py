@@ -27,7 +27,9 @@ HARMONYOS = {  # the rawfile names are the HarmonyOS locale qualifiers
     "zh-Hant": "harmonyos/entry/src/main/resources/rawfile/discover/zh_TW.json",
 }
 MINIPROGRAM = "CrossPlatform/wechat-miniprogram-cylsearch/example/miniprogram/utils/discover/{lang}.json"
+ANDROID = "android/merged/app/src/main/assets/CYLSearchDiscover.bundle/{lang}.lproj/search-discover.json"
 COPIES = {
+    "android": ANDROID,
     "flutter": FLUTTER,
     "harmonyos": HARMONYOS,
     "miniprogram": MINIPROGRAM,

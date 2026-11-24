@@ -61,21 +61,28 @@ data class CYLDiscoverTopic(val title: String, val icon: String?)
 class CYLSearchDiscoverData(val discoverCount: Int, val recentSearches: List<String>, val discover: List<CYLDiscoverTopic>) {
 
     /**
-     * The first `discoverCount` topics, so the first screen is always the same.
+     * The number of whole pages of `discoverCount` topics (the pool is a multiple of it; docs/animated-icon-component.md, B).
      */
-    val initialTopics: List<CYLDiscoverTopic> get() = discover.take(maxOf(0, discoverCount))
+    val pages: Int get() = if (discoverCount <= 0) 0 else discover.size / discoverCount
 
     /**
-     * Another random selection of `discoverCount` topics, preferring topics that are not shown now.
+     * The topics of `page` (wrapped into 0 until pages): whole records, the hot mark inside the record of its tag.
      */
-    fun randomTopics(current: List<CYLDiscoverTopic>, random: kotlin.random.Random = kotlin.random.Random.Default): List<CYLDiscoverTopic> {
-        val count = minOf(maxOf(0, discoverCount), discover.size)
-        val picked = discover.filter { it !in current }.shuffled(random).take(count).toMutableList()
-        if (picked.size < count) {
-            picked += discover.filter { it !in picked }.shuffled(random).take(count - picked.size)
-        }
-        return picked
+    fun topicsOnPage(page: Int): List<CYLDiscoverTopic> {
+        if (pages == 0) return emptyList()
+        val index = ((page % pages) + pages) % pages
+        return discover.subList(index * discoverCount, (index + 1) * discoverCount)
     }
+
+    /**
+     * The page the refresh shows after `page`: the next one, cyclically (no random pick, the same rule on every platform).
+     */
+    fun nextPage(after: Int): Int = if (pages == 0) 0 else (after + 1) % pages
+
+    /**
+     * The first page, so the first screen is always the same.
+     */
+    val initialTopics: List<CYLDiscoverTopic> get() = topicsOnPage(0)
 
     companion object {
         /**
@@ -133,6 +140,8 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
     private lateinit var searchBar: CYLSearchBarView
     private lateinit var recentList: CYLTagListView
     private lateinit var discoverList: CYLTagListView
+    // The page of the discover topics the refresh shows next (CYLSearchDiscoverData.nextPage).
+    private var discoverPage = 0
     private lateinit var hintLabel: TextView
     // The playback state of the animation item (the Switch and the SeekBar under the bar write it).
     private var animationLoops = false
@@ -161,7 +170,7 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             if (topics[indexPath.item].icon == "hot") CYLSearchDiscoverData.hotIcon(requireContext()) else null
         override fun menuAccessibilityHintForItemAtIndexPath(indexPath: CYLIndexPath) = getString(R.string.cyl_discover_tapToSearch)
         override fun menuShowsMoreButtonInSection(section: Int) = true
-        override fun menuAccessibilityLabelForMoreButtonInSection(section: Int) = getString(R.string.cyl_discover_refresh)
+        override fun menuAccessibilityLabelForMoreButtonInSection(section: Int) = CYLSearchTagListHeader.refreshLabel(requireContext())
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
@@ -230,22 +239,14 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             menuDelegate = this@CYLSearchDiscoverFragment
         }
 
-        val pushed = parentFragment != null
-        val top = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            // Edge to edge: the bar's own 16 dp contentInsets line up with the tag list's header and tags.
-            setPadding(if (pushed) dp(6f) else 0, dp(8f), 0, 0)
-            if (pushed) {
-                addView(ImageButton(context).apply {
-                    setImageDrawable(ContextCompat.getDrawable(context, androidx.appcompat.R.drawable.abc_ic_ab_back_material))
-                    background = null
-                    contentDescription = getString(R.string.cyl_discover_back)
-                    setOnClickListener { parentFragmentManager.popBackStack() }
-                }, LinearLayout.LayoutParams(dp(36f), dp(44f)))
-            }
-            addView(searchBar, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
+        // Always a second-level page: the toolbar's navigation icon (the back arrow) is on the left and the core embeds the bar in
+        // the toolbar so that it fills the rest (CYLSearchBarView.embedInToolbar); this page sets no width, margin or padding.
+        val toolbar = androidx.appcompat.widget.Toolbar(context).apply {
+            setNavigationIcon(ContextCompat.getDrawable(context, androidx.appcompat.R.drawable.abc_ic_ab_back_material)?.also { it.setTint(primary) })
+            navigationContentDescription = getString(R.string.cyl_discover_back)
+            setNavigationOnClickListener { parentFragmentManager.popBackStack() }
         }
+        searchBar.embedInToolbar(toolbar)
         // Playback controls under the bar: loop switch, speed 0.25 to 3 and Play again (each at least 48dp high).
         val speedLabel = TextView(context).apply {
             setTextColor(secondary)
@@ -333,7 +334,7 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             // The page takes the first focus, so the keyboard stays down until the field is tapped (as on iOS).
             isFocusableInTouchMode = true
             descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS
-            addView(top)
+            addView(toolbar, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
             addView(ScrollView(context).apply { addView(lists) }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = dp(10f) })
             addView(hintLabel, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { bottomMargin = dp(4f) })
             addView(bottom, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(110f)))
@@ -348,7 +349,7 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
                 backgroundColor = Color.WHITE
                 borderColor = Color.argb(40, 0, 0, 0)
                 borderWidth = 1f
-                cornerRadius = 0f
+                cornerRadius = 1000f // a capsule: valid before and after the numeric corner radius (ClassifyMenu PR #35)
                 margin = 14f
                 font = CYLFont(17f)
                 textColor = Color.BLACK
@@ -371,6 +372,8 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
         lineSpacing = 16f
         sectionInsets = CYLEdgeInsets(4f, 16f, 16f, 16f)
         applyHeaderLook(this)
+        // The refresh action is the built-in icon (docs/animated-icon-component.md, A), never the three dots. After the style.
+        CYLSearchTagListHeader.applyRefreshIcon(requireContext(), this)
     }
 
     private fun applyHeaderLook(style: CYLMenuStyle) {
@@ -390,7 +393,8 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
     }
 
     private fun refreshDiscover() {
-        discoverSource.topics = data.randomTopics(discoverSource.topics)
+        discoverPage = data.nextPage(discoverPage)
+        discoverSource.topics = data.topicsOnPage(discoverPage)
         reloadLists()
     }
 
