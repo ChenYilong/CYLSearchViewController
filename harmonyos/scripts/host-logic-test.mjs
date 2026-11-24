@@ -385,7 +385,7 @@ describe('Discover: the hot icon has a localized screen reader label', () => {
 // named constant (1000) passed by name, no other value is special.
 describe('corner radius capsule constant', () => {
   const entryEts = join(here, '..', 'entry', 'src', 'main', 'ets');
-  const constantSource = readFileSync(join(entryEts, 'common', 'CYLCornerRadius.ets'), 'utf8');
+  const library = readFileSync(join(core, 'CYLSearchBarView.ets'), 'utf8');
   const walk = (directory, found = []) => {
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
       const full = join(directory, entry.name);
@@ -394,22 +394,29 @@ describe('corner radius capsule constant', () => {
     }
     return found;
   };
-  it('defines CYL_CORNER_RADIUS_CAPSULE as 1000, the only place the literal is a radius', () => {
-    assert.match(constantSource, /export const CYL_CORNER_RADIUS_CAPSULE: number = 1000;/);
+  it('takes the capsule constant from the library (cylanimateditem, 1000), with no repo-local copy', () => {
+    const vendored = join(here, '..', 'vendor', 'cylanimateditem');
+    if (existsSync(vendored)) {
+      assert.match(readFileSync(join(vendored, 'Index.ets'), 'utf8'), /\bCYLAnimatedItemCornerRadiusCapsule\b/);
+      assert.match(readFileSync(join(vendored, 'src', 'main', 'ets', 'CYLAnimatedItemBackground.ets'), 'utf8'),
+        /export const CYLAnimatedItemCornerRadiusCapsule: number = 1000;/);
+    }
+    assert.equal(existsSync(join(entryEts, 'common', 'CYLCornerRadius.ets')), false);
+    assert.equal(walk(entryEts).filter((file) => /CYL_CORNER_RADIUS_CAPSULE/.test(readFileSync(file, 'utf8'))).length, 0);
   });
-  it('gives no radius in the entry sources (demos and tests) the literal 1000, 999 or 0.001', () => {
+  it('gives no radius in the entry or library sources the literal 1000, 999 or 0.001', () => {
     const radius = /(?:[cC]ornerRadius|borderRadius|radius)\s*(?:=|:|\()\s*(?:1000|999|9999|0\.001)\b/;
-    const offenders = walk(entryEts).filter((file) => !file.endsWith('CYLCornerRadius.ets')
-      && radius.test(readFileSync(file, 'utf8')));
+    const offenders = [...walk(entryEts), ...walk(core)].filter((file) => radius.test(readFileSync(file, 'utf8')));
     assert.deepEqual(offenders, []);
   });
-  it('passes the constant by name where the Discover bar is a capsule', () => {
-    assert.match(discoverSource, /bar\.fieldCornerRadius = CYL_CORNER_RADIUS_CAPSULE;/);
-    assert.match(discoverSource, /from '\.\.\/common\/CYLCornerRadius'/);
+  it('passes the library constant by name where the Discover bar is a capsule', () => {
+    assert.match(discoverSource, /bar\.fieldCornerRadius = CYLAnimatedItemCornerRadiusCapsule;/);
+    assert.match(discoverSource, /import \{ CYLAnimatedItemCornerRadiusCapsule \} from 'cylanimateditem';/);
   });
-  it('keeps the search bar items square with the pinned ClassifyMenu constant, as one place', () => {
-    const library = readFileSync(join(core, 'CYLSearchBarView.ets'), 'utf8');
-    assert.equal(library.split('CYLTagCornerRadiusSquare;').length - 1, 1);
-    assert.doesNotMatch(library, /cornerRadius = [^;]*\b0\.001\b/);
+  it('draws the search bar item square with 0, and CYLTagCornerRadiusSquare is gone', () => {
+    assert.match(library, /appearance\.cornerRadius = hasBackground \? 10 : 0;/);
+    const menu = readFileSync(join(entryEts, 'demos', 'ExamplesMenu.ets'), 'utf8');
+    assert.match(menu, /appearance\.cornerRadius = 0;/);
+    assert.doesNotMatch(library + menu, /CYLTagCornerRadiusSquare/);
   });
 });

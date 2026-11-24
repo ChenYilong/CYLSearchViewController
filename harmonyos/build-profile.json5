@@ -61,6 +61,10 @@
     {
       "name": "cylanimateditem_rive",
       "srcPath": "./vendor/cylanimateditem_rive"
+    },
+    {
+      "name": "cyldeallocblockexecutor",
+      "srcPath": "./vendor/cyldeallocblockexecutor"
     }
   ]
 }

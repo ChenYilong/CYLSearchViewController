@@ -72,3 +72,5 @@ sync cylanimateditem_rive https://github.com/ChenYilong/CYLTabBarController.git 
   CrossPlatform/harmonyos-cyltabbar/cylanimateditem_rive CYL_TABBAR_DIR
 sync cylanimateditemrive https://github.com/ChenYilong/CYLTabBarController.git cylTabBarControllerCommit \
   CrossPlatform/harmonyos-cyltabbar/cylanimateditemrive CYL_TABBAR_DIR LICENSE
+sync cyldeallocblockexecutor https://github.com/ChenYilong/CYLTabBarController.git cylTabBarControllerCommit \r
+  CrossPlatform/harmonyos-cyltabbar/cyldeallocblockexecutor CYL_TABBAR_DIR

@@ -376,9 +376,8 @@ class CYLSearchBarItem {
       iconColor: tint,
       font: { size: attributes.size || 17, weight: cylFontWeightName(attributes.weight) },
       contentInsets: { top: 0, left: insets, bottom: 0, right: insets },
-      // Square. The pinned cyl-tag-button still draws 0 as a capsule and 0.001 as square; this becomes 0 when the pins
-      // move to the numeric radius (item 8b, docs/animated-icon-component.md).
-      cornerRadius: hasBackground ? 10 : 0.001,
+      // Square: 0 is square (item 8b, docs/animated-icon-component.md).
+      cornerRadius: hasBackground ? 10 : 0,
     };
     const offset = (position) => ({ horizontal: Number(position && position.x) || 0, vertical: Number(position && position.y) || 0 });
     return {
