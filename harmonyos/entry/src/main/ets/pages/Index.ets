@@ -21,7 +21,7 @@ import { ExamplesMenuView, PlaceholderDetailPage, PlaceholderGalleryPage } from 
 import { PortsMenuPage, SearchBarDemoPage, SearchBarDemoView } from '../demos/SearchBarDemo';
 import { MaterialMenuPage, MaterialMenuView, MaterialSamplePage } from '../demos/MaterialSearch';
 import { LapismPage, MultiSearchDemoPage, RevealPage, YechaoaPage } from '../demos/Ports';
-import { DiscoverView } from '../demos/Discover';
+import { DiscoverEntryView, DiscoverPage } from '../demos/Discover';
 import { SearchBarStylesPage, SearchControllerPage } from '../demos/SearchController';
 import {
   CYLContactListPage,
@@ -217,6 +217,8 @@ struct Index {
       CYLContactRemarkPage({ stack: this.stack(this.currentIdentifier()) })
     } else if (name === CYLDemoRoute.contactTagEditor) {
       CYLContactTagEditorPage({ stack: this.stack(this.currentIdentifier()), param: param as CYLContactTagEditorParam })
+    } else if (name === CYLDemoRoute.discover) {
+      DiscoverPage({ stack: this.stack(this.currentIdentifier()) })
     } else if (name === CYLDemoRoute.contactList) {
       CYLContactListPage({ stack: this.stack(this.currentIdentifier()), param: param as CYLContactListParam })
     }
@@ -234,7 +236,7 @@ struct Index {
     } else if (identifier === 'tagStyle') {
       MaterialMenuView({ stack: this.stack(identifier), tags: true })
     } else if (identifier === 'discover') {
-      DiscoverView()
+      DiscoverEntryView({ stack: this.stack(identifier) })
     }
   }
 

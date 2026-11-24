@@ -63,6 +63,8 @@ export class CYLDemoRoute {
   static readonly contactTags: string = 'contactTags';
   static readonly contactTagEditor: string = 'contactTagEditor';
   static readonly contactList: string = 'contactList';
+  /** The Discover page: always pushed, so its navigation bar has a back button on the left. */
+  static readonly discover: string = 'discover';
 }
 
 /**
