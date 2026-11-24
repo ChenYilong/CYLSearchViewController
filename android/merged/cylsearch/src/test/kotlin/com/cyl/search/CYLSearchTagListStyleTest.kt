@@ -2,6 +2,7 @@ package com.cyl.search
 
 import com.cyl.classifymenu.CYLControlState
 import com.cyl.classifymenu.CYLMenuStyle
+import com.cyl.classifymenu.CYLTagBackgroundStyle
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -22,6 +23,7 @@ class CYLSearchTagListStyleTest {
     fun resetDefaults() {
         CYLSearchTagListStyle.tagCornerRadius = CYLSearchTagListStyle.CAPSULE_CORNER_RADIUS
         CYLSearchTagListStyle.styleCustomizer = null
+        CYLSearchTagListStyle.tagBackgroundStyle = CYLTagBackgroundStyle.CYLTagBackgroundStyleFlat
     }
 
     @Test
@@ -39,6 +41,39 @@ class CYLSearchTagListStyleTest {
         assertEquals(16f, style.headerHorizontalInset, 0f)
         assertEquals(16f, style.sectionInsets.left, 0f)
         assertEquals(16f, style.sectionInsets.right, 0f)
+    }
+
+    @Test
+    fun glassTagsAreATranslucentTintWithoutBorder() {
+        CYLSearchTagListStyle.tagBackgroundStyle = CYLTagBackgroundStyle.CYLTagBackgroundStyleLiquidGlass
+        val style = CYLMenuStyle()
+        CYLSearchTagListStyle.applyDefaults(style)
+        assertEquals(CYLTagBackgroundStyle.CYLTagBackgroundStyleLiquidGlass, style.backgroundStyle)
+        val normal = style.appearanceForState(CYLControlState.NORMAL)
+        assertEquals(0f, normal.borderWidth, 0f)
+        assertEquals(CYLSearchTagListStyle.GLASS_TINT_COLOR, normal.backgroundColor)
+        assertEquals(CYLSearchTagListStyle.GLASS_SELECTED_TINT_COLOR,
+            style.appearanceForState(CYLControlState.SELECTED).backgroundColor)
+    }
+
+    @Test
+    fun glassByNameClearsTheFillSoTheFrostedTintDraws() {
+        val style = CYLMenuStyle()
+        CYLSearchTagListStyle.applyDefaults(style)
+        CYLSearchTagListStyle.applyBackgroundStyle("liquidGlass", style)
+        assertEquals(CYLTagBackgroundStyle.CYLTagBackgroundStyleLiquidGlass, style.backgroundStyle)
+        assertEquals(android.graphics.Color.TRANSPARENT, style.appearanceForState(CYLControlState.NORMAL).backgroundColor)
+        assertEquals(0f, style.appearanceForState(CYLControlState.NORMAL).borderWidth, 0f)
+        CYLSearchTagListStyle.applyBackgroundStyle("flat", style)
+        assertEquals(CYLTagBackgroundStyle.CYLTagBackgroundStyleFlat, style.backgroundStyle)
+    }
+
+    @Test
+    fun backgroundStyleNamesMatchIos() {
+        assertEquals(CYLTagBackgroundStyle.CYLTagBackgroundStyleLiquidGlass, CYLSearchTagListStyle.backgroundStyleNamed("liquidGlass"))
+        assertEquals(CYLTagBackgroundStyle.CYLTagBackgroundStyleLiquidGlass, CYLSearchTagListStyle.backgroundStyleNamed("LIQUIDGLASS"))
+        assertEquals(CYLTagBackgroundStyle.CYLTagBackgroundStyleFlat, CYLSearchTagListStyle.backgroundStyleNamed("flat"))
+        assertEquals(CYLTagBackgroundStyle.CYLTagBackgroundStyleFlat, CYLSearchTagListStyle.backgroundStyleNamed(""))
     }
 
     @Test

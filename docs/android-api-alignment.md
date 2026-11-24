@@ -51,7 +51,7 @@ messages, localized strings (English, Simplified Chinese, a missing key) and the
 ## Table
 
 <!-- api-alignment:begin -->
-Rows: 443; DONE 412, N/A 31, TODO 0; score 100/100.
+Rows: 443; DONE 413, N/A 30, TODO 0; score 100/100.
 
 | iOS API | Upstream counterpart (named in the iOS doc comment) | Android (`cylsearch`) | Status |
 | :--- | :--- | :--- | :--- |
@@ -382,7 +382,7 @@ Rows: 443; DONE 412, N/A 31, TODO 0; score 100/100.
 | `CYLSearchTagListHeader.applyRefreshIcon(to:)` | — | `CYLSearchTagListHeader.applyRefreshIcon` | DONE |
 | **class `CYLSearchTagListStyle`** | — | CYLSearchTagListStyle | DONE |
 | `CYLSearchTagListStyle.tagCornerRadius` | — | `CYLSearchTagListStyle.tagCornerRadius` | DONE |
-| `CYLSearchTagListStyle.tagBackgroundStyle` | — | none: Liquid Glass is an iOS 26 material; Android has no glass material and CollectionViewClassifyMenu's Android `CYLMenuStyle` has no background style (every tag is flat, as below iOS 26) | N/A |
+| `CYLSearchTagListStyle.tagBackgroundStyle` | — | `CYLSearchTagListStyle.tagBackgroundStyle` | DONE |
 | `CYLSearchTagListStyle.styleCustomizer` | — | `CYLSearchTagListStyle.styleCustomizer` | DONE |
 | `CYLSearchTagListStyle.applyDefaults(to:)` | — | `CYLSearchTagListStyle.applyDefaults` | DONE |
 | `CYLSearchTagListStyle.applyDefaultStyle(to:)` | `CYLSearchTagListHeader` | `CYLSearchTagListStyle.applyDefaultStyle` | DONE |

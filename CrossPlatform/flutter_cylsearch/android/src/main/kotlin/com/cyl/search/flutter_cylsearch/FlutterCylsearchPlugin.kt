@@ -515,6 +515,7 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
     private var showsClearButton = false
     private var showsRefreshButton = false
     private var columns = 0
+    private var backgroundStyle = ""
     private var tagImages: List<String> = emptyList()
     // The screen-reader label of each tag image, parallel to tagImages ('' none); param tagImageLabels.
     private var tagImageLabels: List<String> = emptyList()
@@ -567,6 +568,7 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
         showsClearButton = arguments["showsClearButton"] as? Boolean ?: false
         showsRefreshButton = arguments["showsRefreshButton"] as? Boolean ?: false
         columns = maxOf(0, (arguments["columns"] as? Number)?.toInt() ?: 0)
+        backgroundStyle = arguments["backgroundStyle"] as? String ?: ""
         tagImages = (arguments["tagImages"] as? List<String>) ?: emptyList()
         tagImageLabels = (arguments["tagImageLabels"] as? List<String>) ?: emptyList()
         applyListStyle()
@@ -593,6 +595,8 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
             (flowingStyle?.copy() ?: CYLMenuStyle()).apply { CYLSearchTagListStyle.applyDefaults(this) }
         }
         base.backgroundColor = android.graphics.Color.TRANSPARENT
+        // "liquidGlass" or flat (CYLSearchTagListStyle.applyBackgroundStyle, iOS `applyBackgroundStyle(named:to:)`).
+        CYLSearchTagListStyle.applyBackgroundStyle(backgroundStyle, base)
         if (showsRefreshButton) CYLSearchTagListHeader.applyRefreshIcon(appContext, base)
         tagListView.style = base
     }

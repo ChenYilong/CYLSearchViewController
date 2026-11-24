@@ -75,7 +75,6 @@ NOT_APPLICABLE = {
     ('CYLSearchController', 'init(contentsViewController:resultsTableViewStyle:)'): 'none: `UITableView.Style` (plain, grouped, inset grouped) does not exist on Android, the results are one `RecyclerView` (`resultsTableView`)',
     ('CYLSearchNavigationBar', 'navigationBar(_:shouldPop:)'): 'internal listener (UIKit protocol conformance): the toolbar\'s navigation click calls `backHandler`',
     ('CYLSearchNavigationBar', 'position(for:)'): 'internal listener (UIKit protocol conformance): a `Toolbar` sits in the layout, it has no bar position',
-    ('CYLSearchTagListStyle', 'tagBackgroundStyle'): 'none: Liquid Glass is an iOS 26 material; Android has no glass material and CollectionViewClassifyMenu\'s Android `CYLMenuStyle` has no background style (every tag is flat, as below iOS 26)',
 }
 # Kotlin constructors that stand for Swift initializers: a regex on the class's file.
 INITIALIZERS = {

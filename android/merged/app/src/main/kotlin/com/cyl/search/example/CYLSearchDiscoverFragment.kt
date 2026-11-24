@@ -41,6 +41,8 @@ import com.cyl.search.CYLSearchBarItem
 import com.cyl.search.CYLSearchBarStyle
 import com.cyl.search.CYLSearchBarView
 import com.cyl.search.CYLSearchBarViewDelegate
+import com.cyl.search.CYLSearchTagListHeader
+import com.cyl.search.CYLSearchTagListStyle
 import org.json.JSONObject
 import java.util.Locale
 

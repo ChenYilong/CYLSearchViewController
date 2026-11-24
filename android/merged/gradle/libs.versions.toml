@@ -21,6 +21,9 @@ core-ktx = "1.13.1"
 activity = "1.9.3"
 customview = "1.1.0"
 swiperefreshlayout = "1.1.0"
+# A commit of CYLDeallocBlockExecutor (JitPack), the same as CYLTabBarController's Example-Android/gradle/libs.versions.toml
+# (cyltabbar depends on it since the pinned tab bar commit 235f6e96).
+cyldeallocblockexecutor = "c85c10c0dac23308a5373e4ab4f4e1da7bc41ed9"
 
 [libraries]
 svgaplayer = { module = "com.github.yyued:SVGAPlayer-Android", version.ref = "svgaplayer" }
@@ -41,6 +44,7 @@ robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectr
 junit = { module = "junit:junit", version.ref = "junit" }
 lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
 androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test-core" }
+cyldeallocblockexecutor = { module = "com.github.ChenYilong.CYLDeallocBlockExecutor:cyl-dealloc-block-executor-core", version.ref = "cyldeallocblockexecutor" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
