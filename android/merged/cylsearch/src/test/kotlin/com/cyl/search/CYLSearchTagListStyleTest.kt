@@ -80,4 +80,21 @@ class CYLSearchTagListStyleTest {
         assertEquals(16f, style.sectionInsets.left, 0f)
         assertEquals(44f, style.headerHeight, 0f)
     }
+    @Test
+    fun applyBackgroundStyleByNameClearsTheFillAndBorderOnlyForGlass() {
+        val glass = CYLMenuStyle()
+        CYLSearchTagListStyle.applyDefaults(glass)
+        CYLSearchTagListStyle.applyBackgroundStyle("liquidGlass", glass)
+        assertEquals(com.cyl.classifymenu.CYLTagBackgroundStyle.CYLTagBackgroundStyleLiquidGlass, glass.backgroundStyle)
+        for (state in listOf(CYLControlState.NORMAL, CYLControlState.SELECTED)) {
+            assertEquals(android.graphics.Color.TRANSPARENT, glass.appearanceForState(state).backgroundColor)
+            assertEquals(0f, glass.appearanceForState(state).borderWidth, 0f)
+        }
+        val flat = CYLMenuStyle()
+        CYLSearchTagListStyle.applyDefaults(flat)
+        CYLSearchTagListStyle.applyBackgroundStyle("", flat)
+        assertEquals(com.cyl.classifymenu.CYLTagBackgroundStyle.CYLTagBackgroundStyleFlat, flat.backgroundStyle)
+        assertEquals(android.graphics.Color.WHITE, flat.appearanceForState(CYLControlState.NORMAL).backgroundColor)
+        assertEquals(1f, flat.appearanceForState(CYLControlState.NORMAL).borderWidth, 0f)
+    }
 }

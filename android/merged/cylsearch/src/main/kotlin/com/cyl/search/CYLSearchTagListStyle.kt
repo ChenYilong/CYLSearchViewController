@@ -65,7 +65,7 @@ object CYLSearchTagListStyle {
                 textColor = Color.BLACK
             }
         }
-        style.backgroundStyle = backgroundStyle
+        applyBackgroundStyle(if (backgroundStyle == CYLTagBackgroundStyle.CYLTagBackgroundStyleLiquidGlass) "liquidGlass" else "flat", style)
         style.itemHeight = 36f
         style.interitemSpacing = 12f
         style.lineSpacing = 12f
@@ -85,12 +85,34 @@ object CYLSearchTagListStyle {
             style.appearanceForState(state).font = CYLFont(17f, Typeface.create("sans-serif-medium", Typeface.NORMAL))
         }
         style.imageSize = CYLSize(0f, 0f)
-        style.backgroundStyle = backgroundStyle
+        applyBackgroundStyle(if (backgroundStyle == CYLTagBackgroundStyle.CYLTagBackgroundStyleLiquidGlass) "liquidGlass" else "flat", style)
         style.itemHeight = 36f
         style.lineSpacing = 16f
         style.sectionInsets = CYLEdgeInsets(4f, 16f, 16f, 16f)
         applyHeaderLook(style)
         styleCustomizer?.invoke(style)
+    }
+
+    /**
+     * [EN] Sets the tag background of `style` by name, for the bridges (React Native / Flutter `backgroundStyle`): "liquidGlass"
+     *      (any case) is Liquid Glass, "flat", "" or any other name is flat. Call it after `applyDefaults` / `applyGrid`
+     *      (iOS `applyBackgroundStyle(named:to:)`). Glass is the background itself: a glass tag gets no fill and no border of
+     *      its own, so the fill and border of every state are cleared; flat keeps what the defaults set.
+     * [CN] 按名称设置标签背景（供 React Native / Flutter 桥接使用）："liquidGlass"（不分大小写）为液态玻璃，"flat"、空串或其他名称为
+     *      纯色。须在 `applyDefaults` / `applyGrid` 之后调用。玻璃本身就是背景：玻璃标签不设自己的填充与边框，故清除各状态的填充与边框。
+     */
+    @JvmStatic
+    fun applyBackgroundStyle(name: String?, style: CYLMenuStyle) {
+        val glass = name != null && name.equals("liquidGlass", ignoreCase = true)
+        style.backgroundStyle = if (glass) CYLTagBackgroundStyle.CYLTagBackgroundStyleLiquidGlass else CYLTagBackgroundStyle.CYLTagBackgroundStyleFlat
+        if (!glass) return
+        for (state in listOf(CYLControlState.NORMAL, CYLControlState.SELECTED, CYLControlState.DISABLED)) {
+            style.appearanceForState(state).apply {
+                backgroundColor = Color.TRANSPARENT
+                borderColor = Color.TRANSPARENT
+                borderWidth = 0f
+            }
+        }
     }
 
     private fun applyHeaderLook(style: CYLMenuStyle) {

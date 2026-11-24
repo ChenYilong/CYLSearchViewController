@@ -39,6 +39,9 @@ class CylsearchTagListView(private val reactContext: ThemedReactContext) : CYLTa
   /** The header action is the built-in refresh icon (`onRefreshButtonTap`); it wins over the trash (`showsClearButton`). */
   var showsRefreshButton: Boolean = false
 
+  /** The tag background by name: "liquidGlass", else flat (the spec prop `backgroundStyle`; applied with the list style). */
+  var backgroundStyle: String = ""
+
   /** 0: flowing tags; 2 and more: the grid of that many tags per row (ClassifyMenu's grid style). */
   var columns: Int = 0
 
@@ -91,6 +94,7 @@ class CylsearchTagListView(private val reactContext: ThemedReactContext) : CYLTa
     } else {
       (flowingStyle?.copy() ?: CYLMenuStyle()).apply { CYLSearchTagListStyle.applyDefaults(this) }
     }
+    CYLSearchTagListStyle.applyBackgroundStyle(backgroundStyle, base)
     base.backgroundColor = Color.TRANSPARENT
     if (showsRefreshButton) CYLSearchTagListHeader.applyRefreshIcon(reactContext, base)
     style = base

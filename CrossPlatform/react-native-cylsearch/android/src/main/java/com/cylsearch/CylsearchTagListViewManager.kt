@@ -58,6 +58,11 @@ class CylsearchTagListViewManager : SimpleViewManager<CylsearchTagListView>(),
     view.showsRefreshButton = value
   }
 
+  @ReactProp(name = "backgroundStyle")
+  override fun setBackgroundStyle(view: CylsearchTagListView, value: String?) {
+    view.backgroundStyle = value ?: ""
+  }
+
   @ReactProp(name = "columns", defaultInt = 0)
   override fun setColumns(view: CylsearchTagListView, value: Int) {
     view.columns = maxOf(0, value)
