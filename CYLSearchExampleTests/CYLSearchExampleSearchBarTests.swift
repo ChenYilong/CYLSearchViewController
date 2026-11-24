@@ -749,7 +749,7 @@ extension CYLSearchExampleSearchBarTests {
         XCTAssertEqual(coreTag.cornerRadius, exampleTag.cornerRadius, "the corner radius: a capsule")
         XCTAssertEqual(coreTag.borderWidth, 1, "a flat tag has a light border")
         XCTAssertEqual(exampleTag.borderWidth, 0, "a glass tag has none")
-        XCTAssertEqual(coreTag.margin, exampleTag.margin)
+        XCTAssertEqual(exampleTag.margin, CYLTagAppearance().margin, "the example leaves the inset unset: glass keeps 14 itself")
         XCTAssertEqual(coreTag.font, exampleTag.font)
         XCTAssertEqual(core.backgroundStyle, .flat, "the core's background is flat by default")
         XCTAssertEqual(example.backgroundStyle, .liquidGlass, "the example passes the one glass parameter")

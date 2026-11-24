@@ -195,9 +195,7 @@ final class CYLContactTagEditorViewController: UIViewController {
         for state in [UIControl.State.normal, .selected, .disabled] {
             let appearance = style.appearance(for: state)
             appearance.font = font
-            appearance.cornerRadius = 6
             appearance.borderWidth = 0
-            appearance.margin = 14
         }
         style.normalAppearance.backgroundColor = .clear
         style.normalAppearance.textColor = .label
