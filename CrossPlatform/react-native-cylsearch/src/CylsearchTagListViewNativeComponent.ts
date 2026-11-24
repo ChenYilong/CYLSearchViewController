@@ -90,6 +90,16 @@ export interface NativeProps extends ViewProps {
    */
   showsRefreshButton?: boolean;
   /**
+   * More than 0 shows the tags as a grid of that many plain titles per row (CollectionViewClassifyMenu's
+   * `gridStyle(itemsPerRow:)`, the iOS example's discover topics); 0 (default) is the flowing capsule tags.
+   */
+  columns?: CodegenTypes.Int32;
+  /**
+   * An image after each tag's title, one entry per tag (a file URL or path, "" for none), shown at its own size: the
+   * discover topics' hot icon. Empty means no images.
+   */
+  tagImages?: ReadonlyArray<string>;
+  /**
    * Editing mode (iOS `setEditing(_:animated:)`): a cross on each tag (`onTagDelete`) and dragging (`onTagMove`).
    */
   editing?: boolean;

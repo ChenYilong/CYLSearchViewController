@@ -325,12 +325,12 @@ function discoverLanguage() {
 }
 
 /** The localized hot icon (iOS discover-hot.png of the same .lproj; @2x and @3x beside it), English when not held. */
-const ENGLISH_HOT_ICON = { source: require('./assets/discover/discover-hot-en.png') as number, aspect: 30 / 18 };
-const HOT_ICONS: Record<string, { source: number; aspect: number }> = {
+const ENGLISH_HOT_ICON = { source: require('./assets/discover/discover-hot-en.png') as number };
+const HOT_ICONS: Record<string, { source: number }> = {
   en: ENGLISH_HOT_ICON,
-  ja: { source: require('./assets/discover/discover-hot-ja.png'), aspect: 30 / 18 },
-  'zh-Hans': { source: require('./assets/discover/discover-hot-zh-Hans.png'), aspect: 1 },
-  'zh-Hant': { source: require('./assets/discover/discover-hot-zh-Hant.png'), aspect: 1 },
+  ja: { source: require('./assets/discover/discover-hot-ja.png') },
+  'zh-Hans': { source: require('./assets/discover/discover-hot-zh-Hans.png') },
+  'zh-Hant': { source: require('./assets/discover/discover-hot-zh-Hant.png') },
 };
 
 function hotIconForLanguage() {
@@ -360,6 +360,7 @@ function DiscoverDemo() {
   const [animationSpeed, setAnimationSpeed] = useState(1);
   const text = discoverStrings();
   const hotIcon = hotIconForLanguage();
+  const hotIconUri = Image.resolveAssetSource(hotIcon.source)?.uri ?? '';
   const [recent, setRecent] = useState<string[]>(() => discoverContent().recentSearches);
   const [offset, setOffset] = useState(0);
   const [barText, setBarText] = useState('');
@@ -410,23 +411,17 @@ function DiscoverDemo() {
           onTagSelect={(event) => search(event.nativeEvent.title)}
         />
       ) : null}
-      {/* The same native section header as above: the title and the refresh icon (icon first), no tags. */}
+      {/* The topics: CollectionViewClassifyMenu's tag list as a two-column grid, the hot icon after a hot topic. */}
       <CYLTagListView
-        tags={[]}
+        tags={topics.map((topic) => topic.title)}
+        columns={2}
+        foldedRowCount={0}
         sectionTitle={text['discover.title']}
         showsRefreshButton
         onRefreshButtonTap={() => setOffset((value) => value + discoverData.discoverCount)}
+        tagImages={topics.map((topic) => (topic.icon === 'hot' ? hotIconUri : ''))}
+        onTagSelect={(event) => search(event.nativeEvent.title)}
       />
-      <View style={styles.grid}>
-        {topics.map((topic) => (
-          <Pressable key={topic.title} accessibilityRole="button" style={styles.topic} onPress={() => search(topic.title)}>
-            <Text numberOfLines={1} style={[styles.body, styles.topicTitle, { color: palette.text }]}>{topic.title}</Text>
-            {topic.icon === 'hot' ? (
-              <Image accessibilityLabel={text['discover.hot']} source={hotIcon.source} style={[styles.hot, { width: 16 * hotIcon.aspect }]} />
-            ) : null}
-          </Pressable>
-        ))}
-      </View>
       {/* Playback of the camera item (index 0 of `items`), the last block of the page options, outside the bar: loop, speed and restart. */}
       <View style={[styles.header, styles.block]}>
         <Text style={[styles.body, { color: palette.text }]}>{text['discover.animationLoops']}</Text>
@@ -458,14 +453,10 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
   section: { fontSize: 17, fontWeight: '600' },
   action: { fontSize: 15, color: '#007AFF' },
-  grid: { flexDirection: 'row', flexWrap: 'wrap' },
-  // The Flutter discover page's metrics: 16 pt blocks, a 56 pt bar inset 12 pt, topics 16 pt by 10 pt, a 16 pt hot icon.
+  // The page's own content: 16 pt blocks around its title and the playback row, a 56 pt bar edge to edge (the core aligns it).
   discoverPage: { paddingVertical: 16, gap: 12 },
   discoverBar: { height: 56 },
   block: { paddingHorizontal: 16 },
-  topic: { width: '50%', flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 16 },
-  topicTitle: { flexShrink: 1 },
-  hot: { height: 16, marginLeft: 4 },
   message: { fontSize: 14, color: '#666' },
   // In the layout flow under the page: the bar takes its own height, the bottom safe area included.
   tabBar: { alignSelf: 'stretch' },

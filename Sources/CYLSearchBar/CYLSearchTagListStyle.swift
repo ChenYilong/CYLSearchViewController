@@ -67,4 +67,32 @@ public final class CYLSearchTagListStyle: NSObject {
         list.style = style
         CYLSearchTagListHeader.applyRefreshIcon(to: list)
     }
+
+    /**
+     * Turns `list` into a grid of `columns` plain titles per row (CollectionViewClassifyMenu's `gridStyle(itemsPerRow:)`,
+     * 17 pt medium text, 36 pt rows 16 pt apart, a tag's own image at its own size), the look of the iOS example's
+     * discover topics, with the section header and the refresh icon as in `applyDefaultStyle(to:)`. Swift-only in
+     * CollectionViewClassifyMenu, so the Objective-C++ bridge calls it here; 0 or less leaves the list as it is.
+     */
+    @objc(applyGridColumns:toList:)
+    public static func applyGrid(columns: Int, to list: CYLTagListView) {
+        guard columns > 0 else {
+            return
+        }
+        let style = CYLMenuStyle.gridStyle(itemsPerRow: columns)
+        for state in [UIControl.State.normal, .selected, .disabled] {
+            style.appearance(for: state).font = .systemFont(ofSize: 17, weight: .medium)
+        }
+        style.imageSize = .zero
+        style.itemHeight = 36
+        style.lineSpacing = 16
+        style.sectionInsets = UIEdgeInsets(top: 4, left: 16, bottom: 16, right: 16)
+        style.backgroundColor = .clear
+        style.headerHeight = 44
+        style.headerFont = .systemFont(ofSize: 20, weight: .bold)
+        style.headerTextColor = .label
+        style.headerHorizontalInset = 16
+        style.moreButtonImage = CYLSearchTagListHeader.refreshImage
+        list.style = style
+    }
 }

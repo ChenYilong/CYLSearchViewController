@@ -1154,6 +1154,8 @@ class CYLTagListView extends StatefulWidget {
     this.selectedIds = const <String>[],
     this.selectionMode = CYLTagSelectionMode.none,
     this.sectionTitle = '',
+    this.columns = 0,
+    this.tagImages = const <String>[],
     this.showsClearButton = false,
     this.showsRefreshButton = false,
     this.editing = false,
@@ -1179,6 +1181,14 @@ class CYLTagListView extends StatefulWidget {
 
   /// The section's header title; with [showsClearButton] or a title, the header shows.
   final String sectionTitle;
+
+  /// More than 0 shows the tags as a grid of that many plain titles per row (CollectionViewClassifyMenu's
+  /// `gridStyle(itemsPerRow:)`, the iOS example's discover topics); 0 (default) is the flowing capsule tags.
+  final int columns;
+
+  /// An image after each tag's title, one Flutter asset key per tag ('' for none), shown at its own size: the discover
+  /// topics' hot icon. The 2.0x and 3.0x variants beside the asset are used as Flutter does.
+  final List<String> tagImages;
 
   /// A trash button in the header (iOS `menuShowsClearButton(forSection:)`): [onClearButtonTapped].
   final bool showsClearButton;
@@ -1265,6 +1275,8 @@ class _CYLTagListViewState extends State<CYLTagListView> {
         !listEquals(oldWidget.selectedIds, widget.selectedIds) ||
         oldWidget.selectionMode != widget.selectionMode ||
         oldWidget.sectionTitle != widget.sectionTitle ||
+        oldWidget.columns != widget.columns ||
+        !listEquals(oldWidget.tagImages, widget.tagImages) ||
         oldWidget.showsClearButton != widget.showsClearButton ||
         oldWidget.showsRefreshButton != widget.showsRefreshButton ||
         oldWidget.editing != widget.editing ||
@@ -1307,6 +1319,8 @@ Map<String, Object?> cylTagListViewParameters(CYLTagListView widget, {Brightness
       'selectedIds': widget.selectedIds,
       'selectionMode': widget.selectionMode.name,
       'sectionTitle': widget.sectionTitle,
+      'columns': widget.columns,
+      'tagImages': widget.tagImages,
       'showsClearButton': widget.showsClearButton,
       'showsRefreshButton': widget.showsRefreshButton,
       'editing': widget.editing,
