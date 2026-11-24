@@ -347,6 +347,10 @@
     {
       "name": "cyl_styles_trailing",
       "value": "右のアクセサリ"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "更新"
     }
   ]
 }

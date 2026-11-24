@@ -4,6 +4,7 @@ import {
   CYLControlState, CYLEdgeInsets, CYLFont, CYLMenuLocalizedString, CYLMenuStyle, CYLOffset, CYLSize, CYLTagButton,
   CYLTagButtonHost, CYLTagCornerRadiusSquare
 } from '@cyl/classifymenu';
+import { CYLSearchResources } from './CYLSearchResources';
 
 // MARK: - Pure logic (begin): no ArkUI, no kit; harmonyos/scripts/host-logic-test.mjs runs it with Node.
 
@@ -2374,5 +2375,122 @@ export struct CYLSearchBarComponent {
       width: { bottom: this.searchBarView.barBorderColor !== undefined ? 0.5 : 0 },
       color: this.searchBarView.barBorderColor ?? Color.Transparent
     })
+  }
+}
+
+/**
+ * The height of the search field embedded in a navigation bar: a standard bar is 44, the field is 36.
+ * `CYLSearchNavigationPage` sets it on the bar it hosts; the bar's `fieldHeight` is the value to read.
+ * The title bar itself is `CYL_SEARCH_NAVIGATION_BAR_HEIGHT` high, ArkUI's default title height.
+ */
+export const CYL_SEARCH_NAVIGATION_FIELD_HEIGHT: number = 36;
+
+/**
+ * The height of the navigation bar that holds the search bar (vp), below the status bar.
+ */
+export const CYL_SEARCH_NAVIGATION_BAR_HEIGHT: number = 56;
+
+/**
+ * The refresh button of a tag list header (iOS `CYLSearchTagListHeader.applyRefreshIcon(to:)`): the system refresh
+ * symbol (`sys.symbol.arrow_clockwise`, `CYLSearchResources.imageNamed('refresh')`), never three dots or text,
+ * labelled with the localized `tagList.refresh` (Refresh, 更新, 刷新, 重新整理) for screen readers.
+ */
+@ComponentV2
+export struct CYLSearchRefreshButton {
+  /**
+   * The accessibility identifier of the button.
+   */
+  @Param identifier: string = 'CYLSearchRefreshButton';
+  /**
+   * Called when the button is tapped.
+   */
+  @Event onRefresh: () => void = () => {
+  };
+
+  build() {
+    SymbolGlyph(CYLSearchResources.imageNamed('refresh'))
+      .fontSize(18)
+      .fontColor([$r('sys.color.font_secondary')])
+      .padding(8)
+      .accessibilityText($r('app.string.cyl_tagList_refresh'))
+      .id(this.identifier)
+      .onClick(() => this.onRefresh())
+  }
+}
+
+/**
+ * A page whose search bar is always in a navigation bar: the bar is the title builder of a `NavDestination`
+ * (`isDestination`, a page pushed on a `Navigation`), or the page is wrapped in a `Navigation` created here, so a page
+ * without one gets one. The page lays nothing out: its content is the trailing closure.
+ */
+@ComponentV2
+export struct CYLSearchNavigationPage {
+  /**
+   * The search bar shown in the navigation bar; its `fieldHeight` becomes `CYL_SEARCH_NAVIGATION_FIELD_HEIGHT`.
+   */
+  @Require @Param searchBarView: CYLSearchBarView;
+  /**
+   * Whether a back button precedes the bar.
+   */
+  @Param showsBack: boolean = false;
+  /**
+   * True when the page is pushed on a `Navigation` (a `NavDestination` hosts it); false wraps it in a `Navigation`.
+   */
+  @Param isDestination: boolean = false;
+  /**
+   * Called when the back button is tapped.
+   */
+  @Event onBack: () => void = () => {
+  };
+  /**
+   * The content below the navigation bar.
+   */
+  @BuilderParam content: () => void = this.emptyContent;
+  private ownStack: NavPathStack = new NavPathStack();
+
+  aboutToAppear(): void {
+    this.searchBarView.fieldHeight = CYL_SEARCH_NAVIGATION_FIELD_HEIGHT;
+  }
+
+  @Builder
+  emptyContent() {
+  }
+
+  @Builder
+  titleBar() {
+    Row({ space: 2 }) {
+      if (this.showsBack) {
+        SymbolGlyph(CYLSearchResources.imageNamed('back'))
+          .fontSize(20)
+          .fontColor([$r('sys.color.font_primary')])
+          .width(32)
+          .height(44)
+          .accessibilityText($r('app.string.cyl_search_back'))
+          .onClick(() => this.onBack())
+      }
+      CYLSearchBarComponent({ searchBarView: this.searchBarView }).layoutWeight(1)
+    }
+    .width('100%')
+    .height(CYL_SEARCH_NAVIGATION_BAR_HEIGHT)
+    .padding({ left: this.showsBack ? 6 : 16, right: 16 })
+  }
+
+  build() {
+    if (this.isDestination) {
+      NavDestination() {
+        this.content()
+      }
+      .title({ builder: this.titleBar, height: CYL_SEARCH_NAVIGATION_BAR_HEIGHT })
+      .hideTitleBar(false)
+      .hideBackButton(true)
+    } else {
+      Navigation(this.ownStack) {
+        this.content()
+      }
+      .title({ builder: this.titleBar, height: CYL_SEARCH_NAVIGATION_BAR_HEIGHT })
+      .titleMode(NavigationTitleMode.Mini)
+      .hideBackButton(true)
+      .mode(NavigationMode.Stack)
+    }
   }
 }

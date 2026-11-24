@@ -347,6 +347,10 @@
     {
       "name": "cyl_styles_trailing",
       "value": "右側附件檢視"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "重新整理"
     }
   ]
 }

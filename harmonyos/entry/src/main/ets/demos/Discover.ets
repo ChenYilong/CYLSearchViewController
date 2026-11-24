@@ -2,12 +2,13 @@ import { common } from '@kit.AbilityKit';
 import { LengthMetrics } from '@kit.ArkUI';
 import { util } from '@kit.ArkTS';
 import {
-  CYLSearchBarComponent,
   CYLSearchBarItem,
   CYLSearchBarStyle,
-  CYLSearchBarView
+  CYLSearchBarView,
+  CYLSearchNavigationPage,
+  CYLSearchRefreshButton
 } from 'cylsearch';
-import { cylAppText, CYL_PLUS_OVERHANG } from '../common/DemoCommon';
+import { cylAppText, CYLDemoRoute, CYL_PLUS_OVERHANG } from '../common/DemoCommon';
 
 /**
  * How many tags (`widths`, in vp) fit in `rows` rows of `width`, leaving room for a control of `controlWidth` after
@@ -50,12 +51,22 @@ function cylFoldedTagCount(widths: number[], width: number, rows: number, spacin
   return 0;
 }
 
+// MARK: - Pure logic (begin): no ArkUI, no kit; harmonyos/scripts/host-logic-test.mjs runs it with Node.
+
 /**
  * A discover topic of search-discover.json; `icon` "hot" adds the localized hot icon after the title.
  */
 interface CYLDiscoverTopic {
   title: string;
   icon?: string;
+}
+
+/**
+ * One page of topics and its number.
+ */
+interface CYLDiscoverPage {
+  page: number;
+  topics: CYLDiscoverTopic[];
 }
 
 /**
@@ -68,6 +79,19 @@ interface CYLSearchDiscoverData {
   discover: CYLDiscoverTopic[];
 }
 
+/**
+ * The topics of page `page` of `pool`: whole pages of `count` records, the page number taken modulo the number of
+ * pages (a negative page counts from the end). Refresh shows the next page, cyclically, with no random pick.
+ */
+function cylDiscoverPage(pool: CYLDiscoverTopic[], count: number, page: number): CYLDiscoverPage {
+  const size = Math.max(1, Math.min(Math.max(0, count), pool.length));
+  const pages = Math.max(1, Math.floor(pool.length / size));
+  const index = ((page % pages) + pages) % pages;
+  return { page: index, topics: pool.slice(index * size, (index + 1) * size) };
+}
+
+// MARK: - Pure logic (end)
+
 const TAG_HEIGHT: number = 36;
 const TAG_SPACING: number = 12;
 const TAG_MARGIN: number = 14;
@@ -78,11 +102,13 @@ const CHEVRON_WIDTH: number = 44;
  * The Discover tab (iOS `CYLSearchDiscoverViewController`, copied from CollectionViewClassifyMenu's CYLMenuExample):
  * the bordered search bar with the camera, a divider and Search appended inside it; "Recent searches" as tags folded
  * to two rows with the chevron as the last tag, and a trash button; "Discover" as a grid of two titles per row with
- * the hot icon and the More button that picks other topics; and the hold-to-ask mic button on a curved area.
+ * the hot icon and the core's refresh button that shows the next page of topics; and the hold-to-ask mic button on a curved area.
  */
 @ComponentV2
 export struct DiscoverView {
   @Param showsBack: boolean = false;
+  // True when the page is pushed on a Navigation stack (a NavDestination hosts it).
+  @Param isDestination: boolean = false;
   @Event onBack: () => void = () => {
   };
   @Local recent: string[] = [];
@@ -99,6 +125,7 @@ export struct DiscoverView {
   private data: CYLSearchDiscoverData = { version: 1, discoverCount: 6, recentSearches: [], discover: [] };
   private searchBar: CYLSearchBarView = new CYLSearchBarView();
   private animatedItem: CYLSearchBarItem | undefined = undefined;
+  private topicPage: number = 0;
 
   private text(name: string, ...args: string[]): string {
     return cylAppText(this.context, name, ...args);
@@ -107,15 +134,13 @@ export struct DiscoverView {
   aboutToAppear(): void {
     this.data = this.loadData();
     this.recent = this.data.recentSearches;
-    this.topics = this.data.discover.slice(0, Math.max(0, this.data.discoverCount));
+    this.topics = cylDiscoverPage(this.data.discover, this.data.discoverCount, 0).topics;
     this.hint = this.text('discover_askHint');
     // A capsule with a soft shadow, no magnifier: the camera and the Search button sit inside it.
     const bar = this.searchBar;
     bar.searchIcon = undefined;
     bar.contentInsets = { top: 0, left: 0, bottom: 0, right: 0 };
-    bar.fieldHeight = 46;
     bar.searchBarStyle = CYLSearchBarStyle.bordered;
-    bar.fieldCornerRadius = 22;
     bar.fieldShadowOpacity = 0.06;
     bar.font = 16;
     bar.fieldBorderColor = $r('sys.color.comp_divider');
@@ -168,20 +193,11 @@ export struct DiscoverView {
     this.searchBar.placeholder = this.topics.length > 0 ? this.topics[0].title : this.text('discover_search');
   }
 
-  // The More button: another random selection of topics, different from the shown ones whenever the pool allows.
+  // The refresh button: the next page of topics, cyclically (page = (page + 1) mod pages).
   private refreshDiscover(): void {
-    const count = Math.min(Math.max(0, this.data.discoverCount), this.data.discover.length);
-    const shown = this.topics.map((topic: CYLDiscoverTopic) => topic.title);
-    const shuffle = (items: CYLDiscoverTopic[]) => items.map((t: CYLDiscoverTopic) => [Math.random(), t] as [number, CYLDiscoverTopic])
-      .sort((a: [number, CYLDiscoverTopic], b: [number, CYLDiscoverTopic]) => a[0] - b[0])
-      .map((pair: [number, CYLDiscoverTopic]) => pair[1]);
-    let picked = shuffle(this.data.discover.filter((t: CYLDiscoverTopic) => !shown.includes(t.title))).slice(0, count);
-    if (picked.length < count) {
-      const titles = picked.map((t: CYLDiscoverTopic) => t.title);
-      picked = picked.concat(shuffle(this.data.discover.filter((t: CYLDiscoverTopic) => !titles.includes(t.title)))
-        .slice(0, count - picked.length));
-    }
-    this.topics = picked;
+    const next = cylDiscoverPage(this.data.discover, this.data.discoverCount, this.topicPage + 1);
+    this.topicPage = next.page;
+    this.topics = next.topics;
     this.reloadLists();
   }
 
@@ -267,13 +283,7 @@ export struct DiscoverView {
             this.recent = [];
           })
       } else if (accessory === 2) {
-        SymbolGlyph($r('sys.symbol.arrow_clockwise'))
-          .fontSize(18)
-          .fontColor([$r('sys.color.font_secondary')])
-          .padding(8)
-          .accessibilityText(this.text('discover_refresh'))
-          .id('CYLSearchDiscoverMore')
-          .onClick(() => this.refreshDiscover())
+        CYLSearchRefreshButton({ identifier: 'CYLSearchDiscoverMore', onRefresh: () => this.refreshDiscover() })
       }
     }
     .width('100%')
@@ -298,21 +308,16 @@ export struct DiscoverView {
   }
 
   build() {
-    Column() {
-      Row({ space: 2 }) {
-        if (this.showsBack) {
-          SymbolGlyph($r('sys.symbol.chevron_backward'))
-            .fontSize(20)
-            .fontColor([$r('sys.color.font_primary')])
-            .width(32)
-            .height(44)
-            .accessibilityText(this.text('discover_back'))
-            .onClick(() => this.onBack())
-        }
-        CYLSearchBarComponent({ searchBarView: this.searchBar }).layoutWeight(1)
-      }
-      .padding({ left: this.showsBack ? 6 : 14, right: 14, top: 8 })
+    // The core's navigation page holds the search bar in the navigation bar; the page lays the bar out by no hand.
+    CYLSearchNavigationPage({ searchBarView: this.searchBar, showsBack: this.showsBack, isDestination: this.isDestination,
+      onBack: () => this.onBack() }) {
+      this.discoverContent()
+    }
+  }
 
+  @Builder
+  discoverContent() {
+    Column() {
       // Playback of the animated item: loop switch, speed slider (0.25 to 3) with its value, and Play again.
       Row({ space: 8 }) {
         Toggle({ type: ToggleType.Switch, isOn: this.animationLoops })
@@ -486,5 +491,52 @@ export struct DiscoverView {
     .width('100%')
     .height('100%')
     .backgroundColor($r('sys.color.background_primary'))
+  }
+}
+
+// Whether the entry page already opened the Discover page once (the first time it appears it opens it by itself).
+let cylDiscoverOpenedOnce: boolean = false;
+
+/**
+ * The root of the Discover tab: a small entry page. The Discover page is always pushed on top of it (also at once, the
+ * first time), so its navigation bar always has a back button on the left, as the iOS example's second-level page.
+ */
+@ComponentV2
+export struct DiscoverEntryView {
+  @Require @Param stack: NavPathStack;
+  private context: common.Context = this.getUIContext().getHostContext() as common.Context;
+
+  aboutToAppear(): void {
+    if (!cylDiscoverOpenedOnce) {
+      cylDiscoverOpenedOnce = true;
+      this.stack.pushPath({ name: CYLDemoRoute.discover }, false);
+    }
+  }
+
+  build() {
+    Column({ space: 16 }) {
+      Text(cylAppText(this.context, 'tab_discover')).fontSize(20).fontWeight(FontWeight.Bold)
+        .fontColor($r('sys.color.font_primary'))
+      Button(cylAppText(this.context, 'tab_discover'), { type: ButtonType.Capsule })
+        .constraintSize({ minWidth: 44, minHeight: 44 })
+        .id('CYLSearchDiscoverOpen')
+        .onClick(() => this.stack.pushPath({ name: CYLDemoRoute.discover }))
+    }
+    .width('100%')
+    .height('100%')
+    .justifyContent(FlexAlign.Center)
+    .backgroundColor($r('sys.color.background_primary'))
+  }
+}
+
+/**
+ * The Discover page pushed from the entry page: back button on the left, the search bar in the navigation bar.
+ */
+@ComponentV2
+export struct DiscoverPage {
+  @Require @Param stack: NavPathStack;
+
+  build() {
+    DiscoverView({ showsBack: true, isDestination: true, onBack: () => this.stack.pop() })
   }
 }

@@ -414,7 +414,7 @@ export class CYLSearchResources {
   static readonly resourceBundle: string = 'cylsearch';
 
   /**
-   * A built-in image by name (`camera`, `mic`, `search`, `back`, `clear`, `submit`, `trash`), as a system symbol, or
+   * A built-in image by name (`camera`, `mic`, `search`, `back`, `clear`, `submit`, `trash`, `refresh`), as a system symbol, or
    * undefined when there is none (iOS `+imageNamed:`).
    */
   static imageNamed(name: string): Resource | undefined {
@@ -438,6 +438,9 @@ export class CYLSearchResources {
     }
     if (name === 'trash') {
       return $r('sys.symbol.trash');
+    }
+    if (name === 'refresh') {
+      return $r('sys.symbol.arrow_clockwise');
     }
     return undefined;
   }

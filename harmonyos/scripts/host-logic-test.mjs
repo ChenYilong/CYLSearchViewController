@@ -261,3 +261,47 @@ describe('QMUI search port: header snapping (issue 1160)', () => {
     assert.equal(logic.cylSearchHeaderSettleOffset(10, 0), undefined);
   });
 });
+
+// The example's Discover page keeps its paging rule in the same kind of part (entry/src/main/ets/demos/Discover.ets) and
+// the rawfile data it reads is checked here too: the rule of docs/animated-icon-component.md, "Discover data contract".
+const discoverSource = readFileSync(join(here, '..', 'entry', 'src', 'main', 'ets', 'demos', 'Discover.ets'), 'utf8');
+const discoverBegin = discoverSource.indexOf('// MARK: - Pure logic (begin)');
+const discoverEnd = discoverSource.indexOf('// MARK: - Pure logic (end)');
+assert.ok(discoverBegin >= 0 && discoverEnd > discoverBegin, 'Discover.ets has no pure logic part');
+const discoverFolder = mkdtempSync(join(tmpdir(), 'cyl-discover-'));
+const discoverTarget = join(discoverFolder, 'CYLDiscoverLogic.ts');
+writeFileSync(discoverTarget, discoverSource.slice(discoverBegin, discoverEnd).replace(/^function /gm, 'export function '));
+const discoverLogic = await import(pathToFileURL(discoverTarget).href);
+after(() => rmSync(discoverFolder, { recursive: true, force: true }));
+
+describe('Discover: refresh shows the next page, cyclically', () => {
+  const rawfiles = ['base', 'ja_JP', 'zh_CN', 'zh_TW'];
+  const data = (name) => JSON.parse(readFileSync(join(here, '..', 'entry', 'src', 'main', 'resources', 'rawfile', 'discover', `${name}.json`), 'utf8'));
+  it('wraps around and counts a negative page from the end', () => {
+    const pool = Array.from({ length: 24 }, (_, i) => ({ title: `T${i}` }));
+    assert.deepEqual(discoverLogic.cylDiscoverPage(pool, 6, 0).topics.map((t) => t.title), ['T0', 'T1', 'T2', 'T3', 'T4', 'T5']);
+    assert.deepEqual([1, 2, 3, 4, 5].map((page) => discoverLogic.cylDiscoverPage(pool, 6, page).page), [1, 2, 3, 0, 1]);
+    assert.equal(discoverLogic.cylDiscoverPage(pool, 6, -1).page, 3);
+    assert.equal(discoverLogic.cylDiscoverPage(pool.slice(0, 8), 6, 3).page, 0);
+  });
+  it('every language has 4 pages of 6, one hot record per page and a hot slot that differs from the next page', () => {
+    for (const name of rawfiles) {
+      const { discover, discoverCount } = data(name);
+      assert.equal(discoverCount, 6, name);
+      assert.equal(discover.length, 24, name);
+      let page = 0;
+      let previous = -1;
+      let first = -1;
+      for (let refresh = 0; refresh <= 8; refresh++) {
+        const shown = discoverLogic.cylDiscoverPage(discover, discoverCount, page);
+        const hot = shown.topics.map((t, slot) => (t.icon === 'hot' ? slot : -1)).filter((slot) => slot >= 0);
+        assert.equal(hot.length, 1, `${name} page ${shown.page}`);
+        assert.notEqual(hot[0], previous, `${name} page ${shown.page}`);
+        if (refresh === 0) first = hot[0];
+        if (refresh === 4) assert.equal(hot[0], first, `${name} wraps to the first page`);
+        previous = hot[0];
+        page = discoverLogic.cylDiscoverPage(discover, discoverCount, shown.page + 1).page;
+      }
+    }
+  });
+});

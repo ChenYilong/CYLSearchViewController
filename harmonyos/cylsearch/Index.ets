@@ -15,7 +15,11 @@ export {
   CYLSearchBarStyle,
   CYLSearchBarView,
   CYLSearchBarViewDelegate,
-  CYLSearchEdgeInsets
+  CYLSearchEdgeInsets,
+  CYLSearchNavigationPage,
+  CYLSearchRefreshButton,
+  CYL_SEARCH_NAVIGATION_BAR_HEIGHT,
+  CYL_SEARCH_NAVIGATION_FIELD_HEIGHT
 } from './src/main/ets/CYLSearchBarView';
 export {
   CYLMenuFoldControl,

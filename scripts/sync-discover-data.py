@@ -20,8 +20,17 @@ SOURCE = "CYLSearchExample/CYLSearchDiscover.bundle/{lang}.lproj/search-discover
 FLUTTER = "CrossPlatform/flutter_cylsearch/example/assets/discover/{lang}/search-discover.json"
 RN = "CrossPlatform/react-native-cylsearch/example/src/search-discover.json"
 # Other examples add their copies here (Android assets, HarmonyOS rawfile, mini program); each is a full copy of the source file.
+HARMONYOS = {  # the rawfile names are the HarmonyOS locale qualifiers
+    "en": "harmonyos/entry/src/main/resources/rawfile/discover/base.json",
+    "ja": "harmonyos/entry/src/main/resources/rawfile/discover/ja_JP.json",
+    "zh-Hans": "harmonyos/entry/src/main/resources/rawfile/discover/zh_CN.json",
+    "zh-Hant": "harmonyos/entry/src/main/resources/rawfile/discover/zh_TW.json",
+}
+MINIPROGRAM = "CrossPlatform/wechat-miniprogram-cylsearch/example/miniprogram/utils/discover/{lang}.json"
 COPIES = {
     "flutter": FLUTTER,
+    "harmonyos": HARMONYOS,
+    "miniprogram": MINIPROGRAM,
 }
 
 
@@ -86,9 +95,13 @@ def main():
     differs = []
     for name, template in COPIES.items():
         for lang in LANGS:
-            path = template.format(lang=lang)
+            path = template[lang] if isinstance(template, dict) else template.format(lang=lang)
             if not os.path.exists(os.path.join(ROOT, path)):
-                differs.append(f"{name}: {path} missing")
+                if check:
+                    differs.append(f"{name}: {path} missing")
+                else:
+                    os.makedirs(os.path.dirname(os.path.join(ROOT, path)), exist_ok=True)
+                    write(path, sources[lang])
             elif read(path) != sources[lang]:
                 if check:
                     differs.append(f"{name}: {path} differs")
