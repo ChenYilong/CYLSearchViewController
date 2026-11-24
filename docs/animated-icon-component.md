@@ -100,6 +100,44 @@ Why: Flutter and React Native looked very different from the native pages althou
 8. **Corner radius is a plain number in CollectionViewClassifyMenu (2026-11-24, owner)**: `CYLTagCornerRadiusSquare` is removed and 0 no longer means a capsule: `cornerRadius` is points limited to half the tag height, **0 is square**, half the height or more (for example 1000) is a capsule. ClassifyMenu PR #35 (`feat/corner-radius-numeric`, iOS done and tested: 31 tests; Android, HarmonyOS and the mini program of ClassifyMenu are TODO, the Windows session). In this repository: `CYLSearchTagListStyle.tagCornerRadius` default is 1000 (a capsule, the iOS example's look), the iOS example's recent searches use 1000; the search bar's own tags use a private 0.001 for square corners, valid with both meanings of 0, until the pins move to the merged PR (then 0). TODO in this repository when the PR merges: Android (`CYLSearchBarView.kt` imports the constant), HarmonyOS (`CYLSearchBarView.ets`, `ExamplesMenu.ets`), the mini program example, and the pins.
 9. **React Native tab bar titles are localized (2026-11-24, owner)**: the tab bar titles and the tab page title come from `example/src/search-discover.json` (`tab.list`, `tab.tags`, `tab.empty`, `tab.discover`, `tab.searchBar` in en, ja, zh-Hans, zh-Hant; tag style, search bar and discover are the iOS values of `CYLSearchTabs.strings`, "List style" and "Empty results" have no iOS key and are new translations): ![React Native tab titles in zh-Hans](assets/rn-ios-27.2-iphone18pro-20261124-tab-titles-zh-hans.png) (2026-11-24). Still English in the React Native example (not localized): the tab pages' descriptions and demo buttons ("Open search", "Results with pull to refresh", "Tab icons: Rive", ...) and the demo screens behind them. The Flutter example's tab titles come from its tab bar configuration JSON and are English too.
 
+## Refresh, hot data and navigation bar contract (2026-11-24, owner; designed with the advisor), every platform
+
+Owner prompt: see `docs/task-log.md`, "refresh icon in every example; a larger refresh data set ...; the search bar always embedded in a navigation bar". Three parts, one spec for every session.
+
+### A. The refresh icon is built in (icon first, the default)
+
+Every example's Discover "topics" header shows the refresh icon, never ClassifyMenu's three dots and never text. The icon is a built-in resource of the library of each platform (created when the platform has none), with a localized label (key `tagList.refresh`: Refresh, 更新, 刷新, 重新整理):
+- **iOS** (done in the core): `CYLSearchTagListHeader.applyRefreshIcon(to:)` (SF Symbol `arrow.clockwise`). The iOS example applies it after `discoverList.style = Self.discoverStyle()` (a later style assignment replaces it).
+- **Android**: a vector drawable `ic_refresh` in the `cylsearch` library (res/drawable), not in the app; the tag list header More button uses it (ClassifyMenu's Android header action API); label from the string resource in four languages. A copied Material icon needs its notice in `licenses` and `scripts/check-licenses.sh` green.
+- **HarmonyOS**: a system symbol for refresh if the SDK has one (look it up, never guess a name), otherwise an SVG in the `cylsearch` module's media resources; label `$r('app.string.…')`.
+- **Mini program**: an SVG inside the core component package (not the example page); label from the i18n table.
+
+### B. Discover data contract (the same data on all six examples)
+
+- Single source: `CYLSearchExample/CYLSearchDiscover.bundle/<lang>.lproj/search-discover.json` (en, ja, zh-Hans, zh-Hant). Every other example holds a copy made by `python3 scripts/sync-discover-data.py` (`--check` validates the rule and reports copies that differ; a session adds its copy to `COPIES` in the script).
+- The pool is whole pages of `discoverCount` (6) records, 4 pages = 24 records (a multiple, as the owner asked), the same topics in the same order in every language.
+- A record is `{ "title": "...", "icon": "hot" }`: the hot mark lives in the same record as the tag it marks (`icon` absent = no mark).
+- Each page has exactly one hot record; its slot on a page differs from its slot on the next page, wrap-around included. Source slots: 0, 3, 5, 1 (global records 0, 9, 17, 19). The slot comes from the order of the records in the data file ("from the database": the data, not the code, decides the position); if the owner meant a SQLite database instead, only the loader changes.
+- Refresh shows the **next page, cyclically** (page = (page + 1) mod pages). No random pick: iOS `randomTopics` and Flutter `randomTopics` are replaced by one `nextPage` rule, React Native's offset logic by the same rule; Android, HarmonyOS and the mini program follow the same rule.
+- A test (iOS and Flutter): over 2 × pages refreshes, every page shows exactly one hot record and its slot never equals the previous page's.
+
+### C. The search bar is always in a navigation bar (core first)
+
+The Discover search bar must sit in the navigation bar of the current view; a view without one gets a navigation bar created by the core. The core guarantees it by one entry point per platform; an example never lays the bar out by hand.
+- **iOS** `CYLSearchBarView`: `@objc @discardableResult func embedInNavigationBar(of viewController: UIViewController) -> UINavigationBar`. The view controller has a `navigationController`: the bar becomes `navigationItem.titleView` and the controller's navigation bar is returned. It has none: the core installs a `CYLSearchNavigationBar` (a `UINavigationBar` holding this bar as its title view, background under the status bar) at the top of the view controller's view and returns it. After the call a navigation bar always exists. Unit tests for both branches: the bar exists, and the content below starts at or after the bar's maxY (the bar never covers a view). Measure the title view frame on iOS 17.5, 26.5 and 27.2; do not assume the sizing.
+- **Bridges (Flutter, React Native)**: the existing bar view gets a prop `embedsInNavigationBar` (Flutter `embedsInNavigationBar`); the native view then renders the `CYLSearchNavigationBar`, so iOS has one code path. Flutter places it as `Scaffold.appBar` (`PreferredSize`), React Native reserves its height under the safe area.
+- **Android** `CYLSearchBarView`: `embedInToolbar(activity/fragment)`: use the existing `Toolbar` / action bar, otherwise create a `MaterialToolbar` at the top of the content and put the bar in it.
+- **HarmonyOS**: a `NavDestination` title builder; a page without a `Navigation` is wrapped in one by the core.
+- **Mini program**: `navigationStyle: custom` with a core navigation bar component, kept clear of the capsule menu button (`wx.getMenuButtonBoundingClientRect`).
+- Open conflicts, defaults as noted (report measured values): a standard bar is 44 pt high, Discover's field is 46 pt: embedded, the field is 36 pt; the "Default layout contract" item 1 (capsule edge = 16 pt tag inset) is kept by 16 pt layout margins of the navigation bar, and a back button on the leading side cannot keep it (the measured offset is reported); the search bar replaces the title text ("Discover") in the Flutter AppBar and the React Native big title.
+
+### Assignments (2026-11-24)
+
+- iOS core, iOS examples, the Flutter and React Native Dart / TypeScript pages and iOS halves, the sync script: the Mac session.
+- `winsCYLSearchViewController repository`: Android core and example (A, B, C), the Flutter and React Native Android halves (the four props `showsRefreshButton`, `columns`, `tagImages`, `embedsInNavigationBar`: React Native Android does not build until the ViewManager has all four setters), ClassifyMenu PR #35 on Android.
+- `winsCYLTableViewPlaceHolder directory`: HarmonyOS and mini program core and examples (A, B, C), ClassifyMenu PR #35 on HarmonyOS and the mini program.
+- Both: work in your own clone or worktree (git stash is shared across worktrees), touch only your own directories, `git pull --rebase` before every push, report commits and results.
+
 ## DONE (2026-11-19; TODO 2026-11-17): one icon + title / animated icon component everywhere
 
 - **Context**: branch `feat/harmonyos-parity` (PR #11). The packaged icon + title component that also plays animated

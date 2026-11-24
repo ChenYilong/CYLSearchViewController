@@ -1,5 +1,5 @@
 {
-  "comment": "Sample data of the search history and discover demo (CYLSearchDiscoverViewController), one file per language (the same topics, in the same order): recent searches, and a pool of discover topics; the More button shows another random selection of discoverCount topics. icon 'hot' adds the localized hot icon (discover-hot.png of the same .lproj) after the title.",
+  "comment": "Sample data of the search history and discover demo (CYLSearchDiscoverViewController), one file per language (the same topics, in the same order): recent searches, and pages of discoverCount discover topics; refresh shows the next page, cyclically. A topic with icon 'hot' shows the localized hot icon (discover-hot.png of the same .lproj) after its title; each page has exactly one, at a different slot from the next page (scripts/sync-discover-data.py --check).",
   "version": 1,
   "discoverCount": 6,
   "recentSearches": [
@@ -35,8 +35,7 @@
       "title": "週末短途自駕路線"
     },
     {
-      "title": "城市騎行路線推薦",
-      "icon": "hot"
+      "title": "城市騎行路線推薦"
     },
     {
       "title": "開源專案貢獻指南"
@@ -45,7 +44,8 @@
       "title": "極簡桌面布置"
     },
     {
-      "title": "雨天室內運動"
+      "title": "雨天室內運動",
+      "icon": "hot"
     },
     {
       "title": "底片相機入門"
@@ -57,8 +57,7 @@
       "title": "自製優格"
     },
     {
-      "title": "讀書筆記怎麼做才不會忘",
-      "icon": "hot"
+      "title": "讀書筆記怎麼做才不會忘"
     },
     {
       "title": "陽台種菜"
@@ -70,17 +69,18 @@
       "title": "高鐵出行省錢技巧"
     },
     {
-      "title": "兒童程式啟蒙"
+      "title": "兒童程式啟蒙",
+      "icon": "hot"
     },
     {
       "title": "城市夜景拍攝參數"
     },
     {
-      "title": "居家收納技巧"
+      "title": "居家收納技巧",
+      "icon": "hot"
     },
     {
-      "title": "氣炸鍋食譜",
-      "icon": "hot"
+      "title": "氣炸鍋食譜"
     },
     {
       "title": "第一次跑半程馬拉松的訓練計畫"
