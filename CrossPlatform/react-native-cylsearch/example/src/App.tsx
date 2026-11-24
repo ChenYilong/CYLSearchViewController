@@ -446,7 +446,7 @@ function DiscoverDemo({ onBack }: { onBack: () => void }) {
       />
       {/* The native tag list brings its own section header (title and trash) and lines up with the bar: no custom header. */}
       {recent.length > 0 ? (
-        <CYLTagListView
+        <CYLTagListView backgroundStyle="liquidGlass"
           tags={recent}
           sectionTitle={text['discover.recent']}
           showsClearButton
@@ -458,7 +458,7 @@ function DiscoverDemo({ onBack }: { onBack: () => void }) {
         />
       ) : null}
       {/* The topics: CollectionViewClassifyMenu's tag list as a two-column grid, the hot icon after a hot topic. */}
-      <CYLTagListView
+      <CYLTagListView backgroundStyle="liquidGlass"
         tags={topics.map((topic) => topic.title)}
         columns={2}
         foldedRowCount={0}

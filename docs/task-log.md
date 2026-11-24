@@ -1441,3 +1441,9 @@ begins and becomes `DONE` when it ends.
 - iOS core: `CYLSearchTagListStyle.capsuleCornerRadius` removed, `CYLAnimatedItemCornerRadiusCapsule` used; bar item square is 0 (was 0.001); `tagBackgroundStyle` (default flat) injected into `CYLMenuStyle.backgroundStyle` in `applyDefaults`.
 - Not run yet (static, one batch): iOS unit tests + simulator batch.
 - Hand-over: Android (`CAPSULE_CORNER_RADIUS` -> `com.cyl.animateditem` constant, 0.001 -> 0, `backgroundStyle`), HarmonyOS and mini program (pins, repo-local capsule constants, 0.001 squares) go to the Windows sessions.
+
+## 2026-11-24 - Liquid Glass tags in every example (owner request via the ClassifyMenu session)
+- Pins moved again to ClassifyMenu 551072a + CYLTabBarController b4299707 (Podfiles, Podfile.lock, android/merged/gradle.properties).
+- One parameter per tag list: iOS `style.backgroundStyle = .liquidGlass` (Discover recent + grid, contact tag editor); RN/Flutter `backgroundStyle="liquidGlass"` on every tag list (new bridge prop, iOS implemented through `CYLSearchTagListStyle.applyBackgroundStyle(named:to:)`).
+- Finding: glass with no tint on a white page is invisible; examples tint normal tags with systemGray5 and selected ones with the tint color at 30% (a glass tint keeps 75% of its alpha). Core `applyDefaults` does the same when `tagBackgroundStyle == .liquidGlass`; flat keeps white + border.
+- iOS unit tests: 200, 0 failures (one earlier full run had testI2PlainBarInAnExtendedViewStaysInPlace fail once at 116 pt, passed alone and in the next full runs: flaky, not investigated). Selected-state screenshot on the contact tag editor and the labeled docs/ screenshots are not done yet.

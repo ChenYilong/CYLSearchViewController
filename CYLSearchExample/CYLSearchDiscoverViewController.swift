@@ -148,20 +148,21 @@ final class CYLSearchDiscoverViewController: UIViewController {
     // MARK: Styles
 
     /**
-     * The recent searches: white capsules with a light border, the inline chevron drawn the same way.
+     * The recent searches: Liquid Glass capsules, the inline chevron drawn the same way.
      */
     static func recentStyle() -> CYLMenuStyle {
         let style = CYLMenuStyle()
         for state in [UIControl.State.normal, .selected, .disabled] {
             let appearance = style.appearance(for: state)
-            appearance.backgroundColor = .systemBackground
-            appearance.borderColor = .separator
-            appearance.borderWidth = 1
+            // The glass tint (translucent, alpha x 0.75): a plain white page shows glass only through its tint.
+            appearance.backgroundColor = state == .selected ? UIColor.tintColor.withAlphaComponent(0.3) : .systemGray5
+            appearance.borderWidth = 0
             appearance.cornerRadius = CYLAnimatedItemCornerRadiusCapsule
             appearance.margin = 14
             appearance.font = .systemFont(ofSize: 17)
             appearance.textColor = .label
         }
+        style.backgroundStyle = .liquidGlass  // the one parameter that makes every tag Liquid Glass (flat below iOS 26)
         style.itemHeight = 36
         style.interitemSpacing = 12
         style.lineSpacing = 12
@@ -177,7 +178,9 @@ final class CYLSearchDiscoverViewController: UIViewController {
         let style = CYLMenuStyle.gridStyle(itemsPerRow: 2)
         for state in [UIControl.State.normal, .selected, .disabled] {
             style.appearance(for: state).font = .systemFont(ofSize: 17, weight: .medium)
+            style.appearance(for: state).backgroundColor = state == .selected ? UIColor.tintColor.withAlphaComponent(0.3) : .systemGray5
         }
+        style.backgroundStyle = .liquidGlass
         // The hot icon at its own size: square in Chinese (热, 熱), wider in English (HOT).
         style.imageSize = .zero
         style.itemHeight = 36

@@ -44,9 +44,16 @@ public final class CYLSearchTagListStyle: NSObject {
     public static func applyDefaults(to style: CYLMenuStyle) {
         for state in [UIControl.State.normal, .selected, .disabled] {
             let appearance = style.appearance(for: state)
-            appearance.backgroundColor = .systemBackground
-            appearance.borderColor = .separator
-            appearance.borderWidth = 1
+            // A Liquid Glass tag is a tint on the material, no border; a flat tag is white with a light border.
+            if tagBackgroundStyle == .flat {
+                appearance.backgroundColor = .systemBackground
+                appearance.borderColor = .separator
+                appearance.borderWidth = 1
+            } else {
+                // The glass tint is translucent: a plain page shows glass only through it.
+                appearance.backgroundColor = state == .selected ? UIColor.tintColor.withAlphaComponent(0.3) : .systemGray5
+                appearance.borderWidth = 0
+            }
             appearance.cornerRadius = tagCornerRadius
             appearance.margin = 14
             appearance.font = .systemFont(ofSize: 17)
@@ -102,5 +109,18 @@ public final class CYLSearchTagListStyle: NSObject {
         style.headerHorizontalInset = 16
         style.moreButtonImage = CYLSearchTagListHeader.refreshImage
         list.style = style
+    }
+
+    /**
+     * Sets the background of every tag of `list` by name, the one parameter of a Liquid Glass list: "liquidGlass"
+     * (case-insensitive) is the glass material (flat below iOS 26), anything else, "" or "flat" is flat. The list's
+     * other style values stay. For the Objective-C++ and Dart bridges, which pass the name from JavaScript or Dart.
+     */
+    @objc(applyBackgroundStyleNamed:toList:)
+    public static func applyBackgroundStyle(named name: String, to list: CYLTagListView) {
+        let style = list.style.copy() as! CYLMenuStyle
+        style.backgroundStyle = name.lowercased() == "liquidglass" ? .liquidGlass : .flat
+        list.style = style
+        CYLSearchTagListHeader.applyRefreshIcon(to: list)
     }
 }

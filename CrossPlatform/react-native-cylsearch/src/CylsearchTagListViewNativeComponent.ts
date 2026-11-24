@@ -95,6 +95,12 @@ export interface NativeProps extends ViewProps {
    */
   columns?: CodegenTypes.Int32;
   /**
+   * The background of every tag: "liquidGlass" is the Liquid Glass material (flat where the system draws none),
+   * "flat" or "" (default) the tag's own colors. The one parameter that turns a list into Liquid Glass tags
+   * (CollectionViewClassifyMenu's `backgroundStyle`).
+   */
+  backgroundStyle?: string;
+  /**
    * An image after each tag's title, one entry per tag (a file URL or path, "" for none), shown at its own size: the
    * discover topics' hot icon. Empty means no images.
    */
