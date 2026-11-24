@@ -681,4 +681,56 @@ extension CYLSearchExampleSearchBarTests {
         XCTAssertEqual(bar.fieldView.frame.maxX, width - tagStyle.sectionInsets.right, accuracy: 0.5, "trailing: capsule = last tag")
         XCTAssertEqual(bar.fieldView.frame.minX, tagStyle.headerHorizontalInset, accuracy: 0.5, "leading: capsule = section title")
     }
+
+    /// The refresh icon of a tag list's section header: an icon, a localized VoiceOver label, set as the More button's icon.
+    @MainActor
+    func testTagListHeaderRefreshIconIsAnIconWithALocalizedLabel() {
+        XCTAssertNotNil(CYLSearchTagListHeader.refreshImage)
+        let english = CYLSearchResources.localizedString(forKey: "tagList.refresh", language: "en")
+        let chinese = CYLSearchResources.localizedString(forKey: "tagList.refresh", language: "zh-Hans")
+        XCTAssertEqual(english, "Refresh")
+        XCTAssertEqual(chinese, "刷新")
+        XCTAssertFalse(CYLSearchTagListHeader.refreshAccessibilityLabel.isEmpty)
+        let list = CYLTagListView()
+        XCTAssertNil(list.style.moreButtonImage, "the default is the three dots")
+        CYLSearchTagListHeader.applyRefreshIcon(to: list)
+        XCTAssertNotNil(list.style.moreButtonImage)
+    }
+
+    /// The search bar core's default tag style is the iOS example's recent-searches look (capsule tags, light border,
+    /// bold header, 16 pt inset); the corner radius and any other value can be customized.
+    @MainActor
+    func testDefaultTagStyleMatchesTheExampleRecentSearchesAndCanBeCustomized() {
+        let core = CYLMenuStyle()
+        CYLSearchTagListStyle.applyDefaults(to: core)
+        let example = CYLSearchDiscoverViewController.recentStyle()
+        let (coreTag, exampleTag) = (core.appearance(for: .normal), example.appearance(for: .normal))
+        XCTAssertEqual(coreTag.cornerRadius, exampleTag.cornerRadius, "the corner radius: a capsule")
+        XCTAssertEqual(coreTag.borderWidth, exampleTag.borderWidth)
+        XCTAssertEqual(coreTag.margin, exampleTag.margin)
+        XCTAssertEqual(coreTag.font, exampleTag.font)
+        XCTAssertEqual(core.itemHeight, example.itemHeight)
+        XCTAssertEqual(core.interitemSpacing, example.interitemSpacing)
+        XCTAssertEqual(core.lineSpacing, example.lineSpacing)
+        XCTAssertEqual(core.sectionInsets, example.sectionInsets)
+        XCTAssertEqual(core.headerHeight, example.headerHeight)
+        XCTAssertEqual(core.headerFont, example.headerFont)
+        XCTAssertEqual(core.headerHorizontalInset, example.headerHorizontalInset)
+
+        CYLSearchTagListStyle.tagCornerRadius = 8
+        CYLSearchTagListStyle.styleCustomizer = { $0.itemHeight = 44 }
+        defer {
+            CYLSearchTagListStyle.tagCornerRadius = 1000
+            CYLSearchTagListStyle.styleCustomizer = nil
+        }
+        let custom = CYLMenuStyle()
+        CYLSearchTagListStyle.applyDefaults(to: custom)
+        XCTAssertEqual(custom.appearance(for: .normal).cornerRadius, 8)
+        XCTAssertEqual(custom.itemHeight, 44)
+
+        let list = CYLTagListView()
+        CYLSearchTagListStyle.applyDefaultStyle(to: list)
+        XCTAssertEqual(list.style.appearance(for: .selected).cornerRadius, 8, "the list gets the defaults for every state")
+        XCTAssertNotNil(list.style.moreButtonImage)
+    }
 }

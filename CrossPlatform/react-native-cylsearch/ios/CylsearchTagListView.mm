@@ -25,6 +25,10 @@ using namespace facebook::react;
   NSSet<NSString *> *_selectedIds;
   NSString *_sectionTitle;
   BOOL _showsClearButton;
+  BOOL _showsRefreshButton;
+  NSInteger _columns;
+  NSArray<NSString *> *_tagImages;
+  NSMutableDictionary<NSString *, UIImage *> *_imageCache;
   BOOL _supportsRenaming;
 }
 
@@ -43,6 +47,8 @@ using namespace facebook::react;
     _ids = @[];
     _selectedIds = [NSSet set];
     _sectionTitle = @"";
+    _tagImages = @[];
+    _imageCache = [NSMutableDictionary dictionary];
     _tagListView = [[CYLTagListView alloc] initWithFoldControl:CYLRNFoldControl(@"inline", @"icon")];
     _tagListView.showsSectionHeaders = NO;
     _tagListView.selectionMode = CYLMenuSelectionModeNone;
@@ -61,6 +67,9 @@ using namespace facebook::react;
     _tagListView.clearButtonHandler = ^(NSInteger section) {
       [weakSelf emitClearButtonTapInSection:section];
     };
+    // The search bar core's default tag style (capsule tags, light border, bold header, 16 pt inset) and the header's
+    // refresh icon (not the three dots); an app changes them through CYLSearchTagListStyle.
+    [CYLSearchTagListStyle applyDefaultStyleToList:_tagListView];
     _tagListView.menuDataSource = self;
     _tagListView.menuDelegate = self;
     self.contentView = _tagListView;
@@ -83,15 +92,29 @@ using namespace facebook::react;
   NSArray<NSString *> *ids = CYLRNStrings(p.tagIds);
   NSString *sectionTitle = CYLRNString(p.sectionTitle);
   BOOL renaming = p.supportsRenaming;
+  NSInteger columns = MAX(0, (NSInteger)p.columns);
+  if (columns != _columns) {
+    _columns = columns;
+    if (columns > 0) {
+      // The grid of plain titles (the iOS example's discover topics), through the core's helper: gridStyle is Swift-only.
+      [CYLSearchTagListStyle applyGridColumns:columns toList:_tagListView];
+    } else {
+      [CYLSearchTagListStyle applyDefaultStyleToList:_tagListView];
+    }
+  }
+  NSArray<NSString *> *images = CYLRNStrings(p.tagImages);
   // Reloaded only when JavaScript sends other content, so a re-render keeps the native fold state and scroll.
   if (![titles isEqualToArray:_titles] || ![ids isEqualToArray:_ids] || ![sectionTitle isEqualToString:_sectionTitle]
-      || p.showsClearButton != _showsClearButton || renaming != _supportsRenaming) {
+      || p.showsClearButton != _showsClearButton || p.showsRefreshButton != _showsRefreshButton
+      || renaming != _supportsRenaming || ![images isEqualToArray:_tagImages]) {
+    _tagImages = images;
     _titles = titles;
     _ids = ids;
     _sectionTitle = sectionTitle;
     _showsClearButton = p.showsClearButton;
+    _showsRefreshButton = p.showsRefreshButton;
     _supportsRenaming = renaming;
-    _tagListView.showsSectionHeaders = sectionTitle.length > 0 || _showsClearButton;
+    _tagListView.showsSectionHeaders = sectionTitle.length > 0 || _showsClearButton || _showsRefreshButton;
     [_tagListView reloadMenuData];
   }
   _selectedIds = [NSSet setWithArray:CYLRNStrings(p.selectedIds)];
@@ -176,7 +199,38 @@ using namespace facebook::react;
 
 - (BOOL)menuShowsClearButtonForSection:(NSInteger)section
 {
-  return _showsClearButton;
+  // One header action: the refresh icon takes the place of the trash.
+  return _showsClearButton && !_showsRefreshButton;
+}
+
+- (UIImage *)menuImageForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+  NSInteger index = indexPath.item;
+  NSString *location = index >= 0 && index < (NSInteger)_tagImages.count ? _tagImages[index] : @"";
+  if (location.length == 0) {
+    return nil;
+  }
+  UIImage *image = _imageCache[location];
+  if (!image) {
+    // A file URL or path of a bundled asset; the @2x / @3x suffix of the file name sets the scale.
+    NSURL *url = [NSURL URLWithString:location];
+    NSString *path = url.isFileURL ? url.path : location;
+    image = [UIImage imageWithContentsOfFile:path];
+    if (image) {
+      _imageCache[location] = image;
+    }
+  }
+  return image;
+}
+
+- (BOOL)menuShowsMoreButtonInSection:(NSInteger)section
+{
+  return _showsRefreshButton;
+}
+
+- (NSString *)menuAccessibilityLabelForMoreButtonInSection:(NSInteger)section
+{
+  return CYLSearchTagListHeader.refreshAccessibilityLabel;
 }
 
 - (void)menuRenameItemAtIndexPath:(NSIndexPath *)indexPath toTitle:(NSString *)title
@@ -339,6 +393,14 @@ using namespace facebook::react;
             .index = (int)index,
             .id = std::string([self idAtIndex:index].UTF8String ?: ""),
             .title = std::string(title.UTF8String ?: "")});
+  }
+}
+
+- (void)menu:(id)menu didTapMoreButtonInSection:(NSInteger)section
+{
+  if (_eventEmitter) {
+    std::static_pointer_cast<CylsearchTagListViewEventEmitter const>(_eventEmitter)
+        ->onRefreshButtonTap(CylsearchTagListViewEventEmitter::OnRefreshButtonTap{.section = (int)section});
   }
 }
 

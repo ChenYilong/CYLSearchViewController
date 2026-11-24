@@ -630,6 +630,10 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
     private var selectedIds: Set<String> = []
     private var sectionTitle = ""
     private var showsClearButton = false
+    private var showsRefreshButton = false
+    private var columns = 0
+    private var tagImages: [String] = []
+    private var imageCache: [String: UIImage] = [:]
     private var supportsRenaming = false
 
     init(frame: CGRect, channel: FlutterMethodChannel) {
@@ -645,6 +649,9 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
         let style = tagListView.style.copy() as! CYLMenuStyle
         style.backgroundColor = .clear
         tagListView.style = style
+        // The search bar core's default tag style (capsule tags, light border, bold header, 16 pt inset) and the
+        // header's refresh icon (not the three dots); an app changes them through CYLSearchTagListStyle.
+        CYLSearchTagListStyle.applyDefaultStyle(to: tagListView)
         // Renaming is Dart's: the list asks, Dart renames by id and sends the new titles.
         tagListView.renameRequestHandler = { [weak self] indexPath, title in
             guard let self else { return }
@@ -672,16 +679,26 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
         let newIds = arguments["tagIds"] as? [String] ?? []
         let newSectionTitle = arguments["sectionTitle"] as? String ?? ""
         let newShowsClearButton = arguments["showsClearButton"] as? Bool ?? false
+        let newShowsRefreshButton = arguments["showsRefreshButton"] as? Bool ?? false
+        let newColumns = max(0, arguments["columns"] as? Int ?? 0)
+        let newTagImages = arguments["tagImages"] as? [String] ?? []
+        if newColumns != columns {
+            columns = newColumns
+            // The grid of plain titles (the iOS example's discover topics), through the core's helper.
+            if columns > 0 { CYLSearchTagListStyle.applyGrid(columns: columns, to: tagListView) } else { CYLSearchTagListStyle.applyDefaultStyle(to: tagListView) }
+        }
         let newSupportsRenaming = arguments["supportsRenaming"] as? Bool ?? false
         // Reloaded only when Dart sends other content, so a rebuild keeps the native fold state.
         if newTitles != titles || newIds != ids || newSectionTitle != sectionTitle || newShowsClearButton != showsClearButton
-            || newSupportsRenaming != supportsRenaming {
+            || newShowsRefreshButton != showsRefreshButton || newTagImages != tagImages || newSupportsRenaming != supportsRenaming {
             titles = newTitles
             ids = newIds
             sectionTitle = newSectionTitle
             showsClearButton = newShowsClearButton
+            showsRefreshButton = newShowsRefreshButton
+            tagImages = newTagImages
             supportsRenaming = newSupportsRenaming
-            tagListView.showsSectionHeaders = !sectionTitle.isEmpty || showsClearButton
+            tagListView.showsSectionHeaders = !sectionTitle.isEmpty || showsClearButton || showsRefreshButton
             tagListView.reloadMenuData()
         }
         selectedIds = Set(arguments["selectedIds"] as? [String] ?? [])
@@ -722,13 +739,38 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
 
     func menuTitle(forSection section: Int) -> String { sectionTitle }
 
+    /// The image after a tag's title: a Flutter asset (the key Dart sends), the 3.0x / 2.0x variant of the screen's scale
+    /// first, as Flutter picks them; nil for "" or a missing file.
+    func menuImageForItem(at indexPath: IndexPath) -> UIImage? {
+        guard indexPath.item < tagImages.count, !tagImages[indexPath.item].isEmpty else { return nil }
+        let asset = tagImages[indexPath.item]
+        if let cached = imageCache[asset] { return cached }
+        let scale = Int(traitCollection.displayScale.rounded())
+        let directory = (asset as NSString).deletingLastPathComponent
+        let file = (asset as NSString).lastPathComponent
+        var candidates: [(String, CGFloat)] = (2...3).reversed().filter { $0 <= scale }.map { ("\(directory)/\($0).0x/\(file)", CGFloat($0)) }
+        candidates.append((asset, 1))
+        for (candidate, imageScale) in candidates {
+            let key = FlutterDartProject.lookupKey(forAsset: candidate)
+            if let path = Bundle.main.path(forResource: key, ofType: nil), let image = UIImage(contentsOfFile: path), let cgImage = image.cgImage {
+                let scaled = UIImage(cgImage: cgImage, scale: imageScale, orientation: .up)
+                imageCache[asset] = scaled
+                return scaled
+            }
+        }
+        return nil
+    }
+
     func menuTitleForItem(at indexPath: IndexPath) -> String {
         indexPath.item < titles.count ? titles[indexPath.item] : ""
     }
 
     func menuIdentifierForItem(at indexPath: IndexPath) -> String { id(at: indexPath.item) }
 
-    func menuShowsClearButton(forSection section: Int) -> Bool { showsClearButton }
+    // One header action: the refresh icon takes the place of the trash.
+    func menuShowsClearButton(forSection section: Int) -> Bool { showsClearButton && !showsRefreshButton }
+    func menuShowsMoreButton(inSection section: Int) -> Bool { showsRefreshButton }
+    func menuAccessibilityLabelForMoreButton(inSection section: Int) -> String? { CYLSearchTagListHeader.refreshAccessibilityLabel }
 
     func menuRenameItem(at indexPath: IndexPath, to title: String) {
         // Not used: `renameRequestHandler` hands renaming to Dart, which sends the new titles.
@@ -752,6 +794,10 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
     }
 
     // MARK: - CYLMenuDelegate
+
+    func menu(_ menu: Any, didTapMoreButtonInSection section: Int) {
+        channel.invokeMethod("didTapRefreshButton", arguments: ["section": section])
+    }
 
     func menu(_ menu: Any, didSelectItemAt indexPath: IndexPath) {
         let index = indexPath.item

@@ -112,12 +112,14 @@ function riveTab(item: CYLTabBarItem, artboard: string): CYLTabBarItem {
     CYLTabBarRiveSize: '{28, 28}',
   };
 }
-const TAB_ITEMS: CYLTabBarItem[] = [
-  riveTab({ title: 'List style', image: 'system:list.bullet', selectedImage: 'system:list.bullet', identifier: 'list' }, 'CHAT'),
-  riveTab({ title: 'Tag style', image: 'system:tag', selectedImage: 'system:tag.fill', identifier: 'tags' }, 'BELL'),
-  riveTab({ title: 'Empty results', image: 'system:magnifyingglass', selectedImage: 'system:magnifyingglass', identifier: 'empty' }, 'SEARCH'),
-  riveTab({ title: 'Discover', image: 'system:sparkle.magnifyingglass', selectedImage: 'system:sparkle.magnifyingglass', identifier: 'discover' }, 'USER'),
-];
+function tabItems(text: Record<string, string>): CYLTabBarItem[] {
+  return [
+  riveTab({ title: text['tab.list'], image: 'system:list.bullet', selectedImage: 'system:list.bullet', identifier: 'list' }, 'CHAT'),
+  riveTab({ title: text['tab.tags'], image: 'system:tag', selectedImage: 'system:tag.fill', identifier: 'tags' }, 'BELL'),
+  riveTab({ title: text['tab.empty'], image: 'system:magnifyingglass', selectedImage: 'system:magnifyingglass', identifier: 'empty' }, 'SEARCH'),
+  riveTab({ title: text['tab.discover'], image: 'system:sparkle.magnifyingglass', selectedImage: 'system:sparkle.magnifyingglass', identifier: 'discover' }, 'USER'),
+  ];
+}
 // SVGA tab icons (the SVGA counterpart of the Rive scene, as the iOS, native Android, Flutter and HarmonyOS examples):
 // CYLTabBarController plays CYLTabBarSVGAFilePath through the app's SVGA player (Android: SVGAPlayer-Android; iOS: the
 // CYLAnimatedItem/SVGA subspec). The files are the iOS example's CYLSearchExample/SVGA (see NOTICE.md there), read from the
@@ -125,24 +127,29 @@ const TAB_ITEMS: CYLTabBarItem[] = [
 function svgaTab(item: CYLTabBarItem, file: string): CYLTabBarItem {
   return { ...item, CYLTabBarSVGAFilePath: file, CYLTabBarSVGASize: '{28, 28}' };
 }
-const SVGA_TAB_ITEMS: CYLTabBarItem[] = [
-  svgaTab({ title: 'List style', image: 'system:list.bullet', selectedImage: 'system:list.bullet', identifier: 'list' }, 'tab_list.svga'),
-  svgaTab({ title: 'Tag style', image: 'system:tag', selectedImage: 'system:tag.fill', identifier: 'tags' }, 'tab_chat.svga'),
-  svgaTab({ title: 'Empty results', image: 'system:magnifyingglass', selectedImage: 'system:magnifyingglass', identifier: 'empty' }, 'tab_search.svga'),
-  svgaTab({ title: 'Discover', image: 'system:sparkle.magnifyingglass', selectedImage: 'system:sparkle.magnifyingglass', identifier: 'discover' }, 'tab_profile.svga'),
-];
+function svgaTabItems(text: Record<string, string>): CYLTabBarItem[] {
+  return [
+  svgaTab({ title: text['tab.list'], image: 'system:list.bullet', selectedImage: 'system:list.bullet', identifier: 'list' }, 'tab_list.svga'),
+  svgaTab({ title: text['tab.tags'], image: 'system:tag', selectedImage: 'system:tag.fill', identifier: 'tags' }, 'tab_chat.svga'),
+  svgaTab({ title: text['tab.empty'], image: 'system:magnifyingglass', selectedImage: 'system:magnifyingglass', identifier: 'empty' }, 'tab_search.svga'),
+  svgaTab({ title: text['tab.discover'], image: 'system:sparkle.magnifyingglass', selectedImage: 'system:sparkle.magnifyingglass', identifier: 'discover' }, 'tab_profile.svga'),
+  ];
+}
 
-const PLUS_BUTTON: CYLTabBarPlusButton = {
-  title: 'Search bar',
+function plusButton(text: Record<string, string>): CYLTabBarPlusButton {
+  return {
+  title: text['tab.searchBar'],
   // A 52 pt green PNG: `imageSize` would redraw an SF Symbol into a black bitmap.
   image: require('./assets/plus-button.png'),
   // No size, center or title alignment here: CYLTabBarController's core lays the raised plus button out (2026-11-17).
   identifier: 'plus',
   pageIdentifier: 'plus',
-};
+  };
+}
 
 function Screens() {
   const palette = usePalette();
+  const text = discoverStrings();
   // `-initialTab discover` (an iOS launch argument, read through Settings) opens a tab directly, for screenshots.
   const [tab, setTab] = useState<string>(() => (Platform.OS === 'ios' && typeof Settings.get('initialTab') === 'string' ? Settings.get('initialTab') : 'list'));
   // `-initialDemo controller|styles` (an iOS launch argument) opens a QMUI replica directly, for screenshots.
@@ -197,7 +204,7 @@ function Screens() {
       <View style={styles.fill}>
         {tab === 'bar' ? <SearchBarDemo /> : tab === 'discover' ? <DiscoverDemo /> : current ? (
           <View style={styles.page}>
-            <Text style={[styles.title, { color: palette.text }]}>{current.title}</Text>
+            <Text style={[styles.title, { color: palette.text }]}>{text[`tab.${current.key}`] ?? current.title}</Text>
             <Text style={[styles.body, { color: palette.text }]}>{current.description}</Text>
             {current.demos.map((demo) => (
               <Pressable key={demo.label} accessibilityRole="button" style={styles.button} onPress={() => setOpen(demo)}>
@@ -214,8 +221,8 @@ function Screens() {
       <CYLTabBar
         key={iconSource}
         style={styles.tabBar}
-        items={iconSource === 'svga' ? SVGA_TAB_ITEMS : TAB_ITEMS}
-        plusButton={{ ...PLUS_BUTTON, titleColor: palette.text }}
+        items={iconSource === 'svga' ? svgaTabItems(text) : tabItems(text)}
+        plusButton={{ ...plusButton(text), titleColor: palette.text }}
         tapAnimation="scale"
         selectedIndex={tab === 'bar' ? -1 : TAB_KEYS.indexOf(tab)}
         onTabSelect={(index) => setTab(index < 0 ? 'bar' : TAB_KEYS[index] ?? 'list')}
@@ -280,7 +287,7 @@ function SearchBarDemo() {
   const [multipleStatus, setMultipleStatus] = useState('Searches: Swift, Kotlin');
   return (
     <View style={styles.page}>
-      <Text style={[styles.title, { color: palette.text }]}>Search bar</Text>
+      <Text style={[styles.title, { color: palette.text }]}>{discoverStrings()['tab.searchBar']}</Text>
       <CYLSearchBarView
         style={styles.bar}
         placeholder="Streamer, room ID or song"
@@ -318,21 +325,29 @@ function SearchBarDemo() {
 
 /** The discover demo's texts for the device language (en, ja, zh-Hans, zh-Hant), English when it is not held. */
 function discoverLanguage() {
-  const tag = Intl.DateTimeFormat().resolvedOptions().locale;
+  // iOS: the user's preferred language (Hermes' Intl follows the app's own localizations, English here); elsewhere Intl.
+  const preferred = Platform.OS === 'ios' ? (Settings.get('AppleLanguages') as string[] | undefined)?.[0] : undefined;
+  const tag = preferred ?? Intl.DateTimeFormat().resolvedOptions().locale;
   return /^zh-(Hant|TW|HK|MO)/.test(tag) ? 'zh-Hant' : tag.startsWith('zh') ? 'zh-Hans' : tag.slice(0, 2);
 }
 
 /** The localized hot icon (iOS discover-hot.png of the same .lproj; @2x and @3x beside it), English when not held. */
-const ENGLISH_HOT_ICON = { source: require('./assets/discover/discover-hot-en.png') as number, aspect: 30 / 18 };
-const HOT_ICONS: Record<string, { source: number; aspect: number }> = {
+const ENGLISH_HOT_ICON = { source: require('./assets/discover/discover-hot-en.png') as number };
+const HOT_ICONS: Record<string, { source: number }> = {
   en: ENGLISH_HOT_ICON,
-  ja: { source: require('./assets/discover/discover-hot-ja.png'), aspect: 30 / 18 },
-  'zh-Hans': { source: require('./assets/discover/discover-hot-zh-Hans.png'), aspect: 1 },
-  'zh-Hant': { source: require('./assets/discover/discover-hot-zh-Hant.png'), aspect: 1 },
+  ja: { source: require('./assets/discover/discover-hot-ja.png') },
+  'zh-Hans': { source: require('./assets/discover/discover-hot-zh-Hans.png') },
+  'zh-Hant': { source: require('./assets/discover/discover-hot-zh-Hant.png') },
 };
 
 function hotIconForLanguage() {
   return HOT_ICONS[discoverLanguage()] ?? ENGLISH_HOT_ICON;
+}
+
+/** The discover demo's sample data (recent searches and topics) for the device language, English when not held. */
+function discoverContent() {
+  const all: Record<string, { recentSearches: string[]; discover: { title: string; icon?: string }[] }> = discoverData.data;
+  return all[discoverLanguage()] ?? all.en ?? { recentSearches: [], discover: [] };
 }
 
 function discoverStrings() {
@@ -352,13 +367,14 @@ function DiscoverDemo() {
   const [animationSpeed, setAnimationSpeed] = useState(1);
   const text = discoverStrings();
   const hotIcon = hotIconForLanguage();
-  const [recent, setRecent] = useState<string[]>(discoverData.recentSearches);
+  const hotIconUri = Image.resolveAssetSource(hotIcon.source)?.uri ?? '';
+  const [recent, setRecent] = useState<string[]>(() => discoverContent().recentSearches);
   const [offset, setOffset] = useState(0);
   const [barText, setBarText] = useState('');
   const typed = useRef('');
   const [message, setMessage] = useState('');
   const topics = useMemo(() => {
-    const pool = discoverData.discover;
+    const pool = discoverContent().discover;
     return Array.from({ length: Math.min(discoverData.discoverCount, pool.length) }, (_, i) => pool[(offset + i) % pool.length])
       .filter((topic): topic is (typeof pool)[number] => topic !== undefined);
   }, [offset]);
@@ -371,7 +387,7 @@ function DiscoverDemo() {
   };
   return (
     <ScrollView contentContainerStyle={styles.discoverPage}>
-      <Text style={[styles.title, styles.block, { color: palette.text }]}>Discover</Text>
+      <Text style={[styles.title, styles.block, { color: palette.text }]}>{text['discover.title']}</Text>
       {/* The field stays; the camera, a divider and the Search button are items appended inside its bordered capsule. */}
       <CYLSearchBarView
         style={styles.discoverBar}
@@ -384,40 +400,35 @@ function DiscoverDemo() {
         ref={barRef}
         items={[
           // The camera button itself plays the animation (Animation demo rule): search_camera.json, the same Lottie file on every platform.
-          { style: 'icon', image: 'camera', title: 'Search by image', animationURL: 'search_camera.json', animationLoops, animationSpeed, onPress: () => setMessage('Image search is not available in this demo') },
+          { style: 'icon', image: 'camera', title: text['discover.imageSearch'], animationURL: 'search_camera.json', animationLoops, animationSpeed, onPress: () => setMessage(text['discover.imageSearchUnavailable'] ?? '') },
           { style: 'divider' },
-          { style: 'text', title: 'Search', accessibilityIdentifier: 'CYLSearchDiscoverSearchButton', onPress: () => search(typed.current) },
+          { style: 'text', title: text['discover.search'], accessibilityIdentifier: 'CYLSearchDiscoverSearchButton', onPress: () => search(typed.current) },
         ]}
       />
       {/* The native tag list brings its own section header (title and trash) and lines up with the bar: no custom header. */}
       {recent.length > 0 ? (
         <CYLTagListView
           tags={recent}
-          sectionTitle="Recent searches"
+          sectionTitle={text['discover.recent']}
           showsClearButton
-          onClearButtonTap={() => { setRecent([]); setMessage('Recent searches cleared'); }}
+          onClearButtonTap={() => { setRecent([]); setMessage(text['discover.cleared'] ?? ''); }}
           foldControlPosition="inline"
           foldControlContent="icon"
           foldedRowCount={2}
           onTagSelect={(event) => search(event.nativeEvent.title)}
         />
       ) : null}
-      <View style={[styles.header, styles.block]}>
-        <Text accessibilityRole="header" style={[styles.section, { color: palette.text }]}>Discover</Text>
-        <Pressable accessibilityRole="button" accessibilityLabel="Refresh topics" onPress={() => setOffset((value) => value + discoverData.discoverCount)}>
-          <Text style={styles.action}>Refresh</Text>
-        </Pressable>
-      </View>
-      <View style={styles.grid}>
-        {topics.map((topic) => (
-          <Pressable key={topic.title} accessibilityRole="button" style={styles.topic} onPress={() => search(topic.title)}>
-            <Text numberOfLines={1} style={[styles.body, styles.topicTitle, { color: palette.text }]}>{topic.title}</Text>
-            {topic.icon === 'hot' ? (
-              <Image accessibilityLabel={text['discover.hot']} source={hotIcon.source} style={[styles.hot, { width: 16 * hotIcon.aspect }]} />
-            ) : null}
-          </Pressable>
-        ))}
-      </View>
+      {/* The topics: CollectionViewClassifyMenu's tag list as a two-column grid, the hot icon after a hot topic. */}
+      <CYLTagListView
+        tags={topics.map((topic) => topic.title)}
+        columns={2}
+        foldedRowCount={0}
+        sectionTitle={text['discover.title']}
+        showsRefreshButton
+        onRefreshButtonTap={() => setOffset((value) => value + discoverData.discoverCount)}
+        tagImages={topics.map((topic) => (topic.icon === 'hot' ? hotIconUri : ''))}
+        onTagSelect={(event) => search(event.nativeEvent.title)}
+      />
       {/* Playback of the camera item (index 0 of `items`), the last block of the page options, outside the bar: loop, speed and restart. */}
       <View style={[styles.header, styles.block]}>
         <Text style={[styles.body, { color: palette.text }]}>{text['discover.animationLoops']}</Text>
@@ -449,14 +460,10 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
   section: { fontSize: 17, fontWeight: '600' },
   action: { fontSize: 15, color: '#007AFF' },
-  grid: { flexDirection: 'row', flexWrap: 'wrap' },
-  // The Flutter discover page's metrics: 16 pt blocks, a 56 pt bar inset 12 pt, topics 16 pt by 10 pt, a 16 pt hot icon.
+  // The page's own content: 16 pt blocks around its title and the playback row, a 56 pt bar edge to edge (the core aligns it).
   discoverPage: { paddingVertical: 16, gap: 12 },
   discoverBar: { height: 56 },
   block: { paddingHorizontal: 16 },
-  topic: { width: '50%', flexDirection: 'row', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 16 },
-  topicTitle: { flexShrink: 1 },
-  hot: { height: 16, marginLeft: 4 },
   message: { fontSize: 14, color: '#666' },
   // In the layout flow under the page: the bar takes its own height, the bottom safe area included.
   tabBar: { alignSelf: 'stretch' },

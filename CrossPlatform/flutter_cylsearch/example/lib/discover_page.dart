@@ -155,38 +155,6 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
     _show(data.text('discover.searching', query));
   }
 
-  Widget _header(BuildContext context, String title, IconData icon, String tooltip, VoidCallback onPressed) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 4, 4),
-        child: Row(
-          children: <Widget>[
-            Expanded(child: Semantics(header: true, child: Text(title, style: Theme.of(context).textTheme.titleMedium))),
-            IconButton(icon: Icon(icon), tooltip: tooltip, onPressed: onPressed),
-          ],
-        ),
-      );
-
-  Widget _topic(BuildContext context, CYLSearchDiscoverData data, CYLDiscoverTopic topic) => Semantics(
-        button: true,
-        hint: data.text('discover.tapToSearch'),
-        label: topic.hot ? '${topic.title}, ${data.text('discover.hot')}' : topic.title,
-        excludeSemantics: true,
-        child: InkWell(
-          onTap: () => _search(topic.title),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            child: Row(
-              children: <Widget>[
-                Flexible(child: Text(topic.title, maxLines: 1, overflow: TextOverflow.ellipsis)),
-                if (topic.hot) ...<Widget>[
-                  const SizedBox(width: 4),
-                  Image.asset('${data.folder}/discover-hot.png', height: 16),
-                ],
-              ],
-            ),
-          ),
-        ),
-      );
-
   @override
   Widget build(BuildContext context) {
     final data = _data;
@@ -247,15 +215,18 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                     onTagSelected: (index, title) => _search(title),
                   ),
                 ],
-                _header(context, data.text('discover.title'), Icons.refresh, data.text('discover.refresh'),
-                    () => setState(() => _topics = data.randomTopics(_topics))),
-                for (var row = 0; row < _topics.length; row += 2)
-                  Row(
-                    children: <Widget>[
-                      Expanded(child: _topic(context, data, _topics[row])),
-                      Expanded(child: row + 1 < _topics.length ? _topic(context, data, _topics[row + 1]) : const SizedBox()),
-                    ],
-                  ),
+                // The topics: CollectionViewClassifyMenu's tag list as a two-column grid, the hot icon after a hot topic;
+                // its section header brings the title and the refresh icon.
+                CYLTagListView(
+                  tags: <String>[for (final topic in _topics) topic.title],
+                  columns: 2,
+                  foldedRowCount: 0,
+                  sectionTitle: data.text('discover.title'),
+                  showsRefreshButton: true,
+                  onRefreshButtonTapped: () => setState(() => _topics = data.randomTopics(_topics)),
+                  tagImages: <String>[for (final topic in _topics) topic.hot ? '${data.folder}/discover-hot.png' : ''],
+                  onTagSelected: (index, title) => _search(title),
+                ),
                   // Playback of the camera item (the last block of the page, outside the bar): loop switch, speed slider and Play again.
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),

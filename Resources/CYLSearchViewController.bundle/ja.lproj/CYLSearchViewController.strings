@@ -81,3 +81,4 @@
 "demo.collectionView" = "コレクションビュー";
 "issue.row" = "行 %d";
 "issue.item" = "項目 %d";
+"tagList.refresh" = "更新";
