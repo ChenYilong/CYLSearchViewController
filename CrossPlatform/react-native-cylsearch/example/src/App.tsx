@@ -404,13 +404,13 @@ function DiscoverDemo() {
   };
   return (
     <ScrollView contentContainerStyle={styles.discoverPage}>
-      <Text style={[styles.title, styles.block, { color: palette.text }]}>{text['discover.title']}</Text>
       {/* The field stays; the camera, a divider and the Search button are items appended inside its bordered capsule. */}
       <CYLSearchBarView
         style={styles.discoverBar}
         text={barText}
         searchBarStyle="bordered"
         showsSearchIcon={false}
+        embedsInNavigationBar
         fieldShadowOpacity={0.06}
         onTextChange={(event) => { typed.current = event.nativeEvent.text; }}
         onSubmit={(event) => search(event.nativeEvent.text)}
@@ -479,7 +479,7 @@ const styles = StyleSheet.create({
   action: { fontSize: 15, color: '#007AFF' },
   // The page's own content: 16 pt blocks around its title and the playback row, a 56 pt bar edge to edge (the core aligns it).
   discoverPage: { paddingVertical: 16, gap: 12 },
-  discoverBar: { height: 56 },
+  discoverBar: { height: 44 },
   block: { paddingHorizontal: 16 },
   message: { fontSize: 14, color: '#666' },
   // In the layout flow under the page: the bar takes its own height, the bottom safe area included.

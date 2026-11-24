@@ -318,6 +318,9 @@ final class CYLFlutterLayoutReportingView: UIView {
 @MainActor
 final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformView, CYLSearchBarViewDelegate {
     private let bar: CYLSearchBarView
+    /// The core's navigation bar holding the bar, when Dart asks for `embedsInNavigationBar`: the page's search bar is
+    /// always in a navigation bar.
+    private var navigationBar: CYLSearchNavigationBar?
     private let channel: FlutterMethodChannel
 
     init(frame: CGRect, arguments: [String: Any], channel: FlutterMethodChannel) {
@@ -332,6 +335,10 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
         self.channel = channel
         super.init()
         bar.delegate = self
+        if arguments["embedsInNavigationBar"] as? Bool ?? false {
+            navigationBar = CYLSearchNavigationBar.holding(bar)
+            navigationBar?.frame = frame
+        }
         // The editing bar's submit: the trimmed text to Dart, then an empty field for the next name.
         bar.editingSubmitHandler = { [weak channel] bar, text in
             channel?.invokeMethod("didSubmitEditing", arguments: ["text": text])
@@ -387,7 +394,7 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
     }
 
     func view() -> UIView {
-        bar
+        navigationBar ?? bar
     }
 
     /**

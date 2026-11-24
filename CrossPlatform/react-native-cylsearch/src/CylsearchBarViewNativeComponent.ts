@@ -61,6 +61,11 @@ export interface NativeProps extends ViewProps {
    */
   showsSearchIcon?: CodegenTypes.WithDefault<boolean, true>;
   /**
+   * The bar sits in a navigation bar the core creates (`CYLSearchNavigationBar`, 44 pt high, the field 36 pt) instead of
+   * being a plain view: the page always has its search bar in a navigation bar. Default false.
+   */
+  embedsInNavigationBar?: CodegenTypes.WithDefault<boolean, false>;
+  /**
    * The appended items as JSON (an array of `CYLSearchBarItem` values; see `CYLSearchBarView` in index.tsx).
    */
   itemsJSON?: string;

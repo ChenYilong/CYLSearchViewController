@@ -32,6 +32,23 @@ public final class CYLSearchNavigationBar: UINavigationBar, UINavigationBarDeleg
     }
 
     /**
+     * A navigation bar holding `searchBar` as its title view, with the bar set up for it (36 pt field, no side inset of
+     * its own, `isEmbeddedInNavigationBar`). The bridges use it as the content of their native view.
+     */
+    @objc(navigationBarHoldingSearchBar:)
+    public static func holding(_ searchBar: CYLSearchBarView) -> CYLSearchNavigationBar {
+        searchBar.removeFromSuperview()
+        searchBar.fieldHeight = 36
+        searchBar.contentInsets = UIEdgeInsets(top: 4, left: 0, bottom: 4, right: 0)
+        searchBar.isEmbeddedInNavigationBar = true
+        let navigationBar = CYLSearchNavigationBar()
+        let item = UINavigationItem()
+        item.titleView = searchBar
+        navigationBar.items = [item]
+        return navigationBar
+    }
+
+    /**
      * Attached to the top edge: the background extends under the status bar.
      */
     public func position(for bar: any UIBarPositioning) -> UIBarPosition {
@@ -53,21 +70,18 @@ extension CYLSearchBarView {
     @objc(embedInNavigationBarOfViewController:)
     @discardableResult
     public func embedInNavigationBar(of viewController: UIViewController) -> UINavigationBar {
-        removeFromSuperview()
-        fieldHeight = 36
-        contentInsets = UIEdgeInsets(top: 4, left: 0, bottom: 4, right: 0)
-        isEmbeddedInNavigationBar = true
         if let navigationController = viewController.navigationController {
+            removeFromSuperview()
+            fieldHeight = 36
+            contentInsets = UIEdgeInsets(top: 4, left: 0, bottom: 4, right: 0)
+            isEmbeddedInNavigationBar = true
             viewController.navigationItem.titleView = self
             return navigationController.navigationBar
         }
         viewController.loadViewIfNeeded()
         let height = CYLSearchNavigationBar.standardHeight
-        let navigationBar = CYLSearchNavigationBar()
+        let navigationBar = CYLSearchNavigationBar.holding(self)
         navigationBar.translatesAutoresizingMaskIntoConstraints = false
-        let item = UINavigationItem()
-        item.titleView = self
-        navigationBar.items = [item]
         let view = viewController.view!
         view.addSubview(navigationBar)
         viewController.additionalSafeAreaInsets.top += height

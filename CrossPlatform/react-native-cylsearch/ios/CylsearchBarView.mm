@@ -17,6 +17,7 @@ using namespace facebook::react;
  */
 @implementation CylsearchBarView {
   CYLSearchBarView *_bar;
+  CYLSearchNavigationBar *_navigationBar;
   NSString *_itemsJSON;
   NSArray<NSString *> *_searches;
   BOOL _applyingSearches;
@@ -78,6 +79,11 @@ using namespace facebook::react;
 - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &)oldProps
 {
   const auto &p = *std::static_pointer_cast<CylsearchBarViewProps const>(props);
+  if (p.embedsInNavigationBar && !_navigationBar) {
+    // The page's search bar always sits in a navigation bar: the core's, with the bar as its title view.
+    _navigationBar = [CYLSearchNavigationBar navigationBarHoldingSearchBar:_bar];
+    self.contentView = _navigationBar;
+  }
   NSString *actionTitle = CYLRNString(p.actionTitle);
   if ((BOOL)p.editingBar != _bar.isEditingBar) {
     [self useEditingBar:p.editingBar placeholder:CYLRNString(p.placeholder) actionTitle:actionTitle];

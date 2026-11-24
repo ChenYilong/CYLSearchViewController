@@ -163,41 +163,43 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
     final data = _data;
     if (data == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
     return Scaffold(
-      appBar: AppBar(title: Text(data.text('discover.title'))),
+      // The page's search bar is always in a navigation bar: the core's, in the app bar slot. The field stays; the camera, a
+      // divider and the Search button are items appended inside its bordered capsule (core `CYLSearchBarItem`).
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(44 + MediaQuery.paddingOf(context).top),
+        child: SafeArea(
+          child: CYLSearchBarView(
+                          controller: _barController,
+                          text: _barText,
+                          searchBarStyle: CYLSearchBarStyle.bordered,
+                          showsSearchIcon: false,
+                          embedsInNavigationBar: true,
+                          fieldShadowOpacity: 0.06,
+                          items: <CYLSearchBarItem>[
+                            // The camera button itself plays the animation (the Animation demo rule): a search-related Lottie, the same
+                            // search_camera.json on every platform. The static camera stays the fallback; loops, speed and restart below.
+                            CYLSearchBarItem.icon(
+                              image: 'camera',
+                              title: data.text('discover.imageSearch'),
+                              animationURL: 'search_camera.json',
+                              animationLoops: _loops,
+                              animationSpeed: _speed,
+                              onTap: (_) => _show(data.text('discover.imageSearchUnavailable')),
+                            ),
+                            const CYLSearchBarItem.divider(),
+                            CYLSearchBarItem.text(
+                              title: data.text('discover.search'),
+                              accessibilityIdentifier: 'CYLSearchDiscoverSearchButton',
+                              onTap: (_) => _search(_typed),
+                            ),
+                          ],
+                          onTextChanged: (text) => _typed = text,
+                          onSubmitted: _search,
+                        ),
+        ),
+      ),
       body: Column(
         children: <Widget>[
-          // The search bar sits under the navigation bar: it covers no view. The field stays; the camera, a divider
-          // and the Search button are items appended inside its bordered capsule (core `CYLSearchBarItem`).
-          SizedBox(
-              height: 56,
-              child: CYLSearchBarView(
-                controller: _barController,
-                text: _barText,
-                searchBarStyle: CYLSearchBarStyle.bordered,
-                showsSearchIcon: false,
-                fieldShadowOpacity: 0.06,
-                items: <CYLSearchBarItem>[
-                  // The camera button itself plays the animation (the Animation demo rule): a search-related Lottie, the same
-                  // search_camera.json on every platform. The static camera stays the fallback; loops, speed and restart below.
-                  CYLSearchBarItem.icon(
-                    image: 'camera',
-                    title: data.text('discover.imageSearch'),
-                    animationURL: 'search_camera.json',
-                    animationLoops: _loops,
-                    animationSpeed: _speed,
-                    onTap: (_) => _show(data.text('discover.imageSearchUnavailable')),
-                  ),
-                  const CYLSearchBarItem.divider(),
-                  CYLSearchBarItem.text(
-                    title: data.text('discover.search'),
-                    accessibilityIdentifier: 'CYLSearchDiscoverSearchButton',
-                    onTap: (_) => _search(_typed),
-                  ),
-                ],
-                onTextChanged: (text) => _typed = text,
-                onSubmitted: _search,
-              ),
-            ),
           Expanded(
             child: ListView(
               children: <Widget>[
