@@ -117,3 +117,32 @@ test('the synced tag cloud renders the grid cell of a hot topic', { skip: !fs.ex
   assert.strictEqual(hot.icon.image, '/hot.png');
   assert.strictEqual(hot.accessibilityLabel, 'B, Hot');
 });
+
+// The hot icon's screen reader label (iOS bridges send it as tagImageLabels): `discover.hot` in each language is the
+// tag's imageLabel; the cloud hides the icon from the screen reader (aria-hidden) and reads it in the label of the cell
+// ("title, label"), so the label reaches the screen reader without an aria-label on the picture itself.
+test('the hot label is Hot, 人気, 热门 and 熱門 and every language passes it as the imageLabel of the hot topic', () => {
+  const { cylDemoText, cylSetDemoLanguage } = require('../example/miniprogram/utils/cyl_demo_text');
+  const expected = { en: 'Hot', ja: '人気', 'zh-Hans': '热门', 'zh-Hant': '熱門' };
+  try {
+    for (const [language, label] of Object.entries(expected)) {
+      cylSetDemoLanguage(language);
+      assert.strictEqual(cylDemoText('discover.hot'), label, language);
+      const [, hot] = cylDiscoverCloudTags([{ title: 'A' }, { title: 'B', icon: 'hot' }], '/hot.png', cylDemoText('discover.hot'));
+      assert.strictEqual(hot.imageLabel, label, language);
+      if (fs.existsSync(cloudModel)) {
+        const model = require(cloudModel);
+        const rendered = model.renderTag(hot, 1, { listStyle: model.defaultStyle(), theme: 'none' });
+        assert.strictEqual(rendered.accessibilityLabel, `B, ${label}`, language);
+      }
+    }
+  } finally {
+    cylSetDemoLanguage('en');
+  }
+});
+
+test('the Discover page passes discover.hot to the hot topics', () => {
+  const page = fs.readFileSync(path.join(__dirname, '../example/miniprogram/pages/discoverSearch/index.js'), 'utf8');
+  assert.match(page, /hot: cylDemoText\('discover\.hot'\)/);
+  assert.match(page, /cylDiscoverCloudTags\(this\.data\.topics, this\.data\.hotIcon, this\.data\.texts\.hot\)/);
+});

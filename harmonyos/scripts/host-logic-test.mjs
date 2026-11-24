@@ -354,3 +354,29 @@ describe('refresh button label', () => {
     }
   });
 });
+
+// The hot icon's screen reader label (iOS bridges send it as tagImageLabels): ClassifyMenu's tag list hides the icon
+// from the screen reader, so the example leads the hot topic's hint with the localized `discover_hot`. The ohosTest
+// case is not written; the UI behaviour is written, not run (docs/animated-icon-component.md, "Test hand-over").
+describe('Discover: the hot icon has a localized screen reader label', () => {
+  const resources = join(here, '..', 'entry', 'src', 'main', 'resources');
+  const value = (qualifier) => {
+    const file = join(resources, qualifier, 'element', 'string.json');
+    const item = JSON.parse(readFileSync(file, 'utf8')).string.find((entry) => entry.name === 'discover_hot');
+    return item && item.value;
+  };
+  it('has Hot, 人気, 热门 and 熱門 in base, ja_JP, zh_CN and zh_TW', () => {
+    assert.deepEqual(['base', 'ja_JP', 'zh_CN', 'zh_TW'].map(value), ['Hot', '人気', '热门', '熱門']);
+  });
+  it('leads the hint of a hot topic with the label and leaves other topics alone', () => {
+    const hot = { title: 'T', icon: 'hot' };
+    assert.equal(discoverLogic.cylDiscoverItemHint(hot, 'Hot', 'Tap to search'), 'Hot. Tap to search');
+    assert.equal(discoverLogic.cylDiscoverItemHint(hot, '热门', ''), '热门');
+    assert.equal(discoverLogic.cylDiscoverItemHint(hot, '', 'Tap'), 'Tap');
+    assert.equal(discoverLogic.cylDiscoverItemHint({ title: 'T' }, 'Hot', 'Tap to search'), 'Tap to search');
+  });
+  it('passes discover_hot to the data source and the hint through cylDiscoverItemHint', () => {
+    assert.match(discoverSource, /this\.topicSource\.hotLabel = this\.text\('discover_hot'\)/);
+    assert.match(discoverSource, /cylDiscoverItemHint\(this\.topics\[indexPath\.item\], this\.hotLabel, this\.hint\)/);
+  });
+});

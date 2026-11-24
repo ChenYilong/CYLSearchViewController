@@ -84,6 +84,15 @@ interface CYLSearchDiscoverData {
 }
 
 /**
+ * The screen reader description of a topic: a hot topic's hot icon has no label of its own in ClassifyMenu's tag list (the
+ * icon is hidden from the screen reader and the cell reads its title), so the localized hot label (iOS bridges send it as
+ * `tagImageLabels`) leads the hint; the hint alone for any other topic.
+ */
+function cylDiscoverItemHint(topic: CYLDiscoverTopic, hotLabel: string, hint: string): string {
+  return topic.icon === 'hot' && hotLabel.length > 0 ? (hint.length > 0 ? `${hotLabel}. ${hint}` : hotLabel) : hint;
+}
+
+/**
  * The topics of page `page` of `pool`: whole pages of `count` records, the page number taken modulo the number of
  * pages (a negative page counts from the end). Refresh shows the next page, cyclically, with no random pick.
  */
@@ -103,6 +112,8 @@ function cylDiscoverPage(pool: CYLDiscoverTopic[], count: number, page: number):
 class CYLDiscoverSource implements CYLMenuDataSource {
   topics: CYLDiscoverTopic[] = [];
   hint: string = '';
+  /** The localized label of the hot icon (`discover_hot`). */
+  hotLabel: string = '';
 
   numberOfSectionsInMenu(): number {
     return 1;
@@ -123,7 +134,8 @@ class CYLDiscoverSource implements CYLMenuDataSource {
   menuImageForItem = (indexPath: CYLIndexPath): Resource | undefined =>
     this.topics[indexPath.item].icon === 'hot' ? $r('app.media.discover_hot') : undefined;
 
-  menuAccessibilityHintForItem = (indexPath: CYLIndexPath): string | undefined => this.hint;
+  menuAccessibilityHintForItem = (indexPath: CYLIndexPath): string | undefined =>
+    cylDiscoverItemHint(this.topics[indexPath.item], this.hotLabel, this.hint);
 }
 
 /**
@@ -235,6 +247,7 @@ export struct DiscoverView {
     // HOT (English) and its Japanese form are 30 x 18 vp, 热 and 熱 are 18 x 18.
     const wide = !language.startsWith('zh');
     this.topicSource.hint = this.text('discover_tapToSearch');
+    this.topicSource.hotLabel = this.text('discover_hot');
     this.topicSource.topics = this.topics;
     this.topicList.style = cylDiscoverStyle(wide ? 30 : 18);
     this.topicList.selectionMode = CYLMenuSelectionMode.none;
