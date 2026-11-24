@@ -6,7 +6,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
-import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
@@ -29,9 +28,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import com.cyl.classifymenu.CYLBadgeDrawable
-import com.cyl.classifymenu.CYLControlState
-import com.cyl.classifymenu.CYLEdgeInsets
-import com.cyl.classifymenu.CYLFont
 import com.cyl.classifymenu.CYLIndexPath
 import com.cyl.classifymenu.CYLMenuDataSource
 import com.cyl.classifymenu.CYLMenuDelegate
@@ -40,7 +36,6 @@ import com.cyl.classifymenu.CYLMenuFoldControlContent
 import com.cyl.classifymenu.CYLMenuFoldControlPosition
 import com.cyl.classifymenu.CYLMenuSelectionMode
 import com.cyl.classifymenu.CYLMenuStyle
-import com.cyl.classifymenu.CYLSize
 import com.cyl.classifymenu.CYLTagListView
 import com.cyl.search.CYLSearchBarItem
 import com.cyl.search.CYLSearchBarStyle
@@ -343,45 +338,18 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
 
     // Styles
 
+    // The search bar core's default tag look (CYLSearchTagListStyle: capsule tags, light border, bold header, 16 dp inset);
+    // the page only adds its white background.
     private fun recentStyle(): CYLMenuStyle = CYLMenuStyle().apply {
-        for (state in listOf(CYLControlState.NORMAL, CYLControlState.SELECTED, CYLControlState.DISABLED)) {
-            appearanceForState(state).apply {
-                backgroundColor = Color.WHITE
-                borderColor = Color.argb(40, 0, 0, 0)
-                borderWidth = 1f
-                cornerRadius = 1000f // a capsule: valid before and after the numeric corner radius (ClassifyMenu PR #35)
-                margin = 14f
-                font = CYLFont(17f)
-                textColor = Color.BLACK
-            }
-        }
-        itemHeight = 36f
-        interitemSpacing = 12f
-        lineSpacing = 12f
-        sectionInsets = CYLEdgeInsets(4f, 16f, 24f, 16f)
-        applyHeaderLook(this)
+        CYLSearchTagListStyle.applyDefaults(this)
+        backgroundColor = Color.WHITE
     }
 
     private fun discoverStyle(): CYLMenuStyle = CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(2).apply {
-        for (state in listOf(CYLControlState.NORMAL, CYLControlState.SELECTED, CYLControlState.DISABLED)) {
-            appearanceForState(state).font = CYLFont(17f, Typeface.create("sans-serif-medium", Typeface.NORMAL))
-        }
-        // The hot icon at its own size.
-        imageSize = CYLSize(0f, 0f)
-        itemHeight = 36f
-        lineSpacing = 16f
-        sectionInsets = CYLEdgeInsets(4f, 16f, 16f, 16f)
-        applyHeaderLook(this)
+        CYLSearchTagListStyle.applyGrid(this)
+        backgroundColor = Color.WHITE
         // The refresh action is the built-in icon (docs/animated-icon-component.md, A), never the three dots. After the style.
         CYLSearchTagListHeader.applyRefreshIcon(requireContext(), this)
-    }
-
-    private fun applyHeaderLook(style: CYLMenuStyle) {
-        style.backgroundColor = Color.WHITE
-        style.headerHeight = 44f
-        style.headerFont = CYLFont(20f, Typeface.DEFAULT_BOLD)
-        style.headerTextColor = Color.BLACK
-        style.headerHorizontalInset = 16f
     }
 
     // Data

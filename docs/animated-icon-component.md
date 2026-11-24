@@ -167,14 +167,14 @@ Owner rule: code first, tests and CI last; **no waiting for CI and no waiting fo
 
 | Item | iOS | Flutter | React Native | Android | HarmonyOS | Mini program |
 |---|---|---|---|---|---|---|
-| A refresh icon | `CYLSearchTagListHeader.swift` | via core | via core | todo | `CYLSearchRefreshButton` | `cyl-search-refresh-button` |
-| B data, next page, hot slot | `CYLSearchDiscoverData.swift` | `discover_page.dart` | `App.tsx` `topicsOnPage` | todo | done (Windows) | done (Windows) |
-| C bar in the navigation bar | `CYLSearchNavigationBar.swift` | `embedsInNavigationBar` | `embedsInNavigationBar` | todo | `CYLSearchNavigationPage` | `cyl-search-navigation-bar` |
-| Back button | system back item | `showsBackButton` | `showsBackButton` | todo | NavDestination | nav bar back arrow |
-| Width in the core | `sizeThatFits` | via core | via core | todo | `layoutWeight(1)` | `cylNavigationBarWidthsFrom` |
-| Topics from the ClassifyMenu tag list | `CYLTagListView` grid | `columns`, `tagImages` | `columns`, `tagImages` | todo | `Discover.ets` `CYLTagListView` + `gridStyle(2)` (not run) | `cyl-tag-cloud` grid (hot icon before the title, see below) |
-| Texts in four languages | done | done | tab pages' descriptions and buttons todo | todo | `cyl_tagList_refresh` in 29 languages | done |
-| Corner radius under both meanings of 0 | `CYLSearchTagListStyle` | via core | via core | todo | todo | todo |
+| A refresh icon | `CYLSearchTagListHeader.swift` | via core | via core | `CYLSearchTagListHeader.kt` | `CYLSearchRefreshButton` | `cyl-search-refresh-button` |
+| B data, next page, hot slot | `CYLSearchDiscoverData.swift` | `discover_page.dart` | `App.tsx` `topicsOnPage` | `CYLSearchDiscoverData` `topicsOnPage` / `nextPage` | done (Windows) | done (Windows) |
+| C bar in the navigation bar | `CYLSearchNavigationBar.swift` | `embedsInNavigationBar` | `embedsInNavigationBar` | `embedInToolbar` in `CYLSearchBarView.kt` | `CYLSearchNavigationPage` | `cyl-search-navigation-bar` |
+| Back button | system back item | `showsBackButton` | `showsBackButton` | Toolbar back arrow (always a pushed page via More) | NavDestination | nav bar back arrow |
+| Width in the core | `sizeThatFits` | via core | via core | `embedInToolbar` (MATCH_PARENT in the core) | `layoutWeight(1)` | `cylNavigationBarWidthsFrom` |
+| Topics from the ClassifyMenu tag list | `CYLTagListView` grid | `columns`, `tagImages` | `columns`, `tagImages` | `CYLSearchDiscoverFragment.kt` (`gridStyleWithNumberOfItemsPerRow(2)` + the core style) | `Discover.ets` `CYLTagListView` + `gridStyle(2)` (not run) | `cyl-tag-cloud` grid (hot icon before the title, see below) |
+| Texts in four languages | done | done | tab pages' descriptions and buttons todo | `cyl_search_*` strings in four languages | `cyl_tagList_refresh` in 29 languages | done |
+| Corner radius under both meanings of 0 | `CYLSearchTagListStyle` | via core | via core | `CYLSearchTagListStyle.kt` (default 1000, customizer, bridges apply it) | todo | todo |
 
 ### Status on Android (2026-11-24, Windows session): written statically, NOT run yet
 

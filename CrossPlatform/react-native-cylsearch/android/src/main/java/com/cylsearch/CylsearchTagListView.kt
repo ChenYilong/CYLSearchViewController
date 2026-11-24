@@ -7,9 +7,9 @@ import com.cyl.classifymenu.CYLMenuDataSource
 import com.cyl.classifymenu.CYLMenuDelegate
 import com.cyl.classifymenu.CYLMenuSelectionMode
 import com.cyl.classifymenu.CYLMenuStyle
-import com.cyl.classifymenu.CYLSize
 import com.cyl.classifymenu.CYLTagListView
 import com.cyl.search.CYLSearchTagListHeader
+import com.cyl.search.CYLSearchTagListStyle
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.UIManagerHelper
 
@@ -80,10 +80,12 @@ class CylsearchTagListView(private val reactContext: ThemedReactContext) : CYLTa
 
   /** The list's style for `columns` and `showsRefreshButton`; apply it before `reload` (a style assignment replaces the icon). */
   fun applyListStyle() {
+    // The search bar core's default tag look (capsule tags, light border, bold header, 16 dp inset), customizable through
+    // CYLSearchTagListStyle; the React Native screen shows through the list.
     val base = if (columns > 0) {
-      CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(columns).apply { imageSize = CYLSize(0f, 0f) }
+      CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(columns).apply { CYLSearchTagListStyle.applyGrid(this) }
     } else {
-      flowingStyle?.copy() ?: CYLMenuStyle()
+      (flowingStyle?.copy() ?: CYLMenuStyle()).apply { CYLSearchTagListStyle.applyDefaults(this) }
     }
     base.backgroundColor = Color.TRANSPARENT
     if (showsRefreshButton) CYLSearchTagListHeader.applyRefreshIcon(reactContext, base)
