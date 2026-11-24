@@ -32,11 +32,27 @@ public final class CYLSearchNavigationBar: UINavigationBar, UINavigationBarDeleg
     }
 
     /**
+     * Called when the back button is tapped (a bar made with `showsBackButton`); the bar itself never pops, the host
+     * decides (a Flutter route pops, a React Native screen closes).
+     */
+    @objc public var backHandler: (() -> Void)?
+
+    /**
      * A navigation bar holding `searchBar` as its title view, with the bar set up for it (36 pt field, no side inset of
      * its own, `isEmbeddedInNavigationBar`). The bridges use it as the content of their native view.
      */
     @objc(navigationBarHoldingSearchBar:)
     public static func holding(_ searchBar: CYLSearchBarView) -> CYLSearchNavigationBar {
+        holding(searchBar, showsBackButton: false)
+    }
+
+    /**
+     * As `holding(_:)`, and with `showsBackButton` the bar has the back button of a second-level page on its leading
+     * side (a root item titled "Back" below the item of the search bar); the search bar takes the width that is left.
+     * A tap on it calls `backHandler`.
+     */
+    @objc(navigationBarHoldingSearchBar:showsBackButton:)
+    public static func holding(_ searchBar: CYLSearchBarView, showsBackButton: Bool) -> CYLSearchNavigationBar {
         searchBar.removeFromSuperview()
         searchBar.fieldHeight = 36
         searchBar.contentInsets = UIEdgeInsets(top: 4, left: 0, bottom: 4, right: 0)
@@ -44,8 +60,21 @@ public final class CYLSearchNavigationBar: UINavigationBar, UINavigationBarDeleg
         let navigationBar = CYLSearchNavigationBar()
         let item = UINavigationItem()
         item.titleView = searchBar
-        navigationBar.items = [item]
+        if showsBackButton {
+            let root = UINavigationItem(title: CYLSearchResources.localizedString(forKey: "navigationBar.back"))
+            navigationBar.items = [root, item]
+        } else {
+            navigationBar.items = [item]
+        }
         return navigationBar
+    }
+
+    /**
+     * The back button was tapped: the host's `backHandler` runs, the bar keeps its items.
+     */
+    public func navigationBar(_ navigationBar: UINavigationBar, shouldPop item: UINavigationItem) -> Bool {
+        backHandler?()
+        return false
     }
 
     /**

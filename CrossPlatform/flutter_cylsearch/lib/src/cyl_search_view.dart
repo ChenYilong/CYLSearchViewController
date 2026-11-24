@@ -780,6 +780,8 @@ class CYLSearchBarView extends StatefulWidget {
     this.searchBarStyle = CYLSearchBarStyle.plain,
     this.showsSearchIcon = true,
     this.embedsInNavigationBar = false,
+    this.showsBackButton = false,
+    this.onBackPressed,
     this.items = const <CYLSearchBarItem>[],
     this.onTextChanged,
     this.onSubmitted,
@@ -911,6 +913,14 @@ class CYLSearchBarView extends StatefulWidget {
   /// being a plain view: the page always has its search bar in a navigation bar. Place it as the `Scaffold.appBar` of
   /// a `PreferredSize` 44 pt high. Read when the platform view is created. Default false.
   final bool embedsInNavigationBar;
+
+  /// With [embedsInNavigationBar]: the navigation bar has the back button of a second-level page on its leading side and
+  /// the search bar takes the width that is left; a tap calls [onBackPressed]. Read when the platform view is created.
+  /// Default false.
+  final bool showsBackButton;
+
+  /// The back button of the navigation bar was tapped ([showsBackButton]): pop the route.
+  final VoidCallback? onBackPressed;
 
   /// The items appended after the text, in order (iOS `addItem(_:)`).
   final List<CYLSearchBarItem> items;
@@ -1100,6 +1110,7 @@ Map<String, Object?> cylSearchBarViewParameters(CYLSearchBarView widget, {Bright
       'searchBarStyle': widget.searchBarStyle.name,
       'showsSearchIcon': widget.showsSearchIcon,
       'embedsInNavigationBar': widget.embedsInNavigationBar,
+      'showsBackButton': widget.showsBackButton,
       'items': widget.items.map((item) => item.toMap()).toList(),
       'editingBar': widget.editingBar,
       'actionTitle': widget.actionTitle,
@@ -1126,6 +1137,8 @@ void cylSearchBarViewDispatch(CYLSearchBarView widget, MethodCall call) {
       widget.onSubmitted?.call(arguments['text'] as String? ?? '');
     case 'didCancel':
       widget.onCancel?.call();
+    case 'didTapBackButton':
+      widget.onBackPressed?.call();
     case 'didSubmitEditing':
       widget.onEditingSubmitted?.call(arguments['text'] as String? ?? '');
     case 'textDidChangeAtIndex':

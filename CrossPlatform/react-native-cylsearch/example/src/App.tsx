@@ -158,6 +158,9 @@ function Screens() {
     return initial === 'controller' || initial === 'styles' ? { label: initial, qmui: initial } : null;
   });
   // Where the tab icons come from (iOS CYLDemoTabIconSource: 2 SVGA; the button on the sample pages switches it).
+  // The Discover page is always a second-level page (a back button in its navigation bar): it opens on the entry page at
+  // once, the back button returns to the entry (owner's rule for every example).
+  const [discoverOpen, setDiscoverOpen] = useState(true);
   const [iconSource, setIconSource] = useState<'rive' | 'svga'>(() => (Platform.OS === 'ios' && Number(Settings.get('CYLDemoTabIconSource')) === 2 ? 'svga' : 'rive'));
   if (open?.qmui) {
     return (
@@ -202,7 +205,7 @@ function Screens() {
   return (
     <SafeAreaView style={[styles.fill, { backgroundColor: palette.background }]} edges={['top', 'left', 'right']}>
       <View style={styles.fill}>
-        {tab === 'bar' ? <SearchBarDemo /> : tab === 'discover' ? <DiscoverDemo /> : current ? (
+        {tab === 'bar' ? <SearchBarDemo /> : tab === 'discover' ? (discoverOpen ? <DiscoverDemo onBack={() => setDiscoverOpen(false)} /> : <DiscoverEntry onOpen={() => setDiscoverOpen(true)} />) : current ? (
           <View style={styles.page}>
             <Text style={[styles.title, { color: palette.text }]}>{text[`tab.${current.key}`] ?? current.title}</Text>
             <Text style={[styles.body, { color: palette.text }]}>{current.description}</Text>
@@ -379,7 +382,21 @@ function discoverStrings() {
  * The discover demo (iOS CYLSearchDiscoverViewController, Android CYLSearchDiscoverFragment, the Flutter discover
  * page): the native search bar, the recent searches as native tags (folded behind a chevron), topics in two columns.
  */
-function DiscoverDemo() {
+/** The entry of the Discover tab: a one-row page that opens the Discover page (iOS `CYLSearchDiscoverEntryViewController`). */
+function DiscoverEntry({ onOpen }: { onOpen: () => void }) {
+  const palette = usePalette();
+  const title = discoverStrings()['discover.title'];
+  return (
+    <View style={styles.page}>
+      <Text style={[styles.title, { color: palette.text }]}>{title}</Text>
+      <Pressable accessibilityRole="button" style={styles.button} onPress={onOpen}>
+        <Text style={styles.buttonText}>{title}</Text>
+      </Pressable>
+    </View>
+  );
+}
+
+function DiscoverDemo({ onBack }: { onBack: () => void }) {
   const palette = usePalette();
   const barRef = useRef<CYLSearchBarHandle>(null);
   const [animationLoops, setAnimationLoops] = useState(false);
@@ -411,6 +428,8 @@ function DiscoverDemo() {
         searchBarStyle="bordered"
         showsSearchIcon={false}
         embedsInNavigationBar
+        showsBackButton
+        onBackButtonTap={onBack}
         fieldShadowOpacity={0.06}
         onTextChange={(event) => { typed.current = event.nativeEvent.text; }}
         onSubmit={(event) => search(event.nativeEvent.text)}
@@ -478,8 +497,9 @@ const styles = StyleSheet.create({
   section: { fontSize: 17, fontWeight: '600' },
   action: { fontSize: 15, color: '#007AFF' },
   // The page's own content: 16 pt blocks around its title and the playback row, a 56 pt bar edge to edge (the core aligns it).
-  discoverPage: { paddingVertical: 16, gap: 12 },
-  discoverBar: { height: 44 },
+  discoverPage: { paddingTop: 0, paddingBottom: 16, gap: 12 },
+  // 44 pt, 4 pt more below: the first header starts 16 pt under the bar, as the iOS example measures.
+  discoverBar: { height: 44, marginBottom: 4 },
   block: { paddingHorizontal: 16 },
   message: { fontSize: 14, color: '#666' },
   // In the layout flow under the page: the bar takes its own height, the bottom safe area included.

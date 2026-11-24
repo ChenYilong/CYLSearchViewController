@@ -82,3 +82,4 @@
 "issue.row" = "Row %d";
 "issue.item" = "Item %d";
 "tagList.refresh" = "Refresh";
+"navigationBar.back" = "Back";
