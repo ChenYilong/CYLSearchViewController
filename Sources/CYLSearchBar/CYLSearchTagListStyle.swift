@@ -50,8 +50,8 @@ public final class CYLSearchTagListStyle: NSObject {
                 appearance.borderColor = .separator
                 appearance.borderWidth = 1
             } else {
-                // The glass tint is translucent: a plain page shows glass only through it.
-                appearance.backgroundColor = state == .selected ? UIColor.tintColor.withAlphaComponent(0.3) : .systemGray5
+                // A clear fill draws the library's default frosted tint; the selected tag keeps its own tint.
+                appearance.backgroundColor = state == .selected ? UIColor.tintColor.withAlphaComponent(0.3) : .clear
                 appearance.borderWidth = 0
             }
             appearance.cornerRadius = tagCornerRadius
