@@ -2000,7 +2000,7 @@ class CYLSearchBarView @JvmOverloads constructor(
             // (72 dp, iOS 72 pt: no inset of its own, the old 12 dp made it 84 dp); without one, and at the end, it sits on the 16 dp inset of the tag list.
             var start = row.paddingStart
             var end = row.paddingEnd
-            if (embedsInToolbar && contentInsets == DEFAULT_CONTENT_INSETS) {
+            if (embedsInToolbar && contentInsets.left == DEFAULT_CONTENT_INSETS.left && contentInsets.right == DEFAULT_CONTENT_INSETS.right) {
                 start = if ((parent as? androidx.appcompat.widget.Toolbar)?.navigationIcon != null) 0 else dp(EMBEDDED_TAG_INSET)
                 end = dp(EMBEDDED_TAG_INSET)
             }
