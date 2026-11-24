@@ -1503,3 +1503,14 @@ begins and becomes `DONE` when it ends.
   2. HarmonyOS: sync the vendor folder, `hvigorw assembleHap` entry and ohosTest, `aa test`; check first `CYLSearchTagListStyle.ets` (`CYLMenuStyle`, `list.style`, `appearance.contentInsets` names from `@cyl/classifymenu`); `CYLSearchController.searchBarLayoutChanged` is not called by `CYLSearchComponent` yet.
   3. Mini program: `npm run sync-example`, `npm test` (expect 0 failures), DevTools run of the search pages; `cyl-search-bar` does not draw the appearance's `clearIconImage` / `cancelTitle` yet; `CYLSearchTagListStyle.js` header keys unchecked against the pinned `cyl-tag-list`; `CYLSearchController` is exported again (it was listed as removed in `package.test.js`): keep or merge back is an owner decision.
   4. Each with labeled screenshots at the real pin hashes; then this entry is DONE at 100.
+
+## TODO (2026-11-24, `feat/harmonyos-parity`, chenyilong-3e): tasks claimed from other sessions' messages
+
+- **Prompt (verbatim)**: "处理你接受到的从其他session中传来的消息， 从找找到跟本项目相关的任务，认领后，开始修复。"
+- **Prompt (English)**: "Go through the messages received from other sessions, find the tasks that belong to this project, claim them, then start fixing."
+- **Messages read**: chenyilong-d4 (CYLTableViewPlaceHolder, not this project), chenyilong-d9 (simulators shut down, no task), Mac-CYLSearchViewController文件夹 (iOS owner of PR #11: items 1 to 8; item 6 offered), chen-yilong-a4 via `ed28576` (macOS hand-over; its iOS items are the iOS owner's batch).
+- **Claimed** (told the iOS owner session; its pin move, tint change, contact tag editor and Podfiles stay with it):
+  1. Item 6: the React Native and Flutter `backgroundStyle="liquidGlass"` prop on iOS, run on the simulator (it was type-checked only).
+  2. The open 10 points of "iOS check of the animated-item changes (board rows 38 to 42)": `scripts/ci-build-example.sh analyze` locally (3); a measured check that a speed or loop change does not reload the SVGA (3); a unit test that `CYLTagButton` keeps `style.animationSpeed` next to bar items with speed 1 (4).
+- **Setup**: own simulator (not 9F762C22, which is the iOS owner's), worktree `/tmp/xpr/csvc-score`; static code first, then one batch.
+- **Acceptance**: 100 = the test written and green, analyze clean, the no-reload check measured, RN and Flutter Discover / contact tags on iOS drawing glass with labeled screenshots; 60 = the test and analyze.
