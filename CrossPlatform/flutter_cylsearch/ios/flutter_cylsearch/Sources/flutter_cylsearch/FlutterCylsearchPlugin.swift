@@ -630,6 +630,7 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
     private var selectedIds: Set<String> = []
     private var sectionTitle = ""
     private var showsClearButton = false
+    private var showsRefreshButton = false
     private var supportsRenaming = false
 
     init(frame: CGRect, channel: FlutterMethodChannel) {
@@ -645,6 +646,8 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
         let style = tagListView.style.copy() as! CYLMenuStyle
         style.backgroundColor = .clear
         tagListView.style = style
+        // The header's refresh action is an icon (the core's CYLSearchTagListHeader), not the three dots.
+        CYLSearchTagListHeader.applyRefreshIcon(to: tagListView)
         // Renaming is Dart's: the list asks, Dart renames by id and sends the new titles.
         tagListView.renameRequestHandler = { [weak self] indexPath, title in
             guard let self else { return }
@@ -672,16 +675,18 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
         let newIds = arguments["tagIds"] as? [String] ?? []
         let newSectionTitle = arguments["sectionTitle"] as? String ?? ""
         let newShowsClearButton = arguments["showsClearButton"] as? Bool ?? false
+        let newShowsRefreshButton = arguments["showsRefreshButton"] as? Bool ?? false
         let newSupportsRenaming = arguments["supportsRenaming"] as? Bool ?? false
         // Reloaded only when Dart sends other content, so a rebuild keeps the native fold state.
         if newTitles != titles || newIds != ids || newSectionTitle != sectionTitle || newShowsClearButton != showsClearButton
-            || newSupportsRenaming != supportsRenaming {
+            || newShowsRefreshButton != showsRefreshButton || newSupportsRenaming != supportsRenaming {
             titles = newTitles
             ids = newIds
             sectionTitle = newSectionTitle
             showsClearButton = newShowsClearButton
+            showsRefreshButton = newShowsRefreshButton
             supportsRenaming = newSupportsRenaming
-            tagListView.showsSectionHeaders = !sectionTitle.isEmpty || showsClearButton
+            tagListView.showsSectionHeaders = !sectionTitle.isEmpty || showsClearButton || showsRefreshButton
             tagListView.reloadMenuData()
         }
         selectedIds = Set(arguments["selectedIds"] as? [String] ?? [])
@@ -728,7 +733,10 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
 
     func menuIdentifierForItem(at indexPath: IndexPath) -> String { id(at: indexPath.item) }
 
-    func menuShowsClearButton(forSection section: Int) -> Bool { showsClearButton }
+    // One header action: the refresh icon takes the place of the trash.
+    func menuShowsClearButton(forSection section: Int) -> Bool { showsClearButton && !showsRefreshButton }
+    func menuShowsMoreButton(inSection section: Int) -> Bool { showsRefreshButton }
+    func menuAccessibilityLabelForMoreButton(inSection section: Int) -> String? { CYLSearchTagListHeader.refreshAccessibilityLabel }
 
     func menuRenameItem(at indexPath: IndexPath, to title: String) {
         // Not used: `renameRequestHandler` hands renaming to Dart, which sends the new titles.
@@ -752,6 +760,10 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
     }
 
     // MARK: - CYLMenuDelegate
+
+    func menu(_ menu: Any, didTapMoreButtonInSection section: Int) {
+        channel.invokeMethod("didTapRefreshButton", arguments: ["section": section])
+    }
 
     func menu(_ menu: Any, didSelectItemAt indexPath: IndexPath) {
         let index = indexPath.item

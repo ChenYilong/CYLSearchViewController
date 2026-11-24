@@ -402,12 +402,13 @@ function DiscoverDemo() {
           onTagSelect={(event) => search(event.nativeEvent.title)}
         />
       ) : null}
-      <View style={[styles.header, styles.block]}>
-        <Text accessibilityRole="header" style={[styles.section, { color: palette.text }]}>Discover</Text>
-        <Pressable accessibilityRole="button" accessibilityLabel="Refresh topics" onPress={() => setOffset((value) => value + discoverData.discoverCount)}>
-          <Text style={styles.action}>Refresh</Text>
-        </Pressable>
-      </View>
+      {/* The same native section header as above: the title and the refresh icon (icon first), no tags. */}
+      <CYLTagListView
+        tags={[]}
+        sectionTitle="Discover"
+        showsRefreshButton
+        onRefreshButtonTap={() => setOffset((value) => value + discoverData.discoverCount)}
+      />
       <View style={styles.grid}>
         {topics.map((topic) => (
           <Pressable key={topic.title} accessibilityRole="button" style={styles.topic} onPress={() => search(topic.title)}>

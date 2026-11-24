@@ -1155,6 +1155,7 @@ class CYLTagListView extends StatefulWidget {
     this.selectionMode = CYLTagSelectionMode.none,
     this.sectionTitle = '',
     this.showsClearButton = false,
+    this.showsRefreshButton = false,
     this.editing = false,
     this.supportsRenaming = false,
     this.onTagToggled,
@@ -1162,6 +1163,7 @@ class CYLTagListView extends StatefulWidget {
     this.onTagMoved,
     this.onRenameRequested,
     this.onClearButtonTapped,
+    this.onRefreshButtonTapped,
     this.onDraggingChanged,
   });
 
@@ -1180,6 +1182,11 @@ class CYLTagListView extends StatefulWidget {
 
   /// A trash button in the header (iOS `menuShowsClearButton(forSection:)`): [onClearButtonTapped].
   final bool showsClearButton;
+
+  /// A refresh icon (the SF Symbol "arrow.clockwise", a localized VoiceOver label) at the trailing end of the header,
+  /// in place of the three dots of the More button: [onRefreshButtonTapped]. One header action: it wins over
+  /// [showsClearButton].
+  final bool showsRefreshButton;
 
   /// Editing mode (iOS `setEditing(_:animated:)`): a cross on each tag ([onTagDeleted]) and dragging ([onTagMoved]).
   final bool editing;
@@ -1202,6 +1209,9 @@ class CYLTagListView extends StatefulWidget {
 
   /// The header's clear button was tapped.
   final VoidCallback? onClearButtonTapped;
+
+  /// The refresh icon of the header was tapped ([showsRefreshButton]).
+  final VoidCallback? onRefreshButtonTapped;
 
   /// A drag of a tag or a smear selection started (true) or ended or was cancelled (false), the counterpart of the mini
   /// program's `reorderingchange` and `smearingchange`. The list already keeps an ancestor scroll view from scrolling with
@@ -1256,6 +1266,7 @@ class _CYLTagListViewState extends State<CYLTagListView> {
         oldWidget.selectionMode != widget.selectionMode ||
         oldWidget.sectionTitle != widget.sectionTitle ||
         oldWidget.showsClearButton != widget.showsClearButton ||
+        oldWidget.showsRefreshButton != widget.showsRefreshButton ||
         oldWidget.editing != widget.editing ||
         oldWidget.supportsRenaming != widget.supportsRenaming ||
         oldWidget.foldControlPosition != widget.foldControlPosition ||
@@ -1297,6 +1308,7 @@ Map<String, Object?> cylTagListViewParameters(CYLTagListView widget, {Brightness
       'selectionMode': widget.selectionMode.name,
       'sectionTitle': widget.sectionTitle,
       'showsClearButton': widget.showsClearButton,
+      'showsRefreshButton': widget.showsRefreshButton,
       'editing': widget.editing,
       'supportsRenaming': widget.supportsRenaming,
     };
@@ -1320,6 +1332,8 @@ double? cylTagListViewDispatch(CYLTagListView widget, MethodCall call) {
           arguments['index'] as int? ?? 0, arguments['id'] as String? ?? '', arguments['title'] as String? ?? '');
     case 'didTapClearButton':
       widget.onClearButtonTapped?.call();
+    case 'didTapRefreshButton':
+      widget.onRefreshButtonTapped?.call();
     case 'didChangeDragging':
       widget.onDraggingChanged?.call(arguments['dragging'] as bool? ?? false);
     case 'didChangeHeight':

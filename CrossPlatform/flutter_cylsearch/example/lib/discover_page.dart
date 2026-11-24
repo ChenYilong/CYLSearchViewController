@@ -155,16 +155,6 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
     _show(data.text('discover.searching', query));
   }
 
-  Widget _header(BuildContext context, String title, IconData icon, String tooltip, VoidCallback onPressed) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 16, 4, 4),
-        child: Row(
-          children: <Widget>[
-            Expanded(child: Semantics(header: true, child: Text(title, style: Theme.of(context).textTheme.titleMedium))),
-            IconButton(icon: Icon(icon), tooltip: tooltip, onPressed: onPressed),
-          ],
-        ),
-      );
-
   Widget _topic(BuildContext context, CYLSearchDiscoverData data, CYLDiscoverTopic topic) => Semantics(
         button: true,
         hint: data.text('discover.tapToSearch'),
@@ -247,8 +237,13 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                     onTagSelected: (index, title) => _search(title),
                   ),
                 ],
-                _header(context, data.text('discover.title'), Icons.refresh, data.text('discover.refresh'),
-                    () => setState(() => _topics = data.randomTopics(_topics))),
+                // The same native section header as above: the title and the refresh icon (icon first), no tags.
+                CYLTagListView(
+                  tags: const <String>[],
+                  sectionTitle: data.text('discover.title'),
+                  showsRefreshButton: true,
+                  onRefreshButtonTapped: () => setState(() => _topics = data.randomTopics(_topics)),
+                ),
                 for (var row = 0; row < _topics.length; row += 2)
                   Row(
                     children: <Widget>[

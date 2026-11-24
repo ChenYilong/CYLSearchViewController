@@ -84,6 +84,12 @@ export interface NativeProps extends ViewProps {
    */
   showsClearButton?: boolean;
   /**
+   * A refresh icon (the SF Symbol "arrow.clockwise", a localized VoiceOver label) at the trailing end of the header, in
+   * place of the More button's three dots (iOS `menuShowsMoreButton(inSection:)`, the core's `CYLSearchTagListHeader`):
+   * `onRefreshButtonTap`. One header action: the refresh icon wins over `showsClearButton`.
+   */
+  showsRefreshButton?: boolean;
+  /**
    * Editing mode (iOS `setEditing(_:animated:)`): a cross on each tag (`onTagDelete`) and dragging (`onTagMove`).
    */
   editing?: boolean;
@@ -122,6 +128,7 @@ export interface NativeProps extends ViewProps {
   onTagMove?: CodegenTypes.DirectEventHandler<TagMoveEvent>;
   onRenameRequest?: CodegenTypes.DirectEventHandler<RenameRequestEvent>;
   onClearButtonTap?: CodegenTypes.DirectEventHandler<EmptyEvent>;
+  onRefreshButtonTap?: CodegenTypes.DirectEventHandler<EmptyEvent>;
   /**
    * A drag to reorder started or ended (CollectionViewClassifyMenu `menuDidChangeReordering`; the mini program's
    * `reorderingchange`). The native list already holds an ancestor scroll view during the drag; this reports the state.

@@ -25,6 +25,7 @@ using namespace facebook::react;
   NSSet<NSString *> *_selectedIds;
   NSString *_sectionTitle;
   BOOL _showsClearButton;
+  BOOL _showsRefreshButton;
   BOOL _supportsRenaming;
 }
 
@@ -61,6 +62,8 @@ using namespace facebook::react;
     _tagListView.clearButtonHandler = ^(NSInteger section) {
       [weakSelf emitClearButtonTapInSection:section];
     };
+    // The header's refresh action is an icon (the core's CYLSearchTagListHeader), not the three dots.
+    [CYLSearchTagListHeader applyRefreshIconToList:_tagListView];
     _tagListView.menuDataSource = self;
     _tagListView.menuDelegate = self;
     self.contentView = _tagListView;
@@ -85,13 +88,15 @@ using namespace facebook::react;
   BOOL renaming = p.supportsRenaming;
   // Reloaded only when JavaScript sends other content, so a re-render keeps the native fold state and scroll.
   if (![titles isEqualToArray:_titles] || ![ids isEqualToArray:_ids] || ![sectionTitle isEqualToString:_sectionTitle]
-      || p.showsClearButton != _showsClearButton || renaming != _supportsRenaming) {
+      || p.showsClearButton != _showsClearButton || p.showsRefreshButton != _showsRefreshButton
+      || renaming != _supportsRenaming) {
     _titles = titles;
     _ids = ids;
     _sectionTitle = sectionTitle;
     _showsClearButton = p.showsClearButton;
+    _showsRefreshButton = p.showsRefreshButton;
     _supportsRenaming = renaming;
-    _tagListView.showsSectionHeaders = sectionTitle.length > 0 || _showsClearButton;
+    _tagListView.showsSectionHeaders = sectionTitle.length > 0 || _showsClearButton || _showsRefreshButton;
     [_tagListView reloadMenuData];
   }
   _selectedIds = [NSSet setWithArray:CYLRNStrings(p.selectedIds)];
@@ -176,7 +181,18 @@ using namespace facebook::react;
 
 - (BOOL)menuShowsClearButtonForSection:(NSInteger)section
 {
-  return _showsClearButton;
+  // One header action: the refresh icon takes the place of the trash.
+  return _showsClearButton && !_showsRefreshButton;
+}
+
+- (BOOL)menuShowsMoreButtonInSection:(NSInteger)section
+{
+  return _showsRefreshButton;
+}
+
+- (NSString *)menuAccessibilityLabelForMoreButtonInSection:(NSInteger)section
+{
+  return CYLSearchTagListHeader.refreshAccessibilityLabel;
 }
 
 - (void)menuRenameItemAtIndexPath:(NSIndexPath *)indexPath toTitle:(NSString *)title
@@ -339,6 +355,14 @@ using namespace facebook::react;
             .index = (int)index,
             .id = std::string([self idAtIndex:index].UTF8String ?: ""),
             .title = std::string(title.UTF8String ?: "")});
+  }
+}
+
+- (void)menu:(id)menu didTapMoreButtonInSection:(NSInteger)section
+{
+  if (_eventEmitter) {
+    std::static_pointer_cast<CylsearchTagListViewEventEmitter const>(_eventEmitter)
+        ->onRefreshButtonTap(CylsearchTagListViewEventEmitter::OnRefreshButtonTap{.section = (int)section});
   }
 }
 
