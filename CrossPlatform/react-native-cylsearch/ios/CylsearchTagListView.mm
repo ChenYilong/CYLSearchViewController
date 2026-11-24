@@ -28,6 +28,7 @@ using namespace facebook::react;
   BOOL _showsRefreshButton;
   NSInteger _columns;
   NSArray<NSString *> *_tagImages;
+  NSArray<NSString *> *_tagImageLabels;
   NSMutableDictionary<NSString *, UIImage *> *_imageCache;
   BOOL _supportsRenaming;
 }
@@ -48,6 +49,7 @@ using namespace facebook::react;
     _selectedIds = [NSSet set];
     _sectionTitle = @"";
     _tagImages = @[];
+    _tagImageLabels = @[];
     _imageCache = [NSMutableDictionary dictionary];
     _tagListView = [[CYLTagListView alloc] initWithFoldControl:CYLRNFoldControl(@"inline", @"icon")];
     _tagListView.showsSectionHeaders = NO;
@@ -103,11 +105,14 @@ using namespace facebook::react;
     }
   }
   NSArray<NSString *> *images = CYLRNStrings(p.tagImages);
+  NSArray<NSString *> *imageLabels = CYLRNStrings(p.tagImageLabels);
   // Reloaded only when JavaScript sends other content, so a re-render keeps the native fold state and scroll.
   if (![titles isEqualToArray:_titles] || ![ids isEqualToArray:_ids] || ![sectionTitle isEqualToString:_sectionTitle]
       || p.showsClearButton != _showsClearButton || p.showsRefreshButton != _showsRefreshButton
-      || renaming != _supportsRenaming || ![images isEqualToArray:_tagImages]) {
+      || renaming != _supportsRenaming || ![images isEqualToArray:_tagImages] || ![imageLabels isEqualToArray:_tagImageLabels]) {
     _tagImages = images;
+    _tagImageLabels = imageLabels;
+    [_imageCache removeAllObjects];
     _titles = titles;
     _ids = ids;
     _sectionTitle = sectionTitle;
@@ -217,6 +222,8 @@ using namespace facebook::react;
     NSString *path = url.isFileURL ? url.path : location;
     image = [UIImage imageWithContentsOfFile:path];
     if (image) {
+      // VoiceOver reads the image's label as the tag's value (the localized "Hot").
+      image.accessibilityLabel = index < (NSInteger)_tagImageLabels.count ? _tagImageLabels[index] : nil;
       _imageCache[location] = image;
     }
   }
