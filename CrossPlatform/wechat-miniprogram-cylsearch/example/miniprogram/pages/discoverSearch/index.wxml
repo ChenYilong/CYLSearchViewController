@@ -35,19 +35,14 @@
         <view class="tag tag-chevron measure-chevron"><view class="icon icon-chevron" /></view>
       </view>
     </view>
-    <!-- Discover: two titles per row, a hot icon after a hot title, the core's refresh button showing the next page. -->
+    <!-- Discover: ClassifyMenu's tag cloud, two titles per row, a hot icon on a hot title, the core's refresh button showing the next page. -->
     <view class="section">
       <view class="header">
         <text class="header-title" role="heading">{{texts.title}}</text>
         <cyl-search-refresh-button bind:tap="refreshDiscover" />
       </view>
-      <view class="grid">
-        <view wx:for="{{topics}}" wx:key="title" class="topic" role="button" aria-label="{{item.title}}{{item.icon === 'hot' ? ', ' + texts.hot : ''}}"
-          aria-description="{{texts.tapToSearch}}" data-index="{{index}}" bindtap="onTopicTap">
-          <text class="topic-title">{{item.title}}</text>
-          <image wx:if="{{item.icon === 'hot'}}" class="hot" src="{{hotIcon}}" mode="heightFix" aria-hidden="true" />
-        </view>
-      </view>
+      <!-- The grid is CollectionViewClassifyMenu's tag cloud (two equal cells per row, the iOS example's discoverStyle()). -->
+      <cyl-tag-cloud tags="{{topicTags}}" listStyle="{{topicStyle}}" selectionMode="none" bind:tagtap="onTopicTap" />
     </view>
   </scroll-view>
 

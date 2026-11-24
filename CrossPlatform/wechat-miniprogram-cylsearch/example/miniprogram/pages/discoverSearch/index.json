@@ -2,6 +2,7 @@
   "navigationStyle": "custom",
   "usingComponents": {
     "cyl-search-navigation-bar": "/components/cyl-search-navigation-bar/index",
+    "cyl-tag-cloud": "cyl-tag-list-miniprogram/cyl-tag-cloud/cyl-tag-cloud",
     "cyl-search-refresh-button": "/components/cyl-search-refresh-button/index"
   }
 }

@@ -1,7 +1,9 @@
 // The Discover page's rules, as on iOS (CYLSearchDiscoverData, CYLSearchDiscoverViewController).
 const test = require('node:test');
 const assert = require('node:assert');
-const { cylTopicPage, cylNextTopicPage, cylSearchedRecent } = require('../example/miniprogram/utils/cyl_discover_logic');
+const { cylTopicPage, cylNextTopicPage, cylSearchedRecent, cylDiscoverCloudTags, cylHotIconSize, cylDiscoverCloudStyle } = require('../example/miniprogram/utils/cyl_discover_logic');
+const fs = require('node:fs');
+const path = require('node:path');
 const { cylAllDiscoverData } = require('../example/miniprogram/utils/cyl_demo_text');
 const { cylFoldTags } = require('../src/core/CYLSearchView');
 const { cylNavigationMetricsFrom } = require('../src/core/CYLSearchResources');
@@ -70,4 +72,48 @@ test('a bar in the navigation bar is centered on the menu button and ends before
   assert.strictEqual(metrics.navigationBarHeight, 40);
   assert.strictEqual(metrics.trailingInset, 94 + 7);
   assert.strictEqual(cylNavigationMetricsFrom({ statusBarHeight: 20, windowWidth: 375 }, null).navigationBarHeight, 44);
+});
+
+test('the topics are the tags of the ClassifyMenu tag cloud: a hot topic carries the hot icon and its label', () => {
+  const tags = cylDiscoverCloudTags([{ title: 'A' }, { title: 'B', icon: 'hot' }], '/hot.png', 'Hot');
+  assert.deepStrictEqual(tags, [
+    { identifier: 0, title: 'A', isEnabled: true, isDeletable: false },
+    { identifier: 1, title: 'B', isEnabled: true, isDeletable: false, image: '/hot.png', imageLabel: 'Hot' },
+  ]);
+  assert.strictEqual(cylHotIconSize('en'), 30);
+  assert.strictEqual(cylHotIconSize('zh-Hans'), 18);
+});
+
+test('the grid style is the iOS discoverStyle() over the base style of the cloud and does not change the base', () => {
+  const state = () => ({ backgroundColor: '#F2F2F7', borderColor: '#D1D1D1', borderWidth: 0.5, fontSize: 14, textColor: '#444', contentInsets: { top: 5, left: 10, bottom: 5, right: 10 } });
+  const base = { normal: state(), selected: state(), disabled: state(), numberOfItemsPerRow: 0, itemHeight: 30, imageSize: 14, backgroundColor: '#fff', sectionInsets: { top: 10, left: 16, bottom: 10, right: 16 } };
+  const style = cylDiscoverCloudStyle(base, { dark: true, iconSize: 30 });
+  assert.strictEqual(style.numberOfItemsPerRow, 2);
+  assert.strictEqual(style.itemHeight, 36);
+  assert.strictEqual(style.lineSpacing, 16);
+  assert.strictEqual(style.imageSize, 30);
+  assert.deepStrictEqual(style.sectionInsets, { top: 4, left: 16, bottom: 16, right: 16 });
+  for (const name of ['normal', 'selected', 'disabled']) {
+    assert.strictEqual(style[name].fontSize, 17);
+    assert.strictEqual(style[name].borderWidth, 0);
+    assert.strictEqual(style[name].textColor, '#FFFFFF');
+  }
+  assert.strictEqual(cylDiscoverCloudStyle(base).normal.textColor, '#000000');
+  assert.strictEqual(base.numberOfItemsPerRow, 0);
+  assert.strictEqual(base.normal.fontSize, 14);
+});
+
+// The synced tag cloud (example/miniprogram/miniprogram_npm, git-ignored, made by `npm run sync-example`): when it is there,
+// a hot topic renders as an equal cell of two per row with its icon and reads "title, label".
+const cloudModel = path.join(__dirname, '../example/miniprogram/miniprogram_npm/cyl-tag-list-miniprogram/cyl-tag-cloud/model.js');
+test('the synced tag cloud renders the grid cell of a hot topic', { skip: !fs.existsSync(cloudModel) }, () => {
+  const model = require(cloudModel);
+  const listStyle = cylDiscoverCloudStyle(model.defaultStyle(), { iconSize: 30 });
+  const [plain, hot] = cylDiscoverCloudTags([{ title: 'A' }, { title: 'B', icon: 'hot' }], '/hot.png', 'Hot')
+    .map((tag, index) => model.renderTag(tag, index, { listStyle, theme: 'none' }));
+  assert.match(plain.style, /width: calc\(\(100% - 24px\) \/ 2\)/);
+  assert.strictEqual(plain.icon, null);
+  assert.strictEqual(plain.accessibilityLabel, 'A');
+  assert.strictEqual(hot.icon.image, '/hot.png');
+  assert.strictEqual(hot.accessibilityLabel, 'B, Hot');
 });

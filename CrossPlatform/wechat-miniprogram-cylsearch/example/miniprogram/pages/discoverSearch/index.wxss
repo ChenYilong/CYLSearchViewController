@@ -14,10 +14,6 @@
 .tag { height: 36px; padding: 0 14px; margin: 0 12px 12px 0; line-height: 34px; border: 1px solid #c6c6c8; background: #fff; color: #000; font-size: 17px; white-space: nowrap; box-sizing: border-box; }
 .tag-chevron { display: flex; align-items: center; justify-content: center; padding: 0 10px; }
 .measure { position: absolute; left: -9999px; top: 0; display: flex; visibility: hidden; }
-.grid { display: flex; flex-wrap: wrap; padding: 4px 16px 8px; }
-.topic { display: flex; align-items: center; width: 50%; height: 36px; margin-bottom: 16px; padding-right: 12px; box-sizing: border-box; }
-.topic-title { min-width: 0; font-size: 17px; font-weight: 500; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.hot { flex: none; height: 16px; margin-left: 4px; }
 .ask { position: absolute; left: 0; right: 0; bottom: 0; height: 160px; }
 /* The mic sits above the raised plus button of the tab bar (24 px over the bar). */
 .ask-curve { position: absolute; left: -10%; right: -10%; top: 36px; bottom: 0; border-radius: 50% 50% 0 0 / 40px 40px 0 0; background: #f2f2f7; }
@@ -32,7 +28,7 @@
 .icon-mic { background-color: #ff3b30; -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect x='8.5' y='2' width='7' height='13' rx='3.5' fill='black'/><path d='M5 11a7 7 0 0 0 14 0M12 18v3.5' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect x='8.5' y='2' width='7' height='13' rx='3.5' fill='black'/><path d='M5 11a7 7 0 0 0 14 0M12 18v3.5' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'/></svg>"); }
 @media (prefers-color-scheme: dark) {
   .screen { background: #000; }
-  .header-title, .topic-title { color: #fff; }
+  .header-title { color: #fff; }
   .playback-value { color: rgba(235, 235, 245, 0.6); }
   .tag { background: #000; color: #fff; border-color: #38383a; }
   .ask-curve { background: #1c1c1e; }

@@ -2,6 +2,10 @@ import { common } from '@kit.AbilityKit';
 import { LengthMetrics } from '@kit.ArkUI';
 import { util } from '@kit.ArkTS';
 import {
+  CYLControlState, CYLEdgeInsets, CYLFont, CYLIndexPath, CYLMenuDataSource, CYLMenuDelegate, CYLMenuSelectionMode,
+  CYLMenuStyle, CYLSize, CYLTagListState, CYLTagListView
+} from '@cyl/classifymenu';
+import {
   CYLSearchBarItem,
   CYLSearchBarStyle,
   CYLSearchBarView,
@@ -92,6 +96,55 @@ function cylDiscoverPage(pool: CYLDiscoverTopic[], count: number, page: number):
 
 // MARK: - Pure logic (end)
 
+/**
+ * The discover topics as the data source of ClassifyMenu's tag list (iOS `CYLDiscoverSource`): one section, the title of
+ * a topic, the localized hot icon after the title of a hot topic.
+ */
+class CYLDiscoverSource implements CYLMenuDataSource {
+  topics: CYLDiscoverTopic[] = [];
+  hint: string = '';
+
+  numberOfSectionsInMenu(): number {
+    return 1;
+  }
+
+  menuNumberOfItemsInSection(section: number): number {
+    return this.topics.length;
+  }
+
+  menuTitleForSection(section: number): string {
+    return '';
+  }
+
+  menuTitleForItem(indexPath: CYLIndexPath): string {
+    return this.topics[indexPath.item].title;
+  }
+
+  menuImageForItem = (indexPath: CYLIndexPath): Resource | undefined =>
+    this.topics[indexPath.item].icon === 'hot' ? $r('app.media.discover_hot') : undefined;
+
+  menuAccessibilityHintForItem = (indexPath: CYLIndexPath): string | undefined => this.hint;
+}
+
+/**
+ * The iOS example's `discoverStyle()`: `CYLMenuStyle.gridStyle(itemsPerRow: 2)` (ClassifyMenu's own preset: two equal
+ * cells per row, no fill, no border, the icon after the title) with 17 pt medium titles in the theme's text color, 36 high,
+ * 16 between rows and section insets {4, 16, 16, 16}. `hotWidth` is the hot icon's width in vp (HOT is wider than 热).
+ */
+function cylDiscoverStyle(hotWidth: number): CYLMenuStyle {
+  const style = CYLMenuStyle.gridStyle(2);
+  [CYLControlState.NORMAL, CYLControlState.SELECTED, CYLControlState.DISABLED].forEach((state: number) => {
+    const appearance = style.appearance(state);
+    appearance.font = new CYLFont(17, FontWeight.Medium);
+    appearance.textColor = $r('sys.color.font_primary');
+  });
+  style.imageSize = new CYLSize(hotWidth, 18);
+  style.itemHeight = TAG_HEIGHT;
+  style.lineSpacing = 16;
+  style.sectionInsets = new CYLEdgeInsets(4, 16, 16, 16);
+  return style;
+}
+
 const TAG_HEIGHT: number = 36;
 const TAG_SPACING: number = 12;
 const TAG_MARGIN: number = 14;
@@ -118,6 +171,8 @@ export struct DiscoverView {
   @Local curveWidth: number = 0;
   @Local listWidth: number = 0;
   @Local hint: string = '';
+  // The height of the topics grid, reported by the tag list.
+  @Local gridHeight: number = 0;
   // Playback of the animated search bar item (index 1): the loop switch and the speed slider write to the item.
   @Local animationLoops: boolean = false;
   @Local animationSpeed: number = 1;
@@ -126,6 +181,8 @@ export struct DiscoverView {
   private searchBar: CYLSearchBarView = new CYLSearchBarView();
   private animatedItem: CYLSearchBarItem | undefined = undefined;
   private topicPage: number = 0;
+  private topicSource: CYLDiscoverSource = new CYLDiscoverSource();
+  private topicList: CYLTagListState = new CYLTagListState();
 
   private text(name: string, ...args: string[]): string {
     return cylAppText(this.context, name, ...args);
@@ -136,6 +193,7 @@ export struct DiscoverView {
     this.recent = this.data.recentSearches;
     this.topics = cylDiscoverPage(this.data.discover, this.data.discoverCount, 0).topics;
     this.hint = this.text('discover_askHint');
+    this.setUpTopicList();
     // A capsule with a soft shadow, no magnifier: the camera and the Search button sit inside it.
     const bar = this.searchBar;
     bar.searchIcon = undefined;
@@ -171,6 +229,28 @@ export struct DiscoverView {
     this.reloadLists();
   }
 
+  // The topics grid is ClassifyMenu's tag list, not a hand-made Grid.
+  private setUpTopicList(): void {
+    const language = this.context.resourceManager.getConfigurationSync().locale ?? '';
+    // HOT (English) and its Japanese form are 30 x 18 vp, 热 and 熱 are 18 x 18.
+    const wide = !language.startsWith('zh');
+    this.topicSource.hint = this.text('discover_tapToSearch');
+    this.topicSource.topics = this.topics;
+    this.topicList.style = cylDiscoverStyle(wide ? 30 : 18);
+    this.topicList.selectionMode = CYLMenuSelectionMode.none;
+    this.topicList.showsSectionHeaders = false;
+    this.topicList.isScrollEnabled = false;
+    this.topicList.menuDataSource = this.topicSource;
+    const delegate: CYLMenuDelegate = {
+      menuDidSelectItem: (menu: Object, indexPath: CYLIndexPath) => this.search(this.topics[indexPath.item].title),
+      menuDidChangeContentHeight: (menu: Object, height: number) => {
+        this.gridHeight = height;
+      }
+    };
+    this.topicList.menuDelegate = delegate;
+    this.topicList.reloadMenuData();
+  }
+
   private loadData(): CYLSearchDiscoverData {
     const names = ['zh_TW', 'zh_CN', 'ja_JP'];
     const language = this.context.resourceManager.getConfigurationSync().locale ?? '';
@@ -198,6 +278,8 @@ export struct DiscoverView {
     const next = cylDiscoverPage(this.data.discover, this.data.discoverCount, this.topicPage + 1);
     this.topicPage = next.page;
     this.topics = next.topics;
+    this.topicSource.topics = next.topics;
+    this.topicList.reloadMenuData();
     this.reloadLists();
   }
 
@@ -392,37 +474,7 @@ export struct DiscoverView {
             })
           }
           this.header(this.text('discover_title'), 2)
-          Grid() {
-            ForEach(this.topics, (topic: CYLDiscoverTopic) => {
-              GridItem() {
-                Row({ space: 4 }) {
-                  Text(topic.title)
-                    .fontSize(17)
-                    .fontWeight(FontWeight.Medium)
-                    .fontColor($r('sys.color.font_primary'))
-                    .maxLines(1)
-                    .textOverflow({ overflow: TextOverflow.Ellipsis })
-                    .flexShrink(1)
-                  if (topic.icon === 'hot') {
-                    Image($r('app.media.discover_hot')).height(18).objectFit(ImageFit.Contain)
-                      .accessibilityText(this.text('discover_hot'))
-                  }
-                }
-                .height(TAG_HEIGHT)
-                .width('100%')
-                .accessibilityGroup(true)
-                .accessibilityDescription(this.text('discover_tapToSearch'))
-                .onClick(() => this.search(topic.title))
-              }
-            }, (topic: CYLDiscoverTopic) => topic.title)
-          }
-          .columnsTemplate('1fr 1fr')
-          .columnsGap(16)
-          .rowsGap(16)
-          .maxCount(2)
-          .layoutDirection(GridDirection.Row)
-          .height(Math.ceil(this.topics.length / 2) * (TAG_HEIGHT + 16))
-          .padding({ left: 16, right: 16, top: 4, bottom: 16 })
+          CYLTagListView({ tagList: this.topicList }).width('100%').height(this.gridHeight).id('CYLSearchDiscoverTopics')
         }
       }
       .layoutWeight(1)

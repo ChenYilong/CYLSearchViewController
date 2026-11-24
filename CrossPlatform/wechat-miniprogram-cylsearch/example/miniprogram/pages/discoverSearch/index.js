@@ -5,7 +5,7 @@
 // title, and the core's refresh button showing the next page of topics, cyclically. At the bottom: "Hold to ask" over a curved area. The
 // data comes from search-discover.json of the iOS example; this page only shows it and handles the taps.
 const { cylDemoText, cylDemoLanguage, cylDiscoverData, cylHotIcon } = require('../../utils/cyl_demo_text');
-const { cylTopicPage, cylNextTopicPage, cylSearchedRecent } = require('../../utils/cyl_discover_logic');
+const { cylTopicPage, cylNextTopicPage, cylSearchedRecent, cylDiscoverCloudTags, cylHotIconSize, cylDiscoverCloudStyle } = require('../../utils/cyl_discover_logic');
 const { cylFoldTags } = require('../../components/core/CYLSearchView');
 const { cylNavigationMetrics } = require('../../components/core/CYLSearchResources');
 
@@ -17,16 +17,21 @@ const FOLD_LABELS = { en: ['More', 'Less'], 'zh-Hans': ['更多', '收起'], 'zh
 const ANIMATION_ITEM_INDEX = 1;
 const ANIMATION_URL = '/assets/tab/svga/tab_activity.svga.bin';
 const CAMERA_IMAGE = '/assets/discover/camera.viewfinder.svg';
+// The tag cloud's full base style (CollectionViewClassifyMenu's model.defaultStyle()); the grid look is cylDiscoverCloudStyle.
+const CLOUD_BASE_STYLE = require('cyl-tag-list-miniprogram').tagCloud.defaultStyle();
 
 Page({
   data: {
     texts: {}, showsBack: false, fieldHeight: 36,
     query: '', placeholder: '', items: [], loops: false, speed: 1, speedText: '1.00x',
     recent: [], visibleRecent: [], needsFold: false, folded: true,
-    topics: [], hotIcon: '', hint: '', announcement: '', foldLabels: FOLD_LABELS.en,
+    topics: [], topicTags: [], topicStyle: null, hotIcon: '', hint: '', announcement: '', foldLabels: FOLD_LABELS.en,
   },
   onLoad() {
     const metrics = cylNavigationMetrics();
+    const language = cylDemoLanguage(wx.getAppBaseInfo().language);
+    this.dark = wx.getAppBaseInfo().theme === 'dark';
+    this.iconSize = cylHotIconSize(language);
     const data = cylDiscoverData();
     this.discover = data;
     this.topicPage = 0;
@@ -46,10 +51,17 @@ Page({
       recent: data.recentSearches.slice(),
       topics: cylTopicPage(data.discover, data.discoverCount, 0).topics,
       hotIcon: cylHotIcon(),
-      foldLabels: FOLD_LABELS[cylDemoLanguage(wx.getAppBaseInfo().language)] || FOLD_LABELS.en,
+      topicStyle: cylDiscoverCloudStyle(CLOUD_BASE_STYLE, { dark: this.dark, iconSize: this.iconSize }),
+      foldLabels: FOLD_LABELS[language] || FOLD_LABELS.en,
       hint: cylDemoText('discover.askHint'),
     });
     this.reloadLists();
+    // The cloud's title color is a style value, not CSS: it follows the theme here.
+    this.onTheme = (result) => this.setData({ topicStyle: cylDiscoverCloudStyle(CLOUD_BASE_STYLE, { dark: result.theme === 'dark', iconSize: this.iconSize }) });
+    if (typeof wx.onThemeChange === 'function') wx.onThemeChange(this.onTheme);
+  },
+  onUnload() {
+    if (typeof wx.offThemeChange === 'function' && this.onTheme) wx.offThemeChange(this.onTheme);
   },
   // The bar's items: the camera, the animated item (its loop and speed come from the controls below the bar), the
   // divider and the Search button.
@@ -89,7 +101,10 @@ Page({
   // The search field's placeholder is the first discover topic.
   reloadLists() {
     const first = this.data.topics[0];
-    this.setData({ placeholder: first ? first.title : this.data.texts.search });
+    this.setData({
+      placeholder: first ? first.title : this.data.texts.search,
+      topicTags: cylDiscoverCloudTags(this.data.topics, this.data.hotIcon, this.data.texts.hot),
+    });
     this.measureRecent();
   },
   // Folds the recent searches to two rows: measures every tag, then keeps those of the first rows with the chevron.
@@ -142,8 +157,9 @@ Page({
   onRecentTap(event) {
     this.search(this.data.recent[Number(event.currentTarget.dataset.index)]);
   },
+  // The cloud's `tagtap`: {position, tag}.
   onTopicTap(event) {
-    this.search(this.data.topics[Number(event.currentTarget.dataset.index)].title);
+    this.search(event.detail.tag.title);
   },
   clearRecentSearches() {
     this.setData({ recent: [], visibleRecent: [], needsFold: false, announcement: cylDemoText('discover.cleared') });
