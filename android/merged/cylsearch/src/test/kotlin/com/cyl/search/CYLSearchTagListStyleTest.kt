@@ -52,6 +52,26 @@ class CYLSearchTagListStyleTest {
     }
 
     @Test
+    fun flatTagsAreWhiteWithTheIosSeparatorBorder() {
+        val style = CYLMenuStyle()
+        CYLSearchTagListStyle.applyDefaults(style)
+        for (state in listOf(CYLControlState.NORMAL, CYLControlState.SELECTED, CYLControlState.DISABLED)) {
+            val tag = style.appearanceForState(state)
+            assertEquals(android.graphics.Color.WHITE, tag.backgroundColor)
+            assertEquals(android.graphics.Color.argb(74, 60, 60, 67), tag.borderColor)
+        }
+    }
+
+    @Test
+    fun theGridIsBorderlessLikeTheIosDiscoverTopicsAndShowsImagesAtTheirOwnSize() {
+        val style = CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(2)
+        CYLSearchTagListStyle.applyGrid(style)
+        val tag = style.appearanceForState(CYLControlState.NORMAL)
+        assertEquals(0f, tag.borderWidth, 0f)
+        assertEquals(com.cyl.classifymenu.CYLSize(0f, 0f), style.imageSize)
+    }
+
+    @Test
     fun theGridKeepsTheHeaderLookAndOneRowPerThirtySixDp() {
         val style = CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(2)
         CYLSearchTagListStyle.applyGrid(style)

@@ -161,6 +161,8 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
   String _typed = '';
   String? _barText;
   bool _loops = false;
+  // The tag lists' background: Liquid Glass (default) or flat; the toggle under the loop control switches both lists.
+  bool _glass = true;
   double _speed = 1.0;
   final CYLSearchBarWidgetController _barController = CYLSearchBarWidgetController();
 
@@ -202,10 +204,13 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
     _show(data.text('discover.searching', query));
   }
 
+  String get _styleName => _glass ? 'liquidGlass' : 'flat';
+
   @override
   Widget build(BuildContext context) {
     final data = _data;
     if (data == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    final styleText = data.text('discover.styleLabel', data.text(_glass ? 'discover.styleGlass' : 'discover.styleFlat'));
     return Scaffold(
       // The page's search bar is always in a navigation bar: the core's, in the app bar slot. The field stays; the camera, a
       // divider and the Search button are items appended inside its bordered capsule (core `CYLSearchBarItem`).
@@ -259,7 +264,7 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                   // The native tag list brings its own section header (title and trash) and lines up with the bar.
                   // The last tag is the fold chevron, two rows while folded (the iOS and Android Discover pages).
                   CYLTagListView(
-                    backgroundStyle: 'liquidGlass',
+                    backgroundStyle: _styleName,
                     tags: _recent,
                     sectionTitle: data.text('discover.recent'),
                     showsClearButton: true,
@@ -276,7 +281,7 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                 // The topics: CollectionViewClassifyMenu's tag list as a two-column grid, the hot icon after a hot topic;
                 // its section header brings the title and the refresh icon.
                 CYLTagListView(
-                  backgroundStyle: 'liquidGlass',
+                  backgroundStyle: _styleName,
                   tags: <String>[for (final topic in _topics) topic.title],
                   columns: 2,
                   foldedRowCount: 0,
@@ -317,6 +322,23 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                           onPressed: () => _barController.restartItemAnimation(0),
                           child: Text(data.text('discover.animationPlay')),
                         ),
+                      ],
+                    ),
+                  ),
+                  // Background style of every tag list on the page: Liquid Glass or flat, the current style as text.
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: <Widget>[
+                        Semantics(
+                          label: styleText,
+                          child: Tooltip(
+                            message: styleText,
+                            child: Switch(value: _glass, onChanged: (value) => setState(() => _glass = value)),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(child: Text(styleText, key: const ValueKey<String>('CYLSearchDiscoverStyleLabel'))),
                       ],
                     ),
                   ),

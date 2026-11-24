@@ -602,11 +602,17 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
         val loader = io.flutter.FlutterInjector.instance().flutterLoader()
         tagImages.filter { it.isNotEmpty() && it !in loadedImages }.distinct().forEach { key ->
             try {
-                appContext.assets.open(loader.getLookupKeyForAsset(key)).use { stream ->
-                    val bitmap = android.graphics.BitmapFactory.decodeStream(stream) ?: return@use
+                val lookup = loader.getLookupKeyForAsset(key)
+                // Flutter's resolution variants (`2.0x/name.png`, `3.0x/name.png` beside the 1x file): the one for this screen, so a
+                // 30 x 18 image is 30 x 18 dp as on iOS, not 30 px (11 dp on a 2.8 density screen).
+                val ratio = Math.ceil(appContext.resources.displayMetrics.density.toDouble()).toInt().coerceIn(1, 3)
+                val (stream, scale) = openAtDensity(lookup, ratio)
+                stream.use {
+                    val bitmap = android.graphics.BitmapFactory.decodeStream(it) ?: return@use
                     when {
                         key.contains("@3x") -> bitmap.density = 480
                         key.contains("@2x") -> bitmap.density = 320
+                        else -> bitmap.density = 160 * scale
                     }
                     loadedImages[key] = android.graphics.drawable.BitmapDrawable(appContext.resources, bitmap)
                 }
@@ -614,6 +620,19 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
                 // A missing asset leaves the tag without an image.
             }
         }
+    }
+
+    /** The asset at `lookup` in its `ratio`x variant, else the nearest other one: the stream and its scale (1 for the 1x file). */
+    private fun openAtDensity(lookup: String, ratio: Int): Pair<java.io.InputStream, Int> {
+        val slash = lookup.lastIndexOf('/')
+        for (candidate in listOf(ratio, 3, 2).distinct().filter { it > 1 }) {
+            try {
+                return appContext.assets.open(lookup.substring(0, slash + 1) + "${candidate}.0x/" + lookup.substring(slash + 1)) to candidate
+            } catch (error: java.io.IOException) {
+                // No such variant: the next one.
+            }
+        }
+        return appContext.assets.open(lookup) to 1
     }
 
     private fun applySelection() {

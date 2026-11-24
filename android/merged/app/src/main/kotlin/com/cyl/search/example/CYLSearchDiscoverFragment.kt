@@ -141,6 +141,8 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
     // The playback state of the animation item (the Switch and the SeekBar under the bar write it).
     private var animationLoops = false
     private var animationSpeed = 1f
+    // The tag lists' background style, switched by the toggle under the playback row: flat (default) or Liquid Glass.
+    private var glassStyle = false
 
     private inner class RecentSource : CYLMenuDataSource {
         var searches: MutableList<String> = mutableListOf()
@@ -296,12 +298,42 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             addView(speedLabel)
             addView(playAgain)
         }
+        // Background style of both tag lists: Liquid Glass or flat, the current style as text (CYLSearchTagListStyle.applyBackgroundStyle).
+        val styleText = TextView(context).apply { setTextColor(secondary) }
+        fun showStyle() {
+            styleText.text = getString(
+                R.string.cyl_discover_styleLabel,
+                getString(if (glassStyle) R.string.cyl_discover_styleGlass else R.string.cyl_discover_styleFlat),
+            )
+        }
+        showStyle()
+        val styleSwitch = Switch(context).apply {
+            isChecked = glassStyle
+            minimumHeight = dp(48f)
+            minimumWidth = dp(48f)
+            contentDescription = getString(R.string.cyl_discover_styleLabel, getString(R.string.cyl_discover_styleGlass))
+            setOnCheckedChangeListener { _, checked ->
+                glassStyle = checked
+                showStyle()
+                val name = if (checked) "liquidGlass" else "flat"
+                CYLSearchTagListStyle.applyBackgroundStyle(name, recentList)
+                CYLSearchTagListStyle.applyBackgroundStyle(name, discoverList)
+            }
+        }
+        val styleRow = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(16f), dp(8f), dp(16f), dp(8f))
+            addView(styleSwitch)
+            addView(styleText, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = dp(12f) })
+        }
         val lists = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             addView(recentList, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
             addView(discoverList, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
             // The playback row closes the page options: outside the bar, never between the bar and the lists.
             addView(playback)
+            addView(styleRow)
         }
         hintLabel = TextView(context).apply {
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f)

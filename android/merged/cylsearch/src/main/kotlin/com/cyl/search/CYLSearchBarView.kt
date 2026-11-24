@@ -665,13 +665,19 @@ class CYLSearchBarView @JvmOverloads constructor(
         item.handler?.invoke(item)
     }
 
+    private fun isNightMode(): Boolean =
+        (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+
     private fun applySearchBarStyle() {
         when (searchBarStyle) {
             CYLSearchBarStyle.Plain -> Unit
             CYLSearchBarStyle.Bordered -> {
-                fieldBorderColor = themeColor(android.R.attr.textColorHint)
+                // The iOS values: `.separator` border, `.systemBackground` fill (white in light mode, so the field stands out
+                // from an off-white page; the theme background in dark mode).
+                val dark = isNightMode()
+                fieldBorderColor = if (dark) BORDERED_BORDER_DARK else BORDERED_BORDER_LIGHT
                 fieldBorderWidth = 1f
-                fieldBackgroundColor = themeColor(android.R.attr.colorBackground)
+                fieldBackgroundColor = if (dark) themeColor(android.R.attr.colorBackground) else Color.WHITE
                 fieldCornerRadius = -1f
             }
         }
@@ -2349,6 +2355,9 @@ class CYLSearchBarView @JvmOverloads constructor(
     fun embedInToolbar(toolbar: androidx.appcompat.widget.Toolbar): androidx.appcompat.widget.Toolbar {
         (parent as? ViewGroup)?.removeView(this)
         embedsInToolbar = true
+        // A navigation bar slot is 44 dp: the 36 dp field plus 4 dp above and below, not the 6 dp of a free bar (the border of a
+        // taller bar was clipped top and bottom by the slot).
+        contentInsets = Rect(contentInsets.left, TOOLBAR_VERTICAL_INSET, contentInsets.right, TOOLBAR_VERTICAL_INSET)
         // The toolbar's own start / end content insets (16 dp) would add to this bar's contentInsets and move the capsule off the
         // 16 dp inset of the tag list: the bar carries the inset itself.
         toolbar.setContentInsetsRelative(0, 0)
@@ -2390,6 +2399,16 @@ class CYLSearchBarView @JvmOverloads constructor(
 
     companion object {
         private const val NO_SELECTION = -1
+
+        /**
+         * The toolbar's vertical content inset in dp: 36 dp field + 2 x 4 dp = the 44 dp slot of a navigation bar, so the field's
+         * border is not clipped by the slot (iOS `CYLSearchNavigationBar`).
+         */
+        internal const val TOOLBAR_VERTICAL_INSET = 4
+
+        /** iOS `.separator`, light and dark (`UIColor.separator`: 60,60,67 at 29%; 84,84,88 at 60%). */
+        internal val BORDERED_BORDER_LIGHT = Color.argb(74, 60, 60, 67)
+        internal val BORDERED_BORDER_DARK = Color.argb(153, 84, 84, 88)
         private const val SCOPE_BAR_HEIGHT = 36f
         private const val ITEM_PADDING = 12f
         private const val REMOVE_SIZE = 28f

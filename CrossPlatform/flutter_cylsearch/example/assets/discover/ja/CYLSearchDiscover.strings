@@ -20,3 +20,6 @@
 "discover.animationLoops" = "アニメーションをループ";
 "discover.animationSpeed" = "アニメーションの速度";
 "discover.animationPlay" = "もう一度再生";
+"discover.styleLabel" = "スタイル: %@";
+"discover.styleGlass" = "リキッドグラス";
+"discover.styleFlat" = "フラット";

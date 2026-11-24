@@ -27,6 +27,9 @@
     <string name="cyl_discover_animationLoops">Loop animation</string>
     <string name="cyl_discover_animationSpeed">Animation speed</string>
     <string name="cyl_discover_animationPlay">Play again</string>
+    <string name="cyl_discover_styleLabel">Style: %1$s</string>
+    <string name="cyl_discover_styleGlass">Liquid Glass</string>
+    <string name="cyl_discover_styleFlat">Flat</string>
     <!-- The SVGA demo above the Examples list (iOS CYLSearchTabs.strings "svga.demo", "svga.demo.hint"). -->
     <string name="svga_demo">SVGA animation: tap to play again</string>
     <string name="svga_demo_hint">Plays the SVGA animation again</string>

@@ -27,6 +27,9 @@
     <string name="cyl_discover_animationLoops">循環播放動畫</string>
     <string name="cyl_discover_animationSpeed">動畫速度</string>
     <string name="cyl_discover_animationPlay">再播放一次</string>
+    <string name="cyl_discover_styleLabel">樣式：%1$s</string>
+    <string name="cyl_discover_styleGlass">液態玻璃</string>
+    <string name="cyl_discover_styleFlat">扁平</string>
     <!-- The SVGA demo above the Examples list (iOS CYLSearchTabs.strings "svga.demo", "svga.demo.hint"). -->
     <string name="svga_demo">SVGA 動畫：點按再次播放</string>
     <string name="svga_demo_hint">再次播放 SVGA 動畫</string>

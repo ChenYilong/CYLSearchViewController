@@ -26,6 +26,12 @@ object CYLSearchTagListStyle {
     const val CAPSULE_CORNER_RADIUS: Float = 1000f
 
     /**
+     * The border of a flat tag: iOS `UIColor.separator` in light mode (60,60,67 at 29%), visible on a white tag over an off-white
+     * page; the earlier 16% black was not.
+     */
+    internal val BORDER_COLOR: Int = Color.argb(74, 60, 60, 67)
+
+    /**
      * The corner radius of every tag, in dp. The default `CAPSULE_CORNER_RADIUS` is a capsule, as in the iOS example's
      * recent searches; 0 is square corners; another value is a rounded rectangle.
      */
@@ -48,7 +54,7 @@ object CYLSearchTagListStyle {
         for (state in listOf(CYLControlState.NORMAL, CYLControlState.SELECTED, CYLControlState.DISABLED)) {
             style.appearanceForState(state).apply {
                 backgroundColor = Color.WHITE
-                borderColor = Color.argb(40, 0, 0, 0)
+                borderColor = BORDER_COLOR
                 borderWidth = 1f
                 cornerRadius = tagCornerRadius
                 margin = 14f
