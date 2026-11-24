@@ -94,6 +94,6 @@ test('the navigation bar measures the width left for the bar beside the back but
   assert.equal(plain.fieldWidth, 390 - 16 - 101);
   // Without a menu button rectangle both sides keep the 16 margin; a tiny window never goes negative.
   assert.equal(cylNavigationBarWidthsFrom(window, null, true).fieldWidth, 390 - 16 - 16 - CYL_NAVIGATION_BACK_WIDTH);
-  assert.equal(cylNavigationBarWidthsFrom({ windowWidth: 60 }, null, true).fieldWidth, 4);
+  assert.equal(cylNavigationBarWidthsFrom({ windowWidth: 80 }, null, true).fieldWidth, 8);
   assert.equal(cylNavigationBarWidthsFrom({ windowWidth: 30 }, null, true).fieldWidth, 0);
 });

@@ -84,7 +84,8 @@ class CYLSearchBarEmbedInToolbarTest {
         val arrowBar = CYLSearchBarView(activity)
         arrowBar.embedInToolbar(withArrow)
         layOut(withArrow, 1080)
-        assertEquals("after the back arrow the bar adds no inset of its own (iOS 72 pt: the toolbar keyline)", 0, (arrowBar.fieldView.parent as View).paddingStart)
+        assertEquals("after the back arrow the bar adds no inset of its own", 0, (arrowBar.fieldView.parent as View).paddingStart)
+        assertEquals("and the toolbar starts its content at 56 dp, not Material's 72 dp keyline", Math.round(56 * density), withArrow.contentInsetStartWithNavigation)
 
         val plain = Toolbar(activity)
         val plainBar = CYLSearchBarView(activity)

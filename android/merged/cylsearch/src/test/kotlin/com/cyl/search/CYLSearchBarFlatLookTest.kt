@@ -23,11 +23,11 @@ class CYLSearchBarFlatLookTest {
     }
 
     @Test
-    fun borderedFieldIsWhiteWithTheIosSeparatorBorder() {
+    fun borderedFieldIsWhiteWithTheVisibleSecondaryLabelBorder() {
         val bar = CYLSearchBarView(activity)
         bar.searchBarStyle = CYLSearchBarStyle.Bordered
         assertEquals(Color.WHITE, bar.fieldBackgroundColor)
-        assertEquals(Color.argb(74, 60, 60, 67), bar.fieldBorderColor)
+        assertEquals(Color.argb(153, 60, 60, 67), bar.fieldBorderColor) // iOS secondaryLabel (owner: darker on every platform), not the faint 29% separator
         assertEquals(1f, bar.fieldBorderWidth, 0f)
     }
 

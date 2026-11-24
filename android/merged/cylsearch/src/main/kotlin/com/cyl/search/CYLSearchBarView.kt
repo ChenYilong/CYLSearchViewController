@@ -671,7 +671,7 @@ class CYLSearchBarView @JvmOverloads constructor(
         when (searchBarStyle) {
             CYLSearchBarStyle.Plain -> Unit
             CYLSearchBarStyle.Bordered -> {
-                // The iOS values: `.separator` border, `.systemBackground` fill (white in light mode, so the field stands out
+                // The shared values: `.secondaryLabel` border (a visible line), `.systemBackground` fill (white in light mode, so the field stands out
                 // from an off-white page; the theme background in dark mode).
                 val dark = isNightMode()
                 fieldBorderColor = if (dark) BORDERED_BORDER_DARK else BORDERED_BORDER_LIGHT
@@ -2407,6 +2407,9 @@ class CYLSearchBarView @JvmOverloads constructor(
         // The toolbar's own start / end content insets (16 dp) would add to this bar's contentInsets and move the capsule off the
         // 16 dp inset of the tag list: the bar carries the inset itself.
         toolbar.setContentInsetsRelative(0, 0)
+        // After a back arrow the toolbar starts its content at 72 dp (Material's keyline), a gap of 36 dp to the arrow; the bar starts at
+        // EMBEDDED_BAR_START (56 dp on every platform: 12 after a 44 wide back button, iOS / HarmonyOS / mini program the same).
+        toolbar.contentInsetStartWithNavigation = (EMBEDDED_BAR_START * resources.displayMetrics.density).toInt()
         toolbar.addView(
             this,
             androidx.appcompat.widget.Toolbar.LayoutParams(
@@ -2452,9 +2455,12 @@ class CYLSearchBarView @JvmOverloads constructor(
          */
         internal const val TOOLBAR_VERTICAL_INSET = 4
 
-        /** iOS `.separator`, light and dark (`UIColor.separator`: 60,60,67 at 29%; 84,84,88 at 60%). */
-        internal val BORDERED_BORDER_LIGHT = Color.argb(74, 60, 60, 67)
-        internal val BORDERED_BORDER_DARK = Color.argb(153, 84, 84, 88)
+        /**
+         * The border of a bordered field, light and dark: iOS `UIColor.secondaryLabel` (60,60,67 at 60%; 235,235,245 at 60%), the same on every platform. The
+         * earlier `.separator` (60,60,67 at 29%) was a 1.3:1 line on the page and hard to see; this one is about 3:1.
+         */
+        internal val BORDERED_BORDER_LIGHT = Color.argb(153, 60, 60, 67)
+        internal val BORDERED_BORDER_DARK = Color.argb(153, 235, 235, 245)
         private const val SCOPE_BAR_HEIGHT = 36f
         private const val ITEM_PADDING = 12f
         private const val REMOVE_SIZE = 28f
@@ -2463,6 +2469,9 @@ class CYLSearchBarView @JvmOverloads constructor(
         private const val SPACING = 8f
         /** The inset of the tag list and its headers (16 dp, iOS 16 pt): the embedded bar's capsule edge sits on it where no back button is. */
         private const val EMBEDDED_TAG_INSET = 16f
+
+        /** Where the embedded bar starts after a back button, from the screen edge: 56 dp (iOS 56 pt, HarmonyOS 56 vp, mini program 56 px). */
+        private const val EMBEDDED_BAR_START = 56f
         private val DEFAULT_CONTENT_INSETS = Rect(12, 6, 12, 6)
         private const val DEFAULT_FIELD_COLOR = 0x1F767680
         private const val STATE_SUPER = "CYLSearchBarSuper"

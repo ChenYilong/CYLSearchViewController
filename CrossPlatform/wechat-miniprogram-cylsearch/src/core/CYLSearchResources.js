@@ -251,9 +251,10 @@ function cylNavigationMetricsFrom(window, menuButton) {
 }
 
 /**
- * The space a back button takes in the navigation bar (its 32 wide box, 10 pulled into the leading margin, 2 gap).
+ * The space a back button takes in the navigation bar (its 32 wide box, 10 pulled into the leading margin, 18 gap): the bar starts at 16 + 40 = 56, the same
+ * as on every platform.
  */
-const CYL_NAVIGATION_BACK_WIDTH = 24;
+const CYL_NAVIGATION_BACK_WIDTH = 40;
 
 /**
  * The widths in a navigation bar, from the window and menu button rectangles: the 16 leading margin, the trailing

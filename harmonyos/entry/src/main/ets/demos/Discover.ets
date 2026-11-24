@@ -217,7 +217,6 @@ export struct DiscoverView {
     bar.fieldCornerRadius = CYLAnimatedItemCornerRadiusCapsule;
     bar.fieldShadowOpacity = 0.06;
     bar.font = 16;
-    bar.fieldBorderColor = $r('sys.color.comp_divider');
     bar.fieldBorderWidth = 1;
     bar.itemTintColor = $r('sys.color.font_primary');
     const camera = CYLSearchBarItem.iconItem($r('sys.symbol.camera'), this.text('discover_imageSearch'),

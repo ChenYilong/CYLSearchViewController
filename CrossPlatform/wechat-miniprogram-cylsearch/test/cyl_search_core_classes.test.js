@@ -249,8 +249,8 @@ test('CYLSearchNavigationBar: the holding bar is set up, the back button calls t
   assert.equal(backs, 1);
   assert.equal(new CYLSearchNavigationBar().navigationBar(), false);
   const widths = bar.widths({ windowWidth: 400 }, null);
-  assert.equal(widths.back, 24);
-  assert.equal(widths.fieldWidth, 400 - 16 - 16 - 24);
+  assert.equal(widths.back, 40);
+  assert.equal(widths.fieldWidth, 400 - 16 - 16 - 40);
 });
 
 test('CYLSearchTagListStyle: the defaults, the customizer, the grid, the glass name and the refresh icon', () => {

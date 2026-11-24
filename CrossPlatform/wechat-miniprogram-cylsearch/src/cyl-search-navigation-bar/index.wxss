@@ -1,4 +1,4 @@
 .cyl-nav { display: flex; align-items: center; box-sizing: content-box; background: transparent; }
-.cyl-nav-back { flex: none; display: flex; align-items: center; justify-content: center; width: 32px; height: 44px; margin-left: -10px; margin-right: 2px; }
+.cyl-nav-back { flex: none; display: flex; align-items: center; justify-content: center; width: 32px; height: 44px; margin-left: -10px; margin-right: 18px; }
 .cyl-nav-back-icon { width: 20px; height: 20px; background-color: #007aff; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M15 4l-8 8 8 8'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M15 4l-8 8 8 8'/></svg>"); }
 .cyl-nav-content { flex: 1; min-width: 0; }

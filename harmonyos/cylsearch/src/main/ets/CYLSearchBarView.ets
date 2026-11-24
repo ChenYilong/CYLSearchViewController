@@ -1237,7 +1237,8 @@ export class CYLSearchBarView {
   set searchBarStyle(value: CYLSearchBarStyle) {
     this.style = value;
     if (value === CYLSearchBarStyle.bordered) {
-      this.fieldBorderColor = $r('sys.color.comp_divider');
+      // A visible line on every platform: the secondary text color (60% alpha, light and dark), iOS `.secondaryLabel`; the divider color was a faint 1.3:1 line.
+      this.fieldBorderColor = $r('sys.color.font_secondary');
       this.fieldBorderWidth = 1;
       this.fieldBackgroundColor = $r('sys.color.comp_background_primary');
       this.fieldCornerRadius = -1;
@@ -2472,6 +2473,11 @@ export const CYL_SEARCH_NAVIGATION_FIELD_HEIGHT: number = 36;
 export const CYL_SEARCH_NAVIGATION_BAR_HEIGHT: number = 56;
 
 /**
+ * Where the search bar starts after a back button, from the screen edge: 56 vp on every platform (12 after a 44 wide back button).
+ */
+export const CYL_SEARCH_NAVIGATION_BAR_START: number = 56;
+
+/**
  * The refresh button of a tag list header (iOS `CYLSearchTagListHeader.applyRefreshIcon(to:)`): the system refresh
  * symbol (`sys.symbol.arrow_clockwise`, `CYLSearchResources.imageNamed('refresh')`), never three dots or text,
  * labelled with the localized `tagList.refresh` (Refresh, 更新, 刷新, 重新整理) for screen readers.
@@ -2539,7 +2545,8 @@ export struct CYLSearchNavigationPage {
 
   @Builder
   titleBar() {
-    Row({ space: 2 }) {
+    // The back button sits at 6 vp, 32 wide; the space after it puts the bar at CYL_SEARCH_NAVIGATION_BAR_START.
+    Row({ space: this.showsBack ? CYL_SEARCH_NAVIGATION_BAR_START - 6 - 32 : 0 }) {
       if (this.showsBack) {
         SymbolGlyph(CYLSearchResources.imageNamed('back'))
           .fontSize(20)

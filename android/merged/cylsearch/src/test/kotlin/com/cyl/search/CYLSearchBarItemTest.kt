@@ -155,6 +155,8 @@ class CYLSearchBarItemTest {
         bar.searchBarStyle = CYLSearchBarStyle.Bordered
         assertEquals(1f, bar.fieldBorderWidth)
         assertTrue(bar.fieldBorderColor != null)
+        // A visible line, not the faint separator: 60% alpha of the secondary label color (light mode here), about 3:1 on the page.
+        assertEquals(153, Color.alpha(bar.fieldBorderColor!!))
         bar.removeItem(divider)
         assertEquals(listOf(camera, search), bar.items)
         assertNull(divider.searchBarView)
