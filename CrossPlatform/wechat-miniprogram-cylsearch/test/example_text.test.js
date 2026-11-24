@@ -1,7 +1,7 @@
 // The example's texts follow the iOS bundles: same keys, same formats, same languages.
 const test = require('node:test');
 const assert = require('node:assert');
-const { cylDemoText, cylDemoLanguage, cylFormat, cylDiscoverData, cylSetDemoLanguage } = require('../example/miniprogram/utils/cyl_demo_text');
+const { cylDemoText, cylDemoLanguage, cylFormat, cylDiscoverData, cylSetDemoLanguage, cylAllDiscoverData } = require('../example/miniprogram/utils/cyl_demo_text');
 const resources = require('../example/miniprogram/utils/cyl_demo_resources');
 
 test('WeChat languages map to the iOS localizations', () => {
@@ -36,7 +36,7 @@ test('the discover data has the same topics in every language', () => {
   cylSetDemoLanguage('en');
   assert.strictEqual(cylDiscoverData().discoverCount, 6);
   for (const language of resources.languages) {
-    assert.strictEqual(resources.discover[language].discover.length, resources.discover.en.discover.length, language);
+    assert.strictEqual(cylAllDiscoverData[language].discover.length, cylAllDiscoverData.en.discover.length, language);
   }
   cylSetDemoLanguage('');
 });

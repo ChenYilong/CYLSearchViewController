@@ -1,0 +1,64 @@
+<view class="screen">
+  <!-- The core's navigation bar holds the search bar (status bar, menu button and back button handled by it). -->
+  <cyl-search-navigation-bar showsBack="{{showsBack}}" bind:back="onBack">
+    <cyl-search-bar generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
+      id="bar" class="bar" value="{{query}}" placeholder="{{placeholder}}" showsSearchIcon="{{false}}" contentInsets="0"
+      fieldHeight="{{fieldHeight}}" fieldCornerRadius="{{fieldHeight / 2}}" fieldShadowOpacity="{{0.06}}" fieldBorderColor="#c6c6c8" fieldBorderWidth="{{1}}"
+      fieldBackgroundColor="#ffffff" searchBarStyle="bordered" fontSize="{{16}}" items="{{items}}"
+      bind:textchange="onTextChange" bind:submit="onSubmit" bind:itemselect="onItemSelect" />
+  </cyl-search-navigation-bar>
+  <!-- Playback of the animated bar item: loop switch, speed slider with its value, Play again. -->
+  <view class="playback">
+    <switch class="playback-switch" checked="{{loops}}" bindchange="onLoopsChange" aria-role="switch" aria-label="{{texts.animationLoops}}" />
+    <slider class="playback-slider" min="{{0.25}}" max="{{3}}" step="{{0.25}}" value="{{speed}}" block-size="{{18}}"
+      bindchanging="onSpeedChanging" bindchange="onSpeedChange" aria-role="slider" aria-label="{{texts.animationSpeed}} {{speedText}}" />
+    <text class="playback-value" aria-hidden="true">{{speedText}}</text>
+    <view class="playback-play" role="button" aria-label="{{texts.animationPlay}}" bindtap="onPlayAgain">{{texts.animationPlay}}</view>
+  </view>
+
+  <scroll-view scroll-y class="content">
+    <!-- Recent searches: square-cornered bordered tags, folded to two rows, the chevron as the last tag. -->
+    <view wx:if="{{recent.length}}" class="section">
+      <view class="header">
+        <text class="header-title" role="heading">{{texts.recent}}</text>
+        <view class="header-button" role="button" aria-label="{{texts.clear}}" bindtap="clearRecentSearches"><view class="icon icon-trash" aria-hidden="true" /></view>
+      </view>
+      <view class="tags">
+        <view wx:for="{{visibleRecent}}" wx:key="*this" class="tag" role="button" aria-label="{{item}}" aria-description="{{texts.tapToSearch}}" data-index="{{index}}" bindtap="onRecentTap">{{item}}</view>
+        <view wx:if="{{needsFold}}" class="tag tag-chevron" role="button" aria-label="{{folded ? foldLabels[0] : foldLabels[1]}}" bindtap="onToggleFold">
+          <view class="icon icon-chevron {{folded ? '' : 'icon-chevron-up'}}" aria-hidden="true" />
+        </view>
+      </view>
+      <!-- Measures every tag on one line, out of sight, to fold the list. -->
+      <view class="measure" aria-hidden="true">
+        <view wx:for="{{recent}}" wx:key="*this" class="tag measure-tag">{{item}}</view>
+        <view class="tag tag-chevron measure-chevron"><view class="icon icon-chevron" /></view>
+      </view>
+    </view>
+    <!-- Discover: two titles per row, a hot icon after a hot title, the core's refresh button showing the next page. -->
+    <view class="section">
+      <view class="header">
+        <text class="header-title" role="heading">{{texts.title}}</text>
+        <cyl-search-refresh-button bind:tap="refreshDiscover" />
+      </view>
+      <view class="grid">
+        <view wx:for="{{topics}}" wx:key="title" class="topic" role="button" aria-label="{{item.title}}{{item.icon === 'hot' ? ', ' + texts.hot : ''}}"
+          aria-description="{{texts.tapToSearch}}" data-index="{{index}}" bindtap="onTopicTap">
+          <text class="topic-title">{{item.title}}</text>
+          <image wx:if="{{item.icon === 'hot'}}" class="hot" src="{{hotIcon}}" mode="heightFix" aria-hidden="true" />
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- Hold to ask: the hint over the mic button on a light curved area. -->
+  <view class="ask">
+    <view class="ask-curve" aria-hidden="true" />
+    <view class="hint" aria-label="{{hint}}">{{hint}} ✨</view>
+    <view class="mic" role="button" aria-label="{{texts.ask}}" aria-description="{{texts.askHint}}" id="CYLSearchDiscoverMicButton"
+      bindtap="onMicTap" bindlongpress="onHoldStart" bindtouchend="onHoldEnd" bindtouchcancel="onHoldEnd">
+      <view class="icon icon-mic" aria-hidden="true" />
+    </view>
+  </view>
+  <view class="sr-only" aria-live="polite">{{announcement}}</view>
+</view>

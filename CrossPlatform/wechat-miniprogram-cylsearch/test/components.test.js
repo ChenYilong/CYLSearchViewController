@@ -44,7 +44,7 @@ function load(name) {
       const observer = definition.properties[key].observer;
       if (observer) instance[observer](value);
     };
-    definition.lifetimes.created.call(instance);
+    if (definition.lifetimes.created) definition.lifetimes.created.call(instance);
     definition.lifetimes.attached.call(instance);
     return instance;
   };
@@ -292,4 +292,38 @@ test('cyl-search: tags are the default suggestion style: CollectionViewClassifyM
   const list = load('cyl-search')({ suggestions: ['A'], suggestionStyle: 'list' });
   assert.equal(list.properties.suggestionStyle, 'list', 'the list stays available');
   assert.equal(list.data.tagConfiguration, null);
+});
+
+test('cyl-search-refresh-button shows the built-in icon, reads the localized label and sends tap', () => {
+  const button = load('cyl-search-refresh-button')();
+  assert.equal(button.data.icon, '../images/refresh.svg');
+  assert.equal(button.data.text, 'Refresh');
+  button.onTap();
+  assert.deepEqual(names(button), ['tap']);
+  assert.equal(load('cyl-search-refresh-button')({ label: 'Reload' }).data.text, 'Reload');
+});
+
+test('cyl-search-navigation-bar sits below the status bar and ends before the menu button', () => {
+  global.wx.getWindowInfo = () => ({ statusBarHeight: 44, windowWidth: 390 });
+  global.wx.getMenuButtonBoundingClientRect = () => ({ top: 48, height: 32, left: 296, right: 383 });
+  try {
+    const bar = load('cyl-search-navigation-bar')({ showsBack: true });
+    assert.equal(bar.data.metrics.navigationBarHeight, 40);
+    assert.equal(bar.data.metrics.fieldHeight, 36);
+    // 44 pt status bar, 16 pt leading margin, the trailing side clears the capsule (101 pt), the bar is 40 pt high.
+    assert.equal(bar.data.barStyle, 'padding: 44px 101px 0 16px; height: 40px;');
+    assert.equal(bar.data.back, 'Back');
+    let navigatedBack = 0;
+    global.wx.navigateBack = () => { navigatedBack += 1; };
+    bar.onBack();
+    assert.deepEqual(names(bar), ['back']);
+    assert.equal(navigatedBack, 1, 'the back arrow goes back by itself');
+    bar.properties.autoBack = false;
+    bar.onBack();
+    assert.equal(navigatedBack, 1, 'autoBack false leaves it to the page');
+  } finally {
+    delete global.wx.navigateBack;
+    delete global.wx.getWindowInfo;
+    delete global.wx.getMenuButtonBoundingClientRect;
+  }
 });

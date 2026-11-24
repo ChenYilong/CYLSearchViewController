@@ -107,7 +107,9 @@ function callComponent(mp, selectors, method, args) {
       await shot(name);
     }
 
-    page = await mp.switchTab('/pages/discover/index');
+    await mp.switchTab('/pages/discover/index');
+    // The entry page opens the Discover page by itself the first time; open it again when it was closed.
+    page = await mp.navigateTo('/pages/discoverSearch/index');
     await page.waitFor(1500);
     await shot('14-discover-tab');
     await page.callMethod('search', ['Pomodoro technique']);

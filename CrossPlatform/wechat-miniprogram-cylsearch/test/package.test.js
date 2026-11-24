@@ -30,9 +30,9 @@ test('the entry exports the three core modules with the iOS names', () => {
   }
 });
 
-test('src has two components and three core modules', () => {
+test('src has four components (search bar, search, refresh button, navigation bar) and three core modules', () => {
   const components = fs.readdirSync(src).filter((name) => fs.existsSync(path.join(src, name, 'index.json')));
-  assert.deepStrictEqual(components.sort(), ['cyl-search', 'cyl-search-bar']);
+  assert.deepStrictEqual(components.sort(), ['cyl-search', 'cyl-search-bar', 'cyl-search-navigation-bar', 'cyl-search-refresh-button']);
   assert.deepStrictEqual(fs.readdirSync(path.join(src, 'core')).sort(), ['CYLSearchBarView.js', 'CYLSearchResources.js', 'CYLSearchView.js']);
   for (const name of components) {
     for (const extension of ['js', 'json', 'wxml', 'wxss']) assert.ok(fs.existsSync(path.join(src, name, `index.${extension}`)), `${name}.${extension}`);

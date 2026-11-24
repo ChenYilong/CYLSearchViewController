@@ -5,6 +5,7 @@
     "pages/plus/index",
     "pages/tagStyle/index",
     "pages/discover/index",
+    "pages/discoverSearch/index",
     "pages/reproduction/index",
     "pages/styles/index",
     "pages/placeholderDetail/index",

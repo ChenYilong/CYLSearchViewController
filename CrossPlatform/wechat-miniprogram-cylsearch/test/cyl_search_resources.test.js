@@ -64,3 +64,19 @@ test('the cache keeps at most maximumCount queries, separates names and shares t
   storage.values.CYLSearchSuggestions_old = '["kept"]';
   assert.deepEqual(cylSuggestionCache(CYLSearchSuggestionCachePolicy.database, 'old', storage).cachedQueries(), ['kept']);
 });
+
+test('the refresh icon and its label tagList.refresh are built into the core in four languages', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const labels = { en: 'Refresh', ja: '更新', 'zh-Hans': '刷新', 'zh-Hant': '重新整理' };
+  for (const [language, label] of Object.entries(labels)) {
+    assert.equal(CYLSearchResources.localizedString(null, 'tagList.refresh', language), label, language);
+  }
+  assert.equal(CYLSearchResources.imageNamed('refresh'), '../images/refresh.svg');
+  assert.ok(fs.existsSync(path.join(__dirname, '..', 'src', 'images', 'refresh.svg')), 'the SVG lives in the core package');
+});
+
+test('the field embedded in the navigation bar is 36 high, with or without a menu button', () => {
+  assert.equal(cylNavigationMetricsFrom(null, null).fieldHeight, 36);
+  assert.equal(cylNavigationMetricsFrom({ statusBarHeight: 44, windowWidth: 390 }, { top: 48, height: 32, left: 296, right: 383 }).fieldHeight, 36);
+});

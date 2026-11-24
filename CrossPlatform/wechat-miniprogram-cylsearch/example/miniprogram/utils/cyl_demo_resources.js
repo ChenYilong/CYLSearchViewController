@@ -92,6 +92,7 @@ module.exports = {
    "demo.collectionView": "Collection view",
    "issue.row": "Row %d",
    "issue.item": "Item %d",
+   "tagList.refresh": "Refresh",
    "tab.search": "Search",
    "tab.examples": "Examples",
    "tab.searchBar": "Search bar",
@@ -125,7 +126,6 @@ module.exports = {
    "discover.ok": "OK",
    "discover.holdMic": "Hold the mic button and say your question",
    "discover.hot": "Hot",
-   "discover.animationItem": "Animation",
    "discover.animationLoops": "Loop animation",
    "discover.animationSpeed": "Animation speed",
    "discover.animationPlay": "Play again",
@@ -252,6 +252,7 @@ module.exports = {
    "demo.collectionView": "コレクションビュー",
    "issue.row": "行 %d",
    "issue.item": "項目 %d",
+   "tagList.refresh": "更新",
    "tab.search": "検索",
    "tab.examples": "サンプル",
    "tab.searchBar": "検索バー",
@@ -285,7 +286,6 @@ module.exports = {
    "discover.ok": "OK",
    "discover.holdMic": "マイクボタンを長押しして質問を話してください",
    "discover.hot": "人気",
-   "discover.animationItem": "アニメーション",
    "discover.animationLoops": "アニメーションをループ",
    "discover.animationSpeed": "アニメーションの速度",
    "discover.animationPlay": "もう一度再生",
@@ -412,6 +412,7 @@ module.exports = {
    "demo.collectionView": "集合视图",
    "issue.row": "第 %d 行",
    "issue.item": "项目 %d",
+   "tagList.refresh": "刷新",
    "tab.search": "搜索",
    "tab.examples": "示例",
    "tab.searchBar": "搜索栏",
@@ -445,7 +446,6 @@ module.exports = {
    "discover.ok": "好",
    "discover.holdMic": "请按住麦克风按钮说出问题",
    "discover.hot": "热门",
-   "discover.animationItem": "动画",
    "discover.animationLoops": "循环播放动画",
    "discover.animationSpeed": "动画速度",
    "discover.animationPlay": "再播放一次",
@@ -572,6 +572,7 @@ module.exports = {
    "demo.collectionView": "集合檢視",
    "issue.row": "第 %d 列",
    "issue.item": "項目 %d",
+   "tagList.refresh": "重新整理",
    "tab.search": "搜尋",
    "tab.examples": "範例",
    "tab.searchBar": "搜尋列",
@@ -605,7 +606,6 @@ module.exports = {
    "discover.ok": "好",
    "discover.holdMic": "請按住麥克風按鈕說出問題",
    "discover.hot": "熱門",
-   "discover.animationItem": "動畫",
    "discover.animationLoops": "循環播放動畫",
    "discover.animationSpeed": "動畫速度",
    "discover.animationPlay": "再播放一次",
@@ -647,384 +647,6 @@ module.exports = {
    "contactTags.downloaded": "標籤已更新",
    "contactTags.otherDeviceTags": "瑜伽,咖啡,騎行,桌遊,志願者,家長,創業,導師",
    "contactTags.add": "新增"
-  }
- },
- "discover": {
-  "en": {
-   "version": 1,
-   "discoverCount": 6,
-   "recentSearches": [
-    "Swift concurrency",
-    "SwiftUI animations",
-    "Adapting to iOS 26 Liquid Glass",
-    "Tag cloud layout",
-    "What's new in Xcode 27",
-    "Private CocoaPods specs",
-    "Fold menu interaction design",
-    "VoiceOver test checklist",
-    "Dark mode colors",
-    "Why can't I sleep when I go to bed early"
-   ],
-   "discover": [
-    {
-     "title": "Spring camping gear checklist",
-     "icon": "hot"
-    },
-    {
-     "title": "Full guide: turn an old phone into a home server"
-    },
-    {
-     "title": "Pour-over coffee basics"
-    },
-    {
-     "title": "Pomodoro technique"
-    },
-    {
-     "title": "Low-sugar breakfast ideas"
-    },
-    {
-     "title": "Weekend road trip routes"
-    },
-    {
-     "title": "City cycling routes",
-     "icon": "hot"
-    },
-    {
-     "title": "Contributing to open source"
-    },
-    {
-     "title": "Minimal desk setup"
-    },
-    {
-     "title": "Indoor workouts for rainy days"
-    },
-    {
-     "title": "Film camera basics"
-    },
-    {
-     "title": "Switching your cat's food"
-    },
-    {
-     "title": "Homemade yogurt"
-    },
-    {
-     "title": "Reading notes you won't forget",
-     "icon": "hot"
-    },
-    {
-     "title": "Balcony vegetable garden"
-    },
-    {
-     "title": "Beginner fishing gear"
-    },
-    {
-     "title": "Saving money on train trips"
-    },
-    {
-     "title": "Coding for kids"
-    },
-    {
-     "title": "Night city photography settings"
-    },
-    {
-     "title": "Home storage tips"
-    },
-    {
-     "title": "Air fryer recipes",
-     "icon": "hot"
-    },
-    {
-     "title": "Training plan for a first half marathon"
-    },
-    {
-     "title": "Designers' favorite palettes"
-    },
-    {
-     "title": "Hiking safety essentials"
-    }
-   ]
-  },
-  "ja": {
-   "version": 1,
-   "discoverCount": 6,
-   "recentSearches": [
-    "Swift concurrency",
-    "SwiftUI animations",
-    "Adapting to iOS 26 Liquid Glass",
-    "Tag cloud layout",
-    "What's new in Xcode 27",
-    "Private CocoaPods specs",
-    "Fold menu interaction design",
-    "VoiceOver test checklist",
-    "Dark mode colors",
-    "Why can't I sleep when I go to bed early"
-   ],
-   "discover": [
-    {
-     "title": "Spring camping gear checklist",
-     "icon": "hot"
-    },
-    {
-     "title": "Full guide: turn an old phone into a home server"
-    },
-    {
-     "title": "Pour-over coffee basics"
-    },
-    {
-     "title": "Pomodoro technique"
-    },
-    {
-     "title": "Low-sugar breakfast ideas"
-    },
-    {
-     "title": "Weekend road trip routes"
-    },
-    {
-     "title": "City cycling routes",
-     "icon": "hot"
-    },
-    {
-     "title": "Contributing to open source"
-    },
-    {
-     "title": "Minimal desk setup"
-    },
-    {
-     "title": "Indoor workouts for rainy days"
-    },
-    {
-     "title": "Film camera basics"
-    },
-    {
-     "title": "Switching your cat's food"
-    },
-    {
-     "title": "Homemade yogurt"
-    },
-    {
-     "title": "Reading notes you won't forget",
-     "icon": "hot"
-    },
-    {
-     "title": "Balcony vegetable garden"
-    },
-    {
-     "title": "Beginner fishing gear"
-    },
-    {
-     "title": "Saving money on train trips"
-    },
-    {
-     "title": "Coding for kids"
-    },
-    {
-     "title": "Night city photography settings"
-    },
-    {
-     "title": "Home storage tips"
-    },
-    {
-     "title": "Air fryer recipes",
-     "icon": "hot"
-    },
-    {
-     "title": "Training plan for a first half marathon"
-    },
-    {
-     "title": "Designers' favorite palettes"
-    },
-    {
-     "title": "Hiking safety essentials"
-    }
-   ]
-  },
-  "zh-Hans": {
-   "version": 1,
-   "discoverCount": 6,
-   "recentSearches": [
-    "swift 并发",
-    "SwiftUI 动画",
-    "iOS 26 液态玻璃适配",
-    "标签云布局",
-    "Xcode 27 新功能",
-    "CocoaPods 私有库",
-    "折叠菜单交互设计",
-    "VoiceOver 测试清单",
-    "暗黑模式配色",
-    "为什么越想早睡越睡不着"
-   ],
-   "discover": [
-    {
-     "title": "春季露营装备清单",
-     "icon": "hot"
-    },
-    {
-     "title": "旧手机改造成家庭服务器的完整教程"
-    },
-    {
-     "title": "手冲咖啡入门"
-    },
-    {
-     "title": "番茄工作法"
-    },
-    {
-     "title": "低糖早餐做法"
-    },
-    {
-     "title": "周末短途自驾路线"
-    },
-    {
-     "title": "城市骑行路线推荐",
-     "icon": "hot"
-    },
-    {
-     "title": "开源项目贡献指南"
-    },
-    {
-     "title": "极简桌面布置"
-    },
-    {
-     "title": "雨天室内运动"
-    },
-    {
-     "title": "胶片相机入门"
-    },
-    {
-     "title": "猫咪换粮指南"
-    },
-    {
-     "title": "自制酸奶"
-    },
-    {
-     "title": "读书笔记怎么做才不会忘",
-     "icon": "hot"
-    },
-    {
-     "title": "阳台种菜"
-    },
-    {
-     "title": "新手钓鱼装备"
-    },
-    {
-     "title": "高铁出行省钱技巧"
-    },
-    {
-     "title": "儿童编程启蒙"
-    },
-    {
-     "title": "城市夜景拍摄参数"
-    },
-    {
-     "title": "居家收纳技巧"
-    },
-    {
-     "title": "空气炸锅食谱",
-     "icon": "hot"
-    },
-    {
-     "title": "第一次跑半程马拉松的训练计划"
-    },
-    {
-     "title": "设计师常用配色"
-    },
-    {
-     "title": "徒步登山安全须知"
-    }
-   ]
-  },
-  "zh-Hant": {
-   "version": 1,
-   "discoverCount": 6,
-   "recentSearches": [
-    "swift 並行",
-    "SwiftUI 動畫",
-    "iOS 26 液態玻璃適配",
-    "標籤雲版面",
-    "Xcode 27 新功能",
-    "CocoaPods 私有庫",
-    "摺疊選單互動設計",
-    "VoiceOver 測試清單",
-    "深色模式配色",
-    "為什麼越想早睡越睡不著"
-   ],
-   "discover": [
-    {
-     "title": "春季露營裝備清單",
-     "icon": "hot"
-    },
-    {
-     "title": "舊手機改造成家庭伺服器的完整教學"
-    },
-    {
-     "title": "手沖咖啡入門"
-    },
-    {
-     "title": "番茄工作法"
-    },
-    {
-     "title": "低糖早餐做法"
-    },
-    {
-     "title": "週末短途自駕路線"
-    },
-    {
-     "title": "城市騎行路線推薦",
-     "icon": "hot"
-    },
-    {
-     "title": "開源專案貢獻指南"
-    },
-    {
-     "title": "極簡桌面布置"
-    },
-    {
-     "title": "雨天室內運動"
-    },
-    {
-     "title": "底片相機入門"
-    },
-    {
-     "title": "貓咪換糧指南"
-    },
-    {
-     "title": "自製優格"
-    },
-    {
-     "title": "讀書筆記怎麼做才不會忘",
-     "icon": "hot"
-    },
-    {
-     "title": "陽台種菜"
-    },
-    {
-     "title": "新手釣魚裝備"
-    },
-    {
-     "title": "高鐵出行省錢技巧"
-    },
-    {
-     "title": "兒童程式啟蒙"
-    },
-    {
-     "title": "城市夜景拍攝參數"
-    },
-    {
-     "title": "居家收納技巧"
-    },
-    {
-     "title": "氣炸鍋食譜",
-     "icon": "hot"
-    },
-    {
-     "title": "第一次跑半程馬拉松的訓練計畫"
-    },
-    {
-     "title": "設計師常用配色"
-    },
-    {
-     "title": "登山健行安全須知"
-    }
-   ]
   }
  },
  "contactTags": {

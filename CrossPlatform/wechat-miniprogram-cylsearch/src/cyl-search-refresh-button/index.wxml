@@ -1,0 +1,4 @@
+<!-- The refresh icon of a tag list header; the label is read by screen readers. -->
+<view class="cyl-refresh-button" role="button" aria-label="{{text}}" bindtap="onTap">
+  <image class="cyl-refresh-icon" src="{{icon}}" mode="aspectFit" aria-hidden="true" />
+</view>

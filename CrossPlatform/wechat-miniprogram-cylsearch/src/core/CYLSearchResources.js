@@ -28,7 +28,8 @@ const STRINGS = {
   "cyl_search_submit": "Search",
   "cyl_search_suggestions": "Suggestions",
   "cyl_search_title": "Search",
-  "cyl_search_voice": "Voice search"
+  "cyl_search_voice": "Voice search",
+  "cyl_tagList_refresh": "Refresh"
  },
  "ja": {
   "cyl_multisearch_add": "新しい検索",
@@ -49,7 +50,8 @@ const STRINGS = {
   "cyl_search_submit": "検索",
   "cyl_search_suggestions": "候補",
   "cyl_search_title": "検索",
-  "cyl_search_voice": "音声検索"
+  "cyl_search_voice": "音声検索",
+  "cyl_tagList_refresh": "更新"
  },
  "zh-Hans": {
   "cyl_multisearch_add": "新建搜索",
@@ -70,7 +72,8 @@ const STRINGS = {
   "cyl_search_submit": "搜索",
   "cyl_search_suggestions": "搜索建议",
   "cyl_search_title": "搜索",
-  "cyl_search_voice": "语音搜索"
+  "cyl_search_voice": "语音搜索",
+  "cyl_tagList_refresh": "刷新"
  },
  "zh-Hant": {
   "cyl_multisearch_add": "新增搜尋",
@@ -91,7 +94,8 @@ const STRINGS = {
   "cyl_search_submit": "搜尋",
   "cyl_search_suggestions": "搜尋建議",
   "cyl_search_title": "搜尋",
-  "cyl_search_voice": "語音搜尋"
+  "cyl_search_voice": "語音搜尋",
+  "cyl_tagList_refresh": "重新整理"
  }
 };
 
@@ -100,7 +104,7 @@ const STRINGS = {
  */
 class CYLSearchResources {
   /**
-   * The path of a bundled image ("camera", "mic", "search", "back", "clear", "submit", "trash"), or undefined
+   * The path of a bundled image ("camera", "mic", "search", "back", "clear", "submit", "trash", "refresh"), or undefined
    * (iOS `+imageNamed:`), relative to a component folder of this package.
    */
   static imageNamed(name) {
@@ -158,7 +162,7 @@ CYLSearchResources.imageRoot = '../images';
 /**
  * The names `imageNamed` knows.
  */
-CYLSearchResources.imageNames = ['camera', 'mic', 'search', 'back', 'clear', 'submit', 'trash'];
+CYLSearchResources.imageNames = ['camera', 'mic', 'search', 'back', 'clear', 'submit', 'trash', 'refresh'];
 
 /**
  * Fills the formats of the core's strings: %@, %d, %ld, %lu, %s and the positional %1$d / %1$lu.
@@ -194,6 +198,12 @@ function $r(reference) {
 }
 
 /**
+ * The height of the search field embedded in a navigation bar (docs/animated-icon-component.md, "The search bar is
+ * always in a navigation bar"): a standard bar is 44 pt, the field 36.
+ */
+const CYL_NAVIGATION_FIELD_HEIGHT = 36;
+
+/**
  * Where a bar that takes the navigation bar's place goes on a "navigationStyle": "custom" page, from the window and
  * menu button rectangles: below the status bar, as high as the navigation bar, clear of WeChat's menu button.
  */
@@ -201,14 +211,14 @@ function cylNavigationMetricsFrom(window, menuButton) {
   const statusBarHeight = (window && window.statusBarHeight) || 20;
   const windowWidth = (window && window.windowWidth) || 375;
   if (!menuButton || !menuButton.height) {
-    return { statusBarHeight, navigationBarHeight: 44, trailingInset: 0, windowWidth, top: statusBarHeight };
+    return { statusBarHeight, navigationBarHeight: 44, trailingInset: 0, windowWidth, top: statusBarHeight, fieldHeight: CYL_NAVIGATION_FIELD_HEIGHT };
   }
   // The navigation bar is centered on the menu button, with the same gap above and below it.
   const gap = Math.max(0, menuButton.top - statusBarHeight);
   const navigationBarHeight = menuButton.height + gap * 2;
   // The bar ends where the menu button starts, with the same margin the menu button keeps from the screen edge.
   const trailingInset = Math.max(0, windowWidth - menuButton.left) + Math.max(0, windowWidth - menuButton.right);
-  return { statusBarHeight, navigationBarHeight, trailingInset, windowWidth, top: statusBarHeight };
+  return { statusBarHeight, navigationBarHeight, trailingInset, windowWidth, top: statusBarHeight, fieldHeight: CYL_NAVIGATION_FIELD_HEIGHT };
 }
 
 /**
@@ -400,6 +410,7 @@ module.exports = {
   cylFormatString,
   cylNavigationMetrics,
   cylNavigationMetricsFrom,
+  CYL_NAVIGATION_FIELD_HEIGHT,
   $r,
   Curve,
   animateTo,
