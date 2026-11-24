@@ -190,6 +190,18 @@ function cylSearchHeaderSettleOffset(offset: number, headerHeight: number): numb
   return offset >= headerHeight / 2 ? headerHeight : 0;
 }
 
+/**
+ * The title of the header over the results (iOS `resultsHeaderTitleProvider`): what the provider answers for the query
+ * while results show; undefined (no header) when no results show, there is no provider, or it answers undefined.
+ */
+function cylSearchResultsHeaderTitle(showsResults: boolean, provider: ((query: string) => string | undefined) | undefined,
+  query: string): string | undefined {
+  if (!showsResults || provider === undefined) {
+    return undefined;
+  }
+  return provider(query);
+}
+
 // MARK: - Pure logic (end)
 
 /**
@@ -469,6 +481,19 @@ export class CYLSearchEmptyView {
   }
 
   /**
+   * Shows the empty view with one of CYLTableViewPlaceHolder's scenarios (iOS `CYLSearchEmptyView.scenario`).
+   */
+  showScenario(scenario: CYLPlaceholderScenario): void {
+    this.text = '';
+    this.detailText = undefined;
+    this.buttonTitle = undefined;
+    this.buttonAction = undefined;
+    this.placeholder = CYLPlaceholderStackViewModel.initWithScenario(scenario);
+    this.revision += 1;
+    this.isShowing = true;
+  }
+
+  /**
    * The one place that builds the placeholder of an empty view with texts of your own (iOS `CYLSearchEmptyView.message`):
    * the bundled "no results" animation with `text` as its title, a hint with `detailText`, and an outlined button that
    * calls `buttonAction`.
@@ -656,6 +681,23 @@ export class CYLSearchView {
    * and hides the empty view itself.
    */
   @Trace noResultsText: string | undefined = undefined;
+  /**
+   * Titles the results: while results show, a header above the first row says what this closure returns for the query
+   * (a footnote in `resultsHeaderTextColor`, read as a header by screen readers); undefined from the closure, or no
+   * closure (the default), shows none (iOS `resultsHeaderTitleProvider`).
+   */
+  @Trace resultsHeaderTitleProvider: ((query: string) => string | undefined) | undefined = undefined;
+  /**
+   * The color of the results header text; undefined (the default) is the secondary font color (iOS
+   * `resultsHeaderTextColor`).
+   */
+  @Trace resultsHeaderTextColor: ResourceColor | undefined = undefined;
+  /**
+   * A text button under the cached queries and the suggestions of the list style that clears the cache, with this title.
+   * Undefined (the default) shows none; with it, set `showsSuggestionCacheHeader` to false to have the text button
+   * instead of the trash icon (iOS `suggestionCacheFooterTitle`).
+   */
+  @Trace suggestionCacheFooterTitle: ResourceStr | undefined = undefined;
   /**
    * Draws the first match of the query in each result row in `resultMatchHighlightColor`, ignoring case and accents
    * (iOS `highlightsResultMatches`). False by default. Rows of `resultCellConfiguration` are yours to draw.
@@ -985,6 +1027,24 @@ export class CYLSearchView {
   }
 
   /**
+   * The title of the header over the results now (`resultsHeaderTitleProvider`), or undefined for none.
+   */
+  get resultsHeaderTitle(): string | undefined {
+    return cylSearchResultsHeaderTitle(this.showsResults, this.resultsHeaderTitleProvider, this.query);
+  }
+
+  /**
+   * Keeps the bar of `table`, a search bar that is the header of a list, scrollable out of sight above a short list and
+   * settles it fully shown or fully hidden when scrolling stops, while this search view is not open (what
+   * `CYLSearchController.snapsHeaderSearchBar` does for its bar, issues 1160 and 1207; iOS `setSnapsHeader(_:for:in:)`).
+   * `snaps` false takes the settling away. A list keeps one such handling, which a second call updates.
+   */
+  setSnapsHeader(snaps: boolean, table: CYLSearchTableView): void {
+    table.snapsHeaderSearchBar = snaps;
+    table.snapsOwner = this;
+  }
+
+  /**
    * Called when the results list is pulled down (iOS `refreshHandler`): set, it adds CYLTableViewPlaceHolder's pull to
    * refresh (its normal header) to the results; undefined removes it. Call `endRefreshing()` on every completion path.
    */
@@ -1050,6 +1110,17 @@ export class CYLSearchView {
       return;
     }
     this.emptyView.show(text, detailText, buttonTitle, buttonAction);
+  }
+
+  /**
+   * Shows one of CYLTableViewPlaceHolder's scenarios as the empty view in the results (iOS `showEmptyView(scenario:)`).
+   * Nothing is shown while the query is empty.
+   */
+  showEmptyViewScenario(scenario: CYLPlaceholderScenario): void {
+    if (this.query.trim().length === 0) {
+      return;
+    }
+    this.emptyView.showScenario(scenario);
   }
 
   /**
@@ -1689,6 +1760,25 @@ export struct CYLSearchComponent {
           }
         }
       }, (suggestion: string, index: number) => `${index}-${suggestion}`)
+      if (this.searchView.suggestionCacheFooterTitle !== undefined) {
+        ListItem() {
+          Row() {
+            Button(this.searchView.suggestionCacheFooterTitle, { type: ButtonType.Normal, stateEffect: true })
+              .id('CYLSearchSuggestionCacheFooterButton')
+              .fontSize(13)
+              .fontColor($r('sys.color.font_primary'))
+              .backgroundColor(Color.Transparent)
+              .border({ width: 1, color: $r('sys.color.comp_divider'), radius: 4 })
+              .padding({ left: 24, right: 24, top: 6, bottom: 6 })
+              .onClick(() => {
+                this.searchView.clearSuggestionCache();
+              })
+          }
+          .width('100%')
+          .height(64)
+          .justifyContent(FlexAlign.Center)
+        }
+      }
     }
     .width('100%')
     .layoutWeight(1)
@@ -1739,6 +1829,19 @@ export struct CYLSearchComponent {
   @Builder
   resultsList() {
     List({ scroller: this.searchView.resultsTableView }) {
+      if (this.searchView.resultsHeaderTitle !== undefined) {
+        ListItem() {
+          Text(this.searchView.resultsHeaderTitle)
+            .fontSize(13)
+            .fontColor(this.searchView.resultsHeaderTextColor ?? $r('sys.color.font_secondary'))
+            .maxLines(1)
+            .textOverflow({ overflow: TextOverflow.Ellipsis })
+            .width('100%')
+            .padding({ left: 16, right: 16 })
+            .accessibilityLevel('yes')
+        }
+        .height(44)
+      }
       ForEach(this.searchView.searchResults, (result: Object, index: number) => {
         ListItem() {
           if (this.searchView.resultCellConfiguration !== undefined) {
@@ -1928,6 +2031,10 @@ export class CYLSearchTableView {
    */
   snapsHeaderSearchBar: boolean = true;
   /**
+   * The search view whose `setSnapsHeader` configured this list: the bar settles only while it is not open.
+   */
+  snapsOwner: CYLSearchView | undefined = undefined;
+  /**
    * A search view that a tap on the bar opens, as the iOS bar that is the header of a table and starts a search;
    * undefined makes the bar an editable field in the list.
    */
@@ -1961,6 +2068,13 @@ export class CYLSearchTableView {
    */
   showEmptyView(text: string, detailText?: string, buttonTitle?: string, buttonAction?: () => void): void {
     this.emptyView.show(text, detailText, buttonTitle, buttonAction);
+  }
+
+  /**
+   * Shows one of CYLTableViewPlaceHolder's scenarios in place of the rows (iOS `showEmptyView(scenario:)`).
+   */
+  showEmptyViewScenario(scenario: CYLPlaceholderScenario): void {
+    this.emptyView.showScenario(scenario);
   }
 
   /**
@@ -2016,7 +2130,7 @@ export class CYLSearchTableView {
    * Settles the bar fully shown or fully hidden after scrolling stopped with it half out (issue 1160).
    */
   settle(): void {
-    if (!this.snapsHeaderSearchBar || !this.showsHeader) {
+    if (!this.snapsHeaderSearchBar || !this.showsHeader || this.snapsOwner?.isSearchOpen === true) {
       return;
     }
     const target = cylSearchHeaderSettleOffset(this.scroller.currentOffset().yOffset, this.headerHeight);

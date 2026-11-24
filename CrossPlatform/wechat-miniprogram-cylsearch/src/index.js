@@ -19,3 +19,8 @@ module.exports.cylNavigationMetrics = resources.cylNavigationMetrics;
 module.exports.cylNavigationMetricsFrom = resources.cylNavigationMetricsFrom;
 Object.assign(module.exports, require('./core/CYLSearchBarView'));
 Object.assign(module.exports, require('./core/CYLSearchView'));
+Object.assign(module.exports, require('./core/CYLSearchBar'));
+Object.assign(module.exports, require('./core/CYLSearchController'));
+Object.assign(module.exports, require('./core/CYLSearchNavigationBar'));
+Object.assign(module.exports, require('./core/CYLSearchTableViewController'));
+Object.assign(module.exports, require('./core/CYLSearchTagListStyle'));

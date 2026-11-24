@@ -102,7 +102,36 @@ const STRINGS = {
 /**
  * The package's images and localized strings (iOS `CYLSearchResources`, the resource bundle of the pod).
  */
+// The observers of `CYLSearchResources.historyDidChangeNotification`.
+const historyObservers = new Set();
+
 class CYLSearchResources {
+  /**
+   * The name of the event that the default suggestion stores fire when a query is added or removed (iOS
+   * `historyDidChangeNotification`, "CYLSearchSuggestionStoreDidChange").
+   */
+  static get historyDidChangeNotification() {
+    return 'CYLSearchSuggestionStoreDidChange';
+  }
+
+  /**
+   * Calls `handler(store)` every time a default suggestion store changed (the observer of
+   * `historyDidChangeNotification`); returns the function that removes the observer.
+   */
+  static observeHistory(handler) {
+    historyObservers.add(handler);
+    return () => historyObservers.delete(handler);
+  }
+
+  /**
+   * The built-in store of submitted queries of a policy and a name (iOS `suggestionCache(policy:name:)`), newest first
+   * and without duplicates; undefined for the policy `none`. `storage` is `{ getSync(key), setSync(key, value) }` (wx
+   * storage by default).
+   */
+  static suggestionCache(policy, name, storage) {
+    return cylSuggestionCache(policy, name, storage);
+  }
+
   /**
    * The path of a bundled image ("camera", "mic", "search", "back", "clear", "submit", "trash", "refresh"), or undefined
    * (iOS `+imageNamed:`), relative to a component folder of this package.
@@ -355,6 +384,7 @@ class CYLSearchSuggestionDefaultStore extends CYLSearchSuggestionCache {
 
   write(queries) {
     this.memory = queries;
+    historyObservers.forEach((handler) => handler(this));
     try {
       if (this.policy === CYLSearchSuggestionCachePolicy.sandboxFile) {
         wx.getFileSystemManager().writeFileSync(this.filePath(), JSON.stringify(queries), 'utf8');

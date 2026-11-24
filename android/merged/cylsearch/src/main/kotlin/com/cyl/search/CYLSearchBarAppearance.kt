@@ -7,6 +7,8 @@ import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
+import android.util.TypedValue
+import androidx.core.content.ContextCompat
 
 /**
  * The merged default style of a `CYLSearchBarView` (iOS `CYLSearchBarAppearance`): colors, placeholder and Cancel
@@ -76,9 +78,32 @@ class CYLSearchBarAppearance {
     var fieldCornerRadius: Float = -1f
 
     /**
+     * The background image of the text field (QMUI `SearchBarTextFieldBackgroundImage`); wins over
+     * `fieldBackgroundColor`. Build one from a color with `CYLSearchBarView.textFieldBackgroundImage`.
+     */
+    var textFieldBackgroundImage: Drawable? = null
+
+    /**
+     * The background image of the whole bar (QMUI `SearchBarBackgroundImage`); wins over `barBackgroundColor` and
+     * `barBorderColor`. Build one from colors with `CYLSearchBarView.backgroundImage`.
+     */
+    var barBackgroundImage: Drawable? = null
+
+    /**
      * The color behind the whole bar; null leaves it transparent.
      */
     var barBackgroundColor: Int? = null
+
+    /**
+     * The color of the bar's bottom border, one pixel wide; null draws none.
+     */
+    var barBorderColor: Int? = null
+
+    /**
+     * Whether a bar without a background image, color or border draws no background at all (the bar stays transparent,
+     * as the legacy iOS CYLSearchBar did). False gives it the theme's window background. True by default.
+     */
+    var hidesBarBackground: Boolean = true
 
     /**
      * A copy that can change without changing this one (iOS `copy`).
@@ -96,7 +121,11 @@ class CYLSearchBarAppearance {
         it.fieldBackgroundColor = fieldBackgroundColor
         it.fieldBorderColor = fieldBorderColor
         it.fieldCornerRadius = fieldCornerRadius
+        it.textFieldBackgroundImage = textFieldBackgroundImage
+        it.barBackgroundImage = barBackgroundImage
         it.barBackgroundColor = barBackgroundColor
+        it.barBorderColor = barBorderColor
+        it.hidesBarBackground = hidesBarBackground
     }
 
     /**
@@ -115,7 +144,20 @@ class CYLSearchBarAppearance {
         fieldBackgroundColor?.let { bar.fieldBackgroundColor = it }
         fieldBorderColor?.let { bar.fieldBorderColor = it }
         bar.fieldCornerRadius = fieldCornerRadius
-        barBackgroundColor?.let { bar.setBackgroundColor(it) }
+        textFieldBackgroundImage?.let { bar.fieldBackgroundImage = it }
+        val image = barBackgroundImage
+        when {
+            image != null -> bar.background = image
+            barBackgroundColor != null || barBorderColor != null ->
+                bar.background = CYLSearchBarView.backgroundImage(barBackgroundColor, barBorderColor)
+            !hidesBarBackground -> bar.setBackgroundColor(windowBackgroundColor(bar.context))
+        }
+    }
+
+    private fun windowBackgroundColor(context: Context): Int {
+        val value = TypedValue()
+        context.theme.resolveAttribute(android.R.attr.colorBackground, value, true)
+        return if (value.resourceId != 0) ContextCompat.getColor(context, value.resourceId) else value.data
     }
 
     companion object {

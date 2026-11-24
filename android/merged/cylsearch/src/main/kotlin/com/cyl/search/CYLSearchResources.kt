@@ -30,6 +30,15 @@ object CYLSearchResources {
     fun resourceBundle(context: Context): Resources = context.resources
 
     /**
+     * Calls `listener` after the history of `cache` changed (iOS `historyDidChangeNotification`): a query was added or
+     * removed, or the history cleared, whoever changed it. The same policy and name is the same history, so a screen sees
+     * the changes of another one. Returns the function that stops the observation.
+     */
+    @JvmStatic
+    fun observeHistoryDidChange(cache: CYLSearchSuggestionCache, listener: () -> Unit): () -> Unit =
+        CYLSearchHistorySignal.observe(cache, listener)
+
+    /**
      * An image of this library by its iOS name ("CYLSearchNoResults"), or null (logged) when it is missing.
      */
     @JvmStatic

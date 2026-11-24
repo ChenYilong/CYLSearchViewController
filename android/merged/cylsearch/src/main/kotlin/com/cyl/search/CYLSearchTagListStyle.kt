@@ -7,6 +7,7 @@ import com.cyl.classifymenu.CYLEdgeInsets
 import com.cyl.classifymenu.CYLFont
 import com.cyl.classifymenu.CYLMenuStyle
 import com.cyl.classifymenu.CYLSize
+import com.cyl.classifymenu.CYLTagListView
 
 /**
  * The search bar core's default style of a tag list, the look of the iOS example's recent searches and discover topics:
@@ -61,6 +62,29 @@ object CYLSearchTagListStyle {
         style.sectionInsets = CYLEdgeInsets(4f, 16f, 24f, 16f)
         applyHeaderLook(style)
         styleCustomizer?.invoke(style)
+    }
+
+    /**
+     * Sets the defaults on `list`'s style (a copy, so the list's other values stay), and the refresh icon of its header
+     * (`CYLSearchTagListHeader`; iOS `applyDefaultStyle(to:)`).
+     */
+    @JvmStatic
+    fun applyDefaultStyle(list: CYLTagListView) {
+        val style = (list.style ?: CYLMenuStyle.defaultStyle()).copy()
+        applyDefaults(style)
+        list.style = style
+        CYLSearchTagListHeader.applyRefreshIcon(list)
+    }
+
+    /**
+     * Sets the background of every tag of `list` by name (iOS `applyBackgroundStyle(named:to:)`): "liquidGlass" or any
+     * other name, "" and "flat" too, is the flat look, because Android has no glass material (iOS shows flat below iOS 26 as
+     * well). The list's other style values stay; the refresh icon of its header is set, as on iOS.
+     */
+    @JvmStatic
+    @Suppress("UNUSED_PARAMETER")
+    fun applyBackgroundStyle(name: String, list: CYLTagListView) {
+        CYLSearchTagListHeader.applyRefreshIcon(list)
     }
 
     /**

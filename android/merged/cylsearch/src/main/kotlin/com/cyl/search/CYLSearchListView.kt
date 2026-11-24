@@ -20,7 +20,7 @@ import kotlin.math.max
  * out at first, and `snapsHeaderSearchBar` makes the bar settle fully shown or fully hidden when the scrolling ends,
  * also above a list too short to scroll (QMUI #1160, #1207): the list gets the room it needs below its last row.
  */
-class CYLSearchListView @JvmOverloads constructor(
+open class CYLSearchListView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
@@ -153,6 +153,12 @@ class CYLSearchListView @JvmOverloads constructor(
         recyclerView.setBackgroundColor(themeColor(android.R.attr.colorBackground))
         addView(recyclerView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         searchBarView.applyDefaultAppearance()
+        searchBarView.usedAsTableHeaderView = true
+        searchView.delegate = object : CYLSearchViewDelegate {
+            override fun searchViewUpdateResults(searchView: CYLSearchView, searchString: String) {
+                updateResultsForSearchString(searchString)
+            }
+        }
         searchBarView.showsCancelButtonWhenEditing = true
         searchBarView.clearsTextOnCancel = true
         searchBarView.delegate = object : CYLSearchBarViewDelegate {
@@ -176,6 +182,30 @@ class CYLSearchListView @JvmOverloads constructor(
             }
         }
         adapter = null
+    }
+
+    private var setUp = false
+
+    /**
+     * Called once, when the list is first attached to a window, after the default setup of `searchBarView` (appearance,
+     * Cancel, tap to open `searchView`): override it to configure the bar (iOS `setUpSearchBar()`, QMUI
+     * `initSearchController`, which subclasses extend). Does nothing by default.
+     */
+    open fun setUpSearchBar() {}
+
+    /**
+     * Called on every text change of `searchView`, also with "" (iOS `searchController(_:updateResultsFor:)`, QMUI
+     * `searchController:updateResultsForSearchString:`): override it to fill the results of `searchView`. Does nothing by
+     * default; `searchView.delegate` replaces this call.
+     */
+    open fun updateResultsForSearchString(searchString: String) {}
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        if (!setUp) {
+            setUp = true
+            setUpSearchBar()
+        }
     }
 
     private fun themeColor(attribute: Int): Int {

@@ -59,6 +59,16 @@ MANUAL = {
     ('CYLSearchBarView', 'newSearchButton'): 'TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchBarComponent` draws it in `CYLSearchBarModeMultiple` (`newSearchImage`)',
     ('CYLSearchBarView', 'tintColorDidChange()'): 'TODO: N/A on HarmonyOS: system colors follow the theme by themselves (`searchIndicatorColor` overrides)',
     ('CYLSearchView', 'clearSuggestionCacheButton'): '`CYLSearchView.clearSuggestionCache()` (the header button calls it)',
+    ('CYLSearchBar', 'cancelButton'): 'TODO: N/A on HarmonyOS: ArkUI has no view objects; `CYLSearchBarComponent` draws Cancel (`cancelButtonTitle`, `cancelButtonFont`, `cancelButtonMarginsProvider`)',
+    ('CYLSearchBar', 'backgroundView'): 'TODO: N/A on HarmonyOS: ArkUI has no view objects; the bar draws its background from `barBackgroundColor`, `barBackgroundImage` and `barBorderColor`',
+    ('CYLSearchBar', 'segmentedControl'): 'TODO: N/A on HarmonyOS: ArkUI has no view objects, and the bar has no scope titles (a page puts a `SegmentButton` under the bar)',
+    ('CYLSearchBar', 'textFieldBackgroundImage(color:)'): 'TODO: N/A on HarmonyOS: ArkUI draws the field from a color (`fieldBackgroundColor`), so no resizable image is generated',
+    ('CYLSearchBar', 'backgroundImage(color:borderColor:)'): 'TODO: N/A on HarmonyOS: ArkUI draws the bar from colors (`barBackgroundColor`, `barBorderColor`), so no resizable image is generated',
+    ('CYLSearchController', 'swipeGestureRecognizer'): 'TODO: N/A on HarmonyOS: ArkUI declares the gesture in `CYLSearchComponent` (a `PanGesture`, enabled by `supportsSwipeToDismissSearch`), there is no recognizer object',
+    ('CYLSearchController', 'showEmptyView(scenario:)'): '`CYLSearchController.showEmptyViewScenario`',
+    ('CYLSearchTableViewController', 'showEmptyView(scenario:)'): '`CYLSearchTableViewController.showEmptyViewScenario`',
+    ('CYLSearchTableViewController', 'searchController(_:updateResultsFor:)'): '`CYLSearchTableViewController.searchControllerUpdateResultsForSearchString`',
+    ('CYLSearchTagListHeader', 'applyRefreshIcon(to:)'): 'TODO: N/A on HarmonyOS: the page draws a tag list header (title and `CYLSearchRefreshButton`), so there is no More button to change; use `CYLSearchTagListHeader.refreshImage`',
 }
 
 

@@ -265,10 +265,12 @@ Component({
         placeholderStyle: placeholderColor ? `color: ${placeholderColor}` : '',
         barStyle: ap ? ap.bar : '',
         cancelStyle: cancel.join('; '),
-        leadingStyle: padding(p.leadingAccessoryMargins),
-        trailingStyle: padding(p.trailingAccessoryMargins),
+        leadingStyle: padding(p.leadingAccessoryMargins || model.leadingAccessoryMargins),
+        trailingStyle: padding(p.trailingAccessoryMargins || model.trailingAccessoryMargins),
         centered: !!p.centersPlaceholder && !this.data.focused && !this.data.text,
         fieldCursor: p.cursorColor || (ap && ap.tintColor) || '',
+        // The style's magnifier replaces the default one (the bar's own `searchIcon` wins when it is not the default).
+        ...(ap && ap.searchIcon && p.searchIcon === '../images/search.svg' ? { searchIcon: ap.searchIcon } : {}),
       });
     },
     // Whether the views show, from the properties: an earlier-name property that was set wins over the new one.

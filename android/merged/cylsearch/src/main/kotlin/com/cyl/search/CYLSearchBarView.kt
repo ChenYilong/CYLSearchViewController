@@ -11,6 +11,7 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
 import android.net.Uri
@@ -38,6 +39,8 @@ import android.widget.HorizontalScrollView
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
@@ -1321,6 +1324,81 @@ class CYLSearchBarView @JvmOverloads constructor(
         }
 
     /**
+     * Whether the bar is a list's header item (QMUI `qmui_usedAsTableHeaderView`). Set by the screens that install the bar
+     * as the first item of a list (`CYLSearchListView`, `CYLSearchView.installSearchBar`); false by default.
+     */
+    var usedAsTableHeaderView: Boolean = false
+
+    /**
+     * Whether the Cancel button stays enabled while the field is not being edited (QMUI `qmui_alwaysEnableCancelButton`).
+     * False disables it until the field has the focus. True by default.
+     */
+    var alwaysEnablesCancelButton: Boolean = true
+        set(value) {
+            field = value
+            updateCancelButtonEnabled()
+        }
+
+    /**
+     * The view that draws the bar's background (QMUI `qmui_backgroundView`): the bar itself, whose `background` is the
+     * bar's image, color and border (`CYLSearchBarAppearance.barBackgroundImage`, `barBackgroundColor`, `barBorderColor`).
+     */
+    val backgroundView: View?
+        get() = this
+
+    /**
+     * The titles of the scope bar under the field (iOS `UISearchBar.scopeButtonTitles`); empty (the default) has none.
+     * The first title is selected; read the selection from `segmentedControl`.
+     */
+    var scopeButtonTitles: List<String> = emptyList()
+        set(value) {
+            field = value
+            rebuildScopeBar()
+        }
+
+    /**
+     * The scope bar, a segmented `RadioGroup` under the field (QMUI `qmui_segmentedControl`); null without
+     * `scopeButtonTitles`. One button per title; `checkedRadioButtonId` and `setOnCheckedChangeListener` read the selection.
+     */
+    val segmentedControl: RadioGroup?
+        get() = scopeBar
+
+    private var scopeBar: RadioGroup? = null
+    private var scopeBarHeight = 0
+
+    private fun rebuildScopeBar() {
+        scopeBar?.let { removeView(it) }
+        scopeBar = null
+        setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom - scopeBarHeight)
+        scopeBarHeight = 0
+        if (scopeButtonTitles.isEmpty()) {
+            return
+        }
+        val height = dp(SCOPE_BAR_HEIGHT)
+        val group = RadioGroup(context)
+        group.orientation = RadioGroup.HORIZONTAL
+        scopeButtonTitles.forEachIndexed { index, title ->
+            val button = RadioButton(context)
+            button.id = View.generateViewId()
+            button.text = title
+            group.addView(button, RadioGroup.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f))
+            if (index == 0) {
+                group.check(button.id)
+            }
+        }
+        // The strip below the row is the bar's own padding, so the bar grows by the scope bar's height and the row stays put.
+        scopeBarHeight = height
+        clipToPadding = false
+        setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom + height)
+        addView(group, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height, Gravity.BOTTOM).apply { bottomMargin = -height })
+        scopeBar = group
+    }
+
+    private fun updateCancelButtonEnabled() {
+        cancelButton.isEnabled = alwaysEnablesCancelButton || textField.hasFocus()
+    }
+
+    /**
      * The merged default style (iOS `appearanceStyle`): applying it sets the properties it covers; a property set
      * after it wins. Null until set; `applyDefaultAppearance` sets the default.
      */
@@ -1971,6 +2049,7 @@ class CYLSearchBarView @JvmOverloads constructor(
         }
         textStateChanged()
         applyActiveState()
+        updateCancelButtonEnabled()
         delegate?.searchBarViewDidBeginEditing(this)
     }
 
@@ -1981,6 +2060,7 @@ class CYLSearchBarView @JvmOverloads constructor(
         }
         textStateChanged()
         applyActiveState()
+        updateCancelButtonEnabled()
         if (iconifiedByDefault && text.isNullOrEmpty() && !isIconified) {
             setIconified(true, true)
         }
@@ -2293,7 +2373,7 @@ class CYLSearchBarView @JvmOverloads constructor(
         if (existing != null) {
             return embedInToolbar(existing)
         }
-        val created = androidx.appcompat.widget.Toolbar(activity)
+        val created = CYLSearchNavigationBar(activity)
         content.addView(
             created,
             0,
@@ -2310,6 +2390,7 @@ class CYLSearchBarView @JvmOverloads constructor(
 
     companion object {
         private const val NO_SELECTION = -1
+        private const val SCOPE_BAR_HEIGHT = 36f
         private const val ITEM_PADDING = 12f
         private const val REMOVE_SIZE = 28f
         private const val INDICATOR_HEIGHT = 2f
@@ -2320,6 +2401,32 @@ class CYLSearchBarView @JvmOverloads constructor(
         private const val STATE_TEXT = "CYLSearchBarText"
         private const val STATE_EDITING = "CYLSearchBarEditing"
         private const val STATE_ICONIFIED = "CYLSearchBarIconified"
+
+        /**
+         * A drawable of a text field in `color`, for `fieldBackgroundImage` and `CYLSearchBarAppearance.textFieldBackgroundImage`
+         * (QMUI `qmui_generateTextFieldBackgroundImageWithColor:`); null for a null color. The field clips its corners.
+         */
+        @JvmStatic
+        fun textFieldBackgroundImage(color: Int?): Drawable? = color?.let { ColorDrawable(it) }
+
+        /**
+         * A drawable for the bar's `background`: `color` (white by default) with a one pixel bottom border in
+         * `borderColor`, or null when both are null (QMUI `qmui_generateBackgroundImageWithColor:borderColor:`).
+         */
+        @JvmStatic
+        fun backgroundImage(color: Int?, borderColor: Int?): Drawable? {
+            if (color == null && borderColor == null) {
+                return null
+            }
+            val fill = ColorDrawable(color ?: Color.WHITE)
+            if (borderColor == null) {
+                return fill
+            }
+            return LayerDrawable(arrayOf<Drawable>(fill, ColorDrawable(borderColor))).apply {
+                setLayerGravity(1, Gravity.BOTTOM)
+                setLayerHeight(1, 1)
+            }
+        }
 
         /**
          * An editing bar (iOS `editingBar(placeholder:actionTitle:)`): the search bar's field and look for editing a name

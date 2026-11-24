@@ -71,38 +71,84 @@ const CYLSearchBarItemState = Object.freeze({
 /**
  * The merged default style of a bar (iOS `CYLSearchBarAppearance`): QMUI's template merged with the legacy CYLSearchBar
  * (field RGB 187, 186, 193 in light mode and 58, 58, 60 in dark mode, tint RGB 0, 104, 248, a pill field). The keys are the
- * iOS names (`font` is a size in px); `<cyl-search-bar appearance>` takes the plain values of `CYLSearchBarAppearance.default()`
- * and applies them only to what the bar does not set itself.
+ * iOS names (`font` is a size in px, the images are paths or URLs); `<cyl-search-bar appearance>` takes the plain values of
+ * `CYLSearchBarAppearance.default()` and applies them only to what the bar does not set itself.
  */
-const CYLSearchBarAppearance = Object.freeze({
+class CYLSearchBarAppearance {
   /**
-   * A fresh copy of the merged defaults, to change and pass to the bar.
+   * A style with the merged defaults (iOS `CYLSearchBarAppearance()`).
    */
-  default() {
-    return {
-      font: 17,
-      textColor: '',
-      placeholderColor: 'rgba(60, 60, 67, 0.3)',
-      placeholder: '',
-      cancelTitle: '',
-      tintColor: '#0068F8',
-      textFieldBackgroundColor: '#BBBAC1',
-      textFieldBackgroundColorDark: '#3A3A3C',
-      textFieldBorderColor: '',
-      textFieldCornerRadius: -1,
-      barBackgroundColor: '',
-      barBorderColor: '',
-    };
-  },
+  constructor() {
+    /** The font size of the text and of the placeholder, in px. */
+    this.font = 17;
+    /** The color of the typed text; empty keeps the page's. */
+    this.textColor = '';
+    /** The color of the placeholder. */
+    this.placeholderColor = 'rgba(60, 60, 67, 0.3)';
+    /** The placeholder; empty is the core's localized "Search". */
+    this.placeholder = '';
+    /** The title of the Cancel button; empty is the core's localized "Cancel". */
+    this.cancelTitle = '';
+    /** The tint of the bar and the controls on it. */
+    this.tintColor = '#0068F8';
+    /** The magnifier icon (a path); empty keeps the core's. */
+    this.searchIconImage = '';
+    /** The clear button icon (a path); empty keeps the core's. */
+    this.clearIconImage = '';
+    /** The color of the text field in light mode. */
+    this.textFieldBackgroundColor = '#BBBAC1';
+    /** The color of the text field in dark mode. */
+    this.textFieldBackgroundColorDark = '#3A3A3C';
+    /** The background image of the text field (a path); wins over the color. */
+    this.textFieldBackgroundImage = '';
+    /** The border color of the text field, one px wide; empty is no border. */
+    this.textFieldBorderColor = '';
+    /** The corner radius of the text field: a negative value is half of its height. */
+    this.textFieldCornerRadius = -1;
+    /** The background image of the whole bar (a path); wins over the color and the border. */
+    this.barBackgroundImage = '';
+    /** The background color of the bar. */
+    this.barBackgroundColor = '';
+    /** The color of the bar's bottom border, one px wide. */
+    this.barBorderColor = '';
+    /** Whether a bar without any background image, color or border draws no background at all. */
+    this.hidesBarBackground = true;
+  }
+
+  /**
+   * A fresh plain copy of the merged defaults, to change and pass to the bar.
+   */
+  static default() {
+    return Object.assign({}, new CYLSearchBarAppearance());
+  }
+
+  /**
+   * The default style as a shared getter (iOS `CYLSearchBarAppearance.defaultAppearance`): a fresh copy each time.
+   */
+  static get defaultAppearance() {
+    return CYLSearchBarAppearance.default();
+  }
+
+  /**
+   * An independent copy of this style (iOS `copy(with:)`).
+   */
+  copy() {
+    return Object.assign(new CYLSearchBarAppearance(), this);
+  }
+
   /**
    * The CSS of a style (`dark` picks the dark field color): the bar, the field, the input and the Cancel button.
    */
-  styles(values, dark) {
+  static styles(values, dark) {
     const a = Object.assign(CYLSearchBarAppearance.default(), values || {});
     const field = [`background: ${dark ? a.textFieldBackgroundColorDark : a.textFieldBackgroundColor}`];
+    // The background image wins over the color (QMUI `SearchBarTextFieldBackgroundImage`).
+    if (a.textFieldBackgroundImage) field.push(`background: url(${a.textFieldBackgroundImage}) center / 100% 100% no-repeat`);
     if (a.textFieldBorderColor) field.push(`border: 1px solid ${a.textFieldBorderColor}`);
     const bar = [];
-    if (a.barBackgroundColor) bar.push(`background: ${a.barBackgroundColor}`);
+    if (a.barBackgroundImage) bar.push(`background: url(${a.barBackgroundImage}) center / 100% 100% no-repeat`);
+    else if (a.barBackgroundColor) bar.push(`background: ${a.barBackgroundColor}`);
+    else if (!a.hidesBarBackground && !a.barBorderColor) bar.push(`background: ${dark ? '#1C1C1E' : '#F7F7F7'}`);
     if (a.barBorderColor) bar.push(`border-bottom: 1px solid ${a.barBorderColor}`);
     return {
       bar: bar.join('; '),
@@ -111,11 +157,34 @@ const CYLSearchBarAppearance = Object.freeze({
       fontSize: a.font,
       textColor: a.textColor,
       placeholderColor: a.placeholderColor,
+      placeholder: a.placeholder,
+      cancelTitle: a.cancelTitle,
       tintColor: a.tintColor,
+      searchIcon: a.searchIconImage,
+      clearIcon: a.clearIconImage,
       cancel: a.tintColor ? `color: ${a.tintColor}` : '',
     };
-  },
-});
+  }
+
+  /**
+   * The CSS background of a text field in `color` (iOS `CYLSearchBar.textFieldBackgroundImage(color:)`): CSS draws it, so
+   * it has no bitmap; undefined without a color.
+   */
+  static textFieldBackgroundCSS(color) {
+    return color ? `background: ${color}` : undefined;
+  }
+
+  /**
+   * The CSS background of a bar (iOS `CYLSearchBar.backgroundImage(color:borderColor:)`): `color` (white by default) with a
+   * 1 px bottom border in `borderColor`; undefined when both are missing.
+   */
+  static backgroundCSS(color, borderColor) {
+    if (!color && !borderColor) return undefined;
+    const css = [`background: ${color || '#FFFFFF'}`];
+    if (borderColor) css.push(`border-bottom: 1px solid ${borderColor}`);
+    return css.join('; ');
+  }
+}
 
 /**
  * The insets of a state as CSS (`top right bottom left` in px) from `{ top, left, bottom, right }`; empty for nothing.
@@ -490,6 +559,10 @@ class CYLSearchBarView {
     this.cancelButtonMargins = undefined;
     this.cancelButtonMarginsProvider = undefined;
     this.cancelButtonFont = undefined;
+    // The space around the leading view and the trailing accessory views (`<cyl-search-bar>` takes the properties
+    // `leadingAccessoryMargins` and `trailingAccessoryMargins` first).
+    this.leadingAccessoryMargins = undefined;
+    this.trailingAccessoryMargins = undefined;
     // The existing leading view and trailing accessory views, shown by default (iOS `showsLeadingView`,
     // `showsTrailingAccessoryViews`); showing and hiding them animates the width.
     this.showsLeadingView = true;
@@ -520,6 +593,8 @@ class CYLSearchBarView {
     this.iconPosition = CYLSearchBarIconPosition.trailing;
     this.animationDuration = 0.3;
     this.items = [];
+    this.itemShapes = undefined;
+    this.appearanceValues = undefined;
     this.itemTintColor = undefined;
     this.searchIndicatorColor = undefined;
     this.unselectedSearchAlpha = 0.5;
@@ -614,6 +689,7 @@ class CYLSearchBarView {
     if (index < 0) return;
     this.items.splice(index, 1);
     item.searchBarView = undefined;
+    this.itemShapes = undefined;
   }
 
   /**
@@ -624,6 +700,7 @@ class CYLSearchBarView {
       item.searchBarView = undefined;
     });
     this.items = [];
+    this.itemShapes = undefined;
   }
 
   /**
@@ -631,6 +708,70 @@ class CYLSearchBarView {
    */
   hasItem(style) {
     return this.items.some((item) => item.style === style);
+  }
+
+  /**
+   * The style of the field (iOS `appearanceStyle`, one `CYLSearchBarAppearance` for this bar and `CYLSearchBar`);
+   * undefined by default (the bar keeps its own look). Assigning plain values of `CYLSearchBarAppearance.default()`
+   * maps them onto `font`, `textColor`, `placeholderColor`, `placeholder`, `cancelButtonTitle`, the field's background,
+   * border and corner radius, the cursor color and the icons; an empty value changes nothing.
+   */
+  get appearanceStyle() {
+    return this.appearanceValues;
+  }
+
+  set appearanceStyle(value) {
+    this.appearanceValues = value || undefined;
+    if (!value) return;
+    const a = Object.assign(CYLSearchBarAppearance.default(), value);
+    this.font = a.font;
+    if (a.textColor) this.textColor = a.textColor;
+    if (a.placeholderColor) this.placeholderColor = a.placeholderColor;
+    if (a.placeholder) this.placeholder = a.placeholder;
+    if (a.cancelTitle) this.cancelButtonTitle = a.cancelTitle;
+    if (a.tintColor) this.cursorColor = a.tintColor;
+    if (a.searchIconImage) this.searchIcon = a.searchIconImage;
+    if (a.clearIconImage) this.clearImage = a.clearIconImage;
+    if (a.textFieldBackgroundColor) this.fieldBackgroundColor = a.textFieldBackgroundColor;
+    if (a.textFieldBackgroundImage) this.fieldBackgroundImage = a.textFieldBackgroundImage;
+    if (a.textFieldBorderColor) {
+      this.fieldBorderColor = a.textFieldBorderColor;
+      this.fieldBorderWidth = 1;
+    }
+    this.fieldCornerRadius = a.textFieldCornerRadius;
+  }
+
+  /**
+   * Applies `CYLSearchBarAppearance.default()` (iOS `applyDefaultAppearance()`, the same method as `CYLSearchBar`).
+   */
+  applyDefaultAppearance() {
+    this.appearanceStyle = CYLSearchBarAppearance.default();
+  }
+
+  /**
+   * Replaces the items with the ones the dictionaries describe (iOS `setItems(dictionaries:)`, `CYLSearchBarItem.item`).
+   * When only `animationLoops` and `animationSpeed` differ from the last call, the items stay and take the two values,
+   * so the animation is not reloaded; any other difference rebuilds the items.
+   */
+  setItems(dictionaries) {
+    const list = Array.isArray(dictionaries) ? dictionaries : [];
+    const shapes = list.map((dictionary) => {
+      const shape = Object.assign({}, dictionary);
+      delete shape.animationLoops;
+      delete shape.animationSpeed;
+      return JSON.stringify(shape);
+    });
+    if (this.itemShapes && this.itemShapes.length === shapes.length && this.itemShapes.every((shape, i) => shape === shapes[i])
+      && this.items.length === shapes.length) {
+      this.items.forEach((item, i) => {
+        item.animationLoops = list[i].animationLoops === true;
+        item.animationSpeed = Number(list[i].animationSpeed) > 0 ? Number(list[i].animationSpeed) : 1;
+      });
+      return;
+    }
+    this.removeAllItems();
+    this.itemShapes = shapes;
+    list.forEach((dictionary) => this.addItem(CYLSearchBarItem.item(dictionary)));
   }
 
   /**

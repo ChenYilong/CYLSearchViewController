@@ -30,6 +30,52 @@ RENAMES = {
     'resourceBundle': 'resourceBundle',
     'cache(policy:name:)': 'cacheWithPolicy',
     'item(dictionary:)': 'fromMap',
+    # CYLSearchBarAppearance: the Android names say "field" for the iOS "textField", "Icon" for "IconImage".
+    'searchIconImage': 'searchIcon', 'clearIconImage': 'clearIcon', 'textFieldBackgroundColor': 'fieldBackgroundColor',
+    'textFieldBorderColor': 'fieldBorderColor', 'textFieldCornerRadius': 'fieldCornerRadius',
+    # CYLSearchTagListHeader / CYLSearchTagListStyle / CYLSearchNavigationBar / CYLSearchResources.
+    'refreshAccessibilityLabel': 'refreshLabel', 'standardHeight': 'STANDARD_HEIGHT',
+    'embedInNavigationBar(of:)': 'embedInToolbar', 'historyDidChangeNotification': 'observeHistoryDidChange',
+}
+# iOS types whose Android counterpart is another class (docs/search-core-merge.md): iOS type -> (Kotlin class, its file).
+# Their members are looked for in that file only, so a name found elsewhere does not count.
+ALIASES = {
+    'CYLSearchBar': ('CYLSearchBarView', 'CYLSearchBarView'),
+    'CYLSearchController': ('CYLSearchView', 'CYLSearchView'),
+    'CYLSearchControllerDelegate': ('CYLSearchViewDelegate', 'CYLSearchView'),
+    'CYLSearchTableViewController': ('CYLSearchListView', 'CYLSearchListView'),
+}
+# Members of those types that have another name or live on another class: (iOS type, Swift member) -> (Kotlin class,
+# Kotlin member, its file).
+MEMBERS = {
+    ('CYLSearchController', 'searchResultsDelegate'): ('CYLSearchView', 'delegate', 'CYLSearchView'),
+    ('CYLSearchController', 'searchResultsController'): ('CYLSearchView', 'resultsTableView', 'CYLSearchView'),
+    ('CYLSearchController', 'tableView'): ('CYLSearchView', 'resultsTableView', 'CYLSearchView'),
+    ('CYLSearchController', 'searchBar'): ('CYLSearchView', 'searchBarView', 'CYLSearchView'),
+    ('CYLSearchController', 'historyStore'): ('CYLSearchView', 'suggestionCache', 'CYLSearchView'),
+    ('CYLSearchController', 'historyDidChangeNotification'): ('CYLSearchView', 'addHistoryDidChangeListener', 'CYLSearchView'),
+    ('CYLSearchController', 'updateSearchResults(for:)'): ('CYLSearchViewDelegate', 'searchViewUpdateResults', 'CYLSearchView'),
+    ('CYLSearchController', 'willPresentSearchController(_:)'): ('CYLSearchViewDelegate', 'searchViewWillShow', 'CYLSearchView'),
+    ('CYLSearchController', 'didPresentSearchController(_:)'): ('CYLSearchViewDelegate', 'searchViewDidShow', 'CYLSearchView'),
+    ('CYLSearchController', 'willDismissSearchController(_:)'): ('CYLSearchViewDelegate', 'searchViewWillClose', 'CYLSearchView'),
+    ('CYLSearchController', 'didDismissSearchController(_:)'): ('CYLSearchViewDelegate', 'searchViewDidClose', 'CYLSearchView'),
+    ('CYLSearchControllerDelegate', '-searchController:updateResultsForSearchString:'): ('CYLSearchViewDelegate', 'searchViewUpdateResults', 'CYLSearchView'),
+    ('CYLSearchControllerDelegate', '-searchController:didLoadSearchResultsTableView:'): ('CYLSearchViewDelegate', 'searchViewDidLoadResultsTableView', 'CYLSearchView'),
+    ('CYLSearchControllerDelegate', '-searchController:willShowEmptyView:'): ('CYLSearchViewDelegate', 'searchViewWillShowEmptyView', 'CYLSearchView'),
+    ('CYLSearchTableViewController', 'searchController'): ('CYLSearchListView', 'searchView', 'CYLSearchListView'),
+    ('CYLSearchTableViewController', 'searchBar'): ('CYLSearchListView', 'searchBarView', 'CYLSearchListView'),
+    ('CYLSearchTableViewController', 'searchController(_:updateResultsFor:)'): ('CYLSearchListView', 'updateResultsForSearchString', 'CYLSearchListView'),
+}
+# Rows with no Android counterpart for a platform reason: (iOS type, Swift member) -> the reason.
+NOT_APPLICABLE = {
+    ('CYLSearchController', 'searchController'): 'none: `CYLSearchView` is the search UI itself, there is no system search controller inside it',
+    ('CYLSearchController', 'forwardsAppearanceFromContentsViewController'): 'none: Android has no appearance transition methods (`viewWillDisappear`); the results are views of the same window and share the host\'s lifecycle',
+    ('CYLSearchController', 'swipeGestureRecognizer'): 'none: Android has no gesture recognizers; the swipe is the system back gesture (`OnBackPressedCallback`), enabled by `supportsSwipeToDismissSearch`',
+    ('CYLSearchController', 'gestureRecognizerShouldBegin(_:)'): 'none: Android has no gesture recognizers; the back gesture starts in `OnBackPressedCallback.handleOnBackStarted`',
+    ('CYLSearchController', 'init(contentsViewController:resultsTableViewStyle:)'): 'none: `UITableView.Style` (plain, grouped, inset grouped) does not exist on Android, the results are one `RecyclerView` (`resultsTableView`)',
+    ('CYLSearchNavigationBar', 'navigationBar(_:shouldPop:)'): 'internal listener (UIKit protocol conformance): the toolbar\'s navigation click calls `backHandler`',
+    ('CYLSearchNavigationBar', 'position(for:)'): 'internal listener (UIKit protocol conformance): a `Toolbar` sits in the layout, it has no bar position',
+    ('CYLSearchTagListStyle', 'tagBackgroundStyle'): 'none: Liquid Glass is an iOS 26 material; Android has no glass material and CollectionViewClassifyMenu\'s Android `CYLMenuStyle` has no background style (every tag is flat, as below iOS 26)',
 }
 # Kotlin constructors that stand for Swift initializers: a regex on the class's file.
 INITIALIZERS = {
@@ -45,6 +91,10 @@ INITIALIZERS = {
     ('CYLSearchBarItem', 'init(title:image:selectedImage:)'): (r'constructor\(title: String\?, image: Drawable\?, selectedImage: Drawable\?\)', 'constructor(title, image, selectedImage)'),
     ('CYLSearchBarItemView', 'init(item:)'): (r'class CYLSearchBarItemView\(context: Context, item: CYLSearchBarItem\)', 'constructor(context, item)'),
     ('CYLSearchResultsViewController', 'init(searchDataSource:)'): (r'constructor\(searchDataSource: CYLSearchResultsDataSource\)', 'constructor(searchDataSource)'),
+    # The search controller is `CYLSearchView` (docs/search-core-merge.md): its host is given to `showSearch(view)` and the
+    # results view of the iOS initializer is `contentView`.
+    ('CYLSearchController', 'init(contentsViewController:resultsViewController:)'): (r'class CYLSearchView @JvmOverloads constructor\(\s*context: Context', 'CYLSearchView `constructor(context)`, `contentView`, host in `showSearch(view)`'),
+    ('CYLSearchController', 'init(contentsViewController:)'): (r'class CYLSearchView @JvmOverloads constructor\(\s*context: Context', 'CYLSearchView `constructor(context)`, host in `showSearch(view)`'),
 }
 # init(coder:): a view's Kotlin counterpart is the XML constructor; a fragment's is the no-argument constructor the
 # system uses to recreate it.
@@ -52,10 +102,12 @@ CODER = {
     'CYLMultiSearchView': (r'class CYLMultiSearchView @JvmOverloads constructor\(\s*context: Context,\s*attrs: AttributeSet\?', 'constructor(context, attrs) (XML)'),
     'CYLSearchBarView': (r'class CYLSearchBarView @JvmOverloads constructor\(\s*context: Context,\s*attrs: AttributeSet\?', 'constructor(context, attrs) (XML)'),
     'CYLSearchView': (r'class CYLSearchView @JvmOverloads constructor\(\s*context: Context,\s*attrs: AttributeSet\?', 'constructor(context, attrs) (XML)'),
-    'CYLSearchController': (r'class CYLSearchController\(\) : Fragment\(\)', 'no-argument constructor (fragment recreation)'),
+    # Not available on iOS either: the controller is created from its contents view controller.
+    'CYLSearchController': (r'class CYLSearchView @JvmOverloads constructor\(\s*context: Context,\s*attrs: AttributeSet\?', 'none: not available on iOS either (`@available(*, unavailable)`)', 'N/A'),
     'CYLSearchResultsViewController': (r'open class CYLSearchResultsViewController\(\) : Fragment\(\)', 'no-argument constructor (fragment recreation)'),
     # iOS returns nil (an item view is created from its item, never from a storyboard): no XML constructor either.
     'CYLSearchBarItemView': (r'class CYLSearchBarItemView\(context: Context, item: CYLSearchBarItem\)', 'none: created from its item (iOS returns nil too)', 'N/A'),
+    'CYLSearchBar': (r'class CYLSearchBarView @JvmOverloads constructor\(\s*context: Context,\s*attrs: AttributeSet\?', 'CYLSearchBarView `constructor(context, attrs)` (XML)'),
 }
 # Model classes (not views): UIKit view overrides such as `backgroundColor` are their own properties there.
 MODELS = {'CYLSearchBarItem'}
@@ -184,9 +236,14 @@ def main():
             current = owner
         upstream = upstream_of(comment).replace('|', '\\|') or '—'
         status, android = 'TODO', '—'
-        if kind in ('class', 'protocol', 'enum'):
-            android = owner
-            status = 'DONE' if declared(sources, owner) else 'TODO'
+        alias = ALIASES.get(owner)
+        if (owner, swift) in NOT_APPLICABLE:
+            status, android = 'N/A', NOT_APPLICABLE[(owner, swift)]
+            swift = f'`{owner}.{swift}`'
+        elif kind in ('class', 'protocol', 'enum'):
+            android = alias[0] if alias else owner
+            scope = {alias[1]: sources.get(alias[1], '')} if alias else sources
+            status = 'DONE' if declared(scope, android) else 'TODO'
             swift = f'**{kind} `{owner}`**'
         elif (swift if kind != 'initializer' or swift != 'init(coder:)' else None) in OVERRIDES and (owner, swift) not in INITIALIZERS and owner not in MODELS:
             pattern, android, found = OVERRIDES[swift]
@@ -211,6 +268,12 @@ def main():
             status = 'DONE' if re.search(r'^\s+' + kotlin + r'\b', sources.get(owner if owner in sources else '', ''), re.M) or any(
                 re.search(r'enum class ' + owner + r'[^{]*\{[^}]*\b' + kotlin + r'\b', t, re.S) for t in sources.values()) else 'TODO'
             swift = f'`{swift}`'
+        elif alias or (owner, swift) in MEMBERS:
+            # A member of an iOS type that Android merged into another class: found in that class's file only.
+            kclass, kname, kfile = MEMBERS.get((owner, swift)) or (alias[0], kotlin, alias[1])
+            android = f'`{kclass}.{kname}`'
+            status = 'DONE' if declared({kfile: sources.get(kfile, '')}, kname) else 'TODO'
+            swift = f'`{owner}.{swift}`'
         else:
             android = f'`{owner}.{kotlin}`'
             status = 'DONE' if declared(sources, kotlin) else 'TODO'

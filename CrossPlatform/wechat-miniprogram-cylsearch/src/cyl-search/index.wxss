@@ -26,6 +26,9 @@
 .cyl-empty-view { display: block; }
 .cyl-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 4px 8px 16px; }
 .cyl-header-title { color: rgba(60, 60, 67, 0.6); font-size: 15px; font-weight: 600; }
+.cyl-results-header { display: block; padding: 8px 16px; color: rgba(60, 60, 67, 0.6); font-size: 13px; }
+.cyl-cache-footer { display: flex; justify-content: center; padding: 12px 16px; }
+.cyl-cache-footer-text { padding: 6px 16px; border: 1px solid #c6c6c8; border-radius: 999px; color: rgba(60, 60, 67, 0.6); font-size: 13px; }
 .cyl-clear { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; }
 .cyl-list { flex: 1; min-height: 0; }
 .cyl-row { display: flex; align-items: center; min-height: 48px; padding: 0 16px; border-bottom: 1px solid #e5e5ea; }

@@ -1,7 +1,8 @@
 // Runs the pure logic of the HarmonyOS search core on the host, without an emulator or a device.
 // Usage (Node 22.18 or newer, which strips TypeScript types itself):
 //   node harmonyos/scripts/host-logic-test.mjs
-// The logic is private to the three core files (CYLSearchBarView.ets, CYLSearchView.ets, CYLSearchResources.ets),
+// The logic is private to the core files (CYLSearchBarView.ets, CYLSearchView.ets, CYLSearchResources.ets,
+// CYLSearchController.ets, CYLSearchNavigationBar.ets, CYLSearchTagListStyle.ets),
 // each between the lines "// MARK: - Pure logic (begin)" and "// MARK: - Pure logic (end)" (plain TypeScript, no kit
 // import). This script copies those parts to a temporary .ts file, exports their functions, imports it and runs
 // node:test cases that mirror the Android Kotlin tests of the same behaviour.
@@ -14,7 +15,8 @@ import assert from 'node:assert/strict';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const core = join(here, '..', 'cylsearch', 'src', 'main', 'ets');
-const parts = ['CYLSearchBarView.ets', 'CYLSearchView.ets', 'CYLSearchResources.ets'].map((name) => {
+const parts = ['CYLSearchBarView.ets', 'CYLSearchView.ets', 'CYLSearchResources.ets', 'CYLSearchController.ets',
+  'CYLSearchNavigationBar.ets', 'CYLSearchTagListStyle.ets'].map((name) => {
   const text = readFileSync(join(core, name), 'utf8');
   const begin = text.indexOf('// MARK: - Pure logic (begin)');
   const end = text.indexOf('// MARK: - Pure logic (end)');
@@ -462,5 +464,114 @@ describe('Liquid Glass tag lists', () => {
     assert.match(recent, /\.backgroundColor\(\$r\('sys\.color\.background_primary'\)\)/);
     assert.doesNotMatch(recent, /liquidGlass|backgroundEffect/);
     assert.equal((discoverSource.match(/liquidGlass/g) || []).length, 1);
+  });
+});
+
+describe('cylSearchItemShape and cylSearchItemShapesMatch (setItems)', () => {
+  const first = { style: 'icon', title: 'A', animationLoops: true, animationSpeed: 2 };
+  it('ignores the playback keys and the key order', () => {
+    const same = { animationSpeed: 1, title: 'A', style: 'icon' };
+    assert.equal(logic.cylSearchItemShape(first), logic.cylSearchItemShape(same));
+  });
+  it('tells another value apart', () => {
+    assert.notEqual(logic.cylSearchItemShape(first), logic.cylSearchItemShape({ style: 'icon', title: 'B' }));
+  });
+  it('keeps the items only when the shapes and the item count are the same', () => {
+    const shapes = [logic.cylSearchItemShape(first)];
+    assert.ok(logic.cylSearchItemShapesMatch(shapes, [...shapes], 1));
+    assert.ok(!logic.cylSearchItemShapesMatch(undefined, shapes, 1));
+    assert.ok(!logic.cylSearchItemShapesMatch(shapes, shapes, 2), 'an item was added in another way');
+    assert.ok(!logic.cylSearchItemShapesMatch(shapes, [shapes[0], shapes[0]], 2));
+  });
+});
+
+describe('cylSearchCancelEnabled', () => {
+  it('is always on with alwaysEnablesCancelButton, else only while editing', () => {
+    assert.ok(logic.cylSearchCancelEnabled(true, false));
+    assert.ok(!logic.cylSearchCancelEnabled(false, false));
+    assert.ok(logic.cylSearchCancelEnabled(false, true));
+  });
+});
+
+describe('cylSearchResultsHeaderTitle', () => {
+  const provider = (query) => (query === 'none' ? undefined : 'Results for ' + query);
+  it('asks the provider only while results show', () => {
+    assert.equal(logic.cylSearchResultsHeaderTitle(true, provider, 'swift'), 'Results for swift');
+    assert.equal(logic.cylSearchResultsHeaderTitle(false, provider, 'swift'), undefined);
+  });
+  it('shows no header without a provider or when it answers nothing', () => {
+    assert.equal(logic.cylSearchResultsHeaderTitle(true, undefined, 'swift'), undefined);
+    assert.equal(logic.cylSearchResultsHeaderTitle(true, provider, 'none'), undefined);
+  });
+});
+
+describe('search controller state', () => {
+  it('lets a swipe begin only inside the search view', () => {
+    assert.ok(logic.cylSearchSwipeShouldBegin(false, false));
+    assert.ok(logic.cylSearchSwipeShouldBegin(true, true));
+    assert.ok(!logic.cylSearchSwipeShouldBegin(true, false));
+  });
+  it('pushes the navigation bar away only while searching', () => {
+    assert.ok(logic.cylSearchNavigationBarHidden(true, true));
+    assert.ok(!logic.cylSearchNavigationBarHidden(true, false));
+    assert.ok(!logic.cylSearchNavigationBarHidden(false, true));
+  });
+  it('asks the status bar providers only while searching', () => {
+    assert.ok(logic.cylSearchStatusBarHidden(true, () => true));
+    assert.ok(!logic.cylSearchStatusBarHidden(false, () => true));
+    assert.ok(!logic.cylSearchStatusBarHidden(true, undefined));
+    assert.equal(logic.cylSearchStatusBarStyle(true, () => 1, 0), 1);
+    assert.equal(logic.cylSearchStatusBarStyle(false, () => 1, 0), 0);
+    assert.equal(logic.cylSearchStatusBarStyle(true, undefined, 0), 0);
+  });
+  it('forwards the appearance only when asked for and searching', () => {
+    assert.ok(logic.cylSearchAppearanceForwarded(true, true));
+    assert.ok(!logic.cylSearchAppearanceForwarded(true, false));
+    assert.ok(!logic.cylSearchAppearanceForwarded(false, true));
+  });
+  it('reports the search bar edge only while searching', () => {
+    assert.equal(logic.cylSearchBarMaxY(true, 96), 96);
+    assert.equal(logic.cylSearchBarMaxY(false, 96), 0);
+    assert.equal(logic.cylSearchBarMaxY(true, -4), 0);
+  });
+});
+
+describe('search navigation bar', () => {
+  it('holds the field with 4 above and below and no side inset, and never pops by itself', () => {
+    assert.deepEqual(logic.cylSearchNavigationContentInsets(), [4, 0, 4, 0]);
+    assert.equal(logic.cylSearchNavigationShouldPop(), false);
+  });
+});
+
+describe('CYLSearchTagListStyle', () => {
+  it('names the glass background case-insensitively and everything else is flat', () => {
+    assert.ok(logic.cylSearchTagIsLiquidGlass('liquidGlass'));
+    assert.ok(logic.cylSearchTagIsLiquidGlass('LIQUIDGLASS'));
+    assert.ok(!logic.cylSearchTagIsLiquidGlass('flat'));
+    assert.ok(!logic.cylSearchTagIsLiquidGlass(''));
+  });
+  it('leaves the list alone for 0 or fewer columns', () => {
+    assert.ok(!logic.cylSearchTagGridApplies(0));
+    assert.ok(!logic.cylSearchTagGridApplies(-1));
+    assert.ok(logic.cylSearchTagGridApplies(2));
+  });
+  it('has the metrics of the iOS example recent searches', () => {
+    const metrics = logic.cylSearchTagDefaultMetrics();
+    assert.equal(metrics.margin, 14);
+    assert.equal(metrics.fontSize, 17);
+    assert.equal(metrics.itemHeight, 36);
+    assert.equal(metrics.interitemSpacing, 12);
+    assert.equal(metrics.lineSpacing, 12);
+    assert.deepEqual(metrics.sectionInsets, [4, 16, 24, 16]);
+    assert.equal(metrics.headerHeight, 44);
+    assert.equal(metrics.headerFontSize, 20);
+    assert.equal(metrics.headerHorizontalInset, 16);
+  });
+  it('has the metrics of the discover topics grid', () => {
+    const metrics = logic.cylSearchTagGridMetrics();
+    assert.equal(metrics.itemHeight, 36);
+    assert.equal(metrics.lineSpacing, 16);
+    assert.deepEqual(metrics.sectionInsets, [4, 16, 16, 16]);
+    assert.equal(metrics.headerHeight, 44);
   });
 });
