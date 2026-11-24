@@ -12,7 +12,12 @@
       "discover.hot": "Hot",
       "discover.animationLoops": "Loop animation",
       "discover.animationSpeed": "Animation speed",
-      "discover.animationPlay": "Play again"
+      "discover.animationPlay": "Play again",
+      "tab.list": "List style",
+      "tab.tags": "Tag style",
+      "tab.empty": "Empty results",
+      "tab.discover": "Discover",
+      "tab.searchBar": "Search bar"
     },
     "ja": {
       "discover.title": "発見",
@@ -24,7 +29,12 @@
       "discover.hot": "人気",
       "discover.animationLoops": "アニメーションをループ",
       "discover.animationSpeed": "アニメーションの速度",
-      "discover.animationPlay": "もう一度再生"
+      "discover.animationPlay": "もう一度再生",
+      "tab.list": "リストスタイル",
+      "tab.tags": "タグ表示",
+      "tab.empty": "空の結果",
+      "tab.discover": "発見",
+      "tab.searchBar": "検索バー"
     },
     "zh-Hans": {
       "discover.title": "发现",
@@ -36,7 +46,12 @@
       "discover.hot": "热门",
       "discover.animationLoops": "循环播放动画",
       "discover.animationSpeed": "动画速度",
-      "discover.animationPlay": "再播放一次"
+      "discover.animationPlay": "再播放一次",
+      "tab.list": "列表样式",
+      "tab.tags": "标签样式",
+      "tab.empty": "空结果",
+      "tab.discover": "发现",
+      "tab.searchBar": "搜索栏"
     },
     "zh-Hant": {
       "discover.title": "發現",
@@ -48,7 +63,12 @@
       "discover.hot": "熱門",
       "discover.animationLoops": "循環播放動畫",
       "discover.animationSpeed": "動畫速度",
-      "discover.animationPlay": "再播放一次"
+      "discover.animationPlay": "再播放一次",
+      "tab.list": "列表樣式",
+      "tab.tags": "標籤樣式",
+      "tab.empty": "空結果",
+      "tab.discover": "發現",
+      "tab.searchBar": "搜尋列"
     }
   },
   "discoverCount": 6,

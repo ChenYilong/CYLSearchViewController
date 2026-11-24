@@ -112,12 +112,14 @@ function riveTab(item: CYLTabBarItem, artboard: string): CYLTabBarItem {
     CYLTabBarRiveSize: '{28, 28}',
   };
 }
-const TAB_ITEMS: CYLTabBarItem[] = [
-  riveTab({ title: 'List style', image: 'system:list.bullet', selectedImage: 'system:list.bullet', identifier: 'list' }, 'CHAT'),
-  riveTab({ title: 'Tag style', image: 'system:tag', selectedImage: 'system:tag.fill', identifier: 'tags' }, 'BELL'),
-  riveTab({ title: 'Empty results', image: 'system:magnifyingglass', selectedImage: 'system:magnifyingglass', identifier: 'empty' }, 'SEARCH'),
-  riveTab({ title: 'Discover', image: 'system:sparkle.magnifyingglass', selectedImage: 'system:sparkle.magnifyingglass', identifier: 'discover' }, 'USER'),
-];
+function tabItems(text: Record<string, string>): CYLTabBarItem[] {
+  return [
+  riveTab({ title: text['tab.list'], image: 'system:list.bullet', selectedImage: 'system:list.bullet', identifier: 'list' }, 'CHAT'),
+  riveTab({ title: text['tab.tags'], image: 'system:tag', selectedImage: 'system:tag.fill', identifier: 'tags' }, 'BELL'),
+  riveTab({ title: text['tab.empty'], image: 'system:magnifyingglass', selectedImage: 'system:magnifyingglass', identifier: 'empty' }, 'SEARCH'),
+  riveTab({ title: text['tab.discover'], image: 'system:sparkle.magnifyingglass', selectedImage: 'system:sparkle.magnifyingglass', identifier: 'discover' }, 'USER'),
+  ];
+}
 // SVGA tab icons (the SVGA counterpart of the Rive scene, as the iOS, native Android, Flutter and HarmonyOS examples):
 // CYLTabBarController plays CYLTabBarSVGAFilePath through the app's SVGA player (Android: SVGAPlayer-Android; iOS: the
 // CYLAnimatedItem/SVGA subspec). The files are the iOS example's CYLSearchExample/SVGA (see NOTICE.md there), read from the
@@ -125,24 +127,29 @@ const TAB_ITEMS: CYLTabBarItem[] = [
 function svgaTab(item: CYLTabBarItem, file: string): CYLTabBarItem {
   return { ...item, CYLTabBarSVGAFilePath: file, CYLTabBarSVGASize: '{28, 28}' };
 }
-const SVGA_TAB_ITEMS: CYLTabBarItem[] = [
-  svgaTab({ title: 'List style', image: 'system:list.bullet', selectedImage: 'system:list.bullet', identifier: 'list' }, 'tab_list.svga'),
-  svgaTab({ title: 'Tag style', image: 'system:tag', selectedImage: 'system:tag.fill', identifier: 'tags' }, 'tab_chat.svga'),
-  svgaTab({ title: 'Empty results', image: 'system:magnifyingglass', selectedImage: 'system:magnifyingglass', identifier: 'empty' }, 'tab_search.svga'),
-  svgaTab({ title: 'Discover', image: 'system:sparkle.magnifyingglass', selectedImage: 'system:sparkle.magnifyingglass', identifier: 'discover' }, 'tab_profile.svga'),
-];
+function svgaTabItems(text: Record<string, string>): CYLTabBarItem[] {
+  return [
+  svgaTab({ title: text['tab.list'], image: 'system:list.bullet', selectedImage: 'system:list.bullet', identifier: 'list' }, 'tab_list.svga'),
+  svgaTab({ title: text['tab.tags'], image: 'system:tag', selectedImage: 'system:tag.fill', identifier: 'tags' }, 'tab_chat.svga'),
+  svgaTab({ title: text['tab.empty'], image: 'system:magnifyingglass', selectedImage: 'system:magnifyingglass', identifier: 'empty' }, 'tab_search.svga'),
+  svgaTab({ title: text['tab.discover'], image: 'system:sparkle.magnifyingglass', selectedImage: 'system:sparkle.magnifyingglass', identifier: 'discover' }, 'tab_profile.svga'),
+  ];
+}
 
-const PLUS_BUTTON: CYLTabBarPlusButton = {
-  title: 'Search bar',
+function plusButton(text: Record<string, string>): CYLTabBarPlusButton {
+  return {
+  title: text['tab.searchBar'],
   // A 52 pt green PNG: `imageSize` would redraw an SF Symbol into a black bitmap.
   image: require('./assets/plus-button.png'),
   // No size, center or title alignment here: CYLTabBarController's core lays the raised plus button out (2026-11-17).
   identifier: 'plus',
   pageIdentifier: 'plus',
-};
+  };
+}
 
 function Screens() {
   const palette = usePalette();
+  const text = discoverStrings();
   // `-initialTab discover` (an iOS launch argument, read through Settings) opens a tab directly, for screenshots.
   const [tab, setTab] = useState<string>(() => (Platform.OS === 'ios' && typeof Settings.get('initialTab') === 'string' ? Settings.get('initialTab') : 'list'));
   // `-initialDemo controller|styles` (an iOS launch argument) opens a QMUI replica directly, for screenshots.
@@ -197,7 +204,7 @@ function Screens() {
       <View style={styles.fill}>
         {tab === 'bar' ? <SearchBarDemo /> : tab === 'discover' ? <DiscoverDemo /> : current ? (
           <View style={styles.page}>
-            <Text style={[styles.title, { color: palette.text }]}>{current.title}</Text>
+            <Text style={[styles.title, { color: palette.text }]}>{text[`tab.${current.key}`] ?? current.title}</Text>
             <Text style={[styles.body, { color: palette.text }]}>{current.description}</Text>
             {current.demos.map((demo) => (
               <Pressable key={demo.label} accessibilityRole="button" style={styles.button} onPress={() => setOpen(demo)}>
@@ -214,8 +221,8 @@ function Screens() {
       <CYLTabBar
         key={iconSource}
         style={styles.tabBar}
-        items={iconSource === 'svga' ? SVGA_TAB_ITEMS : TAB_ITEMS}
-        plusButton={{ ...PLUS_BUTTON, titleColor: palette.text }}
+        items={iconSource === 'svga' ? svgaTabItems(text) : tabItems(text)}
+        plusButton={{ ...plusButton(text), titleColor: palette.text }}
         tapAnimation="scale"
         selectedIndex={tab === 'bar' ? -1 : TAB_KEYS.indexOf(tab)}
         onTabSelect={(index) => setTab(index < 0 ? 'bar' : TAB_KEYS[index] ?? 'list')}
@@ -280,7 +287,7 @@ function SearchBarDemo() {
   const [multipleStatus, setMultipleStatus] = useState('Searches: Swift, Kotlin');
   return (
     <View style={styles.page}>
-      <Text style={[styles.title, { color: palette.text }]}>Search bar</Text>
+      <Text style={[styles.title, { color: palette.text }]}>{discoverStrings()['tab.searchBar']}</Text>
       <CYLSearchBarView
         style={styles.bar}
         placeholder="Streamer, room ID or song"

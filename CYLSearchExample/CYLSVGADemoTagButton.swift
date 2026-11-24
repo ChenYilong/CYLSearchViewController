@@ -37,7 +37,7 @@ final class CYLSVGADemoTagButton: NSObject {
             appearance.borderColor = nil
             appearance.borderWidth = 0
             appearance.contentInsets = .zero
-            appearance.cornerRadius = CYLTagCornerRadiusSquare
+            appearance.cornerRadius = 0.001  // square corners; 0 is square too since CollectionViewClassifyMenu's numeric radius
             appearance.textColor = .secondaryLabel
             appearance.font = .systemFont(ofSize: titleFontSize)
         }
