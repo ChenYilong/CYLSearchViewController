@@ -227,7 +227,7 @@ final class CYLSearchDiscoverViewController: UIViewController {
      */
     func updateLayerColors() {
         let contrast = UIAccessibility.isDarkerSystemColorsEnabled
-        let border = contrast ? UIColor.label : UIColor.separator
+        let border = contrast ? UIColor.label : UIColor.secondaryLabel
         searchBar.fieldBorderColor = border
         searchBar.fieldBorderWidth = contrast ? 2 : 1
         micButton.layer.borderColor = border.resolvedColor(with: traitCollection).cgColor
