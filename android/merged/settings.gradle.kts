@@ -13,7 +13,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         // SVGAPlayer-Android (com.github.yyued) is only on JitPack: the SVGA tab icons (CYLTabBarController issue #415).
-        maven("https://jitpack.io") { content { includeGroup("com.github.yyued") } }
+        maven("https://jitpack.io") { content { includeGroup("com.github.yyued"); includeGroup("com.github.ChenYilong.CYLDeallocBlockExecutor") } }
     }
 }
 rootProject.name = "CYLSearchAndroid"

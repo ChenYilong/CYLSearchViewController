@@ -52,7 +52,7 @@ class CYLSearchBarEmbedInToolbarTest {
         assertTrue("the bar starts after the back arrow", bar.left >= backButton.right)
         assertTrue(
             "the bar fills the rest: ${bar.measuredWidth} of $remaining",
-            bar.measuredWidth >= remaining - toolbar.contentInsetEnd - 2,
+            bar.measuredWidth >= remaining - toolbar.contentInsetEnd - toolbar.contentInsetStartWithNavigation - 2,
         )
     }
 
