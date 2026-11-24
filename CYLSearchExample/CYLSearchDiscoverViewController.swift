@@ -14,7 +14,6 @@
 
 import UIKit
 import CollectionViewClassifyMenu
-import CYLAnimatedItem
 import CYLSearchViewController
 
 /**
@@ -157,8 +156,6 @@ final class CYLSearchDiscoverViewController: UIViewController {
             // The glass tint (translucent, alpha x 0.75): a plain white page shows glass only through its tint.
             appearance.backgroundColor = state == .selected ? UIColor.tintColor.withAlphaComponent(0.3) : .clear
             appearance.borderWidth = 0
-            appearance.cornerRadius = CYLAnimatedItemCornerRadiusCapsule
-            appearance.margin = 14
             appearance.font = .systemFont(ofSize: 17)
             appearance.textColor = .label
         }

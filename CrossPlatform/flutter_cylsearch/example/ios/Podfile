@@ -34,14 +34,14 @@ target 'Runner' do
   pod 'CYLSearchViewController', :path => '../../../..'
   # flutter_cyltabbar's native tab bar, at the newest CYLTabBarController commit (as its git dependency in pubspec.yaml).
   # Rive tab icons (the default icon source): CYLTabBarController's Rive subspec brings RiveRuntime.
-  pod 'CYLTabBarController', :subspecs => ['Core', 'SVGA', 'Rive'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '235f6e96a4e350a31302144b461efeda949f95a0'
+  pod 'CYLTabBarController', :subspecs => ['Core', 'SVGA', 'Rive'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '11fc94befae9b2bfb2e508732825ec8f5bbdf431'
   # CYLAnimatedItem: its own pod in CYLTabBarController's repository, not on the trunk yet; the engines the example plays.
-  pod 'CYLAnimatedItem', :subspecs => ['Core', 'SVGA', 'Rive', 'LottieSwift'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '235f6e96a4e350a31302144b461efeda949f95a0'
+  pod 'CYLAnimatedItem', :subspecs => ['Core', 'SVGA', 'Rive', 'LottieSwift'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '11fc94befae9b2bfb2e508732825ec8f5bbdf431'
   # SVGA tab icons (SVGAPlayerLite, the player CYLAnimatedItem/SVGA uses; SVGAPlayer beside it builds the same sources
   # twice and misses Svga.pbobjc.h); static linking needs module maps for these two Objective-C pods.
   pod 'SVGAPlayerLite', :modular_headers => true
   pod 'Protobuf', :modular_headers => true
-  pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => '8cd4efa'
+  pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => '755aa308078235cd4675073792ef471f37b8dd5b'
   pod 'CYLTableViewPlaceHolder', :subspecs => ['Core', 'Lottie'], :git => 'https://github.com/ChenYilong/CYLTableViewPlaceHolder.git', :commit => 'f4cf978567e43288b44f6ddc266510fa837a0e72'
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
