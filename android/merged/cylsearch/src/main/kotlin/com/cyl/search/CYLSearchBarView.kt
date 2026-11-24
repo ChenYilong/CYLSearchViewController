@@ -665,7 +665,8 @@ class CYLSearchBarView @JvmOverloads constructor(
         when (searchBarStyle) {
             CYLSearchBarStyle.Plain -> Unit
             CYLSearchBarStyle.Bordered -> {
-                fieldBorderColor = themeColor(android.R.attr.textColorHint)
+                // Secondary text color, not the hint's: the hint's 38% black border was hard to see on a light page.
+                fieldBorderColor = themeColor(android.R.attr.textColorSecondary)
                 fieldBorderWidth = 1f
                 fieldBackgroundColor = themeColor(android.R.attr.colorBackground)
                 fieldCornerRadius = -1f
@@ -1886,8 +1887,55 @@ class CYLSearchBarView @JvmOverloads constructor(
         applyLayout()
     }
 
+    /** The field's height as `applyLayout` set it, px; `onMeasure` shortens the field when the host gives the bar less. */
+    private var wantedFieldPixels = 0
+
+    /**
+     * The field never gets taller than the bar: a host that is shorter than the field plus `contentInsets` (a 44 dp toolbar
+     * slot of a Flutter or React Native page) first takes the space from the insets above and below the field, then from the
+     * field; before, the field kept its height and the host clipped its top and bottom edges, so the border showed only
+     * as the two side arcs.
+     */
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val available = MeasureSpec.getSize(heightMeasureSpec)
+        if (wantedFieldPixels > 0 && MeasureSpec.getMode(heightMeasureSpec) != MeasureSpec.UNSPECIFIED) {
+            var top = dp(contentInsets.top.toFloat())
+            var bottom = dp(contentInsets.bottom.toFloat())
+            var height = wantedFieldPixels
+            if (available < height + top + bottom) {
+                val room = available - height
+                if (room >= 0) {
+                    top = room / 2
+                    bottom = room - top
+                } else {
+                    top = 0
+                    bottom = 0
+                    height = max(0, available)
+                }
+            }
+            // Embedded in a toolbar with the default insets: the capsule keeps iOS's edges. After a back button it starts where the toolbar's content starts
+            // (72 dp, iOS 72 pt: no inset of its own, the old 12 dp made it 84 dp); without one, and at the end, it sits on the 16 dp inset of the tag list.
+            var start = row.paddingStart
+            var end = row.paddingEnd
+            if (embedsInToolbar && contentInsets == DEFAULT_CONTENT_INSETS) {
+                start = if ((parent as? androidx.appcompat.widget.Toolbar)?.navigationIcon != null) 0 else dp(EMBEDDED_TAG_INSET)
+                end = dp(EMBEDDED_TAG_INSET)
+            }
+            if (row.paddingTop != top || row.paddingBottom != bottom || row.paddingStart != start || row.paddingEnd != end) row.setPaddingRelative(start, top, end, bottom)
+            (fieldView.layoutParams as? LinearLayout.LayoutParams)?.let {
+                if (it.height != height) {
+                    it.height = height
+                    fieldView.layoutParams = it
+                }
+            }
+            fieldBackground.cornerRadius = if (fieldCornerRadius < 0) height / 2f else dp(fieldCornerRadius).toFloat()
+        }
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+    }
+
     private fun applyLayout() {
         val fieldPixels = max(dp(fieldHeight), (fontSize * resources.displayMetrics.scaledDensity * 1.2f + 12 * density).toInt())
+        wantedFieldPixels = fieldPixels
         row.setPaddingRelative(dp(contentInsets.left.toFloat()), dp(contentInsets.top.toFloat()), dp(contentInsets.right.toFloat()), dp(contentInsets.bottom.toFloat()))
         (fieldView.layoutParams as? LinearLayout.LayoutParams)?.let { it.height = fieldPixels; fieldView.layoutParams = it }
         fieldBackground.cornerRadius = if (fieldCornerRadius < 0) fieldPixels / 2f else dp(fieldCornerRadius).toFloat()
@@ -2314,6 +2362,9 @@ class CYLSearchBarView @JvmOverloads constructor(
         private const val INDICATOR_HEIGHT = 2f
         private const val ICON_SIZE = 18f
         private const val SPACING = 8f
+        /** The inset of the tag list and its headers (16 dp, iOS 16 pt): the embedded bar's capsule edge sits on it where no back button is. */
+        private const val EMBEDDED_TAG_INSET = 16f
+        private val DEFAULT_CONTENT_INSETS = Rect(12, 6, 12, 6)
         private const val DEFAULT_FIELD_COLOR = 0x1F767680
         private const val STATE_SUPER = "CYLSearchBarSuper"
         private const val STATE_TEXT = "CYLSearchBarText"

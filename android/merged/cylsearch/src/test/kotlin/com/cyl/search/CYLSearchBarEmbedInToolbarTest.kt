@@ -75,4 +75,37 @@ class CYLSearchBarEmbedInToolbarTest {
         assertSame(toolbar, bar.parent)
         assertEquals("the content below the toolbar stays", 2, content.childCount)
     }
+
+    @Test
+    fun theCapsuleStartsWhereTheToolbarContentStartsAfterABackArrowAndOnTheTagInsetWithout() {
+        val density = activity.resources.displayMetrics.density
+        val withArrow = Toolbar(activity)
+        withArrow.setNavigationIcon(R.drawable.cyl_search_ic_arrow_back)
+        val arrowBar = CYLSearchBarView(activity)
+        arrowBar.embedInToolbar(withArrow)
+        layOut(withArrow, 1080)
+        assertEquals("after the back arrow the bar adds no inset of its own (iOS 72 pt: the toolbar keyline)", 0, (arrowBar.fieldView.parent as View).paddingStart)
+
+        val plain = Toolbar(activity)
+        val plainBar = CYLSearchBarView(activity)
+        plainBar.embedInToolbar(plain)
+        layOut(plain, 1080)
+        assertEquals("without an arrow: the 16 dp inset of the tag list", Math.round(16 * density), (plainBar.fieldView.parent as View).paddingStart)
+        assertEquals("and at the end", Math.round(16 * density), (plainBar.fieldView.parent as View).paddingEnd)
+    }
+
+    @Test
+    fun aHostShorterThanTheFieldKeepsAllFourEdgesOfTheField() {
+        val bar = CYLSearchBarView(activity)
+        bar.searchBarStyle = CYLSearchBarStyle.Bordered
+        val toolbar = Toolbar(activity)
+        bar.embedInToolbar(toolbar)
+        // A 44 dp slot (115 px at 2.625) is shorter than the field and the 6 dp insets around it.
+        val slot = 115
+        toolbar.measure(exactly(1080), exactly(slot))
+        toolbar.layout(0, 0, 1080, slot)
+        val field = bar.fieldView
+        assertTrue("the field (${field.height}) fits the slot ($slot)", field.height in 1..slot)
+        assertTrue("the field lies inside the bar", field.top >= 0 && field.bottom <= bar.height)
+    }
 }

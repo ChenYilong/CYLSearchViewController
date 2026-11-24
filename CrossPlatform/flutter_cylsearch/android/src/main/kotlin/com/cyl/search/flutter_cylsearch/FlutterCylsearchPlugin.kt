@@ -605,17 +605,27 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
     private fun loadTagImages() {
         val loader = io.flutter.FlutterInjector.instance().flutterLoader()
         tagImages.filter { it.isNotEmpty() && it !in loadedImages }.distinct().forEach { key ->
-            try {
-                appContext.assets.open(loader.getLookupKeyForAsset(key)).use { stream ->
-                    val bitmap = android.graphics.BitmapFactory.decodeStream(stream) ?: return@use
-                    when {
-                        key.contains("@3x") -> bitmap.density = 480
-                        key.contains("@2x") -> bitmap.density = 320
+            // Flutter's density variants sit beside the asset ("dir/3.0x/name"): the sharpest one is read with its own density, so
+            // a 30 x 18 px 1x image is 30 x 18 dp and not 30 px (about 11 dp, too small to read); a key without variants is the base.
+            val slash = key.lastIndexOf('/')
+            val directory = if (slash >= 0) key.substring(0, slash + 1) else ""
+            val name = key.substring(slash + 1)
+            val candidates = listOf(3 to "${directory}3.0x/$name", 2 to "${directory}2.0x/$name", 1 to key)
+            for ((scale, candidate) in candidates) {
+                try {
+                    appContext.assets.open(loader.getLookupKeyForAsset(candidate)).use { stream ->
+                        val bitmap = android.graphics.BitmapFactory.decodeStream(stream) ?: return@use
+                        when {
+                            key.contains("@3x") -> bitmap.density = 480
+                            key.contains("@2x") -> bitmap.density = 320
+                            else -> bitmap.density = 160 * scale
+                        }
+                        loadedImages[key] = android.graphics.drawable.BitmapDrawable(appContext.resources, bitmap)
                     }
-                    loadedImages[key] = android.graphics.drawable.BitmapDrawable(appContext.resources, bitmap)
+                    if (key in loadedImages) break
+                } catch (error: java.io.IOException) {
+                    // This variant is missing: the next one is tried; none leaves the tag without an image.
                 }
-            } catch (error: java.io.IOException) {
-                // A missing asset leaves the tag without an image.
             }
         }
     }
