@@ -119,12 +119,19 @@ public final class CYLSearchExampleAppDelegate: UIResponder, UIApplicationDelega
             navigationController(root: CYLSearchBarDemoViewController())
         }, forPageIdentifier: "plus")
         // The suggestion style demos (docs/tag-view-suggestions.md): suggestions as tags, and the discover page copied from
-        // CollectionViewClassifyMenu. The discover page draws its own search bar in place of the navigation bar.
+        // CollectionViewClassifyMenu. The discover page embeds its search bar in the navigation bar (the core creates one when there is none).
         pages.register({ _, _ in
             navigationController(root: CYLSuggestionDemoPages.tagStyleViewController())
         }, forPageIdentifier: "tagStyle")
         pages.register({ _, _ in
-            navigationController(root: CYLSuggestionDemoPages.discoverViewController())
+            let navigation = navigationController(root: CYLSuggestionDemoPages.discoverViewController())
+            // `-CYLDemoPushDiscover 1`: the page is pushed as a second-level page, so the navigation bar has a back button on
+            // its leading side and the embedded search bar takes the width that is left (docs/animated-icon-component.md,
+            // "Refresh, hot data and navigation bar contract").
+            if UserDefaults.standard.bool(forKey: "CYLDemoPushDiscover") {
+                navigation.pushViewController(CYLSuggestionDemoPages.discoverViewController(), animated: false)
+            }
+            return navigation
         }, forPageIdentifier: "discover")
     }
 
