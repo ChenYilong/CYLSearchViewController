@@ -1467,3 +1467,11 @@ begins and becomes `DONE` when it ends.
   - Plan 1 (remove the x86_64 debug guard, tab bar 269eff24): a peer reported the owner approved it. This session has not seen that approval from the owner.
 - **TODOs that need the owner (7 points)**: the mini program back-arrow check in WeChat DevTools, the phone tab-switch retest, the keyboard placeholder.
 - **Status**: DONE (2026-11-24), 100/100: listed and pushed. The items above stay open.
+
+## Owner decision on the final pin pair (2026-11-25, Mac session)
+
+- **Prompt (verbatim)**: "advisor帮我决定" (advisor decides for me). English: "Let the advisor decide for me."
+- **Decision (advisor, delegated by the owner)**: (1) merge `feat/harmony` into `feat/tag-liquid-glass` (PR #36), pins resolved to CYLTabBarController >= `a4fcb998` and CYLDeallocBlockExecutor `4276a6da`; (2) the selected tag look stays Liquid Glass at tint 1 (not flat).
+- **Why**: the owner asked for every example tag to be glass from one parameter; 30% tint x 0.75 alpha is the cause of the faint selected look and the dark-mode contrast defect.
+- **Next**: ClassifyMenu merges, reruns four iOS suites, sends `FINAL`; then one pin batch here. In the batch: `.clear` normal fill in `applyDefaults` instead of `systemGray5`, dark-mode screenshot of a selected contact tag, raise the contact editor selected tint if contrast is poor.
+- **Status**: TODO.
