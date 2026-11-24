@@ -1,4 +1,4 @@
-const { CYLSearchResources, cylNavigationMetrics } = require('../core/CYLSearchResources');
+const { CYLSearchResources, cylNavigationMetrics, cylNavigationBarWidthsFrom } = require('../core/CYLSearchResources');
 
 /**
  * The navigation bar of a page with `"navigationStyle": "custom"` that always holds the search bar (docs/
@@ -17,15 +17,25 @@ Component({
     backLabel: { type: String, value: '' },
     autoBack: { type: Boolean, value: true },
   },
-  data: { metrics: {}, barStyle: '', back: '' },
+  data: { metrics: {}, barStyle: '', contentStyle: '', back: '' },
   lifetimes: {
     attached() {
       const metrics = cylNavigationMetrics();
-      // 16 pt layout margins (the tag inset), the trailing side ends before the menu button.
-      const trailing = Math.max(16, metrics.trailingInset);
+      let window = {};
+      let menuButton = null;
+      try {
+        window = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+        menuButton = wx.getMenuButtonBoundingClientRect ? wx.getMenuButtonBoundingClientRect() : null;
+      } catch (error) {
+        menuButton = null;
+      }
+      // 16 pt layout margins (the tag inset), the trailing side ends before the menu button, the search bar gets the
+      // width that is left beside the back button (measured here, never by the page).
+      const widths = cylNavigationBarWidthsFrom(window, menuButton, this.properties.showsBack);
       this.setData({
         metrics,
-        barStyle: `padding: ${metrics.statusBarHeight}px ${trailing}px 0 16px; height: ${metrics.navigationBarHeight}px;`,
+        barStyle: `padding: ${metrics.statusBarHeight}px ${widths.trailing}px 0 ${widths.leading}px; height: ${metrics.navigationBarHeight}px;`,
+        contentStyle: `width: ${widths.fieldWidth}px;`,
         back: this.properties.backLabel || CYLSearchResources.localizedString(undefined, 'search.back'),
       });
     },

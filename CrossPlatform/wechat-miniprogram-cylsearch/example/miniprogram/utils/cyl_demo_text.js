@@ -1,13 +1,9 @@
 // The example's texts and data, from the iOS bundles (utils/cyl_demo_resources.js), in the WeChat language:
 // cylDemoText('demo.port.query', 'Swift') is "Query: Swift", as String(format:) gives on iOS.
 const resources = require('./cyl_demo_resources');
-// The discover data: whole copies of the iOS search-discover.json (scripts/sync-discover-data.py keeps them equal).
-const discoverData = {
-  en: require('./discover/en.json'),
-  ja: require('./discover/ja.json'),
-  'zh-Hans': require('./discover/zh-Hans.json'),
-  'zh-Hant': require('./discover/zh-Hant.json'),
-};
+// The discover data is embedded in cyl_demo_resources.js, imported from the iOS search-discover.json files (the .json
+// copies in ./discover are what scripts/sync-discover-data.py checks; the test example_text keeps both equal).
+const discoverData = resources.discover;
 
 let cachedLanguage = '';
 

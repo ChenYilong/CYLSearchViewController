@@ -3,5 +3,5 @@
   <view wx:if="{{showsBack}}" class="cyl-nav-back" role="button" aria-label="{{back}}" bindtap="onBack">
     <view class="cyl-nav-back-icon" aria-hidden="true" />
   </view>
-  <view class="cyl-nav-content"><slot /></view>
+  <view class="cyl-nav-content" style="{{contentStyle}}"><slot /></view>
 </view>

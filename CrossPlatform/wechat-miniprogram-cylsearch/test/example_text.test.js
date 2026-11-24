@@ -32,6 +32,15 @@ test('the example texts are the iOS ones in every language', () => {
   }
 });
 
+test('the embedded discover data equals the json copies the sync script checks', () => {
+  for (const language of resources.languages) {
+    const copy = require(`../example/miniprogram/utils/discover/${language}.json`);
+    const embedded = JSON.parse(JSON.stringify(resources.discover[language]));
+    delete copy.comment;
+    assert.deepStrictEqual(embedded, copy, language);
+  }
+});
+
 test('the discover data has the same topics in every language', () => {
   cylSetDemoLanguage('en');
   assert.strictEqual(cylDiscoverData().discoverCount, 6);

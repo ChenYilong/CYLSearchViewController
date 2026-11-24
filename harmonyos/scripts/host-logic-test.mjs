@@ -305,3 +305,23 @@ describe('Discover: refresh shows the next page, cyclically', () => {
     }
   });
 });
+
+// The adaptive width is the core's job: the title builder of CYLSearchNavigationPage lays the search bar out with
+// layoutWeight(1) between the back button and the end, and an example page passes no width, margin or padding to fit
+// the back button (docs/animated-icon-component.md, "The adaptive width is the core's job"). ArkUI layout cannot run on
+// the host, so this checks the rule in the source of the builder and of the example.
+describe('navigation title builder: the core adapts the bar width', () => {
+  const barSource = readFileSync(join(core, 'CYLSearchBarView.ets'), 'utf8');
+  const titleBar = barSource.slice(barSource.indexOf('titleBar() {'), barSource.indexOf('build() {', barSource.indexOf('titleBar() {')));
+  it('gives the bar the width left beside the back button with layoutWeight(1)', () => {
+    assert.match(titleBar, /CYLSearchBarComponent\(\{ searchBarView: this\.searchBarView \}\)\.layoutWeight\(1\)/);
+    assert.ok(titleBar.indexOf('if (this.showsBack)') < titleBar.indexOf('CYLSearchBarComponent'), 'the back button comes first');
+  });
+  it('lets the example page pass no width, margin or padding to the bar', () => {
+    const start = discoverSource.indexOf('CYLSearchNavigationPage({');
+    const page = discoverSource.slice(start, discoverSource.indexOf('discoverContent() {', start));
+    assert.doesNotMatch(page, /\.(width|margin|padding)\(/);
+    assert.doesNotMatch(discoverSource, /CYLSearchBarComponent/);
+    assert.doesNotMatch(discoverSource, /\bfieldHeight\b/);
+  });
+});

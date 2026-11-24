@@ -222,6 +222,25 @@ function cylNavigationMetricsFrom(window, menuButton) {
 }
 
 /**
+ * The space a back button takes in the navigation bar (its 32 wide box, 10 pulled into the leading margin, 2 gap).
+ */
+const CYL_NAVIGATION_BACK_WIDTH = 24;
+
+/**
+ * The widths in a navigation bar, from the window and menu button rectangles: the 16 leading margin, the trailing
+ * inset that clears the capsule menu button (16 without a rectangle), the back button's space (when shown) and the
+ * width left for the search bar. The core measures it, so a page passes no width, margin or padding to fit the back
+ * button.
+ */
+function cylNavigationBarWidthsFrom(window, menuButton, showsBack) {
+  const metrics = cylNavigationMetricsFrom(window, menuButton);
+  const leading = 16;
+  const trailing = Math.max(16, metrics.trailingInset);
+  const back = showsBack ? CYL_NAVIGATION_BACK_WIDTH : 0;
+  return { leading, trailing, back, fieldWidth: Math.max(0, metrics.windowWidth - leading - trailing - back), metrics };
+}
+
+/**
  * The navigation bar metrics of this device (see `cylNavigationMetricsFrom`).
  */
 function cylNavigationMetrics() {
@@ -411,6 +430,8 @@ module.exports = {
   cylNavigationMetrics,
   cylNavigationMetricsFrom,
   CYL_NAVIGATION_FIELD_HEIGHT,
+  CYL_NAVIGATION_BACK_WIDTH,
+  cylNavigationBarWidthsFrom,
   $r,
   Curve,
   animateTo,

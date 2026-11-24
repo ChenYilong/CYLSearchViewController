@@ -80,3 +80,20 @@ test('the field embedded in the navigation bar is 36 high, with or without a men
   assert.equal(cylNavigationMetricsFrom(null, null).fieldHeight, 36);
   assert.equal(cylNavigationMetricsFrom({ statusBarHeight: 44, windowWidth: 390 }, { top: 48, height: 32, left: 296, right: 383 }).fieldHeight, 36);
 });
+
+test('the navigation bar measures the width left for the bar beside the back button and the menu button', () => {
+  const { cylNavigationBarWidthsFrom, CYL_NAVIGATION_BACK_WIDTH } = require('../src/core/CYLSearchResources');
+  const window = { statusBarHeight: 44, windowWidth: 390 };
+  const menu = { top: 48, height: 32, left: 296, right: 383 };
+  // Trailing inset: 390 - 296 + 390 - 383 = 101; leading 16.
+  const withBack = cylNavigationBarWidthsFrom(window, menu, true);
+  assert.equal(withBack.trailing, 101);
+  assert.equal(withBack.back, CYL_NAVIGATION_BACK_WIDTH);
+  assert.equal(withBack.fieldWidth, 390 - 16 - 101 - CYL_NAVIGATION_BACK_WIDTH);
+  const plain = cylNavigationBarWidthsFrom(window, menu, false);
+  assert.equal(plain.fieldWidth, 390 - 16 - 101);
+  // Without a menu button rectangle both sides keep the 16 margin; a tiny window never goes negative.
+  assert.equal(cylNavigationBarWidthsFrom(window, null, true).fieldWidth, 390 - 16 - 16 - CYL_NAVIGATION_BACK_WIDTH);
+  assert.equal(cylNavigationBarWidthsFrom({ windowWidth: 60 }, null, true).fieldWidth, 4);
+  assert.equal(cylNavigationBarWidthsFrom({ windowWidth: 30 }, null, true).fieldWidth, 0);
+});
