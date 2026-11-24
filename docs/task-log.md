@@ -1475,3 +1475,22 @@ begins and becomes `DONE` when it ends.
 - **Why**: the owner asked for every example tag to be glass from one parameter; 30% tint x 0.75 alpha is the cause of the faint selected look and the dark-mode contrast defect.
 - **Next**: ClassifyMenu merges, reruns four iOS suites, sends `FINAL`; then one pin batch here. In the batch: `.clear` normal fill in `applyDefaults` instead of `systemGray5`, dark-mode screenshot of a selected contact tag, raise the contact editor selected tint if contrast is poor.
 - **Status**: TODO.
+## TODO (2026-11-24, `feat/harmonyos-parity`, chenyilong-3e): all-platform interface score, advisor review, Sonnet implements, score to 100
+
+- **Prompt (verbatim)**: "continue TODO (missing points): advisor opus advisor点评目前全平台接口实现得分 以及下一步计划与建议。并立即让默认模型sonnet按照建议去实现。将得分优化到100转发合适任务给其他session 直接使用本机环境进行测试，iOS在macos机器，其余在windows机器。转发任务给相应session无需等待ci结果。"
+- **Prompt (English)**: continue the TODOs that miss points: the advisor (Opus) reviews the current interface score of every platform and gives the next plan; Sonnet implements it at once; raise the score to 100; forward fitting tasks to other sessions, which test on their own machine (iOS on macOS, the rest on Windows); do not wait for CI when forwarding.
+- **Scores re-run at `fdaa37f` (2026-11-24, Mac)**: the alignment tables were last scored before the QMUI port and the 11-24 contract added public Swift API (443 rows now):
+  | Script | Score |
+  |---|---|
+  | `android/merged/scripts/api-alignment.py` | 83/100 (350 done, 22 N/A, 71 TODO) |
+  | `android/merged/scripts/ios-alignment.mjs` | 93/100 (309 of 332) |
+  | `scripts/harmonyos-api-alignment.py` | 74/100 (330 of 443, 113 TODO) |
+  | `scripts/miniprogram-api-alignment.py` | 69/100 (308 of 443, 135 TODO) |
+  | `scripts/harmonyos-scorecard.py` | 100/100 |
+  | `harmonyos/scripts/check-ios-parity.mjs` | 677 match, 0 problems |
+  | `sync-discover-data.py --check` | OK |
+  TODO rows by class (HarmonyOS / mini program): CYLSearchController 42/42, CYLSearchBar 25/25, CYLSearchBarAppearance 0/16, CYLSearchTableViewController 11/11, CYLSearchNavigationBar 8/8, CYLSearchTagListStyle 7/7, CYLSearchView 4/5, CYLSearchTagListHeader 3/3, CYLSearchControllerDelegate 3/3, CYLSearchBarView 2/3.
+- **Plan**: (1) three Sonnet agents write the missing counterparts statically (Android, HarmonyOS, mini program), each re-runs its script until 100 and runs the tests this Mac can run (node tests, host logic tests; Android needs JDK 17, absent here); (2) the iOS owner session (Mac-CYLSearchViewController文件夹) keeps the iOS items and the pin move; (3) device batches by the Windows sessions.
+- **Forwarding**: the Windows sessions (`winsCYLSearchViewController repository`, `winsCYLTableViewPlaceHolder directory`) are not reachable from this Mac (SendMessage: no such agent); their batch is written here for them to pick up.
+- **Push**: held until the pending iOS CI run of `fdaa37f` ends (the iOS owner's request: every push cancels it).
+- **Acceptance**: 100 = the three scripts print 100 with real counterparts (no N/A without a UIKit-only reason), node / host tests green, Windows batch run with labeled screenshots; 60 = the scripts at 100 statically.
