@@ -193,7 +193,6 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             searchBarStyle = CYLSearchBarStyle.Bordered
             fieldCornerRadius = 22f
             fieldBackgroundColor = Color.WHITE
-            fieldBorderColor = Color.argb(40, 0, 0, 0)
             fieldBorderWidth = 1f
             fieldShadowOpacity = 0.06f
             fontSize = 16f

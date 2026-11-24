@@ -1996,13 +1996,15 @@ class CYLSearchBarView @JvmOverloads constructor(
                     height = max(0, available)
                 }
             }
-            // Embedded in a toolbar with the default insets: the capsule keeps iOS's edges. After a back button it starts where the toolbar's content starts
-            // (72 dp, iOS 72 pt: no inset of its own, the old 12 dp made it 84 dp); without one, and at the end, it sits on the 16 dp inset of the tag list.
+            // Embedded in a toolbar: after a back arrow the bar starts where the toolbar's content starts (EMBEDDED_BAR_START) and the host's left inset adds
+            // nothing (the native example's 16 dp and the Flutter plugin's default 12 dp gave 72 dp and 84 dp before: the same bar, two positions); without an
+            // arrow, and at the end, the host's inset counts, the default 12 dp becoming the 16 dp inset of the tag list.
             var start = row.paddingStart
             var end = row.paddingEnd
-            if (embedsInToolbar && contentInsets.left == DEFAULT_CONTENT_INSETS.left && contentInsets.right == DEFAULT_CONTENT_INSETS.right) {
-                start = if ((parent as? androidx.appcompat.widget.Toolbar)?.navigationIcon != null) 0 else dp(EMBEDDED_TAG_INSET)
-                end = dp(EMBEDDED_TAG_INSET)
+            if (embedsInToolbar) {
+                val hasArrow = (parent as? androidx.appcompat.widget.Toolbar)?.navigationIcon != null
+                start = if (hasArrow) 0 else if (contentInsets.left == DEFAULT_CONTENT_INSETS.left) dp(EMBEDDED_TAG_INSET) else dp(contentInsets.left.toFloat())
+                end = if (contentInsets.right == DEFAULT_CONTENT_INSETS.right) dp(EMBEDDED_TAG_INSET) else dp(contentInsets.right.toFloat())
             }
             if (row.paddingTop != top || row.paddingBottom != bottom || row.paddingStart != start || row.paddingEnd != end) row.setPaddingRelative(start, top, end, bottom)
             (fieldView.layoutParams as? LinearLayout.LayoutParams)?.let {
@@ -2407,8 +2409,8 @@ class CYLSearchBarView @JvmOverloads constructor(
         // The toolbar's own start / end content insets (16 dp) would add to this bar's contentInsets and move the capsule off the
         // 16 dp inset of the tag list: the bar carries the inset itself.
         toolbar.setContentInsetsRelative(0, 0)
-        // After a back arrow the toolbar starts its content at 72 dp (Material's keyline), a gap of 36 dp to the arrow; the bar starts at
-        // EMBEDDED_BAR_START (56 dp on every platform: 12 after a 44 wide back button, iOS / HarmonyOS / mini program the same).
+        // After a back arrow the toolbar starts its content at 72 dp (Material's keyline), 36 dp from the arrow's ink, the bar 84 dp (+ its own inset);
+        // the bar starts at EMBEDDED_BAR_START instead.
         toolbar.contentInsetStartWithNavigation = (EMBEDDED_BAR_START * resources.displayMetrics.density).toInt()
         toolbar.addView(
             this,
@@ -2470,7 +2472,10 @@ class CYLSearchBarView @JvmOverloads constructor(
         /** The inset of the tag list and its headers (16 dp, iOS 16 pt): the embedded bar's capsule edge sits on it where no back button is. */
         private const val EMBEDDED_TAG_INSET = 16f
 
-        /** Where the embedded bar starts after a back button, from the screen edge: 56 dp (iOS 56 pt, HarmonyOS 56 vp, mini program 56 px). */
+        /**
+         * Where the embedded bar starts after a back arrow, from the screen edge: 56 dp, 20.6 dp from the arrow's ink. The references: HarmonyOS 21.4 vp
+         * (the bar at 40 vp), iOS 31 pt from the chevron (the bar at 73 pt, after the 44 pt glass back button that starts at 16 pt).
+         */
         private const val EMBEDDED_BAR_START = 56f
         private val DEFAULT_CONTENT_INSETS = Rect(12, 6, 12, 6)
         private const val DEFAULT_FIELD_COLOR = 0x1F767680

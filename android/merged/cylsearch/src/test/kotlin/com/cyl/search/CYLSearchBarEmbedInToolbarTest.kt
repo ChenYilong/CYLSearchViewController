@@ -93,6 +93,16 @@ class CYLSearchBarEmbedInToolbarTest {
         layOut(plain, 1080)
         assertEquals("without an arrow: the 16 dp inset of the tag list", Math.round(16 * density), (plainBar.fieldView.parent as View).paddingStart)
         assertEquals("and at the end", Math.round(16 * density), (plainBar.fieldView.parent as View).paddingEnd)
+
+        // The native example sets contentInsets 16 dp left and right; the Flutter plugin keeps the default 12: after an arrow both start at the same place.
+        val hosted = Toolbar(activity)
+        hosted.setNavigationIcon(R.drawable.cyl_search_ic_arrow_back)
+        val hostedBar = CYLSearchBarView(activity)
+        hostedBar.contentInsets = android.graphics.Rect(16, 6, 16, 6)
+        hostedBar.embedInToolbar(hosted)
+        layOut(hosted, 1080)
+        assertEquals("a host's left inset adds nothing after the arrow", 0, (hostedBar.fieldView.parent as View).paddingStart)
+        assertEquals("its right inset is kept", Math.round(16 * density), (hostedBar.fieldView.parent as View).paddingEnd)
     }
 
     @Test
