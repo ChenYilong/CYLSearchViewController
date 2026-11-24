@@ -2287,8 +2287,10 @@ private final class CYLSearchBarItemButton: CYLTagButton {
     private static let dividerHeight: CGFloat = 18
     private static let imageTitleSpacing: CGFloat = 4
     private static let backgroundCornerRadius: CGFloat = 10
-    /// Square corners for a bar item without a background: a tiny positive radius, square under both meanings of 0
-    /// that CollectionViewClassifyMenu had (a capsule before its numeric radius, square after).
+    /**
+     * Square corners for a bar item without a background: a tiny positive radius, square under both meanings of 0
+     * that CollectionViewClassifyMenu had (a capsule before its numeric radius, square after).
+     */
     private static let squareCornerRadius: CGFloat = 0.001
     private static let disabledAlpha: CGFloat = 0.4
     private static let states: [UIControl.State] = [.normal, .selected, .disabled]
