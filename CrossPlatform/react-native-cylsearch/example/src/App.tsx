@@ -350,6 +350,25 @@ function discoverContent() {
   return all[discoverLanguage()] ?? all.en ?? { recentSearches: [], discover: [] };
 }
 
+/** The topics of `page` (the pages wrap around the pool): `discoverCount` records, each with its own hot mark. */
+function topicsOnPage(page: number) {
+  const pool = discoverContent().discover;
+  const count = discoverData.discoverCount;
+  const pages = count > 0 ? Math.floor(pool.length / count) : 0;
+  if (pages === 0) {
+    return [];
+  }
+  const start = (page % pages) * count;
+  return pool.slice(start, start + count);
+}
+
+/** The page after `page`, cyclically: refresh shows the next page, so the hot topic (one per page) moves every time. */
+function nextPage(page: number) {
+  const count = discoverData.discoverCount;
+  const pages = count > 0 ? Math.floor(discoverContent().discover.length / count) : 0;
+  return pages > 0 ? (page + 1) % pages : 0;
+}
+
 function discoverStrings() {
   const language = discoverLanguage();
   const all: Record<string, Record<string, string>> = discoverData.strings;
@@ -369,15 +388,13 @@ function DiscoverDemo() {
   const hotIcon = hotIconForLanguage();
   const hotIconUri = Image.resolveAssetSource(hotIcon.source)?.uri ?? '';
   const [recent, setRecent] = useState<string[]>(() => discoverContent().recentSearches);
-  const [offset, setOffset] = useState(0);
+  const [page, setPage] = useState(0);
   const [barText, setBarText] = useState('');
   const typed = useRef('');
   const [message, setMessage] = useState('');
   const topics = useMemo(() => {
-    const pool = discoverContent().discover;
-    return Array.from({ length: Math.min(discoverData.discoverCount, pool.length) }, (_, i) => pool[(offset + i) % pool.length])
-      .filter((topic): topic is (typeof pool)[number] => topic !== undefined);
-  }, [offset]);
+    return topicsOnPage(page);
+  }, [page]);
   const search = (text: string) => {
     const query = text.trim();
     if (!query) return;
@@ -425,7 +442,7 @@ function DiscoverDemo() {
         foldedRowCount={0}
         sectionTitle={text['discover.title']}
         showsRefreshButton
-        onRefreshButtonTap={() => setOffset((value) => value + discoverData.discoverCount)}
+        onRefreshButtonTap={() => setPage((value) => nextPage(value))}
         tagImages={topics.map((topic) => (topic.icon === 'hot' ? hotIconUri : ''))}
         onTagSelect={(event) => search(event.nativeEvent.title)}
       />

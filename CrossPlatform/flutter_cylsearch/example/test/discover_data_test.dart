@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/widgets.dart';
 import 'package:flutter_cylsearch_example/discover_page.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,14 +17,23 @@ void main() {
     expect(strings, <String, String>{'discover.searching': 'Searching: %@', 'a': 'say "hi"'});
   });
 
-  testWidgets('the bundled data loads and refresh picks other topics', (tester) async {
+  testWidgets('the bundled data loads; refresh shows the next page and the hot topic moves', (tester) async {
     final data = await CYLSearchDiscoverData.load();
     expect(data.recentSearches, isNotEmpty);
     expect(data.initialTopics.length, data.discoverCount);
-    expect(data.discover.any((topic) => topic.hot), isTrue);
+    expect(data.pageCount, greaterThanOrEqualTo(2));
+    expect(data.discover.length % data.discoverCount, 0, reason: 'whole pages');
     expect(data.text('discover.searching', 'x'), isNot('discover.searching'));
-    final next = data.randomTopics(data.initialTopics, Random(1));
-    expect(next.length, data.discoverCount);
-    expect(next.where(data.initialTopics.contains), isEmpty);
+    var page = 0;
+    int? previousSlot;
+    for (var refresh = 0; refresh < 2 * data.pageCount; refresh++) {
+      final topics = data.topicsOnPage(page);
+      final hot = <int>[for (var slot = 0; slot < topics.length; slot++) if (topics[slot].hot) slot];
+      expect(hot.length, 1, reason: 'one hot topic on page $page');
+      expect(hot.first, isNot(previousSlot), reason: 'the hot slot moves on every refresh');
+      previousSlot = hot.first;
+      page = data.nextPage(page);
+    }
+    expect(page, 0, reason: 'the pages are cyclic');
   });
 }

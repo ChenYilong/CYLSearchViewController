@@ -102,9 +102,9 @@ final class CYLSearchDiscoverViewController: UIViewController {
     let recentSource = CYLRecentSearchSource()
     let discoverSource = CYLDiscoverSource()
     /**
-     * Picks the refreshed topics; replaced in tests for a fixed order.
+     * The page of topics shown now; the refresh icon moves to the next page, cyclically.
      */
-    var randomGenerator = CYLAnyRandomNumberGenerator(SystemRandomNumberGenerator())
+    private(set) var discoverPage = 0
     /**
      * The back button is shown only when the page was pushed (a tab root has nowhere to go back to).
      */
@@ -382,6 +382,8 @@ final class CYLSearchDiscoverViewController: UIViewController {
 
         // 发现: two per row, the More button refreshes the topics.
         discoverList.style = Self.discoverStyle()
+        // The built-in refresh icon of the core, applied after the style (a later style assignment would replace it).
+        CYLSearchTagListHeader.applyRefreshIcon(to: discoverList)
         discoverList.selectionMode = .none
         discoverList.isScrollEnabled = false
         discoverList.menuDataSource = discoverSource
@@ -498,10 +500,11 @@ final class CYLSearchDiscoverViewController: UIViewController {
     }
 
     /**
-     * The More button's action: another random selection of topics.
+     * The refresh icon's action: the next page of topics, cyclically.
      */
     func refreshDiscover() {
-        discoverSource.topics = data.randomTopics(excluding: discoverSource.topics, using: &randomGenerator)
+        discoverPage = data.nextPage(after: discoverPage)
+        discoverSource.topics = data.topics(onPage: discoverPage)
         reloadLists()
         UIAccessibility.post(notification: .layoutChanged, argument: discoverList)
     }

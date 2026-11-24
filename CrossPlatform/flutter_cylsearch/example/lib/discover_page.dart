@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter/material.dart';
@@ -45,19 +44,22 @@ class CYLSearchDiscoverData {
   /// The pool of topics.
   final List<CYLDiscoverTopic> discover;
 
-  /// The topics shown first.
-  List<CYLDiscoverTopic> get initialTopics => discover.take(max(0, discoverCount)).toList();
+  /// The number of whole pages of [discoverCount] topics in the pool.
+  int get pageCount => discoverCount > 0 ? discover.length ~/ discoverCount : 0;
 
-  /// Another random selection of topics, without the ones shown now when the pool allows it (the refresh button).
-  List<CYLDiscoverTopic> randomTopics(List<CYLDiscoverTopic> current, [Random? random]) {
-    final count = min(max(0, discoverCount), discover.length);
-    final picked = discover.where((topic) => !current.contains(topic)).toList()..shuffle(random);
-    final result = picked.take(count).toList();
-    if (result.length < count) {
-      result.addAll((current.toList()..shuffle(random)).take(count - result.length));
-    }
-    return result;
+  /// The topics of [page] (the page wraps around the pool): [discoverCount] records, each with its own hot mark.
+  List<CYLDiscoverTopic> topicsOnPage(int page) {
+    if (pageCount == 0) return <CYLDiscoverTopic>[];
+    final start = (page % pageCount) * discoverCount;
+    return discover.sublist(start, start + discoverCount);
   }
+
+  /// The page after [page], cyclically: refresh shows the next page, so the hot topic (one per page, at another slot
+  /// than on the next page) moves on every refresh.
+  int nextPage(int page) => pageCount > 0 ? (page + 1) % pageCount : 0;
+
+  /// The topics shown first: page 0.
+  List<CYLDiscoverTopic> get initialTopics => topicsOnPage(0);
 
   /// The localized string of `key`, with `%@` replaced by `argument`.
   String text(String key, [String? argument]) {
@@ -111,6 +113,7 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
   CYLSearchDiscoverData? _data;
   List<String> _recent = <String>[];
   List<CYLDiscoverTopic> _topics = <CYLDiscoverTopic>[];
+  int _page = 0;
   String _typed = '';
   String? _barText;
   bool _loops = false;
@@ -223,7 +226,10 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                   foldedRowCount: 0,
                   sectionTitle: data.text('discover.title'),
                   showsRefreshButton: true,
-                  onRefreshButtonTapped: () => setState(() => _topics = data.randomTopics(_topics)),
+                  onRefreshButtonTapped: () => setState(() {
+                    _page = data.nextPage(_page);
+                    _topics = data.topicsOnPage(_page);
+                  }),
                   tagImages: <String>[for (final topic in _topics) topic.hot ? '${data.folder}/discover-hot.png' : ''],
                   onTagSelected: (index, title) => _search(title),
                 ),

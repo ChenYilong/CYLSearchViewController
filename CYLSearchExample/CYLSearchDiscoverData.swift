@@ -4,8 +4,9 @@
 //
 //  Copied from CollectionViewClassifyMenu's CYLMenuExample (commit e550a01). The data of the search history and
 //  discover demo, from CYLSearchDiscover.bundle/<language>.lproj/search-discover.json
-//  (one file per language, the same topics in the same order): recent searches, and a pool of discover topics from
-//  which the More button picks another random selection.
+//  (one file per language, the same topics in the same order): recent searches, and a pool of pages of discover topics;
+//  the refresh icon shows the next page, cyclically. Each page has one hot topic (its mark is in the topic's record) at a
+//  different slot than on the next page (scripts/sync-discover-data.py --check).
 //
 
 import UIKit
@@ -60,60 +61,34 @@ struct CYLSearchDiscoverData: Codable {
     }
 
     /**
-     * The first selection: the first `discoverCount` topics, so the first screen is always the same.
+     * The number of whole pages of `discoverCount` topics in the pool.
      */
-    var initialTopics: [CYLDiscoverTopic] {
-        Array(discover.prefix(max(0, discoverCount)))
+    var pageCount: Int {
+        discoverCount > 0 ? discover.count / discoverCount : 0
     }
 
     /**
-     * Another random selection of `discoverCount` topics; it differs from `current` whenever the pool allows.
+     * The topics of `page` (the page wraps around the pool): `discoverCount` records, each with its own hot mark.
      */
-    func randomTopics<G: RandomNumberGenerator>(excluding current: [CYLDiscoverTopic], using generator: inout G) -> [CYLDiscoverTopic] {
-        let count = min(max(0, discoverCount), discover.count)
-        let others = discover.filter { !current.contains($0) }
-        // Prefer topics that are not shown now; fill up with the others when the pool is small.
-        var picked = Array(others.shuffled(using: &generator).prefix(count))
-        if picked.count < count {
-            let rest = discover.filter { !picked.contains($0) }.shuffled(using: &generator)
-            picked += rest.prefix(count - picked.count)
-        }
-        return picked
-    }
-}
-
-/**
- * Any random number generator behind one type, so a screen can keep one and tests can swap in a seeded one.
- */
-struct CYLAnyRandomNumberGenerator: RandomNumberGenerator {
-    private let nextValue: () -> UInt64
-
-    init<G: RandomNumberGenerator>(_ generator: G) {
-        var generator = generator
-        nextValue = { generator.next() }
+    func topics(onPage page: Int) -> [CYLDiscoverTopic] {
+        guard pageCount > 0 else { return [] }
+        let start = ((page % pageCount) + pageCount) % pageCount * discoverCount
+        return Array(discover[start ..< start + discoverCount])
     }
 
-    mutating func next() -> UInt64 {
-        nextValue()
-    }
-}
-
-/**
- * A seeded generator (SplitMix64) for repeatable selections in tests.
- */
-struct CYLSeededRandomNumberGenerator: RandomNumberGenerator {
-    private var state: UInt64
-
-    init(seed: UInt64) {
-        state = seed
+    /**
+     * The page after `page`, cyclically: refresh shows the next page, so the hot topic (one per page, at another slot
+     * than on the next page) moves on every refresh.
+     */
+    func nextPage(after page: Int) -> Int {
+        pageCount > 0 ? (page + 1) % pageCount : 0
     }
 
-    mutating func next() -> UInt64 {
-        state &+= 0x9E37_79B9_7F4A_7C15
-        var z = state
-        z = (z ^ (z >> 30)) &* 0xBF58_476D_1CE4_E5B9
-        z = (z ^ (z >> 27)) &* 0x94D0_49BB_1331_11EB
-        return z ^ (z >> 31)
+    /**
+     * The first selection: page 0, so the first screen is always the same.
+     */
+    var initialTopics: [CYLDiscoverTopic] {
+        topics(onPage: 0)
     }
 }
 

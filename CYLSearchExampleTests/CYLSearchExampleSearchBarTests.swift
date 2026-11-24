@@ -733,4 +733,36 @@ extension CYLSearchExampleSearchBarTests {
         XCTAssertEqual(list.style.appearance(for: .selected).cornerRadius, 8, "the list gets the defaults for every state")
         XCTAssertNotNil(list.style.moreButtonImage)
     }
+
+    /// The discover data: whole pages, one hot topic per page in its own record, at a different slot on every refresh.
+    @MainActor
+    func testDiscoverRefreshShowsTheNextPageWithTheHotTopicMoving() throws {
+        let bundle = try XCTUnwrap(CYLSearchDiscoverLocalization.stringsBundle)
+        for language in ["en", "ja", "zh-Hans", "zh-Hant"] {
+            let url = try XCTUnwrap(bundle.url(forResource: "search-discover", withExtension: "json", subdirectory: nil, localization: language))
+            let data = try JSONDecoder().decode(CYLSearchDiscoverData.self, from: Data(contentsOf: url))
+            XCTAssertGreaterThanOrEqual(data.pageCount, 2, language)
+            XCTAssertEqual(data.discover.count % data.discoverCount, 0, "whole pages in \(language)")
+            var page = 0
+            var previousSlot: Int?
+            for _ in 0 ..< 2 * data.pageCount {
+                let hot = data.topics(onPage: page).enumerated().filter { $0.element.icon == "hot" }.map(\.offset)
+                XCTAssertEqual(hot.count, 1, "one hot topic on page \(page) in \(language)")
+                if let slot = hot.first {
+                    XCTAssertNotEqual(slot, previousSlot, "the hot slot moves on every refresh in \(language)")
+                    previousSlot = slot
+                }
+                page = data.nextPage(after: page)
+            }
+            XCTAssertEqual(page, 0, "the pages are cyclic")
+        }
+
+        let data = try CYLSearchDiscoverData.bundled()
+        let controller = CYLSearchDiscoverViewController(data: data)
+        controller.loadViewIfNeeded()
+        XCTAssertEqual(controller.discoverSource.topics, data.topics(onPage: 0))
+        controller.refreshDiscover()
+        XCTAssertEqual(controller.discoverSource.topics, data.topics(onPage: 1), "refresh shows the next page")
+        XCTAssertNotNil(controller.discoverList.style.moreButtonImage, "the refresh icon, not the three dots")
+    }
 }
