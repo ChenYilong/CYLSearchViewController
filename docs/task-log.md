@@ -1151,7 +1151,7 @@ begins and becomes `DONE` when it ends.
   and ClassifyMenu pins moved to the commits with the API; HarmonyOS tests green on the x86_64 emulator; screenshots of
   the animated tags. 60 = the example builds and runs on the new API.
 - **Audit against PR #824 (2026-11-23)**: prompt (verbatim): "学习这个pr的做法， 排查我们的项目中是否可以向该pr贡献代码的相关代码，尤其是修复了动效相关的bug issue，但是没有将修复的代码提交给这个pr贡献给CYLAnimatedItemView。而是将修复代码保留在了我们项目中。https://github.com/ChenYilong/CYLTabBarController/pull/824" (English: learn how this pull request works, and find code in our project that could go into it, especially animation bug fixes kept here instead of contributed to CYLAnimatedItemView). Found and sent to a8: (1) the Rive tags play through cyltabbar's `CYLRiveIcon` since `615fc30` (fixes a trigger fired at once after `reset()`, which did not restart the state machine); `cylanimateditem-rive` should reuse that one implementation rather than ClassifyMenu's player; (2) Android has no `interactive` option, so `012343f` sets `isClickable = false` on the SVGA demo tag; (3) the x86_64 emulator HAP recipe (`4885f35`, `90b3dcf`) for the `cylanimateditem` README. Otherwise, the HarmonyOS copy differs from ClassifyMenu's only in comment style; the other platforms already use the upstream players.
-- **Status**: TODO, waiting for the API in CYLTabBarController (a8 tells this session the modules and commit).
+- **Status**: DONE for HarmonyOS (6d3f2a8, 2026-11-23); see "HarmonyOS example plays through CYLTabBarController's engine views (PR #824), own players deleted". Not scored 100 there: only SVGA was seen playing (the example has no Lottie, PAG, Rive or GIF asset).
 
 ## TODO (2026-11-23): one shared Rive engine: cylanimateditemrive from CYLTabBarController
 
@@ -1288,7 +1288,7 @@ begins and becomes `DONE` when it ends.
   `feat/harmony-animated-item-engines`.
 - Done: Android. The example has no player of its own (it builds `:cylanimateditem` from the pinned checkout), so only
   `cyl.tabbar.commit` moved from f66e85d5 to 9c8cf475; `:cylsearch:testDebugUnitTest` (`CYLSearchBarItemTest`) passes.
-- TODO, HarmonyOS: `harmonyos/entry/.../animation` (`CYLExampleAnimationPlayers.ets`, `CYLExampleAnimationViews.ets`,
+- DONE, HarmonyOS (6d3f2a8, 2026-11-23: own players deleted, five engines registered, 55/55 hypium). Was: `harmonyos/entry/.../animation` (`CYLExampleAnimationPlayers.ets`, `CYLExampleAnimationViews.ets`,
   `svga/CYLInflate.ets`, `svga/CYLSVGAMovie.ets`) stay until CollectionViewClassifyMenu has a commit whose
   `harmony/classifymenu` plays through engine views; the pinned 325c7a3 still needs a host-registered
   `CYLTagAnimationBuilder`. Then pin CYLTabBarController 9c8cf475 or newer, add `cylanimateditem_pag` and
@@ -1447,3 +1447,23 @@ begins and becomes `DONE` when it ends.
 - One parameter per tag list: iOS `style.backgroundStyle = .liquidGlass` (Discover recent + grid, contact tag editor); RN/Flutter `backgroundStyle="liquidGlass"` on every tag list (new bridge prop, iOS implemented through `CYLSearchTagListStyle.applyBackgroundStyle(named:to:)`).
 - Finding: glass with no tint on a white page is invisible; examples tint normal tags with systemGray5 and selected ones with the tint color at 30% (a glass tint keeps 75% of its alpha). Core `applyDefaults` does the same when `tagBackgroundStyle == .liquidGlass`; flat keeps white + border.
 - iOS unit tests: 200, 0 failures (one earlier full run had testI2PlainBarInAnExtendedViewStaysInPlace fail once at 116 pt, passed alone and in the next full runs: flaky, not investigated). Selected-state screenshot on the contact tag editor and the labeled docs/ screenshots are not done yet.
+
+## TODO (2026-11-24, chen-yilong-a4, Windows): hand-over to the macOS sessions: points missing from 100 and open TODOs
+
+- **Context**: no macOS session is reachable by cross-session message from the Windows machine, so this entry is the hand-over.
+- **Prompt (verbatim)**: "把你的不到100分的Miss point 以及todo 转发给所有活跃的macos系统上的session，macos有需要了解这些信息。"
+- **Prompt (English)**: "Forward your missing points (below 100) and your TODOs to every active session on macOS; macOS needs to know them."
+- **Acceptance**: 100 = every missing point and TODO of this session listed with commits, and pushed. 60 = listed, not pushed.
+- **Points missing from 100 (HarmonyOS, this session)**:
+  1. Engine switch (6d3f2a8, logged as 100). Only SVGA was seen playing on the emulator (`CYLAnimatedItemSVGA`, Discover and Examples). Lottie, PAG, Rive and GIF are registered but the example has no asset for them, so they were not exercised on screen: -5 if scored strictly.
+  2. HarmonyOS pins are tab bar `a5e4434c` and ClassifyMenu `14b6b955`, not the owner's moved pins `c6b3e976` / `4be6cda` (788fda1). winsCYLTableViewPlaceHolder has the move in `C:/w/search-parity` (6865657, not pushed). A hypium run at 2026-11-24 15:11 crashed at launch: `cylanimateditem` did not export `CYLLiquidGlass`, which the new `cyltabbar` imports. Cause: that build mixed module versions. All `cylanimateditem*` modules must come from the same `cylTabBarControllerCommit` (the sync script does this since 6d3f2a8).
+  3. Mini program `npm test` 95/96: test 63 (cyl-animated-item at the pinned tab bar commit) fails until the mini program pin moves with ClassifyMenu (owner: winsCYLSearchViewController).
+- **CI (iOS, for the Mac side)**: the run on 91dcbd5 had been queued for a macOS runner since 05:55 UTC (Linux jobs green). The last finished iOS run (077541a, run 45304629377) failed `testSearchBarsCoverNoView` (`CYLSearchExampleSearchBarTests.swift:357`, XCTAssertNotNil). 788fda1 rewrote that test for the Discover bar in the navigation bar. The rewrite has not run on CI yet. This docs-only push replaces the queued run, and the new run tests the same code.
+- **TODOs for the macOS sessions**:
+  - iOS: run the whole unit suite at the moved pins (4be6cda / c6b3e976), especially the rewritten `testSearchBarsCoverNoView` and `tagBackgroundStyle` / `CYLAnimatedItemCornerRadiusCapsule` (788fda1 says "Not run yet").
+  - iOS: the board rows 38 to 42 check (entry "iOS check of the animated-item changes", tasks A to E) and the iOS part of "switch to the shared animation engines of CYLTabBarController PR #824".
+  - `pod install` / `Podfile.lock` for the Flutter and React Native examples at the moved pins, if 91dcbd5 did not cover them.
+  - The CYLTableViewPlaceHolder pin past `f4cf9785` (owned by the Mac session).
+  - Plan 1 (remove the x86_64 debug guard, tab bar 269eff24): a peer reported the owner approved it. This session has not seen that approval from the owner.
+- **TODOs that need the owner (7 points)**: the mini program back-arrow check in WeChat DevTools, the phone tab-switch retest, the keyboard placeholder.
+- **Status**: DONE (2026-11-24), 100/100: listed and pushed. The items above stay open.
