@@ -710,6 +710,7 @@ extension CYLSearchExampleSearchBarTests {
         XCTAssertEqual(coreTag.borderWidth, exampleTag.borderWidth)
         XCTAssertEqual(coreTag.margin, exampleTag.margin)
         XCTAssertEqual(coreTag.font, exampleTag.font)
+        XCTAssertEqual(core.backgroundStyle, .flat, "the background is flat by default")
         XCTAssertEqual(core.itemHeight, example.itemHeight)
         XCTAssertEqual(core.interitemSpacing, example.interitemSpacing)
         XCTAssertEqual(core.lineSpacing, example.lineSpacing)
@@ -719,15 +720,18 @@ extension CYLSearchExampleSearchBarTests {
         XCTAssertEqual(core.headerHorizontalInset, example.headerHorizontalInset)
 
         CYLSearchTagListStyle.tagCornerRadius = 8
+        CYLSearchTagListStyle.tagBackgroundStyle = .liquidGlass
         CYLSearchTagListStyle.styleCustomizer = { $0.itemHeight = 44 }
         defer {
-            CYLSearchTagListStyle.tagCornerRadius = CYLSearchTagListStyle.capsuleCornerRadius
+            CYLSearchTagListStyle.tagBackgroundStyle = .flat
+            CYLSearchTagListStyle.tagCornerRadius = CYLAnimatedItemCornerRadiusCapsule
             CYLSearchTagListStyle.styleCustomizer = nil
         }
         let custom = CYLMenuStyle()
         CYLSearchTagListStyle.applyDefaults(to: custom)
         XCTAssertEqual(custom.appearance(for: .normal).cornerRadius, 8)
         XCTAssertEqual(custom.itemHeight, 44)
+        XCTAssertEqual(custom.backgroundStyle, .liquidGlass, "the background style reaches CollectionViewClassifyMenu's style")
 
         let list = CYLTagListView()
         CYLSearchTagListStyle.applyDefaultStyle(to: list)

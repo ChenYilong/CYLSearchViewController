@@ -14,6 +14,7 @@
 
 import UIKit
 import CollectionViewClassifyMenu
+import CYLAnimatedItem
 import CYLSearchViewController
 
 /**
@@ -156,7 +157,7 @@ final class CYLSearchDiscoverViewController: UIViewController {
             appearance.backgroundColor = .systemBackground
             appearance.borderColor = .separator
             appearance.borderWidth = 1
-            appearance.cornerRadius = CYLSearchTagListStyle.capsuleCornerRadius
+            appearance.cornerRadius = CYLAnimatedItemCornerRadiusCapsule
             appearance.margin = 14
             appearance.font = .systemFont(ofSize: 17)
             appearance.textColor = .label
