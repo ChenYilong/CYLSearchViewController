@@ -203,6 +203,7 @@ final class CYLContactTagEditorViewController: UIViewController {
         style.normalAppearance.textColor = .label
         style.selectedAppearance.backgroundColor = green.withAlphaComponent(0.1)
         style.selectedAppearance.textColor = green
+        style.backgroundStyle = .liquidGlass  // the one parameter that makes every tag Liquid Glass (flat below iOS 26)
         style.itemHeight = 36
         style.interitemSpacing = 12
         style.lineSpacing = 12

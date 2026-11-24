@@ -143,7 +143,7 @@ export function ContactTagsDemo({ onClose, empty = false, latency = 5 }: { onClo
         </Pressable>
         {tags.length ? (
           <Pressable onPress={() => setScreen('editor')} testID="CYLContactRemarkTags">
-            <CYLTagListView tags={tags.map((id) => store.title(id))} tagIds={tags} foldedRowCount={0} foldControlPosition="none" />
+            <CYLTagListView backgroundStyle="liquidGlass" tags={tags.map((id) => store.title(id))} tagIds={tags} foldedRowCount={0} foldControlPosition="none" />
           </Pressable>
         ) : (
           <Pressable accessibilityRole="button" accessibilityHint={text('hintEdit')} testID="CYLContactRemarkEmptyTags" onPress={() => setScreen('editor')}>
@@ -252,7 +252,7 @@ function Editor({ store, latency, initial, onCancel, onDone, onContacts }: {
         <ScrollView style={styles.fill} keyboardShouldPersistTaps="handled">
           {query ? (
             <>
-              <CYLTagListView sectionTitle={text('results')} tags={results.map((id) => store.title(id))} tagIds={results}
+              <CYLTagListView backgroundStyle="liquidGlass" sectionTitle={text('results')} tags={results.map((id) => store.title(id))} tagIds={results}
                 selectionMode="multiple" selectedIds={selected} foldControlPosition="none"
                 onTagSelect={(event) => toggle(event.nativeEvent.id, event.nativeEvent.selected)} />
               {store.canCreate(query) ? (
@@ -263,7 +263,7 @@ function Editor({ store, latency, initial, onCancel, onDone, onContacts }: {
             <>
               {store.recentIDs.length ? (
                 // Recent: CollectionViewClassifyMenu's built-in clear button in the header.
-                <CYLTagListView sectionTitle={text('recent')} showsClearButton tags={store.recentIDs.map((id) => store.title(id))} tagIds={store.recentIDs}
+                <CYLTagListView backgroundStyle="liquidGlass" sectionTitle={text('recent')} showsClearButton tags={store.recentIDs.map((id) => store.title(id))} tagIds={store.recentIDs}
                   selectionMode="multiple" selectedIds={selected} foldControlPosition="none"
                   onTagSelect={(event) => toggle(event.nativeEvent.id, event.nativeEvent.selected)}
                   onClearButtonTap={() => { store.recentIDs = []; refresh(); }} />
@@ -276,7 +276,7 @@ function Editor({ store, latency, initial, onCancel, onDone, onContacts }: {
               </View>
               {/* "+ New Tag" below opens Manage, whose editing bar adds the typed name (React Native has no cross-platform prompt). */}
               {/* My Tags: folded to three rows, the chevron as its last tag; editing while managing (crosses, dragging, renaming). */}
-              <CYLTagListView tags={store.tags.map((tag) => tag.title)} tagIds={store.tags.map((tag) => tag.id)}
+              <CYLTagListView backgroundStyle="liquidGlass" tags={store.tags.map((tag) => tag.title)} tagIds={store.tags.map((tag) => tag.id)}
                 selectionMode={managing ? 'none' : 'multiple'} selectedIds={selected} editing={managing} supportsRenaming
                 foldControlPosition="inline" foldControlContent="icon" foldedRowCount={3}
                 onTagSelect={(event) => (managing ? onContacts(event.nativeEvent.id) : toggle(event.nativeEvent.id, event.nativeEvent.selected))}

@@ -643,6 +643,7 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
     private var showsClearButton = false
     private var showsRefreshButton = false
     private var columns = 0
+    private var backgroundStyle = ""
     private var tagImages: [String] = []
     private var tagImageLabels: [String] = []
     private var imageCache: [String: UIImage] = [:]
@@ -693,12 +694,18 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
         let newShowsClearButton = arguments["showsClearButton"] as? Bool ?? false
         let newShowsRefreshButton = arguments["showsRefreshButton"] as? Bool ?? false
         let newColumns = max(0, arguments["columns"] as? Int ?? 0)
+        let newBackgroundStyle = arguments["backgroundStyle"] as? String ?? ""
         let newTagImages = arguments["tagImages"] as? [String] ?? []
         let newTagImageLabels = arguments["tagImageLabels"] as? [String] ?? []
         if newColumns != columns {
             columns = newColumns
             // The grid of plain titles (the iOS example's discover topics), through the core's helper.
             if columns > 0 { CYLSearchTagListStyle.applyGrid(columns: columns, to: tagListView) } else { CYLSearchTagListStyle.applyDefaultStyle(to: tagListView) }
+            backgroundStyle = ""
+        }
+        if newBackgroundStyle != backgroundStyle {
+            backgroundStyle = newBackgroundStyle
+            CYLSearchTagListStyle.applyBackgroundStyle(named: backgroundStyle, to: tagListView)
         }
         let newSupportsRenaming = arguments["supportsRenaming"] as? Bool ?? false
         // Reloaded only when Dart sends other content, so a rebuild keeps the native fold state.

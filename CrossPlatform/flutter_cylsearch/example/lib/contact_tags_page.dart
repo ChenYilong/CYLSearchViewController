@@ -256,6 +256,7 @@ class _CYLContactRemarkPageState extends State<CYLContactRemarkPage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: CYLTagListView(
+                  backgroundStyle: 'liquidGlass',
                   key: const ValueKey<String>('CYLContactRemarkTags'),
                   tags: _tags.map(_store.title).toList(),
                   tagIds: _tags,
@@ -479,6 +480,7 @@ class _CYLContactTagEditorPageState extends State<CYLContactTagEditorPage> {
                   children: <Widget>[
                     if (_query.isNotEmpty) ...<Widget>[
                       CYLTagListView(
+                        backgroundStyle: 'liquidGlass',
                         sectionTitle: cylContactText('results'),
                         tags: results.map(_store.title).toList(),
                         tagIds: results,
@@ -496,6 +498,7 @@ class _CYLContactTagEditorPageState extends State<CYLContactTagEditorPage> {
                       if (_store.recentIDs.isNotEmpty)
                         // Recent: CollectionViewClassifyMenu's built-in clear button in the header.
                         CYLTagListView(
+                          backgroundStyle: 'liquidGlass',
                           sectionTitle: cylContactText('recent'),
                           showsClearButton: true,
                           tags: _store.recentIDs.map(_store.title).toList(),
@@ -533,6 +536,7 @@ class _CYLContactTagEditorPageState extends State<CYLContactTagEditorPage> {
                       // My Tags: folded to three rows, the chevron as its last tag; editing while managing (crosses,
                       // dragging, renaming).
                       CYLTagListView(
+                        backgroundStyle: 'liquidGlass',
                         tags: _store.tags.map((tag) => tag.title).toList(),
                         tagIds: _store.tags.map((tag) => tag.id).toList(),
                         selectionMode: _managing ? CYLTagSelectionMode.none : CYLTagSelectionMode.multiple,

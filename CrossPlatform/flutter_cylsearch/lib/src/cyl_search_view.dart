@@ -1175,6 +1175,7 @@ class CYLTagListView extends StatefulWidget {
     this.selectionMode = CYLTagSelectionMode.none,
     this.sectionTitle = '',
     this.columns = 0,
+    this.backgroundStyle = '',
     this.tagImages = const <String>[],
     this.tagImageLabels = const <String>[],
     this.showsClearButton = false,
@@ -1206,6 +1207,11 @@ class CYLTagListView extends StatefulWidget {
   /// More than 0 shows the tags as a grid of that many plain titles per row (CollectionViewClassifyMenu's
   /// `gridStyle(itemsPerRow:)`, the iOS example's discover topics); 0 (default) is the flowing capsule tags.
   final int columns;
+
+  /// The background of every tag: 'liquidGlass' is the Liquid Glass material (flat where the system draws none),
+  /// '' or 'flat' (default) the tag's own colors. The one parameter that turns a list into Liquid Glass tags
+  /// (CollectionViewClassifyMenu's `backgroundStyle`).
+  final String backgroundStyle;
 
   /// An image after each tag's title, one Flutter asset key per tag ('' for none), shown at its own size: the discover
   /// topics' hot icon. The 2.0x and 3.0x variants beside the asset are used as Flutter does.
@@ -1301,6 +1307,7 @@ class _CYLTagListViewState extends State<CYLTagListView> {
         oldWidget.selectionMode != widget.selectionMode ||
         oldWidget.sectionTitle != widget.sectionTitle ||
         oldWidget.columns != widget.columns ||
+        oldWidget.backgroundStyle != widget.backgroundStyle ||
         !listEquals(oldWidget.tagImages, widget.tagImages) ||
         !listEquals(oldWidget.tagImageLabels, widget.tagImageLabels) ||
         oldWidget.showsClearButton != widget.showsClearButton ||
@@ -1346,6 +1353,7 @@ Map<String, Object?> cylTagListViewParameters(CYLTagListView widget, {Brightness
       'selectionMode': widget.selectionMode.name,
       'sectionTitle': widget.sectionTitle,
       'columns': widget.columns,
+      'backgroundStyle': widget.backgroundStyle,
       'tagImages': widget.tagImages,
       'tagImageLabels': widget.tagImageLabels,
       'showsClearButton': widget.showsClearButton,
