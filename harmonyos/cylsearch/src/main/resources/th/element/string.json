@@ -15,6 +15,18 @@
     {
       "name": "cyl_search_cancel",
       "value": "ยกเลิก"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "เพิ่มเติม"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "ยกเลิก"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "รีเฟรช"
     }
   ]
 }

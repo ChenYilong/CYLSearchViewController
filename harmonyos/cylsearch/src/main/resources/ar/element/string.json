@@ -15,6 +15,18 @@
     {
       "name": "cyl_search_cancel",
       "value": "إلغاء"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "المزيد"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "إلغاء"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "تحديث"
     }
   ]
 }

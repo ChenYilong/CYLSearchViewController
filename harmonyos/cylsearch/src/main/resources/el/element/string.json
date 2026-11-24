@@ -15,6 +15,18 @@
     {
       "name": "cyl_search_cancel",
       "value": "Ακύρωση"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "Περισσότερα"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "Ακύρωση"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "Ανανέωση"
     }
   ]
 }

@@ -15,6 +15,18 @@
     {
       "name": "cyl_search_cancel",
       "value": "İptal"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "Diğer"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "İptal"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "Yenile"
     }
   ]
 }

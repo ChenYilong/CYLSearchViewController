@@ -15,6 +15,18 @@
     {
       "name": "cyl_search_cancel",
       "value": "Скасувати"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "Ще"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "Скасувати"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "Оновити"
     }
   ]
 }

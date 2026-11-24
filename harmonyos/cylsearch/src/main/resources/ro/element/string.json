@@ -15,6 +15,18 @@
     {
       "name": "cyl_search_cancel",
       "value": "Anulează"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "Mai multe"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "Anulează"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "Reîmprospătează"
     }
   ]
 }

@@ -15,6 +15,18 @@
     {
       "name": "cyl_search_cancel",
       "value": "Annulla"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "Altro"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "Annulla"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "Aggiorna"
     }
   ]
 }

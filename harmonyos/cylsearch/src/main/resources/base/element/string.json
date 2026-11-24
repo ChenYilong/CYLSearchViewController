@@ -189,6 +189,14 @@
       "value": "Remove search"
     },
     {
+      "name": "cyl_navigationBar_back",
+      "value": "Back"
+    },
+    {
+      "name": "cyl_navigationBar_back",
+      "value": "Back"
+    },
+    {
       "name": "cyl_placeholder_empty",
       "value": "No data"
     },

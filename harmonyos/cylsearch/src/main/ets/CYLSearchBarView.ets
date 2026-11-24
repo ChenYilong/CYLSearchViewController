@@ -974,7 +974,7 @@ export class CYLSearchBarView {
    * What screen readers read for the button before the field; "Back" in the language the app shows by default (iOS
    * `search.back`).
    */
-  @Trace navigationAccessibilityLabel: ResourceStr = $r('app.string.cyl_search_back');
+  @Trace navigationAccessibilityLabel: ResourceStr = $r('app.string.cyl_navigationBar_back');
   /**
    * A round background behind the button before the field; undefined draws none.
    */
@@ -2465,7 +2465,7 @@ export struct CYLSearchNavigationPage {
           .fontColor([$r('sys.color.font_primary')])
           .width(32)
           .height(44)
-          .accessibilityText($r('app.string.cyl_search_back'))
+          .accessibilityText($r('app.string.cyl_navigationBar_back'))
           .onClick(() => this.onBack())
       }
       CYLSearchBarComponent({ searchBarView: this.searchBarView }).layoutWeight(1)
