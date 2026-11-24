@@ -155,6 +155,17 @@ Owner rule: code is written statically; no per-step build and test cycles. Testi
 
 **Static work still open before the batch**: Android (the whole spec A, B, C, back button, width; RN Android setters); HarmonyOS and the mini program: the Discover topics grid built from ClassifyMenu's tag list (not by hand), the README of the two new mini program components, the `tagList.refresh` strings of the other languages; all platforms: the example texts in the four languages; the iOS example's remaining English in the React Native tab pages.
 
+### Status on Android (2026-11-24, Windows session): written statically, NOT run yet
+
+| Item | State |
+|---|---|
+| A, refresh icon | `cyl_search_ic_refresh` (Material refresh, Apache-2.0, same notice as the other icons) and `cyl_search_tagList_refresh` in en / ja / zh-Hans / zh-Hant in the `cylsearch` library; `CYLSearchTagListHeader.applyRefreshIcon` sets `CYLMenuStyle.moreButtonImage`; the Discover topics header uses it. Not built, not seen. |
+| B, data | the Android assets copy is in `COPIES` of `scripts/sync-discover-data.py` (`--check` OK); `CYLSearchDiscoverData.topicsOnPage / nextPage` replace `randomTopics`; `CYLSearchDiscoverDataTest` written, not run. |
+| C, navigation bar | `CYLSearchBarView.embedInToolbar(toolbar)` / `embedInToolbar(activity, content)`: a Toolbar custom view with match-parent width (the core fills the space beside the back arrow and clears the toolbar's content insets so the capsule keeps the 16 dp inset); the Discover fragment is a second-level page with the Toolbar back arrow and sets no width, margin or padding; `CYLSearchBarEmbedInToolbarTest` written, not run. |
+| Bridges | React Native Android ViewManager setters `showsRefreshButton`, `columns`, `tagImages`, `embedsInNavigationBar`, `showsBackButton` (events `onRefreshButtonTap`, `onBackButtonTap`); Flutter Android: the same params on the tag list and bar platform views (`didTapRefreshButton`, `didTapBackButton`). Not compiled. |
+| Corner radius (PR #35) | Android part pushed to ClassifyMenu `feat/corner-radius-numeric` (`6787e7f5`): `CYLTagCornerRadiusSquare` removed, 0 square, 1000 capsule, presets keep their looks, `CYLTagCornerRadiusTest` written, not run. CYLSearch's own `CYLSearchBarView.kt` still uses the 0.001 square value (valid in both meanings) until the pins move. |
+| Not done | the core default `contentInsets` 16 dp (it makes the `CYLSearchViewQMUIPortTest` SQLite failure appear in the full suite: the example sets 16 itself); the core default tag look (`CYLSearchTagListStyle`); HarmonyOS and the mini program (the other Windows session). Everything is waiting for the single test batch (emulator free, PR #35 merged, pins moved). |
+
 ### Assignments (2026-11-24)
 
 - iOS core, iOS examples, the Flutter and React Native Dart / TypeScript pages and iOS halves, the sync script: the Mac session.
