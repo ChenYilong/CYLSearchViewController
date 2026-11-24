@@ -25,7 +25,6 @@
     <string name="cyl_discover_ok">OK</string>
     <string name="cyl_discover_holdMic">マイクボタンを長押しして質問を話してください</string>
     <string name="cyl_discover_hot">人気</string>
-    <string name="cyl_discover_animationItem">アニメーション</string>
     <string name="cyl_discover_animationLoops">アニメーションをループ</string>
     <string name="cyl_discover_animationSpeed">アニメーションの速度</string>
     <string name="cyl_discover_animationPlay">もう一度再生</string>

@@ -25,7 +25,6 @@
     <string name="cyl_discover_ok">好</string>
     <string name="cyl_discover_holdMic">请按住麦克风按钮说出问题</string>
     <string name="cyl_discover_hot">热门</string>
-    <string name="cyl_discover_animationItem">动画</string>
     <string name="cyl_discover_animationLoops">循环播放动画</string>
     <string name="cyl_discover_animationSpeed">动画速度</string>
     <string name="cyl_discover_animationPlay">再播放一次</string>

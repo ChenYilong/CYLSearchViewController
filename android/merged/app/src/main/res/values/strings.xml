@@ -25,7 +25,6 @@
     <string name="cyl_discover_ok">OK</string>
     <string name="cyl_discover_holdMic">Hold the mic button and say your question</string>
     <string name="cyl_discover_hot">Hot</string>
-    <string name="cyl_discover_animationItem">Animation</string>
     <string name="cyl_discover_animationLoops">Loop animation</string>
     <string name="cyl_discover_animationSpeed">Animation speed</string>
     <string name="cyl_discover_animationPlay">Play again</string>

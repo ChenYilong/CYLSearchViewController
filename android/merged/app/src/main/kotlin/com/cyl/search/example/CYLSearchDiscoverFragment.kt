@@ -140,13 +140,13 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
 
     private inner class RecentSource : CYLMenuDataSource {
         var searches: MutableList<String> = mutableListOf()
-        lateinit var clearButton: ImageButton
 
         override fun numberOfSectionsInMenu() = if (searches.isEmpty()) 0 else 1
         override fun menuNumberOfItemsInSection(section: Int) = searches.size
         override fun menuTitleForSection(section: Int) = getString(R.string.cyl_discover_recent)
         override fun menuTitleForItemAtIndexPath(indexPath: CYLIndexPath) = searches[indexPath.item]
-        override fun menuAccessoryViewForSection(section: Int): View = clearButton
+        // The list's built-in clear button (trash), on the header's 16 dp inset.
+        override fun menuShowsClearButtonForSection(section: Int) = true
         override fun menuAccessibilityHintForItemAtIndexPath(indexPath: CYLIndexPath) = getString(R.string.cyl_discover_tapToSearch)
     }
 
@@ -178,7 +178,9 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
         searchBar = CYLSearchBarView(context).apply {
             delegate = this@CYLSearchDiscoverFragment
             searchIcon = null
-            contentInsets = android.graphics.Rect(0, 0, 0, 0)
+            // The 16 dp inset of the tag list's header and tags (docs/animated-icon-component.md, "Default layout contract"). Set here
+            // until the core default moves from 12 to 16 (that change makes CYLSearchViewQMUIPortTest fail in the full suite: open).
+            contentInsets = android.graphics.Rect(16, 6, 16, 6)
             fieldHeight = 46f
             searchBarStyle = CYLSearchBarStyle.Bordered
             fieldCornerRadius = 22f
@@ -194,29 +196,19 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             searchByImage()
         }
         camera.imageSize = android.util.SizeF(22f, 22f)
-        // The animation item sits right after the camera and shows the same still image when the engine is missing.
-        val animation = CYLSearchBarItem.iconItem(context.getDrawable(R.drawable.cyl_ic_camera), getString(R.string.cyl_discover_animationItem)) {}
-        animation.imageSize = android.util.SizeF(22f, 22f)
-        animation.animationURL = android.net.Uri.parse("file:///android_asset/tab_activity.svga")
-        animation.animationLoops = animationLoops
-        animation.animationSpeed = animationSpeed
+        // The camera button itself plays the animation (Animation demo rule): search_camera.json, the same Lottie file on
+        // every platform; the static camera drawable stays the fallback when the engine is missing.
+        camera.animationURL = android.net.Uri.parse("file:///android_asset/search_camera.json")
+        camera.animationLoops = animationLoops
+        camera.animationSpeed = animationSpeed
         val search = CYLSearchBarItem.textItem(getString(R.string.cyl_discover_search)) { searchTapped() }
         search.itemAccessibilityIdentifier = "CYLSearchDiscoverSearchButton"
         searchBar.itemTintColor = primary
         searchBar.addItem(camera)
-        searchBar.addItem(animation)
         searchBar.addItem(CYLSearchBarItem.divider())
         searchBar.addItem(search)
 
         // Recent searches: folded to two rows, the chevron as the last tag; the trash clears the list.
-        recentSource.clearButton = ImageButton(context).apply {
-            setImageResource(R.drawable.cyl_ic_delete)
-            background = null
-            setColorFilter(secondary)
-            contentDescription = getString(R.string.cyl_discover_clear)
-            layoutParams = ViewGroup.LayoutParams(dp(44f), dp(44f))
-            setOnClickListener { clearRecentSearches() }
-        }
         recentList = CYLTagListView(context).apply {
             foldControl = CYLMenuFoldControl().apply {
                 position = CYLMenuFoldControlPosition.TAIL
@@ -242,7 +234,8 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
         val top = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            setPadding(if (pushed) dp(6f) else dp(14f), dp(8f), dp(14f), 0)
+            // Edge to edge: the bar's own 16 dp contentInsets line up with the tag list's header and tags.
+            setPadding(if (pushed) dp(6f) else 0, dp(8f), 0, 0)
             if (pushed) {
                 addView(ImageButton(context).apply {
                     setImageDrawable(ContextCompat.getDrawable(context, androidx.appcompat.R.drawable.abc_ic_ab_back_material))
@@ -275,7 +268,7 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
         speedBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(bar: SeekBar, progress: Int, fromUser: Boolean) {
                 animationSpeed = 0.25f + progress / 100f
-                animation.animationSpeed = animationSpeed
+                camera.animationSpeed = animationSpeed
                 showSpeed()
             }
             override fun onStartTrackingTouch(bar: SeekBar) {}
@@ -288,7 +281,7 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             contentDescription = getString(R.string.cyl_discover_animationLoops)
             setOnCheckedChangeListener { _, checked ->
                 animationLoops = checked
-                animation.animationLoops = checked
+                camera.animationLoops = checked
             }
         }
         val playAgain = Button(context).apply {
@@ -296,12 +289,12 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             minHeight = dp(48f)
             minimumWidth = dp(48f)
             contentDescription = getString(R.string.cyl_discover_animationPlay)
-            setOnClickListener { animation.restartAnimation() }
+            setOnClickListener { camera.restartAnimation() }
         }
         val playback = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
-            setPadding(dp(14f), dp(4f), dp(14f), 0)
+            setPadding(dp(16f), dp(8f), dp(16f), dp(8f))
             addView(loopSwitch)
             addView(speedBar, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
             addView(speedLabel)
@@ -311,6 +304,8 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             orientation = LinearLayout.VERTICAL
             addView(recentList, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
             addView(discoverList, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+            // The playback row closes the page options: outside the bar, never between the bar and the lists.
+            addView(playback)
         }
         hintLabel = TextView(context).apply {
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f)
@@ -339,7 +334,6 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             isFocusableInTouchMode = true
             descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS
             addView(top)
-            addView(playback)
             addView(ScrollView(context).apply { addView(lists) }, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f).apply { topMargin = dp(10f) })
             addView(hintLabel, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { bottomMargin = dp(4f) })
             addView(bottom, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(110f)))
@@ -456,6 +450,7 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
     }
 
     override fun menuDidTapMoreButtonInSection(menu: Any, section: Int) = refreshDiscover()
+    override fun menuDidTapClearButtonInSection(menu: Any, section: Int) = clearRecentSearches()
 
     // CYLSearchBarViewDelegate
 
