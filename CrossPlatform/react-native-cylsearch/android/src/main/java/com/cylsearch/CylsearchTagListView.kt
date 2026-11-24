@@ -2,6 +2,7 @@ package com.cylsearch
 
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import com.cyl.classifymenu.CYLBadgeDrawable
 import com.cyl.classifymenu.CYLIndexPath
 import com.cyl.classifymenu.CYLMenuDataSource
 import com.cyl.classifymenu.CYLMenuDelegate
@@ -45,6 +46,9 @@ class CylsearchTagListView(private val reactContext: ThemedReactContext) : CYLTa
   var tagImages: List<String> = emptyList()
     private set
   private val loadedImages = HashMap<String, Drawable>()
+
+  /** The screen-reader label of each tag image, parallel to `tagImages` ('' none): TalkBack reads it with the tag (the hot icon says "Hot"). */
+  var tagImageLabels: List<String> = emptyList()
   private val flowingStyle: CYLMenuStyle? = style?.copy()
 
   init {
@@ -126,7 +130,16 @@ class CylsearchTagListView(private val reactContext: ThemedReactContext) : CYLTa
   override fun menuShowsClearButtonForSection(section: Int) = showsClearButton && !showsRefreshButton
   override fun menuShowsMoreButtonInSection(section: Int) = showsRefreshButton
   override fun menuAccessibilityLabelForMoreButtonInSection(section: Int) = CYLSearchTagListHeader.refreshLabel(reactContext)
-  override fun menuImageForItemAtIndexPath(indexPath: CYLIndexPath): Drawable? = loadedImages[tagImages.getOrNull(indexPath.item).orEmpty()]
+  override fun menuImageForItemAtIndexPath(indexPath: CYLIndexPath): Drawable? {
+    val image = loadedImages[tagImages.getOrNull(indexPath.item).orEmpty()] ?: return null
+    val label = tagImageLabels.getOrNull(indexPath.item).orEmpty()
+    // CYLBadgeDrawable is drawn in its own colors (not tinted like a tag icon) and gives TalkBack its label.
+    return if (label.isNotEmpty() && image is android.graphics.drawable.BitmapDrawable) {
+      CYLBadgeDrawable(resources, image.bitmap, label)
+    } else {
+      image
+    }
+  }
   override fun supportsRenamingItems() = supportsRenaming
   override fun menuRenameItemAtIndexPath(indexPath: CYLIndexPath, title: String) = Unit
   override fun supportsMovingItems() = true

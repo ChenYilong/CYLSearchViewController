@@ -516,6 +516,8 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
     private var showsRefreshButton = false
     private var columns = 0
     private var tagImages: List<String> = emptyList()
+    // The screen-reader label of each tag image, parallel to tagImages ('' none); param tagImageLabels.
+    private var tagImageLabels: List<String> = emptyList()
     private val loadedImages = HashMap<String, android.graphics.drawable.Drawable>()
     private val appContext: Context = context
     private var supportsRenaming = false
@@ -566,6 +568,7 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
         showsRefreshButton = arguments["showsRefreshButton"] as? Boolean ?: false
         columns = maxOf(0, (arguments["columns"] as? Number)?.toInt() ?: 0)
         tagImages = (arguments["tagImages"] as? List<String>) ?: emptyList()
+        tagImageLabels = (arguments["tagImageLabels"] as? List<String>) ?: emptyList()
         applyListStyle()
         loadTagImages()
         supportsRenaming = arguments["supportsRenaming"] as? Boolean ?: false
@@ -628,8 +631,16 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
     override fun menuShowsClearButtonForSection(section: Int) = showsClearButton && !showsRefreshButton
     override fun menuShowsMoreButtonInSection(section: Int) = showsRefreshButton
     override fun menuAccessibilityLabelForMoreButtonInSection(section: Int) = CYLSearchTagListHeader.refreshLabel(appContext)
-    override fun menuImageForItemAtIndexPath(indexPath: CYLIndexPath): android.graphics.drawable.Drawable? =
-        loadedImages[tagImages.getOrNull(indexPath.item).orEmpty()]
+    override fun menuImageForItemAtIndexPath(indexPath: CYLIndexPath): android.graphics.drawable.Drawable? {
+        val image = loadedImages[tagImages.getOrNull(indexPath.item).orEmpty()] ?: return null
+        val label = tagImageLabels.getOrNull(indexPath.item).orEmpty()
+        // CYLBadgeDrawable is drawn in its own colors and gives TalkBack its label (the hot icon says "Hot").
+        return if (label.isNotEmpty() && image is android.graphics.drawable.BitmapDrawable) {
+            com.cyl.classifymenu.CYLBadgeDrawable(appContext.resources, image.bitmap, label)
+        } else {
+            image
+        }
+    }
     override fun supportsRenamingItems() = supportsRenaming
     override fun menuRenameItemAtIndexPath(indexPath: CYLIndexPath, title: String) = Unit
     override fun supportsMovingItems() = true
