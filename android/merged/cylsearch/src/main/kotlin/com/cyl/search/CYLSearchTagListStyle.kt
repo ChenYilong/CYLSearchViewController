@@ -2,11 +2,13 @@ package com.cyl.search
 
 import android.graphics.Color
 import android.graphics.Typeface
+import com.cyl.animateditem.CYLAnimatedItemCornerRadiusCapsule
 import com.cyl.classifymenu.CYLControlState
 import com.cyl.classifymenu.CYLEdgeInsets
 import com.cyl.classifymenu.CYLFont
 import com.cyl.classifymenu.CYLMenuStyle
 import com.cyl.classifymenu.CYLSize
+import com.cyl.classifymenu.CYLTagBackgroundStyle
 
 /**
  * The search bar core's default style of a tag list, the look of the iOS example's recent searches and discover topics:
@@ -19,10 +21,11 @@ object CYLSearchTagListStyle {
 
     /**
      * The corner radius of a capsule: the corners are as round as the tag's height allows (ClassifyMenu limits a radius to
-     * half the height). The one named constant for it: pass it, never the literal 1000. 0 is square corners; no other
+     * half the height). The library's constant (`CYLAnimatedItemCornerRadiusCapsule`, CYLTabBarController's cylanimateditem):
+     * pass it by name, never the literal 1000. 0 is square corners; no other
      * value has a special meaning.
      */
-    const val CAPSULE_CORNER_RADIUS: Float = 1000f
+    const val CAPSULE_CORNER_RADIUS: Float = CYLAnimatedItemCornerRadiusCapsule
 
     /**
      * The corner radius of every tag, in dp. The default `CAPSULE_CORNER_RADIUS` is a capsule, as in the iOS example's
@@ -30,6 +33,13 @@ object CYLSearchTagListStyle {
      */
     @JvmStatic
     var tagCornerRadius: Float = CAPSULE_CORNER_RADIUS
+
+    /**
+     * The background of every tag: flat (the default, a solid color) or Liquid Glass where the platform draws it (else flat).
+     * Set on the style by `applyDefaults` and `applyGrid`, as iOS `tagBackgroundStyle` does.
+     */
+    @JvmStatic
+    var backgroundStyle: CYLTagBackgroundStyle = CYLTagBackgroundStyle.CYLTagBackgroundStyleFlat
 
     /**
      * Called with the style after the defaults are set, to change any value of it. null by default.
@@ -55,6 +65,7 @@ object CYLSearchTagListStyle {
                 textColor = Color.BLACK
             }
         }
+        style.backgroundStyle = backgroundStyle
         style.itemHeight = 36f
         style.interitemSpacing = 12f
         style.lineSpacing = 12f
@@ -74,6 +85,7 @@ object CYLSearchTagListStyle {
             style.appearanceForState(state).font = CYLFont(17f, Typeface.create("sans-serif-medium", Typeface.NORMAL))
         }
         style.imageSize = CYLSize(0f, 0f)
+        style.backgroundStyle = backgroundStyle
         style.itemHeight = 36f
         style.lineSpacing = 16f
         style.sectionInsets = CYLEdgeInsets(4f, 16f, 16f, 16f)

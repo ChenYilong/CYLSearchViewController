@@ -21,7 +21,27 @@ class CYLSearchTagListStyleTest {
     @After
     fun resetDefaults() {
         CYLSearchTagListStyle.tagCornerRadius = CYLSearchTagListStyle.CAPSULE_CORNER_RADIUS
+        CYLSearchTagListStyle.backgroundStyle = com.cyl.classifymenu.CYLTagBackgroundStyle.CYLTagBackgroundStyleFlat
         CYLSearchTagListStyle.styleCustomizer = null
+    }
+
+    @Test
+    fun theBackgroundIsFlatByDefaultAndCanBeLiquidGlass() {
+        val flat = CYLMenuStyle()
+        CYLSearchTagListStyle.applyDefaults(flat)
+        assertEquals(com.cyl.classifymenu.CYLTagBackgroundStyle.CYLTagBackgroundStyleFlat, flat.backgroundStyle)
+        CYLSearchTagListStyle.backgroundStyle = com.cyl.classifymenu.CYLTagBackgroundStyle.CYLTagBackgroundStyleLiquidGlass
+        val glass = CYLMenuStyle()
+        CYLSearchTagListStyle.applyDefaults(glass)
+        assertEquals(com.cyl.classifymenu.CYLTagBackgroundStyle.CYLTagBackgroundStyleLiquidGlass, glass.backgroundStyle)
+        val grid = CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(2)
+        CYLSearchTagListStyle.applyGrid(grid)
+        assertEquals(com.cyl.classifymenu.CYLTagBackgroundStyle.CYLTagBackgroundStyleLiquidGlass, grid.backgroundStyle)
+    }
+
+    @Test
+    fun theCapsuleIsTheLibraryConstant() {
+        assertEquals(com.cyl.animateditem.CYLAnimatedItemCornerRadiusCapsule, CYLSearchTagListStyle.CAPSULE_CORNER_RADIUS, 0f)
     }
 
     @Test

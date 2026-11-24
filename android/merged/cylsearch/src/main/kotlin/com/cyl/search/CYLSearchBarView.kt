@@ -50,7 +50,6 @@ import com.cyl.classifymenu.CYLMenuStyle
 import com.cyl.classifymenu.CYLOffset
 import com.cyl.classifymenu.CYLSize
 import com.cyl.classifymenu.CYLTagButton
-import com.cyl.classifymenu.CYLTagCornerRadiusSquare
 import kotlin.math.hypot
 import kotlin.math.max
 
@@ -2834,7 +2833,7 @@ internal class CYLSearchBarItemButton(context: Context, item: CYLSearchBarItem) 
             appearance.borderColor = null
             appearance.borderWidth = 0f
             appearance.contentInsets = CYLEdgeInsets(insets.getOrElse(1) { 0f }, insets.getOrElse(0) { 0f }, insets.getOrElse(3) { 0f }, insets.getOrElse(2) { 0f })
-            appearance.cornerRadius = if (hasBackground) BACKGROUND_CORNER_RADIUS else CYLTagCornerRadiusSquare
+            appearance.cornerRadius = if (hasBackground) BACKGROUND_CORNER_RADIUS else 0f
         }
         return style
     }
