@@ -81,3 +81,4 @@
 "demo.collectionView" = "Collection view";
 "issue.row" = "Row %d";
 "issue.item" = "Item %d";
+"tagList.refresh" = "Refresh";

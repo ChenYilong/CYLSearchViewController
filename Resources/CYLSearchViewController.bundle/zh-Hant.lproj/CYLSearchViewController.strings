@@ -81,3 +81,4 @@
 "demo.collectionView" = "集合檢視";
 "issue.row" = "第 %d 列";
 "issue.item" = "項目 %d";
+"tagList.refresh" = "重新整理";

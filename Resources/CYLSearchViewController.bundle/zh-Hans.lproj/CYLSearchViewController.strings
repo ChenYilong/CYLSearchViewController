@@ -81,3 +81,4 @@
 "demo.collectionView" = "集合视图";
 "issue.row" = "第 %d 行";
 "issue.item" = "项目 %d";
+"tagList.refresh" = "刷新";

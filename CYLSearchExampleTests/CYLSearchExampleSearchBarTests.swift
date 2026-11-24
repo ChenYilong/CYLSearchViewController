@@ -681,4 +681,19 @@ extension CYLSearchExampleSearchBarTests {
         XCTAssertEqual(bar.fieldView.frame.maxX, width - tagStyle.sectionInsets.right, accuracy: 0.5, "trailing: capsule = last tag")
         XCTAssertEqual(bar.fieldView.frame.minX, tagStyle.headerHorizontalInset, accuracy: 0.5, "leading: capsule = section title")
     }
+
+    /// The refresh icon of a tag list's section header: an icon, a localized VoiceOver label, set as the More button's icon.
+    @MainActor
+    func testTagListHeaderRefreshIconIsAnIconWithALocalizedLabel() {
+        XCTAssertNotNil(CYLSearchTagListHeader.refreshImage)
+        let english = CYLSearchResources.localizedString(forKey: "tagList.refresh", language: "en")
+        let chinese = CYLSearchResources.localizedString(forKey: "tagList.refresh", language: "zh-Hans")
+        XCTAssertEqual(english, "Refresh")
+        XCTAssertEqual(chinese, "刷新")
+        XCTAssertFalse(CYLSearchTagListHeader.refreshAccessibilityLabel.isEmpty)
+        let list = CYLTagListView()
+        XCTAssertNil(list.style.moreButtonImage, "the default is the three dots")
+        CYLSearchTagListHeader.applyRefreshIcon(to: list)
+        XCTAssertNotNil(list.style.moreButtonImage)
+    }
 }
