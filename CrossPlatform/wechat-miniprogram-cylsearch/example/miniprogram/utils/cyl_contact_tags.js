@@ -244,15 +244,18 @@ class CYLContactTagServer {
 
 /**
  * The demo's tag look (iOS CYLContactTagEditorViewController.tagStyle()) over cyl-tag-cloud's full `base` style
- * (model.defaultStyle()): gray tags, green selected tags, 16 pt, 36 pt tall, 12 pt apart.
+ * (model.defaultStyle()): Liquid Glass tags (the one parameter `backgroundStyle: 'liquidGlass'`; the glass is the background, so a
+ * tag has no fill and no border of its own), green selected tags (a green tint of the glass, the glass keeps 75% of its alpha),
+ * 16 pt, 36 pt tall, 12 pt apart.
  */
 function cylContactTagStyle(base) {
   const style = JSON.parse(JSON.stringify(base));
+  style.backgroundStyle = 'liquidGlass';
   ['normal', 'selected', 'disabled'].forEach((state) => {
     Object.assign(style[state], { fontSize: 16, cornerRadius: 6, borderWidth: 0, borderColor: null, contentInsets: { top: 5, left: 14, bottom: 5, right: 14 } });
   });
-  Object.assign(style.normal, { backgroundColor: '#F2F2F7', textColor: '#000000' });
-  Object.assign(style.selected, { backgroundColor: 'rgba(7,193,96,0.1)', textColor: '#07C160' });
+  Object.assign(style.normal, { backgroundColor: '', textColor: '#000000' });
+  Object.assign(style.selected, { backgroundColor: 'rgba(7,193,96,0.2)', textColor: '#07C160' });
   Object.assign(style, { itemHeight: 36, interitemSpacing: 12, lineSpacing: 12, sectionInsets: { top: 4, left: 16, bottom: 12, right: 16 } });
   return style;
 }

@@ -3,7 +3,7 @@ import { LengthMetrics } from '@kit.ArkUI';
 import { util } from '@kit.ArkTS';
 import {
   CYLControlState, CYLEdgeInsets, CYLFont, CYLIndexPath, CYLMenuDataSource, CYLMenuDelegate, CYLMenuSelectionMode,
-  CYLMenuStyle, CYLSize, CYLTagListState, CYLTagListView
+  CYLMenuStyle, CYLSize, CYLTagBackgroundStyle, CYLTagListState, CYLTagListView
 } from '@cyl/classifymenu';
 import {
   CYLSearchBarItem,
@@ -146,6 +146,8 @@ class CYLDiscoverSource implements CYLMenuDataSource {
  */
 function cylDiscoverStyle(hotWidth: number): CYLMenuStyle {
   const style = CYLMenuStyle.gridStyle(2);
+  // The one parameter: the glass is the tag background (the preset's fill and border stay empty).
+  style.backgroundStyle = CYLTagBackgroundStyle.liquidGlass;
   [CYLControlState.NORMAL, CYLControlState.SELECTED, CYLControlState.DISABLED].forEach((state: number) => {
     const appearance = style.appearance(state);
     appearance.font = new CYLFont(17, FontWeight.Medium);

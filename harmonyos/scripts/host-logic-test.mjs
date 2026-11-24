@@ -420,3 +420,47 @@ describe('corner radius capsule constant', () => {
     assert.doesNotMatch(library + menu, /CYLTagCornerRadiusSquare/);
   });
 });
+
+// Every example tag list is Liquid Glass with ONE parameter, `style.backgroundStyle = CYLTagBackgroundStyle.liquidGlass`
+// (CollectionViewClassifyMenu 551072a); the glass is the background, so the glass tags have no fill and no border of
+// their own. The Discover "recent" tags stay opaque white (plain Text, not a tag list). Source checks: the styles import
+// kit code and run only on a device.
+describe('Liquid Glass tag lists', () => {
+  const demos = join(here, '..', 'entry', 'src', 'main', 'ets', 'demos');
+  const contactSource = readFileSync(join(demos, 'contacttags', 'CYLContactTagsPages.ets'), 'utf8');
+  const functionBody = (source, name) => {
+    source = source.replace(/\r\n/g, '\n');
+    const start = source.indexOf(`function ${name}(`);
+    assert.ok(start >= 0, `${name} exists`);
+    const end = source.indexOf('\n}\n', start);
+    return source.slice(start, end);
+  };
+  const glass = /style\.backgroundStyle = CYLTagBackgroundStyle\.liquidGlass;/;
+  it('sets the one parameter on the Discover topics grid and the contact tags, and imports the enum', () => {
+    assert.match(functionBody(discoverSource, 'cylDiscoverStyle'), glass);
+    assert.match(functionBody(contactSource, 'cylContactTagStyle'), glass);
+    assert.match(discoverSource, /import \{[^}]*\bCYLTagBackgroundStyle\b[^}]*\} from '@cyl\/classifymenu';/);
+    assert.match(contactSource, /import \{[^}]*\bCYLTagBackgroundStyle\b[^}]*\} from '@cyl\/classifymenu';/);
+  });
+  it('gives the glass tags no fill and no border of their own; the selected tint keeps visible after the glass', () => {
+    const contact = functionBody(contactSource, 'cylContactTagStyle');
+    assert.match(contact, /normalAppearance\.backgroundColor = CYLColor\.CLEAR;/);
+    assert.match(contact, /appearance\.borderWidth = 0;/);
+    assert.doesNotMatch(contact, /CYL_GRAY6|borderColor/);
+    // The glass keeps 75% of the tint's alpha (CYLLiquidGlass.GLASS_TINT_ALPHA): the selected tint is 20%, 15% on the glass.
+    const selected = /selectedAppearance\.backgroundColor = '#([0-9A-F]{2})07C160';/.exec(contact);
+    assert.ok(selected, 'the selected tint is an #AARRGGBB green');
+    const alpha = parseInt(selected[1], 16) / 255 * 0.75;
+    assert.ok(alpha >= 0.1 && alpha <= 0.3, `selected tint alpha on the glass is ${alpha}`);
+    const discover = functionBody(discoverSource, 'cylDiscoverStyle');
+    assert.doesNotMatch(discover, /backgroundColor|borderColor|borderWidth/);
+  });
+  it('keeps the Discover recent tags opaque white and flat (no glass in recentTag)', () => {
+    const text = discoverSource.replace(/\r\n/g, '\n');
+    const start = text.indexOf('recentTag(title: string) {');
+    const recent = text.slice(start, text.indexOf('\n  }\n', start));
+    assert.match(recent, /\.backgroundColor\(\$r\('sys\.color\.background_primary'\)\)/);
+    assert.doesNotMatch(recent, /liquidGlass|backgroundEffect/);
+    assert.equal((discoverSource.match(/liquidGlass/g) || []).length, 1);
+  });
+});
