@@ -166,7 +166,9 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
       // The page's search bar is always in a navigation bar: the core's, in the app bar slot. The field stays; the camera, a
       // divider and the Search button are items appended inside its bordered capsule (core `CYLSearchBarItem`).
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(44 + MediaQuery.paddingOf(context).top),
+        // 44 pt: the Scaffold adds the status bar height to the app bar slot itself, and the SafeArea below keeps the bar
+        // under it.
+        preferredSize: const Size.fromHeight(44),
         child: SafeArea(
           child: CYLSearchBarView(
                           controller: _barController,
@@ -202,6 +204,9 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
         children: <Widget>[
           Expanded(
             child: ListView(
+              // As the iOS example, measured: its first header starts 16 pt under the navigation bar (the scroll view 6 pt
+              // under the safe area, plus 10 pt the list keeps above its first header).
+              padding: const EdgeInsets.only(top: 16),
               children: <Widget>[
                 if (_recent.isNotEmpty) ...<Widget>[
                   // The native tag list brings its own section header (title and trash) and lines up with the bar.
