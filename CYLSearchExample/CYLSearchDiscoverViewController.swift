@@ -106,12 +106,6 @@ final class CYLSearchDiscoverViewController: UIViewController {
      */
     private(set) var discoverPage = 0
     /**
-     * The back button is shown only when the page was pushed (a tab root has nowhere to go back to).
-     */
-    private var showsBackButton: Bool { (navigationController?.viewControllers.count ?? 0) > 1 }
-
-    let backButton = UIButton(type: .system)
-    /**
      * The search bar (CYLSearchViewController's CYLSearchBarView) and its text field.
      */
     let searchBar = CYLSearchBarView()
@@ -249,38 +243,16 @@ final class CYLSearchDiscoverViewController: UIViewController {
         button.scalesLargeContentImage = true
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        // The search bar replaces the navigation bar, as in the search apps this screen models.
-        navigationController?.setNavigationBarHidden(true, animated: animated)
-        backButton.isHidden = !showsBackButton
-        backButtonWidth?.constant = showsBackButton ? 32 : 4
-    }
-
-    override func viewWillDisappear(_ animated: Bool) {
-        super.viewWillDisappear(animated)
-        navigationController?.setNavigationBarHidden(false, animated: animated)
-    }
-
     private func setUpSearchBar() {
-        backButton.setImage(UIImage(systemName: "chevron.left", withConfiguration: UIImage.SymbolConfiguration(pointSize: 20, weight: .regular)), for: .normal)
-        backButton.tintColor = .label
-        backButton.accessibilityLabel = cylDiscoverText("discover.back")
-        backButton.addTarget(self, action: #selector(goBack), for: .touchUpInside)
-
         // A white capsule with a soft shadow, no magnifier: the camera and the 搜索 button sit inside it.
         searchBar.delegate = self
         searchBar.searchIcon = nil
-        searchBar.contentInsets = .zero
-        searchBar.fieldHeight = 46
         searchBar.searchBarStyle = .bordered
-        searchBar.fieldCornerRadius = 22
+        searchBar.fieldCornerRadius = 18
         searchBar.fieldShadowOpacity = 0.06
         searchBar.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: .systemFont(ofSize: 16))
         searchField.accessibilityLabel = cylDiscoverText("discover.search")
         searchField.accessibilityIdentifier = "CYLSearchDiscoverField"
-
-        showsLargeContent(backButton)
 
         // The field stays; the camera, a divider and the 搜索 button are items appended to the bar.
         let camera = CYLSearchBarItem.iconItem(image: UIImage(systemName: "camera.viewfinder"), title: cylDiscoverText("discover.imageSearch")) { [weak self] _ in
@@ -426,14 +398,6 @@ final class CYLSearchDiscoverViewController: UIViewController {
         hintLabel.accessibilityLabel = text
     }
 
-    private var backButtonWidth: NSLayoutConstraint?
-
-    private func backButtonWidthConstraint() -> NSLayoutConstraint {
-        let constraint = backButton.widthAnchor.constraint(equalToConstant: 32)
-        backButtonWidth = constraint
-        return constraint
-    }
-
     private func layOut() {
         stackView.axis = .vertical
         stackView.spacing = 4
@@ -446,24 +410,18 @@ final class CYLSearchDiscoverViewController: UIViewController {
         scrollView.alwaysBounceVertical = true
         scrollView.keyboardDismissMode = .onDrag
 
-        for subview in [backButton, searchBar, scrollView, bottomView, hintLabel, micButton] as [UIView] {
+        for subview in [scrollView, bottomView, hintLabel, micButton] as [UIView] {
             subview.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview(subview)
         }
         stackView.translatesAutoresizingMaskIntoConstraints = false
         scrollView.addSubview(stackView)
+        // The search bar sits in the navigation bar; the core creates one when this page has none, and raises the top
+        // safe area below it, so the lists start under the safe area guide in both cases.
+        searchBar.embedInNavigationBar(of: self)
         let guide = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
-            backButton.leadingAnchor.constraint(equalTo: guide.leadingAnchor, constant: 6),
-            backButton.centerYAnchor.constraint(equalTo: searchBar.centerYAnchor),
-            backButtonWidthConstraint(),
-            backButton.heightAnchor.constraint(equalToConstant: 44),
-            searchBar.topAnchor.constraint(equalTo: guide.topAnchor, constant: 8),
-            searchBar.leadingAnchor.constraint(equalTo: backButton.trailingAnchor, constant: 2),
-            searchBar.trailingAnchor.constraint(equalTo: guide.trailingAnchor, constant: -14),
-            searchBar.heightAnchor.constraint(greaterThanOrEqualToConstant: 46),
-
-            scrollView.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 6),
+            scrollView.topAnchor.constraint(equalTo: guide.topAnchor, constant: 6),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: hintLabel.topAnchor, constant: -8),
@@ -547,10 +505,6 @@ final class CYLSearchDiscoverViewController: UIViewController {
 
     @objc private func micTapped() {
         UIAccessibility.post(notification: .announcement, argument: cylDiscoverText("discover.holdMic"))
-    }
-
-    @objc private func goBack() {
-        navigationController?.popViewController(animated: true)
     }
 
     @objc private func holdToAsk(_ recognizer: UILongPressGestureRecognizer) {

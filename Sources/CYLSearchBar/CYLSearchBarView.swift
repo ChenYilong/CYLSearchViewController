@@ -1650,15 +1650,25 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
 
     // MARK: - Layout
 
+    /**
+     * True after `embedInNavigationBar(of:)`: the bar is the title view of a navigation bar and fills its width.
+     */
+    @objc public internal(set) var isEmbeddedInNavigationBar = false {
+        didSet { invalidateIntrinsicContentSize() }
+    }
+
     override public var intrinsicContentSize: CGSize {
         if mode == .multiple {
             return CGSize(width: UIView.noIntrinsicMetric, height: multiSearchView.preferredHeight)
         }
-        return CGSize(width: UIView.noIntrinsicMetric, height: effectiveFieldHeight + contentInsets.top + contentInsets.bottom)
+        // In a navigation bar the title view takes the whole width the bar can give.
+        let width = isEmbeddedInNavigationBar ? UIView.layoutFittingExpandedSize.width : UIView.noIntrinsicMetric
+        return CGSize(width: width, height: effectiveFieldHeight + contentInsets.top + contentInsets.bottom)
     }
 
     override public func sizeThatFits(_ size: CGSize) -> CGSize {
-        CGSize(width: size.width, height: intrinsicContentSize.height)
+        // A navigation bar asks a title view with a zero width first: it answers with the whole width it may take.
+        CGSize(width: isEmbeddedInNavigationBar ? UIView.layoutFittingExpandedSize.width : size.width, height: intrinsicContentSize.height)
     }
 
     private static func fittingSize(of view: UIView, height: CGFloat) -> CGSize {

@@ -765,4 +765,56 @@ extension CYLSearchExampleSearchBarTests {
         XCTAssertEqual(controller.discoverSource.topics, data.topics(onPage: 1), "refresh shows the next page")
         XCTAssertNotNil(controller.discoverList.style.moreButtonImage, "the refresh icon, not the three dots")
     }
+
+    /// The navigation bar always exists: without a navigation controller the core creates one (part C of the contract).
+    @MainActor
+    func testEmbedInNavigationBarCreatesTheBarWhenTheViewControllerHasNone() {
+        let controller = UIViewController()
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
+        window.rootViewController = controller
+        window.makeKeyAndVisible()
+        let bar = CYLSearchBarView()
+        let navigationBar = bar.embedInNavigationBar(of: controller)
+        let content = UIView()
+        content.translatesAutoresizingMaskIntoConstraints = false
+        controller.view.addSubview(content)
+        NSLayoutConstraint.activate([
+            content.topAnchor.constraint(equalTo: controller.view.safeAreaLayoutGuide.topAnchor),
+            content.leadingAnchor.constraint(equalTo: controller.view.leadingAnchor),
+            content.trailingAnchor.constraint(equalTo: controller.view.trailingAnchor),
+            content.heightAnchor.constraint(equalToConstant: 100),
+        ])
+        runLoop(0.3)
+        controller.view.layoutIfNeeded()
+        navigationBar.layoutIfNeeded()
+        XCTAssertTrue(navigationBar is CYLSearchNavigationBar)
+        XCTAssertTrue(navigationBar.superview === controller.view)
+        XCTAssertTrue(navigationBar.topItem?.titleView === bar)
+        XCTAssertTrue(bar.isEmbeddedInNavigationBar)
+        XCTAssertEqual(navigationBar.frame.height, CYLSearchNavigationBar.standardHeight, accuracy: 0.5)
+        XCTAssertGreaterThanOrEqual(content.frame.minY, navigationBar.frame.maxY - 0.5, "content never sits under the bar")
+        XCTAssertEqual(controller.additionalSafeAreaInsets.top, CYLSearchNavigationBar.standardHeight, "content under the safe area guide starts below the bar")
+        window.isHidden = true
+    }
+
+    /// With a navigation controller the bar becomes the title view of its navigation bar.
+    @MainActor
+    func testEmbedInNavigationBarUsesTheNavigationControllersBar() {
+        let controller = UIViewController()
+        let navigation = UINavigationController(rootViewController: controller)
+        let window = UIWindow(frame: CGRect(x: 0, y: 0, width: 390, height: 844))
+        window.rootViewController = navigation
+        window.makeKeyAndVisible()
+        let bar = CYLSearchBarView()
+        let navigationBar = bar.embedInNavigationBar(of: controller)
+        runLoop(0.3)
+        navigation.view.layoutIfNeeded()
+        navigationBar.layoutIfNeeded()
+        XCTAssertTrue(navigationBar === navigation.navigationBar)
+        XCTAssertTrue(controller.navigationItem.titleView === bar)
+        XCTAssertTrue(bar.isEmbeddedInNavigationBar)
+        XCTAssertEqual(bar.intrinsicContentSize.width, UIView.layoutFittingExpandedSize.width, "the title view asks for the whole width")
+        XCTAssertEqual(bar.fieldHeight, 36)
+        window.isHidden = true
+    }
 }
