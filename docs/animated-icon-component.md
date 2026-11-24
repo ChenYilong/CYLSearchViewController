@@ -161,6 +161,8 @@ Owner rule: code first, tests and CI last; **no waiting for CI and no waiting fo
 - `winsCYLSearchViewController repository` (Android): the same on Android, and Flutter and React Native on Android (the props `showsRefreshButton`, `columns`, `tagImages`, `embedsInNavigationBar`, `showsBackButton`, the back and refresh events), ClassifyMenu Android corner radius (0 square, 1000 capsule).
 - `winsCYLTableViewPlaceHolder directory` (HarmonyOS, mini program): ohosTest with the refresh button label test, the emulator run, the mini program in DevTools, the corner radius on both.
 
+**Static check results (Mac session, 2026-11-24, nothing run on a device)**: `sync-discover-data.py --check`, `check-public-api-comments.sh`, `check-licenses.sh`, `check-screenshot-labels.sh`, React Native `yarn typecheck` and Flutter `flutter analyze lib`: all green. A Kotlin compile of the Android code is not possible on this Mac: AGP 9.2.1 needs JDK 17 and the machine has JDK 8, 9 and 11 only; it stays in the Windows batch. Real hashes of the Mac path-override checkouts used by the iOS builds: to be written into the footers of the batch screenshots (`git -C /tmp/xpr/cyltab rev-parse HEAD`, `cvcm`, `cyltph`; compare with the Podfile pins first). Trailers: 469 older commits of this branch still carry `Co-Authored-By`; only the five commits of the HarmonyOS / mini program batch were rewritten (owner's yes); older history is not rewritten without an explicit yes.
+
 **CI last**: every push replaces the pending run, so after the last commit of the work push once and do not push again until that run finishes; report its result as it is.
 
 **Checklist** ("code done" with pointers; `todo` = not written yet; updated by the session that writes the item):
@@ -173,7 +175,7 @@ Owner rule: code first, tests and CI last; **no waiting for CI and no waiting fo
 | Back button | system back item | `showsBackButton` | `showsBackButton` | Toolbar back arrow (always a pushed page via More) | NavDestination | nav bar back arrow |
 | Width in the core | `sizeThatFits` | via core | via core | `embedInToolbar` (MATCH_PARENT in the core) | `layoutWeight(1)` | `cylNavigationBarWidthsFrom` |
 | Topics from the ClassifyMenu tag list | `CYLTagListView` grid | `columns`, `tagImages` | `columns`, `tagImages` | `CYLSearchDiscoverFragment.kt` (`gridStyleWithNumberOfItemsPerRow(2)` + the core style) | `Discover.ets` `CYLTagListView` + `gridStyle(2)` (not run) | `cyl-tag-cloud` grid (hot icon before the title, see below) |
-| Texts in four languages | done | done | tab pages' descriptions and buttons todo | `cyl_search_*` strings in four languages | `cyl_tagList_refresh` in 29 languages | done |
+| Texts in four languages | done | done (`lib/example_texts.dart`: tab titles, descriptions, demo buttons) | done (`search-discover.json`) | `cyl_search_*` strings in four languages | `cyl_tagList_refresh` in 29 languages | done |
 | Corner radius under both meanings of 0 | `CYLSearchTagListStyle` | via core | via core | `CYLSearchTagListStyle.kt` (default 1000, customizer, bridges apply it) | todo | todo |
 
 ### Status on Android (2026-11-24, Windows session): written statically, NOT run yet

@@ -47,6 +47,9 @@ type Tab = { key: string; title: string; description: string; demos: Demo[] };
 /**
  * One tab per kind of demo, as the Flutter example (the plus button's search bar demo and Discover are their own).
  */
+/** The key of each demo button's text in `search-discover.json` (the demo's English label is its identity). */
+const DEMO_LABEL_KEYS: Record<string, string> = {"Open search": "demo.openSearch", "Results with pull to refresh": "demo.resultsRefresh", "Search controller": "demo.searchController", "Search bar styles": "demo.searchBarStyles", "Contact tags (CollectionViewClassifyMenu)": "demo.contactTags", "Contact tags without tags": "demo.contactTagsEmpty", "No matching results": "demo.noMatch", "No content": "demo.noContent"};
+
 const TABS: Tab[] = [
   {
     key: 'list',
@@ -208,14 +211,14 @@ function Screens() {
         {tab === 'bar' ? <SearchBarDemo /> : tab === 'discover' ? (discoverOpen ? <DiscoverDemo onBack={() => setDiscoverOpen(false)} /> : <DiscoverEntry onOpen={() => setDiscoverOpen(true)} />) : current ? (
           <View style={styles.page}>
             <Text style={[styles.title, { color: palette.text }]}>{text[`tab.${current.key}`] ?? current.title}</Text>
-            <Text style={[styles.body, { color: palette.text }]}>{current.description}</Text>
+            <Text style={[styles.body, { color: palette.text }]}>{text[`tab.${current.key}.description`] ?? current.description}</Text>
             {current.demos.map((demo) => (
               <Pressable key={demo.label} accessibilityRole="button" style={styles.button} onPress={() => setOpen(demo)}>
-                <Text style={styles.buttonText}>{demo.label}</Text>
+                <Text style={styles.buttonText}>{text[DEMO_LABEL_KEYS[demo.label] ?? ''] ?? demo.label}</Text>
               </Pressable>
             ))}
             <Pressable accessibilityRole="button" style={styles.button} onPress={() => setIconSource(iconSource === 'rive' ? 'svga' : 'rive')}>
-              <Text style={styles.buttonText}>{iconSource === 'rive' ? 'Tab icons: Rive' : 'Tab icons: SVGA'}</Text>
+              <Text style={styles.buttonText}>{iconSource === 'rive' ? text['demo.tabIconsRive'] : text['demo.tabIconsSvga']}</Text>
             </Pressable>
           </View>
         ) : null}

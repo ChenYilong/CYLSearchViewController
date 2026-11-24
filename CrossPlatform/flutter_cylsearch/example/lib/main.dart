@@ -7,6 +7,7 @@ import 'package:flutter_cylsearch/flutter_cylsearch.dart';
 
 import 'contact_tags_page.dart';
 import 'discover_page.dart';
+import 'example_texts.dart';
 import 'qmui_search_bar_styles_page.dart';
 import 'qmui_search_controller_page.dart';
 import 'qmui_short_list_page.dart';
@@ -25,7 +26,24 @@ Future<void> main() async {
     _ => 'assets/cyl_tabbar_configuration.json',
   };
   final configuration = jsonDecode(await rootBundle.loadString(file)) as Map<String, Object?>;
+  cylLocalizeTabTitles(configuration);
   runApp(CYLSearchExampleApp(tabBarConfiguration: configuration));
+}
+
+/// Replaces the tab titles of the configuration (English in the file) with the texts of the app's language.
+void cylLocalizeTabTitles(Object? node) {
+  if (node is Map<String, Object?>) {
+    for (final entry in node.entries.toList()) {
+      final value = entry.value;
+      if (entry.key == 'CYLTabBarItemTitle' && value is String) {
+        node[entry.key] = cylExampleText(value);
+      } else {
+        cylLocalizeTabTitles(value);
+      }
+    }
+  } else if (node is List<Object?>) {
+    node.forEach(cylLocalizeTabTitles);
+  }
 }
 
 /// The suggestions of MaterialSearchView's Default sample, as in the iOS and Android examples.
@@ -242,18 +260,18 @@ class CYLSearchDemoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text(tab.title)),
+        appBar: AppBar(title: Text(cylExampleText(tab.title))),
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(tab.description, style: Theme.of(context).textTheme.bodyLarge),
+              Text(cylExampleText(tab.description), style: Theme.of(context).textTheme.bodyLarge),
               for (final demo in tab.demos) ...<Widget>[
                 const SizedBox(height: 16),
                 FilledButton.icon(
                   icon: const Icon(Icons.search),
-                  label: Text(demo.label),
+                  label: Text(cylExampleText(demo.label)),
                   onPressed: () => _openSearch(context, demo),
                 ),
               ],
@@ -334,7 +352,7 @@ class _CYLSearchBarDemoPageState extends State<CYLSearchBarDemoPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text('Search bar')),
+        appBar: AppBar(title: Text(cylExampleText('Search bar'))),
         body: ListView(
           children: <Widget>[
             SizedBox(
