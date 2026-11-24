@@ -836,4 +836,19 @@ extension CYLSearchExampleSearchBarTests {
         XCTAssertEqual(taps, 1)
         XCTAssertEqual(CYLSearchResources.localizedString(forKey: "navigationBar.back", language: "zh-Hans"), "返回")
     }
+
+    /// The adaptive width is the core's job: an embedded bar asks the navigation bar for the whole width (UIKit then gives it
+    /// what is left beside a back button), a plain bar keeps the width it is offered; no example sets a width.
+    @MainActor
+    func testEmbeddedBarAsksForTheWholeWidthAndAPlainBarKeepsItsOwn() {
+        let plain = CYLSearchBarView()
+        XCTAssertEqual(plain.sizeThatFits(CGSize(width: 320, height: 100)).width, 320)
+        XCTAssertEqual(plain.intrinsicContentSize.width, UIView.noIntrinsicMetric)
+        let navigationBar = CYLSearchNavigationBar.holding(plain, showsBackButton: true)
+        XCTAssertNotNil(navigationBar.topItem)
+        XCTAssertEqual(plain.sizeThatFits(.zero).width, UIView.layoutFittingExpandedSize.width, "a navigation bar first asks with a zero width")
+        XCTAssertEqual(plain.sizeThatFits(CGSize(width: 320, height: 100)).width, UIView.layoutFittingExpandedSize.width)
+        XCTAssertEqual(plain.intrinsicContentSize.width, UIView.layoutFittingExpandedSize.width)
+        XCTAssertEqual(plain.intrinsicContentSize.height, 44, accuracy: 0.5, "the field and its insets fit the 44 pt navigation bar")
+    }
 }
