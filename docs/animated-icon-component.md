@@ -142,18 +142,39 @@ The Discover search bar must sit in the navigation bar of the current view; a vi
 - **The adaptive width is the core's job, never the example's (2026-11-24, owner)**: beside a back button the search bar takes the width that is left because the core sizes it, not because a page sets a width. iOS: an embedded `CYLSearchBarView` answers `sizeThatFits` and `intrinsicContentSize` with the whole width (`UIView.layoutFittingExpandedSize.width`) and UIKit gives it what the navigation bar has beside the back button; a plain bar keeps the width it is offered. Pinned by `testEmbeddedBarAsksForTheWholeWidthAndAPlainBarKeepsItsOwn`. The three iOS examples were checked for width code on the bar: none (the iOS Discover page lost its width constraints and back button; Flutter's `PreferredSize` and React Native's `discoverBar` set a height and a margin only). Every other platform follows: Android the core puts the bar into the Toolbar as a custom view that fills the space between the navigation icon and the end (the width is the core's `Toolbar.LayoutParams`, not a page value), HarmonyOS the core's title builder gives the bar `layoutWeight(1)` between the back button and the end, the mini program's core navigation bar component measures the free width from the back button and `wx.getMenuButtonBoundingClientRect` itself; a page of an example never passes a width, margin or padding to fit the back button.
 - TODO for the Windows sessions: Android (`winsCYLSearchViewController repository`, some pushed, see the log), HarmonyOS and the mini program (`winsCYLTableViewPlaceHolder directory` asked its owner first, nothing started).
 
-### Test hand-over, one batch (2026-11-24, owner: write the code statically, test once when the conditions are met)
+### Test hand-over, one batch (2026-11-24, owner; standard designed with the advisor)
 
-Owner rule: code is written statically; no per-step build and test cycles. Testing is done once, in one batch, by the session that owns the platform, when the conditions below hold. Until then a session only reports what it wrote and what it could check without running (type check, analyzer, `scripts/sync-discover-data.py --check`, `check-*.sh`).
+Owner rule: code first, tests and CI last; **no waiting for CI and no waiting for other sessions**. Code is written statically; a platform is tested once, in one batch, by the session that owns it, when its own conditions hold. Nothing waits for the merge of ClassifyMenu PR #35 or for the pins to move: a batch tests whatever is pinned at that moment and records the commits.
 
-**Conditions for the batch**: (1) ClassifyMenu PR #35 (numeric corner radius) has all four platforms in and the owner has merged it, then every pin moved together to the merged commit (CYLSearchViewController, Flutter, React Native, mini program, HarmonyOS, Android); (2) the static work of the platform is complete (below); (3) the platform's emulator or simulator is free (Windows: one heavy job at a time).
+**Test-condition standard** (each session checks its own platform; all five must hold):
 
-**What each session tests once** (each test records a labeled screenshot of the Discover page in en and zh-Hans, and of the back tap):
-- *Mac session (iOS)*: iOS unit tests (whole suite) and the example; Flutter and React Native on iOS with the merged pins; the iOS CI run of this branch.
-- *`winsCYLSearchViewController repository` (Android)*: Android core and example (refresh icon, next page with the hot slot moving, search bar in the Toolbar beside the back arrow, width by the core), Flutter and React Native on Android (the four props `showsRefreshButton`, `columns`, `tagImages`, `embedsInNavigationBar`, plus `showsBackButton` and the back event), the corner radius of ClassifyMenu Android (0 square, 1000 capsule).
-- *`winsCYLTableViewPlaceHolder directory` (HarmonyOS, mini program)*: ohosTest including a label test for the refresh button, the emulator run; the mini program in DevTools; the corner radius of ClassifyMenu on both.
+| # | Condition | How it is checked, without waiting on anyone |
+|---|---|---|
+| 1 | Code complete: every spec item of the platform is "code done" with a `file:line` pointer (A refresh icon, B data and next page, C navigation bar, back button, width in the core, topics from the ClassifyMenu tag list, texts in four languages, corner radius valid under both meanings of 0) | the checklist below, one row per item per platform |
+| 2 | Static checks green (those that need no simulator or emulator) | `python3 scripts/sync-discover-data.py --check`, `scripts/check-public-api-comments.sh`, `scripts/check-screenshot-labels.sh`, `scripts/check-licenses.sh`, `yarn typecheck`, `flutter analyze`; Android: a Kotlin compile when a JDK and the Gradle caches are on the machine |
+| 3 | No open owner TODO naming the platform | `docs/task-log.md` has none |
+| 4 | Dependency commits recorded, not waited for | the real `git rev-parse HEAD` of every pinned checkout goes into each screenshot footer (a path-override checkout is compared with the Podfile pin first); one extra corner-radius pass runs against the head of PR #35 |
+| 5 | Own device free | own simulator / emulator; on Windows the heavy-job lock |
 
-**Static work still open before the batch**: Android (the whole spec A, B, C, back button, width; RN Android setters); HarmonyOS and the mini program: the Discover topics grid built from ClassifyMenu's tag list (not by hand), the README of the two new mini program components, the `tagList.refresh` strings of the other languages; all platforms: the example texts in the four languages; the iOS example's remaining English in the React Native tab pages.
+**What each session tests once**, each with a labeled screenshot of the Discover page in en and zh-Hans and of the back tap:
+- Mac session (iOS): whole unit suite (0 failures); the Discover page on the iOS example, Flutter and React Native: the field at y 66 pt and the first header at y 122 pt, the capsule's trailing edge on the 16 pt inset, the back tap returns to the entry page, the hot slot over four refreshes is 0, 3, 5, 1; one corner-radius pass built against the PR #35 head.
+- `winsCYLSearchViewController repository` (Android): the same on Android, and Flutter and React Native on Android (the props `showsRefreshButton`, `columns`, `tagImages`, `embedsInNavigationBar`, `showsBackButton`, the back and refresh events), ClassifyMenu Android corner radius (0 square, 1000 capsule).
+- `winsCYLTableViewPlaceHolder directory` (HarmonyOS, mini program): ohosTest with the refresh button label test, the emulator run, the mini program in DevTools, the corner radius on both.
+
+**CI last**: every push replaces the pending run, so after the last commit of the work push once and do not push again until that run finishes; report its result as it is.
+
+**Checklist** ("code done" with pointers; `todo` = not written yet; updated by the session that writes the item):
+
+| Item | iOS | Flutter | React Native | Android | HarmonyOS | Mini program |
+|---|---|---|---|---|---|---|
+| A refresh icon | `CYLSearchTagListHeader.swift` | via core | via core | todo | `CYLSearchRefreshButton` | `cyl-search-refresh-button` |
+| B data, next page, hot slot | `CYLSearchDiscoverData.swift` | `discover_page.dart` | `App.tsx` `topicsOnPage` | todo | done (Windows) | done (Windows) |
+| C bar in the navigation bar | `CYLSearchNavigationBar.swift` | `embedsInNavigationBar` | `embedsInNavigationBar` | todo | `CYLSearchNavigationPage` | `cyl-search-navigation-bar` |
+| Back button | system back item | `showsBackButton` | `showsBackButton` | todo | NavDestination | nav bar back arrow |
+| Width in the core | `sizeThatFits` | via core | via core | todo | `layoutWeight(1)` | `cylNavigationBarWidthsFrom` |
+| Topics from the ClassifyMenu tag list | `CYLTagListView` grid | `columns`, `tagImages` | `columns`, `tagImages` | todo | todo | todo |
+| Texts in four languages | done | done | tab pages' descriptions and buttons todo | todo | `cyl_tagList_refresh` partly | done |
+| Corner radius under both meanings of 0 | `CYLSearchTagListStyle` | via core | via core | todo | todo | todo |
 
 ### Status on Android (2026-11-24, Windows session): written statically, NOT run yet
 
