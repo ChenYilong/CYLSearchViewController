@@ -6,6 +6,7 @@
 // data comes from search-discover.json of the iOS example; this page only shows it and handles the taps.
 const { cylDemoText, cylDemoLanguage, cylDiscoverData, cylHotIcon } = require('../../utils/cyl_demo_text');
 const { cylTopicPage, cylNextTopicPage, cylSearchedRecent, cylDiscoverCloudTags, cylHotIconSize, cylDiscoverCloudStyle } = require('../../utils/cyl_discover_logic');
+const { CYL_CORNER_RADIUS_CAPSULE } = require('../../utils/cyl_corner_radius');
 const { cylFoldTags } = require('../../components/core/CYLSearchView');
 const { cylNavigationMetrics } = require('../../components/core/CYLSearchResources');
 
@@ -22,7 +23,7 @@ const CLOUD_BASE_STYLE = require('cyl-tag-list-miniprogram').tagCloud.defaultSty
 
 Page({
   data: {
-    texts: {}, showsBack: false, fieldHeight: 36,
+    texts: {}, showsBack: false, fieldHeight: 36, capsuleCornerRadius: CYL_CORNER_RADIUS_CAPSULE,
     query: '', placeholder: '', items: [], loops: false, speed: 1, speedText: '1.00x',
     recent: [], visibleRecent: [], needsFold: false, folded: true,
     topics: [], topicTags: [], topicStyle: null, hotIcon: '', hint: '', announcement: '', foldLabels: FOLD_LABELS.en,

@@ -495,6 +495,8 @@ export class CYLSearchBarItem {
       appearance.borderColor = undefined;
       appearance.borderWidth = 0;
       appearance.contentInsets = new CYLEdgeInsets(0, insets, 0, insets);
+      // Square. ClassifyMenu's pinned CYLTagButton still draws 0 as a capsule and its CYLTagCornerRadiusSquare (0.001) as
+      // square; this becomes 0 when the pins move to the numeric radius (item 8b, docs/animated-icon-component.md).
       appearance.cornerRadius = hasBackground ? 10 : CYLTagCornerRadiusSquare;
     });
     return style;

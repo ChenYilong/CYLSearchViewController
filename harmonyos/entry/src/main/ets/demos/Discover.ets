@@ -13,6 +13,7 @@ import {
   CYLSearchRefreshButton
 } from 'cylsearch';
 import { cylAppText, CYLDemoRoute, CYL_PLUS_OVERHANG } from '../common/DemoCommon';
+import { CYL_CORNER_RADIUS_CAPSULE } from '../common/CYLCornerRadius';
 
 /**
  * How many tags (`widths`, in vp) fit in `rows` rows of `width`, leaving room for a control of `controlWidth` after
@@ -211,6 +212,7 @@ export struct DiscoverView {
     bar.searchIcon = undefined;
     bar.contentInsets = { top: 0, left: 0, bottom: 0, right: 0 };
     bar.searchBarStyle = CYLSearchBarStyle.bordered;
+    bar.fieldCornerRadius = CYL_CORNER_RADIUS_CAPSULE;
     bar.fieldShadowOpacity = 0.06;
     bar.font = 16;
     bar.fieldBorderColor = $r('sys.color.comp_divider');

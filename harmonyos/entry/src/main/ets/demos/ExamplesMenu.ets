@@ -55,6 +55,7 @@ function cylSVGADemoTagButton(title: string, animationURL: string): CYLTagButton
     appearance.borderColor = undefined;
     appearance.borderWidth = 0;
     appearance.contentInsets = new CYLEdgeInsets(0, 0, 0, 0);
+    // Square; the pinned ClassifyMenu draws 0 as a capsule, so its square constant stays until the pins move (item 8b).
     appearance.cornerRadius = CYLTagCornerRadiusSquare;
     appearance.textColor = $r('sys.color.font_secondary');
     appearance.font = CYLFont.systemFont(13);

@@ -3,7 +3,7 @@
   <cyl-search-navigation-bar showsBack="{{showsBack}}" bind:back="onBack">
     <cyl-search-bar generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
       id="bar" class="bar" value="{{query}}" placeholder="{{placeholder}}" showsSearchIcon="{{false}}" contentInsets="0"
-      fieldHeight="{{fieldHeight}}" fieldCornerRadius="{{fieldHeight / 2}}" fieldShadowOpacity="{{0.06}}" fieldBorderColor="#c6c6c8" fieldBorderWidth="{{1}}"
+      fieldHeight="{{fieldHeight}}" fieldCornerRadius="{{capsuleCornerRadius}}" fieldShadowOpacity="{{0.06}}" fieldBorderColor="#c6c6c8" fieldBorderWidth="{{1}}"
       fieldBackgroundColor="#ffffff" searchBarStyle="bordered" fontSize="{{16}}" items="{{items}}"
       bind:textchange="onTextChange" bind:submit="onSubmit" bind:itemselect="onItemSelect" />
   </cyl-search-navigation-bar>
