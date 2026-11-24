@@ -466,6 +466,7 @@ function DiscoverDemo({ onBack }: { onBack: () => void }) {
         showsRefreshButton
         onRefreshButtonTap={() => setPage((value) => nextPage(value))}
         tagImages={topics.map((topic) => (topic.icon === 'hot' ? hotIconUri : ''))}
+        tagImageLabels={topics.map((topic) => (topic.icon === 'hot' ? text['discover.hot'] ?? '' : ''))}
         onTagSelect={(event) => search(event.nativeEvent.title)}
       />
       {/* Playback of the camera item (index 0 of `items`), the last block of the page options, outside the bar: loop, speed and restart. */}

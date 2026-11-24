@@ -100,6 +100,11 @@ export interface NativeProps extends ViewProps {
    */
   tagImages?: ReadonlyArray<string>;
   /**
+   * The accessibility label of each tag's image, localized, one entry per tag ("" for none): VoiceOver and TalkBack read it
+   * as the tag's value (for the hot icon, "Hot").
+   */
+  tagImageLabels?: ReadonlyArray<string>;
+  /**
    * Editing mode (iOS `setEditing(_:animated:)`): a cross on each tag (`onTagDelete`) and dragging (`onTagMove`).
    */
   editing?: boolean;

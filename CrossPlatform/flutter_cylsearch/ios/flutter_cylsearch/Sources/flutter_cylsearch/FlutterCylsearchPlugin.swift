@@ -644,6 +644,7 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
     private var showsRefreshButton = false
     private var columns = 0
     private var tagImages: [String] = []
+    private var tagImageLabels: [String] = []
     private var imageCache: [String: UIImage] = [:]
     private var supportsRenaming = false
 
@@ -693,6 +694,7 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
         let newShowsRefreshButton = arguments["showsRefreshButton"] as? Bool ?? false
         let newColumns = max(0, arguments["columns"] as? Int ?? 0)
         let newTagImages = arguments["tagImages"] as? [String] ?? []
+        let newTagImageLabels = arguments["tagImageLabels"] as? [String] ?? []
         if newColumns != columns {
             columns = newColumns
             // The grid of plain titles (the iOS example's discover topics), through the core's helper.
@@ -701,13 +703,15 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
         let newSupportsRenaming = arguments["supportsRenaming"] as? Bool ?? false
         // Reloaded only when Dart sends other content, so a rebuild keeps the native fold state.
         if newTitles != titles || newIds != ids || newSectionTitle != sectionTitle || newShowsClearButton != showsClearButton
-            || newShowsRefreshButton != showsRefreshButton || newTagImages != tagImages || newSupportsRenaming != supportsRenaming {
+            || newShowsRefreshButton != showsRefreshButton || newTagImages != tagImages || newTagImageLabels != tagImageLabels || newSupportsRenaming != supportsRenaming {
             titles = newTitles
             ids = newIds
             sectionTitle = newSectionTitle
             showsClearButton = newShowsClearButton
             showsRefreshButton = newShowsRefreshButton
             tagImages = newTagImages
+            tagImageLabels = newTagImageLabels
+            imageCache.removeAll()
             supportsRenaming = newSupportsRenaming
             tagListView.showsSectionHeaders = !sectionTitle.isEmpty || showsClearButton || showsRefreshButton
             tagListView.reloadMenuData()
@@ -765,6 +769,8 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
             let key = FlutterDartProject.lookupKey(forAsset: candidate)
             if let path = Bundle.main.path(forResource: key, ofType: nil), let image = UIImage(contentsOfFile: path), let cgImage = image.cgImage {
                 let scaled = UIImage(cgImage: cgImage, scale: imageScale, orientation: .up)
+                // VoiceOver reads the image's label as the tag's value (the localized "Hot").
+                scaled.accessibilityLabel = indexPath.item < tagImageLabels.count ? tagImageLabels[indexPath.item] : nil
                 imageCache[asset] = scaled
                 return scaled
             }

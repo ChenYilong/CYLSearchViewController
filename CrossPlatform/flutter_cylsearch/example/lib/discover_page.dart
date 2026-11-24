@@ -285,6 +285,7 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                     _topics = data.topicsOnPage(_page);
                   }),
                   tagImages: <String>[for (final topic in _topics) topic.hot ? '${data.folder}/discover-hot.png' : ''],
+                  tagImageLabels: <String>[for (final topic in _topics) topic.hot ? data.text('discover.hot') : ''],
                   onTagSelected: (index, title) => _search(title),
                 ),
                   // Playback of the camera item (the last block of the page, outside the bar): loop switch, speed slider and Play again.
