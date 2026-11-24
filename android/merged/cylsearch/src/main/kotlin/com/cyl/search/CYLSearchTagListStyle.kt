@@ -18,11 +18,18 @@ import com.cyl.classifymenu.CYLSize
 object CYLSearchTagListStyle {
 
     /**
-     * The corner radius of every tag, in dp (ClassifyMenu limits it to half the tag height). The default 1000 is a
-     * capsule, as in the iOS example's recent searches; 0 is square corners; another value is a rounded rectangle.
+     * The corner radius of a capsule: the corners are as round as the tag's height allows (ClassifyMenu limits a radius to
+     * half the height). The one named constant for it: pass it, never the literal 1000. 0 is square corners; no other
+     * value has a special meaning.
+     */
+    const val CAPSULE_CORNER_RADIUS: Float = 1000f
+
+    /**
+     * The corner radius of every tag, in dp. The default `CAPSULE_CORNER_RADIUS` is a capsule, as in the iOS example's
+     * recent searches; 0 is square corners; another value is a rounded rectangle.
      */
     @JvmStatic
-    var tagCornerRadius: Float = 1000f
+    var tagCornerRadius: Float = CAPSULE_CORNER_RADIUS
 
     /**
      * Called with the style after the defaults are set, to change any value of it. null by default.

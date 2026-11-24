@@ -18,11 +18,17 @@ import UIKit
 public final class CYLSearchTagListStyle: NSObject {
 
     /**
-     * The corner radius of every tag, in points (CollectionViewClassifyMenu limits it to half the tag height). The
-     * default 1000 is a capsule, as in the iOS example's recent searches; 0 is square corners; another value is a
-     * rounded rectangle.
+     * The corner radius of a capsule: the corners are as round as the tag's height allows (CollectionViewClassifyMenu
+     * limits a radius to half the height). The one named constant for it: pass it, never the literal 1000. 0 is square
+     * corners; no other value has a special meaning.
      */
-    @objc public static var tagCornerRadius: CGFloat = 1000
+    @objc public static let capsuleCornerRadius: CGFloat = 1000
+
+    /**
+     * The corner radius of every tag, in points. The default `capsuleCornerRadius` is a capsule, as in the iOS example's
+     * recent searches; 0 is square corners; another value is a rounded rectangle.
+     */
+    @objc public static var tagCornerRadius: CGFloat = capsuleCornerRadius
 
     /**
      * Called with the style after the defaults are set, to change any value of it. nil by default.

@@ -721,7 +721,7 @@ extension CYLSearchExampleSearchBarTests {
         CYLSearchTagListStyle.tagCornerRadius = 8
         CYLSearchTagListStyle.styleCustomizer = { $0.itemHeight = 44 }
         defer {
-            CYLSearchTagListStyle.tagCornerRadius = 1000
+            CYLSearchTagListStyle.tagCornerRadius = CYLSearchTagListStyle.capsuleCornerRadius
             CYLSearchTagListStyle.styleCustomizer = nil
         }
         let custom = CYLMenuStyle()

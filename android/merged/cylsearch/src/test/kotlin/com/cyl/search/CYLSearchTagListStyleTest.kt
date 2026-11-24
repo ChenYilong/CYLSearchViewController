@@ -20,7 +20,7 @@ class CYLSearchTagListStyleTest {
 
     @After
     fun resetDefaults() {
-        CYLSearchTagListStyle.tagCornerRadius = 1000f
+        CYLSearchTagListStyle.tagCornerRadius = CYLSearchTagListStyle.CAPSULE_CORNER_RADIUS
         CYLSearchTagListStyle.styleCustomizer = null
     }
 
@@ -29,7 +29,7 @@ class CYLSearchTagListStyleTest {
         val style = CYLMenuStyle()
         CYLSearchTagListStyle.applyDefaults(style)
         val tag = style.appearanceForState(CYLControlState.NORMAL)
-        assertEquals("a capsule", 1000f, tag.cornerRadius, 0f)
+        assertEquals("a capsule", CYLSearchTagListStyle.CAPSULE_CORNER_RADIUS, tag.cornerRadius, 0f)
         assertEquals(1f, tag.borderWidth, 0f)
         assertEquals(14f, tag.margin, 0f)
         assertEquals(36f, style.itemHeight, 0f)

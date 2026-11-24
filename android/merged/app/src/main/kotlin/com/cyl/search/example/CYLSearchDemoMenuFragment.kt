@@ -21,6 +21,7 @@ import com.cyl.classifymenu.CYLTagButton
 import com.cyl.classifymenu.CYLTagContentAlignment
 import com.cyl.placeholder.CYLPlaceholderStyle
 import com.cyl.placeholder.CYLPlaceholderView
+import com.cyl.search.CYLSearchTagListStyle
 
 /**
  * A list of rows with a title, an optional subtitle and icon, and a tap action (iOS `UITableView` menus).
@@ -136,7 +137,7 @@ private fun Context.cylSVGADemoHeader(): View {
                 borderColor = null
                 borderWidth = 0f
                 contentInsets = CYLEdgeInsets(0f, 0f, 0f, 0f)
-                cornerRadius = 1000f // a capsule: valid before and after the numeric corner radius (ClassifyMenu PR #35)
+                cornerRadius = CYLSearchTagListStyle.CAPSULE_CORNER_RADIUS
                 textColor = Color.GRAY
                 font = CYLFont(13f)
             }
