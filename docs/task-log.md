@@ -1547,3 +1547,11 @@ begins and becomes `DONE` when it ends.
 - iOS suite at these pins: all green except one margin assertion that I fixed (passes alone); no full rerun after the contact editor text color change (a one-line example change).
 - Not captured: a selected tag on Discover (no selection state reachable in that screen); RN and Flutter iOS at the new pins (chenyilong-3e).
 - **Status**: DONE for iOS native; RN/Flutter check with chenyilong-3e.
+
+## Tag list tint in dark mode (2026-11-25, Mac session)
+
+- **Prompt (verbatim)**: "考虑复用 应用与tag相同的tint 处理折叠展开按钮，现在图片暗黑模式下 这个icon不可见/tmp/xpr/s-editor-dark-fixed.png 。且应用相同tint color在taglist的所有组件上。刷新删除按钮暗黑模式下下载的清晰度很低。你应该修改taglist核心代码完成暗黑模式tint相关逻辑处理，主要借助tint". English: reuse the tags' tint for the fold/expand button (its icon is invisible in dark mode), apply the same tint to every tag list component, the refresh and delete icons are blurry in dark mode; change the tag list core, mainly through tint.
+- ![Tag list tint in dark mode: Discover and Edit Tags](assets/ios-iphone-sim-ios27.2-20261125-taglist-tint-dark.png) iOS, iPhone simulator, iOS 27.2, Xcode 27.2; commit 0126fd5, 2026-11-25.
+- **Done**: `CYLSearchTagListStyle.tagListTintColor` (.label, dynamic) and `applyTint(to:)` set the header title, clear button (vector SF Symbol "trash", template), refresh/More icon and fold chevron colors; the core defaults, the grid and the three iOS examples use it. The fold chevron, trash and refresh icons are visible and sharp in dark mode.
+- **Not done**: the library (ClassifyMenu) still defaults to gray for the fold chevron and secondaryLabel for the More icon when a host does not set them; a library default that follows the view's `tintColor` is a ClassifyMenu change (message sent). The example's own sync button and the search field's camera icon in dark mode are not tag list parts.
+- **Status**: DONE for iOS core + examples (full suite not rerun after this change).
