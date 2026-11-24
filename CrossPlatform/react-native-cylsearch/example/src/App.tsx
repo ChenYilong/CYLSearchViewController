@@ -318,7 +318,9 @@ function SearchBarDemo() {
 
 /** The discover demo's texts for the device language (en, ja, zh-Hans, zh-Hant), English when it is not held. */
 function discoverLanguage() {
-  const tag = Intl.DateTimeFormat().resolvedOptions().locale;
+  // iOS: the user's preferred language (Hermes' Intl follows the app's own localizations, English here); elsewhere Intl.
+  const preferred = Platform.OS === 'ios' ? (Settings.get('AppleLanguages') as string[] | undefined)?.[0] : undefined;
+  const tag = preferred ?? Intl.DateTimeFormat().resolvedOptions().locale;
   return /^zh-(Hant|TW|HK|MO)/.test(tag) ? 'zh-Hant' : tag.startsWith('zh') ? 'zh-Hans' : tag.slice(0, 2);
 }
 
@@ -333,6 +335,12 @@ const HOT_ICONS: Record<string, { source: number; aspect: number }> = {
 
 function hotIconForLanguage() {
   return HOT_ICONS[discoverLanguage()] ?? ENGLISH_HOT_ICON;
+}
+
+/** The discover demo's sample data (recent searches and topics) for the device language, English when not held. */
+function discoverContent() {
+  const all: Record<string, { recentSearches: string[]; discover: { title: string; icon?: string }[] }> = discoverData.data;
+  return all[discoverLanguage()] ?? all.en ?? { recentSearches: [], discover: [] };
 }
 
 function discoverStrings() {
@@ -352,13 +360,13 @@ function DiscoverDemo() {
   const [animationSpeed, setAnimationSpeed] = useState(1);
   const text = discoverStrings();
   const hotIcon = hotIconForLanguage();
-  const [recent, setRecent] = useState<string[]>(discoverData.recentSearches);
+  const [recent, setRecent] = useState<string[]>(() => discoverContent().recentSearches);
   const [offset, setOffset] = useState(0);
   const [barText, setBarText] = useState('');
   const typed = useRef('');
   const [message, setMessage] = useState('');
   const topics = useMemo(() => {
-    const pool = discoverData.discover;
+    const pool = discoverContent().discover;
     return Array.from({ length: Math.min(discoverData.discoverCount, pool.length) }, (_, i) => pool[(offset + i) % pool.length])
       .filter((topic): topic is (typeof pool)[number] => topic !== undefined);
   }, [offset]);
@@ -371,7 +379,7 @@ function DiscoverDemo() {
   };
   return (
     <ScrollView contentContainerStyle={styles.discoverPage}>
-      <Text style={[styles.title, styles.block, { color: palette.text }]}>Discover</Text>
+      <Text style={[styles.title, styles.block, { color: palette.text }]}>{text['discover.title']}</Text>
       {/* The field stays; the camera, a divider and the Search button are items appended inside its bordered capsule. */}
       <CYLSearchBarView
         style={styles.discoverBar}
@@ -384,18 +392,18 @@ function DiscoverDemo() {
         ref={barRef}
         items={[
           // The camera button itself plays the animation (Animation demo rule): search_camera.json, the same Lottie file on every platform.
-          { style: 'icon', image: 'camera', title: 'Search by image', animationURL: 'search_camera.json', animationLoops, animationSpeed, onPress: () => setMessage('Image search is not available in this demo') },
+          { style: 'icon', image: 'camera', title: text['discover.imageSearch'], animationURL: 'search_camera.json', animationLoops, animationSpeed, onPress: () => setMessage(text['discover.imageSearchUnavailable'] ?? '') },
           { style: 'divider' },
-          { style: 'text', title: 'Search', accessibilityIdentifier: 'CYLSearchDiscoverSearchButton', onPress: () => search(typed.current) },
+          { style: 'text', title: text['discover.search'], accessibilityIdentifier: 'CYLSearchDiscoverSearchButton', onPress: () => search(typed.current) },
         ]}
       />
       {/* The native tag list brings its own section header (title and trash) and lines up with the bar: no custom header. */}
       {recent.length > 0 ? (
         <CYLTagListView
           tags={recent}
-          sectionTitle="Recent searches"
+          sectionTitle={text['discover.recent']}
           showsClearButton
-          onClearButtonTap={() => { setRecent([]); setMessage('Recent searches cleared'); }}
+          onClearButtonTap={() => { setRecent([]); setMessage(text['discover.cleared'] ?? ''); }}
           foldControlPosition="inline"
           foldControlContent="icon"
           foldedRowCount={2}
@@ -405,7 +413,7 @@ function DiscoverDemo() {
       {/* The same native section header as above: the title and the refresh icon (icon first), no tags. */}
       <CYLTagListView
         tags={[]}
-        sectionTitle="Discover"
+        sectionTitle={text['discover.title']}
         showsRefreshButton
         onRefreshButtonTap={() => setOffset((value) => value + discoverData.discoverCount)}
       />

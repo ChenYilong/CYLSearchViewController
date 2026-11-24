@@ -62,8 +62,9 @@ using namespace facebook::react;
     _tagListView.clearButtonHandler = ^(NSInteger section) {
       [weakSelf emitClearButtonTapInSection:section];
     };
-    // The header's refresh action is an icon (the core's CYLSearchTagListHeader), not the three dots.
-    [CYLSearchTagListHeader applyRefreshIconToList:_tagListView];
+    // The search bar core's default tag style (capsule tags, light border, bold header, 16 pt inset) and the header's
+    // refresh icon (not the three dots); an app changes them through CYLSearchTagListStyle.
+    [CYLSearchTagListStyle applyDefaultStyleToList:_tagListView];
     _tagListView.menuDataSource = self;
     _tagListView.menuDelegate = self;
     self.contentView = _tagListView;

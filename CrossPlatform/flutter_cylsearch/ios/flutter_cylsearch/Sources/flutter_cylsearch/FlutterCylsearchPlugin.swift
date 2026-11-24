@@ -646,8 +646,9 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
         let style = tagListView.style.copy() as! CYLMenuStyle
         style.backgroundColor = .clear
         tagListView.style = style
-        // The header's refresh action is an icon (the core's CYLSearchTagListHeader), not the three dots.
-        CYLSearchTagListHeader.applyRefreshIcon(to: tagListView)
+        // The search bar core's default tag style (capsule tags, light border, bold header, 16 pt inset) and the
+        // header's refresh icon (not the three dots); an app changes them through CYLSearchTagListStyle.
+        CYLSearchTagListStyle.applyDefaultStyle(to: tagListView)
         // Renaming is Dart's: the list asks, Dart renames by id and sends the new titles.
         tagListView.renameRequestHandler = { [weak self] indexPath, title in
             guard let self else { return }
