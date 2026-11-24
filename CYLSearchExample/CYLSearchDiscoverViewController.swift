@@ -586,3 +586,58 @@ final class CYLAskBackgroundView: UIView {
         shape.fillColor = UIColor.secondarySystemBackground.cgColor
     }
 }
+
+/**
+ * The entry of the "Discover" tab: a one-row page that opens the Discover page, so the Discover page is always a
+ * second-level page and its navigation bar always has a back button on the left (owner's rule for every example). The
+ * first time this page appears it opens the Discover page at once, so the tab shows the search page; the back button
+ * returns here.
+ */
+final class CYLSearchDiscoverEntryViewController: UITableViewController {
+    private var opensDiscoverOnFirstAppearance = true
+
+    init() {
+        super.init(style: .insetGrouped)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) is not supported")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = cylDiscoverText("discover.title")
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if opensDiscoverOnFirstAppearance {
+            opensDiscoverOnFirstAppearance = false
+            openDiscover(animated: false)
+        }
+    }
+
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        1
+    }
+
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
+        var content = cell.defaultContentConfiguration()
+        content.text = cylDiscoverText("discover.title")
+        cell.contentConfiguration = content
+        cell.accessoryType = .disclosureIndicator
+        cell.accessibilityTraits.insert(.button)
+        return cell
+    }
+
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        openDiscover(animated: true)
+    }
+
+    private func openDiscover(animated: Bool) {
+        navigationController?.pushViewController(CYLSearchDiscoverViewController(), animated: animated)
+    }
+}

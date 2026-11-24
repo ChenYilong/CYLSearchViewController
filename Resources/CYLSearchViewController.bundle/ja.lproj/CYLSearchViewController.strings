@@ -82,3 +82,4 @@
 "issue.row" = "行 %d";
 "issue.item" = "項目 %d";
 "tagList.refresh" = "更新";
+"navigationBar.back" = "戻る";

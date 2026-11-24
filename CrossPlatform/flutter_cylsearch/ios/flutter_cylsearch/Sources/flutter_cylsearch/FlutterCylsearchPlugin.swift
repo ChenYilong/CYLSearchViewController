@@ -336,8 +336,12 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
         super.init()
         bar.delegate = self
         if arguments["embedsInNavigationBar"] as? Bool ?? false {
-            navigationBar = CYLSearchNavigationBar.holding(bar)
+            navigationBar = CYLSearchNavigationBar.holding(bar, showsBackButton: arguments["showsBackButton"] as? Bool ?? false)
             navigationBar?.frame = frame
+            // The back button of a second-level page: Dart pops its route.
+            navigationBar?.backHandler = { [weak channel] in
+                channel?.invokeMethod("didTapBackButton", arguments: nil)
+            }
         }
         // The editing bar's submit: the trimmed text to Dart, then an empty field for the next name.
         bar.editingSubmitHandler = { [weak channel] bar, text in

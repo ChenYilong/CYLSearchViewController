@@ -80,8 +80,17 @@ using namespace facebook::react;
 {
   const auto &p = *std::static_pointer_cast<CylsearchBarViewProps const>(props);
   if (p.embedsInNavigationBar && !_navigationBar) {
-    // The page's search bar always sits in a navigation bar: the core's, with the bar as its title view.
-    _navigationBar = [CYLSearchNavigationBar navigationBarHoldingSearchBar:_bar];
+    // The page's search bar always sits in a navigation bar: the core's, with the bar as its title view, and the back
+    // button of a second-level page when asked (a tap goes to JavaScript, which closes the page).
+    _navigationBar = [CYLSearchNavigationBar navigationBarHoldingSearchBar:_bar showsBackButton:p.showsBackButton];
+    __weak __typeof(self) weakSelf = self;
+    _navigationBar.backHandler = ^{
+      __strong __typeof(weakSelf) strongSelf = weakSelf;
+      if (strongSelf && strongSelf->_eventEmitter) {
+        std::static_pointer_cast<CylsearchBarViewEventEmitter const>(strongSelf->_eventEmitter)
+            ->onBackButtonTap(CylsearchBarViewEventEmitter::OnBackButtonTap{.tapped = true});
+      }
+    };
     self.contentView = _navigationBar;
   }
   NSString *actionTitle = CYLRNString(p.actionTitle);

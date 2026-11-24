@@ -25,6 +25,7 @@ public final class CYLSuggestionDemoPages: NSObject {
      * and discover topics as CYLTagListView tags).
      */
     @objc public static func discoverViewController() -> UIViewController {
-        CYLSearchDiscoverViewController()
+        // The entry page: the Discover page is always pushed on it, so its navigation bar has a back button.
+        CYLSearchDiscoverEntryViewController()
     }
 }

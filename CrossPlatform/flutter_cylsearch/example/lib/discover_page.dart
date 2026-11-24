@@ -99,6 +99,50 @@ class CYLSearchDiscoverData {
   }
 }
 
+/// The entry of the Discover tab: a one-row page that opens the Discover page, so the Discover page is always a second-level
+/// page and its navigation bar always has a back button on the left (owner's rule for every example). The first time it
+/// shows it opens the Discover page at once; the back button returns here (iOS `CYLSearchDiscoverEntryViewController`).
+class CYLSearchDiscoverEntryPage extends StatefulWidget {
+  /// Creates the page.
+  const CYLSearchDiscoverEntryPage({super.key});
+
+  @override
+  State<CYLSearchDiscoverEntryPage> createState() => _CYLSearchDiscoverEntryPageState();
+}
+
+class _CYLSearchDiscoverEntryPageState extends State<CYLSearchDiscoverEntryPage> {
+  CYLSearchDiscoverData? _data;
+
+  @override
+  void initState() {
+    super.initState();
+    CYLSearchDiscoverData.load().then((data) {
+      if (!mounted) return;
+      setState(() => _data = data);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _open();
+      });
+    });
+  }
+
+  void _open() {
+    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const CYLSearchDiscoverPage()));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final title = _data?.text('discover.title') ?? '';
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: ListView(
+        children: <Widget>[
+          ListTile(title: Text(title), trailing: const Icon(Icons.chevron_right), onTap: _open),
+        ],
+      ),
+    );
+  }
+}
+
 /// The discover demo (iOS `CYLSearchDiscoverViewController`, Android `CYLSearchDiscoverFragment`): the native search
 /// bar, the recent searches as CollectionViewClassifyMenu tags, and discover topics in two columns.
 class CYLSearchDiscoverPage extends StatefulWidget {
@@ -176,6 +220,9 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                           searchBarStyle: CYLSearchBarStyle.bordered,
                           showsSearchIcon: false,
                           embedsInNavigationBar: true,
+                          // The page is always a second-level page: the back button on the left of the bar (owner's rule).
+                          showsBackButton: true,
+                          onBackPressed: () => Navigator.of(context).maybePop(),
                           fieldShadowOpacity: 0.06,
                           items: <CYLSearchBarItem>[
                             // The camera button itself plays the animation (the Animation demo rule): a search-related Lottie, the same

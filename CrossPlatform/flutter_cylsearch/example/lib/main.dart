@@ -166,7 +166,7 @@ class _CYLSearchTabsState extends State<CYLSearchTabs> {
             ? const CYLSearchBarDemoPage()
             : _selectedIndex < cylDemoTabs.length
                 ? CYLSearchDemoPage(key: ValueKey<int>(_selectedIndex), tab: cylDemoTabs[_selectedIndex])
-                : const CYLSearchDiscoverPage(),
+                : const CYLSearchDiscoverEntryPage(),
         bottomNavigationBar: CYLTabBar(
           configuration: widget.tabBarConfiguration,
           selectedIndex: _plusPageSelected ? null : _selectedIndex,

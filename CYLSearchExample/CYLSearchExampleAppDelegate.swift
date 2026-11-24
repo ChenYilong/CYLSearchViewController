@@ -124,14 +124,7 @@ public final class CYLSearchExampleAppDelegate: UIResponder, UIApplicationDelega
             navigationController(root: CYLSuggestionDemoPages.tagStyleViewController())
         }, forPageIdentifier: "tagStyle")
         pages.register({ _, _ in
-            let navigation = navigationController(root: CYLSuggestionDemoPages.discoverViewController())
-            // `-CYLDemoPushDiscover 1`: the page is pushed as a second-level page, so the navigation bar has a back button on
-            // its leading side and the embedded search bar takes the width that is left (docs/animated-icon-component.md,
-            // "Refresh, hot data and navigation bar contract").
-            if UserDefaults.standard.bool(forKey: "CYLDemoPushDiscover") {
-                navigation.pushViewController(CYLSuggestionDemoPages.discoverViewController(), animated: false)
-            }
-            return navigation
+            navigationController(root: CYLSuggestionDemoPages.discoverViewController())
         }, forPageIdentifier: "discover")
     }
 

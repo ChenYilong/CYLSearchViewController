@@ -82,3 +82,4 @@
 "issue.row" = "第 %d 列";
 "issue.item" = "項目 %d";
 "tagList.refresh" = "重新整理";
+"navigationBar.back" = "返回";

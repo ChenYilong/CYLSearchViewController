@@ -341,10 +341,11 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
             XCTAssertEqual(covered.count, 0, "demo at \(size.rawValue): \(covered)")
         }
 
-        // CYLSearchBarView of the discover page (the "Discover" tab, copied from CollectionViewClassifyMenu), which draws
-        // it in place of the navigation bar.
-        let discover = CYLSuggestionDemoPages.discoverViewController()
-        navigation = UINavigationController(rootViewController: discover)
+        // The discover page (the "Discover" tab, copied from CollectionViewClassifyMenu): a second-level page whose
+        // CYLSearchBarView sits in the navigation bar (`embedInNavigationBar`), and the lists start below that bar.
+        let discover = CYLSearchDiscoverViewController()
+        navigation = UINavigationController(rootViewController: UIViewController())
+        navigation.pushViewController(discover, animated: false)
         window.rootViewController = navigation
         for size in sizes {
             if #available(iOS 17.0, *) {
@@ -353,11 +354,11 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
             runLoop(0.2)
             navigation.view.setNeedsLayout()
             navigation.view.layoutIfNeeded()
-            let foundBar = discover.view.subviews.compactMap { $0 as? CYLSearchBarView }.first
-            XCTAssertNotNil(foundBar?.window)
-            let bar = try XCTUnwrap(foundBar)
-            let covered = viewsCoveredByView(bar, nil)
-            XCTAssertEqual(covered.count, 0, "discover at \(size.rawValue): \(covered)")
+            XCTAssertTrue(discover.searchBar.isEmbeddedInNavigationBar)
+            XCTAssertTrue(discover.navigationItem.titleView === discover.searchBar, "the bar is the title view of the navigation bar")
+            let barBottom = navigation.navigationBar.convert(navigation.navigationBar.bounds, to: navigation.view).maxY
+            let listTop = discover.recentList.convert(discover.recentList.bounds, to: navigation.view).minY
+            XCTAssertGreaterThanOrEqual(listTop, barBottom - 0.5, "discover at \(size.rawValue): the lists start below the navigation bar")
         }
         if #available(iOS 17.0, *) {
             window.traitOverrides.preferredContentSizeCategory = .large
@@ -816,5 +817,23 @@ extension CYLSearchExampleSearchBarTests {
         XCTAssertEqual(bar.intrinsicContentSize.width, UIView.layoutFittingExpandedSize.width, "the title view asks for the whole width")
         XCTAssertEqual(bar.fieldHeight, 36)
         window.isHidden = true
+    }
+
+    /// The core's navigation bar can show the back button of a second-level page and reports its tap to the host.
+    @MainActor
+    func testNavigationBarHoldingTheBarCanShowABackButton() {
+        let plain = CYLSearchNavigationBar.holding(CYLSearchBarView())
+        XCTAssertEqual(plain.items?.count, 1, "no back button by default")
+        let bar = CYLSearchBarView()
+        let navigationBar = CYLSearchNavigationBar.holding(bar, showsBackButton: true)
+        XCTAssertEqual(navigationBar.items?.count, 2, "a root item below the item of the search bar: the back button")
+        XCTAssertTrue(navigationBar.topItem?.titleView === bar)
+        XCTAssertEqual(navigationBar.items?.first?.title, CYLSearchResources.localizedString(forKey: "navigationBar.back", language: nil))
+        var taps = 0
+        navigationBar.backHandler = { taps += 1 }
+        let popped = navigationBar.navigationBar(navigationBar, shouldPop: navigationBar.topItem ?? UINavigationItem())
+        XCTAssertFalse(popped, "the bar never pops, the host decides")
+        XCTAssertEqual(taps, 1)
+        XCTAssertEqual(CYLSearchResources.localizedString(forKey: "navigationBar.back", language: "zh-Hans"), "返回")
     }
 }

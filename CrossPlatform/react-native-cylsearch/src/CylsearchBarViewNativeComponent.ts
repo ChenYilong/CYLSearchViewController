@@ -31,6 +31,10 @@ type ActiveEvent = Readonly<{
   active: boolean;
 }>;
 
+type BackButtonEvent = Readonly<{
+  tapped: boolean;
+}>;
+
 export interface NativeProps extends ViewProps {
   /**
    * The placeholder.
@@ -65,6 +69,12 @@ export interface NativeProps extends ViewProps {
    * being a plain view: the page always has its search bar in a navigation bar. Default false.
    */
   embedsInNavigationBar?: CodegenTypes.WithDefault<boolean, false>;
+  /**
+   * With `embedsInNavigationBar`: the navigation bar has the back button of a second-level page on its leading side and
+   * the search bar takes the width that is left; a tap reports `onBackButtonTap` (the host closes the page). Default
+   * false.
+   */
+  showsBackButton?: CodegenTypes.WithDefault<boolean, false>;
   /**
    * The appended items as JSON (an array of `CYLSearchBarItem` values; see `CYLSearchBarView` in index.tsx).
    */
@@ -141,6 +151,10 @@ export interface NativeProps extends ViewProps {
    */
   onActiveChange?: CodegenTypes.DirectEventHandler<ActiveEvent>;
   onItemSelect?: CodegenTypes.DirectEventHandler<ItemSelectEvent>;
+  /**
+   * The back button of the navigation bar was tapped (`showsBackButton`): the host closes the page.
+   */
+  onBackButtonTap?: CodegenTypes.DirectEventHandler<BackButtonEvent>;
   /**
    * The text changed: `index` is the search being typed in "multiple" mode, -1 in "single" mode.
    */
