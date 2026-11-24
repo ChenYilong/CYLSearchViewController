@@ -9,6 +9,7 @@
 //
 
 import CollectionViewClassifyMenu
+import CYLAnimatedItem
 import UIKit
 
 /**
@@ -18,17 +19,16 @@ import UIKit
 public final class CYLSearchTagListStyle: NSObject {
 
     /**
-     * The corner radius of a capsule: the corners are as round as the tag's height allows (CollectionViewClassifyMenu
-     * limits a radius to half the height). The one named constant for it: pass it, never the literal 1000. 0 is square
-     * corners; no other value has a special meaning.
-     */
-    @objc public static let capsuleCornerRadius: CGFloat = 1000
-
-    /**
-     * The corner radius of every tag, in points. The default `capsuleCornerRadius` is a capsule, as in the iOS example's
+     * The corner radius of every tag, in points. The default `CYLAnimatedItemCornerRadiusCapsule` (CYLAnimatedItem's one named constant, 1000; pass it, never the literal) is a capsule, as in the iOS example's
      * recent searches; 0 is square corners; another value is a rounded rectangle.
      */
-    @objc public static var tagCornerRadius: CGFloat = capsuleCornerRadius
+    @objc public static var tagCornerRadius: CGFloat = CYLAnimatedItemCornerRadiusCapsule
+
+    /**
+     * The background of every tag, handed to CollectionViewClassifyMenu's `CYLMenuStyle.backgroundStyle`: `.flat` by
+     * default (the tag's own colors), `.liquidGlass` for the glass material (flat below iOS 26).
+     */
+    @objc public static var tagBackgroundStyle: CYLTagBackgroundStyle = .flat
 
     /**
      * Called with the style after the defaults are set, to change any value of it. nil by default.
@@ -52,6 +52,7 @@ public final class CYLSearchTagListStyle: NSObject {
             appearance.font = .systemFont(ofSize: 17)
             appearance.textColor = .label
         }
+        style.backgroundStyle = tagBackgroundStyle
         style.itemHeight = 36
         style.interitemSpacing = 12
         style.lineSpacing = 12
