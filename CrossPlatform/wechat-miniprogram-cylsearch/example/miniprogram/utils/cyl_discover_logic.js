@@ -56,6 +56,8 @@ function cylHotIconSize(language) {
  */
 function cylDiscoverCloudStyle(base, options = {}) {
   const style = JSON.parse(JSON.stringify(base));
+  // The one parameter: the glass is the tag background (no fill, no border here).
+  style.backgroundStyle = 'liquidGlass';
   const text = options.dark ? '#FFFFFF' : '#000000';
   ['normal', 'selected', 'disabled'].forEach((state) => {
     Object.assign(style[state], {

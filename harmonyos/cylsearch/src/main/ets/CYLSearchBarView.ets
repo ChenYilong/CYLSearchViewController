@@ -2,7 +2,7 @@ import { KeyboardAvoidMode } from '@kit.ArkUI';
 import { UIContext } from '@kit.ArkUI';
 import {
   CYLControlState, CYLEdgeInsets, CYLFont, CYLMenuLocalizedString, CYLMenuStyle, CYLOffset, CYLSize, CYLTagButton,
-  CYLTagButtonHost, CYLTagCornerRadiusSquare
+  CYLTagButtonHost
 } from '@cyl/classifymenu';
 import { CYLSearchResources } from './CYLSearchResources';
 
@@ -495,9 +495,8 @@ export class CYLSearchBarItem {
       appearance.borderColor = undefined;
       appearance.borderWidth = 0;
       appearance.contentInsets = new CYLEdgeInsets(0, insets, 0, insets);
-      // Square. ClassifyMenu's pinned CYLTagButton still draws 0 as a capsule and its CYLTagCornerRadiusSquare (0.001) as
-      // square; this becomes 0 when the pins move to the numeric radius (item 8b, docs/animated-icon-component.md).
-      appearance.cornerRadius = hasBackground ? 10 : CYLTagCornerRadiusSquare;
+      // Square: 0 is square (item 8b, docs/animated-icon-component.md).
+      appearance.cornerRadius = hasBackground ? 10 : 0;
     });
     return style;
   }

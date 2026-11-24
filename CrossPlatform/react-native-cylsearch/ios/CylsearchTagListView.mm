@@ -27,6 +27,7 @@ using namespace facebook::react;
   BOOL _showsClearButton;
   BOOL _showsRefreshButton;
   NSInteger _columns;
+  NSString *_backgroundStyle;
   NSArray<NSString *> *_tagImages;
   NSArray<NSString *> *_tagImageLabels;
   NSMutableDictionary<NSString *, UIImage *> *_imageCache;
@@ -95,7 +96,8 @@ using namespace facebook::react;
   NSString *sectionTitle = CYLRNString(p.sectionTitle);
   BOOL renaming = p.supportsRenaming;
   NSInteger columns = MAX(0, (NSInteger)p.columns);
-  if (columns != _columns) {
+  BOOL columnsChanged = columns != _columns;
+  if (columnsChanged) {
     _columns = columns;
     if (columns > 0) {
       // The grid of plain titles (the iOS example's discover topics), through the core's helper: gridStyle is Swift-only.
@@ -103,6 +105,11 @@ using namespace facebook::react;
     } else {
       [CYLSearchTagListStyle applyDefaultStyleToList:_tagListView];
     }
+  }
+  NSString *backgroundStyle = CYLRNString(p.backgroundStyle);
+  if (![backgroundStyle isEqualToString:_backgroundStyle ?: @""] || columnsChanged) {
+    _backgroundStyle = backgroundStyle;
+    [CYLSearchTagListStyle applyBackgroundStyleNamed:backgroundStyle toList:_tagListView];
   }
   NSArray<NSString *> *images = CYLRNStrings(p.tagImages);
   NSArray<NSString *> *imageLabels = CYLRNStrings(p.tagImageLabels);

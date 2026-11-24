@@ -2,7 +2,7 @@ import { common } from '@kit.AbilityKit';
 import { CYLPlaceholderMessage, CYLPlaceholderStyle, CYLPlaceholderViewModel } from 'cylplaceholder';
 import {
   CYLControlState, CYLEdgeInsets, CYLFont, CYLMenuStyle, CYLSize, CYLTagButton, CYLTagButtonHost,
-  CYLTagContentAlignment, CYLTagCornerRadiusSquare
+  CYLTagContentAlignment
 } from '@cyl/classifymenu';
 import {
   cylAppText,
@@ -55,8 +55,8 @@ function cylSVGADemoTagButton(title: string, animationURL: string): CYLTagButton
     appearance.borderColor = undefined;
     appearance.borderWidth = 0;
     appearance.contentInsets = new CYLEdgeInsets(0, 0, 0, 0);
-    // Square; the pinned ClassifyMenu draws 0 as a capsule, so its square constant stays until the pins move (item 8b).
-    appearance.cornerRadius = CYLTagCornerRadiusSquare;
+    // Square: 0 is square (item 8b, docs/animated-icon-component.md).
+    appearance.cornerRadius = 0;
     appearance.textColor = $r('sys.color.font_secondary');
     appearance.font = CYLFont.systemFont(13);
   });

@@ -18,6 +18,9 @@
 - CYLTabBarController `CrossPlatform/harmonyos-cyltabbar/cylanimateditemrive` -> harmonyos/vendor/cylanimateditemrive (the
   one shared Rive engine: `CYLRiveIcon`, the loop policies, `cylRegisterRiveEngine`; no own Rive player anywhere).
 
+- CYLTabBarController `CrossPlatform/harmonyos-cyltabbar/cyldeallocblockexecutor` -> harmonyos/vendor/cyldeallocblockexecutor
+  (the lifecycle library that cyltabbar and cylanimateditem depend on with `file:../cyldeallocblockexecutor`, since c6b3e976).
+
 The commits are in harmonyos/oh-package.json5 (`cylTabBarControllerCommit`, `cylTableViewPlaceHolderCommit`,
 `collectionViewClassifyMenuCommit`; the newest commit on any branch that has the HarmonyOS library,
 docs/sub-repositories.md). `CYL_TABBAR_DIR` / `CYL_PLACEHOLDER_DIR` / `CYL_CLASSIFYMENU_DIR` use a local checkout
@@ -45,6 +48,8 @@ REPOS = [
      'CrossPlatform/harmonyos-cyltabbar/cylanimateditem_rive', 'CYL_TABBAR_DIR', []),
     ('cylanimateditemrive', 'https://github.com/ChenYilong/CYLTabBarController.git', 'cylTabBarControllerCommit',
      'CrossPlatform/harmonyos-cyltabbar/cylanimateditemrive', 'CYL_TABBAR_DIR', ['LICENSE']),
+    ('cyldeallocblockexecutor', 'https://github.com/ChenYilong/CYLTabBarController.git', 'cylTabBarControllerCommit',
+     'CrossPlatform/harmonyos-cyltabbar/cyldeallocblockexecutor', 'CYL_TABBAR_DIR', []),
 ]
 
 

@@ -259,6 +259,7 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                   // The native tag list brings its own section header (title and trash) and lines up with the bar.
                   // The last tag is the fold chevron, two rows while folded (the iOS and Android Discover pages).
                   CYLTagListView(
+                    backgroundStyle: 'liquidGlass',
                     tags: _recent,
                     sectionTitle: data.text('discover.recent'),
                     showsClearButton: true,
@@ -275,6 +276,7 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                 // The topics: CollectionViewClassifyMenu's tag list as a two-column grid, the hot icon after a hot topic;
                 // its section header brings the title and the refresh icon.
                 CYLTagListView(
+                  backgroundStyle: 'liquidGlass',
                   tags: <String>[for (final topic in _topics) topic.title],
                   columns: 2,
                   foldedRowCount: 0,

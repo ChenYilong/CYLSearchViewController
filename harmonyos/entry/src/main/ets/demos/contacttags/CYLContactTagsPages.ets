@@ -2,7 +2,7 @@ import { common } from '@kit.AbilityKit';
 import {
   CYLControlState, CYLEdgeInsets, CYLFont, CYLIndexPath, CYLMenuDataSource, CYLMenuDelegate, CYLMenuFoldControl,
   CYLMenuFoldControlContent, CYLMenuFoldControlPosition, CYLMenuItemType, CYLMenuSelectionMode, CYLMenuStyle,
-  CYLTagListState, CYLTagListView
+  CYLColor, CYLTagBackgroundStyle, CYLTagListState, CYLTagListView
 } from '@cyl/classifymenu';
 import { CYLPlaceholderStyle, CYLPlaceholderView, CYLPlaceholderViewModel } from 'cylplaceholder';
 import { CYLSearchBarComponent, CYLSearchBarView } from 'cylsearch';
@@ -30,9 +30,13 @@ export const CYL_CONTACT_TAGS_EDITOR_KEY: string = 'CYLContactTagsEditor';
 export const CYL_CONTACT_TAGS_EMPTY_KEY: string = 'CYLContactTagsEmpty';
 export const CYL_CONTACT_TAGS_RESET_KEY: string = 'CYLContactTagsResetCache';
 
-/** Gray tags, green selected tags (iOS `CYLContactTagEditorViewController.tagStyle()`). */
+/**
+ * Liquid Glass tags (one parameter, `backgroundStyle`): the glass is the background, so a tag has no fill and no border of
+ * its own; a selected tag tints the glass green and its title is green (iOS `CYLContactTagEditorViewController.tagStyle()`).
+ */
 export function cylContactTagStyle(): CYLMenuStyle {
   const style = new CYLMenuStyle();
+  style.backgroundStyle = CYLTagBackgroundStyle.liquidGlass;
   [CYLControlState.NORMAL, CYLControlState.SELECTED, CYLControlState.DISABLED].forEach((state: number) => {
     const appearance = style.appearance(state);
     appearance.font = CYLFont.systemFont(16);
@@ -40,9 +44,10 @@ export function cylContactTagStyle(): CYLMenuStyle {
     appearance.borderWidth = 0;
     appearance.contentInsets = new CYLEdgeInsets(5, 14, 5, 14);
   });
-  style.normalAppearance.backgroundColor = CYL_GRAY6;
+  style.normalAppearance.backgroundColor = CYLColor.CLEAR;
   style.normalAppearance.textColor = '#000000';
-  style.selectedAppearance.backgroundColor = '#1A07C160';
+  // The glass keeps 75% of this alpha (CYLLiquidGlass.GLASS_TINT_ALPHA): 0x33 (20%) leaves a 15% green tint the green title reads on.
+  style.selectedAppearance.backgroundColor = '#3307C160';
   style.selectedAppearance.textColor = CYL_GREEN;
   style.itemHeight = 36;
   style.interitemSpacing = 12;

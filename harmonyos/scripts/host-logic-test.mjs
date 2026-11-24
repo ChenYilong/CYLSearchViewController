@@ -385,7 +385,7 @@ describe('Discover: the hot icon has a localized screen reader label', () => {
 // named constant (1000) passed by name, no other value is special.
 describe('corner radius capsule constant', () => {
   const entryEts = join(here, '..', 'entry', 'src', 'main', 'ets');
-  const constantSource = readFileSync(join(entryEts, 'common', 'CYLCornerRadius.ets'), 'utf8');
+  const library = readFileSync(join(core, 'CYLSearchBarView.ets'), 'utf8');
   const walk = (directory, found = []) => {
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
       const full = join(directory, entry.name);
@@ -394,22 +394,73 @@ describe('corner radius capsule constant', () => {
     }
     return found;
   };
-  it('defines CYL_CORNER_RADIUS_CAPSULE as 1000, the only place the literal is a radius', () => {
-    assert.match(constantSource, /export const CYL_CORNER_RADIUS_CAPSULE: number = 1000;/);
+  it('takes the capsule constant from the library (cylanimateditem, 1000), with no repo-local copy', () => {
+    const vendored = join(here, '..', 'vendor', 'cylanimateditem');
+    if (existsSync(vendored)) {
+      assert.match(readFileSync(join(vendored, 'Index.ets'), 'utf8'), /\bCYLAnimatedItemCornerRadiusCapsule\b/);
+      assert.match(readFileSync(join(vendored, 'src', 'main', 'ets', 'CYLAnimatedItemBackground.ets'), 'utf8'),
+        /export const CYLAnimatedItemCornerRadiusCapsule: number = 1000;/);
+    }
+    assert.equal(existsSync(join(entryEts, 'common', 'CYLCornerRadius.ets')), false);
+    assert.equal(walk(entryEts).filter((file) => /CYL_CORNER_RADIUS_CAPSULE/.test(readFileSync(file, 'utf8'))).length, 0);
   });
-  it('gives no radius in the entry sources (demos and tests) the literal 1000, 999 or 0.001', () => {
+  it('gives no radius in the entry or library sources the literal 1000, 999 or 0.001', () => {
     const radius = /(?:[cC]ornerRadius|borderRadius|radius)\s*(?:=|:|\()\s*(?:1000|999|9999|0\.001)\b/;
-    const offenders = walk(entryEts).filter((file) => !file.endsWith('CYLCornerRadius.ets')
-      && radius.test(readFileSync(file, 'utf8')));
+    const offenders = [...walk(entryEts), ...walk(core)].filter((file) => radius.test(readFileSync(file, 'utf8')));
     assert.deepEqual(offenders, []);
   });
-  it('passes the constant by name where the Discover bar is a capsule', () => {
-    assert.match(discoverSource, /bar\.fieldCornerRadius = CYL_CORNER_RADIUS_CAPSULE;/);
-    assert.match(discoverSource, /from '\.\.\/common\/CYLCornerRadius'/);
+  it('passes the library constant by name where the Discover bar is a capsule', () => {
+    assert.match(discoverSource, /bar\.fieldCornerRadius = CYLAnimatedItemCornerRadiusCapsule;/);
+    assert.match(discoverSource, /import \{ CYLAnimatedItemCornerRadiusCapsule \} from 'cylanimateditem';/);
   });
-  it('keeps the search bar items square with the pinned ClassifyMenu constant, as one place', () => {
-    const library = readFileSync(join(core, 'CYLSearchBarView.ets'), 'utf8');
-    assert.equal(library.split('CYLTagCornerRadiusSquare;').length - 1, 1);
-    assert.doesNotMatch(library, /cornerRadius = [^;]*\b0\.001\b/);
+  it('draws the search bar item square with 0, and CYLTagCornerRadiusSquare is gone', () => {
+    assert.match(library, /appearance\.cornerRadius = hasBackground \? 10 : 0;/);
+    const menu = readFileSync(join(entryEts, 'demos', 'ExamplesMenu.ets'), 'utf8');
+    assert.match(menu, /appearance\.cornerRadius = 0;/);
+    assert.doesNotMatch(library + menu, /CYLTagCornerRadiusSquare/);
+  });
+});
+
+// Every example tag list is Liquid Glass with ONE parameter, `style.backgroundStyle = CYLTagBackgroundStyle.liquidGlass`
+// (CollectionViewClassifyMenu 551072a); the glass is the background, so the glass tags have no fill and no border of
+// their own. The Discover "recent" tags stay opaque white (plain Text, not a tag list). Source checks: the styles import
+// kit code and run only on a device.
+describe('Liquid Glass tag lists', () => {
+  const demos = join(here, '..', 'entry', 'src', 'main', 'ets', 'demos');
+  const contactSource = readFileSync(join(demos, 'contacttags', 'CYLContactTagsPages.ets'), 'utf8');
+  const functionBody = (source, name) => {
+    source = source.replace(/\r\n/g, '\n');
+    const start = source.indexOf(`function ${name}(`);
+    assert.ok(start >= 0, `${name} exists`);
+    const end = source.indexOf('\n}\n', start);
+    return source.slice(start, end);
+  };
+  const glass = /style\.backgroundStyle = CYLTagBackgroundStyle\.liquidGlass;/;
+  it('sets the one parameter on the Discover topics grid and the contact tags, and imports the enum', () => {
+    assert.match(functionBody(discoverSource, 'cylDiscoverStyle'), glass);
+    assert.match(functionBody(contactSource, 'cylContactTagStyle'), glass);
+    assert.match(discoverSource, /import \{[^}]*\bCYLTagBackgroundStyle\b[^}]*\} from '@cyl\/classifymenu';/);
+    assert.match(contactSource, /import \{[^}]*\bCYLTagBackgroundStyle\b[^}]*\} from '@cyl\/classifymenu';/);
+  });
+  it('gives the glass tags no fill and no border of their own; the selected tint keeps visible after the glass', () => {
+    const contact = functionBody(contactSource, 'cylContactTagStyle');
+    assert.match(contact, /normalAppearance\.backgroundColor = CYLColor\.CLEAR;/);
+    assert.match(contact, /appearance\.borderWidth = 0;/);
+    assert.doesNotMatch(contact, /CYL_GRAY6|borderColor/);
+    // The glass keeps 75% of the tint's alpha (CYLLiquidGlass.GLASS_TINT_ALPHA): the selected tint is 20%, 15% on the glass.
+    const selected = /selectedAppearance\.backgroundColor = '#([0-9A-F]{2})07C160';/.exec(contact);
+    assert.ok(selected, 'the selected tint is an #AARRGGBB green');
+    const alpha = parseInt(selected[1], 16) / 255 * 0.75;
+    assert.ok(alpha >= 0.1 && alpha <= 0.3, `selected tint alpha on the glass is ${alpha}`);
+    const discover = functionBody(discoverSource, 'cylDiscoverStyle');
+    assert.doesNotMatch(discover, /backgroundColor|borderColor|borderWidth/);
+  });
+  it('keeps the Discover recent tags opaque white and flat (no glass in recentTag)', () => {
+    const text = discoverSource.replace(/\r\n/g, '\n');
+    const start = text.indexOf('recentTag(title: string) {');
+    const recent = text.slice(start, text.indexOf('\n  }\n', start));
+    assert.match(recent, /\.backgroundColor\(\$r\('sys\.color\.background_primary'\)\)/);
+    assert.doesNotMatch(recent, /liquidGlass|backgroundEffect/);
+    assert.equal((discoverSource.match(/liquidGlass/g) || []).length, 1);
   });
 });

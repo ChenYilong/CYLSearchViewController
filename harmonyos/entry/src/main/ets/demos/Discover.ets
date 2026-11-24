@@ -3,7 +3,7 @@ import { LengthMetrics } from '@kit.ArkUI';
 import { util } from '@kit.ArkTS';
 import {
   CYLControlState, CYLEdgeInsets, CYLFont, CYLIndexPath, CYLMenuDataSource, CYLMenuDelegate, CYLMenuSelectionMode,
-  CYLMenuStyle, CYLSize, CYLTagListState, CYLTagListView
+  CYLMenuStyle, CYLSize, CYLTagBackgroundStyle, CYLTagListState, CYLTagListView
 } from '@cyl/classifymenu';
 import {
   CYLSearchBarItem,
@@ -13,7 +13,7 @@ import {
   CYLSearchRefreshButton
 } from 'cylsearch';
 import { cylAppText, CYLDemoRoute, CYL_PLUS_OVERHANG } from '../common/DemoCommon';
-import { CYL_CORNER_RADIUS_CAPSULE } from '../common/CYLCornerRadius';
+import { CYLAnimatedItemCornerRadiusCapsule } from 'cylanimateditem';
 
 /**
  * How many tags (`widths`, in vp) fit in `rows` rows of `width`, leaving room for a control of `controlWidth` after
@@ -146,6 +146,8 @@ class CYLDiscoverSource implements CYLMenuDataSource {
  */
 function cylDiscoverStyle(hotWidth: number): CYLMenuStyle {
   const style = CYLMenuStyle.gridStyle(2);
+  // The one parameter: the glass is the tag background (the preset's fill and border stay empty).
+  style.backgroundStyle = CYLTagBackgroundStyle.liquidGlass;
   [CYLControlState.NORMAL, CYLControlState.SELECTED, CYLControlState.DISABLED].forEach((state: number) => {
     const appearance = style.appearance(state);
     appearance.font = new CYLFont(17, FontWeight.Medium);
@@ -212,7 +214,7 @@ export struct DiscoverView {
     bar.searchIcon = undefined;
     bar.contentInsets = { top: 0, left: 0, bottom: 0, right: 0 };
     bar.searchBarStyle = CYLSearchBarStyle.bordered;
-    bar.fieldCornerRadius = CYL_CORNER_RADIUS_CAPSULE;
+    bar.fieldCornerRadius = CYLAnimatedItemCornerRadiusCapsule;
     bar.fieldShadowOpacity = 0.06;
     bar.font = 16;
     bar.fieldBorderColor = $r('sys.color.comp_divider');
