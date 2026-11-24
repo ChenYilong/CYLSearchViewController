@@ -3,7 +3,7 @@ allprojects {
         google()
         mavenCentral()
         // SVGAPlayer-Android is only on JitPack (SVGA tab icons).
-        maven("https://jitpack.io") { content { includeGroup("com.github.yyued") } }
+        maven("https://jitpack.io") { content { includeGroup("com.github.yyued"); includeGroup("com.github.ChenYilong.CYLDeallocBlockExecutor") } }
     }
 }
 
