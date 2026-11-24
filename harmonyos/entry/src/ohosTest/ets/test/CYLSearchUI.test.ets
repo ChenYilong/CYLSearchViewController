@@ -249,5 +249,19 @@ export default function cylSearchUITest() {
       await assertLabel(driver, appString('discover_recent'));
       await assertLabel(driver, appString('discover_ask'), 'CYLSearchDiscoverMicButton');
     });
+
+    // The refresh button of the Discover topics header is labelled with the localized tagList.refresh (Refresh, 更新,
+    // 刷新, 重新整理 in the four iOS languages, the CYLTabBarController translations in the others). Written, not run.
+    it('discoverRefreshButtonHasItsLabel', 0, async () => {
+      const driver = Driver.create();
+      await backToTabBar(driver);
+      await tapLabel(driver, appString('tab_discover'));
+      const label = libString('tagList.refresh');
+      expect(label.length > 0 && label !== 'tagList.refresh').assertTrue();
+      // uitest does not report accessibilityText (see findByLabel), so the id is the fallback.
+      await assertLabel(driver, label, 'CYLSearchDiscoverMore');
+      await tapLabel(driver, label, 800, 'CYLSearchDiscoverMore');
+      await assertLabel(driver, label, 'CYLSearchDiscoverMore');
+    });
   });
 }

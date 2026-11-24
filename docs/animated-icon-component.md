@@ -172,8 +172,8 @@ Owner rule: code first, tests and CI last; **no waiting for CI and no waiting fo
 | C bar in the navigation bar | `CYLSearchNavigationBar.swift` | `embedsInNavigationBar` | `embedsInNavigationBar` | todo | `CYLSearchNavigationPage` | `cyl-search-navigation-bar` |
 | Back button | system back item | `showsBackButton` | `showsBackButton` | todo | NavDestination | nav bar back arrow |
 | Width in the core | `sizeThatFits` | via core | via core | todo | `layoutWeight(1)` | `cylNavigationBarWidthsFrom` |
-| Topics from the ClassifyMenu tag list | `CYLTagListView` grid | `columns`, `tagImages` | `columns`, `tagImages` | todo | todo | todo |
-| Texts in four languages | done | done | tab pages' descriptions and buttons todo | todo | `cyl_tagList_refresh` partly | done |
+| Topics from the ClassifyMenu tag list | `CYLTagListView` grid | `columns`, `tagImages` | `columns`, `tagImages` | todo | `Discover.ets` `CYLTagListView` + `gridStyle(2)` (not run) | `cyl-tag-cloud` grid (hot icon before the title, see below) |
+| Texts in four languages | done | done | tab pages' descriptions and buttons todo | todo | `cyl_tagList_refresh` in 29 languages | done |
 | Corner radius under both meanings of 0 | `CYLSearchTagListStyle` | via core | via core | todo | todo | todo |
 
 ### Status on Android (2026-11-24, Windows session): written statically, NOT run yet
@@ -186,6 +186,22 @@ Owner rule: code first, tests and CI last; **no waiting for CI and no waiting fo
 | Bridges | React Native Android ViewManager setters `showsRefreshButton`, `columns`, `tagImages`, `embedsInNavigationBar`, `showsBackButton` (events `onRefreshButtonTap`, `onBackButtonTap`); Flutter Android: the same params on the tag list and bar platform views (`didTapRefreshButton`, `didTapBackButton`). Not compiled. |
 | Corner radius (PR #35) | Android part pushed to ClassifyMenu `feat/corner-radius-numeric` (`6787e7f5`): `CYLTagCornerRadiusSquare` removed, 0 square, 1000 capsule, presets keep their looks, `CYLTagCornerRadiusTest` written, not run. CYLSearch's own `CYLSearchBarView.kt` still uses the 0.001 square value (valid in both meanings) until the pins move. |
 | Not done | the core default `contentInsets` 16 dp (it makes the `CYLSearchViewQMUIPortTest` SQLite failure appear in the full suite: the example sets 16 itself); the core default tag look (`CYLSearchTagListStyle`); HarmonyOS and the mini program (the other Windows session). Everything is waiting for the single test batch (emulator free, PR #35 merged, pins moved). |
+
+### Status on HarmonyOS and the mini program (2026-11-24, Windows session): written statically, NOT run yet
+
+"Written, not run" = nothing was built or run; only node tests and the checkers ran.
+
+| Row (HarmonyOS, mini program) | State |
+| --- | --- |
+| Discover topics grid from ClassifyMenu's tag list, HarmonyOS | Written, not run. `Discover.ets` uses `CYLTagListState` / `CYLTagListView` with `CYLMenuStyle.gridStyle(2)` (the iOS `discoverStyle()` changes: 17 pt medium, 36 high, 16 between rows, insets {4, 16, 16, 16}), `menuImageForItem` for the hot icon; the header (title and `CYLSearchRefreshButton`) stays in the page. ClassifyMenu was already a dependency (`file:../vendor/classifymenu`, pin `collectionViewClassifyMenuCommit`). To verify on the emulator: two columns, the hot icon after the title, refresh changes the page, tap searches. |
+| Discover topics grid from ClassifyMenu's tag cloud, mini program | Written, node tests run (`example_discover.test.js`). The mini program's `cyl-tag-cloud` has `numberOfItemsPerRow` (equal cells) and tag images with `imageLabel`; `cyl-tag-list` parses `itemsPerRow` but never lays it out. The page uses the cloud: `cylDiscoverCloudTags`, `cylDiscoverCloudStyle` (`example/miniprogram/utils/cyl_discover_logic.js`). TODO (ClassifyMenu repository, not this one): the cloud draws an icon before the title; iOS and HarmonyOS draw the hot icon after it (`imagePlacement` trailing), and the tag list needs the grid layout; the "Tap to search" hint of a topic is not read (the cloud has no per-tag hint). Verify in DevTools. |
+| `cyl_tagList_refresh` in the other languages | Done with `harmonyos/scripts/import-cyltabbar-localizations.mjs` (the string is "Refresh" in CYLTabBarController's table, 29 languages). `check-accessibility-i18n.mjs` and `check-ios-parity.mjs` pass. The mini program localizes the four iOS languages only (its core table has no others). The import also brought the strings added since its last run (`cyl_search_foldMore`, `cyl_styles_cancel`, `discover_ok`, `contactTags_*`). |
+| `cyl_navigationBar_back` | The iOS key `navigationBar.back` was missing in the HarmonyOS library (`check-ios-parity.mjs` failed); added in the four iOS languages and used by the navigation page's back button. |
+| README of `cyl-search-refresh-button`, `cyl-search-navigation-bar` | Written (`src/<component>/README.md`). |
+| Label test of the refresh button | Mini program: `test/cyl_search_refresh_button_label.test.js`, run (4 tests). HarmonyOS: `host-logic-test.mjs` "refresh button label" (3 cases, run with node) and the ohosTest case `discoverRefreshButtonHasItsLabel`, written, not run. |
+| `cyl-animated-item` pin mismatch | The synced `cyl-animated-item/COMMIT` said `c4a1f8fd` because the mini program package copy comes through ClassifyMenu (`collectionViewClassifyMenuCommit` `04b39e26`, which vendors the tab bar component at `c4a1f8fd`); `package.json` pins `cylTabBarControllerCommit` `f45a8f1d`, and `test/package.test.js` requires both to be equal (it failed). `f45a8f1d` is right (head of CYLTabBarController PR #824, the pin of the other platforms). Fix with the repo's own sync script: `collectionViewClassifyMenuCommit` is now `cd95371c` (ClassifyMenu PR #34, "CYLTabBarController f45a8f1d", which re-fetches the vendored component) and `node scripts/sync-example.js` ran; the test passes. TODO: PR #34 is not merged; when it is (or if its branch is squashed), move the pin to the merged commit with the other pins in the batch. The HarmonyOS pins are not moved (the Rive module rename needs a build). |
+
+What the owner's single batch runs for these rows: ohosTest (including `discoverRefreshButtonHasItsLabel`) and the emulator run of Discover in en and zh-Hans with the back tap; the mini program in DevTools in en and zh-Hans with the back tap; corner radius 0 versus 1000 of ClassifyMenu on both after PR #35 merged.
 
 ### Assignments (2026-11-24)
 

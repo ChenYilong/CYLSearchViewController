@@ -5,7 +5,7 @@
 // each between the lines "// MARK: - Pure logic (begin)" and "// MARK: - Pure logic (end)" (plain TypeScript, no kit
 // import). This script copies those parts to a temporary .ts file, exports their functions, imports it and runs
 // node:test cases that mirror the Android Kotlin tests of the same behaviour.
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -323,5 +323,34 @@ describe('navigation title builder: the core adapts the bar width', () => {
     assert.doesNotMatch(page, /\.(width|margin|padding)\(/);
     assert.doesNotMatch(discoverSource, /CYLSearchBarComponent/);
     assert.doesNotMatch(discoverSource, /\bfieldHeight\b/);
+  });
+});
+
+// The refresh button's accessibility label (CYLSearchRefreshButton): the localized `tagList.refresh` as accessibilityText
+// in the core, the string in the base language and the four iOS languages with the iOS text, and in every other language
+// the library localizes (the CYLTabBarController translations). The ohosTest case discoverRefreshButtonHasItsLabel
+// checks the label on the emulator (written, not run).
+describe('refresh button label', () => {
+  const resources = join(here, '..', 'cylsearch', 'src', 'main', 'resources');
+  const value = (qualifier) => {
+    const file = join(resources, qualifier, 'element', 'string.json');
+    const item = JSON.parse(readFileSync(file, 'utf8')).string.find((entry) => entry.name === 'cyl_tagList_refresh');
+    return item && item.value;
+  };
+  const barSource = readFileSync(join(core, 'CYLSearchBarView.ets'), 'utf8');
+  it('reads cyl_tagList_refresh as the accessibility text of the symbol button', () => {
+    const start = barSource.indexOf('export struct CYLSearchRefreshButton');
+    const button = barSource.slice(start, barSource.indexOf('@ComponentV2', start));
+    assert.match(button, /\.accessibilityText\(\$r\('app\.string\.cyl_tagList_refresh'\)\)/);
+  });
+  it('has the iOS text in base, ja_JP, zh_CN and zh_TW', () => {
+    assert.deepEqual(['base', 'ja_JP', 'zh_CN', 'zh_TW'].map(value), ['Refresh', '更新', '刷新', '重新整理']);
+  });
+  it('has a label in every language the library localizes', () => {
+    const qualifiers = readdirSync(resources).filter((name) => existsSync(join(resources, name, 'element', 'string.json')) && name !== 'dark');
+    assert.ok(qualifiers.length > 4);
+    for (const qualifier of qualifiers) {
+      assert.ok(value(qualifier), `${qualifier} has no cyl_tagList_refresh`);
+    }
   });
 });
