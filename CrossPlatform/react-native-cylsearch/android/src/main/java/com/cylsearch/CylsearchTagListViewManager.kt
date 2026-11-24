@@ -68,6 +68,11 @@ class CylsearchTagListViewManager : SimpleViewManager<CylsearchTagListView>(),
     view.setTagImages(value.cylStrings())
   }
 
+  @ReactProp(name = "tagImageLabels")
+  override fun setTagImageLabels(view: CylsearchTagListView, value: ReadableArray?) {
+    view.tagImageLabels = value.cylStrings()
+  }
+
   @ReactProp(name = "editing")
   override fun setEditing(view: CylsearchTagListView, value: Boolean) {
     if (value != view.isEditing) view.setEditing(value, true)
