@@ -515,7 +515,6 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
     private var showsClearButton = false
     private var showsRefreshButton = false
     private var columns = 0
-    // The tag background by name ("liquidGlass", else flat); param backgroundStyle.
     private var backgroundStyle = ""
     private var tagImages: List<String> = emptyList()
     // The screen-reader label of each tag image, parallel to tagImages ('' none); param tagImageLabels.
@@ -595,8 +594,9 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
         } else {
             (flowingStyle?.copy() ?: CYLMenuStyle()).apply { CYLSearchTagListStyle.applyDefaults(this) }
         }
-        CYLSearchTagListStyle.applyBackgroundStyle(backgroundStyle, base)
         base.backgroundColor = android.graphics.Color.TRANSPARENT
+        // "liquidGlass" or flat (CYLSearchTagListStyle.applyBackgroundStyle, iOS `applyBackgroundStyle(named:to:)`).
+        CYLSearchTagListStyle.applyBackgroundStyle(backgroundStyle, base)
         if (showsRefreshButton) CYLSearchTagListHeader.applyRefreshIcon(appContext, base)
         tagListView.style = base
     }
@@ -605,29 +605,38 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
     private fun loadTagImages() {
         val loader = io.flutter.FlutterInjector.instance().flutterLoader()
         tagImages.filter { it.isNotEmpty() && it !in loadedImages }.distinct().forEach { key ->
-            // Flutter's density variants sit beside the asset ("dir/3.0x/name"): the sharpest one is read with its own density, so
-            // a 30 x 18 px 1x image is 30 x 18 dp and not 30 px (about 11 dp, too small to read); a key without variants is the base.
-            val slash = key.lastIndexOf('/')
-            val directory = if (slash >= 0) key.substring(0, slash + 1) else ""
-            val name = key.substring(slash + 1)
-            val candidates = listOf(3 to "${directory}3.0x/$name", 2 to "${directory}2.0x/$name", 1 to key)
-            for ((scale, candidate) in candidates) {
-                try {
-                    appContext.assets.open(loader.getLookupKeyForAsset(candidate)).use { stream ->
-                        val bitmap = android.graphics.BitmapFactory.decodeStream(stream) ?: return@use
-                        when {
-                            key.contains("@3x") -> bitmap.density = 480
-                            key.contains("@2x") -> bitmap.density = 320
-                            else -> bitmap.density = 160 * scale
-                        }
-                        loadedImages[key] = android.graphics.drawable.BitmapDrawable(appContext.resources, bitmap)
+            try {
+                val lookup = loader.getLookupKeyForAsset(key)
+                // Flutter's resolution variants (`2.0x/name.png`, `3.0x/name.png` beside the 1x file): the one for this screen, so a
+                // 30 x 18 image is 30 x 18 dp as on iOS, not 30 px (11 dp on a 2.8 density screen).
+                val ratio = Math.ceil(appContext.resources.displayMetrics.density.toDouble()).toInt().coerceIn(1, 3)
+                val (stream, scale) = openAtDensity(lookup, ratio)
+                stream.use {
+                    val bitmap = android.graphics.BitmapFactory.decodeStream(it) ?: return@use
+                    when {
+                        key.contains("@3x") -> bitmap.density = 480
+                        key.contains("@2x") -> bitmap.density = 320
+                        else -> bitmap.density = 160 * scale
                     }
-                    if (key in loadedImages) break
-                } catch (error: java.io.IOException) {
-                    // This variant is missing: the next one is tried; none leaves the tag without an image.
+                    loadedImages[key] = android.graphics.drawable.BitmapDrawable(appContext.resources, bitmap)
                 }
+            } catch (error: java.io.IOException) {
+                // A missing asset leaves the tag without an image.
             }
         }
+    }
+
+    /** The asset at `lookup` in its `ratio`x variant, else the nearest other one: the stream and its scale (1 for the 1x file). */
+    private fun openAtDensity(lookup: String, ratio: Int): Pair<java.io.InputStream, Int> {
+        val slash = lookup.lastIndexOf('/')
+        for (candidate in listOf(ratio, 3, 2).distinct().filter { it > 1 }) {
+            try {
+                return appContext.assets.open(lookup.substring(0, slash + 1) + "${candidate}.0x/" + lookup.substring(slash + 1)) to candidate
+            } catch (error: java.io.IOException) {
+                // No such variant: the next one.
+            }
+        }
+        return appContext.assets.open(lookup) to 1
     }
 
     private fun applySelection() {

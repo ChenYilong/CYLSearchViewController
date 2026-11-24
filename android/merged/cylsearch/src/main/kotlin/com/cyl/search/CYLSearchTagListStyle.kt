@@ -2,13 +2,13 @@ package com.cyl.search
 
 import android.graphics.Color
 import android.graphics.Typeface
-import com.cyl.animateditem.CYLAnimatedItemCornerRadiusCapsule
 import com.cyl.classifymenu.CYLControlState
 import com.cyl.classifymenu.CYLEdgeInsets
 import com.cyl.classifymenu.CYLFont
 import com.cyl.classifymenu.CYLMenuStyle
 import com.cyl.classifymenu.CYLSize
 import com.cyl.classifymenu.CYLTagBackgroundStyle
+import com.cyl.classifymenu.CYLTagListView
 
 /**
  * The search bar core's default style of a tag list, the look of the iOS example's recent searches and discover topics:
@@ -21,11 +21,16 @@ object CYLSearchTagListStyle {
 
     /**
      * The corner radius of a capsule: the corners are as round as the tag's height allows (ClassifyMenu limits a radius to
-     * half the height). The library's constant (`CYLAnimatedItemCornerRadiusCapsule`, CYLTabBarController's cylanimateditem):
-     * pass it by name, never the literal 1000. 0 is square corners; no other
+     * half the height). The one named constant for it: pass it, never the literal 1000. 0 is square corners; no other
      * value has a special meaning.
      */
-    const val CAPSULE_CORNER_RADIUS: Float = CYLAnimatedItemCornerRadiusCapsule
+    const val CAPSULE_CORNER_RADIUS: Float = 1000f
+
+    /**
+     * The border of a flat tag: iOS `UIColor.separator` in light mode (60,60,67 at 29%), visible on a white tag over an off-white
+     * page; the earlier 16% black was not.
+     */
+    internal val BORDER_COLOR: Int = Color.argb(74, 60, 60, 67)
 
     /**
      * The corner radius of every tag, in dp. The default `CAPSULE_CORNER_RADIUS` is a capsule, as in the iOS example's
@@ -35,17 +40,24 @@ object CYLSearchTagListStyle {
     var tagCornerRadius: Float = CAPSULE_CORNER_RADIUS
 
     /**
-     * The background of every tag: flat (the default, a solid color) or Liquid Glass where the platform draws it (else flat).
-     * Set on the style by `applyDefaults` and `applyGrid`, as iOS `tagBackgroundStyle` does.
-     */
-    @JvmStatic
-    var backgroundStyle: CYLTagBackgroundStyle = CYLTagBackgroundStyle.CYLTagBackgroundStyleFlat
-
-    /**
      * Called with the style after the defaults are set, to change any value of it. null by default.
      */
     @JvmStatic
     var styleCustomizer: ((CYLMenuStyle) -> Unit)? = null
+
+    /**
+     * The background of every tag, handed to CollectionViewClassifyMenu's `CYLMenuStyle.backgroundStyle`: flat by default
+     * (the tag's own colors), Liquid Glass for the glass background (flat below Android 12; iOS `tagBackgroundStyle`).
+     */
+    @JvmStatic
+    var tagBackgroundStyle: CYLTagBackgroundStyle = CYLTagBackgroundStyle.CYLTagBackgroundStyleFlat
+
+    /**
+     * The fills of a Liquid Glass tag: transparent, so CYLAnimatedItemView draws the library's default frosted tint, and the
+     * iOS tint color (system blue) at 30% for a selected tag (iOS `applyDefaults(to:)`).
+     */
+    internal val GLASS_TINT_COLOR: Int = Color.TRANSPARENT
+    internal val GLASS_SELECTED_TINT_COLOR: Int = Color.argb(77, 0, 122, 255)
 
     /**
      * Sets the defaults on `style`: white tags with a 1 dp light border and `tagCornerRadius`, 17 sp text, 36 dp high, 12 dp
@@ -56,16 +68,22 @@ object CYLSearchTagListStyle {
     fun applyDefaults(style: CYLMenuStyle) {
         for (state in listOf(CYLControlState.NORMAL, CYLControlState.SELECTED, CYLControlState.DISABLED)) {
             style.appearanceForState(state).apply {
-                backgroundColor = Color.WHITE
-                borderColor = Color.argb(40, 0, 0, 0)
-                borderWidth = 1f
+                // A Liquid Glass tag is a tint on the glass, no border; a flat tag is white with a light border.
+                if (tagBackgroundStyle == CYLTagBackgroundStyle.CYLTagBackgroundStyleFlat) {
+                    backgroundColor = Color.WHITE
+                    borderColor = BORDER_COLOR
+                    borderWidth = 1f
+                } else {
+                    backgroundColor = if (state == CYLControlState.SELECTED) GLASS_SELECTED_TINT_COLOR else GLASS_TINT_COLOR
+                    borderWidth = 0f
+                }
                 cornerRadius = tagCornerRadius
                 margin = 14f
                 font = CYLFont(17f)
                 textColor = Color.BLACK
             }
         }
-        applyBackgroundStyle(if (backgroundStyle == CYLTagBackgroundStyle.CYLTagBackgroundStyleLiquidGlass) "liquidGlass" else "flat", style)
+        style.backgroundStyle = tagBackgroundStyle
         style.itemHeight = 36f
         style.interitemSpacing = 12f
         style.lineSpacing = 12f
@@ -73,6 +91,54 @@ object CYLSearchTagListStyle {
         applyHeaderLook(style)
         styleCustomizer?.invoke(style)
     }
+
+    /**
+     * Sets the defaults on `list`'s style (a copy, so the list's other values stay), and the refresh icon of its header
+     * (`CYLSearchTagListHeader`; iOS `applyDefaultStyle(to:)`).
+     */
+    @JvmStatic
+    fun applyDefaultStyle(list: CYLTagListView) {
+        val style = (list.style ?: CYLMenuStyle.defaultStyle()).copy()
+        applyDefaults(style)
+        list.style = style
+        CYLSearchTagListHeader.applyRefreshIcon(list)
+    }
+
+    /**
+     * Sets the background of every tag of `list` by name (iOS `applyBackgroundStyle(named:to:)`): "liquidGlass" (any case)
+     * is Liquid Glass, any other name, "" and "flat" too, is flat. Where the device draws no glass (below Android 12,
+     * `CYLMenuStyle.resolvedBackgroundStyle`) the tags stay flat. The list's other style values stay; the refresh icon of its
+     * header is set, as on iOS.
+     */
+    @JvmStatic
+    fun applyBackgroundStyle(name: String, list: CYLTagListView) {
+        val style = (list.style ?: CYLMenuStyle.defaultStyle()).copy()
+        applyBackgroundStyle(name, style)
+        list.style = style
+        CYLSearchTagListHeader.applyRefreshIcon(list)
+    }
+
+    /** `applyBackgroundStyle(name, list)` on a style: the background style by name and, for glass, the glass fills. */
+    @JvmStatic
+    fun applyBackgroundStyle(name: String, style: CYLMenuStyle) {
+        style.backgroundStyle = backgroundStyleNamed(name)
+        if (style.backgroundStyle == CYLTagBackgroundStyle.CYLTagBackgroundStyleLiquidGlass) {
+            // A white fill under the glass hides it: clear the fill and border so the library's default frosted tint draws;
+            // a selected tag keeps a visible tint (iOS).
+            for (state in listOf(CYLControlState.NORMAL, CYLControlState.SELECTED, CYLControlState.DISABLED)) {
+                style.appearanceForState(state).apply {
+                    backgroundColor = if (state == CYLControlState.SELECTED) GLASS_SELECTED_TINT_COLOR else GLASS_TINT_COLOR
+                    borderWidth = 0f
+                }
+            }
+        }
+    }
+
+    /** The background style for `name`: Liquid Glass for "liquidGlass" (any case), flat for any other name. */
+    @JvmStatic
+    fun backgroundStyleNamed(name: String): CYLTagBackgroundStyle =
+        if (name.equals("liquidGlass", ignoreCase = true)) CYLTagBackgroundStyle.CYLTagBackgroundStyleLiquidGlass
+        else CYLTagBackgroundStyle.CYLTagBackgroundStyleFlat
 
     /**
      * Turns `style` (made by `CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(columns)`) into the discover topics' look: 17 sp
@@ -85,34 +151,11 @@ object CYLSearchTagListStyle {
             style.appearanceForState(state).font = CYLFont(17f, Typeface.create("sans-serif-medium", Typeface.NORMAL))
         }
         style.imageSize = CYLSize(0f, 0f)
-        applyBackgroundStyle(if (backgroundStyle == CYLTagBackgroundStyle.CYLTagBackgroundStyleLiquidGlass) "liquidGlass" else "flat", style)
         style.itemHeight = 36f
         style.lineSpacing = 16f
         style.sectionInsets = CYLEdgeInsets(4f, 16f, 16f, 16f)
         applyHeaderLook(style)
         styleCustomizer?.invoke(style)
-    }
-
-    /**
-     * [EN] Sets the tag background of `style` by name, for the bridges (React Native / Flutter `backgroundStyle`): "liquidGlass"
-     *      (any case) is Liquid Glass, "flat", "" or any other name is flat. Call it after `applyDefaults` / `applyGrid`
-     *      (iOS `applyBackgroundStyle(named:to:)`). Glass is the background itself: a glass tag gets no fill and no border of
-     *      its own, so the fill and border of every state are cleared; flat keeps what the defaults set.
-     * [CN] 按名称设置标签背景（供 React Native / Flutter 桥接使用）："liquidGlass"（不分大小写）为液态玻璃，"flat"、空串或其他名称为
-     *      纯色。须在 `applyDefaults` / `applyGrid` 之后调用。玻璃本身就是背景：玻璃标签不设自己的填充与边框，故清除各状态的填充与边框。
-     */
-    @JvmStatic
-    fun applyBackgroundStyle(name: String?, style: CYLMenuStyle) {
-        val glass = name != null && name.equals("liquidGlass", ignoreCase = true)
-        style.backgroundStyle = if (glass) CYLTagBackgroundStyle.CYLTagBackgroundStyleLiquidGlass else CYLTagBackgroundStyle.CYLTagBackgroundStyleFlat
-        if (!glass) return
-        for (state in listOf(CYLControlState.NORMAL, CYLControlState.SELECTED, CYLControlState.DISABLED)) {
-            style.appearanceForState(state).apply {
-                backgroundColor = Color.TRANSPARENT
-                borderColor = Color.TRANSPARENT
-                borderWidth = 0f
-            }
-        }
     }
 
     private fun applyHeaderLook(style: CYLMenuStyle) {

@@ -123,6 +123,11 @@ Component({
     highlightColor: { type: String, value: '' },
     // The empty view's text while the query is not empty and the results are empty (iOS noResultsText).
     noResultsText: { type: String, value: '' },
+    // The line over the results (iOS resultsHeaderTitleProvider, set with setResultsHeaderTitleProvider(fn)) in this color
+    // (iOS resultsHeaderTextColor), and the text button under the cached queries that clears them (iOS
+    // suggestionCacheFooterTitle).
+    resultsHeaderTextColor: { type: String, value: '' },
+    suggestionCacheFooterTitle: { type: String, value: '' },
     // A swipe from the left edge ends the search (iOS supportsSwipeToDismissSearch).
     supportsSwipeToDismissSearch: { type: Boolean, value: false },
     // The bar's own style, passed to the header bar (see cyl-search-bar): iOS CYLSearchBar.
@@ -145,13 +150,13 @@ Component({
   },
   data: {
     playbackSpeed: 1, shownSuggestions: [], tagConfiguration: null, open: false, visible: false, entered: false,
-    focus: false, query: '', showsCachedQueries: false, showsCacheHeader: false, showsEmptyResults: false, showsEmptySuggestions: false,
+    focus: false, query: '', showsCachedQueries: false, showsCacheHeader: false, showsEmptyResults: false, showsEmptySuggestions: false, resultsHeaderTitle: '', cacheFooterTitle: '',
     showsResults: false, shownResults: [], refreshes: false, labels: {}, pageStyle: '', barInsets: '', contentScrollHeld: false,
     showsLaunch: false, showsDimming: false, emptyView: null, emptyInContent: false, headerHidden: false, headerHeight: 56,
     scrollTop: 0, scrollAnimated: false, swipeX: 0,
   },
   observers: {
-    'showsSuggestionsLaunchView, showsLaunchView, scrimColor, dimmingColor, highlightsResultMatches, highlightsMatches, noResultsText, foldedRowCount, showsSearchBar, hidesSearchBarWhenEmptyViewShowing, showsEmptyResultsPlaceholder, closesOnSubmit, showsResultsForEmptyQuery, focusesSearchFieldOnShow, showsSuggestionCacheHeader, suggestionStyle, suggestionTextColor, suggestionImageTintColor, dividerColor, emptyResultsScenario, emptySuggestionsScenario': function () {
+    'showsSuggestionsLaunchView, showsLaunchView, scrimColor, dimmingColor, highlightsResultMatches, highlightsMatches, resultMatchHighlightColor, resultsHeaderTextColor, suggestionCacheFooterTitle, noResultsText, foldedRowCount, showsSearchBar, hidesSearchBarWhenEmptyViewShowing, showsEmptyResultsPlaceholder, closesOnSubmit, showsResultsForEmptyQuery, focusesSearchFieldOnShow, showsSuggestionCacheHeader, suggestionStyle, suggestionTextColor, suggestionImageTintColor, dividerColor, emptyResultsScenario, emptySuggestionsScenario': function () {
       if (!this.model) return;
       this.applyProperties();
       this.model.refilter();
@@ -242,6 +247,9 @@ Component({
       model.showsLaunchView = p.showsLaunchView;
       model.scrimColor = p.scrimColor || p.dimmingColor || undefined;
       model.highlightsResultMatches = p.highlightsResultMatches || p.highlightsMatches;
+      model.resultMatchHighlightColor = p.resultMatchHighlightColor || p.highlightColor || undefined;
+      model.resultsHeaderTextColor = p.resultsHeaderTextColor || undefined;
+      model.suggestionCacheFooterTitle = p.suggestionCacheFooterTitle || undefined;
       model.noResultsText = p.noResultsText || undefined;
       model.suggestionsFoldedRowCount = p.foldedRowCount;
       model.suggestionTextColor = p.suggestionTextColor || undefined;
@@ -252,6 +260,14 @@ Component({
       model.hidesSearchBarWhenEmptyViewShowing = p.hidesSearchBarWhenEmptyViewShowing;
       model.snapsHeaderSearchBar = p.snapsHeaderSearchBar;
       model.supportsSwipeToDismissSearch = p.supportsSwipeToDismissSearch;
+    },
+    /**
+     * Sets the function that gives the line over the results: `(query) => text` (iOS `resultsHeaderTitleProvider`);
+     * undefined or an empty text shows none.
+     */
+    setResultsHeaderTitleProvider(provider) {
+      this.model.resultsHeaderTitleProvider = provider;
+      this.sync();
     },
     onAnimationSpeedChange(value) {
       this.setData({ playbackSpeed: cylClampAnimationSpeed(value) });
@@ -294,6 +310,8 @@ Component({
         showsEmptyResults: model.showsEmptyResults,
         showsEmptySuggestions: model.showsEmptySuggestions,
         showsResults: model.showsResults,
+        resultsHeaderTitle: model.resultsHeaderTitle || '',
+        cacheFooterTitle: model.suggestionCacheFooter || '',
         shownResults: model.searchResults.map((result) => model.resultCell(result)),
         showsLaunch: model.showsLaunch,
         showsDimming: model.showsDimming,

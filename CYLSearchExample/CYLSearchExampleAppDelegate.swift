@@ -85,7 +85,7 @@ public final class CYLSearchExampleAppDelegate: UIResponder, UIApplicationDelega
         }
         // `-CYLDemoTabBarStyle flatDesign` (or "liquidGlass", "default"): the same icons in another tab bar style.
         let style = UserDefaults.standard.string(forKey: "CYLDemoTabBarStyle") ?? "default"
-        return try CYLTabBarController(configuration: [
+        return CYLTabBarController(configuration: [
             cylTabBarControllerContext: "CYLSearchExample",
             cylTabBarControllerStyleType: style,
             cylTabBarControllerTabBarItemsAttributes: tabs,

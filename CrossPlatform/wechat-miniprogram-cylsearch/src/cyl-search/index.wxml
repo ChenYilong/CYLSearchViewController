@@ -88,6 +88,8 @@
         bind:navigationtap="onBarClose" bind:voicetap="onVoiceTap" bind:itemselect="onItemSelect" />
       <view class="cyl-line" style="{{dividerColor ? 'background: ' + dividerColor : ''}}" />
     </block>
+    <text wx:if="{{resultsHeaderTitle}}" class="cyl-results-header" role="heading"
+      style="{{resultsHeaderTextColor ? 'color: ' + resultsHeaderTextColor : ''}}">{{resultsHeaderTitle}}</text>
     <view wx:for="{{shownResults}}" wx:key="index" class="cyl-row cyl-result" role="button" aria-label="{{item.accessibilityLabel}}"
       data-index="{{index}}" bindtap="onResultTap" style="{{dividerColor ? 'border-color: ' + dividerColor : ''}}">
       <text wx:if="{{item.parts}}" class="cyl-row-text {{suggestionLineBreak === 'wrap' ? 'cyl-row-wrap' : ''}}" aria-hidden="true"
@@ -125,5 +127,8 @@
         <text class="cyl-row-text {{suggestionLineBreak === 'wrap' ? 'cyl-row-wrap' : ''}}" style="{{suggestionTextColor ? 'color: ' + suggestionTextColor : ''}}">{{item}}</text>
       </view>
     </scroll-view>
+    <view wx:if="{{cacheFooterTitle}}" class="cyl-cache-footer" role="button" aria-label="{{cacheFooterTitle}}" bindtap="onClear">
+      <text class="cyl-cache-footer-text" style="{{suggestionTextColor ? 'color: ' + suggestionTextColor : ''}}">{{cacheFooterTitle}}</text>
+    </view>
   </block>
 </view>

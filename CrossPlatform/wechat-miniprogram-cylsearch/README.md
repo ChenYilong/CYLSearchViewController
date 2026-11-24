@@ -133,6 +133,13 @@ Abstract node: `cyl-empty-view` (properties `scenario`, `animated`, `loop`, `spe
 
 All of it is opt-in; the defaults change nothing.
 
+- Core classes with the iOS names, each forwarding to the model the components draw (nothing is kept twice):
+  `CYLSearchBar` (over a `CYLSearchBarView`), `CYLSearchBarAppearance` (a class: `default()`, `styles()`, `copy()`),
+  `CYLSearchController` + `CYLSearchControllerDelegate` (over a `CYLSearchView`), `CYLSearchTableViewController`,
+  `CYLSearchNavigationBar`, `CYLSearchTagListStyle` / `CYLSearchTagListHeader` (the style of a `<cyl-tag-list>`
+  configuration). `CYLSearchView` adds `resultMatchHighlightColor`, `resultsHeaderTitleProvider`, `resultsHeaderTextColor`,
+  `suggestionCacheFooterTitle` and `setSnapsHeader()`; `CYLSearchResources` adds `suggestionCache()` and `observeHistory()`.
+
 - `<cyl-search-bar>`: `centersPlaceholder`; `textFieldMargins` / `activeTextFieldMargins` and `cancelButtonMargins` /
   `activeCancelButtonMargins` (`{ top, left, bottom, right }` in px, at rest and while editing), or the functions
   `setTextFieldMarginsProvider((bar, active) => insets)` and `setCancelButtonMarginsProvider`; `cancelButtonFont`

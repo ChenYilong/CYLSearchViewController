@@ -55,6 +55,8 @@ class CYLSearchViewDelegate {
    * An empty delegate: set the methods you need.
    */
   constructor() {
+    this.searchViewWillShow = undefined;
+    this.searchViewWillClose = undefined;
     this.searchViewDidShow = undefined;
     this.searchViewDidClose = undefined;
     this.searchViewTextDidChange = undefined;
@@ -148,6 +150,13 @@ class CYLSearchView {
     this.showsSuggestionsLaunchView = false;
     this.showsLaunchView = false;
     this.highlightsResultMatches = false;
+    this.resultMatchHighlightColor = undefined;
+    // The line over the results (iOS `resultsHeaderTitleProvider`: the query in, a text or undefined out, in
+    // `resultsHeaderTextColor`), and the text button under the cached queries that clears them
+    // (`suggestionCacheFooterTitle`).
+    this.resultsHeaderTitleProvider = undefined;
+    this.resultsHeaderTextColor = undefined;
+    this.suggestionCacheFooterTitle = undefined;
     this.noResultsText = undefined;
     this.autoEmptyView = false;
     this.emptyView = undefined;
@@ -308,6 +317,34 @@ class CYLSearchView {
    */
   get showsResults() {
     return !!this.resultsDataSource && (this.query.length > 0 || this.showsResultsForEmptyQuery);
+  }
+
+  /**
+   * The text over the results while they show (iOS `resultsHeaderTitleProvider`), or undefined: no provider, no
+   * results shown, or the provider returned nothing or an empty text.
+   */
+  get resultsHeaderTitle() {
+    if (!this.showsResults || typeof this.resultsHeaderTitleProvider !== 'function') return undefined;
+    const title = this.resultsHeaderTitleProvider(this.query);
+    return typeof title === 'string' && title.length > 0 ? title : undefined;
+  }
+
+  /**
+   * The title of the clear button under the cached queries, or undefined while there is none or no cached query shows
+   * (iOS `suggestionCacheFooterTitle`).
+   */
+  get suggestionCacheFooter() {
+    const title = this.suggestionCacheFooterTitle;
+    return this.showsCachedQueries && typeof title === 'string' && title.length > 0 ? title : undefined;
+  }
+
+  /**
+   * Turns the snapping of the header search bar on or off (iOS `setSnapsHeader(_:for:in:)`, which names the header and
+   * its table view; the mini program's header bar is the one of `<cyl-search showsSearchBar>`, so only the flag is
+   * left): a bar half scrolled out settles fully shown or fully hidden when the scrolling ends (`cylSnapHeaderOffset`).
+   */
+  setSnapsHeader(snaps) {
+    this.snapsHeaderSearchBar = !!snaps;
   }
 
   /**

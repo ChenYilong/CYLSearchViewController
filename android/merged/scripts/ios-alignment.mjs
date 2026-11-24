@@ -74,6 +74,17 @@ const MANUAL = {
   // Name matching found CYLSearchPlaceholderView's imageView / textLabel; iOS has no suggestion cell class.
   'CYLSearchSuggestionCell.imageView': 'the suggestion row\'s `UIListContentConfiguration.image` (`CYLSearchView.suggestionImage`)',
   'CYLSearchSuggestionCell.textLabel': 'the suggestion row\'s `UIListContentConfiguration.text` (the suggestion)',
+  // Android spellings of iOS members (sizes, handlers and UIKit types that Android splits or lacks).
+  'CYLSearchBarAppearance.fontSize': '`CYLSearchBarAppearance.font` (`UIFont.pointSize`)',
+  'CYLSearchBarAppearance.applyTo': '`CYLSearchBar.appearanceStyle` (assigning a style applies it)',
+  'CYLSearchBarView.cancelButtonFontSize': '`CYLSearchBarView.cancelButtonFont` (`UIFont.pointSize`)',
+  'CYLSearchBarView.cancelButtonMargins': '`CYLSearchBarView.cancelButtonMarginsProvider`',
+  'CYLSearchBarView.embedInToolbar': '`CYLSearchNavigationBar.embedInNavigationBar(of:)`',
+  'CYLSearchBarView.embedsInToolbar': '`CYLSearchBarView.isEmbeddedInNavigationBar`',
+  'CYLSearchBarView.scopeButtonTitles': '`UISearchBar.scopeButtonTitles` (UIKit; `CYLSearchBar.segmentedControl` is its scope bar)',
+  'CYLSearchTagListStyle.CAPSULE_CORNER_RADIUS': '`CYLAnimatedItemCornerRadiusCapsule` (CYLAnimatedItem, 1000)',
+  'CYLSearchView.removeHistoryDidChangeListener': '`CYLSearchController.historyDidChangeNotification` (`NotificationCenter.removeObserver`)',
+  'CYLSearchListView.recyclerView': '`CYLSearchTableViewController.tableView` (`UITableViewController.tableView`)',
   'CYLSearchView.pageBackgroundColor': '`CYLSearchView.backgroundColor` (the page background; the view itself only shows the scrim)',
   // B. CollectionViewClassifyMenu: Swift names of the Objective-C selectors the Android API mirrors
   Kind: '`CYLMenuIconDrawable.Kind` → the bundle images `cyl_fold_chevron` (CHEVRON_DOWN), `cyl_tag_plus` (PLUS), `cyl_more` (ELLIPSIS)',

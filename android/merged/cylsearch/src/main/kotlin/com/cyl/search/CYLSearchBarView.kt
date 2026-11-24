@@ -11,6 +11,7 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
 import android.net.Uri
@@ -38,6 +39,8 @@ import android.widget.HorizontalScrollView
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.RadioButton
+import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
@@ -661,14 +664,19 @@ class CYLSearchBarView @JvmOverloads constructor(
         item.handler?.invoke(item)
     }
 
+    private fun isNightMode(): Boolean =
+        (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+
     private fun applySearchBarStyle() {
         when (searchBarStyle) {
             CYLSearchBarStyle.Plain -> Unit
             CYLSearchBarStyle.Bordered -> {
-                // Secondary text color, not the hint's: the hint's 38% black border was hard to see on a light page.
-                fieldBorderColor = themeColor(android.R.attr.textColorSecondary)
+                // The iOS values: `.separator` border, `.systemBackground` fill (white in light mode, so the field stands out
+                // from an off-white page; the theme background in dark mode).
+                val dark = isNightMode()
+                fieldBorderColor = if (dark) BORDERED_BORDER_DARK else BORDERED_BORDER_LIGHT
                 fieldBorderWidth = 1f
-                fieldBackgroundColor = themeColor(android.R.attr.colorBackground)
+                fieldBackgroundColor = if (dark) themeColor(android.R.attr.colorBackground) else Color.WHITE
                 fieldCornerRadius = -1f
             }
         }
@@ -1319,6 +1327,81 @@ class CYLSearchBarView @JvmOverloads constructor(
             field = value
             updateAccessories()
         }
+
+    /**
+     * Whether the bar is a list's header item (QMUI `qmui_usedAsTableHeaderView`). Set by the screens that install the bar
+     * as the first item of a list (`CYLSearchListView`, `CYLSearchView.installSearchBar`); false by default.
+     */
+    var usedAsTableHeaderView: Boolean = false
+
+    /**
+     * Whether the Cancel button stays enabled while the field is not being edited (QMUI `qmui_alwaysEnableCancelButton`).
+     * False disables it until the field has the focus. True by default.
+     */
+    var alwaysEnablesCancelButton: Boolean = true
+        set(value) {
+            field = value
+            updateCancelButtonEnabled()
+        }
+
+    /**
+     * The view that draws the bar's background (QMUI `qmui_backgroundView`): the bar itself, whose `background` is the
+     * bar's image, color and border (`CYLSearchBarAppearance.barBackgroundImage`, `barBackgroundColor`, `barBorderColor`).
+     */
+    val backgroundView: View?
+        get() = this
+
+    /**
+     * The titles of the scope bar under the field (iOS `UISearchBar.scopeButtonTitles`); empty (the default) has none.
+     * The first title is selected; read the selection from `segmentedControl`.
+     */
+    var scopeButtonTitles: List<String> = emptyList()
+        set(value) {
+            field = value
+            rebuildScopeBar()
+        }
+
+    /**
+     * The scope bar, a segmented `RadioGroup` under the field (QMUI `qmui_segmentedControl`); null without
+     * `scopeButtonTitles`. One button per title; `checkedRadioButtonId` and `setOnCheckedChangeListener` read the selection.
+     */
+    val segmentedControl: RadioGroup?
+        get() = scopeBar
+
+    private var scopeBar: RadioGroup? = null
+    private var scopeBarHeight = 0
+
+    private fun rebuildScopeBar() {
+        scopeBar?.let { removeView(it) }
+        scopeBar = null
+        setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom - scopeBarHeight)
+        scopeBarHeight = 0
+        if (scopeButtonTitles.isEmpty()) {
+            return
+        }
+        val height = dp(SCOPE_BAR_HEIGHT)
+        val group = RadioGroup(context)
+        group.orientation = RadioGroup.HORIZONTAL
+        scopeButtonTitles.forEachIndexed { index, title ->
+            val button = RadioButton(context)
+            button.id = View.generateViewId()
+            button.text = title
+            group.addView(button, RadioGroup.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f))
+            if (index == 0) {
+                group.check(button.id)
+            }
+        }
+        // The strip below the row is the bar's own padding, so the bar grows by the scope bar's height and the row stays put.
+        scopeBarHeight = height
+        clipToPadding = false
+        setPadding(paddingLeft, paddingTop, paddingRight, paddingBottom + height)
+        addView(group, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height, Gravity.BOTTOM).apply { bottomMargin = -height })
+        scopeBar = group
+    }
+
+    private fun updateCancelButtonEnabled() {
+        cancelButton.isEnabled = alwaysEnablesCancelButton || textField.hasFocus()
+    }
 
     /**
      * The merged default style (iOS `appearanceStyle`): applying it sets the properties it covers; a property set
@@ -2018,6 +2101,7 @@ class CYLSearchBarView @JvmOverloads constructor(
         }
         textStateChanged()
         applyActiveState()
+        updateCancelButtonEnabled()
         delegate?.searchBarViewDidBeginEditing(this)
     }
 
@@ -2028,6 +2112,7 @@ class CYLSearchBarView @JvmOverloads constructor(
         }
         textStateChanged()
         applyActiveState()
+        updateCancelButtonEnabled()
         if (iconifiedByDefault && text.isNullOrEmpty() && !isIconified) {
             setIconified(true, true)
         }
@@ -2316,6 +2401,9 @@ class CYLSearchBarView @JvmOverloads constructor(
     fun embedInToolbar(toolbar: androidx.appcompat.widget.Toolbar): androidx.appcompat.widget.Toolbar {
         (parent as? ViewGroup)?.removeView(this)
         embedsInToolbar = true
+        // A navigation bar slot is 44 dp: the 36 dp field plus 4 dp above and below, not the 6 dp of a free bar (the border of a
+        // taller bar was clipped top and bottom by the slot).
+        contentInsets = Rect(contentInsets.left, TOOLBAR_VERTICAL_INSET, contentInsets.right, TOOLBAR_VERTICAL_INSET)
         // The toolbar's own start / end content insets (16 dp) would add to this bar's contentInsets and move the capsule off the
         // 16 dp inset of the tag list: the bar carries the inset itself.
         toolbar.setContentInsetsRelative(0, 0)
@@ -2340,7 +2428,7 @@ class CYLSearchBarView @JvmOverloads constructor(
         if (existing != null) {
             return embedInToolbar(existing)
         }
-        val created = androidx.appcompat.widget.Toolbar(activity)
+        val created = CYLSearchNavigationBar(activity)
         content.addView(
             created,
             0,
@@ -2357,6 +2445,17 @@ class CYLSearchBarView @JvmOverloads constructor(
 
     companion object {
         private const val NO_SELECTION = -1
+
+        /**
+         * The toolbar's vertical content inset in dp: 36 dp field + 2 x 4 dp = the 44 dp slot of a navigation bar, so the field's
+         * border is not clipped by the slot (iOS `CYLSearchNavigationBar`).
+         */
+        internal const val TOOLBAR_VERTICAL_INSET = 4
+
+        /** iOS `.separator`, light and dark (`UIColor.separator`: 60,60,67 at 29%; 84,84,88 at 60%). */
+        internal val BORDERED_BORDER_LIGHT = Color.argb(74, 60, 60, 67)
+        internal val BORDERED_BORDER_DARK = Color.argb(153, 84, 84, 88)
+        private const val SCOPE_BAR_HEIGHT = 36f
         private const val ITEM_PADDING = 12f
         private const val REMOVE_SIZE = 28f
         private const val INDICATOR_HEIGHT = 2f
@@ -2370,6 +2469,32 @@ class CYLSearchBarView @JvmOverloads constructor(
         private const val STATE_TEXT = "CYLSearchBarText"
         private const val STATE_EDITING = "CYLSearchBarEditing"
         private const val STATE_ICONIFIED = "CYLSearchBarIconified"
+
+        /**
+         * A drawable of a text field in `color`, for `fieldBackgroundImage` and `CYLSearchBarAppearance.textFieldBackgroundImage`
+         * (QMUI `qmui_generateTextFieldBackgroundImageWithColor:`); null for a null color. The field clips its corners.
+         */
+        @JvmStatic
+        fun textFieldBackgroundImage(color: Int?): Drawable? = color?.let { ColorDrawable(it) }
+
+        /**
+         * A drawable for the bar's `background`: `color` (white by default) with a one pixel bottom border in
+         * `borderColor`, or null when both are null (QMUI `qmui_generateBackgroundImageWithColor:borderColor:`).
+         */
+        @JvmStatic
+        fun backgroundImage(color: Int?, borderColor: Int?): Drawable? {
+            if (color == null && borderColor == null) {
+                return null
+            }
+            val fill = ColorDrawable(color ?: Color.WHITE)
+            if (borderColor == null) {
+                return fill
+            }
+            return LayerDrawable(arrayOf<Drawable>(fill, ColorDrawable(borderColor))).apply {
+                setLayerGravity(1, Gravity.BOTTOM)
+                setLayerHeight(1, 1)
+            }
+        }
 
         /**
          * An editing bar (iOS `editingBar(placeholder:actionTitle:)`): the search bar's field and look for editing a name

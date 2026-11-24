@@ -367,7 +367,7 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
             $0.resultsDataSource = source
         }
         open.view.setQuery("zzz", submit: false)
-        XCTAssertTrue(open.view.emptyResultsView is CYLPlaceholderStackView)
+        XCTAssertNotNil(open.view.emptyResultsView)
         XCTAssertEqual(open.view.emptyResultsView?.scenario, .noSearchResults)
         XCTAssertEqual(open.view.emptyResultsView?.accessibilityIdentifier, "CYLSearchEmptyResults")
         open.window.isHidden = true

@@ -155,7 +155,7 @@ final class CYLSearchDiscoverViewController: UIViewController {
         for state in [UIControl.State.normal, .selected, .disabled] {
             let appearance = style.appearance(for: state)
             // The glass tint (translucent, alpha x 0.75): a plain white page shows glass only through its tint.
-            appearance.backgroundColor = state == .selected ? UIColor.tintColor.withAlphaComponent(0.3) : .systemGray5
+            appearance.backgroundColor = state == .selected ? UIColor.tintColor.withAlphaComponent(0.3) : .clear
             appearance.borderWidth = 0
             appearance.cornerRadius = CYLAnimatedItemCornerRadiusCapsule
             appearance.margin = 14
@@ -178,7 +178,7 @@ final class CYLSearchDiscoverViewController: UIViewController {
         let style = CYLMenuStyle.gridStyle(itemsPerRow: 2)
         for state in [UIControl.State.normal, .selected, .disabled] {
             style.appearance(for: state).font = .systemFont(ofSize: 17, weight: .medium)
-            style.appearance(for: state).backgroundColor = state == .selected ? UIColor.tintColor.withAlphaComponent(0.3) : .systemGray5
+            style.appearance(for: state).backgroundColor = state == .selected ? UIColor.tintColor.withAlphaComponent(0.3) : .clear
         }
         style.backgroundStyle = .liquidGlass
         // The hot icon at its own size: square in Chinese (热, 熱), wider in English (HOT).

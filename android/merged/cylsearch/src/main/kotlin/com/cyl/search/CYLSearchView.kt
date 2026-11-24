@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.os.Parcelable
@@ -24,8 +25,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.ImageViewCompat
+import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cyl.classifymenu.CYLMenuFoldControl
@@ -131,6 +134,12 @@ interface CYLSearchViewDelegate {
      * `showEmptyView` is about to put its placeholder under the bar (QMUI `willShowEmptyView`).
      */
     fun searchViewWillShowEmptyView(searchView: CYLSearchView, emptyView: View) {}
+
+    /**
+     * Called once, before the first opening or results, when `resultsTableView` is ready to be configured: set its layout
+     * manager, decorations or an adapter wrapper here (iOS `searchController(_:didLoadSearchResultsTableView:)`).
+     */
+    fun searchViewDidLoadResultsTableView(searchView: CYLSearchView, tableView: RecyclerView) {}
 
     /**
      * The query changed (`onQueryTextChange`).
@@ -249,6 +258,8 @@ class CYLSearchView @JvmOverloads constructor(
     private val explicitEmptySlot = CYLSearchEmptyViewSlot(bodyView, -1) { keyboardInset }
     private val adapter = SuggestionAdapter()
     private val resultsAdapter = ResultsAdapter()
+    private var resultsHeaderTitle: String? = null
+    private var cacheFooterShown = false
     private val resultsRefreshLayout = CYLRefreshContainer(context)
     private var resultsVisible = false
     private var closing = false
@@ -693,6 +704,10 @@ class CYLSearchView @JvmOverloads constructor(
     var launchView: View? = null
         set(value) {
             field?.let { bodyView.removeView(it) }
+            if (value != null && showsSuggestionsLaunchView) {
+                // A launch view of your own replaces the built-in one.
+                showsSuggestionsLaunchView = false
+            }
             field = value
             value?.let {
                 (it.parent as? ViewGroup)?.removeView(it)
@@ -757,6 +772,241 @@ class CYLSearchView @JvmOverloads constructor(
      * the page back. The back key and the 3-button navigation always close the search. False by default.
      */
     var supportsSwipeToDismissSearch: Boolean = false
+
+    // Controller options (iOS `CYLSearchController`)
+
+    private var previousShowsSuggestionsForEmptyQuery = false
+    private var resultsTableViewLoadNotified = false
+    private val headerSnappers = HashMap<RecyclerView, CYLSearchHeaderSnapper>()
+    private var hiddenActionBar: androidx.appcompat.app.ActionBar? = null
+    private var savedLightStatusBars: Boolean? = null
+    private var statusBarsHidden = false
+
+    /**
+     * Whether the built-in launch view is the launch view: the suggestion area (the tags folded to `suggestionsFoldedRowCount`
+     * rows with the fold control as the last tag, and, over the submitted queries of `suggestionCache`, the title "Recent
+     * searches" with its clear button) is shown while the query is empty (iOS `showsSuggestionsLaunchView`). It lists the
+     * history newest first, or else `suggestions`. False by default. True replaces a `launchView` of yours; setting a
+     * `launchView` turns it off.
+     */
+    var showsSuggestionsLaunchView: Boolean = false
+        set(value) {
+            if (field == value) {
+                return
+            }
+            field = value
+            if (value) {
+                previousShowsSuggestionsForEmptyQuery = showsSuggestionsForEmptyQuery
+                launchView = null
+                suggestionStyle = CYLSearchSuggestionStyle.Tags
+                suggestionsFoldedRowCount = 2
+                showsSuggestionsForEmptyQuery = true
+            } else {
+                showsSuggestionsForEmptyQuery = previousShowsSuggestionsForEmptyQuery
+            }
+            refilter()
+        }
+
+    /**
+     * Whether the activity's action bar is hidden while the search is open (iOS `hidesNavigationBarDuringPresentation`); it
+     * comes back when the search closes. True by default; only an `AppCompatActivity`'s action bar is touched.
+     */
+    var hidesNavigationBarDuringPresentation: Boolean = true
+
+    /**
+     * Whether the results are listed even while the query is empty (iOS `alwaysShowsSearchResultsController`). Turning it on
+     * clears `launchView` and `showsSuggestionsLaunchView`; `searchViewResultsForQuery` is then also called with an empty
+     * query.
+     */
+    var alwaysShowsSearchResultsController: Boolean = false
+        set(value) {
+            field = value
+            if (value) {
+                showsSuggestionsLaunchView = false
+                launchView = null
+            }
+            refilter()
+        }
+
+    /**
+     * Returns whether the status bar is hidden while the search is open (iOS `prefersStatusBarHiddenProvider`); null (the
+     * default) leaves the status bar alone. Read each time the search opens.
+     */
+    var prefersStatusBarHiddenProvider: (() -> Boolean)? = null
+
+    /**
+     * Returns whether the status bar icons are dark while the search is open, for a light status bar background (iOS
+     * `preferredStatusBarStyleProvider`, `darkContent`); null (the default) leaves them alone. Read each time the search opens;
+     * the previous style comes back when it closes.
+     */
+    var preferredStatusBarStyleProvider: (() -> Boolean)? = null
+
+    /**
+     * Whether a header search bar of `installSearchBar` is kept scrollable out of sight, even above a short list, and settles
+     * fully shown or fully hidden when scrolling ends (iOS `snapsHeaderSearchBar`, QMUI issues #1160 and #1207). True by
+     * default; false takes the room and the settling away.
+     */
+    var snapsHeaderSearchBar: Boolean = true
+        set(value) {
+            field = value
+            headerSnappers.values.forEach { it.isEnabled = value }
+        }
+
+    /**
+     * Titles the results: while results show, a header above the first row says what this function returns for the query (a
+     * footnote in `resultsHeaderTextColor`, a heading for TalkBack); null from the function, or no function (the default),
+     * shows none.
+     */
+    var resultsHeaderTitleProvider: ((String) -> String?)? = null
+        set(value) {
+            field = value
+            updateResultsHeader()
+        }
+
+    /**
+     * The color of the results header text. Null (the default) is the theme's secondary text color.
+     */
+    var resultsHeaderTextColor: Int? = null
+        set(value) {
+            field = value
+            updateResultsHeader()
+        }
+
+    /**
+     * A text button under the cached queries and the suggestions of the list style that clears the cache, with this title (a
+     * bordered footnote button centered below the last row). Null (the default) shows none; with it, set
+     * `showsSuggestionCacheHeader` to false to have the text button instead of the delete icon.
+     */
+    var suggestionCacheFooterTitle: String? = null
+        set(value) {
+            field = value
+            updateCacheFooter()
+        }
+
+    /**
+     * Makes this search view the search of `recyclerView`: a search bar becomes the first item of its list (iOS
+     * `installSearchBar(asHeaderOf:)`), `usedAsTableHeaderView` is true, and a tap on it opens this search view. Call it after
+     * the list's adapter is set; with `snapsHeaderSearchBar` the bar settles fully shown or fully hidden (QMUI issues #1160
+     * and #1207). Returns the header bar, for styling.
+     */
+    fun installSearchBar(recyclerView: RecyclerView): CYLSearchBarView {
+        val bar = CYLSearchBarView(context)
+        bar.applyDefaultAppearance()
+        bar.usedAsTableHeaderView = true
+        bar.placeholder = searchBarView.placeholder
+        bar.delegate = object : CYLSearchBarViewDelegate {
+            override fun searchBarViewShouldBeginEditing(searchBarView: CYLSearchBarView): Boolean = false
+
+            override fun searchBarViewDidTapWhileNotEditable(searchBarView: CYLSearchBarView) {
+                showSearch(true)
+            }
+        }
+        val rowView = FrameLayout(context)
+        rowView.addView(bar, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+        rowView.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT)
+        val header = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+            override fun getItemCount(): Int = 1
+
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
+                object : RecyclerView.ViewHolder(rowView) {}
+
+            override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) = Unit
+        }
+        val content = recyclerView.adapter
+        recyclerView.adapter = ConcatAdapter(
+            ConcatAdapter.Config.Builder().setIsolateViewTypes(true).build(),
+            listOfNotNull<RecyclerView.Adapter<out RecyclerView.ViewHolder>>(header, content),
+        )
+        setSnapsHeader(snapsHeaderSearchBar, rowView, recyclerView)
+        return bar
+    }
+
+    /**
+     * Keeps `header`, the first item of `recyclerView` (a search bar), scrollable out of sight above a short list and settles
+     * it fully shown or fully hidden when scrolling ends, while this search view is not open (iOS
+     * `setSnapsHeader(_:for:in:)`, QMUI issues #1160 and #1207). `snaps` false takes the room and the settling away. A list
+     * keeps one such handling, which a second call updates.
+     */
+    fun setSnapsHeader(snaps: Boolean, header: View, recyclerView: RecyclerView) {
+        val existing = headerSnappers[recyclerView]
+        if (existing != null && existing.header === header) {
+            existing.isEnabled = snaps
+            return
+        }
+        existing?.detach()
+        val snapper = CYLSearchHeaderSnapper(recyclerView, header) { isSearchOpen }
+        snapper.isEnabled = snaps
+        headerSnappers[recyclerView] = snapper
+    }
+
+    // The results header and the cache footer are read before the lists reload, which shows them.
+    private fun readResultsHeader() {
+        resultsHeaderTitle = if (resultsVisible) resultsHeaderTitleProvider?.invoke(searchBarView.text.orEmpty()) else null
+    }
+
+    private fun readCacheFooter() {
+        cacheFooterShown = suggestionCacheFooterTitle != null && suggestionsVisible && suggestionStyle == CYLSearchSuggestionStyle.List
+    }
+
+    private fun updateResultsHeader() {
+        readResultsHeader()
+        reloadResultsTableView()
+    }
+
+    private fun updateCacheFooter() {
+        readCacheFooter()
+        reloadSuggestions()
+    }
+
+    private fun notifyResultsTableViewLoaded() {
+        val receiver = delegate ?: return
+        if (resultsTableViewLoadNotified) {
+            return
+        }
+        resultsTableViewLoadNotified = true
+        receiver.searchViewDidLoadResultsTableView(this, resultsTableView)
+    }
+
+    // The action bar and the status bar while the search is open (`hidesNavigationBarDuringPresentation`, the status bar providers).
+    private fun applySystemBars(searching: Boolean) {
+        val host = activity()
+        if (!searching) {
+            hiddenActionBar?.show()
+            hiddenActionBar = null
+            if (!statusBarsHidden && savedLightStatusBars == null) {
+                return
+            }
+            val window = host?.window ?: return
+            val controller = WindowCompat.getInsetsController(window, window.decorView)
+            if (statusBarsHidden) {
+                controller.show(WindowInsetsCompat.Type.statusBars())
+                statusBarsHidden = false
+            }
+            savedLightStatusBars?.let { controller.isAppearanceLightStatusBars = it }
+            savedLightStatusBars = null
+            return
+        }
+        if (hidesNavigationBarDuringPresentation) {
+            val actionBar = (host as? androidx.appcompat.app.AppCompatActivity)?.supportActionBar
+            if (actionBar != null && actionBar.isShowing) {
+                actionBar.hide()
+                hiddenActionBar = actionBar
+            }
+        }
+        if (prefersStatusBarHiddenProvider == null && preferredStatusBarStyleProvider == null) {
+            return
+        }
+        val window = host?.window ?: return
+        val controller = WindowCompat.getInsetsController(window, window.decorView)
+        if (prefersStatusBarHiddenProvider?.invoke() == true) {
+            controller.hide(WindowInsetsCompat.Type.statusBars())
+            statusBarsHidden = true
+        }
+        preferredStatusBarStyleProvider?.let {
+            savedLightStatusBars = controller.isAppearanceLightStatusBars
+            controller.isAppearanceLightStatusBars = it()
+        }
+    }
 
     /**
      * True while the search view is open (iOS `isActive`); the same as `isSearchOpen`.
@@ -1141,6 +1391,8 @@ class CYLSearchView @JvmOverloads constructor(
             return
         }
         isSearchOpen = true
+        notifyResultsTableViewLoaded()
+        applySystemBars(true)
         delegate?.searchViewWillShow(this)
         visibility = VISIBLE
         backCallback.isEnabled = true
@@ -1205,6 +1457,7 @@ class CYLSearchView @JvmOverloads constructor(
         isSearchOpen = false
         closing = true
         delegate?.searchViewWillClose(this)
+        applySystemBars(false)
         backCallback.isEnabled = false
         searchBarView.hideKeyboard()
         val finish = {
@@ -1318,7 +1571,10 @@ class CYLSearchView @JvmOverloads constructor(
         }
         // With a results data source, a non-blank query lists its results instead of the suggestions.
         val source = resultsDataSource
-        resultsVisible = source != null && trimmed.isNotEmpty()
+        resultsVisible = source != null && (trimmed.isNotEmpty() || alwaysShowsSearchResultsController)
+        if (resultsVisible) {
+            notifyResultsTableViewLoaded()
+        }
         searchResults = if (source != null && resultsVisible) source.searchViewResultsForQuery(this, query) else emptyList()
         if (resultsVisible) {
             suggestionsVisible = false
@@ -1384,6 +1640,8 @@ class CYLSearchView @JvmOverloads constructor(
         if (emptyResultsVisible) {
             emptyResultsView?.bringToFront()
         }
+        readResultsHeader()
+        readCacheFooter()
         reloadSuggestions()
         reloadResultsTableView()
     }
@@ -1459,15 +1717,68 @@ class CYLSearchView @JvmOverloads constructor(
         }
     }
 
+    // The two rows that are not suggestions or results: the footer button under the cached queries and the header above the
+    // results. Each is an extra view type of the list's own adapter, so a row's position is its index plus the header.
+    private fun resultsHeaderViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
+        val label = TextView(parent.context)
+        label.textSize = 13f
+        label.setPadding((16 * density).toInt(), (8 * density).toInt(), (16 * density).toInt(), (8 * density).toInt())
+        label.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT)
+        ViewCompat.setAccessibilityHeading(label, true)
+        return object : RecyclerView.ViewHolder(label) {}
+    }
+
+    private fun bindResultsHeader(holder: RecyclerView.ViewHolder) {
+        val label = holder.itemView as TextView
+        label.text = resultsHeaderTitle
+        label.setTextColor(resultsHeaderTextColor ?: themeColor(android.R.attr.textColorSecondary))
+    }
+
+    private fun cacheFooterViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
+        val row = FrameLayout(parent.context)
+        row.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.WRAP_CONTENT)
+        val button = TextView(parent.context)
+        button.textSize = 13f
+        button.gravity = Gravity.CENTER
+        button.minimumHeight = (36 * density).toInt()
+        button.setPadding((16 * density).toInt(), 0, (16 * density).toInt(), 0)
+        button.background = GradientDrawable().apply {
+            cornerRadius = 8 * density
+            setStroke((1 * density).toInt().coerceAtLeast(1), themeColor(android.R.attr.textColorSecondary))
+        }
+        button.setOnClickListener { clearSuggestionCache() }
+        row.addView(button, FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL).apply {
+            topMargin = (12 * density).toInt()
+            bottomMargin = (12 * density).toInt()
+        })
+        return object : RecyclerView.ViewHolder(row) {}
+    }
+
+    private fun bindCacheFooter(holder: RecyclerView.ViewHolder) {
+        val button = (holder.itemView as FrameLayout).getChildAt(0) as TextView
+        button.text = suggestionCacheFooterTitle
+        button.setTextColor(themeColor(android.R.attr.textColorSecondary))
+    }
+
     private inner class SuggestionAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-        override fun getItemCount(): Int = if (suggestionsVisible) filteredSuggestions.size else 0
+        override fun getItemCount(): Int = (if (suggestionsVisible) filteredSuggestions.size else 0) + (if (cacheFooterShown) 1 else 0)
+
+        override fun getItemViewType(position: Int): Int = if (cacheFooterShown && position == itemCount - 1) VIEW_TYPE_EXTRA else 0
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
-            object : RecyclerView.ViewHolder(CYLSearchSuggestionCell(parent.context).apply {
-                layoutParams = RecyclerView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-            }) {}
+            if (viewType == VIEW_TYPE_EXTRA) {
+                cacheFooterViewHolder(parent)
+            } else {
+                object : RecyclerView.ViewHolder(CYLSearchSuggestionCell(parent.context).apply {
+                    layoutParams = RecyclerView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+                }) {}
+            }
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+            if (getItemViewType(position) == VIEW_TYPE_EXTRA) {
+                bindCacheFooter(holder)
+                return
+            }
             val cell = holder.itemView as CYLSearchSuggestionCell
             val suggestion = filteredSuggestions[position]
             cell.textLabel.text = suggestion
@@ -1493,16 +1804,28 @@ class CYLSearchView @JvmOverloads constructor(
     }
 
     private inner class ResultsAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-        override fun getItemCount(): Int = if (resultsVisible) searchResults.size else 0
+        private fun headerCount(): Int = if (resultsHeaderTitle != null) 1 else 0
+
+        override fun getItemCount(): Int = (if (resultsVisible) searchResults.size else 0) + headerCount()
+
+        override fun getItemViewType(position: Int): Int = if (position < headerCount()) VIEW_TYPE_EXTRA else 0
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder =
-            object : RecyclerView.ViewHolder(CYLSearchSuggestionCell(parent.context).apply {
-                layoutParams = RecyclerView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
-            }) {}
+            if (viewType == VIEW_TYPE_EXTRA) {
+                resultsHeaderViewHolder(parent)
+            } else {
+                object : RecyclerView.ViewHolder(CYLSearchSuggestionCell(parent.context).apply {
+                    layoutParams = RecyclerView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+                }) {}
+            }
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+            if (getItemViewType(position) == VIEW_TYPE_EXTRA) {
+                bindResultsHeader(holder)
+                return
+            }
             val cell = holder.itemView as CYLSearchSuggestionCell
-            val result = searchResults[position]
+            val result = searchResults[position - headerCount()]
             cell.imageView.visibility = GONE
             cell.textLabel.setTextColor(themeColor(android.R.attr.textColorPrimary))
             resultsDataSource?.searchViewConfigureResultCell(this@CYLSearchView, cell, result)
@@ -1511,7 +1834,7 @@ class CYLSearchView @JvmOverloads constructor(
                 CYLSearchResultHighlight.apply(cell.textLabel, searchBarView.text.orEmpty(), color)
             }
             cell.setOnClickListener {
-                searchResults.getOrNull(holder.bindingAdapterPosition)?.let {
+                searchResults.getOrNull(holder.bindingAdapterPosition - headerCount())?.let {
                     delegate?.searchViewDidSelectResult(this@CYLSearchView, it)
                 }
             }
@@ -1578,6 +1901,7 @@ class CYLSearchView @JvmOverloads constructor(
     companion object {
         private const val STATE_SUPER = "CYLSearchViewSuper"
         private const val SWIPE_TRAVEL = 0.3f
+        private const val VIEW_TYPE_EXTRA = 1
 
         /**
          * CYLTableViewPlaceHolder's "no results" placeholder with a title, an optional detail and an optional button: the

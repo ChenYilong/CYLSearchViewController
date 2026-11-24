@@ -20,3 +20,6 @@
 "discover.animationLoops" = "Loop animation";
 "discover.animationSpeed" = "Animation speed";
 "discover.animationPlay" = "Play again";
+"discover.styleLabel" = "Style: %@";
+"discover.styleGlass" = "Liquid Glass";
+"discover.styleFlat" = "Flat";

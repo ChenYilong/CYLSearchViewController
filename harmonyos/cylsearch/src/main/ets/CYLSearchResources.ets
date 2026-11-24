@@ -414,6 +414,12 @@ export class CYLSearchResources {
   static readonly resourceBundle: string = 'cylsearch';
 
   /**
+   * The name of the signal that a built-in history store changed, whoever changed it (iOS
+   * `historyDidChangeNotification`); `observeHistory` is the listener API that delivers it.
+   */
+  static readonly historyDidChangeNotification: string = 'CYLSearchSuggestionStoreDidChange';
+
+  /**
    * A built-in image by name (`camera`, `mic`, `search`, `back`, `clear`, `submit`, `trash`, `refresh`), as a system symbol, or
    * undefined when there is none (iOS `+imageNamed:`).
    */

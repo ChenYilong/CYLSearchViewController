@@ -20,3 +20,6 @@
 "discover.animationLoops" = "循环播放动画";
 "discover.animationSpeed" = "动画速度";
 "discover.animationPlay" = "再播放一次";
+"discover.styleLabel" = "样式：%@";
+"discover.styleGlass" = "液态玻璃";
+"discover.styleFlat" = "扁平";

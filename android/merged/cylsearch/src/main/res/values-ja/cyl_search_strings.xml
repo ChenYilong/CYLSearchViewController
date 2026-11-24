@@ -83,4 +83,5 @@
     <string name="cyl_shortList_row" formatted="true">行 %d</string>
     <!-- tagList.refresh: the accessibility label of the built-in refresh icon of a tag list header. -->
     <string name="cyl_search_tagList_refresh">更新</string>
+    <string name="cyl_navigationBar_back">戻る</string>
 </resources>

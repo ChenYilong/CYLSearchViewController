@@ -164,6 +164,39 @@ function cylSearchCancelVisible(shows: boolean, automatic: boolean, active: bool
   return shows || (automatic && active);
 }
 
+/**
+ * The keys of an item dictionary that only change how its animation plays (iOS `CYLSearchBarView.playbackKeys`).
+ */
+const CYL_SEARCH_PLAYBACK_KEYS: string[] = ['animationLoops', 'animationSpeed'];
+
+/**
+ * The shape of an item dictionary: its keys and values without the playback keys, in key order, so two dictionaries
+ * that differ only in playback have the same shape (iOS `setItems(dictionaries:)`'s `shapes`).
+ */
+function cylSearchItemShape(dictionary: Record<string, Object>): string {
+  const keys: string[] = Object.keys(dictionary).filter((key: string) => !CYL_SEARCH_PLAYBACK_KEYS.includes(key)).sort();
+  return keys.map((key: string) => key + '=' + JSON.stringify(dictionary[key])).join('&');
+}
+
+/**
+ * Whether the items of the last `setItems` call can stay: the shapes are the same and no item was added or removed
+ * in another way since (the bar still has one item per shape).
+ */
+function cylSearchItemShapesMatch(previous: string[] | undefined, next: string[], itemCount: number): boolean {
+  if (previous === undefined || previous.length !== next.length || itemCount !== next.length) {
+    return false;
+  }
+  return previous.every((shape: string, index: number) => shape === next[index]);
+}
+
+/**
+ * Whether Cancel is enabled: always with `alwaysEnablesCancelButton` (iOS `CYLSearchBar.alwaysEnablesCancelButton`, QMUI
+ * `qmui_alwaysEnableCancelButton`), else only while the field is being edited (UIKit disables Cancel when editing ends).
+ */
+function cylSearchCancelEnabled(always: boolean, editing: boolean): boolean {
+  return always || editing;
+}
+
 // MARK: - Pure logic (end)
 
 /**
@@ -1164,6 +1197,13 @@ export class CYLSearchBarView {
    */
   @Trace trailingAccessoryViewMargins: CYLSearchEdgeInsets = { top: 0, left: 0, bottom: 0, right: 0 };
   private appearance: CYLSearchBarAppearance = CYLSearchBarAppearance.defaultAppearance.copy();
+  /**
+   * Whether Cancel stays enabled while the field is not being edited (iOS `CYLSearchBar.alwaysEnablesCancelButton`).
+   * True by default.
+   */
+  @Trace alwaysEnablesCancelButton: boolean = true;
+  // The shapes of the items of the last `setItems` call; undefined once an item was added or removed in another way.
+  private itemShapes: string[] | undefined = undefined;
 
   @Trace private style: CYLSearchBarStyle = CYLSearchBarStyle.plain;
   @Trace private iconified: boolean = false;
@@ -1217,6 +1257,13 @@ export class CYLSearchBarView {
    */
   get cancelButtonVisible(): boolean {
     return cylSearchCancelVisible(this.showsCancelButton, this.automaticallyShowsCancelButton, this.isActive);
+  }
+
+  /**
+   * Whether Cancel can be tapped now (`alwaysEnablesCancelButton`, or the field is being edited).
+   */
+  get cancelButtonEnabled(): boolean {
+    return cylSearchCancelEnabled(this.alwaysEnablesCancelButton, this.isEditing);
   }
 
   /**
@@ -1433,6 +1480,7 @@ export class CYLSearchBarView {
     const position = Math.min(Math.max(0, index), this.items.length);
     this.items.splice(position, 0, item);
     item.searchBarView = this;
+    this.itemShapes = undefined;
   }
 
   /**
@@ -1457,6 +1505,7 @@ export class CYLSearchBarView {
     }
     this.items.splice(index, 1);
     item.searchBarView = undefined;
+    this.itemShapes = undefined;
   }
 
   /**
@@ -1467,6 +1516,36 @@ export class CYLSearchBarView {
       item.searchBarView = undefined;
     });
     this.items = [];
+    this.itemShapes = undefined;
+  }
+
+  /**
+   * Replaces the items with the ones the dictionaries describe (iOS `-setItemsWithDictionaries:`, `CYLSearchBarItem.item`),
+   * as the cross-platform bridges send them. When only `animationLoops` and `animationSpeed` differ from the last call,
+   * the items stay and take the two values, so the animation is not reloaded; any other difference rebuilds the items.
+   */
+  setItems(dictionaries: Record<string, Object>[]): void {
+    const shapes: string[] = dictionaries.map((dictionary: Record<string, Object>) => cylSearchItemShape(dictionary));
+    if (cylSearchItemShapesMatch(this.itemShapes, shapes, this.items.length)) {
+      this.items.forEach((item: CYLSearchBarItem, index: number) => {
+        const dictionary = dictionaries[index];
+        item.animationLoops = (dictionary['animationLoops'] as boolean | undefined) ?? false;
+        item.animationSpeed = (dictionary['animationSpeed'] as number | undefined) ?? 1;
+      });
+      return;
+    }
+    this.removeAllItems();
+    dictionaries.forEach((dictionary: Record<string, Object>) => {
+      this.addItem(CYLSearchBarItem.item(dictionary));
+    });
+    this.itemShapes = shapes;
+  }
+
+  /**
+   * Applies `CYLSearchBarAppearance.defaultAppearance` (the same method as `CYLSearchBar`).
+   */
+  applyDefaultAppearance(): void {
+    this.appearanceStyle = CYLSearchBarAppearance.defaultAppearance;
   }
 
   /**
@@ -2357,6 +2436,7 @@ export struct CYLSearchBarComponent {
             .maxLines(1)
             .constraintSize({ minWidth: 44, minHeight: 44 })
             .textAlign(TextAlign.Center)
+            .enabled(this.searchBarView.cancelButtonEnabled)
             .margin(this.insetsMargin(this.searchBarView.resolvedCancelButtonMargins))
             .transition(TransitionEffect.OPACITY)
             .accessibilityText(this.resolvedText(this.searchBarView.cancelButtonTitle))

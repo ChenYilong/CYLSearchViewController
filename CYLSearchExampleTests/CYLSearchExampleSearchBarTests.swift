@@ -230,8 +230,8 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         }
         XCTAssertEqual(pages.map { $0.tabBarItem.title }, fileTitles)
         // VoiceOver reads the plus button by its title from the file.
-        XCTAssertGreaterThan(CYLExternPlusButton?.accessibilityLabel?.count ?? 0, 0)
-        XCTAssertTrue((CYLExternPlusButton?.isAccessibilityElement ?? false) || (CYLExternPlusButton?.accessibilityLabel?.count ?? 0) > 0)
+        XCTAssertGreaterThan(cylExternPlusButton?.accessibilityLabel?.count ?? 0, 0)
+        XCTAssertTrue((cylExternPlusButton?.isAccessibilityElement ?? false) || (cylExternPlusButton?.accessibilityLabel?.count ?? 0) > 0)
         // The titles are keys translated from CYLSearchTabs.bundle.
         let language: String? = Bundle.main.preferredLocalizations.first?.hasPrefix("zh") == true ? nil : "en"
         if language != nil {
@@ -240,7 +240,7 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
             XCTAssertTrue(titles.contains("Examples"), "\(titles)")
             XCTAssertTrue(titles.contains("Tag style"), "\(titles)")
             XCTAssertTrue(titles.contains("Discover"), "\(titles)")
-            XCTAssertEqual(CYLExternPlusButton?.accessibilityLabel, "Search bar")
+            XCTAssertEqual(cylExternPlusButton?.accessibilityLabel, "Search bar")
         }
         // Every language has exactly the keys of en (the tab titles, then the SVGA demo's texts), not a fixed count.
         let tablePath: (String) -> String? = { code in
@@ -264,7 +264,7 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         window.makeKeyAndVisible()
         window.layoutIfNeeded()
         tabBarController.tabBar.layoutIfNeeded()
-        let externPlusButton: UIButton? = CYLExternPlusButton
+        let externPlusButton: UIButton? = cylExternPlusButton
         let plusButton = try XCTUnwrap(externPlusButton)
         XCTAssertNotNil(plusButton.superview)
         let plusFrame = plusButton.convert(plusButton.bounds, to: tabBarController.tabBar)
@@ -645,6 +645,14 @@ extension CYLSearchExampleSearchBarTests {
         let after = tag?.animationView
         XCTAssertTrue(sameTag)
         XCTAssertTrue(after === before, "the animation view is the same instance: nothing was reloaded")
+
+        // Back to speed 1 and no loop: still the same animation view (loops and speed alone never reload).
+        bar.setItems(dictionaries: [item])
+        bar.layoutIfNeeded()
+        let sameTagAgain = bar.items.first?.itemView === tag
+        let afterBack = tag?.animationView
+        XCTAssertTrue(sameTagAgain)
+        XCTAssertTrue(afterBack === before, "going back to speed 1 does not reload the animation either")
     }
 
     /// The item's speed reaches the drawn tag at once, also when only the speed changes (docs row 42).
@@ -668,6 +676,38 @@ extension CYLSearchExampleSearchBarTests {
         tag?.resetAnimationSpeed()
         let afterReset = tag?.animationSpeed
         XCTAssertEqual(afterReset ?? -1, 2, accuracy: 0.001, "the style's speed is the item's, not 1")
+    }
+
+    /// A tag drawn with a tag list's style keeps that style's speed while the bar items next to it are set to speed 1:
+    /// the items' speed lives in each item's own style, never in a shared one.
+    @MainActor
+    func testTagListStyleSpeedSurvivesBarItemsAtSpeedOne() {
+        let listStyle = CYLMenuStyle()
+        listStyle.animationSpeed = 3
+        let listTag = CYLTagButton(frame: CGRect(x: 0, y: 0, width: 80, height: 44))
+        listTag.style = listStyle
+        let before = listTag.animationSpeed
+        XCTAssertEqual(before, 3, accuracy: 0.001, "a tag follows its list style's speed")
+
+        let bar = CYLSearchBarView(frame: CGRect(x: 0, y: 0, width: 375, height: 48))
+        bar.setItems(dictionaries: [["style": "icon", "title": "A", "animationURL": "tab_activity.svga", "animationSpeed": 1]])
+        bar.layoutIfNeeded()
+        let itemTag = bar.items.first?.itemView as? CYLTagButton
+        let itemSpeed = itemTag?.animationSpeed
+        XCTAssertEqual(itemSpeed ?? -1, 1, accuracy: 0.001)
+
+        bar.setItems(dictionaries: [["style": "icon", "title": "A", "animationURL": "tab_activity.svga", "animationSpeed": 1, "animationLoops": true]])
+        bar.layoutIfNeeded()
+        let after = listTag.animationSpeed
+        let styleSpeed = listTag.style.animationSpeed
+        XCTAssertEqual(after, 3, accuracy: 0.001, "the bar items at speed 1 leave the list tag's speed alone")
+        XCTAssertEqual(styleSpeed, 3, accuracy: 0.001, "and its list style's speed")
+        XCTAssertEqual(listStyle.animationSpeed, 3, accuracy: 0.001, "the list's own style object is untouched")
+
+        listTag.animationSpeed = 2
+        listTag.resetAnimationSpeed()
+        let reset = listTag.animationSpeed
+        XCTAssertEqual(reset, 3, accuracy: 0.001, "resetting goes back to the list style's speed, not to 1")
     }
 
     /// The layout contract (docs/animated-icon-component.md, "Default layout contract"): an edge-to-edge bar's capsule

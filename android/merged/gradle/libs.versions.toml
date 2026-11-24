@@ -1,7 +1,6 @@
 # Versions of the merged Android project. The aliases the pinned library modules use (cyltabbar, tabpages, classifymenu)
 # are kept with the same names, so their build files work here unchanged.
 [versions]
-cyldeallocblockexecutor = "c85c10c0dac23308a5373e4ab4f4e1da7bc41ed9"
 svgaplayer = "2.6.1"
 agp = "9.2.1"
 kotlin = "2.2.20"
@@ -22,9 +21,11 @@ core-ktx = "1.13.1"
 activity = "1.9.3"
 customview = "1.1.0"
 swiperefreshlayout = "1.1.0"
+# A commit of CYLDeallocBlockExecutor (JitPack), the same as CYLTabBarController's Example-Android/gradle/libs.versions.toml
+# (cyltabbar depends on it since the pinned tab bar commit 235f6e96).
+cyldeallocblockexecutor = "c85c10c0dac23308a5373e4ab4f4e1da7bc41ed9"
 
 [libraries]
-cyldeallocblockexecutor = { module = "com.github.ChenYilong.CYLDeallocBlockExecutor:cyl-dealloc-block-executor-core", version.ref = "cyldeallocblockexecutor" }
 svgaplayer = { module = "com.github.yyued:SVGAPlayer-Android", version.ref = "svgaplayer" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 androidx-fragment-ktx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragment" }
@@ -43,6 +44,7 @@ robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectr
 junit = { module = "junit:junit", version.ref = "junit" }
 lottie = { module = "com.airbnb.android:lottie", version.ref = "lottie" }
 androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test-core" }
+cyldeallocblockexecutor = { module = "com.github.ChenYilong.CYLDeallocBlockExecutor:cyl-dealloc-block-executor-core", version.ref = "cyldeallocblockexecutor" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

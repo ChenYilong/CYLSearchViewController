@@ -62,15 +62,15 @@ PODS:
     - Protobuf (= 3.27.2)
 
 DEPENDENCIES:
-  - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `551072af874aa755e95e6f7453dda1394f1f9846`)
-  - CYLAnimatedItem/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `b4299707df2dc2d5e545f5175dc7dee075c93597`)
-  - CYLAnimatedItem/LottieSwift (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `b4299707df2dc2d5e545f5175dc7dee075c93597`)
-  - CYLAnimatedItem/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `b4299707df2dc2d5e545f5175dc7dee075c93597`)
-  - CYLDeallocBlockExecutor (from `https://github.com/ChenYilong/CYLDeallocBlockExecutor.git`, commit `c85c10c0dac23308a5373e4ab4f4e1da7bc41ed9`)
+  - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `8cd4efa`)
+  - CYLAnimatedItem/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `235f6e96a4e350a31302144b461efeda949f95a0`)
+  - CYLAnimatedItem/LottieSwift (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `235f6e96a4e350a31302144b461efeda949f95a0`)
+  - CYLAnimatedItem/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `235f6e96a4e350a31302144b461efeda949f95a0`)
+  - CYLDeallocBlockExecutor (from `https://github.com/ChenYilong/CYLDeallocBlockExecutor.git`, commit `4276a6dab5a428ccc3a5f3f347eab991881fb97c`)
   - CYLSearchViewController (from `.`)
-  - CYLTabBarController/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `b4299707df2dc2d5e545f5175dc7dee075c93597`)
-  - CYLTabBarController/CYLFlatDesignTabBar (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `b4299707df2dc2d5e545f5175dc7dee075c93597`)
-  - CYLTabBarController/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `b4299707df2dc2d5e545f5175dc7dee075c93597`)
+  - CYLTabBarController/Core (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `235f6e96a4e350a31302144b461efeda949f95a0`)
+  - CYLTabBarController/CYLFlatDesignTabBar (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `235f6e96a4e350a31302144b461efeda949f95a0`)
+  - CYLTabBarController/SVGA (from `https://github.com/ChenYilong/CYLTabBarController.git`, commit `235f6e96a4e350a31302144b461efeda949f95a0`)
   - CYLTableViewPlaceHolder/Core (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `f4cf978567e43288b44f6ddc266510fa837a0e72`)
   - CYLTableViewPlaceHolder/Lottie (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `f4cf978567e43288b44f6ddc266510fa837a0e72`)
 
@@ -83,18 +83,18 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   CollectionViewClassifyMenu:
-    :commit: 551072af874aa755e95e6f7453dda1394f1f9846
+    :commit: 8cd4efa
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLAnimatedItem:
-    :commit: b4299707df2dc2d5e545f5175dc7dee075c93597
+    :commit: 235f6e96a4e350a31302144b461efeda949f95a0
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLDeallocBlockExecutor:
-    :commit: c85c10c0dac23308a5373e4ab4f4e1da7bc41ed9
+    :commit: 4276a6dab5a428ccc3a5f3f347eab991881fb97c
     :git: https://github.com/ChenYilong/CYLDeallocBlockExecutor.git
   CYLSearchViewController:
     :path: "."
   CYLTabBarController:
-    :commit: b4299707df2dc2d5e545f5175dc7dee075c93597
+    :commit: 235f6e96a4e350a31302144b461efeda949f95a0
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
     :commit: f4cf978567e43288b44f6ddc266510fa837a0e72
@@ -102,16 +102,16 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   CollectionViewClassifyMenu:
-    :commit: 551072af874aa755e95e6f7453dda1394f1f9846
+    :commit: 8cd4efa
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLAnimatedItem:
-    :commit: b4299707df2dc2d5e545f5175dc7dee075c93597
+    :commit: 235f6e96a4e350a31302144b461efeda949f95a0
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLDeallocBlockExecutor:
-    :commit: c85c10c0dac23308a5373e4ab4f4e1da7bc41ed9
+    :commit: 4276a6dab5a428ccc3a5f3f347eab991881fb97c
     :git: https://github.com/ChenYilong/CYLDeallocBlockExecutor.git
   CYLTabBarController:
-    :commit: b4299707df2dc2d5e545f5175dc7dee075c93597
+    :commit: 235f6e96a4e350a31302144b461efeda949f95a0
     :git: https://github.com/ChenYilong/CYLTabBarController.git
   CYLTableViewPlaceHolder:
     :commit: f4cf978567e43288b44f6ddc266510fa837a0e72
@@ -129,6 +129,6 @@ SPEC CHECKSUMS:
   SSZipArchive: fe6a26b2a54d5a0890f2567b5cc6de5caa600aef
   SVGAPlayerLite: ae073300a9faa016e88a54afa8fec43f54fed682
 
-PODFILE CHECKSUM: 826c3f3401f07165f3db4fe7d6d703adec3a765b
+PODFILE CHECKSUM: bc962db308ef1fa0b79159ac4fb03839f994b980
 
 COCOAPODS: 1.17.0

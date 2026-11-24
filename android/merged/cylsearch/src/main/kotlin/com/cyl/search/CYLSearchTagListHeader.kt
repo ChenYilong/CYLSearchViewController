@@ -1,8 +1,10 @@
 package com.cyl.search
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import androidx.core.content.ContextCompat
 import com.cyl.classifymenu.CYLMenuStyle
+import com.cyl.classifymenu.CYLTagListView
 
 /**
  * The built-in look of a tag list section header (docs/animated-icon-component.md, "Refresh, hot data and navigation bar
@@ -15,12 +17,29 @@ import com.cyl.classifymenu.CYLMenuStyle
 object CYLSearchTagListHeader {
 
     /**
+     * The refresh icon, the Material "refresh" icon of this library (iOS `refreshImage`, the SF Symbol "arrow.clockwise").
+     */
+    @JvmStatic
+    fun refreshImage(context: Context): Drawable? = ContextCompat.getDrawable(context, R.drawable.cyl_search_ic_refresh)
+
+    /**
      * Puts the refresh icon on the More button of the header of `style` (`CYLMenuStyle.moreButtonImage`). The data source
      * still decides which sections show the button (`menuShowsMoreButtonInSection`).
      */
     @JvmStatic
     fun applyRefreshIcon(context: Context, style: CYLMenuStyle) {
-        style.moreButtonImage = ContextCompat.getDrawable(context, R.drawable.cyl_search_ic_refresh)
+        style.moreButtonImage = refreshImage(context)
+    }
+
+    /**
+     * Sets the refresh icon as the icon of `list`'s header More button, in place of the three dots (iOS
+     * `applyRefreshIcon(to:)`); the list's other style values stay.
+     */
+    @JvmStatic
+    fun applyRefreshIcon(list: CYLTagListView) {
+        val style = (list.style ?: CYLMenuStyle.defaultStyle()).copy()
+        applyRefreshIcon(list.context, style)
+        list.style = style
     }
 
     /**

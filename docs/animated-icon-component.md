@@ -228,6 +228,17 @@ What the owner's single batch runs for these rows: ohosTest (including `discover
 - Tests (run): mini program `npm test` 120 / 120 (`test/example_tag_glass.test.js`: the glass lists carry `backgroundStyle: 'liquidGlass'`, no own fill or border, the recent tags have none); `host-logic-test.mjs` 56 / 56 ("Liquid Glass tag lists": source checks of the styles and of `recentTag`).
 - **Added to the one batch (written, not run)**: (1) HarmonyOS, API 37 emulator: the Discover topics grid and the contact tags (editor and remark pages) draw glass, no gray box and no border; (2) the SELECTED contact tag shows a visible green tint with the green title readable, in light and dark; (3) the Discover recent tags are opaque white with the light border, no glass; (4) mini program, DevTools: the same three checks, plus whether `cyl-tag-cloud` draws glass at all (see the library gap); screenshot labels carry both pins.
 
+### Open items from the pin moves (2026-11-24, Mac session)
+
+| Item | Owner | State |
+| :-- | :-- | :-- |
+| HarmonyOS: ClassifyMenu `551072a` is not a descendant of `feat/engine-api-core` (`59ce43cc`) or PR #31 (`f10279f0`); its `harmony/classifymenu` `CYLTagAnimatedIcon.ets` needs `CYLAnimatedItemEngines.register(type)` AND `CYLTagAnimationBuilder.register(builder)` from the app (default builder `cylNoTagAnimation`). Our `harmonyos/entry` has no `CYLTagAnimationBuilder.register`, so ClassifyMenu tags (Discover topics, Examples) show their static image and never animate; the search bar's own items are fine. | ClassifyMenu (merge engine-api-core into the PR #36 line); the example must NOT add a builder or players back | open; next HarmonyOS batch confirms on the emulator (expected: no animation) |
+| Pin pair not final: ClassifyMenu `4bc1ec1` + CYLTabBarController `dea0951e` may change with the owner's choice of the selected glass look; Dealloc `4276a6d` (Object.assign fix) merged. `feat/harmony` is NOT the glass line (not a descendant of PR #36); pin PR #36 only | ClassifyMenu session sends `FINAL: ...`; Mac moves all pins once | open |
+| Glass tint: the library now gives a glass with no color a default frosted tint; the examples' own tint (systemGray5, selected tint color at 30%) goes after that pin | Mac | open |
+| Selected glass tag look (glass or flat) | owner | open |
+| Labeled glass screenshots (iOS, RN, Flutter; normal + selected) | Mac | open, one batch |
+| iOS unit suite at the moved pins, including the rewritten `testSearchBarsCoverNoView` | Mac | DONE locally: 200 tests, 0 failures at 788fda1+ and after the glass change (one flaky `testI2PlainBarInAnExtendedViewStaysInPlace` seen once); iOS CI not finished |
+
 ### Assignments (2026-11-24)
 
 - iOS core, iOS examples, the Flutter and React Native Dart / TypeScript pages and iOS halves, the sync script: the Mac session.

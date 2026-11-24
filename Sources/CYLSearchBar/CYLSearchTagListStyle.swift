@@ -50,8 +50,8 @@ public final class CYLSearchTagListStyle: NSObject {
                 appearance.borderColor = .separator
                 appearance.borderWidth = 1
             } else {
-                // The glass tint is translucent: a plain page shows glass only through it.
-                appearance.backgroundColor = state == .selected ? UIColor.tintColor.withAlphaComponent(0.3) : .systemGray5
+                // A clear fill draws the library's default frosted tint; the selected tag keeps its own tint.
+                appearance.backgroundColor = state == .selected ? UIColor.tintColor.withAlphaComponent(0.3) : .clear
                 appearance.borderWidth = 0
             }
             appearance.cornerRadius = tagCornerRadius
@@ -119,7 +119,17 @@ public final class CYLSearchTagListStyle: NSObject {
     @objc(applyBackgroundStyleNamed:toList:)
     public static func applyBackgroundStyle(named name: String, to list: CYLTagListView) {
         let style = list.style.copy() as! CYLMenuStyle
-        style.backgroundStyle = name.lowercased() == "liquidglass" ? .liquidGlass : .flat
+        let glass = name.lowercased() == "liquidglass"
+        style.backgroundStyle = glass ? .liquidGlass : .flat
+        if glass {
+            // A white fill under the glass hides it: clear the fill and border so the library's default frosted tint
+            // draws; a selected tag keeps a visible tint.
+            for state in [UIControl.State.normal, .selected, .disabled] {
+                let appearance = style.appearance(for: state)
+                appearance.backgroundColor = state == .selected ? UIColor.tintColor.withAlphaComponent(0.3) : .clear
+                appearance.borderWidth = 0
+            }
+        }
         list.style = style
         CYLSearchTagListHeader.applyRefreshIcon(to: list)
     }
