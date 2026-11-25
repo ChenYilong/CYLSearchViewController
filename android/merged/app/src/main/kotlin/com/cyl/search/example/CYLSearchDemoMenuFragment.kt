@@ -6,13 +6,21 @@ import android.graphics.drawable.Drawable
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ScrollView
-import android.widget.TextView
 import android.net.Uri
 import androidx.core.content.ContextCompat
 import com.cyl.classifymenu.CYLControlState
+import com.cyl.classifymenu.CYLIndexPath
+import com.cyl.classifymenu.CYLMenuDataSource
+import com.cyl.classifymenu.CYLMenuDelegate
+import com.cyl.classifymenu.CYLMenuFoldControl
+import com.cyl.classifymenu.CYLMenuFoldControlContent
+import com.cyl.classifymenu.CYLMenuFoldControlPosition
+import com.cyl.classifymenu.CYLMenuSelectionMode
+import com.cyl.classifymenu.CYLTagListView
+import com.cyl.classifymenu.CYLTagLongPressActions
+import com.cyl.classifymenu.CYLTagTitleMaxLines
 import com.cyl.classifymenu.CYLEdgeInsets
 import com.cyl.classifymenu.CYLFont
 import com.cyl.classifymenu.CYLMenuStyle
@@ -24,45 +32,59 @@ import com.cyl.placeholder.CYLPlaceholderView
 import com.cyl.search.CYLSearchTagListStyle
 
 /**
- * A list of rows with a title, an optional subtitle and icon, and a tap action (iOS `UITableView` menus).
+ * A grouped list of rows as CollectionViewClassifyMenu's tag list (docs/instructions/example-demos.md): one section per
+ * header (the rows before the first header form a section titled `defaultHeader`), each row a Liquid Glass tag with its
+ * main title and icon, the width adaptive, titles allowed to wrap, folded after 3 rows behind a "more" / "less" control.
+ * A tap runs the row's action; a long press shows the row's subtitle in a callout with an arrow.
  */
-internal fun Context.cylMenuList(rows: List<Triple<String, String?, () -> Unit>>, icons: List<Drawable?> = emptyList(), headers: Map<Int, String> = emptyMap()): View {
-    val density = resources.displayMetrics.density
-    val column = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-    rows.forEachIndexed { index, (title, subtitle, action) ->
-        headers[index]?.let { header ->
-            column.addView(TextView(this).apply {
-                text = header
-                setTextColor(Color.GRAY)
-                textSize = 13f
-                setPadding((16 * density).toInt(), (20 * density).toInt(), (16 * density).toInt(), (6 * density).toInt())
-            })
-        }
-        val row = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            minimumHeight = (56 * density).toInt()
-            setPadding((16 * density).toInt(), (8 * density).toInt(), (16 * density).toInt(), (8 * density).toInt())
-            isClickable = true
-            isFocusable = true
-            foreground = ContextCompat.getDrawable(context, android.util.TypedValue().also {
-                theme.resolveAttribute(android.R.attr.selectableItemBackground, it, true)
-            }.resourceId)
-            setOnClickListener { action() }
-        }
-        icons.getOrNull(index)?.let { icon ->
-            row.addView(ImageView(this).apply { setImageDrawable(icon) }, LinearLayout.LayoutParams((32 * density).toInt(), (32 * density).toInt()).apply {
-                marginEnd = (16 * density).toInt()
-            })
-        }
-        val texts = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
-        texts.addView(TextView(this).apply { text = title; textSize = 17f })
-        subtitle?.let { texts.addView(TextView(this).apply { text = it; textSize = 13f; setTextColor(Color.GRAY) }) }
-        row.addView(texts, LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f))
-        row.addView(TextView(this).apply { text = "›"; textSize = 22f; setTextColor(Color.LTGRAY) })
-        column.addView(row)
+internal fun Context.cylMenuList(
+    rows: List<Triple<String, String?, () -> Unit>>,
+    icons: List<Drawable?> = emptyList(),
+    headers: Map<Int, String> = emptyMap(),
+    defaultHeader: String = cylDemoText("demo.title"),
+): View {
+    val starts = rows.indices.filter { it == 0 || headers.containsKey(it) }
+    val ranges = starts.mapIndexed { n, start -> start until (starts.getOrNull(n + 1) ?: rows.size) }
+    val titles = ranges.map { range -> headers[range.first]?.takeIf { it.isNotEmpty() } ?: defaultHeader }
+    val context = this
+    val dataSource = object : CYLMenuDataSource {
+        override fun numberOfSectionsInMenu() = ranges.size
+        override fun menuNumberOfItemsInSection(section: Int) = ranges[section].count()
+        override fun menuTitleForSection(section: Int) = titles[section]
+        override fun menuTitleForItemAtIndexPath(indexPath: CYLIndexPath) = rows[ranges[indexPath.section].first + indexPath.item].first
+        override fun menuSubtitleForItemAtIndexPath(indexPath: CYLIndexPath) = rows[ranges[indexPath.section].first + indexPath.item].second
+        override fun menuImageForItemAtIndexPath(indexPath: CYLIndexPath) = icons.getOrNull(ranges[indexPath.section].first + indexPath.item)
     }
-    return ScrollView(this).apply { addView(column) }
+    val delegate = object : CYLMenuDelegate {
+        override fun menuDidSelectItemAtIndexPath(menu: Any, indexPath: CYLIndexPath) {
+            rows[ranges[indexPath.section].first + indexPath.item].third()
+        }
+    }
+    val list = CYLTagListView(context).apply {
+        foldControl = CYLMenuFoldControl().apply {
+            position = CYLMenuFoldControlPosition.TAIL
+            content = CYLMenuFoldControlContent.CYLMenuFoldControlContentIconAndTitle
+        }
+        val base = CYLMenuStyle().apply {
+            CYLSearchTagListStyle.applyDefaults(this, context)
+            titleMaxLines = CYLTagTitleMaxLines.UNLIMITED
+            CYLSearchTagListStyle.applyBackgroundStyle("liquidGlass", this)
+        }
+        style = base
+        selectionMode = CYLMenuSelectionMode.CYLMenuSelectionModeNone
+        defaultVisibleRows = 3
+        isScrollEnabled = false
+        longPressAction = CYLTagLongPressActions.callout
+        menuDataSource = dataSource
+        menuDelegate = delegate
+        reloadMenuData()
+    }
+    // Inside a vertical column, as Discover does: the list takes the height its tags need.
+    val column = LinearLayout(context).apply {
+        orientation = LinearLayout.VERTICAL
+        addView(list, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+    }
+    return ScrollView(context).apply { addView(column) }
 }
 
 /**

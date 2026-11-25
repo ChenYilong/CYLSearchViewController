@@ -101,6 +101,8 @@ object CYLSearchTagListStyle {
             }
         }
         style.backgroundStyle = tagBackgroundStyle
+        // The list itself draws nothing: an opaque list background hid the header and the titles in dark mode (iOS `applyDefaults`).
+        style.backgroundColor = Color.TRANSPARENT
         style.itemHeight = 36f
         style.interitemSpacing = 12f
         style.lineSpacing = 12f
