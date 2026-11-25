@@ -289,7 +289,10 @@ final class CYLSearchExampleParityTests: CYLSearchExampleTestCase {
             // The Swift types are referenced directly, so the lookup by name checks the runtime still finds each class.
             XCTAssertNotNil(NSClassFromString(NSStringFromClass(port)), "\(name) is compiled into the app")
             let controller: UIViewController
-            if let tableControllerType = port as? UITableViewController.Type {
+            if port == CYLSearchPortsViewController.self {
+                // A demo tag list (docs/instructions/example-demos.md), made by its own initializer.
+                controller = CYLSearchPortsViewController()
+            } else if let tableControllerType = port as? UITableViewController.Type {
                 controller = tableControllerType.init(style: .insetGrouped)
             } else {
                 controller = port.init()

@@ -86,8 +86,8 @@ private final class CYLSVGADemoHeaderView: UIView {
 }
 
 /**
- * One tag of a demo tag list: the cell's main title and icon; `subtitle` is what a long press shows (VoiceOver hint now; the
- * floating bubble with an arrow comes with ClassifyMenu's `menuSubtitleForItem`, PR #37).
+ * One tag of a demo tag list: the cell's main title and icon; `subtitle` is what a long press shows in the tag list's callout
+ * (`menuSubtitleForItem`).
  */
 struct CYLDemoTagItem {
     let title: String
@@ -107,7 +107,7 @@ struct CYLDemoTagSection {
 /**
  * The example's grouped demo lists (docs/instructions/example-demos.md): a sectioned CollectionViewClassifyMenu tag list in
  * place of a grouped table view. Every tag is a Liquid Glass tag (the core's one `backgroundStyle` parameter, set through
- * `CYLSearchTagListStyle`), a tag title may wrap, the tag width follows its content so a row holds as many tags as fit, each
+ * `CYLSearchTagListStyle`), a tag title may wrap (up to `titleLines`), the tag width follows its content so a row holds as many tags as fit, each
  * section shows 3 rows and then the core's "more" / "less" fold control with its chevron, and a tap does what the cell did.
  */
 class CYLDemoTagListViewController: UIViewController, CYLMenuDataSource, CYLMenuDelegate {
@@ -116,6 +116,11 @@ class CYLDemoTagListViewController: UIViewController, CYLMenuDataSource, CYLMenu
      * Rows shown while a section is folded.
      */
     static let foldedRows = 3
+
+    /**
+     * The most lines a tag title may take in the example, as the rule's 3.
+     */
+    static let titleLines = 3
 
     let sections: [CYLDemoTagSection]
     let tagList = CYLTagListView(foldControl: CYLMenuFoldControl(position: .tail, content: .iconAndTitle))
@@ -136,10 +141,12 @@ class CYLDemoTagListViewController: UIViewController, CYLMenuDataSource, CYLMenu
         CYLSearchTagListStyle.applyDefaultStyle(to: tagList)
         CYLSearchTagListStyle.applyBackgroundStyle(named: "liquidGlass", to: tagList)
         let style = tagList.style.copy() as! CYLMenuStyle
-        style.titleWraps = true
+        style.titleMaxLines = Self.titleLines
         tagList.style = style
         tagList.selectionMode = .none
         tagList.defaultVisibleRows = Self.foldedRows
+        // A long press shows the subtitle in the core's callout with an arrow (ClassifyMenu's long-press customization API).
+        tagList.longPressAction = CYLTagLongPressActions.callout
         tagList.menuDataSource = self
         tagList.menuDelegate = self
         tagList.accessibilityIdentifier = "CYLDemoTagList"
@@ -171,7 +178,7 @@ class CYLDemoTagListViewController: UIViewController, CYLMenuDataSource, CYLMenu
         sections[indexPath.section].items[indexPath.item].image
     }
 
-    func menuAccessibilityHintForItem(at indexPath: IndexPath) -> String? {
+    func menuSubtitleForItem(at indexPath: IndexPath) -> String? {
         sections[indexPath.section].items[indexPath.item].subtitle
     }
 
@@ -212,7 +219,7 @@ final class CYLSearchPlaceholderGalleryViewController: CYLDemoTagListViewControl
             let icon = (style == .empty ? image : image?.withRenderingMode(.alwaysTemplate))
             let title = CYLPlaceholderView.imageName(for: style) ?? "\(index)"
             sections.append(CYLDemoTagSection(title: title, items: messages.map { message in
-                let text = CYLPlaceholderView.localizedText(for: message)
+                let text = CYLPlaceholderView.localizedText(for: message) ?? title
                 return CYLDemoTagItem(title: text, image: icon, subtitle: nil) { host in
                     show(CYLPlaceholderView(style: style, message: message), title: text, from: host)
                 }

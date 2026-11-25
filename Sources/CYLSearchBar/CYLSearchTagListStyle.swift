@@ -60,6 +60,8 @@ public final class CYLSearchTagListStyle: NSObject {
             appearance.textColor = .label
         }
         style.backgroundStyle = tagBackgroundStyle
+        // The list takes the page's color (a white list background would hide the header and the glass in dark mode).
+        style.backgroundColor = .clear
         style.itemHeight = 36
         style.interitemSpacing = 12
         style.lineSpacing = 12
