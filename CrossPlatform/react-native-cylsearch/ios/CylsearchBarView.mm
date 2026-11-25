@@ -125,6 +125,7 @@ using namespace facebook::react;
     });
   }
   _textProp = text;
+  _bar.focusesOnAppear = p.focusesOnAppear;
   if (p.navigationFieldStyle) {
     // The core's one navigation field look (bordered capsule, soft shadow, no magnifier, opaque fill).
     [_bar applyNavigationFieldStyle];
