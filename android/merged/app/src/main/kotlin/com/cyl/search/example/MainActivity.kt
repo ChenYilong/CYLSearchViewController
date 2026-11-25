@@ -18,6 +18,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // `--ez CYLDebugStripes true`: hard-edged stripes instead of the gradient plate (debug only, off by default).
+        cylDebugStripes = intent.getBooleanExtra("CYLDebugStripes", false)
         registerPages(CYLTabBarPageRegistry.sharedRegistry)
         // `--es CYLDemoTabIconSource 2` (or the int extra): the same tabs with SVGA icons from
         // CYLTabBarConfiguration_svga.json (`CYLTabBarSVGAFilePath`), as the iOS example's `-CYLDemoTabIconSource 2`.
