@@ -471,6 +471,10 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
             case "showKeyboard":
                 self.bar.showKeyboard()
                 result(nil)
+            case "focus":
+                // Dart's route and app life cycle moments; the core's own events (CYLDeallocBlockExecutor) cover the native ones.
+                self.bar.showKeyboard()
+                result(nil)
             case "restartItemAnimation":
                 let index = arguments["index"] as? Int ?? -1
                 if self.bar.items.indices.contains(index) {
@@ -540,6 +544,7 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
         }
         appliedText = text
         applyStyle(arguments)
+        bar.focusesOnAppear = arguments["focusesOnAppear"] as? Bool ?? false
         if arguments["navigationFieldStyle"] as? Bool == true {
             // The core's one navigation field look (bordered capsule, soft shadow, no magnifier, opaque fill).
             bar.applyNavigationFieldStyle()
