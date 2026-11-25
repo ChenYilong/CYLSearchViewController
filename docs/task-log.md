@@ -1796,3 +1796,8 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 
 - Owner confirmed in this session ("Repin now"). Windows moved its platforms in feedfa8; iOS Podfiles, the Flutter and RN example Podfiles and `Podfile.lock` moved by the Mac session to ClassifyMenu `6a2fbf2589393d8e563ab7775a934db97167f39d` (27 commits ahead of 22c9f5ca; not announced by the ClassifyMenu Mac session, taken from the Windows repin) and CYLTabBarController `08343e9f76d609e1a8c0b45c01fd31a0b7a1e5bc` (6f563ef4 + 3 Android backdrop commits, no iOS change).
 - iOS suite (light simulator, clean build): 201 tests, 0 failures. Screenshot `docs/assets/ios-iphone18pro-sim-ios27.2-20261126-pin-6a2fbf25-discover-gallery.png`. Simulator `9F762C22` and the app stopped after the run.
+
+## 2026-11-26 iOS repin: ClassifyMenu 1207883c (tab bar 08343e9f unchanged)
+
+- Windows moved its platforms to ClassifyMenu `1207883c146511a0a4ab5fd0b2280656e22aee5f` (9 commits ahead of 6a2fbf25: Android scroll resampling, dark-glass icon lift on Android, HarmonyOS and the mini program, tests, docs; no iOS source change). iOS Podfiles, the Flutter and RN example Podfiles and `Podfile.lock` moved by the Mac session. CYLTabBarController stays `08343e9f`, Dealloc `4276a6da`.
+- iOS suite (light simulator, incremental build): 201 tests, 0 failures. Simulator `9F762C22` and the app stopped after the run.
