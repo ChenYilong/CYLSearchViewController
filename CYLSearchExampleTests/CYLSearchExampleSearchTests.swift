@@ -124,6 +124,9 @@ final class CYLSearchExampleSearchTests: CYLSearchExampleTestCase {
         let styleCount = CYLPlaceholderStyle.count.rawValue
         XCTAssertEqual(gallery.numberOfSectionsInMenu(), styleCount + 1)
         XCTAssertEqual(gallery.tagList.style.backgroundStyle, .liquidGlass)
+        XCTAssertEqual(gallery.tagList.style.sectionBackgroundStyle, .liquidGlass, "the glass board")
+        XCTAssertEqual(gallery.tagList.style.backgroundColor, .clear, "the gradient page shows through")
+        XCTAssertTrue(gallery.view.subviews.first is CYLDemoGradientView, "rule 7: a gradient page")
         XCTAssertEqual(gallery.tagList.style.titleMaxLines, 3)
         XCTAssertTrue(gallery.tagList.longPressAction === CYLTagLongPressActions.callout)
         XCTAssertEqual(gallery.tagList.defaultVisibleRows, 3)

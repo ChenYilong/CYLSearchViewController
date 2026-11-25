@@ -12,6 +12,10 @@ The content is grouped by tag. Every category below has a short summary; its ful
 - **You must read this file in full, every line, before any task:**
   [docs/instructions/behavioral.md](docs/instructions/behavioral.md). Its rules (think before coding, simplicity first,
   surgical changes, goal-driven execution) apply to every task, together with the rest of this file.
+- **Before you run any simulator or emulator, you must read the simulator run rules**
+  ([docs/instructions/testing.md](docs/instructions/testing.md), "Simulator and emulator runs", or the skill `cyl-simulator-run`),
+  or this text: after a simulator test or screenshot run ends, immediately terminate the app and stop the simulator process;
+  start them again when you need them. Never leave the app running or the simulator booted after the run or the task.
 
 ## Skills (tag: `skills`)
 
@@ -29,6 +33,7 @@ The content is grouped by tag. Every category below has a short summary; its ful
 | `cyl-task-start` | Starting, scoring and finishing any task: check other sessions, `TODO` and branch at the top, the `docs/` entry with acceptance criteria, scoring until it passes, missing points as `TODO`s at the end; restarting a hung emulator |
 | `cyl-docs` | Editing `README.md` or `docs/` |
 | `cyl-verify` | Building, testing, running the simulator; real pointer input for scrolling and drag gestures |
+| `cyl-simulator-run` | Before running a simulator or emulator: the run rules; after the test or screenshot run, terminate the app and stop the simulator process at once, boot again when needed |
 | `cyl-api-parity` | Comparing two platforms' APIs: the parity table (source API, description, target counterpart, `TODO` by default), its score, and the loop to 100 |
 | `cyl-example-taglist` | A demo or example needs a table-view-like grouped list: show it as ClassifyMenu's tag list (sections, adaptive width, wrapping titles, 3-row fold whose control is the tail tag, icon only, long-press subtitle bubble) |
 | `cyl-fix-in-core` | Fixing any issue or bug: in the core (code published to a package registry) first; example-layer fixes only after asking, with the reason documented; the content below the search bar and its scrolling belong to the core |
@@ -104,6 +109,8 @@ The content is grouped by tag. Every category below has a short summary; its ful
   `actionlint`. Test scrolling and drags with real pointer input.
 - A hung or unbooted emulator is restarted from the command line without asking (tell the other sessions first).
   Skill: `cyl-verify`.
+- After a simulator or emulator test or screenshot run, terminate the app and stop the simulator process at once (only the
+  device you started); boot it again when needed. Skill: `cyl-simulator-run`.
 - Details: [docs/instructions/testing.md](docs/instructions/testing.md) (Verification; Emulators and simulators: restart when hung).
 
 ## Documentation, screenshots and parity tables (tag: `docs`)

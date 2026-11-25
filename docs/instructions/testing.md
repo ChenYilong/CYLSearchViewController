@@ -56,3 +56,16 @@ question to the user.
 - Restart from the command line without asking the user (`adb -s <serial>
   reboot`, `hdc -t <target> shell reboot`, `xcrun simctl shutdown` + `boot`).
   Full rule: `AGENTS.md`, "Emulators and simulators: restart when hung".
+
+## Simulator and emulator runs: read the rules first, stop everything afterwards (added 2026-11-25)
+
+Owner's rule (2026-11-25). Before you run a simulator or an emulator you must read this section (or the skill
+`cyl-simulator-run`, or the short text in the root `AGENTS.md` / `instructions.md`).
+
+- After a simulator test or screenshot run ends, immediately terminate the app and stop the simulator process. Start them
+  again when you need them. Do not leave the app running or the simulator booted after the run, or after the task is done.
+- Stop only what you started: `xcrun simctl terminate <udid> <bundle id>` then `xcrun simctl shutdown <udid>` (iOS);
+  `adb -s <serial> shell am force-stop <package>` then `adb -s <serial> emu kill` (Android); stop the HarmonyOS emulator
+  from DevEco Studio's Device Manager. Never `xcrun simctl shutdown all` and never stop another session's device.
+- Write the code first and test once in one batch (`static-code-then-one-test-batch`), so a device boots once per batch.
+- Check afterwards: `xcrun simctl list devices booted` (iOS), `adb devices` (Android).

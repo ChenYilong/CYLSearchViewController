@@ -24,6 +24,7 @@ WeChat DevTools Skills (<https://developers.weixin.qq.com/miniprogram/dev/devtoo
 | `cyl-task-start` | Starting, scoring and finishing any task: check other sessions, `TODO` and branch at the top, the `docs/` entry with acceptance criteria, scoring until it passes, missing points as `TODO`s at the end; restarting a hung emulator |
 | `cyl-docs` | Editing `README.md` or `docs/` |
 | `cyl-verify` | Building, testing, running the simulator; real pointer input for scrolling and drag gestures |
+| `cyl-simulator-run` | Before running a simulator or emulator: the run rules; after the test or screenshot run, terminate the app and stop the simulator process at once, boot again when needed |
 | `cyl-api-parity` | Comparing two platforms' APIs: the parity table (source API, description, target counterpart, `TODO` by default), its score, and the loop to 100 |
 | `cyl-example-taglist` | A demo or example needs a table-view-like grouped list: show it as ClassifyMenu's tag list (sections, adaptive width, wrapping titles, 3-row fold whose control is the tail tag, icon only, long-press subtitle bubble) |
 | `cyl-fix-in-core` | Fixing any issue or bug: in the core (code published to a package registry) first; example-layer fixes only after asking, with the reason documented; the content below the search bar and its scrolling belong to the core |

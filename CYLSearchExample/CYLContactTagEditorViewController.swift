@@ -202,6 +202,7 @@ final class CYLContactTagEditorViewController: UIViewController {
         style.selectedAppearance.backgroundColor = green.withAlphaComponent(0.3)
         style.selectedAppearance.textColor = .label  // green text on green glass has poor contrast in dark mode
         style.backgroundStyle = .liquidGlass  // the one parameter that makes every tag Liquid Glass (flat below iOS 26)
+        style.sectionBackgroundStyle = .liquidGlass  // the glass board under the tags
         style.itemHeight = 36
         style.interitemSpacing = 12
         style.lineSpacing = 12
@@ -209,7 +210,7 @@ final class CYLContactTagEditorViewController: UIViewController {
         style.headerHeight = 40
         style.headerFont = .systemFont(ofSize: 15)
         style.headerHorizontalInset = 16
-        style.backgroundColor = .systemBackground
+        style.backgroundColor = .clear  // the gradient page shows through (example-demos rule 7)
         style.imageSize = CGSize(width: 14, height: 14)
         style.imageTitleSpacing = 6
         return style
@@ -233,6 +234,7 @@ final class CYLContactTagEditorViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
+        cylInstallDemoGradient()
 
         cancelButton.setTitle(cylContactTagsText("cancel"), for: .normal)
         cancelButton.setTitleColor(.label, for: .normal)
