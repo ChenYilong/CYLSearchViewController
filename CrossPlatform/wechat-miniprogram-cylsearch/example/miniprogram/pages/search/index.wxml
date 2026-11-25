@@ -1,7 +1,7 @@
 <view class="screen">
   <!-- A first-level page: the whole search bar (pill preset) in the navigation bar; a tap pushes the search page. The Issue #1317
        reproduction (search field under the title, pull to refresh) is the Examples row "Search and refresh". -->
-  <cyl-demo-first-level-bar preset="pill" placeholder="{{placeholder}}" />
+  <cyl-demo-first-level-bar preset="pill" placeholder="{{placeholder}}" searchButtonStyle="icon" />
   <scroll-view scroll-y class="list">
     <view wx:for="{{results}}" wx:key="*this" class="row">{{item}}</view>
   </scroll-view>

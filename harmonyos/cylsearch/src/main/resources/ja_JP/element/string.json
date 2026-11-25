@@ -241,6 +241,10 @@
       "value": "最近の検索を消去"
     },
     {
+      "name": "cyl_search_button",
+      "value": "検索"
+    },
+    {
       "name": "cyl_search_field",
       "value": "検索"
     },

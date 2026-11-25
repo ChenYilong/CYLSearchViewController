@@ -52,5 +52,5 @@ test('no 0.001 radius is left in the sources: the search bar item square is 0', 
   }
   assert.deepStrictEqual(hits, []);
   const bar = fs.readFileSync(path.join(root, 'src', 'core', 'CYLSearchBarView.js'), 'utf8');
-  assert.match(bar, /cornerRadius: hasBackground \? 10 : 0,/);
+  assert.match(bar, /return hasBackground \? 10 : 0;/);
 });

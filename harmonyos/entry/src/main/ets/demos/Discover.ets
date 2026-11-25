@@ -231,7 +231,7 @@ export struct DiscoverView {
     this.topics = cylDiscoverPage(this.data.discover, this.data.discoverCount, 0).topics;
     this.hint = this.text('discover_askHint');
     this.setUpTopicList();
-    // A capsule with a soft shadow, no magnifier: the camera and the Search button sit inside it.
+    // A capsule with a soft shadow, no magnifier: the camera and the core's default Search button sit inside it.
     const bar = this.searchBar;
     bar.applyNavigationFieldStyle();
     bar.focusesOnAppear = true; // the field focuses itself every time the bar appears
@@ -240,8 +240,6 @@ export struct DiscoverView {
     const camera = CYLSearchBarItem.iconItem($r('sys.symbol.camera'), this.text('discover_imageSearch'),
       () => this.searchByImage());
     camera.imageSize = 22;
-    const search = CYLSearchBarItem.textItem(this.text('discover_search'), () => this.searchTapped());
-    search.itemAccessibilityIdentifier = 'CYLSearchDiscoverSearchButton';
     // The animated item (index 1): the same still image as the camera, with the SVGA file from the rawfile folder.
     const animated = CYLSearchBarItem.iconItem($r('sys.symbol.camera'), this.text('discover_animationItem'));
     animated.imageSize = 22;
@@ -251,8 +249,7 @@ export struct DiscoverView {
     this.animatedItem = animated;
     bar.addItem(camera);
     bar.addItem(animated);
-    bar.addItem(CYLSearchBarItem.divider());
-    bar.addItem(search);
+    // The Search button after the items (and its divider) is the core's default search button, not an item of ours.
     bar.delegate = {
       searchBarViewSearchButtonClicked: (view: CYLSearchBarView) => {
         this.searchTapped();
@@ -588,8 +585,6 @@ export struct DiscoverEntryView {
     const camera = CYLSearchBarItem.iconItem($r('sys.symbol.camera'), cylAppText(this.context, 'discover_imageSearch'));
     camera.imageSize = 22;
     bar.addItem(camera);
-    bar.addItem(CYLSearchBarItem.divider());
-    bar.addItem(CYLSearchBarItem.textItem(cylAppText(this.context, 'discover_search')));
     bar.pushesOnTap = true;
     bar.onFirstLevelTap = () => this.stack.pushPath({ name: CYLDemoRoute.discover });
   }

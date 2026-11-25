@@ -14,6 +14,8 @@
 .cyl-navigation { margin-right: 4px; }
 .cyl-item { position: relative; display: flex; align-items: center; justify-content: center; min-width: 36px; min-height: 36px; }
 .cyl-item-disabled { opacity: 0.4; }
+/* The default search button: no minimum height, so the icon style's 28 high capsule keeps equal gaps in the field. */
+.cyl-search-button { min-height: 0; }
 /* The built-in divider: 1 x 20, secondary label strength (60%), an 8 gap on each side. */
 .cyl-divider { width: 1px; height: 20px; margin: 0 8px; background: rgba(60, 60, 67, 0.6); }
 

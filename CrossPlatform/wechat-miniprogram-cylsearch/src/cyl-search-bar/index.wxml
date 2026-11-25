@@ -44,7 +44,7 @@
         style="{{navigationColor ? 'background-color: ' + navigationColor : ''}}" aria-hidden="true" />
     </view>
     <view class="cyl-field cyl-anim-{{expansionAnimation}} {{revealing ? 'cyl-field-revealing' : ''}}"
-      style="{{fieldStyle}}; transition-duration: {{animationDuration}}s">
+      style="{{fieldStyle}}; {{fieldPadStyle}}; transition-duration: {{animationDuration}}s">
       <!-- centersPlaceholder: the magnifier and the placeholder centred while the field rests (iOS centersPlaceholder). -->
       <view wx:if="{{centered}}" class="cyl-center-group" aria-hidden="true">
         <view wx:if="{{showsSearchIcon && !editingBar}}" class="cyl-mask-icon cyl-mask-search cyl-center-icon" aria-hidden="true" />
@@ -54,9 +54,9 @@
       <image wx:elif="{{showsSearchIcon && !editingBar && searchIcon && !centered}}" class="cyl-field-icon" src="{{searchIcon}}" aria-hidden="true" />
       <input class="cyl-input" value="{{text}}" placeholder="{{centered ? '' : placeholder}}" placeholder-style="{{placeholderStyle}}" aria-label="{{placeholder || labels.search}}"
         style="{{inputStyle}}" focus="{{inputFocus}}" password="{{secure}}" maxlength="{{maximumTextLength > 0 ? maximumTextLength : -1}}"
-        confirm-type="{{editingBar ? 'done' : returnKeyType}}" cursor-color="{{cursorColor}}" disabled="{{!editable}}"
+        confirm-type="{{editingBar ? 'done' : returnKeyType}}" cursor-color="{{cursorColor}}" disabled="{{!editable || pushesOnTap}}"
         adjust-position="{{!pinsToKeyboard}}" bindinput="onInput" bindconfirm="onConfirm" bindfocus="onFocus" bindblur="onBlur" />
-      <view wx:if="{{!editable}}" class="cyl-tap-cover" role="button" aria-label="{{placeholder || labels.search}}" bindtap="onNotEditableTap" />
+      <view wx:if="{{!editable || pushesOnTap}}" class="cyl-tap-cover" role="button" aria-label="{{placeholder || labels.search}}" bindtap="onNotEditableTap" />
       <view wx:if="{{showsClearButton && focused && text}}" class="cyl-field-button" role="button" aria-label="{{labels.clear}}" catchtap="onClear">
         <view class="cyl-mask-icon cyl-mask-clear" aria-hidden="true" />
       </view>
@@ -91,6 +91,18 @@
             accessibilityLabel="{{item.button.accessibilityLabel}}" selected="{{item.button.selected}}"
             enabled="{{item.isEnabled !== false}}"
             tagStyle="{{item.button.tagStyle}}" />
+        </view>
+      </block>
+      <!-- The default search button (iOS showsSearchButton): after the field and the owner's items, a divider before it when an
+           item precedes it; a tap submits the text. The filled icon style is a capsule 28 high, concentric in the field. -->
+      <block wx:if="{{searchButton.visible}}">
+        <view wx:if="{{searchButton.hasDivider}}" class="cyl-divider" aria-hidden="true" />
+        <view class="cyl-item cyl-search-button" id="CYLSearchBarSearchButton" role="button" aria-label="{{searchButton.label}}" bindtap="onSearchButtonTap">
+          <cyl-tag-button id="cyl-bar-search-button" generic:cyl-lottie-view="cyl-lottie-view" generic:cyl-pag-view="cyl-pag-view"
+            generic:cyl-rive-view="cyl-rive-view" generic:cyl-svga-view="cyl-svga-view"
+            title="{{searchButton.button.title}}" image="{{searchButton.button.image}}"
+            accessibilityLabel="{{searchButton.button.accessibilityLabel}}" enabled="{{true}}"
+            tagStyle="{{searchButton.button.tagStyle}}" />
         </view>
       </block>
     </view>

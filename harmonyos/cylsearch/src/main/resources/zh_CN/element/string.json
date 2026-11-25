@@ -241,6 +241,10 @@
       "value": "清除最近搜索"
     },
     {
+      "name": "cyl_search_button",
+      "value": "搜索"
+    },
+    {
       "name": "cyl_search_field",
       "value": "搜索"
     },

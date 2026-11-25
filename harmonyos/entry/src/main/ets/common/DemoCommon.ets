@@ -74,6 +74,7 @@ export class CYLDemoRoute {
  */
 export interface CYLSearchSecondLevelParam {
   preset: number;
+  searchButtonStyle: number;
 }
 
 /**

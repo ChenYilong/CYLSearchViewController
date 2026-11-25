@@ -3,7 +3,7 @@
        and the keyboard up; Recently searched and Popular right now as tag lists. -->
   <cyl-search-navigation-bar showsBack>
     <cyl-search-bar generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
-      id="bar" class="bar" value="{{query}}" preset="{{preset}}" placeholder="{{placeholder}}" focusesOnAppear contentInsets="0"
+      id="bar" class="bar" value="{{query}}" preset="{{preset}}" searchButtonStyle="{{searchButtonStyle}}" placeholder="{{placeholder}}" focusesOnAppear contentInsets="0"
       fieldHeight="{{fieldHeight}}" bind:textchange="onTextChange" />
   </cyl-search-navigation-bar>
   <scroll-view scroll-y class="content">

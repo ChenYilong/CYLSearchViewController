@@ -5,7 +5,7 @@
 // CYLMultiSearchView.js and the component helper cyl_search_bar_item.js.
 'use strict';
 
-const { $r, animateTo, Curve, InputType, EnterKeyType } = require('./CYLSearchResources');
+const { $r, animateTo, Curve, InputType, EnterKeyType, CYLSearchResources } = require('./CYLSearchResources');
 
 /**
  * What the bar edits (iOS `CYLSearchBarMode`): one search (the default), or several searches side by side.
@@ -19,6 +19,81 @@ const CYLSearchBarMode = Object.freeze({
  * How an item appended to a search bar looks (iOS `CYLSearchBarItemStyle`): an icon button, a divider or a text
  * button.
  */
+/**
+ * How the default search button looks (iOS `CYLSearchBarSearchButtonStyle`): the localized "Search" as text (the default),
+ * or a filled capsule with the magnifier.
+ */
+const CYLSearchBarSearchButtonStyle = Object.freeze({
+  text: 'text',
+  icon: 'icon',
+});
+
+/** `CYLSearchBarItem.cornerRadius` automatic: 10 with a background, square without (iOS `automaticCornerRadius`). */
+const CYLSearchBarItemCornerRadiusAutomatic = -1;
+
+/** `CYLSearchBarItem.cornerRadius` capsule (iOS `CYLAnimatedItemCornerRadiusCapsule`). */
+const CYLSearchBarItemCornerRadiusCapsule = 1000;
+
+/** The smallest height of an item's view, in px. */
+const CYL_SEARCH_ITEM_MINIMUM_SIDE = 36;
+
+/**
+ * The corner radius an item is drawn with: its own unless automatic, which is 10 with a background and square without.
+ */
+function cylSearchItemResolvedCornerRadius(cornerRadius, hasBackground) {
+  if (cornerRadius !== CYLSearchBarItemCornerRadiusAutomatic && cornerRadius >= 0) return cornerRadius;
+  return hasBackground ? 10 : 0;
+}
+
+/** The height of an item's view: its own `itemHeight` when above 0, else the 36 px minimum. */
+function cylSearchItemResolvedHeight(itemHeight) {
+  return itemHeight > 0 ? itemHeight : CYL_SEARCH_ITEM_MINIMUM_SIDE;
+}
+
+/** Whether a bar draws the default search button: `showsSearchButton`, never for an editing bar or in multiple mode. */
+function cylSearchButtonVisible(showsSearchButton, isEditingBar, isMultiple) {
+  return showsSearchButton === true && !isEditingBar && !isMultiple;
+}
+
+/** Whether a divider precedes the search button: only when an owner's item comes before it. */
+function cylSearchButtonHasDivider(ownerItemCount) {
+  return ownerItemCount > 0;
+}
+
+/**
+ * The look of the default search button. Text: a text item with the custom title or the localized default and no fill.
+ * Icon: an icon item (the custom image, else the built-in magnifier) as a filled capsule 28 high with 16 side insets
+ * (`cylSearchButtonColors` gives the inverse colors); its title is what screen readers read.
+ */
+function cylSearchButtonLook(style, customTitle, defaultTitle, hasCustomImage) {
+  const title = customTitle ? customTitle : defaultTitle;
+  if (style === CYLSearchBarSearchButtonStyle.icon) {
+    return { itemStyle: 'icon', title, usesBuiltInImage: !hasCustomImage, filled: true,
+      cornerRadius: CYLSearchBarItemCornerRadiusCapsule, itemHeight: 28, contentInsets: 16 };
+  }
+  return { itemStyle: 'text', title, usesBuiltInImage: false, filled: false,
+    cornerRadius: CYLSearchBarItemCornerRadiusAutomatic, itemHeight: 0, contentInsets: -1 };
+}
+
+/**
+ * The trailing inset of the field's content: with the filled icon style as the last element, the pill sits concentric in the
+ * field, so the gap at its right equals the gap above and below, (fieldHeight - itemHeight) / 2 (4 for a 36 field and a 28 pill);
+ * otherwise the usual inset.
+ */
+function cylSearchButtonTrailingInset(fieldHeight, itemHeight, usualInset, isFilledIcon) {
+  return isFilledIcon ? Math.max(0, (fieldHeight - itemHeight) / 2) : usualInset;
+}
+
+/** What a tap on the search button does with the text: 1 submit it (not empty), 0 only tell the listener (empty text). */
+function cylSearchButtonTapAction(text) {
+  return typeof text === 'string' && text.trim().length > 0 ? 1 : 0;
+}
+
+/** The colors of the filled icon style, inverse of the color mode: black with a white magnifier, white with black in dark. */
+function cylSearchButtonColors(dark) {
+  return dark === true ? { fill: '#FFFFFF', glyph: '#000000' } : { fill: '#000000', glyph: '#FFFFFF' };
+}
+
 const CYLSearchBarItemStyle = Object.freeze({
   icon: 'icon',
   divider: 'divider',
@@ -359,6 +434,14 @@ class CYLSearchBarItem {
     this.tintColor = undefined;
     this.backgroundColor = undefined;
     this.selectedBackgroundColor = undefined;
+    /** The corner radius in px: `CYLSearchBarItemCornerRadiusAutomatic` (-1), 0 square, `CYLSearchBarItemCornerRadiusCapsule` (iOS `cornerRadius`). */
+    this.cornerRadius = CYLSearchBarItemCornerRadiusAutomatic;
+    /** The border color; undefined draws none (iOS `borderColor`). */
+    this.borderColor = undefined;
+    /** The border width in px; 0 draws none (iOS `borderWidth`). */
+    this.borderWidth = 0;
+    /** The height of the item's view in px; 0 uses the 36 px minimum (iOS `itemHeight`). */
+    this.itemHeight = 0;
     this.contentInsets = -1;
     this.imagePositionAdjustment = { x: 0, y: 0 };
     this.titlePositionAdjustment = { x: 0, y: 0 };
@@ -502,13 +585,14 @@ class CYLSearchBarItem {
     const hasBackground = Boolean(this.backgroundColor || this.selectedBackgroundColor);
     const appearance = {
       backgroundColor: background,
-      borderWidth: 0,
+      borderWidth: this.borderColor && this.borderWidth > 0 ? this.borderWidth : 0,
+      borderColor: this.borderColor && this.borderWidth > 0 ? this.borderColor : undefined,
       textColor: attributes.color || tint,
       iconColor: tint,
       font: { size: attributes.size || 17, weight: cylFontWeightName(attributes.weight) },
       contentInsets: { top: 0, left: insets, bottom: 0, right: insets },
       // Square: 0 is square (item 8b, docs/animated-icon-component.md).
-      cornerRadius: hasBackground ? 10 : 0,
+      cornerRadius: cylSearchItemResolvedCornerRadius(this.cornerRadius, hasBackground),
     };
     const offset = (position) => ({ horizontal: Number(position && position.x) || 0, vertical: Number(position && position.y) || 0 });
     return {
@@ -532,7 +616,7 @@ class CYLSearchBarItem {
         imageSize: { width: side, height: side },
         animationSize: { width: side, height: side },
         imageTitleSpacing: 4,
-        itemHeight: 36,
+        itemHeight: cylSearchItemResolvedHeight(this.itemHeight),
         imagePositionAdjustment: offset(this.imagePositionAdjustment),
         titlePositionAdjustment: offset(this.titlePositionAdjustment),
         normal: appearance,
@@ -655,6 +739,20 @@ class CYLSearchBarView {
     this.iconPosition = CYLSearchBarIconPosition.trailing;
     this.animationDuration = 0.3;
     this.items = [];
+    /** Whether the bar keeps its built-in search button after the field and the owner's items (iOS `showsSearchButton`). */
+    this.showsSearchButton = true;
+    /** `text` (default) or `icon` (iOS `searchButtonStyle`). */
+    this.searchButtonStyle = CYLSearchBarSearchButtonStyle.text;
+    /** The text of the button; undefined is the localized "Search" (iOS `searchButtonTitle`). */
+    this.searchButtonTitle = undefined;
+    /** The icon of the `icon` style (an image path); undefined is the core's built-in magnifier (iOS `searchButtonImage`). */
+    this.searchButtonImage = undefined;
+    /** Called on each tap of the search button, after the text was submitted (iOS `searchButtonHandler`). */
+    this.searchButtonHandler = undefined;
+    /** The localized "Search", set by `<cyl-search-bar>`. */
+    this.defaultSearchButtonTitle = CYLSearchResources.localizedString(undefined, 'search.button');
+    this.searchButtonModel = undefined;
+    this.searchButtonSignature = '';
     this.itemShapes = undefined;
     this.appearanceValues = undefined;
     this.itemTintColor = undefined;
@@ -949,6 +1047,50 @@ class CYLSearchBarView {
   }
 
   /**
+   * Whether the bar draws the search button now (`showsSearchButton`, not an editing bar, not "multiple" mode).
+   */
+  get hasSearchButton() {
+    return cylSearchButtonVisible(this.showsSearchButton, this.isEditingBar, this.mode === CYLSearchBarMode.multiple);
+  }
+
+  /**
+   * The item the bar draws as its search button (iOS `searchButtonItem`): not in `items`; it follows `searchButtonStyle`,
+   * `searchButtonTitle` and `searchButtonImage`, and a change of one of them builds it again. Customize it after setting those.
+   */
+  get searchButtonItem() {
+    const signature = [this.searchButtonStyle, this.searchButtonTitle || '', this.defaultSearchButtonTitle,
+      this.searchButtonImage ? 1 : 0].join('|');
+    if (!this.searchButtonModel || signature !== this.searchButtonSignature) {
+      this.searchButtonSignature = signature;
+      this.searchButtonModel = this.makeSearchButtonItem();
+    }
+    return this.searchButtonModel;
+  }
+
+  makeSearchButtonItem() {
+    const look = cylSearchButtonLook(this.searchButtonStyle, this.searchButtonTitle, this.defaultSearchButtonTitle,
+      Boolean(this.searchButtonImage));
+    const item = new CYLSearchBarItem(look.itemStyle, look.title,
+      look.usesBuiltInImage ? $r('sys.symbol.magnifyingglass') : this.searchButtonImage);
+    item.itemAccessibilityIdentifier = 'CYLSearchBarSearchButton';
+    item.cornerRadius = look.cornerRadius;
+    item.itemHeight = look.itemHeight;
+    item.contentInsets = look.contentInsets;
+    if (look.filled) item.imageSize = 16;
+    return item;
+  }
+
+  /**
+   * The search button was tapped: submits the text (`submit()`); an empty text only tells the delegate
+   * (`searchBarViewSearchButtonClicked`); then `searchButtonHandler` runs (iOS `searchButtonTapped`).
+   */
+  searchButtonTapped() {
+    if (cylSearchButtonTapAction(this.text) === 1) this.submit();
+    else tell(this.delegate, 'searchBarViewSearchButtonClicked', this);
+    if (this.searchButtonHandler) this.searchButtonHandler(this);
+  }
+
+  /**
    * An item was tapped: a selectable item toggles, then the delegate and the item's handler are told. A disabled item
    * and a divider ignore taps.
    */
@@ -989,6 +1131,7 @@ class CYLSearchBarView {
   static editingBar(placeholder, actionTitle) {
     const bar = new CYLSearchBarView();
     bar.isEditingBar = true;
+    bar.showsSearchButton = false;
     bar.searchIcon = null;
     bar.placeholder = placeholder || '';
     bar.showsCancelButton = true;
@@ -1283,6 +1426,17 @@ module.exports = {
   CYLSearchBarColors,
   CYLSearchBarMode,
   CYLSearchBarItemStyle,
+  CYLSearchBarSearchButtonStyle,
+  CYLSearchBarItemCornerRadiusAutomatic,
+  CYLSearchBarItemCornerRadiusCapsule,
+  cylSearchItemResolvedCornerRadius,
+  cylSearchItemResolvedHeight,
+  cylSearchButtonVisible,
+  cylSearchButtonHasDivider,
+  cylSearchButtonLook,
+  cylSearchButtonTapAction,
+  cylSearchButtonTrailingInset,
+  cylSearchButtonColors,
   CYLSearchBarStyle,
   CYLSearchBarNavigationIcon,
   CYLSearchBarIconPosition,

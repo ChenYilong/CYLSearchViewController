@@ -424,7 +424,7 @@ describe('corner radius capsule constant', () => {
     assert.doesNotMatch(discoverSource, /bar\.fieldCornerRadius|bar\.fieldShadowOpacity|bar\.searchBarStyle/);
   });
   it('draws the search bar item square with 0, and CYLTagCornerRadiusSquare is gone', () => {
-    assert.match(library, /appearance\.cornerRadius = hasBackground \? 10 : 0;/);
+    assert.match(library, /return hasBackground \? 10 : 0;/);
     const menu = readFileSync(join(entryEts, 'demos', 'ExamplesMenu.ets'), 'utf8');
     assert.match(menu, /appearance\.cornerRadius = 0;/);
     assert.doesNotMatch(library + menu, /CYLTagCornerRadiusSquare/);
@@ -718,5 +718,98 @@ describe('the examples use the core for the first-level bar', () => {
     const index = readFileSync(join(here, '..', 'cylsearch', 'index.ets'), 'utf8');
     assert.match(index, /CYLSearchNavigationTitleBar/);
     assert.match(index, /CYLSearchBarPreset/);
+  });
+});
+
+describe('default search button (core.md rule 5)', () => {
+  it('shows by default, never for an editing bar or in multiple mode', () => {
+    assert.equal(logic.cylSearchButtonVisible(true, false, false), true);
+    assert.equal(logic.cylSearchButtonVisible(false, false, false), false);
+    assert.equal(logic.cylSearchButtonVisible(true, true, false), false);
+    assert.equal(logic.cylSearchButtonVisible(true, false, true), false);
+  });
+  it('has a divider only when an owner item precedes it', () => {
+    assert.equal(logic.cylSearchButtonHasDivider(0), false);
+    assert.equal(logic.cylSearchButtonHasDivider(2), true);
+  });
+  it('text style: localized default title, custom title wins, no fill', () => {
+    const plain = logic.cylSearchButtonLook(0, undefined, '搜索', false);
+    assert.deepEqual([plain.itemStyle, plain.title, plain.filled, plain.usesBuiltInImage], [2, '搜索', false, false]);
+    assert.equal(logic.cylSearchButtonLook(0, 'Go', 'Search', false).title, 'Go');
+    assert.equal(logic.cylSearchButtonLook(0, '', 'Search', false).title, 'Search');
+  });
+  it('icon style: filled capsule 28 high with 16 insets, built-in magnifier unless an image is set', () => {
+    const icon = logic.cylSearchButtonLook(1, undefined, 'Search', false);
+    assert.deepEqual([icon.itemStyle, icon.filled, icon.cornerRadius, icon.itemHeight, icon.contentInsets, icon.usesBuiltInImage],
+      [0, true, 1000, 28, 16, true]);
+    assert.equal(icon.title, 'Search');
+    assert.equal(logic.cylSearchButtonLook(1, undefined, 'Search', true).usesBuiltInImage, false);
+  });
+  it('a tap submits non-empty text; empty text only tells the listener', () => {
+    assert.equal(logic.cylSearchButtonTapAction('swift'), 1);
+    assert.equal(logic.cylSearchButtonTapAction('  '), 0);
+    assert.equal(logic.cylSearchButtonTapAction(''), 0);
+    assert.equal(logic.cylSearchButtonTapAction(undefined), 0);
+  });
+  it('item corner radius, height: automatic follows the background, own values win', () => {
+    assert.equal(logic.cylSearchItemResolvedCornerRadius(-1, true), 10);
+    assert.equal(logic.cylSearchItemResolvedCornerRadius(-1, false), 0);
+    assert.equal(logic.cylSearchItemResolvedCornerRadius(0, true), 0);
+    assert.equal(logic.cylSearchItemResolvedCornerRadius(1000, false), 1000);
+    assert.equal(logic.cylSearchItemResolvedHeight(0), 36);
+    assert.equal(logic.cylSearchItemResolvedHeight(28), 28);
+  });
+});
+
+describe('default search button: core and examples', () => {
+  const ets = join(here, '..', 'cylsearch', 'src', 'main', 'ets', 'CYLSearchBarView.ets');
+  const core = readFileSync(ets, 'utf8');
+  const demos = join(here, '..', 'entry', 'src', 'main', 'ets', 'demos');
+  it('the core has the iOS names', () => {
+    for (const name of ['showsSearchButton', 'searchButtonStyle', 'searchButtonTitle', 'searchButtonImage', 'searchButtonHandler',
+      'searchButtonItem', 'cornerRadius', 'borderColor', 'borderWidth', 'itemHeight']) {
+      assert.ok(core.includes(name), name);
+    }
+    assert.match(core, /export enum CYLSearchBarSearchButtonStyle/);
+    assert.match(core, /bar\.showsSearchButton = false/); // the editing bar
+    const index = readFileSync(join(here, '..', 'cylsearch', 'index.ets'), 'utf8');
+    assert.match(index, /CYLSearchBarSearchButtonStyle/);
+  });
+  it('the localized "Search" exists in en, zh-Hans, zh-Hant and ja', () => {
+    const word = { base: 'Search', zh_CN: '搜索', zh_TW: '搜尋', ja_JP: '検索' };
+    for (const [folder, value] of Object.entries(word)) {
+      const file = join(here, '..', 'cylsearch', 'src', 'main', 'resources', folder, 'element', 'string.json');
+      const entry = JSON.parse(readFileSync(file, 'utf8')).string.find((e) => e.name === 'cyl_search_button');
+      assert.equal(entry?.value, value, folder);
+    }
+  });
+  it('no example adds its own Search item or hides the default button', () => {
+    for (const file of readdirSync(demos, { recursive: true })) {
+      if (!String(file).endsWith('.ets')) continue;
+      const text = readFileSync(join(demos, String(file)), 'utf8');
+      assert.doesNotMatch(text, /textItem\([^)]*(search|Search)/, `${file} adds its own Search text item`);
+      assert.doesNotMatch(text, /showsSearchButton\s*=\s*false/, `${file} hides the default search button`);
+    }
+  });
+  it('the Search tab shows the icon style, Discover the default text style', () => {
+    assert.match(readFileSync(join(demos, 'SearchExample.ets'), 'utf8'), /CYLSearchBarSearchButtonStyle\.icon/);
+    assert.doesNotMatch(readFileSync(join(demos, 'Discover.ets'), 'utf8'), /discover_search'\)\)\);/);
+  });
+});
+
+describe('default search button: the icon pill is concentric in the field', () => {
+  it('gap above == gap below == gap at the right (4 for a 36 field and a 28 pill)', () => {
+    const look = logic.cylSearchButtonLook(1, undefined, 'Search', false);
+    for (const fieldHeight of [36, 40, 44]) {
+      const top = (fieldHeight - look.itemHeight) / 2;
+      const bottom = fieldHeight - look.itemHeight - top;
+      const right = logic.cylSearchButtonTrailingInset(fieldHeight, look.itemHeight, 12, true);
+      assert.equal(top, bottom);
+      assert.equal(right, top);
+    }
+    assert.equal(logic.cylSearchButtonTrailingInset(36, 28, 12, true), 4);
+  });
+  it('the text style keeps the usual inset', () => {
+    assert.equal(logic.cylSearchButtonTrailingInset(36, 0, 12, false), 12);
   });
 });

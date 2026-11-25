@@ -73,8 +73,6 @@ Page({
         style: 'icon', title: cylDemoText('discover.animationItem'), image: CAMERA_IMAGE, accessibilityIdentifier: 'animation',
         animationURL: ANIMATION_URL, animationLoops: loops, animationSpeed: speed,
       },
-      { style: 'divider' },
-      { style: 'text', title: cylDemoText('discover.search'), accessibilityIdentifier: 'CYLSearchDiscoverSearchButton' },
     ];
   },
   // The loop switch: the animated item loops (or plays once on each tap).
@@ -152,8 +150,8 @@ Page({
   },
   onItemSelect(event) {
     const id = event.detail.item && event.detail.item.accessibilityIdentifier;
+    // The Search button is the core's default one: its tap is the bar's `submit` event (onSubmit).
     if (id === 'camera') this.searchByImage();
-    else if (id === 'CYLSearchDiscoverSearchButton') this.searchTapped();
   },
   onRecentTap(event) {
     this.search(this.data.recent[Number(event.currentTarget.dataset.index)]);

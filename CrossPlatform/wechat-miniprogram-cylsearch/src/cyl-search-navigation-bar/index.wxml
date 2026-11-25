@@ -6,7 +6,7 @@
   </view>
   <view class="cyl-nav-content" style="{{contentStyle}}">
     <slot />
-    <!-- A first-level bar: the tap is a push. -->
-    <view wx:if="{{pushesOnTap}}" class="cyl-nav-tap" bindtap="onFirstLevelTap" />
+    <!-- A first-level bar: the field of the `cyl-search-bar` (`pushesOnTap`) takes the tap and triggers `firstleveltap`, which the
+         page forwards to `firstLevelTapped()`; the items and the search button keep their own taps (no layer over the bar). -->
   </view>
 </view>

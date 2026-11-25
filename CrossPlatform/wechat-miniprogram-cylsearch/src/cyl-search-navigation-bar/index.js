@@ -12,7 +12,7 @@ const { cylBackButtonRequest, cylFirstLevelTapAction, cylBackButtonWantedFor } =
  * Event: `back`. The measured values are in `data.metrics` (and in `cylNavigationMetrics()`).
  *
  * First level (owner directive 2026-11-26): with `pushesOnTap` the bar is a first-level page's bar, shown whole at the full
- * width inside the safe area. A tap on it (a transparent layer over the slot) brings the back button in with a CSS
+ * width inside the safe area. A tap on its field (the `cyl-search-bar` with `pushesOnTap` triggers `firstleveltap`; the page calls `firstLevelTapped()`; the items and the search button keep their taps) brings the back button in with a CSS
  * transition, the bar narrows by itself (the slot is flex, a page never sets a width), then `firstleveltap` is
  * triggered and, when `pushUrl` is set, `wx.navigateTo({ url: pushUrl })` pushes the second-level page. The native swipe
  * back and the back button return to the page: its `onShow` (the component's page lifetime) takes the back button out
@@ -73,6 +73,10 @@ Component({
       const request = cylBackButtonRequest(this.data.backShown, shown, animated);
       if (request === 0) return;
       this.setData({ backShown: shown, backAnimated: request === 2 });
+    },
+    /** The tap on the field of a first-level bar (iOS `firstLevelTapped()`), forwarded by the page from the bar's `firstleveltap`. */
+    firstLevelTapped() {
+      this.onFirstLevelTap();
     },
     // The tap of a first-level bar: the back button comes in, then `firstleveltap` and the push.
     onFirstLevelTap() {

@@ -9,6 +9,14 @@
       "value": "#993C3C43"
     },
     {
+      "name": "cyl_search_button_fill",
+      "value": "#000000"
+    },
+    {
+      "name": "cyl_search_button_glyph",
+      "value": "#FFFFFF"
+    },
+    {
       "name": "cyl_search_navigation_field_fill",
       "value": "#FFFFFF"
     }

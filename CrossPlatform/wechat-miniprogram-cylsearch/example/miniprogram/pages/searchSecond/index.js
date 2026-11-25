@@ -6,12 +6,13 @@ const { cylDemoText, cylDiscoverData } = require('../../utils/cyl_demo_text');
 const { cylSearchedRecent } = require('../../utils/cyl_discover_logic');
 
 Page({
-  data: { preset: 'navigationField', query: '', placeholder: '', fieldHeight: 36, recent: [], topics: [], texts: {} },
+  data: { preset: 'navigationField', searchButtonStyle: 'text', query: '', placeholder: '', fieldHeight: 36, recent: [], topics: [], texts: {} },
   onLoad(options) {
     const data = cylDiscoverData();
     const topics = data.discover.map((topic) => topic.title);
     this.setData({
       preset: (options && options.preset) || 'navigationField',
+      searchButtonStyle: (options && options.searchButtonStyle) === 'icon' ? 'icon' : 'text',
       fieldHeight: cylNavigationMetrics().fieldHeight,
       placeholder: topics[0] || cylDemoText('discover.search'),
       recent: data.recentSearches.slice(),

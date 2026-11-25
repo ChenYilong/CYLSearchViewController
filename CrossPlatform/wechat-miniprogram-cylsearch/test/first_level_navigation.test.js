@@ -138,7 +138,10 @@ test('the component lays the bar out by flex and CSS transitions, never by a pag
   const wxss = read('src', 'cyl-search-navigation-bar', 'index.wxss');
   assert.match(wxss, /\.cyl-nav-animated \.cyl-nav-back \{ transition: width/);
   assert.match(wxss, /\.cyl-nav-content \{ flex: 1/);
-  assert.match(read('src', 'cyl-search-navigation-bar', 'index.wxml'), /bindtap="onFirstLevelTap"/);
+  // No transparent layer over the bar any more: the field of the cyl-search-bar takes the tap, the search button keeps its own.
+  assert.doesNotMatch(read('src', 'cyl-search-navigation-bar', 'index.wxml'), /bindtap="onFirstLevelTap"/);
+  assert.match(read('src', 'cyl-search-navigation-bar', 'index.js'), /firstLevelTapped()/);
+  assert.match(read('src', 'cyl-search-bar', 'index.wxml'), /<view wx:if="{{!editable || pushesOnTap}}" class="cyl-tap-cover"/);
 });
 
 test('the example: every tab shows its own preset as the whole bar and pushes on tap', () => {
@@ -155,7 +158,7 @@ test('the example: every tab shows its own preset as the whole bar and pushes on
     assert.match(text, new RegExp(`<cyl-demo-first-level-bar[^>]*preset="${preset}"`), `${file}: ${preset}`);
   });
   assert.equal(new Set(Object.values(presets)).size, 5, 'one preset per tab');
-  assert.match(read(...example, 'demo-components/cyl-demo-first-level-bar/index.wxml'), /<cyl-search-navigation-bar pushesOnTap pushUrl=/);
+  assert.match(read(...example, 'demo-components/cyl-demo-first-level-bar/index.wxml'), /<cyl-search-navigation-bar id="nav" pushesOnTap pushUrl=/);
   assert.match(read(...example, 'app.json'), /pages\/searchSecond\/index/);
   assert.doesNotMatch(read(...example, 'pages/discover/index.js'), /navigateTo/, 'the Discover tab no longer opens its page by itself');
 });

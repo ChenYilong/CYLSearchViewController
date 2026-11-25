@@ -241,6 +241,10 @@
       "value": "清除最近搜尋"
     },
     {
+      "name": "cyl_search_button",
+      "value": "搜尋"
+    },
+    {
       "name": "cyl_search_field",
       "value": "搜尋"
     },

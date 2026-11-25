@@ -1,6 +1,6 @@
 import { common } from '@kit.AbilityKit';
 import { LengthMetrics } from '@kit.ArkUI';
-import { CYLSearchBarPreset, CYLSearchBarView, CYLSearchNavigationPage } from 'cylsearch';
+import { CYLSearchBarPreset, CYLSearchBarSearchButtonStyle, CYLSearchBarView, CYLSearchNavigationPage } from 'cylsearch';
 import { cylAppText, CYLDemoRoute, CYLSearchSecondLevelParam } from '../common/DemoCommon';
 import { CYLDiscoverTopic, cylLoadDiscoverData } from './Discover';
 
@@ -9,14 +9,16 @@ import { CYLDiscoverTopic, cylLoadDiscoverData } from './Discover';
  * pushes the second-level search page. The page only names the preset, the placeholder and the push; the core brings the
  * back button in, narrows the bar and reverses both on the way back.
  */
-export function cylFirstLevelBar(preset: CYLSearchBarPreset, placeholder: ResourceStr, stack: NavPathStack): CYLSearchBarView {
+export function cylFirstLevelBar(preset: CYLSearchBarPreset, placeholder: ResourceStr, stack: NavPathStack,
+  searchButtonStyle: CYLSearchBarSearchButtonStyle = CYLSearchBarSearchButtonStyle.text): CYLSearchBarView {
   const bar = new CYLSearchBarView();
   bar.applyPreset(preset);
+  bar.searchButtonStyle = searchButtonStyle; // the core's default search button, text or icon
   bar.contentInsets = { top: 0, left: 0, bottom: 0, right: 0 };
   bar.placeholder = placeholder;
   bar.pushesOnTap = true;
   bar.onFirstLevelTap = () => {
-    const param: CYLSearchSecondLevelParam = { preset: preset };
+    const param: CYLSearchSecondLevelParam = { preset: preset, searchButtonStyle: searchButtonStyle };
     stack.pushPath({ name: CYLDemoRoute.searchSecondLevel, param: param });
   };
   return bar;
@@ -41,6 +43,7 @@ export struct SearchSecondLevelPage {
     this.topics = data.discover;
     const bar = this.searchBar;
     bar.applyPreset(this.param.preset as CYLSearchBarPreset);
+    bar.searchButtonStyle = this.param.searchButtonStyle as CYLSearchBarSearchButtonStyle;
     bar.contentInsets = { top: 0, left: 0, bottom: 0, right: 0 };
     bar.placeholder = this.topics.length > 0 ? this.topics[0].title : cylAppText(this.context, 'discover_search');
     bar.focusesOnAppear = true; // the keyboard rises with the push

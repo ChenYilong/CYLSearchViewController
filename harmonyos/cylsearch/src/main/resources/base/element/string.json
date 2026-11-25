@@ -241,6 +241,10 @@
       "value": "Clear recent searches"
     },
     {
+      "name": "cyl_search_button",
+      "value": "Search"
+    },
+    {
       "name": "cyl_search_field",
       "value": "Search"
     },

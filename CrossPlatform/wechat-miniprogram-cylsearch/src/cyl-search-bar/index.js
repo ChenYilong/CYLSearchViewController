@@ -1,4 +1,4 @@
-const { cylSearchShouldFocusOnAppear, cylSearchHasBackButton, cylNavigationFieldStyle, cylSearchBarPresetSpec, CYLSearchBarColors, CYLSearchBarView, CYLSearchBarItem, CYLSearchBarMode, CYLSearchBarAppearance, cylInsetsCSS } = require('../core/CYLSearchBarView');
+const { cylSearchShouldFocusOnAppear, cylSearchHasBackButton, cylNavigationFieldStyle, cylSearchBarPresetSpec, CYLSearchBarColors, CYLSearchBarView, CYLSearchBarItem, CYLSearchBarMode, CYLSearchBarAppearance, cylInsetsCSS, cylSearchButtonColors, cylSearchButtonHasDivider, cylSearchButtonTrailingInset, CYLSearchBarSearchButtonStyle } = require('../core/CYLSearchBarView');
 const { CYLSearchResources, cylFormatString } = require('../core/CYLSearchResources');
 
 const text = (key) => CYLSearchResources.localizedString(undefined, key);
@@ -67,6 +67,16 @@ Component({
     pinsToKeyboard: { type: Boolean, value: false },
     cancelButtonTitle: { type: String, value: '' },
     items: { type: Array, value: [], observer: 'onItemsChange' },
+    // The default search button (iOS showsSearchButton, searchButtonStyle "text" or "icon", searchButtonTitle,
+    // searchButtonImage): kept after the field and the items, a divider before it when an item precedes it; false for an
+    // editing bar and in "multiple" mode. A tap submits the text; the event `submit` also fires for empty text.
+    showsSearchButton: { type: Boolean, value: true, observer: 'onSearchButtonChange' },
+    searchButtonStyle: { type: String, value: 'text', observer: 'onSearchButtonChange' },
+    searchButtonTitle: { type: String, value: '', observer: 'onSearchButtonChange' },
+    searchButtonImage: { type: String, value: '', observer: 'onSearchButtonChange' },
+    // A first-level bar (iOS pushesOnTap): a tap on the field (not on the items and the search button) triggers `firstleveltap`
+    // instead of editing; `<cyl-search-navigation-bar>` plays the push.
+    pushesOnTap: { type: Boolean, value: false },
     // The navigation button before the field (iOS navigationIcon): "none", "arrow" (back) or "search".
     navigationIcon: { type: String, value: 'none' },
     navigationAccessibilityLabel: { type: String, value: '' },
@@ -138,7 +148,7 @@ Component({
   },
   data: {
     text: '', focused: false, inputFocus: false, collapsed: false, revealing: false, keyboardHeight: 0,
-    labels: {}, fieldStyle: '', inputStyle: '', placeholderStyle: '', shownItems: [],
+    labels: {}, searchButton: { visible: false }, fieldPadStyle: '', fieldStyle: '', inputStyle: '', placeholderStyle: '', shownItems: [],
     searchItems: [], editingNewSearch: false, selectedSearchIndex: -1,
     centered: false, cancelShown: false, cancelAnimated: false, leadingShown: false, trailingShown: false, accessoryAnimated: false,
     leadingWidth: 0, trailingWidth: 0, barStyle: '', fieldMargin: '', cancelStyle: '', leadingStyle: '', trailingStyle: '', fieldIconAlt: '',
@@ -206,6 +216,8 @@ Component({
       model.minimumTextLength = p.minimumTextLength;
       model.iconified = p.iconified || (p.iconifiedByDefault && !p.value);
       model.showsCancelButton = p.showsCancelButton;
+      model.defaultSearchButtonTitle = text('search.button');
+      this.applySearchButtonProperties();
       const shows = this.accessoryShows();
       model.showsLeadingView = shows.leading;
       model.showsTrailingAccessoryViews = shows.trailing;
@@ -419,9 +431,49 @@ Component({
       this.syncItems();
     },
     // Each item is drawn by CollectionViewClassifyMenu's <cyl-tag-button> (`button`: its properties).
+    applySearchButtonProperties() {
+      const p = this.properties;
+      const model = this.model;
+      model.mode = p.mode === CYLSearchBarMode.multiple ? CYLSearchBarMode.multiple : CYLSearchBarMode.single;
+      model.isEditingBar = model.isEditingBar || p.editingBar;
+      model.showsSearchButton = p.showsSearchButton;
+      model.searchButtonStyle = p.searchButtonStyle === CYLSearchBarSearchButtonStyle.icon
+        ? CYLSearchBarSearchButtonStyle.icon : CYLSearchBarSearchButtonStyle.text;
+      model.searchButtonTitle = p.searchButtonTitle || undefined;
+      model.searchButtonImage = p.searchButtonImage || undefined;
+    },
+    onSearchButtonChange() {
+      if (!this.model) return;
+      this.applySearchButtonProperties();
+      this.syncItems();
+    },
+    // The default search button: its model item, drawn by a <cyl-tag-button> like the owner's items. The filled icon style
+    // takes the inverse colors, and sits concentric in the field (the right gap equals the gap above and below).
+    searchButtonData(dark) {
+      const model = this.model;
+      if (!model.hasSearchButton) return { visible: false };
+      const item = model.searchButtonItem;
+      const icon = model.searchButtonStyle === CYLSearchBarSearchButtonStyle.icon;
+      if (icon) {
+        const colors = cylSearchButtonColors(dark);
+        item.backgroundColor = colors.fill;
+        item.tintColor = colors.glyph;
+      }
+      return {
+        visible: true,
+        hasDivider: cylSearchButtonHasDivider(model.items.length),
+        label: item.accessibilityText,
+        button: item.tagButtonProperties(model.itemTintColor, dark),
+        trailingInset: cylSearchButtonTrailingInset(this.properties.fieldHeight, item.itemHeight, 12, icon),
+        icon,
+      };
+    },
     syncItems() {
       const dark = defaultItemTint() === '#FFFFFF';
+      const searchButton = this.searchButtonData(dark);
       this.setData({
+        searchButton,
+        fieldPadStyle: searchButton.visible && searchButton.icon ? `padding-right: ${searchButton.trailingInset}px` : '',
         shownItems: this.model.items.map((item) => Object.assign(item.itemDictionary(), {
           label: item.accessibilityText,
           button: item.tagButtonProperties(this.model.itemTintColor, dark),
@@ -498,11 +550,15 @@ Component({
     onVoiceTap() {
       this.model.voiceTapped();
     },
+    onSearchButtonTap() {
+      this.model.searchButtonTapped();
+    },
     onSubmitTap() {
       this.submit();
     },
     onNotEditableTap() {
-      this.triggerEvent('tapwhilenoteditable');
+      if (this.properties.pushesOnTap) this.triggerEvent('firstleveltap', {});
+      else this.triggerEvent('tapwhilenoteditable');
     },
     onIconTap() {
       this.setIconified(false);
