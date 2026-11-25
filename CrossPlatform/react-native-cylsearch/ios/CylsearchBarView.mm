@@ -126,6 +126,31 @@ using namespace facebook::react;
   }
   _textProp = text;
   _bar.focusesOnAppear = p.focusesOnAppear;
+  // The core's default search button: shown unless JavaScript hides it; with a JavaScript handler a tap sends onSearchButtonTap.
+  _bar.showsSearchButton = p.showsSearchButton;
+  CYLSearchBarSearchButtonStyle buttonStyle = [CYLRNString(p.searchButtonStyle) isEqualToString:@"icon"] ? CYLSearchBarSearchButtonStyleIcon : CYLSearchBarSearchButtonStyleText;
+  if (_bar.searchButtonStyle != buttonStyle) {
+    _bar.searchButtonStyle = buttonStyle;
+  }
+  NSString *buttonTitle = CYLRNString(p.searchButtonTitle);
+  if (buttonTitle.length == 0) {
+    buttonTitle = nil;
+  }
+  if (![(_bar.searchButtonTitle ?: @"") isEqualToString:(buttonTitle ?: @"")]) {
+    _bar.searchButtonTitle = buttonTitle;
+  }
+  if (p.hasSearchButtonHandler) {
+    __weak CylsearchBarView *weakSelf = self;
+    _bar.searchButtonHandler = ^(CYLSearchBarView *view) {
+      CylsearchBarView *strongSelf = weakSelf;
+      if (strongSelf && strongSelf->_eventEmitter) {
+        std::static_pointer_cast<CylsearchBarViewEventEmitter const>(strongSelf->_eventEmitter)
+            ->onSearchButtonTap(CylsearchBarViewEventEmitter::OnSearchButtonTap{.text = std::string((view.text ?: @"").UTF8String)});
+      }
+    };
+  } else {
+    _bar.searchButtonHandler = nil;
+  }
   if (p.navigationFieldStyle) {
     // The core's one navigation field look (bordered capsule, soft shadow, no magnifier, opaque fill).
     [_bar applyNavigationFieldStyle];

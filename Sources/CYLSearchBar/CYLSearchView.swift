@@ -1186,6 +1186,12 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
      */
     public func searchBarViewSearchButtonClicked(_ searchBarView: CYLSearchBarView) {
         let text = searchBarView.text ?? ""
+        // The default search button also reports an empty text (the bar's delegate decides): a search page submits, records and
+        // closes nothing for it, as for the Search key (`submit()` refuses empty text); the keyboard stays.
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            if searchOpen { searchBarView.showKeyboard() }
+            return
+        }
         // Every submitted query is cached, so the list shows it the next time.
         isRecordingHistory = true
         suggestionCache?.addQuery(text)

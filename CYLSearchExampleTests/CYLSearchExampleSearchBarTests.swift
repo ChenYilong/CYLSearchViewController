@@ -1002,6 +1002,36 @@ extension CYLSearchExampleSearchBarTests {
 
     /// The keyboard has the search key, and a bar in editing mode hides the keyboard for an outside touch (observed only while
     /// editing; the touch itself comes from CYLDeallocBlockExecutor's `didTouchOutside`, which XCTest cannot create).
+    /// The default search button tapped with empty text submits nothing and closes nothing in a search page (as the Search key).
+    @MainActor
+    func testDefaultSearchButtonWithEmptyTextDoesNothingInASearchView() {
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let host = UIViewController()
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        let search = CYLSearchView(frame: host.view.bounds)
+        search.animationDuration = 0
+        search.showSearch(in: host, animated: false)
+        runLoop(0.3)
+        let recorder = SearchViewSubmitRecorder()
+        search.delegate = recorder
+        search.searchBarView.searchButtonItem.itemControl.sendActions(for: .touchUpInside)
+        XCTAssertEqual(recorder.submitted, [], "empty text: nothing submitted")
+        XCTAssertTrue(search.searchOpen, "empty text: the page stays open")
+        search.setQuery("swift", submit: false)
+        search.searchBarView.searchButtonItem.itemControl.sendActions(for: .touchUpInside)
+        XCTAssertEqual(recorder.submitted, ["swift"], "text: submitted")
+        window.isHidden = true
+    }
+
+    private final class SearchViewSubmitRecorder: NSObject, CYLSearchViewDelegate {
+        var submitted: [String] = []
+        func searchView(_ searchView: CYLSearchView, didSubmitText text: String) -> Bool {
+            submitted.append(text)
+            return true
+        }
+    }
+
     /// The icon button is a capsule inside the field's capsule with the same gap above, below and at its right (the reference look).
     @MainActor
     func testIconSearchButtonHasAnEqualGapOnThreeSides() {

@@ -545,6 +545,19 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
         appliedText = text
         applyStyle(arguments)
         bar.focusesOnAppear = arguments["focusesOnAppear"] as? Bool ?? false
+        // The core's default search button: shown unless Dart hides it; with a Dart handler a tap goes to Dart (`didTapSearchButton`).
+        bar.showsSearchButton = arguments["showsSearchButton"] as? Bool ?? true
+        let buttonStyle: CYLSearchBarSearchButtonStyle = (arguments["searchButtonStyle"] as? String) == "icon" ? .icon : .text
+        if bar.searchButtonStyle != buttonStyle { bar.searchButtonStyle = buttonStyle }
+        let buttonTitle = arguments["searchButtonTitle"] as? String
+        if bar.searchButtonTitle != buttonTitle { bar.searchButtonTitle = buttonTitle }
+        if arguments["hasSearchButtonHandler"] as? Bool == true {
+            bar.searchButtonHandler = { [channel] view in
+                channel.invokeMethod("didTapSearchButton", arguments: ["text": view.text ?? ""])
+            }
+        } else {
+            bar.searchButtonHandler = nil
+        }
         if arguments["navigationFieldStyle"] as? Bool == true {
             // The core's one navigation field look (bordered capsule, soft shadow, no magnifier, opaque fill).
             bar.applyNavigationFieldStyle()
