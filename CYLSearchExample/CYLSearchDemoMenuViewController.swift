@@ -105,6 +105,49 @@ struct CYLDemoTagSection {
 }
 
 /**
+ * The page behind a demo glass tag list (docs/instructions/example-demos.md, rule 7): a diagonal gradient with light and dark
+ * variants, so the Liquid Glass board and tags have something to blur and refract.
+ */
+final class CYLDemoGradientView: UIView {
+
+    override class var layerClass: AnyClass {
+        CAGradientLayer.self
+    }
+
+    private static let lightColors = [UIColor(red: 0.55, green: 0.85, blue: 0.95, alpha: 1),
+                                      UIColor(red: 0.98, green: 0.62, blue: 0.78, alpha: 1),
+                                      UIColor(red: 1.0, green: 0.85, blue: 0.55, alpha: 1)]
+    private static let darkColors = [UIColor(red: 0.10, green: 0.18, blue: 0.45, alpha: 1),
+                                     UIColor(red: 0.42, green: 0.12, blue: 0.45, alpha: 1),
+                                     UIColor(red: 0.05, green: 0.35, blue: 0.40, alpha: 1)]
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        guard let gradient = layer as? CAGradientLayer else { return }
+        gradient.startPoint = CGPoint(x: 0, y: 0)
+        gradient.endPoint = CGPoint(x: 1, y: 1)
+        updateColors()
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        if traitCollection.userInterfaceStyle != previousTraitCollection?.userInterfaceStyle {
+            updateColors()
+        }
+    }
+
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    private func updateColors() {
+        guard let gradient = layer as? CAGradientLayer else { return }
+        let colors = traitCollection.userInterfaceStyle == .dark ? Self.darkColors : Self.lightColors
+        gradient.colors = colors.map { $0.cgColor }
+    }
+}
+
+/**
  * The example's grouped demo lists (docs/instructions/example-demos.md): a sectioned CollectionViewClassifyMenu tag list in
  * place of a grouped table view. Every tag is a Liquid Glass tag (the core's one `backgroundStyle` parameter, set through
  * `CYLSearchTagListStyle`), a tag title may wrap (up to `titleLines`), the tag width follows its content so a row holds as many tags as fit, each
@@ -137,7 +180,10 @@ class CYLDemoTagListViewController: UIViewController, CYLMenuDataSource, CYLMenu
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        // Rule 7: a gradient page, a clear list background, Liquid Glass board and tags that sample it.
+        let gradient = CYLDemoGradientView(frame: view.bounds)
+        gradient.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.addSubview(gradient)
         CYLSearchTagListStyle.applyDefaultStyle(to: tagList)
         CYLSearchTagListStyle.applyBackgroundStyle(named: "liquidGlass", to: tagList)
         let style = tagList.style.copy() as! CYLMenuStyle

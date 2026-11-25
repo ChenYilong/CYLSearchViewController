@@ -60,6 +60,8 @@ public final class CYLSearchTagListStyle: NSObject {
             appearance.textColor = .label
         }
         style.backgroundStyle = tagBackgroundStyle
+        // A glass list has a glass section board too (the card samples the page behind it).
+        style.sectionBackgroundStyle = tagBackgroundStyle == .liquidGlass ? .liquidGlass : .flat
         // The list takes the page's color (a white list background would hide the header and the glass in dark mode).
         style.backgroundColor = .clear
         style.itemHeight = 36
@@ -121,6 +123,8 @@ public final class CYLSearchTagListStyle: NSObject {
         let style = list.style.copy() as! CYLMenuStyle
         let glass = name.lowercased() == "liquidglass"
         style.backgroundStyle = glass ? .liquidGlass : .flat
+        style.sectionBackgroundStyle = glass ? .liquidGlass : .flat
+        style.backgroundColor = .clear
         if glass {
             // A white fill under the glass hides it: clear the fill and border so the library's default frosted tint
             // draws; a selected tag keeps a visible tint.
