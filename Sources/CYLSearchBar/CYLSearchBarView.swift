@@ -1583,8 +1583,8 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     /**
      * Whether the field takes focus (and the keyboard, with the search key, shows) every time the bar appears on screen, like a
      * `viewDidAppear`: the first time its page is entered, after a push and pop, and after the app returns from the background, but
-     * only while the bar is in a navigation bar that shows a back button (`isInNavigationBarWithBackButton`): a root tab page never
-     * focuses. The moments are CYLDeallocBlockExecutor's `didEnterScreen` and `appDidBecomeActiveOnScreen` of this
+     * only on a second-level or deeper page (`isOnSecondLevelOrDeeperPage`: the page is not the first view controller of its
+     * navigation controller): a first-level page, such as a root tab page, never focuses. The moments are CYLDeallocBlockExecutor's `didEnterScreen` and `appDidBecomeActiveOnScreen` of this
      * view, so it works in every container; during a screen transition the focus waits for the transition to end. Nothing is
      * observed while this is NO. NO by default.
      */
@@ -1607,36 +1607,39 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     }
 
     /**
-     * Whether the bar sits in a navigation bar that currently shows a back button (a pushed page; owner decision 2026-11-26: only
-     * such a bar focuses itself on appearing, a root tab page or a plain bar never does, even with `focusesOnAppear`). A navigation
-     * controller shows one when it holds more than one view controller, the top one does not hide it and has no left items of its
-     * own (or lets them supplement it); a `CYLSearchNavigationBar` made with `showsBackButton` shows one when it holds two items.
+     * Whether the bar is on a second-level or deeper page: its page (the view controller that holds it, or the top one when the bar
+     * is the title view of a navigation bar) is not the first view controller of its navigation controller; a bar in a
+     * `CYLSearchNavigationBar` with a back item counts too. A root tab page, a plain bar and a bar outside any navigation stack are
+     * first-level. This is the rule of `focusesOnAppear` (owner decision 2026-11-26: first-level pages never focus themselves).
      */
-    var isInNavigationBarWithBackButton: Bool {
-        guard isEmbeddedInNavigationBar else { return false }
+    var isOnSecondLevelOrDeeperPage: Bool {
         var responder: UIResponder? = self
-        var controller: UINavigationController?
-        var coreBar: CYLSearchNavigationBar?
+        var owner: UIViewController?
+        var navigation: UINavigationController?
         while let current = responder {
-            if let found = current as? CYLSearchNavigationBar {
-                coreBar = found
-                break
+            if let coreBar = current as? CYLSearchNavigationBar {
+                return (coreBar.items?.count ?? 0) > 1
             }
             if let found = current as? UINavigationController {
-                controller = found
+                navigation = found
                 break
+            }
+            if owner == nil, let found = current as? UIViewController {
+                owner = found
             }
             responder = current.next
         }
-        if let coreBar { return (coreBar.items?.count ?? 0) > 1 }
-        guard let controller, controller.viewControllers.count > 1, let item = controller.topViewController?.navigationItem else {
-            return false
+        guard let navigation else { return false }
+        var candidate: UIViewController? = owner ?? navigation.topViewController
+        while let page = candidate {
+            if let index = navigation.viewControllers.firstIndex(of: page) { return index >= 1 }
+            candidate = page.parent
         }
-        return !item.hidesBackButton && ((item.leftBarButtonItems ?? []).isEmpty || item.leftItemsSupplementBackButton)
+        return false
     }
 
     private func focusIfAppearing() {
-        guard focusesOnAppear, window != nil, textField.isEnabled, isInNavigationBarWithBackButton else { return }
+        guard focusesOnAppear, window != nil, textField.isEnabled, isOnSecondLevelOrDeeperPage else { return }
         var responder: UIResponder? = self
         var controller: UIViewController?
         while let current = responder {
@@ -2026,8 +2029,13 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         } else {
             searchIconView.frame = .zero
         }
-        var end = field.width - inner
         let accessories = effectiveAccessoryViews
+        // The default icon button is a capsule inside the field's capsule: the same gap above, below and at its right, so the two
+        // outlines run concentric (the reference look); other trailing views keep the usual inner inset.
+        let endsWithCapsuleButton = accessories.last === itemStack && showsSearchButton && !isEditingBar && mode != .multiple
+            && searchButtonStyle == .icon && searchButtonItem.itemHeight > 0
+        let capsuleGap = max(0, floor((fieldHeight - searchButtonItem.itemHeight) / 2))
+        var end = field.width - (endsWithCapsuleButton ? capsuleGap : inner)
         voiceButton.isHidden = !accessories.contains(voiceButton)
         submitButton.isHidden = !accessories.contains(submitButton)
         var sizes: [CGSize] = []
@@ -2767,6 +2775,10 @@ final class CYLSearchBarItemButton: CYLTagButton {
             let insets = resolvedInsets
             return CGSize(width: 1 + insets.left + insets.right, height: Self.dividerHeight)
         case .icon:
+            if item.itemHeight > 0 {
+                // A sized item (the default search button's capsule): its own height, as wide as its icon and insets need.
+                return CGSize(width: max(item.itemHeight, fitting.width), height: item.itemHeight)
+            }
             let side = max(Self.minimumTouchSide, max(fitting.width, fitting.height))
             return CGSize(width: side, height: side)
         case .text:
