@@ -11,6 +11,7 @@ import 'example_texts.dart';
 import 'qmui_search_bar_styles_page.dart';
 import 'qmui_search_controller_page.dart';
 import 'qmui_short_list_page.dart';
+import 'tab_search_bar.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -238,7 +239,7 @@ class _CYLSearchTabsState extends State<CYLSearchTabs> {
         body: _plusPageSelected
             ? const CYLSearchBarDemoPage()
             : _selectedIndex < cylDemoTabs.length
-                ? CYLSearchDemoPage(key: ValueKey<int>(_selectedIndex), tab: cylDemoTabs[_selectedIndex])
+                ? CYLSearchDemoPage(key: ValueKey<int>(_selectedIndex), tab: cylDemoTabs[_selectedIndex], tabIndex: _selectedIndex)
                 : const CYLSearchDiscoverEntryPage(),
         bottomNavigationBar: CYLTabBar(
           configuration: widget.tabBarConfiguration,
@@ -266,7 +267,10 @@ void openCYLQMUIPage(BuildContext context, String page) {
 /// A tab: its description and one button per demo, each opening the native search page as a full screen route.
 class CYLSearchDemoPage extends StatelessWidget {
   /// Creates the page of `tab`.
-  const CYLSearchDemoPage({super.key, required this.tab});
+  const CYLSearchDemoPage({super.key, required this.tab, required this.tabIndex});
+
+  /// The index of the tab, which picks its search bar style (`cylTabBarLooks`).
+  final int tabIndex;
 
   /// The demos of the tab.
   final CYLSearchDemoTab tab;
@@ -327,7 +331,8 @@ class CYLSearchDemoPage extends StatelessWidget {
         ),
         child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: AppBar(backgroundColor: Colors.transparent, title: Text(cylExampleText(tab.title))),
+        // The whole search bar of this tab, in its own style, in the navigation bar; a tap pushes the second-level search page.
+        appBar: cylFirstLevelAppBar(context, tab: tabIndex),
         // The demos are tags of the core's tag list with its default initialization: as many tags as fit on a row, then the next row. The list brings
         // its own 16 inset, so only the description is padded.
         body: SingleChildScrollView(

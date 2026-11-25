@@ -22,6 +22,8 @@ import com.cyl.search.CYLSearchViewDelegate
  */
 class CYLSuggestionStyleFragment : CYLExamplePage(), CYLSearchViewDelegate {
 
+    override val searchStyleKey: String? get() = if (style == CYLSearchSuggestionStyle.Tags) "tag" else "list"
+
     private lateinit var searchView: CYLSearchView
 
     private val style: CYLSearchSuggestionStyle

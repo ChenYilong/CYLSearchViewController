@@ -4,6 +4,7 @@ import 'dart:ui' show PlatformDispatcher;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cylsearch/flutter_cylsearch.dart';
+import 'tab_search_bar.dart';
 
 /// One discover topic of search-discover.json.
 class CYLDiscoverTopic {
@@ -119,14 +120,11 @@ class _CYLSearchDiscoverEntryPageState extends State<CYLSearchDiscoverEntryPage>
     CYLSearchDiscoverData.load().then((data) {
       if (!mounted) return;
       setState(() => _data = data);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) _open();
-      });
     });
   }
 
   void _open() {
-    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const CYLSearchDiscoverPage()));
+    cylPushSearchPage(context, 3);
   }
 
   @override
@@ -145,7 +143,8 @@ class _CYLSearchDiscoverEntryPageState extends State<CYLSearchDiscoverEntryPage>
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        appBar: AppBar(backgroundColor: Colors.transparent, title: Text(title)),
+        // The whole Discover bar of the tab in the navigation bar; a tap pushes the second-level page.
+        appBar: cylFirstLevelAppBar(context, tab: 3),
         // The entry cell as a tag of the tag list: titled section, glass, tail control with the icon only, a tap = the cell's tap.
         body: SingleChildScrollView(
           child: CYLTagListView(
@@ -169,7 +168,10 @@ class _CYLSearchDiscoverEntryPageState extends State<CYLSearchDiscoverEntryPage>
 /// bar, the recent searches as CollectionViewClassifyMenu tags, and discover topics in two columns.
 class CYLSearchDiscoverPage extends StatefulWidget {
   /// Creates the page.
-  const CYLSearchDiscoverPage({super.key});
+  const CYLSearchDiscoverPage({super.key, this.tab = 3});
+
+  /// The tab whose bar style the page keeps (`cylTabBarLooks`).
+  final int tab;
 
   @override
   State<CYLSearchDiscoverPage> createState() => _CYLSearchDiscoverPageState();
@@ -249,18 +251,21 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                           text: _barText,
                           // The field's placeholder is the first topic (iOS `reloadLists`); Search uses it when nothing is typed.
                           placeholder: _placeholder(data),
-                          searchBarStyle: CYLSearchBarStyle.bordered,
-                          showsSearchIcon: false,
+                          navigationFieldStyle: cylTabBarLookOf(widget.tab).navigationFieldStyle,
+                          searchBarStyle: cylTabBarLookOf(widget.tab).searchBarStyle,
+                          centersPlaceholder: cylTabBarLookOf(widget.tab).centersPlaceholder,
+                          showsSearchIcon: cylTabBarLookOf(widget.tab).showsSearchIcon,
                           embedsInNavigationBar: true,
                           // The page is always a second-level page: the back button on the left of the bar (owner's rule).
                           showsBackButton: true,
                           // A search page with a back button: the field takes focus whenever the page appears (Android core filter: only with a back button).
                           focusesOnAppear: true,
                           onBackPressed: () => Navigator.of(context).maybePop(),
-                          fieldShadowOpacity: 0.06,
+                          fieldShadowOpacity: cylTabBarLookOf(widget.tab).fieldShadowOpacity,
                           items: <CYLSearchBarItem>[
                             // The camera button itself plays the animation (the Animation demo rule): a search-related Lottie, the same
                             // search_camera.json on every platform. The static camera stays the fallback; loops, speed and restart below.
+                            if (cylTabBarLookOf(widget.tab).camera) ...<CYLSearchBarItem>[
                             CYLSearchBarItem.icon(
                               image: 'camera',
                               title: data.text('discover.imageSearch'),
@@ -270,6 +275,7 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                               onTap: (_) => _show(data.text('discover.imageSearchUnavailable')),
                             ),
                             const CYLSearchBarItem.divider(),
+                            ],
                             CYLSearchBarItem.text(
                               title: data.text('discover.search'),
                               accessibilityIdentifier: 'CYLSearchDiscoverSearchButton',

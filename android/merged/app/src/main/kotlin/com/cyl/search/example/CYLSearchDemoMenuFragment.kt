@@ -93,6 +93,8 @@ internal fun Context.cylMenuList(
  */
 class CYLSearchDemoMenuFragment : CYLExamplePage() {
 
+    override val searchStyleKey: String? = "examples"
+
     override fun pageTitle(context: Context) = context.cylDemoText("demo.title")
 
     override fun createContent(context: Context): View {

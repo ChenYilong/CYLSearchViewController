@@ -14,8 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cyl.placeholder.CYLPlaceholderScenario
 import com.cyl.placeholder.CYLPlaceholderStackView
-import com.cyl.search.CYLSearchBarView
-import com.cyl.search.CYLSearchBarViewDelegate
 import com.cyl.search.CYLSearchResources
 import com.cyl.search.CYLSearchSuggestionCell
 import com.cyl.search.CYLSearchView
@@ -74,6 +72,13 @@ class CYLSearchExampleDataSource(private val items: List<String>) : CYLSearchVie
  */
 class CYLSearchExampleFragment : CYLExamplePage() {
 
+    override val searchStyleKey: String? = "search"
+
+    override fun onSearchSubmitted(query: String) {
+        super.onSearchSubmitted(query)
+        filter(query)
+    }
+
     private val source by lazy { CYLSearchExampleDataSource.sample(requireContext()) }
     private var overlay: CYLSearchView? = null
     private var list: RecyclerView? = null
@@ -92,15 +97,6 @@ class CYLSearchExampleFragment : CYLExamplePage() {
     }
 
     override fun createContent(context: Context): View {
-        val searchBar = CYLSearchBarView(context).apply {
-            // Root tab, no back button: the core never auto-focuses it (owner filter, 2026-11-26); the flag matches the other platforms.
-            focusesOnAppear = true
-            placeholder = CYLSearchResources.localizedString(context, "search.placeholder")
-            delegate = object : CYLSearchBarViewDelegate {
-                override fun searchBarViewTextDidChange(searchBarView: CYLSearchBarView, text: String) = filter(text)
-                override fun searchBarViewSearchButtonClicked(searchBarView: CYLSearchBarView) = searchBarView.hideKeyboard()
-            }
-        }
         val list = RecyclerView(context).apply {
             layoutManager = LinearLayoutManager(context)
             adapter = this@CYLSearchExampleFragment.adapter
@@ -122,7 +118,6 @@ class CYLSearchExampleFragment : CYLExamplePage() {
         filter(query)
         return LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            addView(searchBar, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
             addView(stack, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         }
     }

@@ -34,11 +34,28 @@ class MainActivity : AppCompatActivity() {
         }
         this.controller = controller
         setContentView(controller.view)
-        // Back pops the pages pushed on the selected tab first (`cyl_pushViewController`).
+        // Back pops the pages pushed on the selected tab first (`cyl_pushViewController`). A second-level search page runs the
+        // reverse transition (CYLInteractiveBack: back button out, bar width back to full), driven by predictive back's progress.
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            private fun top(): androidx.fragment.app.Fragment? {
+                val page = this@MainActivity.controller?.selectedViewController
+                return if (page != null && page.isAdded && page.childFragmentManager.backStackEntryCount > 0) page.childFragmentManager.fragments.lastOrNull() else null
+            }
+
+            override fun handleOnBackProgressed(backEvent: androidx.activity.BackEventCompat) {
+                (top() as? CYLInteractiveBack)?.backProgress(backEvent.progress)
+            }
+
+            override fun handleOnBackCancelled() {
+                (top() as? CYLInteractiveBack)?.backCancelled()
+            }
+
             override fun handleOnBackPressed() {
                 val page = this@MainActivity.controller?.selectedViewController
-                if (page != null && page.isAdded && page.childFragmentManager.backStackEntryCount > 0) {
+                val top = top()
+                if (top is CYLInteractiveBack) {
+                    top.backCommitted()
+                } else if (page != null && page.isAdded && page.childFragmentManager.backStackEntryCount > 0) {
                     page.childFragmentManager.popBackStack()
                 } else {
                     finish()
@@ -59,7 +76,7 @@ class MainActivity : AppCompatActivity() {
         pages.registerPageProvider({ _, _ -> CYLSuggestionStyleFragment.newInstance(CYLSearchSuggestionStyle.List) }, "listStyle")
         pages.registerPageProvider({ _, _ -> CYLSuggestionStyleFragment.newInstance(CYLSearchSuggestionStyle.Tags) }, "tagStyle")
         // The discover page copied from CollectionViewClassifyMenu (docs/tag-view-suggestions.md), as on iOS.
-        pages.registerPageProvider({ _, _ -> CYLSearchDiscoverFragment() }, "discover")
+        pages.registerPageProvider({ _, _ -> CYLSearchDiscoverHomeFragment() }, "discover")
     }
 
     companion object {

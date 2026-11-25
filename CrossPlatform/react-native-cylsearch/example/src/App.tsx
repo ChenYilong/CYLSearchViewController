@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Image, Platform, Pressable, ScrollView, Settings, StatusBar, StyleSheet, Switch, Text, useColorScheme, View } from 'react-native';
+import { BackHandler, Image, Platform, Pressable, ScrollView, Settings, StatusBar, StyleSheet, Switch, Text, useColorScheme, View } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { CYLSearchBarView, CYLSearchView, CYLTagListView, type CYLSearchBarHandle } from 'react-native-cylsearch';
 import { CYLTabBar, type CYLTabBarItem, type CYLTabBarPlusButton } from 'react-native-cyltabbar';
@@ -165,7 +165,16 @@ function Screens() {
   // Where the tab icons come from (iOS CYLDemoTabIconSource: 2 SVGA; the button on the sample pages switches it).
   // The Discover page is always a second-level page (a back button in its navigation bar): it opens on the entry page at
   // once, the back button returns to the entry (owner's rule for every example).
-  const [discoverOpen, setDiscoverOpen] = useState(true);
+  // The tab whose second-level search page is pushed (null: every tab shows its first-level page with the whole search bar).
+  const [searchTab, setSearchTab] = useState<string | null>(null);
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener("hardwareBackPress", () => {
+      if (searchTab === null) return false;
+      setSearchTab(null);
+      return true;
+    });
+    return () => subscription.remove();
+  }, [searchTab]);
   const [iconSource, setIconSource] = useState<'rive' | 'svga'>(() => (Platform.OS === 'ios' && Number(Settings.get('CYLDemoTabIconSource')) === 2 ? 'svga' : 'rive'));
   if (open?.qmui) {
     return (
@@ -210,7 +219,11 @@ function Screens() {
   return (
     <SafeAreaView style={[styles.fill, palette.page]} edges={['top', 'left', 'right']}>
       <View style={styles.fill}>
-        {tab === 'bar' ? <SearchBarDemo /> : tab === 'discover' ? (discoverOpen ? <DiscoverDemo onBack={() => setDiscoverOpen(false)} /> : <DiscoverEntry onOpen={() => setDiscoverOpen(true)} />) : current ? (
+        {tab === 'bar' ? <SearchBarDemo /> : searchTab !== null ? <DiscoverDemo tabKey={searchTab} onBack={() => setSearchTab(null)} /> : (
+          <>
+            {/* First-level page: the tab's own WHOLE search bar in the navigation bar; a tap pushes the second-level page. */}
+            <FirstLevelBar tabKey={tab} onOpen={() => setSearchTab(tab)} />
+            {tab === 'discover' ? <DiscoverEntry /> : current ? (
           <ScrollView contentContainerStyle={styles.pageList}>
             <Text style={[styles.title, styles.block, { color: palette.text }]}>{text[`tab.${current.key}`] ?? current.title}</Text>
             {/* The demos as ClassifyMenu's tag list (docs/instructions/example-demos.md): glass board and tags over the gradient
@@ -236,7 +249,9 @@ function Screens() {
               onTagSelect={() => setIconSource(iconSource === 'rive' ? 'svga' : 'rive')}
             />
           </ScrollView>
-        ) : null}
+            ) : null}
+          </>
+        )}
       </View>
       {/* CYLTabBarController's tab bar (react-native-cyltabbar): four tabs and a raised plus button for the search bar. */}
       <CYLTabBar
@@ -400,8 +415,44 @@ function discoverStrings() {
  * The discover demo (iOS CYLSearchDiscoverViewController, Android CYLSearchDiscoverFragment, the Flutter discover
  * page): the native search bar, the recent searches as native tags (folded behind a chevron), topics in two columns.
  */
+/** One search bar look per tab (CYLTabBarController owns the tabs, each tab root owns its bar): the same props on both levels. */
+const TAB_LOOKS: Record<string, { navigationFieldStyle?: boolean; searchBarStyle?: string; showsSearchIcon?: boolean; fieldShadowOpacity?: number; centersPlaceholder?: boolean; camera?: boolean }> = {
+  list: { navigationFieldStyle: true },
+  tags: { searchBarStyle: 'bordered' },
+  empty: { centersPlaceholder: true },
+  discover: { searchBarStyle: 'bordered', showsSearchIcon: false, fieldShadowOpacity: 0.06, camera: true },
+};
+
+/**
+ * The first-level page's search bar: the WHOLE bar in the navigation bar, full width inside the safe area (no back button).
+ * A tap on the field does not edit: the native core brings the back button in (animated), shrinks the bar, and sends
+ * `onFirstLevelTap`, where the page pushes the second-level search page. The page sets no width.
+ */
+function FirstLevelBar({ tabKey, onOpen }: { tabKey: string; onOpen: () => void }) {
+  const look = TAB_LOOKS[tabKey] ?? {};
+  const text = discoverStrings();
+  return (
+    <CYLSearchBarView
+      style={styles.discoverBar}
+      placeholder={text['discover.search']}
+      navigationFieldStyle={look.navigationFieldStyle}
+      searchBarStyle={look.searchBarStyle}
+      showsSearchIcon={look.showsSearchIcon}
+      fieldShadowOpacity={look.fieldShadowOpacity}
+      centersPlaceholder={look.centersPlaceholder}
+      embedsInNavigationBar
+      pushesOnTap
+      onFirstLevelTap={onOpen}
+      items={[
+        ...(look.camera ? [{ style: 'icon' as const, image: 'camera', title: text['discover.imageSearch'], animationURL: 'search_camera.json', onPress: onOpen }, { style: 'divider' as const }] : []),
+        { style: 'text', title: text['discover.search'], accessibilityIdentifier: 'CYLSearchFirstLevelSearchButton', onPress: onOpen },
+      ]}
+    />
+  );
+}
+
 /** The entry of the Discover tab: a one-row page that opens the Discover page (iOS `CYLSearchDiscoverEntryViewController`). */
-function DiscoverEntry({ onOpen }: { onOpen: () => void }) {
+function DiscoverEntry() {
   const palette = usePalette();
   const title = discoverStrings()['discover.title'] ?? '';
   return (
@@ -416,13 +467,14 @@ function DiscoverEntry({ onOpen }: { onOpen: () => void }) {
         foldControlPosition="inline"
         foldControlContent="icon"
         foldedRowCount={3}
-        onTagSelect={onOpen}
+        onTagSelect={() => undefined}
       />
     </ScrollView>
   );
 }
 
-function DiscoverDemo({ onBack }: { onBack: () => void }) {
+function DiscoverDemo({ tabKey, onBack }: { tabKey: string; onBack: () => void }) {
+  const look = TAB_LOOKS[tabKey] ?? {};
   const palette = usePalette();
   const barRef = useRef<CYLSearchBarHandle>(null);
   const [animationLoops, setAnimationLoops] = useState(false);
@@ -454,20 +506,21 @@ function DiscoverDemo({ onBack }: { onBack: () => void }) {
         style={styles.discoverBar}
         text={barText}
         placeholder={placeholder}
-        searchBarStyle="bordered"
-        showsSearchIcon={false}
+        navigationFieldStyle={look.navigationFieldStyle}
+        searchBarStyle={look.searchBarStyle}
+        centersPlaceholder={look.centersPlaceholder}
+        showsSearchIcon={look.showsSearchIcon}
         embedsInNavigationBar
         showsBackButton
         focusesOnAppear
         onBackButtonTap={onBack}
-        fieldShadowOpacity={0.06}
+        fieldShadowOpacity={look.fieldShadowOpacity}
         onTextChange={(event) => { typed.current = event.nativeEvent.text; }}
         onSubmit={(event) => search(event.nativeEvent.text || placeholder)}
         ref={barRef}
         items={[
           // The camera button itself plays the animation (Animation demo rule): search_camera.json, the same Lottie file on every platform.
-          { style: 'icon', image: 'camera', title: text['discover.imageSearch'], animationURL: 'search_camera.json', animationLoops, animationSpeed, onPress: () => setMessage(text['discover.imageSearchUnavailable'] ?? '') },
-          { style: 'divider' },
+          ...(look.camera ? [{ style: 'icon' as const, image: 'camera', title: text['discover.imageSearch'], animationURL: 'search_camera.json', animationLoops, animationSpeed, onPress: () => setMessage(text['discover.imageSearchUnavailable'] ?? '') }, { style: 'divider' as const }] : []),
           { style: 'text', title: text['discover.search'], accessibilityIdentifier: 'CYLSearchDiscoverSearchButton', onPress: () => search(typed.current || placeholder) },
         ]}
       />

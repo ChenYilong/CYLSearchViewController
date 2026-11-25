@@ -128,7 +128,35 @@ class CYLSearchDiscoverData(val discoverCount: Int, val recentSearches: List<Str
  * "Discover" is a grid of two titles per row with a hot icon and the More button that refreshes the topics; the search
  * bar (camera and Search inside the field) replaces the toolbar; "hold to ask" at the bottom.
  */
-class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewDelegate {
+class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewDelegate, CYLInteractiveBack {
+
+    // The tab style of the bar (cylTabSearchBar key), passed by the first-level page that pushed this one.
+    private val styleKey: String get() = arguments?.getString(ARG_STYLE) ?: "discover"
+
+    /**
+     * Back button out and the bar's width back to full, then the page pops (the back button and the back gesture).
+     */
+    fun popAnimated() {
+        searchBar.hideKeyboard()
+        searchBar.hideBackButton(true) { if (isAdded) parentFragmentManager.popBackStack() }
+    }
+
+    override fun backProgress(progress: Float) = searchBar.setBackButtonProgress(1f - progress)
+
+    override fun backCancelled() = searchBar.showBackButton(true)
+
+    override fun backCommitted() = popAnimated()
+
+    companion object {
+        private const val ARG_STYLE = "style"
+
+        /**
+         * The page for the tab `styleKey`.
+         */
+        fun newInstance(styleKey: String) = CYLSearchDiscoverFragment().apply {
+            arguments = android.os.Bundle().apply { putString(ARG_STYLE, styleKey) }
+        }
+    }
 
     private lateinit var data: CYLSearchDiscoverData
     private val recentSource = RecentSource()
@@ -181,34 +209,17 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
         val primary = themeColor(context, android.R.attr.textColorPrimary)
         val secondary = themeColor(context, android.R.attr.textColorSecondary)
 
-        // A white capsule with a soft shadow, no magnifier: the camera and the Search button sit inside it.
-        searchBar = CYLSearchBarView(context).apply {
+        // The bar of the tab that pushed this page, in the tab's own style (cylTabSearchBar), the same look as on the first-level page.
+        searchBar = cylTabSearchBar(context, styleKey, { searchByImage() }, { searchTapped() }).apply {
             delegate = this@CYLSearchDiscoverFragment
-            applyNavigationFieldStyle()
             // A search page with a back button: the field takes focus whenever the page appears (the core filters on the back button).
             focusesOnAppear = true
-            // The 16 dp inset of the tag list's header and tags (docs/animated-icon-component.md, "Default layout contract"). Set here
-            // until the core default moves from 12 to 16 (that change makes CYLSearchViewQMUIPortTest fail in the full suite: open).
-            contentInsets = android.graphics.Rect(16, 6, 16, 6)
-            fieldHeight = 46f
             textField.contentDescription = getString(R.string.cyl_discover_search)
         }
-        // The field stays; the camera, a divider and the Search button are items appended to the bar.
-        val camera = CYLSearchBarItem.iconItem(context.getDrawable(R.drawable.cyl_ic_camera), getString(R.string.cyl_discover_imageSearch)) {
-            searchByImage()
-        }
-        camera.imageSize = android.util.SizeF(22f, 22f)
-        // The camera button itself plays the animation (Animation demo rule): search_camera.json, the same Lottie file on
-        // every platform; the static camera drawable stays the fallback when the engine is missing.
-        camera.animationURL = android.net.Uri.parse("file:///android_asset/search_camera.json")
-        camera.animationLoops = animationLoops
-        camera.animationSpeed = animationSpeed
-        val search = CYLSearchBarItem.textItem(getString(R.string.cyl_discover_search)) { searchTapped() }
-        search.itemAccessibilityIdentifier = "CYLSearchDiscoverSearchButton"
-        // No item tint of the example's own: the core's default is the label color (accent when selected).
-        searchBar.addItem(camera)
-        searchBar.addItem(CYLSearchBarItem.divider())
-        searchBar.addItem(search)
+        // The camera button of the Discover style plays the animation (Animation demo rule).
+        val camera = searchBar.items.firstOrNull { it.animationURL != null }
+        camera?.animationLoops = animationLoops
+        camera?.animationSpeed = animationSpeed
 
         // Recent searches: folded to two rows, the chevron as the last tag; the trash clears the list.
         recentList = CYLTagListView(context).apply {
@@ -232,14 +243,13 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             menuDelegate = this@CYLSearchDiscoverFragment
         }
 
-        // Always a second-level page: the toolbar's navigation icon (the back arrow) is on the left and the core embeds the bar in
-        // the toolbar so that it fills the rest (CYLSearchBarView.embedInToolbar); this page sets no width, margin or padding.
-        val toolbar = androidx.appcompat.widget.Toolbar(context).apply {
-            setNavigationIcon(ContextCompat.getDrawable(context, androidx.appcompat.R.drawable.abc_ic_ab_back_material)?.also { it.setTint(primary) })
-            navigationContentDescription = getString(R.string.cyl_discover_back)
-            setNavigationOnClickListener { parentFragmentManager.popBackStack() }
-        }
+        // A second-level page, pushed by a first-level bar. Its bar starts as the first-level one (whole width, no back button) and the
+        // core brings the back button in and narrows the bar (showBackButton); the back button and the back gesture run the reverse
+        // (hideBackButton) before the page pops. This page sets no width, margin or padding.
+        val toolbar = androidx.appcompat.widget.Toolbar(context)
         searchBar.embedInToolbar(toolbar)
+        searchBar.backButtonHandler = { popAnimated() }
+        searchBar.post { searchBar.showBackButton(true) }
         // Playback controls under the bar: loop switch, speed 0.25 to 3 and Play again (each at least 48dp high).
         val speedLabel = TextView(context).apply {
             setTextColor(secondary)
@@ -262,7 +272,7 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
         speedBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(bar: SeekBar, progress: Int, fromUser: Boolean) {
                 animationSpeed = 0.25f + progress / 100f
-                camera.animationSpeed = animationSpeed
+                camera?.animationSpeed = animationSpeed
                 showSpeed()
             }
             override fun onStartTrackingTouch(bar: SeekBar) {}
@@ -275,7 +285,7 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             contentDescription = getString(R.string.cyl_discover_animationLoops)
             setOnCheckedChangeListener { _, checked ->
                 animationLoops = checked
-                camera.animationLoops = checked
+                camera?.animationLoops = checked
             }
         }
         val playAgain = Button(context).apply {
@@ -283,7 +293,7 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             minHeight = dp(48f)
             minimumWidth = dp(48f)
             contentDescription = getString(R.string.cyl_discover_animationPlay)
-            setOnClickListener { camera.restartAnimation() }
+            setOnClickListener { camera?.restartAnimation() }
         }
         val playback = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -413,6 +423,8 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
         recentSource.searches.remove(query)
         recentSource.searches.add(0, query)
         reloadLists()
+        // The first-level page that pushed this one learns the query (CYLExamplePage.onSearchSubmitted).
+        parentFragmentManager.setFragmentResult(CYL_SEARCH_RESULT, android.os.Bundle().apply { putString(CYL_SEARCH_RESULT, query) })
         view?.announceForAccessibility(getString(R.string.cyl_discover_searching, query))
     }
 
