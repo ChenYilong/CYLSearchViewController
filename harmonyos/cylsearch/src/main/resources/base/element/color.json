@@ -3,6 +3,10 @@
     {
       "name": "cyl_search_field_background",
       "value": "#BBBAC1"
+    },
+    {
+      "name": "cyl_search_secondary_label",
+      "value": "#993C3C43"
     }
   ]
 }

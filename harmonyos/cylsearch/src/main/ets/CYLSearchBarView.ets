@@ -81,12 +81,31 @@ function cylSearchBarItemButtonContent<T>(style: number, title: string | undefin
 }
 
 /**
+ * The gap on each side of the built-in divider, in vp.
+ */
+const CYLSearchBarDividerGap = 8;
+
+/**
+ * The built-in divider's height in vp (its width is 1).
+ */
+const CYLSearchBarDividerHeight = 20;
+
+/**
+ * The secondary label color (light rgba(60,60,67,0.60), dark rgba(235,235,245,0.60)): the resource has a dark
+ * qualifier, so the system re-resolves it when the appearance changes, with no listener.
+ */
+const CYLSearchBarSecondaryLabel: Resource = $r('app.color.cyl_search_secondary_label');
+
+/**
  * The horizontal padding of an item in vp: its own when 0 or more, else 4 for a text item (style 2) and 0 for the
  * others (iOS `CYLSearchBarItemButton.resolvedInsets`).
  */
 function cylSearchBarItemInsets(style: number, contentInsets: number): number {
   if (contentInsets >= 0) {
     return contentInsets;
+  }
+  if (style === 1) {
+    return CYLSearchBarDividerGap;
   }
   return style === 2 ? 4 : 0;
 }
@@ -478,7 +497,7 @@ export class CYLSearchBarItem {
     const button = this.itemButton ?? this.itemView;
     const content = cylSearchBarItemButtonContent<ResourceStr>(this.style, this.title, this.image, this.selectedImage,
       this.animatedImage, this.animationURL, this.badgeValue);
-    button.style = this.itemStyle(this.tintColor ?? barTint ?? $r('sys.color.font_primary'));
+    button.style = this.itemStyle(this.tintColor ?? barTint);
     button.minimumSize = new CYLSize(CYLSearchBarItemMinimumSide, CYLSearchBarItemMinimumSide);
     button.title = content.title;
     button.image = content.image;
@@ -503,7 +522,7 @@ export class CYLSearchBarItem {
 
   // Every state is drawn with the item's current look (its title attributes for that state): the view dims itself
   // while disabled, so the tag stays enabled and its animated icon is not dimmed a second time.
-  private itemStyle(tint: ResourceColor): CYLMenuStyle {
+  private itemStyle(hostTint: ResourceColor | undefined): CYLMenuStyle {
     const style = new CYLMenuStyle();
     const side = this.imageSize > 0 ? this.imageSize : 20;
     const insets = cylSearchBarItemInsets(this.style, this.contentInsets);
@@ -521,6 +540,7 @@ export class CYLSearchBarItem {
       cylLength(this.titlePositionAdjustment.y));
     [CYLControlState.NORMAL, CYLControlState.SELECTED, CYLControlState.DISABLED].forEach((state: number) => {
       const appearance = style.appearance(state);
+      const tint = CYLSearchBarItem.resolvedTint(hostTint, state === CYLControlState.SELECTED);
       appearance.font = new CYLFont(attributes?.size ?? 17, attributes?.weight ?? FontWeight.Bold);
       appearance.textColor = attributes?.color ?? tint;
       appearance.iconColor = tint;
@@ -532,6 +552,19 @@ export class CYLSearchBarItem {
       appearance.cornerRadius = hasBackground ? 10 : 0;
     });
     return style;
+  }
+
+  /**
+   * The icon and title color of an item in a state: the host's tint (the item's `tintColor`, else the bar's
+   * `itemTintColor`) overrides everything; with none, normal is the label color (black in light, white in dark),
+   * selected the accent. Both are system resources, re-resolved when the appearance changes. A disabled item is
+   * dimmed by its view, so it keeps the normal color.
+   */
+  static resolvedTint(hostTint: ResourceColor | undefined, selected: boolean): ResourceColor {
+    if (hostTint !== undefined) {
+      return hostTint;
+    }
+    return selected ? $r('sys.color.brand') : $r('sys.color.font_primary');
   }
 
   /**
@@ -798,7 +831,7 @@ export class CYLSearchBarAppearance {
   /**
    * The placeholder color.
    */
-  placeholderColor: ResourceColor | undefined = $r('sys.color.font_tertiary');
+  placeholderColor: ResourceColor | undefined = $r('app.color.cyl_search_secondary_label');
   /**
    * The placeholder.
    */
@@ -1117,7 +1150,8 @@ export class CYLSearchBarView {
    */
   @Trace items: CYLSearchBarItem[] = [];
   /**
-   * The icon and title color of every item without its own `tintColor`; undefined uses the primary text color.
+   * The icon and title color of every item without its own `tintColor`; undefined uses the label color (the accent
+   * while selected).
    */
   @Trace itemTintColor: ResourceColor | undefined = undefined;
 
@@ -2013,9 +2047,9 @@ struct CYLSearchBarItemView {
     if (this.item.style === CYLSearchBarItemStyle.divider) {
       Divider()
         .vertical(true)
-        .height(18)
+        .height(CYLSearchBarDividerHeight)
         .strokeWidth(1)
-        .color($r('sys.color.comp_divider'))
+        .color(CYLSearchBarSecondaryLabel)
         .margin({ left: this.insets(), right: this.insets() })
         .accessibilityLevel('no')
     } else {
@@ -2114,7 +2148,7 @@ struct CYLSearchBarSearchesView {
               .borderRadius(0)
               .fontSize(this.searchBarView.font)
               .fontColor(this.searchBarView.textColor ?? $r('sys.color.font_primary'))
-              .placeholderColor(this.searchBarView.placeholderColor ?? $r('sys.color.font_tertiary'))
+              .placeholderColor(this.searchBarView.placeholderColor ?? $r('app.color.cyl_search_secondary_label'))
               .caretColor(this.searchBarView.cursorColor ?? $r('sys.color.brand'))
               .type(this.searchBarView.keyboardType)
               .enterKeyType(this.searchBarView.returnKeyType)
@@ -2259,7 +2293,7 @@ export struct CYLSearchBarComponent {
         .fontSize(this.searchBarView.font)
         .fontColor(this.searchBarView.textColor ?? $r('sys.color.font_primary'))
         .placeholderColor(this.searchBarView.placeholderCentered ? Color.Transparent :
-          (this.searchBarView.placeholderColor ?? $r('sys.color.font_tertiary')))
+          (this.searchBarView.placeholderColor ?? $r('app.color.cyl_search_secondary_label')))
         .placeholderFont({ size: this.searchBarView.font })
         .caretColor(this.searchBarView.cursorColor ?? this.tint())
         .type(this.searchBarView.isSecureTextEntry ? InputType.Password : this.searchBarView.keyboardType)
@@ -2339,7 +2373,7 @@ export struct CYLSearchBarComponent {
         }
         Text(this.searchBarView.placeholder)
           .fontSize(this.searchBarView.font)
-          .fontColor(this.searchBarView.placeholderColor ?? $r('sys.color.font_tertiary'))
+          .fontColor(this.searchBarView.placeholderColor ?? $r('app.color.cyl_search_secondary_label'))
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
           .flexShrink(1)

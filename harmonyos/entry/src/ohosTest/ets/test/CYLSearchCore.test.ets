@@ -2,7 +2,7 @@ import { describe, it, expect } from '@ohos/hypium';
 import { abilityDelegatorRegistry } from '@kit.TestKit';
 import { common } from '@kit.AbilityKit';
 import { CYLPlaceholderScenario } from 'cylplaceholder';
-import { CYLColorKey, CYLImageIsSymbol, CYLTagButton } from '@cyl/classifymenu';
+import { CYLColorKey, CYLControlState, CYLImageIsSymbol, CYLTagButton } from '@cyl/classifymenu';
 import {
   CYLMenuFoldControl,
   CYLMenuFoldControlContent,
@@ -273,6 +273,32 @@ export default function cylSearchCoreTest() {
       bar.addItem(CYLSearchBarItem.divider());
       bar.addItem(CYLSearchBarItem.textItem('Search', () => {}));
       expect(bar.items.length).assertEqual(2);
+    });
+
+    it('searchBarItemTintFollowsStateAndHostOverrides', 0, () => {
+      const label = CYLColorKey($r('sys.color.font_primary'));
+      const accent = CYLColorKey($r('sys.color.brand'));
+      const bar = new CYLSearchBarView();
+      const item = CYLSearchBarItem.textItem('Search');
+      bar.addItem(item);
+      // No tint set anywhere: normal and disabled use the label color, selected the accent.
+      let button = item.reloadItemView(undefined);
+      expect(CYLColorKey(button.style.iconColor(CYLControlState.NORMAL))).assertEqual(label);
+      expect(CYLColorKey(button.style.iconColor(CYLControlState.DISABLED))).assertEqual(label);
+      item.isSelected = true;
+      button = item.reloadItemView(undefined);
+      expect(CYLColorKey(button.style.iconColor(CYLControlState.SELECTED))).assertEqual(accent);
+      // The bar's tint, then the item's own, override every state.
+      button = item.reloadItemView('#FF0000');
+      expect(CYLColorKey(button.style.iconColor(CYLControlState.SELECTED))).assertEqual(CYLColorKey('#FF0000'));
+      item.tintColor = '#00FF00';
+      button = item.reloadItemView('#FF0000');
+      expect(CYLColorKey(button.style.iconColor(CYLControlState.NORMAL))).assertEqual(CYLColorKey('#00FF00'));
+    });
+
+    it('searchBarPlaceholderIsTheSecondaryLabelResource', 0, () => {
+      const bar = new CYLSearchBarView();
+      expect(CYLColorKey(bar.placeholderColor)).assertEqual(CYLColorKey($r('app.color.cyl_search_secondary_label')));
     });
 
     it('searchBarItemsAreDrawnByTagButtons', 0, () => {
