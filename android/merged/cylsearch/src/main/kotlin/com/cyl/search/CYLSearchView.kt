@@ -1691,9 +1691,9 @@ class CYLSearchView @JvmOverloads constructor(
         override fun searchBarViewSearchButtonClicked(searchBarView: CYLSearchBarView) {
             // Every submitted query is cached, so the list shows it the next time.
             val submitted = searchBarView.text.orEmpty().trim()
-            if (submitted.isNotEmpty()) {
-                changeHistory { it.addQuery(submitted) }
-            }
+            // Empty text (the default search button, like the Search key): nothing is submitted, recorded or closed, the keyboard stays.
+            if (submitted.isEmpty()) return
+            changeHistory { it.addQuery(submitted) }
             val handled = delegate?.searchViewDidSubmitText(this@CYLSearchView, searchBarView.text.orEmpty()) ?: false
             if (!handled && closesOnSubmit) closeSearch() else dismissSuggestions()
         }

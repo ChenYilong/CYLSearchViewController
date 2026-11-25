@@ -79,6 +79,9 @@ class CylsearchBarViewManager : SimpleViewManager<CylsearchBarView>(), Cylsearch
   @ReactProp(name = "focusesOnAppear", defaultBoolean = false)
   override fun setFocusesOnAppear(view: CylsearchBarView, value: Boolean) { view.bar.focusesOnAppear = value }
 
+  @ReactProp(name = "pageDepth", defaultInt = -1)
+  override fun setPageDepth(view: CylsearchBarView, value: Int) { view.bar.pageDepth = value.takeIf { it >= 0 } }
+
   @ReactProp(name = "showsSearchIcon", defaultBoolean = true)
   override fun setShowsSearchIcon(view: CylsearchBarView, value: Boolean) {
     view.bar.searchIcon = if (value) ContextCompat.getDrawable(view.context, com.cyl.search.R.drawable.cyl_search_ic_search) else null

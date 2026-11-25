@@ -112,6 +112,23 @@ class CYLSearchTagListStyleTest {
     }
 
     @Test
+    fun theGridKeepsTitlesAndIconsOffTheRimLikeTheDefaultStyleFlatAndGlass() {
+        for (name in listOf("flat", "liquidGlass")) {
+            val style = CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(2)
+            CYLSearchTagListStyle.applyGrid(style)
+            CYLSearchTagListStyle.applyBackgroundStyle(name, style)
+            for (state in listOf(CYLControlState.NORMAL, CYLControlState.SELECTED, CYLControlState.DISABLED)) {
+                val insets = style.appearanceForState(state).contentInsets
+                assertEquals("$name $state left", 14f, insets.left, 0f)
+                assertEquals("$name $state right", 14f, insets.right, 0f)
+            }
+        }
+        val defaults = CYLMenuStyle()
+        CYLSearchTagListStyle.applyDefaults(defaults)
+        assertEquals("as Recent searches", 14f, defaults.appearanceForState(CYLControlState.NORMAL).contentInsets.left, 0f)
+    }
+
+    @Test
     fun theGridKeepsTheHeaderLookAndOneRowPerThirtySixDp() {
         val style = CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(2)
         CYLSearchTagListStyle.applyGrid(style)

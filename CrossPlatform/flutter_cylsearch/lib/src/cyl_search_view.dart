@@ -955,8 +955,9 @@ class CYLSearchBarView extends StatefulWidget {
   /// The field focuses itself (and the keyboard shows) every time the bar appears on screen, like a `viewDidAppear`: the first
   /// entry, a tab switch, a push and pop and the return from the background. The native core handles attach, visibility and
   /// resume; this widget adds the route (the route above this one was popped) and [AppLifecycleState.resumed] by sending a
-  /// `focus` call. Android filter (owner, 2026-11-26): only a bar embedded in a navigation bar that shows a back button
-  /// ([embedsInNavigationBar] with [showsBackButton]) focuses; a root tab or a plain bar never does. Default false.
+  /// `focus` call. Page-depth rule (owner, 2026-11-26): it focuses only on a second-level or deeper page, never on a
+  /// first-level one: the route is not the first of its navigator (`ModalRoute.isFirst`); the depth travels to the native core
+  /// as `pageDepth`, and this widget sends no `focus` call on a first route. Default false.
   final bool focusesOnAppear;
 
   /// The bar sits in a navigation bar the core creates (`CYLSearchNavigationBar`, 44 pt high, the field 36 pt) instead of
@@ -1048,9 +1049,13 @@ class _CYLSearchBarViewState extends State<CYLSearchBarView> with WidgetsBinding
     _secondaryAnimation = animation?..addStatusListener(_secondaryAnimationStatus);
   }
 
+  // The page-depth rule of focusesOnAppear: 0 on the first route of its navigator, 1 on any later route (Navigator.canPop).
+  int get _pageDepth => ModalRoute.of(context)?.isFirst == false ? 1 : 0;
+
   void _focusIfAppearing() {
     if (!widget.focusesOnAppear || !mounted) return;
     if (ModalRoute.of(context)?.isCurrent == false) return;
+    if (_pageDepth == 0) return;
     _channel?.invokeMethod<void>('focus');
   }
 
@@ -1064,7 +1069,7 @@ class _CYLSearchBarViewState extends State<CYLSearchBarView> with WidgetsBinding
     });
   }
 
-  Map<String, Object?> get _parameters => cylSearchBarViewParameters(widget, brightness: Theme.of(context).brightness);
+  Map<String, Object?> get _parameters => cylSearchBarViewParameters(widget, brightness: Theme.of(context).brightness, pageDepth: _pageDepth);
 
   void _created(int id) {
     final channel = MethodChannel(CYLSearchViewTypes.channel(id));
@@ -1191,7 +1196,7 @@ void cylSearchViewDispatch(CYLSearchView widget, MethodCall call) {
 /// The parameters a [CYLSearchBarView] sends to its native view, at creation and on every update (`brightness`: see
 /// [cylSearchViewParameters]).
 @visibleForTesting
-Map<String, Object?> cylSearchBarViewParameters(CYLSearchBarView widget, {Brightness brightness = Brightness.light}) => <String, Object?>{
+Map<String, Object?> cylSearchBarViewParameters(CYLSearchBarView widget, {Brightness brightness = Brightness.light, int pageDepth = 0}) => <String, Object?>{
       'brightness': brightness.name,
       'mode': widget.mode.name,
       'searches': widget.searches,
@@ -1207,6 +1212,7 @@ Map<String, Object?> cylSearchBarViewParameters(CYLSearchBarView widget, {Bright
       'searchButtonTitle': widget.searchButtonTitle,
       'hasSearchButtonHandler': widget.searchButtonHandler != null,
       'focusesOnAppear': widget.focusesOnAppear,
+      'pageDepth': pageDepth,
       'embedsInNavigationBar': widget.embedsInNavigationBar,
       'showsBackButton': widget.showsBackButton,
       'animatesBackButton': widget.animatesBackButton,

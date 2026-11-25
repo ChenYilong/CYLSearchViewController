@@ -364,7 +364,7 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
                 "setShowsCancelButton" ->
                     bar.setShowsCancelButton(callArguments["shows"] as? Boolean ?: false, callArguments["animated"] as? Boolean ?: true)
                 "showKeyboard" -> bar.showKeyboard()
-                "focus" -> bar.showKeyboard()
+                "focus" -> if (bar.isOnSecondLevelOrDeeperPage) bar.showKeyboard()
                 "restartItemAnimation" -> bar.items.getOrNull(index)?.restartAnimation()
                 "searches" -> return@setMethodCallHandler result.success(bar.searches)
                 "selectedSearchIndex" -> return@setMethodCallHandler result.success(bar.selectedSearchIndex)
@@ -409,6 +409,7 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
     }
 
     private fun apply(arguments: Map<String, Any?>) {
+        bar.pageDepth = (arguments["pageDepth"] as? Number)?.toInt()
         bar.focusesOnAppear = arguments["focusesOnAppear"] == true
         toolbar?.let { if (it.navigationIcon != null) tintBackArrow(it, arguments["brightness"] == "dark") }
         if (toolbar != null) {

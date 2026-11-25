@@ -91,11 +91,18 @@ export interface NativeProps extends ViewProps {
   hasSearchButtonHandler?: CodegenTypes.WithDefault<boolean, false>;
   /**
    * The field focuses itself (and the keyboard shows) every time the bar appears on screen, like a `viewDidAppear`: the first
-   * entry, a tab switch, a push and pop and the return from the background. Default false. Android filter (owner, 2026-11-26): only a bar embedded in a navigation bar that shows a back button (`embedsInNavigationBar` with `showsBackButton`) focuses; a root tab or a plain bar never does. Android: the core
+   * entry, a tab switch, a push and pop and the return from the background. Default false. Page-depth rule (owner, 2026-11-26): it auto-focuses only on a second-level or deeper page, never on a first-level page (see `pageDepth`). Android: the core
    * (`CYLSearchBarView.focusesOnAppear`) watches attach, visibility, window focus and the Activity's resume, so no JS side
    * moment is needed (an AppState listener cannot tell whether the bar is on screen).
    */
   focusesOnAppear?: CodegenTypes.WithDefault<boolean, false>;
+  /**
+   * The depth of the page that holds the bar for the `focusesOnAppear` page-depth rule: 0 is a first-level page (a root tab, the
+   * first page of a stack), 1 or more a second-level or deeper page; pass the navigator stack index (React Navigation
+   * `navigation.getState().index`, or `canGoBack() ? 1 : 0`). Default -1: unset, the Android core derives it from the fragment back
+   * stack (`CYLSearchBarView.pageDepth`), which an all-React-Native app never fills, so set it there.
+   */
+  pageDepth?: CodegenTypes.WithDefault<CodegenTypes.Int32, -1>;
   /**
    * The bar sits in a navigation bar the core creates (`CYLSearchNavigationBar`, 44 pt high, the field 36 pt) instead of
    * being a plain view: the page always has its search bar in a navigation bar. Default false.

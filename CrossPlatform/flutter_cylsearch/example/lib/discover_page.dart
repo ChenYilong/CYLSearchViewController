@@ -256,7 +256,7 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                           embedsInNavigationBar: true,
                           // The page is always a second-level page: the back button on the left of the bar (owner's rule).
                           showsBackButton: true,
-                          // A search page with a back button: the field takes focus whenever the page appears (Android core filter: only with a back button).
+                          // A search page with a back button: the field takes focus whenever the page appears (page-depth rule: this route is not the first, so it focuses).
                           focusesOnAppear: true,
                           onBackPressed: () => Navigator.of(context).maybePop(),
                           fieldShadowOpacity: cylTabBarLookOf(widget.tab).fieldShadowOpacity,

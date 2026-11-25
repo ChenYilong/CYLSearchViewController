@@ -160,7 +160,7 @@ Details of the `core` tag of [AGENTS.md](../../AGENTS.md) and [instructions.md](
      zh-Hant). The core has a built-in magnifier icon (iOS SF Symbol `magnifyingglass`); the caller chooses `searchButtonStyle`
      (`text` or `icon`), a custom `searchButtonTitle` or `searchButtonImage`, `searchButtonHandler`, or `showsSearchButton = false`.
      An editing bar (`editingBar(...)`) and a bar in multiple mode have none. It is not in `items`. A tap submits the text, and tells
-     the delegate `searchBarViewSearchButtonClicked` also for empty text. Every platform exposes the same names.
+     the delegate `searchBarViewSearchButtonClicked` also for empty text on a plain bar; a search PAGE or view (`CYLSearchView`) ignores an empty tap: nothing submitted, recorded or closed, the keyboard stays (owner, 2026-11-26). Every platform exposes the same names.
   6. Keyboard life cycle of the bar itself (owner, 2026-11-26): the bar manages it as the smallest component, so it works in every
      container. The keyboard has the Search key (`returnKeyType = .search`). `focusesOnAppear` (off by default) focuses the field
      every time the bar appears on screen (first entry of a pushed page, push and pop, return from the background), but only on a

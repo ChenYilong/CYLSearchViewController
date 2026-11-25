@@ -28,6 +28,9 @@ object CYLSearchTagListStyle {
      */
     const val CAPSULE_CORNER_RADIUS: Float = 1000f
 
+    /** The default horizontal inner inset of a tag, in dp (the iOS 14 of a drawn Liquid Glass tag), on the list and the grid style. */
+    const val TAG_CONTENT_HORIZONTAL_INSET: Float = 14f
+
     /**
      * The border of a flat tag: iOS `UIColor.separator` in light mode (60,60,67 at 29%), visible on a white tag over an off-white
      * page; the earlier 16% black was not.
@@ -95,7 +98,7 @@ object CYLSearchTagListStyle {
                     borderWidth = 0f
                 }
                 cornerRadius = tagCornerRadius
-                margin = 14f
+                margin = TAG_CONTENT_HORIZONTAL_INSET
                 font = CYLFont(17f)
                 textColor = labelColor(night)
                 // A template icon with one static color (core CYLIconContrast: an original-color icon would vanish on dark glass).
@@ -176,6 +179,9 @@ object CYLSearchTagListStyle {
             style.appearanceForState(state).apply {
                 font = CYLFont(17f, Typeface.create("sans-serif-medium", Typeface.NORMAL))
                 textColor = labelColor(isNight(context))
+                // The grid style of ClassifyMenu sets margin 0: a title or a trailing icon would touch the rim of its pill. The same
+                // inner inset as the default style, flat and glass alike (CYLTagButton reads max(contentInsets, the glass inset)).
+                margin = TAG_CONTENT_HORIZONTAL_INSET
             }
         }
         style.imageSize = CYLSize(0f, 0f)

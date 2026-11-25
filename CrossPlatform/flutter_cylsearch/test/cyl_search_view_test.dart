@@ -145,6 +145,8 @@ void main() {
       expect(const CYLSearchBarView().focusesOnAppear, false);
       expect(cylSearchBarViewParameters(const CYLSearchBarView())['focusesOnAppear'], false);
       expect(cylSearchBarViewParameters(const CYLSearchBarView(focusesOnAppear: true))['focusesOnAppear'], true);
+      expect(cylSearchBarViewParameters(const CYLSearchBarView())['pageDepth'], 0);
+      expect(cylSearchBarViewParameters(const CYLSearchBarView(), pageDepth: 1)['pageDepth'], 1);
     });
 
     test('sends its parameters and forwards its events', () {
@@ -178,6 +180,7 @@ void main() {
             'searchButtonTitle': null,
             'hasSearchButtonHandler': false,
             'focusesOnAppear': false,
+            'pageDepth': 0,
             'items': <Object?>[],
             'editingBar': false,
             'actionTitle': null,

@@ -515,6 +515,7 @@ function DiscoverDemo({ tabKey, onBack }: { tabKey: string; onBack: () => void }
         embedsInNavigationBar
         showsBackButton
         focusesOnAppear
+        pageDepth={1}
         onBackButtonTap={onBack}
         fieldShadowOpacity={look.fieldShadowOpacity}
         onTextChange={(event) => { typed.current = event.nativeEvent.text; }}

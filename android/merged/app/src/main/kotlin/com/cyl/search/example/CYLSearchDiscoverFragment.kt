@@ -212,7 +212,7 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
         // The bar of the tab that pushed this page, in the tab's own style (cylTabSearchBar), the same look as on the first-level page.
         searchBar = cylTabSearchBar(context, styleKey, { searchByImage() }, { searchTapped() }).apply {
             delegate = this@CYLSearchDiscoverFragment
-            // A search page with a back button: the field takes focus whenever the page appears (the core filters on the back button).
+            // A search page with a back button: the field takes focus whenever the page appears (the core's page-depth rule: pushed on the back stack, so second-level).
             focusesOnAppear = true
             textField.contentDescription = getString(R.string.cyl_discover_search)
         }

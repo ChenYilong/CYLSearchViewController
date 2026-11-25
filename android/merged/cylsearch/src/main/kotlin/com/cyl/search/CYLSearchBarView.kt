@@ -1291,8 +1291,9 @@ class CYLSearchBarView @JvmOverloads constructor(
      * Whether the field takes focus (and the soft keyboard shows) every time the bar appears on screen, like a `viewDidAppear`: the
      * first time its page is entered, after a tab switch or a push and pop (the view is attached again or becomes visible), when the
      * window regains focus and when the Activity or Fragment resumes (return from the background). Nothing is observed while this is
-     * false. False by default. FILTER (owner, 2026-11-26): only a bar embedded in a toolbar that shows a back button (navigation
-     * icon) focuses; a root tab or a plain bar never auto-focuses, even when this is true.
+     * false. False by default. PAGE-DEPTH RULE (owner, 2026-11-26, replaces the back-button filter): it auto-focuses only on a
+     * second-level or deeper page (`isOnSecondLevelOrDeeperPage`), never on a first-level page (a root tab, the first page of a
+     * stack), whatever the toolbar shows (iOS `CYLSearchBarView.isOnSecondLevelOrDeeperPage`).
      *
      * The moments come from the view itself (attach, visibility, window focus) and from the lifecycle owner of the view tree
      * (`ViewTreeLifecycleOwner`, else the host Activity) at ON_RESUME. TODO: CYLDeallocBlockExecutor's Android dependency is deferred
@@ -1336,19 +1337,35 @@ class CYLSearchBarView @JvmOverloads constructor(
         return base as? LifecycleOwner
     }
 
-    /** True when the bar sits in a toolbar (embedInToolbar) that currently shows a navigation icon, the back button. */
-    private fun hasBackButton(): Boolean {
-        var view: View? = parent as? View
-        while (view != null && view !is androidx.appcompat.widget.Toolbar) view = view.parent as? View
-        return (view as? androidx.appcompat.widget.Toolbar)?.navigationIcon != null
+    /**
+     * The depth of the page that holds the bar: 0 is a first-level page (a root tab, the first page of a stack), 1 or more a
+     * second-level or deeper page. A host that knows its navigation sets it (a Flutter route, a React Native navigator, a custom
+     * stack). Null (default) derives it from the back stack: the `FragmentManager` of the bar's Fragment (else the host
+     * `FragmentActivity`) has entries on its back stack, that is, the page was pushed.
+     */
+    var pageDepth: Int? = null
+
+    /** True on a second-level or deeper page: `pageDepth` above 0, else the fragment back stack has entries. */
+    val isOnSecondLevelOrDeeperPage: Boolean
+        get() = (pageDepth ?: fragmentBackStackDepth()) > 0
+
+    private fun fragmentBackStackDepth(): Int {
+        val manager = try {
+            androidx.fragment.app.FragmentManager.findFragment<androidx.fragment.app.Fragment>(this).parentFragmentManager
+        } catch (_: IllegalStateException) {
+            var base: Context? = context
+            while (base is ContextWrapper && base !is androidx.fragment.app.FragmentActivity) base = base.baseContext
+            (base as? androidx.fragment.app.FragmentActivity)?.supportFragmentManager
+        }
+        return manager?.backStackEntryCount ?: 0
     }
 
-    /** Focuses the field and shows the keyboard when `focusesOnAppear` is on, the bar is on screen, has a back button and is not editing yet. */
+    /** Focuses the field and shows the keyboard when `focusesOnAppear` is on, the bar is on screen, is on a second-level or deeper page and is not editing yet. */
     private fun focusIfAppearing() {
         if (!focusesOnAppear) return
         post {
             val resumed = appearLifecycle?.currentState?.isAtLeast(Lifecycle.State.RESUMED) != false
-            if (focusesOnAppear && resumed && isAttachedToWindow && isShown && hasBackButton() && textField.isEnabled && !textField.hasFocus()) {
+            if (focusesOnAppear && resumed && isAttachedToWindow && isShown && isOnSecondLevelOrDeeperPage && textField.isEnabled && !textField.hasFocus()) {
                 showKeyboard()
             }
         }
