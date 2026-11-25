@@ -418,9 +418,9 @@ describe('corner radius capsule constant', () => {
     const offenders = [...walk(entryEts), ...walk(core)].filter((file) => radius.test(readFileSync(file, 'utf8')));
     assert.deepEqual(offenders, []);
   });
-  it('passes the library constant by name where the Discover bar is a capsule', () => {
-    assert.match(discoverSource, /bar\.fieldCornerRadius = CYLAnimatedItemCornerRadiusCapsule;/);
-    assert.match(discoverSource, /import \{ CYLAnimatedItemCornerRadiusCapsule \} from 'cylanimateditem';/);
+  it('gives the Discover bar its look through applyNavigationFieldStyle, never its own values', () => {
+    assert.match(discoverSource, /bar\.applyNavigationFieldStyle\(\);/);
+    assert.doesNotMatch(discoverSource, /bar\.fieldCornerRadius|bar\.fieldShadowOpacity|bar\.searchBarStyle/);
   });
   it('draws the search bar item square with 0, and CYLTagCornerRadiusSquare is gone', () => {
     assert.match(library, /appearance\.cornerRadius = hasBackground \? 10 : 0;/);
@@ -594,5 +594,33 @@ describe('the Placeholder styles page chunks', () => {
     assert.equal(logic.cylGalleryChunksAfterReachEnd(1, 6, 42), 2);
     assert.equal(logic.cylGalleryChunksAfterReachEnd(7, 6, 42), 7);
     assert.equal(logic.cylGalleryChunksAfterReachEnd(1, 6, 4), 1);
+  });
+});
+
+describe('navigation field preset (applyNavigationFieldStyle)', () => {
+  it('is a bordered capsule radius 18, shadow 0.06, no magnifier, 16 fp text', () => {
+    assert.deepEqual(logic.cylSearchNavigationFieldPreset(),
+      { cornerRadius: 18, shadowOpacity: 0.06, fontSize: 16, showsSearchIcon: false, bordered: true });
+  });
+  it('uses an opaque white (light) and black (dark) fill resource', () => {
+    const element = (mode) => JSON.parse(readFileSync(join(core, '..', 'resources', mode, 'element', 'color.json'), 'utf8'));
+    const value = (file) => file.color.find((entry) => entry.name === 'cyl_search_navigation_field_fill')?.value;
+    assert.equal(value(element('base')), '#FFFFFF');
+    assert.equal(value(element('dark')), '#000000');
+  });
+  it('is exposed on the core view and called, never copied, by the example screens', () => {
+    assert.match(readFileSync(join(core, 'CYLSearchBarView.ets'), 'utf8'), /applyNavigationFieldStyle\(\): void \{/);
+    const demos = join(here, '..', 'entry', 'src', 'main', 'ets', 'demos');
+    for (const file of ['Discover.ets', 'Ports.ets', 'MaterialSearch.ets', 'SearchBarDemo.ets',
+      join('contacttags', 'CYLContactTagsPages.ets')]) {
+      assert.match(readFileSync(join(demos, file), 'utf8'), /applyNavigationFieldStyle\(\)/, file);
+    }
+  });
+  it('leaves no system Search() or TextInput in the example sources', () => {
+    const root = join(here, '..', 'entry', 'src', 'main', 'ets');
+    const walk = (d) => readdirSync(d, { withFileTypes: true }).flatMap((e) =>
+      e.isDirectory() ? walk(join(d, e.name)) : e.name.endsWith('.ets') ? [join(d, e.name)] : []);
+    const offenders = walk(root).filter((f) => /(^|[^\w.])(Search|TextInput|TextArea)\s*\(/m.test(readFileSync(f, 'utf8')));
+    assert.deepEqual(offenders, []);
   });
 });

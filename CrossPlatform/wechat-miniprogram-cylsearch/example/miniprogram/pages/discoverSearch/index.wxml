@@ -2,9 +2,8 @@
   <!-- The core's navigation bar holds the search bar (status bar, menu button and back button handled by it). -->
   <cyl-search-navigation-bar showsBack="{{showsBack}}" bind:back="onBack">
     <cyl-search-bar generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
-      id="bar" class="bar" value="{{query}}" placeholder="{{placeholder}}" showsSearchIcon="{{false}}" contentInsets="0"
-      fieldHeight="{{fieldHeight}}" fieldCornerRadius="{{capsuleCornerRadius}}" fieldShadowOpacity="{{0.06}}" fieldBorderColor="#c6c6c8" fieldBorderWidth="{{1}}"
-      fieldBackgroundColor="#ffffff" searchBarStyle="bordered" fontSize="{{16}}" items="{{items}}"
+      id="bar" class="bar" value="{{query}}" placeholder="{{placeholder}}" navigationFieldStyle contentInsets="0"
+      fieldHeight="{{fieldHeight}}" items="{{items}}"
       bind:textchange="onTextChange" bind:submit="onSubmit" bind:itemselect="onItemSelect" />
   </cyl-search-navigation-bar>
   <!-- Playback of the animated bar item: loop switch, speed slider with its value, Play again. -->

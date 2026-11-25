@@ -7,7 +7,6 @@
 const { cylDemoText, cylDemoLanguage, cylDiscoverData, cylHotIcon } = require('../../utils/cyl_demo_text');
 const { cylTopicPage, cylNextTopicPage, cylSearchedRecent, cylDiscoverCloudTags, cylHotIconSize, cylDiscoverCloudStyle } = require('../../utils/cyl_discover_logic');
 // The library's capsule radius (CYLAnimatedItem, 1000): passed by name, never the literal; 0 is square.
-const { cylAnimatedItemCornerRadiusCapsule } = require('../../miniprogram_npm/cyl-tag-list-miniprogram/cyl-animated-item/cyl_animated_item_model');
 const { cylFoldTags } = require('../../components/core/CYLSearchView');
 const { cylNavigationMetrics } = require('../../components/core/CYLSearchResources');
 
@@ -24,7 +23,7 @@ const CLOUD_BASE_STYLE = require('cyl-tag-list-miniprogram').tagCloud.defaultSty
 
 Page({
   data: {
-    texts: {}, showsBack: false, fieldHeight: 36, capsuleCornerRadius: cylAnimatedItemCornerRadiusCapsule,
+    texts: {}, showsBack: false, fieldHeight: 36,
     query: '', placeholder: '', items: [], loops: false, speed: 1, speedText: '1.00x',
     recent: [], visibleRecent: [], needsFold: false, folded: true,
     topics: [], topicTags: [], topicStyle: null, hotIcon: '', hint: '', announcement: '', foldLabels: FOLD_LABELS.en,

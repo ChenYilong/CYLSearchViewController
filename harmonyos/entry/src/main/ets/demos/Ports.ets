@@ -67,11 +67,8 @@ export struct LapismPage {
     lapismModel.filteredItems = this.items;
     // MaterialSearchBar: navigationIconCompat = SEARCH, setHint, setOnClickListener / setNavigationOnClickListener.
     this.searchBar.navigationIcon = CYLSearchBarNavigationIcon.search;
-    this.searchBar.searchIcon = undefined;
+    this.searchBar.applyNavigationFieldStyle();
     this.searchBar.placeholder = cylDemoText(this.context, 'search.field');
-    this.searchBar.fieldCornerRadius = -1;
-    this.searchBar.fieldShadowOpacity = 0.15;
-    this.searchBar.fieldBackgroundColor = $r('sys.color.background_secondary');
     this.searchBar.navigationHandler = () => this.searchView.showSearch();
     this.searchBar.delegate = {
       searchBarViewShouldBeginEditing: () => false,
@@ -81,7 +78,7 @@ export struct LapismPage {
     this.searchView.installInView(this.context);
     this.searchView.contentView = wrapBuilder(lapismResults);
     this.searchView.searchBarView.navigationIcon = CYLSearchBarNavigationIcon.arrow;
-    this.searchView.searchBarView.searchIcon = undefined;
+    this.searchView.searchBarView.applyNavigationFieldStyle();
     this.searchView.searchBarView.placeholder = cylDemoText(this.context, 'search.field');
     this.searchView.delegate = {
       searchViewTextDidChange: (_: CYLSearchView, text: string) => {
@@ -140,6 +137,7 @@ export struct YechaoaPage {
 
   aboutToAppear(): void {
     // setIconifiedByDefault(true), isSubmitButtonEnabled, imeOptions, isIconified, queryHint, text colors.
+    this.searchBar.applyNavigationFieldStyle();
     this.searchBar.contentInsets = { top: 0, left: 0, bottom: 0, right: 0 };
     this.searchBar.iconifiedByDefault = true;
     this.searchBar.showsSubmitButton = true;
@@ -217,13 +215,9 @@ export struct RevealPage {
 
   aboutToAppear(): void {
     // CardView: background #f2f2f2, corner radius 2; EditText: hint "search", text color #ffd46c, single line.
-    this.searchBar.fieldBackgroundColor = '#F2F2F2';
-    this.searchBar.fieldCornerRadius = 2;
+    this.searchBar.applyNavigationFieldStyle();
     this.searchBar.fieldHeight = 60;
-    this.searchBar.fieldShadowOpacity = 0.2;
     this.searchBar.placeholder = 'search';
-    this.searchBar.textColor = '#FFD46C';
-    this.searchBar.searchIcon = undefined;
     // The floating action button and the reveal (ViewAnimationUtils.createCircularReveal, 1000 ms).
     this.searchBar.expansionAnimation = CYLSearchBarExpansionAnimation.circularReveal;
     this.searchBar.animationDuration = 1;
@@ -283,9 +277,9 @@ export struct MultiSearchDemoPage {
   private searchBar: CYLSearchBarView = new CYLSearchBarView();
 
   aboutToAppear(): void {
+    this.searchBar.applyNavigationFieldStyle();
     this.searchBar.mode = CYLSearchBarMode.multiple;
     this.searchBar.placeholder = cylDemoText(this.context, 'search.field');
-    this.searchBar.font = 18;
     this.searchBar.maximumTextLength = 15;
     this.searchBar.returnKeyType = EnterKeyType.Search;
     this.searchBar.placeholderColor = 'rgba(153, 153, 153, 0.5)';

@@ -74,6 +74,22 @@ const CYLSearchBarItemState = Object.freeze({
  * iOS names (`font` is a size in px, the images are paths or URLs); `<cyl-search-bar appearance>` takes the plain values of
  * `CYLSearchBarAppearance.default()` and applies them only to what the bar does not set itself.
  */
+/**
+ * The navigation field preset (the Discover look), the one set of values behind `CYLSearchBarView.applyNavigationFieldStyle()`
+ * and the component property `navigationFieldStyle`: a bordered capsule (radius 18), a soft shadow (0.06), no magnifier,
+ * 16 text; the fill is opaque white (light) or black (dark), see `cylNavigationFieldFill`.
+ */
+function cylNavigationFieldStyle() {
+  return { cornerRadius: 18, shadowOpacity: 0.06, fontSize: 16, showsSearchIcon: false, bordered: true };
+}
+
+/**
+ * The opaque fill of the navigation field: white in light mode, black in dark mode.
+ */
+function cylNavigationFieldFill(dark) {
+  return dark ? '#000000' : '#FFFFFF';
+}
+
 class CYLSearchBarAppearance {
   /**
    * A style with the merged defaults (iOS `CYLSearchBarAppearance()`).
@@ -631,6 +647,21 @@ class CYLSearchBarView {
       this.fieldBackgroundColor = $r('sys.color.comp_background_primary');
       this.fieldCornerRadius = -1;
     }
+  }
+
+  /**
+   * The look of the input box of a navigation bar, the one every screen uses (iOS `applyNavigationFieldStyle()`): a
+   * bordered capsule (corner radius 18) with a soft shadow (opacity 0.06), an opaque white (light) or black (dark) fill,
+   * no magnifier, 16 text. Call it before `addItem()`; examples call it and never set these values.
+   */
+  applyNavigationFieldStyle() {
+    const preset = cylNavigationFieldStyle();
+    this.searchIcon = undefined;
+    this.searchBarStyle = CYLSearchBarStyle.bordered;
+    this.fieldCornerRadius = preset.cornerRadius;
+    this.fieldShadowOpacity = preset.shadowOpacity;
+    this.fieldBackgroundColor = $r('app.color.cyl_search_navigation_field_fill');
+    this.font = preset.fontSize;
   }
 
   /**
@@ -1196,6 +1227,8 @@ module.exports = {
   CYLSearchBarViewDelegate,
   CYLSearchBarAppearance,
   cylInsetsCSS,
+  cylNavigationFieldStyle,
+  cylNavigationFieldFill,
   CYLSearchBarItem,
   CYLSearchBarView,
 };

@@ -34,13 +34,13 @@ test('no example source gives a corner radius the literal 1000 or 0.001', () => 
   assert.deepStrictEqual(offenders, []);
 });
 
-test('the Discover bar passes the capsule constant by name', () => {
+test('the Discover bar takes its look from navigationFieldStyle, no radius of its own', () => {
   const page = path.join(exampleRoot, 'pages', 'discoverSearch');
   const script = fs.readFileSync(path.join(page, 'index.js'), 'utf8');
   const markup = fs.readFileSync(path.join(page, 'index.wxml'), 'utf8');
-  assert.match(script, /capsuleCornerRadius: cylAnimatedItemCornerRadiusCapsule/);
-  assert.match(markup, /fieldCornerRadius="\{\{capsuleCornerRadius\}\}"/);
-  assert.doesNotMatch(markup, /fieldCornerRadius="\{\{fieldHeight \/ 2\}\}"/);
+  assert.doesNotMatch(script, /capsuleCornerRadius/);
+  assert.match(markup, /\bnavigationFieldStyle\b/);
+  assert.doesNotMatch(markup, /fieldCornerRadius=/);
 });
 
 test('no 0.001 radius is left in the sources: the search bar item square is 0', () => {

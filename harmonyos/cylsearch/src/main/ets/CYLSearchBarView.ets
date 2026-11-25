@@ -51,6 +51,23 @@ function cylSearchTextSubmittable(text: string): boolean {
 }
 
 /**
+ * The navigation field preset, the Discover look every screen uses (iOS `applyNavigationFieldStyle()`): a bordered capsule
+ * (corner radius 18) with a soft shadow (opacity 0.06), no magnifier, 16 fp text (fp scales with the system font size).
+ * The fill is opaque white (light) or black (dark), see `cyl_search_navigation_field_fill`.
+ */
+interface CYLSearchNavigationFieldPreset {
+  cornerRadius: number;
+  shadowOpacity: number;
+  fontSize: number;
+  showsSearchIcon: boolean;
+  bordered: boolean;
+}
+
+function cylSearchNavigationFieldPreset(): CYLSearchNavigationFieldPreset {
+  return { cornerRadius: 18, shadowOpacity: 0.06, fontSize: 16, showsSearchIcon: false, bordered: true };
+}
+
+/**
  * What the `CYLTagButton` of a search bar item shows (iOS `CYLSearchBarItemButton.reload()`).
  */
 interface CYLSearchBarItemButtonContent<T> {
@@ -1277,6 +1294,26 @@ export class CYLSearchBarView {
       this.fieldBackgroundColor = $r('sys.color.comp_background_primary');
       this.fieldCornerRadius = -1;
     }
+  }
+
+  /**
+   * The look of the input box of a navigation bar, the one every screen uses: a bordered capsule (corner radius 18) with
+   * a soft shadow (opacity 0.06), an opaque white (light) or black (dark) fill, no magnifier, 16 fp text. Call it before
+   * `addItem()` and `CYLSearchNavigationBar.embedInNavigationBar()`; items, text and delegate stay the caller's. Examples
+   * call it and never set these values (iOS `applyNavigationFieldStyle()`).
+   */
+  applyNavigationFieldStyle(): void {
+    const preset = cylSearchNavigationFieldPreset();
+    if (!preset.showsSearchIcon) {
+      this.searchIcon = undefined;
+    }
+    if (preset.bordered) {
+      this.searchBarStyle = CYLSearchBarStyle.bordered;
+    }
+    this.fieldCornerRadius = preset.cornerRadius;
+    this.fieldShadowOpacity = preset.shadowOpacity;
+    this.fieldBackgroundColor = $r('app.color.cyl_search_navigation_field_fill');
+    this.font = preset.fontSize;
   }
 
   /**

@@ -21,7 +21,7 @@ export struct SearchBarDemoView {
     this.bar.placeholder = cylDemoText(this.context, 'demo.searchBar.placeholder');
     this.bar.showsCancelButton = true;
     this.bar.cancelButtonTitle = cylDemoText(this.context, 'search.cancel');
-    this.bar.fieldShadowOpacity = 0.12;
+    this.bar.applyNavigationFieldStyle();
     this.showText('');
     this.bar.delegate = {
       searchBarViewTextDidChange: (_: CYLSearchBarView, text: string) => this.showText(text),

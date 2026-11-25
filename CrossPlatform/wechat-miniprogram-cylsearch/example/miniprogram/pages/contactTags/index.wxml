@@ -1,7 +1,9 @@
 <view class="screen">
   <cyl-demo-nav title="" rightTitle="{{texts.done}}" rightIdentifier="CYLContactRemarkDone" tintColor="{{doneEnabled ? '' : '#C7C7CC'}}" />
   <view class="title" role="heading">{{texts.editRemarks}}</view>
-  <input class="name" placeholder="{{texts.remarkName}}" aria-label="{{texts.remarkName}}" />
+  <!-- The remark name is the core field with the navigation preset (one input look), not a system input. -->
+  <cyl-search-bar generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
+    class="name" navigationFieldStyle placeholder="{{texts.remarkName}}" fieldHeight="{{48}}" showsClearButton />
   <view class="tags-title" role="button" aria-label="{{texts.tags}}, {{texts.hintEdit}}" id="CYLContactRemarkTagsTitle" bindtap="editTags">
     <text>{{texts.tags}}</text><text class="chevron">›</text>
   </view>

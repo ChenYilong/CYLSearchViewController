@@ -26,7 +26,7 @@
     <view class="cyl-mask-icon cyl-mask-search" style="{{searchIndicatorColor ? 'background-color: ' + searchIndicatorColor : ''}}" aria-hidden="true" />
   </view>
 </view>
-<view wx:else class="cyl-bar {{searchBarStyle === 'bordered' ? 'cyl-bar-bordered' : ''}} cyl-icon-{{iconPosition}} {{pinsToKeyboard ? 'cyl-bar-pinned' : ''}}" style="{{barStyle ? barStyle + ';' : ''}}{{contentInsets ? 'padding: ' + contentInsets + ';' : ''}}{{pinsToKeyboard ? 'bottom: ' + keyboardHeight + 'px' : ''}}">
+<view wx:else class="cyl-bar {{searchBarStyle === 'bordered' ? 'cyl-bar-bordered' : ''}} {{navigationFieldStyle ? 'cyl-bar-navigation' : ''}} cyl-icon-{{iconPosition}} {{pinsToKeyboard ? 'cyl-bar-pinned' : ''}}" style="{{barStyle ? barStyle + ';' : ''}}{{contentInsets ? 'padding: ' + contentInsets + ';' : ''}}{{pinsToKeyboard ? 'bottom: ' + keyboardHeight + 'px' : ''}}">
   <view wx:if="{{collapsed}}" class="cyl-icon-button" role="button" aria-label="{{labels.search}}" bindtap="onIconTap"
     style="{{iconButtonBackgroundColor ? 'background: ' + iconButtonBackgroundColor + ';' : ''}}">
     <view class="cyl-mask-icon cyl-mask-search" style="{{iconButtonColor ? 'background-color: ' + iconButtonColor : ''}}" aria-hidden="true" />

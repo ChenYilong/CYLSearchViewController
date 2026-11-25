@@ -140,8 +140,9 @@ export struct MaterialSamplePage {
     const bar = this.searchView.searchBarView;
     this.searchView.installInView(this.context);
     // searchView.setVoiceSearch, setCursorDrawable, setEllipsize, setSuggestions and the two listeners.
+    bar.applyNavigationFieldStyle();
     bar.showsVoiceButton = sample === CYLMaterialSearchSample.voice;
-    bar.cursorColor = colored ? Color.White : $r('app.color.system_pink');
+    bar.cursorColor = $r('app.color.system_pink');
     bar.cancelButtonTitle = cylDemoText(this.context, 'search.cancel');
     this.searchView.suggestionLineBreakMode = sample === CYLMaterialSearchSample.standard ||
       sample === CYLMaterialSearchSample.inputType ? TextOverflow.Ellipsis : TextOverflow.None;
@@ -159,12 +160,8 @@ export struct MaterialSamplePage {
     this.searchView.focusesSearchFieldOnShow = this.param.focusesSearchFieldOnShow;
     bar.isSecureTextEntry = sample === CYLMaterialSearchSample.inputType;
     if (colored) {
-      // The colored theme: white text on the primary color.
+      // The colored theme: the primary color behind the page; the field is the core's opaque preset.
       this.searchView.backgroundColor = $r('app.color.system_indigo');
-      bar.textColor = Color.White;
-      bar.placeholderColor = 'rgba(255, 255, 255, 0.7)';
-      bar.searchIconTintColor = Color.White;
-      bar.fieldBackgroundColor = 'rgba(255, 255, 255, 0.15)';
       this.searchView.suggestionTextColor = Color.White;
       this.searchView.suggestionImageTintColor = 'rgba(255, 255, 255, 0.8)';
       this.searchView.dividerColor = 'rgba(255, 255, 255, 0.3)';

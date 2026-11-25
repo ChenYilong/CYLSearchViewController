@@ -148,11 +148,15 @@ export struct CYLContactRemarkPage {
   private source: CYLRemarkSource = new CYLRemarkSource();
   private tagList: CYLTagListState = new CYLTagListState();
   private placeholder: CYLPlaceholderViewModel = new CYLPlaceholderViewModel();
+  // The remark name is the core's field with the navigation preset (one input look), not a TextInput.
+  private remarkBar: CYLSearchBarView = new CYLSearchBarView();
   @Local tags: string[] = [];
   @Local listHeight: number = 120;
   @Local doneEnabled: boolean = false;
 
   aboutToAppear(): void {
+    this.remarkBar.applyNavigationFieldStyle();
+    this.remarkBar.placeholder = cylContactTagsText(this.context, 'remarkName');
     if ((AppStorage.get<number>(CYL_CONTACT_TAGS_RESET_KEY) ?? 0) === 1) {
       new CYLContactTagPreferences(this.context, CYL_CONTACT_TAGS_CACHE).clear();
       CYLContactTagServer.reset(this.context);
@@ -215,10 +219,7 @@ export struct CYLContactRemarkPage {
               .fontWeight(FontWeight.Bold)
               .margin({ top: 32 })
               .accessibilityLevel('yes')
-            TextInput({ placeholder: cylContactTagsText(this.context, 'remarkName') })
-              .height(48)
-              .borderRadius(8)
-              .backgroundColor(CYL_GRAY6)
+            CYLSearchBarComponent({ searchBarView: this.remarkBar })
               .margin({ top: 36, left: 16, right: 16 })
             Row() {
               Text(cylContactTagsText(this.context, 'tags')).fontSize(15).fontColor('#993C3C43')
@@ -414,6 +415,7 @@ export struct CYLContactTagEditorPage {
     this.selectedTags = this.initialSelection.slice();
     this.server = new CYLContactTagServer(this.context, this.getUIContext());
     // The search field is CYLSearchBarView: its delegate reports each change and the enter key.
+    this.searchBar.applyNavigationFieldStyle();
     this.searchBar.placeholder = cylContactTagsText(this.context, 'search');
     this.searchBar.delegate = {
       searchBarViewTextDidChange: (view: CYLSearchBarView, text: string) => this.queryChanged(text),

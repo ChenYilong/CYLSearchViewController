@@ -1,4 +1,4 @@
-const { CYLSearchBarColors, CYLSearchBarView, CYLSearchBarItem, CYLSearchBarMode, CYLSearchBarAppearance, cylInsetsCSS } = require('../core/CYLSearchBarView');
+const { cylNavigationFieldStyle, CYLSearchBarColors, CYLSearchBarView, CYLSearchBarItem, CYLSearchBarMode, CYLSearchBarAppearance, cylInsetsCSS } = require('../core/CYLSearchBarView');
 const { CYLSearchResources, cylFormatString } = require('../core/CYLSearchResources');
 
 const text = (key) => CYLSearchResources.localizedString(undefined, key);
@@ -25,7 +25,7 @@ function defaultItemTint() {
  * `{ focused }`, `cancel`, `itemselect` `{ item, index, selected }`, `navigationtap`, `voicetap`,
  * `tapwhilenoteditable` (with `editable` false), `iconifiedchange` `{ iconified }`; "multiple" mode:
  * `completesearch` `{ text, index }`, `removesearch` `{ index }`, `selectsearch` `{ text, index }`.
- * Methods: `setText(text, submit)`, `setIconified(iconified)`, `showKeyboard()`, `hideKeyboard()`; "multiple" mode:
+ * Methods: `applyNavigationFieldStyle()`, `setText(text, submit)`, `setIconified(iconified)`, `showKeyboard()`, `hideKeyboard()`; "multiple" mode:
  * `beginNewSearch()`, `completeSearch()`, `addSearch(text)`, `selectSearch(index)`, `removeSearch(index)`,
  * `searches()`.
  *
@@ -44,6 +44,10 @@ Component({
     placeholder: { type: String, value: '' },
     focus: { type: Boolean, value: false, observer: 'onFocusPropertyChange' },
     searchBarStyle: { type: String, value: 'plain' },
+    // The navigation field preset, the Discover look of every screen (iOS applyNavigationFieldStyle()): a bordered capsule
+    // (radius 18), a soft shadow (0.06), an opaque white / black fill, no magnifier, 16 text. A page sets this property
+    // (or calls the method applyNavigationFieldStyle()) and never the values; a JS method cannot share the property's name.
+    navigationFieldStyle: { type: Boolean, value: false, observer: 'onNavigationFieldStyle' },
     searchIcon: { type: String, value: '../images/search.svg' },
     showsSearchIcon: { type: Boolean, value: true },
     showsCancelButton: { type: Boolean, value: false },
@@ -233,6 +237,21 @@ Component({
     },
   },
   methods: {
+    onNavigationFieldStyle(value) {
+      if (!value) return;
+      const preset = cylNavigationFieldStyle();
+      this.setData({
+        searchBarStyle: 'bordered', showsSearchIcon: preset.showsSearchIcon, fieldCornerRadius: preset.cornerRadius,
+        fieldShadowOpacity: preset.shadowOpacity, fontSize: preset.fontSize,
+      });
+    },
+    /**
+     * Applies the navigation field preset (the same as the property `navigationFieldStyle`; iOS `applyNavigationFieldStyle()`).
+     */
+    applyNavigationFieldStyle() {
+      this.setData({ navigationFieldStyle: true });
+      this.onNavigationFieldStyle(true);
+    },
     updateStyles() {
       const p = this.properties;
       if (!this.model) return;

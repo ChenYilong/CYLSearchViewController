@@ -7,6 +7,10 @@
     {
       "name": "cyl_search_secondary_label",
       "value": "#99EBEBF5"
+    },
+    {
+      "name": "cyl_search_navigation_field_fill",
+      "value": "#000000"
     }
   ]
 }

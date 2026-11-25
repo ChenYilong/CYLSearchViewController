@@ -7,13 +7,11 @@ import {
 } from '@cyl/classifymenu';
 import {
   CYLSearchBarItem,
-  CYLSearchBarStyle,
   CYLSearchBarView,
   CYLSearchNavigationPage,
   CYLSearchRefreshButton
 } from 'cylsearch';
 import { cylAppText, CYLDemoRoute, CYL_PLUS_OVERHANG } from '../common/DemoCommon';
-import { CYLAnimatedItemCornerRadiusCapsule } from 'cylanimateditem';
 
 /**
  * How many tags (`widths`, in vp) fit in `rows` rows of `width`, leaving room for a control of `controlWidth` after
@@ -213,13 +211,8 @@ export struct DiscoverView {
     this.setUpTopicList();
     // A capsule with a soft shadow, no magnifier: the camera and the Search button sit inside it.
     const bar = this.searchBar;
-    bar.searchIcon = undefined;
+    bar.applyNavigationFieldStyle();
     bar.contentInsets = { top: 0, left: 0, bottom: 0, right: 0 };
-    bar.searchBarStyle = CYLSearchBarStyle.bordered;
-    bar.fieldCornerRadius = CYLAnimatedItemCornerRadiusCapsule;
-    bar.fieldShadowOpacity = 0.06;
-    bar.font = 16;
-    bar.fieldBorderWidth = 1;
     // No item tint of the example's own: the core's default is the label color (accent when selected).
     const camera = CYLSearchBarItem.iconItem($r('sys.symbol.camera'), this.text('discover_imageSearch'),
       () => this.searchByImage());

@@ -1876,3 +1876,18 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 - Status: rules written; platform work below in this entry as it lands.
 - 2026-11-26 Android / Flutter / React Native, step 1 (preset bridge): `CYLSearchBarView.applyNavigationFieldStyle()` in the Android core (radius 18 dp, shadow 0.06, no magnifier, 16 sp, opaque white / black fill; test `CYLSearchBarNavigationFieldStyleTest`); Flutter `CYLSearchBar(navigationFieldStyle:)` (Dart + `FlutterCylsearchPlugin.kt`) and React Native `navigationFieldStyle` (codegen spec + Android view) call it. iOS natives (`FlutterCylsearchPlugin.swift`, `CylsearchBarView.mm`) are for the Mac session to wire. TODO: example conversion (step 2); Android classes wrapping a system search widget become facades over `CYLSearchView` (see `docs/no-system-searchbar.md`).
 - iOS decision (owner, 2026-11-26): "Rebuild on CYLSearchBarView". Plan and API map: [no-system-searchbar.md](no-system-searchbar.md). Windows messaged with the preset spec for Android, HarmonyOS, mini program, Dart/TS (the HarmonyOS `CYLSearchController.ets` follows the same facade model).
+
+### HarmonyOS and mini program: the navigation field preset (2026-11-26)
+
+- HarmonyOS core: `CYLSearchBarView.applyNavigationFieldStyle()` (bordered capsule radius 18, shadow 0.06, no magnifier, 16 fp text,
+  fill resource `cyl_search_navigation_field_fill`: white light, black dark). Examples call it (Discover, Ports demos, Material
+  search, search bar demo, contact tag search); the contact remark name is a `CYLSearchBarComponent`, no `TextInput` is left.
+  Material search "colored" theme keeps only the indigo page background (the field is the opaque preset).
+- Mini program core: `cylNavigationFieldStyle()`, `CYLSearchBarView.applyNavigationFieldStyle()`, and on `cyl-search-bar` the property
+  `navigationFieldStyle` (a method cannot share a property's name, so the method is `applyNavigationFieldStyle()`). Example pages
+  discoverSearch, lapism, reveal, contactTags (remark name) and the demo search bar use it; no `<input type="search">` or `<search>`.
+- `CYLSearchController.ets` (HarmonyOS) already is a facade over `CYLSearchView` (no `Search()`); no change needed. The mini program has
+  no class wrapping a system search widget.
+- Tests: `node harmonyos/scripts/host-logic-test.mjs` 78 pass; mini program `npm test` 138 pass.
+- TODO: not verified on device: HarmonyOS build (entry@emulator, ohosTest) and emulator run, WeChat DevTools rendering (opaque dark
+  fill, remark field at 48 px height, multiple-mode `multiSearch` page and yechaoa toolbar keep their own looks: no field box / icon only).
