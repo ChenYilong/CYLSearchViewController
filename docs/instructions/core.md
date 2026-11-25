@@ -136,3 +136,23 @@ Details of the `core` tag of [AGENTS.md](../../AGENTS.md) and [instructions.md](
   `cyl-search-bar` and `cyl-search`). Refresh lives only in `CYLSearchView`. CYLSearch depends on no other search
   kernel (CollectionViewClassifyMenu and CYLTableViewPlaceHolder are not search kernels). A new feature goes into the
   class it belongs to (a parameter or a mode), not into a new public class. Design: `docs/search-core-merge.md`.
+
+## One search field, no system search bar (added 2026-11-26)
+
+- Prompt (English): "No platform may use a system search bar; replace every one with CYLSearchBarView, mainly in the core code. Examples may not use a system search bar either. Expose the same preset (the Discover look) on every platform."
+- Rules:
+  1. The text field of every search in this project is the core's `CYLSearchBarView` (Android `CYLSearchBarView`, HarmonyOS
+     `CYLSearchBarView`, Flutter and React Native `CYLSearchBar` over the native one, the mini program's `cyl-search-bar`). No
+     system search bar anywhere, in the core or in an example: iOS `UISearchBar`, `UISearchController`'s bar and
+     `UISearchTextField`; Android `SearchView`, `SearchBar`, Material `SearchView`; HarmonyOS `Search()`; Flutter
+     `SearchBar`, `SearchAnchor`, `SearchDelegate`, `CupertinoSearchTextField`; React Native `TextInput` used as a search
+     box; the mini program's `<input type="search">` or `<search>`.
+  2. The one look is the navigation field preset, the Discover look: bordered capsule (corner radius 18), soft shadow
+     (opacity 0.06), no magnifier, 16 pt text that scales, an opaque white (light) or black (dark) fill, a divider before the
+     trailing items. iOS: `CYLSearchBarView.applyNavigationFieldStyle()` (`Sources/CYLSearchBar/CYLSearchNavigationBar.swift`).
+     Every other platform exposes the same preset under the same name in its core, and the Flutter and React Native
+     bridges pass it through (a `navigationFieldStyle` parameter), so an example never sets these values itself.
+  3. Where a platform's own search UI is part of a ported third-party library (a Ports demo of QMUI, MaterialSearchView and the
+     like), the port keeps that library's classes only as a replica of its API, and its demo screen shows the core field.
+  4. A screen that needs a plain text input that is not a search (a remark name) uses the same field too (one input look).
+- Skill: `cyl-search-field`. Per-platform status: `docs/task-log.md`, entry "no system search bar on any platform".

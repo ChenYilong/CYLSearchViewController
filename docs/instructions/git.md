@@ -199,3 +199,7 @@ Every time a branch is created, open its pull request automatically as soon as t
 (`gh pr create`), without asking. The base (target) branch is the branch it was created from (its source branch) by
 preference; use `master` or `main` only when that is the source, or when the source branch no longer exists on the
 remote. Name the base branch in the reply.
+
+- Applied again 2026-11-26 (task "no system search bar on any platform"): this file was read in full (all 201 lines, including
+  the Commit readiness, Commitizen, branch and pull request sections) before the first git operation of the task; the
+  rule, its classification (tag `git`, skill `cyl-commit`) and the 2026-11-22 prompt are unchanged.

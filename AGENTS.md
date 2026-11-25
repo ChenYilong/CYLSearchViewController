@@ -36,6 +36,7 @@ The content is grouped by tag. Every category below has a short summary; its ful
 | `cyl-simulator-run` | Before running a simulator or emulator: the run rules; after the test or screenshot run, terminate the app and stop the simulator process at once, boot again when needed |
 | `cyl-api-parity` | Comparing two platforms' APIs: the parity table (source API, description, target counterpart, `TODO` by default), its score, and the loop to 100 |
 | `cyl-example-taglist` | A demo or example needs a table-view-like grouped list: show it as ClassifyMenu's tag list (sections, adaptive width, wrapping titles, 3-row fold whose control is the tail tag, icon only, long-press subtitle bubble) |
+| `cyl-search-field` | Any search or text field in the core or an example, on any platform: `CYLSearchBarView` with the navigation field preset, never a system search bar |
 | `cyl-fix-in-core` | Fixing any issue or bug: in the core (code published to a package registry) first; example-layer fixes only after asking, with the reason documented; the content below the search bar and its scrolling belong to the core |
 | `cyl-naming` | Adding or renaming any type, function, member, constant or component: when `CYL` / `cyl_` is required, and the SonarCloud naming rules |
 | `cyl-commit` | Writing any commit message: `git cz` style, English only, the author line, the checks before committing |
@@ -79,6 +80,8 @@ The content is grouped by tag. Every category below has a short summary; its ful
 - The core creates and owns the content page below the search bar and its scrolling (no example lookup of it).
 - Focus alone changes nothing below the search bar. Examples adapt to the Swift core. New core images live in folder
   bundles. Skill: `cyl-fix-in-core`.
+- One search field everywhere: `CYLSearchBarView` with the navigation field preset on every platform; no system search
+  bar in the core or an example (`docs/instructions/core.md`, "One search field"). Skill: `cyl-search-field`.
 - Details: [docs/instructions/core.md](docs/instructions/core.md) (Fix issues in the core first; The core owns the content below the search bar and its scrolling; Project rules; Swift core: examples adapt to the core; Core behavior: focus alone changes nothing below the search bar; Image resources: folder bundles; Search core).
 
 ## Sub-repositories and CYLTabBarController (tag: `dependencies`)
