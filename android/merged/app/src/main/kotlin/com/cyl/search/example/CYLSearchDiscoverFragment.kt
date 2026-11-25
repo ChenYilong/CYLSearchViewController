@@ -356,9 +356,12 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             addView(mic, FrameLayout.LayoutParams(dp(68f), dp(52f), Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL).apply { bottomMargin = dp(16f) })
         }
         reloadLists()
-        return LinearLayout(context).apply {
+        // The gradient is a SIBLING plate behind the page (rule 7), not the background of the lists' ancestor; both lists' glass samples it.
+        val plate = cylBackdropPlate(context)
+        recentList.backdropSource = plate
+        discoverList.backdropSource = plate
+        val page = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            background = cylGradientPageBackground(context)
             // The page takes the first focus, so the keyboard stays down until the field is tapped (as on iOS).
             isFocusableInTouchMode = true
             descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS
@@ -367,20 +370,24 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             addView(hintLabel, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { bottomMargin = dp(4f) })
             addView(bottom, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(110f)))
         }
+        return FrameLayout(context).apply {
+            addView(plate, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+            addView(page, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+        }
     }
 
     // Styles
 
     // The search bar core's default tag look (CYLSearchTagListStyle: capsule tags, light border, bold header, 16 dp inset);
-    // the page only adds its white background.
+    // the list stays clear: the gradient plate behind the page shows through the glass (rule 7).
     private fun recentStyle(): CYLMenuStyle = CYLMenuStyle().apply {
         CYLSearchTagListStyle.applyDefaults(this, requireContext())
-        backgroundColor = pageBackground(requireContext())
+        backgroundColor = Color.TRANSPARENT
     }
 
     private fun discoverStyle(): CYLMenuStyle = CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(2).apply {
         CYLSearchTagListStyle.applyGrid(this, requireContext())
-        backgroundColor = pageBackground(requireContext())
+        backgroundColor = Color.TRANSPARENT
         // The refresh action is the built-in icon (docs/animated-icon-component.md, A), never the three dots. After the style.
         CYLSearchTagListHeader.applyRefreshIcon(requireContext(), this)
     }

@@ -62,13 +62,16 @@ abstract class CYLExamplePage : Fragment() {
             addView(toolbar, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
             addView(createContent(context), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         }
+        // A gradient page (docs/instructions/example-demos.md rule 7) on a SIBLING plate behind the content, never the background
+        // of an ancestor of the lists: every tag list's `backdropSource` is the plate, so the glass blurs and refracts it.
+        val plate = cylBackdropPlate(context)
         // An opaque page with an ID: pushed pages cover the one below and are added to the tab's root view.
         return FrameLayout(context).apply {
             id = View.generateViewId()
             isClickable = true
-            // A gradient page (docs/instructions/example-demos.md rule 7): the glass tags sample it, so a Liquid Glass tag is seen to blur and refract it.
-            background = cylGradientPageBackground(context)
+            addView(plate, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
             addView(column, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
+            cylSetBackdropSource(column, plate)
         }
     }
 
