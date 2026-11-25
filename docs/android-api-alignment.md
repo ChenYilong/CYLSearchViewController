@@ -85,7 +85,7 @@ Rows: 443; DONE 413, N/A 30, TODO 0; score 100/100.
 | **class `CYLSearchBarAppearance`** | `SearchBarFont`, `SearchBarTextColor`, `SearchBarPlaceholderColor`, `SearchBarTintColor`, the icons, the field background and border, `SearchBarTextFieldCornerRadius`, `SearchBarBackgroundImage` | CYLSearchBarAppearance | DONE |
 | `CYLSearchBarAppearance.font` | QMUI `SearchBarFont` | `CYLSearchBarAppearance.font` | DONE |
 | `CYLSearchBarAppearance.textColor` | QMUI `SearchBarTextColor` | `CYLSearchBarAppearance.textColor` | DONE |
-| `CYLSearchBarAppearance.placeholderColor` | QMUI `SearchBarPlaceholderColor`, default `UIColor.placeholderText` | `CYLSearchBarAppearance.placeholderColor` | DONE |
+| `CYLSearchBarAppearance.placeholderColor` | QMUI `SearchBarPlaceholderColor`, default `UIColor.secondaryLabel` | `CYLSearchBarAppearance.placeholderColor` | DONE |
 | `CYLSearchBarAppearance.placeholder` | — | `CYLSearchBarAppearance.placeholder` | DONE |
 | `CYLSearchBarAppearance.cancelTitle` | — | `CYLSearchBarAppearance.cancelTitle` | DONE |
 | `CYLSearchBarAppearance.tintColor` | QMUI `SearchBarTintColor`; legacy CYLSearchBar: RGB 0, 104, 248 | `CYLSearchBarAppearance.tintColor` | DONE |

@@ -37,8 +37,8 @@ public final class CYLSearchTagListStyle: NSObject {
 
     /**
      * Sets the defaults on `style`: white tags with a 1 pt separator border and `tagCornerRadius`, 17 pt text, 36 pt
-     * high, 12 pt apart, a 16 pt section inset and a bold 20 pt section header, then calls `styleCustomizer`. Values the
-     * defaults do not name (for example the clear background) stay as they are.
+     * high, 12 pt apart, a 16 pt section inset, a bold 20 pt section header and a clear list background (the page's color shows through, in
+     * dark mode too), then calls `styleCustomizer`. Values the defaults do not name stay as they are.
      */
     @objc(applyDefaultsToStyle:)
     public static func applyDefaults(to style: CYLMenuStyle) {
