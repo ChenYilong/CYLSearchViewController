@@ -1949,3 +1949,15 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 - Open: Windows reported an owner filter for `focusesOnAppear` (auto-focus only when the bar sits in a navigation bar that shows a back button and is on screen); not applied on iOS, awaiting the owner's confirmation here because it narrows the 2026-11-26 order (tab switches would not focus on a root tab).
 - Open: iOS Flutter and React Native bridges still have to pass `focusesOnAppear`, `showsSearchButton`, `searchButtonStyle`, `searchButtonTitle`, `searchButtonImage` (Windows owns the Dart and TypeScript side; spec sent).
 - 2026-11-26 iOS bridges: `FlutterCylsearchPlugin.swift` reads `focusesOnAppear` and answers the 'focus' call; `CylsearchBarView.mm` passes the prop (static; the RN and Flutter iOS batch is chenyilong-3e's). The default search button parameters (`showsSearchButton`, `searchButtonStyle`, `searchButtonTitle`, `searchButtonImage`) are not in the Dart and TS API yet (Windows).
+
+## TODO (2026-11-26): first-level search bar as the whole bar in the navigation bar, back button in and out (Android core, Flutter, React Native bridges)
+
+- Prompt: verbatim in [example-demos.md](instructions/example-demos.md), rule 10 (screen recording of a shopping app).
+- Android core API (`CYLSearchBarView`, Mac mirrors the names on iOS; HarmonyOS and the mini program follow iOS):
+  - `embedInToolbar(toolbar)` is the default: the bar is the WHOLE bar, full width; `respectsSafeArea` (true) turns the system bars' and cutout's left/right insets into the toolbar padding.
+  - `showBackButton(animated = true)`, `hideBackButton(animated = true, completion)`: the navigation icon fades and slides in or out (alpha + translation, 0.25 s) while the toolbar's start inset and the bar's own start inset follow, so the width shrinks or grows smoothly; the core does the width, the page sets none.
+  - `backButtonProgress` (0 to 1), `isBackButtonShown`, `setBackButtonProgress(p)` for an interactive gesture, `backPressedCallback(onBack)` (predictive back: progress follows the gesture, cancel brings the button in, commit hides it then calls `onBack`), `backButtonHandler`, `backButtonDrawable`.
+  - `onFirstLevelTap: (() -> Unit)?` makes the bar the push trigger: a tap on the field (not the items) does not edit; the core calls `showBackButton(true)` then the handler. `pushesOnTap` (read-only), `performFirstLevelTap()`.
+  - The second-level page builds the same bar (same style), `focusesOnAppear = true`, embeds it, calls `showBackButton(true)` after attach; back (button or gesture) calls `hideBackButton(true) { pop }`.
+- Bridges (same names, iOS native files untouched, Mac wires them): Flutter `CYLSearchBarView(pushesOnTap, onFirstLevelTap, animatesBackButton)`, method channel call `didTapFirstLevel`, parameters `pushesOnTap`, `animatesBackButton`; `showsBackButton` changes after creation now animate on Android. React Native props `pushesOnTap`, `animatesBackButton`, event `onFirstLevelTap` (codegen spec `CylsearchBarViewNativeComponent.ts`).
+- Status: core, bridges and examples written statically; tests run once at the end of the task.

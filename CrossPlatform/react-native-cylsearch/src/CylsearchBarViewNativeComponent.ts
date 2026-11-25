@@ -89,6 +89,18 @@ export interface NativeProps extends ViewProps {
    */
   showsBackButton?: CodegenTypes.WithDefault<boolean, false>;
   /**
+   * With `showsBackButton`: the bar starts whole and the back button slides in while the width shrinks (the continuation of the
+   * first-level bar that pushed this page; Android core `showBackButton(animated)`); a later change of `showsBackButton`
+   * animates too. False: at once. Default true.
+   */
+  animatesBackButton?: CodegenTypes.WithDefault<boolean, true>;
+  /**
+   * First-level page (with `embedsInNavigationBar`): the bar is shown whole and a tap on its field does not edit. The native core
+   * brings the back button in (animated) and sends `onFirstLevelTap`, where the page pushes the second-level search page, whose
+   * bar sets `showsBackButton`. Default false.
+   */
+  pushesOnTap?: CodegenTypes.WithDefault<boolean, false>;
+  /**
    * The appended items as JSON (an array of `CYLSearchBarItem` values; see `CYLSearchBarView` in index.tsx).
    */
   itemsJSON?: string;
@@ -168,6 +180,10 @@ export interface NativeProps extends ViewProps {
    * The back button of the navigation bar was tapped (`showsBackButton`): the host closes the page.
    */
   onBackButtonTap?: CodegenTypes.DirectEventHandler<BackButtonEvent>;
+  /**
+   * The first-level field was tapped (`pushesOnTap`): push the second-level search page.
+   */
+  onFirstLevelTap?: CodegenTypes.DirectEventHandler<BackButtonEvent>;
   /**
    * The text changed: `index` is the search being typed in "multiple" mode, -1 in "single" mode.
    */

@@ -76,6 +76,12 @@ class CylsearchBarViewManager : SimpleViewManager<CylsearchBarView>(), Cylsearch
     view.showsBackButton = value
   }
 
+  @ReactProp(name = "pushesOnTap", defaultBoolean = false)
+  override fun setPushesOnTap(view: CylsearchBarView, value: Boolean) { view.pushesOnTap = value }
+
+  @ReactProp(name = "animatesBackButton", defaultBoolean = true)
+  override fun setAnimatesBackButton(view: CylsearchBarView, value: Boolean) { view.animatesBackButton = value }
+
   @ReactProp(name = "editingBar")
   override fun setEditingBar(view: CylsearchBarView, value: Boolean) = view.setEditingBar(value)
 

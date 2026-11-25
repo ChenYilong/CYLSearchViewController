@@ -60,6 +60,8 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
         toolbar = it
         addView(it, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
       }
+      target.navigationIcon = null
+      shownBack = null
       bar.embedInToolbar(target)
       applyBackButton()
     } else {
@@ -71,17 +73,41 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
     }
   }
 
+  /** `pushesOnTap` (first-level page): a tap on the field brings the back button in (the core) and sends `onFirstLevelTap`. */
+  var pushesOnTap: Boolean = false
+    set(value) {
+      field = value
+      applyBackButton()
+    }
+
+  /** `animatesBackButton`: the back button of `showsBackButton` slides in (and out) with the width following; false: at once. */
+  var animatesBackButton: Boolean = true
+
+  private var shownBack: Boolean? = null
+
+  /**
+   * The core owns the back button and the width (CYLSearchBarView.showBackButton / hideBackButton). A bar created with
+   * `showsBackButton` starts whole and the button slides in once attached; later changes animate too.
+   */
   private fun applyBackButton() {
-    val target = toolbar ?: return
+    if (toolbar == null) return
+    bar.backButtonDrawable = ContextCompat.getDrawable(reactContext, androidx.appcompat.R.drawable.abc_ic_ab_back_material)?.mutate()?.also {
+      androidx.core.graphics.drawable.DrawableCompat.setTint(it, if (isNightTheme()) 0xFFFFFFFF.toInt() else 0xDE000000.toInt())
+    }
+    bar.backButtonHandler = { bar.hideBackButton(animatesBackButton) { emit("topBackButtonTap") } }
+    bar.onFirstLevelTap = if (pushesOnTap) ({ emit("topFirstLevelTap") }) else null
+    val previous = shownBack
+    if (showsBackButton == (previous ?: false)) return
+    shownBack = showsBackButton
     if (showsBackButton) {
-      target.navigationIcon = ContextCompat.getDrawable(reactContext, androidx.appcompat.R.drawable.abc_ic_ab_back_material)
-      target.navigationContentDescription = reactContext.getString(com.cyl.search.R.string.cyl_search_back)
-      target.setNavigationOnClickListener { emit("topBackButtonTap") }
+      if (previous == null && animatesBackButton) bar.post { bar.showBackButton(true) } else bar.showBackButton(animatesBackButton)
     } else {
-      target.navigationIcon = null
-      target.setNavigationOnClickListener(null)
+      bar.hideBackButton(animatesBackButton)
     }
   }
+
+  private fun isNightTheme(): Boolean =
+    (reactContext.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
 
   /** The editing bar's action title ("Add", "Done"), kept for a bar made later. */
   var actionTitle: String = ""

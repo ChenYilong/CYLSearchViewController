@@ -307,17 +307,28 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
      */
     private val toolbar: androidx.appcompat.widget.Toolbar? = if (arguments["embedsInNavigationBar"] == true) {
         androidx.appcompat.widget.Toolbar(context).also { target ->
-            if (arguments["showsBackButton"] == true) {
-                target.navigationIcon = ContextCompat.getDrawable(context, androidx.appcompat.R.drawable.abc_ic_ab_back_material)
-                tintBackArrow(target, arguments["brightness"] == "dark")
-                target.navigationContentDescription = context.getString(com.cyl.search.R.string.cyl_search_back)
-                target.setNavigationOnClickListener { channel.invokeMethod("didTapBackButton", null) }
-            }
             bar.embedInToolbar(target)
+            // The core owns the back button and the width (CYLSearchBarView.showBackButton / hideBackButton): the arrow follows the
+            // Flutter brightness, a tap takes the button out (animated) and then tells Dart, which pops the route.
+            bar.backButtonDrawable = backArrow(context, arguments["brightness"] == "dark")
+            bar.backButtonHandler = { bar.hideBackButton(true) { channel.invokeMethod("didTapBackButton", null) } }
+            if (arguments["showsBackButton"] == true) {
+                // The second-level page continues the first-level bar: it starts whole and the back button slides in once attached
+                // (`animatesBackButton`, default true), or is in at once.
+                val animated = arguments["animatesBackButton"] != false
+                if (animated) bar.post { bar.showBackButton(true) } else bar.showBackButton(false)
+            }
+            // `pushesOnTap`: a tap on the field does not edit, the core brings the back button in and Dart pushes the second-level page.
+            if (arguments["pushesOnTap"] == true) bar.onFirstLevelTap = { channel.invokeMethod("didTapFirstLevel", null) }
         }
     } else {
         null
     }
+
+    /**
+     * `showsBackButton` as last applied; a later change animates the back button in or out (the core adjusts the width).
+     */
+    private var appliedShowsBack: Boolean = arguments["showsBackButton"] == true
 
     /**
      * Dart's `searches` as applied last.
@@ -382,6 +393,13 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
      * The back arrow follows the Flutter app's brightness (white on the dark gradient, dark on the pale one): the
      * context theme is fixed at creation and would not follow a later change.
      */
+    private fun backArrow(context: Context, dark: Boolean): android.graphics.drawable.Drawable? {
+        val icon = ContextCompat.getDrawable(context, androidx.appcompat.R.drawable.abc_ic_ab_back_material) ?: return null
+        val wrapped = androidx.core.graphics.drawable.DrawableCompat.wrap(icon.mutate())
+        androidx.core.graphics.drawable.DrawableCompat.setTint(wrapped, if (dark) 0xFFFFFFFF.toInt() else 0xDE000000.toInt())
+        return wrapped
+    }
+
     private fun tintBackArrow(target: androidx.appcompat.widget.Toolbar, dark: Boolean) {
         val icon = target.navigationIcon ?: return
         val wrapped = androidx.core.graphics.drawable.DrawableCompat.wrap(icon.mutate())
@@ -392,6 +410,14 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
     private fun apply(arguments: Map<String, Any?>) {
         bar.focusesOnAppear = arguments["focusesOnAppear"] == true
         toolbar?.let { if (it.navigationIcon != null) tintBackArrow(it, arguments["brightness"] == "dark") }
+        if (toolbar != null) {
+            val shows = arguments["showsBackButton"] == true
+            if (shows != appliedShowsBack) {
+                appliedShowsBack = shows
+                if (shows) bar.showBackButton(true) else bar.hideBackButton(true)
+            }
+            bar.onFirstLevelTap = if (arguments["pushesOnTap"] == true) ({ channel.invokeMethod("didTapFirstLevel", null) }) else null
+        }
         val mode = if (arguments["mode"] == "multiple") CYLSearchBarMode.Multiple else CYLSearchBarMode.Single
         if (mode != bar.mode) bar.mode = mode
         @Suppress("UNCHECKED_CAST")

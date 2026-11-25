@@ -168,6 +168,8 @@ void main() {
             'fieldShadowOpacity': 0.12,
             'embedsInNavigationBar': false,
             'showsBackButton': false,
+            'animatesBackButton': true,
+            'pushesOnTap': false,
             'searchBarStyle': 'plain',
             'showsSearchIcon': true,
             'navigationFieldStyle': false,
@@ -190,6 +192,21 @@ void main() {
       cylSearchBarViewDispatch(bar, const MethodCall('didSubmit', <String, Object?>{'text': 'a'}));
       cylSearchBarViewDispatch(bar, const MethodCall('didCancel'));
       expect(events, <String>['text a', 'submit a', 'cancel']);
+    });
+
+    test('first-level bar: pushesOnTap and the animated back button are sent, a tap calls onFirstLevelTap', () {
+      var taps = 0;
+      final bar = CYLSearchBarView(
+        embedsInNavigationBar: true,
+        pushesOnTap: true,
+        animatesBackButton: false,
+        onFirstLevelTap: () => taps++,
+      );
+      final parameters = cylSearchBarViewParameters(bar);
+      expect(parameters['pushesOnTap'], true);
+      expect(parameters['animatesBackButton'], false);
+      cylSearchBarViewDispatch(bar, const MethodCall('didTapFirstLevel'));
+      expect(taps, 1);
     });
 
     test('appends items like the FlatDesign tab bar and reports their taps', () {

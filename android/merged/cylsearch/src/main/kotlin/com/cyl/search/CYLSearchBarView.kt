@@ -2116,7 +2116,8 @@ class CYLSearchBarView @JvmOverloads constructor(
             var end = row.paddingEnd
             if (embedsInToolbar) {
                 val hasArrow = (parent as? androidx.appcompat.widget.Toolbar)?.navigationIcon != null
-                start = if (hasArrow) 0 else if (contentInsets.left == DEFAULT_CONTENT_INSETS.left) dp(EMBEDDED_TAG_INSET) else dp(contentInsets.left.toFloat())
+                val moving = backButtonProgress > 0f && backButtonProgress < 1f
+                start = if (moving) (dp(EMBEDDED_TAG_INSET) * (1f - backButtonProgress)).toInt() else if (hasArrow) 0 else if (contentInsets.left == DEFAULT_CONTENT_INSETS.left) dp(EMBEDDED_TAG_INSET) else dp(contentInsets.left.toFloat())
                 end = if (contentInsets.right == DEFAULT_CONTENT_INSETS.right) dp(EMBEDDED_TAG_INSET) else dp(contentInsets.right.toFloat())
             }
             if (row.paddingTop != top || row.paddingBottom != bottom || row.paddingStart != start || row.paddingEnd != end) row.setPaddingRelative(start, top, end, bottom)
@@ -2525,6 +2526,18 @@ class CYLSearchBarView @JvmOverloads constructor(
         // After a back arrow the toolbar starts its content at 72 dp (Material's keyline), 36 dp from the arrow's ink, the bar 84 dp (+ its own inset);
         // the bar starts at EMBEDDED_BAR_START instead.
         toolbar.contentInsetStartWithNavigation = (EMBEDDED_BAR_START * resources.displayMetrics.density).toInt()
+        if (respectsSafeArea) {
+            // Safe area: the system bars' and the cutout's left and right insets become the toolbar's padding, so the whole bar fills
+            // the width inside them and is never under a notch or a gesture bar. The insets are not consumed.
+            androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(toolbar) { view, insets ->
+                val safe = insets.getInsets(
+                    androidx.core.view.WindowInsetsCompat.Type.systemBars() or androidx.core.view.WindowInsetsCompat.Type.displayCutout(),
+                )
+                view.setPadding(safe.left, view.paddingTop, safe.right, view.paddingBottom)
+                insets
+            }
+            androidx.core.view.ViewCompat.requestApplyInsets(toolbar)
+        }
         toolbar.addView(
             this,
             androidx.appcompat.widget.Toolbar.LayoutParams(
@@ -2553,6 +2566,215 @@ class CYLSearchBarView @JvmOverloads constructor(
             ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT),
         )
         return embedInToolbar(created)
+    }
+
+    // First-level page: the whole bar in the navigation bar, back button in and out (iOS mirrors these names)
+
+    /**
+     * How far the back button is in, 0 (first-level page: no back button, the bar fills the whole width) to 1 (second-level
+     * page: the back button at the start, the bar narrowed). Set by `showBackButton`, `hideBackButton` and
+     * `setBackButtonProgress`; the core lays the bar out for every value, the page never sets a width.
+     */
+    var backButtonProgress: Float = 0f
+        private set
+
+    /**
+     * True while the back button is fully in (`backButtonProgress` is 1).
+     */
+    val isBackButtonShown: Boolean get() = backButtonProgress >= 1f
+
+    /**
+     * Called when the back button is tapped. Null (default): the bar asks the host activity's back dispatcher, the same as the
+     * system back gesture.
+     */
+    var backButtonHandler: (() -> Unit)? = null
+
+    /**
+     * The back button's drawable. Null (default): the core's arrow in the primary text color.
+     */
+    var backButtonDrawable: Drawable? = null
+
+    /**
+     * Makes this bar the push trigger of a first-level page (the default behaviour of a navigation-embedded bar, iOS
+     * `onFirstLevelTap`): a tap on the field (not on its items or the search button) does not edit; the core calls
+     * `showBackButton(true)` (the back button fades and slides in, the bar's width shrinks smoothly) and then calls this, in which
+     * the page pushes the second-level search page, whose `focusesOnAppear` bar brings the keyboard up. Swipe back and the back
+     * button on that page run `hideBackButton` on its bar. Null (default): a tap edits as usual.
+     */
+    var onFirstLevelTap: (() -> Unit)? = null
+
+    /**
+     * True when `onFirstLevelTap` is set and no back button is shown, so a tap on the field pushes.
+     */
+    val pushesOnTap: Boolean get() = onFirstLevelTap != null && !isBackButtonShown
+
+    /**
+     * Follows the system safe area (system bars and display cutout at the left and right) with the toolbar's padding when the bar
+     * is in a toolbar, so the whole bar fills the width inside it. True by default; read by `embedInToolbar`.
+     */
+    var respectsSafeArea: Boolean = true
+
+    private var backAnimator: android.animation.ValueAnimator? = null
+
+    private fun toolbarParent(): androidx.appcompat.widget.Toolbar? = parent as? androidx.appcompat.widget.Toolbar
+
+    private fun navigationButtonOf(toolbar: androidx.appcompat.widget.Toolbar): ImageButton? =
+        (0 until toolbar.childCount).map { toolbar.getChildAt(it) }.firstOrNull { it is ImageButton } as? ImageButton
+
+    /**
+     * Brings the back button in (iOS `showBackButton(animated:)`): the navigation icon fades and slides in at the start of the
+     * toolbar while the bar's start inset and width follow, 0.25 s. Without animation the final state at once. Does nothing
+     * when the bar is not in a toolbar (`embedInToolbar`) or the button is already in.
+     */
+    @JvmOverloads
+    fun showBackButton(animated: Boolean = true) {
+        animateBackButton(1f, animated, null)
+        post { focusIfAppearing() }
+    }
+
+    /**
+     * Takes the back button out (iOS `hideBackButton(animated:)`), the reverse of `showBackButton`: the bar's width back to full.
+     * `completion` runs when it is out (at once without animation).
+     */
+    @JvmOverloads
+    fun hideBackButton(animated: Boolean = true, completion: (() -> Unit)? = null) {
+        animateBackButton(0f, animated, completion)
+    }
+
+    /**
+     * Sets the back button's progress by hand, 0 to 1, for an interactive gesture (predictive back drives it with the gesture's
+     * progress); `showBackButton` / `hideBackButton` finish it.
+     */
+    fun setBackButtonProgress(progress: Float) {
+        backAnimator?.cancel()
+        applyBackButtonProgress(progress.coerceIn(0f, 1f))
+    }
+
+    /**
+     * A back-press callback for the second-level page of this bar (iOS: the interactive pop): with predictive back the back button
+     * and the bar's width follow the gesture, a cancel brings them in again, a commit runs `hideBackButton` and then `onBack`
+     * (the page pops). Add it to the activity's `onBackPressedDispatcher`.
+     */
+    fun backPressedCallback(onBack: () -> Unit): OnBackPressedCallback = object : OnBackPressedCallback(true) {
+        override fun handleOnBackProgressed(backEvent: androidx.activity.BackEventCompat) {
+            setBackButtonProgress(1f - backEvent.progress)
+        }
+
+        override fun handleOnBackCancelled() = showBackButton(true)
+
+        override fun handleOnBackPressed() = hideBackButton(true) { onBack() }
+    }
+
+    private fun animateBackButton(target: Float, animated: Boolean, completion: (() -> Unit)?) {
+        backAnimator?.cancel()
+        if (toolbarParent() == null || backButtonProgress == target || !animated || !isAttachedToWindow) {
+            applyBackButtonProgress(target)
+            completion?.invoke()
+            return
+        }
+        val from = backButtonProgress
+        val animator = android.animation.ValueAnimator.ofFloat(from, target)
+        animator.duration = (BACK_BUTTON_DURATION * Math.abs(target - from) * 1000f).toLong().coerceAtLeast(1L)
+        animator.interpolator = android.view.animation.DecelerateInterpolator()
+        animator.addUpdateListener { applyBackButtonProgress(it.animatedValue as Float) }
+        animator.addListener(object : AnimatorListenerAdapter() {
+            private var cancelled = false
+
+            override fun onAnimationCancel(animation: Animator) {
+                cancelled = true
+            }
+
+            override fun onAnimationEnd(animation: Animator) {
+                if (backAnimator === animation) backAnimator = null
+                if (!cancelled) {
+                    applyBackButtonProgress(target)
+                    completion?.invoke()
+                }
+            }
+        })
+        backAnimator = animator
+        animator.start()
+    }
+
+    private fun applyBackButtonProgress(progress: Float) {
+        val previous = backButtonProgress
+        backButtonProgress = progress
+        val toolbar = toolbarParent() ?: return
+        if (progress > 0f && toolbar.navigationIcon == null) {
+            val icon = backButtonDrawable ?: ContextCompat.getDrawable(context, R.drawable.cyl_search_ic_arrow_back)?.mutate()?.also {
+                androidx.core.graphics.drawable.DrawableCompat.setTint(it, themeColor(android.R.attr.textColorPrimary))
+            }
+            toolbar.navigationIcon = icon
+            toolbar.navigationContentDescription = CYLSearchResources.localizedString(context, "navigationBar.back")
+            toolbar.setNavigationOnClickListener {
+                val handler = backButtonHandler
+                if (handler != null) handler() else (hostActivity() as? ComponentActivity)?.onBackPressedDispatcher?.onBackPressed()
+            }
+        }
+        val fullInset = dp(EMBEDDED_BAR_START)
+        toolbar.contentInsetStartWithNavigation = if (progress >= 1f) fullInset else (fullInset * progress).toInt()
+        navigationButtonOf(toolbar)?.let {
+            it.alpha = progress
+            it.translationX = -dp(BACK_BUTTON_SLIDE) * (1f - progress)
+        }
+        if (progress <= 0f && previous > 0f) {
+            toolbar.navigationIcon = null
+            toolbar.setNavigationOnClickListener(null)
+            toolbar.contentInsetStartWithNavigation = fullInset
+        }
+        requestLayout()
+    }
+
+    private fun hostActivity(): Activity? {
+        var base: Context? = context
+        while (base is ContextWrapper && base !is Activity) base = base.baseContext
+        return base as? Activity
+    }
+
+    private var firstLevelDown = false
+
+    private fun overField(event: MotionEvent): Boolean {
+        val box = Rect()
+        for (view in listOf<View>(textField, placeholderLabel)) {
+            if (view.visibility != View.VISIBLE || view.width == 0) continue
+            view.getDrawingRect(box)
+            offsetDescendantRectToMyCoords(view, box)
+            if (event.x >= box.left && event.x <= box.right && event.y >= box.top && event.y <= box.bottom) return true
+        }
+        return false
+    }
+
+    override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
+        if (pushesOnTap && embedsInToolbar && (event.actionMasked == MotionEvent.ACTION_DOWN || firstLevelDown) && overField(event)) {
+            firstLevelDown = true
+            return true
+        }
+        return super.onInterceptTouchEvent(event)
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (firstLevelDown) {
+            when (event.actionMasked) {
+                MotionEvent.ACTION_UP -> {
+                    firstLevelDown = false
+                    performFirstLevelTap()
+                }
+                MotionEvent.ACTION_CANCEL -> firstLevelDown = false
+            }
+            return true
+        }
+        return super.onTouchEvent(event)
+    }
+
+    /**
+     * What a tap on the first-level field does (also for a test or an accessibility action): `showBackButton(true)`, then
+     * `onFirstLevelTap`. Does nothing without `onFirstLevelTap` or when the back button is already in.
+     */
+    fun performFirstLevelTap() {
+        val tap = onFirstLevelTap ?: return
+        if (isBackButtonShown) return
+        showBackButton(true)
+        tap()
     }
 
     /**
@@ -2625,6 +2847,12 @@ class CYLSearchBarView @JvmOverloads constructor(
          * (the bar at 40 vp), iOS 31 pt from the chevron (the bar at 73 pt, after the 44 pt glass back button that starts at 16 pt).
          */
         private const val EMBEDDED_BAR_START = 56f
+
+        /** The back button's transition in seconds (`showBackButton` / `hideBackButton`). */
+        private const val BACK_BUTTON_DURATION = 0.25f
+
+        /** How far in dp the back button slides in from. */
+        private const val BACK_BUTTON_SLIDE = 16f
         private val DEFAULT_CONTENT_INSETS = Rect(12, 6, 12, 6)
         private const val DEFAULT_FIELD_COLOR = 0x1F767680
         private const val STATE_SUPER = "CYLSearchBarSuper"

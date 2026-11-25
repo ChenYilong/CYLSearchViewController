@@ -790,6 +790,9 @@ class CYLSearchBarView extends StatefulWidget {
     this.embedsInNavigationBar = false,
     this.showsBackButton = false,
     this.onBackPressed,
+    this.animatesBackButton = true,
+    this.pushesOnTap = false,
+    this.onFirstLevelTap,
     this.items = const <CYLSearchBarItem>[],
     this.onTextChanged,
     this.onSubmitted,
@@ -941,6 +944,19 @@ class CYLSearchBarView extends StatefulWidget {
 
   /// The back button of the navigation bar was tapped ([showsBackButton]): pop the route.
   final VoidCallback? onBackPressed;
+
+  /// With [showsBackButton]: the bar starts whole (no back button) and the back button slides in while the width shrinks, the
+  /// continuation of the first-level bar that pushed this page (native `CYLSearchBarView.showBackButton(animated)`); a later
+  /// change of [showsBackButton] animates too. False: the button is in at once. Default true.
+  final bool animatesBackButton;
+
+  /// First-level page (with [embedsInNavigationBar]): the bar is shown whole and a tap on its field does not edit. The native core
+  /// brings the back button in (animated) and calls [onFirstLevelTap], where the page pushes the second-level search page, whose
+  /// bar sets [showsBackButton]. Default false.
+  final bool pushesOnTap;
+
+  /// The first-level field was tapped ([pushesOnTap]): push the second-level search page.
+  final VoidCallback? onFirstLevelTap;
 
   /// The items appended after the text, in order (iOS `addItem(_:)`).
   final List<CYLSearchBarItem> items;
@@ -1162,6 +1178,8 @@ Map<String, Object?> cylSearchBarViewParameters(CYLSearchBarView widget, {Bright
       'focusesOnAppear': widget.focusesOnAppear,
       'embedsInNavigationBar': widget.embedsInNavigationBar,
       'showsBackButton': widget.showsBackButton,
+      'animatesBackButton': widget.animatesBackButton,
+      'pushesOnTap': widget.pushesOnTap,
       'items': widget.items.map((item) => item.toMap()).toList(),
       'editingBar': widget.editingBar,
       'actionTitle': widget.actionTitle,
@@ -1188,6 +1206,8 @@ void cylSearchBarViewDispatch(CYLSearchBarView widget, MethodCall call) {
       widget.onSubmitted?.call(arguments['text'] as String? ?? '');
     case 'didCancel':
       widget.onCancel?.call();
+    case 'didTapFirstLevel':
+      widget.onFirstLevelTap?.call();
     case 'didTapBackButton':
       widget.onBackPressed?.call();
     case 'didSubmitEditing':
