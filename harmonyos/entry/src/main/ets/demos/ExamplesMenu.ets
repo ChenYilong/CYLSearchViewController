@@ -134,7 +134,7 @@ export struct ExamplesMenuView {
     style.titleMaxLines = CYLTagTitleMaxLines.unlimited;
     this.menuList.style = style;
     this.menuList.foldControl = new CYLMenuFoldControl(CYLMenuFoldControlPosition.tail,
-      CYLMenuFoldControlContent.iconAndTitle);
+      CYLMenuFoldControlContent.icon);
     this.menuList.defaultVisibleRows = 3;
     this.menuList.selectionMode = CYLMenuSelectionMode.none;
     this.menuList.isScrollEnabled = false;

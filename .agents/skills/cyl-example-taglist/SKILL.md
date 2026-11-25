@@ -1,6 +1,6 @@
 ---
 name: cyl-example-taglist
-description: "Use when a demo or example needs a table-view-like grouped list (sections): show it as CollectionViewClassifyMenu's tag list instead, with sections, adaptive tag width, wrapping titles, 3-row fold with more/less, tap = cell tap, long-press subtitle bubble."
+description: "Use when a demo or example needs a table-view-like grouped list (sections): show it as CollectionViewClassifyMenu's tag list instead, with sections, adaptive tag width, wrapping titles, 3-row fold with the tail control (last tag, icon only), tap = cell tap, long-press subtitle bubble."
 ---
 
 # Grouped example lists as tag lists
@@ -12,8 +12,7 @@ Full rule: [docs/instructions/example-demos.md](../../../docs/instructions/examp
 1. Find the grouped list (table view with sections, settings-style rows) in the example of the platform.
 2. Replace it with the platform's tag list: each cell is a tag (main title and icon), each section has a header with a
    non-empty title. Default initialization first; adaptive tag width, so a row holds as many tags as possible.
-3. Allow the tag title to wrap (ClassifyMenu's title wrapping API). Fold after 3 rows; the fold control shows `more` /
-   `less` with its built-in icon (icon-and-title content).
+3. Allow the tag title to wrap (ClassifyMenu's title wrapping API). Fold after 3 rows; the fold control is the tail control: the last tag of the list, the chevron icon only, never title text, no `more` / `less` labels, no header trailing button; set position tail and content icon EXPLICITLY wherever the pinned core default is not already tail + icon (Android defaults to icon-and-title).
 4. A tag tap behaves like the cell tap. A long press shows the subtitle in a small floating bubble with an arrow, through the
    tag list's long-press API.
 5. A missing capability is added to the core or bridge first, never worked around in the example (`cyl-fix-in-core`).

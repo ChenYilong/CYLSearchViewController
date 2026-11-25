@@ -63,7 +63,7 @@ internal fun Context.cylMenuList(
     val list = CYLTagListView(context).apply {
         foldControl = CYLMenuFoldControl().apply {
             position = CYLMenuFoldControlPosition.TAIL
-            content = CYLMenuFoldControlContent.CYLMenuFoldControlContentIconAndTitle
+            content = CYLMenuFoldControlContent.CYLMenuFoldControlContentIcon
         }
         val base = CYLMenuStyle().apply {
             CYLSearchTagListStyle.applyDefaults(this, context)

@@ -280,7 +280,7 @@ class CYLSearchDemoPage extends StatelessWidget {
               const SizedBox(height: 16),
               CYLTagListView(
                 tags: <String>[for (final demo in tab.demos) cylExampleText(demo.label)],
-                // docs/instructions/example-demos.md: a titled section, a fold after 3 rows with the built-in icon and more / less.
+                // docs/instructions/example-demos.md: a titled section, a fold after 3 rows, the tail control (the last tag) shows the chevron icon only.
                 sectionTitle: cylExampleText(tab.title),
                 // The tag list of an example is Liquid Glass (docs/instructions/example-demos.md, rule 6).
                 backgroundStyle: 'liquidGlass',
@@ -288,7 +288,8 @@ class CYLSearchDemoPage extends StatelessWidget {
                 // Adaptive width, titles may wrap; a long press shows the cell's subtitle in a callout; a tap opens the demo as the cell did.
                 titleMaxLines: cylTagTitleUnlimited,
                 tagSubtitles: <String>[for (final demo in tab.demos) cylExampleText(demo.subtitle ?? '')],
-                foldControlContent: CYLTagFoldControlContent.iconAndTitle,
+                foldControlPosition: CYLTagFoldControlPosition.inline,
+                foldControlContent: CYLTagFoldControlContent.icon,
                 onTagSelected: (index, title) => _openSearch(context, tab.demos[index]),
               ),
             ],
