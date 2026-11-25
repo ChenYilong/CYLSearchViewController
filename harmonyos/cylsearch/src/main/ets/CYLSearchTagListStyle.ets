@@ -172,6 +172,8 @@ export class CYLSearchTagListStyle {
       appearance.contentInsets = new CYLEdgeInsets(0, metrics.margin, 0, metrics.margin);
       appearance.font = new CYLFont(metrics.fontSize, FontWeight.Normal);
       appearance.textColor = $r('sys.color.font_primary');
+      // A template image with one static color, not its original colors (core CYLIconContrast on dark glass).
+      appearance.iconColor = $r('sys.color.font_primary');
     });
     style.backgroundStyle = CYLSearchTagListStyle.tagBackgroundStyle;
     // The glass board of a section goes with glass tags (core 0de4546b; iOS).

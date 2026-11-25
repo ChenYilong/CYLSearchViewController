@@ -152,6 +152,8 @@ function cylDiscoverStyle(hotWidth: number): CYLMenuStyle {
     const appearance = style.appearance(state);
     appearance.font = new CYLFont(17, FontWeight.Medium);
     appearance.textColor = $r('sys.color.font_primary');
+    // A template icon with a static color on glass (core CYLIconContrast).
+    appearance.iconColor = $r('sys.color.font_primary');
   });
   style.imageSize = new CYLSize(hotWidth, 18);
   style.itemHeight = TAG_HEIGHT;
