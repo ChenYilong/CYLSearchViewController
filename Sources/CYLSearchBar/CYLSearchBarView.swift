@@ -2345,6 +2345,17 @@ private final class CYLSearchBarItemButton: CYLTagButton {
     }
 
 
+    /**
+     * `color` in `style` as "#RRGGBBAA", the form of `CYLAnimatedItemView.animationTint` / `animationDarkTint`: a fixed
+     * color per appearance, because an animation takes a color, not a dynamic color.
+     */
+    private static func hexString(_ color: UIColor, style: UIUserInterfaceStyle) -> String {
+        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
+        color.resolvedColor(with: UITraitCollection(userInterfaceStyle: style)).getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+        func byte(_ value: CGFloat) -> Int { Int((value * 255).rounded()) }
+        return String(format: "#%02X%02X%02X%02X", byte(red), byte(green), byte(blue), byte(alpha))
+    }
+
     private var resolvedTint: UIColor {
         item?.tintColor ?? item?.searchBarView?.itemTintColor ?? .label
     }
@@ -2415,6 +2426,9 @@ private final class CYLSearchBarItemButton: CYLTagButton {
         selectedImage = item.style == .divider || item.animatedImage != nil ? nil : item.selectedImage
         animationURL = item.style == .divider ? nil : item.animationURL
         animationLoops = item.animationLoops
+        // One-color animations (the near-black camera) are drawn in the item's icon color, light and dark, so they follow dark mode.
+        animationTint = Self.hexString(resolvedTint, style: .light)
+        animationDarkTint = Self.hexString(resolvedTint, style: .dark)
         animationSpeed = item.animationSpeed
         badgeValue = item.style == .divider ? nil : item.badgeValue
         badgeColor = item.badgeColor

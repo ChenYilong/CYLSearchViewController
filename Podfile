@@ -17,11 +17,11 @@ target 'CYLSearchExample' do
   # commit on any branch (`git log --remotes -1`); never a local path in a commit.
   pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => 'ca04a779e4ed4fdba9b2d5997d98115b3df953f3'
   # SVGA: the tab icon animations (docs/CYLTabBarController-Integration.md, SVGA TODO).
-  pod 'CYLTabBarController', :subspecs => ['Core', 'SVGA', 'CYLFlatDesignTabBar'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '11fc94befae9b2bfb2e508732825ec8f5bbdf431'
+  pod 'CYLTabBarController', :subspecs => ['Core', 'SVGA', 'CYLFlatDesignTabBar'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => 'ff33eb8585a9a11007142c09d023fe859a6e0599'
   # CYLAnimatedItem, the shared animated icon + title component the search bar items subclass: its own pod in
   # CYLTabBarController's repository, not on the trunk yet. The core depends on its Core only; the example adds the
   # engines it plays (docs/animated-icon-component.md).
-  pod 'CYLAnimatedItem', :subspecs => ['Core', 'SVGA', 'LottieSwift'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '11fc94befae9b2bfb2e508732825ec8f5bbdf431'
+  pod 'CYLAnimatedItem', :subspecs => ['Core', 'SVGA', 'LottieSwift'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => 'ff33eb8585a9a11007142c09d023fe859a6e0599'
   # CYLTabBarController's badge needs CYLDeallocBlockExecutor 1.4, not on the trunk yet (as CollectionViewClassifyMenu's Podfile).
   pod 'CYLDeallocBlockExecutor', :git => 'https://github.com/ChenYilong/CYLDeallocBlockExecutor.git', :commit => '4276a6dab5a428ccc3a5f3f347eab991881fb97c'
 
