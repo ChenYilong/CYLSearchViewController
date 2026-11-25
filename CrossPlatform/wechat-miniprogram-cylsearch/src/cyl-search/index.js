@@ -1,4 +1,4 @@
-const { CYLSearchView, cylClampAnimationSpeed, cylSnapHeaderOffset, cylSwipeShouldDismiss, cylEdgeSwipeBegins } = require('../core/CYLSearchView');
+const { CYLSearchView, cylSearchViewIgnoresEmptySubmit, cylClampAnimationSpeed, cylSnapHeaderOffset, cylSwipeShouldDismiss, cylEdgeSwipeBegins } = require('../core/CYLSearchView');
 const { CYLSearchResources, cylNavigationMetrics } = require('../core/CYLSearchResources');
 
 const text = (key) => CYLSearchResources.localizedString(undefined, key);
@@ -476,6 +476,12 @@ Component({
       this.sync();
     },
     onSubmit(event) {
+      if (cylSearchViewIgnoresEmptySubmit(event.detail && event.detail.text)) {
+        // Empty text on the default search button: nothing is submitted, recorded or closed; the keyboard stays.
+        const bar = this.barComponent();
+        if (bar && typeof bar.showKeyboard === 'function') bar.showKeyboard();
+        return;
+      }
       this.model.setQuery(event.detail.text, true);
       this.sync();
     },

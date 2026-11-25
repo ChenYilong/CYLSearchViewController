@@ -902,7 +902,17 @@ function cylAnimationPlaybackDescription(speed, loops) {
   return `${cylClampAnimationSpeed(speed)}x, ${loops ? 'looping' : 'plays once'}`;
 }
 
+/**
+ * Whether the search PAGE ignores a `submit` of its bar for this text: empty (or blank) text, as sent by a tap on the
+ * default search button, submits nothing, records nothing, closes nothing and keeps the keyboard, like the confirm key.
+ * The bar itself still fires `submit` for empty text (a plain bar); only the search page ignores it.
+ */
+function cylSearchViewIgnoresEmptySubmit(text) {
+  return String(text === undefined || text === null ? '' : text).trim().length === 0;
+}
+
 module.exports = {
+  cylSearchViewIgnoresEmptySubmit,
   CYLSearchSuggestionStyle,
   CYLMenuFoldControlPosition,
   CYLMenuFoldControlContent,

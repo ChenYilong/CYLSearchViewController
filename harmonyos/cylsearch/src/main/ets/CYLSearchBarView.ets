@@ -235,13 +235,13 @@ function cylSearchCancelEnabled(always: boolean, editing: boolean): boolean {
 }
 
 /**
- * Whether the bar takes focus when it appears (iOS `focusIfAppearing`): `focusesOnAppear` is on, the bar sits in a
- * navigation bar that shows a back button (a root page or a plain bar never auto-focuses), the field is drawn
- * (not iconified) and not being edited already.
+ * Whether the bar takes focus when it appears (iOS `focusIfAppearing`): `focusesOnAppear` is on, the bar's page is a
+ * SECOND-LEVEL OR DEEPER page (Navigation stack depth above 1; a first-level page, a root tab or the first page of a
+ * stack, never auto-focuses), the field is drawn (not iconified) and not being edited already.
  */
-function cylSearchShouldFocusOnAppear(focusesOnAppear: boolean, hasBackButton: boolean, iconified: boolean,
-  editing: boolean): boolean {
-  return focusesOnAppear && hasBackButton && !iconified && !editing;
+function cylSearchShouldFocusOnAppear(focusesOnAppear: boolean, isOnSecondLevelOrDeeperPage: boolean,
+  iconified: boolean, editing: boolean): boolean {
+  return focusesOnAppear && isOnSecondLevelOrDeeperPage && !iconified && !editing;
 }
 
 /**
@@ -2136,9 +2136,23 @@ export class CYLSearchBarView {
 
   /**
    * Whether the navigation bar the bar sits in shows a back button; `CYLSearchNavigationPage` sets it from its
-   * `showsBack`. `focusesOnAppear` only focuses while a back button is shown.
+   * `showsBack`. It only drives the back button, no longer the auto-focus (see `pageDepth`).
    */
   showsBackButton: boolean = false;
+
+  /**
+   * The depth of the bar's page in its `Navigation` (1 = first-level page: a root tab or the first page of a stack).
+   * `CYLSearchNavigationPage` / `CYLSearchNavigationTitleBar` feed it from the `NavPathStack` (stack size + 1); a host
+   * without a stack may set it. Only a second-level or deeper page auto-focuses (`focusesOnAppear`).
+   */
+  pageDepth: number = 1;
+
+  /**
+   * True when the bar's page is a second-level or deeper page (`pageDepth` above 1); iOS `isOnSecondLevelOrDeeperPage`.
+   */
+  get isOnSecondLevelOrDeeperPage(): boolean {
+    return this.pageDepth > 1;
+  }
 
   /**
    * First-level behaviour (owner directive 2026-11-26): true on the bar of a first-level page. The bar is shown whole in
@@ -2247,8 +2261,8 @@ export class CYLSearchBarView {
    * it from `onPageShow`.
    */
   barDidAppear(): void {
-    if (cylSearchShouldFocusOnAppear(this.focusesOnAppear,
-      this.showsBackButton || this.navigationIcon === CYLSearchBarNavigationIcon.arrow, this.iconified, this.isEditing)) {
+    if (cylSearchShouldFocusOnAppear(this.focusesOnAppear, this.isOnSecondLevelOrDeeperPage, this.iconified,
+      this.isEditing)) {
       this.showKeyboardWhenDrawn();
     }
   }
@@ -3192,6 +3206,7 @@ export struct CYLSearchNavigationTitleBar {
       willShow: (from: NavDestinationContext | NavBar, to: NavDestinationContext | NavBar,
         operation: NavigationOperation, isAnimated: boolean) => {
         if (operation === NavigationOperation.PUSH || operation === NavigationOperation.POP) {
+          bar.pageDepth = to === 'navBar' ? 1 : Math.max(2, (this.stack?.size() ?? 1) + 1);
           bar.syncBackButton(to === 'navBar', isAnimated);
         }
       }
@@ -3241,6 +3256,11 @@ export struct CYLSearchNavigationPage {
    */
   @Param showsBack: boolean = false;
   /**
+   * The `NavPathStack` of the `Navigation` that holds the page; the bar's `pageDepth` is its size + 1 (the root
+   * `NavBar` is level 1). Undefined: `showsBack` decides (a page with a back button is second-level).
+   */
+  @Param stack: NavPathStack | undefined = undefined;
+  /**
    * True when the page is pushed on a `Navigation` (a `NavDestination` hosts it); false wraps it in a `Navigation`.
    */
   @Param isDestination: boolean = false;
@@ -3257,6 +3277,7 @@ export struct CYLSearchNavigationPage {
 
   aboutToAppear(): void {
     this.searchBarView.fieldHeight = CYL_SEARCH_NAVIGATION_FIELD_HEIGHT;
+    this.searchBarView.pageDepth = this.stack !== undefined ? this.stack.size() + 1 : (this.showsBack ? 2 : 1);
     if (this.showsBack) {
       this.searchBarView.showBackButton(false);
     }

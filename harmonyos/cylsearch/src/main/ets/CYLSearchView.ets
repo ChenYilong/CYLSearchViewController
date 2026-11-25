@@ -202,6 +202,15 @@ function cylSearchResultsHeaderTitle(showsResults: boolean, provider: ((query: s
   return provider(query);
 }
 
+/**
+ * Whether a search PAGE (the search view) ignores the bar's search-button tap for this text: an empty (or blank) text
+ * submits nothing, records nothing, closes nothing and keeps the keyboard, like the Search / IME key. The bar itself
+ * still fires `searchButtonClicked` for empty text (a plain bar); only the search view ignores it.
+ */
+function cylSearchViewIgnoresEmptySubmit(text: string): boolean {
+  return text.trim().length === 0;
+}
+
 // MARK: - Pure logic (end)
 
 /**
@@ -763,6 +772,11 @@ export class CYLSearchView {
         this.queryChanged(text);
       },
       searchBarViewSearchButtonClicked: (_: CYLSearchBarView) => {
+        if (cylSearchViewIgnoresEmptySubmit(this.query)) {
+          // Empty text on the default search button: nothing is submitted, recorded or closed; the keyboard stays.
+          this.searchBarView.showKeyboard();
+          return;
+        }
         this.submitted();
       },
       searchBarViewDidBeginEditing: (_: CYLSearchBarView) => {

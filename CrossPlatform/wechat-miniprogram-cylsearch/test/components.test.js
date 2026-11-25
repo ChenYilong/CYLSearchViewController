@@ -147,6 +147,22 @@ test('cyl-search: the refresh API drives CYLTableViewPlaceHolder cyl-refresh and
   assert.equal(search.data.refreshes, false);
 });
 
+test('cyl-search: the empty-text submit of the search button does nothing and keeps the keyboard', () => {
+  const search = load('cyl-search')({});
+  search.showSearch(false);
+  let keyboard = 0;
+  search.barComponent = () => ({ showKeyboard: () => { keyboard += 1; } });
+  const before = names(search).length;
+  search.onSubmit({ detail: { text: '' } });
+  search.onSubmit({ detail: { text: '   ' } });
+  assert.equal(search.data.open, true, 'nothing closed');
+  assert.equal(names(search).length, before, 'no submit event');
+  assert.equal(search.model.suggestionCache === undefined ? 0 : search.model.suggestionCache.cachedQueries().length, 0, 'nothing recorded');
+  assert.equal(keyboard, 2);
+  search.onSubmit({ detail: { text: 'Swift' } });
+  assert.equal(search.data.open, false, 'with text it submits as before');
+});
+
 test('cyl-search: submit closes the overlay with its transition, Cancel closes it with the completion', async () => {
   const search = load('cyl-search')({});
   search.model.animationDuration = 0.01;

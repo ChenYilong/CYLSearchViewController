@@ -3,25 +3,26 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
-const { cylSearchShouldFocusOnAppear, cylSearchHasBackButton } = require('../src/core/CYLSearchBarView');
+const { cylSearchShouldFocusOnAppear, cylSearchIsOnSecondLevelOrDeeperPage } = require('../src/core/CYLSearchBarView');
 
 const root = path.join(__dirname, '..');
 const read = (...parts) => fs.readFileSync(path.join(root, ...parts), 'utf8');
 
-test('focuses only when on, with a back button, drawn (not iconified) and editable', () => {
+test('focuses only when on, on a second-level or deeper page, drawn (not iconified) and editable', () => {
   assert.equal(cylSearchShouldFocusOnAppear(true, true, false, true), true);
   assert.equal(cylSearchShouldFocusOnAppear(true, true, false, undefined), true);
   assert.equal(cylSearchShouldFocusOnAppear(false, true, false, true), false);
   assert.equal(cylSearchShouldFocusOnAppear(undefined, true, false, true), false);
-  assert.equal(cylSearchShouldFocusOnAppear(true, false, false, true), false, 'no back button: never');
+  assert.equal(cylSearchShouldFocusOnAppear(true, false, false, true), false, 'first-level page: never');
   assert.equal(cylSearchShouldFocusOnAppear(true, true, true, true), false);
   assert.equal(cylSearchShouldFocusOnAppear(true, true, false, false), false);
 });
 
-test('a back button is the arrow icon or a previous page', () => {
-  assert.equal(cylSearchHasBackButton('none', 1), false);
-  assert.equal(cylSearchHasBackButton('none', 2), true);
-  assert.equal(cylSearchHasBackButton('arrow', 1), true);
+test('second level or deeper means more than one page in the stack; the arrow icon no longer counts', () => {
+  assert.equal(cylSearchIsOnSecondLevelOrDeeperPage(1), false);
+  assert.equal(cylSearchIsOnSecondLevelOrDeeperPage(2), true);
+  assert.equal(cylSearchIsOnSecondLevelOrDeeperPage(3), true);
+  assert.ok(!read('src', 'cyl-search-bar', 'index.js').includes('cylSearchHasBackButton'));
 });
 
 test('cyl-search-bar has focusesOnAppear (false by default), used on attached and on page show, toggling focus', () => {

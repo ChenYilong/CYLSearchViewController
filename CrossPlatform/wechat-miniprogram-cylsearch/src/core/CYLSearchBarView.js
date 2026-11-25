@@ -196,19 +196,19 @@ function cylNavigationFieldFill(dark) {
 
 /**
  * Whether the bar takes focus when it appears (iOS `focusIfAppearing`, property `focusesOnAppear`): the option is on,
- * a navigation bar with a back button holds the bar (a root page or a plain bar never auto-focuses), the field is
- * drawn (not iconified) and it may be edited.
+ * the page is a SECOND-LEVEL OR DEEPER page (`getCurrentPages().length > 1`; a first-level page, a root tab or the
+ * first page of the stack, never auto-focuses), the field is drawn (not iconified) and it may be edited.
  */
-function cylSearchShouldFocusOnAppear(focusesOnAppear, hasBackButton, iconified, editable) {
-  return Boolean(focusesOnAppear) && Boolean(hasBackButton) && !iconified && editable !== false;
+function cylSearchShouldFocusOnAppear(focusesOnAppear, isOnSecondLevelOrDeeperPage, iconified, editable) {
+  return Boolean(focusesOnAppear) && Boolean(isOnSecondLevelOrDeeperPage) && !iconified && editable !== false;
 }
 
 /**
- * Whether a back button is shown: the bar's own back arrow (`navigationIcon` "arrow"), or a previous page in the page
- * stack (`getCurrentPages().length > 1`).
+ * Whether the page is a second-level or deeper page: more than one page in the page stack
+ * (`getCurrentPages().length > 1`); iOS `isOnSecondLevelOrDeeperPage`.
  */
-function cylSearchHasBackButton(navigationIcon, pageCount) {
-  return navigationIcon === 'arrow' || pageCount > 1;
+function cylSearchIsOnSecondLevelOrDeeperPage(pageCount) {
+  return pageCount > 1;
 }
 
 class CYLSearchBarAppearance {
@@ -1450,7 +1450,7 @@ module.exports = {
   cylSearchBarPresetSpec,
   cylNavigationFieldFill,
   cylSearchShouldFocusOnAppear,
-  cylSearchHasBackButton,
+  cylSearchIsOnSecondLevelOrDeeperPage,
   CYLSearchBarItem,
   CYLSearchBarView,
 };

@@ -626,13 +626,37 @@ describe('navigation field preset (applyNavigationFieldStyle)', () => {
   });
 });
 
+describe('empty text on the search button of a search view', () => {
+  it('is ignored by the view only: blank text, never real text', () => {
+    assert.equal(logic.cylSearchViewIgnoresEmptySubmit(''), true);
+    assert.equal(logic.cylSearchViewIgnoresEmptySubmit('   '), true);
+    assert.equal(logic.cylSearchViewIgnoresEmptySubmit('swift'), false);
+    assert.equal(logic.cylSearchButtonTapAction(''), 0, 'the bar still tells its delegate');
+  });
+  it('the view delegate returns before recording and keeps the keyboard', () => {
+    const src = readFileSync(join(core, 'CYLSearchView.ets'), 'utf8');
+    const guard = src.indexOf('if (cylSearchViewIgnoresEmptySubmit(this.query)) {');
+    const record = src.indexOf('this.submitted();', guard);
+    assert.ok(guard > 0 && src.indexOf('this.searchBarView.showKeyboard();', guard) < record, 'guard first, keyboard kept');
+    assert.ok(src.slice(guard, record).includes('return;'));
+  });
+});
+
 describe('focus on appear', () => {
-  it('focuses only when on, with a back button, drawn and not editing', () => {
+  it('focuses only when on, on a second-level or deeper page, drawn and not editing', () => {
     assert.equal(logic.cylSearchShouldFocusOnAppear(true, true, false, false), true);
     assert.equal(logic.cylSearchShouldFocusOnAppear(false, true, false, false), false);
-    assert.equal(logic.cylSearchShouldFocusOnAppear(true, false, false, false), false, 'no back button: never');
+    assert.equal(logic.cylSearchShouldFocusOnAppear(true, false, false, false), false, 'first-level page: never');
     assert.equal(logic.cylSearchShouldFocusOnAppear(true, true, true, false), false);
     assert.equal(logic.cylSearchShouldFocusOnAppear(true, true, false, true), false);
+  });
+  it('feeds the depth from the Navigation stack and ignores the back button', () => {
+    const src = readFileSync(join(core, 'CYLSearchBarView.ets'), 'utf8');
+    assert.ok(src.includes('pageDepth: number = 1;'));
+    assert.ok(src.includes('return this.pageDepth > 1;'));
+    assert.ok(src.includes("bar.pageDepth = to === 'navBar' ? 1 :"));
+    assert.ok(src.includes('this.stack.size() + 1'));
+    assert.ok(!src.includes('showsBackButton || this.navigationIcon'));
   });
   it('treats hidden to visible as an appearance, not a change between visible ratios', () => {
     assert.equal(logic.cylSearchVisibilityAppeared(false, 0.5), true);

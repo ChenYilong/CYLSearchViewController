@@ -1,4 +1,4 @@
-const { cylSearchShouldFocusOnAppear, cylSearchHasBackButton, cylNavigationFieldStyle, cylSearchBarPresetSpec, CYLSearchBarColors, CYLSearchBarView, CYLSearchBarItem, CYLSearchBarMode, CYLSearchBarAppearance, cylInsetsCSS, cylSearchButtonColors, cylSearchButtonHasDivider, cylSearchButtonTrailingInset, CYLSearchBarSearchButtonStyle } = require('../core/CYLSearchBarView');
+const { cylSearchShouldFocusOnAppear, cylSearchIsOnSecondLevelOrDeeperPage, cylNavigationFieldStyle, cylSearchBarPresetSpec, CYLSearchBarColors, CYLSearchBarView, CYLSearchBarItem, CYLSearchBarMode, CYLSearchBarAppearance, cylInsetsCSS, cylSearchButtonColors, cylSearchButtonHasDivider, cylSearchButtonTrailingInset, CYLSearchBarSearchButtonStyle } = require('../core/CYLSearchBarView');
 const { CYLSearchResources, cylFormatString } = require('../core/CYLSearchResources');
 
 const text = (key) => CYLSearchResources.localizedString(undefined, key);
@@ -43,8 +43,8 @@ Component({
     value: { type: String, value: '', observer: 'onValueChange' },
     placeholder: { type: String, value: '' },
     focus: { type: Boolean, value: false, observer: 'onFocusPropertyChange' },
-    // The field focuses itself every time the bar appears on screen (iOS focusesOnAppear, like a viewDidAppear), only with a
-    // back button (arrow icon or a previous page in the page stack): when the
+    // The field focuses itself every time the bar appears on screen (iOS focusesOnAppear, like a viewDidAppear), only on a
+    // second-level or deeper page (getCurrentPages().length > 1, never on a first-level page): when the
     // component is attached and every time its page shows (return from another page or from the background). False by default.
     // TODO: iOS takes its moments from CYLDeallocBlockExecutor; no such dependency here until the unified pin pair is announced.
     focusesOnAppear: { type: Boolean, value: false },
@@ -272,8 +272,8 @@ Component({
       const p = this.properties;
       if (p.mode === CYLSearchBarMode.multiple) return;
       const pages = typeof getCurrentPages === 'function' ? getCurrentPages() : [];
-      const hasBack = cylSearchHasBackButton(p.navigationIcon, pages.length);
-      if (!cylSearchShouldFocusOnAppear(p.focusesOnAppear, hasBack, this.data.collapsed, p.editable)) return;
+      const secondLevel = cylSearchIsOnSecondLevelOrDeeperPage(pages.length);
+      if (!cylSearchShouldFocusOnAppear(p.focusesOnAppear, secondLevel, this.data.collapsed, p.editable)) return;
       this.setData({ inputFocus: false });
       setTimeout(() => this.setData({ inputFocus: true }), 30);
     },
