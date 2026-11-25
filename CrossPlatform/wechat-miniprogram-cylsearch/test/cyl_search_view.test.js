@@ -226,3 +226,13 @@ test('the suggestions are tags by default, folded to two rows with the fold cont
   view.suggestionStyle = CYLSearchSuggestionStyle.list;
   assert.equal(view.suggestionStyle, 'list', 'the list stays available');
 });
+
+test('the fold control content is the icon by default and can be icon and title or a title', () => {
+  const { CYLMenuFoldControlContent } = require('../src/core/CYLSearchView');
+  const view = new CYLSearchView(memoryStorage());
+  assert.equal(view.suggestionTagConfiguration().foldControl.content, 'icon');
+  view.suggestionsFoldControl.content = CYLMenuFoldControlContent.iconAndTitle;
+  assert.equal(view.suggestionTagConfiguration().foldControl.content, 'iconAndTitle');
+  view.suggestionsFoldControl.content = CYLMenuFoldControlContent.title;
+  assert.equal(view.suggestionTagConfiguration().foldControl.content, 'title');
+});

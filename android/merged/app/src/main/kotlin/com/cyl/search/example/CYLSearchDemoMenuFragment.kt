@@ -286,6 +286,7 @@ class CYLOriginalSamplesFragment : CYLExamplePage() {
         )
         return context.cylMenuList(samples.map { (project, title, activity) ->
             Triple(title, project) { startActivity(android.content.Intent().setClassName(requireContext(), activity)) }
-        } + Triple("lapism/search", "MaterialSearchBar + MaterialSearchView (library only, see the port)") { push(CYLLapismPortFragment()) })
+        } + Triple("lapism/search", "MaterialSearchBar + MaterialSearchView (library only, see the port)") { push(CYLLapismPortFragment()) },
+            defaultHeader = context.getString(R.string.example_originals))
     }
 }

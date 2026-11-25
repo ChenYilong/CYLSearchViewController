@@ -218,7 +218,7 @@ export struct DiscoverView {
     bar.fieldShadowOpacity = 0.06;
     bar.font = 16;
     bar.fieldBorderWidth = 1;
-    bar.itemTintColor = $r('sys.color.font_primary');
+    // No item tint of the example's own: the core's default is the label color (accent when selected).
     const camera = CYLSearchBarItem.iconItem($r('sys.symbol.camera'), this.text('discover_imageSearch'),
       () => this.searchByImage());
     camera.imageSize = 22;
