@@ -664,8 +664,7 @@ class CYLSearchBarView @JvmOverloads constructor(
         item.handler?.invoke(item)
     }
 
-    private fun isNightMode(): Boolean =
-        (resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) == android.content.res.Configuration.UI_MODE_NIGHT_YES
+    private fun isNightMode(): Boolean = isNight(context)
 
     private fun applySearchBarStyle() {
         when (searchBarStyle) {
@@ -1121,6 +1120,14 @@ class CYLSearchBarView @JvmOverloads constructor(
         multiSearchContent.visibility = if (multiple) VISIBLE else GONE
         multiSearchBackCallback.isEnabled = multiple && isEditingNewSearch
         applyIconifiedVisibility()
+    }
+
+    /** A live light/dark switch re-resolves every default color: the placeholder, the items, the dividers and a bordered field. */
+    override fun onConfigurationChanged(newConfig: android.content.res.Configuration) {
+        super.onConfigurationChanged(newConfig)
+        applyStyle()
+        applySearchBarStyle()
+        mutableItems.forEach { it.loadedItemView?.reload() }
     }
 
     override fun onAttachedToWindow() {
@@ -1942,7 +1949,8 @@ class CYLSearchBarView @JvmOverloads constructor(
     private fun applyStyle() {
         val size = fontSize
         val primary = textColor ?: themeColor(android.R.attr.textColorPrimary)
-        val hint = placeholderColor ?: themeColor(android.R.attr.textColorHint)
+        // The secondary label color, not the platform's dim hint color; also on the field itself, for a host that sets its hint directly.
+        val hint = placeholderColor ?: secondaryLabelColor(context)
         val secondary = searchIconTintColor ?: themeColor(android.R.attr.textColorSecondary)
         textField.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
         textField.typeface = font ?: Typeface.DEFAULT
@@ -1950,6 +1958,7 @@ class CYLSearchBarView @JvmOverloads constructor(
         placeholderLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, size)
         placeholderLabel.typeface = font ?: Typeface.DEFAULT
         placeholderLabel.setTextColor(hint)
+        textField.setHintTextColor(hint)
         cancelButton.setTextSize(TypedValue.COMPLEX_UNIT_SP, cancelButtonFontSize ?: size)
         cancelButton.typeface = cancelButtonFont ?: font ?: Typeface.DEFAULT
         cancelButton.setTextColor(tintColor ?: themeColor(android.R.attr.colorAccent))
@@ -2197,7 +2206,7 @@ class CYLSearchBarView @JvmOverloads constructor(
             field.setTextSize(TypedValue.COMPLEX_UNIT_SP, bar.fontSize)
             field.typeface = bar.font ?: Typeface.DEFAULT
             field.setTextColor(bar.textColor ?: themeColor(android.R.attr.textColorPrimary))
-            field.setHintTextColor(bar.placeholderColor ?: themeColor(android.R.attr.textColorHint))
+            field.setHintTextColor(bar.placeholderColor ?: secondaryLabelColor(context))
             field.hint = bar.placeholder ?: CYLSearchResources.localizedString(context, "search.field")
             field.imeOptions = bar.returnKeyType or EditorInfo.IME_FLAG_NO_EXTRACT_UI
             var type = bar.keyboardType
@@ -2463,6 +2472,32 @@ class CYLSearchBarView @JvmOverloads constructor(
          */
         internal val BORDERED_BORDER_LIGHT = Color.argb(153, 60, 60, 67)
         internal val BORDERED_BORDER_DARK = Color.argb(153, 235, 235, 245)
+
+        /**
+         * Whether the page the bar is on is dark: the luminance of the theme's window background, so an app with a fixed light theme stays
+         * light while the system is dark (the default colors never turn white on a light page, iOS: the view's own trait collection). The
+         * resources' `uiMode` only decides when the theme has no background color.
+         */
+        internal fun isNight(context: Context): Boolean {
+            val value = TypedValue()
+            if (context.theme.resolveAttribute(android.R.attr.colorBackground, value, true) &&
+                value.type >= TypedValue.TYPE_FIRST_COLOR_INT && value.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+                return androidx.core.graphics.ColorUtils.calculateLuminance(value.data) < DARK_BACKGROUND_LUMINANCE
+            }
+            return (context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+                android.content.res.Configuration.UI_MODE_NIGHT_YES
+        }
+
+        private const val DARK_BACKGROUND_LUMINANCE = 0.5
+
+        /** iOS `UIColor.label`: black in light mode, white in dark mode. The default color of an item without a tint of its own. */
+        internal fun labelColor(context: Context): Int = if (isNight(context)) Color.WHITE else Color.BLACK
+
+        /**
+         * iOS `UIColor.secondaryLabel` (60,60,67 at 60% light, 235,235,245 at 60% dark): the default placeholder, the divider between items and the
+         * bordered field's border, the same on every platform.
+         */
+        internal fun secondaryLabelColor(context: Context): Int = if (isNight(context)) BORDERED_BORDER_DARK else BORDERED_BORDER_LIGHT
         private const val SCOPE_BAR_HEIGHT = 36f
         private const val ITEM_PADDING = 12f
         private const val REMOVE_SIZE = 28f
@@ -2948,7 +2983,6 @@ internal class CYLSearchBarItemButton(context: Context, item: CYLSearchBarItem) 
         imageView.importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
         titleLabel.importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
         divider.importantForAccessibility = IMPORTANT_FOR_ACCESSIBILITY_NO
-        divider.setBackgroundColor(Color.argb(0x33, 0x3C, 0x3C, 0x43))
         addView(divider)
         setOnClickListener { this.item.searchBarView?.itemTapped(this.item) }
         reload()
@@ -2972,21 +3006,26 @@ internal class CYLSearchBarItemButton(context: Context, item: CYLSearchBarItem) 
 
     private fun dp(value: Float): Int = (value * density + 0.5f).toInt()
 
-    private val resolvedTint: Int
-        get() = item.tintColor ?: item.searchBarView?.itemTintColor ?: defaultTint()
+    /** The tint the host chose (the item's, else the bar's `itemTintColor`); null: the item sets no tint of its own. */
+    private val explicitTint: Int?
+        get() = item.tintColor ?: item.searchBarView?.itemTintColor
 
-    private fun defaultTint(): Int {
+    /**
+     * The default tint of a state, from the iOS item: normal and disabled the label color (disabled is dimmed by the item's alpha), selected the
+     * accent (the bar's `tintColor`, else the app's accent). A host tint wins for every state.
+     */
+    private fun tintForState(state: Int): Int {
+        explicitTint?.let { return it }
+        if (state != CYLControlState.SELECTED) return CYLSearchBarView.labelColor(context)
         val value = TypedValue()
-        return if (context.theme.resolveAttribute(android.R.attr.textColorPrimary, value, true)) {
-            if (value.resourceId != 0) context.getColor(value.resourceId) else value.data
-        } else {
-            Color.BLACK
-        }
+        context.theme.resolveAttribute(android.R.attr.colorAccent, value, true)
+        return item.searchBarView?.tintColor ?: if (value.resourceId != 0) context.getColor(value.resourceId) else value.data
     }
 
     private val resolvedInsets: FloatArray
         get() = item.contentInsets ?: when (item.style) {
             CYLSearchBarItemStyle.Text -> floatArrayOf(4f, 0f, 4f, 0f)
+            CYLSearchBarItemStyle.Divider -> floatArrayOf(DIVIDER_GAP, 0f, DIVIDER_GAP, 0f)
             else -> floatArrayOf(0f, 0f, 0f, 0f)
         }
 
@@ -2996,7 +3035,6 @@ internal class CYLSearchBarItemButton(context: Context, item: CYLSearchBarItem) 
      */
     private fun makeStyle(): CYLMenuStyle {
         val style = CYLMenuStyle()
-        val tint = resolvedTint
         val insets = resolvedInsets
         val imageW = item.imageSize?.width?.takeIf { it > 0 } ?: DEFAULT_IMAGE_SIDE
         val imageH = item.imageSize?.height?.takeIf { it > 0 } ?: imageW
@@ -3015,6 +3053,7 @@ internal class CYLSearchBarItemButton(context: Context, item: CYLSearchBarItem) 
         )
         for ((state, itemState) in states) {
             val appearance = style.appearanceForState(state)
+            val tint = tintForState(state)
             val attributes = item.titleTextAttributes(itemState) ?: item.titleTextAttributes(CYLSearchBarItemState.Normal)
             appearance.font = CYLFont(attributes?.sizeSp ?: TITLE_SIZE, attributes?.typeface ?: Typeface.DEFAULT_BOLD)
             appearance.textColor = attributes?.color ?: tint
@@ -3050,6 +3089,8 @@ internal class CYLSearchBarItemButton(context: Context, item: CYLSearchBarItem) 
         badgeLabel.setTextSize(TypedValue.COMPLEX_UNIT_SP, attributes?.sizeSp ?: BADGE_SIZE)
         badgeLabel.typeface = attributes?.typeface ?: Typeface.DEFAULT_BOLD
         divider.visibility = if (isDivider) VISIBLE else GONE
+        // The secondary label color, resolved at every reload so a live light/dark switch recolors it.
+        divider.setBackgroundColor(CYLSearchBarView.secondaryLabelColor(context))
         val accessible = !isDivider
         importantForAccessibility = if (accessible) IMPORTANT_FOR_ACCESSIBILITY_YES else IMPORTANT_FOR_ACCESSIBILITY_NO
         contentDescription = item.itemAccessibilityLabel ?: item.title
@@ -3126,7 +3167,9 @@ internal class CYLSearchBarItemButton(context: Context, item: CYLSearchBarItem) 
 
     private companion object {
         const val MINIMUM_TOUCH = 36f
-        const val DIVIDER_HEIGHT = 18f
+        /** The built-in divider: a 1 x 20 line with an 8 gap on each side (the iOS stack divider). */
+        const val DIVIDER_HEIGHT = 20f
+        const val DIVIDER_GAP = 8f
         const val DEFAULT_IMAGE_SIDE = 20f
         const val IMAGE_TITLE_SPACING = 4f
         const val BACKGROUND_CORNER_RADIUS = 10f

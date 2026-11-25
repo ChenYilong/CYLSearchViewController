@@ -210,7 +210,7 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
         camera.animationSpeed = animationSpeed
         val search = CYLSearchBarItem.textItem(getString(R.string.cyl_discover_search)) { searchTapped() }
         search.itemAccessibilityIdentifier = "CYLSearchDiscoverSearchButton"
-        searchBar.itemTintColor = primary
+        // No item tint of the example's own: the core's default is the label color (accent when selected).
         searchBar.addItem(camera)
         searchBar.addItem(CYLSearchBarItem.divider())
         searchBar.addItem(search)
