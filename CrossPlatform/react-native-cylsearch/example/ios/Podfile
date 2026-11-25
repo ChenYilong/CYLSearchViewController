@@ -26,7 +26,7 @@ target 'CylsearchExample' do
   pod 'CYLSearchViewController', :path => '../../../..'
   # The badge of CYLTabBarController needs CYLDeallocBlockExecutor 1.4, not on the trunk yet (as the root Podfile).
   pod 'CYLDeallocBlockExecutor', :git => 'https://github.com/ChenYilong/CYLDeallocBlockExecutor.git', :commit => '4276a6dab5a428ccc3a5f3f347eab991881fb97c'
-  pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => '0de4546b3413512b1794fc52d62fd10ba73ce106'
+  pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => '22c9f5caaa7e89c7a098c7f4286ed48b0e9829aa'
   pod 'CYLTableViewPlaceHolder', :subspecs => ['Core', 'Lottie'], :git => 'https://github.com/ChenYilong/CYLTableViewPlaceHolder.git', :commit => 'f4cf978567e43288b44f6ddc266510fa837a0e72'
 
   # CYLTabBarController for react-native-cyltabbar (the example's tab bar), from the pinned checkout
