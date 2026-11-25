@@ -1,0 +1,8 @@
+<!-- A first-level page's bar (owner directive 2026-11-26): the core's navigation bar holds the WHOLE search bar, full width
+     inside the safe area. A tap pushes the second-level page; the core brings the back button in and narrows the bar,
+     and takes it out again when the page is shown (swipe back or back button). This component only names the preset,
+     the placeholder and the page to push. -->
+<cyl-search-navigation-bar pushesOnTap pushUrl="{{url}}">
+  <cyl-search-bar generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
+    class="bar" preset="{{preset}}" placeholder="{{placeholder}}" contentInsets="0" fieldHeight="{{fieldHeight}}" items="{{items}}" />
+</cyl-search-navigation-bar>

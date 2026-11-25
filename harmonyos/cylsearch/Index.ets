@@ -13,11 +13,13 @@ export {
   CYLSearchBarItemTextAttributes,
   CYLSearchBarMode,
   CYLSearchBarNavigationIcon,
+  CYLSearchBarPreset,
   CYLSearchBarStyle,
   CYLSearchBarView,
   CYLSearchBarViewDelegate,
   CYLSearchEdgeInsets,
   CYLSearchNavigationPage,
+  CYLSearchNavigationTitleBar,
   CYLSearchRefreshButton,
   CYL_SEARCH_NAVIGATION_BAR_HEIGHT,
   CYL_SEARCH_NAVIGATION_FIELD_HEIGHT

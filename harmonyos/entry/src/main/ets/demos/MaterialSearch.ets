@@ -1,5 +1,7 @@
 import { common } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
+import { CYLSearchBarPreset, CYLSearchBarView, CYLSearchNavigationTitleBar } from 'cylsearch';
+import { cylFirstLevelBar } from './FirstLevel';
 import {
   CYLMenuFoldControl,
   CYLMenuFoldControlContent,
@@ -60,6 +62,15 @@ export struct MaterialMenuView {
   };
   private context: common.Context = this.getUIContext().getHostContext() as common.Context;
   private samples: number[] = [0, 1, 2, 3, 4, 5];
+  // The tab root (not pushed) is a first-level page: the whole bar (centered capsule preset) in the navigation bar.
+  private searchBar: CYLSearchBarView | undefined = undefined;
+
+  aboutToAppear(): void {
+    if (!this.showsBack) {
+      this.searchBar = cylFirstLevelBar(CYLSearchBarPreset.centeredCapsule, cylDemoText(this.context, 'search.placeholder'),
+        this.stack);
+    }
+  }
 
   // One titled section, a glass tag per sample (docs/instructions/example-demos.md).
   private tagSections(): CYLDemoTagSection[] {
@@ -72,12 +83,16 @@ export struct MaterialMenuView {
 
   build() {
     Column() {
-      CYLDemoNavBar({
-        title: 'MaterialSearchView',
-        showsBack: this.showsBack,
-        barColor: Color.Transparent,
-        onBack: () => this.onBack()
-      })
+      if (this.searchBar !== undefined) {
+        CYLSearchNavigationTitleBar({ searchBarView: this.searchBar, stack: this.stack })
+      } else {
+        CYLDemoNavBar({
+          title: 'MaterialSearchView',
+          showsBack: this.showsBack,
+          barColor: Color.Transparent,
+          onBack: () => this.onBack()
+        })
+      }
       Scroll() {
         CYLDemoTagMenuView({
           sections: this.tagSections(),

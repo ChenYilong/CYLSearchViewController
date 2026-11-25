@@ -65,6 +65,15 @@ export class CYLDemoRoute {
   static readonly contactList: string = 'contactList';
   /** The Discover page: always pushed, so its navigation bar has a back button on the left. */
   static readonly discover: string = 'discover';
+  /** The second-level search page every first-level bar pushes (recent and popular tag lists). */
+  static readonly searchSecondLevel: string = 'searchSecondLevel';
+}
+
+/**
+ * The second-level search page's parameter: the preset of the tab whose bar was tapped (its bar looks the same).
+ */
+export interface CYLSearchSecondLevelParam {
+  preset: number;
 }
 
 /**

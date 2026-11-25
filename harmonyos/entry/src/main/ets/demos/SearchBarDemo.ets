@@ -1,5 +1,6 @@
 import { common } from '@kit.AbilityKit';
-import { CYLSearchBarComponent, CYLSearchBarView } from 'cylsearch';
+import { CYLSearchBarComponent, CYLSearchBarPreset, CYLSearchBarView, CYLSearchNavigationTitleBar } from 'cylsearch';
+import { cylFirstLevelBar } from './FirstLevel';
 import { CYLDemoNavBar, cylDemoText, CYLDemoRoute, CYL_PLUS_OVERHANG } from '../common/DemoCommon';
 import { CYLDemoTagMenuView, CYLDemoTagRow, CYLDemoTagSection } from '../common/DemoTagMenu';
 
@@ -10,14 +11,23 @@ import { CYLDemoTagMenuView, CYLDemoTagRow, CYLDemoTagSection } from '../common/
  */
 @ComponentV2
 export struct SearchBarDemoView {
+  // The stack of the plus tab: given when the view is the tab root, a first-level page (the whole outlined bar in the
+  // navigation bar, a tap pushes the search page); the pushed Examples row has none.
+  @Param stack: NavPathStack | undefined = undefined;
   @Param showsBack: boolean = false;
   @Event onBack: () => void = () => {
   };
   @Local status: string = '';
   private context: common.Context = this.getUIContext().getHostContext() as common.Context;
   private bar: CYLSearchBarView = new CYLSearchBarView();
+  private firstLevelBar: CYLSearchBarView | undefined = undefined;
 
   aboutToAppear(): void {
+    const stack = this.stack;
+    if (stack !== undefined) {
+      this.firstLevelBar = cylFirstLevelBar(CYLSearchBarPreset.outlined, cylDemoText(this.context, 'demo.searchBar.placeholder'),
+        stack);
+    }
     this.bar.placeholder = cylDemoText(this.context, 'demo.searchBar.placeholder');
     this.bar.showsCancelButton = true;
     this.bar.cancelButtonTitle = cylDemoText(this.context, 'search.cancel');
@@ -49,10 +59,14 @@ export struct SearchBarDemoView {
 
   build() {
     Column() {
-      CYLDemoNavBar({ title: cylDemoText(this.context, 'demo.searchBar'), showsBack: this.showsBack, onBack: () => this.onBack() })
-      CYLSearchBarComponent({ searchBarView: this.bar, trailingAccessoryViews: () => {
-        this.camera()
-      } })
+      if (this.firstLevelBar !== undefined) {
+        CYLSearchNavigationTitleBar({ searchBarView: this.firstLevelBar, stack: this.stack })
+      } else {
+        CYLDemoNavBar({ title: cylDemoText(this.context, 'demo.searchBar'), showsBack: this.showsBack, onBack: () => this.onBack() })
+        CYLSearchBarComponent({ searchBarView: this.bar, trailingAccessoryViews: () => {
+          this.camera()
+        } })
+      }
       Text(this.status)
         .fontSize(17)
         .fontColor($r('sys.color.font_secondary'))

@@ -252,6 +252,123 @@ function cylSearchVisibilityAppeared(wasVisible: boolean, ratio: number): boolea
   return !wasVisible && ratio > 0;
 }
 
+// First-level navigation bar (owner directive 2026-11-26, docs/instructions/example-demos.md rule 10): the pure state
+// machine of the back button and the bar width. The names are the cross-platform ones (iOS mirrors them).
+
+/**
+ * The width of the back button's slot in the navigation title bar when it is fully shown, in vp.
+ */
+const CYL_SEARCH_BACK_SLOT_WIDTH: number = 32;
+
+/**
+ * The side inset of the title bar: 16 vp (the page margin) without a back button, 6 vp with one (the button brings its
+ * own touch padding).
+ */
+const CYL_SEARCH_TITLE_INSET_HIDDEN: number = 16;
+const CYL_SEARCH_TITLE_INSET_SHOWN: number = 6;
+
+/**
+ * What a request to show or hide the back button does: 0 nothing (the button is already as requested), 1 applies at
+ * once, 2 applies animated. Asking for the state the button has is a no-op, so a push and a stack callback that both
+ * ask do not run the animation twice.
+ */
+function cylSearchBackButtonRequest(currentlyShown: boolean, wantsShown: boolean, animated: boolean): number {
+  if (currentlyShown === wantsShown) {
+    return 0;
+  }
+  return animated ? 2 : 1;
+}
+
+/**
+ * The progress (0 hidden, 1 shown) clamped to its range; a NaN is 0.
+ */
+function cylSearchBackButtonProgress(progress: number): number {
+  if (!(progress > 0)) {
+    return 0;
+  }
+  return progress > 1 ? 1 : progress;
+}
+
+/**
+ * The width of the back button's slot at `progress`: the slot grows from 0 to 32 vp, and the bar takes what is left.
+ */
+function cylSearchBackSlotWidth(progress: number): number {
+  return CYL_SEARCH_BACK_SLOT_WIDTH * cylSearchBackButtonProgress(progress);
+}
+
+/**
+ * The leading inset of the title bar at `progress`: 16 vp hidden, 6 vp shown.
+ */
+function cylSearchTitleLeadingInset(progress: number): number {
+  const p = cylSearchBackButtonProgress(progress);
+  return CYL_SEARCH_TITLE_INSET_HIDDEN + (CYL_SEARCH_TITLE_INSET_SHOWN - CYL_SEARCH_TITLE_INSET_HIDDEN) * p;
+}
+
+/**
+ * The width the search bar gets in a title bar of `containerWidth` (the width inside the safe area) at `progress`:
+ * the whole bar width at 0, narrower by the back slot and the smaller inset at 1. Pages never compute it, the title bar
+ * lays the bar out with it.
+ */
+function cylSearchBarWidth(containerWidth: number, progress: number): number {
+  const width = containerWidth - cylSearchTitleLeadingInset(progress) - CYL_SEARCH_TITLE_INSET_HIDDEN -
+    cylSearchBackSlotWidth(progress);
+  return width > 0 ? width : 0;
+}
+
+/**
+ * What a tap on the bar does: 0 the bar edits as usual (not a first-level bar), 1 the tap is a push (the back button
+ * comes in and `onFirstLevelTap` runs), 2 nothing (a first-level bar whose back button is already shown: the push is
+ * under way, a second tap must not push twice).
+ */
+function cylSearchFirstLevelTapAction(pushesOnTap: boolean, backButtonShown: boolean): number {
+  if (!pushesOnTap) {
+    return 0;
+  }
+  return backButtonShown ? 2 : 1;
+}
+
+/**
+ * Whether the back button belongs to the page a `Navigation` is about to show: the root (first-level) page has none,
+ * any pushed page has one. The system back gesture and the back button both end in this question.
+ */
+function cylSearchBackButtonWantedFor(targetIsRootPage: boolean): boolean {
+  return !targetIsRootPage;
+}
+
+/**
+ * The look of a bar preset, one per tab of the example (`CYLSearchBarPreset`): 0 navigationField (the Discover look),
+ * 1 pill, 2 rounded, 3 outlined, 4 centeredCapsule. `cornerRadius` -1 is a full capsule.
+ */
+interface CYLSearchBarPresetSpec {
+  bordered: boolean;
+  cornerRadius: number;
+  shadowOpacity: number;
+  fontSize: number;
+  showsSearchIcon: boolean;
+  centersPlaceholder: boolean;
+  usesNavigationFill: boolean;
+}
+
+function cylSearchBarPresetSpec(preset: number): CYLSearchBarPresetSpec {
+  const navigation = cylSearchNavigationFieldPreset();
+  if (preset === 1) {
+    return { bordered: false, cornerRadius: -1, shadowOpacity: 0, fontSize: 16, showsSearchIcon: true,
+      centersPlaceholder: false, usesNavigationFill: false };
+  } else if (preset === 2) {
+    return { bordered: false, cornerRadius: 10, shadowOpacity: 0, fontSize: 16, showsSearchIcon: true,
+      centersPlaceholder: false, usesNavigationFill: false };
+  } else if (preset === 3) {
+    return { bordered: true, cornerRadius: 8, shadowOpacity: 0, fontSize: 16, showsSearchIcon: true,
+      centersPlaceholder: false, usesNavigationFill: true };
+  } else if (preset === 4) {
+    return { bordered: true, cornerRadius: -1, shadowOpacity: 0.06, fontSize: 16, showsSearchIcon: true,
+      centersPlaceholder: true, usesNavigationFill: true };
+  }
+  return { bordered: navigation.bordered, cornerRadius: navigation.cornerRadius, shadowOpacity: navigation.shadowOpacity,
+    fontSize: navigation.fontSize, showsSearchIcon: navigation.showsSearchIcon, centersPlaceholder: false,
+    usesNavigationFill: true };
+}
+
 // MARK: - Pure logic (end)
 
 /**
@@ -330,6 +447,32 @@ export enum CYLSearchBarStyle {
    * A capsule with a 1 vp outline: the field and its items inside one outline.
    */
   bordered = 1
+}
+
+/**
+ * The looks of a search bar the core ships, one per tab of the example (`CYLSearchBarView.applyPreset`).
+ */
+export enum CYLSearchBarPreset {
+  /**
+   * The navigation field, the Discover look (bordered capsule radius 18, soft shadow, no magnifier).
+   */
+  navigationField = 0,
+  /**
+   * A borderless full capsule with a magnifier.
+   */
+  pill = 1,
+  /**
+   * A borderless rounded rectangle (radius 10) with a magnifier.
+   */
+  rounded = 2,
+  /**
+   * A bordered rounded rectangle (radius 8) with a magnifier.
+   */
+  outlined = 3,
+  /**
+   * A bordered full capsule with a magnifier and a centered placeholder.
+   */
+  centeredCapsule = 4
 }
 
 /**
@@ -1773,6 +1916,108 @@ export class CYLSearchBarView {
   showsBackButton: boolean = false;
 
   /**
+   * First-level behaviour (owner directive 2026-11-26): true on the bar of a first-level page. The bar is shown whole in
+   * the navigation bar, a tap on it does not edit but plays one push: the back button comes in (the bar narrows by
+   * itself), then `onFirstLevelTap` runs, which pushes the second-level search page. False by default.
+   */
+  pushesOnTap: boolean = false;
+
+  /**
+   * Called after the back button started to come in, when a first-level bar (`pushesOnTap`) is tapped: push the
+   * second-level page here. The page never animates the back button or the bar width.
+   */
+  onFirstLevelTap: (() => void) | undefined = undefined;
+
+  /**
+   * How far the back button is shown, 0 hidden to 1 shown; the title bar derives the back slot and the bar width from
+   * it, so animating it re-lays the bar out smoothly.
+   */
+  @Trace backButtonProgress: number = 0;
+
+  /**
+   * Whether the back button is shown (or coming in).
+   */
+  get isBackButtonShown(): boolean {
+    return this.showsBackButton;
+  }
+
+  /**
+   * Brings the back button in on the left; the bar narrows to make room. With `animated` the change animates, with the
+   * bar's `animationDuration` (default 0.25 s). Asking twice is a no-op (iOS mirrors the name).
+   */
+  showBackButton(animated: boolean = true): void {
+    this.setBackButton(true, animated);
+  }
+
+  /**
+   * Takes the back button out; the bar grows back to its full width. The reverse of `showBackButton`.
+   */
+  hideBackButton(animated: boolean = true): void {
+    this.setBackButton(false, animated);
+  }
+
+  private setBackButton(shown: boolean, animated: boolean): void {
+    const request = cylSearchBackButtonRequest(this.showsBackButton, shown, animated);
+    if (request === 0) {
+      return;
+    }
+    this.showsBackButton = shown;
+    const apply = () => {
+      this.backButtonProgress = shown ? 1 : 0;
+    };
+    if (request === 2) {
+      const seconds = this.animationDuration > 0 ? this.animationDuration : 0.25;
+      cylAnimate(this.uiContext, { duration: seconds * 1000, curve: Curve.EaseInOut }, apply);
+    } else {
+      apply();
+    }
+  }
+
+  /**
+   * The tap of a first-level bar (the title bar calls it): back button in, then `onFirstLevelTap`. Does nothing for a bar
+   * that is not first-level, or when the push is already under way.
+   */
+  firstLevelTapped(): void {
+    if (cylSearchFirstLevelTapAction(this.pushesOnTap, this.showsBackButton) !== 1) {
+      return;
+    }
+    this.showBackButton(true);
+    this.onFirstLevelTap?.();
+  }
+
+  /**
+   * Keeps the back button in step with the page a `Navigation` shows: a pushed page has it, the first-level (root) page
+   * has not. Called by the title bar from the stack's interception, also for the system back gesture.
+   */
+  syncBackButton(targetIsRootPage: boolean, animated: boolean): void {
+    this.setBackButton(cylSearchBackButtonWantedFor(targetIsRootPage), animated);
+  }
+
+  /**
+   * Applies one of the looks the core ships (`CYLSearchBarPreset`); call it before `addItem()` on a new bar.
+   */
+  applyPreset(preset: CYLSearchBarPreset): void {
+    if (preset === CYLSearchBarPreset.navigationField) {
+      this.applyNavigationFieldStyle();
+      return;
+    }
+    const spec = cylSearchBarPresetSpec(preset);
+    if (spec.bordered) {
+      this.searchBarStyle = CYLSearchBarStyle.bordered;
+    }
+    this.fieldCornerRadius = spec.cornerRadius;
+    this.fieldShadowOpacity = spec.shadowOpacity;
+    if (spec.usesNavigationFill) {
+      this.fieldBackgroundColor = $r('app.color.cyl_search_navigation_field_fill');
+    }
+    if (!spec.showsSearchIcon) {
+      this.searchIcon = undefined;
+    }
+    this.centersPlaceholder = spec.centersPlaceholder;
+    this.font = spec.fontSize;
+  }
+
+  /**
    * The bar appeared on screen: focuses the field when `focusesOnAppear` is on. Called by the component; a host calls
    * it from `onPageShow`.
    */
@@ -2663,6 +2908,79 @@ export struct CYLSearchRefreshButton {
 }
 
 /**
+ * The title bar that holds a search bar (the navigation bar's content): the back button's slot, then the whole search bar
+ * filling the width inside the safe area. The slot animates from 0 to 32 vp with `searchBarView.backButtonProgress`, so the
+ * bar's width follows by itself; a page never sets a width. On a first-level bar (`pushesOnTap`) a transparent layer takes
+ * the tap and plays the push (`firstLevelTapped()`). With `stack` (the `NavPathStack` of the `Navigation` that holds the
+ * first-level page) the back button follows the stack: in with a push, out with a pop, the back button and the system back
+ * gesture alike (the stack's interception; one interception per stack).
+ */
+@ComponentV2
+export struct CYLSearchNavigationTitleBar {
+  /**
+   * The bar to show.
+   */
+  @Require @Param searchBarView: CYLSearchBarView;
+  /**
+   * The stack the first-level page pushes onto; the back button follows it. Undefined: the page drives the button.
+   */
+  @Param stack: NavPathStack | undefined = undefined;
+  /**
+   * Called when the back button is tapped.
+   */
+  @Event onBack: () => void = () => {
+  };
+
+  aboutToAppear(): void {
+    this.searchBarView.fieldHeight = CYL_SEARCH_NAVIGATION_FIELD_HEIGHT;
+    this.searchBarView.uiContext = this.getUIContext();
+    const bar = this.searchBarView;
+    this.stack?.setInterception({
+      willShow: (from: NavDestinationContext | NavBar, to: NavDestinationContext | NavBar,
+        operation: NavigationOperation, isAnimated: boolean) => {
+        if (operation === NavigationOperation.PUSH || operation === NavigationOperation.POP) {
+          bar.syncBackButton(to === 'navBar', isAnimated);
+        }
+      }
+    });
+  }
+
+  build() {
+    Row() {
+      Row() {
+        if (this.searchBarView.backButtonProgress > 0) {
+          SymbolGlyph(CYLSearchResources.imageNamed('back'))
+            .fontSize(20)
+            .fontColor([$r('sys.color.font_primary')])
+            .width(32)
+            .height(44)
+            .accessibilityText($r('app.string.cyl_navigationBar_back'))
+            .onClick(() => this.onBack())
+        }
+      }
+      .width(cylSearchBackSlotWidth(this.searchBarView.backButtonProgress))
+      .opacity(this.searchBarView.backButtonProgress)
+      .clip(true)
+      Stack() {
+        CYLSearchBarComponent({ searchBarView: this.searchBarView })
+        if (this.searchBarView.pushesOnTap) {
+          Row()
+            .width('100%')
+            .height('100%')
+            .backgroundColor(Color.Transparent)
+            .accessibilityText(this.searchBarView.placeholder ?? '')
+            .onClick(() => this.searchBarView.firstLevelTapped())
+        }
+      }
+      .layoutWeight(1)
+    }
+    .width('100%')
+    .height(CYL_SEARCH_NAVIGATION_BAR_HEIGHT)
+    .padding({ left: cylSearchTitleLeadingInset(this.searchBarView.backButtonProgress), right: 16 })
+  }
+}
+
+/**
  * A page whose search bar is always in a navigation bar: the bar is the title builder of a `NavDestination`
  * (`isDestination`, a page pushed on a `Navigation`), or the page is wrapped in a `Navigation` created here, so a page
  * without one gets one. The page lays nothing out: its content is the trailing closure.
@@ -2694,7 +3012,9 @@ export struct CYLSearchNavigationPage {
 
   aboutToAppear(): void {
     this.searchBarView.fieldHeight = CYL_SEARCH_NAVIGATION_FIELD_HEIGHT;
-    this.searchBarView.showsBackButton = this.showsBack;
+    if (this.showsBack) {
+      this.searchBarView.showBackButton(false);
+    }
   }
 
   @Builder
@@ -2703,21 +3023,7 @@ export struct CYLSearchNavigationPage {
 
   @Builder
   titleBar() {
-    Row({ space: 2 }) {
-      if (this.showsBack) {
-        SymbolGlyph(CYLSearchResources.imageNamed('back'))
-          .fontSize(20)
-          .fontColor([$r('sys.color.font_primary')])
-          .width(32)
-          .height(44)
-          .accessibilityText($r('app.string.cyl_navigationBar_back'))
-          .onClick(() => this.onBack())
-      }
-      CYLSearchBarComponent({ searchBarView: this.searchBarView }).layoutWeight(1)
-    }
-    .width('100%')
-    .height(CYL_SEARCH_NAVIGATION_BAR_HEIGHT)
-    .padding({ left: this.showsBack ? 6 : 16, right: 16 })
+    CYLSearchNavigationTitleBar({ searchBarView: this.searchBarView, onBack: () => this.onBack() })
   }
 
   build() {

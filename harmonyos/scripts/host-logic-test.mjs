@@ -321,10 +321,11 @@ describe('Discover: refresh shows the next page, cyclically', () => {
 // the host, so this checks the rule in the source of the builder and of the example.
 describe('navigation title builder: the core adapts the bar width', () => {
   const barSource = readFileSync(join(core, 'CYLSearchBarView.ets'), 'utf8');
-  const titleBar = barSource.slice(barSource.indexOf('titleBar() {'), barSource.indexOf('build() {', barSource.indexOf('titleBar() {')));
+  const titleStart = barSource.indexOf('export struct CYLSearchNavigationTitleBar');
+  const titleBar = barSource.slice(titleStart, barSource.indexOf('export struct CYLSearchNavigationPage'));
   it('gives the bar the width left beside the back button with layoutWeight(1)', () => {
-    assert.match(titleBar, /CYLSearchBarComponent\(\{ searchBarView: this\.searchBarView \}\)\.layoutWeight\(1\)/);
-    assert.ok(titleBar.indexOf('if (this.showsBack)') < titleBar.indexOf('CYLSearchBarComponent'), 'the back button comes first');
+    assert.match(titleBar, /\.layoutWeight\(1\)/);
+    assert.ok(titleBar.indexOf('backButtonProgress') < titleBar.indexOf('CYLSearchBarComponent'), 'the back button comes first');
   });
   it('lets the example page pass no width, margin or padding to the bar', () => {
     const start = discoverSource.indexOf('CYLSearchNavigationPage({');
@@ -644,5 +645,78 @@ describe('focus on appear', () => {
       assert.match(readFileSync(join(here, '..', 'entry', 'src', 'main', 'ets', 'demos', file), 'utf8'),
         /focusesOnAppear = true;/, file);
     }
+  });
+});
+
+describe('first-level navigation bar (back button state machine)', () => {
+  it('asking for the state the button has is a no-op, else applies at once or animated', () => {
+    assert.equal(logic.cylSearchBackButtonRequest(false, false, true), 0);
+    assert.equal(logic.cylSearchBackButtonRequest(true, true, false), 0);
+    assert.equal(logic.cylSearchBackButtonRequest(false, true, true), 2);
+    assert.equal(logic.cylSearchBackButtonRequest(false, true, false), 1);
+    assert.equal(logic.cylSearchBackButtonRequest(true, false, true), 2);
+  });
+  it('clamps the progress and derives the slot and the inset from it', () => {
+    assert.equal(logic.cylSearchBackButtonProgress(-1), 0);
+    assert.equal(logic.cylSearchBackButtonProgress(Number.NaN), 0);
+    assert.equal(logic.cylSearchBackButtonProgress(2), 1);
+    assert.equal(logic.cylSearchBackSlotWidth(0), 0);
+    assert.equal(logic.cylSearchBackSlotWidth(1), 32);
+    assert.equal(logic.cylSearchTitleLeadingInset(0), 16);
+    assert.equal(logic.cylSearchTitleLeadingInset(1), 6);
+  });
+  it('shrinks the bar smoothly: full width within the safe area at 0, narrower and monotonic towards 1', () => {
+    assert.equal(logic.cylSearchBarWidth(400, 0), 400 - 16 - 16);
+    assert.equal(logic.cylSearchBarWidth(400, 1), 400 - 6 - 16 - 32);
+    let previous = Infinity;
+    for (let progress = 0; progress <= 1; progress += 0.1) {
+      const width = logic.cylSearchBarWidth(400, progress);
+      assert.ok(width < previous);
+      previous = width;
+    }
+    assert.equal(logic.cylSearchBarWidth(20, 1), 0);
+  });
+  it('a tap pushes only on a first-level bar whose back button is not shown yet', () => {
+    assert.equal(logic.cylSearchFirstLevelTapAction(false, false), 0);
+    assert.equal(logic.cylSearchFirstLevelTapAction(true, false), 1);
+    assert.equal(logic.cylSearchFirstLevelTapAction(true, true), 2);
+  });
+  it('the root page has no back button, a pushed page has one', () => {
+    assert.equal(logic.cylSearchBackButtonWantedFor(true), false);
+    assert.equal(logic.cylSearchBackButtonWantedFor(false), true);
+  });
+  it('has a distinct preset per tab', () => {
+    const specs = [0, 1, 2, 3, 4].map((preset) => JSON.stringify(logic.cylSearchBarPresetSpec(preset)));
+    assert.equal(new Set(specs).size, 5);
+    assert.equal(logic.cylSearchBarPresetSpec(0).cornerRadius, 18);
+  });
+});
+
+describe('the examples use the core for the first-level bar', () => {
+  const demos = join(here, '..', 'entry', 'src', 'main', 'ets', 'demos');
+  const read = (file) => readFileSync(join(demos, file), 'utf8');
+  it('every tab root shows its own preset in the title bar and pushes on tap', () => {
+    const presets = new Map([['SearchExample.ets', 'pill'], ['ExamplesMenu.ets', 'rounded'], ['SearchBarDemo.ets', 'outlined'],
+      ['MaterialSearch.ets', 'centeredCapsule'], ['Discover.ets', 'navigationField']]);
+    for (const [file, preset] of presets) {
+      const text = read(file);
+      assert.ok(new RegExp("CYLSearchBarPreset[.]" + preset + "[,)]").test(text), `${file} preset ${preset}`);
+      assert.match(text, /CYLSearchNavigationTitleBar\(/, file);
+    }
+    assert.match(read('FirstLevel.ets'), /pushesOnTap = true/);
+    assert.match(read('FirstLevel.ets'), /onFirstLevelTap = /);
+    assert.match(read('Discover.ets'), /pushesOnTap = true/);
+  });
+  it('the examples never animate the back button or set a width themselves', () => {
+    for (const file of ['SearchExample.ets', 'ExamplesMenu.ets', 'SearchBarDemo.ets', 'MaterialSearch.ets', 'Discover.ets',
+      'FirstLevel.ets']) {
+      const text = read(file);
+      assert.doesNotMatch(text, /showBackButton\(|hideBackButton\(|backButtonProgress/, file);
+    }
+  });
+  it('the core exports the title bar and the preset', () => {
+    const index = readFileSync(join(here, '..', 'cylsearch', 'index.ets'), 'utf8');
+    assert.match(index, /CYLSearchNavigationTitleBar/);
+    assert.match(index, /CYLSearchBarPreset/);
   });
 });

@@ -7,8 +7,10 @@ import {
 } from '@cyl/classifymenu';
 import {
   CYLSearchBarItem,
+  CYLSearchBarPreset,
   CYLSearchBarView,
   CYLSearchNavigationPage,
+  CYLSearchNavigationTitleBar,
   CYLSearchRefreshButton
 } from 'cylsearch';
 import { cylAppText, CYLDemoRoute, CYL_PLUS_OVERHANG } from '../common/DemoCommon';
@@ -59,7 +61,7 @@ function cylFoldedTagCount(widths: number[], width: number, rows: number, spacin
 /**
  * A discover topic of search-discover.json; `icon` "hot" adds the localized hot icon after the title.
  */
-interface CYLDiscoverTopic {
+export interface CYLDiscoverTopic {
   title: string;
   icon?: string;
 }
@@ -75,11 +77,31 @@ interface CYLDiscoverPage {
 /**
  * The demo's data (iOS `CYLSearchDiscoverData`): one rawfile per language, the same topics in the same order.
  */
-interface CYLSearchDiscoverData {
+export interface CYLSearchDiscoverData {
   version: number;
   discoverCount: number;
   recentSearches: string[];
   discover: CYLDiscoverTopic[];
+}
+
+/**
+ * The demo data of the device language (Discover and the second-level search pages share it).
+ */
+export function cylLoadDiscoverData(context: common.Context): CYLSearchDiscoverData {
+  const names = ['zh_TW', 'zh_CN', 'ja_JP'];
+  const language = context.resourceManager.getConfigurationSync().locale ?? '';
+  let file = 'base';
+  if (language.startsWith('zh')) {
+    file = language.includes('Hant') || language.includes('TW') || language.includes('HK') ? names[0] : names[1];
+  } else if (language.startsWith('ja')) {
+    file = names[2];
+  }
+  try {
+    const bytes = context.resourceManager.getRawFileContentSync(`discover/${file}.json`);
+    return JSON.parse(new util.TextDecoder('utf-8').decodeToString(bytes)) as CYLSearchDiscoverData;
+  } catch (error) {
+    return { version: 1, discoverCount: 6, recentSearches: [], discover: [] };
+  }
 }
 
 /**
@@ -264,20 +286,7 @@ export struct DiscoverView {
   }
 
   private loadData(): CYLSearchDiscoverData {
-    const names = ['zh_TW', 'zh_CN', 'ja_JP'];
-    const language = this.context.resourceManager.getConfigurationSync().locale ?? '';
-    let file = 'base';
-    if (language.startsWith('zh')) {
-      file = language.includes('Hant') || language.includes('TW') || language.includes('HK') ? names[0] : names[1];
-    } else if (language.startsWith('ja')) {
-      file = names[2];
-    }
-    try {
-      const bytes = this.context.resourceManager.getRawFileContentSync(`discover/${file}.json`);
-      return JSON.parse(new util.TextDecoder('utf-8').decodeToString(bytes)) as CYLSearchDiscoverData;
-    } catch (error) {
-      return { version: 1, discoverCount: 6, recentSearches: [], discover: [] };
-    }
+    return cylLoadDiscoverData(this.context);
   }
 
   // The search field's placeholder is the first discover topic.
@@ -558,37 +567,46 @@ export struct DiscoverView {
   }
 }
 
-// Whether the entry page already opened the Discover page once (the first time it appears it opens it by itself).
-let cylDiscoverOpenedOnce: boolean = false;
-
 /**
- * The root of the Discover tab: a small entry page. The Discover page is always pushed on top of it (also at once, the
- * first time), so its navigation bar always has a back button on the left, as the iOS example's second-level page.
+ * The root of the Discover tab, a first-level page: the navigation bar holds the whole search bar of the reference look
+ * (bordered capsule, camera and the Search button inside), full width within the safe area. A tap on it pushes the
+ * Discover page; the core brings the back button in and narrows the bar, the swipe back reverses it (the page calls
+ * only `pushesOnTap` and `onFirstLevelTap`).
  */
 @ComponentV2
 export struct DiscoverEntryView {
   @Require @Param stack: NavPathStack;
   private context: common.Context = this.getUIContext().getHostContext() as common.Context;
+  private searchBar: CYLSearchBarView = new CYLSearchBarView();
 
   aboutToAppear(): void {
-    if (!cylDiscoverOpenedOnce) {
-      cylDiscoverOpenedOnce = true;
-      this.stack.pushPath({ name: CYLDemoRoute.discover }, false);
-    }
+    const bar = this.searchBar;
+    bar.applyPreset(CYLSearchBarPreset.navigationField);
+    bar.contentInsets = { top: 0, left: 0, bottom: 0, right: 0 };
+    const data = cylLoadDiscoverData(this.context);
+    bar.placeholder = data.discover.length > 0 ? data.discover[0].title : cylAppText(this.context, 'discover_search');
+    const camera = CYLSearchBarItem.iconItem($r('sys.symbol.camera'), cylAppText(this.context, 'discover_imageSearch'));
+    camera.imageSize = 22;
+    bar.addItem(camera);
+    bar.addItem(CYLSearchBarItem.divider());
+    bar.addItem(CYLSearchBarItem.textItem(cylAppText(this.context, 'discover_search')));
+    bar.pushesOnTap = true;
+    bar.onFirstLevelTap = () => this.stack.pushPath({ name: CYLDemoRoute.discover });
   }
 
   build() {
-    Column({ space: 16 }) {
-      Text(cylAppText(this.context, 'tab_discover')).fontSize(20).fontWeight(FontWeight.Bold)
-        .fontColor($r('sys.color.font_primary'))
-      Button(cylAppText(this.context, 'tab_discover'), { type: ButtonType.Capsule })
-        .constraintSize({ minWidth: 44, minHeight: 44 })
-        .id('CYLSearchDiscoverOpen')
-        .onClick(() => this.stack.pushPath({ name: CYLDemoRoute.discover }))
+    Column() {
+      CYLSearchNavigationTitleBar({ searchBarView: this.searchBar, stack: this.stack })
+      Column({ space: 16 }) {
+        Text(cylAppText(this.context, 'tab_discover')).fontSize(20).fontWeight(FontWeight.Bold)
+          .fontColor($r('sys.color.font_primary'))
+      }
+      .layoutWeight(1)
+      .width('100%')
+      .justifyContent(FlexAlign.Center)
     }
     .width('100%')
     .height('100%')
-    .justifyContent(FlexAlign.Center)
     .backgroundColor($r('sys.color.background_primary'))
   }
 }

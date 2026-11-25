@@ -1,13 +1,16 @@
 import { common } from '@kit.AbilityKit';
 import {
   CYLSearchBarComponent,
+  CYLSearchBarPreset,
   CYLSearchBarView,
+  CYLSearchNavigationTitleBar,
   CYLSearchComponent,
   CYLSearchRefreshComponent,
   CYLSearchSuggestionCachePolicy,
   CYLSearchView,
   CYLSearchViewDataSource
 } from 'cylsearch';
+import { cylFirstLevelBar } from './FirstLevel';
 import { cylDemoText, CYLDemoNavBar, CYLDemoPlaceholderStack, CYL_PLUS_OVERHANG } from '../common/DemoCommon';
 
 /**
@@ -58,6 +61,9 @@ export class CYLSearchExampleDataSource implements CYLSearchViewDataSource {
  */
 @ComponentV2
 export struct SearchExampleView {
+  // The stack of the Search tab: given when the view is the tab root, a first-level page (the whole pill bar in the
+  // navigation bar, a tap pushes the search page); the pushed Examples row has none and keeps the bar under the title.
+  @Param stack: NavPathStack | undefined = undefined;
   @Param showsBack: boolean = false;
   @Event onBack: () => void = () => {
   };
@@ -68,8 +74,14 @@ export struct SearchExampleView {
   private source: CYLSearchExampleDataSource = new CYLSearchExampleDataSource(this.context);
   private searchBar: CYLSearchBarView = new CYLSearchBarView();
   private overlaySearchView: CYLSearchView = new CYLSearchView();
+  private firstLevelBar: CYLSearchBarView | undefined = undefined;
 
   aboutToAppear(): void {
+    const stack = this.stack;
+    if (stack !== undefined) {
+      this.firstLevelBar = cylFirstLevelBar(CYLSearchBarPreset.pill, cylDemoText(this.context, 'search.placeholder'),
+        stack);
+    }
     this.searchBar.placeholder = cylDemoText(this.context, 'search.placeholder');
     this.searchBar.focusesOnAppear = true; // the field focuses itself every time the bar appears
     this.searchBar.cancelButtonTitle = cylDemoText(this.context, 'search.cancel');
@@ -122,25 +134,29 @@ export struct SearchExampleView {
   build() {
     Stack() {
       Column() {
-        CYLDemoNavBar({
-          title: cylDemoText(this.context, 'search.title'),
-          showsBack: this.showsBack,
-          leftTitle: cylDemoText(this.context, 'action.overlay'),
-          rightTitle: cylDemoText(this.context, this.hidesSearchBarWhenScrolling ? 'repro.on' : 'repro.off'),
-          rightId: 'CYLIssueReproductionToggle',
-          onBack: () => this.onBack(),
-          onLeft: () => this.overlaySearchView.showSearchIn(this.context),
-          onRight: () => {
-            this.hidesSearchBarWhenScrolling = !this.hidesSearchBarWhenScrolling;
-          }
-        })
-        if (!this.hidesSearchBarWhenScrolling) {
+        if (this.firstLevelBar !== undefined) {
+          CYLSearchNavigationTitleBar({ searchBarView: this.firstLevelBar, stack: this.stack })
+        } else {
+          CYLDemoNavBar({
+            title: cylDemoText(this.context, 'search.title'),
+            showsBack: this.showsBack,
+            leftTitle: cylDemoText(this.context, 'action.overlay'),
+            rightTitle: cylDemoText(this.context, this.hidesSearchBarWhenScrolling ? 'repro.on' : 'repro.off'),
+            rightId: 'CYLIssueReproductionToggle',
+            onBack: () => this.onBack(),
+            onLeft: () => this.overlaySearchView.showSearchIn(this.context),
+            onRight: () => {
+              this.hidesSearchBarWhenScrolling = !this.hidesSearchBarWhenScrolling;
+            }
+          })
+        }
+        if (this.firstLevelBar === undefined && !this.hidesSearchBarWhenScrolling) {
           this.bar()
         }
         Column() {
           CYLSearchRefreshComponent({ scroller: this.scroller }) {
             List({ scroller: this.scroller }) {
-              if (this.hidesSearchBarWhenScrolling) {
+              if (this.firstLevelBar === undefined && this.hidesSearchBarWhenScrolling) {
                 ListItem() {
                   this.bar()
                 }

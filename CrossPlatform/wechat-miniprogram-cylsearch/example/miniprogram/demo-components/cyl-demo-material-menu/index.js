@@ -2,6 +2,7 @@
 // The "Tag style" tab opens every sample with the suggestions as tags and the keyboard down.
 const { cylDemoTagConfiguration } = require('../../utils/cyl_demo_tag_list');
 const { SAMPLES, cylMaterialSampleTitle } = require('../../utils/cyl_material_samples');
+const { cylDemoText } = require('../../utils/cyl_demo_text');
 
 Component({
   properties: {
@@ -9,7 +10,7 @@ Component({
     focusesSearchFieldOnShow: { type: Boolean, value: true },
     inTabBar: { type: Boolean, value: false },
   },
-  data: { rows: [], tagConfiguration: {} },
+  data: { rows: [], tagConfiguration: {}, placeholder: cylDemoText('search.placeholder') },
   lifetimes: {
     attached() {
       const rows = SAMPLES.map((sample) => ({ sample, title: cylMaterialSampleTitle(sample) }));

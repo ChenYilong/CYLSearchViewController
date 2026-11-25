@@ -1,28 +1,16 @@
-// The "Discover" tab: a small entry page. The Discover page (pages/discoverSearch) is always pushed on top of it with
-// wx.navigateTo (also at once, the first time), so its navigation bar always has a back button on the left, as the iOS
-// example's second-level page.
+// The "Discover" tab, a first-level page: the navigation bar holds the whole search bar of the reference look; a tap on it
+// pushes the Discover page (pages/discoverSearch) (the core navigates). The core brings the back button in and narrows the
+// bar, the swipe back or the back button return to this page and the core takes the back button out again.
 const { cylSelectTab } = require('../../utils/cyl_tab_page');
-const { cylDemoText } = require('../../utils/cyl_demo_text');
-
-const DISCOVER_PAGE = '/pages/discoverSearch/index';
-// Whether the Discover page was already opened once by itself (the first time this page shows).
-let openedOnce = false;
+const { cylDemoText, cylDiscoverData } = require('../../utils/cyl_demo_text');
 
 Page({
-  data: { title: '' },
+  data: { title: '', placeholder: '' },
   onLoad() {
-    this.setData({ title: cylDemoText('tab.discover') });
-  },
-  onReady() {
-    if (!openedOnce) {
-      openedOnce = true;
-      this.openDiscover();
-    }
+    const first = cylDiscoverData().discover[0];
+    this.setData({ title: cylDemoText('tab.discover'), placeholder: first ? first.title : cylDemoText('discover.search') });
   },
   onShow() {
     cylSelectTab(this, 'discover');
-  },
-  openDiscover() {
-    wx.navigateTo({ url: DISCOVER_PAGE });
   },
 });

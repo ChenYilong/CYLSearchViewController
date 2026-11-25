@@ -1,4 +1,4 @@
-const { cylSearchShouldFocusOnAppear, cylSearchHasBackButton, cylNavigationFieldStyle, CYLSearchBarColors, CYLSearchBarView, CYLSearchBarItem, CYLSearchBarMode, CYLSearchBarAppearance, cylInsetsCSS } = require('../core/CYLSearchBarView');
+const { cylSearchShouldFocusOnAppear, cylSearchHasBackButton, cylNavigationFieldStyle, cylSearchBarPresetSpec, CYLSearchBarColors, CYLSearchBarView, CYLSearchBarItem, CYLSearchBarMode, CYLSearchBarAppearance, cylInsetsCSS } = require('../core/CYLSearchBarView');
 const { CYLSearchResources, cylFormatString } = require('../core/CYLSearchResources');
 
 const text = (key) => CYLSearchResources.localizedString(undefined, key);
@@ -53,6 +53,9 @@ Component({
     // (radius 18), a soft shadow (0.06), an opaque white / black fill, no magnifier, 16 text. A page sets this property
     // (or calls the method applyNavigationFieldStyle()) and never the values; a JS method cannot share the property's name.
     navigationFieldStyle: { type: Boolean, value: false, observer: 'onNavigationFieldStyle' },
+    // One of the looks the core ships (CYLSearchBarPreset): "navigationField" (the same as `navigationFieldStyle`), "pill",
+    // "rounded", "outlined" or "centeredCapsule"; a page names it and never sets the values. Empty: none.
+    preset: { type: String, value: '', observer: 'onPreset' },
     searchIcon: { type: String, value: '../images/search.svg' },
     showsSearchIcon: { type: Boolean, value: true },
     showsCancelButton: { type: Boolean, value: false },
@@ -269,6 +272,18 @@ Component({
         searchBarStyle: 'bordered', showsSearchIcon: preset.showsSearchIcon, fieldCornerRadius: preset.cornerRadius,
         fieldShadowOpacity: preset.shadowOpacity, fontSize: preset.fontSize,
       });
+    },
+    onPreset(name) {
+      if (!name) return;
+      if (name === 'navigationField') {
+        this.onNavigationFieldStyle(true);
+        return;
+      }
+      const spec = cylSearchBarPresetSpec(name);
+      const values = { showsSearchIcon: spec.showsSearchIcon, fieldCornerRadius: spec.cornerRadius, fieldShadowOpacity: spec.shadowOpacity, fontSize: spec.fontSize,
+        centersPlaceholder: spec.centersPlaceholder, navigationFill: spec.usesNavigationFill };
+      if (spec.bordered) values.searchBarStyle = 'bordered';
+      this.setData(values);
     },
     /**
      * Applies the navigation field preset (the same as the property `navigationFieldStyle`; iOS `applyNavigationFieldStyle()`).

@@ -312,7 +312,9 @@ test('cyl-search-navigation-bar sits below the status bar and ends before the me
     assert.equal(bar.data.metrics.fieldHeight, 36);
     // 44 pt status bar, 16 pt leading margin, the trailing side clears the capsule (101 pt), the bar is 40 pt high.
     assert.equal(bar.data.barStyle, 'padding: 44px 101px 0 16px; height: 40px;');
-    assert.equal(bar.data.contentStyle, 'width: 249px;', 'the free width beside the back button: 390 - 16 - 101 - 24');
+    assert.equal(bar.data.contentStyle, '', 'the bar takes the free width by flex: 1, beside the back slot');
+    assert.equal(bar.data.backShown, true, 'showsBack is the initial state, shown at once');
+    assert.equal(bar.data.backAnimated, false);
     assert.equal(bar.data.back, 'Back');
     let navigatedBack = 0;
     global.wx.navigateBack = () => { navigatedBack += 1; };

@@ -1,7 +1,12 @@
 <!-- The navigation bar: status bar space, then the back button (optional) and the search bar in the slot. -->
-<view class="cyl-nav" style="{{barStyle}}">
-  <view wx:if="{{showsBack}}" class="cyl-nav-back" role="button" aria-label="{{back}}" bindtap="onBack">
+<view class="cyl-nav {{backAnimated ? 'cyl-nav-animated' : ''}}" style="{{barStyle}}">
+  <!-- The back button's slot: width 0 hidden, 32 shown; it animates (CSS transition) when the change was asked animated. -->
+  <view class="cyl-nav-back {{backShown ? 'cyl-nav-back-shown' : ''}}" role="button" aria-hidden="{{!backShown}}" aria-label="{{back}}" bindtap="onBack">
     <view class="cyl-nav-back-icon" aria-hidden="true" />
   </view>
-  <view class="cyl-nav-content" style="{{contentStyle}}"><slot /></view>
+  <view class="cyl-nav-content" style="{{contentStyle}}">
+    <slot />
+    <!-- A first-level bar: the tap is a push. -->
+    <view wx:if="{{pushesOnTap}}" class="cyl-nav-tap" bindtap="onFirstLevelTap" />
+  </view>
 </view>

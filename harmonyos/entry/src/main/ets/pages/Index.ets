@@ -13,6 +13,7 @@ import {
   CYLDemoRoute,
   CYLMaterialSampleParam,
   CYLPlaceholderDetailParam,
+  CYLSearchSecondLevelParam,
   CYL_TAB_ICON_SOURCE_KEY,
   CYL_PLUS_IMAGE_SIZE
 } from '../common/DemoCommon';
@@ -22,6 +23,7 @@ import { PortsMenuPage, SearchBarDemoPage, SearchBarDemoView } from '../demos/Se
 import { MaterialMenuPage, MaterialMenuView, MaterialSamplePage } from '../demos/MaterialSearch';
 import { LapismPage, MultiSearchDemoPage, RevealPage, YechaoaPage } from '../demos/Ports';
 import { DiscoverEntryView, DiscoverPage } from '../demos/Discover';
+import { SearchSecondLevelPage } from '../demos/FirstLevel';
 import { SearchBarStylesPage, SearchControllerPage } from '../demos/SearchController';
 import {
   CYLContactListPage,
@@ -217,6 +219,8 @@ struct Index {
       CYLContactRemarkPage({ stack: this.stack(this.currentIdentifier()) })
     } else if (name === CYLDemoRoute.contactTagEditor) {
       CYLContactTagEditorPage({ stack: this.stack(this.currentIdentifier()), param: param as CYLContactTagEditorParam })
+    } else if (name === CYLDemoRoute.searchSecondLevel) {
+      SearchSecondLevelPage({ stack: this.stack(this.currentIdentifier()), param: param as CYLSearchSecondLevelParam })
     } else if (name === CYLDemoRoute.discover) {
       DiscoverPage({ stack: this.stack(this.currentIdentifier()) })
     } else if (name === CYLDemoRoute.contactList) {
@@ -228,11 +232,11 @@ struct Index {
   @Builder
   rootPage(identifier: string) {
     if (identifier === 'search') {
-      SearchExampleView()
+      SearchExampleView({ stack: this.stack(identifier) })
     } else if (identifier === 'examples') {
       ExamplesMenuView({ stack: this.stack(identifier) })
     } else if (identifier === 'plus') {
-      SearchBarDemoView()
+      SearchBarDemoView({ stack: this.stack(identifier) })
     } else if (identifier === 'tagStyle') {
       MaterialMenuView({ stack: this.stack(identifier), tags: true })
     } else if (identifier === 'discover') {

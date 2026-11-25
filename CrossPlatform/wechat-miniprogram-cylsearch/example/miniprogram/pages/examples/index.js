@@ -27,10 +27,10 @@ const SVGA_STYLE = {
 };
 
 Page({
-  data: { title: '', rows: [], tagConfiguration: {}, svgaTitle: '', svgaURL: '/assets/tab/svga/tab_activity.svga.bin', svgaStyle: SVGA_STYLE },
+  data: { title: '', placeholder: '', rows: [], tagConfiguration: {}, svgaTitle: '', svgaURL: '/assets/tab/svga/tab_activity.svga.bin', svgaStyle: SVGA_STYLE },
   onLoad() {
     this.setData({
-      title: cylDemoText('demo.title'), svgaTitle: cylDemoText('svga.demo'),
+      title: cylDemoText('demo.title'), placeholder: cylDemoText('search.placeholder'), svgaTitle: cylDemoText('svga.demo'),
       rows: ROWS.map((row) => ({ title: cylDemoText(row.key), url: row.url })),
       tagConfiguration: this.tagConfiguration(),
     });

@@ -1,4 +1,6 @@
 import { common } from '@kit.AbilityKit';
+import { CYLSearchBarPreset, CYLSearchBarView, CYLSearchNavigationTitleBar } from 'cylsearch';
+import { cylFirstLevelBar } from './FirstLevel';
 import { CYLPlaceholderMessage, CYLPlaceholderStyle, CYLPlaceholderViewModel } from 'cylplaceholder';
 import {
   CYLControlState, CYLEdgeInsets, CYLFont, CYLMenuStyle, CYLSize, CYLTagButton, CYLTagButtonHost, CYLTagContentAlignment
@@ -73,6 +75,8 @@ export struct ExamplesMenuView {
   @Require @Param stack: NavPathStack;
   private context: common.Context = this.getUIContext().getHostContext() as common.Context;
   // The SVGA demo above the list (iOS `CYLSVGADemoHeaderView`): played once when shown, again on each tap.
+  // The first-level search bar of the tab (the rounded preset), whole in the navigation bar; a tap pushes the search page.
+  private searchBar: CYLSearchBarView | undefined = undefined;
   private svgaButton: CYLTagButton = cylSVGADemoTagButton(cylAppText(this.context, 'svga_demo'),
     'asset:svga/tab_activity.svga');
   // Where the tab icons come from (iOS `CYLDemoTabIconSource`): 0 symbols, 1 SVGA keys, 2 SVGA configuration file.
@@ -89,6 +93,8 @@ export struct ExamplesMenuView {
   }
 
   aboutToAppear(): void {
+    this.searchBar = cylFirstLevelBar(CYLSearchBarPreset.rounded, cylDemoText(this.context, 'search.placeholder'),
+      this.stack);
     // Plays once when shown, as the tab icons do when selected (iOS `didMoveToWindow`).
     this.svgaButton.playAnimation();
     // `--pi CYLContactTags 1` opens the contact tags example at launch (iOS `-CYLDemoRow 5`), for screenshots.
@@ -148,7 +154,9 @@ export struct ExamplesMenuView {
 
   build() {
     Column() {
-      CYLDemoNavBar({ title: cylDemoText(this.context, 'demo.title'), barColor: Color.Transparent })
+      if (this.searchBar !== undefined) {
+        CYLSearchNavigationTitleBar({ searchBarView: this.searchBar, stack: this.stack })
+      }
       this.svgaHeader()
       Scroll() {
         CYLDemoTagMenuView({

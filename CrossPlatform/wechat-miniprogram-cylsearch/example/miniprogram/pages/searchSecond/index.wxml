@@ -1,0 +1,23 @@
+<view class="screen">
+  <!-- The second-level search page every first-level bar pushes: the same bar look (the tab's preset) with the back button on the left
+       and the keyboard up; Recently searched and Popular right now as tag lists. -->
+  <cyl-search-navigation-bar showsBack>
+    <cyl-search-bar generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
+      id="bar" class="bar" value="{{query}}" preset="{{preset}}" placeholder="{{placeholder}}" focusesOnAppear contentInsets="0"
+      fieldHeight="{{fieldHeight}}" bind:textchange="onTextChange" />
+  </cyl-search-navigation-bar>
+  <scroll-view scroll-y class="content">
+    <view wx:if="{{recent.length}}" class="section">
+      <text class="header" role="heading">{{texts.recent}}</text>
+      <view class="tags" id="CYLSearchRecentTags">
+        <view wx:for="{{recent}}" wx:key="*this" class="tag" role="button" aria-label="{{item}}" data-title="{{item}}" bindtap="onTagTap">{{item}}</view>
+      </view>
+    </view>
+    <view class="section">
+      <text class="header" role="heading">{{texts.popular}}</text>
+      <view class="tags" id="CYLSearchPopularTags">
+        <view wx:for="{{topics}}" wx:key="*this" class="tag" role="button" aria-label="{{item}}" data-title="{{item}}" bindtap="onTagTap">{{item}}</view>
+      </view>
+    </view>
+  </scroll-view>
+</view>

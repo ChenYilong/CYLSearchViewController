@@ -84,6 +84,35 @@ function cylNavigationFieldStyle() {
 }
 
 /**
+ * The looks of a search bar the core ships, one per tab of the example (`CYLSearchBarView.applyPreset(name)`, the
+ * component property `preset`): "navigationField" (the Discover look), "pill" (a borderless full capsule with a magnifier),
+ * "rounded" (borderless, radius 10), "outlined" (bordered, radius 8) and "centeredCapsule" (bordered full capsule, the
+ * placeholder centered). `cornerRadius` -1 is a full capsule. An unknown name is the navigation field.
+ */
+const CYLSearchBarPreset = Object.freeze({
+  navigationField: 'navigationField',
+  pill: 'pill',
+  rounded: 'rounded',
+  outlined: 'outlined',
+  centeredCapsule: 'centeredCapsule',
+});
+
+function cylSearchBarPresetSpec(name) {
+  switch (name) {
+    case CYLSearchBarPreset.pill:
+      return { bordered: false, cornerRadius: -1, shadowOpacity: 0, fontSize: 16, showsSearchIcon: true, centersPlaceholder: false, usesNavigationFill: false };
+    case CYLSearchBarPreset.rounded:
+      return { bordered: false, cornerRadius: 10, shadowOpacity: 0, fontSize: 16, showsSearchIcon: true, centersPlaceholder: false, usesNavigationFill: false };
+    case CYLSearchBarPreset.outlined:
+      return { bordered: true, cornerRadius: 8, shadowOpacity: 0, fontSize: 16, showsSearchIcon: true, centersPlaceholder: false, usesNavigationFill: true };
+    case CYLSearchBarPreset.centeredCapsule:
+      return { bordered: true, cornerRadius: -1, shadowOpacity: 0.06, fontSize: 16, showsSearchIcon: true, centersPlaceholder: true, usesNavigationFill: true };
+    default:
+      return Object.assign({ centersPlaceholder: false, usesNavigationFill: true }, cylNavigationFieldStyle());
+  }
+}
+
+/**
  * The opaque fill of the navigation field: white in light mode, black in dark mode.
  */
 function cylNavigationFieldFill(dark) {
@@ -682,6 +711,24 @@ class CYLSearchBarView {
   }
 
   /**
+   * Applies one of the looks the core ships (`CYLSearchBarPreset`); call it on a new bar before `addItem()`.
+   */
+  applyPreset(name) {
+    if (!name || name === CYLSearchBarPreset.navigationField) {
+      this.applyNavigationFieldStyle();
+      return;
+    }
+    const spec = cylSearchBarPresetSpec(name);
+    if (spec.bordered) this.searchBarStyle = CYLSearchBarStyle.bordered;
+    this.fieldCornerRadius = spec.cornerRadius;
+    this.fieldShadowOpacity = spec.shadowOpacity;
+    if (spec.usesNavigationFill) this.fieldBackgroundColor = $r('app.color.cyl_search_navigation_field_fill');
+    if (!spec.showsSearchIcon) this.searchIcon = undefined;
+    this.centersPlaceholder = spec.centersPlaceholder;
+    this.font = spec.fontSize;
+  }
+
+  /**
    * Whether the bar shows only its search button.
    */
   get isIconified() {
@@ -1245,6 +1292,8 @@ module.exports = {
   CYLSearchBarAppearance,
   cylInsetsCSS,
   cylNavigationFieldStyle,
+  CYLSearchBarPreset,
+  cylSearchBarPresetSpec,
   cylNavigationFieldFill,
   cylSearchShouldFocusOnAppear,
   cylSearchHasBackButton,
