@@ -17,6 +17,7 @@ PODS:
   - CYLAnimatedItem/SVGA (1.100.0):
     - CYLAnimatedItem/Engine
     - SVGAPlayerLite (>= 1.0.8, ~> 1.0)
+  - CYLDeallocBlockExecutor (1.4.0)
   - Cylsearch (0.1.0):
     - CollectionViewClassifyMenu
     - CYLAnimatedItem
@@ -74,6 +75,7 @@ PODS:
   - CYLTabBarController (1.100.0):
     - CYLTabBarController/Core (= 1.100.0)
   - CYLTabBarController/Core (1.100.0):
+    - CYLDeallocBlockExecutor (~> 1.4)
     - CYLTabBarController/CYLAnimatedItem
     - CYLTabBarController/CYLBadgeView
     - CYLTabBarController/CYLUtils
@@ -84,6 +86,7 @@ PODS:
   - CYLTabBarController/CYLAnimatedItemSVGA (1.100.0):
     - CYLAnimatedItem/SVGA (= 1.100.0)
   - CYLTabBarController/CYLBadgeView (1.100.0):
+    - CYLDeallocBlockExecutor (~> 1.4)
     - CYLTabBarController/CYLUtils
   - CYLTabBarController/CYLUtils (1.100.0):
     - CYLAnimatedItem/Core (= 1.100.0)
@@ -1930,16 +1933,18 @@ PODS:
 
 DEPENDENCIES:
   - boost (from `build/rndeps-facades/boost`)
-  - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `1f8c1001442a548916161b72105045a2d5f26ccf`)
+  - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `0de4546b3413512b1794fc52d62fd10ba73ce106`)
   - CYLAnimatedItem (from `../vendor/CYLTabBarController`)
+  - CYLAnimatedItem/LottieSwift (from `../vendor/CYLTabBarController`)
+  - CYLDeallocBlockExecutor (from `https://github.com/ChenYilong/CYLDeallocBlockExecutor.git`, commit `4276a6dab5a428ccc3a5f3f347eab991881fb97c`)
   - Cylsearch (from `../..`)
   - CYLSearchViewController (from `../../../..`)
   - Cyltabbar (from `../node_modules/react-native-cyltabbar`)
   - CYLTabBarController (from `../vendor/CYLTabBarController`)
   - CYLTabBarController/Rive (from `../vendor/CYLTabBarController`)
   - CYLTabBarController/SVGA (from `../vendor/CYLTabBarController`)
-  - CYLTableViewPlaceHolder/Core (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `a169386cf9c9ad5699aab3511e86df97628e43ef`)
-  - CYLTableViewPlaceHolder/Lottie (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `a169386cf9c9ad5699aab3511e86df97628e43ef`)
+  - CYLTableViewPlaceHolder/Core (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `f4cf978567e43288b44f6ddc266510fa837a0e72`)
+  - CYLTableViewPlaceHolder/Lottie (from `https://github.com/ChenYilong/CYLTableViewPlaceHolder.git`, commit `f4cf978567e43288b44f6ddc266510fa837a0e72`)
   - DoubleConversion (from `build/rndeps-facades/DoubleConversion`)
   - fast_float (from `build/rndeps-facades/fast_float`)
   - FBLazyVector (from `build/rncore-facades/FBLazyVector`)
@@ -2041,10 +2046,13 @@ EXTERNAL SOURCES:
   boost:
     :path: build/rndeps-facades/boost
   CollectionViewClassifyMenu:
-    :commit: 1f8c1001442a548916161b72105045a2d5f26ccf
+    :commit: 0de4546b3413512b1794fc52d62fd10ba73ce106
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLAnimatedItem:
     :path: "../vendor/CYLTabBarController"
+  CYLDeallocBlockExecutor:
+    :commit: 4276a6dab5a428ccc3a5f3f347eab991881fb97c
+    :git: https://github.com/ChenYilong/CYLDeallocBlockExecutor.git
   Cylsearch:
     :path: "../.."
   CYLSearchViewController:
@@ -2054,7 +2062,7 @@ EXTERNAL SOURCES:
   CYLTabBarController:
     :path: "../vendor/CYLTabBarController"
   CYLTableViewPlaceHolder:
-    :commit: a169386cf9c9ad5699aab3511e86df97628e43ef
+    :commit: f4cf978567e43288b44f6ddc266510fa837a0e72
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
   DoubleConversion:
     :path: build/rndeps-facades/DoubleConversion
@@ -2232,20 +2240,24 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   CollectionViewClassifyMenu:
-    :commit: 1f8c1001442a548916161b72105045a2d5f26ccf
+    :commit: 0de4546b3413512b1794fc52d62fd10ba73ce106
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
+  CYLDeallocBlockExecutor:
+    :commit: 4276a6dab5a428ccc3a5f3f347eab991881fb97c
+    :git: https://github.com/ChenYilong/CYLDeallocBlockExecutor.git
   CYLTableViewPlaceHolder:
-    :commit: a169386cf9c9ad5699aab3511e86df97628e43ef
+    :commit: f4cf978567e43288b44f6ddc266510fa837a0e72
     :git: https://github.com/ChenYilong/CYLTableViewPlaceHolder.git
 
 SPEC CHECKSUMS:
   boost: 2a9d6e1d9873337543f08d9dbc007b288f4e113b
   CollectionViewClassifyMenu: 40b0c983deb345bdc2d0083a8d6d2e9a51d73e2a
-  CYLAnimatedItem: d3177d086f5d5ce295ab12005ae925034611a7f0
+  CYLAnimatedItem: 443fbb54f49dbed33a3a333915398ee1c597ae21
+  CYLDeallocBlockExecutor: f596e5de54c18a2245d87994137f7f47874a0eaa
   Cylsearch: bb9d7515388159dd8657f219b5397acfd26f1315
   CYLSearchViewController: 3e9151895e3c991faaf0143e783bd173a9edf924
-  Cyltabbar: 4a0ad4bcdf18e8a3953d6e55273ccce83e80ffdd
-  CYLTabBarController: 0a54ec0bcac6aba78794eaf24d8fd3286d36baca
+  Cyltabbar: 968fb1d9b829ac84ea98ee3e040e161e8c909539
+  CYLTabBarController: 4919b9a264b00f50eaf03c1b7921dac1835f14bf
   CYLTableViewPlaceHolder: 067199f54056c001b64841832293f8a3067e3c86
   DoubleConversion: e85e4faac763226bfd1cc4c6a98d8355149b27a5
   fast_float: 908e5ee35999f3d91af4b962ac951acac591866c
@@ -2339,6 +2351,6 @@ SPEC CHECKSUMS:
   SVGAPlayerLite: ae073300a9faa016e88a54afa8fec43f54fed682
   Yoga: 58b502c52b14ad3c4468805d461fc37d275c2a42
 
-PODFILE CHECKSUM: 90f218bf370857424cd182c2514c2db1fb74f240
+PODFILE CHECKSUM: b68ff9c4e7895fded6020ae95c35e80f973b9f35
 
 COCOAPODS: 1.17.0
