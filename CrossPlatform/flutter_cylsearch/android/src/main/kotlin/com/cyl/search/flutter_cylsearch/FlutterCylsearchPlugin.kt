@@ -20,6 +20,7 @@ import com.cyl.search.CYLSearchBarAppearance
 import com.cyl.search.CYLSearchBarItem
 import com.cyl.search.CYLSearchBarMode
 import com.cyl.search.CYLSearchBarStyle
+import com.cyl.search.CYLSearchBarSearchButtonStyle
 import com.cyl.search.CYLSearchBarView
 import com.cyl.search.CYLSearchBarViewDelegate
 import com.cyl.search.CYLSearchSuggestionCachePolicy
@@ -445,6 +446,12 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
         bar.searchBarStyle = if (arguments["searchBarStyle"] == "bordered") CYLSearchBarStyle.Bordered else CYLSearchBarStyle.Plain
         bar.searchIcon = if (arguments["showsSearchIcon"] as? Boolean != false) ContextCompat.getDrawable(bar.context, com.cyl.search.R.drawable.cyl_search_ic_search) else null
         if (arguments["navigationFieldStyle"] == true) bar.applyNavigationFieldStyle()
+        // The core's default search button: shown unless Dart hides it; with a Dart handler a tap goes to Dart (`didTapSearchButton`),
+        // else the core submits (`didSubmit`).
+        bar.showsSearchButton = arguments["showsSearchButton"] as? Boolean ?: true
+        bar.searchButtonStyle = if (arguments["searchButtonStyle"] == "icon") CYLSearchBarSearchButtonStyle.Icon else CYLSearchBarSearchButtonStyle.Text
+        if (bar.searchButtonTitle != arguments["searchButtonTitle"]) bar.searchButtonTitle = arguments["searchButtonTitle"] as? String
+        bar.searchButtonHandler = if (arguments["hasSearchButtonHandler"] == true) ({ view -> channel.invokeMethod("didTapSearchButton", mapOf("text" to view.text.orEmpty())) }) else null
         @Suppress("UNCHECKED_CAST")
         val items = (arguments["items"] as? List<Map<String, Any?>>) ?: emptyList()
         // Rebuilt only when Dart sends other items, so a rebuild of the widget keeps the native selection; a change of

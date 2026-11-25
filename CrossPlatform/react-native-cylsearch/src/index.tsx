@@ -88,6 +88,8 @@ export type SearchBarProps = Omit<
   | 'showsTrailingAccessoryViews'
   | 'appearanceStyleJSON'
   | 'cancelButtonFontJSON'
+  | 'hasSearchButtonHandler'
+  | 'onSearchButtonTap'
 > & {
   /**
    * The field's margins at rest and while searching (`textFieldMargins` / `textFieldMarginsProvider(bar, active)`).
@@ -136,6 +138,11 @@ export type SearchBarProps = Omit<
    * @deprecated Use `appearanceStyle`.
    */
   appearance?: CYLSearchBarAppearance;
+  /**
+   * Called with the text instead of the default submit when the default search button is tapped (`searchButtonHandler`); without
+   * it a tap sends `onSubmit`, also for empty text.
+   */
+  searchButtonHandler?: (text: string) => void;
   /**
    * The handle: `setActive(true)` starts the search (focus, the keyboard rises), `setActive(false)` ends it;
    * `restartItemAnimation(index)` plays that item's animation again from the start.
@@ -204,6 +211,7 @@ export function CYLSearchBarView({
   showsLeadingAccessory,
   showsTrailingAccessory,
   appearance,
+  searchButtonHandler,
   ref,
   ...props
 }: SearchBarProps) {
@@ -241,6 +249,10 @@ export function CYLSearchBarView({
         appearance,
       })}
       itemsJSON={cylSearchBarItemsJSON(items)}
+      hasSearchButtonHandler={searchButtonHandler != null}
+      onSearchButtonTap={(event) =>
+        searchButtonHandler?.(event.nativeEvent.text)
+      }
       onItemSelect={(event) => {
         const { index, selected } = event.nativeEvent;
         const item = cylSearchBarSelectedItem(items, index, selected);

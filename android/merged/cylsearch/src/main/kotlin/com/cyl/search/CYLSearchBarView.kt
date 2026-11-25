@@ -653,8 +653,117 @@ class CYLSearchBarView @JvmOverloads constructor(
      */
     fun hasItem(style: CYLSearchBarItemStyle): Boolean = mutableItems.any { it.style == style }
 
+    // Default search button
+
+    /**
+     * Whether the bar shows its default search button after the field and the items: true by default (an editing bar and a bar in
+     * `Multiple` mode never show it). A tap calls `searchButtonHandler`, else submits the text (`submit()`), and tells the delegate
+     * `searchBarViewSearchButtonClicked` also when the text is empty (iOS `showsSearchButton`).
+     */
+    var showsSearchButton: Boolean = true
+        set(value) {
+            if (field == value) return
+            field = value
+            updateAccessories()
+        }
+
+    /**
+     * Whether the default search button shows a title (`Text`, the default) or an icon (`Icon`, a filled capsule 28 dp high in the
+     * inverse color; iOS `searchButtonStyle`).
+     */
+    var searchButtonStyle: CYLSearchBarSearchButtonStyle = CYLSearchBarSearchButtonStyle.Text
+        set(value) {
+            if (field == value) return
+            field = value
+            rebuildSearchButton()
+        }
+
+    /**
+     * The title of the default search button (also its TalkBack label in the icon style); null is the localized "Search".
+     */
+    var searchButtonTitle: String? = null
+        set(value) {
+            if (field == value) return
+            field = value
+            rebuildSearchButton()
+        }
+
+    /**
+     * The icon of the default search button in the `Icon` style; null is the core's built-in magnifier.
+     */
+    var searchButtonImage: Drawable? = null
+        set(value) {
+            if (field == value) return
+            field = value
+            rebuildSearchButton()
+        }
+
+    /**
+     * Called instead of the default action when the default search button is tapped.
+     */
+    var searchButtonHandler: ((CYLSearchBarView) -> Unit)? = null
+
+    /**
+     * The default search button as an item, for its tint, badge or accessibility identifier. It is not in `items`; it is replaced
+     * (the identifier kept) when the style, title or icon changes.
+     */
+    var searchButtonItem: CYLSearchBarItem = makeSearchButtonItem()
+        private set
+
+    // The divider before the default search button, shown only when an item of the owner precedes it.
+    private val searchButtonDivider = CYLSearchBarItem.divider()
+
+    private val showsDefaultSearchButton: Boolean
+        get() = showsSearchButton && !isEditingBar && mode != CYLSearchBarMode.Multiple
+
+    private fun makeSearchButtonItem(): CYLSearchBarItem {
+        val title = searchButtonTitle ?: context.getString(R.string.cyl_search_submit)
+        val item = when (searchButtonStyle) {
+            CYLSearchBarSearchButtonStyle.Text -> CYLSearchBarItem(CYLSearchBarItemStyle.Text, title, null)
+            CYLSearchBarSearchButtonStyle.Icon -> CYLSearchBarItem(
+                CYLSearchBarItemStyle.Icon, title,
+                searchButtonImage ?: ContextCompat.getDrawable(context, R.drawable.cyl_search_ic_search),
+            ).apply {
+                // A filled capsule with the icon in the inverse color: black with a white magnifier in light mode, white with a black one in dark mode.
+                val dark = isNight(context)
+                backgroundColor = if (dark) Color.WHITE else Color.BLACK
+                tintColor = if (dark) Color.BLACK else Color.WHITE
+                cornerRadius = CYLSearchBarItem.CAPSULE_CORNER_RADIUS
+                itemHeight = 28f
+                contentInsets = floatArrayOf(16f, 0f, 16f, 0f)
+                imageSize = SizeF(16f, 16f)
+            }
+        }
+        item.itemAccessibilityIdentifier = "CYLSearchBarSearchButton"
+        item.searchBarView = this
+        return item
+    }
+
+    private fun rebuildSearchButton() {
+        val old = searchButtonItem
+        val item = makeSearchButtonItem()
+        item.itemAccessibilityIdentifier = old.itemAccessibilityIdentifier
+        old.itemView?.let { (it.parent as? ViewGroup)?.removeView(it) }
+        old.searchBarView = null
+        searchButtonItem = item
+        updateAccessories()
+    }
+
+    private fun searchButtonTapped() {
+        val handler = searchButtonHandler
+        when {
+            handler != null -> handler(this)
+            !text.isNullOrBlank() -> submit()
+            else -> delegate?.searchBarViewSearchButtonClicked(this)
+        }
+    }
+
     internal fun itemTapped(item: CYLSearchBarItem) {
         if (!item.isEnabled) {
+            return
+        }
+        if (item === searchButtonItem) {
+            searchButtonTapped()
             return
         }
         if (item.isSelectable) {
@@ -748,7 +857,10 @@ class CYLSearchBarView @JvmOverloads constructor(
      * submits instead of cancelling (iOS `isEditingBar`).
      */
     var isEditingBar: Boolean = false
-        internal set
+        internal set(value) {
+            field = value
+            updateAccessories()
+        }
 
     /**
      * An editing bar's submit: the trimmed text, when its action button or the action key is tapped (after
@@ -1139,6 +1251,7 @@ class CYLSearchBarView @JvmOverloads constructor(
         val multiple = mode == CYLSearchBarMode.Multiple
         multiSearchContent.visibility = if (multiple) VISIBLE else GONE
         multiSearchBackCallback.isEnabled = multiple && isEditingNewSearch
+        updateAccessories()
         applyIconifiedVisibility()
     }
 
@@ -1148,6 +1261,8 @@ class CYLSearchBarView @JvmOverloads constructor(
         applyStyle()
         applySearchBarStyle()
         mutableItems.forEach { it.loadedItemView?.reload() }
+        if (searchButtonStyle == CYLSearchBarSearchButtonStyle.Icon) rebuildSearchButton() else searchButtonItem.loadedItemView?.reload()
+        searchButtonDivider.loadedItemView?.reload()
     }
 
     override fun onAttachedToWindow() {
@@ -1920,6 +2035,11 @@ class CYLSearchBarView @JvmOverloads constructor(
         syncAccessories(false)
         val hasText = !text.isNullOrEmpty()
         val views = itemViews.toMutableList<View>()
+        // The default search button is the last view, after the owner's items, with a divider when an item precedes it.
+        if (showsDefaultSearchButton) {
+            if (mutableItems.any { it.style != CYLSearchBarItemStyle.Divider }) views.add(searchButtonDivider.loadItemView(context))
+            views.add(searchButtonItem.loadItemView(context))
+        }
         if (showsVoiceButton && !hasText) {
             views.add(voiceButton)
         }
@@ -2931,6 +3051,21 @@ enum class CYLSearchBarItemStyle {
 }
 
 /**
+ * What the default search button of a bar shows (iOS `CYLSearchBarSearchButtonStyle`).
+ */
+enum class CYLSearchBarSearchButtonStyle {
+    /**
+     * A title, the localized "Search" by default (`searchButtonTitle` changes it). The default.
+     */
+    Text,
+
+    /**
+     * An icon in a filled capsule, the core's built-in magnifier by default (`searchButtonImage` changes it).
+     */
+    Icon,
+}
+
+/**
  * The fixed look of the whole bar (iOS `CYLSearchBarStyle`): the field stays, the items are appended after its text.
  */
 enum class CYLSearchBarStyle {
@@ -3090,6 +3225,31 @@ class CYLSearchBarItem @JvmOverloads constructor(
         set(value) { field = value; itemChanged() }
 
     /**
+     * The corner radius of the item's background and border in dp: 0 is square, `CAPSULE_CORNER_RADIUS` a capsule,
+     * `AUTOMATIC_CORNER_RADIUS` (the default) 10 dp with a background and square without one (iOS `cornerRadius`).
+     */
+    var cornerRadius: Float = AUTOMATIC_CORNER_RADIUS
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * The border color of the item's own outline; null (the default) draws none.
+     */
+    var borderColor: Int? = null
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * The width of the item's own outline in dp; 0 by default.
+     */
+    var borderWidth: Float = 0f
+        set(value) { field = value; itemChanged() }
+
+    /**
+     * The height of the item in dp; 0 (the default) is the 36 dp touch size.
+     */
+    var itemHeight: Float = 0f
+        set(value) { field = value; itemChanged() }
+
+    /**
      * The item background while selected; null uses `backgroundColor`.
      */
     var selectedBackgroundColor: Int? = null
@@ -3240,6 +3400,16 @@ class CYLSearchBarItem @JvmOverloads constructor(
 
     companion object {
         /**
+         * `cornerRadius` that follows the item: 10 dp with a background, square without one.
+         */
+        const val AUTOMATIC_CORNER_RADIUS: Float = -1f
+
+        /**
+         * `cornerRadius` of a capsule (half the height), the same constant as `CYLAnimatedItemCornerRadiusCapsule`.
+         */
+        const val CAPSULE_CORNER_RADIUS: Float = 1000f
+
+        /**
          * An icon item: the title is what TalkBack reads.
          */
         @JvmStatic
@@ -3382,7 +3552,7 @@ internal class CYLSearchBarItemButton(context: Context, item: CYLSearchBarItem) 
         style.imageSize = CYLSize(imageW, imageH)
         style.animationSize = CYLSize(imageW, imageH)
         style.imageTitleSpacing = IMAGE_TITLE_SPACING
-        style.itemHeight = if (item.style == CYLSearchBarItemStyle.Divider) DIVIDER_HEIGHT else MINIMUM_TOUCH
+        style.itemHeight = if (item.style == CYLSearchBarItemStyle.Divider) DIVIDER_HEIGHT else if (item.itemHeight > 0f) item.itemHeight else MINIMUM_TOUCH
         style.imagePositionAdjustment = CYLOffset(item.imagePositionAdjustment.getOrElse(0) { 0f }, item.imagePositionAdjustment.getOrElse(1) { 0f })
         style.titlePositionAdjustment = CYLOffset(item.titlePositionAdjustment.getOrElse(0) { 0f }, item.titlePositionAdjustment.getOrElse(1) { 0f })
         val hasBackground = item.backgroundColor != null || item.selectedBackgroundColor != null
@@ -3400,10 +3570,14 @@ internal class CYLSearchBarItemButton(context: Context, item: CYLSearchBarItem) 
             appearance.textColor = attributes?.color ?: tint
             appearance.iconColor = tint
             appearance.backgroundColor = background ?: Color.TRANSPARENT
-            appearance.borderColor = null
-            appearance.borderWidth = 0f
+            appearance.borderColor = item.borderColor
+            appearance.borderWidth = if (item.borderColor == null) 0f else item.borderWidth
             appearance.contentInsets = CYLEdgeInsets(insets.getOrElse(1) { 0f }, insets.getOrElse(0) { 0f }, insets.getOrElse(3) { 0f }, insets.getOrElse(2) { 0f })
-            appearance.cornerRadius = if (hasBackground) BACKGROUND_CORNER_RADIUS else 0f
+            appearance.cornerRadius = when {
+                item.cornerRadius != CYLSearchBarItem.AUTOMATIC_CORNER_RADIUS -> item.cornerRadius
+                hasBackground -> BACKGROUND_CORNER_RADIUS
+                else -> 0f
+            }
         }
         return style
     }
@@ -3453,13 +3627,19 @@ internal class CYLSearchBarItemButton(context: Context, item: CYLSearchBarItem) 
             }
             CYLSearchBarItemStyle.Icon -> {
                 // An icon item is square, at least 36 dp.
-                val side = max(dp(MINIMUM_TOUCH), max(width, height))
-                width = side
-                height = side
+                if (item.itemHeight > 0f) {
+                    // A custom height (the icon search button's capsule): as wide as its content, never narrower than high.
+                    height = max(dp(item.itemHeight), height)
+                    width = max(height, width)
+                } else {
+                    val side = max(dp(MINIMUM_TOUCH), max(width, height))
+                    width = side
+                    height = side
+                }
             }
             CYLSearchBarItemStyle.Text -> {
                 width = max(dp(MINIMUM_TOUCH), width)
-                height = max(dp(MINIMUM_TOUCH), height)
+                height = max(dp(if (item.itemHeight > 0f) item.itemHeight else MINIMUM_TOUCH), height)
             }
         }
         setMeasuredDimension(resolveSize(width, widthMeasureSpec), resolveSize(height, heightMeasureSpec))

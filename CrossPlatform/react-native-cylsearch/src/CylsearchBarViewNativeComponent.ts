@@ -71,6 +71,25 @@ export interface NativeProps extends ViewProps {
    */
   navigationFieldStyle?: CodegenTypes.WithDefault<boolean, false>;
   /**
+   * The core's default search button after the field and the items (iOS and Android `showsSearchButton`): true by default; an
+   * editing bar (`editingBar`) and `mode="multiple"` never show it. A tap submits the text (`onSubmit`), also when the text is empty.
+   */
+  showsSearchButton?: CodegenTypes.WithDefault<boolean, true>;
+  /**
+   * What the default search button shows (`searchButtonStyle`): "text" (default, the localized "Search") or "icon" (the core's
+   * magnifier in a filled capsule, 28 high, inverse color).
+   */
+  searchButtonStyle?: CodegenTypes.WithDefault<string, 'text'>;
+  /**
+   * The title of the default search button (`searchButtonTitle`); empty is the localized "Search".
+   */
+  searchButtonTitle?: string;
+  /**
+   * True when the host handles the default search button itself (`searchButtonHandler`): a tap sends `onSearchButtonTap` instead of
+   * `onSubmit`. The `CYLSearchBarView` component sets it from its `searchButtonHandler` prop.
+   */
+  hasSearchButtonHandler?: CodegenTypes.WithDefault<boolean, false>;
+  /**
    * The field focuses itself (and the keyboard shows) every time the bar appears on screen, like a `viewDidAppear`: the first
    * entry, a tab switch, a push and pop and the return from the background. Default false. Android filter (owner, 2026-11-26): only a bar embedded in a navigation bar that shows a back button (`embedsInNavigationBar` with `showsBackButton`) focuses; a root tab or a plain bar never does. Android: the core
    * (`CYLSearchBarView.focusesOnAppear`) watches attach, visibility, window focus and the Activity's resume, so no JS side
@@ -201,6 +220,10 @@ export interface NativeProps extends ViewProps {
    */
   onSelectSearch?: CodegenTypes.DirectEventHandler<IndexedTextEvent>;
   onSubmit?: CodegenTypes.DirectEventHandler<TextEvent>;
+  /**
+   * The default search button was tapped while `hasSearchButtonHandler` is true (`searchButtonHandler`), with the current text.
+   */
+  onSearchButtonTap?: CodegenTypes.DirectEventHandler<TextEvent>;
   /**
    * The editing bar's action button or return key, with the trimmed text (not sent for empty text); the field clears after it.
    */

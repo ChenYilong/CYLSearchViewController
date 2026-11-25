@@ -173,6 +173,10 @@ void main() {
             'searchBarStyle': 'plain',
             'showsSearchIcon': true,
             'navigationFieldStyle': false,
+            'showsSearchButton': true,
+            'searchButtonStyle': 'text',
+            'searchButtonTitle': null,
+            'hasSearchButtonHandler': false,
             'focusesOnAppear': false,
             'items': <Object?>[],
             'editingBar': false,
@@ -192,6 +196,23 @@ void main() {
       cylSearchBarViewDispatch(bar, const MethodCall('didSubmit', <String, Object?>{'text': 'a'}));
       cylSearchBarViewDispatch(bar, const MethodCall('didCancel'));
       expect(events, <String>['text a', 'submit a', 'cancel']);
+    });
+
+    test('default search button: shown by default, style, title and handler are sent, a tap calls searchButtonHandler', () {
+      final texts = <String>[];
+      final bar = CYLSearchBarView(
+        searchButtonStyle: CYLSearchBarSearchButtonStyle.icon,
+        searchButtonTitle: 'Go',
+        searchButtonHandler: texts.add,
+      );
+      final parameters = cylSearchBarViewParameters(bar);
+      expect(parameters['showsSearchButton'], true);
+      expect(parameters['searchButtonStyle'], 'icon');
+      expect(parameters['searchButtonTitle'], 'Go');
+      expect(parameters['hasSearchButtonHandler'], true);
+      cylSearchBarViewDispatch(bar, const MethodCall('didTapSearchButton', <String, Object?>{'text': 'shoes'}));
+      expect(texts, <String>['shoes']);
+      expect(cylSearchBarViewParameters(const CYLSearchBarView(showsSearchButton: false))['showsSearchButton'], false);
     });
 
     test('first-level bar: pushesOnTap and the animated back button are sent, a tap calls onFirstLevelTap', () {

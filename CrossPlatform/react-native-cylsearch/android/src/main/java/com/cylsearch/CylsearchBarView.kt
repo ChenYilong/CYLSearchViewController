@@ -145,6 +145,9 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
     layout(left, top, right, bottom)
   }
 
+  /** The default search button was tapped while the host handles it (`onSearchButtonTap`). */
+  fun sendSearchButtonTap(text: String) = emit("topSearchButtonTap", "text" to text)
+
   private fun emit(name: String, vararg pairs: Pair<String, Any>) {
     UIManagerHelper.getEventDispatcher(reactContext)?.dispatchEvent(
       CylsearchEvent(UIManagerHelper.getSurfaceId(this), id, name, cylEventData(*pairs)))

@@ -292,3 +292,18 @@ describe('tag list subtitles and title wrapping', () => {
     expect(CYL_TAG_TITLE_UNLIMITED).toBe(0);
   });
 });
+
+describe('default search button props', () => {
+  it('the search bar takes showsSearchButton, searchButtonStyle, searchButtonTitle and searchButtonHandler', () => {
+    const texts: string[] = [];
+    const props: CYLSearch.SearchBarProps = {
+      showsSearchButton: false,
+      searchButtonStyle: 'icon',
+      searchButtonTitle: 'Go',
+      searchButtonHandler: (text) => texts.push(text),
+    };
+    props.searchButtonHandler?.('shoes');
+    expect(texts).toEqual(['shoes']);
+    expect(props.searchButtonStyle).toBe('icon');
+  });
+});

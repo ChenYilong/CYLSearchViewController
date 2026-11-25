@@ -1,6 +1,7 @@
 package com.cylsearch
 
 import androidx.core.content.ContextCompat
+import com.cyl.search.CYLSearchBarSearchButtonStyle
 import com.cyl.search.CYLSearchBarStyle
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.module.annotations.ReactModule
@@ -57,6 +58,23 @@ class CylsearchBarViewManager : SimpleViewManager<CylsearchBarView>(), Cylsearch
 
   @ReactProp(name = "navigationFieldStyle", defaultBoolean = false)
   override fun setNavigationFieldStyle(view: CylsearchBarView, value: Boolean) { view.navigationFieldStyle = value }
+
+  // The core's default search button (iOS and Android `showsSearchButton`, `searchButtonStyle`, `searchButtonTitle`, `searchButtonHandler`).
+  @ReactProp(name = "showsSearchButton", defaultBoolean = true)
+  override fun setShowsSearchButton(view: CylsearchBarView, value: Boolean) { view.bar.showsSearchButton = value }
+
+  @ReactProp(name = "searchButtonStyle")
+  override fun setSearchButtonStyle(view: CylsearchBarView, value: String?) {
+    view.bar.searchButtonStyle = if (value == "icon") CYLSearchBarSearchButtonStyle.Icon else CYLSearchBarSearchButtonStyle.Text
+  }
+
+  @ReactProp(name = "searchButtonTitle")
+  override fun setSearchButtonTitle(view: CylsearchBarView, value: String?) { view.bar.searchButtonTitle = value?.takeIf { it.isNotEmpty() } }
+
+  @ReactProp(name = "hasSearchButtonHandler", defaultBoolean = false)
+  override fun setHasSearchButtonHandler(view: CylsearchBarView, value: Boolean) {
+    view.bar.searchButtonHandler = if (value) ({ bar -> view.sendSearchButtonTap(bar.text.orEmpty()) }) else null
+  }
 
   @ReactProp(name = "focusesOnAppear", defaultBoolean = false)
   override fun setFocusesOnAppear(view: CylsearchBarView, value: Boolean) { view.bar.focusesOnAppear = value }

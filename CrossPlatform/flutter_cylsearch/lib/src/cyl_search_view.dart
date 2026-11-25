@@ -606,6 +606,15 @@ enum CYLSearchBarItemStyle {
   text,
 }
 
+/// What the default search button of a bar shows (iOS and Android `CYLSearchBarSearchButtonStyle`).
+enum CYLSearchBarSearchButtonStyle {
+  /// A title, the localized "Search" by default ([CYLSearchBarView.searchButtonTitle] changes it).
+  text,
+
+  /// An icon, the core's built-in magnifier, in a filled capsule in the inverse color (28 high, black in light mode, white in dark mode).
+  icon,
+}
+
 /// The fixed look of the whole bar (iOS and Android `CYLSearchBarStyle`).
 enum CYLSearchBarStyle {
   /// The field as configured by its own parameters.
@@ -786,6 +795,10 @@ class CYLSearchBarView extends StatefulWidget {
     this.searchBarStyle = CYLSearchBarStyle.plain,
     this.showsSearchIcon = true,
     this.navigationFieldStyle = false,
+    this.showsSearchButton = true,
+    this.searchButtonStyle = CYLSearchBarSearchButtonStyle.text,
+    this.searchButtonTitle,
+    this.searchButtonHandler,
     this.focusesOnAppear = false,
     this.embedsInNavigationBar = false,
     this.showsBackButton = false,
@@ -924,6 +937,20 @@ class CYLSearchBarView extends StatefulWidget {
   /// magnifier, 16 text that scales, an opaque white (light) or black (dark) fill. It wins over [searchBarStyle],
   /// [fieldShadowOpacity] and [showsSearchIcon].
   final bool navigationFieldStyle;
+
+  /// The core's default search button after the field and the items (iOS and Android `showsSearchButton`): true by default; an
+  /// editing bar ([editingBar]) and [CYLSearchBarMode.multiple] never show it. A tap submits the text ([onSubmitted]), also when
+  /// the text is empty.
+  final bool showsSearchButton;
+
+  /// Whether the default search button shows a title (the default) or an icon in a filled capsule (`searchButtonStyle`).
+  final CYLSearchBarSearchButtonStyle searchButtonStyle;
+
+  /// The title of the default search button; null is the localized "Search" (`searchButtonTitle`).
+  final String? searchButtonTitle;
+
+  /// Called with the text instead of the default submit when the default search button is tapped (`searchButtonHandler`).
+  final ValueChanged<String>? searchButtonHandler;
 
   /// The field focuses itself (and the keyboard shows) every time the bar appears on screen, like a `viewDidAppear`: the first
   /// entry, a tab switch, a push and pop and the return from the background. The native core handles attach, visibility and
@@ -1175,6 +1202,10 @@ Map<String, Object?> cylSearchBarViewParameters(CYLSearchBarView widget, {Bright
       'searchBarStyle': widget.searchBarStyle.name,
       'showsSearchIcon': widget.showsSearchIcon,
       'navigationFieldStyle': widget.navigationFieldStyle,
+      'showsSearchButton': widget.showsSearchButton,
+      'searchButtonStyle': widget.searchButtonStyle.name,
+      'searchButtonTitle': widget.searchButtonTitle,
+      'hasSearchButtonHandler': widget.searchButtonHandler != null,
       'focusesOnAppear': widget.focusesOnAppear,
       'embedsInNavigationBar': widget.embedsInNavigationBar,
       'showsBackButton': widget.showsBackButton,
@@ -1206,6 +1237,8 @@ void cylSearchBarViewDispatch(CYLSearchBarView widget, MethodCall call) {
       widget.onSubmitted?.call(arguments['text'] as String? ?? '');
     case 'didCancel':
       widget.onCancel?.call();
+    case 'didTapSearchButton':
+      widget.searchButtonHandler?.call(arguments['text'] as String? ?? '');
     case 'didTapFirstLevel':
       widget.onFirstLevelTap?.call();
     case 'didTapBackButton':
