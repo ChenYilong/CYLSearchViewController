@@ -566,6 +566,30 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     @objc public private(set) var items: [CYLSearchBarItem] = []
 
     /**
+     * The row of the items: one `CYLAnimatedItemStackView`, so the tint (the built-in default that follows dark mode, a
+     * host's `itemTintColor`) and the dividers are the component's, not drawn per item here.
+     */
+    private let itemStack = CYLAnimatedItemStackView()
+
+    /**
+     * Makes the stack hold the views of `items` in order; a divider item becomes the stack's built-in divider after the
+     * item before it (none at the start, one for several in a row).
+     */
+    private func rebuildItemStack() {
+        let content = items.filter { $0.style != .divider }
+        itemStack.replaceItemViews(content.map { $0.itemControl })
+        for view in itemStack.itemViews {
+            itemStack.removeDivider(after: view)
+        }
+        for (index, item) in items.enumerated() where item.style == .divider {
+            guard let before = items[..<index].last(where: { $0.style != .divider }) else { continue }
+            itemStack.setDivider(after: before.itemControl, spacingBefore: Self.spacing, spacingAfter: Self.spacing)
+        }
+        itemStack.isHidden = content.isEmpty
+        setNeedsLayout()
+    }
+
+    /**
      * The views of `items` (`CYLTagButton`s), in the same order.
      */
     @objc public var itemViews: [CYLTagButton] {
@@ -633,7 +657,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         let view = item.itemControl
         view.removeTarget(nil, action: nil, for: .allEvents)
         view.addTarget(self, action: #selector(itemTapped(_:)), for: .touchUpInside)
-        fieldView.addSubview(view)
+        rebuildItemStack()
         view.reload()
         setNeedsLayout()
     }
@@ -664,6 +688,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         item.searchBarView = nil
         item.itemView.removeTarget(self, action: nil, for: .allEvents)
         item.itemView.removeFromSuperview()
+        rebuildItemStack()
         setNeedsLayout()
     }
 
@@ -1330,6 +1355,12 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         textField.accessibilityLabel = CYLSearchResources.localizedString(forKey: "search.field")
         textField.addTarget(self, action: #selector(textChanged), for: .editingChanged)
         fieldView.addSubview(textField)
+        itemStack.axis = .horizontal
+        itemStack.contentMargin = 0
+        itemStack.spacing = Self.spacing
+        itemStack.dispatchesItemTaps = false
+        itemStack.isHidden = true
+        fieldView.addSubview(itemStack)
         // A placeholder set on the text field itself (not on the bar) is drawn by the bar's label, too: the text field's
         // own placeholder is a dim system gray that dark mode makes hard to read.
         (textField as? CYLSearchBarTextField)?.onPlaceholderChange = { [weak self] text in
@@ -1434,7 +1465,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     }
 
     private var effectiveAccessoryViews: [UIView] {
-        var views = (trailingAccessoryViewsShow ? trailingAccessoryViews : []) + itemViews.map { $0 as UIView }
+        var views = (trailingAccessoryViewsShow ? trailingAccessoryViews : []) + (itemStack.itemViews.isEmpty ? [] : [itemStack as UIView])
         let hasText = !(textField.text ?? "").isEmpty
         if showsVoiceButton && !hasText {
             views.append(voiceButton)
