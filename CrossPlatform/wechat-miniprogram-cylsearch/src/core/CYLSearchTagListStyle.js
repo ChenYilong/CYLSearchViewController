@@ -100,6 +100,7 @@ class CYLSearchTagListStyle {
     });
     Object.assign(style, {
       backgroundStyle: tagBackgroundStyle,
+      sectionBackgroundStyle: tagBackgroundStyle,
       itemHeight: 36,
       interitemSpacing: 12,
       lineSpacing: 12,
@@ -155,7 +156,7 @@ class CYLSearchTagListStyle {
    * material, anything else, "" or "flat" is flat; the other style values stay.
    */
   static applyBackgroundStyle(name, configuration) {
-    configuration.style = Object.assign({}, configuration.style, { backgroundStyle: String(name).toLowerCase() === 'liquidglass' ? 'liquidGlass' : 'flat' });
+    configuration.style = Object.assign({}, configuration.style, { backgroundStyle: String(name).toLowerCase() === 'liquidglass' ? 'liquidGlass' : 'flat', sectionBackgroundStyle: String(name).toLowerCase() === 'liquidglass' ? 'liquidGlass' : 'flat' });
     CYLSearchTagListHeader.applyRefreshIcon(configuration);
   }
 }

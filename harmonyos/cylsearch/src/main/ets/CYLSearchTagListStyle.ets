@@ -174,6 +174,8 @@ export class CYLSearchTagListStyle {
       appearance.textColor = $r('sys.color.font_primary');
     });
     style.backgroundStyle = CYLSearchTagListStyle.tagBackgroundStyle;
+    // The glass board of a section goes with glass tags (core 0de4546b; iOS).
+    style.sectionBackgroundStyle = CYLSearchTagListStyle.tagBackgroundStyle;
     style.itemHeight = metrics.itemHeight;
     style.interitemSpacing = metrics.interitemSpacing;
     style.lineSpacing = metrics.lineSpacing;
@@ -225,6 +227,7 @@ export class CYLSearchTagListStyle {
     const style = list.style;
     style.backgroundStyle = cylSearchTagIsLiquidGlass(name) ? CYLTagBackgroundStyle.liquidGlass :
     CYLTagBackgroundStyle.flat;
+    style.sectionBackgroundStyle = style.backgroundStyle;
     list.style = style;
   }
 

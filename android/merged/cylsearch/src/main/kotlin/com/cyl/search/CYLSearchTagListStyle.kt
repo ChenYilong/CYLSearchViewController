@@ -101,6 +101,8 @@ object CYLSearchTagListStyle {
             }
         }
         style.backgroundStyle = tagBackgroundStyle
+        // The glass board of a section (core 0de4546b) goes with glass tags: the gradient page shows through both (iOS).
+        style.sectionBackgroundStyle = tagBackgroundStyle
         // The list itself draws nothing: an opaque list background hid the header and the titles in dark mode (iOS `applyDefaults`).
         style.backgroundColor = Color.TRANSPARENT
         style.itemHeight = 36f
@@ -141,6 +143,7 @@ object CYLSearchTagListStyle {
     @JvmStatic
     fun applyBackgroundStyle(name: String, style: CYLMenuStyle) {
         style.backgroundStyle = backgroundStyleNamed(name)
+        style.sectionBackgroundStyle = style.backgroundStyle
         if (style.backgroundStyle == CYLTagBackgroundStyle.CYLTagBackgroundStyleLiquidGlass) {
             // A white fill under the glass hides it: clear the fill and border so the library's default frosted tint draws;
             // a selected tag keeps a visible tint (iOS).

@@ -65,10 +65,12 @@ class CYLSearchTagListStyleTest {
         CYLSearchTagListStyle.applyDefaults(style)
         CYLSearchTagListStyle.applyBackgroundStyle("liquidGlass", style)
         assertEquals(CYLTagBackgroundStyle.CYLTagBackgroundStyleLiquidGlass, style.backgroundStyle)
+        assertEquals(CYLTagBackgroundStyle.CYLTagBackgroundStyleLiquidGlass, style.sectionBackgroundStyle)
         assertEquals(android.graphics.Color.TRANSPARENT, style.appearanceForState(CYLControlState.NORMAL).backgroundColor)
         assertEquals(0f, style.appearanceForState(CYLControlState.NORMAL).borderWidth, 0f)
         CYLSearchTagListStyle.applyBackgroundStyle("flat", style)
         assertEquals(CYLTagBackgroundStyle.CYLTagBackgroundStyleFlat, style.backgroundStyle)
+        assertEquals(CYLTagBackgroundStyle.CYLTagBackgroundStyleFlat, style.sectionBackgroundStyle)
     }
 
     @Test
