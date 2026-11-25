@@ -93,6 +93,8 @@ class CYLSearchExampleFragment : CYLExamplePage() {
 
     override fun createContent(context: Context): View {
         val searchBar = CYLSearchBarView(context).apply {
+            // Root tab, no back button: the core never auto-focuses it (owner filter, 2026-11-26); the flag matches the other platforms.
+            focusesOnAppear = true
             placeholder = CYLSearchResources.localizedString(context, "search.placeholder")
             delegate = object : CYLSearchBarViewDelegate {
                 override fun searchBarViewTextDidChange(searchBarView: CYLSearchBarView, text: String) = filter(text)

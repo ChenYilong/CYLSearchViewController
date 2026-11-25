@@ -185,6 +185,8 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
         searchBar = CYLSearchBarView(context).apply {
             delegate = this@CYLSearchDiscoverFragment
             applyNavigationFieldStyle()
+            // A search page with a back button: the field takes focus whenever the page appears (the core filters on the back button).
+            focusesOnAppear = true
             // The 16 dp inset of the tag list's header and tags (docs/animated-icon-component.md, "Default layout contract"). Set here
             // until the core default moves from 12 to 16 (that change makes CYLSearchViewQMUIPortTest fail in the full suite: open).
             contentInsets = android.graphics.Rect(16, 6, 16, 6)

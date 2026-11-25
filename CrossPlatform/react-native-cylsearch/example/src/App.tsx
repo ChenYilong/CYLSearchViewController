@@ -458,6 +458,7 @@ function DiscoverDemo({ onBack }: { onBack: () => void }) {
         showsSearchIcon={false}
         embedsInNavigationBar
         showsBackButton
+        focusesOnAppear
         onBackButtonTap={onBack}
         fieldShadowOpacity={0.06}
         onTextChange={(event) => { typed.current = event.nativeEvent.text; }}
