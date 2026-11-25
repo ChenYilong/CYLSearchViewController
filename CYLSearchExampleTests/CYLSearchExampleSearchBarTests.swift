@@ -892,8 +892,9 @@ extension CYLSearchExampleSearchBarTests {
 
     // MARK: - Focus on appear
 
-    /// `focusesOnAppear`: only a bar in a navigation bar that shows a back button takes focus, when it is on screen and every time it
-    /// reappears (a push and pop remove its view from the window); a root page never focuses; nothing happens while the option is
+    /// `focusesOnAppear`: only a bar on a second-level or deeper page takes focus (its page is not the first view controller of its
+    /// navigation controller), when it is on screen and every time it reappears (a push and pop remove its view from the window); a
+    /// first-level page never focuses; nothing happens while the option is
     /// off. The moments come from CYLDeallocBlockExecutor's `didEnterScreen`.
     @MainActor
     func testFocusesOnAppearEveryTimeTheBarReappears() {
@@ -902,23 +903,30 @@ extension CYLSearchExampleSearchBarTests {
         let navigation = UINavigationController(rootViewController: root)
         window.rootViewController = navigation
         window.makeKeyAndVisible()
-        // A root page: the bar in its navigation bar has no back button, so the option does nothing.
+        // A first-level page: the option does nothing.
         let rootBar = CYLSearchBarView()
         rootBar.embedInNavigationBar(of: root)
         runLoop(0.3)
         rootBar.focusesOnAppear = true
         runLoop(0.4)
-        XCTAssertFalse(rootBar.isInNavigationBarWithBackButton)
-        XCTAssertFalse(rootBar.textField.isFirstResponder, "a root page never focuses")
-        // A pushed page: back button shown, the bar focuses on entering and again when the page reappears.
+        XCTAssertFalse(rootBar.isOnSecondLevelOrDeeperPage)
+        XCTAssertFalse(rootBar.textField.isFirstResponder, "a first-level page never focuses")
+        // A second-level page: the bar focuses on entering and again when the page reappears.
         let page = UIViewController()
         let bar = CYLSearchBarView()
         navigation.pushViewController(page, animated: false)
         bar.embedInNavigationBar(of: page)
         bar.focusesOnAppear = true
         runLoop(0.6)
-        XCTAssertTrue(bar.isInNavigationBarWithBackButton)
+        XCTAssertTrue(bar.isOnSecondLevelOrDeeperPage)
         XCTAssertTrue(bar.textField.isFirstResponder, "a pushed page focuses on entering")
+        // A bar that is a plain subview of a second-level page is on that level too; one on the root page is not.
+        let plain = CYLSearchBarView(frame: CGRect(x: 0, y: 200, width: 402, height: 44))
+        page.view.addSubview(plain)
+        XCTAssertTrue(plain.isOnSecondLevelOrDeeperPage)
+        let rootPlain = CYLSearchBarView(frame: CGRect(x: 0, y: 200, width: 402, height: 44))
+        root.view.addSubview(rootPlain)
+        XCTAssertFalse(rootPlain.isOnSecondLevelOrDeeperPage)
         let another = UIViewController()
         navigation.pushViewController(another, animated: false)
         runLoop(0.6)
@@ -994,6 +1002,25 @@ extension CYLSearchExampleSearchBarTests {
 
     /// The keyboard has the search key, and a bar in editing mode hides the keyboard for an outside touch (observed only while
     /// editing; the touch itself comes from CYLDeallocBlockExecutor's `didTouchOutside`, which XCTest cannot create).
+    /// The icon button is a capsule inside the field's capsule with the same gap above, below and at its right (the reference look).
+    @MainActor
+    func testIconSearchButtonHasAnEqualGapOnThreeSides() {
+        let bar = CYLSearchBarView(frame: CGRect(x: 0, y: 0, width: 390, height: 44))
+        bar.fieldHeight = 36
+        bar.searchBarStyle = .bordered
+        bar.searchButtonStyle = .icon
+        bar.layoutIfNeeded()
+        let pill = bar.fieldView.convert(bar.searchButtonItem.itemView.bounds, from: bar.searchButtonItem.itemView)
+        let field = bar.fieldView.bounds
+        let top = pill.minY
+        let bottom = field.maxY - pill.maxY
+        let right = field.maxX - pill.maxX
+        XCTAssertEqual(pill.height, 28, accuracy: 0.5, "the capsule is smaller than the field")
+        XCTAssertEqual(top, bottom, accuracy: 0.5, "same gap above and below")
+        XCTAssertEqual(right, top, accuracy: 0.5, "same gap at the right")
+        XCTAssertGreaterThan(top, 0)
+    }
+
     @MainActor
     func testSearchKeyAndOutsideTouchHidesTheKeyboard() {
         let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))

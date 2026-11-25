@@ -163,9 +163,10 @@ Details of the `core` tag of [AGENTS.md](../../AGENTS.md) and [instructions.md](
      the delegate `searchBarViewSearchButtonClicked` also for empty text. Every platform exposes the same names.
   6. Keyboard life cycle of the bar itself (owner, 2026-11-26): the bar manages it as the smallest component, so it works in every
      container. The keyboard has the Search key (`returnKeyType = .search`). `focusesOnAppear` (off by default) focuses the field
-     every time the bar appears on screen (first entry of a pushed page, push and pop, return from the background), but only while the
-     bar is in a navigation bar that currently shows a back button: a root tab page or a plain bar never focuses (owner decision
-     2026-11-26, relayed by the Windows session; `CYLSearchBarView.isInNavigationBarWithBackButton`).
+     every time the bar appears on screen (first entry of a pushed page, push and pop, return from the background), but only on a
+     second-level or deeper page: the page is not the first view controller of its navigation controller, which is more general than
+     checking a back button (owner decision 2026-11-26; iOS `CYLSearchBarView.isOnSecondLevelOrDeeperPage`). A first-level page, such
+     as a root tab page, never focuses.
      `dismissesKeyboardOnOutsideTouch` (on by default; never for an editing bar) hides the keyboard for a touch anywhere in the
      window outside the bar, which includes the start of every finger scroll in any container. Both come from CYLDeallocBlockExecutor's
      life cycle events (`didEnterScreen`, `appDidBecomeActiveOnScreen` (library PR #30), `didTouchOutside` (library PR #29, on top of #30)); the core's podspec depends on it
