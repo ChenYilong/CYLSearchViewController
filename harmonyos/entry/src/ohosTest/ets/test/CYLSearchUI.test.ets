@@ -56,21 +56,36 @@ async function tapLabel(driver: Driver, label: string, wait: number = 800, iconI
   await driver.delayMs(wait);
 }
 
-// An Examples row is a tag of the example's tag list (ids `CYLTagListItem-0-<row>`, a 3-row fold `CYLTagListFold-0`): the
-// list draws no text a test can find, so the row is found by its id, expanding the fold when the tag is folded away.
-async function tapExamplesTag(driver: Driver, label: string, row: number, wait: number = 1000): Promise<void> {
+// A row of a demo menu is a tag of the page's tag list (ids `CYLTagListItem-0-<row>`, a 3-row fold `CYLTagListFold-0`): the
+// list draws no text a test can find, so the row is found by its id. A tag folded away is not in the tree until the fold
+// control (the tail tag) is tapped, and uitest reports only tags that are on screen, so the page is scrolled until the
+// tag is shown above the tab bar (the page keeps a bottom margin the height of the plus button's overhang).
+async function tapDemoTag(driver: Driver, label: string, row: number, wait: number = 1000): Promise<void> {
   const id = `CYLTagListItem-0-${row}`;
+  const size = await driver.getDisplaySize();
+  const x = Math.round(size.x / 2);
   let tag = await driver.findComponent(ON.id(id));
   if (!tag) {
     const fold = await driver.findComponent(ON.id('CYLTagListFold-0'));
     if (fold) {
       await fold.click();
-      await driver.delayMs(500);
+      await driver.delayMs(1000);
     }
     tag = await driver.findComponent(ON.id(id));
   }
+  for (let i = 0; i < 4; i++) {
+    if (tag) {
+      const rect = await tag.getBounds();
+      if (rect.bottom < size.y * 0.8) {
+        break;
+      }
+    }
+    await driver.swipe(x, Math.round(size.y * 0.7), x, Math.round(size.y * 0.35), 400);
+    await driver.delayMs(600);
+    tag = await driver.findComponent(ON.id(id));
+  }
   if (!tag) {
-    throw new Error(`No Examples tag for "${label}"`);
+    throw new Error(`No demo tag "${label}" (${id})`);
   }
   await tag.click();
   await driver.delayMs(wait);
@@ -124,7 +139,7 @@ export default function cylSearchUITest() {
       await backToTabBar(driver);
       await tapLabel(driver, appString('tab_examples'));
       await assertLabel(driver, libString('demo.title'));
-      await tapExamplesTag(driver, libString('demo.styles'), 1);
+      await tapDemoTag(driver, libString('demo.styles'), 1);
       // The section headers are CYLTableViewPlaceHolder's image names (its CYLPlaceholderView styles).
       await assertLabel(driver, 'CYLPlaceholderEmpty');
       await driver.pressBack();
@@ -180,8 +195,8 @@ export default function cylSearchUITest() {
       const driver = Driver.create();
       await backToTabBar(driver);
       await tapLabel(driver, appString('tab_examples'));
-      await tapExamplesTag(driver, libString('demo.ports'), 3);
-      await tapLabel(driver, 'iammert/MultiSearchView', 1000);
+      await tapDemoTag(driver, libString('demo.ports'), 3);
+      await tapDemoTag(driver, 'iammert/MultiSearchView', 4);
       await tapLabel(driver, libString('multisearch.add'), 800, 'CYLSearchBarNewSearch');
       const field = await driver.findComponent(ON.type('TextInput'));
       await field.inputText('Swift');
@@ -239,7 +254,7 @@ export default function cylSearchUITest() {
       const driver = Driver.create();
       await backToTabBar(driver);
       await tapLabel(driver, appString('tab_examples'));
-      await tapExamplesTag(driver, libString('demo.searchController'), 5);
+      await tapDemoTag(driver, libString('demo.searchController'), 5);
       const fields = await driver.findComponents(ON.type('TextInput'));
       expect(fields.length > 0).assertTrue();
       await fields[0].click();

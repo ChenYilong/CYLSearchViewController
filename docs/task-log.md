@@ -1830,3 +1830,17 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 
 - Windows moved its platforms to ClassifyMenu `c0b183de12c62c8b0b575b5a9ff0613f9a970468` (853bfa2): 13 commits ahead of 1207883c, iOS part = header font 17 pt semibold, short header-to-board gap, `sectionBoardInset`, the glass card drawn untinted when `sectionBackgroundColor` is unset. iOS Podfiles, Flutter and RN example Podfiles, `Podfile.lock` moved by the Mac session; tab bar `08343e9f` and Dealloc `4276a6da` unchanged.
 - iOS suite (light simulator, incremental build): 201 tests, 0 failures. Screenshot `docs/assets/ios-iphone18pro-sim-ios27.2-20261126-pin-c0b183de-header-untinted-board.png`: headers smaller, the board see-through. Simulator `9F762C22` and the app stopped after the run.
+
+## DONE (2026-11-26): HarmonyOS UI suite, two failing tests fixed (57/57)
+
+- Failed at 853bfa2 (57 run, 55 pass, 2 errors): `multipleModeSearchBarAddsSearches` ("No control labelled
+  \"iammert/MultiSearchView\"") and `searchControllerScreenUsesTheCoreOptions` ("No Examples tag for ...").
+- Cause (tests only, no example defect): the Ports page and the Examples page are glass tag lists (`CYLTagListView`, 3-row
+  fold). A tag draws no text uitest finds, so the Ports tag was looked up by its title; the Examples tag at row 5 sits
+  behind the fold and, once expanded, can lie below the visible part of the page, where uitest does not report it.
+- Fix: `tapDemoTag` in `CYLSearchUI.test.ets` finds a tag by id `CYLTagListItem-0-<row>`, taps the fold control
+  `CYLTagListFold-0` when the tag is folded away, and swipes the page until the tag is above the tab bar. Both tests use
+  it (Ports row 4, Examples row 5); the assertions are unchanged.
+- Result: host logic tests pass; `entry@emulator` and `entry@ohosTest` (emulatorTest) build; `aa test` on the emulator
+  127.0.0.1:5555 (idle: no app or test process, not started by this session, left running): Tests run: 57, Failure: 0,
+  Error: 0, Pass: 57. The app was force-stopped afterwards.
