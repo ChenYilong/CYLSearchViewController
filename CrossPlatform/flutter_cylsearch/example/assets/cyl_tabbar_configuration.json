@@ -4,22 +4,26 @@
     {
       "CYLTabBarItemTitle": "List style",
       "CYLTabBarItemImage": "flutter-asset:assets/tab_list.png",
-      "CYLTabBarItemIdentifier": "listStyle"
+      "CYLTabBarItemIdentifier": "listStyle",
+      "CYLTabBarItemIconRenderingMode": "template"
     },
     {
       "CYLTabBarItemTitle": "Tag style",
       "CYLTabBarItemImage": "flutter-asset:assets/tab_tags.png",
-      "CYLTabBarItemIdentifier": "tagStyle"
+      "CYLTabBarItemIdentifier": "tagStyle",
+      "CYLTabBarItemIconRenderingMode": "template"
     },
     {
       "CYLTabBarItemTitle": "Empty results",
       "CYLTabBarItemImage": "flutter-asset:assets/tab_empty.png",
-      "CYLTabBarItemIdentifier": "emptyResults"
+      "CYLTabBarItemIdentifier": "emptyResults",
+      "CYLTabBarItemIconRenderingMode": "template"
     },
     {
       "CYLTabBarItemTitle": "Discover",
       "CYLTabBarItemImage": "flutter-asset:assets/tab_discover.png",
-      "CYLTabBarItemIdentifier": "discover"
+      "CYLTabBarItemIdentifier": "discover",
+      "CYLTabBarItemIconRenderingMode": "template"
     }
   ],
   "CYLTabBarControllerPlusButton": {

@@ -1683,3 +1683,35 @@ begins and becomes `DONE` when it ends.
   5. Mini program: `cyl-tag-list` supports `backgroundStyle: liquidGlass` (CSS tint), but it has no backdrop blur (`backdrop-filter`) property, and the example's Discover/Examples lists do not use `cyl-tag-list` (no subtitle callout or title wrapping), so no glass is shown over the gradient.
   6. Below Android 12 the flat fallback is expected (no glass drawn).
 - iOS (Mac session): apply the same on the iOS example (gradient page background, clear list background, glass board and tags sampling it); verify that `CYLTagBackgroundStyleLiquidGlass` refracts the gradient.
+
+## Repin to the unified pair, Windows side (2026-11-25, `android-static`, merged 82d7fe2)
+
+- **Pins moved** to ClassifyMenu `0de4546b3413512b1794fc52d62fd10ba73ce106` + CYLTabBarController `09bde3ca4a965e19be916f216df99b3d1a8c5d17`
+  (CYLDeallocBlockExecutor `4276a6dab` unchanged): `harmonyos/oh-package.json5`, the mini program `package.json`, the Flutter example
+  `pubspec.yaml` `flutter_cyltabbar` ref (the lock stays out of the commit: another agent owns it). `android/merged/gradle.properties`
+  already held the pair (Mac). RN example `vendor/CYLTabBarController` is untracked and left alone. No file besides docs held the
+  old SHAs. `harmonyos/scripts/sync-sub-repositories.sh` and the mini program `sync-example` ran with `CYL_*_DIR` local checkouts.
+- **Code adapted** (core exposes `sectionBackgroundStyle`, mirrors iOS applyDefaults / applyBackgroundStyle): `liquidGlass` now sets the
+  glass board with the glass tags in Android `CYLSearchTagListStyle.kt` (the Flutter and RN Android bridges go through it), HarmonyOS
+  `CYLSearchTagListStyle.ets` and the mini program `CYLSearchTagListStyle.js`. No API of the examples or bridges broke: the fold
+  control names, `titleMaxLines` and the `plain` opt-out compile unchanged; the examples keep their explicit fold settings (tail, icon).
+- **Flutter PNG tab icons**: `cyl_tabbar_configuration.json` gets `CYLTabBarItemIconRenderingMode: template` on the four tabs (patch from the
+  tint bisect; static PNG icons otherwise stay black when selected). Checked the others: Android and HarmonyOS configs use vector or
+  system icons (no PNG), the Rive config has `tint: title`, the Flutter `_svga` config lists PNGs next to SVGA files (animated, not changed,
+  unverified). RN and mini program examples have no tab configuration file.
+- **Tests (one batch, in worktree `C:/w/cvcm-repin`)**: Android `:app:assembleDebug` OK; `:cylsearch` unit tests 114 run, the same 10
+  `CYLSearchViewQMUIPortTest` failures (Robolectric `Illegal connection pointer`, history SQLite) that fail identically in runs before this
+  repin (`b2.log`, `r12.log`, `r28.log`); the class passes alone; the style test with the new assertions passes. Flutter `flutter test` 37 pass,
+  analyze infos only, `build apk --debug` OK. RN `tsc` clean, jest 18 pass. HarmonyOS sync OK, `host-logic-test.mjs` 72 pass (no hvigor
+  build or device run). `scripts/check-example-fold.sh` ok. Mini program `npm test` 132 of 133: FAIL `the synced ... package has cyl-animated-item at
+  the pinned CYLTabBarController commit`: ClassifyMenu `0de4546b` ships `cyl-animated-item/COMMIT` = `230b5266` (its own mini program
+  package was not refreshed to `09bde3ca`).
+- **Screenshots / glass**: NOT taken: `C:/w/heavy.lock` was held by winsCollectionViewClassifyMenu (repin android test) when this ran.
+  By code: Android core still never sets `backdropSource` (no such symbol in `0de4546b` `android/merged/library`), so the glass draws
+  tint and rim only: PARTIAL (gradient shows through the clear list, board and tags are tinted, no blur or refraction); HarmonyOS, Flutter, RN
+  and mini program: not run.
+
+TODO (this repin):
+- Android: screenshots folded/expanded, light and dark, on `0de4546b` once the lock is free; core: `backdropSource` for glass tags and board.
+- Mini program: ClassifyMenu must refresh `miniprogram_dist/cyl-animated-item/COMMIT` (and `fetch-cyltabbar.js`, Podfiles, Package.swift) to `09bde3ca`.
+- HarmonyOS: hvigor build and ohosTest on the emulator with the new core.
