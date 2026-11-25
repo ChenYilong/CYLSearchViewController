@@ -19,8 +19,8 @@ Details of the `example-demos` tag of [AGENTS.md](../../AGENTS.md) and [instruct
      has a non-empty title.
   2. Use the tag list's default initialization first; the tag width is adaptive (content width), so a row holds as many tags
      as fit. Allow the tag title to wrap (ClassifyMenu's title wrapping API; no one-line limit).
-  3. Fold at 3 rows in examples. Beyond that the fold control shows the label `more` or `less` with the built-in chevron
-     (the icon-and-title fold content, not the icon alone).
+  3. Fold at 3 rows in examples. Beyond that the tail fold control shows the core's default content, the built-in chevron
+     icon only (`.icon`; corrected 2026-11-25, owner: the example sets no content, never `iconAndTitle`).
   4. A tag tap does exactly what tapping the cell did. A long press shows the cell's subtitle in a small floating bubble with an
      arrow, built with the tag list's long-press customization API (`longPressAction`, `menuSubtitleForItem`).
   5. Never work around a missing tag-list capability in the example: add the API to the core (the Flutter and React Native

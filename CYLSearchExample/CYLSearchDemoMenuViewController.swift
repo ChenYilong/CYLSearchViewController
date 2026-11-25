@@ -108,7 +108,7 @@ struct CYLDemoTagSection {
  * The example's grouped demo lists (docs/instructions/example-demos.md): a sectioned CollectionViewClassifyMenu tag list in
  * place of a grouped table view. Every tag is a Liquid Glass tag (the core's one `backgroundStyle` parameter, set through
  * `CYLSearchTagListStyle`), a tag title may wrap (up to `titleLines`), the tag width follows its content so a row holds as many tags as fit, each
- * section shows 3 rows and then the core's "more" / "less" fold control with its chevron, and a tap does what the cell did.
+ * section shows 3 rows and then the core's tail fold control (its default content, the chevron icon), and a tap does what the cell did.
  */
 class CYLDemoTagListViewController: UIViewController, CYLMenuDataSource, CYLMenuDelegate {
 
@@ -123,7 +123,7 @@ class CYLDemoTagListViewController: UIViewController, CYLMenuDataSource, CYLMenu
     static let titleLines = 3
 
     let sections: [CYLDemoTagSection]
-    let tagList = CYLTagListView(foldControl: CYLMenuFoldControl(position: .tail, content: .iconAndTitle))
+    let tagList = CYLTagListView(foldControl: CYLMenuFoldControl(position: .tail))
 
     init(title: String, sections: [CYLDemoTagSection]) {
         self.sections = sections

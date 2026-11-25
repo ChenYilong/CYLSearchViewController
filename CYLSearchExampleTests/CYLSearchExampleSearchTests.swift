@@ -127,6 +127,8 @@ final class CYLSearchExampleSearchTests: CYLSearchExampleTestCase {
         XCTAssertEqual(gallery.tagList.style.titleMaxLines, 3)
         XCTAssertTrue(gallery.tagList.longPressAction === CYLTagLongPressActions.callout)
         XCTAssertEqual(gallery.tagList.defaultVisibleRows, 3)
+        XCTAssertEqual(gallery.tagList.foldControl.position, .tail)
+        XCTAssertEqual(gallery.tagList.foldControl.content, .icon, "the core's default content, set by no example")
         for section in 0...styleCount {
             XCTAssertFalse(gallery.menuTitle(forSection: section).isEmpty, "a section header always has a title")
             let count = gallery.menuNumberOfItems(inSection: section)
