@@ -670,6 +670,13 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
             item = CYLSearchBarItem(style: .text, title: title, image: nil)
         case .icon:
             item = CYLSearchBarItem(style: .icon, title: title, image: searchButtonImage ?? UIImage(systemName: "magnifyingglass"))
+            // A filled capsule with the icon in the inverse color, at the end of the field (black with a white magnifier in light
+            // mode, white with a black one in dark mode): one CYLAnimatedItemView, the icon and its background and corner together.
+            item.backgroundColor = .label
+            item.tintColor = .systemBackground
+            item.cornerRadius = CYLAnimatedItemCornerRadiusCapsule
+            item.itemHeight = 28
+            item.contentInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         }
         item.itemAccessibilityIdentifier = "CYLSearchBarSearchButton"
         item.searchBarView = self
@@ -680,7 +687,6 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     private func rebuildSearchButton() {
         let old = searchButtonItem
         let item = makeSearchButtonItem()
-        item.tintColor = old.tintColor
         item.itemAccessibilityIdentifier = old.itemAccessibilityIdentifier
         old.itemControl.removeTarget(self, action: nil, for: .allEvents)
         old.itemControl.removeFromSuperview()
@@ -2299,6 +2305,33 @@ public final class CYLSearchBarItem: NSObject {
     @objc public var contentInsets: UIEdgeInsets = .zero { didSet { itemChanged() } }
 
     /**
+     * `cornerRadius` that follows the item: 10 pt with a background, square without one.
+     */
+    @objc public static let automaticCornerRadius: CGFloat = -1
+
+    /**
+     * The corner radius of the item's background and border, in points: 0 is square, `CYLAnimatedItemCornerRadiusCapsule` a capsule,
+     * `automaticCornerRadius` (the default) 10 pt with a background and square without one. The icon, the background and the border
+     * are one view, the item's `CYLAnimatedItemView`.
+     */
+    @objc public var cornerRadius: CGFloat = CYLSearchBarItem.automaticCornerRadius { didSet { itemChanged() } }
+
+    /**
+     * The border color of the item's own outline; nil (the default) draws none.
+     */
+    @objc public var borderColor: UIColor? { didSet { itemChanged() } }
+
+    /**
+     * The width of the item's own outline, in points; 0 by default.
+     */
+    @objc public var borderWidth: CGFloat = 0 { didSet { itemChanged() } }
+
+    /**
+     * The height of the item in points; 0 (the default) is the 36 pt touch size.
+     */
+    @objc public var itemHeight: CGFloat = 0 { didSet { itemChanged() } }
+
+    /**
      * Moves the icon without changing the item's size.
      */
     @objc public var imagePositionAdjustment: UIOffset = .zero { didSet { itemChanged() } }
@@ -2618,7 +2651,7 @@ final class CYLSearchBarItemButton: CYLTagButton {
         // speed (`resetAnimationSpeed()`) does not fall back to 1.
         style.animationSpeed = item.animationSpeed
         style.imageTitleSpacing = Self.imageTitleSpacing
-        style.itemHeight = item.style == .divider ? Self.dividerHeight : Self.minimumTouchSide
+        style.itemHeight = item.style == .divider ? Self.dividerHeight : (item.itemHeight > 0 ? item.itemHeight : Self.minimumTouchSide)
         style.imagePositionAdjustment = item.imagePositionAdjustment
         style.titlePositionAdjustment = item.titlePositionAdjustment
         style.adjustsFontForContentSizeCategory = true
@@ -2636,10 +2669,14 @@ final class CYLSearchBarItemButton: CYLTagButton {
             }
             let background = item.isSelected ? (item.selectedBackgroundColor ?? item.backgroundColor) : item.backgroundColor
             appearance.backgroundColor = background ?? .clear
-            appearance.borderColor = nil
-            appearance.borderWidth = 0
+            appearance.borderColor = item.borderColor
+            appearance.borderWidth = item.borderColor == nil ? 0 : item.borderWidth
             appearance.contentInsets = insets
-            appearance.cornerRadius = hasBackground ? Self.backgroundCornerRadius : Self.squareCornerRadius
+            if item.cornerRadius != CYLSearchBarItem.automaticCornerRadius {
+                appearance.cornerRadius = item.cornerRadius
+            } else {
+                appearance.cornerRadius = hasBackground ? Self.backgroundCornerRadius : Self.squareCornerRadius
+            }
         }
         return style
     }

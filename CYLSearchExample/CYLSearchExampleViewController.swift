@@ -104,6 +104,8 @@ public final class CYLSearchExampleViewController: UITableViewController, CYLSea
         navigationItem.title = CYLSearchResources.localizedString(forKey: "search.title")
         searchBar.applyNavigationFieldStyle()
         searchBar.focusesOnAppear = true
+        // The icon style of the default search button: a filled capsule with the built-in magnifier (Discover shows the text style).
+        searchBar.searchButtonStyle = .icon
         searchBar.placeholder = CYLSearchResources.localizedString(forKey: "search.placeholder")
         searchBar.accessibilityIdentifier = "CYLSearchResultsField"
         searchBar.delegate = self

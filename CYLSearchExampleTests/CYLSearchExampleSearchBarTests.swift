@@ -965,11 +965,17 @@ extension CYLSearchExampleSearchBarTests {
         bar.searchButtonStyle = .icon
         XCTAssertEqual(bar.searchButtonItem.style, .icon)
         XCTAssertNotNil(bar.searchButtonItem.image, "the built-in magnifier")
+        // The icon style is a filled capsule with the icon in the inverse color: one item view with its own background and corner.
+        XCTAssertEqual(bar.searchButtonItem.backgroundColor, .label)
+        XCTAssertEqual(bar.searchButtonItem.tintColor, .systemBackground)
+        XCTAssertEqual(bar.searchButtonItem.cornerRadius, CYLAnimatedItemCornerRadiusCapsule)
+        XCTAssertGreaterThan(bar.searchButtonItem.itemHeight, 0)
         XCTAssertEqual(bar.searchButtonItem.itemAccessibilityIdentifier, "mine", "kept when the item is replaced")
         let image = UIImage(systemName: "arrow.right")
         bar.searchButtonImage = image
         XCTAssertTrue(bar.searchButtonItem.image === image, "a custom icon")
         bar.searchButtonStyle = .text
+        XCTAssertNil(bar.searchButtonItem.backgroundColor, "the text style has no fill")
         bar.searchButtonTitle = "Go"
         XCTAssertEqual(bar.searchButtonItem.title, "Go", "a custom title")
         bar.showsSearchButton = false
