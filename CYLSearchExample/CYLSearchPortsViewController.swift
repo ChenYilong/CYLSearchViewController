@@ -49,61 +49,35 @@ enum CYLSnackbar {
 }
 
 /**
- * The Swift ports of the examples of five search libraries (docs/search-api-comparison.md). Each port only passes
- * data and style parameters to the core and handles taps.
+ * The Swift ports of the examples of five search libraries (docs/search-api-comparison.md), as a demo tag list
+ * (docs/instructions/example-demos.md): one tag per port with its name and icon, a tap opens it, a long press shows its
+ * subtitle. Each port only passes data and style parameters to the core and handles taps.
  */
 @objc(CYLSearchPortsViewController)
-final class CYLSearchPortsViewController: UITableViewController {
+final class CYLSearchPortsViewController: CYLDemoTagListViewController {
 
-    private struct Row {
-        let title: String
-        let subtitle: String
-        let make: () -> UIViewController
+    private static func tag(_ title: String, _ subtitle: String, _ symbol: String,
+                            make: @escaping () -> UIViewController) -> CYLDemoTagItem {
+        CYLDemoTagItem(title: title, image: UIImage(systemName: symbol), subtitle: subtitle) { host in
+            host.navigationController?.pushViewController(make(), animated: true)
+        }
     }
 
-    private let rows: [Row] = [
-        Row(title: "lapism/search", subtitle: "MaterialSearchBar + MaterialSearchView") { CYLLapismSearchViewController() },
-        Row(title: "MiguelCatalan/MaterialSearchView", subtitle: "Default, Themed, Voice, Sticky, Tabs, Input type") {
-            CYLMaterialSearchMenuViewController(style: .insetGrouped)
-        },
-        Row(title: "yechaoa/MaterialDesign", subtitle: "SearchViewActivity") { CYLYechaoaSearchViewController() },
-        Row(title: "android-cjj/MaterialSearchView", subtitle: "Circular reveal") { CYLRevealSearchViewController() },
-        Row(title: "iammert/MultiSearchView", subtitle: "MultiSearchView") { CYLMultiSearchDemoViewController() },
-    ]
-
-    override init(style: UITableView.Style) {
-        super.init(style: style)
-    }
-
-    convenience init() {
-        self.init(style: .insetGrouped)
+    init() {
+        let items = [
+            Self.tag("lapism/search", "MaterialSearchBar + MaterialSearchView", "magnifyingglass") { CYLLapismSearchViewController() },
+            Self.tag("MiguelCatalan/MaterialSearchView", "Default, Themed, Voice, Sticky, Tabs, Input type", "mic") {
+                CYLMaterialSearchMenuViewController(style: .insetGrouped)
+            },
+            Self.tag("yechaoa/MaterialDesign", "SearchViewActivity", "text.magnifyingglass") { CYLYechaoaSearchViewController() },
+            Self.tag("android-cjj/MaterialSearchView", "Circular reveal", "circle.dashed") { CYLRevealSearchViewController() },
+            Self.tag("iammert/MultiSearchView", "MultiSearchView", "square.stack") { CYLMultiSearchDemoViewController() },
+        ]
+        super.init(title: cylDemoText("demo.ports"),
+                   sections: [CYLDemoTagSection(title: cylDemoText("demo.ports"), items: items)])
     }
 
     required init?(coder: NSCoder) {
-        super.init(coder: coder)
-    }
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        navigationItem.title = cylDemoText("demo.ports")
-    }
-
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        rows.count
-    }
-
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: nil)
-        var content = cell.defaultContentConfiguration()
-        content.text = rows[indexPath.row].title
-        content.secondaryText = rows[indexPath.row].subtitle
-        cell.contentConfiguration = content
-        cell.accessoryType = .disclosureIndicator
-        return cell
-    }
-
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        navigationController?.pushViewController(rows[indexPath.row].make(), animated: true)
+        nil
     }
 }
