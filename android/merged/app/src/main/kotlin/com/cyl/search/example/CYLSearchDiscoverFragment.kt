@@ -143,8 +143,8 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
     // The playback state of the animation item (the Switch and the SeekBar under the bar write it).
     private var animationLoops = false
     private var animationSpeed = 1f
-    // The tag lists' background style, switched by the toggle under the playback row: flat (default) or Liquid Glass.
-    private var glassStyle = false
+    // The tag lists' background style, switched by the toggle under the playback row: Liquid Glass (default, owner rule 6) or flat.
+    private var glassStyle = true
 
     private inner class RecentSource : CYLMenuDataSource {
         var searches: MutableList<String> = mutableListOf()
@@ -383,6 +383,7 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
     private fun recentStyle(): CYLMenuStyle = CYLMenuStyle().apply {
         CYLSearchTagListStyle.applyDefaults(this, requireContext())
         backgroundColor = Color.TRANSPARENT
+        CYLSearchTagListStyle.applyBackgroundStyle(if (glassStyle) "liquidGlass" else "flat", this)
     }
 
     private fun discoverStyle(): CYLMenuStyle = CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(2).apply {
@@ -390,6 +391,7 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
         backgroundColor = Color.TRANSPARENT
         // The refresh action is the built-in icon (docs/animated-icon-component.md, A), never the three dots. After the style.
         CYLSearchTagListHeader.applyRefreshIcon(requireContext(), this)
+        CYLSearchTagListStyle.applyBackgroundStyle(if (glassStyle) "liquidGlass" else "flat", this)
     }
 
     // Data

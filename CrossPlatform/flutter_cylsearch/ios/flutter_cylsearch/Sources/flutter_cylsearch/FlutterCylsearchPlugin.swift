@@ -311,6 +311,59 @@ final class CYLFlutterLayoutReportingView: UIView {
 }
 
 /**
+ * Holds the core's navigation bar of an embedded search bar. A `UINavigationBar` that is laid out before it is in a window
+ * (the Flutter route is still sliding in) takes zero layout margins and no safe area: the back button sat flush with the
+ * left edge and the search bar began about 47 px early until the next layout pass (the Discover page, first open). The
+ * container lays the bar out again once it is in the window, on every safe area change and on the next turn.
+ */
+final class CYLFlutterNavigationBarContainer: UIView {
+    let navigationBar: CYLSearchNavigationBar
+    private var rebuiltInWindow = false
+
+    init(navigationBar: CYLSearchNavigationBar, frame: CGRect) {
+        self.navigationBar = navigationBar
+        super.init(frame: frame)
+        backgroundColor = .clear
+        navigationBar.frame = bounds
+        navigationBar.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        addSubview(navigationBar)
+    }
+
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        navigationBar.frame = bounds
+        navigationBar.layoutIfNeeded()
+    }
+
+    override func safeAreaInsetsDidChange() {
+        super.safeAreaInsetsDidChange()
+        relayout()
+    }
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        guard window != nil else { return }
+        if !rebuiltInWindow {
+            // Items set before the bar had a window: set them again so the back button and the title view take the real margins.
+            rebuiltInWindow = true
+            navigationBar.setItems(navigationBar.items, animated: false)
+        }
+        relayout()
+        DispatchQueue.main.async { [weak self] in self?.relayout() }
+    }
+
+    private func relayout() {
+        navigationBar.setNeedsLayout()
+        navigationBar.layoutIfNeeded()
+        setNeedsLayout()
+    }
+}
+
+/**
  * `CYLSearchBarView` filling the platform view; with `editingBar` (read at creation), the core's editing bar
  * (`CYLSearchBarView.editingBar(placeholder:actionTitle:)`), whose submit is sent as `didSubmitEditing`.
  */
@@ -321,6 +374,8 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
     /// The core's navigation bar holding the bar, when Dart asks for `embedsInNavigationBar`: the page's search bar is
     /// always in a navigation bar.
     private var navigationBar: CYLSearchNavigationBar?
+    /// The platform view when the bar is embedded: it lays the navigation bar out again once it is in the window.
+    private var container: CYLFlutterNavigationBarContainer?
     private let channel: FlutterMethodChannel
 
     init(frame: CGRect, arguments: [String: Any], channel: FlutterMethodChannel) {
@@ -337,7 +392,9 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
         bar.delegate = self
         if arguments["embedsInNavigationBar"] as? Bool ?? false {
             navigationBar = CYLSearchNavigationBar.holding(bar, showsBackButton: arguments["showsBackButton"] as? Bool ?? false)
-            navigationBar?.frame = frame
+            if let navigationBar {
+                container = CYLFlutterNavigationBarContainer(navigationBar: navigationBar, frame: frame)
+            }
             // The back button of a second-level page: Dart pops its route.
             navigationBar?.backHandler = { [weak channel] in
                 channel?.invokeMethod("didTapBackButton", arguments: nil)
@@ -398,7 +455,7 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
     }
 
     func view() -> UIView {
-        navigationBar ?? bar
+        container ?? bar
     }
 
     /**

@@ -150,11 +150,14 @@ class CYLSearchExampleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
         title: 'CYLSearch',
-        theme: _clearTheme(ThemeData(colorSchemeSeed: const Color(0xFF007AFF), useMaterial3: true)),
+        theme: _clearTheme(ThemeData(colorSchemeSeed: const Color(0xFF007AFF), useMaterial3: true), Brightness.light),
         // Follows the system appearance, so the native views (which take the Flutter brightness) show dark mode too.
-        darkTheme: _clearTheme(ThemeData(colorSchemeSeed: const Color(0xFF007AFF), useMaterial3: true, brightness: Brightness.dark)),
+        darkTheme: _clearTheme(ThemeData(colorSchemeSeed: const Color(0xFF007AFF), useMaterial3: true, brightness: Brightness.dark), Brightness.dark),
         // The gradient page of every example page (docs/instructions/example-demos.md rule 7), on every platform: the scaffolds and app bars are clear.
-        builder: (context, child) => DecoratedBox(
+        // The status bar icons follow the theme on the pale or the dark gradient (Android icons, iOS text), also where a page has no app bar.
+        builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+          value: cylStatusBarStyle(Theme.of(context).brightness),
+          child: DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -166,15 +169,35 @@ class CYLSearchExampleApp extends StatelessWidget {
           ),
           child: child,
         ),
+        ),
         home: CYLSearchTabs(tabBarConfiguration: tabBarConfiguration),
       );
 }
 
 /// The theme with a clear scaffold and app bar, so the app's gradient shows on every page.
-ThemeData _clearTheme(ThemeData theme) => theme.copyWith(
+ThemeData _clearTheme(ThemeData theme, Brightness brightness) => theme.copyWith(
       scaffoldBackgroundColor: Colors.transparent,
-      appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent, surfaceTintColor: Colors.transparent, elevation: 0),
+      appBarTheme: AppBarTheme(
+        backgroundColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        systemOverlayStyle: cylStatusBarStyle(brightness),
+      ),
     );
+
+/// The status bar over the example's gradient: dark icons on the pale light gradient, light icons on the dark one. Android
+/// reads `statusBarIconBrightness`, iOS reads `statusBarBrightness` (the brightness of the page, so the opposite icons).
+SystemUiOverlayStyle cylStatusBarStyle(Brightness brightness) {
+  final light = brightness == Brightness.light;
+  return SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: light ? Brightness.dark : Brightness.light,
+    statusBarBrightness: light ? Brightness.light : Brightness.dark,
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarIconBrightness: light ? Brightness.dark : Brightness.light,
+    systemNavigationBarContrastEnforced: false,
+  );
+}
 
 /// The tab bar and the page of the selected tab.
 class CYLSearchTabs extends StatefulWidget {
