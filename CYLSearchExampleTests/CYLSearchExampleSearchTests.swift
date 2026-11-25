@@ -117,17 +117,22 @@ final class CYLSearchExampleSearchTests: CYLSearchExampleTestCase {
         XCTAssertTrue(navigation.lastPushedController is CYLSearchControllerDemoViewController, "the QMUI search controller screen")
         navigation.popViewController(animated: false)
         menu.tableView(menu.tableView, didSelectRowAt: IndexPath(row: 1, section: 0))
-        let gallery = try XCTUnwrap(navigation.lastPushedController as? UITableViewController)
+        // docs/instructions/example-demos.md: the grouped list is a sectioned Liquid Glass tag list, 3 rows folded.
+        let gallery = try XCTUnwrap(navigation.lastPushedController as? CYLSearchPlaceholderGalleryViewController)
         XCTAssertNotIdentical(gallery, menu)
         gallery.loadViewIfNeeded()
         let styleCount = CYLPlaceholderStyle.count.rawValue
-        XCTAssertEqual(gallery.numberOfSections(in: gallery.tableView), styleCount + 1)
+        XCTAssertEqual(gallery.numberOfSectionsInMenu(), styleCount + 1)
+        XCTAssertEqual(gallery.tagList.style.backgroundStyle, .liquidGlass)
+        XCTAssertEqual(gallery.tagList.style.titleMaxLines, 3)
+        XCTAssertTrue(gallery.tagList.longPressAction === CYLTagLongPressActions.callout)
+        XCTAssertEqual(gallery.tagList.defaultVisibleRows, 3)
         for section in 0...styleCount {
-            let count = gallery.tableView(gallery.tableView, numberOfRowsInSection: section)
+            XCTAssertFalse(gallery.menuTitle(forSection: section).isEmpty, "a section header always has a title")
+            let count = gallery.menuNumberOfItems(inSection: section)
             XCTAssertEqual(count, section == styleCount ? 3 : 4)
-            for row in 0..<count {
-                let indexPath = IndexPath(row: row, section: section)
-                gallery.tableView(gallery.tableView, didSelectRowAt: indexPath)
+            for item in 0..<count {
+                gallery.menu(gallery.tagList, didSelectItemAt: IndexPath(item: item, section: section))
                 let detail = try XCTUnwrap(navigation.lastPushedController)
                 XCTAssertNotIdentical(detail, gallery)
                 XCTAssertTrue(detail.view.subviews.first is CYLPlaceholderView)

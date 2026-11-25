@@ -86,73 +86,178 @@ private final class CYLSVGADemoHeaderView: UIView {
 }
 
 /**
- * Every `CYLPlaceholderStyle` with four messages, and three custom placeholders. The styles, images and texts are
- * CYLTableViewPlaceHolder's `CYLPlaceholderView` (the core's former CYLSearchPlaceholderView was a duplicate of it and is
- * gone).
+ * One tag of a demo tag list: the cell's main title and icon; `subtitle` is what a long press shows in the tag list's callout
+ * (`menuSubtitleForItem`).
+ */
+struct CYLDemoTagItem {
+    let title: String
+    let image: UIImage?
+    let subtitle: String?
+    let action: (UIViewController) -> Void
+}
+
+/**
+ * A titled section of a demo tag list: a table view section's header and rows.
+ */
+struct CYLDemoTagSection {
+    let title: String
+    let items: [CYLDemoTagItem]
+}
+
+/**
+ * The example's grouped demo lists (docs/instructions/example-demos.md): a sectioned CollectionViewClassifyMenu tag list in
+ * place of a grouped table view. Every tag is a Liquid Glass tag (the core's one `backgroundStyle` parameter, set through
+ * `CYLSearchTagListStyle`), a tag title may wrap (up to `titleLines`), the tag width follows its content so a row holds as many tags as fit, each
+ * section shows 3 rows and then the core's "more" / "less" fold control with its chevron, and a tap does what the cell did.
+ */
+class CYLDemoTagListViewController: UIViewController, CYLMenuDataSource, CYLMenuDelegate {
+
+    /**
+     * Rows shown while a section is folded.
+     */
+    static let foldedRows = 3
+
+    /**
+     * The most lines a tag title may take in the example, as the rule's 3.
+     */
+    static let titleLines = 3
+
+    let sections: [CYLDemoTagSection]
+    let tagList = CYLTagListView(foldControl: CYLMenuFoldControl(position: .tail, content: .iconAndTitle))
+
+    init(title: String, sections: [CYLDemoTagSection]) {
+        self.sections = sections
+        super.init(nibName: nil, bundle: nil)
+        self.title = title
+    }
+
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .systemBackground
+        CYLSearchTagListStyle.applyDefaultStyle(to: tagList)
+        CYLSearchTagListStyle.applyBackgroundStyle(named: "liquidGlass", to: tagList)
+        let style = tagList.style.copy() as! CYLMenuStyle
+        style.titleMaxLines = Self.titleLines
+        tagList.style = style
+        tagList.selectionMode = .none
+        tagList.defaultVisibleRows = Self.foldedRows
+        // A long press shows the subtitle in the core's callout with an arrow (ClassifyMenu's long-press customization API).
+        tagList.longPressAction = CYLTagLongPressActions.callout
+        tagList.menuDataSource = self
+        tagList.menuDelegate = self
+        tagList.accessibilityIdentifier = "CYLDemoTagList"
+        tagList.frame = view.bounds
+        tagList.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.addSubview(tagList)
+        tagList.reloadMenuData()
+    }
+
+    // MARK: CYLMenuDataSource
+
+    func numberOfSectionsInMenu() -> Int {
+        sections.count
+    }
+
+    func menuNumberOfItems(inSection section: Int) -> Int {
+        sections[section].items.count
+    }
+
+    func menuTitle(forSection section: Int) -> String {
+        sections[section].title
+    }
+
+    func menuTitleForItem(at indexPath: IndexPath) -> String {
+        sections[indexPath.section].items[indexPath.item].title
+    }
+
+    func menuImageForItem(at indexPath: IndexPath) -> UIImage? {
+        sections[indexPath.section].items[indexPath.item].image
+    }
+
+    func menuSubtitleForItem(at indexPath: IndexPath) -> String? {
+        sections[indexPath.section].items[indexPath.item].subtitle
+    }
+
+    // MARK: CYLMenuDelegate
+
+    func menu(_ menu: Any, didSelectItemAt indexPath: IndexPath) {
+        sections[indexPath.section].items[indexPath.item].action(self)
+    }
+}
+
+/**
+ * Every `CYLPlaceholderStyle` with four messages, and three custom placeholders, as demo tag lists (a section per style).
+ * The styles, images and texts are CYLTableViewPlaceHolder's `CYLPlaceholderView` (the core's former
+ * CYLSearchPlaceholderView was a duplicate of it and is gone).
  */
 @objc(CYLSearchPlaceholderGalleryViewController)
-final class CYLSearchPlaceholderGalleryViewController: UITableViewController {
+final class CYLSearchPlaceholderGalleryViewController: CYLDemoTagListViewController {
 
     private static let messages: [CYLPlaceholderMessage] = [.empty, .noResults, .noInternet, .error]
     private static let styleCount = CYLPlaceholderStyle.count.rawValue
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        title = cylDemoText("demo.styles")
+    init() {
+        super.init(title: cylDemoText("demo.styles"), sections: Self.makeSections())
     }
 
-    override func numberOfSections(in tableView: UITableView) -> Int {
-        Self.styleCount + 1
+    required init?(coder: NSCoder) {
+        nil
     }
 
-    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        section == Self.styleCount ? 3 : Self.messages.count
-    }
-
-    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
-        if section == Self.styleCount { return cylDemoText("demo.custom") }
-        return CYLPlaceholderStyle(rawValue: section).flatMap { CYLPlaceholderView.imageName(for: $0) }
-    }
-
-    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CYLDemoOption")
-            ?? UITableViewCell(style: .default, reuseIdentifier: "CYLDemoOption")
-        let custom = ["demo.custom.textOnly", "demo.custom.imageOnly", "demo.custom.both"]
-        if indexPath.section == Self.styleCount {
-            cell.textLabel?.text = cylDemoText(custom[indexPath.row])
-            cell.imageView?.image = indexPath.row == 0
-                ? CYLPlaceholderView.image(for: .noResults)?.withRenderingMode(.alwaysTemplate)
-                : UIImage(systemName: "heart.fill")
-        } else if let style = CYLPlaceholderStyle(rawValue: indexPath.section) {
-            cell.textLabel?.text = CYLPlaceholderView.localizedText(for: Self.messages[indexPath.row])
+    /**
+     * A section per style (titled with the style's image name) and the custom section.
+     */
+    private static func makeSections() -> [CYLDemoTagSection] {
+        var sections: [CYLDemoTagSection] = []
+        for index in 0..<styleCount {
+            guard let style = CYLPlaceholderStyle(rawValue: index) else { continue }
             let image = CYLPlaceholderView.image(for: style)
-            cell.imageView?.image = style == .empty ? image : image?.withRenderingMode(.alwaysTemplate)
+            let icon = (style == .empty ? image : image?.withRenderingMode(.alwaysTemplate))
+            let title = CYLPlaceholderView.imageName(for: style) ?? "\(index)"
+            sections.append(CYLDemoTagSection(title: title, items: messages.map { message in
+                let text = CYLPlaceholderView.localizedText(for: message) ?? title
+                return CYLDemoTagItem(title: text, image: icon, subtitle: nil) { host in
+                    show(CYLPlaceholderView(style: style, message: message), title: text, from: host)
+                }
+            }))
         }
-        cell.imageView?.tintColor = .secondaryLabel
-        cell.textLabel?.numberOfLines = 0
-        cell.accessoryType = .disclosureIndicator
-        return cell
+        let heart = UIImage(systemName: "heart.fill")
+        let noResults = CYLPlaceholderView.image(for: .noResults)?.withRenderingMode(.alwaysTemplate)
+        let custom: [(key: String, image: UIImage?, make: () -> CYLPlaceholderView)] = [
+            ("demo.custom.textOnly", noResults, { CYLPlaceholderView(style: .noResults, text: cylDemoText("demo.custom.text")) }),
+            ("demo.custom.imageOnly", heart, { customHeart(text: nil) }),
+            ("demo.custom.both", heart, { customHeart(text: cylDemoText("demo.custom.text")) }),
+        ]
+        sections.append(CYLDemoTagSection(title: cylDemoText("demo.custom"), items: custom.map { entry in
+            let text = cylDemoText(entry.key)
+            return CYLDemoTagItem(title: text, image: entry.image, subtitle: nil) { host in
+                show(entry.make(), title: text, from: host)
+            }
+        }))
+        return sections
     }
 
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let placeholder: CYLPlaceholderView
-        if indexPath.section < Self.styleCount, let style = CYLPlaceholderStyle(rawValue: indexPath.section) {
-            placeholder = CYLPlaceholderView(style: style, message: Self.messages[indexPath.row])
-        } else if indexPath.row == 0 {
-            placeholder = CYLPlaceholderView(style: .noResults, text: cylDemoText("demo.custom.text"))
-        } else {
-            let image = UIImage(systemName: "heart.fill")
-            placeholder = CYLPlaceholderView(image: image, text: indexPath.row == 1 ? nil : cylDemoText("demo.custom.text"))
-            placeholder.imageView.tintColor = .systemPink
-        }
+    private static func customHeart(text: String?) -> CYLPlaceholderView {
+        let placeholder = CYLPlaceholderView(image: UIImage(systemName: "heart.fill"), text: text)
+        placeholder.imageView.tintColor = .systemPink
+        return placeholder
+    }
+
+    /**
+     * The tapped tag's placeholder, full screen, as the table row's tap pushed it.
+     */
+    private static func show(_ placeholder: CYLPlaceholderView, title: String, from host: UIViewController) {
         let detail = UIViewController()
-        detail.title = tableView.cellForRow(at: indexPath)?.textLabel?.text
+        detail.title = title
         detail.view.backgroundColor = .systemBackground
         placeholder.frame = detail.view.bounds
         placeholder.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         detail.view.addSubview(placeholder)
-        navigationController?.pushViewController(detail, animated: true)
-        tableView.deselectRow(at: indexPath, animated: true)
+        host.navigationController?.pushViewController(detail, animated: true)
     }
 }
 
@@ -252,12 +357,12 @@ public final class CYLSearchDemoMenuViewController: UITableViewController {
             let source = CYLSearchExampleDataSource()
             controller = CYLSearchExampleViewController(searchDataSource: source, refreshProvider: source)
         case 1:
-            controller = CYLSearchPlaceholderGalleryViewController(style: .grouped)
+            controller = CYLSearchPlaceholderGalleryViewController()
         case 2:
             controller = CYLSearchBarDemoViewController()
         default:
             // The Swift ports of five other search libraries' examples (docs/search-api-comparison.md).
-            controller = CYLSearchPortsViewController(style: .insetGrouped)
+            controller = CYLSearchPortsViewController()
         }
         navigationController?.pushViewController(controller, animated: true)
     }
