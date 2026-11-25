@@ -249,6 +249,8 @@ final class CYLSearchDiscoverViewController: UIViewController {
         // A white capsule with a soft shadow, no magnifier: the camera and the 搜索 button sit inside it.
         searchBar.delegate = self
         searchBar.applyNavigationFieldStyle()
+        // A search page: the field takes focus whenever the page appears (first entry, tab switch, return from the background).
+        searchBar.focusesOnAppear = true
         searchField.accessibilityLabel = cylDiscoverText("discover.search")
         searchField.accessibilityIdentifier = "CYLSearchDiscoverField"
 

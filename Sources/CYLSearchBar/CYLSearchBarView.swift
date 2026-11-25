@@ -2,6 +2,7 @@
 // Manager still compiles it into the CYLTabBarController module, where it is reached through CollectionViewClassifyMenu.
 #if canImport(CYLAnimatedItem)
 import CYLAnimatedItem
+import CYLDeallocBlockExecutor
 #endif
 import CollectionViewClassifyMenu
 import UIKit
@@ -1451,6 +1452,39 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      */
     @objc public func showKeyboard() {
         textField.becomeFirstResponder()
+    }
+
+    // MARK: - Focus on appear
+
+    private static let focusOnAppearKey = "CYLSearchBarViewFocusOnAppear"
+
+    /**
+     * Whether the field takes focus (and the keyboard shows) every time the bar appears on screen, like a `viewDidAppear`: the first
+     * time its page is entered, after a switch of tab bar tab or a push and pop, and after the app returns from the background. The
+     * moments come from CYLDeallocBlockExecutor's life cycle events (`didEnterScreen` of the bar, a `UIView`); nothing is observed
+     * while this is NO. NO by default.
+     */
+    @objc public var focusesOnAppear = false {
+        didSet {
+            guard focusesOnAppear != oldValue else { return }
+            if focusesOnAppear {
+                cylAddLifecycleCallback(for: .didEnterScreen, key: Self.focusOnAppearKey) { bar, _, _ in
+                    bar.focusIfAppearing()
+                }
+                if isOnScreenNow { focusIfAppearing() }
+            } else {
+                cylCancelLifecycleCallback(key: Self.focusOnAppearKey)
+            }
+        }
+    }
+
+    private var isOnScreenNow: Bool {
+        window != nil && !isHidden && alpha > 0.01
+    }
+
+    private func focusIfAppearing() {
+        guard focusesOnAppear, window != nil, !textField.isFirstResponder, textField.isEnabled else { return }
+        showKeyboard()
     }
 
     /**

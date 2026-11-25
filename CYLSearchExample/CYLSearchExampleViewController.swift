@@ -103,6 +103,7 @@ public final class CYLSearchExampleViewController: UITableViewController, CYLSea
         // from CYLTabBarConfiguration.json.
         navigationItem.title = CYLSearchResources.localizedString(forKey: "search.title")
         searchBar.applyNavigationFieldStyle()
+        searchBar.focusesOnAppear = true
         searchBar.placeholder = CYLSearchResources.localizedString(forKey: "search.placeholder")
         searchBar.accessibilityIdentifier = "CYLSearchResultsField"
         searchBar.delegate = self

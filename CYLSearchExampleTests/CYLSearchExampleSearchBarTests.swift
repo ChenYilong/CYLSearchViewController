@@ -887,4 +887,42 @@ extension CYLSearchExampleSearchBarTests {
         XCTAssertEqual(plain.intrinsicContentSize.width, UIView.layoutFittingExpandedSize.width)
         XCTAssertEqual(plain.intrinsicContentSize.height, 44, accuracy: 0.5, "the field and its insets fit the 44 pt navigation bar")
     }
+
+    // MARK: - Focus on appear
+
+    /// `focusesOnAppear`: the field takes focus when the bar is on screen, and again every time it reappears (a tab switch or a
+    /// push and pop remove the view from the window); nothing happens while the option is off. The moments come from
+    /// CYLDeallocBlockExecutor's `didEnterScreen`.
+    func testFocusesOnAppearEveryTimeTheBarReappears() {
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let host = UIViewController()
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        let bar = CYLSearchBarView(frame: CGRect(x: 0, y: 100, width: 402, height: 56))
+        host.view.addSubview(bar)
+        runLoop(0.3)
+        XCTAssertFalse(bar.focusesOnAppear)
+        XCTAssertFalse(bar.textField.isFirstResponder, "off by default: no focus")
+        bar.focusesOnAppear = true
+        runLoop(0.3)
+        XCTAssertTrue(bar.textField.isFirstResponder, "on screen when the option turns on: focus")
+        // Disappear (the view leaves the window as in a tab switch) and reappear.
+        bar.textField.resignFirstResponder()
+        bar.removeFromSuperview()
+        runLoop(0.3)
+        XCTAssertFalse(bar.textField.isFirstResponder)
+        host.view.addSubview(bar)
+        runLoop(0.4)
+        XCTAssertTrue(bar.textField.isFirstResponder, "reappears: focus again")
+        // The option off: a reappearance does not focus.
+        bar.focusesOnAppear = false
+        bar.textField.resignFirstResponder()
+        bar.removeFromSuperview()
+        runLoop(0.2)
+        host.view.addSubview(bar)
+        runLoop(0.4)
+        XCTAssertFalse(bar.textField.isFirstResponder, "option off: no focus")
+        window.isHidden = true
+    }
+
 }

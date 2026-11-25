@@ -34,4 +34,8 @@ Pod::Spec.new do |s|
   # core only, and the app adds the engine (the example adds CYLTableViewPlaceHolder/Lottie); the still image shows
   # otherwise.
   s.dependency 'CYLTableViewPlaceHolder/Core'
+  # CYLSearchBarView.focusesOnAppear (focus the field every time the bar appears on screen) takes its moments from
+  # CYLDeallocBlockExecutor's life cycle events (didEnterScreen of a UIView, and the app becoming active while on screen). The pod
+  # is pinned by :git and :commit in the Podfile until 1.4 is on the trunk.
+  s.dependency 'CYLDeallocBlockExecutor', '~> 1.4'
 end
