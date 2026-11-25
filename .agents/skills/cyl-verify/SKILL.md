@@ -5,6 +5,8 @@ description: "Install, build, analyze, and test the search sample and its local 
 
 # Verify
 
+Before you run a simulator or emulator, read `cyl-simulator-run`; stop the app and the simulator process when the run ends.
+
 1. Run `pod install` from the repository root.
 2. Parse the project using `ruby -rxcodeproj -e 'Xcodeproj::Project.open(ARGV[0])' CYLSearchExample.xcodeproj`.
 3. Build the shared scheme from the generated workspace. Confirm the app and
