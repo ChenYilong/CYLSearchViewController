@@ -252,7 +252,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     /**
      * The text field inside the field.
      */
-    @objc public let textField = UITextField()
+    @objc public let textField: UITextField = CYLSearchBarTextField()
 
     /**
      * The rounded field that holds the magnifier, the text and `trailingAccessoryViews`.
@@ -355,7 +355,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     }
 
     /**
-     * The placeholder color. `placeholderTextColor` when nil.
+     * The placeholder color. `UIColor.secondaryLabel` when nil (readable in dark mode).
      */
     @objc public var placeholderColor: UIColor? { didSet { applyStyle() } }
 
@@ -1330,6 +1330,15 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         textField.accessibilityLabel = CYLSearchResources.localizedString(forKey: "search.field")
         textField.addTarget(self, action: #selector(textChanged), for: .editingChanged)
         fieldView.addSubview(textField)
+        // A placeholder set on the text field itself (not on the bar) is drawn by the bar's label, too: the text field's
+        // own placeholder is a dim system gray that dark mode makes hard to read.
+        (textField as? CYLSearchBarTextField)?.onPlaceholderChange = { [weak self] text in
+            guard let self, self.placeholderLabel.text != text else {
+                return
+            }
+            self.placeholderLabel.text = text
+            self.applyStyle()
+        }
         // The placeholder is drawn by this label at the full font size and cut off with an ellipsis when it does not
         // fit: UITextField's own placeholder shrinks to a quarter of the size at large Dynamic Type sizes. The text
         // field keeps the placeholder (in a clear color) for VoiceOver.
@@ -1595,7 +1604,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
             textField.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: UIColor.clear, .font: font as UIFont])
         }
         placeholderLabel.font = font
-        placeholderLabel.textColor = placeholderColor ?? .placeholderText
+        placeholderLabel.textColor = placeholderColor ?? .secondaryLabel
         updatePlaceholderVisibility()
         fieldView.backgroundColor = fieldBackgroundColor
         fieldView.layer.borderColor = fieldBorderColor?.resolvedColor(with: traitCollection).cgColor
@@ -2335,6 +2344,7 @@ private final class CYLSearchBarItemButton: CYLTagButton {
         nil
     }
 
+
     private var resolvedTint: UIColor {
         item?.tintColor ?? item?.searchBarView?.itemTintColor ?? .label
     }
@@ -2555,7 +2565,7 @@ private final class CYLSearchBarMultiSearchView: UIView, UITextFieldDelegate {
     }
 
     private var placeholderColor: UIColor {
-        searchBarView?.placeholderColor ?? .placeholderText
+        searchBarView?.placeholderColor ?? .secondaryLabel
     }
 
     private var animationDuration: TimeInterval {
@@ -2876,5 +2886,19 @@ private final class CYLSearchBarMultiSearchView: UIView, UITextFieldDelegate {
         }
         let length = (textField.text as NSString?)?.length ?? 0
         return length - range.length + (string as NSString).length <= maximum
+    }
+}
+
+/**
+ * The bar's text field: a placeholder assigned to it directly is handed to the bar, which draws it with `placeholderColor`.
+ */
+private final class CYLSearchBarTextField: UITextField {
+
+    var onPlaceholderChange: ((String?) -> Void)?
+
+    override var placeholder: String? {
+        didSet {
+            onPlaceholderChange?(placeholder)
+        }
     }
 }

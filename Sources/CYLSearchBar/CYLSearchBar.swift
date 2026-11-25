@@ -573,7 +573,7 @@ open class CYLSearchBar: UISearchBar {
               let text = placeholder, !text.isEmpty else { return }
         isApplyingPlaceholder = true
         defer { isApplyingPlaceholder = false }
-        var attributes: [NSAttributedString.Key: Any] = [.foregroundColor: placeholderColor ?? UIColor.placeholderText]
+        var attributes: [NSAttributedString.Key: Any] = [.foregroundColor: placeholderColor ?? UIColor.secondaryLabel]
         if let font { attributes[.font] = font }
         searchTextField.attributedPlaceholder = NSAttributedString(string: text, attributes: attributes)
     }
