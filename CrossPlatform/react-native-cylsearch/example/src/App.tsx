@@ -81,7 +81,9 @@ const TABS: Tab[] = [
  */
 function usePalette() {
   const dark = useColorScheme() === 'dark';
-  return { background: dark ? '#000000' : '#FFFFFF', text: dark ? '#FFFFFF' : '#000000', secondary: dark ? '#AAAAAA' : '#666666' };
+  // A gradient page (docs/instructions/example-demos.md rule 7): the tag lists draw no background, so the glass tags sit on it.
+  const page = { backgroundColor: dark ? '#1B1F5E' : '#7FB7FF', backgroundImage: dark ? 'linear-gradient(135deg, #1B1F5E, #5B2A86, #0F6E7A)' : 'linear-gradient(135deg, #7FB7FF, #FF9EC7, #FFC27A)' };
+  return { page, background: dark ? '#000000' : '#FFFFFF', text: dark ? '#FFFFFF' : '#000000', secondary: dark ? '#AAAAAA' : '#666666' };
 }
 
 export default function App() {
@@ -167,14 +169,14 @@ function Screens() {
   const [iconSource, setIconSource] = useState<'rive' | 'svga'>(() => (Platform.OS === 'ios' && Number(Settings.get('CYLDemoTabIconSource')) === 2 ? 'svga' : 'rive'));
   if (open?.qmui) {
     return (
-      <SafeAreaView style={[styles.fill, { backgroundColor: palette.background }]} edges={['top', 'bottom']}>
+      <SafeAreaView style={[styles.fill, palette.page]} edges={['top', 'bottom']}>
         {open.qmui === 'controller' ? <SearchControllerDemo onClose={() => setOpen(null)} /> : <SearchBarStylesDemo onClose={() => setOpen(null)} />}
       </SafeAreaView>
     );
   }
   if (open?.results) {
     return (
-      <SafeAreaView style={[styles.fill, { backgroundColor: palette.background }]} edges={['top', 'bottom']}>
+      <SafeAreaView style={[styles.fill, palette.page]} edges={['top', 'bottom']}>
         <ResultsDemo onClose={() => setOpen(null)} />
       </SafeAreaView>
     );
@@ -184,7 +186,7 @@ function Screens() {
   }
   if (open) {
     return (
-      <SafeAreaView style={[styles.fill, { backgroundColor: palette.background }]} edges={['top', 'bottom']}>
+      <SafeAreaView style={[styles.fill, palette.page]} edges={['top', 'bottom']}>
         <CYLSearchView
           style={styles.fill}
           suggestions={SUGGESTIONS}
@@ -206,7 +208,7 @@ function Screens() {
   }
   const current = TABS.find((item) => item.key === tab);
   return (
-    <SafeAreaView style={[styles.fill, { backgroundColor: palette.background }]} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={[styles.fill, palette.page]} edges={['top', 'left', 'right']}>
       <View style={styles.fill}>
         {tab === 'bar' ? <SearchBarDemo /> : tab === 'discover' ? (discoverOpen ? <DiscoverDemo onBack={() => setDiscoverOpen(false)} /> : <DiscoverEntry onOpen={() => setDiscoverOpen(true)} />) : current ? (
           <View style={styles.page}>

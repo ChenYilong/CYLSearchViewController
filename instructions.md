@@ -89,7 +89,7 @@ The content is grouped by tag. Every category below has a short summary; its ful
 
 - A grouped, table-view-like list in a demo or example is shown as CollectionViewClassifyMenu's tag list: tag = main title and icon,
   sections with a titled header, adaptive width, wrapping titles, fold after 3 rows, the fold control is the tail control (the last tag, chevron icon only, no text),
-  tap = cell tap, long press = subtitle bubble, Liquid Glass background. Missing capability: add it to the core first. Skill: `cyl-example-taglist`.
+  tap = cell tap, long press = subtitle bubble, Liquid Glass background over a gradient page (list background clear, rule 7). Missing capability: add it to the core first. Skill: `cyl-example-taglist`.
 - Details: [docs/instructions/example-demos.md](docs/instructions/example-demos.md) (Grouped demo lists use the tag list).
 
 ## Animated components (tag: `animation`)

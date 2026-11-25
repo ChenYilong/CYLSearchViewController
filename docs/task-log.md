@@ -1658,3 +1658,28 @@ begins and becomes `DONE` when it ends.
 
 - Owner instruction (relayed by winsCYLSearchViewController, typed there): "更新taglist所在库的commit采用新的默认样式 repin". ClassifyMenu session built the one SHA `0de4546b3413512b1794fc52d62fd10ba73ce106` (`feat/tag-final-merge` = `feat/tag-section-style` 8cd01cc9 + `feat/fold-tail-default-icon` 0920c9e4, not #38). Tab bar: tip of `feat/harmony-animated-item-engines` `09bde3ca4a965e19be916f216df99b3d1a8c5d17` (40 commits ahead of 230b5266, contains the Rive tint fix 93eca81f). Dealloc unchanged `4276a6da`.
 - Moved in `Podfile`, the Flutter and RN example Podfiles, `android/merged/gradle.properties`, `Podfile.lock`. iOS suite on the new pair (light simulator, clean derived data): 201 tests, 0 failures.
+## DONE (2026-11-25): example pages put a gradient behind the glass tag list; honest per-platform result and core gaps
+
+- Context: owner directive (latest): the tag list's background board uses the Liquid Glass style and the main page background of the demo is a GRADIENT, so the glass's see-through (blur/refraction of the backdrop) can be tested; if the example cannot do it, do not hack, list what the core lacks.
+- Prompt (English): "In the examples, the tag list's background board uses the Liquid Glass style, and the main page background of the whole demo is a gradient colour so that the glass's liquid see-through can be tested. If it cannot be implemented in the example, do not hack around it: list exactly what the core lacks, so the taglist library session can change its core."
+- Done: rule 7 in `docs/instructions/example-demos.md` (plus `AGENTS.md`, `instructions.md`, skill `cyl-example-taglist`). Pins unchanged (ClassifyMenu 05ba8abb).
+- Tests (one batch): Android `:app:assembleDebug :cylsearch:testDebugUnitTest` ok; Flutter `flutter analyze` 6 pre-existing infos, `flutter test` 6 passed, `flutter build apk --debug` ok; React Native `tsc` ok, `jest` 18 passed; mini program `npm test` 0 fail. HarmonyOS not built (DevEco not run in this pass).
+
+| Platform | Gradient page + clear list | Glass tags sample the gradient | Glass board | Status |
+|:---|:---|:---|:---|:---|
+| Android | done: `CYLExamplePage` root and Discover use `cylGradientPageBackground` (light, dark); list background already transparent | NO: tint plus rim only | not in pin | PARTIAL |
+| Flutter | done: `DecoratedBox` gradient + transparent Scaffold/AppBar (demo tab pages) | NO (same Android core view) | not in pin | PARTIAL |
+| HarmonyOS | code only: Examples menu `linearGradient`, transparent nav bar; not built or run | unverified | not in pin | PARTIAL, UNTESTED |
+| React Native | code only: `backgroundImage: linear-gradient(...)` on the root and Discover `SafeAreaView`s; `tsc` ok, not run on a device | unverified; Examples tab is not a tag list | not in pin | PARTIAL, UNTESTED |
+| Mini program | code only: `discoverSearch` page CSS gradient (light, dark); not run in the IDE | NO: Discover tags are hand-written flat CSS, Examples tab is a cell list | not in pin | MISSING |
+
+- Screenshots: ![Android Examples tag list over the gradient, light and dark](assets/android-emu5558-20261125-glass-gradient-light-dark.png) Android emulator-5558, API 37 x86_64, ClassifyMenu 05ba8ab, base commit bd758e9 plus working tree, 2026-11-25 NZDT; the gradient shows through, the tags are a frosted tint with a hairline rim, with no blur or refraction of the gradient.
+  ![Flutter List style tag list over the gradient, light and dark](assets/flutter-android-emu5558-20261125-glass-gradient-light-dark.png) Flutter on Android emulator-5558, API 37 x86_64, ClassifyMenu 05ba8ab, base commit bd758e9 plus working tree, 2026-11-25 NZDT; same result.
+- Core-gap list (CollectionViewClassifyMenu must change the core; nothing is hacked in the examples):
+  1. Android (and the Flutter/RN bridges on Android): `CYLTagButton` never sets `CYLLiquidGlassView.backdropSource`; the default source is the window root, which contains the tag, so `CYLLiquidGlassView.isInside(source)` is true and `onDraw` draws only the tint and a rim (no `backdrop.draw`). Needed: a `backdropSource` property on `CYLTagListView` / `CYLMenuStyle` (a view outside the list, e.g. the gradient page) handed to every tag's glass view, a re-sample on scroll, and a default that picks the nearest ancestor sibling background instead of the window root.
+  2. Glass board (section card) behind a section's tags: only on `feat/tag-section-style` 8cd01cc9, not in pin 05ba8abb on any platform; needs pinning and a `backdropSource` for the board as well.
+  3. Flutter and React Native bridges: no `backdropSource` / backdrop parameter (platform view sits in the Flutter/RN view tree; the native glass cannot see the Flutter-drawn gradient behind a platform view, so the bridge must pass the gradient as a native backdrop or use hybrid composition with a transparent texture). Missing API on both bridges.
+  4. HarmonyOS: core `CYLTagBackgroundStyle.liquidGlass` has no backdrop-sampling property (ArkUI `backgroundBlurStyle`/`foregroundBlurStyle` with a backdrop is not exposed by `CYLMenuStyle`); not verified on device here.
+  5. Mini program: `cyl-tag-list` supports `backgroundStyle: liquidGlass` (CSS tint), but it has no backdrop blur (`backdrop-filter`) property, and the example's Discover/Examples lists do not use `cyl-tag-list` (no subtitle callout or title wrapping), so no glass is shown over the gradient.
+  6. Below Android 12 the flat fallback is expected (no glass drawn).
+- iOS (Mac session): apply the same on the iOS example (gradient page background, clear list background, glass board and tags sampling it); verify that `CYLTagBackgroundStyleLiquidGlass` refracts the gradient.

@@ -265,8 +265,20 @@ class CYLSearchDemoPage extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text(cylExampleText(tab.title))),
+  Widget build(BuildContext context) => DecoratedBox(
+        // A gradient page (docs/instructions/example-demos.md rule 7): the tag list draws no background, so the glass tags sit on the gradient.
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: Theme.of(context).brightness == Brightness.dark
+                ? const <Color>[Color(0xFF1B1F5E), Color(0xFF5B2A86), Color(0xFF0F6E7A)]
+                : const <Color>[Color(0xFF7FB7FF), Color(0xFFFF9EC7), Color(0xFFFFC27A)],
+          ),
+        ),
+        child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(backgroundColor: Colors.transparent, title: Text(cylExampleText(tab.title))),
         // The demos are tags of the core's tag list with its default initialization: as many tags as fit on a row, then the next row. The list brings
         // its own 16 inset, so only the description is padded.
         body: SingleChildScrollView(
@@ -294,6 +306,7 @@ class CYLSearchDemoPage extends StatelessWidget {
               ),
             ],
           ),
+        ),
         ),
       );
 }

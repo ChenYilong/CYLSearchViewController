@@ -2,7 +2,6 @@ package com.cyl.search.example
 
 import android.content.Context
 import android.os.Bundle
-import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.View
@@ -67,10 +66,8 @@ abstract class CYLExamplePage : Fragment() {
         return FrameLayout(context).apply {
             id = View.generateViewId()
             isClickable = true
-            setBackgroundColor(TypedValue().let {
-                context.theme.resolveAttribute(android.R.attr.colorBackground, it, true)
-                it.data
-            })
+            // A gradient page (docs/instructions/example-demos.md rule 7): the glass tags sample it, so a Liquid Glass tag is seen to blur and refract it.
+            background = cylGradientPageBackground(context)
             addView(column, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
         }
     }
@@ -92,4 +89,19 @@ abstract class CYLExamplePage : Fragment() {
     fun snackbar(text: String) {
         view?.let { Snackbar.make(it, text, Snackbar.LENGTH_LONG).show() }
     }
+}
+
+/**
+ * The gradient behind every example page (example-demos.md rule 7): the list on top draws no background, so the gradient shows
+ * through and the Liquid Glass tags have something to blur and refract. Light: blue to pink to orange; dark: indigo to purple to teal.
+ */
+internal fun cylGradientPageBackground(context: Context): android.graphics.drawable.Drawable {
+    val night = (context.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+        android.content.res.Configuration.UI_MODE_NIGHT_YES
+    val colors = if (night) {
+        intArrayOf(0xFF1B1F5E.toInt(), 0xFF5B2A86.toInt(), 0xFF0F6E7A.toInt())
+    } else {
+        intArrayOf(0xFF7FB7FF.toInt(), 0xFFFF9EC7.toInt(), 0xFFFFC27A.toInt())
+    }
+    return android.graphics.drawable.GradientDrawable(android.graphics.drawable.GradientDrawable.Orientation.TL_BR, colors)
 }
