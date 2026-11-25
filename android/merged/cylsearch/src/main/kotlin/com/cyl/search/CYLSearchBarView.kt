@@ -46,6 +46,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.core.content.ContextCompat
 import androidx.core.widget.ImageViewCompat
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.findViewTreeLifecycleOwner
 import com.cyl.classifymenu.CYLControlState
 import com.cyl.classifymenu.CYLEdgeInsets
 import com.cyl.classifymenu.CYLFont
@@ -1154,11 +1158,95 @@ class CYLSearchBarView @JvmOverloads constructor(
         }
         (base as? ComponentActivity)?.onBackPressedDispatcher?.addCallback(multiSearchBackCallback)
         multiSearchBackCallback.isEnabled = mode == CYLSearchBarMode.Multiple && isEditingNewSearch
+        if (focusesOnAppear) {
+            observeAppearLifecycle(base as? LifecycleOwner)
+            focusIfAppearing()
+        }
     }
 
     override fun onDetachedFromWindow() {
+        stopObservingAppearLifecycle()
         multiSearchBackCallback.remove()
         super.onDetachedFromWindow()
+    }
+
+    // MARK: Focus on appear
+
+    /**
+     * Whether the field takes focus (and the soft keyboard shows) every time the bar appears on screen, like a `viewDidAppear`: the
+     * first time its page is entered, after a tab switch or a push and pop (the view is attached again or becomes visible), when the
+     * window regains focus and when the Activity or Fragment resumes (return from the background). Nothing is observed while this is
+     * false. False by default. FILTER (owner, 2026-11-26): only a bar embedded in a toolbar that shows a back button (navigation
+     * icon) focuses; a root tab or a plain bar never auto-focuses, even when this is true.
+     *
+     * The moments come from the view itself (attach, visibility, window focus) and from the lifecycle owner of the view tree
+     * (`ViewTreeLifecycleOwner`, else the host Activity) at ON_RESUME. TODO: CYLDeallocBlockExecutor's Android dependency is deferred
+     * until the library ships an on-screen event; then these callbacks move there (docs/task-log.md, 2026-11-26).
+     */
+    var focusesOnAppear: Boolean = false
+        set(value) {
+            if (field == value) return
+            field = value
+            if (value) {
+                if (isAttachedToWindow) {
+                    observeAppearLifecycle(null)
+                    focusIfAppearing()
+                }
+            } else {
+                stopObservingAppearLifecycle()
+            }
+        }
+
+    private var appearLifecycle: Lifecycle? = null
+    private val appearObserver = object : DefaultLifecycleObserver {
+        override fun onResume(owner: LifecycleOwner) {
+            focusIfAppearing()
+        }
+    }
+
+    private fun observeAppearLifecycle(fallback: LifecycleOwner?) {
+        stopObservingAppearLifecycle()
+        val owner = findViewTreeLifecycleOwner() ?: fallback ?: hostLifecycleOwner() ?: return
+        appearLifecycle = owner.lifecycle.also { it.addObserver(appearObserver) }
+    }
+
+    private fun stopObservingAppearLifecycle() {
+        appearLifecycle?.removeObserver(appearObserver)
+        appearLifecycle = null
+    }
+
+    private fun hostLifecycleOwner(): LifecycleOwner? {
+        var base: Context? = context
+        while (base is ContextWrapper && base !is LifecycleOwner) base = base.baseContext
+        return base as? LifecycleOwner
+    }
+
+    /** True when the bar sits in a toolbar (embedInToolbar) that currently shows a navigation icon, the back button. */
+    private fun hasBackButton(): Boolean {
+        var view: View? = parent as? View
+        while (view != null && view !is androidx.appcompat.widget.Toolbar) view = view.parent as? View
+        return (view as? androidx.appcompat.widget.Toolbar)?.navigationIcon != null
+    }
+
+    /** Focuses the field and shows the keyboard when `focusesOnAppear` is on, the bar is on screen, has a back button and is not editing yet. */
+    private fun focusIfAppearing() {
+        if (!focusesOnAppear) return
+        post {
+            val resumed = appearLifecycle?.currentState?.isAtLeast(Lifecycle.State.RESUMED) != false
+            if (focusesOnAppear && resumed && isAttachedToWindow && isShown && hasBackButton() && textField.isEnabled && !textField.hasFocus()) {
+                showKeyboard()
+            }
+        }
+    }
+
+    override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
+        super.onWindowFocusChanged(hasWindowFocus)
+        if (hasWindowFocus) focusIfAppearing()
+    }
+
+    override fun onVisibilityChanged(changedView: View, visibility: Int) {
+        super.onVisibilityChanged(changedView, visibility)
+        if (visibility == View.VISIBLE) focusIfAppearing()
     }
 
     // QMUI search bar port (docs/qmui-search-controller.md, "Android (Kotlin, android/merged...): QMUI search port")

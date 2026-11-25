@@ -141,6 +141,12 @@ void main() {
   });
 
   group('CYLSearchBarView', () {
+    test('focusesOnAppear is off by default and travels in the parameters', () {
+      expect(const CYLSearchBarView().focusesOnAppear, false);
+      expect(cylSearchBarViewParameters(const CYLSearchBarView())['focusesOnAppear'], false);
+      expect(cylSearchBarViewParameters(const CYLSearchBarView(focusesOnAppear: true))['focusesOnAppear'], true);
+    });
+
     test('sends its parameters and forwards its events', () {
       final events = <String>[];
       final bar = CYLSearchBarView(
@@ -165,6 +171,7 @@ void main() {
             'searchBarStyle': 'plain',
             'showsSearchIcon': true,
             'navigationFieldStyle': false,
+            'focusesOnAppear': false,
             'items': <Object?>[],
             'editingBar': false,
             'actionTitle': null,

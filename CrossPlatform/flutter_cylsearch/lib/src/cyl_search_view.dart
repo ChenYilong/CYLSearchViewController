@@ -786,6 +786,7 @@ class CYLSearchBarView extends StatefulWidget {
     this.searchBarStyle = CYLSearchBarStyle.plain,
     this.showsSearchIcon = true,
     this.navigationFieldStyle = false,
+    this.focusesOnAppear = false,
     this.embedsInNavigationBar = false,
     this.showsBackButton = false,
     this.onBackPressed,
@@ -921,6 +922,13 @@ class CYLSearchBarView extends StatefulWidget {
   /// [fieldShadowOpacity] and [showsSearchIcon].
   final bool navigationFieldStyle;
 
+  /// The field focuses itself (and the keyboard shows) every time the bar appears on screen, like a `viewDidAppear`: the first
+  /// entry, a tab switch, a push and pop and the return from the background. The native core handles attach, visibility and
+  /// resume; this widget adds the route (the route above this one was popped) and [AppLifecycleState.resumed] by sending a
+  /// `focus` call. Android filter (owner, 2026-11-26): only a bar embedded in a navigation bar that shows a back button
+  /// ([embedsInNavigationBar] with [showsBackButton]) focuses; a root tab or a plain bar never does. Default false.
+  final bool focusesOnAppear;
+
   /// The bar sits in a navigation bar the core creates (`CYLSearchNavigationBar`, 44 pt high, the field 36 pt) instead of
   /// being a plain view: the page always has its search bar in a navigation bar. Place it as the `Scaffold.appBar` of
   /// a `PreferredSize` 44 pt high. Read when the platform view is created. Default false.
@@ -965,16 +973,42 @@ class CYLSearchBarView extends StatefulWidget {
   State<CYLSearchBarView> createState() => _CYLSearchBarViewState();
 }
 
-class _CYLSearchBarViewState extends State<CYLSearchBarView> {
+class _CYLSearchBarViewState extends State<CYLSearchBarView> with WidgetsBindingObserver {
   MethodChannel? _channel;
   late bool _showsLeading = widget.showsLeadingView;
   late bool _showsTrailing = widget.showsTrailingAccessoryViews;
   bool _animatesAccessories = false;
+  Animation<double>? _secondaryAnimation;
 
   @override
   void initState() {
     super.initState();
     widget.controller?.addListener(_controllerChanged);
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  // focusesOnAppear: the return from the background.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) _focusIfAppearing();
+  }
+
+  // focusesOnAppear: the route above this one was popped (its secondary animation is dismissed again).
+  void _secondaryAnimationStatus(AnimationStatus status) {
+    if (status == AnimationStatus.dismissed) _focusIfAppearing();
+  }
+
+  void _watchRoute() {
+    final animation = ModalRoute.of(context)?.secondaryAnimation;
+    if (animation == _secondaryAnimation) return;
+    _secondaryAnimation?.removeStatusListener(_secondaryAnimationStatus);
+    _secondaryAnimation = animation?..addStatusListener(_secondaryAnimationStatus);
+  }
+
+  void _focusIfAppearing() {
+    if (!widget.focusesOnAppear || !mounted) return;
+    if (ModalRoute.of(context)?.isCurrent == false) return;
+    _channel?.invokeMethod<void>('focus');
   }
 
   void _controllerChanged() {
@@ -1019,11 +1053,14 @@ class _CYLSearchBarViewState extends State<CYLSearchBarView> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _watchRoute();
     _channel?.invokeMethod<void>('update', _parameters);
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _secondaryAnimation?.removeStatusListener(_secondaryAnimationStatus);
     widget.controller?.removeListener(_controllerChanged);
     widget.controller?.attach(null);
     _channel?.setMethodCallHandler(null);
@@ -1122,6 +1159,7 @@ Map<String, Object?> cylSearchBarViewParameters(CYLSearchBarView widget, {Bright
       'searchBarStyle': widget.searchBarStyle.name,
       'showsSearchIcon': widget.showsSearchIcon,
       'navigationFieldStyle': widget.navigationFieldStyle,
+      'focusesOnAppear': widget.focusesOnAppear,
       'embedsInNavigationBar': widget.embedsInNavigationBar,
       'showsBackButton': widget.showsBackButton,
       'items': widget.items.map((item) => item.toMap()).toList(),

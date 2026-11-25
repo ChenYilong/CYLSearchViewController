@@ -58,6 +58,9 @@ class CylsearchBarViewManager : SimpleViewManager<CylsearchBarView>(), Cylsearch
   @ReactProp(name = "navigationFieldStyle", defaultBoolean = false)
   override fun setNavigationFieldStyle(view: CylsearchBarView, value: Boolean) { view.navigationFieldStyle = value }
 
+  @ReactProp(name = "focusesOnAppear", defaultBoolean = false)
+  override fun setFocusesOnAppear(view: CylsearchBarView, value: Boolean) { view.bar.focusesOnAppear = value }
+
   @ReactProp(name = "showsSearchIcon", defaultBoolean = true)
   override fun setShowsSearchIcon(view: CylsearchBarView, value: Boolean) {
     view.bar.searchIcon = if (value) ContextCompat.getDrawable(view.context, com.cyl.search.R.drawable.cyl_search_ic_search) else null
