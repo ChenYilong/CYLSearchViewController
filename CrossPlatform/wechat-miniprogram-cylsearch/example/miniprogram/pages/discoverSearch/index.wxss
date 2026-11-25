@@ -1,4 +1,4 @@
-.screen { position: relative; display: flex; flex-direction: column; height: 100vh; background: #fff; overflow: hidden; }
+.screen { position: relative; display: flex; flex-direction: column; height: 100vh; background: linear-gradient(135deg, #7fb7ff, #ff9ec7, #ffc27a); overflow: hidden; }
 .bar { display: block; width: 100%; }
 .playback { flex: none; margin: 4px 16px 0; display: flex; align-items: center; height: 36px; }
 .playback-switch { flex: none; transform: scale(0.75); transform-origin: left center; width: 52px; }
@@ -27,7 +27,7 @@
 .icon-chevron-up { transform: rotate(180deg); }
 .icon-mic { background-color: #ff3b30; -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect x='8.5' y='2' width='7' height='13' rx='3.5' fill='black'/><path d='M5 11a7 7 0 0 0 14 0M12 18v3.5' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect x='8.5' y='2' width='7' height='13' rx='3.5' fill='black'/><path d='M5 11a7 7 0 0 0 14 0M12 18v3.5' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'/></svg>"); }
 @media (prefers-color-scheme: dark) {
-  .screen { background: #000; }
+  .screen { background: linear-gradient(135deg, #1b1f5e, #5b2a86, #0f6e7a); }
   .header-title { color: #fff; }
   .playback-value { color: rgba(235, 235, 245, 0.6); }
   .tag { background: #000; color: #fff; border-color: #38383a; }

@@ -17,4 +17,5 @@ Full rule: [docs/instructions/example-demos.md](../../../docs/instructions/examp
    tag list's long-press API.
 5. A missing capability is added to the core or bridge first, never worked around in the example (`cyl-fix-in-core`).
 6. The tag list uses the Liquid Glass background through the core's one parameter (`backgroundStyle` `liquidGlass`), no custom fills.
-7. Build and screenshot the page before reporting (`cyl-verify`).
+7. Put a gradient behind the glass tag list (page background gradient, list background clear; example-demos.md rule 7).
+8. Build and screenshot the page before reporting (`cyl-verify`).

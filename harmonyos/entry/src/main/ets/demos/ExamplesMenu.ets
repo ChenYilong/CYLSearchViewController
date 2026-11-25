@@ -204,7 +204,7 @@ export struct ExamplesMenuView {
 
   build() {
     Column() {
-      CYLDemoNavBar({ title: cylDemoText(this.context, 'demo.title'), barColor: $r('sys.color.background_secondary') })
+      CYLDemoNavBar({ title: cylDemoText(this.context, 'demo.title'), barColor: Color.Transparent })
       this.svgaHeader()
       Scroll() {
         CYLTagListView({ tagList: this.menuList }).width('100%').height(this.menuHeight).id('CYLDemoExamplesTags')
@@ -215,7 +215,8 @@ export struct ExamplesMenuView {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor($r('sys.color.background_secondary'))
+    // A gradient page (docs/instructions/example-demos.md rule 7); the tag list draws no background, so the glass tags sit on it.
+    .linearGradient({ angle: 135, colors: [['#7FB7FF', 0.0], ['#FF9EC7', 0.5], ['#FFC27A', 1.0]] })
   }
 }
 

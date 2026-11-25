@@ -358,7 +358,7 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
         reloadLists()
         return LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(pageBackground(context))
+            background = cylGradientPageBackground(context)
             // The page takes the first focus, so the keyboard stays down until the field is tapped (as on iOS).
             isFocusableInTouchMode = true
             descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS
