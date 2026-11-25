@@ -163,9 +163,11 @@ Details of the `core` tag of [AGENTS.md](../../AGENTS.md) and [instructions.md](
      the delegate `searchBarViewSearchButtonClicked` also for empty text. Every platform exposes the same names.
   6. Keyboard life cycle of the bar itself (owner, 2026-11-26): the bar manages it as the smallest component, so it works in every
      container. The keyboard has the Search key (`returnKeyType = .search`). `focusesOnAppear` (off by default) focuses the field
-     every time the bar appears on screen (first entry, tab switch, push and pop, return from the background).
+     every time the bar appears on screen (first entry of a pushed page, push and pop, return from the background), but only while the
+     bar is in a navigation bar that currently shows a back button: a root tab page or a plain bar never focuses (owner decision
+     2026-11-26, relayed by the Windows session; `CYLSearchBarView.isInNavigationBarWithBackButton`).
      `dismissesKeyboardOnOutsideTouch` (on by default; never for an editing bar) hides the keyboard for a touch anywhere in the
      window outside the bar, which includes the start of every finger scroll in any container. Both come from CYLDeallocBlockExecutor's
-     life cycle events (`didEnterScreen`, `didBecomeActiveOnScreen`, `didTouchOutside`, library PR #29); the core's podspec depends on it
+     life cycle events (`didEnterScreen`, `appDidBecomeActiveOnScreen` (library PR #30), `didTouchOutside` (library PR #29, on top of #30)); the core's podspec depends on it
      and every platform's pin must name the same commit. Other platforms use their own ports of those events.
 - Skill: `cyl-search-field`. Per-platform status: `docs/task-log.md`, entry "no system search bar on any platform".

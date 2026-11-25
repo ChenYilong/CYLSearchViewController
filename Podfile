@@ -23,7 +23,7 @@ target 'CYLSearchExample' do
   # engines it plays (docs/animated-icon-component.md).
   pod 'CYLAnimatedItem', :subspecs => ['Core', 'SVGA', 'LottieSwift'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '08343e9f76d609e1a8c0b45c01fd31a0b7a1e5bc'
   # CYLTabBarController's badge needs CYLDeallocBlockExecutor 1.4, not on the trunk yet (as CollectionViewClassifyMenu's Podfile).
-  pod 'CYLDeallocBlockExecutor', :git => 'https://github.com/ChenYilong/CYLDeallocBlockExecutor.git', :commit => '775fc2f67ba34eabbc17d6a9fbd941e4b1742399'
+  pod 'CYLDeallocBlockExecutor', :git => 'https://github.com/ChenYilong/CYLDeallocBlockExecutor.git', :commit => 'eab21d10f8e80ccee67e6e74271cd5bc6ff9a50e'
 
   target 'CYLSearchExampleTests' do
     inherit! :search_paths

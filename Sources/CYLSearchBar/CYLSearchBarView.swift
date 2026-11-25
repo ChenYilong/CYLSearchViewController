@@ -1582,8 +1582,9 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
 
     /**
      * Whether the field takes focus (and the keyboard, with the search key, shows) every time the bar appears on screen, like a
-     * `viewDidAppear`: the first time its page is entered, after a switch of tab bar tab or a push and pop, and after the app
-     * returns from the background. The moments are CYLDeallocBlockExecutor's `didEnterScreen` and `didBecomeActiveOnScreen` of this
+     * `viewDidAppear`: the first time its page is entered, after a push and pop, and after the app returns from the background, but
+     * only while the bar is in a navigation bar that shows a back button (`isInNavigationBarWithBackButton`): a root tab page never
+     * focuses. The moments are CYLDeallocBlockExecutor's `didEnterScreen` and `appDidBecomeActiveOnScreen` of this
      * view, so it works in every container; during a screen transition the focus waits for the transition to end. Nothing is
      * observed while this is NO. NO by default.
      */
@@ -1592,7 +1593,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
             guard focusesOnAppear != oldValue else { return }
             if focusesOnAppear {
                 cylAddLifecycleCallback(for: .didEnterScreen, key: Self.focusOnAppearKey) { bar, _, _ in bar.focusIfAppearing() }
-                cylAddLifecycleCallback(for: .didBecomeActiveOnScreen, key: Self.focusOnActiveKey) { bar, _, _ in bar.focusIfAppearing() }
+                cylAddLifecycleCallback(for: .appDidBecomeActiveOnScreen, key: Self.focusOnActiveKey) { bar, _, _ in bar.focusIfAppearing() }
                 if isOnScreenNow { focusIfAppearing() }
             } else {
                 cylCancelLifecycleCallback(key: Self.focusOnAppearKey)
@@ -1605,8 +1606,37 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         window != nil && !isHidden && alpha > 0.01
     }
 
+    /**
+     * Whether the bar sits in a navigation bar that currently shows a back button (a pushed page; owner decision 2026-11-26: only
+     * such a bar focuses itself on appearing, a root tab page or a plain bar never does, even with `focusesOnAppear`). A navigation
+     * controller shows one when it holds more than one view controller, the top one does not hide it and has no left items of its
+     * own (or lets them supplement it); a `CYLSearchNavigationBar` made with `showsBackButton` shows one when it holds two items.
+     */
+    var isInNavigationBarWithBackButton: Bool {
+        guard isEmbeddedInNavigationBar else { return false }
+        var responder: UIResponder? = self
+        var controller: UINavigationController?
+        var coreBar: CYLSearchNavigationBar?
+        while let current = responder {
+            if let found = current as? CYLSearchNavigationBar {
+                coreBar = found
+                break
+            }
+            if let found = current as? UINavigationController {
+                controller = found
+                break
+            }
+            responder = current.next
+        }
+        if let coreBar { return (coreBar.items?.count ?? 0) > 1 }
+        guard let controller, controller.viewControllers.count > 1, let item = controller.topViewController?.navigationItem else {
+            return false
+        }
+        return !item.hidesBackButton && ((item.leftBarButtonItems ?? []).isEmpty || item.leftItemsSupplementBackButton)
+    }
+
     private func focusIfAppearing() {
-        guard focusesOnAppear, window != nil, textField.isEnabled else { return }
+        guard focusesOnAppear, window != nil, textField.isEnabled, isInNavigationBarWithBackButton else { return }
         var responder: UIResponder? = self
         var controller: UIViewController?
         while let current = responder {
@@ -1930,6 +1960,9 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
 
     override public func layoutSubviews() {
         super.layoutSubviews()
+        // A bar in a navigation bar is a system-owned view: CYLDeallocBlockExecutor re-evaluates its on-screen state only at window
+        // moves, when a pushed page's bar may still be off screen. Ask again after every layout while it waits to focus.
+        if focusesOnAppear, window != nil { cylRefreshScreenState() }
         if mode == .multiple {
             // The searches take the whole height; the field and its buttons are hidden.
             let width = max(0, bounds.width - contentInsets.left - contentInsets.right)

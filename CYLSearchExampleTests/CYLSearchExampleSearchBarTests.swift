@@ -892,41 +892,49 @@ extension CYLSearchExampleSearchBarTests {
 
     // MARK: - Focus on appear
 
-    /// `focusesOnAppear`: the field takes focus when the bar is on screen, and again every time it reappears (a tab switch or a
-    /// push and pop remove the view from the window); nothing happens while the option is off. The moments come from
-    /// CYLDeallocBlockExecutor's `didEnterScreen`.
+    /// `focusesOnAppear`: only a bar in a navigation bar that shows a back button takes focus, when it is on screen and every time it
+    /// reappears (a push and pop remove its view from the window); a root page never focuses; nothing happens while the option is
+    /// off. The moments come from CYLDeallocBlockExecutor's `didEnterScreen`.
+    @MainActor
     func testFocusesOnAppearEveryTimeTheBarReappears() {
         let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
-        let host = UIViewController()
-        window.rootViewController = host
+        let root = UIViewController()
+        let navigation = UINavigationController(rootViewController: root)
+        window.rootViewController = navigation
         window.makeKeyAndVisible()
-        let bar = CYLSearchBarView(frame: CGRect(x: 0, y: 100, width: 402, height: 56))
-        host.view.addSubview(bar)
+        // A root page: the bar in its navigation bar has no back button, so the option does nothing.
+        let rootBar = CYLSearchBarView()
+        rootBar.embedInNavigationBar(of: root)
         runLoop(0.3)
-        XCTAssertFalse(bar.focusesOnAppear)
-        XCTAssertFalse(bar.textField.isFirstResponder, "off by default: no focus")
-        bar.focusesOnAppear = true
-        runLoop(0.3)
-        XCTAssertTrue(bar.textField.isFirstResponder, "on screen when the option turns on: focus")
-        // Disappear (the view leaves the window as in a tab switch) and reappear.
-        bar.textField.resignFirstResponder()
-        bar.removeFromSuperview()
-        runLoop(0.3)
-        XCTAssertFalse(bar.textField.isFirstResponder)
-        host.view.addSubview(bar)
+        rootBar.focusesOnAppear = true
         runLoop(0.4)
+        XCTAssertFalse(rootBar.isInNavigationBarWithBackButton)
+        XCTAssertFalse(rootBar.textField.isFirstResponder, "a root page never focuses")
+        // A pushed page: back button shown, the bar focuses on entering and again when the page reappears.
+        let page = UIViewController()
+        let bar = CYLSearchBarView()
+        navigation.pushViewController(page, animated: false)
+        bar.embedInNavigationBar(of: page)
+        bar.focusesOnAppear = true
+        runLoop(0.6)
+        XCTAssertTrue(bar.isInNavigationBarWithBackButton)
+        XCTAssertTrue(bar.textField.isFirstResponder, "a pushed page focuses on entering")
+        let another = UIViewController()
+        navigation.pushViewController(another, animated: false)
+        runLoop(0.6)
+        bar.textField.resignFirstResponder()
+        navigation.popViewController(animated: false)
+        runLoop(0.6)
         XCTAssertTrue(bar.textField.isFirstResponder, "reappears: focus again")
-        // The option off: a reappearance does not focus.
         bar.focusesOnAppear = false
         bar.textField.resignFirstResponder()
-        bar.removeFromSuperview()
-        runLoop(0.2)
-        host.view.addSubview(bar)
+        navigation.pushViewController(UIViewController(), animated: false)
         runLoop(0.4)
+        navigation.popViewController(animated: false)
+        runLoop(0.6)
         XCTAssertFalse(bar.textField.isFirstResponder, "option off: no focus")
         window.isHidden = true
     }
-
 
     // MARK: - Default search button
 
