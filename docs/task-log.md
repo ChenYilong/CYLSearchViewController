@@ -1566,3 +1566,11 @@ begins and becomes `DONE` when it ends.
 - **Done**: the bar's default placeholder color is `.secondaryLabel` (was `.placeholderText`); a placeholder assigned to the bar's text field directly (the Discover example does) is forwarded to the bar's label (`CYLSearchBarTextField`), so the system's dim placeholder is not drawn: Discover's brightest placeholder pixel 70 -> 141. iOS suite 201/0.
 - **Not done**: the animated camera icon of the Discover bar keeps the Lottie file's fixed near-black (28): `#tint=title` on the item's animationURL had no effect (tried and reverted); a CYLAnimatedItem default needs the ClassifyMenu/CYLTabBarController owner's decision (asked). The plus button title is dim gray (CYLTabBarController default, reported). The example's own sync button and "Manage" link are not search bar parts. Repin: none (the search bar core is this repository).
 - **Status**: DONE for the placeholder; camera icon open.
+
+## Search bar icon in dark mode, repin CYLTabBarController (2026-11-25, Mac session)
+
+- **Prompt (verbatim)**: "repin cyltabbar test this page in dark mode /tmp/xpr/s-discover-dark-v2.png to look at icon in searchbar". 
+- ![Discover in dark mode, before and after: the search bar camera icon](assets/ios-iphone-sim-ios27.2-20261125-discover-dark-searchbar-icon.png) iOS, iPhone simulator, iOS 27.2, Xcode 27.2; commit 41f2d98, 2026-11-25.
+- **Done**: CYLTabBarController pinned to ff33eb85 (Podfiles, `cyl.tabbar.commit`; ClassifyMenu stays ca04a77); the search bar core sets `animationTint` and `animationDarkTint` (fixed #RRGGBBAA per appearance, from the item's dynamic tint) on every item, no example change. Fresh launch dark: the camera icon is white (was near-black 28); fresh launch light: black. iOS suite 201/0.
+- **Found, for the library**: `animationTint = "title"` did NOT recolor an item's Lottie (icon stayed near-black), a fixed "#FF0000" did; switching light/dark while the app runs leaves the icon in the old appearance's color (white on white after dark to light), and re-setting the tint in the core on a trait change removed the icon, so it was dropped.
+- **Status**: DONE for fresh launches; live appearance switching open (library).
