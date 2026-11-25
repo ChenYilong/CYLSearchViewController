@@ -18,6 +18,7 @@ using namespace facebook::react;
 @implementation CylsearchBarView {
   CYLSearchBarView *_bar;
   CYLSearchNavigationBar *_navigationBar;
+  BOOL _navigationBarShowsBackButton;
   NSString *_itemsJSON;
   NSArray<NSString *> *_searches;
   BOOL _applyingSearches;
@@ -79,10 +80,18 @@ using namespace facebook::react;
 - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &)oldProps
 {
   const auto &p = *std::static_pointer_cast<CylsearchBarViewProps const>(props);
+  if (_navigationBar && (!p.embedsInNavigationBar || _navigationBarShowsBackButton != (BOOL)p.showsBackButton)) {
+    // A recycled view (Fabric reuses the Discover bar's view for another field) or new props: no navigation bar, or
+    // the other back button. Start again from a plain bar, as at init; the lines below embed it again when asked.
+    _navigationBar.backHandler = nil;
+    _navigationBar = nil;
+    [self useEditingBar:NO placeholder:nil actionTitle:nil];
+  }
   if (p.embedsInNavigationBar && !_navigationBar) {
     // The page's search bar always sits in a navigation bar: the core's, with the bar as its title view, and the back
     // button of a second-level page when asked (a tap goes to JavaScript, which closes the page).
     _navigationBar = [CYLSearchNavigationBar navigationBarHoldingSearchBar:_bar showsBackButton:p.showsBackButton];
+    _navigationBarShowsBackButton = p.showsBackButton;
     __weak __typeof(self) weakSelf = self;
     _navigationBar.backHandler = ^{
       __strong __typeof(weakSelf) strongSelf = weakSelf;
