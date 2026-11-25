@@ -213,9 +213,9 @@ class _CYLContactRemarkPageState extends State<CYLContactRemarkPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.transparent,
           surfaceTintColor: Colors.white,
           actions: <Widget>[
             TextButton(
@@ -422,9 +422,9 @@ class _CYLContactTagEditorPageState extends State<CYLContactTagEditorPage> {
         ? (results.isEmpty ? 'noMatch' : null)
         : (_store.tags.isEmpty ? 'noTags' : null);
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.white,
         centerTitle: true,
         title: Text(cylContactText('editTags'), style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
@@ -687,9 +687,9 @@ class CYLContactListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final contacts = store.contacts.where((contact) => contact.tags.contains(tagID)).toList();
     return Scaffold(
-      backgroundColor: const Color(0xFFF2F2F7),
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF2F2F7),
+        backgroundColor: Colors.transparent,
         centerTitle: true,
         title: Text(cylContactText('contactsTitle', <Object>[store.title(tagID), contacts.length]),
             style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),

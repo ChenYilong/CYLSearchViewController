@@ -150,12 +150,31 @@ class CYLSearchExampleApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MaterialApp(
         title: 'CYLSearch',
-        theme: ThemeData(colorSchemeSeed: const Color(0xFF007AFF), useMaterial3: true),
+        theme: _clearTheme(ThemeData(colorSchemeSeed: const Color(0xFF007AFF), useMaterial3: true)),
         // Follows the system appearance, so the native views (which take the Flutter brightness) show dark mode too.
-        darkTheme: ThemeData(colorSchemeSeed: const Color(0xFF007AFF), useMaterial3: true, brightness: Brightness.dark),
+        darkTheme: _clearTheme(ThemeData(colorSchemeSeed: const Color(0xFF007AFF), useMaterial3: true, brightness: Brightness.dark)),
+        // The gradient page of every example page (docs/instructions/example-demos.md rule 7), on every platform: the scaffolds and app bars are clear.
+        builder: (context, child) => DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: Theme.of(context).brightness == Brightness.dark
+                  ? const <Color>[Color(0xFF1B1F5E), Color(0xFF5B2A86), Color(0xFF0F6E7A)]
+                  : const <Color>[Color(0xFF7FB7FF), Color(0xFFFF9EC7), Color(0xFFFFC27A)],
+            ),
+          ),
+          child: child,
+        ),
         home: CYLSearchTabs(tabBarConfiguration: tabBarConfiguration),
       );
 }
+
+/// The theme with a clear scaffold and app bar, so the app's gradient shows on every page.
+ThemeData _clearTheme(ThemeData theme) => theme.copyWith(
+      scaffoldBackgroundColor: Colors.transparent,
+      appBarTheme: const AppBarTheme(backgroundColor: Colors.transparent, surfaceTintColor: Colors.transparent, elevation: 0),
+    );
 
 /// The tab bar and the page of the selected tab.
 class CYLSearchTabs extends StatefulWidget {
