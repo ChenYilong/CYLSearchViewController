@@ -248,11 +248,7 @@ final class CYLSearchDiscoverViewController: UIViewController {
     private func setUpSearchBar() {
         // A white capsule with a soft shadow, no magnifier: the camera and the 搜索 button sit inside it.
         searchBar.delegate = self
-        searchBar.searchIcon = nil
-        searchBar.searchBarStyle = .bordered
-        searchBar.fieldCornerRadius = 18
-        searchBar.fieldShadowOpacity = 0.06
-        searchBar.font = UIFontMetrics(forTextStyle: .body).scaledFont(for: .systemFont(ofSize: 16))
+        searchBar.applyNavigationFieldStyle()
         searchField.accessibilityLabel = cylDiscoverText("discover.search")
         searchField.accessibilityIdentifier = "CYLSearchDiscoverField"
 

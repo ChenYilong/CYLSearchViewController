@@ -10,6 +10,7 @@
 
 import UIKit
 import CollectionViewClassifyMenu
+import CYLSearchViewController
 import CYLTableViewPlaceHolder
 
 /**
@@ -31,7 +32,8 @@ final class CYLContactRemarkViewController: UIViewController {
      * The large title, the remark name and the tags.
      */
     let titleLabel = UILabel()
-    let nameField = UITextField()
+    let nameBar = CYLSearchBarView()
+    var nameField: UITextField { nameBar.textField }
     let tagsView = CYLTagListView()
 
     /**
@@ -68,15 +70,12 @@ final class CYLContactRemarkViewController: UIViewController {
         titleLabel.numberOfLines = 0
         titleLabel.accessibilityTraits = .header
 
-        nameField.placeholder = cylContactTagsText("remarkName")
+        // The remark name is typed in the core's navigation bar field (the Discover page's look): no field of its own.
+        nameBar.applyNavigationFieldStyle()
+        nameBar.placeholder = cylContactTagsText("remarkName")
+        nameBar.returnKeyType = .done
         nameField.accessibilityLabel = cylContactTagsText("remarkName")
-        nameField.font = .preferredFont(forTextStyle: .body)
-        nameField.adjustsFontForContentSizeCategory = true
-        nameField.borderStyle = .none
-        nameField.backgroundColor = .systemGray6
-        nameField.layer.cornerRadius = 8
-        nameField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 1))
-        nameField.leftViewMode = .always
+        nameField.accessibilityIdentifier = "CYLContactRemarkNameField"
 
         // The chosen tags, display only (taps open the editor). "Tags >" is the list's own title view.
         tagsView.title = cylContactTagsText("tags")
@@ -105,20 +104,17 @@ final class CYLContactRemarkViewController: UIViewController {
         tagsView.menuDelegate = self
         tagsView.accessibilityIdentifier = "CYLContactRemarkTags"
 
-        for subview in [titleLabel, nameField, tagsView] as [UIView] {
+        for subview in [titleLabel, tagsView] as [UIView] {
             subview.translatesAutoresizingMaskIntoConstraints = false
             view.addSubview(subview)
         }
+        nameBar.embedInNavigationBar(of: self)
         let guide = view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: guide.topAnchor, constant: 32),
             titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            nameField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 36),
-            nameField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            nameField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            nameField.heightAnchor.constraint(greaterThanOrEqualToConstant: 48),
-            tagsView.topAnchor.constraint(equalTo: nameField.bottomAnchor, constant: 12),
+            tagsView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 36),
             tagsView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tagsView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             // Its height is its intrinsic content height (CYLTagListView.contentHeight).

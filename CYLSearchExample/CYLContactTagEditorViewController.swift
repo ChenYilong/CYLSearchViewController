@@ -262,6 +262,7 @@ final class CYLContactTagEditorViewController: UIViewController {
         doneButton.addTarget(self, action: #selector(done), for: .touchUpInside)
 
         // The search field is CYLSearchBarView: its delegate reports each change and the search key.
+        searchBar.applyNavigationFieldStyle()
         searchBar.placeholder = cylContactTagsText("search")
         searchBar.textField.accessibilityLabel = cylContactTagsText("searchTags")
         searchBar.accessibilityIdentifier = "CYLContactTagsSearchBar"

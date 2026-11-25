@@ -43,6 +43,14 @@ final class CYLSearchExampleContactTagsTests: CYLSearchExampleTestCase {
             hasSearchBar = hasSearchBar || subview is CYLSearchBarView
         }
         XCTAssertTrue(hasSearchBar, "the editor searches with CYLSearchBarView")
+        // One shared look: the remark name (in the navigation bar) and the editor's search use the core's navigation field
+        // style, the Discover page's bordered capsule, not a field of their own.
+        XCTAssertTrue(remark.navigationItem.titleView === remark.nameBar, "the remark name is the core's bar in the navigation bar")
+        for bar in [remark.nameBar, editor.searchBar] {
+            XCTAssertEqual(bar.searchBarStyle, .bordered)
+            XCTAssertEqual(bar.fieldCornerRadius, 18)
+            XCTAssertNil(bar.searchIcon)
+        }
         let sections = editor.numberOfSectionsInMenu()
         XCTAssertEqual(sections, 2, "Recent and My Tags")
         let mine = editor.menuNumberOfItems(inSection: 1)

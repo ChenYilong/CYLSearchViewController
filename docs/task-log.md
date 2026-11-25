@@ -1844,3 +1844,18 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 - Result: host logic tests pass; `entry@emulator` and `entry@ohosTest` (emulatorTest) build; `aa test` on the emulator
   127.0.0.1:5555 (idle: no app or test process, not started by this session, left running): Tests run: 57, Failure: 0,
   Error: 0, Pass: 57. The app was force-stopped afterwards.
+
+## TODO (2026-11-26): one search bar component for the navigation bar's field (Discover look in the core)
+
+- Prompt (verbatim): "测试发现的 问题如下：search bar没有使用统一的searchbar组件，而是大量重复组件。 我确认下面的截图中至少存在两个searchbar 组件。第一个是符合预期的/tmp/xpr/run/s-disc-light.png  这个searchbar代码应该封装在core核心代码中，因为他完成了用stackview制作最外层组件，拥有分隔符，能适配暗黑模式。先确保该seachbar 是在core中，然后迁移下面两个的searchbar实现：复用该组件，不要采用多个seachbar实现。    /tmp/xpr/run/s-rem-dark.png /tmp/xpr/run/s-rem-dark.png  注意这里我说的searchbar指的是导航栏顶部的搜索输入框包括输入框边框。边框以外的区域并你在本次修改范围"
+- Prompt (English): "Testing found a problem: the search bar does not use one shared search bar component, there are many duplicated ones. I confirm at least two search bar components in the screenshots below. The first, /tmp/xpr/run/s-disc-light.png, is as expected; its code should live in the core, because it is built with a stack view as the outermost component, has a divider and adapts to dark mode. First make sure that search bar is in the core, then migrate the two below to it: reuse the component, do not use several search bar implementations. (/tmp/xpr/run/s-rem-dark.png, twice.) By search bar I mean the input box at the top of the navigation bar, including the box's border. The area outside the border is not in the scope of this change."
+- Finding: `CYLSearchBarView` (stack view, divider, dark mode) is in the core, but the Discover LOOK (bordered capsule, radius 18, soft shadow, no magnifier, 16 pt) was set in the example (`setUpSearchBar`), while the contact remark screen used a plain `UITextField` (grey fill) and the tag editor a default-styled bar.
+- Plan: core preset `CYLSearchBarView.applyNavigationFieldStyle()` (+ ObjC name); Discover, remark name field and tag editor search call it; static code, one test batch.
+
+## DONE (2026-11-26): one core search field for the navigation bar (iOS)
+
+- Core: `CYLSearchBarView.applyNavigationFieldStyle()` (`Sources/CYLSearchBar/CYLSearchNavigationBar.swift`, ObjC `applyNavigationFieldStyle`): bordered capsule (radius 18), soft shadow, no magnifier, 16 pt Dynamic Type text, opaque white/black fill. The Discover look was example code before; now the example only calls it.
+- Migrated: Discover (`setUpSearchBar`), the remark name (a plain grey `UITextField` before, now a `CYLSearchBarView` embedded with `embedInNavigationBar(of:)`; `nameField` stays as its text field), the Edit Tags search (`searchBar`). Only the field and its border changed.
+- Found on the way: in the sheet the Edit Tags field was see-through in dark mode with the default fill; the preset's opaque fill fixed it.
+- Test: `testContactTagsDemo...` asserts the remark title view is the core bar and both bars are bordered, radius 18, no icon. Full suite 201 tests, 0 failures. Screenshot: [one field, three screens](assets/ios-iphone18pro-sim-ios27.2-20261126-one-navigation-search-field-stitched.png).
+- Not changed (outside "the navigation bar's input box"): the editing bar (`editingBar`), the search bar demos' own styles, other platforms (the Android/HarmonyOS/Flutter/RN/mini program fields were not looked at; no peer asked).

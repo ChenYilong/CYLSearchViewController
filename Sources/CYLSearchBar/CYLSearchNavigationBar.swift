@@ -124,3 +124,23 @@ extension CYLSearchBarView {
         return navigationBar
     }
 }
+
+extension CYLSearchBarView {
+
+    /**
+     * The look of the input box of a navigation bar, the one every screen uses: a bordered capsule (`.bordered`, corner
+     * radius 18) with a soft shadow, an opaque white (light) or black (dark) fill, no magnifier, 16 pt text that scales with Dynamic Type. The border, the divider
+     * and the items (a camera, a search button) adapt to light and dark mode as in the core's bar. Call it before
+     * `addItem(_:)` and `embedInNavigationBar(of:)`; items, text and delegate stay the caller's.
+     */
+    @objc(applyNavigationFieldStyle)
+    public func applyNavigationFieldStyle() {
+        searchIcon = nil
+        searchBarStyle = .bordered
+        fieldCornerRadius = 18
+        fieldShadowOpacity = 0.06
+        // An opaque fill in both modes (white, black) on any page: a sheet's elevated trait or a gradient never shows through.
+        fieldBackgroundColor = UIColor { $0.userInterfaceStyle == .dark ? .black : .white }
+        font = UIFontMetrics(forTextStyle: .body).scaledFont(for: .systemFont(ofSize: 16))
+    }
+}
