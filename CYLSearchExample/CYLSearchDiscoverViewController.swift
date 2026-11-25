@@ -265,14 +265,11 @@ final class CYLSearchDiscoverViewController: UIViewController {
         camera.animationLoops = false
         camera.animationSpeed = 1
         animationItem = camera
-        let search = CYLSearchBarItem.textItem(title: cylDiscoverText("discover.search")) { [weak self] _ in
-            self?.searchTapped()
-        }
-        search.itemAccessibilityIdentifier = "CYLSearchDiscoverSearchButton"
+        // The core's default search button (a title, the localized "Search"): tapped, it searches the typed text, else the placeholder.
+        searchBar.searchButtonItem.itemAccessibilityIdentifier = "CYLSearchDiscoverSearchButton"
+        searchBar.searchButtonHandler = { [weak self] _ in self?.searchTapped() }
         searchBar.itemTintColor = .label
         searchBar.addItem(camera)
-        searchBar.addItem(.divider())
-        searchBar.addItem(search)
     }
 
     /**

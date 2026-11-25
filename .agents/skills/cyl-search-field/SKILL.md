@@ -18,4 +18,7 @@ Full rule: `docs/instructions/core.md`, "One search field, no system search bar"
    `navigationFieldStyle` parameter. An example calls the preset, it never sets those values.
 3. In a navigation bar use the platform's embed call (iOS `embedInNavigationBar(of:)`).
 4. Find leftovers with the greps in the task-log entry "no system search bar on any platform".
-5. Before a git operation, read `docs/instructions/git.md` in full (skill `cyl-commit`).
+5. Default search button: every field keeps the core's built-in search button (title "Search" by default; `searchButtonStyle` text or
+   icon, custom title or icon); never hide it in an example, never add a second one. Docs: core.md rule 5, example-demos.md rule 9.
+6. Keyboard: the Search key, `focusesOnAppear`, `dismissesKeyboardOnOutsideTouch`, through CYLDeallocBlockExecutor events (core.md rule 6).
+7. Before a git operation, read `docs/instructions/git.md` in full (skill `cyl-commit`).

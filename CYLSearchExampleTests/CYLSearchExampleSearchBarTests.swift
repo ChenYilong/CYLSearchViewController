@@ -86,6 +86,8 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
 
         // At the largest size the text keeps 40% of the bar: Cancel and a large accessory are drawn smaller instead.
         bar.fieldHeight = 36
+        // This check is about Cancel and the accessory; the default search button has its own test.
+        bar.showsSearchButton = false
         bar.showsCancelButton = true
         bar.cancelButtonTitle = "Cancel"
         let camera = UIButton(type: .system)
@@ -922,6 +924,91 @@ extension CYLSearchExampleSearchBarTests {
         host.view.addSubview(bar)
         runLoop(0.4)
         XCTAssertFalse(bar.textField.isFirstResponder, "option off: no focus")
+        window.isHidden = true
+    }
+
+
+    // MARK: - Default search button
+
+    private final class SearchButtonRecorder: NSObject, CYLSearchBarViewDelegate {
+        var clicks = 0
+        func searchBarViewSearchButtonClicked(_ searchBarView: CYLSearchBarView) { clicks += 1 }
+    }
+
+    /// Every bar has the core's default search button: a localized title by default, an icon on request (the built-in magnifier or
+    /// the caller's), a custom title, hidden on request; an editing bar has none; a tap tells the delegate also for empty text.
+    @MainActor
+    func testDefaultSearchButton() throws {
+        let bar = CYLSearchBarView(frame: CGRect(x: 0, y: 0, width: 390, height: 56))
+        XCTAssertTrue(bar.showsSearchButton)
+        XCTAssertEqual(bar.searchButtonStyle, .text)
+        XCTAssertEqual(bar.searchButtonItem.style, .text)
+        XCTAssertEqual(bar.searchButtonItem.title, CYLSearchResources.localizedString(forKey: "search.button"))
+        XCTAssertFalse(bar.itemStack.isHidden, "the default button is shown")
+        XCTAssertTrue(bar.items.isEmpty, "the built-in button is not one of the owner's items")
+        for language in ["en", "zh-Hans", "zh-Hant", "ja"] {
+            XCTAssertNotEqual(CYLSearchResources.localizedString(forKey: "search.button", language: language), "search.button")
+        }
+        let recorder = SearchButtonRecorder()
+        bar.delegate = recorder
+        bar.searchButtonItem.itemControl.sendActions(for: .touchUpInside)
+        XCTAssertEqual(recorder.clicks, 1, "tapped with empty text: the delegate hears it")
+        bar.text = "swift"
+        bar.searchButtonItem.itemControl.sendActions(for: .touchUpInside)
+        XCTAssertEqual(recorder.clicks, 2, "tapped with text: submitted")
+        var custom = 0
+        bar.searchButtonHandler = { _ in custom += 1 }
+        bar.searchButtonItem.itemControl.sendActions(for: .touchUpInside)
+        XCTAssertEqual(custom, 1)
+        XCTAssertEqual(recorder.clicks, 2, "a handler replaces the default action")
+        bar.searchButtonItem.itemAccessibilityIdentifier = "mine"
+        bar.searchButtonStyle = .icon
+        XCTAssertEqual(bar.searchButtonItem.style, .icon)
+        XCTAssertNotNil(bar.searchButtonItem.image, "the built-in magnifier")
+        XCTAssertEqual(bar.searchButtonItem.itemAccessibilityIdentifier, "mine", "kept when the item is replaced")
+        let image = UIImage(systemName: "arrow.right")
+        bar.searchButtonImage = image
+        XCTAssertTrue(bar.searchButtonItem.image === image, "a custom icon")
+        bar.searchButtonStyle = .text
+        bar.searchButtonTitle = "Go"
+        XCTAssertEqual(bar.searchButtonItem.title, "Go", "a custom title")
+        bar.showsSearchButton = false
+        XCTAssertTrue(bar.itemStack.isHidden)
+        let editing = CYLSearchBarView.editingBar(placeholder: nil, actionTitle: "Add")
+        XCTAssertTrue(editing.itemStack.isHidden, "an editing bar has its own action button")
+    }
+
+    /// The keyboard has the search key, and a bar in editing mode hides the keyboard for an outside touch (observed only while
+    /// editing; the touch itself comes from CYLDeallocBlockExecutor's `didTouchOutside`, which XCTest cannot create).
+    @MainActor
+    func testSearchKeyAndOutsideTouchHidesTheKeyboard() {
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let host = UIViewController()
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        let bar = CYLSearchBarView(frame: CGRect(x: 0, y: 100, width: 402, height: 56))
+        host.view.addSubview(bar)
+        XCTAssertEqual(bar.returnKeyType, .search)
+        XCTAssertTrue(bar.dismissesKeyboardOnOutsideTouch)
+        XCTAssertFalse(bar.cylCancelLifecycleCallback(key: "CYLSearchBarViewOutsideTouch"), "nothing observed while the keyboard is down")
+        bar.showKeyboard()
+        runLoop(0.3)
+        XCTAssertTrue(bar.textField.isFirstResponder)
+        bar.hideKeyboardForOutsideTouch()
+        XCTAssertFalse(bar.textField.isFirstResponder, "an outside touch hides the keyboard")
+        runLoop(0.2)
+        XCTAssertFalse(bar.cylCancelLifecycleCallback(key: "CYLSearchBarViewOutsideTouch"), "no longer observed after editing ended")
+        bar.showKeyboard()
+        runLoop(0.3)
+        XCTAssertTrue(bar.cylCancelLifecycleCallback(key: "CYLSearchBarViewOutsideTouch"), "observed while editing")
+        bar.dismissesKeyboardOnOutsideTouch = false
+        bar.hideKeyboardForOutsideTouch()
+        XCTAssertTrue(bar.textField.isFirstResponder, "option off: the keyboard stays")
+        let editing = CYLSearchBarView.editingBar(placeholder: nil, actionTitle: "Add")
+        host.view.addSubview(editing)
+        editing.showKeyboard()
+        runLoop(0.3)
+        XCTAssertFalse(editing.cylCancelLifecycleCallback(key: "CYLSearchBarViewOutsideTouch"), "an editing bar drives its own focus")
         window.isHidden = true
     }
 

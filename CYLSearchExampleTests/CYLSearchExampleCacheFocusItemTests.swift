@@ -396,6 +396,8 @@ final class CYLSearchExampleCacheFocusItemTests: CYLSearchExampleTestCase {
         let search = CYLSearchBarItem.textItem(title: "Search", handler: nil)
         XCTAssertEqual(camera.index, NSNotFound)
         XCTAssertFalse(bar.hasItem(of: .text))
+        // This test is about the owner's items: the default search button is off (it has its own test).
+        bar.showsSearchButton = false
         bar.addItem(camera)
         bar.addItem(search)
         bar.insertItem(divider, at: 1)

@@ -155,4 +155,17 @@ Details of the `core` tag of [AGENTS.md](../../AGENTS.md) and [instructions.md](
   3. Where a platform's own search UI is part of a ported third-party library (a Ports demo of QMUI, MaterialSearchView and the
      like), the port keeps that library's classes only as a replica of its API, and its demo screen shows the core field.
   4. A screen that needs a plain text input that is not a search (a remark name) uses the same field too (one input look).
+  5. Default search button (owner, 2026-11-26): every `CYLSearchBarView` has a built-in, kept search button after the field and the
+     owner's items (a divider before it when an item precedes it), a title by default (the localized "Search": en, ja, zh-Hans,
+     zh-Hant). The core has a built-in magnifier icon (iOS SF Symbol `magnifyingglass`); the caller chooses `searchButtonStyle`
+     (`text` or `icon`), a custom `searchButtonTitle` or `searchButtonImage`, `searchButtonHandler`, or `showsSearchButton = false`.
+     An editing bar (`editingBar(...)`) and a bar in multiple mode have none. It is not in `items`. A tap submits the text, and tells
+     the delegate `searchBarViewSearchButtonClicked` also for empty text. Every platform exposes the same names.
+  6. Keyboard life cycle of the bar itself (owner, 2026-11-26): the bar manages it as the smallest component, so it works in every
+     container. The keyboard has the Search key (`returnKeyType = .search`). `focusesOnAppear` (off by default) focuses the field
+     every time the bar appears on screen (first entry, tab switch, push and pop, return from the background).
+     `dismissesKeyboardOnOutsideTouch` (on by default; never for an editing bar) hides the keyboard for a touch anywhere in the
+     window outside the bar, which includes the start of every finger scroll in any container. Both come from CYLDeallocBlockExecutor's
+     life cycle events (`didEnterScreen`, `didBecomeActiveOnScreen`, `didTouchOutside`, library PR #29); the core's podspec depends on it
+     and every platform's pin must name the same commit. Other platforms use their own ports of those events.
 - Skill: `cyl-search-field`. Per-platform status: `docs/task-log.md`, entry "no system search bar on any platform".

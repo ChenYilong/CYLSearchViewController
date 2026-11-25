@@ -97,6 +97,21 @@ public enum CYLSearchBarItemStyle: Int {
 }
 
 /**
+ * What the default search button of a bar shows.
+ */
+@objc(CYLSearchBarSearchButtonStyle)
+public enum CYLSearchBarSearchButtonStyle: Int {
+    /**
+     * The button shows a title, "Search" localized by default (`searchButtonTitle` changes it). The default.
+     */
+    case text = 0
+    /**
+     * The button shows an icon, the core's built-in magnifier by default (`searchButtonImage` changes it).
+     */
+    case icon = 1
+}
+
+/**
  * The fixed look of the whole bar: the field on the left stays, the items are appended after its text.
  */
 @objc(CYLSearchBarStyle)
@@ -576,7 +591,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      * The row of the items: one `CYLAnimatedItemStackView`, so the tint (the built-in default that follows dark mode, a
      * host's `itemTintColor`) and the dividers are the component's, not drawn per item here.
      */
-    private let itemStack = CYLAnimatedItemStackView()
+    let itemStack = CYLAnimatedItemStackView()
 
     /**
      * Makes the stack hold the views of `items` in order; a divider item becomes the stack's built-in divider after the
@@ -584,7 +599,11 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      */
     private func rebuildItemStack() {
         let content = items.filter { $0.style != .divider }
-        itemStack.replaceItemViews(content.map { $0.itemControl })
+        var controls = content.map { $0.itemControl }
+        // The default search button is the last control, after the owner's items, with a divider when an item precedes it.
+        let showsDefaultButton = showsSearchButton && !isEditingBar && mode != .multiple
+        if showsDefaultButton { controls.append(searchButtonItem.itemControl) }
+        itemStack.replaceItemViews(controls)
         for view in itemStack.itemViews {
             itemStack.removeDivider(after: view)
         }
@@ -592,8 +611,92 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
             guard let before = items[..<index].last(where: { $0.style != .divider }) else { continue }
             itemStack.setDivider(after: before.itemControl, spacingBefore: Self.spacing, spacingAfter: Self.spacing)
         }
-        itemStack.isHidden = content.isEmpty
+        if showsDefaultButton, let before = content.last {
+            itemStack.setDivider(after: before.itemControl, spacingBefore: Self.spacing, spacingAfter: Self.spacing)
+        }
+        itemStack.isHidden = controls.isEmpty
         setNeedsLayout()
+    }
+
+    // MARK: - Default search button
+
+    /**
+     * Whether the bar shows its default search button, after the field and the items: YES by default (an editing bar and a bar in
+     * `CYLSearchBarModeMultiple` never show it). A tap calls `searchButtonHandler`, else submits the text (`submit()`), and tells the
+     * delegate `-searchBarViewSearchButtonClicked:` also when the text is empty.
+     */
+    @objc public var showsSearchButton = true {
+        didSet { rebuildItemStack() }
+    }
+
+    /**
+     * Whether the default search button shows a title (`.text`, the default) or an icon (`.icon`).
+     */
+    @objc public var searchButtonStyle: CYLSearchBarSearchButtonStyle = .text {
+        didSet { rebuildSearchButton() }
+    }
+
+    /**
+     * The title of the default search button (also its accessibility label in the icon style); nil is the localized "Search".
+     */
+    @objc public var searchButtonTitle: String? {
+        didSet { rebuildSearchButton() }
+    }
+
+    /**
+     * The icon of the default search button in the `.icon` style; nil is the core's built-in magnifier (SF Symbol
+     * `magnifyingglass`).
+     */
+    @objc public var searchButtonImage: UIImage? {
+        didSet { rebuildSearchButton() }
+    }
+
+    /**
+     * Called instead of the default action when the default search button is tapped.
+     */
+    @objc public var searchButtonHandler: ((CYLSearchBarView) -> Void)?
+
+    /**
+     * The default search button as an item, for its tint, its badge or its accessibility identifier. It is not in `items`.
+     * Replaced (with the tint and identifier kept) when the style, title or icon changes.
+     */
+    @objc public private(set) lazy var searchButtonItem: CYLSearchBarItem = makeSearchButtonItem()
+
+    private func makeSearchButtonItem() -> CYLSearchBarItem {
+        let title = searchButtonTitle ?? CYLSearchResources.localizedString(forKey: "search.button")
+        let item: CYLSearchBarItem
+        switch searchButtonStyle {
+        case .text:
+            item = CYLSearchBarItem(style: .text, title: title, image: nil)
+        case .icon:
+            item = CYLSearchBarItem(style: .icon, title: title, image: searchButtonImage ?? UIImage(systemName: "magnifyingglass"))
+        }
+        item.itemAccessibilityIdentifier = "CYLSearchBarSearchButton"
+        item.searchBarView = self
+        item.itemControl.addTarget(self, action: #selector(itemTapped(_:)), for: .touchUpInside)
+        return item
+    }
+
+    private func rebuildSearchButton() {
+        let old = searchButtonItem
+        let item = makeSearchButtonItem()
+        item.tintColor = old.tintColor
+        item.itemAccessibilityIdentifier = old.itemAccessibilityIdentifier
+        old.itemControl.removeTarget(self, action: nil, for: .allEvents)
+        old.itemControl.removeFromSuperview()
+        old.searchBarView = nil
+        searchButtonItem = item
+        rebuildItemStack()
+    }
+
+    private func searchButtonTapped() {
+        if let searchButtonHandler {
+            searchButtonHandler(self)
+        } else if !(text ?? "").isEmpty {
+            _ = submit()
+        } else {
+            delegate?.searchBarViewSearchButtonClicked?(self)
+        }
     }
 
     /**
@@ -607,7 +710,10 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      * The icon and title color of every item without its own `tintColor`; nil uses the label color.
      */
     @objc public var itemTintColor: UIColor? {
-        didSet { items.forEach { $0.itemControl.reload() } }
+        didSet {
+            items.forEach { $0.itemControl.reload() }
+            searchButtonItem.itemControl.reload()
+        }
     }
 
     /**
@@ -742,6 +848,10 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
 
     @objc private func itemTapped(_ sender: UIControl) {
         guard let item = (sender as? CYLSearchBarItemButton)?.item, item.isEnabled else {
+            return
+        }
+        if item === searchButtonItem {
+            searchButtonTapped()
             return
         }
         if item.isSelectable {
@@ -921,7 +1031,9 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      * Whether the bar is an editing bar (`editingBar(placeholder:actionTitle:)`): an edit field in the search bar's look,
      * whose trailing button submits instead of cancelling.
      */
-    @objc public private(set) var isEditingBar = false
+    @objc public private(set) var isEditingBar = false {
+        didSet { rebuildItemStack() }
+    }
 
     /**
      * An editing bar's submit: the trimmed text, when its action button or the return key is tapped (after
@@ -1190,6 +1302,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
             guard mode != oldValue else {
                 return
             }
+            rebuildItemStack()
             textField.resignFirstResponder()
             multiSearchView.endEditing(true)
             applyIconifiedVisibility()
@@ -1412,6 +1525,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         addSubview(multiSearchView)
         addInteraction(UILargeContentViewerInteraction())
         updateButtonImages()
+        rebuildItemStack()
         applyStyle()
     }
 
@@ -1454,26 +1568,29 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         textField.becomeFirstResponder()
     }
 
-    // MARK: - Focus on appear
+    // MARK: - Focus on appear, keyboard on outside touch
 
     private static let focusOnAppearKey = "CYLSearchBarViewFocusOnAppear"
+    private static let focusOnActiveKey = "CYLSearchBarViewFocusOnActive"
+    private static let outsideTouchKey = "CYLSearchBarViewOutsideTouch"
 
     /**
-     * Whether the field takes focus (and the keyboard shows) every time the bar appears on screen, like a `viewDidAppear`: the first
-     * time its page is entered, after a switch of tab bar tab or a push and pop, and after the app returns from the background. The
-     * moments come from CYLDeallocBlockExecutor's life cycle events (`didEnterScreen` of the bar, a `UIView`); nothing is observed
-     * while this is NO. NO by default.
+     * Whether the field takes focus (and the keyboard, with the search key, shows) every time the bar appears on screen, like a
+     * `viewDidAppear`: the first time its page is entered, after a switch of tab bar tab or a push and pop, and after the app
+     * returns from the background. The moments are CYLDeallocBlockExecutor's `didEnterScreen` and `didBecomeActiveOnScreen` of this
+     * view, so it works in every container; during a screen transition the focus waits for the transition to end. Nothing is
+     * observed while this is NO. NO by default.
      */
     @objc public var focusesOnAppear = false {
         didSet {
             guard focusesOnAppear != oldValue else { return }
             if focusesOnAppear {
-                cylAddLifecycleCallback(for: .didEnterScreen, key: Self.focusOnAppearKey) { bar, _, _ in
-                    bar.focusIfAppearing()
-                }
+                cylAddLifecycleCallback(for: .didEnterScreen, key: Self.focusOnAppearKey) { bar, _, _ in bar.focusIfAppearing() }
+                cylAddLifecycleCallback(for: .didBecomeActiveOnScreen, key: Self.focusOnActiveKey) { bar, _, _ in bar.focusIfAppearing() }
                 if isOnScreenNow { focusIfAppearing() }
             } else {
                 cylCancelLifecycleCallback(key: Self.focusOnAppearKey)
+                cylCancelLifecycleCallback(key: Self.focusOnActiveKey)
             }
         }
     }
@@ -1483,8 +1600,54 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     }
 
     private func focusIfAppearing() {
-        guard focusesOnAppear, window != nil, !textField.isFirstResponder, textField.isEnabled else { return }
+        guard focusesOnAppear, window != nil, textField.isEnabled else { return }
+        var responder: UIResponder? = self
+        var controller: UIViewController?
+        while let current = responder {
+            if let found = current as? UIViewController {
+                controller = found
+                break
+            }
+            responder = current.next
+        }
+        if let coordinator = controller?.transitionCoordinator ?? controller?.navigationController?.transitionCoordinator {
+            coordinator.animate(alongsideTransition: nil) { [weak self] context in
+                if !context.isCancelled { self?.focusNow() }
+            }
+        } else {
+            DispatchQueue.main.async { [weak self] in self?.focusNow() }
+        }
+    }
+
+    private func focusNow() {
+        guard focusesOnAppear, window != nil, !isHidden, !textField.isFirstResponder else { return }
         showKeyboard()
+    }
+
+    /**
+     * Whether a touch anywhere in the window outside this bar (a tap, or the start of a scroll or drag in any container) hides the
+     * keyboard while the field is editing: CYLDeallocBlockExecutor's `didTouchOutside`, observed only while editing. YES by default;
+     * an editing bar (`editingBar(...)`) drives its own focus and never does. A pointer or trackpad scroll is not a touch.
+     */
+    @objc public var dismissesKeyboardOnOutsideTouch = true {
+        didSet {
+            if !dismissesKeyboardOnOutsideTouch { stopObservingOutsideTouches() }
+            else if textField.isFirstResponder { startObservingOutsideTouches() }
+        }
+    }
+
+    private func startObservingOutsideTouches() {
+        guard dismissesKeyboardOnOutsideTouch, !isEditingBar else { return }
+        cylAddLifecycleCallback(for: .didTouchOutside, key: Self.outsideTouchKey) { bar, _, _ in bar.hideKeyboardForOutsideTouch() }
+    }
+
+    private func stopObservingOutsideTouches() {
+        cylCancelLifecycleCallback(key: Self.outsideTouchKey)
+    }
+
+    func hideKeyboardForOutsideTouch() {
+        guard dismissesKeyboardOnOutsideTouch, textField.isFirstResponder else { return }
+        hideKeyboard()
     }
 
     /**
@@ -1985,6 +2148,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      */
     public func textFieldDidBeginEditing(_ textField: UITextField) {
         relayoutForActiveState()
+        startObservingOutsideTouches()
         delegate?.searchBarViewDidBeginEditing?(self)
     }
 
@@ -1993,6 +2157,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      */
     public func textFieldDidEndEditing(_ textField: UITextField) {
         relayoutForActiveState()
+        stopObservingOutsideTouches()
         if clearsTextOnEndEditing, !(textField.text ?? "").isEmpty {
             textField.text = ""
             textChanged()
@@ -2193,7 +2358,7 @@ public final class CYLSearchBarItem: NSObject {
         itemControl
     }
 
-    fileprivate lazy var itemControl = CYLSearchBarItemButton(item: self)
+    lazy var itemControl = CYLSearchBarItemButton(item: self)
 
     private var titleAttributes: [UInt: [NSAttributedString.Key: Any]] = [:]
     private var badgeAttributes: [UInt: [NSAttributedString.Key: Any]] = [:]
@@ -2370,7 +2535,7 @@ public final class CYLSearchBarItem: NSObject {
  * line, the 36 pt touch area and the item's badge metrics. The item's `itemView` returns it.
  */
 @MainActor
-private final class CYLSearchBarItemButton: CYLTagButton {
+final class CYLSearchBarItemButton: CYLTagButton {
 
     private static let defaultImageSide: CGFloat = 20
     private static let minimumTouchSide: CGFloat = 36

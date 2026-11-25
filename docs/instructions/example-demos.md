@@ -39,3 +39,7 @@ Details of the `example-demos` tag of [AGENTS.md](../../AGENTS.md) and [instruct
   8. An example's search or text field in a navigation bar or page header is `CYLSearchBarView` with the navigation field preset
      (see `core`, "One search field, no system search bar"); never a system search bar, a text field of its own or a copy of
      the preset's values. Skill: `cyl-search-field`.
+- Owner directive 2026-11-26, prompt (English): "Every example must follow the default search button rule: at least one kept, default search button must appear."
+  9. Every search or text field of an example (a navigation bar field, a sheet's search, a name field) shows the core's default search
+     button (text "Search" by default; the example may choose icon or a custom title or icon, never hide it with
+     `showsSearchButton = false` except an editing bar). An example never adds a button of its own that does the same job.
