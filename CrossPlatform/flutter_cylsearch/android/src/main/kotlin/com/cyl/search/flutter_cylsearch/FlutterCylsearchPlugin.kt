@@ -309,6 +309,7 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
         androidx.appcompat.widget.Toolbar(context).also { target ->
             if (arguments["showsBackButton"] == true) {
                 target.navigationIcon = ContextCompat.getDrawable(context, androidx.appcompat.R.drawable.abc_ic_ab_back_material)
+                tintBackArrow(target, arguments["brightness"] == "dark")
                 target.navigationContentDescription = context.getString(com.cyl.search.R.string.cyl_search_back)
                 target.setNavigationOnClickListener { channel.invokeMethod("didTapBackButton", null) }
             }
@@ -376,7 +377,19 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
         syncingSearches = false
     }
 
+    /**
+     * The back arrow follows the Flutter app's brightness (white on the dark gradient, dark on the pale one): the
+     * context theme is fixed at creation and would not follow a later change.
+     */
+    private fun tintBackArrow(target: androidx.appcompat.widget.Toolbar, dark: Boolean) {
+        val icon = target.navigationIcon ?: return
+        val wrapped = androidx.core.graphics.drawable.DrawableCompat.wrap(icon.mutate())
+        androidx.core.graphics.drawable.DrawableCompat.setTint(wrapped, if (dark) 0xFFFFFFFF.toInt() else 0xDE000000.toInt())
+        target.navigationIcon = wrapped
+    }
+
     private fun apply(arguments: Map<String, Any?>) {
+        toolbar?.let { if (it.navigationIcon != null) tintBackArrow(it, arguments["brightness"] == "dark") }
         val mode = if (arguments["mode"] == "multiple") CYLSearchBarMode.Multiple else CYLSearchBarMode.Single
         if (mode != bar.mode) bar.mode = mode
         @Suppress("UNCHECKED_CAST")

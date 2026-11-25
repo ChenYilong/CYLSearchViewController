@@ -181,9 +181,16 @@ ThemeData _clearTheme(ThemeData theme, Brightness brightness) => theme.copyWith(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
+        // The back arrow, title and actions follow the theme over the gradient (white on the dark one, dark on the pale one).
+        foregroundColor: cylAppBarForeground(brightness),
+        iconTheme: IconThemeData(color: cylAppBarForeground(brightness)),
+        actionsIconTheme: IconThemeData(color: cylAppBarForeground(brightness)),
         systemOverlayStyle: cylStatusBarStyle(brightness),
       ),
     );
+
+/// The app bar's foreground over the example's gradient: light on the dark gradient, dark on the pale one.
+Color cylAppBarForeground(Brightness brightness) => brightness == Brightness.dark ? Colors.white : const Color(0xDE000000);
 
 /// The status bar over the example's gradient: dark icons on the pale light gradient, light icons on the dark one. Android
 /// reads `statusBarIconBrightness`, iOS reads `statusBarBrightness` (the brightness of the page, so the opposite icons).

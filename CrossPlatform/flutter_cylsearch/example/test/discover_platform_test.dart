@@ -15,6 +15,11 @@ void main() {
     expect(dark.statusBarBrightness, Brightness.dark);
   });
 
+  test('the app bar foreground follows the theme brightness over the gradient', () {
+    expect(cylAppBarForeground(Brightness.dark), Colors.white);
+    expect(cylAppBarForeground(Brightness.light).computeLuminance(), lessThan(0.1));
+  });
+
   testWidgets('the Discover page opens with Liquid Glass tag lists and a bar embedded in the navigation bar with its back button', (tester) async {
     debugDefaultTargetPlatformOverride = TargetPlatform.iOS;
     try {

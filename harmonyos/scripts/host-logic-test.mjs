@@ -23,6 +23,10 @@ const parts = ['CYLSearchBarView.ets', 'CYLSearchView.ets', 'CYLSearchResources.
   assert.ok(begin >= 0 && end > begin, `${name} has no pure logic part`);
   return text.slice(begin, end).replace(/^function /gm, 'export function ');
 });
+// The example's pure logic parts (the Placeholder styles page builds its tag lists in chunks).
+const examplePart = readFileSync(join(here, '..', 'entry', 'src', 'main', 'ets', 'demos', 'CYLGalleryChunks.ets'), 'utf8');
+parts.push(examplePart.slice(examplePart.indexOf('// MARK: - Pure logic (begin)'), examplePart.indexOf('// MARK: - Pure logic (end)'))
+  .replace(/^function /gm, 'export function '));
 const folder = mkdtempSync(join(tmpdir(), 'cyl-logic-'));
 const target = join(folder, 'CYLSearchLogic.ts');
 // ArkTS resource lookups ($r) have no host counterpart: a stub returns the resource name, so a pure logic part may
@@ -576,5 +580,19 @@ describe('CYLSearchTagListStyle', () => {
     assert.equal(metrics.lineSpacing, 16);
     assert.deepEqual(metrics.sectionInsets, [4, 16, 16, 16]);
     assert.equal(metrics.headerHeight, 44);
+  });
+});
+
+describe('the Placeholder styles page chunks', () => {
+  it('splits 42 sections into chunks of 6 and clamps past the end', () => {
+    assert.deepEqual(logic.cylGalleryChunkRange(0, 6, 42), [0, 6]);
+    assert.deepEqual(logic.cylGalleryChunkRange(6, 6, 42), [36, 6]);
+    assert.deepEqual(logic.cylGalleryChunkRange(7, 6, 42), [42, 0]);
+    assert.deepEqual(logic.cylGalleryChunkRange(3, 6, 20), [18, 2]);
+  });
+  it('shows one more chunk when the scroll reaches the end, never more than exist', () => {
+    assert.equal(logic.cylGalleryChunksAfterReachEnd(1, 6, 42), 2);
+    assert.equal(logic.cylGalleryChunksAfterReachEnd(7, 6, 42), 7);
+    assert.equal(logic.cylGalleryChunksAfterReachEnd(1, 6, 4), 1);
   });
 });

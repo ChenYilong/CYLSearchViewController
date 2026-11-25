@@ -15,6 +15,7 @@ import {
   CYL_PLUS_OVERHANG
 } from '../common/DemoCommon';
 import { CYLDemoTagMenuView, CYLDemoTagRow, CYLDemoTagSection } from '../common/DemoTagMenu';
+import { cylGalleryNextChunkCount, cylGalleryRange } from './CYLGalleryChunks';
 
 /**
  * The number of placeholder styles shown: the 41 styles the search placeholder had, the first 41 of
@@ -198,6 +199,8 @@ export struct PlaceholderGalleryPage {
   @Require @Param stack: NavPathStack;
   private context: common.Context = this.getUIContext().getHostContext() as common.Context;
   private sections: number[] = Array.from<number, number>({ length: STYLE_COUNT + 1 }, (_: number, i: number) => i);
+  // The tag lists are built chunk by chunk (CYLGalleryChunks.ets): all 42 at once froze the main thread.
+  @Local chunks: number = 1;
 
   private rowsOf(section: number): number[] {
     return section === STYLE_COUNT ? [0, 1, 2] : [0, 1, 2, 3];
@@ -228,6 +231,12 @@ export struct PlaceholderGalleryPage {
     });
   }
 
+  // The sections of one chunk of the page.
+  private chunkSections(chunk: number): CYLDemoTagSection[] {
+    const range: number[] = cylGalleryRange(chunk, this.sections.length);
+    return this.tagSections().slice(range[0], range[0] + range[1]);
+  }
+
   build() {
     NavDestination() {
       Column() {
@@ -238,15 +247,23 @@ export struct PlaceholderGalleryPage {
           onBack: () => this.stack.pop()
         })
         Scroll() {
-          CYLDemoTagMenuView({
-            sections: this.tagSections(),
-            tagId: 'CYLDemoPlaceholderTags',
-            onSelect: (section: number, item: number) => {
-              const param: CYLPlaceholderDetailParam = { title: this.textOf(section, item), section: section, row: item };
-              this.stack.pushPath({ name: CYLDemoRoute.placeholderDetail, param: param });
-            }
-          })
+          Column() {
+            ForEach(Array.from<number, number>({ length: this.chunks }, (_: number, i: number) => i), (chunk: number) => {
+              CYLDemoTagMenuView({
+                sections: this.chunkSections(chunk),
+                tagId: chunk === 0 ? 'CYLDemoPlaceholderTags' : 'CYLDemoPlaceholderTags' + chunk,
+                onSelect: (section: number, item: number) => {
+                  const first: number = cylGalleryRange(chunk, this.sections.length)[0];
+                  const param: CYLPlaceholderDetailParam = { title: this.textOf(first + section, item), section: first + section, row: item };
+                  this.stack.pushPath({ name: CYLDemoRoute.placeholderDetail, param: param });
+                }
+              })
+            }, (chunk: number) => 'chunk' + chunk)
+          }
         }
+        .onReachEnd(() => {
+          this.chunks = cylGalleryNextChunkCount(this.chunks, this.sections.length);
+        })
         .margin({ bottom: CYL_PLUS_OVERHANG })
         .layoutWeight(1)
         .scrollBar(BarState.Off)
