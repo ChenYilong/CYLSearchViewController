@@ -78,6 +78,16 @@ class CylsearchTagListViewManager : SimpleViewManager<CylsearchTagListView>(),
     view.tagImageLabels = value.cylStrings()
   }
 
+  @ReactProp(name = "tagSubtitles")
+  override fun setTagSubtitles(view: CylsearchTagListView, value: ReadableArray?) {
+    view.tagSubtitles = value.cylStrings()
+  }
+
+  @ReactProp(name = "titleMaxLines", defaultInt = 1)
+  override fun setTitleMaxLines(view: CylsearchTagListView, value: Int) {
+    view.titleMaxLines = value
+  }
+
   @ReactProp(name = "editing")
   override fun setEditing(view: CylsearchTagListView, value: Boolean) {
     if (value != view.isEditing) view.setEditing(value, true)

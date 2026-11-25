@@ -111,6 +111,17 @@ export interface NativeProps extends ViewProps {
    */
   tagImageLabels?: ReadonlyArray<string>;
   /**
+   * The subtitle of each tag, one entry per tag ("" for none): a long press on a tag with one shows it in a small callout
+   * with an arrow (CollectionViewClassifyMenu's `longPressAction` callout, `menuSubtitleForItem`); a tap is unchanged.
+   * Android needs ClassifyMenu PR #37 (TODO: held until the pin has it).
+   */
+  tagSubtitles?: ReadonlyArray<string>;
+  /**
+   * The most lines a tag's title may wrap onto: 1 (default, truncated), 0 no limit, n at most n lines (ClassifyMenu's
+   * `titleMaxLines`).
+   */
+  titleMaxLines?: CodegenTypes.WithDefault<CodegenTypes.Int32, 1>;
+  /**
    * Editing mode (iOS `setEditing(_:animated:)`): a cross on each tag (`onTagDelete`) and dragging (`onTagMove`).
    */
   editing?: boolean;

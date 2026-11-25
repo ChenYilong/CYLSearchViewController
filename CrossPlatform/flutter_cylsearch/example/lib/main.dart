@@ -65,7 +65,11 @@ class CYLSearchDemo {
       this.showsResults = false,
       this.contactTags = false,
       this.emptyTags = false,
+      this.subtitle,
       this.page});
+
+  /// The cell's subtitle: shown in a callout when its tag is long pressed (docs/instructions/example-demos.md).
+  final String? subtitle;
 
   /// Opens a screen of the QMUI search port instead of a search page: `controller`, `styles` or `short`.
   final String? page;
@@ -115,18 +119,18 @@ class CYLSearchDemoTab {
 const List<CYLSearchDemoTab> cylDemoTabs = <CYLSearchDemoTab>[
   CYLSearchDemoTab('List style', 'Suggestions as a list, filtered as you type; or results with pull to refresh.',
       <CYLSearchDemo>[
-        CYLSearchDemo('Open search'),
-        CYLSearchDemo('Results and pull to refresh', showsResults: true),
-        CYLSearchDemo('Search controller', page: 'controller'),
-        CYLSearchDemo('Search bar styles', page: 'styles'),
-        CYLSearchDemo('Short list', page: 'short'),
+        CYLSearchDemo('Open search', subtitle: 'The native search page with suggestions as a list, filtered as you type.'),
+        CYLSearchDemo('Results and pull to refresh', showsResults: true, subtitle: 'The matching suggestions as results, with pull to refresh.'),
+        CYLSearchDemo('Search controller', page: 'controller', subtitle: 'The QMUI search controller port.'),
+        CYLSearchDemo('Search bar styles', page: 'styles', subtitle: 'Every search bar style on one screen.'),
+        CYLSearchDemo('Short list', page: 'short', subtitle: 'A short suggestion list without scrolling.'),
       ]),
   CYLSearchDemoTab('Tag style', 'The same suggestions as tags (CollectionViewClassifyMenu).',
       <CYLSearchDemo>[
         // The keyboard stays down until the field is tapped: the cached queries (or the empty placeholder) show first.
-        CYLSearchDemo('Open search', style: CYLSearchSuggestionStyle.tags, focusesSearchFieldOnShow: false),
-        CYLSearchDemo('Contact tags (CollectionViewClassifyMenu)', contactTags: true),
-        CYLSearchDemo('Contact tags without tags', contactTags: true, emptyTags: true),
+        CYLSearchDemo('Open search', style: CYLSearchSuggestionStyle.tags, focusesSearchFieldOnShow: false, subtitle: 'The same suggestions as tags under the search bar.'),
+        CYLSearchDemo('Contact tags (CollectionViewClassifyMenu)', contactTags: true, subtitle: 'Edit the tags of a contact: add, rename, reorder, delete.'),
+        CYLSearchDemo('Contact tags without tags', contactTags: true, emptyTags: true, subtitle: 'The contact tags page with no tags yet: the placeholders.'),
       ]),
   CYLSearchDemoTab('Empty results', 'A query without a match shows a CYLTableViewPlaceHolder placeholder.', <CYLSearchDemo>[
     CYLSearchDemo('No matching results', query: 'zzz'),
@@ -263,20 +267,30 @@ class CYLSearchDemoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(title: Text(cylExampleText(tab.title))),
-        body: Padding(
-          padding: const EdgeInsets.all(16),
+        // The demos are tags of the core's tag list with its default initialization: as many tags as fit on a row, then the next row. The list brings
+        // its own 16 inset, so only the description is padded.
+        body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Text(cylExampleText(tab.description), style: Theme.of(context).textTheme.bodyLarge),
-              for (final demo in tab.demos) ...<Widget>[
-                const SizedBox(height: 16),
-                FilledButton.icon(
-                  icon: const Icon(Icons.search),
-                  label: Text(cylExampleText(demo.label)),
-                  onPressed: () => _openSearch(context, demo),
-                ),
-              ],
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: Text(cylExampleText(tab.description), style: Theme.of(context).textTheme.bodyLarge),
+              ),
+              const SizedBox(height: 16),
+              CYLTagListView(
+                tags: <String>[for (final demo in tab.demos) cylExampleText(demo.label)],
+                // docs/instructions/example-demos.md: a titled section, a fold after 3 rows with the built-in icon and more / less.
+                sectionTitle: cylExampleText(tab.title),
+                // The tag list of an example is Liquid Glass (docs/instructions/example-demos.md, rule 6).
+                backgroundStyle: 'liquidGlass',
+                foldedRowCount: 3,
+                // Adaptive width, titles may wrap; a long press shows the cell's subtitle in a callout; a tap opens the demo as the cell did.
+                titleMaxLines: cylTagTitleUnlimited,
+                tagSubtitles: <String>[for (final demo in tab.demos) cylExampleText(demo.subtitle ?? '')],
+                foldControlContent: CYLTagFoldControlContent.iconAndTitle,
+                onTagSelected: (index, title) => _openSearch(context, tab.demos[index]),
+              ),
             ],
           ),
         ),

@@ -60,6 +60,9 @@ export {
   cylInsetsArray,
   cylResultsForQuery,
   cylSplitMatch,
+  cylTagSubtitles,
+  CYL_TAG_TITLE_SINGLE_LINE,
+  CYL_TAG_TITLE_UNLIMITED,
 } from './CYLSearchProps';
 
 /**

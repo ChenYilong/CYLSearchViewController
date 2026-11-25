@@ -5,6 +5,8 @@ import android.graphics.drawable.Drawable
 import com.cyl.classifymenu.CYLBadgeDrawable
 import com.cyl.classifymenu.CYLIndexPath
 import com.cyl.classifymenu.CYLMenuDataSource
+import com.cyl.classifymenu.CYLTagLongPressActions
+import com.cyl.classifymenu.CYLTagTitleMaxLines
 import com.cyl.classifymenu.CYLMenuDelegate
 import com.cyl.classifymenu.CYLMenuSelectionMode
 import com.cyl.classifymenu.CYLMenuStyle
@@ -52,6 +54,12 @@ class CylsearchTagListView(private val reactContext: ThemedReactContext) : CYLTa
 
   /** The screen-reader label of each tag image, parallel to `tagImages` ('' none): TalkBack reads it with the tag (the hot icon says "Hot"). */
   var tagImageLabels: List<String> = emptyList()
+
+  /** The subtitle of each tag ('' none), shown in a callout on a long press (ClassifyMenu `longPressAction`, PR #37). */
+  var tagSubtitles: List<String> = emptyList()
+
+  /** 1: one line (default), 0: no limit, n: at most n lines (ClassifyMenu `CYLTagTitleMaxLines`, PR #37). */
+  var titleMaxLines: Int = 1
   private val flowingStyle: CYLMenuStyle? = style?.copy()
 
   init {
@@ -95,6 +103,12 @@ class CylsearchTagListView(private val reactContext: ThemedReactContext) : CYLTa
       (flowingStyle?.copy() ?: CYLMenuStyle()).apply { CYLSearchTagListStyle.applyDefaults(this) }
     }
     CYLSearchTagListStyle.applyBackgroundStyle(backgroundStyle, base)
+    base.titleMaxLines = if (titleMaxLines <= 0) CYLTagTitleMaxLines.UNLIMITED else titleMaxLines
+    longPressAction = if (tagSubtitles.any { it.isNotEmpty() }) {
+      CYLTagLongPressActions.first(listOf(CYLTagLongPressActions.reorder, CYLTagLongPressActions.callout))
+    } else {
+      CYLTagLongPressActions.makeDefault()
+    }
     base.backgroundColor = Color.TRANSPARENT
     if (showsRefreshButton) CYLSearchTagListHeader.applyRefreshIcon(reactContext, base)
     style = base
@@ -130,6 +144,8 @@ class CylsearchTagListView(private val reactContext: ThemedReactContext) : CYLTa
   override fun menuNumberOfItemsInSection(section: Int) = titles.size
   override fun menuTitleForSection(section: Int) = sectionTitle
   override fun menuTitleForItemAtIndexPath(indexPath: CYLIndexPath) = titles.getOrElse(indexPath.item) { "" }
+  override fun menuSubtitleForItemAtIndexPath(indexPath: CYLIndexPath): String? =
+    tagSubtitles.getOrNull(indexPath.item)?.takeIf { it.isNotEmpty() }
   override fun menuIdentifierForItemAtIndexPath(indexPath: CYLIndexPath): String = idAt(indexPath.item)
   override fun menuShowsClearButtonForSection(section: Int) = showsClearButton && !showsRefreshButton
   override fun menuShowsMoreButtonInSection(section: Int) = showsRefreshButton
