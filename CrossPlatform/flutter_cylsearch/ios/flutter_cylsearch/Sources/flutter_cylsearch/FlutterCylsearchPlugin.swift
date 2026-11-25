@@ -318,7 +318,6 @@ final class CYLFlutterLayoutReportingView: UIView {
  */
 final class CYLFlutterNavigationBarContainer: UIView {
     let navigationBar: CYLSearchNavigationBar
-    private var rebuiltInWindow = false
 
     init(navigationBar: CYLSearchNavigationBar, frame: CGRect) {
         self.navigationBar = navigationBar
@@ -346,14 +345,49 @@ final class CYLFlutterNavigationBarContainer: UIView {
 
     override func didMoveToWindow() {
         super.didMoveToWindow()
-        guard window != nil else { return }
-        if !rebuiltInWindow {
-            // Items set before the bar had a window: set them again so the back button and the title view take the real margins.
-            rebuiltInWindow = true
-            navigationBar.setItems(navigationBar.items, animated: false)
+        guard window != nil else {
+            settleLink?.invalidate()
+            settleLink = nil
+            return
         }
         relayout()
         DispatchQueue.main.async { [weak self] in self?.relayout() }
+        startSettleWatch()
+    }
+
+    // A route transition can still be moving this view when it enters the window: the bar lays its items out from the
+    // window position of that moment (an inset that is too small) and never again. Watch the window position until it
+    // stops moving, then lay the items out once more.
+    private var settleLink: CADisplayLink?
+    private var lastWindowX: CGFloat = .nan
+    private var itemsWindowX: CGFloat = .nan
+    private var stableFrames = 0
+    private var settleFrames = 0
+
+    private func startSettleWatch() {
+        settleLink?.invalidate()
+        itemsWindowX = convert(CGPoint.zero, to: nil).x
+        lastWindowX = itemsWindowX
+        stableFrames = 0
+        settleFrames = 0
+        let link = CADisplayLink(target: self, selector: #selector(settleTick))
+        link.add(to: .main, forMode: .common)
+        settleLink = link
+    }
+
+    @objc private func settleTick() {
+        settleFrames += 1
+        let x = convert(CGPoint.zero, to: nil).x
+        stableFrames = abs(x - lastWindowX) < 0.5 ? stableFrames + 1 : 0
+        lastWindowX = x
+        guard stableFrames >= 3 || settleFrames > 120 || window == nil else { return }
+        settleLink?.invalidate()
+        settleLink = nil
+        guard window != nil, abs(x - itemsWindowX) >= 0.5 else { return }
+        let items = navigationBar.items
+        navigationBar.setItems([], animated: false)
+        navigationBar.setItems(items, animated: false)
+        relayout()
     }
 
     private func relayout() {
