@@ -540,8 +540,13 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
         }
         appliedText = text
         applyStyle(arguments)
-        bar.fieldShadowOpacity = CGFloat(arguments["fieldShadowOpacity"] as? Double ?? 0)
-        bar.searchBarStyle = (arguments["searchBarStyle"] as? String) == "bordered" ? .bordered : .plain
+        if arguments["navigationFieldStyle"] as? Bool == true {
+            // The core's one navigation field look (bordered capsule, soft shadow, no magnifier, opaque fill).
+            bar.applyNavigationFieldStyle()
+        } else {
+            bar.fieldShadowOpacity = CGFloat(arguments["fieldShadowOpacity"] as? Double ?? 0)
+            bar.searchBarStyle = (arguments["searchBarStyle"] as? String) == "bordered" ? .bordered : .plain
+        }
         if bar.isEditingBar {
             // The core's own setup stays: no magnifier, its action button always shown.
             if let title = arguments["actionTitle"] as? String, !title.isEmpty { bar.cancelButtonTitle = title }
@@ -552,7 +557,9 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
                 appliedShowsCancelButton = showsCancel
                 bar.showsCancelButton = showsCancel
             }
-            bar.searchIcon = arguments["showsSearchIcon"] as? Bool ?? true ? UIImage(systemName: "magnifyingglass") : nil
+            if arguments["navigationFieldStyle"] as? Bool != true {
+                bar.searchIcon = arguments["showsSearchIcon"] as? Bool ?? true ? UIImage(systemName: "magnifyingglass") : nil
+            }
         }
         let items = arguments["items"] as? [[String: Any]] ?? []
         // Rebuilt only when Dart sends other items, so a rebuild of the widget keeps the native selection; a change of

@@ -116,8 +116,13 @@ using namespace facebook::react;
     });
   }
   _textProp = text;
-  _bar.fieldShadowOpacity = p.fieldShadowOpacity;
-  _bar.searchBarStyle = [CYLRNString(p.searchBarStyle) isEqualToString:@"bordered"] ? CYLSearchBarStyleBordered : CYLSearchBarStylePlain;
+  if (p.navigationFieldStyle) {
+    // The core's one navigation field look (bordered capsule, soft shadow, no magnifier, opaque fill).
+    [_bar applyNavigationFieldStyle];
+  } else {
+    _bar.fieldShadowOpacity = p.fieldShadowOpacity;
+    _bar.searchBarStyle = [CYLRNString(p.searchBarStyle) isEqualToString:@"bordered"] ? CYLSearchBarStyleBordered : CYLSearchBarStylePlain;
+  }
   // An editing bar keeps the core's own setup: no magnifier, its action button always shown.
   if (!_bar.isEditingBar) {
     // Cancel changes with an animation from the second change on (`setShowsCancelButton(_:animated:)`).
@@ -125,7 +130,9 @@ using namespace facebook::react;
       [_bar setShowsCancelButton:p.showsCancelButton animated:p.animatesChanges && _shownCancel != nil];
       _shownCancel = @(p.showsCancelButton);
     }
-    _bar.searchIcon = p.showsSearchIcon ? [UIImage systemImageNamed:@"magnifyingglass"] : nil;
+    if (!p.navigationFieldStyle) {
+      _bar.searchIcon = p.showsSearchIcon ? [UIImage systemImageNamed:@"magnifyingglass"] : nil;
+    }
   }
   // Rebuilt only when JavaScript sends other items, so a re-render keeps the native selection.
   NSString *itemsJSON = CYLRNString(p.itemsJSON) ?: @"";
