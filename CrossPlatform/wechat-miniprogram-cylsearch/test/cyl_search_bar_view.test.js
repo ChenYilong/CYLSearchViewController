@@ -2,7 +2,7 @@
 // CYLMultiSearchView).
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { CYLSearchBarView, CYLSearchBarItem, CYLSearchBarItemStyle, CYLSearchBarMode } = require('../src/core/CYLSearchBarView');
+const { CYLSearchBarColors, CYLSearchBarView, CYLSearchBarItem, CYLSearchBarItemStyle, CYLSearchBarMode } = require('../src/core/CYLSearchBarView');
 
 test('items are appended like the FlatDesign tab bar items and report their taps', () => {
   const bar = new CYLSearchBarView();
@@ -141,4 +141,23 @@ test('editing bar submits the trimmed text from its action button and the confir
   bar.text = 'Refused';
   bar.cancelTapped();
   assert.equal(submitted.length, 2);
+});
+
+test('default colors: placeholder and divider are the secondary label, items the label color (accent when selected)', () => {
+  assert.equal(CYLSearchBarColors.secondaryLabel(false), 'rgba(60, 60, 67, 0.6)');
+  assert.equal(CYLSearchBarColors.secondaryLabel(true), 'rgba(235, 235, 245, 0.6)');
+  const item = CYLSearchBarItem.textItem('Search');
+  assert.equal(item.tagButtonProperties(undefined, false).tagStyle.normal.iconColor, '#000000');
+  assert.equal(item.tagButtonProperties(undefined, true).tagStyle.normal.textColor, '#FFFFFF');
+  item.isSelected = true;
+  assert.equal(item.tagButtonProperties(undefined, false).tagStyle.normal.iconColor, '#007AFF');
+  assert.equal(item.tagButtonProperties(undefined, true).tagStyle.normal.iconColor, '#0A84FF');
+});
+
+test('a host tint (the bar tint, then the item tint) overrides the state colors', () => {
+  const item = CYLSearchBarItem.textItem('Search');
+  item.isSelected = true;
+  assert.equal(item.tagButtonProperties('#FF0000', true).tagStyle.normal.iconColor, '#FF0000');
+  item.tintColor = '#00FF00';
+  assert.equal(item.tagButtonProperties('#FF0000', true).tagStyle.normal.textColor, '#00FF00');
 });

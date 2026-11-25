@@ -1,4 +1,4 @@
-const { CYLSearchBarView, CYLSearchBarItem, CYLSearchBarMode, CYLSearchBarAppearance, cylInsetsCSS } = require('../core/CYLSearchBarView');
+const { CYLSearchBarColors, CYLSearchBarView, CYLSearchBarItem, CYLSearchBarMode, CYLSearchBarAppearance, cylInsetsCSS } = require('../core/CYLSearchBarView');
 const { CYLSearchResources, cylFormatString } = require('../core/CYLSearchResources');
 
 const text = (key) => CYLSearchResources.localizedString(undefined, key);
@@ -182,6 +182,11 @@ Component({
     },
     attached() {
       const p = this.properties;
+      // A live light/dark switch re-resolves the colors CSS cannot reach (placeholder-style, the items' tint).
+      if (typeof wx !== 'undefined' && wx.onThemeChange) {
+        this.themeListener = () => { this.updateStyles(); this.syncItems(); };
+        wx.onThemeChange(this.themeListener);
+      }
       const model = this.model;
       model.mode = p.mode === CYLSearchBarMode.multiple ? CYLSearchBarMode.multiple : CYLSearchBarMode.single;
       model.text = p.value || '';
@@ -221,6 +226,7 @@ Component({
       this.measureAccessories();
     },
     detached() {
+      if (this.themeListener && typeof wx !== 'undefined' && wx.offThemeChange) wx.offThemeChange(this.themeListener);
       if (this.keyboardListener && typeof wx !== 'undefined' && wx.offKeyboardHeightChange) {
         wx.offKeyboardHeightChange(this.keyboardListener);
       }
@@ -249,7 +255,7 @@ Component({
       const input = [`font-size: ${fontSize}px`, `height: ${p.fieldHeight}px`];
       const textColor = p.textColor || (ap && ap.textColor);
       if (textColor) input.push(`color: ${textColor}`);
-      const placeholderColor = p.placeholderColor || (ap && ap.placeholderColor);
+      const placeholderColor = p.placeholderColor || (ap && ap.placeholderColor) || CYLSearchBarColors.secondaryLabel(dark);
       const cancel = [];
       if (ap && ap.cancel) cancel.push(ap.cancel);
       const font = p.cancelButtonFont;
@@ -355,11 +361,11 @@ Component({
     },
     // Each item is drawn by CollectionViewClassifyMenu's <cyl-tag-button> (`button`: its properties).
     syncItems() {
-      const tint = this.model.itemTintColor || defaultItemTint();
+      const dark = defaultItemTint() === '#FFFFFF';
       this.setData({
         shownItems: this.model.items.map((item) => Object.assign(item.itemDictionary(), {
           label: item.accessibilityText,
-          button: item.tagButtonProperties(tint),
+          button: item.tagButtonProperties(this.model.itemTintColor, dark),
         })),
       });
     },

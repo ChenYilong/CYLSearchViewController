@@ -12,7 +12,8 @@
 .cyl-navigation { margin-right: 4px; }
 .cyl-item { position: relative; display: flex; align-items: center; justify-content: center; min-width: 36px; min-height: 36px; }
 .cyl-item-disabled { opacity: 0.4; }
-.cyl-divider { width: 1px; height: 18px; margin: 0 4px; background: #c6c6c8; }
+/* The built-in divider: 1 x 20, secondary label strength (60%), an 8 gap on each side. */
+.cyl-divider { width: 1px; height: 20px; margin: 0 8px; background: rgba(60, 60, 67, 0.6); }
 
 /* mode "multiple" (was cyl-multi-search): the searches in a row, the selected one underlined, the new-search button. */
 .cyl-multi { display: flex; align-items: center; height: 48px; }
@@ -35,7 +36,7 @@
 /* centersPlaceholder: magnifier and placeholder centred over the resting field; the input stays under them. */
 .cyl-center-group { position: absolute; top: 0; right: 0; bottom: 0; left: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
 .cyl-center-icon { width: 18px; height: 18px; margin-right: 6px; background-color: rgba(60, 60, 67, 0.6); }
-.cyl-center-text { color: rgba(60, 60, 67, 0.3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cyl-center-text { color: rgba(60, 60, 67, 0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* The expansion animations: the field fades in from the icon, or a circle grows from the icon until it uncovers it. */
 .cyl-anim-fade.cyl-field-revealing { opacity: 0; transform: scaleX(0.2); }
@@ -66,5 +67,7 @@
   .cyl-input { color: #fff; }
   .cyl-mask-icon { background-color: #0a84ff; }
   .cyl-multi-text, .cyl-multi-input { color: #fff; }
-  .cyl-divider { background: #38383a; }
+  .cyl-divider { background: rgba(235, 235, 245, 0.6); }
+  .cyl-center-text { color: rgba(235, 235, 245, 0.6); }
+  .cyl-center-icon { background-color: rgba(235, 235, 245, 0.6); }
 }

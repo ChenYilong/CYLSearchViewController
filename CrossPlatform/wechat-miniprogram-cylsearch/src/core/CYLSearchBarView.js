@@ -430,9 +430,9 @@ class CYLSearchBarItem {
    * attributes of the current state, its icon size, insets and position adjustments. The view dims a disabled item
    * itself, so the tag stays enabled.
    */
-  tagButtonProperties(barTint) {
+  tagButtonProperties(barTint, dark) {
     const divider = this.style === CYLSearchBarItemStyle.divider;
-    const tint = this.tintColor || barTint || '#000000';
+    const tint = this.tintColor || barTint || CYLSearchBarColors.itemTint(this.isSelected, dark === true);
     const side = this.imageSize > 0 ? this.imageSize : 20;
     const insets = this.contentInsets >= 0 ? this.contentInsets : (this.style === CYLSearchBarItemStyle.text ? 4 : 0);
     const attributes = this.titleTextAttributes(this.currentState) || this.titleTextAttributes(CYLSearchBarItemState.normal) || {};
@@ -1168,7 +1168,24 @@ class CYLSearchBarView {
   }
 }
 
+/**
+ * The default colors (iOS `.label`, `.secondaryLabel`, accent), light and dark. The bar's own CSS follows
+ * `prefers-color-scheme`; these serve the values CSS cannot reach (an input's `placeholder-style`, the tag buttons'
+ * properties), which the component recomputes on `wx.onThemeChange`. A host tint overrides every one.
+ */
+const CYLSearchBarColors = {
+  /** The placeholder and divider color: secondary label, 60% alpha. */
+  secondaryLabel(dark) { return dark ? 'rgba(235, 235, 245, 0.6)' : 'rgba(60, 60, 67, 0.6)'; },
+  /** The label color: black in light, white in dark. */
+  label(dark) { return dark ? '#FFFFFF' : '#000000'; },
+  /** The accent: the selected item's color. */
+  accent(dark) { return dark ? '#0A84FF' : '#007AFF'; },
+  /** An item's icon and title color with no host tint: the accent while selected, else the label color. */
+  itemTint(selected, dark) { return selected ? CYLSearchBarColors.accent(dark) : CYLSearchBarColors.label(dark); },
+};
+
 module.exports = {
+  CYLSearchBarColors,
   CYLSearchBarMode,
   CYLSearchBarItemStyle,
   CYLSearchBarStyle,
