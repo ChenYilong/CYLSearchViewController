@@ -1,5 +1,7 @@
 package com.cyl.search
 
+import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.Typeface
 import com.cyl.classifymenu.CYLControlState
@@ -31,6 +33,19 @@ object CYLSearchTagListStyle {
      * page; the earlier 16% black was not.
      */
     internal val BORDER_COLOR: Int = Color.argb(74, 60, 60, 67)
+
+    /** The border of a flat tag in dark mode: iOS `UIColor.separator` dark (84,84,88 at 65%). */
+    internal val BORDER_COLOR_DARK: Int = Color.argb(166, 84, 84, 88)
+
+    /** The fill of a flat tag in dark mode: iOS `secondarySystemBackground` dark. */
+    internal val FILL_COLOR_DARK: Int = Color.rgb(28, 28, 30)
+
+    /** Whether `context` shows the dark appearance; null (no context given) is light. */
+    internal fun isNight(context: Context?): Boolean =
+        context != null && (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+
+    /** The label color: black in light, white in dark (iOS `UIColor.label`). */
+    internal fun labelColor(night: Boolean): Int = if (night) Color.WHITE else Color.BLACK
 
     /**
      * The corner radius of every tag, in dp. The default `CAPSULE_CORNER_RADIUS` is a capsule, as in the iOS example's
@@ -65,13 +80,15 @@ object CYLSearchTagListStyle {
      * name (for example a transparent background) stay as they are.
      */
     @JvmStatic
-    fun applyDefaults(style: CYLMenuStyle) {
+    @JvmOverloads
+    fun applyDefaults(style: CYLMenuStyle, context: Context? = null) {
+        val night = isNight(context)
         for (state in listOf(CYLControlState.NORMAL, CYLControlState.SELECTED, CYLControlState.DISABLED)) {
             style.appearanceForState(state).apply {
                 // A Liquid Glass tag is a tint on the glass, no border; a flat tag is white with a light border.
                 if (tagBackgroundStyle == CYLTagBackgroundStyle.CYLTagBackgroundStyleFlat) {
-                    backgroundColor = Color.WHITE
-                    borderColor = BORDER_COLOR
+                    backgroundColor = if (night) FILL_COLOR_DARK else Color.WHITE
+                    borderColor = if (night) BORDER_COLOR_DARK else BORDER_COLOR
                     borderWidth = 1f
                 } else {
                     backgroundColor = if (state == CYLControlState.SELECTED) GLASS_SELECTED_TINT_COLOR else GLASS_TINT_COLOR
@@ -80,7 +97,7 @@ object CYLSearchTagListStyle {
                 cornerRadius = tagCornerRadius
                 margin = 14f
                 font = CYLFont(17f)
-                textColor = Color.BLACK
+                textColor = labelColor(night)
             }
         }
         style.backgroundStyle = tagBackgroundStyle
@@ -88,7 +105,7 @@ object CYLSearchTagListStyle {
         style.interitemSpacing = 12f
         style.lineSpacing = 12f
         style.sectionInsets = CYLEdgeInsets(4f, 16f, 24f, 16f)
-        applyHeaderLook(style)
+        applyHeaderLook(style, night)
         styleCustomizer?.invoke(style)
     }
 
@@ -99,7 +116,7 @@ object CYLSearchTagListStyle {
     @JvmStatic
     fun applyDefaultStyle(list: CYLTagListView) {
         val style = (list.style ?: CYLMenuStyle.defaultStyle()).copy()
-        applyDefaults(style)
+        applyDefaults(style, list.context)
         list.style = style
         CYLSearchTagListHeader.applyRefreshIcon(list)
     }
@@ -146,22 +163,26 @@ object CYLSearchTagListStyle {
      * `applyDefaults`; then calls `styleCustomizer` (iOS `applyGrid(columns:to:)`).
      */
     @JvmStatic
-    fun applyGrid(style: CYLMenuStyle) {
+    @JvmOverloads
+    fun applyGrid(style: CYLMenuStyle, context: Context? = null) {
         for (state in listOf(CYLControlState.NORMAL, CYLControlState.SELECTED, CYLControlState.DISABLED)) {
-            style.appearanceForState(state).font = CYLFont(17f, Typeface.create("sans-serif-medium", Typeface.NORMAL))
+            style.appearanceForState(state).apply {
+                font = CYLFont(17f, Typeface.create("sans-serif-medium", Typeface.NORMAL))
+                textColor = labelColor(isNight(context))
+            }
         }
         style.imageSize = CYLSize(0f, 0f)
         style.itemHeight = 36f
         style.lineSpacing = 16f
         style.sectionInsets = CYLEdgeInsets(4f, 16f, 16f, 16f)
-        applyHeaderLook(style)
+        applyHeaderLook(style, isNight(context))
         styleCustomizer?.invoke(style)
     }
 
-    private fun applyHeaderLook(style: CYLMenuStyle) {
+    private fun applyHeaderLook(style: CYLMenuStyle, night: Boolean) {
         style.headerHeight = 44f
         style.headerFont = CYLFont(20f, Typeface.DEFAULT_BOLD)
-        style.headerTextColor = Color.BLACK
+        style.headerTextColor = labelColor(night)
         style.headerHorizontalInset = 16f
     }
 }

@@ -1,5 +1,8 @@
 package com.cyl.search
 
+import android.content.Context
+import android.graphics.Color
+import androidx.test.core.app.ApplicationProvider
 import com.cyl.classifymenu.CYLControlState
 import com.cyl.classifymenu.CYLMenuStyle
 import com.cyl.classifymenu.CYLTagBackgroundStyle
@@ -114,5 +117,26 @@ class CYLSearchTagListStyleTest {
         assertEquals(16f, style.lineSpacing, 0f)
         assertEquals(16f, style.sectionInsets.left, 0f)
         assertEquals(44f, style.headerHeight, 0f)
+    }
+
+    @Test
+    @Config(sdk = [34], qualifiers = "night")
+    fun darkAppearanceUsesTheLabelColorAndADarkFill() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val style = CYLMenuStyle()
+        CYLSearchTagListStyle.applyDefaults(style, context)
+        val tag = style.appearanceForState(CYLControlState.NORMAL)
+        assertEquals(Color.WHITE, tag.textColor)
+        assertEquals(CYLSearchTagListStyle.FILL_COLOR_DARK, tag.backgroundColor)
+        assertEquals(CYLSearchTagListStyle.BORDER_COLOR_DARK, tag.borderColor)
+        assertEquals("section header", Color.WHITE, style.headerTextColor)
+    }
+
+    @Test
+    fun lightAppearanceAndNoContextKeepTheBlackLabel() {
+        val style = CYLMenuStyle()
+        CYLSearchTagListStyle.applyDefaults(style, ApplicationProvider.getApplicationContext<Context>())
+        assertEquals(Color.BLACK, style.appearanceForState(CYLControlState.NORMAL).textColor)
+        assertEquals(Color.BLACK, style.headerTextColor)
     }
 }

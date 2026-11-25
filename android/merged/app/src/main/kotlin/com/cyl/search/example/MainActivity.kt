@@ -25,7 +25,8 @@ class MainActivity : AppCompatActivity() {
         val file = if (svga) "CYLTabBarConfiguration_svga.json" else "CYLTabBarConfiguration.json"
         val controller = CYLTabBarController.tabBarControllerWithConfigurationFile(this, file)
         // `adb shell am start -n com.cyl.search.example/.MainActivity --ei CYLDemoTab 2` selects that tab, for screenshots.
-        val tab = intent.getIntExtra(EXTRA_TAB, -1)
+        // A theme change recreates the activity: the selected tab is kept through the saved state.
+        val tab = intent.getIntExtra(EXTRA_TAB, savedInstanceState?.getInt(STATE_TAB, -1) ?: -1)
         if (tab in controller.viewControllers.indices) {
             controller.selectedIndex = tab
         }
@@ -42,6 +43,11 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        controller?.let { outState.putInt(STATE_TAB, it.selectedIndex) }
     }
 
     private fun registerPages(pages: CYLTabBarPageRegistry) {
@@ -64,5 +70,7 @@ class MainActivity : AppCompatActivity() {
          * The intent extra that selects a tab at launch.
          */
         const val EXTRA_TAB = "CYLDemoTab"
+
+        private const val STATE_TAB = "CYLSelectedTab"
     }
 }
