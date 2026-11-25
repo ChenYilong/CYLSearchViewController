@@ -231,12 +231,12 @@ class _CYLContactRemarkPageState extends State<CYLContactRemarkPage> {
                 textAlign: TextAlign.center, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700)),
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 36, 16, 0),
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: cylContactText('remarkName'),
-                  filled: true,
-                  fillColor: const Color(0xFFF2F2F7),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+              // The remark name: the core field with the navigation preset (one input look), not a system TextField.
+              child: SizedBox(
+                height: 56,
+                child: CYLSearchBarView(
+                  placeholder: cylContactText('remarkName'),
+                  navigationFieldStyle: true,
                 ),
               ),
             ),
@@ -465,6 +465,7 @@ class _CYLContactTagEditorPageState extends State<CYLContactTagEditorPage> {
                 child: CYLSearchBarView(
                   key: ValueKey<String>('CYLContactTagsSearch$_searchGeneration'),
                   placeholder: cylContactText('search'),
+                  navigationFieldStyle: true,
                   onTextChanged: (text) {
                     final value = text.trim();
                     if (value.isNotEmpty && _managing) _setManaging(false);
@@ -586,6 +587,7 @@ class _CYLContactTagEditorPageState extends State<CYLContactTagEditorPage> {
                     editingBar: true,
                     actionTitle: cylContactText(_renamingID != null ? 'done' : 'add'),
                     placeholder: cylContactText('tagName'),
+                    navigationFieldStyle: true,
                     text: _editingText,
                     onEditingSubmitted: (name) => setState(() {
                       final id = _renamingID;

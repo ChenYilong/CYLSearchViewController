@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ActivityIndicator, KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, TextInput, View,
+  ActivityIndicator, KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CYLPlaceholderView, CYLSearchBarView, CYLTagListView } from 'react-native-cylsearch';
@@ -137,7 +137,8 @@ export function ContactTagsDemo({ onClose, empty = false, latency = 5 }: { onClo
       <Bar title="" onBack={onClose} right={<Text style={[styles.barButton, !changed && styles.disabled]}>{text('done')}</Text>} />
       <ScrollView>
         <Text style={styles.largeTitle} accessibilityRole="header">{text('editRemarks')}</Text>
-        <TextInput style={styles.name} placeholder={text('remarkName')} accessibilityLabel={text('remarkName')} />
+        {/* The remark name: the core field with the navigation preset (one input look), not a TextInput. */}
+        <CYLSearchBarView style={styles.nameField} navigationFieldStyle placeholder={text('remarkName')} />
         <Pressable accessibilityRole="button" accessibilityHint={text('hintEdit')} testID="CYLContactRemarkTagsTitle" onPress={() => setScreen('editor')}>
           <Text style={styles.tagsTitle}>{text('tags')} ›</Text>
         </Pressable>
@@ -246,7 +247,7 @@ function Editor({ store, latency, initial, onCancel, onDone, onContacts }: {
       {/* 'padding' on both: the Android window is not resized for the keyboard (edge to edge), so the editing bar rides on it. */}
       <KeyboardAvoidingView style={styles.fill} behavior="padding">
         {/* The search field is this library's CYLSearchBarView. */}
-        <CYLSearchBarView style={styles.search} placeholder={text('search')} text={query}
+        <CYLSearchBarView style={styles.search} navigationFieldStyle placeholder={text('search')} text={query}
           onTextChange={(event) => { const value = event.nativeEvent.text.trim(); if (value && managing) setManage(false); setQuery(value); }}
           onSubmit={() => { if (store.canCreate(query)) create(query); }} />
         <ScrollView style={styles.fill} keyboardShouldPersistTaps="handled">
@@ -295,7 +296,7 @@ function Editor({ store, latency, initial, onCancel, onDone, onContacts }: {
         </ScrollView>
         {managing ? (
           // The edit field of "Manage": the core's editing bar, above the keyboard (KeyboardAvoidingView).
-          <CYLSearchBarView style={styles.editingBar} editingBar actionTitle={text(renamingID ? 'done' : 'add')} placeholder={text('tagName')}
+          <CYLSearchBarView style={styles.editingBar} editingBar navigationFieldStyle actionTitle={text(renamingID ? 'done' : 'add')} placeholder={text('tagName')}
             text={editingText} testID="CYLSearchEditingBar"
             onEditingSubmit={(event) => {
               const name = event.nativeEvent.text;
@@ -329,7 +330,7 @@ const styles = StyleSheet.create({
   doneText: { fontSize: 17, fontWeight: '600', color: 'rgba(60,60,67,0.3)' },
   doneTextOn: { color: '#fff' },
   largeTitle: { marginTop: 32, textAlign: 'center', fontSize: 28, fontWeight: '700', color: '#000' },
-  name: { marginTop: 36, marginHorizontal: 16, height: 48, paddingHorizontal: 12, borderRadius: 8, backgroundColor: '#F2F2F7', fontSize: 17 },
+  nameField: { marginTop: 36, marginHorizontal: 8, height: 56 },
   tagsTitle: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 4, fontSize: 15, color: 'rgba(60,60,67,0.6)' },
   remarkPlaceholder: { height: 200, marginHorizontal: 16 },
   search: { height: 56, marginHorizontal: 8 },

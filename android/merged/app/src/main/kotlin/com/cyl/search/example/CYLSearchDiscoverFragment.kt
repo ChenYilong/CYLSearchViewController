@@ -38,7 +38,6 @@ import com.cyl.classifymenu.CYLMenuSelectionMode
 import com.cyl.classifymenu.CYLMenuStyle
 import com.cyl.classifymenu.CYLTagListView
 import com.cyl.search.CYLSearchBarItem
-import com.cyl.search.CYLSearchBarStyle
 import com.cyl.search.CYLSearchBarView
 import com.cyl.search.CYLSearchBarViewDelegate
 import com.cyl.search.CYLSearchTagListHeader
@@ -185,17 +184,11 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
         // A white capsule with a soft shadow, no magnifier: the camera and the Search button sit inside it.
         searchBar = CYLSearchBarView(context).apply {
             delegate = this@CYLSearchDiscoverFragment
-            searchIcon = null
+            applyNavigationFieldStyle()
             // The 16 dp inset of the tag list's header and tags (docs/animated-icon-component.md, "Default layout contract"). Set here
             // until the core default moves from 12 to 16 (that change makes CYLSearchViewQMUIPortTest fail in the full suite: open).
             contentInsets = android.graphics.Rect(16, 6, 16, 6)
             fieldHeight = 46f
-            searchBarStyle = CYLSearchBarStyle.Bordered
-            fieldCornerRadius = 22f
-            fieldBackgroundColor = pageBackground(context)
-            fieldBorderWidth = 1f
-            fieldShadowOpacity = 0.06f
-            fontSize = 16f
             textField.contentDescription = getString(R.string.cyl_discover_search)
         }
         // The field stays; the camera, a divider and the Search button are items appended to the bar.
@@ -473,8 +466,6 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
         searchBarView.hideKeyboard()
     }
 
-    // The page and field fill: the theme's window background (white in light, near black in dark), not a hard-coded white.
-    private fun pageBackground(context: Context): Int = themeColor(context, android.R.attr.colorBackground)
 
     private fun themeColor(context: Context, attribute: Int): Int {
         val value = TypedValue()

@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Button
-import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -151,12 +150,11 @@ class CYLContactRemarkPage : CYLExamplePage(), CYLMenuDataSource, CYLMenuDelegat
             setTextColor(Color.BLACK)
             ViewCompat.setAccessibilityHeading(this, true)
         }
-        val name = EditText(context).apply {
-            hint = cylContactTagsText(context, "remarkName")
-            contentDescription = hint
-            background = GradientDrawable().apply { setColor(CYLGray6); cornerRadius = context.dp(8f).toFloat() }
-            setPadding(context.dp(12f), 0, context.dp(12f), 0)
-            setSingleLine()
+        // The remark name: the core field with the navigation preset (one input look), not a system EditText.
+        val name = CYLSearchBarView(context).apply {
+            applyNavigationFieldStyle()
+            placeholder = cylContactTagsText(context, "remarkName")
+            textField.contentDescription = placeholder
         }
         tagsView = CYLTagListView(context).apply {
             this.title = cylContactTagsText(context, "tags")
@@ -182,7 +180,7 @@ class CYLContactRemarkPage : CYLExamplePage(), CYLMenuDataSource, CYLMenuDelegat
             menuDelegate = this@CYLContactRemarkPage
         }
         column.addView(title, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = context.dp(32f) })
-        column.addView(name, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, context.dp(48f)).apply {
+        column.addView(name, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
             topMargin = context.dp(36f); leftMargin = context.dp(16f); rightMargin = context.dp(16f)
         })
         column.addView(tagsView, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply { topMargin = context.dp(12f) })
@@ -358,12 +356,14 @@ class CYLContactTagEditorPage : CYLExamplePage(), CYLMenuDataSource, CYLMenuDele
         }
         editingBar = CYLSearchBarView.editingBar(context, cylContactTagsText(context, "tagName"), cylContactTagsText(context, "add")).apply {
             editingSubmitHandler = { _, text -> submitEditingBar(text) }
+            applyNavigationFieldStyle()
             visibility = View.GONE
         }
         searchBar = CYLSearchBarView(context).apply {
             placeholder = cylContactTagsText(context, "search")
             textField.contentDescription = cylContactTagsText(context, "searchTags")
             tag = "CYLContactTagsSearchBar"
+            applyNavigationFieldStyle()
             delegate = this@CYLContactTagEditorPage
         }
         tagListView = CYLTagListView(context, CYLMenuFoldControl().apply {
@@ -626,12 +626,16 @@ class CYLContactTagEditorPage : CYLExamplePage(), CYLMenuDataSource, CYLMenuDele
 
     private fun promptForNewTag() {
         val context = requireContext()
-        val field = EditText(context).apply { hint = cylContactTagsText(context, "tagName"); setSingleLine() }
+        val field = CYLSearchBarView(context).apply {
+            applyNavigationFieldStyle()
+            placeholder = cylContactTagsText(context, "tagName")
+            textField.contentDescription = placeholder
+        }
         AlertDialog.Builder(context)
             .setTitle(cylContactTagsText(context, "newTag"))
-            .setView(FrameLayout(context).apply { setPadding(context.dp(20f), 0, context.dp(20f), 0); addView(field) })
+            .setView(FrameLayout(context).apply { setPadding(context.dp(20f), 0, context.dp(20f), 0); addView(field, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)) })
             .setNegativeButton(cylContactTagsText(context, "cancel"), null)
-            .setPositiveButton(cylContactTagsText(context, "ok")) { _, _ -> createTag(field.text.toString()) }
+            .setPositiveButton(cylContactTagsText(context, "ok")) { _, _ -> createTag(field.text.orEmpty()) }
             .show()
     }
 
