@@ -470,7 +470,9 @@ final class CYLSearchExampleCacheFocusItemTests: CYLSearchExampleTestCase {
         search.setTitleTextAttributes([.foregroundColor: UIColor.systemBlue], for: .normal)
         XCTAssertEqual(search.titleTextAttributes(for: .normal)?[.foregroundColor] as? UIColor, UIColor.systemBlue)
         bar.itemTintColor = UIColor.systemGreen
-        XCTAssertEqual(camera.itemView.imageView.tintColor, UIColor.systemGreen)
+        // The component holds the color already resolved with the item's own traits, not the dynamic color.
+        let itemTraits = camera.itemView.traitCollection
+        XCTAssertEqual(camera.itemView.imageView.tintColor?.resolvedColor(with: itemTraits), UIColor.systemGreen.resolvedColor(with: itemTraits))
 
         // The fixed bordered style, and removal.
         bar.searchBarStyle = .bordered

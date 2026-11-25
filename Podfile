@@ -15,13 +15,13 @@ target 'CYLSearchExample' do
   pod 'CYLTableViewPlaceHolder', :subspecs => ['Core', 'Lottie'], :git => 'https://github.com/ChenYilong/CYLTableViewPlaceHolder.git', :commit => 'f4cf978567e43288b44f6ddc266510fa837a0e72'
   # Sub-repository (AGENTS.md, "Sub-repositories"): the tag suggestion style of CYLSearchView. Pinned to its newest
   # commit on any branch (`git log --remotes -1`); never a local path in a commit.
-  pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => '3ed13b9275328fa4622dad1e0d884192c4b25f81'
+  pod 'CollectionViewClassifyMenu', :git => 'https://github.com/ChenYilong/CollectionViewClassifyMenu.git', :commit => '603592b33694e26088dd9950888963adb20a2afa'
   # SVGA: the tab icon animations (docs/CYLTabBarController-Integration.md, SVGA TODO).
-  pod 'CYLTabBarController', :subspecs => ['Core', 'SVGA', 'CYLFlatDesignTabBar'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '5a212de9b75c221536647ba2538450d47ade079c'
+  pod 'CYLTabBarController', :subspecs => ['Core', 'SVGA', 'CYLFlatDesignTabBar'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '230b52662cea3b584a5c0da704e55fe3f4758ae8'
   # CYLAnimatedItem, the shared animated icon + title component the search bar items subclass: its own pod in
   # CYLTabBarController's repository, not on the trunk yet. The core depends on its Core only; the example adds the
   # engines it plays (docs/animated-icon-component.md).
-  pod 'CYLAnimatedItem', :subspecs => ['Core', 'SVGA', 'LottieSwift'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '5a212de9b75c221536647ba2538450d47ade079c'
+  pod 'CYLAnimatedItem', :subspecs => ['Core', 'SVGA', 'LottieSwift'], :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '230b52662cea3b584a5c0da704e55fe3f4758ae8'
   # CYLTabBarController's badge needs CYLDeallocBlockExecutor 1.4, not on the trunk yet (as CollectionViewClassifyMenu's Podfile).
   pod 'CYLDeallocBlockExecutor', :git => 'https://github.com/ChenYilong/CYLDeallocBlockExecutor.git', :commit => '4276a6dab5a428ccc3a5f3f347eab991881fb97c'
 

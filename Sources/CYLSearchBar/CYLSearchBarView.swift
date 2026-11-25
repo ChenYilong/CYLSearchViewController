@@ -2344,8 +2344,8 @@ private final class CYLSearchBarItemButton: CYLTagButton {
         nil
     }
 
-    private var resolvedTint: UIColor {
-        item?.tintColor ?? item?.searchBarView?.itemTintColor ?? .label
+    private var resolvedTint: UIColor? {
+        item?.tintColor ?? item?.searchBarView?.itemTintColor
     }
 
     private var resolvedImageSize: CGSize {
@@ -2390,8 +2390,14 @@ private final class CYLSearchBarItemButton: CYLTagButton {
             let appearance = style.appearance(for: state)
             let attributes = item.titleTextAttributes(for: state) ?? item.titleTextAttributes(for: .normal)
             appearance.font = attributes?[.font] as? UIFont ?? .systemFont(ofSize: 17, weight: .semibold)
-            appearance.textColor = attributes?[.foregroundColor] as? UIColor ?? tint
-            appearance.iconColor = tint
+            // Colors the host did not set stay unset: the component draws its own default tint (label, the inherited
+            // tint when selected, dimmed when disabled), which follows dark mode.
+            if let color = attributes?[.foregroundColor] as? UIColor ?? tint {
+                appearance.textColor = color
+            }
+            if let tint {
+                appearance.iconColor = tint
+            }
             let background = item.isSelected ? (item.selectedBackgroundColor ?? item.backgroundColor) : item.backgroundColor
             appearance.backgroundColor = background ?? .clear
             appearance.borderColor = nil
@@ -2414,8 +2420,6 @@ private final class CYLSearchBarItemButton: CYLTagButton {
         selectedImage = item.style == .divider || item.animatedImage != nil ? nil : item.selectedImage
         animationURL = item.style == .divider ? nil : item.animationURL
         animationLoops = item.animationLoops
-        // One-color animations (the near-black camera) are drawn in the item's icon color, light and dark, so they follow dark mode.
-        animationTint = "title"
         animationSpeed = item.animationSpeed
         badgeValue = item.style == .divider ? nil : item.badgeValue
         badgeColor = item.badgeColor
