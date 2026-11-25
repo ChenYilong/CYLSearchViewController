@@ -252,7 +252,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     /**
      * The text field inside the field.
      */
-    @objc public let textField = UITextField()
+    @objc public let textField: UITextField = CYLSearchBarTextField()
 
     /**
      * The rounded field that holds the magnifier, the text and `trailingAccessoryViews`.
@@ -355,7 +355,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     }
 
     /**
-     * The placeholder color. `placeholderTextColor` when nil.
+     * The placeholder color. `UIColor.secondaryLabel` when nil (readable in dark mode).
      */
     @objc public var placeholderColor: UIColor? { didSet { applyStyle() } }
 
@@ -566,6 +566,30 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     @objc public private(set) var items: [CYLSearchBarItem] = []
 
     /**
+     * The row of the items: one `CYLAnimatedItemStackView`, so the tint (the built-in default that follows dark mode, a
+     * host's `itemTintColor`) and the dividers are the component's, not drawn per item here.
+     */
+    private let itemStack = CYLAnimatedItemStackView()
+
+    /**
+     * Makes the stack hold the views of `items` in order; a divider item becomes the stack's built-in divider after the
+     * item before it (none at the start, one for several in a row).
+     */
+    private func rebuildItemStack() {
+        let content = items.filter { $0.style != .divider }
+        itemStack.replaceItemViews(content.map { $0.itemControl })
+        for view in itemStack.itemViews {
+            itemStack.removeDivider(after: view)
+        }
+        for (index, item) in items.enumerated() where item.style == .divider {
+            guard let before = items[..<index].last(where: { $0.style != .divider }) else { continue }
+            itemStack.setDivider(after: before.itemControl, spacingBefore: Self.spacing, spacingAfter: Self.spacing)
+        }
+        itemStack.isHidden = content.isEmpty
+        setNeedsLayout()
+    }
+
+    /**
      * The views of `items` (`CYLTagButton`s), in the same order.
      */
     @objc public var itemViews: [CYLTagButton] {
@@ -633,7 +657,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         let view = item.itemControl
         view.removeTarget(nil, action: nil, for: .allEvents)
         view.addTarget(self, action: #selector(itemTapped(_:)), for: .touchUpInside)
-        fieldView.addSubview(view)
+        rebuildItemStack()
         view.reload()
         setNeedsLayout()
     }
@@ -664,6 +688,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         item.searchBarView = nil
         item.itemView.removeTarget(self, action: nil, for: .allEvents)
         item.itemView.removeFromSuperview()
+        rebuildItemStack()
         setNeedsLayout()
     }
 
@@ -1330,6 +1355,21 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         textField.accessibilityLabel = CYLSearchResources.localizedString(forKey: "search.field")
         textField.addTarget(self, action: #selector(textChanged), for: .editingChanged)
         fieldView.addSubview(textField)
+        itemStack.axis = .horizontal
+        itemStack.contentMargin = 0
+        itemStack.spacing = Self.spacing
+        itemStack.dispatchesItemTaps = false
+        itemStack.isHidden = true
+        fieldView.addSubview(itemStack)
+        // A placeholder set on the text field itself (not on the bar) is drawn by the bar's label, too: the text field's
+        // own placeholder is a dim system gray that dark mode makes hard to read.
+        (textField as? CYLSearchBarTextField)?.onPlaceholderChange = { [weak self] text in
+            guard let self, self.placeholderLabel.text != text else {
+                return
+            }
+            self.placeholderLabel.text = text
+            self.applyStyle()
+        }
         // The placeholder is drawn by this label at the full font size and cut off with an ellipsis when it does not
         // fit: UITextField's own placeholder shrinks to a quarter of the size at large Dynamic Type sizes. The text
         // field keeps the placeholder (in a clear color) for VoiceOver.
@@ -1425,7 +1465,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     }
 
     private var effectiveAccessoryViews: [UIView] {
-        var views = (trailingAccessoryViewsShow ? trailingAccessoryViews : []) + itemViews.map { $0 as UIView }
+        var views = (trailingAccessoryViewsShow ? trailingAccessoryViews : []) + (itemStack.itemViews.isEmpty ? [] : [itemStack as UIView])
         let hasText = !(textField.text ?? "").isEmpty
         if showsVoiceButton && !hasText {
             views.append(voiceButton)
@@ -1595,7 +1635,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
             textField.attributedPlaceholder = NSAttributedString(string: placeholder, attributes: [.foregroundColor: UIColor.clear, .font: font as UIFont])
         }
         placeholderLabel.font = font
-        placeholderLabel.textColor = placeholderColor ?? .placeholderText
+        placeholderLabel.textColor = placeholderColor ?? .secondaryLabel
         updatePlaceholderVisibility()
         fieldView.backgroundColor = fieldBackgroundColor
         fieldView.layer.borderColor = fieldBorderColor?.resolvedColor(with: traitCollection).cgColor
@@ -2335,8 +2375,8 @@ private final class CYLSearchBarItemButton: CYLTagButton {
         nil
     }
 
-    private var resolvedTint: UIColor {
-        item?.tintColor ?? item?.searchBarView?.itemTintColor ?? .label
+    private var resolvedTint: UIColor? {
+        item?.tintColor ?? item?.searchBarView?.itemTintColor
     }
 
     private var resolvedImageSize: CGSize {
@@ -2381,8 +2421,14 @@ private final class CYLSearchBarItemButton: CYLTagButton {
             let appearance = style.appearance(for: state)
             let attributes = item.titleTextAttributes(for: state) ?? item.titleTextAttributes(for: .normal)
             appearance.font = attributes?[.font] as? UIFont ?? .systemFont(ofSize: 17, weight: .semibold)
-            appearance.textColor = attributes?[.foregroundColor] as? UIColor ?? tint
-            appearance.iconColor = tint
+            // Colors the host did not set stay unset: the component draws its own default tint (label, the inherited
+            // tint when selected, dimmed when disabled), which follows dark mode.
+            if let color = attributes?[.foregroundColor] as? UIColor ?? tint {
+                appearance.textColor = color
+            }
+            if let tint {
+                appearance.iconColor = tint
+            }
             let background = item.isSelected ? (item.selectedBackgroundColor ?? item.backgroundColor) : item.backgroundColor
             appearance.backgroundColor = background ?? .clear
             appearance.borderColor = nil
@@ -2555,7 +2601,7 @@ private final class CYLSearchBarMultiSearchView: UIView, UITextFieldDelegate {
     }
 
     private var placeholderColor: UIColor {
-        searchBarView?.placeholderColor ?? .placeholderText
+        searchBarView?.placeholderColor ?? .secondaryLabel
     }
 
     private var animationDuration: TimeInterval {
@@ -2876,5 +2922,19 @@ private final class CYLSearchBarMultiSearchView: UIView, UITextFieldDelegate {
         }
         let length = (textField.text as NSString?)?.length ?? 0
         return length - range.length + (string as NSString).length <= maximum
+    }
+}
+
+/**
+ * The bar's text field: a placeholder assigned to it directly is handed to the bar, which draws it with `placeholderColor`.
+ */
+private final class CYLSearchBarTextField: UITextField {
+
+    var onPlaceholderChange: ((String?) -> Void)?
+
+    override var placeholder: String? {
+        didSet {
+            onPlaceholderChange?(placeholder)
+        }
     }
 }

@@ -31,35 +31,6 @@ public final class CYLSearchTagListStyle: NSObject {
     @objc public static var tagBackgroundStyle: CYLTagBackgroundStyle = .flat
 
     /**
-     * The one tint of every part of a tag list that is not a tag's background: the tags' text, the section header's
-     * title, the clear (trash) button, the refresh / More icon and the fold chevron. `.label` by default, a dynamic color
-     * (dark in light mode, light in dark mode), so no icon disappears on the glass in dark mode.
-     */
-    @objc public static var tagListTintColor: UIColor = .label
-
-    /**
-     * The clear (trash) icon, the SF Symbol "trash": a vector, sharp at every scale, drawn as a template in the tint.
-     */
-    @objc public static var clearImage: UIImage? {
-        UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(pointSize: 17, weight: .regular))?
-            .withRenderingMode(.alwaysTemplate)
-    }
-
-    /**
-     * Gives the header texts and icons of `style` (title, clear button, refresh / More icon, fold chevron) the tint
-     * `tagListTintColor` and the clear button the vector trash icon. A style of an example calls this once, so the
-     * icons follow dark mode with the tags.
-     */
-    @objc(applyTintToStyle:)
-    public static func applyTint(to style: CYLMenuStyle) {
-        style.headerTextColor = tagListTintColor
-        style.clearButtonColor = tagListTintColor
-        style.clearButtonImage = clearImage
-        style.moreButtonColor = tagListTintColor
-        style.foldControlColor = tagListTintColor
-    }
-
-    /**
      * Called with the style after the defaults are set, to change any value of it. nil by default.
      */
     @objc public static var styleCustomizer: ((CYLMenuStyle) -> Void)?
@@ -86,7 +57,7 @@ public final class CYLSearchTagListStyle: NSObject {
             appearance.cornerRadius = tagCornerRadius
             appearance.margin = 14
             appearance.font = .systemFont(ofSize: 17)
-            appearance.textColor = tagListTintColor
+            appearance.textColor = .label
         }
         style.backgroundStyle = tagBackgroundStyle
         style.itemHeight = 36
@@ -95,7 +66,6 @@ public final class CYLSearchTagListStyle: NSObject {
         style.sectionInsets = UIEdgeInsets(top: 4, left: 16, bottom: 24, right: 16)
         style.headerHeight = 44
         style.headerFont = .systemFont(ofSize: 20, weight: .bold)
-        applyTint(to: style)
         style.headerHorizontalInset = 16
         styleCustomizer?(style)
     }
@@ -134,7 +104,6 @@ public final class CYLSearchTagListStyle: NSObject {
         style.backgroundColor = .clear
         style.headerHeight = 44
         style.headerFont = .systemFont(ofSize: 20, weight: .bold)
-        applyTint(to: style)
         style.headerHorizontalInset = 16
         style.moreButtonImage = CYLSearchTagListHeader.refreshImage
         list.style = style

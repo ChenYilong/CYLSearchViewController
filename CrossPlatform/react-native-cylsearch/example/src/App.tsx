@@ -415,6 +415,8 @@ function DiscoverDemo({ onBack }: { onBack: () => void }) {
   const topics = useMemo(() => {
     return topicsOnPage(page);
   }, [page]);
+  // The field's placeholder is the first topic (iOS `reloadLists`); the Search button searches it when nothing is typed.
+  const placeholder = topics[0]?.title ?? text['discover.search'] ?? '';
   const search = (text: string) => {
     const query = text.trim();
     if (!query) return;
@@ -428,6 +430,7 @@ function DiscoverDemo({ onBack }: { onBack: () => void }) {
       <CYLSearchBarView
         style={styles.discoverBar}
         text={barText}
+        placeholder={placeholder}
         searchBarStyle="bordered"
         showsSearchIcon={false}
         embedsInNavigationBar
@@ -435,13 +438,13 @@ function DiscoverDemo({ onBack }: { onBack: () => void }) {
         onBackButtonTap={onBack}
         fieldShadowOpacity={0.06}
         onTextChange={(event) => { typed.current = event.nativeEvent.text; }}
-        onSubmit={(event) => search(event.nativeEvent.text)}
+        onSubmit={(event) => search(event.nativeEvent.text || placeholder)}
         ref={barRef}
         items={[
           // The camera button itself plays the animation (Animation demo rule): search_camera.json, the same Lottie file on every platform.
           { style: 'icon', image: 'camera', title: text['discover.imageSearch'], animationURL: 'search_camera.json', animationLoops, animationSpeed, onPress: () => setMessage(text['discover.imageSearchUnavailable'] ?? '') },
           { style: 'divider' },
-          { style: 'text', title: text['discover.search'], accessibilityIdentifier: 'CYLSearchDiscoverSearchButton', onPress: () => search(typed.current) },
+          { style: 'text', title: text['discover.search'], accessibilityIdentifier: 'CYLSearchDiscoverSearchButton', onPress: () => search(typed.current || placeholder) },
         ]}
       />
       {/* The native tag list brings its own section header (title and trash) and lines up with the bar: no custom header. */}

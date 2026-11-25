@@ -208,7 +208,6 @@ final class CYLContactTagEditorViewController: UIViewController {
         style.sectionInsets = UIEdgeInsets(top: 4, left: 16, bottom: 20, right: 16)
         style.headerHeight = 40
         style.headerFont = .systemFont(ofSize: 15)
-        CYLSearchTagListStyle.applyTint(to: style)
         style.headerHorizontalInset = 16
         style.backgroundColor = .systemBackground
         style.imageSize = CGSize(width: 14, height: 14)

@@ -404,19 +404,19 @@ final class CYLSearchExampleCacheFocusItemTests: CYLSearchExampleTestCase {
         XCTAssertTrue(camera.searchBarView === bar)
         XCTAssertTrue(bar.hasItem(of: .text))
         XCTAssertEqual(bar.itemViews.count, 3)
-        XCTAssertTrue(camera.itemView.superview === bar.fieldView)
+        // The items sit in the bar's one row (a CYLAnimatedItemStackView) inside the field.
+        XCTAssertTrue(camera.itemView.isDescendant(of: bar.fieldView))
         // KVC: "item" belongs to the core's private CYLSearchBarItemButton class.
         XCTAssertTrue((camera.itemView.value(forKey: "item") as? CYLSearchBarItem) === camera)
         XCTAssertTrue(camera.actualBadgeSuperView() === camera.itemView)
 
-        // Layout: in order after the text, inside the field, a 36 pt camera, a 1 pt divider skipped by VoiceOver.
+        // Layout: in order after the text, inside the field, a 36 pt camera, then the row's built-in divider (8 + 1 + 8 pt
+        // gap, not an item view) before the Search button.
         bar.layoutIfNeeded()
-        let cameraFrame = camera.itemView.frame
-        let dividerFrame = divider.itemView.frame
-        let searchFrame = search.itemView.frame
+        let cameraFrame = bar.fieldView.convert(camera.itemView.bounds, from: camera.itemView)
+        let searchFrame = bar.fieldView.convert(search.itemView.bounds, from: search.itemView)
         XCTAssertLessThanOrEqual(bar.textField.frame.maxX, cameraFrame.minX + 0.5)
-        XCTAssertLessThanOrEqual(cameraFrame.maxX, dividerFrame.minX + 0.5)
-        XCTAssertLessThanOrEqual(dividerFrame.maxX, searchFrame.minX + 0.5)
+        XCTAssertGreaterThanOrEqual(searchFrame.minX - cameraFrame.maxX, 17 - 0.5)
         XCTAssertLessThanOrEqual(searchFrame.maxX, bar.fieldView.bounds.width + 0.5)
         XCTAssertEqual(cameraFrame.width, 36, accuracy: 0.5)
         XCTAssertFalse(divider.itemView.isAccessibilityElement)
@@ -470,7 +470,9 @@ final class CYLSearchExampleCacheFocusItemTests: CYLSearchExampleTestCase {
         search.setTitleTextAttributes([.foregroundColor: UIColor.systemBlue], for: .normal)
         XCTAssertEqual(search.titleTextAttributes(for: .normal)?[.foregroundColor] as? UIColor, UIColor.systemBlue)
         bar.itemTintColor = UIColor.systemGreen
-        XCTAssertEqual(camera.itemView.imageView.tintColor, UIColor.systemGreen)
+        // The component holds the color already resolved with the item's own traits, not the dynamic color.
+        let itemTraits = camera.itemView.traitCollection
+        XCTAssertEqual(camera.itemView.imageView.tintColor?.resolvedColor(with: itemTraits), UIColor.systemGreen.resolvedColor(with: itemTraits))
 
         // The fixed bordered style, and removal.
         bar.searchBarStyle = .bordered

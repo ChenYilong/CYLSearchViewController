@@ -42,7 +42,7 @@ public final class CYLSearchBarAppearance: NSObject, NSCopying {
     @objc public var textColor: UIColor?
 
     /**
-     * The color of the placeholder (QMUI `SearchBarPlaceholderColor`, default `UIColor.placeholderText`).
+     * The color of the placeholder (QMUI `SearchBarPlaceholderColor`, default `UIColor.secondaryLabel`).
      */
     @objc public var placeholderColor: UIColor?
 
@@ -138,7 +138,7 @@ public final class CYLSearchBarAppearance: NSObject, NSCopying {
      */
     @objc public override init() {
         super.init()
-        placeholderColor = .placeholderText
+        placeholderColor = .secondaryLabel
         placeholder = CYLSearchResources.localizedString(forKey: "search.field")
         cancelTitle = CYLSearchResources.localizedString(forKey: "search.cancel")
         tintColor = UIColor(red: 0 / 255, green: 104 / 255, blue: 248 / 255, alpha: 1)
