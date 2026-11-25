@@ -104,8 +104,7 @@ public final class CYLSearchExampleAppDelegate: UIResponder, UIApplicationDelega
     }
 
     /**
-     * Search pages live in navigation controllers, so `navigationItem.searchController` and the Issue #1317 workaround
-     * (`hidesSearchBarWhenScrolling = NO`) keep working.
+     * Search pages live in navigation controllers: the results page puts the core's search field into its navigation bar.
      */
     private static func registerPages(_ pages: CYLTabBarPageRegistry) {
         pages.register({ _, _ in

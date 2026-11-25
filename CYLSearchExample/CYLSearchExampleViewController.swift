@@ -47,14 +47,14 @@ public final class CYLSearchExampleDataSource: NSObject, CYLSearchViewDataSource
 }
 
 /**
- * The Issue #1317 reproduction: a navigation-item `UISearchController` over a list with pull to refresh and an empty
- * state from CYLTableViewPlaceHolder. The search controller is plain UIKit; the refresh goes through `CYLSearchView`'s
- * class methods (`+setRefreshHandler:forScrollView:`, `+endRefreshingInScrollView:`), so the page never calls
- * CYLTableViewPlaceHolder's refresh API itself. "Repro" switches `hidesSearchBarWhenScrolling`; "Overlay" opens a
- * `CYLSearchView` with the same data source (`showSearchInViewController:animated:`).
+ * The results page: the core's one navigation-bar search field (`CYLSearchBarView`, `applyNavigationFieldStyle()`)
+ * over a list with pull to refresh and an empty state from CYLTableViewPlaceHolder. The refresh goes through
+ * `CYLSearchView`'s class methods (`+setRefreshHandler:forScrollView:`, `+endRefreshingInScrollView:`), so the page
+ * never calls CYLTableViewPlaceHolder's refresh API itself. "Overlay" opens a `CYLSearchView` with the same data
+ * source (`showSearchInViewController:animated:`).
  */
 @objc(CYLSearchExampleViewController)
-public final class CYLSearchExampleViewController: UITableViewController, UISearchResultsUpdating, CYLTableViewPlaceHolderDelegate {
+public final class CYLSearchExampleViewController: UITableViewController, CYLSearchBarViewDelegate, CYLTableViewPlaceHolderDelegate {
 
     private static let cellIdentifier = "CYLSearchExampleCell"
 
@@ -62,9 +62,9 @@ public final class CYLSearchExampleViewController: UITableViewController, UISear
     private let refreshProvider: CYLSearchExampleRefreshing
 
     /**
-     * The search controller installed in the navigation item, pinned with `hidesSearchBarWhenScrolling = NO`.
+     * The search field in the navigation bar: the core's `CYLSearchBarView` with the shared navigation field look.
      */
-    @objc public let searchController = UISearchController(searchResultsController: nil)
+    @objc public let searchBar = CYLSearchBarView()
 
     /**
      * The search page opened by "Overlay", with `resultsDataSource` set to the page's data source. The page's own list
@@ -102,25 +102,13 @@ public final class CYLSearchExampleViewController: UITableViewController, UISear
         // navigationItem.title, not title: a view controller's title also renames its tab item, whose title comes
         // from CYLTabBarConfiguration.json.
         navigationItem.title = CYLSearchResources.localizedString(forKey: "search.title")
-        searchController.searchResultsUpdater = self
-        searchController.obscuresBackgroundDuringPresentation = false
-        searchController.searchBar.placeholder = CYLSearchResources.localizedString(forKey: "search.placeholder")
-        navigationItem.searchController = searchController
-        // The Issue #1317 workaround: the search bar stays pinned.
-        navigationItem.hidesSearchBarWhenScrolling = false
-        // The search bar stays in the navigation bar, under the title. On iOS 26 an iPhone would otherwise float it
-        // at the bottom of the screen, over the list: a search bar never covers a view.
-        if #available(iOS 16.0, *) {
-            navigationItem.preferredSearchBarPlacement = .stacked
-        }
-        if #available(iOS 26.0, *) {
-            navigationItem.searchBarPlacementAllowsToolbarIntegration = false
-        }
+        searchBar.applyNavigationFieldStyle()
+        searchBar.placeholder = CYLSearchResources.localizedString(forKey: "search.placeholder")
+        searchBar.accessibilityIdentifier = "CYLSearchResultsField"
+        searchBar.delegate = self
+        embedSearchBarIfPossible()
         definesPresentationContext = true
         tableView.tableFooterView = UIView()
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: CYLSearchResources.localizedString(forKey: "repro.off"),
-                                                            style: .plain, target: self, action: #selector(toggleReproduction))
-        navigationItem.rightBarButtonItem?.accessibilityIdentifier = "CYLIssueReproductionToggle"
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: CYLSearchResources.localizedString(forKey: "action.overlay"),
                                                            style: .plain, target: self, action: #selector(showOverlay))
         navigationItem.leftBarButtonItem?.accessibilityIdentifier = "CYLSearchOverlayButton"
@@ -134,12 +122,19 @@ public final class CYLSearchExampleViewController: UITableViewController, UISear
     }
 
     /**
-     * Keeps the view below the navigation bar and its search bar after every layout (a search bar never covers a
-     * view): on some devices UIKit places the view a few points under the stacked search bar.
+     * The field goes into the navigation bar once the page sits in a navigation controller (at load, or when it first
+     * appears).
      */
-    override public func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        keepViewBelowNavigationBar()
+    override public func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        embedSearchBarIfPossible()
+    }
+
+    private func embedSearchBarIfPossible() {
+        guard navigationController != nil, navigationItem.titleView !== searchBar else {
+            return
+        }
+        searchBar.embedInNavigationBar(of: self)
     }
 
     /**
@@ -180,7 +175,7 @@ public final class CYLSearchExampleViewController: UITableViewController, UISear
      * Asks the data source again for the search bar's text and reloads the list (with its empty state).
      */
     @objc public func reloadResults() {
-        let query = searchController.searchBar.text ?? ""
+        let query = searchBar.text ?? ""
         searchResults = searchDataSource.searchView(overlaySearchView, resultsForQuery: query)
         tableView.cyl_reloadData()
     }
@@ -188,7 +183,7 @@ public final class CYLSearchExampleViewController: UITableViewController, UISear
     /**
      * Requeries the results when the search text changes.
      */
-    public func updateSearchResults(for searchController: UISearchController) {
+    public func searchBarView(_ searchBarView: CYLSearchBarView, textDidChange text: String) {
         reloadResults()
     }
 
@@ -196,12 +191,6 @@ public final class CYLSearchExampleViewController: UITableViewController, UISear
         // Over the navigation controller's view: the page is opaque and has its own search bar at the top of the safe
         // area, so it covers the list and the navigation bar as one page.
         overlaySearchView.showSearch(in: navigationController ?? self, animated: true)
-    }
-
-    @objc private func toggleReproduction() {
-        let enabled = !navigationItem.hidesSearchBarWhenScrolling
-        navigationItem.hidesSearchBarWhenScrolling = enabled
-        navigationItem.rightBarButtonItem?.title = CYLSearchResources.localizedString(forKey: enabled ? "repro.on" : "repro.off")
     }
 
     // MARK: - Table
@@ -237,27 +226,5 @@ public final class CYLSearchExampleViewController: UITableViewController, UISear
      */
     public func enableScrollWhenPlaceHolderViewShowing() -> Bool {
         true
-    }
-
-    // MARK: - Layout
-
-    /**
-     * Moves the view down, and shortens it, by the height the navigation bar (with a stacked search bar) covers.
-     * Nothing changes when the view already starts at the bar's bottom edge or lower.
-     */
-    private func keepViewBelowNavigationBar() {
-        guard let bar = navigationController?.navigationBar, !bar.isHidden, bar.window != nil,
-              let container = viewIfLoaded?.superview else {
-            return
-        }
-        let barBottom = container.convert(bar.bounds, from: bar).maxY
-        let overlap = barBottom - view.frame.minY
-        guard overlap > 0.5 else {
-            return
-        }
-        var frame = view.frame
-        frame.origin.y += overlap
-        frame.size.height = max(0, frame.height - overlap)
-        view.frame = frame
     }
 }

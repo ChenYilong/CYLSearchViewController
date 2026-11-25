@@ -24,26 +24,23 @@ final class CYLSearchExampleSearchTests: CYLSearchExampleTestCase {
         let source = CYLSearchExampleDataSource()
         let controller = CYLSearchExampleViewController(searchDataSource: source, refreshProvider: source)
         controller.loadViewIfNeeded()
-        XCTAssertFalse(controller.navigationItem.hidesSearchBarWhenScrolling)
         XCTAssertNotNil(controller.tableView.cyl_header)
         XCTAssertEqual(controller.searchResults.count, 40)
-        controller.searchController.searchBar.text = "not a result"
+        controller.searchBar.text = "not a result"
         controller.reloadResults()
         XCTAssertEqual(controller.searchResults.count, 0)
         let placeholders = { controller.tableView.subviews.filter { $0.accessibilityIdentifier == "CYLSearchEmptyState" } }
         XCTAssertEqual(placeholders().count, 1)
-        controller.searchController.searchBar.text = ""
+        controller.searchBar.text = ""
         controller.reloadResults()
         XCTAssertEqual(placeholders().count, 0)
 
-        let toggle = try XCTUnwrap(controller.navigationItem.rightBarButtonItem)
-        let toggleAction = try XCTUnwrap(toggle.action)
-        UIApplication.shared.sendAction(toggleAction, to: toggle.target, from: toggle, for: nil)
-        XCTAssertTrue(controller.navigationItem.hidesSearchBarWhenScrolling)
-        XCTAssertEqual(toggle.title, CYLSearchResources.localizedString(forKey: "repro.on"))
         XCTAssertTrue(controller.overlaySearchView.resultsDataSource === source, "the overlay searches the same data")
-        UIApplication.shared.sendAction(toggleAction, to: toggle.target, from: toggle, for: nil)
-        XCTAssertFalse(controller.navigationItem.hidesSearchBarWhenScrolling)
+        // The field is the core's one navigation-bar search field, typing in it requeries the list.
+        XCTAssertEqual(controller.searchBar.searchBarStyle, .bordered)
+        controller.searchBar.text = "1"
+        controller.searchBarView(controller.searchBar, textDidChange: "1")
+        XCTAssertLessThan(controller.searchResults.count, 40)
     }
 
     func testPackagedResourcesAndLocalization() {
@@ -278,7 +275,7 @@ final class CYLSearchExampleSearchTests: CYLSearchExampleTestCase {
         let controller = CYLSearchExampleViewController(searchDataSource: source, refreshProvider: refresh)
         controller.loadViewIfNeeded()
         XCTAssertEqual(controller.searchResults.count, 1)
-        controller.searchController.searchBar.text = "empty"
+        controller.searchBar.text = "empty"
         try XCTUnwrap(controller.tableView.cyl_header?.refreshingBlock)()
         let finished = expectation(description: "Refresh completion updates the search results")
         DispatchQueue.main.async {

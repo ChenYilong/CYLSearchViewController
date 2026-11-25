@@ -1859,3 +1859,11 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 - Found on the way: in the sheet the Edit Tags field was see-through in dark mode with the default fill; the preset's opaque fill fixed it.
 - Test: `testContactTagsDemo...` asserts the remark title view is the core bar and both bars are bordered, radius 18, no icon. Full suite 201 tests, 0 failures. Screenshot: [one field, three screens](assets/ios-iphone18pro-sim-ios27.2-20261126-one-navigation-search-field-stitched.png).
 - Not changed (outside "the navigation bar's input box"): the editing bar (`editingBar`), the search bar demos' own styles, other platforms (the Android/HarmonyOS/Flutter/RN/mini program fields were not looked at; no peer asked).
+
+## DONE (2026-11-26): the Search tab uses the core search field too (owner chose "Replace with CYLSearchBarView")
+
+- Prompt (verbatim): "补上缺失的图片 继续上面的任务" with two screenshots: the Edit Remarks screen and the Search tab ("Filter results", a system search bar). Prompt (English): "Here are the missing images, continue the task above." Owner answer to the question about the Search tab: "Replace with CYLSearchBarView".
+- Change: `CYLSearchExampleViewController` (the Search tab) drops its `UISearchController` and uses `searchBar` (`CYLSearchBarView`, `applyNavigationFieldStyle()`, embedded with `embedInNavigationBar(of:)`, delegate `textDidChange` requeries). The "Repro: OFF/ON" button is gone (it toggled `hidesSearchBarWhenScrolling`, which no longer exists here); "Overlay" stays. Tests updated (results page asserts the core field, the covering tests use `searchBar`).
+- Result: iOS suite 201 tests, 0 failures. Screenshot: [Search tab and Edit Remarks](assets/ios-iphone18pro-sim-ios27.2-20261126-search-tab-core-field-stitched.png).
+- The Edit Remarks screenshot the owner sent showed the old grey field: an older build. This build (9103ae5 and later) shows the core capsule.
+- Other platforms keep their Issue #1317 "Repro" page; not touched.

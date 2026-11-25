@@ -283,20 +283,16 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         window.rootViewController = navigation
         window.makeKeyAndVisible()
-        for hides in [false, true] {
-            controller.navigationItem.hidesSearchBarWhenScrolling = hides
-            navigation.view.setNeedsLayout()
-            navigation.view.layoutIfNeeded()
-            let searchBar = visibleSearchView(controller.searchController.searchBar)
-            let searchBarFrame = searchBar.convert(searchBar.bounds, to: window)
-            let viewFrame = controller.view.convert(controller.view.bounds, to: window)
-            XCTAssertGreaterThanOrEqual(viewFrame.minY, navigation.navigationBar.frame.maxY - 0.5, "hides \(hides)")
-            if !hides { XCTAssertNotNil(searchBar.window, "the pinned search bar is shown") }
-            if !searchBar.isHidden && searchBar.window != nil && searchBarFrame.height > 0 {
-                XCTAssertFalse(searchBarFrame.insetBy(dx: 0, dy: 0.5).intersects(viewFrame),
-                               "hides \(hides): \(NSCoder.string(for: searchBarFrame)) / \(NSCoder.string(for: viewFrame))")
-            }
-        }
+        navigation.view.setNeedsLayout()
+        navigation.view.layoutIfNeeded()
+        let searchBar: UIView = controller.searchBar
+        XCTAssertTrue(controller.navigationItem.titleView === searchBar, "the core field sits in the navigation bar")
+        let searchBarFrame = searchBar.convert(searchBar.bounds, to: window)
+        let viewFrame = controller.view.convert(controller.view.bounds, to: window)
+        XCTAssertGreaterThanOrEqual(viewFrame.minY, navigation.navigationBar.frame.maxY - 0.5)
+        XCTAssertNotNil(searchBar.window, "the search bar is shown")
+        XCTAssertFalse(searchBarFrame.insetBy(dx: 0, dy: 0.5).intersects(viewFrame),
+                       "\(NSCoder.string(for: searchBarFrame)) / \(NSCoder.string(for: viewFrame))")
         window.isHidden = true
     }
 
@@ -304,24 +300,19 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
         let sizes: [UIContentSizeCategory] = [.large, .accessibilityExtraExtraExtraLarge]
 
-        // The navigation-item search bar of the results screen, with the bar pinned and hiding on scroll.
+        // The core search field in the results screen's navigation bar.
         let source = CYLSearchExampleDataSource()
         var results = CYLSearchExampleViewController(searchDataSource: source, refreshProvider: source)
         var navigation = UINavigationController(rootViewController: results)
         window.rootViewController = navigation
         window.makeKeyAndVisible()
-        for hides in [false, true] {
-            results.navigationItem.hidesSearchBarWhenScrolling = hides
-            runLoop(0.3)
-            navigation.view.setNeedsLayout()
-            navigation.view.layoutIfNeeded()
-            let searchBar = visibleSearchView(results.searchController.searchBar)
-            if !hides { XCTAssertNotNil(searchBar.window, "the pinned search bar is shown") }
-            if searchBar.window != nil && !searchBar.isHidden {
-                let covered = viewsCoveredByView(searchBar, nil)
-                XCTAssertEqual(covered.count, 0, "results, hides \(hides): \(covered)")
-            }
-        }
+        runLoop(0.3)
+        navigation.view.setNeedsLayout()
+        navigation.view.layoutIfNeeded()
+        let resultsBar: UIView = results.searchBar
+        XCTAssertNotNil(resultsBar.window, "the search bar is shown")
+        let resultsCovered = viewsCoveredByView(resultsBar, nil)
+        XCTAssertEqual(resultsCovered.count, 0, "results: \(resultsCovered)")
 
         // CYLSearchBarView on the search bar demo page, at the default and the largest text size.
         let demo = CYLSearchBarDemoViewController()
