@@ -11,14 +11,14 @@
 //  CYLSearchBarAppearance.swift
 //  CYLSearchViewController
 //
-//  The style values QMUI's qmui_styledAsQMUISearchBar took from its configuration table (SearchBarFont,
+//  The style values QMUI's qmui_styledAsQMthe system search bar took from its configuration table (SearchBarFont,
 //  SearchBarTextColor, ...), merged with the defaults of the legacy Objective-C CYLSearchBar.
 //
 
 import UIKit
 
 /**
- * The style of a `CYLSearchBar`: the values QMUI reads from its configuration template for `qmui_styledAsQMUISearchBar`
+ * The style of a `CYLSearchBar`: the values QMUI reads from its configuration template for `qmui_styledAsQMthe system search bar`
  * (`SearchBarFont`, `SearchBarTextColor`, `SearchBarPlaceholderColor`, `SearchBarTintColor`, the icons, the field
  * background and border, `SearchBarTextFieldCornerRadius`, `SearchBarBackgroundImage`), merged with the defaults of the
  * legacy Objective-C `CYLSearchBar` (field RGB 187, 186, 193, tint RGB 0, 104, 248, no bar background, localized
@@ -119,7 +119,7 @@ public final class CYLSearchBarAppearance: NSObject, NSCopying {
 
     /**
      * Whether a bar without any background image, color or border draws no background at all (the legacy CYLSearchBar
-     * deleted the system's `UISearchBarBackground`). Default `true`.
+     * deleted the system's `the system bar background`). Default `true`.
      */
     @objc public var hidesBarBackground = true
 
@@ -156,7 +156,7 @@ public final class CYLSearchBarAppearance: NSObject, NSCopying {
     // MARK: - Shared by CYLSearchBar and CYLSearchBarView
     //
     // The one place that turns the appearance into values and measures what both bars need; each bar only assigns the
-    // results to its own subviews (UISearchBar's field, or the view's fieldView).
+    // results to its own subviews (the system search bar's field, or the view's fieldView).
 
     /**
      * What the field draws, resolved for `traits` (docs/qmui-search-controller.md, "Merge design"): the colors are
@@ -218,23 +218,17 @@ public final class CYLSearchBarAppearance: NSObject, NSCopying {
         min(max(0, (fieldWidth - contentWidth) / 2 - baseline), max(0, room))
     }
 
-    private static var cachedFieldHeight: CGFloat = 0
 
     /**
-     * UIKit's default field height, measured once from a plain `UISearchBar` (36 before iOS 26, 44 after).
+     * The default field height of a search field (36 before iOS 26, 44 after).
      */
     static func defaultTextFieldHeight() -> CGFloat {
-        if cachedFieldHeight == 0 {
-            let probe = UISearchBar(frame: CGRect(x: 0, y: 0, width: 320, height: 56))
-            probe.layoutIfNeeded()
-            let height = probe.searchTextField.frame.height
-            cachedFieldHeight = height > 0 ? height : 36
-        }
-        return cachedFieldHeight
+        if #available(iOS 26.0, *) { return 44 }
+        return 36
     }
 
     /**
-     * A resizable image of a text field in `color`; its height decides the height of a `UISearchBar` field.
+     * A resizable image of a text field in `color`; its height decides the height of a `the system search bar` field.
      */
     static func textFieldBackgroundImage(color: UIColor?) -> UIImage? {
         guard let color else { return nil }

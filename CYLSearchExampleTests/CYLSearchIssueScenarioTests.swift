@@ -47,8 +47,8 @@ final class CYLSearchIssueScenarioTests: CYLSearchExampleTestCase {
 
     /// The bar's frame in the window as drawn at this moment (the presentation layer follows an animation).
     private func drawnFrame(of view: UIView, in window: UIWindow) -> CGRect {
-        guard let layer = view.layer.presentation() else { return view.convert(view.bounds, to: window) }
-        return layer.convert(layer.bounds, to: window.layer)
+        // The core never animates the field's position any more, so the model frame is the drawn frame.
+        view.convert(view.bounds, to: window)
     }
 
     // MARK: - I1 (#1319)
@@ -59,7 +59,6 @@ final class CYLSearchIssueScenarioTests: CYLSearchExampleTestCase {
         let screen = CYLSearchControllerDemoViewController(style: .plain)
         let (window, navigation) = open(screen)
         let search = try XCTUnwrap(screen.cylSearchController)
-        search.hidesNavigationBarDuringPresentation = false
         let bar = search.searchBar
         let start = drawnFrame(of: bar, in: window)
         XCTAssertGreaterThan(start.height, 0)
@@ -88,7 +87,6 @@ final class CYLSearchIssueScenarioTests: CYLSearchExampleTestCase {
         let screen = CYLSearchBarInViewDemoViewController()
         let (window, navigation) = open(screen)
         let search = try XCTUnwrap(screen.cylSearchController)
-        XCTAssertFalse(search.hidesNavigationBarDuringPresentation)
         let bar = search.searchBar
         XCTAssertTrue(bar.superview === screen.view, "a plain subview")
         let start = bar.convert(bar.bounds, to: window)
@@ -132,7 +130,6 @@ final class CYLSearchIssueScenarioTests: CYLSearchExampleTestCase {
         let screen = UIViewController()
         screen.view.backgroundColor = .systemBackground
         let search = CYLSearchController(contentsViewController: screen)
-        search.hidesNavigationBarDuringPresentation = false
         let bar = search.searchBar
         bar.sizeToFit()
         screen.view.addSubview(bar)
@@ -165,7 +162,7 @@ final class CYLSearchIssueScenarioTests: CYLSearchExampleTestCase {
             let (window, navigation) = open(screen)
             weakSearch = screen.cylSearchController
             XCTAssertNotNil(weakSearch, "the contents view controller keeps the wrapper")
-            XCTAssertTrue(navigation.topViewController?.navigationItem.searchController === weakSearch?.searchController)
+            XCTAssertTrue(navigation.topViewController?.navigationItem.titleView === weakSearch?.searchBar)
             runLoop(0.2)
             weakSearch?.setActive(true, animated: true)
             runLoop(0.9)
@@ -179,51 +176,12 @@ final class CYLSearchIssueScenarioTests: CYLSearchExampleTestCase {
             weakSearch?.setActive(false, animated: true)
             runLoop(0.9)
             XCTAssertEqual(weakSearch?.isActive, false)
-            XCTAssertFalse(weakSearch?.searchBar.usedAsTableHeaderView ?? true)
             window.rootViewController = nil
             window.isHidden = true
         }
         runLoop(0.6)
         XCTAssertNil(weakScreen, "the screen leaked")
         XCTAssertNil(weakSearch, "the wrapper leaked")
-    }
-
-    /// I3 (black band): the navigation item's bar keeps an opaque background while searching. The default style hides the bar
-    /// background, and while UIKit hides the navigation bar for the search only black is behind the bar.
-    func testI3NavigationItemBarHasNoBlackBandWhileSearching() throws {
-        let screen = CYLSearchNavigationItemDemoViewController(style: .plain)
-        let (window, _) = open(screen)
-        let search = try XCTUnwrap(screen.cylSearchController)
-        XCTAssertTrue(search.searchBar.hostedInNavigationItem)
-        search.setActive(true, animated: true)
-        runLoop(1.0)
-        search.searchBar.text = "H"
-        runLoop(0.4)
-        let bar = search.searchBar.convert(search.searchBar.bounds, to: window)
-        // Beside the field, above it and below it: the bar's own background, not the field.
-        let points = [CGPoint(x: bar.maxX - 2, y: bar.minY + 2), CGPoint(x: 2, y: bar.midY), CGPoint(x: 2, y: bar.maxY - 2)]
-        let expected = UIColor.systemBackground.resolvedColor(with: window.traitCollection)
-        var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 0
-        expected.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
-        for (point, pixel) in zip(points, pixels(window, at: points)) {
-            XCTAssertEqual(Int(pixel[0]), Int(red * 255), accuracy: 3, "red at \(point) in bar \(bar): \(pixel)")
-            XCTAssertEqual(Int(pixel[1]), Int(green * 255), accuracy: 3, "green at \(point) in bar \(bar): \(pixel)")
-            XCTAssertEqual(Int(pixel[2]), Int(blue * 255), accuracy: 3, "blue at \(point) in bar \(bar): \(pixel)")
-        }
-        search.setActive(false, animated: false)
-        window.rootViewController = nil
-        window.isHidden = true
-    }
-
-    /// I3: a header bar keeps the style's hidden background (only a navigation item bar draws one).
-    func testI3HeaderBarKeepsTheHiddenBackground() {
-        let search = CYLSearchController(contentsViewController: UIViewController())
-        search.install(in: UINavigationItem())
-        XCTAssertTrue(search.searchBar.hostedInNavigationItem)
-        search.installSearchBar(asHeaderOf: UITableView())
-        XCTAssertFalse(search.searchBar.hostedInNavigationItem)
-        let image = search.searchBar.backgroundImage(for: .any, barMetrics: .default)
-        XCTAssertEqual(image?.size ?? .zero, .zero, "a hidden background is an empty image")
     }
 
     private func pixels(_ window: UIWindow, at points: [CGPoint]) -> [[UInt8]] {

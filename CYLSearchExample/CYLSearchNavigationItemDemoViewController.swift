@@ -3,7 +3,7 @@
 //  CYLSearchExample
 //
 //  The "Navigation item" screen (QMUI issue #1229, docs/qmui-search-controller.md, row I3): a CYLSearchController is
-//  installed on the navigation item. QMUI's wrapper is not a UISearchController, so assigning it to
+//  installed on the navigation item. QMUI's wrapper is not the system search controller, so assigning it to
 //  `navigationItem.searchController` crashed; `install(in:)` assigns the system controller inside and keeps the wrapper
 //  alive, so this screen holds no strong reference of its own.
 //

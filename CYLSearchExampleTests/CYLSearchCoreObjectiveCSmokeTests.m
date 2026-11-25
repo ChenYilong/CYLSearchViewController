@@ -229,60 +229,6 @@
     XCTAssertEqual(searchView.suggestionCache.cachedQueries.count, 0u);
 }
 
-/*!
- * CYLSearchBar and CYLSearchBarAppearance are visible from Objective-C with the names of the design
- * (docs/qmui-search-controller.md): properties, blocks, accessory methods and the two class methods; the Cancel button is
- * cyl_cancelButton (UISearchBar answers cancelButton itself).
- */
-- (void)testSearchBarFromObjectiveC
-{
-    XCTAssertEqualObjects(NSStringFromClass(CYLSearchBar.class), @"CYLSearchBar");
-    XCTAssertEqualObjects(NSStringFromClass(CYLSearchBarAppearance.class), @"CYLSearchBarAppearance");
-    XCTAssertTrue([CYLSearchBar.class isSubclassOfClass:UISearchBar.class]);
-
-    CYLSearchBar *bar = [[CYLSearchBar alloc] initWithFrame:CGRectMake(0, 0, 320, 56)];
-    bar.usedAsTableHeaderView = YES;
-    bar.centersPlaceholder = YES;
-    bar.placeholderColor = UIColor.redColor;
-    bar.textColor = UIColor.blueColor;
-    bar.font = [UIFont systemFontOfSize:15];
-    bar.textFieldMargins = UIEdgeInsetsMake(0, 4, 0, 4);
-    bar.textFieldMarginsProvider = ^UIEdgeInsets(CYLSearchBar *searchBar, BOOL active) { return active ? UIEdgeInsetsZero : UIEdgeInsetsMake(0, 8, 0, 8); };
-    bar.cancelButtonFont = [UIFont boldSystemFontOfSize:15];
-    bar.cancelButtonMarginsProvider = ^UIEdgeInsets(CYLSearchBar *searchBar, BOOL active) { return UIEdgeInsetsZero; };
-    bar.alwaysEnablesCancelButton = NO;
-    XCTAssertFalse(bar.alwaysEnablesCancelButton);
-    XCTAssertTrue(bar.centersPlaceholder);
-    XCTAssertEqualObjects(bar.placeholderColor, UIColor.redColor);
-    XCTAssertEqual(bar.textFieldMargins.left, 4);
-    XCTAssertEqual(bar.textFieldMarginsProvider(bar, NO).left, 8);
-
-    UIView *leading = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
-    UIView *trailing = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 20, 20)];
-    bar.leadingAccessoryView = leading;
-    bar.trailingAccessoryView = trailing;
-    bar.leadingAccessoryViewMargins = UIEdgeInsetsMake(0, 8, 0, 0);
-    bar.trailingAccessoryViewMargins = UIEdgeInsetsMake(0, 0, 0, 8);
-    [bar setShowsLeadingAccessoryView:NO animated:NO];
-    bar.showsTrailingAccessoryView = NO;
-    XCTAssertFalse(bar.showsLeadingAccessoryView);
-    XCTAssertFalse(bar.showsTrailingAccessoryView);
-    XCTAssertEqual(bar.leadingAccessoryView, leading);
-
-    XCTAssertNil(bar.cyl_cancelButton);
-    XCTAssertNil(bar.searchController);
-    XCTAssertNil(bar.segmentedControl);
-    [bar applyDefaultAppearance];
-    CYLSearchBarAppearance *style = [CYLSearchBarAppearance.defaultAppearance copy];
-    style.tintColor = UIColor.orangeColor;
-    style.placeholder = @"Objective-C";
-    bar.appearanceStyle = style;
-    XCTAssertEqualObjects(bar.placeholder, @"Objective-C");
-    XCTAssertNotNil([CYLSearchBar textFieldBackgroundImageWithColor:UIColor.grayColor]);
-    XCTAssertNil([CYLSearchBar backgroundImageWithColor:nil borderColor:nil]);
-    XCTAssertNotNil([CYLSearchBar backgroundImageWithColor:nil borderColor:UIColor.grayColor]);
-}
-
 - (void)testSearchTableViewControllerFromObjectiveC
 {
     CYLSearchTableViewController *screen = [[CYLSearchTableViewController alloc] initWithStyle:UITableViewStylePlain];
@@ -323,9 +269,7 @@
     search.launchView = launchView;
     search.dimmingColor = UIColor.blackColor;
     search.supportsSwipeToDismissSearch = YES;
-    search.hidesNavigationBarDuringPresentation = NO;
     search.alwaysShowsSearchResultsController = NO;
-    search.forwardsAppearanceFromContentsViewController = YES;
     [search installSearchBarAsHeaderOf:contents.tableView];
     // The history hook: the built-in store of CYLSearchResources, set as the controller's historyStore.
     id<CYLSearchSuggestionCache> history = [CYLSearchResources suggestionCacheWithPolicy:CYLSearchSuggestionCachePolicyUserDefaults name:@"CYLObjectiveCSmoke"];
@@ -333,7 +277,7 @@
     search.historyStore = history;
     XCTAssertEqual(search.historyStore, history);
     [history removeAllQueries];
-    XCTAssertTrue([search.searchBar isKindOfClass:CYLSearchBar.class]);
+    XCTAssertTrue([search.searchBar isKindOfClass:CYLSearchBarView.class]);
     XCTAssertEqual(contents.tableView.tableHeaderView, search.searchBar);
     XCTAssertEqual(search.launchView, launchView);
     XCTAssertEqualObjects(search.dimmingColor, UIColor.blackColor);
@@ -360,7 +304,7 @@
     CYLSearchController *withResults = [[CYLSearchController alloc] initWithContentsViewController:contents resultsViewController:[[UIViewController alloc] init]];
     XCTAssertNil(withResults.tableView);
     [withResults installInNavigationItem:contents.navigationItem];
-    XCTAssertEqual(contents.navigationItem.searchController, withResults.searchController);
+    XCTAssertEqual(contents.navigationItem.titleView, withResults.searchBar);
     window.rootViewController = nil;
     window.hidden = YES;
 }
@@ -651,45 +595,6 @@
     XCTAssertTrue([sv respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:)], @"CYLSearchView tableView:didSelectRowAtIndexPath:");
 }
 
-- (void)testSearchBarObjectiveCMembersAreFenced
-{
-    CYLSearchBar *sb = [[CYLSearchBar alloc] initWithFrame:CGRectMake(0, 0, 320, 56)];
-    { __typeof__(sb.appearanceStyle) value112 = sb.appearanceStyle; sb.appearanceStyle = value112; }
-    { __typeof__(sb.usedAsTableHeaderView) value113 = sb.usedAsTableHeaderView; sb.usedAsTableHeaderView = value113; }
-    { __typeof__(sb.centersPlaceholder) value114 = sb.centersPlaceholder; sb.centersPlaceholder = value114; }
-    { __typeof__(sb.placeholderColor) value115 = sb.placeholderColor; sb.placeholderColor = value115; }
-    { __typeof__(sb.textColor) value116 = sb.textColor; sb.textColor = value116; }
-    { __typeof__(sb.font) value117 = sb.font; sb.font = value117; }
-    { __typeof__(sb.textFieldMargins) value118 = sb.textFieldMargins; sb.textFieldMargins = value118; }
-    { __typeof__(sb.textFieldMarginsProvider) value119 = sb.textFieldMarginsProvider; sb.textFieldMarginsProvider = value119; }
-    (void)sb.cyl_cancelButton;
-    { __typeof__(sb.cancelButtonFont) value120 = sb.cancelButtonFont; sb.cancelButtonFont = value120; }
-    { __typeof__(sb.cancelButtonMarginsProvider) value121 = sb.cancelButtonMarginsProvider; sb.cancelButtonMarginsProvider = value121; }
-    { __typeof__(sb.alwaysEnablesCancelButton) value122 = sb.alwaysEnablesCancelButton; sb.alwaysEnablesCancelButton = value122; }
-    (void)sb.backgroundView;
-    (void)sb.segmentedControl;
-    (void)sb.searchController;
-    { __typeof__(sb.leadingAccessoryView) value123 = sb.leadingAccessoryView; sb.leadingAccessoryView = value123; }
-    { __typeof__(sb.showsLeadingAccessoryView) value124 = sb.showsLeadingAccessoryView; sb.showsLeadingAccessoryView = value124; }
-    { __typeof__(sb.leadingAccessoryViewMargins) value125 = sb.leadingAccessoryViewMargins; sb.leadingAccessoryViewMargins = value125; }
-    { __typeof__(sb.trailingAccessoryView) value126 = sb.trailingAccessoryView; sb.trailingAccessoryView = value126; }
-    { __typeof__(sb.showsTrailingAccessoryView) value127 = sb.showsTrailingAccessoryView; sb.showsTrailingAccessoryView = value127; }
-    { __typeof__(sb.trailingAccessoryViewMargins) value128 = sb.trailingAccessoryViewMargins; sb.trailingAccessoryViewMargins = value128; }
-    { __typeof__(sb.placeholder) value129 = sb.placeholder; sb.placeholder = value129; }
-    { __typeof__(sb.text) value130 = sb.text; sb.text = value130; }
-    { __typeof__(sb.barTintColor) value131 = sb.barTintColor; sb.barTintColor = value131; }
-    XCTAssertTrue([sb respondsToSelector:@selector(initWithFrame:)], @"CYLSearchBar initWithFrame:");
-    XCTAssertTrue([sb respondsToSelector:@selector(initWithCoder:)], @"CYLSearchBar initWithCoder:");
-    XCTAssertTrue([sb respondsToSelector:@selector(applyDefaultAppearance)], @"CYLSearchBar applyDefaultAppearance");
-    XCTAssertTrue([sb respondsToSelector:@selector(setBackgroundImage:forBarPosition:barMetrics:)], @"CYLSearchBar setBackgroundImage:forBarPosition:barMetrics:");
-    XCTAssertTrue([sb respondsToSelector:@selector(didMoveToWindow)], @"CYLSearchBar didMoveToWindow");
-    XCTAssertTrue([sb respondsToSelector:@selector(layoutSubviews)], @"CYLSearchBar layoutSubviews");
-    XCTAssertTrue([sb respondsToSelector:@selector(setShowsLeadingAccessoryView:animated:)], @"CYLSearchBar setShowsLeadingAccessoryView:animated:");
-    XCTAssertTrue([sb respondsToSelector:@selector(setShowsTrailingAccessoryView:animated:)], @"CYLSearchBar setShowsTrailingAccessoryView:animated:");
-    XCTAssertTrue([CYLSearchBar respondsToSelector:@selector(textFieldBackgroundImageWithColor:)], @"CYLSearchBar textFieldBackgroundImageWithColor:");
-    XCTAssertTrue([CYLSearchBar respondsToSelector:@selector(backgroundImageWithColor:borderColor:)], @"CYLSearchBar backgroundImageWithColor:borderColor:");
-}
-
 - (void)testSearchBarAppearanceObjectiveCMembersAreFenced
 {
     CYLSearchBarAppearance *app = [[CYLSearchBarAppearance alloc] init];
@@ -718,7 +623,6 @@
 {
     CYLSearchController *sc = [[CYLSearchController alloc] initWithContentsViewController:[[UIViewController alloc] init]];
     { __typeof__(sc.searchResultsDelegate) value148 = sc.searchResultsDelegate; sc.searchResultsDelegate = value148; }
-    (void)sc.searchController;
     (void)sc.searchResultsController;
     (void)sc.searchBar;
     (void)sc.tableView;
@@ -731,14 +635,10 @@
     { __typeof__(sc.highlightsResultMatches) valueP3e = sc.highlightsResultMatches; sc.highlightsResultMatches = valueP3e; }
     { __typeof__(sc.resultMatchHighlightColor) valueP3f = sc.resultMatchHighlightColor; sc.resultMatchHighlightColor = valueP3f; }
     { __typeof__(sc.noResultsText) valueP4d = sc.noResultsText; sc.noResultsText = valueP4d; }
-    { __typeof__(sc.hidesNavigationBarDuringPresentation) value152 = sc.hidesNavigationBarDuringPresentation; sc.hidesNavigationBarDuringPresentation = value152; }
     { __typeof__(sc.alwaysShowsSearchResultsController) value153 = sc.alwaysShowsSearchResultsController; sc.alwaysShowsSearchResultsController = value153; }
-    { __typeof__(sc.forwardsAppearanceFromContentsViewController) value154 = sc.forwardsAppearanceFromContentsViewController; sc.forwardsAppearanceFromContentsViewController = value154; }
     { __typeof__(sc.supportsSwipeToDismissSearch) value155 = sc.supportsSwipeToDismissSearch; sc.supportsSwipeToDismissSearch = value155; }
     (void)sc.swipeGestureRecognizer;
     (void)sc.searchBarMaxY;
-    { __typeof__(sc.prefersStatusBarHiddenProvider) value156 = sc.prefersStatusBarHiddenProvider; sc.prefersStatusBarHiddenProvider = value156; }
-    { __typeof__(sc.preferredStatusBarStyleProvider) value157 = sc.preferredStatusBarStyleProvider; sc.preferredStatusBarStyleProvider = value157; }
     (void)sc.isEmptyViewShowing;
     { __typeof__(sc.historyStore) value158 = sc.historyStore; sc.historyStore = value158; }
     { __typeof__(sc.snapsHeaderSearchBar) value159 = sc.snapsHeaderSearchBar; sc.snapsHeaderSearchBar = value159; }
@@ -756,11 +656,6 @@
     XCTAssertTrue([sc respondsToSelector:@selector(showEmptyViewWithText:detailText:buttonTitle:buttonAction:)], @"CYLSearchController showEmptyViewWithText:detailText:buttonTitle:buttonAction:");
     XCTAssertTrue([sc respondsToSelector:@selector(showEmptyViewWithScenario:)], @"CYLSearchController showEmptyViewWithScenario:");
     XCTAssertTrue([sc respondsToSelector:@selector(hideEmptyView)], @"CYLSearchController hideEmptyView");
-    XCTAssertTrue([sc respondsToSelector:@selector(updateSearchResultsForSearchController:)], @"CYLSearchController updateSearchResultsForSearchController:");
-    XCTAssertTrue([sc respondsToSelector:@selector(willPresentSearchController:)], @"CYLSearchController willPresentSearchController:");
-    XCTAssertTrue([sc respondsToSelector:@selector(didPresentSearchController:)], @"CYLSearchController didPresentSearchController:");
-    XCTAssertTrue([sc respondsToSelector:@selector(willDismissSearchController:)], @"CYLSearchController willDismissSearchController:");
-    XCTAssertTrue([sc respondsToSelector:@selector(didDismissSearchController:)], @"CYLSearchController didDismissSearchController:");
     XCTAssertTrue([sc respondsToSelector:@selector(initWithNibName:bundle:)], @"CYLSearchController initWithNibName:bundle:");
     XCTAssertTrue([sc respondsToSelector:@selector(gestureRecognizerShouldBegin:)], @"CYLSearchController gestureRecognizerShouldBegin:");
     XCTAssertTrue([sc respondsToSelector:@selector(gestureRecognizer:shouldBeRequiredToFailByGestureRecognizer:)], @"CYLSearchController gestureRecognizer:shouldBeRequiredToFailByGestureRecognizer:");

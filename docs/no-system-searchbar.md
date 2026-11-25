@@ -24,6 +24,20 @@ view controller facade over it: it hosts the contents view controller as a child
 | `installSearchBar(asHeaderOf:)`, `install(in: UINavigationItem)`, `snapsHeaderSearchBar` | kept, re-backed | `CYLSearchBarView` as the header / `embedInNavigationBar(of:)`, `CYLSearchView.setSnapsHeader` |
 | `CYLSearchTableViewController` (`showsSearchBar`, `searchController`, `searchBar` type, `hidesSearchBarWhenEmptyViewShowing`, `hidesSearchBarInitially`, `isEmptyViewShowing`, `setUpSearchBar`, `searchController(_:updateResultsFor:)`, empty-view API) | kept, `searchBar` becomes `CYLSearchBarView?` | the facade |
 
+## Status 2026-11-26
+
+Steps 1 to 7 below are done on iOS; the grep is clean. Differences from the first plan (the design that shipped):
+
+- `CYLSearchController` does not sit on `CYLSearchView`. It hosts `CYLSearchBarView` (`searchBar`) and, while active, one page below the field
+  (dimming view, launch view, the results view controller's view, the empty view) over the navigation controller's view (or the window).
+  The results table is the caller's (`searchResultsDelegate` keeps the full `UITableViewDataSource` / `UITableViewDelegate`).
+- Kept (re-backed): `searchResultsController` (now a `let`), `searchBar` (type `CYLSearchBarView`), `searchBarMaxY`,
+  `alwaysShowsSearchResultsController`, `supportsSwipeToDismissSearch` (the page slides, no window snapshot).
+- Removed (breaking): `CYLSearchBar`, `searchController`, `hidesNavigationBarDuringPresentation`,
+  `forwardsAppearanceFromContentsViewController`, `prefersStatusBarHiddenProvider`, `preferredStatusBarStyleProvider`, the
+  `UISearchResultsUpdating` / `UISearchControllerDelegate` conformance, `CYLSearchBarAppearance`'s system-bar probe.
+- Text assigned in code (`searchBar.text = ...`) updates the results through the internal `CYLSearchBarView.textAssignedHandler`.
+
 ## Work list (status in `docs/task-log.md`)
 
 1. Facade `CYLSearchController` + `CYLSearchTableViewController` (core). TODO.

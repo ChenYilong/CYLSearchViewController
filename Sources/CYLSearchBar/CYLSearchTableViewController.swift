@@ -12,7 +12,7 @@
 //  CYLSearchTableViewController.swift
 //  CYLSearchViewController
 //
-//  QMUICommonTableViewController (Search) of QMUISearchController.m as a UITableViewController subclass: showsSearchBar,
+//  QMUICommonTableViewController (Search) of QMthe system search controller.m as a UITableViewController subclass: showsSearchBar,
 //  searchController, searchBar, hidesSearchBarWhenEmptyViewShowing, clearing the results' selection, the empty view that
 //  takes the header away and puts it back (issue #128). QMUI extends its table view controller by swizzling in +load; here
 //  the class is its own base class. docs/qmui-search-controller.md, "Public API" and phase 3.
@@ -22,7 +22,7 @@ import CYLTableViewPlaceHolder
 import UIKit
 
 /**
- * A table view controller that can show a `CYLSearchBar` as its table header, with the `CYLSearchController` that drives
+ * A table view controller that can show a `CYLSearchBarView` as its table header, with the `CYLSearchController` that drives
  * it (QMUI's `QMUICommonTableViewController (Search)`). Set `showsSearchBar`; configure the bar in `setUpSearchBar()`;
  * override `searchController(_:updateResultsFor:)` and the table view data source methods (the results table view uses the
  * same data source and delegate: tell the two tables apart by `tableView === self.tableView`).
@@ -54,7 +54,7 @@ open class CYLSearchTableViewController: UITableViewController, CYLSearchControl
      * The search bar that is the table header, `nil` while `showsSearchBar` is off or the view is not loaded (QMUI
      * `searchBar`).
      */
-    @objc public private(set) var searchBar: CYLSearchBar?
+    @objc public private(set) var searchBar: CYLSearchBarView?
 
     /**
      * Whether the search bar leaves the table header while an empty view shows and returns when it is hidden (QMUI

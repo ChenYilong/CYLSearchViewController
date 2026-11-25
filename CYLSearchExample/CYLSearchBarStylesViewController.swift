@@ -42,13 +42,11 @@ public final class CYLSearchBarStylesViewController: CYLSearchTableViewControlle
     public override func setUpSearchBar() {
         // The bar belongs to the search controller, which is its delegate: only its style and accessories are set here.
         guard let searchBar else { return }
-        searchBar.leadingAccessoryView = Self.accessoryView()
-        searchBar.trailingAccessoryView = Self.accessoryView()
-        searchBar.leadingAccessoryViewMargins = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 0)
-        searchBar.trailingAccessoryViewMargins = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 8)
+        searchBar.leadingView = Self.accessoryView()
+        searchBar.trailingAccessoryViews = [Self.accessoryView()]
         // For the demo: hidden first, shown by the person.
-        searchBar.showsLeadingAccessoryView = false
-        searchBar.showsTrailingAccessoryView = false
+        searchBar.showsLeadingView = false
+        searchBar.showsTrailingAccessoryViews = false
     }
 
     private static func accessoryView() -> UIView {
@@ -116,8 +114,8 @@ public final class CYLSearchBarStylesViewController: CYLSearchTableViewControlle
         case .adjustCancel: return cylDemoText("styles.adjustCancel")
         case .animated: return cylDemoText("styles.animated")
         case .toggleCancel: return toggleTitle(searchBar?.showsCancelButton ?? false, "styles.cancel")
-        case .toggleLeading: return toggleTitle(searchBar?.showsLeadingAccessoryView ?? false, "styles.leading")
-        case .toggleTrailing: return toggleTitle(searchBar?.showsTrailingAccessoryView ?? false, "styles.trailing")
+        case .toggleLeading: return toggleTitle(searchBar?.showsLeadingView ?? false, "styles.leading")
+        case .toggleTrailing: return toggleTitle(searchBar?.showsTrailingAccessoryViews ?? false, "styles.trailing")
         }
     }
 
@@ -141,10 +139,10 @@ public final class CYLSearchBarStylesViewController: CYLSearchTableViewControlle
             searchBar.setShowsCancelButton(!searchBar.showsCancelButton, animated: animated)
             tableView.reloadRows(at: [indexPath], with: .fade)
         case .toggleLeading:
-            searchBar.setShowsLeadingAccessoryView(!searchBar.showsLeadingAccessoryView, animated: animated)
+            searchBar.setShowsLeadingView(!searchBar.showsLeadingView, animated: animated)
             tableView.reloadRows(at: [indexPath], with: .fade)
         case .toggleTrailing:
-            searchBar.setShowsTrailingAccessoryView(!searchBar.showsTrailingAccessoryView, animated: animated)
+            searchBar.setShowsTrailingAccessoryViews(!searchBar.showsTrailingAccessoryViews, animated: animated)
             tableView.reloadRows(at: [indexPath], with: .fade)
         case .centerPlaceholder, .animated:
             break

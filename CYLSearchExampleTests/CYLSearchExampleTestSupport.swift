@@ -204,6 +204,8 @@ func viewsCoveredByView(_ view: UIView, _ root: UIView?) -> [String] {
         if candidate === view || candidate.isHidden || candidate.alpha <= 0.01 { return }
         let name = NSStringFromClass(type(of: candidate))
         if name.contains("BarBackground") { return }
+        // A scroll view's indicator is not content.
+        if let superName = candidate.superview.map({ NSStringFromClass(type(of: $0)) }), superName.contains("ScrollIndicator") { return }
         var content = candidate is UILabel || candidate is UIControl || candidate is UITextView || candidate is UIScrollView
             || candidate.next is UIViewController
         if let imageView = candidate as? UIImageView { content = imageView.image != nil }

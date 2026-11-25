@@ -39,7 +39,7 @@ final class CYLSearchControllerLaunchViewTests: CYLSearchExampleTestCase {
         func check(_ message: String) {
             let barMaxY = run.search.searchBarMaxY
             XCTAssertGreaterThan(barMaxY, 0)
-            XCTAssertEqual(launch.frame.minY, container.convert(CGPoint(x: 0, y: barMaxY), from: run.search.searchController.view).y,
+            XCTAssertEqual(launch.frame.minY, container.convert(CGPoint(x: 0, y: barMaxY), from: nil).y,
                            accuracy: 0.5, "\(message): starts under the bar")
             XCTAssertEqual(launch.frame.maxY, container.bounds.maxY, accuracy: 0.5, "\(message): ends at the bottom")
             XCTAssertEqual(launch.frame.width, container.bounds.width, accuracy: 0.5, "\(message): full width")
@@ -93,14 +93,12 @@ final class CYLSearchControllerLaunchViewTests: CYLSearchExampleTestCase {
         run.search.alwaysShowsSearchResultsController = true
         XCTAssertNil(run.search.launchView, "the launch view is cleared")
         XCTAssertTrue(run.search.alwaysShowsSearchResultsController)
-        XCTAssertFalse(run.search.searchController.obscuresBackgroundDuringPresentation)
         activateSearch(run)
         let results = try XCTUnwrap(run.search.searchResultsController)
         XCTAssertFalse(results.view.isHidden, "the results show with empty text")
         run.search.setActive(false, animated: true)
         runLoop(0.8)
         run.search.alwaysShowsSearchResultsController = false
-        XCTAssertTrue(run.search.searchController.obscuresBackgroundDuringPresentation)
         activateSearch(run)
         XCTAssertTrue(results.view.isHidden, "the results hide again with empty text")
         tearDownSearchRun(run)
@@ -114,10 +112,8 @@ final class CYLSearchControllerLaunchViewTests: CYLSearchExampleTestCase {
         let run = makeSearchRun()
         let color = UIColor.red.withAlphaComponent(0.4)
         run.search.dimmingColor = color
-        XCTAssertFalse(run.search.searchController.obscuresBackgroundDuringPresentation, "the own view replaces the system's")
         activateSearch(run)
-        let system = run.search.searchController
-        let dimming = try XCTUnwrap(viewWithAccessibilityIdentifier(system.view, "CYLSearchDimmingView"))
+        let dimming = try XCTUnwrap(viewWithAccessibilityIdentifier(try XCTUnwrap(run.search.activePageView), "CYLSearchDimmingView"))
         XCTAssertEqual(dimming.backgroundColor, color)
         XCTAssertFalse(dimming.isHidden, "shown while the text is empty")
         let barBottom = run.search.searchBar.convert(run.search.searchBar.bounds, to: run.window).maxY
@@ -133,7 +129,7 @@ final class CYLSearchControllerLaunchViewTests: CYLSearchExampleTestCase {
         runLoop(0.4)
         XCTAssertFalse(dimming.isHidden)
 
-        run.search.systemController.dimmingViewTapped()
+        run.search.dimmingView.sendActions(for: .touchUpInside)
         runLoop(0.9)
         XCTAssertFalse(run.search.isActive, "a tap on the dimming view leaves the search")
 
@@ -290,7 +286,7 @@ final class CYLSearchControllerSuggestionsLaunchTests: CYLSearchExampleTestCase 
         activateSearch(run)
         let area = try launch(run).area
         run.search.searchBar.text = "mine"
-        run.search.searchBar.searchTextField.sendActions(for: .primaryActionTriggered)
+        run.search.searchBar.textField.sendActions(for: .primaryActionTriggered)
         XCTAssertEqual(store.cachedQueries(), ["mine"])
         XCTAssertEqual(area.titles, ["mine"], "announced by the core: the store cannot post")
         area.clearButton.sendActions(for: .touchUpInside)
@@ -440,6 +436,9 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
         let run = makeSearchRun()
         activateSearch(run, text: "zzz")
         let empty = try XCTUnwrap(run.search.emptyView)
+        // The field of the active search takes focus, so a real keyboard may be up: measure the full height without one.
+        NotificationCenter.default.post(name: UIResponder.keyboardWillHideNotification, object: nil, userInfo: nil)
+        runLoop(0.2)
         let full = empty.frame.height
         XCTAssertGreaterThan(full, 0)
         let keyboard = CGRect(x: 0, y: 874 - 336, width: 402, height: 336)
@@ -593,7 +592,7 @@ final class CYLSearchMergePhase3Tests: CYLSearchExampleTestCase {
         let run = makeSearchRun()
         run.search.dimmingColor = scrim
         activateSearch(run)
-        let controllerOverlay = run.search.systemController.dimmingView
+        let controllerOverlay = run.search.dimmingView
         XCTAssertEqual(controllerOverlay.color, scrim)
         XCTAssertEqual(controllerOverlay.accessibilityIdentifier, viewOverlay.accessibilityIdentifier, "the same overlay class")
         controllerOverlay.sendActions(for: .touchUpInside)

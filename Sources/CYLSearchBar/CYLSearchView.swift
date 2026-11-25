@@ -330,7 +330,7 @@ public final class CYLSearchView: UIView, CYLSearchBarViewDelegate, UITableViewD
 
     /**
      * The same pull-to-refresh on a scroll view of yours, such as the table of a screen whose navigation item holds a
-     * `UISearchController` (the Issue #1317 page): non-nil adds CYLTableViewPlaceHolder's normal header with the
+     * `the system search controller` (the Issue #1317 page): non-nil adds CYLTableViewPlaceHolder's normal header with the
      * handler, nil removes it. The handler must not capture its view controller strongly.
      */
     @objc(setRefreshHandler:forScrollView:)

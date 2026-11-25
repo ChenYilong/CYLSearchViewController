@@ -68,7 +68,7 @@ enum CYLSearchPresentationEvent {
 /**
  * The active state of a search, one for both classes. `send(_:)` is the one event source: it moves the phase and tells
  * `onEvent`, which each class maps to its own delegate (`CYLSearchViewDelegate`, `CYLSearchControllerDelegate`).
- * `CYLSearchView` sends the events itself; `CYLSearchController` forwards what UIKit's `UISearchController` reports,
+ * `CYLSearchView` sends the events itself; `CYLSearchController` forwards what UIKit's `the system search controller` reports,
  * because UIKit alone presents that controller (Cancel, a tap in the bar, a navigation item).
  */
 final class CYLSearchPresentationState {
@@ -115,7 +115,7 @@ final class CYLSearchPresentationState {
 /**
  * A `UIScreenEdgePanGestureRecognizer` that decides by itself whether a touch is a swipe from the left edge.
  *
- * UIKit's own recognizer never left the possible state while a `UISearchController` was active (iOS 17.5 and 27.2: it
+ * UIKit's own recognizer never left the possible state while a `the system search controller` was active (iOS 17.5 and 27.2: it
  * received the touch, a plain pan recognizer on the same view began, `gestureRecognizerShouldBegin` was never asked),
  * so `supportsSwipeToDismissSearch` did not start by touch. This one keeps the type (the public property keeps
  * `UIScreenEdgePanGestureRecognizer`, `edges` stays `.left`) and follows the touch: it begins when the touch went down

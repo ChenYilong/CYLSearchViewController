@@ -4,7 +4,7 @@
 //
 //  The "Bar in a view" screen (QMUI issue #1251, row I2): the search bar is a plain subview of the view controller's view,
 //  not a table header or a navigation item. UIKit animates only those two places, so with a plain subview the controller
-//  must not hide the navigation bar (`hidesNavigationBarDuringPresentation = false`): the bar then stays where it is, inside
+//  must not hide the navigation bar (the core never hides it): the bar then stays where it is, inside
 //  the safe area, and covers nothing.
 //
 
@@ -33,8 +33,6 @@ public final class CYLSearchBarInViewDemoViewController: UIViewController, CYLSe
         let search = CYLSearchController(contentsViewController: self)
         search.searchResultsDelegate = self
         search.noResultsText = cylDemoText("controller.noResults")
-        // A bar that is neither a header nor in a navigation item: UIKit cannot animate it away, so the navigation bar stays.
-        search.hidesNavigationBarDuringPresentation = false
         cylSearchController = search
 
         let bar = search.searchBar

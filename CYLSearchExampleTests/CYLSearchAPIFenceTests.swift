@@ -69,10 +69,6 @@ private final class FenceSearchControllerDelegate: NSObject, CYLSearchController
 
 // MARK: - Subclasses: the open members stay open
 
-private final class FenceSearchBar: CYLSearchBar {
-    override func applyDefaultAppearance() { super.applyDefaultAppearance() }
-}
-
 private final class FenceSearchController: CYLSearchController {
     override func viewDidLoad() { super.viewDidLoad() }
 }
@@ -454,52 +450,6 @@ final class CYLSearchAPIFenceTests: XCTestCase {
         XCTAssertTrue(CYLSearchBarAppearance.default.copy() is CYLSearchBarAppearance)
     }
 
-    // MARK: CYLSearchBar
-
-    func testSearchBarMembers() {
-        let sb = CYLSearchBar(frame: CGRect(x: 0, y: 0, width: 320, height: 56))
-        let _: (CGRect) -> CYLSearchBar = CYLSearchBar.init(frame:)
-        let _: (NSCoder) -> CYLSearchBar? = CYLSearchBar.init(coder:)
-        touch(sb, \.appearanceStyle)
-        touch(sb, \.usedAsTableHeaderView)
-        touch(sb, \.centersPlaceholder)
-        touch(sb, \.placeholderColor)
-        touch(sb, \.textColor)
-        touch(sb, \.font)
-        touch(sb, \.textFieldMargins)
-        touch(sb, \.textFieldMarginsProvider)
-        let _: CYLSearchBarMarginsProvider? = sb.textFieldMarginsProvider
-        _ = sb.cancelButton
-        touch(sb, \.cancelButtonFont)
-        touch(sb, \.cancelButtonMarginsProvider)
-        touch(sb, \.alwaysEnablesCancelButton)
-        _ = sb.backgroundView
-        _ = sb.segmentedControl
-        _ = sb.searchController
-        touch(sb, \.leadingAccessoryView)
-        touch(sb, \.showsLeadingAccessoryView)
-        touch(sb, \.leadingAccessoryViewMargins)
-        touch(sb, \.trailingAccessoryView)
-        touch(sb, \.showsTrailingAccessoryView)
-        touch(sb, \.trailingAccessoryViewMargins)
-        touch(sb, \.placeholder)
-        touch(sb, \.text)
-        touch(sb, \.barTintColor)
-        touch(sb, \.placeholder)
-        touch(sb, \.text)
-        touch(sb, \.barTintColor)
-        let _: () -> Void = sb.applyDefaultAppearance
-        let _: (Bool, Bool) -> Void = sb.setShowsLeadingAccessoryView
-        let _: (Bool, Bool) -> Void = sb.setShowsTrailingAccessoryView
-        let _: (UIColor?) -> UIImage? = CYLSearchBar.textFieldBackgroundImage(color:)
-        let _: (UIColor?, UIColor?) -> UIImage? = CYLSearchBar.backgroundImage(color:borderColor:)
-        let _: (UIImage?, UIBarPosition, UIBarMetrics) -> Void = sb.setBackgroundImage
-        sb.setShowsLeadingAccessoryView(false, animated: false)
-        sb.setShowsTrailingAccessoryView(false, animated: false)
-        XCTAssertNotNil(CYLSearchBar.textFieldBackgroundImage(color: .gray))
-        XCTAssertNotNil(FenceSearchBar(frame: .zero))
-    }
-
     // MARK: CYLSearchController
 
     func testSearchControllerMembers() {
@@ -510,7 +460,6 @@ final class CYLSearchAPIFenceTests: XCTestCase {
         let _: (UIViewController) -> CYLSearchController = CYLSearchController.init(contentsViewController:)
         let _: (NSCoder) -> CYLSearchController? = CYLSearchController.init(coder:)
         touch(sc, \.searchResultsDelegate)
-        _ = sc.searchController
         _ = sc.searchResultsController
         _ = sc.searchBar
         _ = sc.tableView
@@ -525,14 +474,10 @@ final class CYLSearchAPIFenceTests: XCTestCase {
         touch(sc, \.highlightsResultMatches)
         touch(sc, \.resultMatchHighlightColor)
         touch(sc, \.noResultsText)
-        touch(sc, \.hidesNavigationBarDuringPresentation)
         touch(sc, \.alwaysShowsSearchResultsController)
-        touch(sc, \.forwardsAppearanceFromContentsViewController)
         touch(sc, \.supportsSwipeToDismissSearch)
         _ = sc.swipeGestureRecognizer
         _ = sc.searchBarMaxY
-        touch(sc, \.prefersStatusBarHiddenProvider)
-        touch(sc, \.preferredStatusBarStyleProvider)
         _ = sc.isEmptyViewShowing
         touch(sc, \.historyStore)
         _ = CYLSearchController.historyDidChangeNotification
@@ -544,11 +489,6 @@ final class CYLSearchAPIFenceTests: XCTestCase {
         let _: (String?, String?, String?, (() -> Void)?) -> Void = sc.showEmptyView(text:detailText:buttonTitle:buttonAction:)
         let _: (CYLPlaceholderScenario) -> Void = sc.showEmptyView(scenario:)
         let _: () -> Void = sc.hideEmptyView
-        let _: (UISearchController) -> Void = sc.updateSearchResults(for:)
-        let _: (UISearchController) -> Void = sc.willPresentSearchController
-        let _: (UISearchController) -> Void = sc.didPresentSearchController
-        let _: (UISearchController) -> Void = sc.willDismissSearchController
-        let _: (UISearchController) -> Void = sc.didDismissSearchController
         let _: (UIGestureRecognizer) -> Bool = sc.gestureRecognizerShouldBegin
         let _: (UIGestureRecognizer, UIGestureRecognizer) -> Bool = sc.gestureRecognizer(_:shouldBeRequiredToFailBy:)
         let delegate = FenceSearchControllerDelegate()

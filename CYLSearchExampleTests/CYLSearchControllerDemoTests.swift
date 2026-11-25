@@ -28,7 +28,6 @@ final class CYLSearchControllerDemoTests: CYLSearchExampleTestCase {
         let (window, screen, search) = shown()
         XCTAssertEqual(screen.tableView(screen.tableView, numberOfRowsInSection: 0), 10, "the ten keywords")
         XCTAssertTrue(screen.tableView.tableHeaderView === search.searchBar, "the bar is the table header")
-        XCTAssertTrue(search.searchBar.usedAsTableHeaderView)
         XCTAssertTrue(search.supportsSwipeToDismissSearch)
         XCTAssertTrue(search.showsSuggestionsLaunchView, "the core's launch view, no view of the example")
         XCTAssertTrue(search.launchView is CYLSearchSuggestionsLaunchView)
@@ -95,7 +94,7 @@ final class CYLSearchControllerDemoTests: CYLSearchExampleTestCase {
         XCTAssertEqual(area.titles.count, 8)
         for text in ["Fat", "Liver", " ", "Fat"] {
             search.searchBar.text = text
-            search.searchBar.searchTextField.sendActions(for: .primaryActionTriggered)
+            search.searchBar.textField.sendActions(for: .primaryActionTriggered)
         }
         XCTAssertEqual(store.cachedQueries(), ["Fat", "Liver"], "newest first, no duplicates, no blank query")
         XCTAssertNotNil(launch.window, "the launch view stayed on screen")
@@ -155,12 +154,12 @@ final class CYLSearchControllerDemoTests: CYLSearchExampleTestCase {
         defer { NotificationCenter.default.removeObserver(token) }
         for text in [" Health ", "  "] {
             search.searchBar.text = text
-            search.searchBar.searchTextField.sendActions(for: .primaryActionTriggered)
+            search.searchBar.textField.sendActions(for: .primaryActionTriggered)
         }
         XCTAssertEqual(posted, ["Health"], "trimmed, and nothing for a blank query")
         search.historyStore = nil
         search.searchBar.text = "Fat"
-        search.searchBar.searchTextField.sendActions(for: .primaryActionTriggered)
+        search.searchBar.textField.sendActions(for: .primaryActionTriggered)
         XCTAssertEqual(posted, ["Health"], "no store, no notification")
         search.historyStore = store
         search.setActive(false, animated: false)

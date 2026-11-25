@@ -78,7 +78,6 @@ final class CYLSearchTableViewControllerTests: CYLSearchExampleTestCase {
         let bar = try XCTUnwrap(screen.searchBar)
         XCTAssertTrue(bar === search.searchBar)
         XCTAssertTrue(screen.tableView.tableHeaderView === bar)
-        XCTAssertTrue(bar.usedAsTableHeaderView)
         XCTAssertTrue(search.searchResultsDelegate === screen)
         XCTAssertTrue(screen.definesPresentationContext)
         XCTAssertEqual(screen.setUpCount, 1, "setUpSearchBar runs once")

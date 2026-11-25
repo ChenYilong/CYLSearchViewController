@@ -3,7 +3,7 @@
 //  CYLSearchExample
 //
 //  The "Collection view" screen (QMUI issue #1313, row I5): the search bar sits in a container view that this screen owns,
-//  above the collection view. After Cancel, UISearchController puts the bar back into its original superview; a bar inside
+//  above the collection view. After Cancel, the system search controller puts the bar back into its original superview; a bar inside
 //  a reusable collection view header was re-laid out at that moment and jittered. A container of our own is laid out once
 //  and never reused, so the bar returns to the frame it had.
 //
@@ -17,9 +17,9 @@ import UIKit
  */
 final class CYLSearchBarContainerView: UIView {
 
-    let searchBar: UISearchBar
+    let searchBar: CYLSearchBarView
 
-    init(searchBar: UISearchBar) {
+    init(searchBar: CYLSearchBarView) {
         self.searchBar = searchBar
         super.init(frame: .zero)
         addSubview(searchBar)
@@ -87,8 +87,6 @@ public final class CYLSearchCollectionViewDemoViewController: UIViewController, 
         let search = CYLSearchController(contentsViewController: self)
         search.searchResultsDelegate = self
         search.noResultsText = cylDemoText("controller.noResults")
-        // The bar is in a container, not in a header: the navigation bar stays (as for a plain subview, row I2).
-        search.hidesNavigationBarDuringPresentation = false
         cylSearchController = search
 
         let container = CYLSearchBarContainerView(searchBar: search.searchBar)

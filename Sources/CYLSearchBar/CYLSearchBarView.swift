@@ -318,8 +318,14 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      */
     @objc public var text: String? {
         get { textField.text }
-        set { textField.text = newValue; textStateChanged() }
+        set { textField.text = newValue; textStateChanged(); textAssignedHandler?() }
     }
+
+    /**
+     * Called after `text` is assigned from code (typing and the clear button do not call it; the delegate reports those).
+     * `CYLSearchController` uses it to update its results for a text set in code, as UIKit's search bar did.
+     */
+    var textAssignedHandler: (() -> Void)?
 
     /**
      * The placeholder, drawn by `placeholderLabel` and kept on the text field for VoiceOver.

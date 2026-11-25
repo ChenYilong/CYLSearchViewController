@@ -55,7 +55,7 @@ final class CYLOriginalSearchDemoViewController: UIViewController, CYLSearchView
         super.viewDidLoad()
         // navigationItem.title: a view controller's title also renames its tab item.
         navigationItem.title = cylOriginalDemoText("title")
-        // The GIF: a light gray strip behind a white field (UISearchBar's look); adaptive colors keep dark mode readable.
+        // The GIF: a light gray strip behind a white field (the system search bar's look); adaptive colors keep dark mode readable.
         view.backgroundColor = .systemGroupedBackground
         edgesForExtendedLayout = []
         installBlueBar()

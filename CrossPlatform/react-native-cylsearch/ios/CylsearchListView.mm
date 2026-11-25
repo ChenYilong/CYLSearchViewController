@@ -69,7 +69,7 @@ using namespace facebook::react;
     _searchView = [[CYLSearchView alloc] initWithFrame:CGRectZero];
     _searchView.delegate = self;
     _searchView.resultsDataSource = _results;
-    // The bar of the page is Cancel-style, as a UISearchBar that is active: no back arrow.
+    // The bar of the page is Cancel-style, as the system search bar that is active: no back arrow.
     _searchView.searchBarView.navigationIcon = CYLSearchBarNavigationIconNone;
     _searchView.searchBarView.showsCancelButton = YES;
     [_searchView.searchBarView applyDefaultAppearance];

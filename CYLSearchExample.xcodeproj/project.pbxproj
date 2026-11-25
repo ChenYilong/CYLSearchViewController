@@ -27,7 +27,6 @@
 		5056C539D2AE963DF183969D /* tab_home.svga in Resources */ = {isa = PBXBuildFile; fileRef = 8EA07219A58E5EBDB6C139FA /* tab_home.svga */; };
 		53098B93113B873103F0A596 /* CYLSearchExampleAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81DD363A48F982061386928D /* CYLSearchExampleAppDelegate.swift */; };
 		605EAE3645762F54D9304252 /* CYLOriginalDemo.bundle in Resources */ = {isa = PBXBuildFile; fileRef = B917ABA1A24B4A3416F47A59 /* CYLOriginalDemo.bundle */; };
-		6695FDECCBC1B4CFDECFF616 /* CYLSearchBarStyleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078F4D2059A21704E7B927F2 /* CYLSearchBarStyleTests.swift */; };
 		B94D7DE24672FBC17581BFAC /* CYLSearchControllerDemoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C07A531093A655B51143D2C /* CYLSearchControllerDemoTests.swift */; };
 		F38B677AA6E4A8ACB269DBB1 /* CYLSearchControllerSwipeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E3687D9D4887B546909809 /* CYLSearchControllerSwipeTests.swift */; };
 		A1F3E0C25D7B4A1980C3F001 /* CYLSearchAPIFenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1F3E0C25D7B4A1980C3F002 /* CYLSearchAPIFenceTests.swift */; };
@@ -93,7 +92,6 @@
 		0314199A175111B3308413FD /* CYLSVGASwiftUIDemo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSVGASwiftUIDemo.swift; sourceTree = "<group>"; };
 		0539046CE5626071D7218E4A /* tab_list.svga */ = {isa = PBXFileReference; includeInIndex = 1; path = tab_list.svga; sourceTree = "<group>"; };
 		0723FAFC7CC20AE1DCCCB285 /* CYLSearchExampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CYLSearchExampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		078F4D2059A21704E7B927F2 /* CYLSearchBarStyleTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchBarStyleTests.swift; sourceTree = "<group>"; };
 		2C07A531093A655B51143D2C /* CYLSearchControllerDemoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchControllerDemoTests.swift; sourceTree = "<group>"; };
 		F0E3687D9D4887B546909809 /* CYLSearchControllerSwipeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchControllerSwipeTests.swift; sourceTree = "<group>"; };
 		A1F3E0C25D7B4A1980C3F002 /* CYLSearchAPIFenceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CYLSearchAPIFenceTests.swift; sourceTree = "<group>"; };
@@ -276,7 +274,6 @@
 				0947CF42D2DA6F8237ACB4DB /* CYLSearchExampleSearchBarTests.swift */,
 				3B9356DCF4828F670ED17687 /* CYLSearchExampleSearchTests.swift */,
 				75595E2688B0F4B5F4BDEB14 /* CYLSearchExampleTestSupport.swift */,
-				078F4D2059A21704E7B927F2 /* CYLSearchBarStyleTests.swift */,
 				2C07A531093A655B51143D2C /* CYLSearchControllerDemoTests.swift */,
 				F0E3687D9D4887B546909809 /* CYLSearchControllerSwipeTests.swift */,
 				A1F3E0C25D7B4A1980C3F002 /* CYLSearchAPIFenceTests.swift */,
@@ -550,7 +547,6 @@
 				F885FC21B72F86495233668B /* CYLSearchExampleSearchBarTests.swift in Sources */,
 				284BAC8A33CF8771994D5D5B /* CYLSearchExampleSearchTests.swift in Sources */,
 				3EC747682D98032230EA997F /* CYLSearchExampleTestSupport.swift in Sources */,
-				6695FDECCBC1B4CFDECFF616 /* CYLSearchBarStyleTests.swift in Sources */,
 				B94D7DE24672FBC17581BFAC /* CYLSearchControllerDemoTests.swift in Sources */,
 				F38B677AA6E4A8ACB269DBB1 /* CYLSearchControllerSwipeTests.swift in Sources */,
 				A1F3E0C25D7B4A1980C3F001 /* CYLSearchAPIFenceTests.swift in Sources */,

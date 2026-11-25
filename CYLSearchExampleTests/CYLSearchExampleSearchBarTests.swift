@@ -365,8 +365,8 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
         let stylesBar = try XCTUnwrap(styles.searchBar)
         let stylesSearch = try XCTUnwrap(styles.searchController)
         stylesBar.showsCancelButton = true
-        stylesBar.setShowsLeadingAccessoryView(true, animated: false)
-        stylesBar.setShowsTrailingAccessoryView(true, animated: false)
+        stylesBar.setShowsLeadingView(true, animated: false)
+        stylesBar.setShowsTrailingAccessoryViews(true, animated: false)
         for editing in [false, true] {
             if editing {
                 stylesSearch.setActive(true, animated: false)
@@ -380,7 +380,7 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
                 navigation.view.setNeedsLayout()
                 navigation.view.layoutIfNeeded()
                 XCTAssertNotNil(stylesBar.window, "the styles screen's bar is shown")
-                let covered = viewsCoveredByView(stylesBar, editing ? stylesSearch.searchController.view : nil)
+                let covered = viewsCoveredByView(stylesBar, editing ? stylesSearch.activePageView : nil)
                 XCTAssertEqual(covered.count, 0, "search bar styles, editing \(editing), at \(size.rawValue): \(covered)")
             }
         }
@@ -411,7 +411,7 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
                 navigation.view.setNeedsLayout()
                 navigation.view.layoutIfNeeded()
                 XCTAssertNotNil(search.searchBar.window, "the search controller screen's bar is shown")
-                let covered = viewsCoveredByView(search.searchBar, active ? search.searchController.view : nil)
+                let covered = viewsCoveredByView(search.searchBar, active ? search.activePageView : nil)
                 XCTAssertEqual(covered.count, 0, "search controller, active \(active), at \(size.rawValue): \(covered)")
                 if active {
                     let barBottom = search.searchBar.convert(search.searchBar.bounds, to: window).maxY
@@ -430,8 +430,8 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
             let barBottom = search.searchBar.convert(search.searchBar.bounds, to: window).maxY
             // The results table's frame spans the whole screen, as UIKit lays it out; its top inset keeps the rows (checked below)
             // and the empty view under the bar, so the table itself is left out.
-            let results = try XCTUnwrap(search.searchResultsController?.view)
-            let covered = viewsCoveredByView(search.searchBar, search.searchController.view).filter {
+            let results = search.searchResultsController.view!
+            let covered = viewsCoveredByView(search.searchBar, search.activePageView).filter {
                 !$0.hasPrefix("\(NSStringFromClass(type(of: results))) ")
             }
             XCTAssertEqual(covered.count, 0, "search controller with \"\(text)\": \(covered)")
@@ -455,9 +455,8 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
             runLoop(0.4)
             let scenarioSearch = try XCTUnwrap(find(controller), name)
             func covered(_ bar: UIView, active: Bool) -> [String] {
-                let root: UIView? = active && bar.isDescendant(of: scenarioSearch.searchController.view)
-                    ? scenarioSearch.searchController.view : nil
-                let results = scenarioSearch.searchResultsController?.view
+                let root: UIView? = active ? scenarioSearch.activePageView : nil
+                let results = scenarioSearch.searchResultsController.view
                 // A bar in the navigation bar is drawn over the presentation, whose full-screen backdrop (the dimming view and the
                 // presentation's own view) reaches under the navigation bar by design: what is checked is that no content
                 // (results, launch view, empty view) sits under the bar, below.
@@ -481,7 +480,7 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
                     runLoop(0.4)
                     scenarioNavigation.view.setNeedsLayout()
                     scenarioNavigation.view.layoutIfNeeded()
-                    let bar = visibleSearchView(scenarioSearch.searchBar)
+                    let bar: UIView = scenarioSearch.searchBar
                     XCTAssertNotNil(bar.window, "\(name): the bar is shown")
                     if !bar.isDescendant(of: scenarioNavigation.navigationBar) {
                         // Not in the navigation bar: it is under it, not over it.
@@ -499,7 +498,7 @@ final class CYLSearchExampleSearchBarTests: CYLSearchExampleTestCase {
             for text in ["1", "zzz"] {
                 scenarioSearch.searchBar.text = text
                 runLoop(0.4)
-                let bar = visibleSearchView(scenarioSearch.searchBar)
+                let bar: UIView = scenarioSearch.searchBar
                 let list = covered(bar, active: true)
                 XCTAssertEqual(list.count, 0, "\(name) with \"\(text)\": \(list)")
                 let barBottom = bar.convert(bar.bounds, to: window).maxY

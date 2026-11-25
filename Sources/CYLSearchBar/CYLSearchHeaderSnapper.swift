@@ -57,11 +57,6 @@ final class CYLSearchHeaderSnapper: NSObject {
         refresh()
     }
 
-    convenience init(tableView: UITableView, searchBar: UISearchBar, systemController: UISearchController) {
-        self.init(tableView: tableView, searchBar: searchBar) { [weak systemController] in
-            systemController?.isActive == true
-        }
-    }
 
     // Removes the inset and the gesture target; the table view is left as it is otherwise.
     func detach() {
