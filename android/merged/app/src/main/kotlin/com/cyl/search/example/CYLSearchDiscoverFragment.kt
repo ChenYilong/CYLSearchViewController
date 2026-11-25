@@ -192,7 +192,7 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
             fieldHeight = 46f
             searchBarStyle = CYLSearchBarStyle.Bordered
             fieldCornerRadius = 22f
-            fieldBackgroundColor = Color.WHITE
+            fieldBackgroundColor = pageBackground(context)
             fieldBorderWidth = 1f
             fieldShadowOpacity = 0.06f
             fontSize = 16f
@@ -358,7 +358,7 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
         reloadLists()
         return LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(Color.WHITE)
+            setBackgroundColor(pageBackground(context))
             // The page takes the first focus, so the keyboard stays down until the field is tapped (as on iOS).
             isFocusableInTouchMode = true
             descendantFocusability = ViewGroup.FOCUS_BEFORE_DESCENDANTS
@@ -375,12 +375,12 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
     // the page only adds its white background.
     private fun recentStyle(): CYLMenuStyle = CYLMenuStyle().apply {
         CYLSearchTagListStyle.applyDefaults(this)
-        backgroundColor = Color.WHITE
+        backgroundColor = pageBackground(requireContext())
     }
 
     private fun discoverStyle(): CYLMenuStyle = CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(2).apply {
         CYLSearchTagListStyle.applyGrid(this)
-        backgroundColor = Color.WHITE
+        backgroundColor = pageBackground(requireContext())
         // The refresh action is the built-in icon (docs/animated-icon-component.md, A), never the three dots. After the style.
         CYLSearchTagListHeader.applyRefreshIcon(requireContext(), this)
     }
@@ -463,6 +463,9 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
         searchTapped()
         searchBarView.hideKeyboard()
     }
+
+    // The page and field fill: the theme's window background (white in light, near black in dark), not a hard-coded white.
+    private fun pageBackground(context: Context): Int = themeColor(context, android.R.attr.colorBackground)
 
     private fun themeColor(context: Context, attribute: Int): Int {
         val value = TypedValue()
