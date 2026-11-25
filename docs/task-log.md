@@ -1574,3 +1574,10 @@ begins and becomes `DONE` when it ends.
 - **Done**: CYLTabBarController pinned to ff33eb85 (Podfiles, `cyl.tabbar.commit`; ClassifyMenu stays ca04a77); the search bar core sets `animationTint` and `animationDarkTint` (fixed #RRGGBBAA per appearance, from the item's dynamic tint) on every item, no example change. Fresh launch dark: the camera icon is white (was near-black 28); fresh launch light: black. iOS suite 201/0.
 - **Found, for the library**: `animationTint = "title"` did NOT recolor an item's Lottie (icon stayed near-black), a fixed "#FF0000" did; switching light/dark while the app runs leaves the icon in the old appearance's color (white on white after dark to light), and re-setting the tint in the core on a trait change removed the icon, so it was dropped.
 - **Status**: DONE for fresh launches; live appearance switching open (library).
+
+## Search bar icon survives live light/dark switches (2026-11-25, Mac session)
+
+- ![Search bar camera icon through live light/dark switches](assets/ios-iphone-sim-ios27.2-20261125-searchbar-icon-live-switch.png) iOS, iPhone simulator, iOS 27.2, Xcode 27.2; commit cd3f19b, 2026-11-25.
+- **Done**: pins ClassifyMenu 3ed13b9 + CYLTabBarController 5a212de9 (Podfiles, `cyl.tabbar.commit`); the hex workaround is deleted, the core sets `animationTint = "title"` and the item icon color only. Fresh dark: white camera; fresh light: black; dark, light, dark live switches keep the icon (the library resolves the item's own trait; CYLTagButton hands its icon color to CYLAnimatedItemView). iOS suite 201/0.
+- **Owner follow-up, open**: the divider item (the thin line) and a stack-level tint: `CYLAnimatedItemStackView` should take the tint once and pass it to every `CYLAnimatedItemView` it holds, and the search bar should use it instead of tinting each item (library work asked of the ClassifyMenu/CYLTabBarController session; the bar's items are laid out by CYLSearchBarView, not by that stack view yet).
+- **Status**: DONE for the icon; stack view tint open.
