@@ -2054,6 +2054,7 @@ class CYLSearchBarView @JvmOverloads constructor(
                 marginStart = dp(SPACING)
             })
         }
+        if (wantedFieldPixels > 0) applyFieldPadding(wantedFieldPixels)
     }
 
     // Iconified
@@ -2252,14 +2253,26 @@ class CYLSearchBarView @JvmOverloads constructor(
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
 
+    /**
+     * The field's start and end padding. With the icon-style default search button as the last view, the end padding is
+     * `(field height - button height) / 2`, so the capsule has the same gap above, below and at its end (concentric, iOS).
+     */
+    private fun applyFieldPadding(fieldPixels: Int) {
+        val inner = dp(max(10f, minOf(14f, fieldHeight / 3)))
+        val button = searchButtonItem
+        val concentric = showsDefaultSearchButton && searchButtonStyle == CYLSearchBarSearchButtonStyle.Icon &&
+            !(showsVoiceButton && text.isNullOrEmpty()) && !(showsSubmitButton && !text.isNullOrEmpty())
+        val end = if (concentric) max(0, (fieldPixels - dp(button.itemHeight)) / 2) else inner - dp(4f)
+        fieldView.setPaddingRelative(inner, 0, end, 0)
+    }
+
     private fun applyLayout() {
         val fieldPixels = max(dp(fieldHeight), (fontSize * resources.displayMetrics.scaledDensity * 1.2f + 12 * density).toInt())
         wantedFieldPixels = fieldPixels
         row.setPaddingRelative(dp(contentInsets.left.toFloat()), dp(contentInsets.top.toFloat()), dp(contentInsets.right.toFloat()), dp(contentInsets.bottom.toFloat()))
         (fieldView.layoutParams as? LinearLayout.LayoutParams)?.let { it.height = fieldPixels; fieldView.layoutParams = it }
         fieldBackground.cornerRadius = if (fieldCornerRadius < 0) fieldPixels / 2f else dp(fieldCornerRadius).toFloat()
-        val inner = dp(max(10f, minOf(14f, fieldHeight / 3)))
-        fieldView.setPaddingRelative(inner, 0, inner - dp(4f), 0)
+        applyFieldPadding(fieldPixels)
         searchIconView.layoutParams = LinearLayout.LayoutParams(dp(ICON_SIZE), dp(ICON_SIZE)).apply { marginEnd = dp(6f) }
         val buttonSide = dp(30f)
         clearButton.layoutParams = LinearLayout.LayoutParams(buttonSide, buttonSide)

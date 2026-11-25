@@ -126,4 +126,32 @@ class CYLSearchBarSearchButtonTest {
         assertEquals(0f, item.itemHeight, 0f)
         assertFalse(item.cornerRadius == CYLSearchBarItem.CAPSULE_CORNER_RADIUS)
     }
+
+    @Test
+    fun theIconPillIsConcentricInTheField() {
+        val bar = CYLSearchBarView(activity)
+        bar.searchButtonStyle = CYLSearchBarSearchButtonStyle.Icon
+        val density = activity.resources.displayMetrics.density
+        val width = (360 * density).toInt()
+        val height = (44 * density).toInt()
+        bar.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY))
+        bar.layout(0, 0, width, height)
+        val pill = find(bar, "CYLSearchBarSearchButton")!!
+        val field = pill.parent.parent as ViewGroup
+        var top = 0
+        var left = 0
+        var view: View = pill
+        while (view !== field) {
+            top += view.top
+            left += view.left
+            view = view.parent as View
+        }
+        val topGap = top
+        val bottomGap = field.height - (top + pill.height)
+        val rightGap = field.width - (left + pill.width)
+        assertEquals("pill height", (28 * density).toInt(), pill.height)
+        assertEquals("top gap equals bottom gap", topGap, bottomGap)
+        assertEquals("right gap equals top gap", topGap, rightGap)
+        assertTrue("the gap is not zero", topGap > 0)
+    }
 }
