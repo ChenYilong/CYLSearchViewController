@@ -147,6 +147,19 @@ final class CYLDemoGradientView: UIView {
     }
 }
 
+extension UIViewController {
+
+    /**
+     * Puts the demo gradient behind everything on the page (docs/instructions/example-demos.md, rule 7): the page is a
+     * gradient and the glass tag lists on it have a backdrop to blur and refract.
+     */
+    func cylInstallDemoGradient() {
+        let gradient = CYLDemoGradientView(frame: view.bounds)
+        gradient.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        view.insertSubview(gradient, at: 0)
+    }
+}
+
 /**
  * The example's grouped demo lists (docs/instructions/example-demos.md): a sectioned CollectionViewClassifyMenu tag list in
  * place of a grouped table view. Every tag is a Liquid Glass tag (the core's one `backgroundStyle` parameter, set through
@@ -181,9 +194,7 @@ class CYLDemoTagListViewController: UIViewController, CYLMenuDataSource, CYLMenu
     override func viewDidLoad() {
         super.viewDidLoad()
         // Rule 7: a gradient page, a clear list background, Liquid Glass board and tags that sample it.
-        let gradient = CYLDemoGradientView(frame: view.bounds)
-        gradient.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        view.addSubview(gradient)
+        cylInstallDemoGradient()
         CYLSearchTagListStyle.applyDefaultStyle(to: tagList)
         CYLSearchTagListStyle.applyBackgroundStyle(named: "liquidGlass", to: tagList)
         let style = tagList.style.copy() as! CYLMenuStyle

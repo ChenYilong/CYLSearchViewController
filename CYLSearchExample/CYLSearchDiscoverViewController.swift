@@ -160,6 +160,7 @@ final class CYLSearchDiscoverViewController: UIViewController {
             appearance.textColor = .label
         }
         style.backgroundStyle = .liquidGlass  // the one parameter that makes every tag Liquid Glass (flat below iOS 26)
+        style.sectionBackgroundStyle = .liquidGlass  // the glass board under the tags
         style.itemHeight = 36
         style.interitemSpacing = 12
         style.lineSpacing = 12
@@ -188,7 +189,7 @@ final class CYLSearchDiscoverViewController: UIViewController {
     }
 
     private static func applyHeaderLook(to style: CYLMenuStyle) {
-        style.backgroundColor = .systemBackground
+        style.backgroundColor = .clear  // the gradient page shows through (example-demos rule 7)
         style.headerHeight = 44
         style.headerFont = .systemFont(ofSize: 20, weight: .bold)
         style.headerHorizontalInset = 16
@@ -199,6 +200,7 @@ final class CYLSearchDiscoverViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
+        cylInstallDemoGradient()
         setUpSearchBar()
         setUpPlaybackRow()
         setUpLists()

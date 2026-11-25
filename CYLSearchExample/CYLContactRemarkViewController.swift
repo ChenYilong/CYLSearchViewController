@@ -56,6 +56,7 @@ final class CYLContactRemarkViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .systemBackground
+        cylInstallDemoGradient()
         let done = UIBarButtonItem(title: cylContactTagsText("done"), style: .done, target: nil, action: nil)
         done.isEnabled = false
         navigationItem.rightBarButtonItem = done
