@@ -319,3 +319,20 @@ export function cylListForwards<Handler>(props: {
     suggestionCacheName: props.suggestionCacheName ?? props.historyName,
   };
 }
+
+/** `titleMaxLines` of a tag list: one line, the default; a title too wide for its tag is truncated. */
+export const CYL_TAG_TITLE_SINGLE_LINE = 1;
+
+/** `titleMaxLines` of a tag list: no limit, a title wraps onto as many lines as it needs. */
+export const CYL_TAG_TITLE_UNLIMITED = 0;
+
+/**
+ * The `tagSubtitles` of a tag list for `count` tags: one entry per tag, "" where a tag has no subtitle, so a list shorter
+ * or longer than the tags never misaligns the callouts.
+ */
+export function cylTagSubtitles(
+  count: number,
+  subtitles?: ReadonlyArray<string | undefined>
+): string[] {
+  return Array.from({ length: Math.max(0, count) }, (_, index) => subtitles?.[index] ?? '');
+}

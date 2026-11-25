@@ -374,12 +374,12 @@ class CYLSearchDiscoverFragment : Fragment(), CYLMenuDelegate, CYLSearchBarViewD
     // The search bar core's default tag look (CYLSearchTagListStyle: capsule tags, light border, bold header, 16 dp inset);
     // the page only adds its white background.
     private fun recentStyle(): CYLMenuStyle = CYLMenuStyle().apply {
-        CYLSearchTagListStyle.applyDefaults(this)
+        CYLSearchTagListStyle.applyDefaults(this, requireContext())
         backgroundColor = pageBackground(requireContext())
     }
 
     private fun discoverStyle(): CYLMenuStyle = CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(2).apply {
-        CYLSearchTagListStyle.applyGrid(this)
+        CYLSearchTagListStyle.applyGrid(this, requireContext())
         backgroundColor = pageBackground(requireContext())
         // The refresh action is the built-in icon (docs/animated-icon-component.md, A), never the three dots. After the style.
         CYLSearchTagListHeader.applyRefreshIcon(requireContext(), this)

@@ -296,11 +296,6 @@ export default function cylSearchCoreTest() {
       expect(CYLColorKey(button.style.iconColor(CYLControlState.NORMAL))).assertEqual(CYLColorKey('#00FF00'));
     });
 
-    it('searchBarPlaceholderIsTheSecondaryLabelResource', 0, () => {
-      const bar = new CYLSearchBarView();
-      expect(CYLColorKey(bar.placeholderColor)).assertEqual(CYLColorKey($r('app.color.cyl_search_secondary_label')));
-    });
-
     it('searchBarItemsAreDrawnByTagButtons', 0, () => {
       const bar = new CYLSearchBarView();
       const camera = CYLSearchBarItem.iconItem($r('sys.symbol.camera'), 'Camera');

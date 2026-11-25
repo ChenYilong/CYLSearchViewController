@@ -66,6 +66,12 @@ enum CYLTagFoldControlPosition {
   topLeading,
 }
 
+/// [CYLTagListView.titleMaxLines]: one line, the default; a title too wide for its tag is truncated.
+const int cylTagTitleSingleLine = 1;
+
+/// [CYLTagListView.titleMaxLines]: no limit, a title wraps onto as many lines as it needs.
+const int cylTagTitleUnlimited = 0;
+
 /// What a tag list's fold control shows (CollectionViewClassifyMenu's `CYLMenuFoldControlContent`).
 enum CYLTagFoldControlContent {
   /// An icon and a title.
@@ -1169,6 +1175,8 @@ class CYLTagListView extends StatefulWidget {
     this.foldControlPosition = CYLTagFoldControlPosition.inline,
     this.foldControlContent = CYLTagFoldControlContent.icon,
     this.foldedRowCount = 2,
+    this.tagSubtitles = const <String>[],
+    this.titleMaxLines = cylTagTitleSingleLine,
     this.onTagSelected,
     this.tagIds = const <String>[],
     this.selectedIds = const <String>[],
@@ -1194,6 +1202,14 @@ class CYLTagListView extends StatefulWidget {
   /// The tags' ids, one per title (iOS `menuIdentifierForItem(at:)`): kept by renaming and reordering, and reported by
   /// the callbacks. Empty: the titles are the ids.
   final List<String> tagIds;
+
+  /// The subtitle of each tag, parallel to [tags] ('' none). A long press on a tag with one shows it in a small callout with
+  /// an arrow (CollectionViewClassifyMenu's `longPressAction` callout, `menuSubtitleForItem`); a tap is unchanged.
+  final List<String> tagSubtitles;
+
+  /// The most lines a tag's title may wrap onto: [cylTagTitleSingleLine] (default, one line, truncated), [cylTagTitleUnlimited],
+  /// or a count (ClassifyMenu's `titleMaxLines`).
+  final int titleMaxLines;
 
   /// The ids of the selected tags ([CYLTagSelectionMode.multiple]).
   final List<String> selectedIds;
@@ -1316,7 +1332,9 @@ class _CYLTagListViewState extends State<CYLTagListView> {
         oldWidget.supportsRenaming != widget.supportsRenaming ||
         oldWidget.foldControlPosition != widget.foldControlPosition ||
         oldWidget.foldControlContent != widget.foldControlContent ||
-        oldWidget.foldedRowCount != widget.foldedRowCount) {
+        oldWidget.foldedRowCount != widget.foldedRowCount ||
+        !listEquals(oldWidget.tagSubtitles, widget.tagSubtitles) ||
+        oldWidget.titleMaxLines != widget.titleMaxLines) {
       _channel?.invokeMethod<void>('update', _parameters);
     }
   }
@@ -1348,6 +1366,8 @@ Map<String, Object?> cylTagListViewParameters(CYLTagListView widget, {Brightness
       'foldControlPosition': widget.foldControlPosition.name,
       'foldControlContent': widget.foldControlContent.name,
       'foldedRowCount': widget.foldedRowCount,
+      'tagSubtitles': widget.tagSubtitles,
+      'titleMaxLines': widget.titleMaxLines,
       'tagIds': widget.tagIds,
       'selectedIds': widget.selectedIds,
       'selectionMode': widget.selectionMode.name,

@@ -11,6 +11,8 @@ import com.cyl.classifymenu.CYLMenuDelegate
 import com.cyl.classifymenu.CYLMenuSelectionMode
 import com.cyl.classifymenu.CYLMenuStyle
 import com.cyl.classifymenu.CYLTagListView
+import com.cyl.classifymenu.CYLTagLongPressActions
+import com.cyl.classifymenu.CYLTagTitleMaxLines
 import com.cyl.placeholder.CYLPlaceholderStyle
 import com.cyl.placeholder.CYLPlaceholderView
 import com.cyl.placeholder.CYLPlaceholderScenario
@@ -519,6 +521,10 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
     private var tagImages: List<String> = emptyList()
     // The screen-reader label of each tag image, parallel to tagImages ('' none); param tagImageLabels.
     private var tagImageLabels: List<String> = emptyList()
+    // The subtitle of each tag (param tagSubtitles, '' none): a long press shows it in a callout with an arrow.
+    private var tagSubtitles: List<String> = emptyList()
+    // Param titleMaxLines: 1 single line (the default), 0 no limit, n at most n lines (ClassifyMenu `CYLTagTitleMaxLines`).
+    private var titleMaxLines = 1
     private val loadedImages = HashMap<String, android.graphics.drawable.Drawable>()
     private val appContext: Context = context
     private var supportsRenaming = false
@@ -571,6 +577,14 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
         backgroundStyle = arguments["backgroundStyle"] as? String ?: ""
         tagImages = (arguments["tagImages"] as? List<String>) ?: emptyList()
         tagImageLabels = (arguments["tagImageLabels"] as? List<String>) ?: emptyList()
+        tagSubtitles = (arguments["tagSubtitles"] as? List<String>) ?: emptyList()
+        titleMaxLines = (arguments["titleMaxLines"] as? Number)?.toInt() ?: 1
+        // A callout for the subtitles; the default (reorder where editable, else report) when no tag has one.
+        tagListView.longPressAction = if (tagSubtitles.any { it.isNotEmpty() }) {
+            CYLTagLongPressActions.first(listOf(CYLTagLongPressActions.reorder, CYLTagLongPressActions.callout))
+        } else {
+            CYLTagLongPressActions.makeDefault()
+        }
         applyListStyle()
         loadTagImages()
         supportsRenaming = arguments["supportsRenaming"] as? Boolean ?: false
@@ -590,11 +604,12 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
         // The search bar core's default tag look (capsule tags, light border, bold header, 16 dp inset), customizable through
         // CYLSearchTagListStyle.
         val base = if (columns > 0) {
-            CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(columns).apply { CYLSearchTagListStyle.applyGrid(this) }
+            CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(columns).apply { CYLSearchTagListStyle.applyGrid(this, appContext) }
         } else {
-            (flowingStyle?.copy() ?: CYLMenuStyle()).apply { CYLSearchTagListStyle.applyDefaults(this) }
+            (flowingStyle?.copy() ?: CYLMenuStyle()).apply { CYLSearchTagListStyle.applyDefaults(this, appContext) }
         }
         base.backgroundColor = android.graphics.Color.TRANSPARENT
+        base.titleMaxLines = if (titleMaxLines <= 0) CYLTagTitleMaxLines.UNLIMITED else titleMaxLines
         // "liquidGlass" or flat (CYLSearchTagListStyle.applyBackgroundStyle, iOS `applyBackgroundStyle(named:to:)`).
         CYLSearchTagListStyle.applyBackgroundStyle(backgroundStyle, base)
         if (showsRefreshButton) CYLSearchTagListHeader.applyRefreshIcon(appContext, base)
@@ -650,6 +665,8 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
     override fun menuNumberOfItemsInSection(section: Int) = titles.size
     override fun menuTitleForSection(section: Int) = sectionTitle
     override fun menuTitleForItemAtIndexPath(indexPath: CYLIndexPath) = titles.getOrElse(indexPath.item) { "" }
+    override fun menuSubtitleForItemAtIndexPath(indexPath: CYLIndexPath): String? =
+        tagSubtitles.getOrNull(indexPath.item)?.takeIf { it.isNotEmpty() }
     override fun menuIdentifierForItemAtIndexPath(indexPath: CYLIndexPath): String = idAt(indexPath.item)
     override fun menuShowsClearButtonForSection(section: Int) = showsClearButton && !showsRefreshButton
     override fun menuShowsMoreButtonInSection(section: Int) = showsRefreshButton

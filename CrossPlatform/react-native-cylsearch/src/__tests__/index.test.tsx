@@ -22,6 +22,9 @@ import {
   cylInsetsArray,
   cylResultsForQuery,
   cylSplitMatch,
+  cylTagSubtitles,
+  CYL_TAG_TITLE_SINGLE_LINE,
+  CYL_TAG_TITLE_UNLIMITED,
   cylSearchBarItemsJSON,
   cylSearchBarSelectedItem,
   cylSearchViewShowsResults,
@@ -273,5 +276,19 @@ describe('exports', () => {
       'CYLSearchView',
       'CYLTagListView',
     ]);
+  });
+});
+
+describe('tag list subtitles and title wrapping', () => {
+  it('pads and trims the subtitles to one entry per tag', () => {
+    expect(cylTagSubtitles(3, ['a', undefined])).toEqual(['a', '', '']);
+    expect(cylTagSubtitles(1, ['a', 'b'])).toEqual(['a']);
+    expect(cylTagSubtitles(2)).toEqual(['', '']);
+    expect(cylTagSubtitles(-1, ['a'])).toEqual([]);
+  });
+
+  it('names the title line limits', () => {
+    expect(CYL_TAG_TITLE_SINGLE_LINE).toBe(1);
+    expect(CYL_TAG_TITLE_UNLIMITED).toBe(0);
   });
 });

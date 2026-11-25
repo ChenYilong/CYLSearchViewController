@@ -1,9 +1,12 @@
 import { common } from '@kit.AbilityKit';
 import { CYLPlaceholderMessage, CYLPlaceholderStyle, CYLPlaceholderViewModel } from 'cylplaceholder';
 import {
-  CYLControlState, CYLEdgeInsets, CYLFont, CYLMenuStyle, CYLSize, CYLTagButton, CYLTagButtonHost,
-  CYLTagContentAlignment
+  CYLControlState, CYLEdgeInsets, CYLFont, CYLIndexPath, CYLMenuDataSource, CYLMenuDelegate, CYLMenuFoldControl,
+  CYLMenuFoldControlContent, CYLMenuFoldControlPosition, CYLMenuSelectionMode, CYLMenuStyle, CYLSize,
+  CYLTagBackgroundStyle, CYLTagButton, CYLTagButtonHost, CYLTagContentAlignment, CYLTagListState, CYLTagListView,
+  CYLTagLongPressActions, CYLTagTitleMaxLines
 } from '@cyl/classifymenu';
+import { CYLSearchTagListStyle } from 'cylsearch';
 import {
   cylAppText,
   CYLDemoCell,
@@ -65,6 +68,31 @@ function cylSVGADemoTagButton(title: string, animationURL: string): CYLTagButton
 }
 
 /**
+ * The Examples rows as the data source of ClassifyMenu's tag list (docs/instructions/example-demos.md): one titled
+ * section, a tag per row.
+ */
+class CYLExampleMenuSource implements CYLMenuDataSource {
+  titles: string[] = [];
+  header: string = '';
+
+  numberOfSectionsInMenu(): number {
+    return 1;
+  }
+
+  menuNumberOfItemsInSection(section: number): number {
+    return this.titles.length;
+  }
+
+  menuTitleForSection(section: number): string {
+    return this.header;
+  }
+
+  menuTitleForItem(indexPath: CYLIndexPath): string {
+    return this.titles[indexPath.item];
+  }
+}
+
+/**
  * The Examples tab (iOS `CYLSearchDemoMenuViewController`): Search and refresh, Placeholder styles, Search bar, and
  * the other libraries' examples.
  */
@@ -77,6 +105,10 @@ export struct ExamplesMenuView {
     'asset:svga/tab_activity.svga');
   // Where the tab icons come from (iOS `CYLDemoTabIconSource`): 0 symbols, 1 SVGA keys, 2 SVGA configuration file.
   @Local iconSource: number = AppStorage.get<number>(CYL_TAB_ICON_SOURCE_KEY) ?? 0;
+  // The rows as a Liquid Glass tag list: adaptive tags, wrapping titles, a 3-row fold with more / less.
+  private menuSource: CYLExampleMenuSource = new CYLExampleMenuSource();
+  private menuList: CYLTagListState = new CYLTagListState();
+  @Local menuHeight: number = 200;
 
   private sourceName(): string {
     const names: string[] = ['svga_source_symbols', 'svga_source_keys', 'svga_source_file'];
@@ -89,7 +121,39 @@ export struct ExamplesMenuView {
     cylSetTabIconSource(this.context, this.iconSource);
   }
 
+  // The tag list of the rows (docs/instructions/example-demos.md): the core's default tag look in the glass style,
+  // titles that may wrap, folded after 3 rows behind a "more" / "less" control; a tap opens the row's page.
+  private setUpMenuList(): void {
+    this.menuSource.titles = this.rows.map((key: string) => this.rowText(key));
+    this.menuSource.header = cylDemoText(this.context, 'demo.title');
+    const style = new CYLMenuStyle();
+    const previous = CYLSearchTagListStyle.tagBackgroundStyle;
+    CYLSearchTagListStyle.tagBackgroundStyle = CYLTagBackgroundStyle.liquidGlass;
+    CYLSearchTagListStyle.applyDefaults(style);
+    CYLSearchTagListStyle.tagBackgroundStyle = previous;
+    style.titleMaxLines = CYLTagTitleMaxLines.unlimited;
+    this.menuList.style = style;
+    this.menuList.foldControl = new CYLMenuFoldControl(CYLMenuFoldControlPosition.tail,
+      CYLMenuFoldControlContent.iconAndTitle);
+    this.menuList.defaultVisibleRows = 3;
+    this.menuList.selectionMode = CYLMenuSelectionMode.none;
+    this.menuList.isScrollEnabled = false;
+    this.menuList.longPressAction = CYLTagLongPressActions.callout;
+    this.menuList.menuDataSource = this.menuSource;
+    const delegate: CYLMenuDelegate = {
+      menuDidSelectItem: (menu: Object, indexPath: CYLIndexPath) => {
+        this.stack.pushPath({ name: this.routes[indexPath.item] });
+      },
+      menuDidChangeContentHeight: (menu: Object, height: number) => {
+        this.menuHeight = height;
+      }
+    };
+    this.menuList.menuDelegate = delegate;
+    this.menuList.reloadMenuData();
+  }
+
   aboutToAppear(): void {
+    this.setUpMenuList();
     // Plays once when shown, as the tab icons do when selected (iOS `didMoveToWindow`).
     this.svgaButton.playAnimation();
     // `--pi CYLContactTags 1` opens the contact tags example at launch (iOS `-CYLDemoRow 5`), for screenshots.
@@ -142,27 +206,12 @@ export struct ExamplesMenuView {
     Column() {
       CYLDemoNavBar({ title: cylDemoText(this.context, 'demo.title'), barColor: $r('sys.color.background_secondary') })
       this.svgaHeader()
-      List() {
-        ForEach(this.rows, (key: string, index: number) => {
-          ListItem() {
-            CYLDemoCell({ text: this.rowText(key), showsDivider: index < this.rows.length - 1 })
-          }
-          // Read as one element with its title as the label; UI tests find it by that label.
-          .accessibilityGroup(true)
-          .accessibilityText(this.rowText(key))
-          .id(`CYLDemoRow${index}`)
-          .onClick(() => this.stack.pushPath({ name: this.routes[index] }))
-        }, (key: string) => key)
+      Scroll() {
+        CYLTagListView({ tagList: this.menuList }).width('100%').height(this.menuHeight).id('CYLDemoExamplesTags')
       }
-      .contentEndOffset(CYL_PLUS_OVERHANG)
-      .backgroundColor($r('sys.color.background_primary'))
-      .borderRadius(10)
-      .margin({ left: 16, right: 16, top: 20 })
-      // As iOS's inset grouped list: the card ends after its last row (it shrinks and scrolls only when the rows do
-      // not fit).
-      .height('auto')
-      .flexShrink(1)
-      Blank()
+      .margin({ bottom: CYL_PLUS_OVERHANG })
+      .layoutWeight(1)
+      .scrollBar(BarState.Off)
     }
     .width('100%')
     .height('100%')

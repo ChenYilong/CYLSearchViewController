@@ -50,7 +50,7 @@ class CYLSearchPortsFragment : CYLExamplePage() {
         Triple("yechaoa/MaterialDesign", "SearchViewActivity") { push(CYLYechaoaPortFragment()) },
         Triple("android-cjj/MaterialSearchView", "Circular reveal") { push(CYLRevealPortFragment()) },
         Triple("iammert/MultiSearchView", "MultiSearchView") { push(CYLMultiSearchPortFragment()) },
-    ))
+    ), defaultHeader = context.cylDemoText("demo.ports"))
 }
 
 private fun Context.items(count: Int) = (1..count).map { getString(SearchR.string.cyl_demo_port_item, it) }
@@ -124,7 +124,7 @@ class CYLMaterialSearchMenuFragment : CYLExamplePage() {
 
     override fun createContent(context: Context): View = context.cylMenuList(CYLMaterialSearchSample.entries.map { sample ->
         Triple(context.cylDemoText(sample.titleKey), null) { push(CYLMaterialSearchSampleFragment.newInstance(sample)) }
-    })
+    }, defaultHeader = "MaterialSearchView")
 }
 
 /**

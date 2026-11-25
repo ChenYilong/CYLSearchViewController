@@ -26,11 +26,12 @@ const CYLMenuFoldControlPosition = Object.freeze({
 });
 
 /**
- * What the fold control shows (CollectionViewClassifyMenu's `CYLMenuFoldControlContent`): a chevron, or a title.
+ * What the fold control shows (CollectionViewClassifyMenu's `CYLMenuFoldControlContent`): a chevron (the default), a title, or both.
  */
 const CYLMenuFoldControlContent = Object.freeze({
   icon: 'icon',
   title: 'title',
+  iconAndTitle: 'iconAndTitle',
 });
 
 /**
@@ -774,7 +775,7 @@ class CYLSearchView {
       selectionMode: 'none',
       showsSectionHeaders: false,
       defaultVisibleRows: Math.max(0, this.suggestionsFoldedRowCount),
-      foldControl: { position: positions[control.position] || 'tail', content: control.content === CYLMenuFoldControlContent.title ? 'title' : 'icon' },
+      foldControl: { position: positions[control.position] || 'tail', content: control.content === CYLMenuFoldControlContent.title || control.content === CYLMenuFoldControlContent.iconAndTitle ? control.content : 'icon' },
       style,
       sections: [{ items: this.filteredSuggestions.map((title) => ({ title: String(title) })) }],
     };

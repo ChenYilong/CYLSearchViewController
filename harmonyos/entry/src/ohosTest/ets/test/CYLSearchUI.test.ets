@@ -56,6 +56,26 @@ async function tapLabel(driver: Driver, label: string, wait: number = 800, iconI
   await driver.delayMs(wait);
 }
 
+// An Examples row is a tag of the example's tag list (ids `CYLTagListItem-0-<row>`, a 3-row fold `CYLTagListFold-0`): the
+// list draws no text a test can find, so the row is found by its id, expanding the fold when the tag is folded away.
+async function tapExamplesTag(driver: Driver, label: string, row: number, wait: number = 1000): Promise<void> {
+  const id = `CYLTagListItem-0-${row}`;
+  let tag = await driver.findComponent(ON.id(id));
+  if (!tag) {
+    const fold = await driver.findComponent(ON.id('CYLTagListFold-0'));
+    if (fold) {
+      await fold.click();
+      await driver.delayMs(500);
+    }
+    tag = await driver.findComponent(ON.id(id));
+  }
+  if (!tag) {
+    throw new Error(`No Examples tag for "${label}"`);
+  }
+  await tag.click();
+  await driver.delayMs(wait);
+}
+
 async function assertLabel(driver: Driver, label: string, iconId?: string): Promise<void> {
   expect(await findByLabel(driver, label, iconId) !== undefined).assertTrue();
 }
@@ -104,7 +124,7 @@ export default function cylSearchUITest() {
       await backToTabBar(driver);
       await tapLabel(driver, appString('tab_examples'));
       await assertLabel(driver, libString('demo.title'));
-      await tapLabel(driver, libString('demo.styles'), 1000);
+      await tapExamplesTag(driver, libString('demo.styles'), 1);
       // The section headers are CYLTableViewPlaceHolder's image names (its CYLPlaceholderView styles).
       await assertLabel(driver, 'CYLPlaceholderEmpty');
       await driver.pressBack();
@@ -160,7 +180,7 @@ export default function cylSearchUITest() {
       const driver = Driver.create();
       await backToTabBar(driver);
       await tapLabel(driver, appString('tab_examples'));
-      await tapLabel(driver, libString('demo.ports'), 1000);
+      await tapExamplesTag(driver, libString('demo.ports'), 3);
       await tapLabel(driver, 'iammert/MultiSearchView', 1000);
       await tapLabel(driver, libString('multisearch.add'), 800, 'CYLSearchBarNewSearch');
       const field = await driver.findComponent(ON.type('TextInput'));
@@ -219,7 +239,7 @@ export default function cylSearchUITest() {
       const driver = Driver.create();
       await backToTabBar(driver);
       await tapLabel(driver, appString('tab_examples'));
-      await tapLabel(driver, libString('demo.searchController'), 1000);
+      await tapExamplesTag(driver, libString('demo.searchController'), 5);
       const fields = await driver.findComponents(ON.type('TextInput'));
       expect(fields.length > 0).assertTrue();
       await fields[0].click();
