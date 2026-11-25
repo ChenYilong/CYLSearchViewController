@@ -443,9 +443,11 @@ function FirstLevelBar({ tabKey, onOpen }: { tabKey: string; onOpen: () => void 
       embedsInNavigationBar
       pushesOnTap
       onFirstLevelTap={onOpen}
+      // The core's default search button (no item of ours): the round black icon on the camera tab, text on the others.
+      searchButtonStyle={look.camera ? 'icon' : 'text'}
+      searchButtonHandler={onOpen}
       items={[
-        ...(look.camera ? [{ style: 'icon' as const, image: 'camera', title: text['discover.imageSearch'], animationURL: 'search_camera.json', onPress: onOpen }, { style: 'divider' as const }] : []),
-        { style: 'text', title: text['discover.search'], accessibilityIdentifier: 'CYLSearchFirstLevelSearchButton', onPress: onOpen },
+        ...(look.camera ? [{ style: 'icon' as const, image: 'camera', title: text['discover.imageSearch'], animationURL: 'search_camera.json', onPress: onOpen }] : []),
       ]}
     />
   );
@@ -501,7 +503,7 @@ function DiscoverDemo({ tabKey, onBack }: { tabKey: string; onBack: () => void }
   };
   return (
     <ScrollView contentContainerStyle={styles.discoverPage}>
-      {/* The field stays; the camera, a divider and the Search button are items appended inside its bordered capsule. */}
+      {/* The field stays; the camera item and the core's default search button follow inside its bordered capsule. */}
       <CYLSearchBarView
         style={styles.discoverBar}
         text={barText}
@@ -517,11 +519,13 @@ function DiscoverDemo({ tabKey, onBack }: { tabKey: string; onBack: () => void }
         fieldShadowOpacity={look.fieldShadowOpacity}
         onTextChange={(event) => { typed.current = event.nativeEvent.text; }}
         onSubmit={(event) => search(event.nativeEvent.text || placeholder)}
+        searchButtonStyle={look.camera ? 'icon' : 'text'}
+        searchButtonTitle={text['discover.search']}
+        searchButtonHandler={(value) => search(value || placeholder)}
         ref={barRef}
         items={[
           // The camera button itself plays the animation (Animation demo rule): search_camera.json, the same Lottie file on every platform.
-          ...(look.camera ? [{ style: 'icon' as const, image: 'camera', title: text['discover.imageSearch'], animationURL: 'search_camera.json', animationLoops, animationSpeed, onPress: () => setMessage(text['discover.imageSearchUnavailable'] ?? '') }, { style: 'divider' as const }] : []),
-          { style: 'text', title: text['discover.search'], accessibilityIdentifier: 'CYLSearchDiscoverSearchButton', onPress: () => search(typed.current || placeholder) },
+          ...(look.camera ? [{ style: 'icon' as const, image: 'camera', title: text['discover.imageSearch'], animationURL: 'search_camera.json', animationLoops, animationSpeed, onPress: () => setMessage(text['discover.imageSearchUnavailable'] ?? '') }] : []),
         ]}
       />
       {/* The native tag list brings its own section header (title and trash) and lines up with the bar: no custom header. */}

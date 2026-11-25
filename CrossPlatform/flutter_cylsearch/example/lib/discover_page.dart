@@ -182,7 +182,6 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
   List<String> _recent = <String>[];
   List<CYLDiscoverTopic> _topics = <CYLDiscoverTopic>[];
   int _page = 0;
-  String _typed = '';
   String? _barText;
   bool _loops = false;
   // The tag lists' background: Liquid Glass (default) or flat; the toggle under the loop control switches both lists.
@@ -226,7 +225,6 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
     setState(() {
       _recent = <String>[query, ..._recent.where((item) => item != query)];
       _barText = query;
-      _typed = query;
     });
     _show(data.text('discover.searching', query));
   }
@@ -240,7 +238,7 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
     final styleText = data.text('discover.styleLabel', data.text(_glass ? 'discover.styleGlass' : 'discover.styleFlat'));
     return Scaffold(
       // The page's search bar is always in a navigation bar: the core's, in the app bar slot. The field stays; the camera, a
-      // divider and the Search button are items appended inside its bordered capsule (core `CYLSearchBarItem`).
+      // default search button (its divider is the core's) follow inside its bordered capsule (core `CYLSearchBarItem`).
       appBar: PreferredSize(
         // 44 pt: the Scaffold adds the status bar height to the app bar slot itself, and the SafeArea below keeps the bar
         // under it.
@@ -274,16 +272,13 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                               animationSpeed: _speed,
                               onTap: (_) => _show(data.text('discover.imageSearchUnavailable')),
                             ),
-                            const CYLSearchBarItem.divider(),
                             ],
-                            CYLSearchBarItem.text(
-                              title: data.text('discover.search'),
-                              accessibilityIdentifier: 'CYLSearchDiscoverSearchButton',
-                              onTap: (_) => _search(_typed.isEmpty ? _placeholder(data) : _typed),
-                            ),
                           ],
-                          onTextChanged: (text) => _typed = text,
                           onSubmitted: (text) => _search(text.isEmpty ? _placeholder(data) : text),
+                          // The core's default search button (no item of ours), round icon on the camera tab; a tap searches the text or the topic.
+                          searchButtonStyle: cylTabBarLookOf(widget.tab).camera ? CYLSearchBarSearchButtonStyle.icon : CYLSearchBarSearchButtonStyle.text,
+                          searchButtonTitle: data.text('discover.search'),
+                          searchButtonHandler: (text) => _search(text.isEmpty ? _placeholder(data) : text),
                         ),
         ),
       ),

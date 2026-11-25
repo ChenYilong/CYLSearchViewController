@@ -31,7 +31,7 @@ class CYLTabBarLook {
   /// The placeholder is centered until the field is edited.
   final bool centersPlaceholder;
 
-  /// A camera button inside the capsule before the Search button.
+  /// A camera button inside the capsule before the default search button (which is then the round icon style).
   final bool camera;
 }
 
@@ -76,12 +76,13 @@ PreferredSizeWidget cylFirstLevelAppBar(BuildContext context, {required int tab}
         embedsInNavigationBar: true,
         pushesOnTap: true,
         onFirstLevelTap: push,
+        // The core's default search button (no item of ours): the round black icon on the camera tab (the reference recording), text on the others.
+        searchButtonStyle: look.camera ? CYLSearchBarSearchButtonStyle.icon : CYLSearchBarSearchButtonStyle.text,
+        searchButtonHandler: (_) => push(),
         items: <CYLSearchBarItem>[
           if (look.camera) ...<CYLSearchBarItem>[
             CYLSearchBarItem.icon(image: 'camera', title: 'Camera', animationURL: 'search_camera.json', onTap: (_) => push()),
-            const CYLSearchBarItem.divider(),
           ],
-          CYLSearchBarItem.text(title: cylExampleText('Search'), accessibilityIdentifier: 'CYLSearchFirstLevelSearchButton', onTap: (_) => push()),
         ],
       ),
     ),

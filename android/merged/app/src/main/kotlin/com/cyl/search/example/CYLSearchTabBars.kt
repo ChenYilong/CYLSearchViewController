@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Rect
 import com.cyl.search.CYLSearchBarItem
+import com.cyl.search.CYLSearchBarSearchButtonStyle
 import com.cyl.search.CYLSearchBarStyle
 import com.cyl.search.CYLSearchBarView
 
@@ -25,25 +26,24 @@ interface CYLInteractiveBack {
 /**
  * The search bar of the tab `key`, one style per tab (the tab bar controller owns the tabs, each tab root owns its bar): the same
  * bar is the whole bar of the first-level page and, after the push, of the second-level page, so the transition is continuous.
- * Keys: `discover` (the reference recording: Discover look, camera and a Search button inside the capsule), `search` (Discover look,
+ * Keys: `discover` (the reference recording: Discover look, camera and the round default search button inside the capsule), `search` (Discover look,
  * Search button), `examples` (bordered, small radius), `list` (bordered pill with the magnifier), `tag` (plain gray, centered
  * placeholder). The page only calls this; it sets no width.
  */
 fun cylTabSearchBar(context: Context, key: String, onCamera: () -> Unit, onSearch: () -> Unit): CYLSearchBarView {
     val bar = CYLSearchBarView(context)
-    val searchTitle = context.getString(R.string.cyl_discover_search)
-    val search = CYLSearchBarItem.textItem(searchTitle) { onSearch() }.also { it.itemAccessibilityIdentifier = "CYLSearchDiscoverSearchButton" }
     bar.contentInsets = Rect(16, 6, 16, 6)
     when (key) {
         "discover" -> {
             bar.applyNavigationFieldStyle()
             bar.fieldHeight = 46f
+            // The round black button of the reference recording.
+            bar.searchButtonStyle = CYLSearchBarSearchButtonStyle.Icon
             val camera = CYLSearchBarItem.iconItem(context.getDrawable(R.drawable.cyl_ic_camera), context.getString(R.string.cyl_discover_imageSearch)) { onCamera() }
             camera.imageSize = android.util.SizeF(22f, 22f)
             // The camera button plays search_camera.json, the same Lottie file on every platform.
             camera.animationURL = android.net.Uri.parse("file:///android_asset/search_camera.json")
             bar.addItem(camera)
-            bar.addItem(CYLSearchBarItem.divider())
         }
         "search" -> {
             bar.applyNavigationFieldStyle()
@@ -67,7 +67,9 @@ fun cylTabSearchBar(context: Context, key: String, onCamera: () -> Unit, onSearc
         }
     }
     bar.placeholder = context.getString(R.string.cyl_discover_search)
-    bar.addItem(search)
+    // The core's default search button (after the field and the camera, with its own divider); a tap goes to the page.
+    bar.searchButtonHandler = { onSearch() }
+    bar.searchButtonItem.itemAccessibilityIdentifier = "CYLSearchDiscoverSearchButton"
     return bar
 }
 
