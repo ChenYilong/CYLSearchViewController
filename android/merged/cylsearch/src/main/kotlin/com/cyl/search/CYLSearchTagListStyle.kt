@@ -98,6 +98,8 @@ object CYLSearchTagListStyle {
                 margin = 14f
                 font = CYLFont(17f)
                 textColor = labelColor(night)
+                // A template icon with one static color (core CYLIconContrast: an original-color icon would vanish on dark glass).
+                iconColor = labelColor(night)
             }
         }
         style.backgroundStyle = tagBackgroundStyle
