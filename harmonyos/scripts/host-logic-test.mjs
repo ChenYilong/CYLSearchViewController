@@ -25,7 +25,10 @@ const parts = ['CYLSearchBarView.ets', 'CYLSearchView.ets', 'CYLSearchResources.
 });
 const folder = mkdtempSync(join(tmpdir(), 'cyl-logic-'));
 const target = join(folder, 'CYLSearchLogic.ts');
-writeFileSync(target, parts.join('\n'));
+// ArkTS resource lookups ($r) have no host counterpart: a stub returns the resource name, so a pure logic part may
+// hold a colour constant such as $r('app.color.cyl_search_secondary_label').
+const arkTsStubs = "const $r = (name: string) => ({ resource: name });\n";
+writeFileSync(target, arkTsStubs + parts.join('\n'));
 const logic = await import(pathToFileURL(target).href);
 after(() => rmSync(folder, { recursive: true, force: true }));
 
@@ -185,11 +188,11 @@ describe('cylSearchBarItemButtonContent', () => {
 });
 
 describe('cylSearchBarItemInsets', () => {
-  it('uses the item insets, else 4 for a text item and 0 for the others', () => {
+  it('uses the item insets, else 8 for the divider, 4 for a text item and 0 for the others', () => {
     assert.equal(logic.cylSearchBarItemInsets(0, 6), 6);
     assert.equal(logic.cylSearchBarItemInsets(2, -1), 4);
     assert.equal(logic.cylSearchBarItemInsets(0, -1), 0);
-    assert.equal(logic.cylSearchBarItemInsets(1, -1), 0);
+    assert.equal(logic.cylSearchBarItemInsets(1, -1), 8);
   });
 });
 

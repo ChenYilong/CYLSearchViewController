@@ -97,8 +97,8 @@ const CYLSearchBarDividerHeight = 20;
 const CYLSearchBarSecondaryLabel: Resource = $r('app.color.cyl_search_secondary_label');
 
 /**
- * The horizontal padding of an item in vp: its own when 0 or more, else 4 for a text item (style 2) and 0 for the
- * others (iOS `CYLSearchBarItemButton.resolvedInsets`).
+ * The horizontal padding of an item in vp: its own when 0 or more, else 8 for the divider (style 1), 4 for a text item
+ * (style 2) and 0 for the others (iOS `CYLSearchBarItemButton.resolvedInsets`).
  */
 function cylSearchBarItemInsets(style: number, contentInsets: number): number {
   if (contentInsets >= 0) {
