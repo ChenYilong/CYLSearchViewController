@@ -147,6 +147,8 @@ class CYLSearchExampleApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
         title: 'CYLSearch',
         theme: ThemeData(colorSchemeSeed: const Color(0xFF007AFF), useMaterial3: true),
+        // Follows the system appearance, so the native views (which take the Flutter brightness) show dark mode too.
+        darkTheme: ThemeData(colorSchemeSeed: const Color(0xFF007AFF), useMaterial3: true, brightness: Brightness.dark),
         home: CYLSearchTabs(tabBarConfiguration: tabBarConfiguration),
       );
 }

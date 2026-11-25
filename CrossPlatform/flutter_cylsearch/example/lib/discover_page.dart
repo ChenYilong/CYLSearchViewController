@@ -192,6 +192,9 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
   }
 
   /// Searches `text`: it moves to the front of the recent searches and shows in the bar.
+  /// The search field's placeholder: the first topic shown, else "Search" (iOS `reloadLists`).
+  String _placeholder(CYLSearchDiscoverData data) => _topics.isNotEmpty ? _topics.first.title : data.text('discover.search');
+
   void _search(String text) {
     final query = text.trim();
     final data = _data;
@@ -222,6 +225,8 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
           child: CYLSearchBarView(
                           controller: _barController,
                           text: _barText,
+                          // The field's placeholder is the first topic (iOS `reloadLists`); Search uses it when nothing is typed.
+                          placeholder: _placeholder(data),
                           searchBarStyle: CYLSearchBarStyle.bordered,
                           showsSearchIcon: false,
                           embedsInNavigationBar: true,
@@ -244,11 +249,11 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                             CYLSearchBarItem.text(
                               title: data.text('discover.search'),
                               accessibilityIdentifier: 'CYLSearchDiscoverSearchButton',
-                              onTap: (_) => _search(_typed),
+                              onTap: (_) => _search(_typed.isEmpty ? _placeholder(data) : _typed),
                             ),
                           ],
                           onTextChanged: (text) => _typed = text,
-                          onSubmitted: _search,
+                          onSubmitted: (text) => _search(text.isEmpty ? _placeholder(data) : text),
                         ),
         ),
       ),
