@@ -10,7 +10,6 @@ import {
   CYLSearchView
 } from 'cylsearch';
 import {
-  CYLDemoCell,
   CYLDemoNavBar,
   cylDemoText,
   CYLDemoRoute,
@@ -19,6 +18,7 @@ import {
   CYLSnackbarView,
   CYL_PLUS_OVERHANG
 } from '../common/DemoCommon';
+import { CYLDemoTagMenuView, CYLDemoTagRow, CYLDemoTagSection } from '../common/DemoTagMenu';
 import { CYLSpeechRecognizer } from '../common/SpeechRecognizer';
 
 /**
@@ -61,38 +61,41 @@ export struct MaterialMenuView {
   private context: common.Context = this.getUIContext().getHostContext() as common.Context;
   private samples: number[] = [0, 1, 2, 3, 4, 5];
 
+  // One titled section, a glass tag per sample (docs/instructions/example-demos.md).
+  private tagSections(): CYLDemoTagSection[] {
+    const rows: CYLDemoTagRow[] = this.samples.map((sample: number): CYLDemoTagRow => {
+      const row: CYLDemoTagRow = { title: cylDemoText(this.context, SAMPLE_KEYS[sample]), subtitle: '', image: undefined };
+      return row;
+    });
+    return [new CYLDemoTagSection('MaterialSearchView', rows)];
+  }
+
   build() {
     Column() {
       CYLDemoNavBar({
         title: 'MaterialSearchView',
         showsBack: this.showsBack,
-        barColor: $r('sys.color.background_secondary'),
+        barColor: Color.Transparent,
         onBack: () => this.onBack()
       })
-      List() {
-        ForEach(this.samples, (sample: number) => {
-          ListItem() {
-            CYLDemoCell({ text: cylDemoText(this.context, SAMPLE_KEYS[sample]), showsDivider: sample < 5 })
-          }
-          .accessibilityGroup(true)
-          .accessibilityText(cylDemoText(this.context, SAMPLE_KEYS[sample]))
-          .id(`CYLMaterialSample${sample}`)
-          .onClick(() => {
-            const param: CYLMaterialSampleParam = { sample: sample, tags: this.tags, focusesSearchFieldOnShow: !this.tags && AppStorage.get<number>('CYLDebugNoFocus') !== 1 };
+      Scroll() {
+        CYLDemoTagMenuView({
+          sections: this.tagSections(),
+          tagId: 'CYLDemoMaterialTags',
+          onSelect: (section: number, item: number) => {
+            const param: CYLMaterialSampleParam = { sample: item, tags: this.tags, focusesSearchFieldOnShow: !this.tags && AppStorage.get<number>('CYLDebugNoFocus') !== 1 };
             this.stack.pushPath({ name: CYLDemoRoute.materialSample, param: param });
-          })
-        }, (sample: number) => `${sample}`)
+          }
+        })
       }
-      .contentEndOffset(CYL_PLUS_OVERHANG)
-      .backgroundColor($r('sys.color.background_primary'))
-      .borderRadius(10)
-      .margin({ left: 16, right: 16, top: 20 })
-      .height('auto')
-      Blank()
+      .margin({ bottom: CYL_PLUS_OVERHANG })
+      .layoutWeight(1)
+      .scrollBar(BarState.Off)
     }
     .width('100%')
     .height('100%')
-    .backgroundColor($r('sys.color.background_secondary'))
+      // A gradient page (docs/instructions/example-demos.md rule 7); the tag list draws no background, so the glass sits on it.
+      .linearGradient({ angle: 135, colors: [['#7FB7FF', 0.0], ['#FF9EC7', 0.5], ['#FFC27A', 1.0]] })
   }
 }
 

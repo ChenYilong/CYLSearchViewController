@@ -132,12 +132,34 @@ class _CYLSearchDiscoverEntryPageState extends State<CYLSearchDiscoverEntryPage>
   @override
   Widget build(BuildContext context) {
     final title = _data?.text('discover.title') ?? '';
-    return Scaffold(
-      appBar: AppBar(title: Text(title)),
-      body: ListView(
-        children: <Widget>[
-          ListTile(title: Text(title), trailing: const Icon(Icons.chevron_right), onTap: _open),
-        ],
+    return DecoratedBox(
+      // A gradient page (docs/instructions/example-demos.md rule 7): the list draws no background, the glass board and tag sit on it.
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: Theme.of(context).brightness == Brightness.dark
+              ? const <Color>[Color(0xFF1B1F5E), Color(0xFF5B2A86), Color(0xFF0F6E7A)]
+              : const <Color>[Color(0xFF7FB7FF), Color(0xFFFF9EC7), Color(0xFFFFC27A)],
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(backgroundColor: Colors.transparent, title: Text(title)),
+        // The entry cell as a tag of the tag list: titled section, glass, tail control with the icon only, a tap = the cell's tap.
+        body: SingleChildScrollView(
+          child: CYLTagListView(
+            tags: <String>[title],
+            sectionTitle: title,
+            backgroundStyle: 'liquidGlass',
+            foldedRowCount: 3,
+            titleMaxLines: cylTagTitleUnlimited,
+            tagSubtitles: <String>[title],
+            foldControlPosition: CYLTagFoldControlPosition.inline,
+            foldControlContent: CYLTagFoldControlContent.icon,
+            onTagSelected: (index, tagTitle) => _open(),
+          ),
+        ),
       ),
     );
   }

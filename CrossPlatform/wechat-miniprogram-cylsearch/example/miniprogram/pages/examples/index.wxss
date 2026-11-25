@@ -1,5 +1,4 @@
 @import "/utils/cyl_table.wxss";
-.grouped-first { margin-top: 35px; }
 
 /* The SVGA demo above the list, as iOS: icon then title at the leading edge, no border. */
 .svga-demo { display: flex; align-items: center; padding: 12px 16px 0; }

@@ -29,6 +29,7 @@
       "demo.contactTagsEmpty": "Contact tags without tags",
       "demo.noMatch": "No matching results",
       "demo.noContent": "No content",
+      "demo.tabIcons": "Tab icons",
       "demo.tabIconsRive": "Tab icons: Rive",
       "demo.tabIconsSvga": "Tab icons: SVGA"
     },
@@ -59,6 +60,7 @@
       "demo.contactTagsEmpty": "タグのない連絡先",
       "demo.noMatch": "一致する結果なし",
       "demo.noContent": "コンテンツなし",
+      "demo.tabIcons": "タブのアイコン",
       "demo.tabIconsRive": "タブのアイコン：Rive",
       "demo.tabIconsSvga": "タブのアイコン：SVGA"
     },
@@ -89,6 +91,7 @@
       "demo.contactTagsEmpty": "没有标签的联系人",
       "demo.noMatch": "没有匹配的结果",
       "demo.noContent": "没有内容",
+      "demo.tabIcons": "标签图标",
       "demo.tabIconsRive": "标签图标：Rive",
       "demo.tabIconsSvga": "标签图标：SVGA"
     },
@@ -119,6 +122,7 @@
       "demo.contactTagsEmpty": "沒有標籤的聯絡人",
       "demo.noMatch": "沒有符合的結果",
       "demo.noContent": "沒有內容",
+      "demo.tabIcons": "標籤圖示",
       "demo.tabIconsRive": "標籤圖示：Rive",
       "demo.tabIconsSvga": "標籤圖示：SVGA"
     }

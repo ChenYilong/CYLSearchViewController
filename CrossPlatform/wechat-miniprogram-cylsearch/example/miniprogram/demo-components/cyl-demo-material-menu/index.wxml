@@ -1,9 +1,4 @@
-<view class="screen">
+<view class="screen gradient-screen">
   <cyl-demo-nav title="MaterialSearchView" />
-  <view class="inset-group">
-    <view wx:for="{{rows}}" wx:key="sample" class="cell" role="button" aria-label="{{item.title}}" data-sample="{{item.sample}}" bindtap="onRow">
-      <text class="cell-title">{{item.title}}</text>
-      <view class="chevron" aria-hidden="true" />
-    </view>
-  </view>
+  <cyl-tag-list class="demo-tags" configuration="{{tagConfiguration}}" bind:tagtap="onTag" />
 </view>

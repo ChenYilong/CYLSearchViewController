@@ -1,12 +1,4 @@
-<view class="screen">
+<view class="screen gradient-screen">
   <cyl-demo-nav title="{{title}}" />
-  <view class="inset-group">
-    <view wx:for="{{rows}}" wx:key="url" class="cell" role="button" aria-label="{{item.title}}, {{item.subtitle}}" data-url="{{item.url}}" bindtap="onRow">
-      <view class="cell-text">
-        <view class="cell-title">{{item.title}}</view>
-        <view class="cell-subtitle">{{item.subtitle}}</view>
-      </view>
-      <view class="chevron" aria-hidden="true" />
-    </view>
-  </view>
+  <cyl-tag-list class="demo-tags" configuration="{{tagConfiguration}}" bind:tagtap="onTag" />
 </view>

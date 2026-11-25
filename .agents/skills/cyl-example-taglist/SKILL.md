@@ -19,3 +19,4 @@ Full rule: [docs/instructions/example-demos.md](../../../docs/instructions/examp
 6. The tag list uses the Liquid Glass background through the core's one parameter (`backgroundStyle` `liquidGlass`), no custom fills.
 7. Put a gradient behind the glass tag list (page background gradient, list background clear; example-demos.md rule 7).
 8. Build and screenshot the page before reporting (`cyl-verify`).
+9. `sh scripts/check-example-taglist.sh` fails when a demo menu is a plain cell list or a tag list lacks the glass style or the explicit tail icon.

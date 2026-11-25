@@ -1,15 +1,10 @@
 import { common } from '@kit.AbilityKit';
 import { CYLPlaceholderMessage, CYLPlaceholderStyle, CYLPlaceholderViewModel } from 'cylplaceholder';
 import {
-  CYLControlState, CYLEdgeInsets, CYLFont, CYLIndexPath, CYLMenuDataSource, CYLMenuDelegate, CYLMenuFoldControl,
-  CYLMenuFoldControlContent, CYLMenuFoldControlPosition, CYLMenuSelectionMode, CYLMenuStyle, CYLSize,
-  CYLTagBackgroundStyle, CYLTagButton, CYLTagButtonHost, CYLTagContentAlignment, CYLTagListState, CYLTagListView,
-  CYLTagLongPressActions, CYLTagTitleMaxLines
+  CYLControlState, CYLEdgeInsets, CYLFont, CYLMenuStyle, CYLSize, CYLTagButton, CYLTagButtonHost, CYLTagContentAlignment
 } from '@cyl/classifymenu';
-import { CYLSearchTagListStyle } from 'cylsearch';
 import {
   cylAppText,
-  CYLDemoCell,
   CYLDemoNavBar,
   CYLDemoPlaceholderItem,
   cylDemoText,
@@ -19,6 +14,7 @@ import {
   CYL_TAB_ICON_SOURCE_KEY,
   CYL_PLUS_OVERHANG
 } from '../common/DemoCommon';
+import { CYLDemoTagMenuView, CYLDemoTagRow, CYLDemoTagSection } from '../common/DemoTagMenu';
 
 /**
  * The number of placeholder styles shown: the 41 styles the search placeholder had, the first 41 of
@@ -68,31 +64,6 @@ function cylSVGADemoTagButton(title: string, animationURL: string): CYLTagButton
 }
 
 /**
- * The Examples rows as the data source of ClassifyMenu's tag list (docs/instructions/example-demos.md): one titled
- * section, a tag per row.
- */
-class CYLExampleMenuSource implements CYLMenuDataSource {
-  titles: string[] = [];
-  header: string = '';
-
-  numberOfSectionsInMenu(): number {
-    return 1;
-  }
-
-  menuNumberOfItemsInSection(section: number): number {
-    return this.titles.length;
-  }
-
-  menuTitleForSection(section: number): string {
-    return this.header;
-  }
-
-  menuTitleForItem(indexPath: CYLIndexPath): string {
-    return this.titles[indexPath.item];
-  }
-}
-
-/**
  * The Examples tab (iOS `CYLSearchDemoMenuViewController`): Search and refresh, Placeholder styles, Search bar, and
  * the other libraries' examples.
  */
@@ -105,11 +76,6 @@ export struct ExamplesMenuView {
     'asset:svga/tab_activity.svga');
   // Where the tab icons come from (iOS `CYLDemoTabIconSource`): 0 symbols, 1 SVGA keys, 2 SVGA configuration file.
   @Local iconSource: number = AppStorage.get<number>(CYL_TAB_ICON_SOURCE_KEY) ?? 0;
-  // The rows as a Liquid Glass tag list: adaptive tags, wrapping titles, a 3-row fold with more / less.
-  private menuSource: CYLExampleMenuSource = new CYLExampleMenuSource();
-  private menuList: CYLTagListState = new CYLTagListState();
-  @Local menuHeight: number = 200;
-
   private sourceName(): string {
     const names: string[] = ['svga_source_symbols', 'svga_source_keys', 'svga_source_file'];
     return cylAppText(this.context, names[Math.max(0, Math.min(this.iconSource, 2))]);
@@ -121,39 +87,7 @@ export struct ExamplesMenuView {
     cylSetTabIconSource(this.context, this.iconSource);
   }
 
-  // The tag list of the rows (docs/instructions/example-demos.md): the core's default tag look in the glass style,
-  // titles that may wrap, folded after 3 rows behind a "more" / "less" control; a tap opens the row's page.
-  private setUpMenuList(): void {
-    this.menuSource.titles = this.rows.map((key: string) => this.rowText(key));
-    this.menuSource.header = cylDemoText(this.context, 'demo.title');
-    const style = new CYLMenuStyle();
-    const previous = CYLSearchTagListStyle.tagBackgroundStyle;
-    CYLSearchTagListStyle.tagBackgroundStyle = CYLTagBackgroundStyle.liquidGlass;
-    CYLSearchTagListStyle.applyDefaults(style);
-    CYLSearchTagListStyle.tagBackgroundStyle = previous;
-    style.titleMaxLines = CYLTagTitleMaxLines.unlimited;
-    this.menuList.style = style;
-    this.menuList.foldControl = new CYLMenuFoldControl(CYLMenuFoldControlPosition.tail,
-      CYLMenuFoldControlContent.icon);
-    this.menuList.defaultVisibleRows = 3;
-    this.menuList.selectionMode = CYLMenuSelectionMode.none;
-    this.menuList.isScrollEnabled = false;
-    this.menuList.longPressAction = CYLTagLongPressActions.callout;
-    this.menuList.menuDataSource = this.menuSource;
-    const delegate: CYLMenuDelegate = {
-      menuDidSelectItem: (menu: Object, indexPath: CYLIndexPath) => {
-        this.stack.pushPath({ name: this.routes[indexPath.item] });
-      },
-      menuDidChangeContentHeight: (menu: Object, height: number) => {
-        this.menuHeight = height;
-      }
-    };
-    this.menuList.menuDelegate = delegate;
-    this.menuList.reloadMenuData();
-  }
-
   aboutToAppear(): void {
-    this.setUpMenuList();
     // Plays once when shown, as the tab icons do when selected (iOS `didMoveToWindow`).
     this.svgaButton.playAnimation();
     // `--pi CYLContactTags 1` opens the contact tags example at launch (iOS `-CYLDemoRow 5`), for screenshots.
@@ -197,6 +131,15 @@ export struct ExamplesMenuView {
   private routes: string[] = [CYLDemoRoute.reproduction, CYLDemoRoute.styles, CYLDemoRoute.searchBar, CYLDemoRoute.ports,
     CYLDemoRoute.contactTags, CYLDemoRoute.searchController, CYLDemoRoute.searchBarStyles];
 
+  // One titled section, a tag per row (docs/instructions/example-demos.md).
+  private menuSections(): CYLDemoTagSection[] {
+    const rows: CYLDemoTagRow[] = this.rows.map((key: string): CYLDemoTagRow => {
+      const row: CYLDemoTagRow = { title: this.rowText(key), subtitle: '', image: undefined };
+      return row;
+    });
+    return [new CYLDemoTagSection(cylDemoText(this.context, 'demo.title'), rows)];
+  }
+
   // The library's `demo.*` texts, or the example's own (`contactTags_row`).
   private rowText(key: string): string {
     return key.startsWith('contactTags_') ? cylAppText(this.context, key) : cylDemoText(this.context, key);
@@ -207,7 +150,13 @@ export struct ExamplesMenuView {
       CYLDemoNavBar({ title: cylDemoText(this.context, 'demo.title'), barColor: Color.Transparent })
       this.svgaHeader()
       Scroll() {
-        CYLTagListView({ tagList: this.menuList }).width('100%').height(this.menuHeight).id('CYLDemoExamplesTags')
+        CYLDemoTagMenuView({
+          sections: this.menuSections(),
+          tagId: 'CYLDemoExamplesTags',
+          onSelect: (section: number, item: number) => {
+            this.stack.pushPath({ name: this.routes[item] });
+          }
+        })
       }
       .margin({ bottom: CYL_PLUS_OVERHANG })
       .layoutWeight(1)
@@ -266,15 +215,17 @@ export struct PlaceholderGalleryPage {
     return CYLPlaceholderViewModel.imageForStyle(section as CYLPlaceholderStyle) ?? undefined;
   }
 
-  @Builder
-  sectionHeader(section: number) {
-    Text(section === STYLE_COUNT ? cylDemoText(this.context, 'demo.custom') :
-    (CYLPlaceholderViewModel.imageNameForStyle(section as CYLPlaceholderStyle) ?? ''))
-      .fontSize(13)
-      .fontColor($r('sys.color.font_secondary'))
-      .width('100%')
-      .padding({ left: 32, right: 32, top: 18, bottom: 6 })
-      .backgroundColor($r('sys.color.background_secondary'))
+  // One section per style, a glass tag per message with the style's image (docs/instructions/example-demos.md).
+  private tagSections(): CYLDemoTagSection[] {
+    return this.sections.map((section: number): CYLDemoTagSection => {
+      const rows: CYLDemoTagRow[] = this.rowsOf(section).map((row: number): CYLDemoTagRow => {
+        const tagRow: CYLDemoTagRow = { title: this.textOf(section, row), subtitle: '', image: this.imageOf(section, row) };
+        return tagRow;
+      });
+      const header: string = section === STYLE_COUNT ? cylDemoText(this.context, 'demo.custom') :
+        (CYLPlaceholderViewModel.imageNameForStyle(section as CYLPlaceholderStyle) ?? '');
+      return new CYLDemoTagSection(header, rows);
+    });
   }
 
   build() {
@@ -283,38 +234,25 @@ export struct PlaceholderGalleryPage {
         CYLDemoNavBar({
           title: cylDemoText(this.context, 'demo.styles'),
           showsBack: true,
-          barColor: $r('sys.color.background_secondary'),
+          barColor: Color.Transparent,
           onBack: () => this.stack.pop()
         })
-        List() {
-          ForEach(this.sections, (section: number) => {
-            ListItemGroup({ header: this.sectionHeader(section) }) {
-              ForEach(this.rowsOf(section), (row: number) => {
-                ListItem() {
-                  CYLDemoCell({
-                    text: this.textOf(section, row),
-                    image: this.imageOf(section, row),
-                    tintsImage: section !== CYLPlaceholderStyle.Empty,
-                    showsDivider: row < this.rowsOf(section).length - 1
-                  })
-                }
-                .backgroundColor($r('sys.color.background_primary'))
-                .margin({ left: 16, right: 16 })
-                .accessibilityGroup(true)
-                .accessibilityText(this.textOf(section, row))
-                .onClick(() => {
-                  const param: CYLPlaceholderDetailParam = { title: this.textOf(section, row), section: section, row: row };
-                  this.stack.pushPath({ name: CYLDemoRoute.placeholderDetail, param: param });
-                })
-              }, (row: number) => `${section}-${row}`)
+        Scroll() {
+          CYLDemoTagMenuView({
+            sections: this.tagSections(),
+            tagId: 'CYLDemoPlaceholderTags',
+            onSelect: (section: number, item: number) => {
+              const param: CYLPlaceholderDetailParam = { title: this.textOf(section, item), section: section, row: item };
+              this.stack.pushPath({ name: CYLDemoRoute.placeholderDetail, param: param });
             }
-          }, (section: number) => `${section}`)
+          })
         }
-        .contentEndOffset(CYL_PLUS_OVERHANG)
+        .margin({ bottom: CYL_PLUS_OVERHANG })
         .layoutWeight(1)
-        .cachedCount(4)
+        .scrollBar(BarState.Off)
       }
-      .backgroundColor($r('sys.color.background_secondary'))
+      // A gradient page (docs/instructions/example-demos.md rule 7); the tag list draws no background, so the glass sits on it.
+      .linearGradient({ angle: 135, colors: [['#7FB7FF', 0.0], ['#FF9EC7', 0.5], ['#FFC27A', 1.0]] })
     }
     .hideTitleBar(true)
   }

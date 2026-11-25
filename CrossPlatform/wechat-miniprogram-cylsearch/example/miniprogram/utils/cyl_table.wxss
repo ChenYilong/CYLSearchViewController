@@ -19,3 +19,10 @@
   .cell + .cell::before { background: #38383a; }
   .cell:active { background: #3a3a3c; }
 }
+
+/* A gradient page behind a glass tag list (docs/instructions/example-demos.md rule 7): the list draws no background. */
+.gradient-screen { background: linear-gradient(135deg, #7fb7ff, #ff9ec7, #ffc27a); }
+.demo-tags { display: block; margin-top: 35px; }
+@media (prefers-color-scheme: dark) {
+  .gradient-screen { background: linear-gradient(135deg, #1b1f5e, #5b2a86, #0f6e7a); }
+}

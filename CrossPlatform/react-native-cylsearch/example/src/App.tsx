@@ -211,18 +211,31 @@ function Screens() {
     <SafeAreaView style={[styles.fill, palette.page]} edges={['top', 'left', 'right']}>
       <View style={styles.fill}>
         {tab === 'bar' ? <SearchBarDemo /> : tab === 'discover' ? (discoverOpen ? <DiscoverDemo onBack={() => setDiscoverOpen(false)} /> : <DiscoverEntry onOpen={() => setDiscoverOpen(true)} />) : current ? (
-          <View style={styles.page}>
-            <Text style={[styles.title, { color: palette.text }]}>{text[`tab.${current.key}`] ?? current.title}</Text>
-            <Text style={[styles.body, { color: palette.text }]}>{text[`tab.${current.key}.description`] ?? current.description}</Text>
-            {current.demos.map((demo) => (
-              <Pressable key={demo.label} accessibilityRole="button" style={styles.button} onPress={() => setOpen(demo)}>
-                <Text style={styles.buttonText}>{text[DEMO_LABEL_KEYS[demo.label] ?? ''] ?? demo.label}</Text>
-              </Pressable>
-            ))}
-            <Pressable accessibilityRole="button" style={styles.button} onPress={() => setIconSource(iconSource === 'rive' ? 'svga' : 'rive')}>
-              <Text style={styles.buttonText}>{iconSource === 'rive' ? text['demo.tabIconsRive'] : text['demo.tabIconsSvga']}</Text>
-            </Pressable>
-          </View>
+          <ScrollView contentContainerStyle={styles.pageList}>
+            <Text style={[styles.title, styles.block, { color: palette.text }]}>{text[`tab.${current.key}`] ?? current.title}</Text>
+            {/* The demos as ClassifyMenu's tag list (docs/instructions/example-demos.md): glass board and tags over the gradient
+                page, wrapping titles, a 3-row fold whose control is the last tag (icon only), a long press shows the description. */}
+            <CYLTagListView backgroundStyle="liquidGlass"
+              tags={current.demos.map((demo) => text[DEMO_LABEL_KEYS[demo.label] ?? ''] ?? demo.label)}
+              tagIds={current.demos.map((demo) => demo.label)}
+              tagSubtitles={current.demos.map(() => text[`tab.${current.key}.description`] ?? current.description)}
+              sectionTitle={text[`tab.${current.key}`] ?? current.title}
+              titleMaxLines={0}
+              foldControlPosition="inline"
+              foldControlContent="icon"
+              foldedRowCount={3}
+              onTagSelect={(event) => setOpen(current.demos[event.nativeEvent.index] ?? null)}
+            />
+            <CYLTagListView backgroundStyle="liquidGlass"
+              tags={[iconSource === 'rive' ? text['demo.tabIconsRive'] ?? '' : text['demo.tabIconsSvga'] ?? '']}
+              sectionTitle={text['demo.tabIcons'] ?? 'Tab icons'}
+              titleMaxLines={0}
+              foldControlPosition="inline"
+              foldControlContent="icon"
+              foldedRowCount={3}
+              onTagSelect={() => setIconSource(iconSource === 'rive' ? 'svga' : 'rive')}
+            />
+          </ScrollView>
         ) : null}
       </View>
       {/* CYLTabBarController's tab bar (react-native-cyltabbar): four tabs and a raised plus button for the search bar. */}
@@ -390,14 +403,22 @@ function discoverStrings() {
 /** The entry of the Discover tab: a one-row page that opens the Discover page (iOS `CYLSearchDiscoverEntryViewController`). */
 function DiscoverEntry({ onOpen }: { onOpen: () => void }) {
   const palette = usePalette();
-  const title = discoverStrings()['discover.title'];
+  const title = discoverStrings()['discover.title'] ?? '';
   return (
-    <View style={styles.page}>
-      <Text style={[styles.title, { color: palette.text }]}>{title}</Text>
-      <Pressable accessibilityRole="button" style={styles.button} onPress={onOpen}>
-        <Text style={styles.buttonText}>{title}</Text>
-      </Pressable>
-    </View>
+    <ScrollView contentContainerStyle={styles.pageList}>
+      <Text style={[styles.title, styles.block, { color: palette.text }]}>{title}</Text>
+      {/* The entry cell as a tag of the glass tag list (docs/instructions/example-demos.md): titled section, tail control icon only. */}
+      <CYLTagListView backgroundStyle="liquidGlass"
+        tags={[title]}
+        tagSubtitles={[title]}
+        sectionTitle={title}
+        titleMaxLines={0}
+        foldControlPosition="inline"
+        foldControlContent="icon"
+        foldedRowCount={3}
+        onTagSelect={onOpen}
+      />
+    </ScrollView>
   );
 }
 
@@ -497,6 +518,7 @@ function DiscoverDemo({ onBack }: { onBack: () => void }) {
 const styles = StyleSheet.create({
   fill: { flex: 1 },
   page: { padding: 16, gap: 12 },
+  pageList: { paddingTop: 16, paddingBottom: 16, gap: 12 },
   title: { fontSize: 22, fontWeight: '600' },
   body: { fontSize: 16 },
   button: { alignSelf: 'flex-start', backgroundColor: '#44608E', borderRadius: 20, paddingHorizontal: 18, paddingVertical: 10 },

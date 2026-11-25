@@ -1,6 +1,7 @@
 import { common } from '@kit.AbilityKit';
 import { CYLSearchBarComponent, CYLSearchBarView } from 'cylsearch';
-import { CYLDemoCell, CYLDemoNavBar, cylDemoText, CYLDemoRoute, CYL_PLUS_OVERHANG } from '../common/DemoCommon';
+import { CYLDemoNavBar, cylDemoText, CYLDemoRoute, CYL_PLUS_OVERHANG } from '../common/DemoCommon';
+import { CYLDemoTagMenuView, CYLDemoTagRow, CYLDemoTagSection } from '../common/DemoTagMenu';
 
 /**
  * The Search bar page (iOS `CYLSearchBarDemoViewController`), the plus button's page and a row of the Examples menu:
@@ -103,34 +104,38 @@ export struct PortsMenuPage {
     { title: 'iammert/MultiSearchView', subtitle: 'MultiSearchView', route: CYLDemoRoute.multiSearch }
   ];
 
+  // One titled section, a glass tag per port with its subtitle (docs/instructions/example-demos.md).
+  private tagSections(): CYLDemoTagSection[] {
+    const tagRows: CYLDemoTagRow[] = this.rows.map((row: CYLPortRow): CYLDemoTagRow => {
+      const tagRow: CYLDemoTagRow = { title: row.title, subtitle: row.subtitle, image: undefined };
+      return tagRow;
+    });
+    return [new CYLDemoTagSection(cylDemoText(this.context, 'demo.ports'), tagRows)];
+  }
+
   build() {
     NavDestination() {
       Column() {
         CYLDemoNavBar({
           title: cylDemoText(this.context, 'demo.ports'),
           showsBack: true,
-          barColor: $r('sys.color.background_secondary'),
+          barColor: Color.Transparent,
           onBack: () => this.stack.pop()
         })
-        List() {
-          ForEach(this.rows, (row: CYLPortRow, index: number) => {
-            ListItem() {
-              CYLDemoCell({ text: row.title, subtitle: row.subtitle, showsDivider: index < this.rows.length - 1 })
-            }
-            .accessibilityGroup(true)
-            .accessibilityText(`${row.title}, ${row.subtitle}`)
-            .onClick(() => this.stack.pushPath({ name: row.route }))
-          }, (row: CYLPortRow) => row.title)
+        Scroll() {
+          CYLDemoTagMenuView({
+            sections: this.tagSections(),
+            tagId: 'CYLDemoPortsTags',
+            onSelect: (section: number, item: number) => this.stack.pushPath({ name: this.rows[item].route })
+          })
         }
-        .contentEndOffset(CYL_PLUS_OVERHANG)
-        .backgroundColor($r('sys.color.background_primary'))
-        .borderRadius(10)
-        .margin({ left: 16, right: 16, top: 20 })
-        .height('auto')
-        Blank()
+        .margin({ bottom: CYL_PLUS_OVERHANG })
+        .layoutWeight(1)
+        .scrollBar(BarState.Off)
       }
       .height('100%')
-      .backgroundColor($r('sys.color.background_secondary'))
+      // A gradient page (docs/instructions/example-demos.md rule 7); the tag list draws no background, so the glass sits on it.
+      .linearGradient({ angle: 135, colors: [['#7FB7FF', 0.0], ['#FF9EC7', 0.5], ['#FFC27A', 1.0]] })
     }
     .hideTitleBar(true)
   }

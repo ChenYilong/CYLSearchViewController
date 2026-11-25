@@ -1,4 +1,4 @@
-<view class="screen">
+<view class="screen gradient-screen">
   <cyl-demo-nav title="{{title}}" />
   <!-- The SVGA demo (iOS CYLSVGADemoHeaderView, Android and HarmonyOS): CollectionViewClassifyMenu's cyl-tag-button with
        an SVGA animationURL, played by the app's cyl-svga engine (CYLTabBarController's player, as the tab bar's). -->
@@ -7,10 +7,7 @@
       generic:cyl-svga-view="cyl-svga" generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder"
       generic:cyl-rive-view="cyl-animation-placeholder" />
   </view>
-  <view class="group grouped-first">
-    <view wx:for="{{rows}}" wx:key="url" class="cell" role="button" aria-label="{{item.title}}" data-url="{{item.url}}" bindtap="onRow">
-      <text class="cell-title">{{item.title}}</text>
-      <view class="chevron" aria-hidden="true" />
-    </view>
-  </view>
+  <!-- The rows as ClassifyMenu's tag list (docs/instructions/example-demos.md): a titled section, glass board and glass tags over the gradient page,
+       wrapping titles, a 3-row fold whose control is the last tag (icon only), a tap opens the row, a long press shows the subtitle. -->
+  <cyl-tag-list class="demo-tags" configuration="{{tagConfiguration}}" bind:tagtap="onTag" />
 </view>

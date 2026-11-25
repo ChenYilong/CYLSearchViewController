@@ -34,7 +34,7 @@ import com.cyl.search.CYLSearchTagListStyle
 /**
  * A grouped list of rows as CollectionViewClassifyMenu's tag list (docs/instructions/example-demos.md): one section per
  * header (the rows before the first header form a section titled `defaultHeader`), each row a Liquid Glass tag with its
- * main title and icon, the width adaptive, titles allowed to wrap, folded after 3 rows behind a "more" / "less" control.
+ * main title and icon, the width adaptive, titles allowed to wrap, folded after 3 rows behind the tail control (the last tag, chevron icon only).
  * A tap runs the row's action; a long press shows the row's subtitle in a callout with an arrow.
  */
 internal fun Context.cylMenuList(

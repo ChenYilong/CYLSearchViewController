@@ -2,6 +2,7 @@
 // and the other libraries' examples.
 const { cylSelectTab } = require('../../utils/cyl_tab_page');
 const { cylDemoText } = require('../../utils/cyl_demo_text');
+const { cylDemoTagConfiguration } = require('../../utils/cyl_demo_tag_list');
 
 const ROWS = [
   { key: 'demo.reproduction', url: '/pages/reproduction/index' },
@@ -26,12 +27,16 @@ const SVGA_STYLE = {
 };
 
 Page({
-  data: { title: '', rows: [], svgaTitle: '', svgaURL: '/assets/tab/svga/tab_activity.svga.bin', svgaStyle: SVGA_STYLE },
+  data: { title: '', rows: [], tagConfiguration: {}, svgaTitle: '', svgaURL: '/assets/tab/svga/tab_activity.svga.bin', svgaStyle: SVGA_STYLE },
   onLoad() {
     this.setData({
       title: cylDemoText('demo.title'), svgaTitle: cylDemoText('svga.demo'),
       rows: ROWS.map((row) => ({ title: cylDemoText(row.key), url: row.url })),
+      tagConfiguration: this.tagConfiguration(),
     });
+  },
+  tagConfiguration() {
+    return cylDemoTagConfiguration([{ title: cylDemoText('demo.title'), items: ROWS.map((row) => ({ title: cylDemoText(row.key), subtitle: '' })) }]);
   },
   onReady() {
     // Plays once when shown, as the tab icons do when selected (iOS didMoveToWindow).
@@ -47,7 +52,8 @@ Page({
   onShow() {
     cylSelectTab(this, 'examples');
   },
-  onRow(event) {
-    wx.navigateTo({ url: event.currentTarget.dataset.url });
+  onTag(event) {
+    const row = ROWS[event.detail.item];
+    if (row) wx.navigateTo({ url: row.url });
   },
 });
