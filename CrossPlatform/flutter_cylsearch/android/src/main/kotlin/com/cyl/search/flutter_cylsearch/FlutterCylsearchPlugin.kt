@@ -590,9 +590,9 @@ internal class CYLFlutterTagListView(context: Context, arguments: Map<String, An
         // The search bar core's default tag look (capsule tags, light border, bold header, 16 dp inset), customizable through
         // CYLSearchTagListStyle.
         val base = if (columns > 0) {
-            CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(columns).apply { CYLSearchTagListStyle.applyGrid(this) }
+            CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(columns).apply { CYLSearchTagListStyle.applyGrid(this, appContext) }
         } else {
-            (flowingStyle?.copy() ?: CYLMenuStyle()).apply { CYLSearchTagListStyle.applyDefaults(this) }
+            (flowingStyle?.copy() ?: CYLMenuStyle()).apply { CYLSearchTagListStyle.applyDefaults(this, appContext) }
         }
         base.backgroundColor = android.graphics.Color.TRANSPARENT
         // "liquidGlass" or flat (CYLSearchTagListStyle.applyBackgroundStyle, iOS `applyBackgroundStyle(named:to:)`).
