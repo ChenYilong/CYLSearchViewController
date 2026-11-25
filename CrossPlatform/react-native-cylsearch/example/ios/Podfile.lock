@@ -47,6 +47,7 @@ PODS:
   - CYLSearchViewController (0.1.0):
     - CollectionViewClassifyMenu
     - CYLAnimatedItem
+    - CYLDeallocBlockExecutor (~> 1.4)
     - CYLTableViewPlaceHolder/Core
   - Cyltabbar (0.1.0):
     - CYLTabBarController
@@ -1936,7 +1937,7 @@ DEPENDENCIES:
   - CollectionViewClassifyMenu (from `https://github.com/ChenYilong/CollectionViewClassifyMenu.git`, commit `c0b183de12c62c8b0b575b5a9ff0613f9a970468`)
   - CYLAnimatedItem (from `../vendor/CYLTabBarController`)
   - CYLAnimatedItem/LottieSwift (from `../vendor/CYLTabBarController`)
-  - CYLDeallocBlockExecutor (from `https://github.com/ChenYilong/CYLDeallocBlockExecutor.git`, commit `4276a6dab5a428ccc3a5f3f347eab991881fb97c`)
+  - CYLDeallocBlockExecutor (from `https://github.com/ChenYilong/CYLDeallocBlockExecutor.git`, commit `eab21d10f8e80ccee67e6e74271cd5bc6ff9a50e`)
   - Cylsearch (from `../..`)
   - CYLSearchViewController (from `../../../..`)
   - Cyltabbar (from `../node_modules/react-native-cyltabbar`)
@@ -2051,7 +2052,7 @@ EXTERNAL SOURCES:
   CYLAnimatedItem:
     :path: "../vendor/CYLTabBarController"
   CYLDeallocBlockExecutor:
-    :commit: 4276a6dab5a428ccc3a5f3f347eab991881fb97c
+    :commit: eab21d10f8e80ccee67e6e74271cd5bc6ff9a50e
     :git: https://github.com/ChenYilong/CYLDeallocBlockExecutor.git
   Cylsearch:
     :path: "../.."
@@ -2243,7 +2244,7 @@ CHECKOUT OPTIONS:
     :commit: c0b183de12c62c8b0b575b5a9ff0613f9a970468
     :git: https://github.com/ChenYilong/CollectionViewClassifyMenu.git
   CYLDeallocBlockExecutor:
-    :commit: 4276a6dab5a428ccc3a5f3f347eab991881fb97c
+    :commit: eab21d10f8e80ccee67e6e74271cd5bc6ff9a50e
     :git: https://github.com/ChenYilong/CYLDeallocBlockExecutor.git
   CYLTableViewPlaceHolder:
     :commit: f4cf978567e43288b44f6ddc266510fa837a0e72
@@ -2255,7 +2256,7 @@ SPEC CHECKSUMS:
   CYLAnimatedItem: 443fbb54f49dbed33a3a333915398ee1c597ae21
   CYLDeallocBlockExecutor: f596e5de54c18a2245d87994137f7f47874a0eaa
   Cylsearch: bb9d7515388159dd8657f219b5397acfd26f1315
-  CYLSearchViewController: 3e9151895e3c991faaf0143e783bd173a9edf924
+  CYLSearchViewController: 1f811643f343152c89d1471b4ef66238ba767d93
   Cyltabbar: 968fb1d9b829ac84ea98ee3e040e161e8c909539
   CYLTabBarController: 4919b9a264b00f50eaf03c1b7921dac1835f14bf
   CYLTableViewPlaceHolder: 067199f54056c001b64841832293f8a3067e3c86
@@ -2351,6 +2352,6 @@ SPEC CHECKSUMS:
   SVGAPlayerLite: ae073300a9faa016e88a54afa8fec43f54fed682
   Yoga: 58b502c52b14ad3c4468805d461fc37d275c2a42
 
-PODFILE CHECKSUM: 12ff1c06f0e8d024d6186ade2a565e1e8df378fe
+PODFILE CHECKSUM: a231abc11a726d55b0b8a7d16a0990cff413f294
 
 COCOAPODS: 1.17.0
