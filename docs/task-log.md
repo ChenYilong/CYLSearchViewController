@@ -1558,3 +1558,11 @@ begins and becomes `DONE` when it ends.
 - **Status**: DONE for iOS core + examples (full suite not rerun after this change).
 
 - **Update (2026-11-25, Mac session)**: ClassifyMenu ca04a77 now defaults the header title, fold chevron, More icon and clear button to one dynamic tint (.label) with vector icons, so the core and the examples dropped their overrides (`applyTint`, `tagListTintColor`); same dark-mode result, screenshot replaced (commit 1e411ad). Pins: ClassifyMenu ca04a77 + tab bar 11fc94be; iOS suite 201/0. Android, HarmonyOS and the mini program defaults are still fixed grays (Windows follow-up).
+
+## Search bar placeholder in dark mode (2026-11-25, Mac session)
+
+- **Prompt (verbatim)**: "按照同样要求处理searchbar的core核心代码，应用tint处理暗黑模式下字看不清的问题 … 预期是无须example新增代码 seachbar core核心代码完成tint 的暗黑适配。更新searchbar后repin，并在本项目中在不改example的前提下重新测试这两个页面的显示效果。" English: do the same in the search bar core, tint for text that is hard to read in dark mode, no example code, repin after the update and re-test the two pages without changing the example.
+- ![Search bar placeholder in dark mode: Discover and Edit Tags](assets/ios-iphone-sim-ios27.2-20261125-searchbar-placeholder-dark.png) iOS, iPhone simulator, iOS 27.2, Xcode 27.2; commit 1003f9f, 2026-11-25.
+- **Done**: the bar's default placeholder color is `.secondaryLabel` (was `.placeholderText`); a placeholder assigned to the bar's text field directly (the Discover example does) is forwarded to the bar's label (`CYLSearchBarTextField`), so the system's dim placeholder is not drawn: Discover's brightest placeholder pixel 70 -> 141. iOS suite 201/0.
+- **Not done**: the animated camera icon of the Discover bar keeps the Lottie file's fixed near-black (28): `#tint=title` on the item's animationURL had no effect (tried and reverted); a CYLAnimatedItem default needs the ClassifyMenu/CYLTabBarController owner's decision (asked). The plus button title is dim gray (CYLTabBarController default, reported). The example's own sync button and "Manage" link are not search bar parts. Repin: none (the search bar core is this repository).
+- **Status**: DONE for the placeholder; camera icon open.
