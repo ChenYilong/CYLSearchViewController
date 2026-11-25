@@ -682,6 +682,22 @@ class CYLSearchBarView @JvmOverloads constructor(
     }
 
     /**
+     * The navigation field preset (the Discover look), the one look of every search or text field in a navigation bar or page
+     * header on every platform (iOS `applyNavigationFieldStyle()`): a bordered capsule (corner radius 18 dp), a soft shadow
+     * (opacity 0.06), no magnifier, 16 sp text (it scales with the font size setting) and an OPAQUE fill, white in light mode
+     * and black in dark mode, so a gradient or a sheet behind the bar never shows through. An example calls this, it never sets
+     * these values. Add a `CYLSearchBarItem.divider()` before the trailing items (camera, Search) it appends.
+     */
+    fun applyNavigationFieldStyle() {
+        searchIcon = null
+        searchBarStyle = CYLSearchBarStyle.Bordered
+        fieldCornerRadius = NAVIGATION_FIELD_CORNER_RADIUS
+        fieldShadowOpacity = NAVIGATION_FIELD_SHADOW_OPACITY
+        fieldBackgroundColor = if (isNightMode()) Color.BLACK else Color.WHITE
+        fontSize = NAVIGATION_FIELD_FONT_SIZE
+    }
+
+    /**
      * A view of yours before the field (a back button); it wins over the navigation button.
      */
     var leadingView: View? = null
@@ -2459,6 +2475,15 @@ class CYLSearchBarView @JvmOverloads constructor(
 
     companion object {
         private const val NO_SELECTION = -1
+
+        /** The navigation field preset's corner radius in dp. */
+        internal const val NAVIGATION_FIELD_CORNER_RADIUS = 18f
+
+        /** The navigation field preset's shadow opacity. */
+        internal const val NAVIGATION_FIELD_SHADOW_OPACITY = 0.06f
+
+        /** The navigation field preset's text size in sp. */
+        internal const val NAVIGATION_FIELD_FONT_SIZE = 16f
 
         /**
          * The toolbar's vertical content inset in dp: 36 dp field + 2 x 4 dp = the 44 dp slot of a navigation bar, so the field's

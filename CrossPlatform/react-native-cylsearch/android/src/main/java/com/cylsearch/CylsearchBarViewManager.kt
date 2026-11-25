@@ -55,6 +55,9 @@ class CylsearchBarViewManager : SimpleViewManager<CylsearchBarView>(), Cylsearch
     view.bar.searchBarStyle = if (value == "bordered") CYLSearchBarStyle.Bordered else CYLSearchBarStyle.Plain
   }
 
+  @ReactProp(name = "navigationFieldStyle", defaultBoolean = false)
+  override fun setNavigationFieldStyle(view: CylsearchBarView, value: Boolean) { view.navigationFieldStyle = value }
+
   @ReactProp(name = "showsSearchIcon", defaultBoolean = true)
   override fun setShowsSearchIcon(view: CylsearchBarView, value: Boolean) {
     view.bar.searchIcon = if (value) ContextCompat.getDrawable(view.context, com.cyl.search.R.drawable.cyl_search_ic_search) else null

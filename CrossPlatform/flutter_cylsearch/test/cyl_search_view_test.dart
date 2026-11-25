@@ -164,6 +164,7 @@ void main() {
             'showsBackButton': false,
             'searchBarStyle': 'plain',
             'showsSearchIcon': true,
+            'navigationFieldStyle': false,
             'items': <Object?>[],
             'editingBar': false,
             'actionTitle': null,

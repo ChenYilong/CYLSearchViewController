@@ -416,6 +416,7 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
         bar.fieldShadowOpacity = (arguments["fieldShadowOpacity"] as? Number)?.toFloat() ?: 0f
         bar.searchBarStyle = if (arguments["searchBarStyle"] == "bordered") CYLSearchBarStyle.Bordered else CYLSearchBarStyle.Plain
         bar.searchIcon = if (arguments["showsSearchIcon"] as? Boolean != false) ContextCompat.getDrawable(bar.context, com.cyl.search.R.drawable.cyl_search_ic_search) else null
+        if (arguments["navigationFieldStyle"] == true) bar.applyNavigationFieldStyle()
         @Suppress("UNCHECKED_CAST")
         val items = (arguments["items"] as? List<Map<String, Any?>>) ?: emptyList()
         // Rebuilt only when Dart sends other items, so a rebuild of the widget keeps the native selection; a change of

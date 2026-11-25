@@ -785,6 +785,7 @@ class CYLSearchBarView extends StatefulWidget {
     this.fieldShadowOpacity = 0,
     this.searchBarStyle = CYLSearchBarStyle.plain,
     this.showsSearchIcon = true,
+    this.navigationFieldStyle = false,
     this.embedsInNavigationBar = false,
     this.showsBackButton = false,
     this.onBackPressed,
@@ -914,6 +915,11 @@ class CYLSearchBarView extends StatefulWidget {
 
   /// Draws the magnifier at the start of the field (iOS `searchIcon` set or nil).
   final bool showsSearchIcon;
+
+  /// The core navigation field preset (iOS `applyNavigationFieldStyle()`): bordered capsule radius 18, soft shadow 0.06, no
+  /// magnifier, 16 text that scales, an opaque white (light) or black (dark) fill. It wins over [searchBarStyle],
+  /// [fieldShadowOpacity] and [showsSearchIcon].
+  final bool navigationFieldStyle;
 
   /// The bar sits in a navigation bar the core creates (`CYLSearchNavigationBar`, 44 pt high, the field 36 pt) instead of
   /// being a plain view: the page always has its search bar in a navigation bar. Place it as the `Scaffold.appBar` of
@@ -1115,6 +1121,7 @@ Map<String, Object?> cylSearchBarViewParameters(CYLSearchBarView widget, {Bright
       'fieldShadowOpacity': widget.fieldShadowOpacity,
       'searchBarStyle': widget.searchBarStyle.name,
       'showsSearchIcon': widget.showsSearchIcon,
+      'navigationFieldStyle': widget.navigationFieldStyle,
       'embedsInNavigationBar': widget.embedsInNavigationBar,
       'showsBackButton': widget.showsBackButton,
       'items': widget.items.map((item) => item.toMap()).toList(),

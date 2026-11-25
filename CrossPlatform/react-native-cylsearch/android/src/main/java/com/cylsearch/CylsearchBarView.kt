@@ -178,6 +178,8 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
   var appearanceStyleJSON: String? = null
   var cancelButtonFontJSON: String? = null
   var showsCancel = false
+  /** The core navigation field preset (`CYLSearchBarView.applyNavigationFieldStyle()`), applied last in `applyQMUIStyle`. */
+  var navigationFieldStyle = false
   private var appliedAppearance: Pair<Boolean, String?>? = null
   private var appliedLeading: String? = null
   private var appliedTrailing: String? = null
@@ -226,6 +228,7 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
       bar.setShowsCancelButton(showsCancel, animatesChanges && shownCancel != null)
       shownCancel = showsCancel
     }
+    if (navigationFieldStyle) bar.applyNavigationFieldStyle()
   }
 
   private fun parseColor(value: String?): Int? = cylParseColor(value)

@@ -65,6 +65,12 @@ export interface NativeProps extends ViewProps {
    */
   showsSearchIcon?: CodegenTypes.WithDefault<boolean, true>;
   /**
+   * The core navigation field preset (iOS `applyNavigationFieldStyle()`): bordered capsule radius 18, soft shadow 0.06, no
+   * magnifier, 16 text that scales, an opaque white (light) or black (dark) fill. It wins over `searchBarStyle`,
+   * `fieldShadowOpacity` and `showsSearchIcon`.
+   */
+  navigationFieldStyle?: CodegenTypes.WithDefault<boolean, false>;
+  /**
    * The bar sits in a navigation bar the core creates (`CYLSearchNavigationBar`, 44 pt high, the field 36 pt) instead of
    * being a plain view: the page always has its search bar in a navigation bar. Default false.
    */
