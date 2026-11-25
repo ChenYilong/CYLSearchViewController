@@ -71,6 +71,7 @@ export struct SearchExampleView {
 
   aboutToAppear(): void {
     this.searchBar.placeholder = cylDemoText(this.context, 'search.placeholder');
+    this.searchBar.focusesOnAppear = true; // the field focuses itself every time the bar appears
     this.searchBar.cancelButtonTitle = cylDemoText(this.context, 'search.cancel');
     this.searchBar.delegate = {
       searchBarViewTextDidChange: (_: CYLSearchBarView, text: string) => {

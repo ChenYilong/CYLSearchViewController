@@ -1,5 +1,6 @@
 import { KeyboardAvoidMode } from '@kit.ArkUI';
 import { UIContext } from '@kit.ArkUI';
+import { common } from '@kit.AbilityKit';
 import {
   CYLControlState, CYLEdgeInsets, CYLFont, CYLMenuLocalizedString, CYLMenuStyle, CYLOffset, CYLSize, CYLTagButton,
   CYLTagButtonHost
@@ -231,6 +232,24 @@ function cylSearchItemShapesMatch(previous: string[] | undefined, next: string[]
  */
 function cylSearchCancelEnabled(always: boolean, editing: boolean): boolean {
   return always || editing;
+}
+
+/**
+ * Whether the bar takes focus when it appears (iOS `focusIfAppearing`): `focusesOnAppear` is on, the bar sits in a
+ * navigation bar that shows a back button (a root page or a plain bar never auto-focuses), the field is drawn
+ * (not iconified) and not being edited already.
+ */
+function cylSearchShouldFocusOnAppear(focusesOnAppear: boolean, hasBackButton: boolean, iconified: boolean,
+  editing: boolean): boolean {
+  return focusesOnAppear && hasBackButton && !iconified && !editing;
+}
+
+/**
+ * Whether a visible-area change is an appearance: the bar was hidden (ratio 0) and now shows (ratio above 0). A change
+ * between two visible ratios is not (the bar stayed on screen).
+ */
+function cylSearchVisibilityAppeared(wasVisible: boolean, ratio: number): boolean {
+  return !wasVisible && ratio > 0;
 }
 
 // MARK: - Pure logic (end)
@@ -1738,6 +1757,33 @@ export class CYLSearchBarView {
   }
 
   /**
+   * Whether the field takes focus (and the keyboard shows) every time the bar appears on screen, like a `viewDidAppear`:
+   * the first time its page is entered, after a tab switch or a push and pop (the component's `aboutToAppear` and
+   * visible area), and after the app returns from the background (application foreground). A page that stays alive
+   * may also call `barDidAppear()` from its `onPageShow`. False by default (iOS `focusesOnAppear`).
+   * TODO: iOS takes its moments from CYLDeallocBlockExecutor; no such dependency here until the unified pin pair is
+   * announced (the library's foreground event is not shipped yet).
+   */
+  focusesOnAppear: boolean = false;
+
+  /**
+   * Whether the navigation bar the bar sits in shows a back button; `CYLSearchNavigationPage` sets it from its
+   * `showsBack`. `focusesOnAppear` only focuses while a back button is shown.
+   */
+  showsBackButton: boolean = false;
+
+  /**
+   * The bar appeared on screen: focuses the field when `focusesOnAppear` is on. Called by the component; a host calls
+   * it from `onPageShow`.
+   */
+  barDidAppear(): void {
+    if (cylSearchShouldFocusOnAppear(this.focusesOnAppear,
+      this.showsBackButton || this.navigationIcon === CYLSearchBarNavigationIcon.arrow, this.iconified, this.isEditing)) {
+      this.showKeyboardWhenDrawn();
+    }
+  }
+
+  /**
    * Focuses the field as soon as it is drawn: tries again each frame (up to 30 frames, about half a second) while the
    * text input does not exist yet, and stops when the bar was iconified again meanwhile.
    */
@@ -2281,10 +2327,48 @@ export struct CYLSearchBarComponent {
     }
   }
 
+  private barVisible: boolean = false;
+  private foregroundListenerId: number = -1;
+
   aboutToAppear(): void {
     this.searchBarView.uiContext = this.getUIContext();
     if (this.searchBarView.iconifiedByDefault) {
       this.searchBarView.setIconified(true, false);
+    }
+    if (this.searchBarView.focusesOnAppear) {
+      this.searchBarView.barDidAppear();
+      this.listenForForeground();
+    }
+  }
+
+  aboutToDisappear(): void {
+    this.barVisible = false;
+    if (this.foregroundListenerId >= 0) {
+      try {
+        const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
+        context.getApplicationContext().off('applicationStateChange', this.foregroundListenerId);
+      } catch (error) {
+        // The listener goes away with the application.
+      }
+      this.foregroundListenerId = -1;
+    }
+  }
+
+  // Return from the background: the bar appears again (viewDidAppear after the app becomes active).
+  private listenForForeground(): void {
+    try {
+      const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
+      this.foregroundListenerId = context.getApplicationContext().on('applicationStateChange', {
+        onApplicationForeground: () => {
+          if (this.barVisible) {
+            this.searchBarView.barDidAppear();
+          }
+        },
+        onApplicationBackground: () => {
+        }
+      });
+    } catch (error) {
+      this.foregroundListenerId = -1;
     }
   }
 
@@ -2519,6 +2603,13 @@ export struct CYLSearchBarComponent {
       }
     }
     .width('100%')
+    .onVisibleAreaChange([0.0, 0.01], (isExpanding: boolean, ratio: number) => {
+      const appeared = cylSearchVisibilityAppeared(this.barVisible, ratio);
+      this.barVisible = ratio > 0;
+      if (appeared && this.searchBarView.focusesOnAppear) {
+        this.searchBarView.barDidAppear();
+      }
+    })
     .justifyContent(this.searchBarView.isIconified ? this.iconAlignment() : FlexAlign.Start)
     .padding(this.searchBarView.contentInsets)
     .backgroundColor(this.searchBarView.barBackgroundColor ?? Color.Transparent)
@@ -2603,6 +2694,7 @@ export struct CYLSearchNavigationPage {
 
   aboutToAppear(): void {
     this.searchBarView.fieldHeight = CYL_SEARCH_NAVIGATION_FIELD_HEIGHT;
+    this.searchBarView.showsBackButton = this.showsBack;
   }
 
   @Builder

@@ -1,4 +1,4 @@
-const { cylNavigationFieldStyle, CYLSearchBarColors, CYLSearchBarView, CYLSearchBarItem, CYLSearchBarMode, CYLSearchBarAppearance, cylInsetsCSS } = require('../core/CYLSearchBarView');
+const { cylSearchShouldFocusOnAppear, cylSearchHasBackButton, cylNavigationFieldStyle, CYLSearchBarColors, CYLSearchBarView, CYLSearchBarItem, CYLSearchBarMode, CYLSearchBarAppearance, cylInsetsCSS } = require('../core/CYLSearchBarView');
 const { CYLSearchResources, cylFormatString } = require('../core/CYLSearchResources');
 
 const text = (key) => CYLSearchResources.localizedString(undefined, key);
@@ -43,6 +43,11 @@ Component({
     value: { type: String, value: '', observer: 'onValueChange' },
     placeholder: { type: String, value: '' },
     focus: { type: Boolean, value: false, observer: 'onFocusPropertyChange' },
+    // The field focuses itself every time the bar appears on screen (iOS focusesOnAppear, like a viewDidAppear), only with a
+    // back button (arrow icon or a previous page in the page stack): when the
+    // component is attached and every time its page shows (return from another page or from the background). False by default.
+    // TODO: iOS takes its moments from CYLDeallocBlockExecutor; no such dependency here until the unified pin pair is announced.
+    focusesOnAppear: { type: Boolean, value: false },
     searchBarStyle: { type: String, value: 'plain' },
     // The navigation field preset, the Discover look of every screen (iOS applyNavigationFieldStyle()): a bordered capsule
     // (radius 18), a soft shadow (0.06), an opaque white / black fill, no magnifier, 16 text. A page sets this property
@@ -225,6 +230,7 @@ Component({
       this.onItemsChange(p.items);
       this.updateStyles();
       this.syncSearches();
+      this.focusIfAppearing();
     },
     ready() {
       this.measureAccessories();
@@ -236,7 +242,26 @@ Component({
       }
     },
   },
+  // The page the bar sits on shows again (tab switch, pop, return from the background): an appearance.
+  pageLifetimes: {
+    show() {
+      this.focusIfAppearing();
+    },
+  },
   methods: {
+    /**
+     * Focuses the field when `focusesOnAppear` is on and the bar is drawn and editable: the input's `focus` is set false,
+     * then true, on each appearance (WeChat focuses an input only when it goes from false to true).
+     */
+    focusIfAppearing() {
+      const p = this.properties;
+      if (p.mode === CYLSearchBarMode.multiple) return;
+      const pages = typeof getCurrentPages === 'function' ? getCurrentPages() : [];
+      const hasBack = cylSearchHasBackButton(p.navigationIcon, pages.length);
+      if (!cylSearchShouldFocusOnAppear(p.focusesOnAppear, hasBack, this.data.collapsed, p.editable)) return;
+      this.setData({ inputFocus: false });
+      setTimeout(() => this.setData({ inputFocus: true }), 30);
+    },
     onNavigationFieldStyle(value) {
       if (!value) return;
       const preset = cylNavigationFieldStyle();

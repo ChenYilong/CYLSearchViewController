@@ -51,7 +51,7 @@
   bind:touchstart="onPageTouchStart" bind:touchmove="onPageTouchMove" bind:touchend="onPageTouchEnd" bind:touchcancel="onPageTouchEnd">
   <block wx:if="{{!showsSearchBar && !(showsResults && hidesSearchBarWhenScrolling)}}">
     <cyl-search-bar id="cyl-bar" generic:cyl-lottie-view="cyl-lottie-view" generic:cyl-pag-view="cyl-pag-view"
-      generic:cyl-rive-view="cyl-rive-view" generic:cyl-svga-view="cyl-svga-view"
+      generic:cyl-rive-view="cyl-rive-view" generic:cyl-svga-view="cyl-svga-view" focusesOnAppear="{{focusesOnAppear}}"
       value="{{query}}" placeholder="{{placeholder}}" focus="{{focus}}" searchBarStyle="{{searchBarStyle}}"
       items="{{items}}" navigationIcon="{{navigationIcon}}" navigationColor="{{navigationColor || textColor}}"
       showsCancelButton="{{showsCancelButton}}" cancelButtonTitle="{{cancelButtonTitle}}" showsVoiceButton="{{showsVoiceButton}}"

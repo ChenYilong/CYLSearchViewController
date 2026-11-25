@@ -67,6 +67,8 @@ Component({
     // `refresh`; call endRefreshing() on every completion path (iOS refreshHandler).
     refresherEnabled: { type: Boolean, value: false, observer: 'updateRefreshes' },
     // YES draws the search view in place, always open (no overlay, no back handling), as a screen's own content.
+    // Passed to the inline bar (cyl-search-bar focusesOnAppear).
+    focusesOnAppear: { type: Boolean, value: false },
     inline: { type: Boolean, value: false },
     // YES puts the bar at the top of the scrolling results, so it scrolls away with them (UIKit
     // hidesSearchBarWhenScrolling); NO keeps it pinned above them.

@@ -90,6 +90,23 @@ function cylNavigationFieldFill(dark) {
   return dark ? '#000000' : '#FFFFFF';
 }
 
+/**
+ * Whether the bar takes focus when it appears (iOS `focusIfAppearing`, property `focusesOnAppear`): the option is on,
+ * a navigation bar with a back button holds the bar (a root page or a plain bar never auto-focuses), the field is
+ * drawn (not iconified) and it may be edited.
+ */
+function cylSearchShouldFocusOnAppear(focusesOnAppear, hasBackButton, iconified, editable) {
+  return Boolean(focusesOnAppear) && Boolean(hasBackButton) && !iconified && editable !== false;
+}
+
+/**
+ * Whether a back button is shown: the bar's own back arrow (`navigationIcon` "arrow"), or a previous page in the page
+ * stack (`getCurrentPages().length > 1`).
+ */
+function cylSearchHasBackButton(navigationIcon, pageCount) {
+  return navigationIcon === 'arrow' || pageCount > 1;
+}
+
 class CYLSearchBarAppearance {
   /**
    * A style with the merged defaults (iOS `CYLSearchBarAppearance()`).
@@ -1229,6 +1246,8 @@ module.exports = {
   cylInsetsCSS,
   cylNavigationFieldStyle,
   cylNavigationFieldFill,
+  cylSearchShouldFocusOnAppear,
+  cylSearchHasBackButton,
   CYLSearchBarItem,
   CYLSearchBarView,
 };

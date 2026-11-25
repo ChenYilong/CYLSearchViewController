@@ -212,6 +212,7 @@ export struct DiscoverView {
     // A capsule with a soft shadow, no magnifier: the camera and the Search button sit inside it.
     const bar = this.searchBar;
     bar.applyNavigationFieldStyle();
+    bar.focusesOnAppear = true; // the field focuses itself every time the bar appears
     bar.contentInsets = { top: 0, left: 0, bottom: 0, right: 0 };
     // No item tint of the example's own: the core's default is the label color (accent when selected).
     const camera = CYLSearchBarItem.iconItem($r('sys.symbol.camera'), this.text('discover_imageSearch'),

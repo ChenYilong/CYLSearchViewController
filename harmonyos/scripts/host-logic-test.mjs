@@ -624,3 +624,25 @@ describe('navigation field preset (applyNavigationFieldStyle)', () => {
     assert.deepEqual(offenders, []);
   });
 });
+
+describe('focus on appear', () => {
+  it('focuses only when on, with a back button, drawn and not editing', () => {
+    assert.equal(logic.cylSearchShouldFocusOnAppear(true, true, false, false), true);
+    assert.equal(logic.cylSearchShouldFocusOnAppear(false, true, false, false), false);
+    assert.equal(logic.cylSearchShouldFocusOnAppear(true, false, false, false), false, 'no back button: never');
+    assert.equal(logic.cylSearchShouldFocusOnAppear(true, true, true, false), false);
+    assert.equal(logic.cylSearchShouldFocusOnAppear(true, true, false, true), false);
+  });
+  it('treats hidden to visible as an appearance, not a change between visible ratios', () => {
+    assert.equal(logic.cylSearchVisibilityAppeared(false, 0.5), true);
+    assert.equal(logic.cylSearchVisibilityAppeared(false, 0), false);
+    assert.equal(logic.cylSearchVisibilityAppeared(true, 1), false);
+  });
+  it('is off by default and enabled in the Discover and Search examples', () => {
+    assert.match(readFileSync(join(core, 'CYLSearchBarView.ets'), 'utf8'), /focusesOnAppear: boolean = false;/);
+    for (const file of ['Discover.ets', 'SearchExample.ets']) {
+      assert.match(readFileSync(join(here, '..', 'entry', 'src', 'main', 'ets', 'demos', file), 'utf8'),
+        /focusesOnAppear = true;/, file);
+    }
+  });
+});
