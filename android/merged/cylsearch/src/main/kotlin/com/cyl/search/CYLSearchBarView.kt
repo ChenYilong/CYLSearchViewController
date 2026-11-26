@@ -283,7 +283,7 @@ class CYLSearchBarView @JvmOverloads constructor(
     private val row = LinearLayout(context)
     private val leadingContainer = FrameLayout(context)
     private val textContainer = FrameLayout(context)
-    private val accessoryContainer = LinearLayout(context)
+    private val accessoryContainer = CYLTrailingGroup(context)
     private val clearButton = iconButton()
     private val fieldBackground = GradientDrawable()
     private var settingText = false
@@ -668,10 +668,10 @@ class CYLSearchBarView @JvmOverloads constructor(
         }
 
     /**
-     * Whether the default search button shows a title (`Text`, the default) or an icon (`Icon`, a filled capsule 28 dp high in the
-     * inverse color; iOS `searchButtonStyle`).
+     * Whether the default search button shows an icon (`Icon`, the default: a filled capsule 28 dp high in the inverse color) or a
+     * title (`Text`, opt-in; iOS `searchButtonStyle`).
      */
-    var searchButtonStyle: CYLSearchBarSearchButtonStyle = CYLSearchBarSearchButtonStyle.Text
+    var searchButtonStyle: CYLSearchBarSearchButtonStyle = CYLSearchBarSearchButtonStyle.Icon
         set(value) {
             if (field == value) return
             field = value
@@ -3554,6 +3554,21 @@ internal class CYLSearchBarItemButton(context: Context, item: CYLSearchBarItem) 
 
     private fun dp(value: Float): Int = (value * density + 0.5f).toInt()
 
+    /** Whether the item draws a shape of its own (a background or an outline, such as the icon search capsule): it keeps its size. */
+    private val drawsShape: Boolean
+        get() = item.backgroundColor != null || item.selectedBackgroundColor != null || item.borderColor != null
+
+    /**
+     * Whether a plain icon or text item (no shape) hugs its content: the trailing group spaces its items only by its own spacing,
+     * the touch area is widened to 36 dp by `CYLTrailingGroup`, never by empty room around the glyph.
+     */
+    internal val hugsContent: Boolean
+        get() = when (item.style) {
+            CYLSearchBarItemStyle.Icon -> !drawsShape && item.itemHeight <= 0f
+            CYLSearchBarItemStyle.Text -> !drawsShape
+            CYLSearchBarItemStyle.Divider -> false
+        }
+
     /** The tint the host chose (the item's, else the bar's `itemTintColor`); null: the item sets no tint of its own. */
     private val explicitTint: Int?
         get() = item.tintColor ?: item.searchBarView?.itemTintColor
@@ -3572,8 +3587,8 @@ internal class CYLSearchBarItemButton(context: Context, item: CYLSearchBarItem) 
 
     private val resolvedInsets: FloatArray
         get() = item.contentInsets ?: when (item.style) {
-            CYLSearchBarItemStyle.Text -> floatArrayOf(4f, 0f, 4f, 0f)
-            CYLSearchBarItemStyle.Divider -> floatArrayOf(DIVIDER_GAP, 0f, DIVIDER_GAP, 0f)
+            // A plain text item hugs its title; one with a shape of its own keeps a small inset.
+            CYLSearchBarItemStyle.Text -> if (drawsShape) floatArrayOf(4f, 0f, 4f, 0f) else floatArrayOf(0f, 0f, 0f, 0f)
             else -> floatArrayOf(0f, 0f, 0f, 0f)
         }
 
@@ -3663,8 +3678,10 @@ internal class CYLSearchBarItemButton(context: Context, item: CYLSearchBarItem) 
                 height = dp(DIVIDER_HEIGHT)
             }
             CYLSearchBarItemStyle.Icon -> {
-                // An icon item is square, at least 36 dp.
-                if (item.itemHeight > 0f) {
+                // An icon item with a shape is square, at least 36 dp; a plain one hugs its glyph and is only 36 dp high.
+                if (hugsContent) {
+                    height = max(dp(MINIMUM_TOUCH), height)
+                } else if (item.itemHeight > 0f) {
                     // A custom height (the icon search button's capsule): as wide as its content, never narrower than high.
                     height = max(dp(item.itemHeight), height)
                     width = max(height, width)
@@ -3675,7 +3692,7 @@ internal class CYLSearchBarItemButton(context: Context, item: CYLSearchBarItem) 
                 }
             }
             CYLSearchBarItemStyle.Text -> {
-                width = max(dp(MINIMUM_TOUCH), width)
+                if (!hugsContent) width = max(dp(MINIMUM_TOUCH), width)
                 height = max(dp(if (item.itemHeight > 0f) item.itemHeight else MINIMUM_TOUCH), height)
             }
         }
@@ -3725,14 +3742,56 @@ internal class CYLSearchBarItemButton(context: Context, item: CYLSearchBarItem) 
 
     private companion object {
         const val MINIMUM_TOUCH = 36f
-        /** The built-in divider: a 1 x 20 line with an 8 gap on each side (the iOS stack divider). */
+        /** The built-in divider: a 1 x 20 line; the gaps beside it are the group's spacing (the iOS stack divider). */
         const val DIVIDER_HEIGHT = 20f
-        const val DIVIDER_GAP = 8f
         const val DEFAULT_IMAGE_SIDE = 20f
         const val IMAGE_TITLE_SPACING = 4f
         const val BACKGROUND_CORNER_RADIUS = 10f
         const val TITLE_SIZE = 17f
         const val BADGE_SIZE = 11f
         const val DISABLED_ALPHA = 0.4f
+    }
+}
+
+/**
+ * The trailing group of a bar (camera, divider, default search button): a row spaced only by the margin each view carries, from the
+ * right edge to the left (owner, 2026-11-26), so the gaps beside a divider are equal. A plain icon or text item hugs its content;
+ * this row widens its touch area to 36 dp across by forwarding a touch that lands within that width, never by empty room around the
+ * glyph. An item with a shape of its own (the icon search capsule) keeps its size and its own hit area.
+ */
+internal class CYLTrailingGroup(context: Context) : LinearLayout(context) {
+
+    private var slopTarget: View? = null
+
+    /** The hugging item whose widened (36 dp wide) area holds the point, when no view holds it itself. */
+    private fun slopChildAt(x: Float, y: Float): View? {
+        val minimum = MINIMUM_TOUCH * resources.displayMetrics.density
+        var found: View? = null
+        for (index in 0 until childCount) {
+            val child = getChildAt(index)
+            if (child.visibility != VISIBLE) continue
+            if (x >= child.left && x < child.right && y >= child.top && y < child.bottom) return null
+            val button = child as? CYLSearchBarItemButton ?: continue
+            if (!button.hugsContent || !button.isEnabled || child.width >= minimum) continue
+            val extra = (minimum - child.width) / 2f
+            if (x >= child.left - extra && x < child.right + extra && y >= child.top && y < child.bottom) found = child
+        }
+        return found
+    }
+
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        if (event.actionMasked == MotionEvent.ACTION_DOWN) slopTarget = slopChildAt(event.x, event.y)
+        val target = slopTarget ?: return super.dispatchTouchEvent(event)
+        if (event.actionMasked == MotionEvent.ACTION_UP || event.actionMasked == MotionEvent.ACTION_CANCEL) slopTarget = null
+        // The point is moved onto the item's own area, so its press and click logic works as for a direct touch.
+        val copy = MotionEvent.obtain(event)
+        copy.setLocation(target.width / 2f, (event.y - target.top).coerceIn(0f, (target.height - 1).toFloat()))
+        val handled = target.dispatchTouchEvent(copy)
+        copy.recycle()
+        return handled
+    }
+
+    private companion object {
+        const val MINIMUM_TOUCH = 36f
     }
 }

@@ -12,15 +12,13 @@ Component({
     placeholder: { type: String, value: '' },
     pushUrl: { type: String, value: '' },
     withItems: { type: Boolean, value: false },
-    // The core's default search button style: "text" (the default) or "icon" (the Search tab).
-    searchButtonStyle: { type: String, value: 'text' },
   },
   data: { url: '', fieldHeight: 36, items: [] },
   lifetimes: {
     attached() {
       const p = this.properties;
       this.setData({
-        url: p.pushUrl || `/pages/searchSecond/index?preset=${p.preset}&searchButtonStyle=${p.searchButtonStyle}`,
+        url: p.pushUrl || `/pages/searchSecond/index?preset=${p.preset}`,
         fieldHeight: cylNavigationMetrics().fieldHeight,
         items: p.withItems ? [
           { style: 'icon', title: cylDemoText('discover.imageSearch'), image: CAMERA_IMAGE, accessibilityIdentifier: 'camera' },

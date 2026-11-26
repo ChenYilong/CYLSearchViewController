@@ -220,7 +220,7 @@ test('cyl-search-bar draws each item with cyl-tag-button: title, image, badge, a
   assert.equal(text.title, 'Search');
   assert.equal(text.badgeValue, '3');
   assert.equal(text.badgeColor, '#0000FF');
-  assert.equal(text.tagStyle.normal.contentInsets.left, 4);
+  assert.equal(text.tagStyle.normal.contentInsets.left, 0, 'a plain text item hugs its title: no inset');
   assert.equal(text.tagStyle.normal.font.weight, 'semibold');
   // A tap plays the animated icon, then selects the item.
   let played = 0;

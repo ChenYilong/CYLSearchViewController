@@ -43,10 +43,13 @@ class CYLSearchBarSearchButtonTest {
             ?: ((view as? ViewGroup)?.let { group -> (0 until group.childCount).sumOf { dividers(group.getChildAt(it)) } } ?: 0)
 
     @Test
-    fun theBarKeepsATextButtonNamedSearchThatIsNotAnItem() {
+    fun theBarKeepsAnIconButtonByDefaultAndTheTextStyleIsOptIn() {
         val bar = CYLSearchBarView(activity)
         assertTrue(bar.showsSearchButton)
-        assertEquals(CYLSearchBarSearchButtonStyle.Text, bar.searchButtonStyle)
+        assertEquals(CYLSearchBarSearchButtonStyle.Icon, bar.searchButtonStyle)
+        assertEquals(CYLSearchBarItemStyle.Icon, bar.searchButtonItem.style)
+        assertEquals("Search", bar.searchButtonItem.title)
+        bar.searchButtonStyle = CYLSearchBarSearchButtonStyle.Text
         assertEquals(CYLSearchBarItemStyle.Text, bar.searchButtonItem.style)
         assertEquals("Search", bar.searchButtonItem.title)
         assertTrue("not in items", bar.items.isEmpty())
@@ -102,6 +105,7 @@ class CYLSearchBarSearchButtonTest {
     @Test
     fun theTitleAndStyleRebuildTheButton() {
         val bar = CYLSearchBarView(activity)
+        bar.searchButtonStyle = CYLSearchBarSearchButtonStyle.Text
         bar.searchButtonTitle = "Go"
         assertEquals("Go", bar.searchButtonItem.title)
         bar.searchButtonStyle = CYLSearchBarSearchButtonStyle.Icon

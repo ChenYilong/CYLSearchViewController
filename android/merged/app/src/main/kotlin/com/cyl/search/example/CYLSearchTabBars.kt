@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Rect
 import com.cyl.search.CYLSearchBarItem
-import com.cyl.search.CYLSearchBarSearchButtonStyle
 import com.cyl.search.CYLSearchBarStyle
 import com.cyl.search.CYLSearchBarView
 
@@ -37,8 +36,6 @@ fun cylTabSearchBar(context: Context, key: String, onCamera: () -> Unit, onSearc
         "discover" -> {
             bar.applyNavigationFieldStyle()
             bar.fieldHeight = 46f
-            // The round black button of the reference recording.
-            bar.searchButtonStyle = CYLSearchBarSearchButtonStyle.Icon
             val camera = CYLSearchBarItem.iconItem(context.getDrawable(R.drawable.cyl_ic_camera), context.getString(R.string.cyl_discover_imageSearch)) { onCamera() }
             camera.imageSize = android.util.SizeF(22f, 22f)
             // The camera button plays search_camera.json, the same Lottie file on every platform.

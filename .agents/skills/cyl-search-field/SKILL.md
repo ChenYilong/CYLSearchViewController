@@ -22,3 +22,4 @@ Full rule: `docs/instructions/core.md`, "One search field, no system search bar"
    text, custom title or icon); never hide it in an example, never add a second one. Docs: core.md rule 5, example-demos.md rule 9.
 6. Keyboard: the Search key, `focusesOnAppear`, `dismissesKeyboardOnOutsideTouch`, through CYLDeallocBlockExecutor events (core.md rule 6).
 7. Before a git operation, read `docs/instructions/git.md` in full (skill `cyl-commit`).
+8. Trailing group (owner, 2026-11-26): gaps beside a divider are even; items are spaced only by the container's spacing; a plain icon or text item hugs its content (36 dp touch by hit area, never by empty room); an item with a shape of its own keeps its size. Docs: core.md, "Trailing group layout".

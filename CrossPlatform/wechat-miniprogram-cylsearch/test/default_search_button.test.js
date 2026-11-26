@@ -53,7 +53,7 @@ function loadBar(properties = {}) {
 test('a bar keeps a default search button; never for an editing bar or in multiple mode', () => {
   const bar = new CYLSearchBarView();
   assert.equal(bar.showsSearchButton, true);
-  assert.equal(bar.searchButtonStyle, 'text');
+  assert.equal(bar.searchButtonStyle, 'icon');
   assert.equal(bar.hasSearchButton, true);
   bar.showsSearchButton = false;
   assert.equal(bar.hasSearchButton, false);
@@ -70,6 +70,7 @@ test('text style: the localized "Search" (en, zh-Hans, zh-Hant, ja), a custom ti
     assert.equal(CYLSearchResources.localizedString(undefined, 'search.button', language), value, language);
   });
   const bar = new CYLSearchBarView();
+  bar.searchButtonStyle = 'text';
   const text = bar.searchButtonItem;
   assert.equal(text.style, 'text');
   assert.equal(text.title, 'Search');
@@ -134,8 +135,13 @@ test('cyl-search-bar: divider only after an owner item, icon style padding, tap 
   const plain = loadBar();
   assert.equal(plain.data.searchButton.visible, true);
   assert.equal(plain.data.searchButton.hasDivider, false);
-  assert.equal(plain.data.searchButton.button.title, 'Search');
-  assert.equal(plain.data.fieldPadStyle, '');
+  assert.equal(plain.data.searchButton.icon, true, 'the icon style is the default');
+  assert.equal(plain.data.searchButton.label, 'Search');
+  assert.equal(plain.data.fieldPadStyle, 'padding-right: 4px');
+  const word = loadBar({ searchButtonStyle: 'text' });
+  assert.equal(word.data.searchButton.button.title, 'Search', 'the text style shows the localized title');
+  assert.equal(word.data.fieldPadStyle, '');
+  assert.equal(word.data.searchButton.hugs, true);
 
   const withItem = loadBar({ items: [{ style: 'icon', title: 'Camera', image: '/c.svg' }], searchButtonStyle: 'icon', fieldHeight: 36 });
   assert.equal(withItem.data.searchButton.hasDivider, true);
@@ -187,11 +193,12 @@ test('examples: every one shows the default search button, none adds its own Sea
     assert.doesNotMatch(text, /showsSearchButton\s*=\s*"?\{?\{?\s*false|showsSearchButton="\{\{false\}\}"|showsSearchButton="false"/,
       `${name} hides the default search button`);
   });
-  // The bars of the examples never opt out; the Search tab shows the icon style, the others the text style.
+  // The bars of the examples never opt out; the default is the icon style; only the remark name field sets the text style.
   const bars = files.filter((file) => file.endsWith('.wxml') && /<cyl-search-bar/.test(fs.readFileSync(file, 'utf8')));
   assert.ok(bars.length >= 8, 'the examples draw the bar on many pages');
-  assert.match(read('example', 'miniprogram', 'pages', 'search', 'index.wxml'), /searchButtonStyle="icon"/);
-  assert.match(read('example', 'miniprogram', 'demo-components', 'cyl-demo-first-level-bar', 'index.wxml'), /searchButtonStyle="\{\{searchButtonStyle\}\}"/);
+  const styled = files.filter((file) => file.endsWith(".wxml") && /searchButtonStyle=/.test(fs.readFileSync(file, "utf8")));
+  assert.equal(styled.length, 1, "exactly one example sets the text style");
+  assert.match(read("example", "miniprogram", "pages", "contactTags", "index.wxml"), /searchButtonStyle="text"/);
   const discover = read('example', 'miniprogram', 'pages', 'discoverSearch', 'index.js');
   assert.doesNotMatch(discover, /style: 'divider'/, 'the divider before the Search button is the core\'s');
   assert.match(discover, /image: CAMERA_IMAGE/, 'the camera stays an owner item');

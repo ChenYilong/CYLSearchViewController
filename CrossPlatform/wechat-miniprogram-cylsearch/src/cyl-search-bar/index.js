@@ -67,11 +67,11 @@ Component({
     pinsToKeyboard: { type: Boolean, value: false },
     cancelButtonTitle: { type: String, value: '' },
     items: { type: Array, value: [], observer: 'onItemsChange' },
-    // The default search button (iOS showsSearchButton, searchButtonStyle "text" or "icon", searchButtonTitle,
+    // The default search button (iOS showsSearchButton, searchButtonStyle "icon" (the default) or "text", searchButtonTitle,
     // searchButtonImage): kept after the field and the items, a divider before it when an item precedes it; false for an
     // editing bar and in "multiple" mode. A tap submits the text; the event `submit` also fires for empty text.
     showsSearchButton: { type: Boolean, value: true, observer: 'onSearchButtonChange' },
-    searchButtonStyle: { type: String, value: 'text', observer: 'onSearchButtonChange' },
+    searchButtonStyle: { type: String, value: 'icon', observer: 'onSearchButtonChange' },
     searchButtonTitle: { type: String, value: '', observer: 'onSearchButtonChange' },
     searchButtonImage: { type: String, value: '', observer: 'onSearchButtonChange' },
     // A first-level bar (iOS pushesOnTap): a tap on the field (not on the items and the search button) triggers `firstleveltap`
@@ -437,8 +437,8 @@ Component({
       model.mode = p.mode === CYLSearchBarMode.multiple ? CYLSearchBarMode.multiple : CYLSearchBarMode.single;
       model.isEditingBar = model.isEditingBar || p.editingBar;
       model.showsSearchButton = p.showsSearchButton;
-      model.searchButtonStyle = p.searchButtonStyle === CYLSearchBarSearchButtonStyle.icon
-        ? CYLSearchBarSearchButtonStyle.icon : CYLSearchBarSearchButtonStyle.text;
+      model.searchButtonStyle = p.searchButtonStyle === CYLSearchBarSearchButtonStyle.text
+        ? CYLSearchBarSearchButtonStyle.text : CYLSearchBarSearchButtonStyle.icon;
       model.searchButtonTitle = p.searchButtonTitle || undefined;
       model.searchButtonImage = p.searchButtonImage || undefined;
     },
@@ -463,6 +463,7 @@ Component({
         visible: true,
         hasDivider: cylSearchButtonHasDivider(model.items.length),
         label: item.accessibilityText,
+        hugs: item.hugsContent,
         button: item.tagButtonProperties(model.itemTintColor, dark),
         trailingInset: cylSearchButtonTrailingInset(this.properties.fieldHeight, item.itemHeight, 12, icon),
         icon,
@@ -476,6 +477,7 @@ Component({
         fieldPadStyle: searchButton.visible && searchButton.icon ? `padding-right: ${searchButton.trailingInset}px` : '',
         shownItems: this.model.items.map((item) => Object.assign(item.itemDictionary(), {
           label: item.accessibilityText,
+          hugs: item.hugsContent,
           button: item.tagButtonProperties(this.model.itemTintColor, dark),
         })),
       });

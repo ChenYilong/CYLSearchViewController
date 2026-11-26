@@ -5,5 +5,5 @@
 <cyl-search-navigation-bar id="nav" pushesOnTap pushUrl="{{url}}">
   <cyl-search-bar generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
     class="bar" preset="{{preset}}" placeholder="{{placeholder}}" contentInsets="0" fieldHeight="{{fieldHeight}}" items="{{items}}"
-    pushesOnTap="{{true}}" searchButtonStyle="{{searchButtonStyle}}" bind:firstleveltap="onFieldTap" />
+    pushesOnTap="{{true}}" bind:firstleveltap="onFieldTap" />
 </cyl-search-navigation-bar>

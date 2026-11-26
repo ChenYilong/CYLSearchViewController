@@ -34,6 +34,7 @@ import com.cyl.classifymenu.CYLTagImagePlacement
 import com.cyl.classifymenu.CYLTagListView
 import com.cyl.placeholder.CYLPlaceholderStyle
 import com.cyl.placeholder.CYLPlaceholderView
+import com.cyl.search.CYLSearchBarSearchButtonStyle
 import com.cyl.search.CYLSearchBarView
 import com.cyl.search.CYLSearchBarViewDelegate
 import com.cyl.search.example.CYLExamplePage
@@ -153,6 +154,8 @@ class CYLContactRemarkPage : CYLExamplePage(), CYLMenuDataSource, CYLMenuDelegat
         // The remark name: the core field with the navigation preset (one input look), not a system EditText.
         val name = CYLSearchBarView(context).apply {
             applyNavigationFieldStyle()
+            // The one text-style search button of the example (the default is the icon).
+            searchButtonStyle = CYLSearchBarSearchButtonStyle.Text
             placeholder = cylContactTagsText(context, "remarkName")
             textField.contentDescription = placeholder
         }

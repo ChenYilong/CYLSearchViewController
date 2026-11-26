@@ -77,13 +77,13 @@ class CYLSearchBarDefaultColorsTest {
     }
 
     @Test
-    fun theDividerIsOneByTwentyWithAnEightGapOnEachSide() {
+    fun theDividerIsOneByTwenty() {
         val activity = activity(dark = false)
         val bar = bar(activity)
         val density = activity.resources.displayMetrics.density
         val divider = bar.itemViews[1] as View
         divider.measure(View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED))
-        assertEquals("1 + 8 + 8 dp wide", Math.round(17 * density), divider.measuredWidth)
+        assertEquals("1 dp wide: the gaps beside it are the trailing group's spacing", Math.round(1 * density), divider.measuredWidth)
         assertEquals("20 dp high", Math.round(20 * density), divider.measuredHeight)
     }
 

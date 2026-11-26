@@ -77,8 +77,8 @@
            The four engine slots go on to cyl-tag-button, which hands them to CYLTabBarController's cyl-animated-item:
            the package plays no animation itself (the app passes its engines with generic:cyl-*-view). -->
       <block wx:for="{{shownItems}}" wx:key="index">
-        <view wx:if="{{item.style === 'divider'}}" class="cyl-divider" aria-hidden="true" />
-        <view wx:else class="cyl-item {{item.isEnabled === false ? 'cyl-item-disabled' : ''}}" id="{{item.accessibilityIdentifier}}"
+        <view wx:if="{{item.style === 'divider'}}" class="cyl-divider cyl-gap" aria-hidden="true" />
+        <view wx:else class="cyl-item cyl-gap {{item.hugs ? 'cyl-item-hug' : ''}} {{item.isEnabled === false ? 'cyl-item-disabled' : ''}}" id="{{item.accessibilityIdentifier}}"
           data-index="{{index}}" bindtap="onItemTap">
           <cyl-tag-button id="cyl-bar-item-{{index}}" generic:cyl-lottie-view="cyl-lottie-view" generic:cyl-pag-view="cyl-pag-view"
             generic:cyl-rive-view="cyl-rive-view" generic:cyl-svga-view="cyl-svga-view"
@@ -96,8 +96,8 @@
       <!-- The default search button (iOS showsSearchButton): after the field and the owner's items, a divider before it when an
            item precedes it; a tap submits the text. The filled icon style is a capsule 28 high, concentric in the field. -->
       <block wx:if="{{searchButton.visible}}">
-        <view wx:if="{{searchButton.hasDivider}}" class="cyl-divider" aria-hidden="true" />
-        <view class="cyl-item cyl-search-button" id="CYLSearchBarSearchButton" role="button" aria-label="{{searchButton.label}}" bindtap="onSearchButtonTap">
+        <view wx:if="{{searchButton.hasDivider}}" class="cyl-divider cyl-gap" aria-hidden="true" />
+        <view class="cyl-item cyl-gap {{searchButton.hugs ? 'cyl-item-hug' : ''}} cyl-search-button" id="CYLSearchBarSearchButton" role="button" aria-label="{{searchButton.label}}" bindtap="onSearchButtonTap">
           <cyl-tag-button id="cyl-bar-search-button" generic:cyl-lottie-view="cyl-lottie-view" generic:cyl-pag-view="cyl-pag-view"
             generic:cyl-rive-view="cyl-rive-view" generic:cyl-svga-view="cyl-svga-view"
             title="{{searchButton.button.title}}" image="{{searchButton.button.image}}"

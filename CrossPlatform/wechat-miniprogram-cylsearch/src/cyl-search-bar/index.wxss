@@ -16,8 +16,14 @@
 .cyl-item-disabled { opacity: 0.4; }
 /* The default search button: no minimum height, so the icon style's 28 high capsule keeps equal gaps in the field. */
 .cyl-search-button { min-height: 0; }
-/* The built-in divider: 1 x 20, secondary label strength (60%), an 8 gap on each side. */
-.cyl-divider { width: 1px; height: 20px; margin: 0 8px; background: rgba(60, 60, 67, 0.6); }
+/* The trailing group (owner, 2026-11-26): the field flexes, its elements are spaced ONLY by this 8 margin before each, so the gaps
+   beside a divider are equal. A plain item hugs its content (no minimum width) and its touch area is widened to 36 by the
+   ::after hit area, never by empty room around the glyph; an item with a shape of its own keeps its size. */
+.cyl-gap { flex: none; margin-left: 8px; }
+.cyl-item-hug { min-width: 0; }
+.cyl-item-hug::after { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 36px; margin-left: -18px; }
+/* The built-in divider: 1 x 20, secondary label strength (60%); the gaps beside it are the group's spacing. */
+.cyl-divider { width: 1px; height: 20px; margin: 0; background: rgba(60, 60, 67, 0.6); }
 
 /* mode "multiple" (was cyl-multi-search): the searches in a row, the selected one underlined, the new-search button. */
 .cyl-multi { display: flex; align-items: center; height: 48px; }

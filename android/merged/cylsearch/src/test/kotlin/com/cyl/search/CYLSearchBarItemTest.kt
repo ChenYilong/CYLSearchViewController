@@ -99,9 +99,10 @@ class CYLSearchBarItemTest {
         assertTrue(windowX(cameraView) + cameraView.width <= windowX(dividerView))
         assertTrue(windowX(dividerView) + dividerView.width <= windowX(searchView))
         assertTrue(windowX(searchView) + searchView.width <= windowX(bar.fieldView) + bar.fieldView.width)
-        assertEquals(cameraView.measuredWidth, cameraView.measuredHeight)
         val density = activity.resources.displayMetrics.density
-        assertTrue(cameraView.measuredWidth >= (36 * density).toInt())
+        // A plain icon item hugs its glyph (its 36 dp touch width comes from the trailing group), and is 36 dp high.
+        assertTrue(cameraView.measuredWidth < (36 * density).toInt())
+        assertTrue(cameraView.measuredHeight >= (36 * density).toInt())
         assertEquals(View.IMPORTANT_FOR_ACCESSIBILITY_NO, dividerView.importantForAccessibility)
         assertEquals("Camera", cameraView.contentDescription)
         assertEquals("Search", searchView.titleLabel.text.toString())
