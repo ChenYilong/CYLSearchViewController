@@ -2284,3 +2284,12 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 - **Acceptance**: 100 = the test fails before and passes after, the full `CYLSearchExampleTests` suite passes, pushed, entry DONE.
   60 = the test fails before and passes after, the lifecycle tests pass, pushed.
 - **Status**: entry written; work not started.
+
+## DONE (2026-11-27, `feat/harmonyos-parity`, Windows session): mini program `cyl-search-bar` draws the appearance's `cancelTitle` and `clearIconImage`
+
+- **Context**: handover section 6 (WeChat mini program): "`cyl-search-bar` does not draw `clearIconImage` / `cancelTitle`" (task-log.md:1504). The core model (`src/core/CYLSearchBarView.js`, `CYLSearchBarAppearance.styles`) already mapped both (`cancelTitle`, `clearIcon`), but the component never used them. Chosen while `C:/w/heavy.lock` was held by the ClassifyMenu session and the pin pair waits for the owner (Mac session, 2026-11-27: do not repin).
+- **Prompt (verbatim)**: "continue"
+- **Prompt (English)**: "continue" (after: "阅读docs 文件夹下的包含 todo 文字的文件夹……继续编写代码。", read the todo folders, complete the handover, continue writing code).
+- **Acceptance (100)**: a test red before and green after; `npm test` all pass; the bar's own `cancelButtonTitle` wins over the appearance's (iOS: the appearance is applied under the bar's own properties); a DevTools check of both. **(60)**: the first three.
+- **Result**: `src/cyl-search-bar/index.js` sets `appearanceCancelTitle` and `clearIcon` from the appearance; `index.wxml` shows `cancelButtonTitle || appearanceCancelTitle || labels.cancel` and an `<image>` of `clearIcon` instead of the built-in clear mask when set; `index.wxss` sizes it like the built-in icon (18 px). New test in `test/components.test.js` failed before the change; `npm test` 174/174 (173 before). `bash scripts/check-public-api-comments.sh` OK.
+- **Score**: 75 / 100. **Missing (25)**: not seen in WeChat DevTools (`wechatide-skill`, private AppID flow; the image path and the tint of the custom clear image are unchecked).

@@ -152,6 +152,7 @@ Component({
     searchItems: [], editingNewSearch: false, selectedSearchIndex: -1,
     centered: false, cancelShown: false, cancelAnimated: false, leadingShown: false, trailingShown: false, accessoryAnimated: false,
     leadingWidth: 0, trailingWidth: 0, barStyle: '', fieldMargin: '', cancelStyle: '', leadingStyle: '', trailingStyle: '', fieldIconAlt: '',
+    appearanceCancelTitle: '', clearIcon: '',
   },
   observers: {
     'fieldHeight, fieldCornerRadius, fieldBackgroundColor, fieldBorderColor, fieldBorderWidth, fieldShadowOpacity, fontSize, textColor, placeholderColor, centersPlaceholder, textFieldMargins, activeTextFieldMargins, cancelButtonMargins, activeCancelButtonMargins, cancelButtonFont, leadingAccessoryMargins, trailingAccessoryMargins, appearance, focused, text': function () {
@@ -346,6 +347,10 @@ Component({
         trailingStyle: padding(p.trailingAccessoryMargins || model.trailingAccessoryMargins),
         centered: !!p.centersPlaceholder && !this.data.focused && !this.data.text,
         fieldCursor: p.cursorColor || (ap && ap.tintColor) || '',
+        // The style's Cancel title (under the bar's own `cancelButtonTitle`) and clear button image (iOS `cancelTitle`,
+        // `clearIconImage` of CYLSearchBarAppearance).
+        appearanceCancelTitle: (ap && ap.cancelTitle) || '',
+        clearIcon: (ap && ap.clearIcon) || '',
         // The style's magnifier replaces the default one (the bar's own `searchIcon` wins when it is not the default).
         ...(ap && ap.searchIcon && p.searchIcon === '../images/search.svg' ? { searchIcon: ap.searchIcon } : {}),
       });
