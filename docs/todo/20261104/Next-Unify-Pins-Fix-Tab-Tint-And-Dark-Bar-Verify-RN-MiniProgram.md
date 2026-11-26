@@ -400,3 +400,9 @@ Progress on the items above, branch `feat/harmonyos-parity`. Details: [task-log.
 | I1 to I6 (iOS) | With `mac/CYLSearchViewController` (on I1 since 2026-11-27) | - |
 
 Next for the Windows side: run the Flutter Android example on `CYL_Second_API_37` and screenshot the Discover tab root light and dark at the fix commit; the pin pair is still waiting for the Mac session's announcement.
+
+## 19. Taken over 2026-11-27 (Mac iOS session)
+
+| Item | State | Evidence |
+|:---|:---|:---|
+| I1: `CYLSearchController` overlay left after a pop or a dismissal | FIXED in the core: the search ends when the contents page leaves for good; the page and the swipe recognizer leave the host when the search ends and in `deinit` | 3 new tests in `CYLSearchControllerLifecycleTests` red before, green after; full `CYLSearchExampleTests` 153/153 on iOS 26.1. Details: [task-log.md](../../task-log.md), "fix bug I1" |
