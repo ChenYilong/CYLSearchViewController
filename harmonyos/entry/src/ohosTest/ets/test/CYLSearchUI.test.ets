@@ -91,6 +91,42 @@ async function tapDemoTag(driver: Driver, label: string, row: number, wait: numb
   await driver.delayMs(wait);
 }
 
+// A tab root shows the whole search bar (owner directive 2026-11-26, example-demos rule 10); a tap on it pushes the second-level
+// search page. The bar's field is the text field of this app's window (its touches go to the bar's own tap).
+async function tapFirstLevelBar(driver: Driver, wait: number = 1500): Promise<void> {
+  const field = await driver.findComponent(ON.type('TextInput').inWindow(BUNDLE));
+  if (!field) {
+    throw new Error('No first-level search bar on this tab root');
+  }
+  await field.click();
+  await driver.delayMs(wait);
+}
+
+// The Issue #1317 reproduction page (CYLSearchBarView in a list, overlay and reproduction toggle) is the first row of the
+// Examples tab: a tab root itself shows the first-level bar instead of the navigation bar's buttons.
+async function openReproduction(driver: Driver): Promise<void> {
+  await backToTabBar(driver);
+  await tapLabel(driver, appString('tab_examples'));
+  await tapDemoTag(driver, libString('demo.reproduction'), 0);
+}
+
+// Back on the Examples tab root after a demo tag was reached by scrolling: scroll its page to the top again, so the next
+// test sees the page as a fresh start shows it.
+async function closeReproduction(driver: Driver): Promise<void> {
+  // The tab bar stays visible below a pushed page, so Back is pressed until the Examples menu's header shows again
+  // (the keyboard, an overlay or the page itself may be in the way).
+  for (let i = 0; i < 4 && !(await driver.findComponent(ON.text(libString('demo.title')).inWindow(BUNDLE))); i++) {
+    await driver.pressBack();
+    await driver.delayMs(800);
+  }
+  const size = await driver.getDisplaySize();
+  const x = Math.round(size.x / 2);
+  for (let i = 0; i < 2; i++) {
+    await driver.swipe(x, Math.round(size.y * 0.35), x, Math.round(size.y * 0.7), 400);
+    await driver.delayMs(500);
+  }
+}
+
 async function assertLabel(driver: Driver, label: string, iconId?: string): Promise<void> {
   expect(await findByLabel(driver, label, iconId) !== undefined).assertTrue();
 }
@@ -129,9 +165,15 @@ export default function cylSearchUITest() {
 
     it('searchTabShowsResultsAndReproductionToggle', 0, async () => {
       const driver = Driver.create();
+      // The Search tab root: the whole bar over the results.
+      await assertLabel(driver, libString('sample.result').replace('%d', '1'));
+      expect(await driver.findComponent(ON.type('TextInput').inWindow(BUNDLE)) !== null).assertTrue();
+      // The reproduction page (Examples, first row): title, toggle and results.
+      await openReproduction(driver);
       await assertLabel(driver, libString('search.title'));
       await assertLabel(driver, libString('repro.off'));
       await assertLabel(driver, libString('sample.result').replace('%d', '1'));
+      await closeReproduction(driver);
     });
 
     it('examplesMenuOpensPlaceholderStyles', 0, async () => {
@@ -150,8 +192,7 @@ export default function cylSearchUITest() {
     // a query with no result shows CYLTableViewPlaceHolder's placeholder, and Back closes it.
     it('overlayShowsResultsOfTheDataSource', 0, async () => {
       const driver = Driver.create();
-      await backToTabBar(driver);
-      await tapLabel(driver, appString('tab_search'));
+      await openReproduction(driver);
       await tapLabel(driver, libString('action.overlay'), 1000);
       const fields = await driver.findComponents(ON.type('TextInput'));
       expect(fields.length > 0).assertTrue();
@@ -173,6 +214,7 @@ export default function cylSearchUITest() {
         await driver.delayMs(800);
       }
       await assertLabel(driver, libString('repro.off'));
+      await closeReproduction(driver);
     });
 
     // The core's pull to refresh on the reproduction's list (CYLSearchView.setRefreshHandler): a pull down refreshes
@@ -281,8 +323,16 @@ export default function cylSearchUITest() {
       const driver = Driver.create();
       await backToTabBar(driver);
       await tapLabel(driver, appString('tab_discover'));
+      // The tab root is the first-level bar; its tap pushes the Discover page (Recently searched, Popular right now).
+      await tapFirstLevelBar(driver);
       await assertLabel(driver, appString('discover_recent'));
+      // The page's focusesOnAppear raises the keyboard, which covers the mic button: Back hides the keyboard first.
+      if (!(await driver.findComponent(ON.text(appString('discover_ask')).inWindow(BUNDLE)))) {
+        await driver.pressBack();
+        await driver.delayMs(800);
+      }
       await assertLabel(driver, appString('discover_ask'), 'CYLSearchDiscoverMicButton');
+      await backToTabBar(driver);
     });
 
     // The refresh button of the Discover topics header is labelled with the localized tagList.refresh (Refresh, 更新,
@@ -291,12 +341,14 @@ export default function cylSearchUITest() {
       const driver = Driver.create();
       await backToTabBar(driver);
       await tapLabel(driver, appString('tab_discover'));
+      await tapFirstLevelBar(driver);
       const label = libString('tagList.refresh');
       expect(label.length > 0 && label !== 'tagList.refresh').assertTrue();
       // uitest does not report accessibilityText (see findByLabel), so the id is the fallback.
       await assertLabel(driver, label, 'CYLSearchDiscoverMore');
       await tapLabel(driver, label, 800, 'CYLSearchDiscoverMore');
       await assertLabel(driver, label, 'CYLSearchDiscoverMore');
+      await backToTabBar(driver);
     });
   });
 }

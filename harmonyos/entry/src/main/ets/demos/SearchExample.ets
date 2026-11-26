@@ -129,6 +129,21 @@ export struct SearchExampleView {
   }
 
   @Builder
+  navButtons() {
+    Row() {
+      Text(cylDemoText(this.context, 'action.overlay'))
+        .fontSize(17).fontColor($r('sys.color.brand')).height(44).padding({ left: 12, right: 12 })
+        .onClick(() => this.overlaySearchView.showSearchIn(this.context))
+      Text(cylDemoText(this.context, this.hidesSearchBarWhenScrolling ? 'repro.on' : 'repro.off'))
+        .fontSize(17).fontColor($r('sys.color.brand')).height(44).padding({ left: 12, right: 16 })
+        .id('CYLIssueReproductionToggle')
+        .onClick(() => {
+          this.hidesSearchBarWhenScrolling = !this.hidesSearchBarWhenScrolling;
+        })
+    }
+  }
+
+  @Builder
   bar() {
     CYLSearchBarComponent({ searchBarView: this.searchBar })
   }
@@ -139,12 +154,18 @@ export struct SearchExampleView {
         if (this.firstLevelBar !== undefined) {
           CYLSearchNavigationTitleBar({ searchBarView: this.firstLevelBar, stack: this.stack })
         } else {
+          // Pushed from the Examples tab the back button takes the left slot, so the overlay button sits beside the
+          // reproduction toggle on the right (without it the overlay demo would have no way in).
           CYLDemoNavBar({
             title: cylDemoText(this.context, 'search.title'),
             showsBack: this.showsBack,
             leftTitle: cylDemoText(this.context, 'action.overlay'),
             rightTitle: cylDemoText(this.context, this.hidesSearchBarWhenScrolling ? 'repro.on' : 'repro.off'),
             rightId: 'CYLIssueReproductionToggle',
+            hasRightView: this.showsBack,
+            rightView: () => {
+              this.navButtons()
+            },
             onBack: () => this.onBack(),
             onLeft: () => this.overlaySearchView.showSearchIn(this.context),
             onRight: () => {

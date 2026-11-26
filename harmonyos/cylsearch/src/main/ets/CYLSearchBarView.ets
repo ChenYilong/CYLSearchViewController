@@ -1,6 +1,6 @@
 import { KeyboardAvoidMode } from '@kit.ArkUI';
 import { UIContext } from '@kit.ArkUI';
-import { common } from '@kit.AbilityKit';
+import { common, ApplicationStateChangeCallback } from '@kit.AbilityKit';
 import {
   CYLControlState, CYLEdgeInsets, CYLFont, CYLMenuLocalizedString, CYLMenuStyle, CYLOffset, CYLSize, CYLTagButton,
   CYLTagButtonHost
@@ -2819,7 +2819,7 @@ export struct CYLSearchBarComponent {
   }
 
   private barVisible: boolean = false;
-  private foregroundListenerId: number = -1;
+  private foregroundCallback: ApplicationStateChangeCallback | undefined = undefined;
 
   aboutToAppear(): void {
     this.searchBarView.uiContext = this.getUIContext();
@@ -2835,14 +2835,14 @@ export struct CYLSearchBarComponent {
 
   aboutToDisappear(): void {
     this.barVisible = false;
-    if (this.foregroundListenerId >= 0) {
+    if (this.foregroundCallback !== undefined) {
       try {
         const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
-        context.getApplicationContext().off('applicationStateChange', this.foregroundListenerId);
+        context.getApplicationContext().off('applicationStateChange', this.foregroundCallback);
       } catch (error) {
         // The listener goes away with the application.
       }
-      this.foregroundListenerId = -1;
+      this.foregroundCallback = undefined;
     }
   }
 
@@ -2850,7 +2850,7 @@ export struct CYLSearchBarComponent {
   private listenForForeground(): void {
     try {
       const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
-      this.foregroundListenerId = context.getApplicationContext().on('applicationStateChange', {
+      const callback: ApplicationStateChangeCallback = {
         onApplicationForeground: () => {
           if (this.barVisible) {
             this.searchBarView.barDidAppear();
@@ -2858,9 +2858,11 @@ export struct CYLSearchBarComponent {
         },
         onApplicationBackground: () => {
         }
-      });
+      };
+      context.getApplicationContext().on('applicationStateChange', callback);
+      this.foregroundCallback = callback;
     } catch (error) {
-      this.foregroundListenerId = -1;
+      this.foregroundCallback = undefined;
     }
   }
 
