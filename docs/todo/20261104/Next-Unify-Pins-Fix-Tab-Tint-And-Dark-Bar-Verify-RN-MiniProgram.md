@@ -8,6 +8,8 @@ Scope: the work of the Windows session on **Android, HarmonyOS, the WeChat mini 
 CYLSearchViewController. iOS belongs to the Mac sessions; iOS items appear here only as cross-references. The task text said "the
 document address to update is here:" but gave no address, so this is a new document. If you were meant to update a specific document, ask.
 
+> **iOS and release readiness were added the same day: read [section 10](#10-added-by-the-mac-ios-session-2026-11-26-read-this-part-before-section-1) first.** Next focus: get PR #11 a finished green CI run, label the failing screenshots, unify the pins, merge and release the Dealloc dependency, and fix the iOS search overlay defect. A second advisor assessment (section 11) puts release readiness at **52 / 100**, not 76.
+
 ## 1. Your first week, in order
 
 1. **Unify the pins** (one pair on every platform; the Mac session announces the pair, you repin once). Today they diverge, see section 4.
@@ -208,3 +210,178 @@ Sources are lines of `docs/task-log.md` (2184 lines on 2026-11-26) unless noted.
 - Release-RAM manual and scripts: `docs/Release-RAM.md`, `release-ram.ps1`, `scripts/release-ram/`.
 - API scorecards: `docs/android-api-alignment.md` (100/100), `docs/harmonyos-api-alignment.md`, `docs/miniprogram-api-alignment.md` (100/100).
 - Other open work: `docs/core-todo.md`, `docs/no-system-searchbar.md`, `docs/animated-icon-component.md`.
+
+## 10. Added by the Mac iOS session (2026-11-26): read this part before section 1
+
+Sections 1 to 9 cover Android, HarmonyOS, the mini program, React Native and Flutter. Sections 10 to 17 add iOS, a second advisor
+assessment, corrections, and the bugs and TODOs missing above. State: pins and code at `9c9ae2d`; CI as seen at `1f02417`.
+"Code reading" means found in the source and **not reproduced**.
+
+**Order for your first day** (put these before the list in section 1):
+
+1. **Get one `iOS` workflow run to finish.** None of the recent runs completed: later pushes cancelled them, and the run on `1f02417` was pending when this was written. Pause pushes, or change the workflow concurrency. The CI fixes in [`3f71ed5`](https://github.com/ChenYilong/CYLSearchViewController/commit/3f71ed5) are verified locally only.
+2. **Label 8 screenshots**: `docs/assets/android-emulator-api37-20261126-tabbar-more-*-at-af56db22.png` have no header or footer and no Markdown link. The check failed on `9c9ae2d`. It passes on `1f02417`, a docs-only commit, but those images were not fixed.
+3. **Unify the pins** (section 4; iOS pins are in section 12).
+4. **Merge CYLDeallocBlockExecutor [PR #30](https://github.com/ChenYilong/CYLDeallocBlockExecutor/pull/30), then [PR #29](https://github.com/ChenYilong/CYLDeallocBlockExecutor/pull/29)** (retarget #29 to `master`), release it, and repin to a `master` commit.
+5. **Reproduce and fix iOS bug I1** (section 14).
+
+## 11. Second advisor assessment, including iOS (use this one for the release decision)
+
+These are judgments of a stronger review model, not measurements. Section 2 scores 86 (features) and 76 (release) from the non-iOS work
+log. This assessment saw the iOS work, CI and the dependency chain, and scores **84 / 100 progress** (iOS about 90, Android about 85,
+HarmonyOS about 85, mini program, Flutter and React Native about 80 each) and **52 / 100 release readiness**. The release gap is mainly
+red or unfinished CI, dependencies that cannot be published, and a breaking change without a version.
+
+100 means: green CI on the release head; every dependency merged and published; a version bump with migration notes; current documents;
+no open P1 defect; a device check on each platform.
+
+| # | Missing point (release readiness) | Points |
+|---|---|---|
+| M1 | No proven green CI: screenshot labels failed on `9c9ae2d`, and no recent `iOS` run completed. | -10 |
+| M2 | The dependency chain cannot be released: CYLDeallocBlockExecutor `eab21d10` is on unmerged PR #29 (stacked on #30) and 1.4 is not on the CocoaPods trunk. CYLAnimatedItem and CollectionViewClassifyMenu are pinned commits that are not on the trunk. `pod trunk push` would fail; the other package channels depend on the same pins. | -15 |
+| M3 | Pins differ between platforms. | -4 |
+| M4 | Breaking iOS API change while the podspec says `0.1.0`: no tag, changelog or migration guide. | -5 |
+| M5 | Verification gaps: 60 UIKit-only tests removed or merged; swipe-to-dismiss checked only as a recognizer; no real-device touch or background-return check; iOS 15, 16, 18 to 25 not run on this code; Rive and PAG on arm64 and mini program dark mode not run. | -6 |
+| M6 | Open defects (section 7 and section 14). | -5 |
+| M7 | Stale documents (section 13 lists them). | -2 |
+| M8 | Hygiene: PR #11 is about 2,100 files, PR #16 conflicts, merged branches not deleted. | -1 |
+
+## 12. iOS chapter
+
+### 12.1 Branches, additions to section 3
+
+- **PR #16 conflicted** with its base when checked on `9c9ae2d` (GitHub showed "unknown" after the newest push). It holds one commit, a task-log entry. Resolve the `task-log.md` conflict keeping both sides, or close it.
+- Dependency branches (progress is an estimate):
+
+| Branch | Progress | TODO |
+|---|---|---|
+| [CYLDeallocBlockExecutor `feat/did-become-active-on-screen`](https://github.com/ChenYilong/CYLDeallocBlockExecutor/tree/feat/did-become-active-on-screen) | 90 % (89/89 tests reported) | [PR #30](https://github.com/ChenYilong/CYLDeallocBlockExecutor/pull/30), merge first; adds `appDidBecomeActiveOnScreen` |
+| [CYLDeallocBlockExecutor `feat/screen-focus-events`](https://github.com/ChenYilong/CYLDeallocBlockExecutor/tree/feat/screen-focus-events) | 85 % (90/90 tests Debug and Release; `pod lib lint` of that library not run) | [PR #29](https://github.com/ChenYilong/CYLDeallocBlockExecutor/pull/29), merge second; adds `didTouchOutside` by wrapping `UIWindow.sendEvent(_:)` |
+
+### 12.2 iOS pins (3 Podfiles: root example, Flutter, React Native)
+
+| Dependency | iOS pin |
+|---|---|
+| CYLTabBarController and CYLAnimatedItem | `08343e9f76d609e1a8c0b45c01fd31a0b7a1e5bc` |
+| CollectionViewClassifyMenu | `c0b183de12c62c8b0b575b5a9ff0613f9a970468` |
+| CYLDeallocBlockExecutor | `eab21d10f8e80ccee67e6e74271cd5bc6ff9a50e` |
+| CYLTableViewPlaceHolder | `f4cf978567e43288b44f6ddc266510fa837a0e72` |
+
+### 12.3 What changed on iOS on 2026-11-26
+
+| Area | Result | Commits |
+|---|---|---|
+| One navigation field look in the core (`applyNavigationFieldStyle()`) | Discover, Edit Remarks, Edit Tags and the Search tab use it | `9103ae5` `81e9c95` |
+| No system search bar | `CYLSearchBar` (a `UISearchBar` subclass) deleted; `CYLSearchController` rebuilt over `CYLSearchBarView` with its own overlay page. A grep for `UISearchBar`, `UISearchController`, `UISearchTextField` in `Sources`, `CYLSearchExample` and `CrossPlatform/*/ios` returned nothing | `8995a7c` |
+| Keyboard life cycle through CYLDeallocBlockExecutor | `focusesOnAppear` (second-level or deeper pages only), `dismissesKeyboardOnOutsideTouch` (on by default, never for editing bars), Search return key | `c771852` `6e8e28e` `f719cfb` `8a0bfc7` |
+| Default search button | Always built in; icon style by default (filled capsule, equal gap above, below and at the end), text style on request | `6e8e28e` `6697875` `77a5193` |
+| Trailing group | Plain items hug their content, 36 pt touch area on both sides, even gaps beside the divider | `f778fd1` `80d437a` |
+| First-level search bar (example rule 10) | `pushesOnTap`, `onFirstLevelTap`, five `CYLSearchBarPreset` looks; tab roots show their own bar and push a second-level page | `24a58bd` |
+| Flutter and React Native iOS bridges | Navigation preset, focus, search button settings, `pushesOnTap`, `pageDepth` | `3663529` `5c15d76` `5eaf047` `fd5745d` |
+| CI fixes (local verification) | shellcheck, public API comments, licenses, `pod lib lint` | `3f71ed5` |
+
+Last full native suite: **150 tests, 0 failures** (iOS 27.2 simulator, Xcode 27.2, at `5d0b0f5`). It was 201 before the rebuild; the
+removed and merged tests are listed with reasons in [task-log.md](https://github.com/ChenYilong/CYLSearchViewController/blob/feat/harmonyos-parity/docs/task-log.md).
+
+### 12.4 Design facts to know before you change code
+
+- Pushed pages keep the **system back button**. Hiding it to show the bar's own arrow disabled UIKit's swipe back on iOS 27.2. A gesture-delegate workaround passed a unit test and failed on the simulator, so it was removed. Other platforms draw their own back button.
+- `CYLSearchController` is now a separate component. Removed: `searchController`, `hidesNavigationBarDuringPresentation`, `forwardsAppearanceFromContentsViewController`, the two status bar providers, the `UISearchResultsUpdating` and `UISearchControllerDelegate` conformances, and the window-snapshot swipe. API map: [no-system-searchbar.md](https://github.com/ChenYilong/CYLSearchViewController/blob/feat/harmonyos-parity/docs/no-system-searchbar.md).
+- A bar in a navigation bar sits in a system-owned view, so it calls `cylRefreshScreenState()` after layout while `focusesOnAppear` is on.
+- `CYLSearchBarView.swift` is over 3,000 lines. Splitting it is recommended technical debt.
+
+### 12.5 iOS TODOs
+
+1. Fix bugs I1 to I6 (section 14).
+2. Real device: a tag tap and a drag hide the keyboard, a tap on the bar's camera does not, the field refocuses after returning from the background. A pointer or trackpad scroll is not covered by `didTouchOutside`.
+3. Look at the screens never checked visually after the rebuild: the active state of `CYLSearchController`, the Search bar styles screen, the Collection view demo.
+4. Run the suite on iOS 17.5 and 26.5 again; iOS 15, 16 and 18 to 25 are unverified.
+5. Re-mark rows E1 to E22 in [qmui-search-controller.md](https://github.com/ChenYilong/CYLSearchViewController/blob/feat/harmonyos-parity/docs/qmui-search-controller.md) and close the work list in `no-system-searchbar.md`.
+6. Bump the podspec version; write a changelog and a migration guide.
+7. Add `searchButtonImage` to the Flutter and React Native APIs.
+8. Record the push and the swipe back (only still frames exist).
+
+### 12.6 Build and test
+
+```sh
+pod install
+xcodebuild test -workspace CYLSearchExample.xcworkspace -scheme CYLSearchExample \
+  -destination 'platform=iOS Simulator,id=<your simulator UDID>' -derivedDataPath /tmp/cyl-dd
+bash scripts/check-public-api-comments.sh && bash scripts/check-licenses.sh && bash scripts/check-example-fold.sh
+shellcheck scripts/*.sh
+scripts/pod-lint.sh lib
+sh scripts/check-screenshot-labels.sh <base> <head>
+```
+
+Use your own simulator and shut down only that one; never run `simctl shutdown all` on a shared Mac. Screenshot launch arguments:
+`-CYLDemoTab <n>`, `-CYLDemoRow <n>`. Real taps and swipes: `axe`.
+
+## 13. Corrections to sections 1 to 9
+
+| Where | Correction |
+|---|---|
+| Section 6 (Cross-cutting) and section 7, "iOS canonical `search_camera.json` not trimmed" | Closed: the iOS file is 36x36 since `5d0b0f5`. |
+| Section 9, API scorecards at 100/100 | The committed tables are out of date. Re-running the generators on `9c9ae2d` gave Android 98 (8 TODO rows), HarmonyOS 99 (4), mini program 97 (10). The rows are mostly today's new API: outside touch, `automaticCornerRadius`, `CYLSearchBarPreset`, first-level tap, back button, `focusesOnAppear`, `pageDepth`. The generators match declaration names, so check each row by hand. |
+| Section 5, commit rules | They describe the Windows session. The Mac iOS commits also carry a `Claude-Session:` trailer. [git.md](https://github.com/ChenYilong/CYLSearchViewController/blob/feat/harmonyos-parity/docs/instructions/git.md) is the authority. |
+| Section 5, README | Besides the missing new API, the README still describes a `UISearchController` reproduction page that no longer exists (`CYLSearchBar` is removed too). `Sources/CYLSearchBar/instructions.md`, `CYLSearchExample/instructions.md` and `docs/ios-api-alignment.md` need the same pass. Ask the owner before editing the README. |
+
+## 14. Bugs missing from section 7
+
+I = iOS or release. X = other platforms. P1 blocks the release or can break an app.
+
+| ID | Pri | Bug | Why not fixed | Fix plan and approach | Documents |
+|---|---|---|---|---|---|
+| I1 | P1 | Code reading: `CYLSearchController` adds its overlay page to the navigation view or the window and never removes it (no `removeFromSuperview` for it, no `deinit`). Popping or dismissing the page while the search is active can leave the overlay on screen. | Introduced by the rebuild; found while writing this handover | Write a test: activate, pop, expect no overlay. Dismiss and remove it when the contents page leaves for good (a CYLDeallocBlockExecutor disappear event with `isMovingFromParent` or `isBeingDismissed`), and remove it in `deinit`. | [CYLSearchController.swift](https://github.com/ChenYilong/CYLSearchViewController/blob/feat/harmonyos-parity/Sources/CYLSearchBar/CYLSearchController.swift) |
+| I2 | P2 | Code reading: the results view controller is no child of any controller, so it gets no appearance callbacks or containment updates. | A child of the contents page raised `UIViewControllerHierarchyInconsistency`, so containment was removed | Host the page in a container controller that is a child of the host view's owner; test with a recording results controller. | same file |
+| I3 | P2 | Code reading: the overlay is laid out on activation, text, keyboard and empty view changes only; rotation or a size change can leave an old frame. | No rotation test | Relayout from the page's `layoutSubviews` or the host's size changes; add a resize test. | same file |
+| I4 | P2 | iOS example: English text is hard-coded on the second-level page (tags, some placeholders). | Added with rule 10 | Move to the example string bundle: en, ja, zh-Hans, zh-Hant. | [CYLSearchDemoMenuViewController.swift](https://github.com/ChenYilong/CYLSearchViewController/blob/feat/harmonyos-parity/CYLSearchExample/CYLSearchDemoMenuViewController.swift), [i18n rules](https://github.com/ChenYilong/CYLSearchViewController/blob/feat/harmonyos-parity/docs/instructions/accessibility-i18n.md) |
+| I5 | P2 | iOS example: the Search tab list can no longer be filtered by typing; a tap on its first-level bar pushes a generic second-level page. | Result of rule 10; the second-level page for this tab is not decided (D4) | Push a filtering results page with `pushesOnTap` off. | [CYLSearchExampleViewController.swift](https://github.com/ChenYilong/CYLSearchViewController/blob/feat/harmonyos-parity/CYLSearchExample/CYLSearchExampleViewController.swift) |
+| I6 | P3 | Flutter and React Native cannot set a custom image for the default search button. | Not in the Dart and TypeScript API | Add `searchButtonImage` and wire both native bridges. | [example rules](https://github.com/ChenYilong/CYLSearchViewController/blob/feat/harmonyos-parity/docs/instructions/example-demos.md) |
+| I7 | P1 | 8 screenshots at `af56db22` break the label rules (first-day item 2). | Added by a late commit | Add header and footer with the stitch script, link them with date and commit, run the check with base and head. | [docs rules](https://github.com/ChenYilong/CYLSearchViewController/blob/feat/harmonyos-parity/docs/instructions/docs.md) |
+| I8 | P1 | `iOS` CI runs are cancelled by newer pushes. | Several sessions push to one branch | Pause pushes or change the concurrency group. | [CI-CD.md](https://github.com/ChenYilong/CYLSearchViewController/blob/feat/harmonyos-parity/docs/CI-CD.md) |
+| X1 | P2 | Flutter iOS: the raised plus button of the "Search bar" tab did not respond in one run. | Cause unknown, seen once | Reproduce with real taps; check hit testing of the raised button. | [task-log.md](https://github.com/ChenYilong/CYLSearchViewController/blob/feat/harmonyos-parity/docs/task-log.md) |
+| X2 | P2 | React Native contact tag pages stay white in dark mode; Flutter "Tags" and "My Tags" labels are dim on the dark gradient. | Not investigated | Use dynamic colors in the example pages; re-shoot light and dark. | task-log.md |
+| X3 | P3 | React Native iOS: one tap 6 pt left of the camera missed once, then worked 6 times. | Not reproduced | Watch it in the next device pass. | task-log.md |
+| X4 | P2 | Dragging a tag list does not hold the page scrolling on every platform (55 / 100). | Platform work left | Follow the "Left" list of the entry. | [CYLTabBarController-Integration.md](https://github.com/ChenYilong/CYLSearchViewController/blob/feat/harmonyos-parity/docs/CYLTabBarController-Integration.md) |
+| X5 | P3 | Liquid Glass on Android and Flutter is partial; the 2026-11-25 entry still says TODO. | Needs library work | Re-verify on API 31+ against the entry. | task-log.md |
+| X6 | P3 | GitHub [issue #3](https://github.com/ChenYilong/CYLSearchViewController/issues/3) (2017): the search bar overlaps the status bar. | Never answered | Probably fixed by the current layout rules; verify, answer, close. | [search-bar-view.md](https://github.com/ChenYilong/CYLSearchViewController/blob/feat/harmonyos-parity/docs/search-bar-view.md) |
+
+## 15. Open decisions missing from section 8
+
+| # | Question for the owner | Current behavior |
+|---|---|---|
+| D1 | iOS: keep the system back button on pushed pages, or show the bar's own arrow and lose the swipe back? | System button. This departs from rule 10 and is not confirmed. |
+| D2 | Should the field plus trailing group become a real stack view? | Laid out by the bar's code; measured gaps are 8 pt. Asked, not answered. |
+| D3 | Rule 10 calls it default behaviour: should `pushesOnTap` be on by default? Should the camera and search button of a first-level bar push too? | Off by default. On iOS Discover the search button pushes, the camera does not. |
+| D4 | What is the second-level page of the Search tab? | A generic tag page. |
+| D5 | Should native, Flutter and React Native example looks match? | They differ. |
+| D6 | Convert the examples menu, styles screen and MaterialSearchView samples to tag lists? | Not converted. |
+| D7 | Version number, release plan and dependency publish order for the breaking change. | Not decided. |
+| D8 | How to review and merge a PR of about 2,100 files. | Not decided. |
+| D9 | Keep the Search button on the Edit Remarks name field? | Kept, because every example must show the default button. |
+
+Decided, do not reopen without the owner: no system search bar on any platform; auto-focus only on second-level or deeper pages (by page
+depth); the icon style is the default search button; the example fold control is the tail tag with an icon only.
+
+## 16. TODOs from other documents that section 6 does not list
+
+| TODO | State | Source (all in `docs/`) |
+|---|---|---|
+| Tab switch mid-animation leaves exactly one item selected | 95 / 100: mini program retest | `CYLTabBarController-Integration.md` |
+| Tag list drag holds the scrolling | 55 / 100 (bug X4) | `CYLTabBarController-Integration.md` |
+| Tags as the default suggestion style | 94 / 100: mini program device test, HarmonyOS `CYLSearchUI` rerun, Android 5 px cut of the first and last tag row | `task-log.md` |
+| Animated item board rows 39 to 42 | Still marked TODO; later work covered parts; re-verify and mark | `animated-icon-component.md` |
+| iOS check of the animated item changes | 85 / 100, then 90 / 100 in the follow-up; re-verify the rest | `task-log.md` |
+| After the fold control fix | Owner decision, HarmonyOS and iOS 10-suggestion runs, a pretest step for the mini program components | `qmui-search-controller.md` |
+| Entries with no final status: Discover layout into the core, Discover header into the core, "fix every open TODO", move the placeholder pin past its Swift rename | Re-verify before you close them | `task-log.md` |
+
+Many headings still say TODO although a later "Results" or "Status: DONE" line closed them. Read the status lines of an entry before you
+pick it up. Inline `TODO` words in the documents were **not** reviewed line by line for either part of this handover: search a document
+for `TODO` before you close its area.
+
+## 17. Where to start reading
+
+[AGENTS.md](https://github.com/ChenYilong/CYLSearchViewController/blob/feat/harmonyos-parity/AGENTS.md), then
+[core.md](https://github.com/ChenYilong/CYLSearchViewController/blob/feat/harmonyos-parity/docs/instructions/core.md) ("One search field, no
+system search bar" and "Trailing group layout"), [example-demos.md](https://github.com/ChenYilong/CYLSearchViewController/blob/feat/harmonyos-parity/docs/instructions/example-demos.md)
+(rules 8 to 10) and the skill `.agents/skills/cyl-search-field/SKILL.md`. Later handover notes go at the end of this file; do not add a second file to this folder.
