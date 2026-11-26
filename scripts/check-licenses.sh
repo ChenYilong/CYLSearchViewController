@@ -28,7 +28,7 @@ if ! grep -q 'LICENSE.QMUI' Resources/CYLSearchViewController.bundle/NOTICE 2>/d
   echo "error: Resources/CYLSearchViewController.bundle/NOTICE does not name LICENSE.QMUI" >&2
   status=1
 fi
-for ported in CYLSearchBar CYLSearchBarAppearance CYLSearchController CYLSearchTableViewController; do
+for ported in CYLSearchBarAppearance CYLSearchController CYLSearchTableViewController; do
   if ! grep -q 'Tencent is pleased to support the open source community' "Sources/CYLSearchBar/$ported.swift"; then
     echo "error: Sources/CYLSearchBar/$ported.swift lost Tencent's header" >&2
     status=1

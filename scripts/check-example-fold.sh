@@ -2,9 +2,9 @@
 # Example tag lists use the tail fold control with the icon only (docs/instructions/example-demos.md, rule 3).
 # Fails when an example sets a title fold content, or sets a fold (rows > 0) without an explicit icon content.
 cd "$(dirname "$0")/.." || exit 1
-dirs="android/merged/app/src/main harmonyos/entry/src/main CrossPlatform/flutter_cylsearch/example/lib CrossPlatform/react-native-cylsearch/example/src CrossPlatform/wechat-miniprogram-cylsearch/example/miniprogram/pages"
+set -- android/merged/app/src/main harmonyos/entry/src/main CrossPlatform/flutter_cylsearch/example/lib CrossPlatform/react-native-cylsearch/example/src CrossPlatform/wechat-miniprogram-cylsearch/example/miniprogram/pages
 bad=0
-files=$(grep -rlE "defaultVisibleRows|foldedRowCount|FoldControl" $dirs --include=*.kt --include=*.ets --include=*.dart --include=*.tsx --include=*.wxml --include=*.js 2>/dev/null)
+files=$(grep -rlE "defaultVisibleRows|foldedRowCount|FoldControl" "$@" --include=*.kt --include=*.ets --include=*.dart --include=*.tsx --include=*.wxml --include=*.js 2>/dev/null)
 for f in $files; do
   if grep -nE "IconAndTitle|iconAndTitle|titleAndIcon|titleAndIconAlways|FoldControlContent\.title|FoldControlContentTitle|foldControlContent=\"title|foldControlContent: ?'title" "$f"; then
     echo "check-example-fold: $f sets a title fold content"; bad=1

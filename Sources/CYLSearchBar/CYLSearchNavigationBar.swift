@@ -151,15 +151,25 @@ extension CYLSearchBarView {
  */
 @objc(CYLSearchBarPreset)
 public enum CYLSearchBarPreset: Int {
-    /// The navigation field, the Discover look (bordered capsule radius 18, soft shadow, no magnifier, opaque fill).
+    /**
+     * The navigation field, the Discover look (bordered capsule radius 18, soft shadow, no magnifier, opaque fill).
+     */
     case navigationField = 0
-    /// A borderless full capsule with a magnifier.
+    /**
+     * A borderless full capsule with a magnifier.
+     */
     case pill = 1
-    /// A borderless rounded rectangle (radius 10) with a magnifier.
+    /**
+     * A borderless rounded rectangle (radius 10) with a magnifier.
+     */
     case rounded = 2
-    /// A bordered rounded rectangle (radius 8) with a magnifier.
+    /**
+     * A bordered rounded rectangle (radius 8) with a magnifier.
+     */
     case outlined = 3
-    /// A bordered full capsule with a magnifier, a soft shadow and a centered placeholder.
+    /**
+     * A bordered full capsule with a magnifier, a soft shadow and a centered placeholder.
+     */
     case centeredCapsule = 4
 }
 

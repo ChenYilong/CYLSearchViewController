@@ -270,7 +270,7 @@ open class CYLSearchController: UIViewController, CYLSearchBarViewDelegate {
     private let emptyViewSlot = CYLSearchEmptyViewSlot()
     private lazy var keyboard = CYLSearchKeyboardOverlap(host: { [weak self] in self?.pageView }, changed: { [weak self] in self?.layoutPage() })
     var emptyView: UIView? { emptyViewSlot.view }
-    /// The page over the contents while the search is active (nil otherwise): what the covering tests check against.
+    // The page over the contents while the search is active (nil otherwise): what the covering tests check against.
     var activePageView: UIView? { pageView.superview != nil && !pageView.isHidden ? pageView : nil }
     let presentationState = CYLSearchPresentationState()
     private(set) var headerSnapper: CYLSearchHeaderSnapper?
@@ -621,14 +621,23 @@ open class CYLSearchController: UIViewController, CYLSearchBarViewDelegate {
 
     // MARK: - CYLSearchBarViewDelegate
 
+    /**
+     * The field began editing: the search becomes active.
+     */
     public func searchBarViewDidBeginEditing(_ searchBarView: CYLSearchBarView) {
         setActive(true, animated: true)
     }
 
+    /**
+     * The text changed: the results update.
+     */
     public func searchBarView(_ searchBarView: CYLSearchBarView, textDidChange text: String) {
         textChanged(text)
     }
 
+    /**
+     * Cancel was tapped: the search ends.
+     */
     public func searchBarViewCancelButtonClicked(_ searchBarView: CYLSearchBarView) {
         setActive(false, animated: true)
     }
@@ -687,10 +696,16 @@ open class CYLSearchController: UIViewController, CYLSearchBarViewDelegate {
 
 extension CYLSearchController: UIGestureRecognizerDelegate {
 
+    /**
+     * The swipe begins only while the search is active.
+     */
     @objc public func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         gestureRecognizer !== swipeGestureRecognizer || presentationState.isActive
     }
 
+    /**
+     * The navigation controller's pop gestures wait for the search swipe to fail.
+     */
     @objc public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
                                         shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         guard gestureRecognizer === swipeGestureRecognizer,

@@ -16,8 +16,9 @@ sub_repository_specs() {
   mkdir -p build/lint-specs
   # One name per sub-repository the podspec depends on.
   # CYLAnimatedItem: the pod in CYLTabBarController's repository that the search bar items' base class comes from; not on
-  # the trunk yet.
-  set -- CollectionViewClassifyMenu CYLTableViewPlaceHolder CYLAnimatedItem
+  # the trunk yet. CYLDeallocBlockExecutor: the life cycle events behind CYLSearchBarView.focusesOnAppear and the outside touch (1.4,
+  # not on the trunk yet).
+  set -- CollectionViewClassifyMenu CYLTableViewPlaceHolder CYLAnimatedItem CYLDeallocBlockExecutor
   for name in "$@"; do
     url=$(sed -n "s/.*pod '$name',.*:git => '\([^']*\)'.*/\1/p" Podfile | head -n 1)
     commit=$(sed -n "s/.*pod '$name',.*:git => '[^']*', :commit => '\([0-9a-f]*\)'.*/\1/p" Podfile | head -n 1)
