@@ -192,11 +192,57 @@ describe('cylSearchBarItemButtonContent', () => {
 });
 
 describe('cylSearchBarItemInsets', () => {
-  it('uses the item insets, else 8 for the divider, 4 for a text item and 0 for the others', () => {
-    assert.equal(logic.cylSearchBarItemInsets(0, 6), 6);
-    assert.equal(logic.cylSearchBarItemInsets(2, -1), 4);
-    assert.equal(logic.cylSearchBarItemInsets(0, -1), 0);
-    assert.equal(logic.cylSearchBarItemInsets(1, -1), 8);
+  it('uses the item insets, else 0 for the divider, 4 for a text item with a shape and 0 for the others (owner, 2026-11-26)', () => {
+    assert.equal(logic.cylSearchBarItemInsets(0, 6, false), 6);
+    assert.equal(logic.cylSearchBarItemInsets(2, -1, true), 4);
+    assert.equal(logic.cylSearchBarItemInsets(2, -1, false), 0); // a plain text item hugs its title
+    assert.equal(logic.cylSearchBarItemInsets(0, -1, false), 0);
+    assert.equal(logic.cylSearchBarItemInsets(1, -1, false), 0); // no gap inset: the group's spacing puts the gaps
+  });
+});
+
+describe('trailing group layout (owner, 2026-11-26)', () => {
+  const camera = { style: 0, hasShape: false, itemHeight: 0, contentWidth: 20 };
+  const divider = { style: 1, hasShape: false, itemHeight: 0, contentWidth: 0 };
+  const capsule = { style: 0, hasShape: true, itemHeight: 28, contentWidth: 48 };
+  it('a plain icon or text item hugs, a divider and a shaped item do not', () => {
+    assert.equal(logic.cylSearchItemHugsContent(0, false, 0), true);
+    assert.equal(logic.cylSearchItemHugsContent(2, false, 0), true);
+    assert.equal(logic.cylSearchItemHugsContent(1, false, 0), false);
+    assert.equal(logic.cylSearchItemHugsContent(0, true, 28), false);
+    assert.equal(logic.cylSearchItemHugsContent(2, true, 0), false);
+    assert.equal(logic.cylSearchItemHugsContent(0, false, 30), false);
+  });
+  it('glyph-to-divider equals divider-to-capsule within 1 vp', () => {
+    const [c, d, k] = logic.cylSearchTrailingGroupLayout([camera, divider, capsule], 8);
+    const glyphToDivider = d.left - c.right;
+    const dividerToCapsule = k.left - d.right;
+    assert.ok(Math.abs(glyphToDivider - dividerToCapsule) <= 1, `${glyphToDivider} vs ${dividerToCapsule}`);
+    assert.equal(glyphToDivider, 8);
+  });
+  it('a hugging item is its glyph wide with a 36 wide touch area; the capsule keeps its size', () => {
+    const [c, d, k] = logic.cylSearchTrailingGroupLayout([camera, divider, capsule], 8);
+    assert.equal(c.width, 20);
+    assert.equal(c.touchRight - c.touchLeft, 36);
+    assert.equal(d.width, 1);
+    assert.equal(k.width, 48);
+    assert.equal(k.touchRight - k.touchLeft, 48);
+  });
+  it('a point 6 vp beside the first and the last plain item is inside its hit region (inside the row too)', () => {
+    const rowPadding = 12; // the field row's left padding: the widened hit area lies inside the row, never outside it
+    const text = { style: 2, hasShape: false, itemHeight: 0, contentWidth: 40 };
+    const glyph = { style: 0, hasShape: false, itemHeight: 0, contentWidth: 18 };
+    const [first, , last] = logic.cylSearchTrailingGroupLayout([glyph, divider, { ...text, contentWidth: 18 }], 8);
+    assert.ok(first.left - 6 >= first.touchLeft, `${first.touchLeft}`);
+    assert.ok(last.right + 6 <= last.touchRight, `${last.touchRight}`);
+    assert.ok(first.touchLeft > -rowPadding - 8); // the 8 vp spacing before the item holds the widened area
+    assert.ok(first.left - first.touchLeft <= 9 + 1e-9);
+  });
+  it('a text search button hugs its title and the gaps stay even', () => {
+    const text = { style: 2, hasShape: false, itemHeight: 0, contentWidth: 40 };
+    const [c, d, t] = logic.cylSearchTrailingGroupLayout([camera, divider, text], 8);
+    assert.equal(t.width, 40);
+    assert.equal(d.left - c.right, t.left - d.right);
   });
 });
 
@@ -815,9 +861,16 @@ describe('default search button: core and examples', () => {
       assert.doesNotMatch(text, /showsSearchButton\s*=\s*false/, `${file} hides the default search button`);
     }
   });
-  it('the Search tab shows the icon style, Discover the default text style', () => {
-    assert.match(readFileSync(join(demos, 'SearchExample.ets'), 'utf8'), /CYLSearchBarSearchButtonStyle\.icon/);
-    assert.doesNotMatch(readFileSync(join(demos, 'Discover.ets'), 'utf8'), /discover_search'\)\)\);/);
+  it('the icon style is the core default; the remark name field is the only example with the text style (owner, 2026-11-26)', () => {
+    assert.match(core, /searchButtonStyle: CYLSearchBarSearchButtonStyle = CYLSearchBarSearchButtonStyle\.icon;/);
+    const texts = [];
+    for (const file of readdirSync(demos, { recursive: true })) {
+      if (!String(file).endsWith('.ets')) continue;
+      const text = readFileSync(join(demos, String(file)), 'utf8');
+      assert.doesNotMatch(text, /CYLSearchBarSearchButtonStyle\.icon/, `${file} names the default style`);
+      if (/CYLSearchBarSearchButtonStyle\.text/.test(text)) texts.push(String(file).replace(/\\/g, '/'));
+    }
+    assert.deepEqual(texts, ['contacttags/CYLContactTagsPages.ets']);
   });
 });
 

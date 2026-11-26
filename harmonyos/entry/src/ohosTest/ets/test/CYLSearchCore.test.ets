@@ -317,7 +317,15 @@ export default function cylSearchCoreTest() {
       expect(icon.accessibilityLabel).assertEqual('Camera');
       expect(CYLColorKey(icon.style.iconColor(0))).assertEqual(CYLColorKey($r('sys.color.brand')));
       expect(icon.style.normalAppearance.borderWidth).assertEqual(0);
-      expect(icon.intrinsicSize().width >= 36).assertTrue();
+      // A plain icon item hugs its glyph (20 vp, no empty room; its 36 vp touch width is a hit area), 36 vp high.
+      expect(camera.hugsContent).assertTrue();
+      expect(icon.intrinsicSize().width).assertEqual(20);
+      expect(icon.intrinsicSize().height).assertEqual(36);
+      // An item with a shape of its own keeps its size: at least 36 vp wide.
+      const shaped = CYLSearchBarItem.iconItem($r('sys.symbol.camera'), 'Shaped');
+      shaped.backgroundColor = $r('sys.color.brand');
+      expect(shaped.hugsContent).assertFalse();
+      expect(shaped.reloadItemView(undefined).intrinsicSize().width >= 36).assertTrue();
       const text = search.reloadItemView(undefined);
       expect(text.title).assertEqual('Search');
       expect(text.badgeValue === undefined).assertTrue();

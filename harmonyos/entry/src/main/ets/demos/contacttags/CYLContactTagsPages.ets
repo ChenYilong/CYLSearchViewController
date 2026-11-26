@@ -5,7 +5,7 @@ import {
   CYLColor, CYLTagBackgroundStyle, CYLTagListState, CYLTagListView
 } from '@cyl/classifymenu';
 import { CYLPlaceholderStyle, CYLPlaceholderView, CYLPlaceholderViewModel } from 'cylplaceholder';
-import { CYLSearchBarComponent, CYLSearchBarView } from 'cylsearch';
+import { CYLSearchBarComponent, CYLSearchBarSearchButtonStyle, CYLSearchBarView } from 'cylsearch';
 import { CYLDemoNavBar, CYLDemoRoute } from '../../common/DemoCommon';
 import {
   CYL_CONTACT_TAGS_MINE,
@@ -156,6 +156,8 @@ export struct CYLContactRemarkPage {
 
   aboutToAppear(): void {
     this.remarkBar.applyNavigationFieldStyle();
+    // The one example with the text style of the default search button (the icon style is the default everywhere else).
+    this.remarkBar.searchButtonStyle = CYLSearchBarSearchButtonStyle.text;
     this.remarkBar.placeholder = cylContactTagsText(this.context, 'remarkName');
     if ((AppStorage.get<number>(CYL_CONTACT_TAGS_RESET_KEY) ?? 0) === 1) {
       new CYLContactTagPreferences(this.context, CYL_CONTACT_TAGS_CACHE).clear();

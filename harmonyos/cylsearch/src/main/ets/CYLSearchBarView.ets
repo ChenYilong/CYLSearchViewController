@@ -99,11 +99,6 @@ function cylSearchBarItemButtonContent<T>(style: number, title: string | undefin
 }
 
 /**
- * The gap on each side of the built-in divider, in vp.
- */
-const CYLSearchBarDividerGap = 8;
-
-/**
  * The built-in divider's height in vp (its width is 1).
  */
 const CYLSearchBarDividerHeight = 20;
@@ -115,17 +110,15 @@ const CYLSearchBarDividerHeight = 20;
 const CYLSearchBarSecondaryLabel: Resource = $r('app.color.cyl_search_secondary_label');
 
 /**
- * The horizontal padding of an item in vp: its own when 0 or more, else 8 for the divider (style 1), 4 for a text item
- * (style 2) and 0 for the others (iOS `CYLSearchBarItemButton.resolvedInsets`).
+ * The horizontal padding of an item in vp: its own when 0 or more, else 0 for the divider (style 1: the group's spacing alone
+ * puts the gaps beside it), 4 for a text item (style 2) that draws a shape of its own and 0 for the others (a plain text
+ * item hugs its title; iOS `CYLSearchBarItemButton.resolvedInsets`).
  */
-function cylSearchBarItemInsets(style: number, contentInsets: number): number {
+function cylSearchBarItemInsets(style: number, contentInsets: number, hasShape: boolean): number {
   if (contentInsets >= 0) {
     return contentInsets;
   }
-  if (style === 1) {
-    return CYLSearchBarDividerGap;
-  }
-  return style === 2 ? 4 : 0;
+  return style === 2 && hasShape ? 4 : 0;
 }
 
 /**
@@ -413,6 +406,80 @@ function cylSearchItemResolvedHeight(itemHeight: number): number {
 }
 
 /**
+ * The space between two elements of the trailing group (camera, divider, search button), and before the first one, in vp: the
+ * only space the group has (the `Row` spacing of the bar's field).
+ */
+const CYL_SEARCH_TRAILING_SPACING = 8;
+
+/**
+ * The touch width of a plain item in vp: widened by `responseRegion`, never by empty room around the glyph.
+ */
+const CYL_SEARCH_TOUCH_WIDTH = 36;
+
+/**
+ * Whether an item hugs its content (owner, 2026-11-26): a plain icon or text item (no background, no outline, no custom
+ * height) is as wide as its glyph or title; an item with a shape of its own (the icon search capsule) keeps its size. A
+ * divider never hugs.
+ */
+function cylSearchItemHugsContent(style: number, hasShape: boolean, itemHeight: number): boolean {
+  if (style === 1) {
+    return false;
+  }
+  if (style === 0) {
+    return !hasShape && !(itemHeight > 0);
+  }
+  return !hasShape;
+}
+
+/**
+ * One element of the trailing group, for `cylSearchTrailingGroupLayout`: `style` 0 icon, 1 divider, 2 text; `contentWidth`
+ * is the glyph or title width in vp.
+ */
+interface CYLSearchTrailingElement {
+  style: number;
+  hasShape: boolean;
+  itemHeight: number;
+  contentWidth: number;
+}
+
+/**
+ * Where an element sits in the group and where it takes touches, in vp from the group's left edge.
+ */
+interface CYLSearchTrailingPlacement {
+  left: number;
+  right: number;
+  width: number;
+  hugs: boolean;
+  touchLeft: number;
+  touchRight: number;
+}
+
+/**
+ * The layout of the trailing group: `elements` from the left; the group puts `spacing` before each element and nothing else
+ * (no empty room inside an item). A hugging item is as wide as its content and its hit area is widened to 36 vp about its
+ * center; an item with a shape keeps at least its height (36 when it has none) as width; a divider is 1 wide.
+ */
+function cylSearchTrailingGroupLayout(elements: CYLSearchTrailingElement[], spacing: number): CYLSearchTrailingPlacement[] {
+  const result: CYLSearchTrailingPlacement[] = [];
+  let x = 0;
+  for (const element of elements) {
+    const hugs = cylSearchItemHugsContent(element.style, element.hasShape, element.itemHeight);
+    let width = element.contentWidth;
+    if (element.style === 1) {
+      width = 1;
+    } else if (!hugs) {
+      width = Math.max(width, cylSearchItemResolvedHeight(element.itemHeight));
+    }
+    const left = x + spacing;
+    const right = left + width;
+    const extra = hugs ? Math.max(0, (CYL_SEARCH_TOUCH_WIDTH - width) / 2) : 0;
+    x = right;
+    result.push({ left: left, right: right, width: width, hugs: hugs, touchLeft: left - extra, touchRight: right + extra });
+  }
+  return result;
+}
+
+/**
  * Whether a bar draws the default search button: `showsSearchButton`, never for an editing bar or in multiple mode.
  */
 function cylSearchButtonVisible(showsSearchButton: boolean, isEditingBar: boolean, isMultiple: boolean): boolean {
@@ -552,11 +619,11 @@ export enum CYLSearchBarItemStyle {
  */
 export enum CYLSearchBarSearchButtonStyle {
   /**
-   * The localized "Search" (or `searchButtonTitle`) as text (the default).
+   * The localized "Search" (or `searchButtonTitle`) as text (opt-in).
    */
   text = 0,
   /**
-   * A filled capsule (28 vp high, 16 vp side insets) with the magnifier (or `searchButtonImage`) in the inverse color:
+   * The default: a filled capsule (28 vp high, 16 vp side insets) with the magnifier (or `searchButtonImage`) in the inverse color:
    * black with a white magnifier in light mode, white with a black one in dark mode.
    */
   icon = 1
@@ -821,7 +888,9 @@ export class CYLSearchBarItem {
     const content = cylSearchBarItemButtonContent<ResourceStr>(this.style, this.title, this.image, this.selectedImage,
       this.animatedImage, this.animationURL, this.badgeValue);
     button.style = this.itemStyle(this.tintColor ?? barTint);
-    button.minimumSize = new CYLSize(CYLSearchBarItemMinimumSide, cylSearchItemResolvedHeight(this.itemHeight));
+    // A hugging item is as wide as its glyph or title (its 36 vp touch width comes from the hit area, not from room).
+    button.minimumSize = new CYLSize(this.hugsContent ? 0 : CYLSearchBarItemMinimumSide,
+      cylSearchItemResolvedHeight(this.itemHeight));
     button.title = content.title;
     button.image = content.image;
     button.selectedImage = content.selectedImage;
@@ -848,8 +917,8 @@ export class CYLSearchBarItem {
   private itemStyle(hostTint: ResourceColor | undefined): CYLMenuStyle {
     const style = new CYLMenuStyle();
     const side = this.imageSize > 0 ? this.imageSize : 20;
-    const insets = cylSearchBarItemInsets(this.style, this.contentInsets);
-    const background = this.isSelected ? (this.selectedBackgroundColor ?? this.backgroundColor) : this.backgroundColor;
+    const insets = cylSearchBarItemInsets(this.style, this.contentInsets, this.drawsShape);
+    const background =this.isSelected ? (this.selectedBackgroundColor ?? this.backgroundColor) : this.backgroundColor;
     const hasBackground = this.backgroundColor !== undefined || this.selectedBackgroundColor !== undefined;
     const attributes = this.titleTextAttributes(this.currentState) ??
     this.titleTextAttributes(CYLSearchBarItemState.normal);
@@ -875,6 +944,21 @@ export class CYLSearchBarItem {
       appearance.cornerRadius = cylSearchItemResolvedCornerRadius(this.cornerRadius, hasBackground);
     });
     return style;
+  }
+
+  /**
+   * Whether the item draws a shape of its own (a background or an outline): it keeps its size (iOS item with a background).
+   */
+  get drawsShape(): boolean {
+    return this.backgroundColor !== undefined || this.selectedBackgroundColor !== undefined ||
+      (this.borderColor !== undefined && this.borderWidth > 0);
+  }
+
+  /**
+   * Whether the item hugs its content in the trailing group (`cylSearchItemHugsContent`).
+   */
+  get hugsContent(): boolean {
+    return cylSearchItemHugsContent(this.style, this.drawsShape, this.itemHeight);
   }
 
   /**
@@ -1478,9 +1562,9 @@ export class CYLSearchBarView {
    */
   @Trace showsSearchButton: boolean = true;
   /**
-   * `text` (the default) or `icon` (iOS `searchButtonStyle`).
+   * `icon` (the default) or `text` (iOS `searchButtonStyle`).
    */
-  @Trace searchButtonStyle: CYLSearchBarSearchButtonStyle = CYLSearchBarSearchButtonStyle.text;
+  @Trace searchButtonStyle: CYLSearchBarSearchButtonStyle = CYLSearchBarSearchButtonStyle.icon;
   /**
    * The text of the button; undefined is the localized "Search" (Search, 搜索, 搜尋, 検索). With the `icon` style it is the
    * screen reader label (iOS `searchButtonTitle`).
@@ -2592,13 +2676,15 @@ struct CYLSearchBarItemView {
 
   private touchRegion(): Rectangle {
     const size = this.itemButton().intrinsicSize();
-    const region = cylSearchTouchRegion(size.width, size.height, CYLSearchTouchTargetSide);
+    // A hugging item takes touches within 36 vp across (the hit area, not empty room); another keeps the 44 vp target.
+    const region = cylSearchTouchRegion(size.width, size.height,
+      this.item.hugsContent ? CYL_SEARCH_TOUCH_WIDTH : CYLSearchTouchTargetSide);
     const rectangle: Rectangle = { x: region.x, y: region.y, width: region.width, height: region.height };
     return rectangle;
   }
 
   private insets(): number {
-    return cylSearchBarItemInsets(this.item.style, this.item.contentInsets);
+    return cylSearchBarItemInsets(this.item.style, this.item.contentInsets, this.item.drawsShape);
   }
 
   // The badge as the screen reader reads it: its text, or "New" (CollectionViewClassifyMenu's string) for a dot.
@@ -2887,7 +2973,7 @@ export struct CYLSearchBarComponent {
   @Builder
   field() {
     Stack({ alignContent: Alignment.Center }) {
-    Row({ space: 8 }) {
+    Row({ space: CYL_SEARCH_TRAILING_SPACING }) {
       if (this.searchBarView.searchIcon !== undefined && !this.searchBarView.placeholderCentered) {
         SymbolGlyph(this.searchBarView.searchIcon)
           .fontSize(18)

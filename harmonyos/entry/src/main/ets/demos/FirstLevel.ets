@@ -10,10 +10,12 @@ import { CYLDiscoverTopic, cylLoadDiscoverData } from './Discover';
  * back button in, narrows the bar and reverses both on the way back.
  */
 export function cylFirstLevelBar(preset: CYLSearchBarPreset, placeholder: ResourceStr, stack: NavPathStack,
-  searchButtonStyle: CYLSearchBarSearchButtonStyle = CYLSearchBarSearchButtonStyle.text): CYLSearchBarView {
+  searchButtonStyle?: CYLSearchBarSearchButtonStyle): CYLSearchBarView {
   const bar = new CYLSearchBarView();
   bar.applyPreset(preset);
-  bar.searchButtonStyle = searchButtonStyle; // the core's default search button, text or icon
+  if (searchButtonStyle !== undefined) {
+    bar.searchButtonStyle = searchButtonStyle; // opt-in; the core default is the icon style
+  }
   bar.contentInsets = { top: 0, left: 0, bottom: 0, right: 0 };
   bar.placeholder = placeholder;
   bar.pushesOnTap = true;
@@ -43,7 +45,9 @@ export struct SearchSecondLevelPage {
     this.topics = data.discover;
     const bar = this.searchBar;
     bar.applyPreset(this.param.preset as CYLSearchBarPreset);
-    bar.searchButtonStyle = this.param.searchButtonStyle as CYLSearchBarSearchButtonStyle;
+    if (this.param.searchButtonStyle !== undefined) {
+      bar.searchButtonStyle = this.param.searchButtonStyle as CYLSearchBarSearchButtonStyle;
+    }
     bar.contentInsets = { top: 0, left: 0, bottom: 0, right: 0 };
     bar.placeholder = this.topics.length > 0 ? this.topics[0].title : cylAppText(this.context, 'discover_search');
     bar.focusesOnAppear = true; // the keyboard rises with the push

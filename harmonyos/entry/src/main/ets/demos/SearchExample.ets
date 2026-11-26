@@ -2,7 +2,6 @@ import { common } from '@kit.AbilityKit';
 import {
   CYLSearchBarComponent,
   CYLSearchBarPreset,
-  CYLSearchBarSearchButtonStyle,
   CYLSearchBarView,
   CYLSearchNavigationTitleBar,
   CYLSearchComponent,
@@ -80,9 +79,9 @@ export struct SearchExampleView {
   aboutToAppear(): void {
     const stack = this.stack;
     if (stack !== undefined) {
-      // The Search tab shows the icon style of the default search button (the round black button of the recording).
+      // The Search tab uses the default search button (the icon style, the round black button of the recording).
       this.firstLevelBar = cylFirstLevelBar(CYLSearchBarPreset.pill, cylDemoText(this.context, 'search.placeholder'),
-        stack, CYLSearchBarSearchButtonStyle.icon);
+        stack);
     }
     this.searchBar.placeholder = cylDemoText(this.context, 'search.placeholder');
     this.searchBar.focusesOnAppear = true; // the field focuses itself every time the bar appears

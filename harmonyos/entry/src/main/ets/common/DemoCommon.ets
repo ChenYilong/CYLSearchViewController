@@ -74,7 +74,8 @@ export class CYLDemoRoute {
  */
 export interface CYLSearchSecondLevelParam {
   preset: number;
-  searchButtonStyle: number;
+  // Undefined keeps the core default (the icon style); only an example that wants the text style sets it.
+  searchButtonStyle?: number;
 }
 
 /**

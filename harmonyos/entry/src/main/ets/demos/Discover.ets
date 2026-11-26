@@ -239,7 +239,7 @@ export struct DiscoverView {
     // No item tint of the example's own: the core's default is the label color (accent when selected).
     const camera = CYLSearchBarItem.iconItem($r('sys.symbol.camera'), this.text('discover_imageSearch'),
       () => this.searchByImage());
-    camera.imageSize = 22;
+    camera.imageSize = 18; // sized to the drawn glyph so the gaps beside the divider read even
     // The animated item (index 1): the same still image as the camera, with the SVGA file from the rawfile folder.
     const animated = CYLSearchBarItem.iconItem($r('sys.symbol.camera'), this.text('discover_animationItem'));
     animated.imageSize = 22;
@@ -583,7 +583,7 @@ export struct DiscoverEntryView {
     const data = cylLoadDiscoverData(this.context);
     bar.placeholder = data.discover.length > 0 ? data.discover[0].title : cylAppText(this.context, 'discover_search');
     const camera = CYLSearchBarItem.iconItem($r('sys.symbol.camera'), cylAppText(this.context, 'discover_imageSearch'));
-    camera.imageSize = 22;
+    camera.imageSize = 18; // sized to the drawn glyph so the gaps beside the divider read even
     bar.addItem(camera);
     bar.pushesOnTap = true;
     bar.onFirstLevelTap = () => this.stack.pushPath({ name: CYLDemoRoute.discover });
