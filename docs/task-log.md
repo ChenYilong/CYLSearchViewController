@@ -2254,3 +2254,17 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
   only 4 Android images (Windows session).
 - This entry was written after the work, not before it.
 
+
+## TODO (2026-11-27, `feat/harmonyos-parity`, Mac iOS session): fix bug I3, the `CYLSearchController` page keeps an old frame after a size change
+
+- **Context**: handover bug I3 (P2, section 14). `layoutPage()` runs on activation and on text, keyboard and empty view changes only;
+  `pageView` is a plain `UIView` in the navigation controller's view or the window, so a rotation or a size change (iPad split view,
+  Stage Manager) leaves the page at its old frame. File: `Sources/CYLSearchBar/CYLSearchController.swift`.
+- **Prompt (verbatim)**: "阅读docs 文件夹下的包含 todo 文字的文件夹，遍历文件夹中的所有文件以及子文件夹下的所有文件。阅读交接文档完成交接任务。继续编写代码。"
+- **Prompt (English)**: "Read the folder under docs whose name contains todo, every file in it and its subfolders. Read the handover
+  document, complete the handover tasks, and keep writing code."
+- **Plan**: failing test first (activate in a 402 x 874 window, resize the window to 874 x 402, expect the page to fill the host's width
+  and reach its bottom); then the page resizes with its host (autoresizing) and lays itself out again from its own `layoutSubviews`.
+- **Acceptance**: 100 = the test fails before and passes after, the full `CYLSearchExampleTests` suite passes, pushed, entry DONE.
+  60 = the test fails before and passes after, the lifecycle tests pass, pushed.
+- **Status**: entry written; work not started.
