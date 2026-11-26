@@ -126,6 +126,22 @@ using namespace facebook::react;
   }
   _textProp = text;
   _bar.focusesOnAppear = p.focusesOnAppear;
+  // React Native knows no navigation stack of its own: the host passes the depth (-1 reads the native stack).
+  _bar.pageDepth = p.pageDepth;
+  // A first-level bar: the tap sends onFirstLevelTap and the page pushes the second-level page.
+  _bar.pushesOnTap = p.pushesOnTap;
+  if (p.pushesOnTap) {
+    __weak CylsearchBarView *weakFirstLevelSelf = self;
+    _bar.onFirstLevelTap = ^(CYLSearchBarView *view) {
+      CylsearchBarView *strongSelf = weakFirstLevelSelf;
+      if (strongSelf && strongSelf->_eventEmitter) {
+        std::static_pointer_cast<CylsearchBarViewEventEmitter const>(strongSelf->_eventEmitter)
+            ->onFirstLevelTap(CylsearchBarViewEventEmitter::OnFirstLevelTap{.tapped = true});
+      }
+    };
+  } else {
+    _bar.onFirstLevelTap = nil;
+  }
   // The core's default search button: shown unless JavaScript hides it; with a JavaScript handler a tap sends onSearchButtonTap.
   _bar.showsSearchButton = p.showsSearchButton;
   CYLSearchBarSearchButtonStyle buttonStyle = [CYLRNString(p.searchButtonStyle) isEqualToString:@"icon"] ? CYLSearchBarSearchButtonStyleIcon : CYLSearchBarSearchButtonStyleText;

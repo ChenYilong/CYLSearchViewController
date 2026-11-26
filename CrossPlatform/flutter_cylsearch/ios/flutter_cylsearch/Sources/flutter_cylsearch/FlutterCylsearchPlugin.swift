@@ -545,6 +545,17 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
         appliedText = text
         applyStyle(arguments)
         bar.focusesOnAppear = arguments["focusesOnAppear"] as? Bool ?? false
+        // Dart knows the route depth (0 on the first route, else 1): the bar has no navigation controller to read.
+        bar.pageDepth = (arguments["pageDepth"] as? Int) ?? -1
+        // A first-level bar: the tap pushes the second-level page in Dart (`didTapFirstLevel`); the push animates the back button.
+        bar.pushesOnTap = arguments["pushesOnTap"] as? Bool ?? false
+        if bar.pushesOnTap {
+            bar.onFirstLevelTap = { [channel] _ in
+                channel.invokeMethod("didTapFirstLevel", arguments: nil)
+            }
+        } else {
+            bar.onFirstLevelTap = nil
+        }
         // The core's default search button: shown unless Dart hides it; with a Dart handler a tap goes to Dart (`didTapSearchButton`).
         bar.showsSearchButton = arguments["showsSearchButton"] as? Bool ?? true
         let buttonStyle: CYLSearchBarSearchButtonStyle = (arguments["searchButtonStyle"] as? String) == "icon" ? .icon : .text

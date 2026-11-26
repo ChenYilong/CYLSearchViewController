@@ -1694,6 +1694,8 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      * first-level. This is the rule of `focusesOnAppear` (owner decision 2026-11-26: first-level pages never focus themselves).
      */
     var isOnSecondLevelOrDeeperPage: Bool {
+        // A host that knows its depth (Flutter, React Native: no navigation controller to read) sets `pageDepth`.
+        if pageDepth >= 0 { return pageDepth >= 1 }
         var responder: UIResponder? = self
         var owner: UIViewController?
         var navigation: UINavigationController?
@@ -1718,6 +1720,12 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         }
         return false
     }
+
+    /**
+     * The depth of the page the bar is on, set by a host that has no navigation controller to read: 0 is a first-level page, 1 or
+     * more a second-level or deeper one. -1 (the default) reads the navigation stack (`isOnSecondLevelOrDeeperPage`).
+     */
+    @objc public var pageDepth = -1
 
     private func focusIfAppearing() {
         guard focusesOnAppear, window != nil, textField.isEnabled, isOnSecondLevelOrDeeperPage else { return }
