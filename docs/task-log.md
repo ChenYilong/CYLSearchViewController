@@ -1645,7 +1645,7 @@ begins and becomes `DONE` when it ends.
   Prompt (English): "Does the .iconAndTitle tag list API exist on the other platforms? Is it a public API of the tag list core? If another platform lacks it, add it there. Make sure the default, when unset, is .icon. In this example, deleting .iconAndTitle must give the same result as .icon."
 - Cause of the "More" text: the iOS demo list set `CYLMenuFoldControl(position: .tail, content: .iconAndTitle)` (following rule 3 of example-demos.md as first written). The core default was already `.icon`.
 - Audit at ClassifyMenu 05ba8abb: `iconAndTitle` is public core API (iOS `CYLMenuFoldControlContent`, Android `CYLMenuFoldControlContentIconAndTitle`, HarmonyOS `iconAndTitle`, RN/Flutter bridge strings). Default `.icon`: iOS yes, HarmonyOS yes, RN/Flutter bridges yes; Android NO (`CYLMenuFoldControl.kt` line 28 defaults to IconAndTitle: ClassifyMenu Windows session asked to change it); mini program lacked `iconAndTitle` (Windows search session added it at 851c233, default icon).
-- iOS done: the example sets no content (`CYLMenuFoldControl(position: .tail)`), test asserts position `.tail` and content `.icon`; rule 3 of `docs/instructions/example-demos.md` corrected. 201 tests, 0 failures; screenshot `docs/assets/ios-iphone18pro-sim-ios27.2-20261125-taglist-fold-icon-only.png`.
+- iOS done: the example sets no content (`CYLMenuFoldControl(position: .tail)`), test asserts position `.tail` and content `.icon`; rule 3 of `docs/instructions/example-demos.md` corrected. 201 tests, 0 failures; screenshot `docs/assets/ios-iphone18pro-sim-ios27.2-20261125-taglist-fold-icon-only.png` (iOS, iPhone 18 Pro simulator, iOS 27.2, Xcode 27.2, macOS 27, at `6c765d8`, 2026-11-25, +13:00).
 
 ## Remaining TODOs of the search bar task: results per platform (2026-11-25, Windows session, second pass)
 
@@ -1732,13 +1732,13 @@ TODO (this repin):
 ## 2026-11-25 iOS: gradient page + glass board and tags (`example-demos` rule 7)
 
 - Request (relayed by winsCYLSearchViewController, owner directive typed there): gradient page background (light and dark) behind every example glass tag list, clear list background, Liquid Glass board and tags that sample the backdrop; record WORKS, PARTIAL or MISSING with a labelled screenshot; list missing core capabilities instead of hacking around them.
-- iOS result: **WORKS** at ClassifyMenu 0de4546b. `CYLDemoGradientView` (CAGradientLayer, light and dark colours, follows the trait) is the page; the list background is clear; the glass section board (`CYLMenuStyle.sectionBackgroundStyle = .liquidGlass`, in 8cd01cc9, now in the pin) and the glass tags show the gradient through blur, tint and rim. Core change: `CYLSearchTagListStyle.applyDefaults` and `applyBackgroundStyle(named:)` set the glass board together with the glass tags and the clear list background (one glass parameter). No core gap on iOS. Screenshot `docs/assets/ios-iphone18pro-sim-ios27.2-20261125-glass-board-gradient-page.png`. 201 tests, 0 failures (the test also asserts the board, the clear background and the gradient page).
+- iOS result: **WORKS** at ClassifyMenu 0de4546b. `CYLDemoGradientView` (CAGradientLayer, light and dark colours, follows the trait) is the page; the list background is clear; the glass section board (`CYLMenuStyle.sectionBackgroundStyle = .liquidGlass`, in 8cd01cc9, now in the pin) and the glass tags show the gradient through blur, tint and rim. Core change: `CYLSearchTagListStyle.applyDefaults` and `applyBackgroundStyle(named:)` set the glass board together with the glass tags and the clear list background (one glass parameter). No core gap on iOS. Screenshot `docs/assets/ios-iphone18pro-sim-ios27.2-20261125-glass-board-gradient-page.png` (iOS, iPhone 18 Pro simulator, iOS 27.2, Xcode 27.2, macOS 27, at `4860804`, 2026-11-25, +13:00). 201 tests, 0 failures (the test also asserts the board, the clear background and the gradient page).
 
 ## 2026-11-25 Run the iOS example and apply the example-demos rules to it
 
 - Prompt (verbatim, owner): "运行本example 截图看效果 应用新的example 要求在instuctions相关文件中"
   Prompt (English): "Run this example, take screenshots to see the result, and apply the new example requirements from the instructions files."
-- Ran every example screen on the iPhone 18 Pro simulator and checked it against `docs/instructions/example-demos.md`. Already compliant: placeholder gallery and ports list (rules 1-7). Fixed now (rules 6 and 7): Discover and Edit Remarks / Edit Tags get the gradient page (`cylInstallDemoGradient`), a clear list background and a glass board under the tags (`sectionBackgroundStyle = .liquidGlass`). Screenshot `docs/assets/ios-iphone18pro-sim-ios27.2-20261125-discover-contacts-gradient-glass.png`; 201 tests, 0 failures.
+- Ran every example screen on the iPhone 18 Pro simulator and checked it against `docs/instructions/example-demos.md`. Already compliant: placeholder gallery and ports list (rules 1-7). Fixed now (rules 6 and 7): Discover and Edit Remarks / Edit Tags get the gradient page (`cylInstallDemoGradient`), a clear list background and a glass board under the tags (`sectionBackgroundStyle = .liquidGlass`). Screenshot `docs/assets/ios-iphone18pro-sim-ios27.2-20261125-discover-contacts-gradient-glass.png` (iOS, iPhone 18 Pro simulator, iOS 27.2, Xcode 27.2, macOS 27, at `e1ae73e`, 2026-11-25, +13:00); 201 tests, 0 failures.
 - Not converted (rule 1, tests and controls depend on them): the examples menu (13 navigation rows plus the SVGA header, `CYLDemoRow` launch argument and tests use its table), the search bar styles screen (sections of switches and actions), the MaterialSearchView samples list (`testSwiftPortsOfOtherLibrariesLoad` and the Tag style tab use its table API). Convert them only on the owner's word. Discover's topic grid is a plain preset without a board. The "Hold to ask" bottom area is an opaque white curve over the gradient.
 
 ## 2026-11-25 Rule: stop the app and the simulator after every run
@@ -1777,7 +1777,7 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 ## 2026-11-25 Final repin: ClassifyMenu 22c9f5ca + CYLTabBarController 6f563ef4
 
 - ClassifyMenu session announced the final SHA `22c9f5caaa7e89c7a098c7f4286ed48b0e9829aa` (`feat/tag-final-merge`, fast-forward from 0de4546b; ClassifyMenu ran NO unit suites on it, build and warnings only) with CYLTabBarController `6f563ef4f34bcde96f10022d3f0d5f949a7c3a62` (frozen for the round) and Dealloc `4276a6da`. iOS side (Podfile, Flutter and RN example Podfiles, Podfile.lock) moved by the Mac session; Windows moved Android, HarmonyOS, mini program and the Flutter pubspec (435ef91).
-- iOS suite on this pair (light simulator, clean build): 201 tests, 0 failures; no `.alwaysOriginal` icon in the example. Screenshot `docs/assets/ios-iphone18pro-sim-ios27.2-20261125-final-pin-22c9f5ca-glass-dark.png`. Simulator `9F762C22` and the app stopped after the run (simulator rule).
+- iOS suite on this pair (light simulator, clean build): 201 tests, 0 failures; no `.alwaysOriginal` icon in the example. Screenshot `docs/assets/ios-iphone18pro-sim-ios27.2-20261125-final-pin-22c9f5ca-glass-dark.png` (iOS, iPhone 18 Pro simulator, iOS 27.2, Xcode 27.2, macOS 27, at `09f9f95`, 2026-11-25, +13:00). Simulator `9F762C22` and the app stopped after the run (simulator rule).
 ## DONE (2026-11-25): final repin ClassifyMenu 22c9f5ca + CYLTabBarController 6f563ef4 (Win platforms)
 
 - Pins: ClassifyMenu `22c9f5caaa7e89c7a098c7f4286ed48b0e9829aa` (`feat/tag-final-merge`), CYLTabBarController `6f563ef4f34bcde96f10022d3f0d5f949a7c3a62` (frozen; `af81fb41` / `f56b337a` not adopted), CYLDeallocBlockExecutor `4276a6da` (unchanged). Moved: `android/merged/gradle.properties`, `harmonyos/oh-package.json5` (+ `sync-sub-repositories.sh`, vendor refreshed), mini program `package.json` (+ `sync-example`), Flutter example `pubspec.yaml` ref. iOS Podfiles are the Mac session's.
@@ -1805,7 +1805,7 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 ## 2026-11-26 iOS repin: ClassifyMenu 6a2fbf25 + CYLTabBarController 08343e9f
 
 - Owner confirmed in this session ("Repin now"). Windows moved its platforms in feedfa8; iOS Podfiles, the Flutter and RN example Podfiles and `Podfile.lock` moved by the Mac session to ClassifyMenu `6a2fbf2589393d8e563ab7775a934db97167f39d` (27 commits ahead of 22c9f5ca; not announced by the ClassifyMenu Mac session, taken from the Windows repin) and CYLTabBarController `08343e9f76d609e1a8c0b45c01fd31a0b7a1e5bc` (6f563ef4 + 3 Android backdrop commits, no iOS change).
-- iOS suite (light simulator, clean build): 201 tests, 0 failures. Screenshot `docs/assets/ios-iphone18pro-sim-ios27.2-20261126-pin-6a2fbf25-discover-gallery.png`. Simulator `9F762C22` and the app stopped after the run.
+- iOS suite (light simulator, clean build): 201 tests, 0 failures. Screenshot `docs/assets/ios-iphone18pro-sim-ios27.2-20261126-pin-6a2fbf25-discover-gallery.png` (iOS, iPhone 18 Pro simulator, iOS 27.2, Xcode 27.2, macOS 27, at `82d77da`, 2026-11-26, +13:00). Simulator `9F762C22` and the app stopped after the run.
 
 ## DONE (2026-11-26): Flutter Discover first-open layout on iOS, status bar per theme, Liquid Glass default on Discover
 
@@ -1836,7 +1836,7 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 ## 2026-11-26 iOS repin: ClassifyMenu c0b183de (tab bar 08343e9f unchanged)
 
 - Windows moved its platforms to ClassifyMenu `c0b183de12c62c8b0b575b5a9ff0613f9a970468` (853bfa2): 13 commits ahead of 1207883c, iOS part = header font 17 pt semibold, short header-to-board gap, `sectionBoardInset`, the glass card drawn untinted when `sectionBackgroundColor` is unset. iOS Podfiles, Flutter and RN example Podfiles, `Podfile.lock` moved by the Mac session; tab bar `08343e9f` and Dealloc `4276a6da` unchanged.
-- iOS suite (light simulator, incremental build): 201 tests, 0 failures. Screenshot `docs/assets/ios-iphone18pro-sim-ios27.2-20261126-pin-c0b183de-header-untinted-board.png`: headers smaller, the board see-through. Simulator `9F762C22` and the app stopped after the run.
+- iOS suite (light simulator, incremental build): 201 tests, 0 failures. Screenshot `docs/assets/ios-iphone18pro-sim-ios27.2-20261126-pin-c0b183de-header-untinted-board.png` (iOS, iPhone 18 Pro simulator, iOS 27.2, Xcode 27.2, macOS 27, at `7a79dca`, 2026-11-26, +13:00): headers smaller, the board see-through. Simulator `9F762C22` and the app stopped after the run.
 
 ## DONE (2026-11-26): HarmonyOS UI suite, two failing tests fixed (57/57)
 
@@ -1864,14 +1864,14 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 - Core: `CYLSearchBarView.applyNavigationFieldStyle()` (`Sources/CYLSearchBar/CYLSearchNavigationBar.swift`, ObjC `applyNavigationFieldStyle`): bordered capsule (radius 18), soft shadow, no magnifier, 16 pt Dynamic Type text, opaque white/black fill. The Discover look was example code before; now the example only calls it.
 - Migrated: Discover (`setUpSearchBar`), the remark name (a plain grey `UITextField` before, now a `CYLSearchBarView` embedded with `embedInNavigationBar(of:)`; `nameField` stays as its text field), the Edit Tags search (`searchBar`). Only the field and its border changed.
 - Found on the way: in the sheet the Edit Tags field was see-through in dark mode with the default fill; the preset's opaque fill fixed it.
-- Test: `testContactTagsDemo...` asserts the remark title view is the core bar and both bars are bordered, radius 18, no icon. Full suite 201 tests, 0 failures. Screenshot: [one field, three screens](assets/ios-iphone18pro-sim-ios27.2-20261126-one-navigation-search-field-stitched.png).
+- Test: `testContactTagsDemo...` asserts the remark title view is the core bar and both bars are bordered, radius 18, no icon. Full suite 201 tests, 0 failures. Screenshot: [one field, three screens](assets/ios-iphone18pro-sim-ios27.2-20261126-one-navigation-search-field-stitched.png) (iOS, iPhone 18 Pro simulator, iOS 27.2, Xcode 27.2, macOS 27, at `9103ae5`, 2026-11-26, +13:00).
 - Not changed (outside "the navigation bar's input box"): the editing bar (`editingBar`), the search bar demos' own styles, other platforms (the Android/HarmonyOS/Flutter/RN/mini program fields were not looked at; no peer asked).
 
 ## DONE (2026-11-26): the Search tab uses the core search field too (owner chose "Replace with CYLSearchBarView")
 
 - Prompt (verbatim): "补上缺失的图片 继续上面的任务" with two screenshots: the Edit Remarks screen and the Search tab ("Filter results", a system search bar). Prompt (English): "Here are the missing images, continue the task above." Owner answer to the question about the Search tab: "Replace with CYLSearchBarView".
 - Change: `CYLSearchExampleViewController` (the Search tab) drops its `UISearchController` and uses `searchBar` (`CYLSearchBarView`, `applyNavigationFieldStyle()`, embedded with `embedInNavigationBar(of:)`, delegate `textDidChange` requeries). The "Repro: OFF/ON" button is gone (it toggled `hidesSearchBarWhenScrolling`, which no longer exists here); "Overlay" stays. Tests updated (results page asserts the core field, the covering tests use `searchBar`).
-- Result: iOS suite 201 tests, 0 failures. Screenshot: [Search tab and Edit Remarks](assets/ios-iphone18pro-sim-ios27.2-20261126-search-tab-core-field-stitched.png).
+- Result: iOS suite 201 tests, 0 failures. Screenshot: [Search tab and Edit Remarks](assets/ios-iphone18pro-sim-ios27.2-20261126-search-tab-core-field-stitched.png) (iOS, iPhone 18 Pro simulator, iOS 27.2, Xcode 27.2, macOS 27, at `81e9c95`, 2026-11-26, +13:00).
 - The Edit Remarks screenshot the owner sent showed the old grey field: an older build. This build (9103ae5 and later) shows the core capsule.
 - Other platforms keep their Issue #1317 "Repro" page; not touched.
 
@@ -1915,7 +1915,7 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
   - `CYLSearchIssueScenarioTests`: the two I3 tests about the system bar's black band and hidden background deleted; `hidesNavigationBarDuringPresentation` lines removed; sampling uses the model frame because the core no longer animates the field.
   - `CYLSearchCoreObjectiveCSmokeTests.m`: the two `CYLSearchBar` methods (`testSearchBarFromObjectiveC`, `testSearchBarObjectiveCMembersAreFenced`) and the removed members of the controller fence deleted.
   - Smaller edits: covering tests use `activePageView`; the scroll indicator is not content in `viewsCoveredByView`; the keyboard test measures without a real keyboard.
-- Result: iOS suite 141 tests, 0 failures (201 before; 60 tests removed or merged, listed above). Screenshot: [three demos on the core field](assets/ios-iphone18pro-sim-ios27.2-20261126-search-controller-on-core-field-stitched.png). Simulator `9F762C22` stopped after the run.
+- Result: iOS suite 141 tests, 0 failures (201 before; 60 tests removed or merged, listed above). Screenshot: [three demos on the core field](assets/ios-iphone18pro-sim-ios27.2-20261126-search-controller-on-core-field-stitched.png) (iOS, iPhone 18 Pro simulator, iOS 27.2, Xcode 27.2, macOS 27, at `8995a7c`, 2026-11-26, +13:00). Simulator `9F762C22` stopped after the run.
 - Not done: other platforms' systems bars are Windows' (messaged); HarmonyOS reports `CYLSearchController` already a facade over `CYLSearchView`.
 
 ## TODO (2026-11-26): CYLSearchBarView focuses its field whenever it appears (viewDidAppear-like), through CYLDeallocBlockExecutor
@@ -2039,7 +2039,7 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 - Core: `CYLSearchBarView.searchButtonStyle` defaults to `.icon` (a filled capsule 28 pt high with the built-in magnifier, equal gap above, below and at the right, black with white in light mode, white with black in dark mode); `.text` (the localized "Search") is the opt-in. Docs: core.md rule 5, example-demos.md rule 9, skill `cyl-search-field`. Enum values unchanged (`text` 0, `icon` 1).
 - iOS bridges: Flutter and RN iOS read the style name and treat everything except "text" as icon (the core default), so an absent value gives the icon. The Dart and TypeScript defaults (Windows) still send "text": they must change to "icon" (or send nothing) for the default to follow.
 - Examples: all use the default icon style; Edit Remarks sets `.text` as the one text-style example. Search tab's explicit `.icon` removed.
-- Tests: default asserts `.icon`, the text style is the opt-in. Suite 149 tests, 0 failures. Screenshot [icon default](assets/ios-iphone18pro-sim-ios27.2-20261126-icon-search-button-default-stitched.png).
+- Tests: default asserts `.icon`, the text style is the opt-in. Suite 149 tests, 0 failures. Screenshot [icon default](assets/ios-iphone18pro-sim-ios27.2-20261126-icon-search-button-default-stitched.png) (iOS, iPhone 18 Pro simulator, iOS 27.2, Xcode 27.2, macOS 27, at `77a5193`, 2026-11-26, +13:00).
 
 ## DONE (2026-11-26): even spacing in the trailing group (prompt, verbatim: "调整stackview内元素之间的间距逻辑，避免下面的情况，间距不均匀 /tmp/xpr/run/g-discover.png 该截图显示分隔符左侧比右侧间距大。两者应该均匀" and "我推测原因是你不是通过stackview的间距来调整相机等元素的位置，而是通过坐标。调整该逻辑，搜索输入框作为一个可伸缩长度的控件，按照右侧元素的宽度尽可能占有更多空间。右侧元素按照stackview的间距调整从右到左均匀分布。"; English: "the spacing inside the stack view is uneven, the gap left of the divider is bigger than the right; adjust the logic: the search field is a flexible-length control taking as much space as the right-hand elements leave, and the right-hand elements are distributed evenly by the stack view's spacing from right to left")
 
@@ -2234,3 +2234,21 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
   `CYLSearchExampleTests` suite ran 153 tests with 0 failures (iPhone Air simulator, iOS 26.1, Xcode on macOS, 2026-11-27).
 - **Not covered**: a real device; the interactive (swipe) pop that the user cancels halfway, where `isMovingFromParent` is true in
   `viewWillDisappear` but `viewDidDisappear` is not called, so the search correctly stays (not tested).
+
+## DONE (2026-11-27, `feat/harmonyos-parity`, Mac iOS session): handover I8 (iOS CI never finishes) cause, and the 10 iOS screenshot labels
+
+- **Prompt (verbatim)**: "阅读docs 文件夹下的包含 todo 文字的文件夹，遍历文件夹中的所有文件以及子文件夹下的所有文件。阅读交接文档完成交接任务。继续编写代码。"
+- **Prompt (English)**: "Read the folder under docs whose name contains todo, every file in it and its subfolders. Read the handover document,
+  complete the handover tasks, and keep writing code."
+- **I8 cause**: not newer pushes. The `iOS` run `45745662592` (pull request #11, `b51cfac`, 2026-11-26 02:56 UTC) stayed `queued`: three
+  macOS jobs (pod lib lint, Example screenshots, Example build and analyze) never got a runner. With `cancel-in-progress: false` it
+  held the concurrency group `ios-iOS-refs/pull/11/merge`, so every later run waited as `pending` until the next push replaced it.
+  Cancelled it (`gh run cancel 45745662592`); the run on `8b5581c` (`45835341313`) left `pending` for `queued` within 20 seconds.
+  **TODO**: if a macOS job can wait for hours again, add a `timeout-minutes` to the macOS jobs or a scheduled clean-up of stale runs;
+  check whether macOS runner minutes are exhausted.
+- **Screenshot labels**: the 10 iOS images the PR #11 range check (`sh scripts/check-screenshot-labels.sh $(git merge-base origin/master HEAD) HEAD`)
+  reported had a header and footer but their task-log line had no date or commit. Each line now names the commit read from the
+  image header ("base X (+ this commit)", so the commit that added the image), the date and the time zone. The check now reports
+  only 4 Android images (Windows session).
+- This entry was written after the work, not before it.
+

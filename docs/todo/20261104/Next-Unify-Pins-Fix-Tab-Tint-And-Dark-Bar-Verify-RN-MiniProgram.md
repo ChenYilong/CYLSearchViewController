@@ -406,3 +406,5 @@ Next for the Windows side: run the Flutter Android example on `CYL_Second_API_37
 | Item | State | Evidence |
 |:---|:---|:---|
 | I1: `CYLSearchController` overlay left after a pop or a dismissal | FIXED in the core: the search ends when the contents page leaves for good; the page and the swipe recognizer leave the host when the search ends and in `deinit` | 3 new tests in `CYLSearchControllerLifecycleTests` red before, green after; full `CYLSearchExampleTests` 153/153 on iOS 26.1. Details: [task-log.md](../../task-log.md), "fix bug I1" |
+| I8: `iOS` CI runs never finish | CAUSE FOUND: a stale queued run (`45745662592`, `b51cfac`) held the concurrency group; cancelled, the newest run started. Remaining: macOS jobs can wait hours for a runner | [task-log.md](../../task-log.md), "handover I8" |
+| 10 iOS screenshots without a dated, committed label line (PR #11 range) | DONE; 4 Android images of the same check remain (Windows session) | same entry |
