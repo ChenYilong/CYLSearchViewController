@@ -307,7 +307,7 @@ class CYLSearchBarView @JvmOverloads constructor(
     /**
      * The rounded field that holds the magnifier, the text and `trailingAccessoryViews`.
      */
-    val fieldView: LinearLayout = LinearLayout(context)
+    val fieldView: LinearLayout = CYLFieldLayout(context)
 
     /**
      * The magnifier at the start of the field (decorative: hidden from TalkBack).
@@ -1840,6 +1840,7 @@ class CYLSearchBarView @JvmOverloads constructor(
         textField.contentDescription = CYLSearchResources.localizedString(context, "search.field")
         textContainer.addView(textField, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
         fieldView.addView(accessoryContainer, LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT))
+        (fieldView as CYLFieldLayout).trailingGroup = accessoryContainer
         accessoryContainer.orientation = LinearLayout.HORIZONTAL
         accessoryContainer.gravity = Gravity.CENTER_VERTICAL
         trailingViewsContainer.orientation = LinearLayout.HORIZONTAL
@@ -3763,6 +3764,9 @@ internal class CYLTrailingGroup(context: Context) : LinearLayout(context) {
 
     private var slopTarget: View? = null
 
+    /** Whether a touch at (x, y) in this group's coordinates lies beside a hugging item, inside its widened area. */
+    internal fun hasSlopTargetAt(x: Float, y: Float): Boolean = slopChildAt(x, y) != null
+
     /** The hugging item whose widened (36 dp wide) area holds the point, when no view holds it itself. */
     private fun slopChildAt(x: Float, y: Float): View? {
         val minimum = MINIMUM_TOUCH * resources.displayMetrics.density
@@ -3793,5 +3797,33 @@ internal class CYLTrailingGroup(context: Context) : LinearLayout(context) {
 
     private companion object {
         const val MINIMUM_TOUCH = 36f
+    }
+}
+
+/**
+ * The field of a bar. The first and the last item of the trailing group are widened to 36 dp across, so that area can lie outside
+ * the group's own bounds; a parent only hands a touch to a child whose bounds hold it, so the field hands such a touch to the group
+ * (iOS: the row widens its own hit area; a tap 6 dp beside the first item works).
+ */
+internal class CYLFieldLayout(context: Context) : LinearLayout(context) {
+
+    var trailingGroup: CYLTrailingGroup? = null
+    private var forwarding = false
+
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        val group = trailingGroup
+        if (group != null && event.actionMasked == MotionEvent.ACTION_DOWN) {
+            val x = event.x - group.left
+            val y = event.y - group.top
+            val inside = x >= 0 && x < group.width && y >= 0 && y < group.height
+            forwarding = group.visibility == VISIBLE && !inside && group.hasSlopTargetAt(x, y)
+        }
+        if (!forwarding || group == null) return super.dispatchTouchEvent(event)
+        if (event.actionMasked == MotionEvent.ACTION_UP || event.actionMasked == MotionEvent.ACTION_CANCEL) forwarding = false
+        val copy = MotionEvent.obtain(event)
+        copy.offsetLocation(-group.left.toFloat(), -group.top.toFloat())
+        val handled = group.dispatchTouchEvent(copy)
+        copy.recycle()
+        return handled
     }
 }

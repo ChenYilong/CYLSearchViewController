@@ -72,7 +72,7 @@ User prompt, verbatim: "searchbar页面。你如果想在搜索seachbar加动效
 2. **The bar keeps its original demo layout:** field, camera, divider, Search button. Nothing is added to it or squeezed against it.
 3. **The demo controls stay outside the bar:** the Loop switch, the speed control and Play again close the page's search options (the last block of the scrolling content, below the Discover tags), or are pinned just above the tab bar; never between the bar and the lists. Their accessibility labels and identifiers are unchanged (`CYLSearchDiscoverAnimationLoops`, `CYLSearchDiscoverAnimationSpeed`, `CYLSearchDiscoverAnimationPlay`, or each platform's equivalent).
 4. **The controls drive that camera item:** `animationLoops`, `animationSpeed` and `restartAnimation()` on the camera `CYLSearchBarItem`; a change of loops or speed never reloads the file.
-5. **The asset:** the canonical file is `CYLSearchExample/CYLSearchDiscover.bundle/search_camera.json` (44 x 44, 30 fps, 60 frames: the lens ring pulses, the flash dot blinks, the first and last frame are equal). Each example copies it into its own resources; an engine without Lottie shows the static camera.
+5. **The asset:** the canonical file is `CYLSearchExample/CYLSearchDiscover.bundle/search_camera.json` (44 x 44, 30 fps, 60 frames: the lens ring pulses, the flash dot blinks, the first and last frame are equal). Each example copies it into its own resources (2026-11-26: the Android, Flutter and React Native copies are trimmed to 36 x 36, the glyph filling a 22 frame; see the task log); an engine without Lottie shows the static camera.
 
 | Example | Rule applied | Verified |
 |---|---|---|

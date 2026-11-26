@@ -91,4 +91,42 @@ class CYLSearchBarTrailingGroupTest {
         group.dispatchTouchEvent(up)
         assertEquals("a touch 5 dp left of the glyph taps the camera", 1, taps)
     }
+
+    /** A tap that goes through the whole bar (not straight into the group), `dp` left of the camera's left edge. */
+    private fun tapBesideCamera(glyph: Float, dp: Float): Int {
+        val bar = CYLSearchBarView(activity)
+        val camera = CYLSearchBarItem.iconItem(ColorDrawable(Color.GRAY), "Camera", null)
+        camera.imageSize = SizeF(glyph, glyph)
+        camera.itemAccessibilityIdentifier = "camera"
+        var taps = 0
+        camera.handler = { taps++ }
+        bar.addItem(camera)
+        val width = (360 * density).toInt()
+        val height = (44 * density).toInt()
+        bar.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY))
+        bar.layout(0, 0, width, height)
+        val view = find(bar, "camera")!!
+        var left = 0f
+        var top = 0f
+        var node: View = view
+        while (node !== bar) {
+            left += node.left
+            top += node.top
+            node = node.parent as View
+        }
+        val x = left - dp * density
+        val y = top + view.height / 2f
+        bar.dispatchTouchEvent(MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, x, y, 0))
+        bar.dispatchTouchEvent(MotionEvent.obtain(0, 50, MotionEvent.ACTION_UP, x, y, 0))
+        return taps
+    }
+
+    @Test
+    fun aTapBesideTheFirstItemThroughTheBarReachesItsClickHandler() {
+        assertEquals("6 dp beside a 22 dp glyph", 1, tapBesideCamera(22f, 6f))
+        // An 18 dp glyph is widened by 9 dp on each side, beyond the group's own 8 dp margin: the field hands the touch on.
+        assertEquals("6 dp beside an 18 dp glyph", 1, tapBesideCamera(18f, 6f))
+        assertEquals("8.5 dp beside an 18 dp glyph, outside the group's bounds", 1, tapBesideCamera(18f, 8.5f))
+        assertEquals("12 dp beside is outside the 36 dp area", 0, tapBesideCamera(18f, 12f))
+    }
 }

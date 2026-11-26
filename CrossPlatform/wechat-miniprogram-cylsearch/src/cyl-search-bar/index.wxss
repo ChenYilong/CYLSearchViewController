@@ -21,7 +21,10 @@
    ::after hit area, never by empty room around the glyph; an item with a shape of its own keeps its size. */
 .cyl-gap { flex: none; margin-left: 8px; }
 .cyl-item-hug { min-width: 0; }
-.cyl-item-hug::after { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 36px; margin-left: -18px; }
+/* The field and the item never clip: the first item's hit area reaches beside it into the field, the last item's past its edge (the padding is 12, the widening at most 9); it sits above the tap cover. */
+.cyl-field { overflow: visible; }
+.cyl-item-hug { overflow: visible; }
+.cyl-item-hug::after { content: ''; z-index: 1; position: absolute; top: 0; bottom: 0; left: 50%; width: 36px; margin-left: -18px; }
 /* The built-in divider: 1 x 20, secondary label strength (60%); the gaps beside it are the group's spacing. */
 .cyl-divider { width: 1px; height: 20px; margin: 0; background: rgba(60, 60, 67, 0.6); }
 

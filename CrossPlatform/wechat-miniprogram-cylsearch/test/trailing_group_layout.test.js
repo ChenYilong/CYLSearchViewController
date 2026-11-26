@@ -71,3 +71,19 @@ test('the component spaces the group by one margin and hugs plain items', () => 
   assert.match(wxml, /item\.hugs \? 'cyl-item-hug'/);
   assert.match(wxml, /searchButton\.hugs \? 'cyl-item-hug'/);
 });
+
+test('the first and the last item keep their widened hit area: nothing clips it', () => {
+  const css = read('src', 'cyl-search-bar', 'index.wxss');
+  // No overflow rule that clips on the field or on a hugging item (an `overflow: hidden` there would cut the ::after area).
+  assert.match(css, /\.cyl-field \{ overflow: visible; \}/);
+  assert.match(css, /\.cyl-item-hug \{ overflow: visible; \}/);
+  assert.doesNotMatch(css, /\.cyl-field \{[^}]*overflow: (hidden|clip|auto|scroll)/);
+  assert.doesNotMatch(css, /\.cyl-item(-hug)? \{[^}]*overflow: (hidden|clip|auto|scroll)/);
+  assert.match(css, /\.cyl-item-hug::after \{[^}]*z-index: 1/, 'the hit area sits above the tap cover');
+  // The area is symmetric about the item and reaches the model's 36 px; the field's side padding holds the last item's overhang.
+  const [first, , last] = core.cylSearchTrailingGroupLayout([camera, divider, { style: 'text', hasShape: false, itemHeight: 0, contentWidth: 18 }]);
+  assert.equal(first.left - first.touchLeft, 7);
+  assert.equal(last.touchRight - last.right, 9);
+  const padding = Number(/\.cyl-field \{[^}]*padding: 0 (\d+)px/.exec(css)[1]);
+  assert.ok(last.touchRight - last.right <= padding, 'the last item overhang stays inside the field');
+});
