@@ -102,7 +102,7 @@ public final class CYLSearchExampleViewController: UITableViewController, CYLSea
         // navigationItem.title, not title: a view controller's title also renames its tab item, whose title comes
         // from CYLTabBarConfiguration.json.
         navigationItem.title = CYLSearchResources.localizedString(forKey: "search.title")
-        searchBar.applyNavigationFieldStyle()
+        searchBar.applyPreset(.pill)
         // A root tab page has no back button, so the bar never focuses itself here (focusesOnAppear needs a back button).
         searchBar.focusesOnAppear = true
         // The icon style of the default search button: a filled capsule with the built-in magnifier (Discover shows the text style).
@@ -111,6 +111,13 @@ public final class CYLSearchExampleViewController: UITableViewController, CYLSea
         searchBar.accessibilityIdentifier = "CYLSearchResultsField"
         searchBar.delegate = self
         embedSearchBarIfPossible()
+        // First level (a tab root): the whole bar, a tap pushes the second-level search page.
+        if navigationController?.viewControllers.first === self {
+            searchBar.pushesOnTap = true
+            searchBar.onFirstLevelTap = { [weak self] _ in
+                self?.navigationController?.pushViewController(CYLSearchSecondLevelViewController(preset: .pill, placeholder: self?.searchBar.placeholder), animated: true)
+            }
+        }
         definesPresentationContext = true
         tableView.tableFooterView = UIView()
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: CYLSearchResources.localizedString(forKey: "action.overlay"),

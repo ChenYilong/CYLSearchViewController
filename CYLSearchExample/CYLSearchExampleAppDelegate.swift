@@ -111,16 +111,17 @@ public final class CYLSearchExampleAppDelegate: UIResponder, UIApplicationDelega
             let source = CYLSearchExampleDataSource()
             return navigationController(root: CYLSearchExampleViewController(searchDataSource: source, refreshProvider: source))
         }, forPageIdentifier: "search")
+        // One search bar look per tab (example-demos.md, rule 10): the roots show the whole bar, a tap pushes the second-level page.
         pages.register({ _, _ in
-            navigationController(root: CYLSearchDemoMenuViewController(style: .grouped))
+            navigationController(root: CYLSearchDemoMenuViewController(style: .grouped), preset: .rounded, placeholder: "Search examples")
         }, forPageIdentifier: "examples")
         pages.register({ _, _ in
-            navigationController(root: CYLSearchBarDemoViewController())
+            navigationController(root: CYLSearchBarDemoViewController(), preset: .outlined, placeholder: "Search")
         }, forPageIdentifier: "plus")
         // The suggestion style demos (docs/tag-view-suggestions.md): suggestions as tags, and the discover page copied from
         // CollectionViewClassifyMenu. The discover page embeds its search bar in the navigation bar (the core creates one when there is none).
         pages.register({ _, _ in
-            navigationController(root: CYLSuggestionDemoPages.tagStyleViewController())
+            navigationController(root: CYLSuggestionDemoPages.tagStyleViewController(), preset: .centeredCapsule, placeholder: "Search tags")
         }, forPageIdentifier: "tagStyle")
         pages.register({ _, _ in
             navigationController(root: CYLSuggestionDemoPages.discoverViewController())
@@ -129,5 +130,11 @@ public final class CYLSearchExampleAppDelegate: UIResponder, UIApplicationDelega
 
     private static func navigationController(root: UIViewController) -> UINavigationController {
         UINavigationController(rootViewController: root)
+    }
+
+    private static func navigationController(root: UIViewController, preset: CYLSearchBarPreset, placeholder: String) -> UINavigationController {
+        let navigation = UINavigationController(rootViewController: root)
+        root.cylInstallFirstLevelSearchBar(preset: preset, placeholder: placeholder)
+        return navigation
     }
 }

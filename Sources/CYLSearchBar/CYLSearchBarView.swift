@@ -1574,6 +1574,87 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         textField.becomeFirstResponder()
     }
 
+    // MARK: - First-level tap and the bar's own back button
+
+    /**
+     * Whether a tap on the field does not edit but calls `onFirstLevelTap` (and `performFirstLevelTap()`): the bar of a first-level
+     * page (a tab root) shows the whole search look and a tap pushes the second-level search page. NO by default; no keyboard comes
+     * up on the first-level page (the second-level page's bar focuses itself, `focusesOnAppear`).
+     */
+    @objc public var pushesOnTap = false {
+        didSet {
+            if pushesOnTap {
+                textField.accessibilityTraits.insert(.button)
+            } else {
+                textField.accessibilityTraits.remove(.button)
+            }
+        }
+    }
+
+    /**
+     * Called when the field of a `pushesOnTap` bar is tapped: push the second-level search page. The second-level page's bar brings
+     * its back button in and shrinks alongside the push (`embedInNavigationBar(of:)` does it), so the host only pushes.
+     */
+    @objc public var onFirstLevelTap: ((CYLSearchBarView) -> Void)?
+
+    /**
+     * The tap of a first-level bar, also callable from code: runs `onFirstLevelTap`.
+     */
+    @objc public func performFirstLevelTap() {
+        onFirstLevelTap?(self)
+    }
+
+    /**
+     * Whether the back button (the navigation arrow before the field) is shown.
+     */
+    @objc public var isBackButtonShown: Bool {
+        showsNavigationButton && leadingViewShows && !isIconified
+    }
+
+    /**
+     * 1 while the bar's own back button (its navigation arrow before the field) is shown, 0 while it is hidden. It is for a host that
+     * puts the bar where no navigation controller supplies a back button (a plain view, a sheet); in a navigation bar the system
+     * back button is used. The progress is not interactive on iOS: setting it shows (from 0.5) or hides the arrow without animation.
+     */
+    @objc public var backButtonProgress: CGFloat {
+        get { isBackButtonShown ? 1 : 0 }
+        set { setShowsLeadingView(newValue >= 0.5, animated: false) }
+    }
+
+    /**
+     * Brings the back button (the navigation arrow) in from the left, the field shrinking to make room.
+     */
+    @objc(showBackButtonAnimated:)
+    public func showBackButton(animated: Bool = true) {
+        if leadingView == nil, navigationIcon == .none { navigationIcon = .arrow }
+        setShowsLeadingView(true, animated: animated)
+    }
+
+    /**
+     * Takes the back button out to the left, the field growing back.
+     */
+    @objc(hideBackButtonAnimated:)
+    public func hideBackButton(animated: Bool = true) {
+        setShowsLeadingView(false, animated: animated)
+    }
+
+    /**
+     * Back to the plain look: no outline, no fill of its own, capsule field, magnifier, no shadow, a left-aligned placeholder.
+     * The presets start from it.
+     */
+    func resetFieldLook() {
+        searchBarStyle = .plain
+        fieldBorderColor = nil
+        fieldBorderWidth = 0
+        customFieldBackgroundColor = nil
+        fieldCornerRadius = -1
+        fieldShadowOpacity = 0
+        centersPlaceholder = false
+        searchIcon = UIImage(systemName: "magnifyingglass")
+        font = UIFontMetrics(forTextStyle: .body).scaledFont(for: .systemFont(ofSize: 16))
+        applyStyle()
+    }
+
     // MARK: - Focus on appear, keyboard on outside touch
 
     private static let focusOnAppearKey = "CYLSearchBarViewFocusOnAppear"
@@ -2160,6 +2241,11 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      * Asks the delegate whether editing may start; a refusal reports a tap instead.
      */
     public func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+        if pushesOnTap {
+            // A first-level bar: the tap pushes the second-level page instead of editing.
+            performFirstLevelTap()
+            return false
+        }
         if delegate?.searchBarViewShouldBeginEditing?(self) == false {
             delegate?.searchBarViewDidTapWhileNotEditable?(self)
             return false

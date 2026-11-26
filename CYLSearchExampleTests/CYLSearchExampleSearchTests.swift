@@ -37,7 +37,9 @@ final class CYLSearchExampleSearchTests: CYLSearchExampleTestCase {
 
         XCTAssertTrue(controller.overlaySearchView.resultsDataSource === source, "the overlay searches the same data")
         // The field is the core's one navigation-bar search field, typing in it requeries the list.
-        XCTAssertEqual(controller.searchBar.searchBarStyle, .bordered)
+        // The Search tab's look is the pill preset (a borderless capsule with a magnifier); every tab root has its own look.
+        XCTAssertEqual(controller.searchBar.searchBarStyle, .plain)
+        XCTAssertEqual(controller.searchBar.fieldCornerRadius, -1)
         controller.searchBar.text = "1"
         controller.searchBarView(controller.searchBar, textDidChange: "1")
         XCTAssertLessThan(controller.searchResults.count, 40)

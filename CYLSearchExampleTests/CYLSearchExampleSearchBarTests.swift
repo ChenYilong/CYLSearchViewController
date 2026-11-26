@@ -1002,6 +1002,99 @@ extension CYLSearchExampleSearchBarTests {
 
     /// The keyboard has the search key, and a bar in editing mode hides the keyboard for an outside touch (observed only while
     /// editing; the touch itself comes from CYLDeallocBlockExecutor's `didTouchOutside`, which XCTest cannot create).
+    /// A first-level bar (`pushesOnTap`): a tap on the field runs `onFirstLevelTap` and never edits, so no keyboard comes up.
+    @MainActor
+    func testFirstLevelBarPushesOnTapAndNeverEdits() {
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let host = UIViewController()
+        window.rootViewController = host
+        window.makeKeyAndVisible()
+        let bar = CYLSearchBarView(frame: CGRect(x: 0, y: 100, width: 402, height: 44))
+        host.view.addSubview(bar)
+        var taps = 0
+        bar.onFirstLevelTap = { _ in taps += 1 }
+        XCTAssertFalse(bar.pushesOnTap, "off by default")
+        XCTAssertTrue(bar.textField.delegate?.textFieldShouldBeginEditing?(bar.textField) ?? false, "editable by default")
+        bar.pushesOnTap = true
+        XCTAssertTrue(bar.textField.accessibilityTraits.contains(.button), "VoiceOver reads the field as a button")
+        XCTAssertEqual(bar.textField.delegate?.textFieldShouldBeginEditing?(bar.textField), false, "the tap does not edit")
+        XCTAssertEqual(taps, 1)
+        bar.textField.becomeFirstResponder()
+        XCTAssertFalse(bar.textField.isFirstResponder, "no keyboard on the first level")
+        XCTAssertEqual(taps, 2, "asking for focus is a tap too")
+        bar.performFirstLevelTap()
+        XCTAssertEqual(taps, 3)
+        window.isHidden = true
+    }
+
+    /// The five looks of the core, each replacing the one before; the back button API toggles the bar's own arrow.
+    @MainActor
+    func testPresetsAndTheBackButtonAPI() {
+        let bar = CYLSearchBarView(frame: CGRect(x: 0, y: 0, width: 390, height: 44))
+        bar.applyPreset(.navigationField)
+        XCTAssertEqual(bar.searchBarStyle, .bordered)
+        XCTAssertEqual(bar.fieldCornerRadius, 18)
+        XCTAssertNil(bar.searchIcon)
+        bar.applyPreset(.pill)
+        XCTAssertEqual(bar.searchBarStyle, .plain)
+        XCTAssertEqual(bar.fieldCornerRadius, -1, "a capsule")
+        XCTAssertNotNil(bar.searchIcon, "a magnifier")
+        XCTAssertNil(bar.fieldBorderColor, "no outline: the earlier preset is replaced")
+        bar.applyPreset(.rounded)
+        XCTAssertEqual(bar.fieldCornerRadius, 10)
+        XCTAssertEqual(bar.searchBarStyle, .plain)
+        bar.applyPreset(.outlined)
+        XCTAssertEqual(bar.searchBarStyle, .bordered)
+        XCTAssertEqual(bar.fieldCornerRadius, 8)
+        XCTAssertNotNil(bar.fieldBorderColor)
+        bar.applyPreset(.centeredCapsule)
+        XCTAssertEqual(bar.searchBarStyle, .bordered)
+        XCTAssertEqual(bar.fieldCornerRadius, -1)
+        XCTAssertTrue(bar.centersPlaceholder)
+        XCTAssertGreaterThan(bar.fieldShadowOpacity, 0)
+        bar.applyPreset(.pill)
+        XCTAssertFalse(bar.centersPlaceholder, "centered placeholder replaced")
+        XCTAssertEqual(bar.fieldShadowOpacity, 0)
+
+        XCTAssertFalse(bar.isBackButtonShown)
+        XCTAssertEqual(bar.backButtonProgress, 0)
+        bar.showBackButton(animated: false)
+        XCTAssertTrue(bar.isBackButtonShown)
+        XCTAssertEqual(bar.backButtonProgress, 1)
+        bar.hideBackButton(animated: false)
+        XCTAssertFalse(bar.isBackButtonShown)
+        bar.backButtonProgress = 1
+        XCTAssertTrue(bar.isBackButtonShown)
+    }
+
+    /// The example's first-level pages: a tab root's bar pushes the second-level page, whose bar sits on a second-level page and
+    /// focuses itself.
+    @MainActor
+    func testFirstLevelPageInstallsAPushingBar() throws {
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        let root = UIViewController()
+        let navigation = UINavigationController(rootViewController: root)
+        window.rootViewController = navigation
+        window.makeKeyAndVisible()
+        let bar = root.cylInstallFirstLevelSearchBar(preset: .rounded, placeholder: "Search examples")
+        runLoop(0.3)
+        XCTAssertTrue(bar.pushesOnTap)
+        XCTAssertTrue(root.navigationItem.titleView === bar, "the whole bar sits in the navigation bar")
+        XCTAssertFalse(bar.isOnSecondLevelOrDeeperPage)
+        bar.performFirstLevelTap()
+        runLoop(0.8)
+        XCTAssertEqual(navigation.viewControllers.count, 2, "the tap pushed the second-level page")
+        let second = try XCTUnwrap(navigation.topViewController as? CYLSearchSecondLevelViewController)
+        let secondBar = try XCTUnwrap(second.navigationItem.titleView as? CYLSearchBarView)
+        XCTAssertTrue(secondBar.isOnSecondLevelOrDeeperPage)
+        XCTAssertTrue(secondBar.textField.isFirstResponder, "the second-level bar focuses itself")
+        XCTAssertFalse(secondBar.pushesOnTap)
+        navigation.popViewController(animated: false)
+        runLoop(0.4)
+        XCTAssertFalse(bar.textField.isFirstResponder, "the first-level bar never took focus")
+        window.isHidden = true
+    }
+
     /// The default search button tapped with empty text submits nothing and closes nothing in a search page (as the Search key).
     @MainActor
     func testDefaultSearchButtonWithEmptyTextDoesNothingInASearchView() {

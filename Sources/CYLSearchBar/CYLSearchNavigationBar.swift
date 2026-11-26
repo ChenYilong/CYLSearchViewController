@@ -144,3 +144,48 @@ extension CYLSearchBarView {
         font = UIFontMetrics(forTextStyle: .body).scaledFont(for: .systemFont(ofSize: 16))
     }
 }
+
+/**
+ * The looks of a search bar the core ships, one per tab of the example (`CYLSearchBarView.applyPreset(_:)`); the same names on
+ * every platform.
+ */
+@objc(CYLSearchBarPreset)
+public enum CYLSearchBarPreset: Int {
+    /// The navigation field, the Discover look (bordered capsule radius 18, soft shadow, no magnifier, opaque fill).
+    case navigationField = 0
+    /// A borderless full capsule with a magnifier.
+    case pill = 1
+    /// A borderless rounded rectangle (radius 10) with a magnifier.
+    case rounded = 2
+    /// A bordered rounded rectangle (radius 8) with a magnifier.
+    case outlined = 3
+    /// A bordered full capsule with a magnifier, a soft shadow and a centered placeholder.
+    case centeredCapsule = 4
+}
+
+extension CYLSearchBarView {
+
+    /**
+     * Applies one of the core's looks. Every preset starts from the plain look, so applying another one replaces the first.
+     * Call it before `addItem(_:)` and `embedInNavigationBar(of:)`.
+     */
+    @objc(applyPreset:)
+    public func applyPreset(_ preset: CYLSearchBarPreset) {
+        resetFieldLook()
+        switch preset {
+        case .navigationField:
+            applyNavigationFieldStyle()
+        case .pill:
+            break
+        case .rounded:
+            fieldCornerRadius = 10
+        case .outlined:
+            searchBarStyle = .bordered
+            fieldCornerRadius = 8
+        case .centeredCapsule:
+            searchBarStyle = .bordered
+            fieldShadowOpacity = 0.06
+            centersPlaceholder = true
+        }
+    }
+}

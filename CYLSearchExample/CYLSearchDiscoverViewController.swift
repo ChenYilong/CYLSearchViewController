@@ -591,7 +591,7 @@ final class CYLAskBackgroundView: UIView {
  * returns here.
  */
 final class CYLSearchDiscoverEntryViewController: UITableViewController {
-    private var opensDiscoverOnFirstAppearance = true
+    private let searchBar = CYLSearchBarView()
 
     init() {
         super.init(style: .insetGrouped)
@@ -605,14 +605,16 @@ final class CYLSearchDiscoverEntryViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = cylDiscoverText("discover.title")
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        if opensDiscoverOnFirstAppearance {
-            opensDiscoverOnFirstAppearance = false
-            openDiscover(animated: false)
-        }
+        // The first-level page shows the WHOLE search bar (the reference look: the Discover field with a camera and the default
+        // search button); a tap on the field pushes the Discover page, whose bar brings the back button in (example-demos.md, rule 10).
+        searchBar.applyNavigationFieldStyle()
+        searchBar.placeholder = cylDiscoverText("discover.search")
+        searchBar.addItem(CYLSearchBarItem.iconItem(image: UIImage(systemName: "camera.viewfinder"), title: cylDiscoverText("discover.imageSearch"), handler: nil))
+        searchBar.pushesOnTap = true
+        searchBar.onFirstLevelTap = { [weak self] _ in self?.openDiscover(animated: true) }
+        searchBar.searchButtonHandler = { [weak self] _ in self?.openDiscover(animated: true) }
+        searchBar.itemTintColor = .label
+        searchBar.embedInNavigationBar(of: self)
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

@@ -424,3 +424,69 @@ public final class CYLSearchDemoMenuViewController: UITableViewController {
         navigationController?.pushViewController(controller, animated: true)
     }
 }
+
+// MARK: - First-level search bars (example-demos.md, rule 10)
+
+/**
+ * The second-level search page behind a first-level search bar: the same look, the keyboard up, "Recently searched" and "Popular"
+ * as glass tag lists. Its bar brings the back button in with the push and focuses itself (`focusesOnAppear`); the page never animates
+ * the back button or the width.
+ */
+final class CYLSearchSecondLevelViewController: CYLDemoTagListViewController {
+
+    private let preset: CYLSearchBarPreset
+    private let placeholder: String?
+    private let searchBar = CYLSearchBarView()
+
+    init(preset: CYLSearchBarPreset, placeholder: String?) {
+        self.preset = preset
+        self.placeholder = placeholder
+        let recent = ["Swift concurrency", "SwiftUI animations", "Core Data sync", "Combine publishers"]
+        let popular = ["Spring camping gear", "Pour-over coffee", "Pomodoro technique", "Weekend road trips", "Low-sugar bread"]
+        func items(_ titles: [String], _ symbol: String) -> [CYLDemoTagItem] {
+            titles.map { title in
+                CYLDemoTagItem(title: title, image: UIImage(systemName: symbol), subtitle: nil) { controller in
+                    (controller as? CYLSearchSecondLevelViewController)?.searchBar.text = title
+                }
+            }
+        }
+        super.init(title: placeholder ?? "", sections: [
+            CYLDemoTagSection(title: cylDiscoverText("discover.recent"), items: items(recent, "clock")),
+            CYLDemoTagSection(title: cylDiscoverText("discover.title"), items: items(popular, "flame")),
+        ])
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        nil
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        searchBar.applyPreset(preset)
+        searchBar.placeholder = placeholder
+        searchBar.focusesOnAppear = true
+        searchBar.embedInNavigationBar(of: self)
+    }
+}
+
+extension UIViewController {
+
+    /**
+     * Puts the whole, real search bar of a first-level page (a tab root) into its navigation bar, in the look of `preset`; a tap on
+     * the field pushes `CYLSearchSecondLevelViewController`, whose bar brings the back button in. Call it with the page already in
+     * its navigation controller.
+     */
+    @discardableResult
+    func cylInstallFirstLevelSearchBar(preset: CYLSearchBarPreset, placeholder: String?) -> CYLSearchBarView {
+        let bar = CYLSearchBarView()
+        bar.applyPreset(preset)
+        bar.placeholder = placeholder
+        bar.pushesOnTap = true
+        bar.onFirstLevelTap = { [weak self] _ in
+            self?.navigationController?.pushViewController(CYLSearchSecondLevelViewController(preset: preset, placeholder: placeholder), animated: true)
+        }
+        bar.embedInNavigationBar(of: self)
+        return bar
+    }
+}
