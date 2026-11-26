@@ -2042,6 +2042,11 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         CGSize(width: isEmbeddedInNavigationBar ? UIView.layoutFittingExpandedSize.width : size.width, height: intrinsicContentSize.height)
     }
 
+    private static func itemStackSize(_ stack: UIView, height: CGFloat) -> CGSize {
+        let size = stack.intrinsicContentSize
+        return CGSize(width: max(0, size.width), height: min(height, max(0, size.height)))
+    }
+
     private static func fittingSize(of view: UIView, height: CGFloat) -> CGSize {
         var size = view.sizeThatFits(CGSize(width: CGFloat.greatestFiniteMagnitude, height: height))
         if size.width <= 0 || size.height <= 0 {
@@ -2131,7 +2136,9 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
         var accessoriesWidth: CGFloat = 0
         for view in accessories {
             view.transform = .identity
-            let size = Self.fittingSize(of: view, height: fieldHeight)
+            // The item stack answers sizeThatFits with its current bounds (UIView's default), which never grow when an item is
+            // added to a bar that is already laid out (a bridge's later props): measure it by its items (its intrinsic size).
+            let size = view === itemStack ? Self.itemStackSize(itemStack, height: fieldHeight) : Self.fittingSize(of: view, height: fieldHeight)
             sizes.append(size)
             accessoriesWidth += size.width + Self.spacing
         }
