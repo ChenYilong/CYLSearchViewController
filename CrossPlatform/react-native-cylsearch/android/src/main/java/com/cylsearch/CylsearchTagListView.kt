@@ -98,9 +98,9 @@ class CylsearchTagListView(private val reactContext: ThemedReactContext) : CYLTa
     // The search bar core's default tag look (capsule tags, light border, bold header, 16 dp inset), customizable through
     // CYLSearchTagListStyle; the React Native screen shows through the list.
     val base = if (columns > 0) {
-      CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(columns).apply { CYLSearchTagListStyle.applyGrid(this) }
+      CYLMenuStyle.gridStyleWithNumberOfItemsPerRow(columns).apply { CYLSearchTagListStyle.applyGrid(this, this@CylsearchTagListView.context) }
     } else {
-      (flowingStyle?.copy() ?: CYLMenuStyle()).apply { CYLSearchTagListStyle.applyDefaults(this) }
+      (flowingStyle?.copy() ?: CYLMenuStyle()).apply { CYLSearchTagListStyle.applyDefaults(this, this@CylsearchTagListView.context) }
     }
     CYLSearchTagListStyle.applyBackgroundStyle(backgroundStyle, base)
     base.titleMaxLines = if (titleMaxLines <= 0) CYLTagTitleMaxLines.UNLIMITED else titleMaxLines
