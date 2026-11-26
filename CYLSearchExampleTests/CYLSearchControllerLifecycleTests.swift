@@ -300,4 +300,40 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         XCTAssertEqual(page.frame.minY, run.search.topEdge(in: host), accuracy: 0.5, "the page starts below the field")
         tearDownSearchRun(run)
     }
+
+
+    // MARK: - I2: the results view controller gets its appearance calls
+
+    /// I2: entering and leaving the search tells the results view controller that it appears and disappears, once each.
+    func testI2ResultsControllerGetsAppearanceCalls() {
+        let results = CYLAppearanceRecordingResults(style: .plain)
+        let run = makeSearchRun(resultsController: results)
+        XCTAssertEqual(results.calls, [])
+        activateSearch(run)
+        XCTAssertEqual(results.calls, ["viewWillAppear", "viewDidAppear"])
+        run.search.setActive(false, animated: false)
+        runLoop(0.3)
+        XCTAssertEqual(results.calls, ["viewWillAppear", "viewDidAppear", "viewWillDisappear", "viewDidDisappear"])
+        tearDownSearchRun(run)
+    }
+
+    /// I2 with I1: the contents page is popped while the search is active: the results view controller disappears too.
+    func testI2PopWhileSearchingTellsTheResultsControllerItDisappears() {
+        let results = CYLAppearanceRecordingResults(style: .plain)
+        let contents = CYLSearchTestContents(style: .plain)
+        contents.resultsController = results
+        let nav = UINavigationController(rootViewController: UIViewController())
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        window.rootViewController = nav
+        window.makeKeyAndVisible()
+        nav.pushViewController(contents, animated: false)
+        runLoop(0.3)
+        contents.search?.setActive(true, animated: false)
+        runLoop(0.6)
+        nav.popViewController(animated: false)
+        runLoop(0.6)
+        XCTAssertEqual(results.calls, ["viewWillAppear", "viewDidAppear", "viewWillDisappear", "viewDidDisappear"])
+        window.rootViewController = nil
+        window.isHidden = true
+    }
 }

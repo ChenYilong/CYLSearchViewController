@@ -411,6 +411,7 @@ Next for the Windows side: run the Flutter Android example on `CYL_Second_API_37
 | I8: `iOS` CI runs never finish | CAUSE FOUND: a stale queued run (`45745662592`, `b51cfac`) held the concurrency group; cancelled, the newest run started. Remaining: macOS jobs can wait hours for a runner | [task-log.md](../../task-log.md), "handover I8" |
 | 10 iOS screenshots without a dated, committed label line (PR #11 range) | DONE; 4 Android images of the same check remain (Windows session) | same entry |
 | I3: `CYLSearchController` page keeps an old frame after a size change | FIXED in the core: the page resizes with its host and lays itself out again | new test red before, green after; suite 154/154. [task-log.md](../../task-log.md), "fix bug I3" |
+| I2: the results view controller gets no appearance callbacks | FIXED in the core: appearance calls are forwarded on presentation and dismissal (no containment yet) | 2 new tests red before, green after; suite 156/156. [task-log.md](../../task-log.md), "fix bug I2" |
 
 ## 20. Windows session, second pass 2026-11-27: the pin split now breaks the Flutter (and RN) Android build
 

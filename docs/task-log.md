@@ -2321,7 +2321,7 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
   with `goBack`, pushed. 60 = the pair announced and the root iOS suite passes at it.
 - **Status**: waiting for the ClassifyMenu SHA.
 
-## TODO (2026-11-27, `feat/harmonyos-parity`, Mac iOS session): fix bug I2, the results view controller gets no appearance callbacks
+## DONE (2026-11-27, `feat/harmonyos-parity`, Mac iOS session): fix bug I2, the results view controller gets no appearance callbacks
 
 - **Context**: handover bug I2 (P2, section 14). The results view controller's view sits on the search page in the navigation
   controller's view or the window; it is no child of any controller (a child of the contents page raised
@@ -2334,4 +2334,12 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
   presentation and dismissal moments (the handover's second approach), no containment.
 - **Acceptance**: 100 = the test fails before and passes after, the I1 pop path also delivers the disappear calls, full
   `CYLSearchExampleTests` passes, pushed, entry DONE. 60 = the test fails before and passes after, the lifecycle tests pass, pushed.
-- **Status**: entry written; work not started.
+- **Status**: DONE (2026-11-27). Score 100 / 100.
+- **Result**: `activate` calls `beginAppearanceTransition(true, animated:)` on the results view controller and ends it with the
+  presentation (`didPresent`); `deactivate` calls `beginAppearanceTransition(false, animated:)` and ends it with the dismissal
+  (`didDismiss`). The I1 pop path goes through `deactivate`, so it delivers the disappear calls too. No containment.
+- **Evidence**: `testI2ResultsControllerGetsAppearanceCalls` and `testI2PopWhileSearchingTellsTheResultsControllerItDisappears`
+  failed before the fix (no call at all, 3 failures) and pass after; full `CYLSearchExampleTests` 156 tests, 0 failures (iPhone Air
+  simulator, iOS 26.1, 2026-11-27).
+- **Not covered**: containment updates (`willMove(toParent:)`, trait and size propagation from a parent) are still missing: the
+  results view controller has no parent. A presentation from the results controller uses the window's root as presenter.

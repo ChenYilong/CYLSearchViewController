@@ -419,6 +419,8 @@ open class CYLSearchController: UIViewController, CYLSearchBarViewDelegate {
             table.isScrollEnabled = false
         }
         installResultsViewController()
+        // The results view controller is no child of a controller, so it gets its appearance calls from here (handover bug I2).
+        searchResultsController.beginAppearanceTransition(true, animated: animated)
         searchBar.setShowsCancelButton(true, animated: animated)
         pageView.isHidden = false
         refreshPage()
@@ -427,10 +429,12 @@ open class CYLSearchController: UIViewController, CYLSearchBarViewDelegate {
         if animated {
             pageView.alpha = 0
             UIView.animate(withDuration: 0.25, animations: { self.pageView.alpha = 1 }, completion: { _ in
+                self.searchResultsController.endAppearanceTransition()
                 self.presentationState.send(.didPresent)
             })
         } else {
             pageView.alpha = 1
+            searchResultsController.endAppearanceTransition()
             presentationState.send(.didPresent)
         }
         if !searchBar.textField.isFirstResponder { searchBar.showKeyboard() }
@@ -440,6 +444,7 @@ open class CYLSearchController: UIViewController, CYLSearchBarViewDelegate {
     private func deactivate(animated: Bool) {
         guard presentationState.isActive else { return }
         presentationState.send(.willDismiss)
+        searchResultsController.beginAppearanceTransition(false, animated: animated)
         searchBar.hideKeyboard()
         searchBar.setShowsCancelButton(false, animated: animated)
         let finish = { [weak self] in
@@ -452,6 +457,7 @@ open class CYLSearchController: UIViewController, CYLSearchBarViewDelegate {
             self.hostTableView = nil
             self.headerSnapper?.refresh()
             self.removePage()
+            self.searchResultsController.endAppearanceTransition()
             self.presentationState.send(.didDismiss)
         }
         if animated {
