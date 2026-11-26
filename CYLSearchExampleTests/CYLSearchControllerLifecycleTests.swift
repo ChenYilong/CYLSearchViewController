@@ -212,4 +212,71 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         XCTAssertEqual(events.filter { $0 != "didLoadTableView" }, ["willPresent", "didPresent", "willDismiss", "didDismiss"])
         tearDownSearchRun(run)
     }
+
+
+    // MARK: - I1: the page leaves with the contents page
+
+    /// I1: the contents page is popped while the search is active: the page and the swipe recognizer leave the navigation
+    /// controller's view, and the search ends.
+    func testI1PopWhileSearchingRemovesThePage() {
+        let contents = CYLSearchTestContents(style: .plain)
+        let nav = UINavigationController(rootViewController: UIViewController())
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        window.rootViewController = nav
+        window.makeKeyAndVisible()
+        nav.pushViewController(contents, animated: false)
+        runLoop(0.3)
+        let search = try! XCTUnwrap(contents.search)
+        search.supportsSwipeToDismissSearch = true
+        search.setActive(true, animated: false)
+        runLoop(0.6)
+        let page = try! XCTUnwrap(search.activePageView)
+        XCTAssertTrue(page.superview === nav.view)
+        XCTAssertTrue(search.swipeGestureRecognizer?.view === nav.view)
+        nav.popViewController(animated: false)
+        runLoop(0.6)
+        XCTAssertNil(page.superview, "the search page stayed on the navigation controller's view")
+        XCTAssertNil(search.swipeGestureRecognizer?.view, "the swipe recognizer stayed on the navigation controller's view")
+        XCTAssertFalse(search.isActive)
+        window.rootViewController = nil
+        window.isHidden = true
+    }
+
+    /// I1: the navigation controller of the contents is dismissed while the search is active: the page leaves its view.
+    func testI1DismissWhileSearchingRemovesThePage() {
+        let contents = CYLSearchTestContents(style: .plain)
+        let presenter = UIViewController()
+        let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))
+        window.rootViewController = presenter
+        window.makeKeyAndVisible()
+        runLoop(0.3)
+        let nav = UINavigationController(rootViewController: contents)
+        nav.modalPresentationStyle = .fullScreen
+        presenter.present(nav, animated: false)
+        runLoop(0.6)
+        let search = try! XCTUnwrap(contents.search)
+        search.setActive(true, animated: false)
+        runLoop(0.6)
+        let page = try! XCTUnwrap(search.activePageView)
+        XCTAssertTrue(page.superview === nav.view)
+        presenter.dismiss(animated: false)
+        runLoop(0.6)
+        XCTAssertNil(page.superview, "the search page stayed on the dismissed navigation controller's view")
+        XCTAssertFalse(search.isActive)
+        window.rootViewController = nil
+        window.isHidden = true
+    }
+
+    /// I1: leaving the search removes the page from its host instead of keeping it there hidden.
+    func testI1LeavingTheSearchRemovesThePage() {
+        let run = makeSearchRun()
+        activateSearch(run)
+        let page = try! XCTUnwrap(run.search.activePageView)
+        run.search.setActive(false, animated: false)
+        runLoop(0.3)
+        XCTAssertNil(page.superview, "the hidden search page stayed in its host")
+        activateSearch(run)
+        XCTAssertTrue(run.search.activePageView === page, "the page comes back on the next search")
+        tearDownSearchRun(run)
+    }
 }

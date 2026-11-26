@@ -2205,7 +2205,7 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
   - CI note: the `iOS` workflow uses `cancel-in-progress: false` and its macOS jobs run on `${{ vars.MACOS_RUNNER || 'macos-26' }}`; a run queued for hours points to no available macOS runner rather than to cancellations (handover I8). Not changed.
   - Missing (15): the Flutter Android example was not run on the emulator to see the Discover tags (`C:/w/heavy.lock` held, no owner file, not forced) (10); the pending `iOS` CI run 45796028453 was not left to finish, it had been queued about 4 hours with no runner and one push replaces it (5).
 
-## TODO (2026-11-27, `feat/harmonyos-parity`, Mac iOS session): fix bug I1, the `CYLSearchController` overlay left on screen after a pop or a dismissal
+## DONE (2026-11-27, `feat/harmonyos-parity`, Mac iOS session): fix bug I1, the `CYLSearchController` overlay left on screen after a pop or a dismissal
 
 - **Context**: handover bug I1 (P1, [handover](todo/20261104/Next-Unify-Pins-Fix-Tab-Tint-And-Dark-Bar-Verify-RN-MiniProgram.md),
   section 14). `CYLSearchController.activate` adds `pageView` to the navigation controller's view or the window and nothing ever removes
@@ -2225,4 +2225,14 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 - **Acceptance**: 100 = the three tests fail before and pass after, the full `CYLSearchExampleTests` suite passes on an iOS simulator,
   pushed, this entry marked DONE with the evidence. 60 = the pop test fails before and passes after, the lifecycle and swipe test classes
   pass, pushed.
-- **Status**: entry written; work not started.
+- **Status**: DONE (2026-11-27). Score 100 / 100.
+- **Result**: `CYLSearchController` watches the contents page's `viewDidDisappear` (CYLDeallocBlockExecutor, key
+  `CYLSearchControllerLeaveOnDisappear`) while the search is active; when the page or a parent is popped or dismissed, the search
+  ends. Ending the search now removes the page from its host and the swipe recognizer from the host view, and stops the watch;
+  `deinit` removes both too. A push from the contents page keeps the search.
+- **Evidence**: before the fix, `CYLSearchControllerLifecycleTests` ran 13 tests with 6 failures, all in the three new tests
+  `testI1PopWhileSearchingRemovesThePage`, `testI1DismissWhileSearchingRemovesThePage` and `testI1LeavingTheSearchRemovesThePage`
+  (page and recognizer left on the navigation controller's view, `isActive` still true). After the fix, the full
+  `CYLSearchExampleTests` suite ran 153 tests with 0 failures (iPhone Air simulator, iOS 26.1, Xcode on macOS, 2026-11-27).
+- **Not covered**: a real device; the interactive (swipe) pop that the user cancels halfway, where `isMovingFromParent` is true in
+  `viewWillDisappear` but `viewDidDisappear` is not called, so the search correctly stays (not tested).

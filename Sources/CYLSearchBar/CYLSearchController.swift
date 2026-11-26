@@ -17,6 +17,7 @@
 //  button shows, and leaving removes the page again. docs/no-system-searchbar.md, docs/qmui-search-controller.md.
 //
 
+import CYLDeallocBlockExecutor
 import CYLTableViewPlaceHolder
 import ObjectiveC
 import UIKit
@@ -278,6 +279,7 @@ open class CYLSearchController: UIViewController, CYLSearchBarViewDelegate {
     private var savedScrollEnabled = true
     private weak var swipeHost: UIView?
     private static var retainKey = 0
+    private static let leaveOnDisappearKey = "CYLSearchControllerLeaveOnDisappear"
 
     // MARK: - Initializers
 
@@ -418,6 +420,7 @@ open class CYLSearchController: UIViewController, CYLSearchBarViewDelegate {
         pageView.isHidden = false
         refreshPage()
         installSwipe(in: host)
+        leaveWhenContentsLeave()
         if animated {
             pageView.alpha = 0
             UIView.animate(withDuration: 0.25, animations: { self.pageView.alpha = 1 }, completion: { _ in
@@ -445,6 +448,7 @@ open class CYLSearchController: UIViewController, CYLSearchBarViewDelegate {
             self.hostTableView?.isScrollEnabled = self.savedScrollEnabled
             self.hostTableView = nil
             self.headerSnapper?.refresh()
+            self.removePage()
             self.presentationState.send(.didDismiss)
         }
         if animated {
@@ -452,6 +456,34 @@ open class CYLSearchController: UIViewController, CYLSearchBarViewDelegate {
         } else {
             finish()
         }
+    }
+
+    // The contents page leaves for good (it or a parent is popped or dismissed): the search ends, so its page does not stay on
+    // the navigation controller's view or the window (handover bug I1). A push from the contents keeps the search.
+    private func leaveWhenContentsLeave() {
+        contentsViewController?.cylAddLifecycleCallback(for: .viewDidDisappear, key: Self.leaveOnDisappearKey) { [weak self] contents, _, _ in
+            var current: UIViewController? = contents
+            while let controller = current {
+                if controller.isMovingFromParent || controller.isBeingDismissed {
+                    self?.setActive(false, animated: false)
+                    return
+                }
+                current = controller.parent
+            }
+        }
+    }
+
+    // Takes the page and the swipe recognizer out of the host and stops watching the contents page.
+    private func removePage() {
+        pageView.removeFromSuperview()
+        if let gesture = swipeGestureRecognizer { gesture.view?.removeGestureRecognizer(gesture) }
+        swipeHost = nil
+        contentsViewController?.cylCancelLifecycleCallback(key: Self.leaveOnDisappearKey)
+    }
+
+    deinit {
+        pageView.removeFromSuperview()
+        if let gesture = swipeGestureRecognizer { gesture.view?.removeGestureRecognizer(gesture) }
     }
 
     private func headerTable() -> UITableView? {
