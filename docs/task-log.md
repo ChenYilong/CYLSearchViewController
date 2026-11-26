@@ -2202,3 +2202,25 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
   - (2) DONE in the core, unit-tested; device run pending. Flutter Discover tab root "empty glass box" (handover section 7, task-log.md:2059): cause found by code reading and reproduced in a widget test. Every Flutter platform-view widget (`CYLSearchView`, `CYLSearchBarView`, `CYLTagListView`, `CYLPlaceholderView`) sent `update` only through `_channel?.invokeMethod`, so a change made between the first build and the native view's creation callback was dropped: the Discover tab root builds `CYLTagListView(tags: [''])`, its title arrives from the assets before the view is created, and the native list kept the empty tag. Fix: each `_created` sends `update` with the current parameters once. New `test/cyl_created_update_test.dart` (4 tests) failed 4/4 before the fix and passes after; `flutter test` 44/44; `flutter analyze` only the existing `material.dart` deprecation infos.
   - (3) handover file appended (section 18).
   - Missing (15): the Flutter Android example was not run on the emulator to see the Discover tags (`C:/w/heavy.lock` held, no owner file, not forced) (10); the pending `iOS` CI run 45796028453 was not left to finish, it had been queued about 4 hours with no runner and one push replaces it (5).
+
+## TODO (2026-11-27, `feat/harmonyos-parity`, Mac iOS session): fix bug I1, the `CYLSearchController` overlay left on screen after a pop or a dismissal
+
+- **Context**: handover bug I1 (P1, [handover](todo/20261104/Next-Unify-Pins-Fix-Tab-Tint-And-Dark-Bar-Verify-RN-MiniProgram.md),
+  section 14). `CYLSearchController.activate` adds `pageView` to the navigation controller's view or the window and nothing ever removes
+  it: `deactivate` only hides it, and there is no `deinit`. The swipe-to-dismiss recognizer stays on the same host view. Popping or
+  dismissing the contents page while the search is active can leave the overlay on screen. File: `Sources/CYLSearchBar/CYLSearchController.swift`.
+  PR #11 (`feat/harmonyos-parity` into `master`) carries the work.
+- **Requirements**: pull the remote, switch to the branch of the newest commit, read the handover folder in `docs/`, take over the handover
+  tasks and start writing code. This session is a Mac session, so it takes the iOS items; I1 is the first code item of the Mac list.
+- **Prompt (verbatim)**: "拉取远端最新代码，找到本项目最近的一条commit所在分支，切换到最近提交所在分支。阅读分支下，docs 文件夹下的包含 handover 文字的文件夹，遍历文件夹中的所有文件以及子文件夹下的所有文件。阅读交接文档完成交接任务。开始编写代码。"
+- **Prompt (English)**: "Pull the newest remote code, find the branch of the project's most recent commit and switch to it. Read the
+  folder under docs that contains the word handover, every file in it and in its subfolders. Read the handover document, complete the
+  handover tasks, and start writing code."
+- **Plan**: (1) failing tests first: activate, pop, expect no overlay in the navigation view; activate, dismiss the presented navigation
+  controller, expect the same; cancel, expect no page view left in the host. (2) Leave the search and remove the page and the swipe
+  recognizer when the contents page leaves for good (`viewDidDisappear` of CYLDeallocBlockExecutor with `isMovingFromParent` or
+  `isBeingDismissed` up the parent chain), remove the page when the search ends, and in `deinit`.
+- **Acceptance**: 100 = the three tests fail before and pass after, the full `CYLSearchExampleTests` suite passes on an iOS simulator,
+  pushed, this entry marked DONE with the evidence. 60 = the pop test fails before and passes after, the lifecycle and swipe test classes
+  pass, pushed.
+- **Status**: entry written; work not started.
