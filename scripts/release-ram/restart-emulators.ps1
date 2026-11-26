@@ -194,6 +194,8 @@ function Stop-HarmonyEmulator {
     }
     if ($DryRun) { Write-Step "[dry-run] would stop '$HvdName': close the window, then taskkill /T /F of $($procs.Count) process(es)"; return $true }
     Write-Step "[stop] HarmonyOS emulator '$HvdName'"
+    $emulatorExe = @("$env:ProgramFiles\Huawei\DevEco Studio\tools\emulator\Emulator.exe") | Where-Object { Test-Path $_ } | Select-Object -First 1
+    if ($emulatorExe) { [void](Invoke-Limited $emulatorExe @('-stop', "`"$HvdName`"") 10) }
     foreach ($p in $procs) {
         $gui = Get-Process -Id $p.ProcessId -ErrorAction SilentlyContinue
         if ($gui -and $gui.MainWindowHandle -ne 0) { [void]$gui.CloseMainWindow() }
@@ -214,9 +216,14 @@ function Start-HarmonyEmulator {
     $exe = @("$env:ProgramFiles\Huawei\DevEco Studio\tools\emulator\Emulator.exe", "${env:ProgramFiles(x86)}\Huawei\DevEco Studio\tools\emulator\Emulator.exe") |
         Where-Object { Test-Path $_ } | Select-Object -First 1
     if (-not $exe) { Write-Error 'DevEco Emulator.exe not found under Program Files\Huawei\DevEco Studio\tools\emulator'; return $false }
-    if ($DryRun) { Write-Step "[dry-run] would start: $exe -hvd `"$HvdName`""; return $true }
+    # Emulator.exe needs the instance folder and the image folder (`Emulator.exe -h` lists them); DevEco passes the same.
+    $huawei = "$env:LOCALAPPDATA\Huawei"
+    $instances = if ($env:CYL_HVD_PATH) { $env:CYL_HVD_PATH } else { "$huawei\Emulator\deployed" }
+    $images = if ($env:CYL_HVD_IMAGE_ROOT) { $env:CYL_HVD_IMAGE_ROOT } else { "$huawei\Sdk" }
+    $startArguments = "-hvd `"$HvdName`" -path `"$instances`" -imageRoot `"$images`""
+    if ($DryRun) { Write-Step "[dry-run] would start: $exe $startArguments"; return $true }
     Write-Step "[start] HarmonyOS emulator '$HvdName'"
-    [void](Start-Process -FilePath $exe -ArgumentList @('-hvd', $HvdName) -PassThru)
+    [void](Start-Process -FilePath $exe -ArgumentList $startArguments -WorkingDirectory (Split-Path $exe) -PassThru)
     Start-Sleep -Seconds 5
     if (@(Get-HarmonyProcesses).Count -eq 0) { Write-Error "'$HvdName' did not start"; return $false }
     Write-Step "[ok] '$HvdName' is starting (it takes about a minute to boot; check: hdc list targets)"
