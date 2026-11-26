@@ -318,6 +318,14 @@ class CylsearchBarView(private val reactContext: ThemedReactContext) : FrameLayo
     bar.items.getOrNull(index)?.restartAnimation()
   }
 
+  /**
+   * The `goBack` command (for the hardware back key): what a tap on the back arrow does, the arrow slides out first
+   * (animated with `animatesBackButton`), then `onBackButtonTap`; without a back arrow the event is sent at once.
+   */
+  fun goBack() {
+    if (shownBack == true) bar.hideBackButton(animatesBackButton) { emit("topBackButtonTap") } else emit("topBackButtonTap")
+  }
+
   private var appliedSearches: List<String>? = null
   private var applyingSearches = false
 

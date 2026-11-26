@@ -257,8 +257,12 @@ interface NativeCommands {
     viewRef: React.ElementRef<HostComponent<NativeProps>>,
     index: CodegenTypes.Int32
   ) => void;
+  /**
+   * What a tap on the back arrow does (for the hardware back key): the arrow slides out, then `onBackButtonTap`.
+   */
+  goBack: (viewRef: React.ElementRef<HostComponent<NativeProps>>) => void;
 }
 
 export const Commands = codegenNativeCommands<NativeCommands>({
-  supportedCommands: ['setActive', 'restartItemAnimation'],
+  supportedCommands: ['setActive', 'restartItemAnimation', 'goBack'],
 });

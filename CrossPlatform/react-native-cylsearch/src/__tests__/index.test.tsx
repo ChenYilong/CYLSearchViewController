@@ -307,3 +307,39 @@ describe('default search button props', () => {
     expect(props.searchButtonStyle).toBe('icon');
   });
 });
+
+describe('CYLSearchBarHandle', () => {
+  const commands = () => ({
+    setActive: jest.fn(),
+    restartItemAnimation: jest.fn(),
+    goBack: jest.fn(),
+  });
+
+  it('goBack sends the goBack command to the native bar (hardware back plays the arrow animation)', () => {
+    const native = { tag: 'bar' };
+    const sent = commands();
+    CYLSearch.cylSearchBarHandle(() => native, sent).goBack();
+    expect(sent.goBack).toHaveBeenCalledWith(native);
+  });
+
+  it('sends nothing before the native bar exists', () => {
+    const sent = commands();
+    const handle = CYLSearch.cylSearchBarHandle(() => null, sent);
+    handle.goBack();
+    handle.setActive(true);
+    handle.restartItemAnimation(0);
+    expect(sent.goBack).not.toHaveBeenCalled();
+    expect(sent.setActive).not.toHaveBeenCalled();
+    expect(sent.restartItemAnimation).not.toHaveBeenCalled();
+  });
+
+  it('keeps setActive and restartItemAnimation', () => {
+    const native = { tag: 'bar' };
+    const sent = commands();
+    const handle = CYLSearch.cylSearchBarHandle(() => native, sent);
+    handle.setActive(true);
+    handle.restartItemAnimation(2);
+    expect(sent.setActive).toHaveBeenCalledWith(native, true);
+    expect(sent.restartItemAnimation).toHaveBeenCalledWith(native, 2);
+  });
+});
