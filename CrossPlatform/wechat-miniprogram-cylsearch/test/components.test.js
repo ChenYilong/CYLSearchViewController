@@ -346,3 +346,20 @@ test('cyl-search-navigation-bar sits below the status bar and ends before the me
     delete global.wx.getMenuButtonBoundingClientRect;
   }
 });
+
+test('cyl-search-bar appearance: its cancelTitle and clearIconImage are drawn, the bar\'s own title wins', () => {
+  const { CYLSearchBarAppearance } = require('../src/core/CYLSearchBarView');
+  const appearance = Object.assign(CYLSearchBarAppearance.default(), { cancelTitle: 'Close', clearIconImage: '/images/clear.png' });
+  const bar = load('cyl-search-bar')({ appearance });
+  assert.equal(bar.data.appearanceCancelTitle, 'Close');
+  assert.equal(bar.data.clearIcon, '/images/clear.png');
+  const own = load('cyl-search-bar')({ appearance, cancelButtonTitle: 'Done' });
+  assert.equal(own.data.cancelButtonTitle, 'Done');
+  const plain = load('cyl-search-bar')({});
+  assert.equal(plain.data.appearanceCancelTitle, '');
+  assert.equal(plain.data.clearIcon, '');
+  // The template shows the bar's title first, then the appearance's, then the localized Cancel; the image replaces the mask.
+  const wxml = require('fs').readFileSync(path.join(__dirname, '..', 'src', 'cyl-search-bar', 'index.wxml'), 'utf8');
+  assert.match(wxml, /\{\{cancelButtonTitle \|\| appearanceCancelTitle \|\| labels\.cancel\}\}/);
+  assert.match(wxml, /<image wx:if="\{\{clearIcon\}\}"[^>]*src="\{\{clearIcon\}\}"/);
+});

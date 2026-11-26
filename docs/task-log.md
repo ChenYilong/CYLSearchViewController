@@ -2237,7 +2237,7 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 - **Not covered**: a real device; the interactive (swipe) pop that the user cancels halfway, where `isMovingFromParent` is true in
   `viewWillDisappear` but `viewDidDisappear` is not called, so the search correctly stays (not tested).
 
-## TODO (2026-11-27, `feat/harmonyos-parity`, Windows session): continue the handover, RN `goBack()` on `CYLSearchBarHandle`
+## DONE (2026-11-27, `feat/harmonyos-parity`, Windows session): continue the handover, RN `goBack()` on `CYLSearchBarHandle`
 
 - **Context**: second pass over `docs/todo/20261104/` (one file, sections 1 to 19; 19 is the Mac I1 fix). The Flutter device run of the first pass still waits: `C:/w/heavy.lock` is held by `winsCYLTabBarController` (Gradle tests, owner file present). Next unblocked Windows item of handover section 7: "RN hardware back: no reverse animation" (task-log.md:2134): the example's `BackHandler` calls `setSearchTab(null)` at once, while a tap on the bar's back arrow first hides the arrow with its animation (`hideBackButton(animated)`) and then sends `onBackButtonTap`.
 - **Requirements**: read every file of the `docs/todo` folders, complete the handover, continue writing code.
@@ -2251,7 +2251,8 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
   - Tests: 3 new jest tests (red before, green after), jest 22/22, `tsc` clean (covers `example/src`), eslint on the changed library files clean apart from the CRLF working copy (the example `App.tsx` was never prettier-formatted, pre-existing), `bash scripts/check-public-api-comments.sh` OK; Flutter example tests 9/9 (first task's fix).
   - Device runs BLOCKED by the pin split (new finding, handover section 20): with `C:/w/heavy.lock` held 03:12 to 03:2x and emulator-5558 booted, `flutter build apk --debug` of the Flutter example fails in `:flutter_cyltabbar:compileDebugKotlin`: `CYLTabBarStyle.kt` at the Flutter pin 08343e9f imports `com.cyl.animateditem.CYLGlassHighlight`, but `:cylanimateditem` comes from `android/merged` at the Android pin af56db22, which has no such class. Moving the Flutter pin to af56db22 for one local build (reverted) fails instead with `Unresolved reference 'CYLTabBarItem'` / `'CYLTabBarItemIconViewProvider'` in `cyltabbar/CYLTabBar.kt`. RN Android composes the same way (vendored tab bar 08343e9f + `cylanimateditem` from `android/merged`), so its build is expected to fail the same way (not run).
   - Incident: `restart-emulators.ps1 -Force` stopped an emulator-5558 (pid 32232) that this session had not started; the lock was free at the time. The other Windows sessions were told.
-  - Missing (35): Android Gradle compile of the RN library (15) and the device run of the reverse animation (10), both blocked by the pin split; iOS build of the RN `goBack` (Mac session) (5); README entry for `goBack()` (owner rule) (5).
+  - Later (2026-11-27 08:30 to 08:33, `C:/w/heavy.lock` held): `gradlew :react-native-cylsearch:compileDebugKotlin` from the RN example (real path; a `subst` drive fails codegen with "different roots") BUILD SUCCESSFUL: codegen made `void goBack(T view)` in `CylsearchBarViewManagerInterface`, `CylsearchBarView.class` compiled at 08:32:59. Score now 80 / 100.
+  - Missing (20): the device run of the reverse animation (10), blocked by the pin split; iOS build of the RN `goBack` (Mac session) (5); README entry for `goBack()` (owner rule) (5).
 
 ## DONE (2026-11-27, `feat/harmonyos-parity`, Mac iOS session): handover I8 (iOS CI never finishes) cause, and the 10 iOS screenshot labels
 
@@ -2283,6 +2284,17 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
   and reach its bottom); then the page resizes with its host (autoresizing) and lays itself out again from its own `layoutSubviews`.
 - **Acceptance**: 100 = the test fails before and passes after, the full `CYLSearchExampleTests` suite passes, pushed, entry DONE.
   60 = the test fails before and passes after, the lifecycle tests pass, pushed.
+- **Status**: entry written; work not started.
+
+## DONE (2026-11-27, `feat/harmonyos-parity`, Windows session): mini program `cyl-search-bar` draws the appearance's `cancelTitle` and `clearIconImage`
+
+- **Context**: handover section 6 (WeChat mini program): "`cyl-search-bar` does not draw `clearIconImage` / `cancelTitle`" (task-log.md:1504). The core model (`src/core/CYLSearchBarView.js`, `CYLSearchBarAppearance.styles`) already mapped both (`cancelTitle`, `clearIcon`), but the component never used them. Chosen while `C:/w/heavy.lock` was held by the ClassifyMenu session and the pin pair waits for the owner (Mac session, 2026-11-27: do not repin).
+- **Prompt (verbatim)**: "continue"
+- **Prompt (English)**: "continue" (after: "阅读docs 文件夹下的包含 todo 文字的文件夹……继续编写代码。", read the todo folders, complete the handover, continue writing code).
+- **Acceptance (100)**: a test red before and green after; `npm test` all pass; the bar's own `cancelButtonTitle` wins over the appearance's (iOS: the appearance is applied under the bar's own properties); a DevTools check of both. **(60)**: the first three.
+- **Result**: `src/cyl-search-bar/index.js` sets `appearanceCancelTitle` and `clearIcon` from the appearance; `index.wxml` shows `cancelButtonTitle || appearanceCancelTitle || labels.cancel` and an `<image>` of `clearIcon` instead of the built-in clear mask when set; `index.wxss` sizes it like the built-in icon (18 px). New test in `test/components.test.js` failed before the change; `npm test` 174/174 (173 before). `bash scripts/check-public-api-comments.sh` OK.
+- **Score**: 75 / 100. **Missing (25)**: not seen in WeChat DevTools (`wechatide-skill`, private AppID flow; the image path and the tint of the custom clear image are unchecked).
+
 - **Status**: DONE (2026-11-27). Score 100 / 100.
 - **Result**: the page is a `CYLSearchPageView` that resizes with its host (`autoresizingMask` width and height) and, when its size
   changed, asks the controller to lay it out again (`layoutPage()`: below the field, to the host's bottom, keyboard inset).

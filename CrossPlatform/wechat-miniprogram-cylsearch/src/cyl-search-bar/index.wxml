@@ -58,7 +58,8 @@
         adjust-position="{{!pinsToKeyboard}}" bindinput="onInput" bindconfirm="onConfirm" bindfocus="onFocus" bindblur="onBlur" />
       <view wx:if="{{!editable || pushesOnTap}}" class="cyl-tap-cover" role="button" aria-label="{{placeholder || labels.search}}" bindtap="onNotEditableTap" />
       <view wx:if="{{showsClearButton && focused && text}}" class="cyl-field-button" role="button" aria-label="{{labels.clear}}" catchtap="onClear">
-        <view class="cyl-mask-icon cyl-mask-clear" aria-hidden="true" />
+        <image wx:if="{{clearIcon}}" class="cyl-clear-image" src="{{clearIcon}}" mode="aspectFit" aria-hidden="true" />
+        <view wx:else class="cyl-mask-icon cyl-mask-clear" aria-hidden="true" />
       </view>
       <view wx:if="{{showsVoiceButton && !text}}" class="cyl-field-button" role="button" aria-label="{{labels.voice}}" bindtap="onVoiceTap">
         <view class="cyl-mask-icon cyl-mask-mic" style="{{textColor ? 'background-color: ' + textColor : ''}}" aria-hidden="true" />
@@ -108,6 +109,6 @@
     </view>
     <!-- Cancel stays in the tree so that showing and hiding it can animate (iOS setShowsCancelButton(_:animated:)). -->
     <view class="cyl-cancel {{cancelAnimated ? 'cyl-cancel-animated' : ''}} {{(cancelShown || editingBar) ? '' : 'cyl-cancel-hidden'}}" role="button"
-      aria-hidden="{{!(cancelShown || editingBar)}}" style="{{cancelStyle}}" bindtap="onCancel">{{cancelButtonTitle || labels.cancel}}</view>
+      aria-hidden="{{!(cancelShown || editingBar)}}" style="{{cancelStyle}}" bindtap="onCancel">{{cancelButtonTitle || appearanceCancelTitle || labels.cancel}}</view>
   </block>
 </view>

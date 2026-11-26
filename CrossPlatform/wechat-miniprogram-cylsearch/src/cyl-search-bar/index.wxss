@@ -39,6 +39,8 @@
 .cyl-multi-remove, .cyl-multi-button { flex: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
 .cyl-multi-remove { width: 32px; }
 .cyl-multi-remove .cyl-mask-clear { background-color: #007aff; }
+/* The appearance's clear button image (iOS CYLSearchBarAppearance.clearIconImage): the size of the built-in one. */
+.cyl-clear-image { width: 18px; height: 18px; }
 .cyl-cancel { flex: none; padding: 0 0 0 12px; color: #007aff; font-size: 17px; max-width: 200px; overflow: hidden; white-space: nowrap; }
 .cyl-cancel-animated, .cyl-accessory-animated { transition: max-width 0.25s ease-out, opacity 0.25s ease-out; }
 .cyl-cancel-hidden { max-width: 0; padding-left: 0; margin: 0 !important; opacity: 0; pointer-events: none; }
