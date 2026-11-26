@@ -387,3 +387,16 @@ for `TODO` before you close its area.
 [core.md](https://github.com/ChenYilong/CYLSearchViewController/blob/feat/harmonyos-parity/docs/instructions/core.md) ("One search field, no
 system search bar" and "Trailing group layout"), [example-demos.md](https://github.com/ChenYilong/CYLSearchViewController/blob/feat/harmonyos-parity/docs/instructions/example-demos.md)
 (rules 8 to 10) and the skill `.agents/skills/cyl-search-field/SKILL.md`. Later handover notes go at the end of this file; do not add a second file to this folder.
+
+## 18. Taken over 2026-11-27 (Windows session, week 20261104)
+
+Progress on the items above, branch `feat/harmonyos-parity`. Details: [task-log.md](../../task-log.md), "TODO (2026-11-27 ... take over the 20261104 handover".
+
+| Item | State | Evidence |
+|:---|:---|:---|
+| I7: 8 screenshots at `af56db22` without header and footer | DONE, together with 21 more images of the same day with the same defect (`tabbar-tint-*-at-d19e138e`, `tabbar-template-*-at-b4993123`); originals in `docs/assets/raw/` | `sh scripts/check-screenshot-labels.sh 114ef3f^ HEAD` prints `screenshot labels: ok`; commit `7ce7c73` |
+| Section 7, "Flutter Discover tab root: empty glass box" | FIXED in the Flutter plugin core, unit-tested; **device run still TODO** | Cause: the four platform-view widgets dropped a change made before the native view's creation callback (`_channel` still null); now `_created` sends `update`. `test/cyl_created_update_test.dart` 4/4 red before, green after; `flutter test` 44/44 |
+| Section 7, mini program `beforeCompile` does not refresh the components | Not changed: `project.config.json` already has the three hooks and `scriptsEnable: true`; why DevTools skipped it can only be seen in DevTools. Still run `node scripts/sync-example.js` by hand | - |
+| I1 to I6 (iOS) | With `mac/CYLSearchViewController` (on I1 since 2026-11-27) | - |
+
+Next for the Windows side: run the Flutter Android example on `CYL_Second_API_37` and screenshot the Discover tab root light and dark at the fix commit; the pin pair is still waiting for the Mac session's announcement.
