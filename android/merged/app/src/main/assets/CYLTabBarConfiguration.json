@@ -1,5 +1,6 @@
 {
   "CYLTabBarControllerContext": "CYLSearchExampleAndroid",
+  "CYLTabBarControllerIconRenderingMode": "template",
   "CYLTabBarControllerLocalization": {
     "CYLTabBarLocalizationTableName": "CYLSearchTabs",
     "CYLTabBarLocalizationBundleName": "CYLSearchTabs.bundle"
