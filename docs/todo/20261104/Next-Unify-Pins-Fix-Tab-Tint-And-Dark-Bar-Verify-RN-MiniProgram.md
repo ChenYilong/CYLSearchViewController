@@ -410,6 +410,7 @@ Next for the Windows side: run the Flutter Android example on `CYL_Second_API_37
 | I1: `CYLSearchController` overlay left after a pop or a dismissal | FIXED in the core: the search ends when the contents page leaves for good; the page and the swipe recognizer leave the host when the search ends and in `deinit` | 3 new tests in `CYLSearchControllerLifecycleTests` red before, green after; full `CYLSearchExampleTests` 153/153 on iOS 26.1. Details: [task-log.md](../../task-log.md), "fix bug I1" |
 | I8: `iOS` CI runs never finish | CAUSE FOUND: a stale queued run (`45745662592`, `b51cfac`) held the concurrency group; cancelled, the newest run started. Remaining: macOS jobs can wait hours for a runner | [task-log.md](../../task-log.md), "handover I8" |
 | 10 iOS screenshots without a dated, committed label line (PR #11 range) | DONE; 4 Android images of the same check remain (Windows session) | same entry |
+| I3: `CYLSearchController` page keeps an old frame after a size change | FIXED in the core: the page resizes with its host and lays itself out again | new test red before, green after; suite 154/154. [task-log.md](../../task-log.md), "fix bug I3" |
 
 ## 20. Windows session, second pass 2026-11-27: the pin split now breaks the Flutter (and RN) Android build
 

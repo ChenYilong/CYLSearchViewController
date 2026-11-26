@@ -279,4 +279,25 @@ final class CYLSearchControllerLifecycleTests: CYLSearchExampleTestCase {
         XCTAssertTrue(run.search.activePageView === page, "the page comes back on the next search")
         tearDownSearchRun(run)
     }
+
+
+    // MARK: - I3: the page follows a size change
+
+    /// I3: the host changes size while the search is active (a rotation, split view): the page fills the new width and reaches
+    /// the new bottom edge.
+    func testI3SizeChangeLaysThePageOutAgain() {
+        let run = makeSearchRun()
+        activateSearch(run)
+        let page = try! XCTUnwrap(run.search.activePageView)
+        let host = try! XCTUnwrap(page.superview)
+        XCTAssertEqual(page.frame.width, host.bounds.width, accuracy: 0.5)
+        run.window.frame = CGRect(x: 0, y: 0, width: 874, height: 402)
+        run.window.layoutIfNeeded()
+        runLoop(0.3)
+        XCTAssertEqual(host.bounds.width, 874, accuracy: 0.5, "the host follows the window")
+        XCTAssertEqual(page.frame.width, host.bounds.width, accuracy: 0.5, "the page keeps the old width")
+        XCTAssertEqual(page.frame.maxY, host.bounds.maxY, accuracy: 0.5, "the page keeps the old height")
+        XCTAssertEqual(page.frame.minY, run.search.topEdge(in: host), accuracy: 0.5, "the page starts below the field")
+        tearDownSearchRun(run)
+    }
 }

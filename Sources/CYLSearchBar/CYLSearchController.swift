@@ -255,7 +255,7 @@ open class CYLSearchController: UIViewController, CYLSearchBarViewDelegate {
     // MARK: Internal state
 
     private(set) weak var contentsViewController: UIViewController?
-    private let pageView = UIView()
+    private let pageView = CYLSearchPageView()
     lazy var dimmingView: CYLSearchDimmingView = {
         let view = CYLSearchDimmingView()
         view.onTap = { [weak self] in self?.setActive(false, animated: true) }
@@ -317,6 +317,9 @@ open class CYLSearchController: UIViewController, CYLSearchBarViewDelegate {
         }
         pageView.backgroundColor = .clear
         pageView.isHidden = true
+        // The page follows its host's size (a rotation, split view) and is laid out again for it (handover bug I3).
+        pageView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        pageView.onSizeChange = { [weak self] in self?.layoutPage() }
     }
 
     /**
@@ -745,6 +748,22 @@ extension CYLSearchController: UIGestureRecognizerDelegate {
         if otherGestureRecognizer === navigation.interactivePopGestureRecognizer { return true }
         if #available(iOS 26.0, *), otherGestureRecognizer === navigation.interactiveContentPopGestureRecognizer { return true }
         return false
+    }
+}
+
+// MARK: - Page view
+
+// The page over the contents: it tells its owner when its size changed, so the owner lays it out again below the field.
+final class CYLSearchPageView: UIView {
+
+    var onSizeChange: (() -> Void)?
+    private var laidOutSize: CGSize?
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        guard bounds.size != laidOutSize else { return }
+        laidOutSize = bounds.size
+        onSizeChange?()
     }
 }
 

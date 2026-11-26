@@ -2237,7 +2237,7 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 - **Not covered**: a real device; the interactive (swipe) pop that the user cancels halfway, where `isMovingFromParent` is true in
   `viewWillDisappear` but `viewDidDisappear` is not called, so the search correctly stays (not tested).
 
-## TODO (2026-11-27, `feat/harmonyos-parity`, Windows session): continue the handover, RN `goBack()` on `CYLSearchBarHandle`
+## DONE (2026-11-27, `feat/harmonyos-parity`, Windows session): continue the handover, RN `goBack()` on `CYLSearchBarHandle`
 
 - **Context**: second pass over `docs/todo/20261104/` (one file, sections 1 to 19; 19 is the Mac I1 fix). The Flutter device run of the first pass still waits: `C:/w/heavy.lock` is held by `winsCYLTabBarController` (Gradle tests, owner file present). Next unblocked Windows item of handover section 7: "RN hardware back: no reverse animation" (task-log.md:2134): the example's `BackHandler` calls `setSearchTab(null)` at once, while a tap on the bar's back arrow first hides the arrow with its animation (`hideBackButton(animated)`) and then sends `onBackButtonTap`.
 - **Requirements**: read every file of the `docs/todo` folders, complete the handover, continue writing code.
@@ -2271,7 +2271,7 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 - This entry was written after the work, not before it.
 
 
-## TODO (2026-11-27, `feat/harmonyos-parity`, Mac iOS session): fix bug I3, the `CYLSearchController` page keeps an old frame after a size change
+## DONE (2026-11-27, `feat/harmonyos-parity`, Mac iOS session): fix bug I3, the `CYLSearchController` page keeps an old frame after a size change
 
 - **Context**: handover bug I3 (P2, section 14). `layoutPage()` runs on activation and on text, keyboard and empty view changes only;
   `pageView` is a plain `UIView` in the navigation controller's view or the window, so a rotation or a size change (iPad split view,
@@ -2293,3 +2293,11 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 - **Acceptance (100)**: a test red before and green after; `npm test` all pass; the bar's own `cancelButtonTitle` wins over the appearance's (iOS: the appearance is applied under the bar's own properties); a DevTools check of both. **(60)**: the first three.
 - **Result**: `src/cyl-search-bar/index.js` sets `appearanceCancelTitle` and `clearIcon` from the appearance; `index.wxml` shows `cancelButtonTitle || appearanceCancelTitle || labels.cancel` and an `<image>` of `clearIcon` instead of the built-in clear mask when set; `index.wxss` sizes it like the built-in icon (18 px). New test in `test/components.test.js` failed before the change; `npm test` 174/174 (173 before). `bash scripts/check-public-api-comments.sh` OK.
 - **Score**: 75 / 100. **Missing (25)**: not seen in WeChat DevTools (`wechatide-skill`, private AppID flow; the image path and the tint of the custom clear image are unchecked).
+
+- **Status**: DONE (2026-11-27). Score 100 / 100.
+- **Result**: the page is a `CYLSearchPageView` that resizes with its host (`autoresizingMask` width and height) and, when its size
+  changed, asks the controller to lay it out again (`layoutPage()`: below the field, to the host's bottom, keyboard inset).
+- **Evidence**: `testI3SizeChangeLaysThePageOutAgain` (window 402 x 874 to 874 x 402 while active) failed before the fix (width and
+  height kept the old values) and passes after; full `CYLSearchExampleTests` 154 tests, 0 failures (iPhone Air simulator, iOS 26.1,
+  2026-11-27). The first before-fix run hung at app launch for 14 minutes while other sessions built; it was stopped and rerun.
+- **Not covered**: a real device rotation and iPad split view (the test resizes the window); the iOS example is portrait only.
