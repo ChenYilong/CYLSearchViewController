@@ -2290,3 +2290,21 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
   height kept the old values) and passes after; full `CYLSearchExampleTests` 154 tests, 0 failures (iPhone Air simulator, iOS 26.1,
   2026-11-27). The first before-fix run hung at app launch for 14 minutes while other sessions built; it was stopped and rerun.
 - **Not covered**: a real device rotation and iPad split view (the test resizes the window); the iOS example is portrait only.
+
+## TODO (2026-11-27, `feat/harmonyos-parity`, Mac iOS session): one pin pair on every platform, and the RN iOS build of `goBack`
+
+- **Context**: handover sections 4, 8 (item 9) and 20: the platforms pin different CYLTabBarController commits (iOS, Flutter, mini
+  program `08343e9f`; Android `af56db22`; HarmonyOS `d19e138e`), which now breaks the Flutter and RN Android builds. The Windows session
+  asked the Mac session to announce the pair, and to build the RN iOS example after `goBack` (`3289796`).
+- **Owner decision (2026-11-27, this session)**: wait for the tab bar session's newer commit and repin every platform once to it.
+- **State**: CYLTabBarController head of `feat/harmony-animated-item-engines` is `dd691795fbdb6a9f8b80950f2c1ca4b748a150f9`
+  (contains `f7c24ce7`, which the Mac tab bar session tested on iOS, plus `eb4b390a`). ClassifyMenu `c0b183de` does **not** compile
+  against it (iOS: `CYLAnimatedItemCornerRadiusCapsule` missing, `isAnimationEngineAvailable` override errors in `CYLTagButton.swift`),
+  so the tab bar pin cannot move alone. The ClassifyMenu session is repinning ClassifyMenu to `dd691795` on `fix/shared-contrast-ios`
+  (PR #42) and will send that SHA; the pair is `dd691795` + that SHA. The root Podfile was tried at `dd691795` and restored.
+- **RN iOS build of `goBack`**: not built. The git-ignored `example/vendor/CYLTabBarController` is at `41660d24` with many uncommitted
+  local changes from an earlier Mac session, so `scripts/fetch-cyltabbar.sh` cannot check out the pin; the build fails in ClassifyMenu
+  for the same API reason. Waiting for the owner's permission to discard those local changes.
+- **Acceptance**: 100 = the pair announced, iOS Podfiles (root, Flutter, RN) repinned, the iOS suite passes, the RN iOS example builds
+  with `goBack`, pushed. 60 = the pair announced and the root iOS suite passes at it.
+- **Status**: waiting for the ClassifyMenu SHA.
