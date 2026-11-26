@@ -558,7 +558,7 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
         }
         // The core's default search button: shown unless Dart hides it; with a Dart handler a tap goes to Dart (`didTapSearchButton`).
         bar.showsSearchButton = arguments["showsSearchButton"] as? Bool ?? true
-        let buttonStyle: CYLSearchBarSearchButtonStyle = (arguments["searchButtonStyle"] as? String) == "icon" ? .icon : .text
+        let buttonStyle: CYLSearchBarSearchButtonStyle = (arguments["searchButtonStyle"] as? String) == "text" ? .text : .icon
         if bar.searchButtonStyle != buttonStyle { bar.searchButtonStyle = buttonStyle }
         let buttonTitle = arguments["searchButtonTitle"] as? String
         if bar.searchButtonTitle != buttonTitle { bar.searchButtonTitle = buttonTitle }

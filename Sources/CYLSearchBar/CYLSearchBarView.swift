@@ -102,11 +102,12 @@ public enum CYLSearchBarItemStyle: Int {
 @objc(CYLSearchBarSearchButtonStyle)
 public enum CYLSearchBarSearchButtonStyle: Int {
     /**
-     * The button shows a title, "Search" localized by default (`searchButtonTitle` changes it). The default.
+     * The button shows a title, "Search" localized by default (`searchButtonTitle` changes it).
      */
     case text = 0
     /**
-     * The button shows an icon, the core's built-in magnifier by default (`searchButtonImage` changes it).
+     * The button shows an icon in a filled capsule, the core's built-in magnifier by default (`searchButtonImage` changes it). The
+     * default.
      */
     case icon = 1
 }
@@ -630,9 +631,9 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     }
 
     /**
-     * Whether the default search button shows a title (`.text`, the default) or an icon (`.icon`).
+     * Whether the default search button shows an icon in a filled capsule (`.icon`, the default) or a title (`.text`).
      */
-    @objc public var searchButtonStyle: CYLSearchBarSearchButtonStyle = .text {
+    @objc public var searchButtonStyle: CYLSearchBarSearchButtonStyle = .icon {
         didSet { rebuildSearchButton() }
     }
 
@@ -2772,7 +2773,8 @@ final class CYLSearchBarItemButton: CYLTagButton {
         }
         switch item.style {
         case .text:
-            return UIEdgeInsets(top: 0, left: 4, bottom: 0, right: 4)
+            // Only a text item with a shape of its own needs room around the title; a plain one hugs it.
+            return drawsOwnShape ? UIEdgeInsets(top: 0, left: 4, bottom: 0, right: 4) : .zero
         case .icon, .divider:
             return .zero
         }
@@ -2880,11 +2882,36 @@ final class CYLSearchBarItemButton: CYLTagButton {
                 // A sized item (the default search button's capsule): its own height, as wide as its icon and insets need.
                 return CGSize(width: max(item.itemHeight, fitting.width), height: item.itemHeight)
             }
+            if !drawsOwnShape {
+                // A plain icon hugs its glyph: the stack view's spacing is then the visible gap on both sides of a divider (the
+                // touch area is widened to the 36 pt minimum by `point(inside:with:)`, not by empty room around the glyph).
+                return CGSize(width: fitting.width, height: Self.minimumTouchSide)
+            }
             let side = max(Self.minimumTouchSide, max(fitting.width, fitting.height))
             return CGSize(width: side, height: side)
         case .text:
+            if !drawsOwnShape {
+                return CGSize(width: fitting.width, height: max(Self.minimumTouchSide, fitting.height))
+            }
             return CGSize(width: max(Self.minimumTouchSide, fitting.width), height: max(Self.minimumTouchSide, fitting.height))
         }
+    }
+
+    /**
+     * Whether the item draws a shape of its own (a background or an outline): such an item keeps its 36 pt size, a plain one hugs its
+     * content.
+     */
+    private var drawsOwnShape: Bool {
+        guard let item else { return false }
+        return item.backgroundColor != nil || item.selectedBackgroundColor != nil || item.borderColor != nil
+    }
+
+    /**
+     * A plain item that hugs its content keeps a touch area of at least 36 pt across.
+     */
+    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        let extra = max(0, (Self.minimumTouchSide - bounds.width) / 2)
+        return bounds.insetBy(dx: -extra, dy: 0).contains(point)
     }
 
     override func layoutSubviews() {

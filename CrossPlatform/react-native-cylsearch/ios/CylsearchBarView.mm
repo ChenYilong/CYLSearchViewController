@@ -144,7 +144,7 @@ using namespace facebook::react;
   }
   // The core's default search button: shown unless JavaScript hides it; with a JavaScript handler a tap sends onSearchButtonTap.
   _bar.showsSearchButton = p.showsSearchButton;
-  CYLSearchBarSearchButtonStyle buttonStyle = [CYLRNString(p.searchButtonStyle) isEqualToString:@"icon"] ? CYLSearchBarSearchButtonStyleIcon : CYLSearchBarSearchButtonStyleText;
+  CYLSearchBarSearchButtonStyle buttonStyle = [CYLRNString(p.searchButtonStyle) isEqualToString:@"text"] ? CYLSearchBarSearchButtonStyleText : CYLSearchBarSearchButtonStyleIcon;
   if (_bar.searchButtonStyle != buttonStyle) {
     _bar.searchButtonStyle = buttonStyle;
   }

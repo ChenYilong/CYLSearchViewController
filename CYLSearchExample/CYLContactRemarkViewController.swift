@@ -73,6 +73,8 @@ final class CYLContactRemarkViewController: UIViewController {
         // The remark name is typed in the core's navigation bar field (the Discover page's look): no field of its own.
         nameBar.applyNavigationFieldStyle()
         nameBar.placeholder = cylContactTagsText("remarkName")
+        // The text style of the default search button (the other examples use the default icon style).
+        nameBar.searchButtonStyle = .text
         nameField.accessibilityLabel = cylContactTagsText("remarkName")
         nameField.accessibilityIdentifier = "CYLContactRemarkNameField"
 

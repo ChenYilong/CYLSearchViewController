@@ -420,7 +420,9 @@ final class CYLSearchExampleCacheFocusItemTests: CYLSearchExampleTestCase {
         XCTAssertLessThanOrEqual(bar.textField.frame.maxX, cameraFrame.minX + 0.5)
         XCTAssertGreaterThanOrEqual(searchFrame.minX - cameraFrame.maxX, 17 - 0.5)
         XCTAssertLessThanOrEqual(searchFrame.maxX, bar.fieldView.bounds.width + 0.5)
-        XCTAssertEqual(cameraFrame.width, 36, accuracy: 0.5)
+        // A plain icon hugs its glyph (20 pt by default); its touch area is still 36 pt across.
+        XCTAssertEqual(cameraFrame.width, 20, accuracy: 0.5)
+        XCTAssertTrue(camera.itemView.point(inside: CGPoint(x: -7, y: camera.itemView.bounds.midY), with: nil))
         XCTAssertFalse(divider.itemView.isAccessibilityElement)
         XCTAssertTrue(camera.itemView.isAccessibilityElement)
         XCTAssertEqual(camera.itemView.accessibilityLabel, "Camera")

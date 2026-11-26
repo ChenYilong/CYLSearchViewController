@@ -156,9 +156,10 @@ Details of the `core` tag of [AGENTS.md](../../AGENTS.md) and [instructions.md](
      like), the port keeps that library's classes only as a replica of its API, and its demo screen shows the core field.
   4. A screen that needs a plain text input that is not a search (a remark name) uses the same field too (one input look).
   5. Default search button (owner, 2026-11-26): every `CYLSearchBarView` has a built-in, kept search button after the field and the
-     owner's items (a divider before it when an item precedes it), a title by default (the localized "Search": en, ja, zh-Hans,
-     zh-Hant). The core has a built-in magnifier icon (iOS SF Symbol `magnifyingglass`); the caller chooses `searchButtonStyle`
-     (`text` or `icon`), a custom `searchButtonTitle` or `searchButtonImage`, `searchButtonHandler`, or `showsSearchButton = false`.
+     owner's items (a divider before it when an item precedes it), the ICON style by default (owner, 2026-11-26: a filled capsule with the
+     core's built-in magnifier, SF Symbol `magnifyingglass` on iOS; the reference look is the Search tab's bar: black capsule, white magnifier,
+     equal gap above, below and at the right). The TEXT style shows a title (the localized "Search": en, ja, zh-Hans, zh-Hant). The caller
+     chooses `searchButtonStyle` (`icon`, the default, or `text`), a custom `searchButtonTitle` or `searchButtonImage`, `searchButtonHandler`, or `showsSearchButton = false`.
      An editing bar (`editingBar(...)`) and a bar in multiple mode have none. It is not in `items`. A tap submits the text, and tells
      the delegate `searchBarViewSearchButtonClicked` also for empty text on a plain bar; a search PAGE or view (`CYLSearchView`) ignores an empty tap: nothing submitted, recorded or closed, the keyboard stays (owner, 2026-11-26). Every platform exposes the same names.
   6. Keyboard life cycle of the bar itself (owner, 2026-11-26): the bar manages it as the smallest component, so it works in every
@@ -172,3 +173,8 @@ Details of the `core` tag of [AGENTS.md](../../AGENTS.md) and [instructions.md](
      life cycle events (`didEnterScreen`, `appDidBecomeActiveOnScreen` (library PR #30), `didTouchOutside` (library PR #29, on top of #30)); the core's podspec depends on it
      and every platform's pin must name the same commit. Other platforms use their own ports of those events.
 - Skill: `cyl-search-field`. Per-platform status: `docs/task-log.md`, entry "no system search bar on any platform".
+- Trailing group layout (owner, 2026-11-26): the search field is the flexible control and takes all the width the right-hand group leaves;
+  the group's items (camera, divider, default search button) are spaced only by the stack view's spacing, from the right edge to
+  the left, so the visible gaps beside a divider are equal. A plain icon or text item (no background, no outline) HUGS its content;
+  its touch area is widened to 36 pt across by hit testing, never by empty room around the glyph; an item with a shape of its own
+  (background or outline, such as the icon search capsule) keeps its size. Every platform follows the same rule.
