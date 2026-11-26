@@ -25,8 +25,8 @@
 .cyl-field { overflow: visible; }
 .cyl-item-hug { overflow: visible; }
 .cyl-item-hug::after { content: ''; z-index: 1; position: absolute; top: 0; bottom: 0; left: 50%; width: 36px; margin-left: -18px; }
-/* The built-in divider: 1 x 20, secondary label strength (60%); the gaps beside it are the group's spacing. */
-.cyl-divider { width: 1px; height: 20px; margin: 0; background: rgba(60, 60, 67, 0.6); }
+/* The built-in divider: 1 x 20, secondary label strength (60%); the gaps beside it are the group's spacing: `.cyl-gap` gives the 8 before it, no margin of its own here (a `margin: 0` here overrode it: DevTools measured 0 before the divider). */
+.cyl-divider { width: 1px; height: 20px; background: rgba(60, 60, 67, 0.6); }
 
 /* mode "multiple" (was cyl-multi-search): the searches in a row, the selected one underlined, the new-search button. */
 .cyl-multi { display: flex; align-items: center; height: 48px; }

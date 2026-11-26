@@ -1,5 +1,5 @@
 const { cylSearchShouldFocusOnAppear, cylSearchIsOnSecondLevelOrDeeperPage, cylNavigationFieldStyle, cylSearchBarPresetSpec, CYLSearchBarColors, CYLSearchBarView, CYLSearchBarItem, CYLSearchBarMode, CYLSearchBarAppearance, cylInsetsCSS, cylSearchButtonColors, cylSearchButtonHasDivider, cylSearchButtonTrailingInset, CYLSearchBarSearchButtonStyle } = require('../core/CYLSearchBarView');
-const { CYLSearchResources, cylFormatString } = require('../core/CYLSearchResources');
+const { CYLSearchResources, cylFormatString, cylAbsoluteImagePath } = require('../core/CYLSearchResources');
 
 const text = (key) => CYLSearchResources.localizedString(undefined, key);
 
@@ -464,10 +464,19 @@ Component({
         hasDivider: cylSearchButtonHasDivider(model.items.length),
         label: item.accessibilityText,
         hugs: item.hugsContent,
-        button: item.tagButtonProperties(model.itemTintColor, dark),
+        button: this.absoluteImages(item.tagButtonProperties(model.itemTintColor, dark)),
         trailingInset: cylSearchButtonTrailingInset(this.properties.fieldHeight, item.itemHeight, 12, icon),
         icon,
       };
+    },
+    // The package's own images (`../images/search.svg`) are relative to this component; the item's cyl-tag-button lives in
+    // another folder, so it gets absolute paths (without them the default search button's magnifier draws nothing).
+    absoluteImages(button) {
+      const is = this.is;
+      return Object.assign({}, button, {
+        image: cylAbsoluteImagePath(is, button.image),
+        selectedImage: cylAbsoluteImagePath(is, button.selectedImage),
+      });
     },
     syncItems() {
       const dark = defaultItemTint() === '#FFFFFF';
@@ -478,7 +487,7 @@ Component({
         shownItems: this.model.items.map((item) => Object.assign(item.itemDictionary(), {
           label: item.accessibilityText,
           hugs: item.hugsContent,
-          button: item.tagButtonProperties(this.model.itemTintColor, dark),
+          button: this.absoluteImages(item.tagButtonProperties(this.model.itemTintColor, dark)),
         })),
       });
     },

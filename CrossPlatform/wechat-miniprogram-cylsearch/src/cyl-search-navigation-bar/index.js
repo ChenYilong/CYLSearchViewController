@@ -22,7 +22,7 @@ const { cylBackButtonRequest, cylFirstLevelTapAction, cylBackButtonWantedFor } =
 Component({
   options: { multipleSlots: true },
   properties: {
-    showsBack: { type: Boolean, value: false },
+    showsBack: { type: Boolean, value: false, observer: 'onShowsBackChange' },
     backLabel: { type: String, value: '' },
     autoBack: { type: Boolean, value: true },
     pushesOnTap: { type: Boolean, value: false },
@@ -31,6 +31,21 @@ Component({
   data: { metrics: {}, barStyle: '', contentStyle: '', back: '', backShown: false, backAnimated: false },
   lifetimes: {
     attached() {
+      this.layout();
+    },
+  },
+  pageLifetimes: {
+    // The page is shown again (returned from the second-level page by the back button or the swipe back, or shown first):
+    // a first-level bar takes the back button out, animated; no-op when it is not shown.
+    show() {
+      if (this.properties.pushesOnTap) this.setBackButton(cylBackButtonWantedFor(true), true);
+    },
+  },
+  methods: {
+    // Measures the bar (status bar, menu button, back slot) and draws it. Also runs when `showsBack` changes after the bar was
+    // attached: a page sets it in `onLoad` (WeChat DevTools, 2026-11-26: the page's initial false was read once, so the
+    // second-level page showed no back button).
+    layout() {
       const metrics = cylNavigationMetrics();
       let window = {};
       let menuButton = null;
@@ -52,15 +67,9 @@ Component({
         back: this.properties.backLabel || CYLSearchResources.localizedString(undefined, 'search.back'),
       });
     },
-  },
-  pageLifetimes: {
-    // The page is shown again (returned from the second-level page by the back button or the swipe back, or shown first):
-    // a first-level bar takes the back button out, animated; no-op when it is not shown.
-    show() {
-      if (this.properties.pushesOnTap) this.setBackButton(cylBackButtonWantedFor(true), true);
+    onShowsBackChange() {
+      if (this.data.metrics && this.data.metrics.statusBarHeight !== undefined) this.layout();
     },
-  },
-  methods: {
     /** Brings the back button in on the left; the bar narrows to make room. Asking twice is a no-op. */
     showBackButton(animated = true) {
       this.setBackButton(true, animated);

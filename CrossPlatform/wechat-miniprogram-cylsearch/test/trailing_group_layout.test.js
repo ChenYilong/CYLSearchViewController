@@ -63,7 +63,7 @@ test('items report hugsContent: plain icon hugs, the icon search button capsule 
 test('the component spaces the group by one margin and hugs plain items', () => {
   const css = read('src', 'cyl-search-bar', 'index.wxss');
   assert.match(css, /\.cyl-gap \{[^}]*margin-left: 8px/);
-  assert.match(css, /\.cyl-divider \{[^}]*margin: 0;/, 'no empty room beside the divider');
+  assert.doesNotMatch(css, /.cyl-divider {[^}]*margin/, 'no margin of its own on the divider: it would override the 8 of .cyl-gap');
   assert.match(css, /\.cyl-item-hug \{ min-width: 0; \}/);
   assert.match(css, /\.cyl-item-hug::after \{[^}]*width: 36px/);
   const wxml = read('src', 'cyl-search-bar', 'index.wxml');

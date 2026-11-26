@@ -231,6 +231,22 @@ function $r(reference) {
 }
 
 /**
+ * An image path of this package (relative to a component of it, like `../images/search.svg`) as an absolute path of the
+ * mini program, from the component's own path (`this.is`, like `components/cyl-search-bar/index`). A component that is
+ * handed the path (the cyl-tag-button of an item, in another package folder) would otherwise resolve it against its own
+ * folder and draw nothing. Other paths (absolute, URLs, data) and an unknown component path stay as they are.
+ */
+function cylAbsoluteImagePath(componentPath, image) {
+  if (typeof image !== 'string' || typeof componentPath !== 'string' || !/^\.\.?\//.test(image)) return image;
+  const parts = componentPath.split('/').slice(0, -1);
+  image.split('/').forEach((part) => {
+    if (part === '..') parts.pop();
+    else if (part !== '.') parts.push(part);
+  });
+  return `/${parts.join('/')}`;
+}
+
+/**
  * The height of the search field embedded in a navigation bar (docs/animated-icon-component.md, "The search bar is
  * always in a navigation bar"): a standard bar is 44 pt, the field 36.
  */
@@ -461,6 +477,7 @@ module.exports = {
   CYLSearchSuggestionCache,
   cylSuggestionCache,
   cylFormatString,
+  cylAbsoluteImagePath,
   cylNavigationMetrics,
   cylNavigationMetricsFrom,
   CYL_NAVIGATION_FIELD_HEIGHT,

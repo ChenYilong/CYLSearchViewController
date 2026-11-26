@@ -173,3 +173,21 @@ test('the example pages never animate the back button or set the bar width thems
     });
   });
 });
+
+test('a showsBack set after the bar was attached (a page sets it in onLoad) shows the back button', () => {
+  global.wx = { getStorageSync: () => undefined, getAppBaseInfo: () => ({ language: 'en' }), getWindowInfo: () => ({ windowWidth: 390, statusBarHeight: 47 }),
+    getMenuButtonBoundingClientRect: () => ({ left: 296, right: 383, top: 51, height: 32 }) };
+  let definition;
+  global.Component = (options) => { definition = options; };
+  const file = path.join(root, 'src', 'cyl-search-navigation-bar', 'index.js');
+  delete require.cache[require.resolve(file)];
+  require(file);
+  const instance = Object.assign({ data: JSON.parse(JSON.stringify(definition.data)), properties: { showsBack: false, backLabel: '' } }, definition.methods);
+  instance.setData = (patch) => Object.assign(instance.data, patch);
+  definition.lifetimes.attached.call(instance);
+  assert.equal(instance.data.backShown, false);
+  instance.properties.showsBack = true;
+  assert.equal(definition.properties.showsBack.observer, 'onShowsBackChange');
+  instance.onShowsBackChange();
+  assert.equal(instance.data.backShown, true, 'the observer redraws with the back button');
+});
