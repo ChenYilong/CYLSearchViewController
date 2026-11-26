@@ -184,6 +184,9 @@ class CylsearchBarViewManager : SimpleViewManager<CylsearchBarView>(), Cylsearch
   /** The `restartItemAnimation` command: plays that item's animation again from the start. */
   override fun restartItemAnimation(view: CylsearchBarView, index: Int) = view.restartItemAnimation(index)
 
+  /** The `goBack` command: the back arrow slides out, then `onBackButtonTap` (the hardware back key of the app). */
+  override fun goBack(view: CylsearchBarView) = view.goBack()
+
   /**
    * The views use the activity's theme (DayNight), which follows the system like React Native's color scheme.
    */

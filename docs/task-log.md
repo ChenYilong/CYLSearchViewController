@@ -2236,3 +2236,14 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
   `CYLSearchExampleTests` suite ran 153 tests with 0 failures (iPhone Air simulator, iOS 26.1, Xcode on macOS, 2026-11-27).
 - **Not covered**: a real device; the interactive (swipe) pop that the user cancels halfway, where `isMovingFromParent` is true in
   `viewWillDisappear` but `viewDidDisappear` is not called, so the search correctly stays (not tested).
+
+## TODO (2026-11-27, `feat/harmonyos-parity`, Windows session): continue the handover, RN `goBack()` on `CYLSearchBarHandle`
+
+- **Context**: second pass over `docs/todo/20261104/` (one file, sections 1 to 19; 19 is the Mac I1 fix). The Flutter device run of the first pass still waits: `C:/w/heavy.lock` is held by `winsCYLTabBarController` (Gradle tests, owner file present). Next unblocked Windows item of handover section 7: "RN hardware back: no reverse animation" (task-log.md:2134): the example's `BackHandler` calls `setSearchTab(null)` at once, while a tap on the bar's back arrow first hides the arrow with its animation (`hideBackButton(animated)`) and then sends `onBackButtonTap`.
+- **Requirements**: read every file of the `docs/todo` folders, complete the handover, continue writing code.
+- **Prompt (verbatim)**: "阅读docs 文件夹下的包含 todo 文字的文件夹，遍历文件夹中的所有文件以及子文件夹下的所有文件。阅读交接文档完成交接任务。继续编写代码。"
+- **Prompt (English)**: "Read the folders under docs whose name contains todo, every file in them and in their subfolders. Read the handover document and complete the handover. Continue writing code."
+- **Plan**: a `goBack` command in the codegen spec (`CylsearchBarViewNativeComponent.ts`), `goBack()` on `CYLSearchBarHandle` (`index.tsx`), Android: the same path as the arrow's tap (`hideBackButton(animated)` then `onBackButtonTap`; without a back button the event goes at once), iOS: sends `onBackButtonTap` like the navigation bar's back handler (iOS has no hardware back; Mac session verifies the build); the example's hardware back calls `goBack()`; jest test.
+- **Acceptance (100)**: spec, TS handle, Android and iOS command implemented; jest test for `goBack` red before and green after; `yarn tsc` and jest pass; Android library compiles (Gradle); device run on the emulator shows the reverse animation on hardware back; docs updated; pushed.
+- **Acceptance (60)**: spec, TS, Android, iOS and example changed; jest and tsc pass; docs updated; pushed; device run and Gradle compile listed as TODO if the heavy lock stays held.
+- **Status**: started 2026-11-27.

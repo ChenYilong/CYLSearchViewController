@@ -166,15 +166,8 @@ function Screens() {
   // The Discover page is always a second-level page (a back button in its navigation bar): it opens on the entry page at
   // once, the back button returns to the entry (owner's rule for every example).
   // The tab whose second-level search page is pushed (null: every tab shows its first-level page with the whole search bar).
+  // The hardware back key of the second-level page is handled by DiscoverDemo (the bar's goBack()).
   const [searchTab, setSearchTab] = useState<string | null>(null);
-  useEffect(() => {
-    const subscription = BackHandler.addEventListener("hardwareBackPress", () => {
-      if (searchTab === null) return false;
-      setSearchTab(null);
-      return true;
-    });
-    return () => subscription.remove();
-  }, [searchTab]);
   const [iconSource, setIconSource] = useState<'rive' | 'svga'>(() => (Platform.OS === 'ios' && Number(Settings.get('CYLDemoTabIconSource')) === 2 ? 'svga' : 'rive'));
   if (open?.qmui) {
     return (
@@ -478,6 +471,14 @@ function DiscoverDemo({ tabKey, onBack }: { tabKey: string; onBack: () => void }
   const look = TAB_LOOKS[tabKey] ?? {};
   const palette = usePalette();
   const barRef = useRef<CYLSearchBarHandle>(null);
+  // The hardware back key leaves like the bar's back arrow: the arrow slides out, then onBackButtonTap (onBack).
+  useEffect(() => {
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      barRef.current?.goBack();
+      return true;
+    });
+    return () => subscription.remove();
+  }, []);
   const [animationLoops, setAnimationLoops] = useState(false);
   const [animationSpeed, setAnimationSpeed] = useState(1);
   const text = discoverStrings();

@@ -77,6 +77,18 @@ using namespace facebook::react;
   }
 }
 
+/*!
+ * The `goBack` command (the hardware back key of Android): iOS has none, so it sends `onBackButtonTap` as the
+ * navigation bar's back button does.
+ */
+- (void)goBack
+{
+  if (_eventEmitter) {
+    std::static_pointer_cast<CylsearchBarViewEventEmitter const>(_eventEmitter)
+        ->onBackButtonTap(CylsearchBarViewEventEmitter::OnBackButtonTap{.tapped = true});
+  }
+}
+
 - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &)oldProps
 {
   const auto &p = *std::static_pointer_cast<CylsearchBarViewProps const>(props);

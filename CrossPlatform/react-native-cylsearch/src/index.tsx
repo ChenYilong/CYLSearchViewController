@@ -217,15 +217,9 @@ export function CYLSearchBarView({
 }: SearchBarProps) {
   const scheme = useColorScheme();
   const native = useRef<ElementRef<typeof CylsearchBarViewNative>>(null);
-  useImperativeHandle(ref, () => ({
-    setActive: (active: boolean) => {
-      if (native.current) BarCommands.setActive(native.current, active);
-    },
-    restartItemAnimation: (index: number) => {
-      if (native.current)
-        BarCommands.restartItemAnimation(native.current, index);
-    },
-  }));
+  useImperativeHandle(ref, () =>
+    cylSearchBarHandle(() => native.current, BarCommands)
+  );
   return (
     <CylsearchBarViewNative
       ref={native}
@@ -311,7 +305,39 @@ export type CYLSearchBarHandle = {
    * Plays the animation of the item at `index` again from the start (`CYLSearchBarItem.restartAnimation()`).
    */
   restartItemAnimation: (index: number) => void;
+  /**
+   * Does what a tap on the back arrow does: the arrow slides out, then `onBackButtonTap` (call it from the hardware back key).
+   */
+  goBack: () => void;
 };
+
+/**
+ * The `CYLSearchBarHandle` of a bar: every method sends its command to the native bar, once that exists.
+ * `commands` are the bar's native commands (`Commands` of `CylsearchBarViewNativeComponent`).
+ */
+export function cylSearchBarHandle<T>(
+  native: () => T | null,
+  commands: {
+    setActive: (view: T, active: boolean) => void;
+    restartItemAnimation: (view: T, index: number) => void;
+    goBack: (view: T) => void;
+  }
+): CYLSearchBarHandle {
+  return {
+    setActive: (active: boolean) => {
+      const view = native();
+      if (view) commands.setActive(view, active);
+    },
+    restartItemAnimation: (index: number) => {
+      const view = native();
+      if (view) commands.restartItemAnimation(view, index);
+    },
+    goBack: () => {
+      const view = native();
+      if (view) commands.goBack(view);
+    },
+  };
+}
 
 /**
  * What a `CYLSearchListView` ref offers.
