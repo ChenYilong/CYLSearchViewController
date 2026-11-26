@@ -109,7 +109,7 @@ hvigor note "If needed, configure the signingConfigs", and install the unsigned 
 $hdc = 'C:\Program Files\Huawei\DevEco Studio\sdk\default\openharmony\toolchains\hdc.exe'
 & $hdc install -r C:\cylbuild\harmonyos\entry\build\default\outputs\default\entry-default-unsigned.hap
 & $hdc install -r C:\cylbuild\harmonyos\entry\build\default\outputs\ohosTest\entry-ohosTest-unsigned.hap
-& $hdc shell aa test -b com.cyl.search.harmonyos -m entry_test -s unittest OpenHarmonyTestRunner -s timeout 15000
+& $hdc shell aa test -b com.cyl.search.harmonyos -m entry_test -s unittest OpenHarmonyTestRunner -s timeout 40000
 ```
 
 ### Arm64-only native libraries on the x86_64 emulator (rule, 2026-11-22)

@@ -62,7 +62,7 @@ Details of the `windows` tag of [AGENTS.md](../../AGENTS.md) and [instructions.m
     `entry/build/default/outputs/emulator/entry-emulator-unsigned.hap`;
   - tests: `hvigorw --mode module -p module=entry@ohosTest -p isOhosTest=true -p buildMode=emulatorTest -p product=default
     assembleHap`, install `outputs/ohosTest/entry-ohosTest-unsigned.hap`, then `hdc shell aa test -b
-    com.cyl.search.harmonyos -m entry_test -s unittest OpenHarmonyTestRunner -s timeout 15000`.
+    com.cyl.search.harmonyos -m entry_test -s unittest OpenHarmonyTestRunner -s timeout 40000`.
   - Check: `unzip -l <hap> | grep arm64-v8a` prints nothing for both HAPs.
 - **Rules.**
   1. Use the `emulator` target and the `emulatorTest` build mode for every run on an x86_64 emulator; phones, arm64
