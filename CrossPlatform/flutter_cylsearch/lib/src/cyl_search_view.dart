@@ -1023,6 +1023,7 @@ class _CYLSearchBarViewState extends State<CYLSearchBarView> with WidgetsBinding
   late bool _showsTrailing = widget.showsTrailingAccessoryViews;
   bool _animatesAccessories = false;
   Animation<double>? _secondaryAnimation;
+  bool _routeWasCurrent = true;
 
   @override
   void initState() {
@@ -1040,6 +1041,18 @@ class _CYLSearchBarViewState extends State<CYLSearchBarView> with WidgetsBinding
   // focusesOnAppear: the route above this one was popped (its secondary animation is dismissed again).
   void _secondaryAnimationStatus(AnimationStatus status) {
     if (status == AnimationStatus.dismissed) _focusIfAppearing();
+  }
+
+  // A first-level bar that pushed (pushesOnTap) is whole again once the second-level page is popped (its route is current again, a
+  // dependency change of ModalRoute whatever route class pushed): the native core takes the back button out and the width back to
+  // full (Android; iOS has no such method, the system push owns the back button there).
+  void _restoreAfterPush() {
+    final current = ModalRoute.of(context)?.isCurrent ?? true;
+    final returned = current && !_routeWasCurrent;
+    _routeWasCurrent = current;
+    if (returned && widget.pushesOnTap && !widget.showsBackButton) {
+      _channel?.invokeMethod<void>('hideBackButton').catchError((Object _) {});
+    }
   }
 
   void _watchRoute() {
@@ -1102,6 +1115,7 @@ class _CYLSearchBarViewState extends State<CYLSearchBarView> with WidgetsBinding
   void didChangeDependencies() {
     super.didChangeDependencies();
     _watchRoute();
+    _restoreAfterPush();
     _channel?.invokeMethod<void>('update', _parameters);
   }
 
