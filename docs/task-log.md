@@ -2188,3 +2188,25 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 - **Prompt (owner, verbatim)**: "你本次主要添加的是iOS端章节， 需要更新的文档地址在这里：我现在要离职，我要把这个项目的开发工作交给下一个同事，请你写一份全英文交接文档。放进docs的todo文件夹，如果没有就新建。在todo 文件夹下新建一个文件夹，文件名规则为 ： 年月第几周 ，举例说明：20261104 表示2026年11月的第四周。首先你要查到我们现在在本月的哪一周，然后再新建文件夹。如果该文件夹已经存在则无须新建文件夹。文件夹新建好后创建文档，注意这个文件夹下只能有一个文件，你如果发现已经有文件，你要进入文件追加内容，而非再新建文件。文档名为本次交接任务的重点todo项的提炼内容总结，需要标题告诉下一个同事，你接下来重点做什么。文档内容要写入目前项目所有todo。并要求advisor对目前项目进度打分，以及距离发布标准，百分制打分，能得多少分以及miss point在哪里。事无巨细，todo 重大缺陷，还没做决定的一些问题都要记录下。给出表格，第一列 本项目所有处于open 状态的分支地址，第二列以及每个分支的进度百分比评估，第三列todo项。 再给出表格，本项目中所有bug 列表，以及为什么没有修，以及修复计划，修复思路，以及相关文档地址。立即推送到本分支。由于仅仅是文档，修复，没有代码风险。文档好后，把基于分支的，我能直接访问的GitHub https开头的链接发给我，我转发给同事，以完成交接工作。"
 - **Prompt (English)**: "You mainly add the iOS chapter this time (the text gives no document address after 'here'). I am leaving the job and hand this project to the next colleague: write an all-English handover document in docs/todo (create it if missing), in a folder named year, month and week of the month (20261104 = the 4th week of November 2026); find the current week first; reuse an existing folder. The folder may hold only one file: if one exists, append to it. The file name summarizes the key TODOs and the title tells the colleague what to focus on next. Include all current TODOs. Ask the advisor to score the project progress and the distance to release out of 100, with the missing points. Record every TODO, major defect and undecided question. A table: open branch links, progress percentage, TODOs. A table of all bugs: why not fixed, fix plan, approach, related documents. Push to this branch at once (documents only, no code risk) and send me the https GitHub link on the branch."
 - **Result**: the Windows session had already created the one file (`1f02417`), so sections 10 to 17 (iOS chapter, second advisor assessment, corrections, extra bugs, decisions and TODOs) were appended to it with a pointer near the top; its name was kept. [Handover document](todo/20261104/Next-Unify-Pins-Fix-Tab-Tint-And-Dark-Bar-Verify-RN-MiniProgram.md). No code changed; no test run. This entry was written together with the document, not before it.
+
+## TODO (2026-11-27, `feat/harmonyos-parity`, Mac iOS session): fix bug I1, the `CYLSearchController` overlay left on screen after a pop or a dismissal
+
+- **Context**: handover bug I1 (P1, [handover](todo/20261104/Next-Unify-Pins-Fix-Tab-Tint-And-Dark-Bar-Verify-RN-MiniProgram.md),
+  section 14). `CYLSearchController.activate` adds `pageView` to the navigation controller's view or the window and nothing ever removes
+  it: `deactivate` only hides it, and there is no `deinit`. The swipe-to-dismiss recognizer stays on the same host view. Popping or
+  dismissing the contents page while the search is active can leave the overlay on screen. File: `Sources/CYLSearchBar/CYLSearchController.swift`.
+  PR #11 (`feat/harmonyos-parity` into `master`) carries the work.
+- **Requirements**: pull the remote, switch to the branch of the newest commit, read the handover folder in `docs/`, take over the handover
+  tasks and start writing code. This session is a Mac session, so it takes the iOS items; I1 is the first code item of the Mac list.
+- **Prompt (verbatim)**: "拉取远端最新代码，找到本项目最近的一条commit所在分支，切换到最近提交所在分支。阅读分支下，docs 文件夹下的包含 handover 文字的文件夹，遍历文件夹中的所有文件以及子文件夹下的所有文件。阅读交接文档完成交接任务。开始编写代码。"
+- **Prompt (English)**: "Pull the newest remote code, find the branch of the project's most recent commit and switch to it. Read the
+  folder under docs that contains the word handover, every file in it and in its subfolders. Read the handover document, complete the
+  handover tasks, and start writing code."
+- **Plan**: (1) failing tests first: activate, pop, expect no overlay in the navigation view; activate, dismiss the presented navigation
+  controller, expect the same; cancel, expect no page view left in the host. (2) Leave the search and remove the page and the swipe
+  recognizer when the contents page leaves for good (`viewDidDisappear` of CYLDeallocBlockExecutor with `isMovingFromParent` or
+  `isBeingDismissed` up the parent chain), remove the page when the search ends, and in `deinit`.
+- **Acceptance**: 100 = the three tests fail before and pass after, the full `CYLSearchExampleTests` suite passes on an iOS simulator,
+  pushed, this entry marked DONE with the evidence. 60 = the pop test fails before and passes after, the lifecycle and swipe test classes
+  pass, pushed.
+- **Status**: entry written; work not started.
