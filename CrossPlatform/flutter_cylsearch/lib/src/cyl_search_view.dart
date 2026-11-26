@@ -514,6 +514,8 @@ class _CYLSearchViewState extends State<CYLSearchView> {
     channel.setMethodCallHandler(_handle);
     widget.controller?.attach(channel);
     setState(() => _channel = channel);
+    // The native view has the creation parameters; a change made before it existed reaches it now.
+    channel.invokeMethod<void>('update', _parameters);
     widget.onDidShow?.call();
     channel.invokeMethod<List<Object?>>('history').then((list) {
       if (!mounted || list == null) return;
@@ -1089,6 +1091,8 @@ class _CYLSearchBarViewState extends State<CYLSearchBarView> with WidgetsBinding
     channel.setMethodCallHandler(_handle);
     widget.controller?.attach(channel);
     setState(() => _channel = channel);
+    // The native view has the creation parameters; a change made before it existed reaches it now.
+    channel.invokeMethod<void>('update', _parameters);
   }
 
   Future<Object?> _handle(MethodCall call) async {
@@ -1424,6 +1428,9 @@ class _CYLTagListViewState extends State<CYLTagListView> {
     final channel = MethodChannel(CYLSearchViewTypes.channel(id));
     channel.setMethodCallHandler(_handle);
     setState(() => _channel = channel);
+    // The native view has the creation parameters; a change made before it existed (the Discover tab root's title,
+    // loaded from the assets) reaches it now.
+    channel.invokeMethod<void>('update', _parameters);
   }
 
   Future<Object?> _handle(MethodCall call) async {
@@ -1550,7 +1557,12 @@ class _CYLPlaceholderViewState extends State<CYLPlaceholderView> {
 
   Map<String, Object?> get _parameters => cylPlaceholderViewParameters(widget, brightness: Theme.of(context).brightness);
 
-  void _created(int id) => setState(() => _channel = MethodChannel(CYLSearchViewTypes.channel(id)));
+  void _created(int id) {
+    final channel = MethodChannel(CYLSearchViewTypes.channel(id));
+    setState(() => _channel = channel);
+    // The native view has the creation parameters; a change made before it existed reaches it now.
+    channel.invokeMethod<void>('update', _parameters);
+  }
 
   @override
   void didUpdateWidget(CYLPlaceholderView oldWidget) {
