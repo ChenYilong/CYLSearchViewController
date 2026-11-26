@@ -430,3 +430,4 @@ Next for the Windows side: run the Flutter Android example on `CYL_Second_API_37
 | Section 6, mini program: `cyl-search-bar` does not draw `clearIconImage` / `cancelTitle` | FIXED in the component (the core model already had them); the bar's own `cancelButtonTitle` still wins. Not yet seen in DevTools | `npm test` 174/174, new test red before; [task-log.md](../../task-log.md) entry of 2026-11-27 |
 | Pin pair (section 20) | Waiting: the Mac session asked the owner (section 8 item 9); the tab bar session proposes `2b99043f` or its next SHA. No repin until the owner decides | - |
 | RN `goBack` on iOS | The Mac session builds the RN iOS example | - |
+| RN `goBack` on Android | The library compiles: `gradlew :react-native-cylsearch:compileDebugKotlin` BUILD SUCCESSFUL, codegen has `goBack`; the example app and the device run wait for the pin pair | task-log.md, RN `goBack()` entry |
