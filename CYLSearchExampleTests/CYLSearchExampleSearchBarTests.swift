@@ -951,15 +951,15 @@ extension CYLSearchExampleSearchBarTests {
         func searchBarViewSearchButtonClicked(_ searchBarView: CYLSearchBarView) { clicks += 1 }
     }
 
-    /// Every bar has the core's default search button: a localized title by default, an icon on request (the built-in magnifier or
-    /// the caller's), a custom title, hidden on request; an editing bar has none; a tap tells the delegate also for empty text.
+    /// Every bar has the core's default search button: the icon style by default (the built-in magnifier in a filled capsule, or the
+    /// caller's icon), a localized title on request, a custom title, hidden on request; an editing bar has none; a tap tells the delegate also for empty text.
     @MainActor
     func testDefaultSearchButton() throws {
         let bar = CYLSearchBarView(frame: CGRect(x: 0, y: 0, width: 390, height: 56))
         XCTAssertTrue(bar.showsSearchButton)
-        XCTAssertEqual(bar.searchButtonStyle, .text)
-        XCTAssertEqual(bar.searchButtonItem.style, .text)
-        XCTAssertEqual(bar.searchButtonItem.title, CYLSearchResources.localizedString(forKey: "search.button"))
+        XCTAssertEqual(bar.searchButtonStyle, .icon, "the icon style is the default")
+        XCTAssertEqual(bar.searchButtonItem.style, .icon)
+        XCTAssertEqual(bar.searchButtonItem.title, CYLSearchResources.localizedString(forKey: "search.button"), "the title is the accessibility label")
         XCTAssertFalse(bar.itemStack.isHidden, "the default button is shown")
         XCTAssertTrue(bar.items.isEmpty, "the built-in button is not one of the owner's items")
         for language in ["en", "zh-Hans", "zh-Hant", "ja"] {
@@ -978,6 +978,9 @@ extension CYLSearchExampleSearchBarTests {
         XCTAssertEqual(custom, 1)
         XCTAssertEqual(recorder.clicks, 2, "a handler replaces the default action")
         bar.searchButtonItem.itemAccessibilityIdentifier = "mine"
+        bar.searchButtonStyle = .text
+        XCTAssertEqual(bar.searchButtonItem.style, .text)
+        XCTAssertNil(bar.searchButtonItem.backgroundColor, "the text style has no fill")
         bar.searchButtonStyle = .icon
         XCTAssertEqual(bar.searchButtonItem.style, .icon)
         XCTAssertNotNil(bar.searchButtonItem.image, "the built-in magnifier")
@@ -991,7 +994,6 @@ extension CYLSearchExampleSearchBarTests {
         bar.searchButtonImage = image
         XCTAssertTrue(bar.searchButtonItem.image === image, "a custom icon")
         bar.searchButtonStyle = .text
-        XCTAssertNil(bar.searchButtonItem.backgroundColor, "the text style has no fill")
         bar.searchButtonTitle = "Go"
         XCTAssertEqual(bar.searchButtonItem.title, "Go", "a custom title")
         bar.showsSearchButton = false
@@ -1000,8 +1002,6 @@ extension CYLSearchExampleSearchBarTests {
         XCTAssertTrue(editing.itemStack.isHidden, "an editing bar has its own action button")
     }
 
-    /// The keyboard has the search key, and a bar in editing mode hides the keyboard for an outside touch (observed only while
-    /// editing; the touch itself comes from CYLDeallocBlockExecutor's `didTouchOutside`, which XCTest cannot create).
     /// A first-level bar (`pushesOnTap`): a tap on the field runs `onFirstLevelTap` and never edits, so no keyboard comes up.
     @MainActor
     func testFirstLevelBarPushesOnTapAndNeverEdits() {
@@ -1144,6 +1144,8 @@ extension CYLSearchExampleSearchBarTests {
         XCTAssertGreaterThan(top, 0)
     }
 
+    /// The keyboard has the search key, and a bar in editing mode hides the keyboard for an outside touch (observed only while
+    /// editing; the touch itself comes from CYLDeallocBlockExecutor's `didTouchOutside`, which XCTest cannot create).
     @MainActor
     func testSearchKeyAndOutsideTouchHidesTheKeyboard() {
         let window = testWindow(CGRect(x: 0, y: 0, width: 402, height: 874))

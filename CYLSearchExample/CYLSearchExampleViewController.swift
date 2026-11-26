@@ -106,7 +106,6 @@ public final class CYLSearchExampleViewController: UITableViewController, CYLSea
         // A root tab page has no back button, so the bar never focuses itself here (focusesOnAppear needs a back button).
         searchBar.focusesOnAppear = true
         // The icon style of the default search button: a filled capsule with the built-in magnifier (Discover shows the text style).
-        searchBar.searchButtonStyle = .icon
         searchBar.placeholder = CYLSearchResources.localizedString(forKey: "search.placeholder")
         searchBar.accessibilityIdentifier = "CYLSearchResultsField"
         searchBar.delegate = self

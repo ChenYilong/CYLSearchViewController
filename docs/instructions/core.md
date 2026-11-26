@@ -156,9 +156,10 @@ Details of the `core` tag of [AGENTS.md](../../AGENTS.md) and [instructions.md](
      like), the port keeps that library's classes only as a replica of its API, and its demo screen shows the core field.
   4. A screen that needs a plain text input that is not a search (a remark name) uses the same field too (one input look).
   5. Default search button (owner, 2026-11-26): every `CYLSearchBarView` has a built-in, kept search button after the field and the
-     owner's items (a divider before it when an item precedes it), a title by default (the localized "Search": en, ja, zh-Hans,
-     zh-Hant). The core has a built-in magnifier icon (iOS SF Symbol `magnifyingglass`); the caller chooses `searchButtonStyle`
-     (`text` or `icon`), a custom `searchButtonTitle` or `searchButtonImage`, `searchButtonHandler`, or `showsSearchButton = false`.
+     owner's items (a divider before it when an item precedes it), the ICON style by default (owner, 2026-11-26: a filled capsule with the
+     core's built-in magnifier, SF Symbol `magnifyingglass` on iOS; the reference look is the Search tab's bar: black capsule, white magnifier,
+     equal gap above, below and at the right). The TEXT style shows a title (the localized "Search": en, ja, zh-Hans, zh-Hant). The caller
+     chooses `searchButtonStyle` (`icon`, the default, or `text`), a custom `searchButtonTitle` or `searchButtonImage`, `searchButtonHandler`, or `showsSearchButton = false`.
      An editing bar (`editingBar(...)`) and a bar in multiple mode have none. It is not in `items`. A tap submits the text, and tells
      the delegate `searchBarViewSearchButtonClicked` also for empty text on a plain bar; a search PAGE or view (`CYLSearchView`) ignores an empty tap: nothing submitted, recorded or closed, the keyboard stays (owner, 2026-11-26). Every platform exposes the same names.
   6. Keyboard life cycle of the bar itself (owner, 2026-11-26): the bar manages it as the smallest component, so it works in every

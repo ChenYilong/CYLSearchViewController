@@ -102,11 +102,12 @@ public enum CYLSearchBarItemStyle: Int {
 @objc(CYLSearchBarSearchButtonStyle)
 public enum CYLSearchBarSearchButtonStyle: Int {
     /**
-     * The button shows a title, "Search" localized by default (`searchButtonTitle` changes it). The default.
+     * The button shows a title, "Search" localized by default (`searchButtonTitle` changes it).
      */
     case text = 0
     /**
-     * The button shows an icon, the core's built-in magnifier by default (`searchButtonImage` changes it).
+     * The button shows an icon in a filled capsule, the core's built-in magnifier by default (`searchButtonImage` changes it). The
+     * default.
      */
     case icon = 1
 }
@@ -630,9 +631,9 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
     }
 
     /**
-     * Whether the default search button shows a title (`.text`, the default) or an icon (`.icon`).
+     * Whether the default search button shows an icon in a filled capsule (`.icon`, the default) or a title (`.text`).
      */
-    @objc public var searchButtonStyle: CYLSearchBarSearchButtonStyle = .text {
+    @objc public var searchButtonStyle: CYLSearchBarSearchButtonStyle = .icon {
         didSet { rebuildSearchButton() }
     }
 
