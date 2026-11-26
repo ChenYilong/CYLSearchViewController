@@ -103,7 +103,9 @@ Run on this machine with the Android AVD `CYL_Second_API_37`, headless:
 | `emulator-5556` of another session | untouched in every case |
 | `stop-apps.ps1` (tested on Notepad), `close-explorer-windows.ps1` (a window opened for the test) | pass |
 | `set-brightness.ps1` | dry run only: this machine has no built-in display with WMI brightness control |
-| HarmonyOS part, Obsidian, Android Studio, Chrome, Edge, `-RestartShell` | dry run only: another session's emulator and the owner's apps were running, nothing was closed |
+| Real run on the owner's order (`-Apply -RestartShell`, emulators `-Force -Headless`) | `explorer.exe` was restarted, Android `emulator-5558` started, the HarmonyOS emulator `Mate 70 Pro` stopped (`Emulator.exe -stop`) and started again (about 9 s to start, boots in about a minute, `hdc list targets` shows `127.0.0.1:5555`); `emulator-5556` untouched |
+| HarmonyOS start | the first version failed: `Emulator.exe` needs `-hvd "<name>" -path <instances folder> -imageRoot <image folder>` (`Emulator.exe -h`); fixed, override the folders with `CYL_HVD_PATH` and `CYL_HVD_IMAGE_ROOT` |
+| Closing Obsidian, Android Studio, Chrome, Edge for real | not exercised: none of them was running at the time |
 
 ## macOS
 
