@@ -2320,3 +2320,18 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 - **Acceptance**: 100 = the pair announced, iOS Podfiles (root, Flutter, RN) repinned, the iOS suite passes, the RN iOS example builds
   with `goBack`, pushed. 60 = the pair announced and the root iOS suite passes at it.
 - **Status**: waiting for the ClassifyMenu SHA.
+
+## TODO (2026-11-27, `feat/harmonyos-parity`, Mac iOS session): fix bug I2, the results view controller gets no appearance callbacks
+
+- **Context**: handover bug I2 (P2, section 14). The results view controller's view sits on the search page in the navigation
+  controller's view or the window; it is no child of any controller (a child of the contents page raised
+  `UIViewControllerHierarchyInconsistency`), so `viewWillAppear` / `viewDidAppear` / `viewWillDisappear` / `viewDidDisappear` never
+  run. File: `Sources/CYLSearchBar/CYLSearchController.swift`; the unused test helper `CYLAppearanceRecordingResults` is in
+  `CYLSearchExampleTests/CYLSearchControllerTestSupport.swift`.
+- **Prompt**: the one of the I3 entry above ("continue writing code").
+- **Plan**: failing test first (a recording results controller: activate, then leave the search; expect will/did appear, then
+  will/did disappear, once each); then forward the appearance with `beginAppearanceTransition` / `endAppearanceTransition` at the
+  presentation and dismissal moments (the handover's second approach), no containment.
+- **Acceptance**: 100 = the test fails before and passes after, the I1 pop path also delivers the disappear calls, full
+  `CYLSearchExampleTests` passes, pushed, entry DONE. 60 = the test fails before and passes after, the lifecycle tests pass, pushed.
+- **Status**: entry written; work not started.
