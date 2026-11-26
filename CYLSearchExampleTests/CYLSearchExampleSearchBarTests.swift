@@ -1002,6 +1002,34 @@ extension CYLSearchExampleSearchBarTests {
         XCTAssertTrue(editing.itemStack.isHidden, "an editing bar has its own action button")
     }
 
+    /// The divider has the same VISIBLE gap on both sides: the plain icon hugs its glyph, so the stack view's spacing is the gap
+    /// between the glyph and the divider and between the divider and the capsule button; the touch area still has the 36 pt minimum.
+    @MainActor
+    func testDividerGapsAreEven() throws {
+        let bar = CYLSearchBarView(frame: CGRect(x: 0, y: 0, width: 390, height: 44))
+        bar.fieldHeight = 36
+        bar.searchBarStyle = .bordered
+        let camera = CYLSearchBarItem.iconItem(image: UIImage(systemName: "camera.viewfinder"), title: "Camera", handler: nil)
+        camera.imageSize = CGSize(width: 22, height: 22)
+        bar.addItem(camera)
+        bar.layoutIfNeeded()
+        let divider = try XCTUnwrap(bar.itemStack.dividerViews.first)
+        let dividerFrame = bar.fieldView.convert(divider.bounds, from: divider)
+        let cameraFrame = bar.fieldView.convert(camera.itemView.bounds, from: camera.itemView)
+        let pill = bar.fieldView.convert(bar.searchButtonItem.itemView.bounds, from: bar.searchButtonItem.itemView)
+        let left = dividerFrame.minX - cameraFrame.maxX
+        let right = pill.minX - dividerFrame.maxX
+        XCTAssertEqual(left, right, accuracy: 0.5, "the gaps beside the divider are equal: \(left) / \(right)")
+        XCTAssertGreaterThan(left, 4)
+        XCTAssertEqual(cameraFrame.width, 22, accuracy: 1, "the plain icon hugs its glyph")
+        // The touch area is still 36 pt wide.
+        let center = CGPoint(x: camera.itemView.bounds.midX, y: camera.itemView.bounds.midY)
+        XCTAssertTrue(camera.itemView.point(inside: CGPoint(x: center.x - 17, y: center.y), with: nil))
+        XCTAssertFalse(camera.itemView.point(inside: CGPoint(x: center.x - 19, y: center.y), with: nil))
+        // The field takes everything the right-hand group leaves.
+        XCTAssertEqual(bar.textField.frame.maxX + 0, bar.itemStack.frame.minX - 8, accuracy: 1.5, "the text field ends where the group begins")
+    }
+
     /// A first-level bar (`pushesOnTap`): a tap on the field runs `onFirstLevelTap` and never edits, so no keyboard comes up.
     @MainActor
     func testFirstLevelBarPushesOnTapAndNeverEdits() {

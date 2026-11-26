@@ -173,3 +173,8 @@ Details of the `core` tag of [AGENTS.md](../../AGENTS.md) and [instructions.md](
      life cycle events (`didEnterScreen`, `appDidBecomeActiveOnScreen` (library PR #30), `didTouchOutside` (library PR #29, on top of #30)); the core's podspec depends on it
      and every platform's pin must name the same commit. Other platforms use their own ports of those events.
 - Skill: `cyl-search-field`. Per-platform status: `docs/task-log.md`, entry "no system search bar on any platform".
+- Trailing group layout (owner, 2026-11-26): the search field is the flexible control and takes all the width the right-hand group leaves;
+  the group's items (camera, divider, default search button) are spaced only by the stack view's spacing, from the right edge to
+  the left, so the visible gaps beside a divider are equal. A plain icon or text item (no background, no outline) HUGS its content;
+  its touch area is widened to 36 pt across by hit testing, never by empty room around the glyph; an item with a shape of its own
+  (background or outline, such as the icon search capsule) keeps its size. Every platform follows the same rule.
