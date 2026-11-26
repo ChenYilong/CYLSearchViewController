@@ -796,7 +796,7 @@ class CYLSearchBarView extends StatefulWidget {
     this.showsSearchIcon = true,
     this.navigationFieldStyle = false,
     this.showsSearchButton = true,
-    this.searchButtonStyle = CYLSearchBarSearchButtonStyle.text,
+    this.searchButtonStyle = CYLSearchBarSearchButtonStyle.icon,
     this.searchButtonTitle,
     this.searchButtonHandler,
     this.focusesOnAppear = false,
@@ -943,7 +943,7 @@ class CYLSearchBarView extends StatefulWidget {
   /// the text is empty.
   final bool showsSearchButton;
 
-  /// Whether the default search button shows a title (the default) or an icon in a filled capsule (`searchButtonStyle`).
+  /// Whether the default search button shows an icon in a filled capsule (the default) or a title (`searchButtonStyle`).
   final CYLSearchBarSearchButtonStyle searchButtonStyle;
 
   /// The title of the default search button; null is the localized "Search" (`searchButtonTitle`).

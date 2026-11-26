@@ -76,10 +76,10 @@ export interface NativeProps extends ViewProps {
    */
   showsSearchButton?: CodegenTypes.WithDefault<boolean, true>;
   /**
-   * What the default search button shows (`searchButtonStyle`): "text" (default, the localized "Search") or "icon" (the core's
+   * What the default search button shows (`searchButtonStyle`): "icon" (default, the core's
    * magnifier in a filled capsule, 28 high, inverse color).
    */
-  searchButtonStyle?: CodegenTypes.WithDefault<string, 'text'>;
+  searchButtonStyle?: CodegenTypes.WithDefault<string, 'icon'>;
   /**
    * The title of the default search button (`searchButtonTitle`); empty is the localized "Search".
    */

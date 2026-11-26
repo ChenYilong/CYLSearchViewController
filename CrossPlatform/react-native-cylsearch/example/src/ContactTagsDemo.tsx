@@ -138,7 +138,7 @@ export function ContactTagsDemo({ onClose, empty = false, latency = 5 }: { onClo
       <ScrollView>
         <Text style={styles.largeTitle} accessibilityRole="header">{text('editRemarks')}</Text>
         {/* The remark name: the core field with the navigation preset (one input look), not a TextInput. */}
-        <CYLSearchBarView style={styles.nameField} navigationFieldStyle placeholder={text('remarkName')} />
+        <CYLSearchBarView style={styles.nameField} navigationFieldStyle searchButtonStyle="text" placeholder={text('remarkName')} />
         <Pressable accessibilityRole="button" accessibilityHint={text('hintEdit')} testID="CYLContactRemarkTagsTitle" onPress={() => setScreen('editor')}>
           <Text style={styles.tagsTitle}>{text('tags')} ›</Text>
         </Pressable>

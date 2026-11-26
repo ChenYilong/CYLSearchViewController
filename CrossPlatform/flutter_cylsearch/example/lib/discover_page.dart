@@ -275,9 +275,7 @@ class _CYLSearchDiscoverPageState extends State<CYLSearchDiscoverPage> {
                             ],
                           ],
                           onSubmitted: (text) => _search(text.isEmpty ? _placeholder(data) : text),
-                          // The core's default search button (no item of ours), round icon on the camera tab; a tap searches the text or the topic.
-                          searchButtonStyle: cylTabBarLookOf(widget.tab).camera ? CYLSearchBarSearchButtonStyle.icon : CYLSearchBarSearchButtonStyle.text,
-                          searchButtonTitle: data.text('discover.search'),
+                          // The core's default search button (no item of ours, the default icon style); a tap searches the text or the topic.
                           searchButtonHandler: (text) => _search(text.isEmpty ? _placeholder(data) : text),
                         ),
         ),

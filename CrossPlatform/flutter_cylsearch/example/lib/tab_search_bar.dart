@@ -76,8 +76,7 @@ PreferredSizeWidget cylFirstLevelAppBar(BuildContext context, {required int tab}
         embedsInNavigationBar: true,
         pushesOnTap: true,
         onFirstLevelTap: push,
-        // The core's default search button (no item of ours): the round black icon on the camera tab (the reference recording), text on the others.
-        searchButtonStyle: look.camera ? CYLSearchBarSearchButtonStyle.icon : CYLSearchBarSearchButtonStyle.text,
+        // The core's default search button (no item of ours), the default icon style.
         searchButtonHandler: (_) => push(),
         items: <CYLSearchBarItem>[
           if (look.camera) ...<CYLSearchBarItem>[

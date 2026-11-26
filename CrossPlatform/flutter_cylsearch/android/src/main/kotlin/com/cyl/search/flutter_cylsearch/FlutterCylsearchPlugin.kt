@@ -451,7 +451,7 @@ internal class CYLFlutterSearchBarView(context: Context, arguments: Map<String, 
         // The core's default search button: shown unless Dart hides it; with a Dart handler a tap goes to Dart (`didTapSearchButton`),
         // else the core submits (`didSubmit`).
         bar.showsSearchButton = arguments["showsSearchButton"] as? Boolean ?: true
-        bar.searchButtonStyle = if (arguments["searchButtonStyle"] == "icon") CYLSearchBarSearchButtonStyle.Icon else CYLSearchBarSearchButtonStyle.Text
+        bar.searchButtonStyle = if (arguments["searchButtonStyle"] == "text") CYLSearchBarSearchButtonStyle.Text else CYLSearchBarSearchButtonStyle.Icon
         if (bar.searchButtonTitle != arguments["searchButtonTitle"]) bar.searchButtonTitle = arguments["searchButtonTitle"] as? String
         bar.searchButtonHandler = if (arguments["hasSearchButtonHandler"] == true) ({ view -> channel.invokeMethod("didTapSearchButton", mapOf("text" to view.text.orEmpty())) }) else null
         @Suppress("UNCHECKED_CAST")

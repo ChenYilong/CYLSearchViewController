@@ -176,7 +176,7 @@ void main() {
             'showsSearchIcon': true,
             'navigationFieldStyle': false,
             'showsSearchButton': true,
-            'searchButtonStyle': 'text',
+            'searchButtonStyle': 'icon',
             'searchButtonTitle': null,
             'hasSearchButtonHandler': false,
             'focusesOnAppear': false,

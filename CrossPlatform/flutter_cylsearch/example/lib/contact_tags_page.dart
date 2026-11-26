@@ -237,6 +237,8 @@ class _CYLContactRemarkPageState extends State<CYLContactRemarkPage> {
                 child: CYLSearchBarView(
                   placeholder: cylContactText('remarkName'),
                   navigationFieldStyle: true,
+                  // The one text-style search button of the example (the default is the icon).
+                  searchButtonStyle: CYLSearchBarSearchButtonStyle.text,
                 ),
               ),
             ),

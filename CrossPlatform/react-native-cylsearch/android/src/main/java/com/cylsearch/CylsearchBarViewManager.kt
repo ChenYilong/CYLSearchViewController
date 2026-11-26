@@ -65,7 +65,7 @@ class CylsearchBarViewManager : SimpleViewManager<CylsearchBarView>(), Cylsearch
 
   @ReactProp(name = "searchButtonStyle")
   override fun setSearchButtonStyle(view: CylsearchBarView, value: String?) {
-    view.bar.searchButtonStyle = if (value == "icon") CYLSearchBarSearchButtonStyle.Icon else CYLSearchBarSearchButtonStyle.Text
+    view.bar.searchButtonStyle = if (value == "text") CYLSearchBarSearchButtonStyle.Text else CYLSearchBarSearchButtonStyle.Icon
   }
 
   @ReactProp(name = "searchButtonTitle")
