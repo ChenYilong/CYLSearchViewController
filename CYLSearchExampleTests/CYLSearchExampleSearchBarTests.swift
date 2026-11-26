@@ -1026,6 +1026,10 @@ extension CYLSearchExampleSearchBarTests {
         let center = CGPoint(x: camera.itemView.bounds.midX, y: camera.itemView.bounds.midY)
         XCTAssertTrue(camera.itemView.point(inside: CGPoint(x: center.x - 17, y: center.y), with: nil))
         XCTAssertFalse(camera.itemView.point(inside: CGPoint(x: center.x - 19, y: center.y), with: nil))
+        // The camera is the first item of its row: a real touch 6 pt left of the glyph still reaches it through the row.
+        let leftOfGlyph = bar.convert(CGPoint(x: camera.itemView.convert(CGPoint(x: -6, y: center.y), to: bar).x,
+                                             y: camera.itemView.convert(center, to: bar).y), to: bar)
+        XCTAssertTrue(bar.hitTest(leftOfGlyph, with: nil) === camera.itemView, "the left of the first item is hittable")
         // The field takes everything the right-hand group leaves.
         XCTAssertEqual(bar.textField.frame.maxX + 0, bar.itemStack.frame.minX - 8, accuracy: 1.5, "the text field ends where the group begins")
     }

@@ -592,7 +592,7 @@ public final class CYLSearchBarView: UIView, UITextFieldDelegate {
      * The row of the items: one `CYLAnimatedItemStackView`, so the tint (the built-in default that follows dark mode, a
      * host's `itemTintColor`) and the dividers are the component's, not drawn per item here.
      */
-    let itemStack = CYLAnimatedItemStackView()
+    let itemStack = CYLSearchBarItemStack()
 
     /**
      * Makes the stack hold the views of `items` in order; a divider item becomes the stack's built-in divider after the
@@ -3351,5 +3351,34 @@ private final class CYLSearchBarTextField: UITextField {
         didSet {
             onPlaceholderChange?(placeholder)
         }
+    }
+}
+
+/**
+ * The row of the bar's trailing items. A plain item hugs its content and widens its own touch area by hit testing; the first and the
+ * last item's widened area lies outside the row's bounds, so the row's own hit area is widened by the same amount.
+ */
+final class CYLSearchBarItemStack: CYLAnimatedItemStackView {
+
+    /**
+     * How far the row's hit area reaches beyond its bounds on each side: half of the 36 pt touch minimum less a hugging 20 pt glyph.
+     */
+    static let touchOutset: CGFloat = 8
+
+    override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
+        bounds.insetBy(dx: -Self.touchOutset, dy: 0).contains(point)
+    }
+
+    /**
+     * A point beyond the row's bounds but inside an item's widened touch area goes to that item (the row's inner stack view would
+     * reject it, its own bounds being smaller).
+     */
+    override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
+        let hit = super.hitTest(point, with: event)
+        guard hit == nil || hit === self else { return hit }
+        for item in itemViews where item.isUserInteractionEnabled && !item.isHidden {
+            if item.point(inside: convert(point, to: item), with: event) { return item }
+        }
+        return bounds.contains(point) ? hit : nil
     }
 }
