@@ -2883,16 +2883,23 @@ class CYLSearchBarView @JvmOverloads constructor(
 
     private var firstLevelDown = false
 
-    private fun overField(event: MotionEvent): Boolean {
-        val box = Rect()
-        for (view in listOf<View>(textField, placeholderLabel)) {
-            if (view.visibility != View.VISIBLE || view.width == 0) continue
+    /**
+     * True when (x, y) in this bar's coordinates is on the field but not on one of its own controls (the trailing items and the
+     * default search button in the accessory container, the clear button): the whole field, also the empty parts beside a
+     * centered placeholder, is the first-level tap target.
+     */
+    internal fun isFirstLevelTapTarget(x: Float, y: Float): Boolean {
+        fun contains(view: View): Boolean {
+            if (view.visibility != View.VISIBLE || view.width == 0) return false
+            val box = Rect()
             view.getDrawingRect(box)
             offsetDescendantRectToMyCoords(view, box)
-            if (event.x >= box.left && event.x <= box.right && event.y >= box.top && event.y <= box.bottom) return true
+            return x >= box.left && x <= box.right && y >= box.top && y <= box.bottom
         }
-        return false
+        return contains(fieldView) && !contains(accessoryContainer) && !contains(clearButton)
     }
+
+    private fun overField(event: MotionEvent): Boolean = isFirstLevelTapTarget(event.x, event.y)
 
     override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
         if (pushesOnTap && embedsInToolbar && (event.actionMasked == MotionEvent.ACTION_DOWN || firstLevelDown) && overField(event)) {

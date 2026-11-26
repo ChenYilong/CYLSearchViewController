@@ -121,6 +121,31 @@ class CYLSearchBarFirstLevelTest {
         down.recycle()
     }
 
+    @Test
+    fun theWholeFieldBesideACenteredPlaceholderIsTheTapTargetButItemsAreNot() {
+        val (_, bar) = embedded()
+        bar.centersPlaceholder = true
+        bar.placeholder = "Search"
+        bar.addItem(CYLSearchBarItem.textItem("Go") {})
+        bar.onFirstLevelTap = {}
+        bar.measure(
+            android.view.View.MeasureSpec.makeMeasureSpec(1000, android.view.View.MeasureSpec.EXACTLY),
+            android.view.View.MeasureSpec.makeMeasureSpec(200, android.view.View.MeasureSpec.AT_MOST),
+        )
+        bar.layout(0, 0, bar.measuredWidth, bar.measuredHeight)
+        val box = android.graphics.Rect()
+        bar.fieldView.getDrawingRect(box)
+        bar.offsetDescendantRectToMyCoords(bar.fieldView, box)
+        val y = box.centerY().toFloat()
+        assertTrue("left end of the field, left of the centered placeholder", bar.isFirstLevelTapTarget(box.left + 4f, y))
+        val accessory = android.graphics.Rect()
+        val container = bar.fieldView.getChildAt(bar.fieldView.childCount - 2)
+        container.getDrawingRect(accessory)
+        bar.offsetDescendantRectToMyCoords(container, accessory)
+        assertFalse("an item keeps its own tap", bar.isFirstLevelTapTarget(accessory.centerX().toFloat(), y))
+        assertFalse("outside the field", bar.isFirstLevelTapTarget(-5f, y))
+    }
+
     private fun Toolbar.performNavigationClick() {
         (0 until childCount).map { getChildAt(it) }.first { it is android.widget.ImageButton }.performClick()
     }
