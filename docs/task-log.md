@@ -2255,7 +2255,7 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 - This entry was written after the work, not before it.
 
 
-## TODO (2026-11-27, `feat/harmonyos-parity`, Mac iOS session): fix bug I3, the `CYLSearchController` page keeps an old frame after a size change
+## DONE (2026-11-27, `feat/harmonyos-parity`, Mac iOS session): fix bug I3, the `CYLSearchController` page keeps an old frame after a size change
 
 - **Context**: handover bug I3 (P2, section 14). `layoutPage()` runs on activation and on text, keyboard and empty view changes only;
   `pageView` is a plain `UIView` in the navigation controller's view or the window, so a rotation or a size change (iPad split view,
@@ -2267,4 +2267,10 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
   and reach its bottom); then the page resizes with its host (autoresizing) and lays itself out again from its own `layoutSubviews`.
 - **Acceptance**: 100 = the test fails before and passes after, the full `CYLSearchExampleTests` suite passes, pushed, entry DONE.
   60 = the test fails before and passes after, the lifecycle tests pass, pushed.
-- **Status**: entry written; work not started.
+- **Status**: DONE (2026-11-27). Score 100 / 100.
+- **Result**: the page is a `CYLSearchPageView` that resizes with its host (`autoresizingMask` width and height) and, when its size
+  changed, asks the controller to lay it out again (`layoutPage()`: below the field, to the host's bottom, keyboard inset).
+- **Evidence**: `testI3SizeChangeLaysThePageOutAgain` (window 402 x 874 to 874 x 402 while active) failed before the fix (width and
+  height kept the old values) and passes after; full `CYLSearchExampleTests` 154 tests, 0 failures (iPhone Air simulator, iOS 26.1,
+  2026-11-27). The first before-fix run hung at app launch for 14 minutes while other sessions built; it was stopped and rerun.
+- **Not covered**: a real device rotation and iPad split view (the test resizes the window); the iOS example is portrait only.
