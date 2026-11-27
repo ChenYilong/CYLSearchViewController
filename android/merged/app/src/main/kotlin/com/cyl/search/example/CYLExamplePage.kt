@@ -86,7 +86,9 @@ abstract class CYLExamplePage : Fragment() {
                 navigationIcon = ContextCompat.getDrawable(context, androidx.appcompat.R.drawable.abc_ic_ab_back_material)
                 setNavigationOnClickListener { parentFragmentManager.popBackStack() }
             }
-            onCreateActions(menu)
+            // A tab root with a first-level bar keeps the toolbar for the WHOLE bar (HarmonyOS does the same): its actions
+            // (Overlay, the style tabs' own magnifier) would narrow the bar, so they show only on a pushed page.
+            if (searchStyleKey == null || parentFragment != null) onCreateActions(menu)
         }
         searchStyleKey?.let { key ->
             toolbar.title = null

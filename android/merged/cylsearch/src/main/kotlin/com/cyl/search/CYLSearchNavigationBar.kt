@@ -61,3 +61,24 @@ class CYLSearchNavigationBar @JvmOverloads constructor(
         }
     }
 }
+
+/**
+ * The looks of a search bar the core ships, one per tab of the example (`CYLSearchBarView.applyPreset`); the same names on
+ * every platform (iOS `CYLSearchBarPreset`).
+ */
+enum class CYLSearchBarPreset {
+    /** The navigation field, the Discover look (bordered capsule radius 18, soft shadow, no magnifier, opaque fill). */
+    NavigationField,
+
+    /** A borderless full capsule with a magnifier. */
+    Pill,
+
+    /** A borderless rounded rectangle (radius 10) with a magnifier. */
+    Rounded,
+
+    /** A bordered rounded rectangle (radius 8) with a magnifier. */
+    Outlined,
+
+    /** A bordered full capsule with a magnifier, a soft shadow and a centered placeholder. */
+    CenteredCapsule,
+}

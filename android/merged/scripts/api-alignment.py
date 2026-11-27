@@ -65,6 +65,8 @@ MEMBERS = {
     ('CYLSearchTableViewController', 'searchController'): ('CYLSearchListView', 'searchView', 'CYLSearchListView'),
     ('CYLSearchTableViewController', 'searchBar'): ('CYLSearchListView', 'searchBarView', 'CYLSearchListView'),
     ('CYLSearchTableViewController', 'searchController(_:updateResultsFor:)'): ('CYLSearchListView', 'updateResultsForSearchString', 'CYLSearchListView'),
+    # A Kotlin constant is upper case: the companion's `AUTOMATIC_CORNER_RADIUS` (-1, the same rule as iOS).
+    ('CYLSearchBarItem', 'automaticCornerRadius'): ('CYLSearchBarItem', 'AUTOMATIC_CORNER_RADIUS', 'CYLSearchBarView'),
 }
 # Rows with no Android counterpart for a platform reason: (iOS type, Swift member) -> the reason.
 NOT_APPLICABLE = {

@@ -811,6 +811,44 @@ class CYLSearchBarView @JvmOverloads constructor(
     }
 
     /**
+     * Applies one of the core's looks (iOS `applyPreset(_:)`). Every preset starts from the plain look, so applying another one
+     * replaces the first. Call it before `addItem` and `embedInToolbar`.
+     */
+    fun applyPreset(preset: CYLSearchBarPreset) {
+        resetFieldLook()
+        when (preset) {
+            CYLSearchBarPreset.NavigationField -> applyNavigationFieldStyle()
+            CYLSearchBarPreset.Pill -> Unit
+            CYLSearchBarPreset.Rounded -> fieldCornerRadius = 10f
+            CYLSearchBarPreset.Outlined -> {
+                searchBarStyle = CYLSearchBarStyle.Bordered
+                fieldCornerRadius = 8f
+            }
+            CYLSearchBarPreset.CenteredCapsule -> {
+                searchBarStyle = CYLSearchBarStyle.Bordered
+                fieldShadowOpacity = 0.06f
+                centersPlaceholder = true
+            }
+        }
+    }
+
+    /**
+     * Back to the plain look (iOS `resetFieldLook()`): no outline, no fill of its own, capsule field, magnifier, no shadow, a
+     * left-aligned placeholder, 16 sp text. The presets start from it.
+     */
+    private fun resetFieldLook() {
+        searchBarStyle = CYLSearchBarStyle.Plain
+        fieldBorderColor = null
+        fieldBorderWidth = 0f
+        fieldBackgroundColor = null
+        fieldCornerRadius = -1f
+        fieldShadowOpacity = 0f
+        centersPlaceholder = false
+        searchIcon = ContextCompat.getDrawable(context, R.drawable.cyl_search_ic_search)
+        fontSize = 16f
+    }
+
+    /**
      * A view of yours before the field (a back button); it wins over the navigation button.
      */
     var leadingView: View? = null
@@ -1279,7 +1317,49 @@ class CYLSearchBarView @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Whether a touch anywhere in the window outside this bar (a tap, or the start of a scroll or drag in any container) hides
+     * the keyboard while the field is editing (iOS `dismissesKeyboardOnOutsideTouch`). True by default; an editing bar
+     * (`isEditingBar`) drives its own focus and never does. Observed only while editing, through the activity window's callback.
+     */
+    var dismissesKeyboardOnOutsideTouch: Boolean = true
+        set(value) {
+            field = value
+            if (!value) stopObservingOutsideTouches() else if (textField.hasFocus()) startObservingOutsideTouches()
+        }
+
+    private var outsideTouchCallback: CYLOutsideTouchWindowCallback? = null
+
+    private fun startObservingOutsideTouches() {
+        if (!dismissesKeyboardOnOutsideTouch || isEditingBar || outsideTouchCallback != null) return
+        val window = hostActivity()?.window ?: return
+        val wrapped: android.view.Window.Callback = window.callback ?: return
+        val callback = CYLOutsideTouchWindowCallback(wrapped) { event -> touchedOutside(event) }
+        window.callback = callback
+        outsideTouchCallback = callback
+    }
+
+    private fun stopObservingOutsideTouches() {
+        val callback = outsideTouchCallback ?: return
+        outsideTouchCallback = null
+        callback.isActive = false
+        // Another wrapper may sit above this one: it stays and passes the events through the inactive one.
+        val window = hostActivity()?.window ?: return
+        if (window.callback === callback) window.callback = callback.wrapped
+    }
+
+    private fun touchedOutside(event: android.view.MotionEvent) {
+        if (event.actionMasked != android.view.MotionEvent.ACTION_DOWN) return
+        if (!dismissesKeyboardOnOutsideTouch || !textField.hasFocus()) return
+        val location = IntArray(2)
+        getLocationOnScreen(location)
+        val inside = event.rawX >= location[0] && event.rawX < location[0] + width &&
+            event.rawY >= location[1] && event.rawY < location[1] + height
+        if (!inside) hideKeyboard()
+    }
+
     override fun onDetachedFromWindow() {
+        stopObservingOutsideTouches()
         stopObservingAppearLifecycle()
         multiSearchBackCallback.remove()
         super.onDetachedFromWindow()
@@ -1898,7 +1978,13 @@ class CYLSearchBarView @JvmOverloads constructor(
         textField.isCursorVisible = false
         textField.setOnFocusChangeListener { _, focused ->
             textField.isCursorVisible = focused
-            if (focused) didBeginEditing() else didEndEditing()
+            if (focused) {
+                didBeginEditing()
+                startObservingOutsideTouches()
+            } else {
+                stopObservingOutsideTouches()
+                didEndEditing()
+            }
         }
         applyInputType()
         updateButtonImages()

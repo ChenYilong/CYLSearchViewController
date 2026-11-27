@@ -51,7 +51,7 @@ messages, localized strings (English, Simplified Chinese, a missing key) and the
 ## Table
 
 <!-- api-alignment:begin -->
-Rows: 437; DONE 401, N/A 28, TODO 8; score 98/100.
+Rows: 437; DONE 409, N/A 28, TODO 0; score 100/100.
 
 | iOS API | Upstream counterpart (named in the iOS doc comment) | Android (`cylsearch`) | Status |
 | :--- | :--- | :--- | :--- |
@@ -230,7 +230,7 @@ Rows: 437; DONE 401, N/A 28, TODO 8; score 98/100.
 | `CYLSearchBarView.backButtonProgress` | — | `CYLSearchBarView.backButtonProgress` | DONE |
 | `CYLSearchBarView.focusesOnAppear` | `isOnSecondLevelOrDeeperPage`: the page is not the first view controller of its navigation controller | `CYLSearchBarView.focusesOnAppear` | DONE |
 | `CYLSearchBarView.pageDepth` | `isOnSecondLevelOrDeeperPage` | `CYLSearchBarView.pageDepth` | DONE |
-| `CYLSearchBarView.dismissesKeyboardOnOutsideTouch` | — | `CYLSearchBarView.dismissesKeyboardOnOutsideTouch` | TODO |
+| `CYLSearchBarView.dismissesKeyboardOnOutsideTouch` | — | `CYLSearchBarView.dismissesKeyboardOnOutsideTouch` | DONE |
 | `CYLSearchBarView.hideKeyboard()` | — | `CYLSearchBarView.hideKeyboard` | DONE |
 | `CYLSearchBarView.setIconified(_:animated:)` | — | `CYLSearchBarView.setIconified` | DONE |
 | `CYLSearchBarView.encodeRestorableState(with:)` | `onSaveInstanceState` | `onSaveInstanceState()` | DONE |
@@ -267,7 +267,7 @@ Rows: 437; DONE 401, N/A 28, TODO 8; score 98/100.
 | `CYLSearchBarItem.backgroundColor` | — | `CYLSearchBarItem.backgroundColor` | DONE |
 | `CYLSearchBarItem.selectedBackgroundColor` | — | `CYLSearchBarItem.selectedBackgroundColor` | DONE |
 | `CYLSearchBarItem.contentInsets` | — | `CYLSearchBarItem.contentInsets` | DONE |
-| `CYLSearchBarItem.automaticCornerRadius` | — | `CYLSearchBarItem.automaticCornerRadius` | TODO |
+| `CYLSearchBarItem.automaticCornerRadius` | — | `CYLSearchBarItem.AUTOMATIC_CORNER_RADIUS` | DONE |
 | `CYLSearchBarItem.cornerRadius` | — | `CYLSearchBarItem.cornerRadius` | DONE |
 | `CYLSearchBarItem.borderColor` | — | `CYLSearchBarItem.borderColor` | DONE |
 | `CYLSearchBarItem.borderWidth` | — | `CYLSearchBarItem.borderWidth` | DONE |
@@ -345,12 +345,12 @@ Rows: 437; DONE 401, N/A 28, TODO 8; score 98/100.
 | `CYLSearchNavigationBar.position(for:)` | — | internal listener (UIKit protocol conformance): a `Toolbar` sits in the layout, it has no bar position | N/A |
 | `CYLSearchNavigationBar.embedInNavigationBar(of:)` | so content laid out under `safeAreaLayoutGuide.topAnchor` never sits under it | `CYLSearchNavigationBar.embedInToolbar` | DONE |
 | `CYLSearchNavigationBar.applyNavigationFieldStyle()` | `.bordered`, corner radius 18 | `CYLSearchNavigationBar.applyNavigationFieldStyle` | DONE |
-| **enum `CYLSearchBarPreset`** | — | CYLSearchBarPreset | TODO |
-| `CYLSearchBarPreset.navigationField` | — | `CYLSearchBarPreset.NavigationField` | TODO |
-| `CYLSearchBarPreset.pill` | — | `CYLSearchBarPreset.Pill` | TODO |
-| `CYLSearchBarPreset.rounded` | — | `CYLSearchBarPreset.Rounded` | TODO |
-| `CYLSearchBarPreset.outlined` | — | `CYLSearchBarPreset.Outlined` | TODO |
-| `CYLSearchBarPreset.centeredCapsule` | — | `CYLSearchBarPreset.CenteredCapsule` | TODO |
+| **enum `CYLSearchBarPreset`** | — | CYLSearchBarPreset | DONE |
+| `CYLSearchBarPreset.navigationField` | — | `CYLSearchBarPreset.NavigationField` | DONE |
+| `CYLSearchBarPreset.pill` | — | `CYLSearchBarPreset.Pill` | DONE |
+| `CYLSearchBarPreset.rounded` | — | `CYLSearchBarPreset.Rounded` | DONE |
+| `CYLSearchBarPreset.outlined` | — | `CYLSearchBarPreset.Outlined` | DONE |
+| `CYLSearchBarPreset.centeredCapsule` | — | `CYLSearchBarPreset.CenteredCapsule` | DONE |
 | **class `CYLSearchResources`** | — | CYLSearchResources | DONE |
 | `CYLSearchResources.resourceBundle` | — | `CYLSearchResources.resourceBundle` | DONE |
 | `CYLSearchResources.historyDidChangeNotification` | — | `CYLSearchResources.observeHistoryDidChange` | DONE |
