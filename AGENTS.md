@@ -1,269 +1,93 @@
-# Agent Instructions
+# Agent rules for this repository (any tool)
 
-This repository is an Objective-C iOS search sample. It uses
-`CYLTableViewPlaceHolder` to demonstrate the interaction between a
-navigation-item search controller and pull-to-refresh. Read `instructions.md`
-and the applicable skill in `.agents/skills/` before making changes.
+This repository is an Objective-C iOS search sample. It uses `CYLTableViewPlaceHolder` to show how a navigation-item search controller interacts with pull to refresh. Read `instructions.md` and the matching skill in `.agents/skills/` before making changes.
 
-## Skills
+## Instruction format
 
-`.agents/skills` holds the skills; `.claude/skills` only points there.
+Every rule has a tag. Each tag has a visible heading with its summary; the full text is in `docs/instructions/<tag>.md`, linked in the final table as `reference` (not required; do not read by default): open it only when a task touches the tag (a keyword of the tag appears in the task). Instruction files (this file, `instructions.md`, `docs/instructions.md`, `CLAUDE.md`) stay under 200 lines; what does not fit goes into the tag's file in `docs/instructions/`. Except for the final table, no other part of this file may contain links.
 
-| Skill | Use it when |
-|:---|:---|
-| `cyl-tabbar-integration` | Adding or changing a `CYLTabBarController` in the example (configuration file, plus child view controller, latest commit) |
-| `cyl-plus-button` | Writing or changing the plus button: configuration keys, title alignment, Liquid Glass limits |
-| `cyl-new-project` | Creating or extending an example project |
-| `cyl-api-map` | Finding the public API of `CYLTableViewPlaceHolder` and `CYLTabBarController` |
-| `cyl-xcode-compat` | Touching the `.xcodeproj`, Podfile or deployment targets |
-| `cyl-docs` | Editing `README.md` or `docs/` |
-| `cyl-verify` | Building, testing, running the simulator |
+## Skills (tag: `skills`)
 
-Every new integration rule updates, in the same change, `AGENTS.md`,
-`instructions.md` and the affected skills.
+- Pick the right `.agents/skills` skill from the skill table in the reference doc.
+- Every new integration rule updates `AGENTS.md`, `instructions.md`, and the affected skills in the same change.
+- Full rule: at reference of this tag (not required; do not read by default).
 
-## Project rules
+## Project rules (tag: `project-rules`)
 
-- New project-owned types and identifiers use the `CYL` prefix. New UIKit
-  category files use `+CYL`; category methods and properties use `cyl_`.
-- Do not rename existing APIs or vendor symbols in a task that does not require
-  it. Keep original copyright and attribution when adapting third-party code.
-- The public integration surface of `CYLTableViewPlaceHolder` is its umbrella
-  header. The example must not depend on private headers or implementation
-  details.
-- Keep the sample configurable through protocols or public properties. Avoid
-  dependencies on `AppDelegate`, global state, or concrete model types.
-- Keep all instructions and skill files in English.
+- New project-owned types use the `CYL` prefix; new UIKit categories use `+CYL` and `cyl_` methods and properties.
+- Do not rename unrelated APIs or vendor symbols; keep third-party attribution; expose `CYLTableViewPlaceHolder` only through its umbrella header; keep samples configurable; keep instruction and skill files in English.
+- Full rule: at reference of this tag (not required; do not read by default).
 
-## Comments on public API
+## Comments on public API (tag: `public-api-comments`)
 
-Callers read a public API's comment through the IDE's documentation (Xcode
-Quick Help, the generated Swift interface, Android Studio, editor hovers).
-Only a documentation comment gets there whole. The multi-line rule is adapted
-from CYLTabBarController's `AGENTS.md`, "Comments on public API" (commit
-`63c0edc`). The rules below are this project's own and win over upstream.
+- Public API comments follow the official documentation rules of their language.
+- One documentation block per declaration (three lines, even for a one-line comment, where the block form is allowed); one comment format per public file; never a trailing comment after a declaration.
+- Full rule: at reference of this tag (not required; do not read by default).
 
-- **The official rules decide.** Every comment format follows the official
-  documentation rules of its language. The rules below choose among the forms
-  an official rule allows. Where a rule below contradicts an official rule,
-  the official rule wins.
-- **Multi-line comments on public API are one documentation block**, never
-  stacked single-line comments, right above the declaration with nothing in
-  between.
-- **Single-line comments use the block format too.** The format requirements
-  for multi-line public API comments also apply to single-line public API
-  comments. In a language whose block form is officially allowed, a one-line
-  comment is still three lines above the declaration:
+## Xcode project (tag: `xcode-project`)
 
-  ```objc
-  /*!
-   * Text.
-   */
-  - (void)example;
-  ```
+- Keep the Xcode project format (`objectVersion = 46`, Xcode 3.2 compatibility), explicit file lists, and the shared scheme.
+- Keep the Podfile and Xcode deployment targets at iOS 15.0, keep the Pods `post_install` deployment-target hook, and verify the AppIcon and launch assets.
+- Never commit `Pods/`, generated workspace state, or `._*` files.
+- Full rule: at reference of this tag (not required; do not read by default).
 
-  - Never put the block on one line (`/*! Text. */`).
-  - Never add a trailing comment after a declaration or an enum value:
-    no `/**< */`, `/*!< */`, `///<` or `//`.
-- **One comment format per public file.** In a file that contains public API,
-  every documentation comment uses the same format, long or short.
-- **All platforms and all languages.** Use the official documentation form of
-  each language:
+## Search bar placement (tag: `search-bar-placement`)
 
-  | Language | Format | Official source |
-  |:---|:---|:---|
-  | Objective-C, C, C++ headers | `/*!` … ` * ` … ` */` | Xcode Quick Help / HeaderDoc (Apple) |
-  | Swift | `/**` … ` * ` … ` */` (Swift does not read `/*!`) | Swift Markup, DocC (allows `///` and `/** */`) |
-  | Kotlin | `/**` … ` * ` … ` */` | KDoc (kotlinlang.org) |
-  | Java | `/**` … ` * ` … ` */` | Javadoc (Oracle) |
-  | TypeScript | `/**` … ` * ` … ` */` | TSDoc |
-  | JavaScript | `/**` … ` * ` … ` */` | JSDoc |
-  | Python | Triple double-quoted docstring as PEP 257 says: a one-line docstring keeps its quotes on the same line; a multi-line docstring is a summary line, a blank line, then the closing `"""` on its own line | PEP 257 |
-  | Go | `//` line comments right above the declaration, no blank line | Effective Go, go.dev/doc/comment |
-  | C# | `///` lines with XML tags (`<summary>`, `<param>`, `<returns>`) | Microsoft Learn, XML documentation comments |
-  | Rust | `///` (outer) and `//!` (inner) doc comments | Rust Style Guide, rustdoc book |
-  | Dart | `///` lines | Effective Dart, "DO use `///` doc comments" |
+- A search bar never covers any view, in any state or at any Dynamic Type size.
+- Lay out search bars against the safe area beside the content; search screens do not extend under the top bar; `testSearchBarsCoverNoView` covers every search bar.
+- Full rule: at reference of this tag (not required; do not read by default).
 
-  A language with no block documentation form, or whose official guide
-  requires line doc comments (Go, C#, Rust, Dart above), uses that one form
-  throughout the file. A short comment is then a single doc-comment line, and
-  a long one is consecutive lines of the same form.
+## Issue #1317 (tag: `issue-1317`)
 
-## Xcode project
+- The reproduction combines `navigationItem.searchController` with `CYLRefreshNormalHeader`.
+- Keep `hidesSearchBarWhenScrolling = NO` as the safe default, avoid strong captures in refresh blocks, and always stop the refresh controls.
+- Full rule: at reference of this tag (not required; do not read by default).
 
-- Preserve Xcode project format 46, compatibility version Xcode 3.2, explicit
-  file lists, and a shared scheme.
-- The Podfile top declares `platform :ios, '15.0'`,
-  `ENV['SWIFT_VERSION'] = '5'`, and this directory's `.xcodeproj`.
-- The Podfile ends with one `post_install` hook that sets every Pods target's
-  `IPHONEOS_DEPLOYMENT_TARGET` to `"15.0"`. Append it at the bottom if missing;
-  never add duplicate hooks.
-- Keep Xcode app and test deployment targets at iOS 15.0 and use the local
-  sibling `CYLTableViewPlaceHolder` pod for this reproduction.
-- Verify that the AppIcon asset set contains actual icon files and that the
-  launch storyboard/image is configured in the app target. If either is
-  missing, reuse the icon and custom launch image from
-  `CYLTabBarController/Example/Images.xcassets`.
-- Never commit `Pods/`, generated workspace state, or AppleDouble `._*` files.
+## CYLTabBarController (tag: `cyl-tabbar`)
 
-## Search bar placement
+- The example integrates CYLTabBarController by default: a local bundle configuration file, registered page providers, and a plus button with its own plus child view controller.
+- Depend on the latest CYLTabBarController commit through CocoaPods and import only its umbrella header; search pages stay inside the tabs' navigation controllers; build with clean derived data after a dependency change.
+- Full rule: at reference of this tag (not required; do not read by default).
 
-- A search bar never covers any view, at any time: not a view controller's
-  view (`self.view`), not a sibling, a background view or a bar item; for a
-  navigation-item search controller, `CYLSearchBarView` and the overlay; in
-  every state and at every Dynamic Type size. Views of search screens do not
-  extend under the top bar (`edgesForExtendedLayout` without
-  `UIRectEdgeTop`); a `CYLSearchBarView` is laid out against the safe area,
-  beside the content, never on top of it, and a colored area behind it ends
-  where the bar begins. `testSearchBarsCoverNoView` checks every search bar
-  with `CYLViewsCoveredByView`; add each new one there.
+## Verification (tag: `verification`)
 
-## Issue #1317
+- Run `pod install`, validate the project, build and analyze the shared scheme, and run the tests when available.
+- Never claim a visual reproduction or fix without launching the app on a simulator.
+- CI scripts pass ShellCheck and workflows pass actionlint; follow `docs/CI-CD.md`.
+- Full rule: at reference of this tag (not required; do not read by default).
 
-The reproduction uses `UISearchController` in `navigationItem.searchController`
-and a `CYLRefreshNormalHeader`. Pinning the search bar with
-`hidesSearchBarWhenScrolling = NO` is the known workaround for repeated inset
-updates on affected iOS versions. Refresh callbacks must not retain their
-controller strongly and must always stop the refresh control.
+## Task log before every task (tag: `task-log`)
 
-## CYLTabBarController
+- Before any work starts, record the task as a `TODO` in the most suitable `docs/` file: context, requirements, the prompt verbatim plus an English translation, and the status.
+- Commit and push the entry before starting; mark it `DONE`, with evidence, when finished.
+- Full rule: at reference of this tag (not required; do not read by default).
 
-This project integrates CYLTabBarController by default. Rules adapted from
-CYLTabBarController's `AGENTS.md` and `cyl-*` skills at its latest commit
-(`caf3c92`, branch `feat/cross-platform-components`, 2026-11-11); see
-`docs/CYLTabBarController-Integration.md` for the source and the status.
+## Commit readiness (tag: `commit-readiness`)
 
-- **Default integration in the example layer.** Unless a task says otherwise,
-  every `CYLTabBarController` in the example (`CYLSearchExample/`) is created
-  from a **local configuration file** in the app bundle, and has a **plus
-  button with a plus child view controller**. Never write tabs, the plus
-  button or a `CYLPlusButton` subclass only in code for the default demo.
-  - The file (for example `CYLSearchExample/CYLTabBarConfiguration.json`) holds
-    `CYLTabBarControllerTabBarItemsAttributes` (an even number of tabs, each
-    with `CYLTabBarItemIdentifier` / `CYLTabBarItemPageIdentifier`) and
-    `CYLTabBarControllerPlusButton` with `CYLTabBarItemTitle`,
-    `CYLTabBarItemImage` and `CYLTabBarItemPageIdentifier`. The page found for
-    the plus button's page ID becomes the plus child view controller.
-  - Register a page provider for every page ID in
-    `CYLTabBarPageRegistry.sharedRegistry` (or a registry passed as
-    `CYLTabBarControllerPageRegistry`), then create the controller with
-    `+[CYLTabBarController tabBarControllerWithConfigurationFile:error:]`.
-    Handle the error: never leave the window without a root view controller.
-  - Plus button taps that need code use `CYLTabBarControllerPlusButtonAction`
-    (code only); read the configuration with
-    `+configurationWithContentsOfFile:error:` and add the action before
-    `-initWithConfiguration:`.
-  - Full recipe: the `cyl-tabbar-integration` skill. Plus button limits: the
-    `cyl-plus-button` skill.
-- **Depend on the latest commit, through CocoaPods.** Before every build, run
-  `scripts/latest-cyl-commit.sh --podfile`; it prints the newest commit on any
-  branch by commit timestamp. Put that line into the Podfile:
-  `pod 'CYLTabBarController', :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '<sha>'`.
-  Never a version number, branch or tag. Run `pod install`, then build. Name
-  the commit (sha, date, branch) in the report; if it cannot be fetched, say
-  so and keep the sha already in the Podfile.
-- **Imports.** The example imports only
-  `#import <CYLTabBarController/CYLTabBarController.h>`, like the other pods'
-  umbrella headers.
-- **Search inside tabs.** A tab page that shows search embeds its view
-  controller in a `UINavigationController`, so
-  `navigationItem.searchController` and the Issue #1317 workaround keep
-  working. Do not put the search bar on the tab bar controller itself.
-- **Reading CYLTabBarController docs.** Its `docs/` and comments are
-  bilingual: read the `[EN]` part and skip the `[CN]` part; in a
-  `中文 | English` table read the right column. Code wins over `docs/`, and
-  `docs/` over `README.md`.
-- **Accessibility.** Tabs, the plus button, badges and every control in the
-  example have meaningful accessibility labels; tests find elements by label
-  or identifier before coordinates.
-- **Clean builds.** Build into an empty derived data folder after a
-  dependency change, so the app does not run stale pod code.
+- Before `git cz`, create `.git/hooks/NO_AUTO_SYNC`.
+- On a branch other than `main` / `master`: commit and push as soon as the work is written, and open a pull request right away; on `main` / `master`, ask first.
+- English Commitizen-compatible subjects with the required author line; inspect the commit-msg hook before replacing it; track unfinished work as `TODO`s in `docs/`; follow the project's Commitizen defaults.
+- Full rule: at reference of this tag (not required; do not read by default).
 
-## Verification
+## Finding the document a prompt refers to (tag: `docs-lookup`)
 
-Run `pod install`, validate the project with Xcodeproj/CocoaPods, build and
-analyze the shared scheme, and run tests when available. Do not claim a visual
-reproduction or fix without launching the sample on a simulator.
+- When a prompt mentions a related document without naming it, find it in memory and the conversation context first: prefer the file mentioned most often and most recently.
+- If it is still unclear which document is meant, create a new document instead of searching for one.
+- Never scan the contents of every file under `docs/`, and never read a document under `docs/` in full unless the owner explicitly names that document and asks for a full read, or authorizes it.
+- Full rule: at reference of this tag (not required; do not read by default).
 
-- **CI/CD**: `.github/workflows/ios.yml`, modeled on CYLTabBarController's
-  `ios.yml`. It runs shellcheck, the public API comment check,
-  `pod lib lint`, the example build and analyzer (warnings in `Sources/` fail
-  it) and the unit tests. The default macOS runner is `macos-26`; the
-  `MACOS_RUNNER` variable changes it. Run the same scripts locally before
-  pushing; see `docs/CI-CD.md`.
-- A script added under `scripts/` must pass `shellcheck`. A workflow change
-  must pass `actionlint`.
+## Tag reference
 
-## Task log before every task
-
-Sessions can stop in the middle of a task (context limits, restarts, another
-session taking over the branch or the simulator). So that the next session can
-pick the task up, every task is written down in `docs/` before any work starts:
-
-1. **Find the most suitable document in `docs/`**: the feature's own document
-   (for example `docs/search-bar-view.md`, `docs/CI-CD.md`,
-   `docs/CYLTabBarController-Integration.md`). When none fits, use
-   `docs/task-log.md`.
-2. **Add the task there as `TODO`, before the first change**, under a heading
-   such as `## TODO (YYYY-MM-DD): <task>`, with:
-   - **Context**: the background, the branch, the related PRs, issues,
-     commits and files, and what is already known;
-   - **Requirements**: every requirement the user gave, as a list;
-   - **Prompt**: the user's prompt quoted verbatim in its original language,
-     followed by an English translation;
-   - **Status**: where the work stands; update it at each milestone (commit,
-     push, CI result).
-   Commit and push this entry before starting the work.
-3. **When the task ends, mark it done**: change `TODO` to `DONE (YYYY-MM-DD)`
-   and add the result and the evidence (commits, PRs, test results,
-   screenshots). An interrupted task keeps `TODO` with its current status.
-
-An open `TODO` of a task in progress is not a stale note: the "stale notes
-before every commit" search skips it, and the session that finishes the task
-marks it `DONE`.
-
-## Commit readiness
-
-- **Before every Commitizen-style (`git cz`) commit**, run this first in the repository root, so the vault's auto sync does not commit or push in the middle of it:
-
-  ```sh
-  touch .git/hooks/NO_AUTO_SYNC
-  ```
-
-- **On any branch other than `master` or `main`, commit and push as soon as the work is written, without asking
-  for confirmation.** On `master` or `main`, ask first.
-
-- **Every new branch gets a pull request right away, without asking.** As soon as a branch is created and first
-  pushed, open its pull request (`gh pr create`). The base (target) branch is the branch the new one was created from
-  (its source branch); use `master` or `main` only when that is the source, or when the source branch no longer exists
-  on the remote. Never ask for confirmation first. Name the base in the reply.
-
-- Every commit message carries the author line
-  `By  @ChenYilong <luohanchenyilong@163.com>` (exactly as written, two spaces
-  after `By`) in its body, after the description and before trailers such as
-  `Claude-Session:`. Check it with `git log -1 --format=%B` before pushing.
-- Before a Commitizen-style commit, follow the commit-message hook instructions
-  in `instructions.md`; inspect an existing hook before replacing it.
-- Before every commit, review the changed scope and its related issue,
-  comparison, and implementation-status documentation.
-- Track each unfinished or unverified item from the commit under a `TODO`
-  heading in the most relevant existing `docs/` document. Include remaining
-  work, implementation constraints, known defects, verification steps, and API
-  design or compatibility risks. Reserved keys, stubs, and compilation alone
-  do not prove completion.
-- Use an English Conventional Commit subject compatible with Commitizen. Put
-  detailed completion and pending-work summaries in the body. If the detailed
-  description exceeds 50 characters, create or update a suitable `docs/` note
-  and link it from the commit body; reuse existing tracking documents.
-- Follow the Commitizen defaults: `{type}{scope}: {emoji}{subject}`, emojis
-  enabled, no predefined scopes, and a 3–64 character message. The interactive
-  format examples separate the emoji from the subject with a space. The
-  type list is `test`, `feat`, `fix`, `chore`, `docs`, `refactor`, `style`,
-  `ci`, `perf`; `release` is defined but not listed. Default emojis are
-  `chore` 🤖, `ci` 🎡, `docs` ✏️, `feat` 🎸, `fix` 🐛, `perf` ⚡️,
-  `refactor` 💡, `style` 💄, `test` 💍, and `release` 🏹. Follow the established
-  project emoji where it differs (e.g. CYLTabBarController uses `feat: ✨`,
-  `docs: 📝`, `chore: 🔧`, and `refactor: ♻️`). The question sequence is
-  `type`, `scope`, `subject`, `body`, `breaking`, `issues`, and `lerna`;
-  prompts cover optional scope, imperative subject, longer description,
-  breaking changes, issue references, and affected packages.
+| Tag | Heading | Reference (not required; do not read by default) |
+|:---|:---|:---|
+| `skills` | Skills | [reference](docs/instructions/skills.md) (not required; do not read by default) |
+| `project-rules` | Project rules | [reference](docs/instructions/project-rules.md) (not required; do not read by default) |
+| `public-api-comments` | Comments on public API | [reference](docs/instructions/public-api-comments.md) (not required; do not read by default) |
+| `xcode-project` | Xcode project | [reference](docs/instructions/xcode-project.md) (not required; do not read by default) |
+| `search-bar-placement` | Search bar placement | [reference](docs/instructions/search-bar-placement.md) (not required; do not read by default) |
+| `issue-1317` | Issue #1317 | [reference](docs/instructions/issue-1317.md) (not required; do not read by default) |
+| `cyl-tabbar` | CYLTabBarController | [reference](docs/instructions/cyl-tabbar.md) (not required; do not read by default) |
+| `verification` | Verification | [reference](docs/instructions/verification.md) (not required; do not read by default) |
+| `task-log` | Task log before every task | [reference](docs/instructions/task-log.md) (not required; do not read by default) |
+| `commit-readiness` | Commit readiness | [reference](docs/instructions/commit-readiness.md) (not required; do not read by default) |
+| `docs-lookup` | Finding the document a prompt refers to | [reference](docs/instructions/docs-lookup.md) (not required; do not read by default) |
