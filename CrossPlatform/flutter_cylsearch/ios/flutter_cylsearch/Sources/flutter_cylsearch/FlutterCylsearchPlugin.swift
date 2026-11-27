@@ -562,6 +562,12 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
         if bar.searchButtonStyle != buttonStyle { bar.searchButtonStyle = buttonStyle }
         let buttonTitle = arguments["searchButtonTitle"] as? String
         if bar.searchButtonTitle != buttonTitle { bar.searchButtonTitle = buttonTitle }
+        // A Flutter asset for the button's icon (handover bug I6); "" or none keeps the core's magnifier.
+        let buttonImage = arguments["searchButtonImage"] as? String ?? ""
+        if buttonImage != appliedSearchButtonImage {
+            appliedSearchButtonImage = buttonImage
+            bar.searchButtonImage = buttonImage.isEmpty ? nil : cylFlutterAssetImage(buttonImage, displayScale: bar.traitCollection.displayScale)
+        }
         if arguments["hasSearchButtonHandler"] as? Bool == true {
             bar.searchButtonHandler = { [channel] view in
                 channel.invokeMethod("didTapSearchButton", arguments: ["text": view.text ?? ""])
@@ -686,6 +692,7 @@ final class CYLFlutterSearchBarView: NSObject, @preconcurrency FlutterPlatformVi
      * Dart's `text` as applied last (an editing bar takes focus when it changes).
      */
     private var appliedText = ""
+    private var appliedSearchButtonImage = ""
 
     func searchBarView(_ searchBarView: CYLSearchBarView, didSelect item: CYLSearchBarItem) {
         channel.invokeMethod("didSelectItem", arguments: ["index": item.index, "selected": item.isSelected])
@@ -894,22 +901,11 @@ final class CYLFlutterTagListContainer: UIView, CYLMenuDataSource, CYLMenuDelega
         guard indexPath.item < tagImages.count, !tagImages[indexPath.item].isEmpty else { return nil }
         let asset = tagImages[indexPath.item]
         if let cached = imageCache[asset] { return cached }
-        let scale = Int(traitCollection.displayScale.rounded())
-        let directory = (asset as NSString).deletingLastPathComponent
-        let file = (asset as NSString).lastPathComponent
-        var candidates: [(String, CGFloat)] = (2...3).reversed().filter { $0 <= scale }.map { ("\(directory)/\($0).0x/\(file)", CGFloat($0)) }
-        candidates.append((asset, 1))
-        for (candidate, imageScale) in candidates {
-            let key = FlutterDartProject.lookupKey(forAsset: candidate)
-            if let path = Bundle.main.path(forResource: key, ofType: nil), let image = UIImage(contentsOfFile: path), let cgImage = image.cgImage {
-                let scaled = UIImage(cgImage: cgImage, scale: imageScale, orientation: .up)
-                // VoiceOver reads the image's label as the tag's value (the localized "Hot").
-                scaled.accessibilityLabel = indexPath.item < tagImageLabels.count ? tagImageLabels[indexPath.item] : nil
-                imageCache[asset] = scaled
-                return scaled
-            }
-        }
-        return nil
+        guard let scaled = cylFlutterAssetImage(asset, displayScale: traitCollection.displayScale) else { return nil }
+        // VoiceOver reads the image's label as the tag's value (the localized "Hot").
+        scaled.accessibilityLabel = indexPath.item < tagImageLabels.count ? tagImageLabels[indexPath.item] : nil
+        imageCache[asset] = scaled
+        return scaled
     }
 
     func menuTitleForItem(at indexPath: IndexPath) -> String {
@@ -1088,6 +1084,23 @@ final class CYLFlutterPlaceholderContainer: UIView {
 /**
  * The fold control for a Dart `CYLTagFoldControlPosition` and `CYLTagFoldControlContent` name; an inline icon by default.
  */
+/// A Flutter asset (the key Dart sends) as an image: the 3.0x / 2.0x variant of the screen's scale first, as Flutter picks them;
+/// nil for a missing file.
+func cylFlutterAssetImage(_ asset: String, displayScale: CGFloat) -> UIImage? {
+    let scale = Int(displayScale.rounded())
+    let directory = (asset as NSString).deletingLastPathComponent
+    let file = (asset as NSString).lastPathComponent
+    var candidates: [(String, CGFloat)] = (2...3).reversed().filter { $0 <= scale }.map { ("\(directory)/\($0).0x/\(file)", CGFloat($0)) }
+    candidates.append((asset, 1))
+    for (candidate, imageScale) in candidates {
+        let key = FlutterDartProject.lookupKey(forAsset: candidate)
+        if let path = Bundle.main.path(forResource: key, ofType: nil), let image = UIImage(contentsOfFile: path), let cgImage = image.cgImage {
+            return UIImage(cgImage: cgImage, scale: imageScale, orientation: .up)
+        }
+    }
+    return nil
+}
+
 func cylFoldControl(_ position: Any?, _ content: Any?) -> CYLMenuFoldControl {
     // The plugin's names ("inline", "bottom", "topTrailing", "topLeading") and CollectionViewClassifyMenu's own since
     // its position rename ("tail", "footer", "headerTrailing", "headerLeading").

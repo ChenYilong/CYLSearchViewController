@@ -2319,6 +2319,16 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
   for the same API reason. Waiting for the owner's permission to discard those local changes.
 - **Acceptance**: 100 = the pair announced, iOS Podfiles (root, Flutter, RN) repinned, the iOS suite passes, the RN iOS example builds
   with `goBack`, pushed. 60 = the pair announced and the root iOS suite passes at it.
+- **Owner rule (2026-11-27)**: integrators check compiling only; no full suites, no waiting for CI. Acceptance above changes from
+  "the iOS suite passes" to "the iOS examples compile".
+- **RN iOS build of `goBack` (DONE 2026-11-27)**: the old local copy was moved to `example/vendor/CYLTabBarController.bak-20261127`
+  (kept, not deleted) and a clean copy of `08343e9f` fetched. `xcodebuild build -configuration Release` of `CylsearchExample`
+  (simulator): BUILD SUCCEEDED, `CylsearchBarView.mm` with `goBack` included. **TODO**: the Debug build fails at link time
+  (React Native debug-only symbols such as `facebook::react::Props::getDebugProps()` missing, referenced from `CylsearchBarView.o`,
+  `CylsearchListView.o` and the third-party `RNCSafeAreaViewShadowNode.o`): a mismatch between the React Native core and the debug
+  configuration on this Mac, not the `goBack` change; not investigated.
+- **Frozen tab bar pin**: `d5f1b436e112fb88761d99177f294e2155be98ea` (tab bar sessions, Mac and Windows). Waiting for the ClassifyMenu
+  commit repinned to it.
 - **Status**: waiting for the ClassifyMenu SHA.
 
 ## DONE (2026-11-27, `feat/harmonyos-parity`, Mac iOS session): fix bug I2, the results view controller gets no appearance callbacks
@@ -2352,3 +2362,21 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 - **Acceptance (100)**: the first-level bars of the Android tab roots are full width (no toolbar action beside them), the List style / Tag style demos still reachable; every parity table at 100 or each remaining row explained; Flutter and RN tables exist; compile checks pass on every touched platform; iOS parts sent to the Mac session; pushed. **(60)**: the width bug fixed and compiling; tables regenerated and the hand-checked rows corrected; pushed.
 - **Checks**: compile only (user's instruction), no full suites, no device runs, no CI wait; this departs from the test-first rule on purpose.
 - **Status**: started 2026-11-27.
+
+## DONE (2026-11-27, `feat/harmonyos-parity`, Mac iOS session): handover bug I6, iOS side: `searchButtonImage` in the Flutter iOS bridge
+
+- **Context**: handover bug I6 (P3): Flutter and React Native cannot set a custom image for the default search button. The advisor's
+  plan of 2026-11-27 (score every platform's API to 100) split it: Dart, TypeScript and Android to the Windows session, the iOS
+  bridges here, under the agreed name `searchButtonImage` (a Flutter asset key / an image name string).
+- **Prompt (verbatim)**: "continue TODO (missing points): advisor opus advisor点评目前全平台接口实现得分 以及下一步计划与建议。并立即让默认模型sonnet按照建议去实现。将得分优化到100转发合适任务给其他session 直接使用本机环境进行测试，iOS在macos机器，其余在windows机器。转发任务给相应session无需等待ci结果。集成方自己测试，只保留编译检查，不跑上面这完整套件"
+- **Prompt (English)**: "Continue the TODOs (missing points). Advisor (Opus): rate the current API implementation score on every platform and
+  give the next plan and advice; then have the default model (Sonnet) implement it at once. Bring the score to 100; forward fitting
+  tasks to the other sessions, which test on their own machines (iOS on the Mac, the rest on Windows). Forward without waiting for CI.
+  Integrators test themselves; keep compile checks only, do not run the full suites."
+- **Result**: the Flutter iOS bridge reads `searchButtonImage` (a Flutter asset key; "" or absent keeps the core's magnifier) into
+  `CYLSearchBarView.searchButtonImage`. The asset lookup of the tag list (3.0x / 2.0x variant first) moved into the shared
+  `cylFlutterAssetImage(_:displayScale:)`, used by both. Compile check: `flutter build ios --simulator --debug --no-codesign` of the
+  Flutter example: built.
+- **TODO**: the Dart parameter (Windows session); the React Native iOS side waits for the TypeScript spec prop (codegen), then
+  `CylsearchBarView.mm` reads it.
+
