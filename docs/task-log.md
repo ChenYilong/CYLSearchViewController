@@ -52,3 +52,19 @@ begins and becomes `DONE` when it ends.
   feat/search-bar-view."
 - Status: #6 passed CI (6/6 jobs, run 43112176663) and was merged into
   `feat/search-bar-view` (merge commit `51a0e39`). #5 CI running.
+
+## TODO (2026-11-28): commit the unfinished `instructions.md` rewrite as work in progress
+
+- Context: on `docs/agents-tag-format` (PR #18), `AGENTS.md` is already in the tag format (`65d3558`, `52c6bed`). The root
+  `instructions.md` rewrite was started but not finished, and was left uncommitted.
+- Prompt (verbatim): "提交本地未完成的代码，commit push pr中写好为什么没写完就commit了，别人应该从哪里写。"
+- Prompt (English): "Commit the unfinished local code and push; in the PR, explain why it was committed unfinished and where
+  others should continue."
+- Status: committed as work in progress. Remaining work:
+  1. Add the `docs-lookup` and `reply-greeting` headings to `instructions.md` (`AGENTS.md` has them).
+  2. Use the `AGENTS.md` layout: `## <Heading> (tag: ...)` with bullets, links only in a final tag table.
+  3. Check that every rule removed from the old `instructions.md` exists in a `docs/instructions/<tag>.md` file. Check these first:
+     the Podfile header and `post_install` snippets, the comment form for each language, the AppIcon and launch screen rule,
+     the Issue #1317 inset details, and the CYLTabBarController integration steps. Move anything missing into its tag file
+     instead of deleting it.
+  4. Keep `instructions.md` under 200 lines (87 now).
