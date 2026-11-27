@@ -51,37 +51,10 @@ messages, localized strings (English, Simplified Chinese, a missing key) and the
 ## Table
 
 <!-- api-alignment:begin -->
-Rows: 443; DONE 413, N/A 30, TODO 0; score 100/100.
+Rows: 437; DONE 401, N/A 28, TODO 8; score 98/100.
 
 | iOS API | Upstream counterpart (named in the iOS doc comment) | Android (`cylsearch`) | Status |
 | :--- | :--- | :--- | :--- |
-| **class `CYLSearchBar`** | — | CYLSearchBarView | DONE |
-| `CYLSearchBar.appearanceStyle` | copied from `CYLSearchBarAppearance.defaultAppearance` when the bar is created | `CYLSearchBarView.appearanceStyle` | DONE |
-| `CYLSearchBar.usedAsTableHeaderView` | QMUI `qmui_usedAsTableHeaderView` | `CYLSearchBarView.usedAsTableHeaderView` | DONE |
-| `CYLSearchBar.centersPlaceholder` | QMUI `qmui_centerPlaceholder` | `CYLSearchBarView.centersPlaceholder` | DONE |
-| `CYLSearchBar.placeholderColor` | QMUI `qmui_placeholderColor` | `CYLSearchBarView.placeholderColor` | DONE |
-| `CYLSearchBar.textColor` | QMUI `qmui_textColor` | `CYLSearchBarView.textColor` | DONE |
-| `CYLSearchBar.font` | QMUI `qmui_font` | `CYLSearchBarView.font` | DONE |
-| `CYLSearchBar.textFieldMargins` | QMUI `qmui_textFieldMargins` | `CYLSearchBarView.textFieldMargins` | DONE |
-| `CYLSearchBar.textFieldMarginsProvider` | `true` while searching; QMUI `qmui_textFieldMarginsBlock` | `CYLSearchBarView.textFieldMarginsProvider` | DONE |
-| `CYLSearchBar.cancelButton` | QMUI `qmui_cancelButton`, found among the text field's siblings without private keys | `CYLSearchBarView.cancelButton` | DONE |
-| `CYLSearchBar.cancelButtonFont` | QMUI `qmui_cancelButtonFont` | `CYLSearchBarView.cancelButtonFont` | DONE |
-| `CYLSearchBar.cancelButtonMarginsProvider` | `true` while searching; QMUI `qmui_cancelButtonMarginsBlock` | `CYLSearchBarView.cancelButtonMarginsProvider` | DONE |
-| `CYLSearchBar.alwaysEnablesCancelButton` | QMUI `qmui_alwaysEnableCancelButton` | `CYLSearchBarView.alwaysEnablesCancelButton` | DONE |
-| `CYLSearchBar.backgroundView` | QMUI `qmui_backgroundView` | `CYLSearchBarView.backgroundView` | DONE |
-| `CYLSearchBar.segmentedControl` | QMUI `qmui_segmentedControl` | `CYLSearchBarView.segmentedControl` | DONE |
-| `CYLSearchBar.leadingAccessoryView` | QMUI `qmui_leftAccessoryView` | `CYLSearchBarView.leadingAccessoryView` | DONE |
-| `CYLSearchBar.showsLeadingAccessoryView` | QMUI `qmui_showsLeftAccessoryView` | `CYLSearchBarView.showsLeadingAccessoryView` | DONE |
-| `CYLSearchBar.leadingAccessoryViewMargins` | — | `CYLSearchBarView.leadingAccessoryViewMargins` | DONE |
-| `CYLSearchBar.trailingAccessoryView` | QMUI `qmui_rightAccessoryView` | `CYLSearchBarView.trailingAccessoryView` | DONE |
-| `CYLSearchBar.showsTrailingAccessoryView` | QMUI `qmui_showsRightAccessoryView` | `CYLSearchBarView.showsTrailingAccessoryView` | DONE |
-| `CYLSearchBar.trailingAccessoryViewMargins` | — | `CYLSearchBarView.trailingAccessoryViewMargins` | DONE |
-| `CYLSearchBar.init(coder:)` | — | CYLSearchBarView `constructor(context, attrs)` (XML) | DONE |
-| `CYLSearchBar.applyDefaultAppearance()` | QMUI `qmui_styledAsQMUISearchBar` | `CYLSearchBarView.applyDefaultAppearance` | DONE |
-| `CYLSearchBar.setShowsLeadingAccessoryView(_:animated:)` | QMUI `qmui_setShowsLeftAccessoryView:animated:` | `CYLSearchBarView.setShowsLeadingAccessoryView` | DONE |
-| `CYLSearchBar.setShowsTrailingAccessoryView(_:animated:)` | QMUI `qmui_setShowsRightAccessoryView:animated:` | `CYLSearchBarView.setShowsTrailingAccessoryView` | DONE |
-| `CYLSearchBar.textFieldBackgroundImage(color:)` | QMUI `qmui_generateTextFieldBackgroundImageWithColor:` | `CYLSearchBarView.textFieldBackgroundImage` | DONE |
-| `CYLSearchBar.backgroundImage(color:borderColor:)` | QMUI `qmui_generateBackgroundImageWithColor:borderColor:` | `CYLSearchBarView.backgroundImage` | DONE |
 | **class `CYLSearchBarAppearance`** | `SearchBarFont`, `SearchBarTextColor`, `SearchBarPlaceholderColor`, `SearchBarTintColor`, the icons, the field background and border, `SearchBarTextFieldCornerRadius`, `SearchBarBackgroundImage` | CYLSearchBarAppearance | DONE |
 | `CYLSearchBarAppearance.font` | QMUI `SearchBarFont` | `CYLSearchBarAppearance.font` | DONE |
 | `CYLSearchBarAppearance.textColor` | QMUI `SearchBarTextColor` | `CYLSearchBarAppearance.textColor` | DONE |
@@ -117,6 +90,9 @@ Rows: 443; DONE 413, N/A 30, TODO 0; score 100/100.
 | `CYLSearchBarItemStyle.icon` | — | `CYLSearchBarItemStyle.Icon` | DONE |
 | `CYLSearchBarItemStyle.divider` | — | `CYLSearchBarItemStyle.Divider` | DONE |
 | `CYLSearchBarItemStyle.text` | — | `CYLSearchBarItemStyle.Text` | DONE |
+| **enum `CYLSearchBarSearchButtonStyle`** | — | CYLSearchBarSearchButtonStyle | DONE |
+| `CYLSearchBarSearchButtonStyle.text` | `searchButtonTitle` changes it | `CYLSearchBarSearchButtonStyle.Text` | DONE |
+| `CYLSearchBarSearchButtonStyle.icon` | `searchButtonImage` changes it | `CYLSearchBarSearchButtonStyle.Icon` | DONE |
 | **enum `CYLSearchBarStyle`** | — | CYLSearchBarStyle | DONE |
 | `CYLSearchBarStyle.plain` | — | `CYLSearchBarStyle.Plain` | DONE |
 | `CYLSearchBarStyle.bordered` | — | `CYLSearchBarStyle.Bordered` | DONE |
@@ -171,6 +147,11 @@ Rows: 443; DONE 413, N/A 30, TODO 0; score 100/100.
 | `CYLSearchBarView.showsTrailingAccessoryViews` | — | `CYLSearchBarView.showsTrailingAccessoryViews` | DONE |
 | `CYLSearchBarView.setShowsTrailingAccessoryViews(_:animated:)` | QMUI `qmui_setShowsRightAccessoryView:animated:`, the same knob as `CYLSearchBar` | `CYLSearchBarView.setShowsTrailingAccessoryViews` | DONE |
 | `CYLSearchBarView.items` | like the FlatDesign tab bar's `items` | `CYLSearchBarView.items` | DONE |
+| `CYLSearchBarView.showsSearchButton` | — | `CYLSearchBarView.showsSearchButton` | DONE |
+| `CYLSearchBarView.searchButtonStyle` | `.icon`, the default; `.text` | `CYLSearchBarView.searchButtonStyle` | DONE |
+| `CYLSearchBarView.searchButtonTitle` | — | `CYLSearchBarView.searchButtonTitle` | DONE |
+| `CYLSearchBarView.searchButtonImage` | SF Symbol `magnifyingglass` | `CYLSearchBarView.searchButtonImage` | DONE |
+| `CYLSearchBarView.searchButtonHandler` | — | `CYLSearchBarView.searchButtonHandler` | DONE |
 | `CYLSearchBarView.itemViews` | `CYLTagButton`s | `CYLSearchBarView.itemViews` | DONE |
 | `CYLSearchBarView.itemTintColor` | — | `CYLSearchBarView.itemTintColor` | DONE |
 | `CYLSearchBarView.searchBarStyle` | — | `CYLSearchBarView.searchBarStyle` | DONE |
@@ -242,6 +223,14 @@ Rows: 443; DONE 413, N/A 30, TODO 0; score 100/100.
 | `CYLSearchBarView.setText(_:submit:)` | MaterialSearchView `setQuery`, lapism `setTextQuery` | `CYLSearchBarView.setText` | DONE |
 | `CYLSearchBarView.submit()` | — | `CYLSearchBarView.submit` | DONE |
 | `CYLSearchBarView.showKeyboard()` | — | `CYLSearchBarView.showKeyboard` | DONE |
+| `CYLSearchBarView.pushesOnTap` | — | `CYLSearchBarView.pushesOnTap` | DONE |
+| `CYLSearchBarView.onFirstLevelTap` | — | `CYLSearchBarView.onFirstLevelTap` | DONE |
+| `CYLSearchBarView.performFirstLevelTap()` | — | `CYLSearchBarView.performFirstLevelTap` | DONE |
+| `CYLSearchBarView.isBackButtonShown` | — | `CYLSearchBarView.isBackButtonShown` | DONE |
+| `CYLSearchBarView.backButtonProgress` | — | `CYLSearchBarView.backButtonProgress` | DONE |
+| `CYLSearchBarView.focusesOnAppear` | `isOnSecondLevelOrDeeperPage`: the page is not the first view controller of its navigation controller | `CYLSearchBarView.focusesOnAppear` | DONE |
+| `CYLSearchBarView.pageDepth` | `isOnSecondLevelOrDeeperPage` | `CYLSearchBarView.pageDepth` | DONE |
+| `CYLSearchBarView.dismissesKeyboardOnOutsideTouch` | — | `CYLSearchBarView.dismissesKeyboardOnOutsideTouch` | TODO |
 | `CYLSearchBarView.hideKeyboard()` | — | `CYLSearchBarView.hideKeyboard` | DONE |
 | `CYLSearchBarView.setIconified(_:animated:)` | — | `CYLSearchBarView.setIconified` | DONE |
 | `CYLSearchBarView.encodeRestorableState(with:)` | `onSaveInstanceState` | `onSaveInstanceState()` | DONE |
@@ -278,6 +267,11 @@ Rows: 443; DONE 413, N/A 30, TODO 0; score 100/100.
 | `CYLSearchBarItem.backgroundColor` | — | `CYLSearchBarItem.backgroundColor` | DONE |
 | `CYLSearchBarItem.selectedBackgroundColor` | — | `CYLSearchBarItem.selectedBackgroundColor` | DONE |
 | `CYLSearchBarItem.contentInsets` | — | `CYLSearchBarItem.contentInsets` | DONE |
+| `CYLSearchBarItem.automaticCornerRadius` | — | `CYLSearchBarItem.automaticCornerRadius` | TODO |
+| `CYLSearchBarItem.cornerRadius` | — | `CYLSearchBarItem.cornerRadius` | DONE |
+| `CYLSearchBarItem.borderColor` | — | `CYLSearchBarItem.borderColor` | DONE |
+| `CYLSearchBarItem.borderWidth` | — | `CYLSearchBarItem.borderWidth` | DONE |
+| `CYLSearchBarItem.itemHeight` | — | `CYLSearchBarItem.itemHeight` | DONE |
 | `CYLSearchBarItem.imagePositionAdjustment` | — | `CYLSearchBarItem.imagePositionAdjustment` | DONE |
 | `CYLSearchBarItem.titlePositionAdjustment` | — | `CYLSearchBarItem.titlePositionAdjustment` | DONE |
 | `CYLSearchBarItem.badgeValue` | — | `CYLSearchBarItem.badgeValue` | DONE |
@@ -300,35 +294,30 @@ Rows: 443; DONE 413, N/A 30, TODO 0; score 100/100.
 | `CYLSearchBarItem.setBadgeTextAttributes(_:for:)` | — | `CYLSearchBarItem.setBadgeTextAttributes` | DONE |
 | `CYLSearchBarItem.badgeTextAttributes(for:)` | — | `CYLSearchBarItem.badgeTextAttributes` | DONE |
 | `CYLSearchBarItem.actualBadgeSuperView()` | — | `CYLSearchBarItem.actualBadgeSuperView` | DONE |
-| **protocol `CYLSearchControllerDelegate`** | QMUI `QMUISearchControllerDelegate` | CYLSearchViewDelegate | DONE |
+| **protocol `CYLSearchControllerDelegate`** | QMUI `QMthe system search controllerDelegate` | CYLSearchViewDelegate | DONE |
 | `CYLSearchControllerDelegate.-searchController:updateResultsForSearchString:` | — | `CYLSearchViewDelegate.searchViewUpdateResults` | DONE |
 | `CYLSearchControllerDelegate.-searchController:didLoadSearchResultsTableView:` | — | `CYLSearchViewDelegate.searchViewDidLoadResultsTableView` | DONE |
 | `CYLSearchControllerDelegate.-searchController:willShowEmptyView:` | — | `CYLSearchViewDelegate.searchViewWillShowEmptyView` | DONE |
-| **class `CYLSearchController`** | whose `searchBar` is a `CYLSearchBar` | CYLSearchView | DONE |
+| **class `CYLSearchController`** | `CYLSearchBarView` | CYLSearchView | DONE |
 | `CYLSearchController.searchResultsDelegate` | — | `CYLSearchView.delegate` | DONE |
-| `CYLSearchController.searchController` | — | none: `CYLSearchView` is the search UI itself, there is no system search controller inside it | N/A |
-| `CYLSearchController.searchResultsController` | `searchController.searchResultsController` | `CYLSearchView.resultsTableView` | DONE |
+| `CYLSearchController.searchResultsController` | — | `CYLSearchView.resultsTableView` | DONE |
 | `CYLSearchController.searchBar` | — | `CYLSearchView.searchBarView` | DONE |
 | `CYLSearchController.tableView` | — | `CYLSearchView.resultsTableView` | DONE |
 | `CYLSearchController.highlightsResultMatches` | — | `CYLSearchView.highlightsResultMatches` | DONE |
 | `CYLSearchController.resultMatchHighlightColor` | — | `CYLSearchView.resultMatchHighlightColor` | DONE |
 | `CYLSearchController.launchView` | QMUI `launchView` | `CYLSearchView.launchView` | DONE |
-| `CYLSearchController.showsSuggestionsLaunchView` | CollectionViewClassifyMenu's tags folded to two rows with the fold control as the last tag, and, over the submitted queries of `historyStore`, the title "Recent searches" with a clear button | `CYLSearchView.showsSuggestionsLaunchView` | DONE |
-| `CYLSearchController.suggestions` | see `showsSuggestionsLaunchView` | `CYLSearchView.suggestions` | DONE |
-| `CYLSearchController.dimmingColor` | QMUI `dimmingColor` | `CYLSearchView.dimmingColor` | DONE |
-| `CYLSearchController.isActive` | QMUI `active` | `CYLSearchView.isActive` | DONE |
-| `CYLSearchController.hidesNavigationBarDuringPresentation` | — | `CYLSearchView.hidesNavigationBarDuringPresentation` | DONE |
-| `CYLSearchController.alwaysShowsSearchResultsController` | QMUI `alwaysShowSearchResultsController` | `CYLSearchView.alwaysShowsSearchResultsController` | DONE |
-| `CYLSearchController.forwardsAppearanceFromContentsViewController` | QMUI `forwardAppearanceMethodsFromPresentingController` | none: Android has no appearance transition methods (`viewWillDisappear`); the results are views of the same window and share the host's lifecycle | N/A |
-| `CYLSearchController.supportsSwipeToDismissSearch` | QMUI `supportsSwipeToDismissSearch` | `CYLSearchView.supportsSwipeToDismissSearch` | DONE |
+| `CYLSearchController.showsSuggestionsLaunchView` | — | `CYLSearchView.showsSuggestionsLaunchView` | DONE |
+| `CYLSearchController.suggestions` | — | `CYLSearchView.suggestions` | DONE |
+| `CYLSearchController.dimmingColor` | — | `CYLSearchView.dimmingColor` | DONE |
+| `CYLSearchController.isActive` | — | `CYLSearchView.isActive` | DONE |
+| `CYLSearchController.alwaysShowsSearchResultsController` | QMUI `qmui_alwaysShowsSearchResultsController` | `CYLSearchView.alwaysShowsSearchResultsController` | DONE |
+| `CYLSearchController.supportsSwipeToDismissSearch` | — | `CYLSearchView.supportsSwipeToDismissSearch` | DONE |
 | `CYLSearchController.swipeGestureRecognizer` | — | none: Android has no gesture recognizers; the swipe is the system back gesture (`OnBackPressedCallback`), enabled by `supportsSwipeToDismissSearch` | N/A |
 | `CYLSearchController.searchBarMaxY` | — | `CYLSearchView.searchBarMaxY` | DONE |
-| `CYLSearchController.prefersStatusBarHiddenProvider` | QMUI `qmui_prefersStatusBarHiddenBlock` | `CYLSearchView.prefersStatusBarHiddenProvider` | DONE |
-| `CYLSearchController.preferredStatusBarStyleProvider` | QMUI `qmui_preferredStatusBarStyleBlock` | `CYLSearchView.preferredStatusBarStyleProvider` | DONE |
 | `CYLSearchController.isEmptyViewShowing` | — | `CYLSearchView.isEmptyViewShowing` | DONE |
 | `CYLSearchController.noResultsText` | — | `CYLSearchView.noResultsText` | DONE |
 | `CYLSearchController.historyStore` | — | `CYLSearchView.suggestionCache` | DONE |
-| `CYLSearchController.historyDidChangeNotification` | object: this controller, `userInfo` key `"query"` | `CYLSearchView.addHistoryDidChangeListener` | DONE |
+| `CYLSearchController.historyDidChangeNotification` | — | `CYLSearchView.addHistoryDidChangeListener` | DONE |
 | `CYLSearchController.init(contentsViewController:resultsViewController:)` | QMUI `initWithContentsViewController:resultsViewController:` | CYLSearchView `constructor(context)`, `contentView`, host in `showSearch(view)` | DONE |
 | `CYLSearchController.init(contentsViewController:resultsTableViewStyle:)` | QMUI `initWithContentsViewController:resultsTableViewStyle:` | none: `UITableView.Style` (plain, grouped, inset grouped) does not exist on Android, the results are one `RecyclerView` (`resultsTableView`) | N/A |
 | `CYLSearchController.init(contentsViewController:)` | QMUI `initWithContentsViewController:` | CYLSearchView `constructor(context)`, host in `showSearch(view)` | DONE |
@@ -342,11 +331,9 @@ Rows: 443; DONE 413, N/A 30, TODO 0; score 100/100.
 | `CYLSearchController.snapsHeaderSearchBar` | — | `CYLSearchView.snapsHeaderSearchBar` | DONE |
 | `CYLSearchController.showEmptyView(scenario:)` | — | `CYLSearchView.showEmptyView` | DONE |
 | `CYLSearchController.hideEmptyView()` | — | `CYLSearchView.hideEmptyView` | DONE |
-| `CYLSearchController.updateSearchResults(for:)` | — | `CYLSearchViewDelegate.searchViewUpdateResults` | DONE |
-| `CYLSearchController.willPresentSearchController(_:)` | — | `CYLSearchViewDelegate.searchViewWillShow` | DONE |
-| `CYLSearchController.didPresentSearchController(_:)` | — | `CYLSearchViewDelegate.searchViewDidShow` | DONE |
-| `CYLSearchController.willDismissSearchController(_:)` | — | `CYLSearchViewDelegate.searchViewWillClose` | DONE |
-| `CYLSearchController.didDismissSearchController(_:)` | — | `CYLSearchViewDelegate.searchViewDidClose` | DONE |
+| `CYLSearchController.searchBarViewDidBeginEditing(_:)` | — | `CYLSearchView.searchBarViewDidBeginEditing` | DONE |
+| `CYLSearchController.searchBarView(_:textDidChange:)` | — | `CYLSearchView.searchBarView` | DONE |
+| `CYLSearchController.searchBarViewCancelButtonClicked(_:)` | — | `CYLSearchView.searchBarViewCancelButtonClicked` | DONE |
 | `CYLSearchController.gestureRecognizerShouldBegin(_:)` | — | none: Android has no gesture recognizers; the back gesture starts in `OnBackPressedCallback.handleOnBackStarted` | N/A |
 | **class `CYLSearchNavigationBar`** | — | CYLSearchNavigationBar | DONE |
 | `CYLSearchNavigationBar.standardHeight` | — | `CYLSearchNavigationBar.STANDARD_HEIGHT` | DONE |
@@ -357,6 +344,13 @@ Rows: 443; DONE 413, N/A 30, TODO 0; score 100/100.
 | `CYLSearchNavigationBar.navigationBar(_:shouldPop:)` | — | internal listener (UIKit protocol conformance): the toolbar's navigation click calls `backHandler` | N/A |
 | `CYLSearchNavigationBar.position(for:)` | — | internal listener (UIKit protocol conformance): a `Toolbar` sits in the layout, it has no bar position | N/A |
 | `CYLSearchNavigationBar.embedInNavigationBar(of:)` | so content laid out under `safeAreaLayoutGuide.topAnchor` never sits under it | `CYLSearchNavigationBar.embedInToolbar` | DONE |
+| `CYLSearchNavigationBar.applyNavigationFieldStyle()` | `.bordered`, corner radius 18 | `CYLSearchNavigationBar.applyNavigationFieldStyle` | DONE |
+| **enum `CYLSearchBarPreset`** | — | CYLSearchBarPreset | TODO |
+| `CYLSearchBarPreset.navigationField` | — | `CYLSearchBarPreset.NavigationField` | TODO |
+| `CYLSearchBarPreset.pill` | — | `CYLSearchBarPreset.Pill` | TODO |
+| `CYLSearchBarPreset.rounded` | — | `CYLSearchBarPreset.Rounded` | TODO |
+| `CYLSearchBarPreset.outlined` | — | `CYLSearchBarPreset.Outlined` | TODO |
+| `CYLSearchBarPreset.centeredCapsule` | — | `CYLSearchBarPreset.CenteredCapsule` | TODO |
 | **class `CYLSearchResources`** | — | CYLSearchResources | DONE |
 | `CYLSearchResources.resourceBundle` | — | `CYLSearchResources.resourceBundle` | DONE |
 | `CYLSearchResources.historyDidChangeNotification` | — | `CYLSearchResources.observeHistoryDidChange` | DONE |
