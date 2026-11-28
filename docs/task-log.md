@@ -35,7 +35,7 @@ begins and becomes `DONE` when it ends.
   first (commit `eb0ce70`), as the rule requires. Branch
   `feat/search-bar-view`.
 
-## TODO (2026-11-12): merge PR #6, then PR #5, after CI
+## DONE (2026-11-29): merge PR #6, then PR #5, after CI (merged 2026-11-11 UTC)
 
 - Context: PR #6 (`docs/todo-sweep` → `feat/search-bar-view`) holds one
   commit, `29fdf24`: the scene life cycle (the example did not launch when
@@ -51,4 +51,31 @@ begins and becomes `DONE` when it ends.
   feat/search-bar-view → master, and #6 docs/todo-sweep →
   feat/search-bar-view."
 - Status: #6 passed CI (6/6 jobs, run 43112176663) and was merged into
-  `feat/search-bar-view` (merge commit `51a0e39`). #5 CI running.
+  `feat/search-bar-view` (merge commit `51a0e39`). #5 is merged too (`gh pr view` 2026-11-29: #6 merged
+  2026-11-11T22:58:08Z, #5 merged 2026-11-11T23:36:53Z).
+
+## DONE (2026-11-29): commit the unfinished `instructions.md` rewrite as work in progress
+
+- Context: on `docs/agents-tag-format` (PR #18), `AGENTS.md` is already in the tag format (`65d3558`, `52c6bed`). The root
+  `instructions.md` rewrite was started but not finished, and was left uncommitted.
+- Prompt (verbatim): "提交本地未完成的代码，commit push pr中写好为什么没写完就commit了，别人应该从哪里写。"
+- Prompt (English): "Commit the unfinished local code and push; in the PR, explain why it was committed unfinished and where
+  others should continue."
+- Status: committed as work in progress. Remaining work:
+  1. Add the `docs-lookup` and `reply-greeting` headings to `instructions.md` (`AGENTS.md` has them).
+  2. Use the `AGENTS.md` layout: `## <Heading> (tag: ...)` with bullets, links only in a final tag table.
+  3. Check that every rule removed from the old `instructions.md` exists in a `docs/instructions/<tag>.md` file. Check these first:
+     the Podfile header and `post_install` snippets, the comment form for each language, the AppIcon and launch screen rule,
+     the Issue #1317 inset details, and the CYLTabBarController integration steps. Move anything missing into its tag file
+     instead of deleting it.
+  4. Keep `instructions.md` under 200 lines (87 now).
+
+## DONE (2026-11-29): finish the WIP `instructions.md` rewrite
+
+- Context: continues the entry of 2026-11-28 above, on `docs/agents-tag-format` (PR #18), from commit `2e3c1fa`.
+- Requirements: do the four remaining items of that entry; move missing rules into tag files instead of deleting them.
+- Prompt (verbatim): "finish the WIP"
+- Prompt (English): "finish the WIP"
+- Status: done in `0f72b62`. `instructions.md` uses the `AGENTS.md` layout with all 12 tags, links only in the final table,
+  104 lines. Rules dropped by the WIP rewrite were appended to six tag files. Checked by comparing the old
+  `instructions.md` (`2e3c1fa^`) with the tag files, and with `git diff --check`; no build run (documents only).
