@@ -50,3 +50,9 @@ CYLTabBarController's `AGENTS.md` and `cyl-*` skills at its latest commit
   or identifier before coordinates.
 - **Clean builds.** Build into an empty derived data folder after a
   dependency change, so the app does not run stale pod code.
+
+## Plus button layout (moved from `instructions.md`, 2026-11-29)
+
+- Keep an even number of normal tabs so the plus button sits in the middle; set `CYLPlusButtonIndexInTabBar` otherwise.
+  The plus button is not counted in the tab items.
+- Give the plus button a title when titles are aligned with the tab titles.

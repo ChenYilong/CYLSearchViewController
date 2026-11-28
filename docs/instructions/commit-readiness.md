@@ -63,3 +63,10 @@
   `type`, `scope`, `subject`, `body`, `breaking`, `issues`, and `lerna`;
   prompts cover optional scope, imperative subject, longer description,
   breaking changes, issue references, and affected packages.
+
+## Commit types (moved from `instructions.md`, 2026-11-29)
+
+- Meanings: `chore` build or auxiliary-tool changes, `ci` CI changes, `docs` documentation only, `feat` new feature,
+  `fix` bug fix, `perf` performance improvement, `refactor` neither a feature nor a fix, `style` markup or formatting
+  only, `test` adding missing tests, `release` release commit (only for an intentional release).
+- Omit an unnecessary scope. Commit text stays English.

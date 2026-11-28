@@ -14,3 +14,31 @@
   missing, reuse the icon and custom launch image from
   `CYLTabBarController/Example/Images.xcassets`.
 - Never commit `Pods/`, generated workspace state, or AppleDouble `._*` files.
+
+## Podfile and dependency details (moved from `instructions.md`, 2026-11-29)
+
+- Do not use synchronized folder groups.
+- For any Xcode project, inspect the Podfile before building or changing project settings. Its top section:
+
+  ```ruby
+  platform :ios, '15.0'
+
+  ENV['SWIFT_VERSION'] = '5'
+
+  project '<projectname>.xcodeproj'
+  ```
+
+- The `post_install` hook at the bottom of the Podfile:
+
+  ```ruby
+  post_install do |installer|
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings["IPHONEOS_DEPLOYMENT_TARGET"] = "15.0"
+      end
+    end
+  end
+  ```
+
+- The launch screen is configured through `UILaunchStoryboardName`.
+- Install dependencies with CocoaPods and open the generated workspace.

@@ -12,3 +12,11 @@ reproduction or fix without launching the sample on a simulator.
   pushing; see `docs/CI-CD.md`.
 - A script added under `scripts/` must pass `shellcheck`. A workflow change
   must pass `actionlint`.
+
+## Before pushing (moved from `instructions.md`, 2026-11-29)
+
+- Build the shared scheme for an installed simulator. Report simulator behavior as unverified unless the app was
+  actually launched and exercised.
+- Preserve the existing project's license and third-party notices.
+- Run locally: `scripts/ci-checkout-dependencies.sh`, `scripts/check-public-api-comments.sh`,
+  `scripts/pod-lint.sh lib`, `scripts/ci-build-example.sh build|analyze` and `scripts/unit-tests.sh`.

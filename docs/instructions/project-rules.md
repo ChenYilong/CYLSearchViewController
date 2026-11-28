@@ -10,3 +10,11 @@
 - Keep the sample configurable through protocols or public properties. Avoid
   dependencies on `AppDelegate`, global state, or concrete model types.
 - Keep all instructions and skill files in English.
+
+## Naming details (moved from `instructions.md`, 2026-11-29)
+
+- The `CYL` prefix covers every new project-owned class, protocol, enum, type, function, and constant. Name a class
+  file after its primary type.
+- Name UIKit category files `<SystemClass>+CYL<Feature>.h` and `.m`.
+- Apply these rules to copied or newly introduced code. Remove unrelated third-party prefixes from new code and retain
+  source attribution.
