@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "cyl_action_ok",
+      "value": "OK"
+    },
+    {
+      "name": "cyl_demo_port_default",
+      "value": "Standaard"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "Geen gegevens"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "Annuleren"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "Meer"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "Annuleren"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "Vernieuwen"
+    }
+  ]
+}

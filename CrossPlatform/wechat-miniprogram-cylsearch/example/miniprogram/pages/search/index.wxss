@@ -1,0 +1,7 @@
+.screen { display: flex; flex-direction: column; height: calc(100vh - 50px - env(safe-area-inset-bottom)); background: #fff; }
+.list { display: block; flex: 1; min-height: 0; }
+.row { padding: 12px 16px; font-size: 17px; color: #000; border-bottom: 0.5px solid rgba(60, 60, 67, 0.29); }
+@media (prefers-color-scheme: dark) {
+  .screen { background: #000; }
+  .row { color: #fff; border-bottom-color: rgba(84, 84, 88, 0.6); }
+}

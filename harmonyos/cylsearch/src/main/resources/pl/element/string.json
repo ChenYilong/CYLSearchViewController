@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "cyl_action_ok",
+      "value": "OK"
+    },
+    {
+      "name": "cyl_demo_port_default",
+      "value": "Domyślny"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "Brak danych"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "Anuluj"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "Więcej"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "Anuluj"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "Odśwież"
+    }
+  ]
+}

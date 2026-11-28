@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "cyl_action_ok",
+      "value": "OK"
+    },
+    {
+      "name": "cyl_demo_port_default",
+      "value": "Predefinito"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "Nessun dato"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "Annulla"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "Altro"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "Annulla"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "Aggiorna"
+    }
+  ]
+}

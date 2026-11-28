@@ -1,0 +1,23 @@
+{
+  "appid": "touristappid",
+  "projectname": "cyl-search-miniprogram-example",
+  "description": "The example of cyl-search-miniprogram (CYLSearchViewController for WeChat Mini Program), a 1:1 copy of the iOS example",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "example/miniprogram/",
+  "libVersion": "3.6.6",
+  "scripts": {
+    "beforeCompile": "node scripts/sync-example.js",
+    "beforePreview": "node scripts/sync-example.js",
+    "beforeUpload": "node scripts/sync-example.js"
+  },
+  "setting": {
+    "urlCheck": true,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "scriptsEnable": true
+  },
+  "packOptions": { "ignore": [], "include": [] },
+  "condition": {}
+}

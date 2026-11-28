@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "cyl_action_ok",
+      "value": "OK"
+    },
+    {
+      "name": "cyl_demo_port_default",
+      "value": "Standard"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "Ingen data"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "Avbryt"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "Mer"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "Avbryt"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "Oppdater"
+    }
+  ]
+}

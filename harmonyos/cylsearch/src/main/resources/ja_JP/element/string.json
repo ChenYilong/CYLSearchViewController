@@ -1,0 +1,364 @@
+{
+  "string": [
+    {
+      "name": "cyl_action_ok",
+      "value": "OK"
+    },
+    {
+      "name": "cyl_action_overlay",
+      "value": "オーバーレイ"
+    },
+    {
+      "name": "cyl_controller_launch_label",
+      "value": "最近の検索"
+    },
+    {
+      "name": "cyl_controller_noResults",
+      "value": "一致する結果はありません"
+    },
+    {
+      "name": "cyl_controller_recent",
+      "value": "最近の検索"
+    },
+    {
+      "name": "cyl_demo_barInView",
+      "value": "ビュー内のバー"
+    },
+    {
+      "name": "cyl_demo_choose",
+      "value": "画像とメッセージ"
+    },
+    {
+      "name": "cyl_demo_collectionView",
+      "value": "コレクションビュー"
+    },
+    {
+      "name": "cyl_demo_custom",
+      "value": "カスタム画像とメッセージ"
+    },
+    {
+      "name": "cyl_demo_custom_both",
+      "value": "カスタム画像と文字"
+    },
+    {
+      "name": "cyl_demo_custom_imageOnly",
+      "value": "カスタム画像と標準メッセージ"
+    },
+    {
+      "name": "cyl_demo_custom_text",
+      "value": "カスタム画像とメッセージ"
+    },
+    {
+      "name": "cyl_demo_custom_textOnly",
+      "value": "標準画像とカスタム文字"
+    },
+    {
+      "name": "cyl_demo_navigationItem",
+      "value": "ナビゲーション項目"
+    },
+    {
+      "name": "cyl_demo_port_default",
+      "value": "デフォルト"
+    },
+    {
+      "name": "cyl_demo_port_events",
+      "value": "イベント"
+    },
+    {
+      "name": "cyl_demo_port_inputType",
+      "value": "入力タイプ"
+    },
+    {
+      "name": "cyl_demo_port_item",
+      "value": "項目 %d"
+    },
+    {
+      "name": "cyl_demo_port_keyword",
+      "value": "キーワードを入力"
+    },
+    {
+      "name": "cyl_demo_port_listening",
+      "value": "聞き取り中…"
+    },
+    {
+      "name": "cyl_demo_port_open",
+      "value": "検索を開く"
+    },
+    {
+      "name": "cyl_demo_port_page",
+      "value": "ページ %d"
+    },
+    {
+      "name": "cyl_demo_port_query",
+      "value": "クエリ: %s"
+    },
+    {
+      "name": "cyl_demo_port_result",
+      "value": "検索結果"
+    },
+    {
+      "name": "cyl_demo_port_searched",
+      "value": "検索内容===%s"
+    },
+    {
+      "name": "cyl_demo_port_sticky",
+      "value": "固定"
+    },
+    {
+      "name": "cyl_demo_port_tab",
+      "value": "タブ"
+    },
+    {
+      "name": "cyl_demo_port_themed",
+      "value": "テーマ"
+    },
+    {
+      "name": "cyl_demo_port_voice",
+      "value": "音声"
+    },
+    {
+      "name": "cyl_demo_port_voiceUnavailable",
+      "value": "音声認識は使用できません。"
+    },
+    {
+      "name": "cyl_demo_ports",
+      "value": "他のライブラリの例"
+    },
+    {
+      "name": "cyl_demo_reproduction",
+      "value": "検索と更新"
+    },
+    {
+      "name": "cyl_demo_searchBar",
+      "value": "検索バー"
+    },
+    {
+      "name": "cyl_demo_searchBarStyles",
+      "value": "検索バーのスタイル"
+    },
+    {
+      "name": "cyl_demo_searchBar_camera",
+      "value": "カメラ"
+    },
+    {
+      "name": "cyl_demo_searchBar_placeholder",
+      "value": "配信者・ルームID・曲名"
+    },
+    {
+      "name": "cyl_demo_searchBar_searched",
+      "value": "検索しました：%s"
+    },
+    {
+      "name": "cyl_demo_searchBar_text",
+      "value": "テキスト：%s"
+    },
+    {
+      "name": "cyl_demo_searchController",
+      "value": "検索コントローラ"
+    },
+    {
+      "name": "cyl_demo_shortList",
+      "value": "短いリスト"
+    },
+    {
+      "name": "cyl_demo_styles",
+      "value": "プレースホルダーのスタイル"
+    },
+    {
+      "name": "cyl_demo_title",
+      "value": "検索サンプル"
+    },
+    {
+      "name": "cyl_issue_item",
+      "value": "項目 %d"
+    },
+    {
+      "name": "cyl_issue_row",
+      "value": "行 %d"
+    },
+    {
+      "name": "cyl_multisearch_add",
+      "value": "新しい検索"
+    },
+    {
+      "name": "cyl_multisearch_item",
+      "value": "検索 %1$d / %2$d"
+    },
+    {
+      "name": "cyl_multisearch_remove",
+      "value": "検索を削除"
+    },
+    {
+      "name": "cyl_navigationBar_back",
+      "value": "戻る"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "データがありません"
+    },
+    {
+      "name": "cyl_placeholder_error",
+      "value": "問題が発生しました"
+    },
+    {
+      "name": "cyl_placeholder_network",
+      "value": "インターネット接続を確認してください"
+    },
+    {
+      "name": "cyl_placeholder_search",
+      "value": "一致する結果がありません"
+    },
+    {
+      "name": "cyl_refresh_error",
+      "value": "更新に失敗しました"
+    },
+    {
+      "name": "cyl_repro_off",
+      "value": "再現：オフ"
+    },
+    {
+      "name": "cyl_repro_on",
+      "value": "再現：オン"
+    },
+    {
+      "name": "cyl_sample_result",
+      "value": "サンプル結果 %d"
+    },
+    {
+      "name": "cyl_search_back",
+      "value": "戻る"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "キャンセル"
+    },
+    {
+      "name": "cyl_search_clear",
+      "value": "テキストを消去"
+    },
+    {
+      "name": "cyl_search_clearRecent",
+      "value": "最近の検索を消去"
+    },
+    {
+      "name": "cyl_search_button",
+      "value": "検索"
+    },
+    {
+      "name": "cyl_search_field",
+      "value": "検索"
+    },
+    {
+      "name": "cyl_search_foldLess",
+      "value": "閉じる"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "もっと見る"
+    },
+    {
+      "name": "cyl_search_placeholder",
+      "value": "結果を絞り込む"
+    },
+    {
+      "name": "cyl_search_recent",
+      "value": "最近の検索"
+    },
+    {
+      "name": "cyl_search_recentCleared",
+      "value": "最近の検索を消去しました"
+    },
+    {
+      "name": "cyl_search_showLess",
+      "value": "表示を減らす"
+    },
+    {
+      "name": "cyl_search_showMore",
+      "value": "もっと表示"
+    },
+    {
+      "name": "cyl_search_submit",
+      "value": "検索"
+    },
+    {
+      "name": "cyl_search_suggestions",
+      "value": "候補"
+    },
+    {
+      "name": "cyl_search_title",
+      "value": "検索"
+    },
+    {
+      "name": "cyl_search_voice",
+      "value": "音声検索"
+    },
+    {
+      "name": "cyl_styles_accessory_label",
+      "value": "アクセサリビュー"
+    },
+    {
+      "name": "cyl_styles_adjustCancel",
+      "value": "検索中のキャンセルを調整"
+    },
+    {
+      "name": "cyl_styles_adjustField",
+      "value": "通常時の入力欄を調整"
+    },
+    {
+      "name": "cyl_styles_animated",
+      "value": "アニメーションで表示"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "キャンセルボタン"
+    },
+    {
+      "name": "cyl_styles_centerPlaceholder",
+      "value": "プレースホルダーを中央に"
+    },
+    {
+      "name": "cyl_styles_changePlaceholder",
+      "value": "プレースホルダーを変更"
+    },
+    {
+      "name": "cyl_styles_hide",
+      "value": "%sを非表示"
+    },
+    {
+      "name": "cyl_styles_leading",
+      "value": "左のアクセサリ"
+    },
+    {
+      "name": "cyl_styles_longPlaceholder",
+      "value": "とても とても とても 長いプレースホルダー"
+    },
+    {
+      "name": "cyl_styles_row_hint",
+      "value": "リストの上の検索バーを変更します"
+    },
+    {
+      "name": "cyl_styles_section_accessory",
+      "value": "アクセサリビュー"
+    },
+    {
+      "name": "cyl_styles_section_layout",
+      "value": "レイアウト"
+    },
+    {
+      "name": "cyl_styles_section_placeholder",
+      "value": "プレースホルダー"
+    },
+    {
+      "name": "cyl_styles_show",
+      "value": "%sを表示"
+    },
+    {
+      "name": "cyl_styles_trailing",
+      "value": "右のアクセサリ"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "更新"
+    }
+  ]
+}

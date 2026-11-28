@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "cyl_action_ok",
+      "value": "ตกลง"
+    },
+    {
+      "name": "cyl_demo_port_default",
+      "value": "ค่าเริ่มต้น"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "ไม่มีข้อมูล"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "ยกเลิก"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "เพิ่มเติม"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "ยกเลิก"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "รีเฟรช"
+    }
+  ]
+}

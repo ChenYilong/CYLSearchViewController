@@ -80,3 +80,96 @@ scripts/local-run-environment.sh
 
 - When upstream `ios.yml` changes, compare it and update this workflow and the
   commit recorded above.
+
+## DONE (2026-11-12): screenshot rules in the build and CI/CD sections
+
+- Context: screenshots of this repository so far live in `docs/assets/` (for example the Swift ports in
+  `docs/search-api-comparison.md`, taken on the iPhone 17 simulator, iOS 26.1). The rule is asked while the Swift
+  migration of the core (`docs/swift-migration.md`) is in progress on `feat/swift-core`; tasks run in the order
+  they were given, so this one follows it.
+- Requirements:
+  1. Find the build / CI/CD sections of the instruction files and the skills; create them where missing; make sure
+     the text is written. Everything in English.
+  2. Every screenshot, CI/CD screenshots and local build screenshots alike, is saved with the related document in
+     `docs/` (create a document when none fits) and committed to the git repository.
+  3. When the result looks as expected, update `README.md` with the latest screenshots (find the section, or create
+     it).
+  4. Label each screenshot with the platform (iOS, Android, Flutter, React Native, HarmonyOS, mini program), the
+     environment (OS version, simulator version, platform SDK version), the repository version or commit link, and
+     the time it was taken.
+  5. Use clear, original-resolution screenshots.
+- Prompt (verbatim): "continue in order. 找到instructions相关文件，以及skills相关文件，找到构建build ci cd章节。如果没有就新建，确保写入成功，全英文写入如下内容：所有截图，包括CI CD截图以及本地构建截图，全部保存在docs文件夹相关文档中，如果无相关文档就新建文档，保存图片到git仓库。并在合适的时机，你认为效果符合预期就更新最新图片到readme，找到相关章节如果没有就新建，并标注运行平台iOS android flutter reactnative 鸿蒙 小程序。运行环境 操作系统版本，模拟器版本，对应平台版本sdk版本（iOS android flutter reactnative 鸿蒙 小程序）本仓库版本号或commit地址。当前时间。截图使用清晰原图。"
+- Prompt (English): "Continue in order. Find the instruction files and the skill files, and their build / CI/CD
+  section; create it if missing, make sure it is written, and write the following, all in English: all screenshots,
+  including CI/CD screenshots and local build screenshots, are saved in the related document in the docs folder
+  (create one if there is none) and the images are saved to the git repository. At a suitable time, when you judge
+  the result as expected, update README with the latest images (find the related section or create it), and label
+  the platform (iOS, Android, Flutter, React Native, HarmonyOS, mini program), the environment (OS version,
+  simulator version, the platform's SDK version), this repository's version number or commit link, and the current
+  time. Use clear original screenshots."
+- Additional requirements (second prompt, same day):
+  6. Take and publish screenshots at key milestones: when a `TODO` or `Linux` note can be removed, when a PR can be
+     merged, or when the result is judged as expected with no bug and no open issue.
+  7. README screenshots show the key details, cropped; not full screen unless needed. Combine several key details
+     into one stitched image.
+  8. Stitching layout, in order of preference: one image per row stacked top to bottom (easiest on a phone; the
+     prompt says "横向排布", read here as the vertical arrangement because the last choice is horizontal), then two
+     columns over several rows, and last a horizontal row of at most three images.
+  9. The rules go into the build / CI/CD sections of the instruction files and the skills (created when missing),
+     in English, with the requirements above.
+- Prompt 2 (verbatim): "追加截图细节，全英文：关键节点指的是比如可以删除todo关键词，或者Linux关键词，或者可以merge pr。或者你评估已经符合预期效果无bug 无issue。readme中展示的截取关键细节，如无必要不要全屏截取。最好是采用凭借格式展示多个关键细节。拼接截图，优先采用横向排布，方便手机端查看。其次是双列 多行拼接。最差是横向拼接。横向拼接一行最多三列。找到instructions相关文件，以及skills相关文件，找到构建build ci cd章节。如果没有就新建，确保写入成功，全英文写入如下内容：所有截图，包括CI CD截图以及本地构建截图，全部保存在docs文件夹相关文档中，如果无相关文档就新建文档，保存图片到git仓库。并在合适的时机，你认为效果符合预期就更新最新图片到readme，找到相关章节如果没有就新建，并标注运行平台iOS android flutter reactnative 鸿蒙 小程序。运行环境 操作系统版本，模拟器版本，对应平台版本sdk版本（iOS android flutter reactnative 鸿蒙 小程序）本仓库版本号或commit地址。当前时间。截图使用清晰原图。"
+- Prompt 2 (English): "Add screenshot details, all in English: key milestones are, for example, when the TODO
+  keyword or the Linux keyword can be deleted, when a PR can be merged, or when you judge the result as expected with
+  no bug and no issue. README shows cropped key details; do not capture the full screen unless necessary. Preferably
+  show several key details in a stitched format. Stitched screenshots: prefer the horizontal arrangement, easy to
+  view on a phone; next, two columns over several rows; worst, horizontal stitching, at most three columns in a row.
+  (Then the first prompt's rules again: build / CI/CD sections, screenshots in docs, README update with platform,
+  environment, version or commit, time, clear original images.)"
+- Result: the rules are in `AGENTS.md` (Verification → "Screenshots of builds and CI/CD"), `instructions.md`
+  ("Screenshots of builds and CI/CD", next to Verification), `docs/instructions.md`, the `cyl-verify` skill (CI/CD →
+  "Screenshots"), the `cyl-docs` skill ("Screenshots in docs and README") and a pointer in every other `cyl-*`
+  skill. New tool: `scripts/stitch-screenshots.swift` (one column = top to bottom, two columns, or a row of three).
+  First use: `README.md` has a new "Screenshots" section with four cropped key details of the all-Swift build,
+  stacked top to bottom and labeled with platform, host, simulator, SDK, commit and time; the same image and labels
+  are in `docs/swift-migration.md`, and the port screenshots in `docs/search-api-comparison.md` got their labels.
+- Interpretation recorded: the first layout preference ("横向排布") is read as stacking top to bottom, because
+  the last preference is the horizontal row; to be confirmed by the user.
+- Confirmed and corrected by the user (2026-11-12): "更新instructions相关文件以及skills里关于截图的我的错误描述拼接顺序：全英文写入：原话里"优先横向排布"和"最差是横向拼接"互相矛盾。更正为优先竖向排布。" (English: in the instruction and skill files, correct my wrong description of the stitching order: "prefer horizontal" and "worst is horizontal" contradict each other; correct it to prefer the vertical arrangement.) Written into `AGENTS.md`, `instructions.md` and every `cyl-*` skill.
+
+## Concurrency: a started run finishes (2026-11-17)
+
+`ios.yml` uses `cancel-in-progress: false`. Several sessions push to the same branch within minutes; with
+`cancel-in-progress: true` every push cancelled the running iOS run, and on 2026-11-17 no iOS run finished for more
+than two hours. GitHub keeps at most one pending run per concurrency group and replaces it with the newest push, so a
+started run completes and the next one tests the newest commit.
+
+## DONE (2026-11-17): Example screenshots in iOS CI
+
+- **Context**: `ios.yml` builds and tests the example but takes no screenshots (progress board row 20 in
+  `docs/animated-icon-component.md`); CollectionViewClassifyMenu's `ios.yml` has an "Example screenshots" job
+  (`scripts/example-screenshots.sh`, `scripts/publish-screenshots.sh` to the `ci-screenshots` branch). The example
+  already opens screens from launch arguments: `-CYLDemoTab <index>` (tab) and `-CYLDemoRow <index>` (a row of the
+  demo menu). Artifact storage is blocked from the cloud sessions, so the images go to a `ci-screenshots` branch too.
+- **Requirements**: add a screenshot job to this repository's CI; fix ClassifyMenu's publishing (done there:
+  pull request runs published under the merge commit).
+- **Prompt (verbatim)**: "to fix the screenshot publishing in ClassifyMenu and add a screenshot job to CYLSearchViewController's CI"
+- **Acceptance** (pass 60, full 100): job in `ios.yml`, shellcheck and actionlint clean (30); a run publishes all
+  10 screens to `ci-screenshots/<branch>/<head sha7>/` (30); every image checked and correct (20); a labelled crop of
+  the animated icons in `docs/assets/` (20).
+- **Status**: done, score 100 of 100 (2026-11-19). Runs for `c858644` and `4346ede` published all 10 screens to
+  `ci-screenshots/feat-harmonyos-parity/<sha7>/`; every screen renders (tabs, the five demo menu rows, the SwiftUI SVGA
+  tab bar). Fixed afterwards: the tab order is search, examples, search bar (plus), tag style, discover, so the files
+  for tabs 2 to 4 are now `tab2-search-bar`, `tab3-tag-style` and `tab4-discover`; they are published since `0d524e7`.
+  2026-11-19: runs for `a3a298e`, `d2d65b2` and `2852f76` had no `tab0-search` ("the app is not running", 3 attempts,
+  "Child process terminated with signal 13: Broken pipe"). Cause: under `set -o pipefail`,
+  `launchctl list | grep -q` failed when `grep -q` stopped reading early, so a running app looked stopped. Fixed in
+  `scripts/example-screenshots.sh`: the list is read into a variable first. Run 44388884124 for `37c96d3` (the fix):
+  every job passed, "10 screenshots, 0 failed", all 10 in `ci-screenshots/feat-harmonyos-parity/37c96d3/` checked
+  (each shows its tab or demo menu row, `tab0-search` included).
+
+![iOS CI, iOS 26.5 SDK, iPhone 17 simulator, Xcode 26.6, commit 4346ede, 2026-11-17 21:46 UTC: SVGA header of the examples tab and the SwiftUI host's SVGA tab bar](assets/ios-ci-animated-icons-svga.png)
+
+iOS, iPhone 17 simulator, iOS SDK 26.5 (`iPhoneSimulator26.5.sdk`), Xcode 26.6, GitHub runner `macos-26`; commit
+[`4346ede`](https://github.com/ChenYilong/CYLSearchViewController/commit/4346eded702595c90f60aff11e986e8501e67854);
+taken 2026-11-17 21:46 UTC. Top: tab 1 (`-CYLDemoTab 1`), the SVGA header. Bottom: menu row 4, the SwiftUI host's
+tab bar with SVGA icons. Cropped, original pixels.

@@ -1,0 +1,11 @@
+.screen { display: flex; flex-direction: column; height: 100vh; background: #fff; }
+.bar { display: block; width: 100%; }
+.content { flex: 1; min-height: 0; }
+.header { display: block; font-size: 20px; font-weight: 700; color: #000; padding: 12px 16px 8px; }
+.tags { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 16px 16px; }
+.tag { height: 36px; line-height: 36px; padding: 0 12px; font-size: 17px; color: #000; border: 1px solid rgba(60, 60, 67, 0.29); max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; box-sizing: border-box; }
+@media (prefers-color-scheme: dark) {
+  .screen { background: #000; }
+  .header, .tag { color: #fff; }
+  .tag { border-color: rgba(84, 84, 88, 0.6); }
+}

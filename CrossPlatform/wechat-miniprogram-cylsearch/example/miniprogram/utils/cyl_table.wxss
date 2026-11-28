@@ -1,0 +1,28 @@
+/* UITableView looks shared by the example's pages: grouped and inset grouped sections, cells with a disclosure chevron. */
+.screen { min-height: 100vh; background: #f2f2f7; padding-bottom: calc(60px + env(safe-area-inset-bottom)); box-sizing: border-box; }
+.group-header { padding: 22px 16px 6px; color: rgba(60, 60, 67, 0.6); font-size: 13px; text-transform: uppercase; }
+.group { background: #fff; }
+.inset-group { margin: 18px 16px 0; border-radius: 10px; overflow: hidden; background: #fff; }
+.cell { position: relative; display: flex; align-items: center; min-height: 44px; padding: 10px 16px; box-sizing: border-box; }
+.cell + .cell::before { content: ''; position: absolute; top: 0; left: 16px; right: 0; height: 1px; background: #c6c6c8; transform: scaleY(0.5); }
+.cell-image + .cell-text::before, .cell-with-image + .cell-with-image::before { left: 60px; }
+.cell:active { background: #d1d1d6; }
+.cell-image { flex: none; width: 28px; height: 28px; margin-right: 16px; }
+.cell-text { flex: 1; min-width: 0; }
+.cell-title { flex: 1; min-width: 0; color: #000; font-size: 17px; line-height: 1.3; }
+.cell-subtitle { margin-top: 2px; color: rgba(60, 60, 67, 0.6); font-size: 15px; }
+.chevron { flex: none; width: 8px; height: 8px; margin-left: 12px; border-top: 2px solid #c4c4c6; border-right: 2px solid #c4c4c6; transform: rotate(45deg); }
+@media (prefers-color-scheme: dark) {
+  .screen { background: #000; }
+  .group, .inset-group { background: #1c1c1e; }
+  .cell-title { color: #fff; }
+  .cell + .cell::before { background: #38383a; }
+  .cell:active { background: #3a3a3c; }
+}
+
+/* A gradient page behind a glass tag list (docs/instructions/example-demos.md rule 7): the list draws no background. */
+.gradient-screen { background: linear-gradient(135deg, #7fb7ff, #ff9ec7, #ffc27a); }
+.demo-tags { display: block; margin-top: 35px; }
+@media (prefers-color-scheme: dark) {
+  .gradient-screen { background: linear-gradient(135deg, #1b1f5e, #5b2a86, #0f6e7a); }
+}

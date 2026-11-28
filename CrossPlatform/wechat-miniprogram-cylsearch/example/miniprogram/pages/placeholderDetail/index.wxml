@@ -1,0 +1,4 @@
+<view class="screen">
+  <cyl-demo-nav title="{{title}}" />
+  <cyl-demo-empty-view class="fill" scenario="{{scenario}}" animated />
+</view>

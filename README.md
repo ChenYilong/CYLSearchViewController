@@ -1,8 +1,93 @@
 # CYLSearchViewController
 模仿iPhone短信聊天里的搜索框样式，点击搜索后，搜索框平滑移动到导航栏上。
 
-##功能展示
+## 功能展示
 ![Example screenshot](https://github.com/ChenYilong/CYLSearchViewController/blob/master/CYLSearchViewController/it_is_effect_show__SearchBar.gif)
+
+## Screenshots
+
+Key details of the current example, stacked top to bottom: `CYLSearchBarView` with text, a camera accessory and
+Cancel (plus page); the Issue #1317 screen with its pinned search bar; `CYLSearchView` suggestions (the
+MaterialSearchView "Default" port); `CYLSearchBarView` in its multiple mode (`mode = .multiple`)
+with two searches and its event log.
+
+![Key details of the iOS example](docs/assets/readme-ios-key-details.png) (commit 1416a3e, 2026-11-12)
+
+| Field | Value |
+|:---|:---|
+| Platform | iOS (the core is Swift; so was the example at this commit except its tests, Swift since 2026-11-21) |
+| Host | macOS 27.3 (26C5035r), Xcode 27.2 (27B52) |
+| Simulator | iPhone 17, iOS 26.1 |
+| SDK | iOS SDK 27.2, Swift 5 language mode, deployment target iOS 15.0 |
+| Repository | [`9735f79`](https://github.com/ChenYilong/CYLSearchViewController/commit/9735f79) on `feat/swift-core` |
+| Taken | 2026-11-12 16:14–16:17 NZDT |
+
+### iOS milestone (2026-11-22): Swift migration 100/100, raised plus button
+
+The example app and its tests are Swift; one Objective-C smoke test keeps the core's Objective-C surface checked
+(`docs/swift-migration.md`). The original demo (the GIF above) is rebuilt on `CYLSearchView`: the page, the history
+with "清除搜索历史" and Cancel, the results under "与Gf有关的咨询", a result's page.
+
+![The original demo rebuilt on CYLSearchView, compared with the GIF](docs/assets/ios-iphone18pro-20261121-original-demo-vs-gif.png)
+
+The plus button rises above the Liquid Glass tab bar, its title on the tab titles' line
+(`docs/CYLTabBarController-Integration.md`, "Raised plus button"): before, after, and its page selected.
+
+![The plus button raised above the tab bar](docs/assets/ios-iphone18pro-20261121-plus-button-raised.png)
+
+| Field | Value |
+|:---|:---|
+| Platform | iOS (Swift core, Swift example and tests) |
+| Host | macOS 27, Xcode 27.2 (27B52) |
+| Simulator | iPhone 18 Pro, iOS 27.2 |
+| SDK | iOS SDK 27.2, Swift 5 language mode, deployment target iOS 15.0 |
+| Repository | [`726a2da`](https://github.com/ChenYilong/CYLSearchViewController/commit/726a2da) (demo) and [`a5158b8`](https://github.com/ChenYilong/CYLSearchViewController/commit/a5158b8) (plus button) on `fix/ios-swift-todos` |
+| Taken | 2026-11-21 23:29–23:50 +13:00 |
+
+### WeChat Mini Program
+
+The example is a 1:1 copy of the iOS example (`docs/miniprogram-api-alignment.md`). Two columns, left to right then
+top to bottom: the Search tab (the Issue #1317 reproduction); the Examples tab; a MaterialSearchView sample with the
+suggestions as tags folded to two rows, the chevron as the last tag; the Discover tab; the Themed sample; the
+placeholder styles.
+
+![Key details of the mini program example](docs/assets/readme-miniprogram-ios-replica.png) (commit 30f9eda, 2026-11-15)
+
+| Field | Value |
+|:---|:---|
+| Platform | Mini program (`CrossPlatform/wechat-miniprogram-cylsearch`) |
+| Host | Windows 11 Pro 10.0.22631 |
+| Simulator | WeChat DevTools 2.02.2609250 simulator (390 x 844 window; screenshots at the simulator's 289 x 625 px) |
+| SDK | Mini program base library 3.6.6 |
+| Repository | [`d19e0bb`](https://github.com/ChenYilong/CYLSearchViewController/commit/d19e0bb) on `feat/swift-core-next` |
+| Taken | 2026-11-15 13:22–13:38 NZDT (UTC+13) |
+
+More screenshots, one state per row: `docs/search-api-comparison.md` (the Swift ports of five search libraries'
+examples) and `docs/CYLTabBarController-Integration.md`.
+
+## Android
+
+`android/` holds the Kotlin translations of the five search libraries and `android/merged`, one Gradle project with
+all of them, the `cylsearch` module (`com.cyl.search`: the same CYLSearchBar core as iOS in Kotlin, under the same
+names, in `CYLSearchBarView.kt`, `CYLSearchView.kt` and `CYLSearchResources.kt`; pull-to-refresh from
+CYLTableViewPlaceHolder's `:placeholder-refresh` module) and an example app that ports the iOS example. The app uses CYLTabBarController's Android tab bar from a configuration file, with a raised plus
+button; CYLTabBarController and CollectionViewClassifyMenu are pinned by commit. Build:
+`cd android/merged && ./gradlew assembleDebug` (JDK 17). Details: `docs/android-and-cross-platform.md`, the API
+table `docs/android-api-alignment.md`.
+
+`CYLSearchView.suggestionStyle` shows suggestions as tags from CollectionViewClassifyMenu (the default since
+2026-11-22: folded to two rows, the fold control as the last tag) or as a list (top: list, bottom: tags); both tabs of the example filter the same suggestions for "a":
+
+![Android suggestion styles: list and tags](docs/assets/android-suggestion-styles-readme.png) (commit 79cf4b6, 2026-11-12)
+
+| Field | Value |
+|:---|:---|
+| Platform | Android (Kotlin, `android/merged`) |
+| Host | macOS 27.3 (26C5035r), JDK 17.0.21, Gradle 9.3.1, AGP 8.7.3, Kotlin 2.0.21 |
+| Emulator | `CYL_API35_arm64`, Android 15 (API 35), arm64-v8a, 1080 × 2400 |
+| SDK | compileSdk / targetSdk 35, minSdk 23 |
+| Repository | [`ffac758`](https://github.com/ChenYilong/CYLSearchViewController/commit/ffac758) on `feat/swift-core`; CYLTabBarController `f410fa7`, CollectionViewClassifyMenu `eb3590e` |
+| Taken | 2026-11-12 21:30–21:40 NZDT |
 
 
 
@@ -32,15 +117,79 @@ The reported repeated inset updates were observed with iOS 12.3 and
 
 ## Local CocoaPods component
 
-The reusable `CYLSearchResultsViewController` lives in
-`Sources/CYLSearchViewController` and requires iOS 15 or later. It has no
-dependency on the sample app, a particular result model, or a refresh library.
-Supply a `CYLSearchResultsDataSource` to provide results and configure cells;
-the optional selection callback receives the selected result. The public
-`searchController`, `searchResults`, and `reloadSearchResults` allow consumers
-to customize search and refresh data. Override `reloadResultsTableView` when
-integrating a custom empty-state or table reload mechanism. Use these APIs on
-the main thread.
+The iOS core, CYLSearchBar, lives in `Sources/CYLSearchBar` (module `CYLSearchViewController`, iOS 15 or later):
+three Swift files and four public classes.
+
+| File | Public API |
+|:---|:---|
+| `CYLSearchBarView.swift` | `CYLSearchBarView` (one field, or several searches with `mode = CYLSearchBarModeMultiple`), `CYLSearchBarItem` (drawn by CollectionViewClassifyMenu's `CYLTagButton`; `animationURL` shows an animated icon), `CYLSearchBarViewDelegate` |
+| `CYLSearchView.swift` | `CYLSearchView` (suggestions, results, empty placeholders, pull-to-refresh), `CYLSearchViewDelegate`, `CYLSearchViewDataSource` |
+| `CYLSearchResources.swift` | `CYLSearchResources` (bundle images and strings), `CYLSearchSuggestionCache`, `CYLSearchSuggestionCachePolicy` |
+
+It depends only on CollectionViewClassifyMenu (tag suggestions), CYLTableViewPlaceHolder (placeholders and
+pull-to-refresh, its `Core` subspec) and the shared animated icon + title component, the pod `CYLAnimatedItem`
+(from CYLTabBarController's repository, without CYLTabBarController); no other search library and no animation engine. Use these APIs on the main
+thread.
+
+Animated icons. The search bar items are CollectionViewClassifyMenu's `CYLTagButton`, a subclass of
+CYLTabBarController's `CYLAnimatedItemView`
+([guide](https://github.com/ChenYilong/CYLTabBarController/blob/feat/cross-platform-components/docs/Animated-Item.md)).
+The core plays no animation by itself: an app that wants animated icons adds the engine subspec of each file type it
+plays, pinned by commit like the other sub-repositories (the subspecs are in no CocoaPods release yet):
+
+```ruby
+pod 'CYLTabBarController', :subspecs => ['CYLAnimatedItem', 'CYLAnimatedItemSVGA'], # or …LottieSwift, …PAG, …Rive, …GIF
+    :git => 'https://github.com/ChenYilong/CYLTabBarController.git', :commit => '<sha>'
+pod 'CYLTableViewPlaceHolder', :subspecs => ['Core', 'Lottie'], # the placeholders' animated icons
+    :git => 'https://github.com/ChenYilong/CYLTableViewPlaceHolder.git', :commit => '<sha>'
+```
+
+On Android the core gets `io.github.chenyilong:cyltabbarcontroller-animateditem` through CollectionViewClassifyMenu;
+the app adds the animation libraries (SVGAPlayer, Lottie, libpag, rive-android) and CYLTableViewPlaceHolder's
+`placeholder-lottie`. What an item (`CYLSearchBarItem`) shows, by the component's rules:
+
+1. its animation (`animationURL`), when it can play;
+2. otherwise its static `image` / `selectedImage`, with the layout of the image alone: without an engine or library,
+   for an unknown type, a missing, empty or corrupted file, a failed download, and while a remote file downloads;
+3. the component's placeholder, sized like the item's icon, only for an item with an animation file and no static
+   image; a text item without an icon never shows one.
+
+Without an engine `playAnimation()` does nothing and `animationURL` is kept. Remote files are read by the engines:
+on iOS Rive and SVGA read URLs, Lottie (Swift), PAG and GIF local files only (a remote URL shows the static image at
+once); on Android every engine reads URLs. HarmonyOS and the mini program have no such component yet (TODO in
+CYLTabBarController): their items keep their own animated icon code.
+
+Results: set `resultsDataSource` (a `CYLSearchViewDataSource`) and, while the query is not empty,
+`resultsTableView` lists `searchResults` below the search bar instead of the suggestions. Call `reloadResults` when
+the data changes; `-searchView:didSelectResult:` reports a tapped row. Open the page in a view controller with
+`showSearchInViewController:animated:` and close it with `closeSearchAnimated:completion:`.
+
+```swift
+let searchView = CYLSearchView()
+searchView.resultsDataSource = dataSource
+searchView.showsEmptyResultsPlaceholder = true
+searchView.showSearch(in: navigationController ?? self)
+```
+
+Several searches side by side (iammert `MultiSearchView`):
+
+```swift
+let bar = CYLSearchBarView()
+bar.mode = .multiple
+bar.delegate = self // searchBarView(_:didCompleteSearch:at:), didSelectSearch, didRemoveSearchAt, textDidChange(_:at:)
+bar.addSearch("Rive")
+```
+
+Pull-to-refresh is the core's only refresh API (CYLTableViewPlaceHolder's header inside): `refreshHandler`,
+`beginRefreshing`, `endRefreshing` and `isRefreshing` for `resultsTableView`, and the class methods
+`setRefreshHandler(_:for:)`, `beginRefreshing(in:)`, `endRefreshing(in:)` and `isRefreshing(in:)` for a scroll
+view of yours. End the refresh on every completion path and capture the view controller weakly:
+
+```swift
+CYLSearchView.setRefreshHandler({ [weak self] in
+    self?.reload { CYLSearchView.endRefreshing(in: table) }
+}, for: table)
+```
 
 For local development, add the following to a Podfile, adjusting the path:
 
@@ -50,21 +199,15 @@ pod 'CYLSearchViewController', :path => '../CYLSearchViewController'
 
 The podspec is an unpublished starting point; its `0.1.0` version and source
 tag do not imply a CocoaPods release. The original sample remains in the
-repository. The Pod also exposes a redesigned `CYLSearchController` that
-animates a search overlay over a host view controller. Initialize it with the
-same data-source protocol, call `showInViewController:`, and call `hide:` or
-use its cancel button to dismiss it. The overlay's public
-`resultsViewController` provides the search and results integration points;
-its optional delegate receives cancellation. The redesigned interface does not
-include the old hard-coded demo results and search-history storage.
+repository.
 
 ## Local Pod reproduction example
 
 The root `CYLSearchExample.xcodeproj` uses app sources in `CYLSearchExample/`
 and integration tests in `CYLSearchExampleTests/`. It consumes this Pod and
-the sibling `CYLTableViewPlaceHolder` repository through local paths. The example owns the
-refresh provider, empty-state view, and reproduction switch; these are not
-dependencies of the reusable search component.
+CYLTableViewPlaceHolder by commit. The example owns the refresh provider, empty-state view, and reproduction switch;
+its refresh goes through `CYLSearchView`'s refresh class methods, never CYLTableViewPlaceHolder's refresh API
+directly.
 
 ```sh
 pod install
@@ -73,8 +216,7 @@ open CYLSearchExample.xcworkspace
 
 Run the `CYLSearchExample` scheme, select **Search and refresh**, pull down to refresh, and tap **Repro: OFF**
 to allow the navigation search bar to scroll. Tap **Repro: ON** to restore the
-pinned-bar workaround. Tap **Overlay** to exercise the animated search
-controller using the same injected data source. This builds the affected interaction, but iOS 15 is
+pinned-bar workaround. Tap **Overlay** to open a `CYLSearchView` that searches the same injected data source. This builds the affected interaction, but iOS 15 is
 the minimum for this example and the original iOS 12.3 report has not been
 reproduced by these tests.
 
@@ -84,35 +226,22 @@ only performed when `scripts/pod-lint.sh push` is explicitly invoked.
 
 ## Placeholder resources and localization
 
-The Pod includes `CYLSearchViewController.bundle` with 41 offline placeholder
-images. `CYLSearchPlaceholderView` exposes its image view and label for
-customization; it does not depend on a particular placeholder library. The
-example uses it with `CYLTableViewPlaceHolder`.
-
-Choose an image and a message independently, or supply either or both
-yourself. Custom text is displayed verbatim, so localize it in your app.
+The empty states come from CYLTableViewPlaceHolder: `CYLPlaceholderView` (a style, a message, or your own image and
+text) and `CYLPlaceholderStackView` scenarios, which `CYLSearchView` shows through `emptyResultsScenario` and
+`emptySuggestionsScenario` (`emptyResultsView`, `emptySuggestionsView`). Apps that need a placeholder of their own
+use `CYLPlaceholderView` directly. `CYLSearchViewController.bundle` holds the core's offline images and strings,
+which the other platforms import too.
 
 ```objc
-CYLSearchPlaceholderView *view =
-    [[CYLSearchPlaceholderView alloc] initWithStyle:CYLSearchPlaceholderStyleNoResults
-                                           message:CYLSearchPlaceholderMessageNetwork];
-CYLSearchPlaceholderView *customText =
-    [[CYLSearchPlaceholderView alloc] initWithStyle:CYLSearchPlaceholderStyleEmpty text:@"Your message"];
-CYLSearchPlaceholderView *customImage =
-    [[CYLSearchPlaceholderView alloc] initWithImage:yourImage message:CYLSearchPlaceholderMessageError];
-CYLSearchPlaceholderView *customBoth =
-    [[CYLSearchPlaceholderView alloc] initWithImage:yourImage text:@"Your message"];
+CYLPlaceholderView *view =
+    [[CYLPlaceholderView alloc] initWithStyle:CYLPlaceholderStyleNoResults message:CYLPlaceholderMessageNoInternet];
+CYLPlaceholderView *customText =
+    [[CYLPlaceholderView alloc] initWithStyle:CYLPlaceholderStyleEmpty text:@"Your message"];
+CYLPlaceholderView *customBoth = [[CYLPlaceholderView alloc] initWithImage:yourImage text:@"Your message"];
 ```
 
-The `CYLSearchPlaceholderStyle` enum lists every bundled image, including
-network, cloud, sync, error, files, media, people and location states. No
-network access is needed. The messages are `Empty`, `NoResults`, `Error` and
-`Network`. Image and text inputs must
-not be nil; an empty string is allowed. Set `imageView.tintColor` for template
-images or customize `imageView` and `textLabel` directly. `initWithKind:`
-continues to select the corresponding matching image and message. In the
-example, select **Placeholder styles** to explore all 164 built-in combinations
-and three custom-input cases.
+In the example, select **Placeholder styles** to explore every `CYLPlaceholderStyle` with four messages, and three
+custom-input cases.
 
 `CYLSearchResources` loads images from the Pod bundle and resolves localized
 strings using preferred languages, falling back to English. English, Simplified
@@ -131,3 +260,11 @@ tab bar built from `CYLSearchExample/CYLTabBarConfiguration.json`: Search,
 Examples and a plus button that opens the search bar demo, with titles in
 English, Simplified and Traditional Chinese and Japanese. Details and
 screenshots: `docs/CYLTabBarController-Integration.md`.
+
+## License
+
+CYLSearchViewController is released under the MIT License: see [LICENSE](LICENSE). Every published package carries
+the same file inside its resource bundle (CocoaPods `CYLSearchViewController.bundle`, the Android library's
+`META-INF/cylsearch/` in its AAR, HarmonyOS `rawfile/CYLSearchViewController.bundle` and package root, the mini
+program's `src/`, and the npm and pub.dev package roots), next to the notices of the third-party icons it ships ([docs/licenses.md](docs/licenses.md)).
+

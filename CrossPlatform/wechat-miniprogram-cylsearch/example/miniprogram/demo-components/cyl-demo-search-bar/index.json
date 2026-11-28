@@ -1,0 +1,1 @@
+{"component": true, "usingComponents": {"cyl-demo-nav": "../cyl-demo-nav/index", "cyl-search-bar": "/components/cyl-search-bar/index", "cyl-lottie": "cyl-lottie-miniprogram/cyl-lottie/index", "cyl-svga": "cyl-svga-miniprogram/cyl-svga/index", "cyl-animation-placeholder": "cyl-tag-list-miniprogram/cyl-animation-placeholder/index"}}

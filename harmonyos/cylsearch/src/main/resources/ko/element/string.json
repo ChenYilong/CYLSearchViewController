@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "cyl_action_ok",
+      "value": "확인"
+    },
+    {
+      "name": "cyl_demo_port_default",
+      "value": "기본"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "데이터 없음"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "취소"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "더 보기"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "취소"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "새로고침"
+    }
+  ]
+}

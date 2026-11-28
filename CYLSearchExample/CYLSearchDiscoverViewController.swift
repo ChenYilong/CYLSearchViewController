@@ -1,0 +1,642 @@
+//
+//  CYLSearchDiscoverViewController.swift
+//  CYLSearchExample
+//
+//  Copied from CollectionViewClassifyMenu's CYLMenuExample (commit e550a01, the pinned sub-dependency;
+//  docs/tag-view-suggestions.md), strings moved to CYLSearchDiscover.bundle. Search history and discover: a search
+//  app's search page. "最近搜索" is a CYLTagListView whose fold control is a tag cell
+//  (CYLMenuFoldControlPosition.tail: the chevron after the last visible tag, then after the last tag); "发现" is a
+//  grid of two plain titles per row (CYLMenuStyle.gridStyle(itemsPerRow:)), long titles truncated, a "热" icon after a
+//  title (title on the left, icon on the right: CYLTagImagePlacementTrailing, CYLTagContentAlignmentLeading), and
+//  the core's More button, here refreshing the topics at random. The data comes from search-discover.json; this
+//  screen only shows it and handles the taps.
+//
+
+import UIKit
+import CollectionViewClassifyMenu
+import CYLSearchViewController
+
+/**
+ * The recent searches, one section.
+ */
+final class CYLRecentSearchSource: NSObject, CYLMenuDataSource {
+    var searches: [String] = []
+    /**
+     * The trash button at the trailing edge of the section header.
+     */
+    let clearButton = UIButton(type: .system)
+
+    func numberOfSectionsInMenu() -> Int {
+        searches.isEmpty ? 0 : 1
+    }
+
+    func menuNumberOfItems(inSection section: Int) -> Int {
+        searches.count
+    }
+
+    func menuTitle(forSection section: Int) -> String {
+        cylDiscoverText("discover.recent")
+    }
+
+    func menuTitleForItem(at indexPath: IndexPath) -> String {
+        searches[indexPath.item]
+    }
+
+    func menuAccessoryView(forSection section: Int) -> UIView? {
+        clearButton
+    }
+
+    func menuAccessibilityHintForItem(at indexPath: IndexPath) -> String? {
+        cylDiscoverText("discover.tapToSearch")
+    }
+}
+
+/**
+ * The discover topics, one section with the core's More button.
+ */
+final class CYLDiscoverSource: NSObject, CYLMenuDataSource {
+    var topics: [CYLDiscoverTopic] = []
+
+    func numberOfSectionsInMenu() -> Int {
+        1
+    }
+
+    func menuNumberOfItems(inSection section: Int) -> Int {
+        topics.count
+    }
+
+    func menuTitle(forSection section: Int) -> String {
+        cylDiscoverText("discover.title")
+    }
+
+    func menuTitleForItem(at indexPath: IndexPath) -> String {
+        topics[indexPath.item].title
+    }
+
+    /**
+     * The localized hot icon after a hot topic's title; VoiceOver reads its label as the tag's value.
+     */
+    func menuImageForItem(at indexPath: IndexPath) -> UIImage? {
+        topics[indexPath.item].icon == "hot" ? CYLSearchDiscoverData.hotIcon() : nil
+    }
+
+    func menuAccessibilityHintForItem(at indexPath: IndexPath) -> String? {
+        cylDiscoverText("discover.tapToSearch")
+    }
+
+    func menuShowsMoreButton(inSection section: Int) -> Bool {
+        true
+    }
+
+    /**
+     * The More button refreshes the topics: VoiceOver says so instead of a generic "More".
+     */
+    func menuAccessibilityLabelForMoreButton(inSection section: Int) -> String? {
+        cylDiscoverText("discover.refresh")
+    }
+}
+
+final class CYLSearchDiscoverViewController: UIViewController {
+
+    private(set) var data: CYLSearchDiscoverData
+    let recentSource = CYLRecentSearchSource()
+    let discoverSource = CYLDiscoverSource()
+    /**
+     * The page of topics shown now; the refresh icon moves to the next page, cyclically.
+     */
+    private(set) var discoverPage = 0
+    /**
+     * The search bar (CYLSearchViewController's CYLSearchBarView) and its text field.
+     */
+    let searchBar = CYLSearchBarView()
+    var searchField: UITextField { searchBar.textField }
+    let recentList = CYLTagListView(foldControl: CYLMenuFoldControl(position: .tail, content: .icon))
+    let discoverList = CYLTagListView()
+    let hintLabel = UILabel()
+    let micButton = UIButton(type: .system)
+    /**
+     * The animation demo: the camera item (animated) and the row of controls, below the search options, that changes its
+     * playback properties.
+     */
+    private var animationItem: CYLSearchBarItem!
+    private let loopSwitch = UISwitch()
+    private let speedSlider = UISlider()
+    private let speedLabel = UILabel()
+    private let playButton = UIButton(type: .system)
+    private let playbackRow = UIStackView()
+    private let scrollView = UIScrollView()
+    private let stackView = UIStackView()
+    private let bottomView = CYLAskBackgroundView()
+
+    /**
+     * The demo's data: the bundled JSON file, or an empty set when it cannot be read.
+     */
+    init(data: CYLSearchDiscoverData = (try? CYLSearchDiscoverData.bundled())
+            ?? CYLSearchDiscoverData(version: 1, discoverCount: 6, recentSearches: [], discover: [])) {
+        self.data = data
+        super.init(nibName: nil, bundle: nil)
+        recentSource.searches = data.recentSearches
+        discoverSource.topics = data.initialTopics
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) is not supported")
+    }
+
+    // MARK: Styles
+
+    /**
+     * The recent searches: Liquid Glass capsules, the inline chevron drawn the same way.
+     */
+    static func recentStyle() -> CYLMenuStyle {
+        let style = CYLMenuStyle()
+        for state in [UIControl.State.normal, .selected, .disabled] {
+            let appearance = style.appearance(for: state)
+            // The glass tint (translucent, alpha x 0.75): a plain white page shows glass only through its tint.
+            appearance.backgroundColor = state == .selected ? UIColor.tintColor.withAlphaComponent(0.3) : .clear
+            appearance.borderWidth = 0
+            appearance.font = .systemFont(ofSize: 17)
+            appearance.textColor = .label
+        }
+        style.backgroundStyle = .liquidGlass  // the one parameter that makes every tag Liquid Glass (flat below iOS 26)
+        style.sectionBackgroundStyle = .liquidGlass  // the glass board under the tags
+        style.itemHeight = 36
+        style.interitemSpacing = 12
+        style.lineSpacing = 12
+        style.sectionInsets = UIEdgeInsets(top: 4, left: 16, bottom: 24, right: 16)
+        applyHeaderLook(to: style)
+        return style
+    }
+
+    /**
+     * The discover grid: two plain titles per row, truncated, with the core's More button.
+     */
+    static func discoverStyle() -> CYLMenuStyle {
+        let style = CYLMenuStyle.gridStyle(itemsPerRow: 2)
+        for state in [UIControl.State.normal, .selected, .disabled] {
+            style.appearance(for: state).font = .systemFont(ofSize: 17, weight: .medium)
+            style.appearance(for: state).backgroundColor = state == .selected ? UIColor.tintColor.withAlphaComponent(0.3) : .clear
+        }
+        style.backgroundStyle = .liquidGlass
+        // The hot icon at its own size: square in Chinese (热, 熱), wider in English (HOT).
+        style.imageSize = .zero
+        style.itemHeight = 36
+        style.lineSpacing = 16
+        style.sectionInsets = UIEdgeInsets(top: 4, left: 16, bottom: 16, right: 16)
+        applyHeaderLook(to: style)
+        return style
+    }
+
+    private static func applyHeaderLook(to style: CYLMenuStyle) {
+        style.backgroundColor = .clear  // the gradient page shows through (example-demos rule 7)
+        style.headerHeight = 44
+        style.headerFont = .systemFont(ofSize: 20, weight: .bold)
+        style.headerHorizontalInset = 16
+    }
+
+    // MARK: Life cycle
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .systemBackground
+        cylInstallDemoGradient()
+        setUpSearchBar()
+        setUpPlaybackRow()
+        setUpLists()
+        setUpAskArea()
+        layOut()
+        updateLayerColors()
+        reloadLists()
+        // Long presses on the icon-only buttons show them in the Large Content Viewer (large accessibility text sizes).
+        view.addInteraction(UILargeContentViewerInteraction())
+        NotificationCenter.default.addObserver(self, selector: #selector(contrastDidChange),
+                                               name: UIAccessibility.darkerSystemColorsStatusDidChangeNotification, object: nil)
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        updateLayerColors()
+    }
+
+    @objc private func contrastDidChange() {
+        updateLayerColors()
+    }
+
+    /**
+     * Layer colors are CGColors: resolve them again for dark mode and Increase Contrast (a visible outline then).
+     */
+    func updateLayerColors() {
+        let contrast = UIAccessibility.isDarkerSystemColorsEnabled
+        let border = contrast ? UIColor.label : UIColor.secondaryLabel
+        searchBar.fieldBorderColor = border
+        searchBar.fieldBorderWidth = contrast ? 2 : 1
+        micButton.layer.borderColor = border.resolvedColor(with: traitCollection).cgColor
+        micButton.layer.borderWidth = contrast ? 2 : 0
+    }
+
+    /**
+     * Makes an icon-only button readable in the Large Content Viewer, under its accessibility label.
+     */
+    private func showsLargeContent(_ button: UIButton) {
+        button.showsLargeContentViewer = true
+        button.largeContentTitle = button.accessibilityLabel
+        button.largeContentImage = button.currentImage
+        button.scalesLargeContentImage = true
+    }
+
+    private func setUpSearchBar() {
+        // A white capsule with a soft shadow, no magnifier: the camera and the 搜索 button sit inside it.
+        searchBar.delegate = self
+        searchBar.applyNavigationFieldStyle()
+        // A search page: the field takes focus whenever the page appears (first entry, tab switch, return from the background).
+        searchBar.focusesOnAppear = true
+        searchField.accessibilityLabel = cylDiscoverText("discover.search")
+        searchField.accessibilityIdentifier = "CYLSearchDiscoverField"
+
+        // The field stays; the camera, a divider and the 搜索 button are items appended to the bar.
+        let camera = CYLSearchBarItem.iconItem(image: UIImage(systemName: "camera.viewfinder"), title: cylDiscoverText("discover.imageSearch")) { [weak self] _ in
+            self?.searchByImage()
+        }
+        camera.imageSize = CGSize(width: 22, height: 22)
+        // The animation demo: the camera button's static image is replaced by its animated version (a search-camera Lottie,
+        // the same file on every platform); the static symbol stays as the fallback. The bar keeps its original layout.
+        camera.animationURL = CYLSearchDiscoverLocalization.resourceBundle?.url(forResource: "search_camera", withExtension: "json")
+        camera.animationLoops = false
+        camera.animationSpeed = 1
+        animationItem = camera
+        // The core's default search button (a title, the localized "Search"): tapped, it searches the typed text, else the placeholder.
+        searchBar.searchButtonItem.itemAccessibilityIdentifier = "CYLSearchDiscoverSearchButton"
+        searchBar.searchButtonHandler = { [weak self] _ in self?.searchTapped() }
+        searchBar.itemTintColor = .label
+        searchBar.addItem(camera)
+    }
+
+    /**
+     * The compact row of controls at the bottom of the page's search options (never in the bar): loop switch, speed slider
+     * with its value, and Play again.
+     */
+    private func setUpPlaybackRow() {
+        loopSwitch.isOn = false
+        loopSwitch.accessibilityLabel = cylDiscoverText("discover.animationLoops")
+        loopSwitch.accessibilityIdentifier = "CYLSearchDiscoverAnimationLoops"
+        loopSwitch.addTarget(self, action: #selector(loopChanged), for: .valueChanged)
+
+        speedSlider.minimumValue = 0.25
+        speedSlider.maximumValue = 3
+        speedSlider.value = 1
+        speedSlider.accessibilityLabel = cylDiscoverText("discover.animationSpeed")
+        speedSlider.accessibilityIdentifier = "CYLSearchDiscoverAnimationSpeed"
+        speedSlider.addTarget(self, action: #selector(speedChanged), for: .valueChanged)
+        speedSlider.setContentHuggingPriority(.defaultLow, for: .horizontal)
+
+        speedLabel.font = UIFontMetrics(forTextStyle: .footnote).scaledFont(for: .monospacedDigitSystemFont(ofSize: 13, weight: .regular))
+        speedLabel.adjustsFontForContentSizeCategory = true
+        speedLabel.textColor = .secondaryLabel
+        speedLabel.isAccessibilityElement = false
+        speedLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+
+        playButton.setTitle(cylDiscoverText("discover.animationPlay"), for: .normal)
+        playButton.titleLabel?.font = UIFontMetrics(forTextStyle: .footnote).scaledFont(for: .systemFont(ofSize: 14))
+        playButton.titleLabel?.adjustsFontForContentSizeCategory = true
+        playButton.accessibilityLabel = cylDiscoverText("discover.animationPlay")
+        playButton.accessibilityIdentifier = "CYLSearchDiscoverAnimationPlay"
+        playButton.addTarget(self, action: #selector(playAgain), for: .touchUpInside)
+        playButton.setContentCompressionResistancePriority(.required, for: .horizontal)
+
+        playbackRow.axis = .horizontal
+        playbackRow.alignment = .center
+        playbackRow.spacing = 8
+        for control in [loopSwitch, speedSlider, speedLabel, playButton] as [UIView] {
+            playbackRow.addArrangedSubview(control)
+        }
+        updateSpeedValue()
+    }
+
+    /**
+     * Shows the speed beside the slider and gives VoiceOver the same value.
+     */
+    private func updateSpeedValue() {
+        let text = String(format: "%.2fx", speedSlider.value)
+        speedLabel.text = text
+        speedSlider.accessibilityValue = text
+    }
+
+    @objc private func loopChanged() {
+        animationItem.animationLoops = loopSwitch.isOn
+    }
+
+    @objc private func speedChanged() {
+        animationItem.animationSpeed = CGFloat(speedSlider.value)
+        updateSpeedValue()
+    }
+
+    @objc private func playAgain() {
+        animationItem.restartAnimation()
+    }
+
+    private func setUpLists() {
+        // 最近搜索: folded to two rows, the chevron as the last tag; the trash clears the list.
+        recentList.style = Self.recentStyle()
+        recentList.selectionMode = .none
+        recentList.defaultVisibleRows = 2
+        recentList.isScrollEnabled = false
+        recentList.menuDataSource = recentSource
+        recentList.menuDelegate = self
+        recentSource.clearButton.setImage(UIImage(systemName: "trash", withConfiguration: UIImage.SymbolConfiguration(pointSize: 18, weight: .regular)), for: .normal)
+        recentSource.clearButton.tintColor = .label
+        recentSource.clearButton.accessibilityLabel = cylDiscoverText("discover.clear")
+        recentSource.clearButton.addTarget(self, action: #selector(clearRecentSearches), for: .touchUpInside)
+        showsLargeContent(recentSource.clearButton)
+
+        // 发现: two per row, the More button refreshes the topics.
+        discoverList.style = Self.discoverStyle()
+        // The built-in refresh icon of the core, applied after the style (a later style assignment would replace it).
+        CYLSearchTagListHeader.applyRefreshIcon(to: discoverList)
+        discoverList.selectionMode = .none
+        discoverList.isScrollEnabled = false
+        discoverList.menuDataSource = discoverSource
+        discoverList.menuDelegate = self
+    }
+
+    private func setUpAskArea() {
+        showHint(cylDiscoverText("discover.askHint"))
+        hintLabel.font = UIFontMetrics(forTextStyle: .title3).scaledFont(for: .systemFont(ofSize: 20))
+        hintLabel.adjustsFontForContentSizeCategory = true
+        hintLabel.textColor = .secondaryLabel
+        hintLabel.textAlignment = .center
+        hintLabel.numberOfLines = 0
+
+        let mic = UIImage(systemName: "mic.fill", withConfiguration: UIImage.SymbolConfiguration(pointSize: 22, weight: .semibold))
+        micButton.setImage(mic, for: .normal)
+        micButton.tintColor = .systemRed
+        micButton.backgroundColor = .systemBackground
+        micButton.layer.cornerRadius = 26
+        micButton.layer.shadowColor = UIColor.black.cgColor
+        micButton.layer.shadowOpacity = 0.08
+        micButton.layer.shadowRadius = 8
+        micButton.layer.shadowOffset = CGSize(width: 0, height: 2)
+        micButton.accessibilityLabel = cylDiscoverText("discover.ask")
+        micButton.accessibilityHint = cylDiscoverText("discover.askAccessibilityHint")
+        micButton.accessibilityIdentifier = "CYLSearchDiscoverMicButton"
+        let hold = UILongPressGestureRecognizer(target: self, action: #selector(holdToAsk(_:)))
+        hold.minimumPressDuration = 0.2
+        micButton.addGestureRecognizer(hold)
+        // A tap (VoiceOver's double tap, Switch Control, Full Keyboard Access) explains how to ask.
+        micButton.addTarget(self, action: #selector(micTapped), for: .touchUpInside)
+        showsLargeContent(micButton)
+    }
+
+    /**
+     * The hint above the mic button; the sparkles are decoration, so VoiceOver reads the text only.
+     */
+    private func showHint(_ text: String) {
+        hintLabel.text = text + " ✨"
+        hintLabel.accessibilityLabel = text
+    }
+
+    private func layOut() {
+        stackView.axis = .vertical
+        stackView.spacing = 4
+        stackView.addArrangedSubview(recentList)
+        stackView.addArrangedSubview(discoverList)
+        // The demo controls close the search options, outside the search bar, so the bar's layout is untouched.
+        playbackRow.isLayoutMarginsRelativeArrangement = true
+        playbackRow.layoutMargins = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
+        stackView.addArrangedSubview(playbackRow)
+        scrollView.alwaysBounceVertical = true
+        scrollView.keyboardDismissMode = .onDrag
+
+        for subview in [scrollView, bottomView, hintLabel, micButton] as [UIView] {
+            subview.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(subview)
+        }
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        scrollView.addSubview(stackView)
+        // The search bar sits in the navigation bar; the core creates one when this page has none, and raises the top
+        // safe area below it, so the lists start under the safe area guide in both cases.
+        searchBar.embedInNavigationBar(of: self)
+        let guide = view.safeAreaLayoutGuide
+        NSLayoutConstraint.activate([
+            scrollView.topAnchor.constraint(equalTo: guide.topAnchor, constant: 6),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: hintLabel.topAnchor, constant: -8),
+            stackView.topAnchor.constraint(equalTo: scrollView.contentLayoutGuide.topAnchor),
+            stackView.bottomAnchor.constraint(equalTo: scrollView.contentLayoutGuide.bottomAnchor),
+            stackView.leadingAnchor.constraint(equalTo: scrollView.frameLayoutGuide.leadingAnchor),
+            stackView.trailingAnchor.constraint(equalTo: scrollView.frameLayoutGuide.trailingAnchor),
+
+            hintLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            hintLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            hintLabel.bottomAnchor.constraint(equalTo: micButton.topAnchor, constant: -20),
+            micButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            micButton.bottomAnchor.constraint(equalTo: guide.bottomAnchor, constant: -16),
+            micButton.widthAnchor.constraint(equalToConstant: 68),
+            micButton.heightAnchor.constraint(equalToConstant: 52),
+            // The light curved area behind the mic button.
+            bottomView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            bottomView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            bottomView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            bottomView.topAnchor.constraint(equalTo: micButton.topAnchor, constant: -22),
+        ])
+    }
+
+    // MARK: Data
+
+    /**
+     * Shows the current data; the search field's placeholder is the first discover topic.
+     */
+    func reloadLists() {
+        searchField.placeholder = discoverSource.topics.first?.title ?? cylDiscoverText("discover.search")
+        recentList.reloadMenuData()
+        discoverList.reloadMenuData()
+        view.setNeedsLayout()
+    }
+
+    /**
+     * The refresh icon's action: the next page of topics, cyclically.
+     */
+    func refreshDiscover() {
+        discoverPage = data.nextPage(after: discoverPage)
+        discoverSource.topics = data.topics(onPage: discoverPage)
+        reloadLists()
+        UIAccessibility.post(notification: .layoutChanged, argument: discoverList)
+    }
+
+    /**
+     * Searches `text`: shows it in the field and moves it to the front of the recent searches.
+     */
+    func search(for text: String) {
+        let query = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !query.isEmpty else { return }
+        searchField.text = query
+        recentSource.searches.removeAll { $0 == query }
+        recentSource.searches.insert(query, at: 0)
+        reloadLists()
+        UIAccessibility.post(notification: .announcement, argument: cylDiscoverText("discover.searching", query))
+    }
+
+    /**
+     * The Search button and the keyboard's search key: the typed text, else the placeholder topic.
+     */
+    @objc func searchTapped() {
+        search(for: searchField.text?.isEmpty == false ? searchField.text ?? "" : searchField.placeholder ?? "")
+    }
+
+    @objc func clearRecentSearches() {
+        recentSource.searches.removeAll()
+        reloadLists()
+        UIAccessibility.post(notification: .announcement, argument: cylDiscoverText("discover.cleared"))
+    }
+
+    /**
+     * The camera button: not part of this demo, which says so instead of ignoring the tap.
+     */
+    @objc func searchByImage() {
+        let alert = UIAlertController(title: cylDiscoverText("discover.imageSearch"),
+                                      message: cylDiscoverText("discover.imageSearchUnavailable"), preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: cylDiscoverText("discover.ok"), style: .default))
+        present(alert, animated: true)
+    }
+
+    @objc private func micTapped() {
+        UIAccessibility.post(notification: .announcement, argument: cylDiscoverText("discover.holdMic"))
+    }
+
+    @objc private func holdToAsk(_ recognizer: UILongPressGestureRecognizer) {
+        switch recognizer.state {
+        case .began:
+            showHint(cylDiscoverText("discover.listening"))
+            UIAccessibility.post(notification: .announcement, argument: cylDiscoverText("discover.listening"))
+        case .ended, .cancelled, .failed:
+            showHint(cylDiscoverText("discover.askHint"))
+        default:
+            break
+        }
+    }
+}
+
+// MARK: - CYLMenuDelegate
+
+extension CYLSearchDiscoverViewController: CYLMenuDelegate {
+
+    /**
+     * A recent search or a discover topic is searched again.
+     */
+    func menu(_ menu: Any, didSelectItemAt indexPath: IndexPath) {
+        if (menu as AnyObject) === recentList {
+            search(for: recentSource.searches[indexPath.item])
+        } else {
+            search(for: discoverSource.topics[indexPath.item].title)
+        }
+    }
+
+    func menu(_ menu: Any, didTapMoreButtonInSection section: Int) {
+        refreshDiscover()
+    }
+}
+
+// MARK: - CYLSearchBarViewDelegate
+
+extension CYLSearchDiscoverViewController: CYLSearchBarViewDelegate {
+
+    func searchBarViewSearchButtonClicked(_ searchBarView: CYLSearchBarView) {
+        searchTapped()
+        searchBarView.textField.resignFirstResponder()
+    }
+}
+
+/**
+ * The light gray area behind the mic button, its top edge a wide arc.
+ */
+final class CYLAskBackgroundView: UIView {
+    private let shape = CAShapeLayer()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        isUserInteractionEnabled = false
+        isAccessibilityElement = false
+        layer.addSublayer(shape)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) is not supported")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        let path = UIBezierPath()
+        let rise = min(bounds.height, 40)
+        path.move(to: CGPoint(x: 0, y: rise))
+        path.addQuadCurve(to: CGPoint(x: bounds.width, y: rise), controlPoint: CGPoint(x: bounds.midX, y: -rise))
+        path.addLine(to: CGPoint(x: bounds.width, y: bounds.height))
+        path.addLine(to: CGPoint(x: 0, y: bounds.height))
+        path.close()
+        shape.path = path.cgPath
+        shape.fillColor = UIColor.secondarySystemBackground.cgColor
+    }
+
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        shape.fillColor = UIColor.secondarySystemBackground.cgColor
+    }
+}
+
+/**
+ * The entry of the "Discover" tab: a one-row page that opens the Discover page, so the Discover page is always a
+ * second-level page and its navigation bar always has a back button on the left (owner's rule for every example). The
+ * first time this page appears it opens the Discover page at once, so the tab shows the search page; the back button
+ * returns here.
+ */
+final class CYLSearchDiscoverEntryViewController: UITableViewController {
+    private let searchBar = CYLSearchBarView()
+
+    init() {
+        super.init(style: .insetGrouped)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) is not supported")
+    }
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        title = cylDiscoverText("discover.title")
+        // The first-level page shows the WHOLE search bar (the reference look: the Discover field with a camera and the default
+        // search button); a tap on the field pushes the Discover page, whose bar brings the back button in (example-demos.md, rule 10).
+        searchBar.applyNavigationFieldStyle()
+        searchBar.placeholder = cylDiscoverText("discover.search")
+        searchBar.addItem(CYLSearchBarItem.iconItem(image: UIImage(systemName: "camera.viewfinder"), title: cylDiscoverText("discover.imageSearch"), handler: nil))
+        searchBar.pushesOnTap = true
+        searchBar.onFirstLevelTap = { [weak self] _ in self?.openDiscover(animated: true) }
+        searchBar.searchButtonHandler = { [weak self] _ in self?.openDiscover(animated: true) }
+        searchBar.itemTintColor = .label
+        searchBar.embedInNavigationBar(of: self)
+    }
+
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        1
+    }
+
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = UITableViewCell(style: .default, reuseIdentifier: nil)
+        var content = cell.defaultContentConfiguration()
+        content.text = cylDiscoverText("discover.title")
+        cell.contentConfiguration = content
+        cell.accessoryType = .disclosureIndicator
+        cell.accessibilityTraits.insert(.button)
+        return cell
+    }
+
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        openDiscover(animated: true)
+    }
+
+    private func openDiscover(animated: Bool) {
+        navigationController?.pushViewController(CYLSearchDiscoverViewController(), animated: animated)
+    }
+}

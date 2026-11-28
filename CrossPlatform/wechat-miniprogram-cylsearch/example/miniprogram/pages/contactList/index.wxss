@@ -1,0 +1,6 @@
+.screen { min-height: 100vh; background: #F2F2F7; }
+.card { margin: 16px; border-radius: 10px; background: #fff; }
+.row { display: flex; flex-direction: column; padding: 10px 16px; border-bottom: 1px solid #E5E5EA; }
+.name { font-size: 17px; }
+.tags { font-size: 13px; color: rgba(60, 60, 67, 0.6); }
+.empty { padding-top: 120px; display: flex; justify-content: center; }

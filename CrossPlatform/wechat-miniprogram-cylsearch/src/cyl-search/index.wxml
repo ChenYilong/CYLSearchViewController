@@ -1,0 +1,134 @@
+<!-- The empty view of the page's own text (iOS showEmptyView, noResultsText): one template for the content and the layer. -->
+<template name="cylEmptyView">
+  <view class="cyl-empty cyl-custom-empty" role="status">
+    <text class="cyl-custom-empty-title">{{emptyView.text}}</text>
+    <text wx:if="{{emptyView.detailText}}" class="cyl-custom-empty-detail">{{emptyView.detailText}}</text>
+    <view wx:if="{{emptyView.buttonTitle}}" class="cyl-custom-empty-button" role="button" bindtap="onEmptyButtonTap">{{emptyView.buttonTitle}}</view>
+  </view>
+</template>
+<!-- The search view (iOS CYLSearchView): the bar (back arrow), a divider, then your content, the results (with
+     CYLTableViewPlaceHolder's pull-to-refresh), or the cached queries and suggestions as a list or tags. -->
+<!-- While the search view is open, the back button or gesture closes it instead of leaving the page (iOS back button,
+     Android OnBackPressedCallback, HarmonyOS handleBackPress). An inline search view never closes. -->
+<page-container wx:if="{{!inline || showsSearchBar}}" show="{{open}}" overlay="{{false}}" duration="{{0}}" custom-style="height:0;overflow:hidden"
+  bind:afterleave="onBackLeave" />
+<!-- The list screen (iOS CYLSearchTableViewController): the bar is the header of the content page, in its one scroller. Focusing it
+     starts the search (the page above this one, under the bar); the bar settles fully shown or hidden when the scrolling
+     ends. Its height is reserved by the content: min-height 100% + the bar, so that even a short list can scroll it out. -->
+<view wx:if="{{showsSearchBar}}" class="cyl-screen">
+  <scroll-view class="cyl-content cyl-screen-scroll" scroll-y="{{!contentScrollHeld && !open}}" scroll-top="{{scrollTop}}"
+    scroll-with-animation="{{scrollAnimated}}" bind:scroll="onContentScroll" bind:touchstart="onContentTouchStart" bind:touchend="onContentTouchEnd"
+    bind:touchcancel="onContentTouchEnd" bind:reorderingchange="onContentGesture" bind:smearingchange="onContentGesture">
+    <view class="cyl-screen-inner" style="{{snapsHeaderSearchBar ? 'min-height: calc(100% + ' + headerHeight + 'px)' : ''}}">
+      <view wx:if="{{!headerHidden}}" class="cyl-header-bar" style="{{backgroundColor ? 'background: ' + backgroundColor + ';' : ''}}">
+        <cyl-search-bar id="cyl-header-bar" generic:cyl-lottie-view="cyl-lottie-view" generic:cyl-pag-view="cyl-pag-view"
+      generic:cyl-rive-view="cyl-rive-view" generic:cyl-svga-view="cyl-svga-view"
+          value="{{query}}" placeholder="{{placeholder}}" focus="{{focus}}" searchBarStyle="{{searchBarStyle}}"
+          items="{{items}}" navigationIcon="none" showsCancelButton="{{showsCancelButton}}" cancelButtonTitle="{{cancelButtonTitle}}"
+          showsVoiceButton="{{showsVoiceButton}}" showsSearchIcon="{{showsSearchIcon}}" secure="{{secure}}" cursorColor="{{cursorColor}}"
+          textColor="{{textColor}}" placeholderColor="{{placeholderColor}}" centersPlaceholder="{{centersPlaceholder}}"
+          textFieldMargins="{{textFieldMargins}}" activeTextFieldMargins="{{activeTextFieldMargins}}"
+          cancelButtonMargins="{{cancelButtonMargins}}" activeCancelButtonMargins="{{activeCancelButtonMargins}}"
+          cancelButtonFont="{{cancelButtonFont}}" showsLeadingView="{{showsLeadingView}}" showsTrailingAccessoryViews="{{showsTrailingAccessoryViews}}"
+          showsLeadingAccessory="{{showsLeadingAccessory}}" showsTrailingAccessory="{{showsTrailingAccessory}}"
+          leadingAccessoryMargins="{{leadingAccessoryMargins}}" trailingAccessoryMargins="{{trailingAccessoryMargins}}" appearance="{{appearance}}"
+          bind:textchange="onTextChange" bind:submit="onSubmit" bind:focuschange="onFocusChange" bind:cancel="onBarClose"
+          bind:voicetap="onVoiceTap" bind:itemselect="onItemSelect">
+          <slot name="leading" slot="leading" />
+          <slot name="trailing" slot="trailing" />
+          <slot name="leading-accessory" slot="leading-accessory" />
+          <slot name="trailing-accessory" slot="trailing-accessory" />
+        </cyl-search-bar>
+      </view>
+      <template wx:if="{{emptyView && emptyInContent}}" is="cylEmptyView" data="{{emptyView}}" />
+      <slot wx:else name="content" />
+    </view>
+  </scroll-view>
+</view>
+<view class="cyl-page {{inline && !showsSearchBar ? 'cyl-page-inline' : ''}} {{showsSearchBar ? 'cyl-page-over' : ''}} {{showsDimming ? 'cyl-page-dim' : ''}} {{entered || (inline && !showsSearchBar) ? 'cyl-page-entered' : ''}}"
+  wx:if="{{showsSearchBar ? visible : (visible || inline)}}"
+  style="{{pageStyle}} {{backgroundColor && !showsDimming ? 'background: ' + backgroundColor + ';' : ''}}{{showsSearchBar ? 'top: ' + headerHeight + 'px;' : ''}}{{swipeX ? 'transform: translateX(' + swipeX + 'px);' : ''}}"
+  bind:touchstart="onPageTouchStart" bind:touchmove="onPageTouchMove" bind:touchend="onPageTouchEnd" bind:touchcancel="onPageTouchEnd">
+  <block wx:if="{{!showsSearchBar && !(showsResults && hidesSearchBarWhenScrolling)}}">
+    <cyl-search-bar id="cyl-bar" generic:cyl-lottie-view="cyl-lottie-view" generic:cyl-pag-view="cyl-pag-view"
+      generic:cyl-rive-view="cyl-rive-view" generic:cyl-svga-view="cyl-svga-view" focusesOnAppear="{{focusesOnAppear}}"
+      value="{{query}}" placeholder="{{placeholder}}" focus="{{focus}}" searchBarStyle="{{searchBarStyle}}"
+      items="{{items}}" navigationIcon="{{navigationIcon}}" navigationColor="{{navigationColor || textColor}}"
+      showsCancelButton="{{showsCancelButton}}" cancelButtonTitle="{{cancelButtonTitle}}" showsVoiceButton="{{showsVoiceButton}}"
+      showsSearchIcon="{{showsSearchIcon}}" secure="{{secure}}" cursorColor="{{cursorColor}}" textColor="{{textColor}}"
+      placeholderColor="{{placeholderColor}}" searchIconTintColor="{{textColor}}" fieldBackgroundColor="transparent" contentInsets="{{barInsets}}"
+      bind:textchange="onTextChange" bind:submit="onSubmit" bind:focuschange="onFocusChange" bind:cancel="onBarClose"
+      bind:navigationtap="onBarClose" bind:voicetap="onVoiceTap" bind:itemselect="onItemSelect" />
+    <view class="cyl-line" style="{{dividerColor ? 'background: ' + dividerColor : ''}}" />
+  </block>
+  <!-- The content page: the one scroller below the bar. It holds its own scrolling only while a tag list inside has a drag or a
+       smear active (their reorderingchange and smearingchange bubble through the slot), so an example places its content in
+       the slot and never creates, finds or switches a scroll view. -->
+  <scroll-view wx:if="{{showsContent}}" class="cyl-content" scroll-y="{{!contentScrollHeld}}"
+    bind:reorderingchange="onContentGesture" bind:smearingchange="onContentGesture"><slot name="content" /></scroll-view>
+  <!-- The results (iOS resultsTableView): CYLTableViewPlaceHolder's cyl-refresh, with its normal header while
+       refreshing is on; the empty results placeholder stays in the list, so it keeps scrolling and refreshing. -->
+  <!-- The launch view (iOS launchView): the page's own view under the bar while the query is empty. -->
+  <scroll-view wx:elif="{{showsLaunch}}" class="cyl-content cyl-launch" scroll-y><slot name="launch-view" /></scroll-view>
+  <!-- The empty view with the page's text (iOS showEmptyView), not shown for an empty query. -->
+  <template wx:elif="{{emptyView && !emptyInContent}}" is="cylEmptyView" data="{{emptyView}}" />
+  <!-- The scrim (iOS scrimColor, earlier dimmingColor): the one overlay under the bar while the query is empty; a tap ends the search. -->
+  <view wx:elif="{{showsDimming}}" class="cyl-dimming" role="button" aria-label="{{labels.dismiss}}" style="background: {{scrimColor || dimmingColor}}" bindtap="onDimmingTap" />
+  <cyl-refresh wx:elif="{{showsResults}}" id="cyl-refresh" class="cyl-results" header="{{refreshes ? 'normal' : 'none'}}" footer="none"
+    bind:refresh="onRefresh">
+    <block wx:if="{{hidesSearchBarWhenScrolling && !showsSearchBar}}">
+      <cyl-search-bar generic:cyl-lottie-view="cyl-lottie-view" generic:cyl-pag-view="cyl-pag-view"
+        generic:cyl-rive-view="cyl-rive-view" generic:cyl-svga-view="cyl-svga-view"
+        value="{{query}}" placeholder="{{placeholder}}" focus="{{focus}}" searchBarStyle="{{searchBarStyle}}"
+        items="{{items}}" navigationIcon="{{navigationIcon}}" navigationColor="{{navigationColor || textColor}}"
+        showsCancelButton="{{showsCancelButton}}" cancelButtonTitle="{{cancelButtonTitle}}" showsVoiceButton="{{showsVoiceButton}}"
+        showsSearchIcon="{{showsSearchIcon}}" secure="{{secure}}" cursorColor="{{cursorColor}}" textColor="{{textColor}}"
+        placeholderColor="{{placeholderColor}}" searchIconTintColor="{{textColor}}" fieldBackgroundColor="transparent" contentInsets="{{barInsets}}"
+        bind:textchange="onTextChange" bind:submit="onSubmit" bind:focuschange="onFocusChange" bind:cancel="onBarClose"
+        bind:navigationtap="onBarClose" bind:voicetap="onVoiceTap" bind:itemselect="onItemSelect" />
+      <view class="cyl-line" style="{{dividerColor ? 'background: ' + dividerColor : ''}}" />
+    </block>
+    <text wx:if="{{resultsHeaderTitle}}" class="cyl-results-header" role="heading"
+      style="{{resultsHeaderTextColor ? 'color: ' + resultsHeaderTextColor : ''}}">{{resultsHeaderTitle}}</text>
+    <view wx:for="{{shownResults}}" wx:key="index" class="cyl-row cyl-result" role="button" aria-label="{{item.accessibilityLabel}}"
+      data-index="{{index}}" bindtap="onResultTap" style="{{dividerColor ? 'border-color: ' + dividerColor : ''}}">
+      <text wx:if="{{item.parts}}" class="cyl-row-text {{suggestionLineBreak === 'wrap' ? 'cyl-row-wrap' : ''}}" aria-hidden="true"
+        style="{{suggestionTextColor ? 'color: ' + suggestionTextColor : ''}}"><text wx:for="{{item.parts}}" wx:for-item="part" wx:key="index"
+          style="{{part.highlighted ? 'color: ' + (resultMatchHighlightColor || highlightColor || '#007aff') : ''}}">{{part.text}}</text></text>
+      <text wx:else class="cyl-row-text {{suggestionLineBreak === 'wrap' ? 'cyl-row-wrap' : ''}}" aria-hidden="true"
+        style="{{suggestionTextColor ? 'color: ' + suggestionTextColor : ''}}">{{item.title}}</text>
+      <text wx:if="{{item.subtitle}}" class="cyl-row-subtitle" aria-hidden="true">{{item.subtitle}}</text>
+    </view>
+    <view wx:if="{{showsEmptyResults}}" class="cyl-empty" role="status">
+      <cyl-empty-view id="cyl-empty-view" class="cyl-empty-view" scenario="{{emptyResultsScenario}}"
+        animated="{{emptyPlaceholderAnimated}}" loop="{{animationLoops}}" speed="{{playbackSpeed}}" />
+    </view>
+  </cyl-refresh>
+  <view wx:elif="{{showsEmptyResults || showsEmptySuggestions}}" class="cyl-empty" role="status">
+    <cyl-empty-view id="cyl-empty-view" class="cyl-empty-view" scenario="{{showsEmptyResults ? emptyResultsScenario : emptySuggestionsScenario}}"
+      animated="{{emptyPlaceholderAnimated}}" loop="{{animationLoops}}" speed="{{playbackSpeed}}" />
+    <slot name="placeholder-footer" />
+  </view>
+  <block wx:elif="{{shownSuggestions.length > 0}}">
+    <view wx:if="{{showsCacheHeader}}" class="cyl-header">
+      <text class="cyl-header-title" role="heading" style="{{suggestionTextColor ? 'color: ' + suggestionTextColor : ''}}">{{recentTitle || labels.recent}}</text>
+      <view class="cyl-clear" role="button" aria-label="{{clearLabel || labels.clear}}" bindtap="onClear">
+        <view class="cyl-mask-trash" style="{{suggestionImageTintColor ? 'background-color: ' + suggestionImageTintColor : ''}}" aria-hidden="true" />
+      </view>
+    </view>
+    <!-- The tags: CollectionViewClassifyMenu's tag list (iOS CYLTagListView), folded to foldedRowCount rows, its fold control last. -->
+    <view wx:if="{{suggestionStyle === 'tags'}}" class="cyl-tags">
+      <cyl-tag-list configuration="{{tagConfiguration}}" bind:tagtap="onSuggestionTap" />
+    </view>
+    <scroll-view wx:else scroll-y class="cyl-list" aria-label="{{labels.suggestions}}">
+      <view wx:for="{{shownSuggestions}}" wx:key="*this" class="cyl-row" role="button" data-index="{{index}}" bindtap="onSuggestionTap"
+        style="{{dividerColor ? 'border-color: ' + dividerColor : ''}}">
+        <view class="cyl-row-icon" style="{{suggestionImageTintColor ? 'background-color: ' + suggestionImageTintColor : ''}}" aria-hidden="true" />
+        <text class="cyl-row-text {{suggestionLineBreak === 'wrap' ? 'cyl-row-wrap' : ''}}" style="{{suggestionTextColor ? 'color: ' + suggestionTextColor : ''}}">{{item}}</text>
+      </view>
+    </scroll-view>
+    <view wx:if="{{cacheFooterTitle}}" class="cyl-cache-footer" role="button" aria-label="{{cacheFooterTitle}}" bindtap="onClear">
+      <text class="cyl-cache-footer-text" style="{{suggestionTextColor ? 'color: ' + suggestionTextColor : ''}}">{{cacheFooterTitle}}</text>
+    </view>
+  </block>
+</view>

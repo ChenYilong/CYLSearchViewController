@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "cyl_action_ok",
+      "value": "U redu"
+    },
+    {
+      "name": "cyl_demo_port_default",
+      "value": "Zadano"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "Nema podataka"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "Odustani"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "Više"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "Odustani"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "Osvježi"
+    }
+  ]
+}

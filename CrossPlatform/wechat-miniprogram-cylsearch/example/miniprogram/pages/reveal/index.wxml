@@ -1,0 +1,14 @@
+<view class="screen">
+  <cyl-demo-nav title="MaterialSearchView (cjj)" />
+  <view class="center">
+    <!-- CardView: background #f2f2f2, corner radius 2; EditText: hint "search", text color #ffd46c. -->
+    <cyl-search-bar generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
+      id="bar" class="card" navigationFieldStyle fieldHeight="{{60}}"
+      placeholder="search" contentInsets="6px 4px" expansionAnimation="circularReveal"
+      animationDuration="{{1}}" iconPosition="center" iconifiedByDefault iconButtonBackgroundColor="#ffffff" iconButtonColor="#5856d6">
+      <view slot="trailing" class="close" role="button" aria-label="{{closeLabel}}" bindtap="onClose">
+        <view class="close-icon" aria-hidden="true" />
+      </view>
+    </cyl-search-bar>
+  </view>
+</view>

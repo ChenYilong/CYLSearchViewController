@@ -1,0 +1,89 @@
+:host { display: block; }
+.cyl-bar { display: flex; align-items: center; padding: 6px 12px; }
+/* pinsToKeyboard: at the page's bottom, on the keyboard while it is up (bottom = its height). */
+.cyl-bar-pinned { position: fixed; left: 0; right: 0; z-index: 100; background: #fff; }
+.cyl-field { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; padding: 0 12px; box-sizing: border-box; background: rgba(118, 118, 128, 0.12); transition-property: opacity, transform, clip-path; transition-timing-function: ease-out; }
+/* The border is iOS .secondaryLabel (60% alpha, light and dark), a visible line on every platform; #c6c6c8 was a faint 1.3:1 line. */
+.cyl-bar-bordered .cyl-field { background: #fff; border: 1px solid rgba(60, 60, 67, 0.6); }
+/* The navigation field preset: an opaque fill in both modes, so a gradient or a sheet never shows through. */
+.cyl-bar-navigation .cyl-field { background: #fff; }
+.cyl-field-icon { flex: none; width: 18px; height: 18px; margin-right: 6px; }
+.cyl-input { flex: 1; min-width: 0; color: #000; }
+.cyl-tap-cover { position: absolute; top: 0; right: 0; bottom: 0; left: 0; }
+.cyl-field-button, .cyl-navigation { flex: none; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; }
+.cyl-navigation { margin-right: 4px; }
+.cyl-item { position: relative; display: flex; align-items: center; justify-content: center; min-width: 36px; min-height: 36px; }
+.cyl-item-disabled { opacity: 0.4; }
+/* The default search button: no minimum height, so the icon style's 28 high capsule keeps equal gaps in the field. */
+.cyl-search-button { min-height: 0; }
+/* The trailing group (owner, 2026-11-26): the field flexes, its elements are spaced ONLY by this 8 margin before each, so the gaps
+   beside a divider are equal. A plain item hugs its content (no minimum width) and its touch area is widened to 36 by the
+   ::after hit area, never by empty room around the glyph; an item with a shape of its own keeps its size. */
+.cyl-gap { flex: none; margin-left: 8px; }
+.cyl-item-hug { min-width: 0; }
+/* The field and the item never clip: the first item's hit area reaches beside it into the field, the last item's past its edge (the padding is 12, the widening at most 9); it sits above the tap cover. */
+.cyl-field { overflow: visible; }
+.cyl-item-hug { overflow: visible; }
+.cyl-item-hug::after { content: ''; z-index: 1; position: absolute; top: 0; bottom: 0; left: 50%; width: 36px; margin-left: -18px; }
+/* The built-in divider: 1 x 20, secondary label strength (60%); the gaps beside it are the group's spacing: `.cyl-gap` gives the 8 before it, no margin of its own here (a `margin: 0` here overrode it: DevTools measured 0 before the divider). */
+.cyl-divider { width: 1px; height: 20px; background: rgba(60, 60, 67, 0.6); }
+
+/* mode "multiple" (was cyl-multi-search): the searches in a row, the selected one underlined, the new-search button. */
+.cyl-multi { display: flex; align-items: center; height: 48px; }
+.cyl-multi-row { flex: 1; min-width: 0; height: 48px; white-space: nowrap; }
+.cyl-multi-items { display: inline-flex; align-items: center; height: 48px; }
+.cyl-multi-item { position: relative; display: inline-flex; align-items: center; height: 48px; margin-right: 16px; transition: opacity 0.25s; }
+.cyl-multi-text { color: #000; line-height: 48px; }
+.cyl-multi-input { width: 100%; height: 48px; color: #000; }
+.cyl-multi-indicator { position: absolute; left: 0; right: 0; bottom: 6px; height: 2px; border-radius: 1px; background: #007aff; }
+.cyl-multi-remove, .cyl-multi-button { flex: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; }
+.cyl-multi-remove { width: 32px; }
+.cyl-multi-remove .cyl-mask-clear { background-color: #007aff; }
+/* The appearance's clear button image (iOS CYLSearchBarAppearance.clearIconImage): the size of the built-in one. */
+.cyl-clear-image { width: 18px; height: 18px; }
+.cyl-cancel { flex: none; padding: 0 0 0 12px; color: #007aff; font-size: 17px; max-width: 200px; overflow: hidden; white-space: nowrap; }
+.cyl-cancel-animated, .cyl-accessory-animated { transition: max-width 0.25s ease-out, opacity 0.25s ease-out; }
+.cyl-cancel-hidden { max-width: 0; padding-left: 0; margin: 0 !important; opacity: 0; pointer-events: none; }
+/* The accessory views beside the field (iOS leadingAccessoryView / trailingAccessoryView): a width that grows from 0. */
+.cyl-accessory { flex: none; display: flex; align-items: center; overflow: hidden; }
+.cyl-accessory-inner { flex: none; display: flex; align-items: center; box-sizing: content-box; }
+.cyl-accessory-hidden { max-width: 0; opacity: 0; pointer-events: none; }
+/* centersPlaceholder: magnifier and placeholder centred over the resting field; the input stays under them. */
+.cyl-center-group { position: absolute; top: 0; right: 0; bottom: 0; left: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.cyl-center-icon { width: 18px; height: 18px; margin-right: 6px; background-color: rgba(60, 60, 67, 0.6); }
+.cyl-center-text { color: rgba(60, 60, 67, 0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* The expansion animations: the field fades in from the icon, or a circle grows from the icon until it uncovers it. */
+.cyl-anim-fade.cyl-field-revealing { opacity: 0; transform: scaleX(0.2); }
+.cyl-icon-trailing .cyl-anim-fade { transform-origin: right center; }
+.cyl-icon-leading .cyl-anim-fade { transform-origin: left center; }
+.cyl-anim-circularReveal { clip-path: circle(150% at 50% 50%); }
+.cyl-icon-trailing .cyl-anim-circularReveal.cyl-field-revealing { clip-path: circle(0 at 100% 50%); }
+.cyl-icon-leading .cyl-anim-circularReveal.cyl-field-revealing { clip-path: circle(0 at 0 50%); }
+.cyl-icon-center .cyl-anim-circularReveal.cyl-field-revealing { clip-path: circle(0 at 50% 50%); }
+
+/* Iconified: only the search button, at the icon position. */
+.cyl-icon-trailing { justify-content: flex-end; }
+.cyl-icon-center { justify-content: center; }
+.cyl-icon-leading { justify-content: flex-start; }
+.cyl-icon-button { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 22px; }
+
+/* Template icons: a shape filled with the tint color (dark mode and colored themes set background-color). */
+.cyl-mask-icon { width: 22px; height: 22px; background-color: #007aff; -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center; }
+.cyl-mask-search { -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'><circle cx='10.5' cy='10.5' r='6.5'/><path d='M15.5 15.5L21 21'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'><circle cx='10.5' cy='10.5' r='6.5'/><path d='M15.5 15.5L21 21'/></svg>"); }
+.cyl-mask-back { -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><path d='M15 4l-8 8 8 8'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'><path d='M15 4l-8 8 8 8'/></svg>"); }
+.cyl-mask-clear { width: 18px; height: 18px; background-color: rgba(60, 60, 67, 0.3); -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='black' fill-rule='evenodd' d='M12 1a11 11 0 1 1 0 22 11 11 0 0 1 0-22zm-3.3 6.3l-1.4 1.4 3.3 3.3-3.3 3.3 1.4 1.4 3.3-3.3 3.3 3.3 1.4-1.4-3.3-3.3 3.3-3.3-1.4-1.4-3.3 3.3z'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='black' fill-rule='evenodd' d='M12 1a11 11 0 1 1 0 22 11 11 0 0 1 0-22zm-3.3 6.3l-1.4 1.4 3.3 3.3-3.3 3.3 1.4 1.4 3.3-3.3 3.3 3.3 1.4-1.4-3.3-3.3 3.3-3.3-1.4-1.4-3.3 3.3z'/></svg>"); }
+.cyl-mask-mic { background-color: rgba(60, 60, 67, 0.6); -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'><rect x='9' y='2' width='6' height='12' rx='3'/><path d='M5 11a7 7 0 0 0 14 0M12 18v4'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'><rect x='9' y='2' width='6' height='12' rx='3'/><path d='M5 11a7 7 0 0 0 14 0M12 18v4'/></svg>"); }
+.cyl-mask-submit { -webkit-mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='black' fill-rule='evenodd' d='M12 1a11 11 0 1 1 0 22 11 11 0 0 1 0-22zm.6 5.6l-1.4 1.4 3 3H6v2h8.2l-3 3 1.4 1.4 5.4-5.4z'/></svg>"); mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path fill='black' fill-rule='evenodd' d='M12 1a11 11 0 1 1 0 22 11 11 0 0 1 0-22zm.6 5.6l-1.4 1.4 3 3H6v2h8.2l-3 3 1.4 1.4 5.4-5.4z'/></svg>"); }
+
+@media (prefers-color-scheme: dark) {
+  .cyl-field { background: rgba(118, 118, 128, 0.24); }
+  .cyl-bar-bordered .cyl-field { background: #1c1c1e; border-color: rgba(235, 235, 245, 0.6); }
+  .cyl-bar-navigation .cyl-field { background: #000; }
+  .cyl-input { color: #fff; }
+  .cyl-mask-icon { background-color: #0a84ff; }
+  .cyl-multi-text, .cyl-multi-input { color: #fff; }
+  .cyl-divider { background: rgba(235, 235, 245, 0.6); }
+  .cyl-center-text { color: rgba(235, 235, 245, 0.6); }
+  .cyl-center-icon { background-color: rgba(235, 235, 245, 0.6); }
+}

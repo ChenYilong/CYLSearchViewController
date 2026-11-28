@@ -1,0 +1,4 @@
+<view class="screen gradient-screen">
+  <cyl-demo-nav title="{{title}}" />
+  <cyl-tag-list class="demo-tags" configuration="{{tagConfiguration}}" bind:tagtap="onTag" />
+</view>

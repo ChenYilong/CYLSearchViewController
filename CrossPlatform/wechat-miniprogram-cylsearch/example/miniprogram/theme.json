@@ -1,0 +1,12 @@
+{
+  "light": {
+    "windowBackground": "#f2f2f7",
+    "statusBarText": "black",
+    "backgroundText": "dark"
+  },
+  "dark": {
+    "windowBackground": "#000000",
+    "statusBarText": "white",
+    "backgroundText": "light"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "string": [
+    {
+      "name": "svga_swiftui_close",
+      "value": "סגירה"
+    },
+    {
+      "name": "discover_ok",
+      "value": "אישור"
+    },
+    {
+      "name": "contactTags_cancel",
+      "value": "ביטול"
+    },
+    {
+      "name": "contactTags_ok",
+      "value": "אישור"
+    }
+  ]
+}

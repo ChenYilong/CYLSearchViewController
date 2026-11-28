@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "cyl_action_ok",
+      "value": "ठीक है"
+    },
+    {
+      "name": "cyl_demo_port_default",
+      "value": "डिफ़ॉल्ट"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "कोई डेटा नहीं"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "रद्द करें"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "अधिक"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "रद्द करें"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "रीफ़्रेश"
+    }
+  ]
+}

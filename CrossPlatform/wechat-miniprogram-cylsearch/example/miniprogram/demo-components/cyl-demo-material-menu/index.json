@@ -1,0 +1,2 @@
+{ "component": true, "usingComponents": {
+    "cyl-tag-list": "cyl-tag-list-miniprogram/cyl-tag-list/cyl-tag-list", "cyl-demo-nav": "../cyl-demo-nav/index" } }

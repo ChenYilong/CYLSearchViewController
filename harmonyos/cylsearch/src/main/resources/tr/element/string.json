@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "cyl_action_ok",
+      "value": "Tamam"
+    },
+    {
+      "name": "cyl_demo_port_default",
+      "value": "Varsayılan"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "Veri yok"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "İptal"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "Diğer"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "İptal"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "Yenile"
+    }
+  ]
+}

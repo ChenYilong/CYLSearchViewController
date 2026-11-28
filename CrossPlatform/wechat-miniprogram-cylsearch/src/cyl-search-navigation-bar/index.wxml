@@ -1,0 +1,12 @@
+<!-- The navigation bar: status bar space, then the back button (optional) and the search bar in the slot. -->
+<view class="cyl-nav {{backAnimated ? 'cyl-nav-animated' : ''}}" style="{{barStyle}}">
+  <!-- The back button's slot: width 0 hidden, 32 shown; it animates (CSS transition) when the change was asked animated. -->
+  <view class="cyl-nav-back {{backShown ? 'cyl-nav-back-shown' : ''}}" role="button" aria-hidden="{{!backShown}}" aria-label="{{back}}" bindtap="onBack">
+    <view class="cyl-nav-back-icon" aria-hidden="true" />
+  </view>
+  <view class="cyl-nav-content" style="{{contentStyle}}">
+    <slot />
+    <!-- A first-level bar: the field of the `cyl-search-bar` (`pushesOnTap`) takes the tap and triggers `firstleveltap`, which the
+         page forwards to `firstLevelTapped()`; the items and the search button keep their own taps (no layer over the bar). -->
+  </view>
+</view>

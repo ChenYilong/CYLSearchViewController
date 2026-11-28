@@ -1,0 +1,404 @@
+{
+  "comment": "Demo contact tags (CYLContactTagStore), from CollectionViewClassifyMenu's CYLTagEditorExample tags.json. One file per language; the same ids, in the same order, in every language. A tag's id is its primary key: recentTags, selectedTags and every contact's tags are ids, so a reorder or a rename keeps a tag's contacts.",
+  "version": 2,
+  "tags": [
+    {
+      "id": "t01",
+      "title": "家人"
+    },
+    {
+      "id": "t02",
+      "title": "亲戚"
+    },
+    {
+      "id": "t03",
+      "title": "朋友"
+    },
+    {
+      "id": "t04",
+      "title": "好友"
+    },
+    {
+      "id": "t05",
+      "title": "大学同学"
+    },
+    {
+      "id": "t06",
+      "title": "高中同学"
+    },
+    {
+      "id": "t07",
+      "title": "室友"
+    },
+    {
+      "id": "t08",
+      "title": "邻居"
+    },
+    {
+      "id": "t09",
+      "title": "同事"
+    },
+    {
+      "id": "t10",
+      "title": "前同事"
+    },
+    {
+      "id": "t11",
+      "title": "领导"
+    },
+    {
+      "id": "t12",
+      "title": "客户"
+    },
+    {
+      "id": "t13",
+      "title": "供应商"
+    },
+    {
+      "id": "t14",
+      "title": "合作伙伴"
+    },
+    {
+      "id": "t15",
+      "title": "投资人"
+    },
+    {
+      "id": "t16",
+      "title": "猎头"
+    },
+    {
+      "id": "t17",
+      "title": "产品经理"
+    },
+    {
+      "id": "t18",
+      "title": "设计师"
+    },
+    {
+      "id": "t19",
+      "title": "iOS 开发"
+    },
+    {
+      "id": "t20",
+      "title": "Android 开发"
+    },
+    {
+      "id": "t21",
+      "title": "前端开发"
+    },
+    {
+      "id": "t22",
+      "title": "后端开发"
+    },
+    {
+      "id": "t23",
+      "title": "运营"
+    },
+    {
+      "id": "t24",
+      "title": "市场"
+    },
+    {
+      "id": "t25",
+      "title": "老师"
+    },
+    {
+      "id": "t26",
+      "title": "医生"
+    },
+    {
+      "id": "t27",
+      "title": "律师"
+    },
+    {
+      "id": "t28",
+      "title": "房东"
+    },
+    {
+      "id": "t29",
+      "title": "跑步"
+    },
+    {
+      "id": "t30",
+      "title": "篮球"
+    },
+    {
+      "id": "t31",
+      "title": "摄影"
+    },
+    {
+      "id": "t32",
+      "title": "读书会"
+    },
+    {
+      "id": "t33",
+      "title": "旅行"
+    },
+    {
+      "id": "t34",
+      "title": "美食"
+    },
+    {
+      "id": "t35",
+      "title": "徒步"
+    },
+    {
+      "id": "t36",
+      "title": "音乐"
+    },
+    {
+      "id": "t37",
+      "title": "北京"
+    },
+    {
+      "id": "t38",
+      "title": "上海"
+    },
+    {
+      "id": "t39",
+      "title": "深圳"
+    },
+    {
+      "id": "t40",
+      "title": "杭州"
+    },
+    {
+      "id": "t41",
+      "title": "海外"
+    },
+    {
+      "id": "t42",
+      "title": "婚礼宾客"
+    },
+    {
+      "id": "t43",
+      "title": "年会"
+    },
+    {
+      "id": "t44",
+      "title": "重要"
+    },
+    {
+      "id": "t45",
+      "title": "常联系"
+    },
+    {
+      "id": "t46",
+      "title": "待回复"
+    },
+    {
+      "id": "t47",
+      "title": "不常联系"
+    }
+  ],
+  "recentTags": [
+    "t09",
+    "t12",
+    "t32"
+  ],
+  "selectedTags": [
+    "t01",
+    "t05",
+    "t32"
+  ],
+  "contacts": [
+    {
+      "name": "陈晓明",
+      "tags": [
+        "t01",
+        "t03",
+        "t08",
+        "t33",
+        "t34"
+      ]
+    },
+    {
+      "name": "吴佳怡",
+      "tags": [
+        "t01",
+        "t23",
+        "t26"
+      ]
+    },
+    {
+      "name": "李思远",
+      "tags": [
+        "t05",
+        "t10",
+        "t19",
+        "t38",
+        "t39"
+      ]
+    },
+    {
+      "name": "周雨桐",
+      "tags": [
+        "t07",
+        "t17",
+        "t27",
+        "t32"
+      ]
+    },
+    {
+      "name": "王浩然",
+      "tags": [
+        "t07",
+        "t09",
+        "t18",
+        "t21"
+      ]
+    },
+    {
+      "name": "林可欣",
+      "tags": [
+        "t02",
+        "t12",
+        "t37",
+        "t40"
+      ]
+    },
+    {
+      "name": "徐子轩",
+      "tags": [
+        "t05",
+        "t09",
+        "t13"
+      ]
+    },
+    {
+      "name": "孙梦瑶",
+      "tags": [
+        "t30",
+        "t32",
+        "t35"
+      ]
+    },
+    {
+      "name": "赵一鸣",
+      "tags": [
+        "t05",
+        "t07",
+        "t27"
+      ]
+    },
+    {
+      "name": "何静怡",
+      "tags": [
+        "t07",
+        "t38"
+      ]
+    },
+    {
+      "name": "马俊杰",
+      "tags": [
+        "t26",
+        "t28",
+        "t29",
+        "t45"
+      ]
+    },
+    {
+      "name": "郭语嫣",
+      "tags": [
+        "t11",
+        "t33",
+        "t37"
+      ]
+    },
+    {
+      "name": "黄志强",
+      "tags": [
+        "t15",
+        "t27",
+        "t35",
+        "t37"
+      ]
+    },
+    {
+      "name": "高雅琪",
+      "tags": [
+        "t07",
+        "t13",
+        "t14",
+        "t25"
+      ]
+    },
+    {
+      "name": "刘宇航",
+      "tags": [
+        "t09",
+        "t43"
+      ]
+    },
+    {
+      "name": "杨柳青",
+      "tags": [
+        "t07",
+        "t30",
+        "t36"
+      ]
+    },
+    {
+      "name": "罗晨曦",
+      "tags": [
+        "t30",
+        "t31"
+      ]
+    },
+    {
+      "name": "宋诗涵",
+      "tags": [
+        "t08",
+        "t31",
+        "t33",
+        "t34"
+      ]
+    },
+    {
+      "name": "唐明哲",
+      "tags": [
+        "t24",
+        "t28",
+        "t35"
+      ]
+    },
+    {
+      "name": "冯晓雪",
+      "tags": [
+        "t01",
+        "t16"
+      ]
+    },
+    {
+      "name": "韩立",
+      "tags": [
+        "t02",
+        "t30"
+      ]
+    },
+    {
+      "name": "曹文静",
+      "tags": [
+        "t08",
+        "t29",
+        "t44"
+      ]
+    },
+    {
+      "name": "田中由纪",
+      "tags": [
+        "t09",
+        "t19",
+        "t31"
+      ]
+    },
+    {
+      "name": "邓子琪",
+      "tags": [
+        "t11",
+        "t19",
+        "t26"
+      ]
+    }
+  ]
+}

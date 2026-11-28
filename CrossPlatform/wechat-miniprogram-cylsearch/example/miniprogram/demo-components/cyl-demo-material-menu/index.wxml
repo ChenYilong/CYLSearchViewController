@@ -1,0 +1,6 @@
+<view class="screen gradient-screen">
+  <!-- The Tag style tab is a first-level page: the whole centered capsule bar in the navigation bar. -->
+  <cyl-demo-first-level-bar wx:if="{{inTabBar}}" preset="centeredCapsule" placeholder="{{placeholder}}" />
+  <cyl-demo-nav wx:else title="MaterialSearchView" />
+  <cyl-tag-list class="demo-tags" configuration="{{tagConfiguration}}" bind:tagtap="onTag" />
+</view>

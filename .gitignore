@@ -12,3 +12,11 @@ xcuserdata/
 ._*
 *.base
 DerivedData/
+
+# Local build output, logs and lint checkouts (scripts/*.sh).
+build/
+
+__pycache__/
+
+# Agent worktrees (Claude Code); never committed
+.claude/worktrees/

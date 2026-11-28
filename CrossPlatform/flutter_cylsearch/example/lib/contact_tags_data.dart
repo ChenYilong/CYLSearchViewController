@@ -1,0 +1,450 @@
+// Generated from CYLSearchExample/CYLContactTags.bundle/en.lproj (contact-tags.json and CYLContactTags.strings), as
+// the React Native example's contact-tags.json. Do not edit.
+
+/// The contact tags demo's strings and data, as JSON.
+const String cylContactTagsJSON = r'''
+{
+ "comment": "Generated from CYLSearchExample/CYLContactTags.bundle/en.lproj (contact-tags.json and CYLContactTags.strings). Do not edit.",
+ "strings": {
+  "row": "Contact tags (CollectionViewClassifyMenu)",
+  "cancel": "Cancel",
+  "done": "Done",
+  "editRemarks": "Edit Remarks",
+  "remarkName": "Remark name",
+  "tags": "Tags",
+  "editTags": "Edit Tags",
+  "search": "Search",
+  "searchTags": "Search tags",
+  "results": "Search Results",
+  "recent": "Recent",
+  "mine": "My Tags",
+  "manage": "Manage",
+  "doneManaging": "Done Managing",
+  "created": "Tag created: %@",
+  "newTag": "New Tag",
+  "tagName": "Tag name",
+  "ok": "OK",
+  "hintManage": "Double-tap to edit tags: delete, drag or add",
+  "hintDoneManaging": "Double-tap to stop editing tags",
+  "hintEdit": "Opens Edit Tags",
+  "noMatch": "No matching tags",
+  "noTags": "No tags yet. Tap “New Tag” to add one.",
+  "remarkNoTags": "No tags yet. Tap to add tags.",
+  "clearRecent": "Clear recent tags",
+  "recentCleared": "Recent tags cleared",
+  "contactsTitle": "%@ (%ld)",
+  "noContacts": "No contacts have the tag “%@”.",
+  "hintContacts": "Double-tap to show its contacts",
+  "sync": "Sync from other devices",
+  "syncing": "Syncing from other devices…",
+  "synced": "Synced",
+  "uploading": "Uploading tags…",
+  "uploaded": "Upload finished",
+  "downloading": "Downloading tags…",
+  "downloaded": "Tags updated",
+  "otherDeviceTags": "Yoga,Coffee,Cycling,Board Games,Volunteers,Parents,Startup,Mentors",
+  "add": "Add"
+ },
+ "version": 2,
+ "tags": [
+  {
+   "id": "t01",
+   "title": "Family"
+  },
+  {
+   "id": "t02",
+   "title": "Relatives"
+  },
+  {
+   "id": "t03",
+   "title": "Friends"
+  },
+  {
+   "id": "t04",
+   "title": "Close Friends"
+  },
+  {
+   "id": "t05",
+   "title": "College Classmates"
+  },
+  {
+   "id": "t06",
+   "title": "High School Classmates"
+  },
+  {
+   "id": "t07",
+   "title": "Roommates"
+  },
+  {
+   "id": "t08",
+   "title": "Neighbors"
+  },
+  {
+   "id": "t09",
+   "title": "Coworkers"
+  },
+  {
+   "id": "t10",
+   "title": "Former Coworkers"
+  },
+  {
+   "id": "t11",
+   "title": "Managers"
+  },
+  {
+   "id": "t12",
+   "title": "Clients"
+  },
+  {
+   "id": "t13",
+   "title": "Suppliers"
+  },
+  {
+   "id": "t14",
+   "title": "Partners"
+  },
+  {
+   "id": "t15",
+   "title": "Investors"
+  },
+  {
+   "id": "t16",
+   "title": "Recruiters"
+  },
+  {
+   "id": "t17",
+   "title": "Product Managers"
+  },
+  {
+   "id": "t18",
+   "title": "Designers"
+  },
+  {
+   "id": "t19",
+   "title": "iOS Developers"
+  },
+  {
+   "id": "t20",
+   "title": "Android Developers"
+  },
+  {
+   "id": "t21",
+   "title": "Frontend Developers"
+  },
+  {
+   "id": "t22",
+   "title": "Backend Developers"
+  },
+  {
+   "id": "t23",
+   "title": "Operations"
+  },
+  {
+   "id": "t24",
+   "title": "Marketing"
+  },
+  {
+   "id": "t25",
+   "title": "Teachers"
+  },
+  {
+   "id": "t26",
+   "title": "Doctors"
+  },
+  {
+   "id": "t27",
+   "title": "Lawyers"
+  },
+  {
+   "id": "t28",
+   "title": "Landlords"
+  },
+  {
+   "id": "t29",
+   "title": "Running"
+  },
+  {
+   "id": "t30",
+   "title": "Basketball"
+  },
+  {
+   "id": "t31",
+   "title": "Photography"
+  },
+  {
+   "id": "t32",
+   "title": "Book Club"
+  },
+  {
+   "id": "t33",
+   "title": "Travel"
+  },
+  {
+   "id": "t34",
+   "title": "Food"
+  },
+  {
+   "id": "t35",
+   "title": "Hiking"
+  },
+  {
+   "id": "t36",
+   "title": "Music"
+  },
+  {
+   "id": "t37",
+   "title": "Beijing"
+  },
+  {
+   "id": "t38",
+   "title": "Shanghai"
+  },
+  {
+   "id": "t39",
+   "title": "Shenzhen"
+  },
+  {
+   "id": "t40",
+   "title": "Hangzhou"
+  },
+  {
+   "id": "t41",
+   "title": "Overseas"
+  },
+  {
+   "id": "t42",
+   "title": "Wedding Guests"
+  },
+  {
+   "id": "t43",
+   "title": "Annual Party"
+  },
+  {
+   "id": "t44",
+   "title": "Important"
+  },
+  {
+   "id": "t45",
+   "title": "Frequent"
+  },
+  {
+   "id": "t46",
+   "title": "To Reply"
+  },
+  {
+   "id": "t47",
+   "title": "Rarely in Touch"
+  }
+ ],
+ "recentTags": [
+  "t09",
+  "t12",
+  "t32"
+ ],
+ "selectedTags": [
+  "t01",
+  "t05",
+  "t32"
+ ],
+ "contacts": [
+  {
+   "name": "Alex Chen",
+   "tags": [
+    "t01",
+    "t03",
+    "t08",
+    "t33",
+    "t34"
+   ]
+  },
+  {
+   "name": "Bella Wu",
+   "tags": [
+    "t01",
+    "t23",
+    "t26"
+   ]
+  },
+  {
+   "name": "Chris Li",
+   "tags": [
+    "t05",
+    "t10",
+    "t19",
+    "t38",
+    "t39"
+   ]
+  },
+  {
+   "name": "Diana Zhou",
+   "tags": [
+    "t07",
+    "t17",
+    "t27",
+    "t32"
+   ]
+  },
+  {
+   "name": "Ethan Wang",
+   "tags": [
+    "t07",
+    "t09",
+    "t18",
+    "t21"
+   ]
+  },
+  {
+   "name": "Fiona Lin",
+   "tags": [
+    "t02",
+    "t12",
+    "t37",
+    "t40"
+   ]
+  },
+  {
+   "name": "George Xu",
+   "tags": [
+    "t05",
+    "t09",
+    "t13"
+   ]
+  },
+  {
+   "name": "Hannah Sun",
+   "tags": [
+    "t30",
+    "t32",
+    "t35"
+   ]
+  },
+  {
+   "name": "Ivan Zhao",
+   "tags": [
+    "t05",
+    "t07",
+    "t27"
+   ]
+  },
+  {
+   "name": "Julia He",
+   "tags": [
+    "t07",
+    "t38"
+   ]
+  },
+  {
+   "name": "Kevin Ma",
+   "tags": [
+    "t26",
+    "t28",
+    "t29",
+    "t45"
+   ]
+  },
+  {
+   "name": "Lily Guo",
+   "tags": [
+    "t11",
+    "t33",
+    "t37"
+   ]
+  },
+  {
+   "name": "Mike Huang",
+   "tags": [
+    "t15",
+    "t27",
+    "t35",
+    "t37"
+   ]
+  },
+  {
+   "name": "Nina Gao",
+   "tags": [
+    "t07",
+    "t13",
+    "t14",
+    "t25"
+   ]
+  },
+  {
+   "name": "Oscar Liu",
+   "tags": [
+    "t09",
+    "t43"
+   ]
+  },
+  {
+   "name": "Penny Yang",
+   "tags": [
+    "t07",
+    "t30",
+    "t36"
+   ]
+  },
+  {
+   "name": "Quinn Luo",
+   "tags": [
+    "t30",
+    "t31"
+   ]
+  },
+  {
+   "name": "Rachel Song",
+   "tags": [
+    "t08",
+    "t31",
+    "t33",
+    "t34"
+   ]
+  },
+  {
+   "name": "Sam Tang",
+   "tags": [
+    "t24",
+    "t28",
+    "t35"
+   ]
+  },
+  {
+   "name": "Tina Feng",
+   "tags": [
+    "t01",
+    "t16"
+   ]
+  },
+  {
+   "name": "Victor Han",
+   "tags": [
+    "t02",
+    "t30"
+   ]
+  },
+  {
+   "name": "Wendy Cao",
+   "tags": [
+    "t08",
+    "t29",
+    "t44"
+   ]
+  },
+  {
+   "name": "Yuki Tanaka",
+   "tags": [
+    "t09",
+    "t19",
+    "t31"
+   ]
+  },
+  {
+   "name": "Zoe Deng",
+   "tags": [
+    "t11",
+    "t19",
+    "t26"
+   ]
+  }
+ ]
+}
+''';

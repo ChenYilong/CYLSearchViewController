@@ -1,0 +1,6 @@
+{
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "cyl-search-navigation-bar": "/components/cyl-search-navigation-bar/index"
+  }
+}

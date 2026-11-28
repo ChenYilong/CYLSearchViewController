@@ -1,0 +1,24 @@
+{
+  "color": [
+    {
+      "name": "cyl_search_field_background",
+      "value": "#3A3A3C"
+    },
+    {
+      "name": "cyl_search_secondary_label",
+      "value": "#99EBEBF5"
+    },
+    {
+      "name": "cyl_search_button_fill",
+      "value": "#FFFFFF"
+    },
+    {
+      "name": "cyl_search_button_glyph",
+      "value": "#000000"
+    },
+    {
+      "name": "cyl_search_navigation_field_fill",
+      "value": "#000000"
+    }
+  ]
+}

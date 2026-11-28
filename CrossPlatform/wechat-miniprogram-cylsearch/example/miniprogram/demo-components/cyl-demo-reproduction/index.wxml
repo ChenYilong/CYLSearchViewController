@@ -1,0 +1,15 @@
+<view class="screen {{inTabBar ? 'screen-tab' : ''}}">
+  <cyl-demo-nav title="{{texts.title}}" leftTitle="{{texts.overlay}}" rightTitle="{{hidesSearchBarWhenScrolling ? texts.reproOn : texts.reproOff}}"
+    rightIdentifier="CYLIssueReproductionToggle" bind:lefttap="onShowOverlay" bind:righttap="onToggleReproduction" />
+  <!-- The core's search view, inline: the field pinned above the results (Repro OFF) or scrolling with them (Repro ON),
+       pull to refresh (CYLTableViewPlaceHolder's CYLRefreshNormalHeader inside the core) and the "No matching results"
+       placeholder, which keeps scrolling and refreshing. -->
+  <cyl-search generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
+    id="search" class="list" inline focusesOnAppear navigationIcon="none" placeholder="{{texts.placeholder}}" results="{{shown}}"
+    showsResultsForEmptyQuery showsEmptyResultsPlaceholder refresherEnabled hidesSearchBarWhenScrolling="{{hidesSearchBarWhenScrolling}}"
+    cacheName="CYLIssueReproduction" generic:cyl-empty-view="cyl-demo-empty-view" bind:textchange="onQuery" bind:refresh="onRefresh" />
+  <!-- "Overlay" (was CYLSearchController): the same results in a search view that slides up over the page, with Cancel. -->
+  <cyl-search generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
+    id="overlay" navigationIcon="none" showsCancelButton coversNavigationBar results="{{overlayResults}}" showsResultsForEmptyQuery
+    closesOnSubmit="{{false}}" cacheName="CYLIssueReproductionOverlay" generic:cyl-empty-view="cyl-demo-empty-view" bind:textchange="onOverlayQuery" />
+</view>

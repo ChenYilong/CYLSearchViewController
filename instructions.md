@@ -1,245 +1,179 @@
 # Folder Instructions
 
-This repository contains an Objective-C search UI sample and the Issue #1317
-reproduction for `UISearchController` with `CYLTableViewPlaceHolder` refresh.
-Read this file and `AGENTS.md` before changing project files.
+This repository contains the CYLSearchViewController search library, its ports and examples, and the Issue #1317
+reproduction for `UISearchController` with `CYLTableViewPlaceHolder` refresh. Read this file and `AGENTS.md` before
+changing project files; both keep the same tags.
 
-## Naming
+The content is grouped by tag. Every category below has a short summary; its full text is in
+`docs/instructions/<tag>.md`: read that file whenever the task touches the tag (tag: `meta`).
 
-- Write all instruction and skill files in English.
-- Prefix every new project-owned class, protocol, enum, type, function, and
-  constant with `CYL`. Name a class file after its primary type.
-- Name UIKit category files `<SystemClass>+CYL<Feature>.h` and `.m`; prefix
-  every new category method and property with `cyl_`.
-- Apply these rules to copied or newly introduced code. Remove unrelated
-  third-party prefixes from new code and retain source attribution.
-- Do not rename existing project APIs or vendor code as part of unrelated
-  changes.
+## Behavioral guidelines: read in full first (tag: `behavioral`)
 
-## Comments on public API
+- **You must read this file in full, every line, before any task:**
+  [docs/instructions/behavioral.md](docs/instructions/behavioral.md). Its rules (think before coding, simplicity first,
+  surgical changes, goal-driven execution) apply to every task, together with the rest of this file.
+- **Before you run any simulator or emulator, you must read the simulator run rules**
+  ([docs/instructions/testing.md](docs/instructions/testing.md), "Simulator and emulator runs", or the skill `cyl-simulator-run`),
+  or this text: after a simulator test or screenshot run ends, immediately terminate the app and stop the simulator process;
+  start them again when you need them. Never leave the app running or the simulator booted after the run or the task.
 
-- All comment formats follow the official documentation rules of their
-  language. The rules below choose among the officially allowed forms; where
-  one contradicts an official rule, the official rule wins.
-- A multi-line comment on a public declaration is one documentation block,
-  never stacked single-line comments, right above the declaration.
-- The format requirements above for multi-line public API comments also apply
-  to single-line public API comments. Where the block form is officially
-  allowed, a one-line comment is written on three lines above the declaration
-  (`/*!`, ` * Text.`, ` */`). Never write it on one line (`/*! Text. */`), and
-  never add a trailing `/**< */`, `/*!< */`, `///<` or `//` after a
-  declaration or an enum value.
-- In a file that contains public API, keep the comment format uniform: one
-  format for long and short comments.
-- This applies to all platforms and all languages:
-  - Objective-C `/*! */`.
-  - Swift, Kotlin, Java, TypeScript and JavaScript `/** */`.
-  - Python: PEP 257 docstrings.
-  - Go `//`, C# `///` with XML tags, Rust `///`, Dart `///`: these are the
-    official forms.
+## Skills (tag: `skills`)
 
-  A language with no block form uses its only documentation comment form
-  throughout the file. Full rule and sources: `AGENTS.md`, "Comments on
-  public API".
+`.agents/skills` holds the skills (`.claude/skills` points there). Details: [docs/instructions/skills.md](docs/instructions/skills.md).
 
-## Xcode and dependencies
+| Skill | Use it when |
+|:---|:---|
+| `cyl-tabbar-integration` | Adding or changing a `CYLTabBarController` in the example (configuration file, plus child view controller, latest commit) |
+| `cyl-plus-button` | Writing or changing the plus button: configuration keys, title alignment, Liquid Glass limits |
+| `cyl-new-project` | Creating or extending an example project |
+| `cyl-api-map` | Finding the public API of `CYLTableViewPlaceHolder` and `CYLTabBarController` |
+| `cyl-xcode-compat` | Touching the `.xcodeproj`, Podfile or deployment targets |
+| `cyl-sub-repositories` | Adding or updating a sibling project as a sub-repository (CollectionViewClassifyMenu, CYLTableViewPlaceHolder): commit pin, core option, example, every platform |
+| `cyl-license` | Any package published to a registry (CocoaPods, Maven/Gradle, npm, pub, ohpm): the MIT `LICENSE` inside its resource bundle, the manifest field, the check |
+| `cyl-task-start` | Starting, scoring and finishing any task: check other sessions, `TODO` and branch at the top, the `docs/` entry with acceptance criteria, scoring until it passes, missing points as `TODO`s at the end; restarting a hung emulator |
+| `cyl-docs` | Editing `README.md` or `docs/` |
+| `cyl-verify` | Building, testing, running the simulator; real pointer input for scrolling and drag gestures |
+| `cyl-simulator-run` | Before running a simulator or emulator: the run rules; after the test or screenshot run, terminate the app and stop the simulator process at once, boot again when needed |
+| `cyl-api-parity` | Comparing two platforms' APIs: the parity table (source API, description, target counterpart, `TODO` by default), its score, and the loop to 100 |
+| `cyl-example-taglist` | A demo or example needs a table-view-like grouped list: show it as ClassifyMenu's tag list (sections, adaptive width, wrapping titles, 3-row fold whose control is the tail tag, icon only, long-press subtitle bubble) |
+| `cyl-search-field` | Any search or text field in the core or an example, on any platform: `CYLSearchBarView` with the navigation field preset, never a system search bar |
+| `cyl-fix-in-core` | Fixing any issue or bug: in the core (code published to a package registry) first; example-layer fixes only after asking, with the reason documented; the content below the search bar and its scrolling belong to the core |
+| `cyl-naming` | Adding or renaming any type, function, member, constant or component: when `CYL` / `cyl_` is required, and the SonarCloud naming rules |
+| `cyl-commit` | Writing any commit message: `git cz` style, English only, the author line, the checks before committing |
+| `cyl-accessibility-i18n` | Screen readers and localization in any code; writing UI tests that find controls by their labels |
+| `cyl-harmonyos-setup` | Preparing DevEco Studio and the HarmonyOS emulator: SDK paths, virtualization, Huawei ID, region `CN` in `country.region.xml` |
+| `swift-api-design-guidelines`, `swift-language`, `swift-concurrency`, `swift-testing`, `swift-architecture` | Writing or translating Swift (third-party, pinned in `.agents/skills.json`) |
+| `uikit`, `uikit-layouting` | UIKit views, controllers and layout in Swift (third-party) |
 
-- Keep `objectVersion = 46` and `compatibilityVersion = "Xcode 3.2"`.
-- Keep explicit project file references; do not use synchronized folder groups.
-- For any Xcode project, inspect the Podfile before building or changing
-  project settings. Its top section must declare the iOS 15.0 platform, Swift
-  5, and the `.xcodeproj` file in the same directory:
+## How these files are organized (tag: `meta`)
 
-  ```ruby
-  platform :ios, '15.0'
+- Instruction files stay within 200 lines; one always-visible heading per category with its tag; full text in
+  `docs/instructions/<tag>.md`, read when the task touches the tag. New rules: full text in the tag file, one line here.
+- Details: [docs/instructions/meta.md](docs/instructions/meta.md).
 
-  ENV['SWIFT_VERSION'] = '5'
+## Task workflow (scenario: every task) (tag: `workflow`)
 
-  project '<projectname>.xcodeproj'
-  ```
+- Before a task: `git pull`, read what changed in the rules since the session began, check the other sessions
+  (`ListAgents`) and keep out of their files; Mac sessions take iOS, Win sessions the other platforms.
+- First reply lines: `TODO (branch <branch>): <task>`. Write the task into `docs/` (the feature's document, else
+  `docs/task-log.md`) as `## TODO (YYYY-MM-DD)` with Context, Requirements, Prompt (verbatim + English), Acceptance
+  (100 and 60) and Status; commit and push it before the work.
+- Score after each milestone; below 60 keep working; mark `DONE (YYYY-MM-DD)` with evidence; end the final reply with
+  `TODO (n points): …` lines for every missing point. Skill: `cyl-task-start`.
+- Details: [docs/instructions/workflow.md](docs/instructions/workflow.md) (Task log before every task; Sessions by platform: Mac for iOS, Win for the other platforms).
 
-- Ensure the Podfile ends with this `post_install` hook. Add it at the bottom
-  only if it is missing; do not add duplicate hooks:
+## Git, commits and pull requests (tag: `git`)
 
-  ```ruby
-  post_install do |installer|
-    installer.pods_project.targets.each do |target|
-      target.build_configurations.each do |config|
-        config.build_settings["IPHONEOS_DEPLOYMENT_TARGET"] = "15.0"
-      end
-    end
-  end
-  ```
+- **Before any git operation, read [docs/instructions/git.md](docs/instructions/git.md) in full** (every line; again
+  when it changed); then run it. Read-only commands (`status`, `log`, `diff`) excepted.
+- Every branch with commits has an open pull request (base: the previously active PR's branch, else `master`); more
+  than two open PRs: ask first. On a branch other than `master` / `main`, commit and push without asking.
+- Messages: `git cz` style `<type>(<scope>): <emoji> <subject>`, 3 to 64 characters, English only, the author line
+  `By  @ChenYilong <luohanchenyilong@163.com>`; check with `scripts/check-commit-message.sh`; `touch
+  .git/hooks/NO_AUTO_SYNC` first. Track unfinished items as `TODO` in `docs/`. Skill: `cyl-commit`.
+- Details: [docs/instructions/git.md](docs/instructions/git.md) (Commit readiness; Commitizen commits; Committing on branches; Pull requests for new branches).
 
-- Keep all app and test Xcode deployment targets at iOS 15.0 to match the
-  Podfile and generated Pods project.
-- Check that the app target has a populated AppIcon asset set and a launch
-  screen storyboard/image configured through `UILaunchStoryboardName`. If
-  either is missing, copy the icon and custom launch image from
-  `CYLTabBarController/Example/Images.xcassets` and wire them into the target.
-- Install dependencies with CocoaPods and open the generated workspace.
-- Import the dependency's public umbrella header. Do not access its private
-  implementation.
-- Keep sample behavior behind protocols or public configuration rather than
-  coupling library code to this app, `AppDelegate`, or a concrete data source.
+## Core architecture and fix-in-core (tag: `core`)
 
-## Search bar placement
+- The search core is `CYLSearchBar` (iOS `Sources/CYLSearchBar`; the same classes on every platform). The core is all
+  code published to a registry; fix every bug there first, the example layer last and only after asking.
+- The core creates and owns the content page below the search bar and its scrolling (no example lookup of it).
+- Focus alone changes nothing below the search bar. Examples adapt to the Swift core. New core images live in folder
+  bundles. Skill: `cyl-fix-in-core`.
+- One search field everywhere: `CYLSearchBarView` with the navigation field preset on every platform; no system search
+  bar in the core or an example (`docs/instructions/core.md`, "One search field"). Skill: `cyl-search-field`.
+- Details: [docs/instructions/core.md](docs/instructions/core.md) (Fix issues in the core first; The core owns the content below the search bar and its scrolling; Project rules; Swift core: examples adapt to the core; Core behavior: focus alone changes nothing below the search bar; Image resources: folder bundles; Search core).
 
-- A search bar never covers any view, at any time: not a view controller's
-  view (`self.view`), not a sibling, a background view or a bar item; for a
-  navigation-item search controller, `CYLSearchBarView` and the overlay; in
-  every state and at every Dynamic Type size. Views of search screens do not
-  extend under the top bar (`edgesForExtendedLayout` without
-  `UIRectEdgeTop`); a `CYLSearchBarView` is laid out against the safe area,
-  beside the content, never on top of it, and a colored area behind it ends
-  where the bar begins. `testSearchBarsCoverNoView` checks every search bar
-  with `CYLViewsCoveredByView`; add each new one there.
+## Sub-repositories and CYLTabBarController (tag: `dependencies`)
 
-## Issue #1317 reproduction
+- CYLTabBarController is integrated by default (configuration file, plus button with a plus child view controller,
+  raised plus button) and pinned by commit: the newest commit on any branch, the same commit ClassifyMenu pins.
+- Sub-repositories (CollectionViewClassifyMenu, CYLTableViewPlaceHolder): pinned by commit on every platform; missing
+  interfaces are added there first, then pinned. Skills: `cyl-tabbar-integration`, `cyl-plus-button`,
+  `cyl-sub-repositories`.
+- Details: [docs/instructions/dependencies.md](docs/instructions/dependencies.md) (CYLTabBarController; Sub-repositories (CollectionViewClassifyMenu, CYLTableViewPlaceHolder)).
 
-- The sample combines a navigation-item `UISearchController` with a
-  `CYLRefreshNormalHeader`.
-- Keep `navigationItem.hidesSearchBarWhenScrolling = NO` in the safe default
-  reproduction. Setting it to `YES` is the documented trigger to investigate;
-  it may cause repeated inset updates on affected UIKit versions.
-- End refresh on every completion path and avoid strong captures of view
-  controllers in refresh blocks.
+## Example demos: grouped lists as tag lists (tag: `example-demos`)
 
-## CYLTabBarController
+- A grouped, table-view-like list in a demo or example is shown as CollectionViewClassifyMenu's tag list: tag = main title and icon,
+  sections with a titled header, adaptive width, wrapping titles, fold after 3 rows, the fold control is the tail control (the last tag, chevron icon only, no text),
+  tap = cell tap, long press = subtitle bubble, Liquid Glass background over a gradient page (list background clear, rule 7). Missing capability: add it to the core first. Skill: `cyl-example-taglist`.
+- Details: [docs/instructions/example-demos.md](docs/instructions/example-demos.md) (Grouped demo lists use the tag list).
 
-Adapted from CYLTabBarController's instruction files at its latest commit
-(`caf3c92`, branch `feat/cross-platform-components`). Details and the status
-(the example integration is done): `docs/CYLTabBarController-Integration.md`.
+## Animated components (tag: `animation`)
 
-- This project integrates CYLTabBarController by default. Unless a task says
-  otherwise, every `CYLTabBarController` in the example layer:
-  1. is created from a local configuration file shipped in the app bundle,
-     with `+[CYLTabBarController tabBarControllerWithConfigurationFile:error:]`;
-  2. has a plus button declared in that file under
-     `CYLTabBarControllerPlusButton`, whose `CYLTabBarItemPageIdentifier`
-     resolves to the plus child view controller;
-  3. gets its pages from providers registered in `CYLTabBarPageRegistry` for
-     each `CYLTabBarItemPageIdentifier`, not from a hard-coded array.
-- Keep an even number of normal tabs so the plus button sits in the middle;
-  set `CYLPlusButtonIndexInTabBar` otherwise. The plus button is not counted
-  in the tab items.
-- Give the plus button a title when titles are aligned with the tab titles.
-- Depend on the newest CYLTabBarController commit on any branch:
-  `scripts/latest-cyl-commit.sh --podfile` prints the Podfile line
-  (`:git => …, :commit => '<sha>'`). Refresh it before every build; never use
-  a version number, branch or tag.
-- Import only `<CYLTabBarController/CYLTabBarController.h>`.
-- Put search pages inside a `UINavigationController` tab so the
-  navigation-item search controller and its Issue #1317 workaround still
-  apply.
-- Follow the `cyl-tabbar-integration` and `cyl-plus-button` skills.
+- Bugs of the animated components: record, screenshot, then fix in CYLTabBarController (never in the example).
+- Animation example pages offer Play all, a speed slider and a loop switch.
+- Details: [docs/instructions/animation.md](docs/instructions/animation.md) (Bugs of the animated components: record, screenshot, fix in CYLTabBarController; Animation examples: playback controls).
 
-## Verification
+## Testing and verification (tag: `testing`)
 
-- Validate the CocoaPods integration, parse the Xcode project, and build the
-  shared scheme for an installed simulator.
-- Run static analysis when supported. Report simulator behavior as unverified
-  unless the app was actually launched and exercised.
-- Preserve the existing project's license and third-party notices.
-- CI runs `.github/workflows/ios.yml` (see `docs/CI-CD.md`). Before pushing,
-  run the same scripts locally: `scripts/ci-checkout-dependencies.sh`,
-  `scripts/check-public-api-comments.sh`, `scripts/pod-lint.sh lib`,
-  `scripts/ci-build-example.sh build|analyze` and `scripts/unit-tests.sh`.
-- Keep `scripts/*.sh` clean under `shellcheck` and workflows clean under
-  `actionlint`.
+- Build, test and launch before claiming a fix; CI is `.github/workflows/ios.yml`; scripts pass `shellcheck`, workflows
+  `actionlint`. Test scrolling and drags with real pointer input.
+- A hung or unbooted emulator is restarted from the command line without asking (tell the other sessions first).
+  Skill: `cyl-verify`.
+- After a simulator or emulator test or screenshot run, terminate the app and stop the simulator process at once (only the
+  device you started); boot it again when needed. Skill: `cyl-simulator-run`.
+- Details: [docs/instructions/testing.md](docs/instructions/testing.md) (Verification; Emulators and simulators: restart when hung).
 
-## Task log before every task
+## Documentation, screenshots and parity tables (tag: `docs`)
 
-Before starting any task, find the most suitable document in `docs/` (the
-feature's own document, else `docs/task-log.md`) and add the task there as
-`TODO`: the detailed context, every requirement the user gave, and the user's
-prompt quoted verbatim with an English translation, plus a status line. Commit
-and push it, then start. When the task ends, change `TODO` to
-`DONE (YYYY-MM-DD)` with the result and the evidence. The purpose: an
-interrupted task never loses its context. Full rule: `AGENTS.md`, "Task log
-before every task".
+- Every screenshot goes through the stitching tool with a header and a footer, lives in `docs/assets`, is shown by a
+  document whose line names platform, device, OS, SDK/IDE, host, commits and date; `sh scripts/check-screenshot-labels.sh`.
+- Parity tables: source API, description, target counterpart (`TODO` by default); score until 100. Projects we
+  translate: their open PRs and an open-issues table. Skills: `cyl-docs`, `cyl-api-parity`.
+- Details: [docs/instructions/docs.md](docs/instructions/docs.md) (API parity tables; Screenshots of builds and CI/CD; Open pull requests and issues of projects we translate).
 
-## Commit readiness
+## macOS-only: iOS, Xcode, CocoaPods (tag: `macos`)
 
-- Before every commit, review the changed scope and related issue, comparison,
-  and implementation-status documents. Record every unfinished or unverified
-  item from the commit under a `TODO` heading in the most relevant existing
-  document under `docs/`.
-- A TODO must state the current status or score, remaining work, implementation
-  constraints, known defects or optimization opportunities, API design and
-  compatibility concerns, and verification required for completion. Reserved
-  keys, stubs, and compilation alone are not evidence of completion.
-- Every commit message body carries the author line
-  `By  @ChenYilong <luohanchenyilong@163.com>` (two spaces after `By`), after
-  the description and before trailers.
-- Use an English Conventional Commit subject compatible with Commitizen.
-  Summarize completed work in the subject and keep details and remaining work
-  in the body. If the detailed description exceeds 50 characters, create or
-  update a suitable document under `docs/` and link it from the commit body.
-  Reuse relevant documents and avoid duplicate trackers.
+- Xcode project format 46, iOS 15.0 everywhere, the Podfile header and one `post_install` hook; never commit `Pods/`.
+- Search bars never cover a view (`testSearchBarsCoverNoView`). Issue #1317: the core's refresh API with
+  `hidesSearchBarWhenScrolling = NO`. On macOS run scripts with bash, not zsh. Skill: `cyl-xcode-compat`.
+- Details: [docs/instructions/macos.md](docs/instructions/macos.md) (Xcode project; Search bar placement; Issue #1317; Running scripts: prefer bash; Xcode and dependencies; Issue #1317 reproduction).
 
-### Commitizen defaults
+## Windows-only: HarmonyOS emulator host (tag: `windows`)
 
-- Use `{type}{scope}: {emoji}{subject}` with emojis enabled. Omit an unnecessary
-  scope; no scopes are preconfigured. The configured message length is 3–64
-  characters. In readable subjects, separate the emoji and subject with a
-  space as shown in the project examples below.
-- The interactive type choices, in order, are `test`, `feat`, `fix`, `chore`,
-  `docs`, `refactor`, `style`, `ci`, and `perf`. `release` has a type definition
-  but is not an interactive choice; use it only for an intentional release.
-- Default meanings and emojis: `chore` (build or auxiliary-tool changes, 🤖),
-  `ci` (CI changes, 🎡), `docs` (documentation only, ✏️), `feat` (new feature,
-  🎸), `fix` (bug fix, 🐛), `perf` (performance improvement, ⚡️), `refactor`
-  (neither a feature nor a fix, 💡), `style` (markup or formatting only, 💄),
-  `test` (adding missing tests, 💍), and `release` (release commit, 🏹).
-- The question sequence is `type`, `scope`, `subject`, `body`, `breaking`,
-  `issues`, and `lerna`. Prompts request the type, optional scope, short
-  imperative subject, longer description, breaking changes, issues closed
-  (for example `#123`), and affected packages.
-- Respect established repository history when it uses project-specific
-  mappings. CYLTabBarController examples include `feat: ✨`, `fix: 🐛`,
-  `docs: 📝`, `chore: 🔧`, and `refactor: ♻️`. Commit text must remain English.
+- HarmonyOS builds run from an ASCII mirror (`C:\cylbuild\harmonyos`); DevEco Studio 6.0.1, region `CN`, no signing.
+- The x86_64 emulator gets the `entry@emulator` target and `-p buildMode=emulatorTest` (no arm64-only Rive and PAG
+  libraries); owner of the plan: CYLTabBarController's `cylanimateditem`. Skill: `cyl-harmonyos-setup`.
+- Details: [docs/instructions/windows.md](docs/instructions/windows.md) (HarmonyOS: IDE preparation and emulator prerequisites; HarmonyOS: HAPs for the x86_64 emulator leave out the arm64-only Rive and PAG libraries).
 
-### Commit-message hook before Commitizen commits
+## HarmonyOS (tag: `harmonyos`)
 
-Before a Commitizen-style commit, run the following from the repository root:
+- API and example 1:1 with iOS, internals ported from the Android Kotlin sources; HarmonyOS 6.0.1 (API 21), ArkUI V2.
+- Rive and PAG tests that need arm64: plan 1 (x86_64 builds in `cylanimateditem`, debug guard until the user approves
+  removing it), else plan 2 (the macOS session). Skill: `cyl-harmonyos-setup`.
+- Details: [docs/instructions/harmonyos.md](docs/instructions/harmonyos.md) (HarmonyOS: API and example 1:1 with iOS, internals from the Android Kotlin sources; HarmonyOS: Rive and PAG tests that need arm64, two plans).
 
-```sh
-cat > .git/hooks/commit-msg << 'HOOKEOF'
-#!/bin/sh
-tmpfile="$1"
-if grep -qi "Co-Authored-By:" "$tmpfile" 2>/dev/null; then
-  tmp_clean=$(mktemp)
-  grep -vi "Co-Authored-By:" "$tmpfile" > "$tmp_clean"
-  cat "$tmp_clean" > "$tmpfile"
-  rm -f "$tmp_clean"
-fi
-HOOKEOF
-chmod +x .git/hooks/commit-msg
-```
+## WeChat mini program (tag: `miniprogram`)
 
-This overwrites the existing `commit-msg` hook and removes every line containing
-`Co-Authored-By:`, case-insensitively, including other authors' attribution.
-Inspect any existing hook before replacing it. The command assumes `.git` is
-a directory and Git uses its default hooks path; linked worktrees and custom
-`core.hooksPath` require the appropriate hooks path instead.
+- The example is a 1:1 copy of the iOS example (texts, data and images imported from the iOS bundles); the core
+  components take what the example needs. Use `wechatide-skill` for every build, run, automation and screenshot.
+- Details: [docs/instructions/miniprogram.md](docs/instructions/miniprogram.md) (Mini program example: a 1:1 copy of the iOS example).
 
-## Commitizen commits
+## Accessibility and localization (tag: `accessibility-i18n`)
 
-Before every Commitizen-style (`git cz`) commit, run this first in the repository root:
+- All code supports screen readers and is localized from localization files; fix a gap first. UI tests find
+  controls by accessibility label or localized text before ids and coordinates. Skill: `cyl-accessibility-i18n`.
+- Details: [docs/instructions/accessibility-i18n.md](docs/instructions/accessibility-i18n.md) (HarmonyOS: screen readers and localization; Accessibility, localization and UI automation by label; Accessibility and localization on every platform; UI tests locate controls through them).
 
-```sh
-touch .git/hooks/NO_AUTO_SYNC
-```
+## Licenses in published packages (tag: `licenses`)
 
-## Committing on branches
+- Every published package ships the MIT `LICENSE` (Copyright (c) 2015 ChenYilong) inside its resource bundle;
+  check with `bash scripts/check-licenses.sh`. Skill: `cyl-license`.
+- Details: [docs/instructions/licenses.md](docs/instructions/licenses.md) (Licenses in published packages).
 
-On any branch other than `master` or `main`, commit and push as soon as the work is written, without asking for
-confirmation. On `master` or `main`, ask first.
+## Code style: naming, Swift, API comments (tag: `code-style`)
 
-## Pull requests for new branches
+- `CYL` prefix for new types, `+CYL` / `cyl_` for categories; do not rename existing APIs. Swift follows
+  `docs/swift-coding-standard.md`. Public API comments are one three-line documentation block in the language's official
+  form (`/*!` Objective-C, `/**` Swift, Kotlin, Java, TS, JS); `scripts/check-public-api-comments.sh`.
+- Details: [docs/instructions/code-style.md](docs/instructions/code-style.md) (Swift; Comments on public API; Naming).
 
-Every time a branch is created, open its pull request automatically as soon as the branch is first pushed
-(`gh pr create`), without asking. The base (target) branch is the branch it was created from (its source branch) by
-preference; use `master` or `main` only when that is the source, or when the source branch no longer exists on the
-remote. Name the base branch in the reply.
+## Memory: read before learn-codebase (tag: `memory`)
+
+- **Before running claude-mem's learn-codebase, or exporting or committing its output, read
+  [docs/learn-codebase/README.md](docs/learn-codebase/README.md) in full.**
+- Output goes to `docs/learn-codebase/learn-codebase-<YYYY-MM-DD>/`. The repository is public: draft outside that folder,
+  remove private information and mark unverified claims before the files move in.
+- Details: [docs/instructions/memory.md](docs/instructions/memory.md).

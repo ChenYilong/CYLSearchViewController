@@ -1,0 +1,203 @@
+> **UNVERIFIED / 未复核.** Static reading at `ad32984` plus uncommitted changes; nothing was built, run or tested. Script-generated index of declarations, comments and test names; comments are quoted, not verified.
+
+<!-- 03-harmony-core: part 2 of 2 -->
+_Part 2 of 2. Previous: [part 1](03-harmony-core.md)._
+
+## `harmonyos/cylsearch/src/main/ets/CYLSearchResources.ets`
+
+MARK: - Pure logic (begin): no ArkUI, no kit; harmonyos/scripts/host-logic-test.mjs runs it with Node. The cached queries after adding `query`: trimmed, moved to the front, at most `maximumCount` kept and at least one (Android `CYLSearchSuggestionStore.addQuery`); unchanged for a blank query.
+
+- L11 `function cylQueriesAdding(queries: string[], query: string, maximumCount: number): string[]` — The cached queries after adding `query`: trimmed, moved to the front, at most `maximumCount` kept and at least one (Android `CYLSearchSuggestionStore.addQuery`); unchanged for a blank query.
+- L23 `const CYL_SUGGESTION_DATABASE: string = 'cyl_search_suggestions.db';`
+- L24 `const CYL_SUGGESTION_TABLE: string = 'queries';`
+- L32 `function cylSuggestionDatabase(context: common.Context): Promise<relationalStore.RdbStore>` — The shared suggestion database, opened once (Android `Helper`: the table `queries` with `cache`, `query` and `time`, one row per cache and query).
+- L61 `function cylSuggestionNextTime(): number` — Milliseconds since 1970, strictly increasing, so queries added in the same millisecond keep their order (Android `nextTime`).
+- L69 `export enum CYLSearchSuggestionCachePolicy` — Where the suggestion cache keeps the submitted queries (iOS `CYLSearchSuggestionCachePolicy`).
+- L92 `export interface CYLSearchSuggestionCache` — A suggestion cache (iOS `CYLSearchSuggestionCache`): implement it to keep the queries elsewhere.
+- L115 `class CYLSearchHistoryListener` — A listener of the history signal (iOS `CYLSearchSuggestionStore.didChangeNotification`). `cache` is read when the signal arrives, so a view follows the cache it has by then.
+- L127 `const cylSearchHistoryListeners: CYLSearchHistoryListener[] = [];`
+- L133 `function cylSearchSameHistory(first: CYLSearchSuggestionCache, second: CYLSearchSuggestionCache): boolean` — Whether two caches are one history: the same object, or two built-in stores of one policy and name (a new store is made for each `suggestionCache` call, as iOS `cache(policy:name:)` does).
+- L146 `function cylSearchAnnounceHistory(cache: CYLSearchSuggestionCache): void` — Tells every listener whose cache is this history that it changed.
+- L165 `class CYLSearchSuggestionStore implements CYLSearchSuggestionCache` — The built-in caches (was the public `CYLSearchSuggestionStore`): one per policy and name, newest first, at most `maximumCount` queries. Private: `CYLSearchView.suggestionCachePolicy` / `suggestionCacheName` create it through `CYLSearchResources.suggestionCache
+- L210 `get isLoaded(): boolean` — Whether the stored queries have been read. Always true except for the database policy before its first read.
+- L217 `whenStored(): Promise<void>` — Resolves once every change made so far is stored (the database policy writes in order, in the background).
+- L295 `cachedQueries(): string[]`
+- L299 `addQuery(query: string): void`
+- L319 `removeQuery(query: string): void`
+- L329 `removeAllQueries(): void`
+- L410 `export class CYLSearchResources` — Images and localized strings of the library's resources (iOS `CYLSearchResources`, the resource bundle of the pod).
+- L426 `static imageNamed(name: string): Resource | undefined` — A built-in image by name (`camera`, `mic`, `search`, `back`, `clear`, `submit`, `trash`, `refresh`), as a system symbol, or undefined when there is none (iOS `+imageNamed:`).
+- L458 `static localizedString(context: common.Context, key: string, language?: string): string` — The text of `key` ("search.cancel") in the language the app shows, or in `language` ("zh-Hans") when given; the key itself when it is missing (iOS `+localizedStringForKey:` and `+localizedStringForKey:language:`).
+- L493 `static announceHistoryChange(cache: CYLSearchSuggestionCache | undefined): void` — Announces that a cache of your own changed (iOS `announceChange(of:)`); the built-in caches announce their own changes, so this does nothing for them. `CYLSearchView` calls it after a submitted query and after a clear.
+
+## `harmonyos/cylsearch/src/main/ets/CYLSearchTableViewController.ets`
+
+Passes the text of the search to the table controller that owns the search controller.
+
+- L9 `class CYLSearchTableViewControllerDelegate implements CYLSearchControllerDelegate` — Passes the text of the search to the table controller that owns the search controller.
+- L27 `export class CYLSearchTableViewController` — A list that can show a `CYLSearchBar` as its header, with the `CYLSearchController` that drives it (iOS `CYLSearchTableViewController`, QMUI's `QMUICommonTableViewController (Search)`). Set `showsSearchBar`; configure the bar in `setUpSearchBar()`; override `s
+- L43 `get showsSearchBar(): boolean` — Whether the search bar is shown as the list header (QMUI `shouldShowSearchBar`, default false). The controller and the bar are created, or removed, once the page is loaded (`viewDidLoad`): a value set before takes effect there. Turning it off removes the heade
+- L47 `set showsSearchBar(value: boolean)`
+- L63 `get searchController(): CYLSearchController | undefined` — The search controller, undefined while `showsSearchBar` is off or the page is not loaded (QMUI `searchController`).
+- L71 `get searchBar(): CYLSearchBar | undefined` — The search bar that is the list header, undefined while `showsSearchBar` is off or the page is not loaded (QMUI `searchBar`).
+- L79 `get hidesSearchBarWhenEmptyViewShowing(): boolean` — Whether the search bar leaves the header while an empty view shows and returns when it is hidden (QMUI `shouldHideSearchBarWhenEmptyViewShowing`, default false).
+- L83 `set hidesSearchBarWhenEmptyViewShowing(value: boolean)`
+- L91 `get hidesSearchBarInitially(): boolean` — Whether the list is scrolled so that the search bar is out of sight when it is first shown (QMUI `shouldHideTableHeaderViewInitial`, default false), and again each time the bar returns after an empty view.
+- L95 `set hidesSearchBarInitially(value: boolean)`
+- L102 `get isEmptyViewShowing(): boolean` — Whether the empty view is on screen.
+- L110 `viewDidLoad(): void` — The page is loaded (call it from `aboutToAppear`): the search controller of a `showsSearchBar` set before is created now.
+- L120 `setUpSearchBar(): void` — Called once after the search controller and the bar are created and before the bar becomes the list header: set the bar's style, margins and accessory views here (QMUI `initSearchController`, which subclasses extend). Does nothing by default.
+- L127 `searchControllerUpdateResultsForSearchString(searchController: CYLSearchController, searchString: string): void` — Called with every text change of the search, also with "" (QMUI `searchController:updateResultsForSearchString:`); does nothing by default. Override it to reload the results.
+- L135 `showEmptyView(text: string, detailText?: string): void` — Shows CYLTableViewPlaceHolder's placeholder with a title and an optional detail in place of the rows (QMUI `showEmptyViewWithText:detailText:buttonTitle:buttonAction:`, without the button). With `hidesSearchBarWhenEmptyViewShowing` the search bar leaves the he
+- L143 `showEmptyViewScenario(scenario: CYLPlaceholderScenario): void` — Shows one of CYLTableViewPlaceHolder's scenarios in place of the rows (the placeholder `CYLSearchView` shows for empty results).
+- L151 `hideEmptyView(): void` — Removes the empty view; with `hidesSearchBarWhenEmptyViewShowing` the search bar returns to the header, hidden again if `hidesSearchBarInitially` is on (QMUI issue #128).
+
+## `harmonyos/cylsearch/src/main/ets/CYLSearchTagListStyle.ets`
+
+- L18 `function cylSearchTagIsLiquidGlass(name: string): boolean` — Whether a background style name asks for the glass material: "liquidGlass", case-insensitive; anything else, "" or "flat" is flat (iOS `applyBackgroundStyle(named:to:)`).
+- L26 `function cylSearchTagGridApplies(columns: number): boolean` — Whether a grid of `columns` titles per row can be applied: 0 or less leaves the list as it is (iOS `applyGrid(columns:to:)`).
+- L33 `interface CYLSearchTagMetrics` — The default look of a tag that does not depend on the theme, in vp and fp (iOS `applyDefaults(to:)`).
+- L76 `function cylSearchTagDefaultMetrics(): CYLSearchTagMetrics` — The metrics of the default tag look (iOS `applyDefaults(to:)`): 14 margin, 17 text, 36 high, 12 apart, a 16 inset and a 44 high header with a 20 title.
+- L93 `function cylSearchTagGridMetrics(): CYLSearchTagMetrics` — The metrics of the grid look (iOS `applyGrid(columns:to:)`): 17 medium titles, 36 high rows 16 apart, a 16 inset.
+- L114 `export class CYLSearchTagListHeader` — The refresh icon and text of a tag list's section header, one place for every page (iOS `CYLSearchTagListHeader`). The header of a tag list is drawn by the page (title and `CYLSearchRefreshButton`), so there is no More button to change: the page uses these two
+- L129 `export class CYLSearchTagListStyle` — The search core's default style of a tag list, the look of the iOS example's recent searches (iOS `CYLSearchTagListStyle`).
+- L155 `static applyDefaults(style: CYLMenuStyle): void` — Sets the defaults on `style`: white tags with a 1 vp separator border and `tagCornerRadius`, 17 fp text, 36 vp high, 12 vp apart, a 16 vp section inset and a bold 20 fp section header, then calls `styleCustomizer`. Values the defaults do not name (for example 
+- L193 `static applyDefaultStyle(list: CYLTagListState): void` — Sets the defaults on `list`'s style (the list's other values stay).
+- L204 `static applyGrid(columns: number, list: CYLTagListState): void` — Turns `list` into a grid of `columns` plain titles per row (the style's `gridStyle`, 17 fp medium text, 36 vp rows 16 vp apart, a tag's own image at its own size), the look of the iOS example's discover topics, with the section header of `applyDefaultStyle`; 0
+- L228 `static applyBackgroundStyle(name: string, list: CYLTagListState): void` — Sets the background of every tag of `list` by name, the one parameter of a Liquid Glass list: "liquidGlass" (case-insensitive) is the glass material, anything else, "" or "flat" is flat. The list's other style values stay.
+
+## `harmonyos/cylsearch/src/main/ets/CYLSearchView.ets`
+
+- L42 `function cylFoldSearchText(text: string): string` — The text with its accents removed, lowercased, so "cafe" matches "café" (Android `CYLSearchView.fold`).
+- L50 `function cylSuggestionMatches(suggestion: string, query: string): boolean` — Whether `suggestion` matches `query`: the trimmed, folded query is part of the folded suggestion (Android `CYLSearchView.matches` without a custom filter).
+- L57 `interface CYLSearchFilterResult` — The suggestions to show and whether they are the cached queries (Android `CYLSearchView.refilter`).
+- L73 `function cylFilterSuggestions(query: string, cached: string[], all: string[], showsAllForEmptyQuery: boolean,` — Filters the suggestions for `query` (Android `CYLSearchView.refilter`): an empty or blank query shows the cached queries, or every suggestion with `showsAllForEmptyQuery`, or nothing; any other query shows the matching cached queries first, then the matching s
+- L107 `function cylSearchMatchRange(text: string, query: string): number[] | undefined` — Where the first match of `query` is in `text`, as the start and the end of the range in `text`, ignoring case and accents (iOS `range(of:options: [.caseInsensitive, .diacriticInsensitive])`); undefined for an empty query or no match. Each character is folded o
+- L140 `function cylSearchSwipeBegins(startX: number, dx: number, dy: number): boolean` — Whether a swipe to dismiss begins (iOS `CYLSearchEdgePanGestureRecognizer`): the touch went down within 24 of the left edge, then moved right past a slop of 10 and more than up or down.
+- L147 `function cylSearchSwipeCompletes(dx: number, width: number): boolean` — Whether a swipe to dismiss ends the search: it moved right past a quarter of the width (iOS `CYLSearchEdgeSwipe`).
+- L155 `function cylSearchEmptyViewShown(requested: boolean, query: string): boolean` — Whether the empty view shows: it was asked for and the query is not empty (iOS `QMUISearchController`: the empty view is not shown while the text is empty, because it would sit on the dimming view).
+- L162 `function cylSearchLaunchViewShown(hasLaunchView: boolean, query: string): boolean` — Whether the launch view shows: there is one and the query is empty.
+- L170 `function cylSearchDimmingShown(hasDimming: boolean, hasLaunchView: boolean, query: string): boolean` — Whether the scrim shows under the bar: a scrim color is set, the query is empty and no launch view covers it (iOS `scrimColor` is ignored when `launchView` is set).
+- L178 `function cylSearchHeaderFillerHeight(viewportHeight: number, rowsHeight: number): number` — The height to add after the rows so that a header of the list can scroll out of sight above a short list: what the rows leave of the viewport, never less than 0 (iOS `CYLSearchHeaderSnapper`, issue 1160).
+- L186 `function cylSearchHeaderSettleOffset(offset: number, headerHeight: number): number | undefined` — Where a header that rests at `offset` settles: fully hidden (its height) from its half on, else fully shown (0); undefined when it already is, or when it is not in the header band (iOS `CYLSearchHeaderSnapper.settle`).
+- L197 `function cylSearchResultsHeaderTitle(showsResults: boolean, provider: ((query: string) => string | undefined) | undefined,` — The title of the header over the results (iOS `resultsHeaderTitleProvider`): what the provider answers for the query while results show; undefined (no header) when no results show, there is no provider, or it answers undefined.
+- L210 `function cylSearchViewIgnoresEmptySubmit(text: string): boolean` — Whether a search PAGE (the search view) ignores the bar's search-button tap for this text: an empty (or blank) text submits nothing, records nothing, closes nothing and keeps the keyboard, like the Search / IME key. The bar itself still fires `searchButtonClic
+- L221 `function cylAnimate(uiContext: UIContext | undefined, param: AnimateParam, change: () => void): void` — Animates `change` with the UI context of the component that draws the model (`UIContext.animateTo`). Before any component has drawn the model there is nothing on screen to animate: the change is applied at once and `onFinish` is called.
+- L236 `const cylRefreshScrollViews: WeakMap<Scroller, CYLRefreshScrollViewModel> =` — The refresh state of each scroller (the iOS scroll view's `cyl_header`). A weak map: an entry, with its handler, goes away with its scroller, so a handler never keeps its page alive.
+- L242 `function cylRefreshScrollView(scroller: Scroller): CYLRefreshScrollViewModel` — The refresh state of `scroller`, created the first time it is asked for.
+- L255 `function cylSearchEmptyContent()` — Nothing: the default content of `CYLSearchRefreshComponent`.
+- L261 `export enum CYLSearchSuggestionStyle` — How the suggestions are shown under the search bar (iOS `CYLSearchSuggestionStyle`).
+- L277 `export enum CYLMenuFoldControlPosition` — Where the fold control of the tag suggestions sits. Kept for the code that set it: the tag list draws CollectionViewClassifyMenu's own `CYLMenuFoldControlPosition` (`inline` is its `tail`, `bottom` its `footer`). @deprecated Set `suggestionsTagView.foldControl
+- L297 `export enum CYLMenuFoldControlContent` — What the fold control shows; kept for the code that set it (CollectionViewClassifyMenu's `CYLMenuFoldControlContent`). @deprecated Set `suggestionsTagView.foldControl` with CollectionViewClassifyMenu's `CYLMenuFoldControl`.
+- L313 `export class CYLMenuFoldControl` — The fold control of the tag suggestions; kept for the code that set it, it maps onto CollectionViewClassifyMenu's `CYLMenuFoldControl` of the tag list. @deprecated Set `suggestionsTagView.foldControl` with CollectionViewClassifyMenu's `CYLMenuFoldControl`.
+- L337 `function cylTagFoldControl(control: CYLMenuFoldControl): CYLTagFoldControl` — The tag list's own fold control for a `CYLMenuFoldControl` of this file (`inline` is the last tag, `bottom` is the footer, a title is a title).
+- L351 `class CYLSearchResultPart` — A piece of a result row's text and whether it is the match.
+- L365 `function cylSearchResultParts(text: string, query: string): CYLSearchResultPart[]` — The pieces of `text` around the first match of `query` (see `cylSearchMatchRange`); one piece without a match when `query` is empty or not found.
+- L384 `export interface CYLSearchViewDelegate` — Events of a `CYLSearchView` (iOS `CYLSearchViewDelegate`); every method is optional.
+- L447 `export class CYLSearchEmptyView` — The content of the empty view of a search or a list (iOS `showEmptyView(text:detailText:buttonTitle:buttonAction:)`, `hideEmptyView()`, `isEmptyViewShowing`): a centered text, an optional detail text and an optional button.
+- L482 `show(text: string, detailText?: string, buttonTitle?: string, buttonAction?: () => void): void` — Shows the empty view with these texts.
+- L495 `showScenario(scenario: CYLPlaceholderScenario): void` — Shows the empty view with one of CYLTableViewPlaceHolder's scenarios (iOS `CYLSearchEmptyView.scenario`).
+- L531 `hide(): void` — Hides the empty view.
+- L540 `export interface CYLSearchViewDataSource` — Supplies the search results of a `CYLSearchView` and the text of their rows (iOS `CYLSearchViewDataSource`, was `CYLSearchResultsDataSource`).
+- L562 `export class CYLSearchView` — A search page that opens over its host (iOS `CYLSearchView`): a `CYLSearchBarView` at the top, a divider, then the suggestions as a list or as tags, the cached queries first, the results of `resultsDataSource` while a query is typed, CYLTableViewPlaceHolder's 
+- L837 `historyChanged(): void` — The history changed (the signal of `CYLSearchResources.observeHistory`): a component that draws it reads it again.
+- L847 `get suggestionsFoldControl(): CYLMenuFoldControl` — The fold control of the tag suggestions; the last tag, an icon, by default. Deprecated type: it maps onto CollectionViewClassifyMenu's `CYLMenuFoldControl` of `suggestionsTagView.foldControl` (`inline` is `tail`, `bottom` is `footer`), which is the one control
+- L851 `set suggestionsFoldControl(value: CYLMenuFoldControl)`
+- L859 `get suggestionsFoldedRowCount(): number` — The rows of tag suggestions shown while folded. 2 by default; 0 shows every row.
+- L863 `set suggestionsFoldedRowCount(value: number)`
+- L871 `get suggestionsFolded(): boolean` — Whether the tag suggestions are folded; the fold control of the tag list changes it.
+- L875 `set suggestionsFolded(value: boolean)`
+- L883 `get launchView(): WrappedBuilder<[CYLSearchView]> | undefined` — A view of yours under the bar while the query is empty (iOS `launchView`). It is given this search view. Setting one turns `showsSuggestionsLaunchView` off.
+- L887 `set launchView(value: WrappedBuilder<[CYLSearchView]> | undefined)`
+- L899 `get showsSuggestionsLaunchView(): boolean` — Whether the core's own launch content shows while the query is empty (iOS `showsSuggestionsLaunchView`): the suggestion area, with the history under its header, else `suggestions`, as tags of the tag list folded to `suggestionsFoldedRowCount` rows with the fol
+- L903 `set showsSuggestionsLaunchView(value: boolean)`
+- L916 `get dimmingColor(): ResourceColor | undefined` — The same overlay as `scrimColor` (iOS `dimmingColor` forwards to it). @deprecated Use `scrimColor`.
+- L920 `set dimmingColor(value: ResourceColor | undefined)`
+- L927 `get suggestions(): string[]` — The suggestions to filter as the text changes.
+- L931 `set suggestions(value: string[])`
+- L939 `get showsSuggestionsForEmptyQuery(): boolean` — Lists every suggestion while the query is empty. False by default.
+- L943 `set showsSuggestionsForEmptyQuery(value: boolean)`
+- L951 `get suggestionCachePolicy(): CYLSearchSuggestionCachePolicy` — Where submitted queries are cached for the suggestion list. `database` by default.
+- L955 `set suggestionCachePolicy(value: CYLSearchSuggestionCachePolicy)`
+- L963 `get suggestionCacheName(): string` — Separates the caches of different search screens. "CYLSearchView" by default.
+- L967 `set suggestionCacheName(value: string)`
+- L976 `get emptyResultsScenario(): CYLPlaceholderScenario` — The CYLTableViewPlaceHolder scenario of the empty results placeholder. `NoSearchResults` by default. Setting it drops the placeholder made for the old scenario.
+- L980 `set emptyResultsScenario(value: CYLPlaceholderScenario)`
+- L990 `get emptySuggestionsScenario(): CYLPlaceholderScenario` — The CYLTableViewPlaceHolder scenario of the empty suggestions placeholder. `NoContent` by default; setting it drops the old placeholder.
+- L994 `set emptySuggestionsScenario(value: CYLPlaceholderScenario)`
+- L1004 `get emptyResultsView(): CYLPlaceholderStackViewModel | undefined` — CYLTableViewPlaceHolder's placeholder shown for empty results, created the first time it is needed; undefined before. Style it after it appears, or change `emptyResultsScenario`.
+- L1012 `get emptySuggestionsView(): CYLPlaceholderStackViewModel | undefined` — CYLTableViewPlaceHolder's placeholder shown for an empty cache, created the first time it is needed; undefined before.
+- L1020 `get resultsDataSource(): CYLSearchViewDataSource | undefined` — Supplies the results shown while a query is typed (iOS `resultsDataSource`); undefined shows the suggestions only. Setting it queries it for the current query.
+- L1024 `set resultsDataSource(value: CYLSearchViewDataSource | undefined)`
+- L1032 `get searchResults(): Object[]` — The results of `resultsDataSource` for the current query; empty while the query is empty (iOS `searchResults`).
+- L1039 `get showsResults(): boolean` — True while the area below the bar shows the results: `resultsDataSource` is set and the query is not empty.
+- L1046 `get resultsHeaderTitle(): string | undefined` — The title of the header over the results now (`resultsHeaderTitleProvider`), or undefined for none.
+- L1056 `setSnapsHeader(snaps: boolean, table: CYLSearchTableView): void` — Keeps the bar of `table`, a search bar that is the header of a list, scrollable out of sight above a short list and settles it fully shown or fully hidden when scrolling stops, while this search view is not open (what `CYLSearchController.snapsHeaderSearchBar`
+- L1065 `get refreshHandler(): (() => void) | undefined` — Called when the results list is pulled down (iOS `refreshHandler`): set, it adds CYLTableViewPlaceHolder's pull to refresh (its normal header) to the results; undefined removes it. Call `endRefreshing()` on every completion path.
+- L1069 `set refreshHandler(value: (() => void) | undefined)`
+- L1077 `get isRefreshing(): boolean` — True while the results list refreshes (iOS `isRefreshing`).
+- L1084 `get isSearchOpen(): boolean` — True while the search view is open (iOS `searchOpen`).
+- L1091 `get isActive(): boolean` — Whether the search is active, that is open (iOS `isActive`).
+- L1098 `setActive(active: boolean, animated: boolean): void` — Starts or ends the search from code (iOS `setActive(_:animated:)`).
+- L1109 `get historyStore(): CYLSearchSuggestionCache | undefined` — The submitted queries (iOS `historyStore`); the same store as `suggestionCache`, shared with a launch view.
+- L1113 `set historyStore(value: CYLSearchSuggestionCache | undefined)`
+- L1122 `showEmptyView(text: string, detailText?: string, buttonTitle?: string, buttonAction?: () => void): void` — Shows the empty view in the results, such as "No matching results" (iOS `showEmptyView`). Nothing is shown while the query is empty.
+- L1133 `showEmptyViewScenario(scenario: CYLPlaceholderScenario): void` — Shows one of CYLTableViewPlaceHolder's scenarios as the empty view in the results (iOS `showEmptyView(scenario:)`). Nothing is shown while the query is empty.
+- L1143 `hideEmptyView(): void` — Hides the empty view (iOS `hideEmptyView()`).
+- L1150 `get isEmptyViewShowing(): boolean` — Whether the empty view shows now (iOS `isEmptyViewShowing`).
+- L1157 `get showsLaunchView(): boolean` — Whether a custom launch view shows now: there is one and the query is empty.
+- L1165 `get showsDimming(): boolean` — Whether the scrim shows now: a `scrimColor` is set, the query is empty and no launch view (a custom one, or the suggestion area with `showsSuggestionsLaunchView`) covers it.
+- L1173 `get query(): string` — The current query.
+- L1177 `set query(value: string)`
+- L1184 `get suggestionsVisible(): boolean` — True while the suggestions are listed (`showSuggestions` / `dismissSuggestions`).
+- L1192 `get showsEmptyResults(): boolean` — True while the query is not empty, nothing matches it (no result of `resultsDataSource`, or no suggestion without one) and the empty results placeholder is on.
+- L1205 `get showsEmptySuggestions(): boolean` — True while the query is empty, there is nothing to list and the empty suggestions placeholder is on.
+- L1214 `installInView(context: common.Context): void` — Gives the search view the app's context (for the suggestion cache) without opening it (iOS `-installInView:`). Put a `CYLSearchComponent` for this search view over the page it covers.
+- L1226 `showSearchIn(context: common.Context, animated: boolean = true): void` — Installs the search view with the context of the page when it has none yet, then opens it (iOS `-showSearchInViewController:animated:`, was `CYLSearchController.showInViewController`).
+- L1236 `showSearch(animated: boolean = true): void` — Opens the search view and, with `focusesSearchFieldOnShow`, starts editing (iOS `-showSearch:`).
+- L1275 `closeSearch(animated: boolean = true, completion?: () => void): void` — Closes the search view and ends editing (iOS `-closeSearch:completion:`, was `CYLSearchController.hide`). `completion` runs once it is closed, also when it was not open.
+- L1306 `reloadResults(): void` — Queries `resultsDataSource` for the current query and shows its results (iOS `-reloadResults`, was `reloadSearchResults` and `reloadResultsTableView`). Nothing is asked while the query is empty.
+- L1333 `beginRefreshing(): void` — Starts refreshing the results list, which calls `refreshHandler` (iOS `-beginRefreshing`).
+- L1340 `endRefreshing(): void` — Stops refreshing the results list (iOS `-endRefreshing`).
+- L1348 `static setRefreshHandler(handler: (() => void) | undefined, scroller: Scroller): void` — The same pull to refresh on another scroller (iOS `+setRefreshHandler:forScrollView:`); its list is drawn inside a `CYLSearchRefreshComponent` with that scroller. Undefined removes it.
+- L1362 `static beginRefreshingIn(scroller: Scroller): void` — Starts refreshing that scroller, which calls its handler (iOS `+beginRefreshingInScrollView:`).
+- L1369 `static endRefreshingIn(scroller: Scroller): void` — Stops refreshing that scroller (iOS `+endRefreshingInScrollView:`).
+- L1376 `static isRefreshingIn(scroller: Scroller): boolean` — True while that scroller refreshes (iOS `+isRefreshingInScrollView:`).
+- L1383 `resultSelected(result: Object): void` — A result was tapped: the delegate is told.
+- L1391 `handleBackPress(): boolean` — Closes the open search view for the system Back gesture; true when it did. Call it from the page's `onBackPress()` and return its result (Android `OnBackPressedCallback`; iOS has the back button only).
+- L1402 `encodeRestorableState(): Record<string, Object>` — The state to keep across a restart: whether the search view is open and its query.
+- L1410 `decodeRestorableState(state: Record<string, Object>): void` — Restores the query and reopens the search view when it was open.
+- L1420 `accessibilityPerformEscape(): boolean` — The back gesture or key: closes an open search view and returns true (iOS `-accessibilityPerformEscape`).
+- L1431 `attachToMenuItem(): () => void` — A click handler that opens the search view, for a menu item or a button (iOS `-attachToBarButtonItem:`).
+- L1440 `setQuery(text: string | undefined, submit: boolean): void` — Sets the query and submits it when `submit` is true (iOS `-setQuery:submit:`).
+- L1453 `showSuggestions(): void` — Lists the suggestions that match the current query.
+- L1460 `dismissSuggestions(): void` — Hides the suggestions.
+- L1467 `clearSuggestionCache(): void` — Clears the whole cache, as the trash button of the header does (iOS `-clearSuggestionCache`).
+- L1498 `suggestionSelected(suggestion: string, index: number): void` — A suggestion was tapped: the field shows it, the delegate is told, and it is submitted with `submitsOnSuggestionSelection`.
+- L1589 `struct CYLSearchPlaceholderHost` — Draws CYLTableViewPlaceHolder's placeholder (its V1 component `CYLPlaceholderStackView`, which links an `@Observed` model) inside the V2 components of this file: the model is held as V1 state, then linked.
+- L1596 `build()`
+- L1606 `struct CYLSearchEmptyViewComponent` — Draws a `CYLSearchEmptyView` (iOS: the one placeholder of every empty view): its placeholder, centered, made new for each `show`.
+- L1612 `build()`
+- L1633 `export struct CYLSearchComponent` — Draws a `CYLSearchView` over the page it is placed on: nothing while it is closed; the search bar, the divider and the suggestions while it is open. The search bar sits at the top of the safe area and covers no view of the page behind it: the page under it is 
+- L1656 `aboutToAppear(): void`
+- L1675 `aboutToDisappear(): void`
+- L1706 `cacheHeader()`
+- L1732 `suggestionRow(suggestion: string, index: number)`
+- L1757 `suggestionList()`
+- L1807 `suggestionTags()` — The tags of the suggestion area: CollectionViewClassifyMenu's tag list, folded to `suggestionsFoldedRowCount` rows with the fold control as the last tag; its height is what its content needs, and the page scrolls when it is taller.
+- L1826 `resultText(text: string)` — A result row's text; with `highlightsResultMatches` the first match of the query is drawn in the highlight color (iOS `CYLSearchResultHighlight`).
+- L1844 `resultsList()` — The results of `resultsDataSource` (iOS `resultsTableView`, was `CYLSearchResultsViewController`): one row per result, each one element for screen readers with the result's text as its label.
+- L1881 `build()`
+- L1993 `export struct CYLSearchRefreshComponent` — Gives a list of yours the pull to refresh of `CYLSearchView.setRefreshHandler(handler, scroller)` (iOS: the scroll view passed to `+setRefreshHandler:forScrollView:`): build the list inside it with the same scroller. Start and stop it with `CYLSearchView.begin
+- L2003 `build()`
+- L2017 `export class CYLSearchTableView` — A list screen with a built-in search bar as its first row (iOS `CYLSearchTableViewController`): `showsSearchBar`, `hidesSearchBarInitially`, `hidesSearchBarWhenEmptyViewShowing`, the empty view, and a bar that settles fully shown or fully hidden above a short 
+- L2083 `showEmptyView(text: string, detailText?: string, buttonTitle?: string, buttonAction?: () => void): void` — Shows the empty view in place of the rows (iOS `showEmptyView`).
+- L2090 `showEmptyViewScenario(scenario: CYLPlaceholderScenario): void` — Shows one of CYLTableViewPlaceHolder's scenarios in place of the rows (iOS `showEmptyView(scenario:)`).
+- L2097 `hideEmptyView(): void` — Hides the empty view; a bar that was removed comes back scrolled out (iOS `hideEmptyView()`).
+- L2107 `get isEmptyViewShowing(): boolean` — Whether the empty view shows (iOS `isEmptyViewShowing`).
+- L2114 `get showsHeader(): boolean` — Whether the bar is a row of the list now.
+- L2122 `layoutChanged(viewportHeight: number, fillerTopInViewport: number): void` — The list reports where the end filler is (in the viewport) and how tall the viewport is; the filler grows so the bar can scroll out, and a bar that starts hidden scrolls out once.
+- L2146 `settle(): void` — Settles the bar fully shown or fully hidden after scrolling stopped with it half out (issue 1160).
+- L2162 `export struct CYLSearchTableComponent` — Draws a `CYLSearchTableView`: a list whose first row is the search bar, then your rows (`ListItem`s and `ListItemGroup`s), then a filler that lets the bar scroll out above a short list; the empty view replaces the rows.
+- L2186 `header()`
+- L2202 `build()`

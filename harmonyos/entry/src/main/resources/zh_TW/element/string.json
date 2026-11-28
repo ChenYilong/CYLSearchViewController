@@ -1,0 +1,320 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "CYLSearch example"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "CYLSearch example"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "CYLSearch"
+    },
+    {
+      "name": "tab_search",
+      "value": "搜尋"
+    },
+    {
+      "name": "tab_examples",
+      "value": "範例"
+    },
+    {
+      "name": "tab_searchBar",
+      "value": "搜尋列"
+    },
+    {
+      "name": "tab_tagStyle",
+      "value": "標籤樣式"
+    },
+    {
+      "name": "tab_discover",
+      "value": "發現"
+    },
+    {
+      "name": "svga_demo",
+      "value": "SVGA 動畫：點按再次播放"
+    },
+    {
+      "name": "svga_source",
+      "value": "Tab 圖示：%s"
+    },
+    {
+      "name": "svga_source_symbols",
+      "value": "SF Symbols"
+    },
+    {
+      "name": "svga_source_keys",
+      "value": "SVGA（初始化 Key）"
+    },
+    {
+      "name": "svga_source_file",
+      "value": "SVGA（設定檔）"
+    },
+    {
+      "name": "svga_demo_hint",
+      "value": "再次播放 SVGA 動畫"
+    },
+    {
+      "name": "svga_source_hint",
+      "value": "切換 Tab 圖示並重建 TabBar"
+    },
+    {
+      "name": "svga_swiftui",
+      "value": "SwiftUI 宿主（SVGA TabBar）"
+    },
+    {
+      "name": "svga_swiftui_title",
+      "value": "SwiftUI 宿主"
+    },
+    {
+      "name": "svga_swiftui_close",
+      "value": "關閉"
+    },
+    {
+      "name": "discover_recent",
+      "value": "最近搜尋"
+    },
+    {
+      "name": "discover_tapToSearch",
+      "value": "點兩下搜尋"
+    },
+    {
+      "name": "discover_title",
+      "value": "發現"
+    },
+    {
+      "name": "discover_refresh",
+      "value": "換一批"
+    },
+    {
+      "name": "discover_back",
+      "value": "返回"
+    },
+    {
+      "name": "discover_search",
+      "value": "搜尋"
+    },
+    {
+      "name": "discover_imageSearch",
+      "value": "以圖搜尋"
+    },
+    {
+      "name": "discover_clear",
+      "value": "清除最近搜尋"
+    },
+    {
+      "name": "discover_cleared",
+      "value": "已清除最近搜尋"
+    },
+    {
+      "name": "discover_askHint",
+      "value": "按住提問，有問必答"
+    },
+    {
+      "name": "discover_ask",
+      "value": "按住提問"
+    },
+    {
+      "name": "discover_askAccessibilityHint",
+      "value": "按住說出問題，放開傳送"
+    },
+    {
+      "name": "discover_listening",
+      "value": "正在聆聽…"
+    },
+    {
+      "name": "discover_searching",
+      "value": "正在搜尋：%s"
+    },
+    {
+      "name": "discover_imageSearchUnavailable",
+      "value": "示範中暫不支援以圖搜尋。"
+    },
+    {
+      "name": "discover_ok",
+      "value": "好"
+    },
+    {
+      "name": "discover_holdMic",
+      "value": "請按住麥克風按鈕說出問題"
+    },
+    {
+      "name": "discover_hot",
+      "value": "熱門"
+    },
+    {
+      "name": "discover_animationItem",
+      "value": "動畫"
+    },
+    {
+      "name": "discover_animationLoops",
+      "value": "循環播放動畫"
+    },
+    {
+      "name": "discover_animationSpeed",
+      "value": "動畫速度"
+    },
+    {
+      "name": "discover_animationPlay",
+      "value": "再播放一次"
+    },
+    {
+      "name": "contactTags_row",
+      "value": "聯絡人標籤（CollectionViewClassifyMenu）"
+    },
+    {
+      "name": "contactTags_cancel",
+      "value": "取消"
+    },
+    {
+      "name": "contactTags_done",
+      "value": "完成"
+    },
+    {
+      "name": "contactTags_editRemarks",
+      "value": "編輯備註"
+    },
+    {
+      "name": "contactTags_remarkName",
+      "value": "備註名"
+    },
+    {
+      "name": "contactTags_tags",
+      "value": "標籤"
+    },
+    {
+      "name": "contactTags_editTags",
+      "value": "編輯標籤"
+    },
+    {
+      "name": "contactTags_search",
+      "value": "搜尋"
+    },
+    {
+      "name": "contactTags_searchTags",
+      "value": "搜尋標籤"
+    },
+    {
+      "name": "contactTags_results",
+      "value": "搜尋結果"
+    },
+    {
+      "name": "contactTags_recent",
+      "value": "最近使用"
+    },
+    {
+      "name": "contactTags_mine",
+      "value": "我的標籤"
+    },
+    {
+      "name": "contactTags_manage",
+      "value": "管理"
+    },
+    {
+      "name": "contactTags_doneManaging",
+      "value": "結束管理"
+    },
+    {
+      "name": "contactTags_created",
+      "value": "已新增標籤：%s"
+    },
+    {
+      "name": "contactTags_newTag",
+      "value": "新增標籤"
+    },
+    {
+      "name": "contactTags_tagName",
+      "value": "標籤名稱"
+    },
+    {
+      "name": "contactTags_ok",
+      "value": "確定"
+    },
+    {
+      "name": "contactTags_hintManage",
+      "value": "點兩下編輯標籤：刪除、拖動排序或新增"
+    },
+    {
+      "name": "contactTags_hintDoneManaging",
+      "value": "點兩下結束編輯標籤"
+    },
+    {
+      "name": "contactTags_hintEdit",
+      "value": "開啟編輯標籤"
+    },
+    {
+      "name": "contactTags_noMatch",
+      "value": "沒有符合的標籤"
+    },
+    {
+      "name": "contactTags_noTags",
+      "value": "還沒有標籤，點一下「新增標籤」新增。"
+    },
+    {
+      "name": "contactTags_remarkNoTags",
+      "value": "還沒有標籤，點一下新增。"
+    },
+    {
+      "name": "contactTags_clearRecent",
+      "value": "清除最近使用"
+    },
+    {
+      "name": "contactTags_recentCleared",
+      "value": "已清除最近使用的標籤"
+    },
+    {
+      "name": "contactTags_contactsTitle",
+      "value": "%s（%d）"
+    },
+    {
+      "name": "contactTags_noContacts",
+      "value": "沒有聯絡人帶有標籤「%s」。"
+    },
+    {
+      "name": "contactTags_hintContacts",
+      "value": "點兩下查看帶有此標籤的聯絡人"
+    },
+    {
+      "name": "contactTags_sync",
+      "value": "從其他裝置同步"
+    },
+    {
+      "name": "contactTags_syncing",
+      "value": "正在從其他裝置同步…"
+    },
+    {
+      "name": "contactTags_synced",
+      "value": "同步完成"
+    },
+    {
+      "name": "contactTags_uploading",
+      "value": "正在上傳標籤…"
+    },
+    {
+      "name": "contactTags_uploaded",
+      "value": "上傳完成"
+    },
+    {
+      "name": "contactTags_downloading",
+      "value": "正在下載標籤…"
+    },
+    {
+      "name": "contactTags_downloaded",
+      "value": "標籤已更新"
+    },
+    {
+      "name": "contactTags_otherDeviceTags",
+      "value": "瑜伽,咖啡,騎行,桌遊,志願者,家長,創業,導師"
+    },
+    {
+      "name": "contactTags_add",
+      "value": "新增"
+    },
+    {
+      "name": "microphone_reason",
+      "value": "在語音範例中把你說出的搜尋詞轉成文字。"
+    }
+  ]
+}

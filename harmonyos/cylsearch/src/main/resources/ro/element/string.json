@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "cyl_action_ok",
+      "value": "OK"
+    },
+    {
+      "name": "cyl_demo_port_default",
+      "value": "Implicit"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "Nu există date"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "Anulează"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "Mai multe"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "Anulează"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "Reîmprospătează"
+    }
+  ]
+}

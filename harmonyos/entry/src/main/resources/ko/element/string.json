@@ -1,0 +1,20 @@
+{
+  "string": [
+    {
+      "name": "svga_swiftui_close",
+      "value": "닫기"
+    },
+    {
+      "name": "discover_ok",
+      "value": "확인"
+    },
+    {
+      "name": "contactTags_cancel",
+      "value": "취소"
+    },
+    {
+      "name": "contactTags_ok",
+      "value": "확인"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+@import "/utils/cyl_table.wxss";
+.page { height: 100vh; overflow: hidden; background: #fff; }
+.host { display: block; }
+.keywords { min-height: 100%; background: #fff; }
+@media (prefers-color-scheme: dark) {
+  .page, .keywords { background: #000; }
+}

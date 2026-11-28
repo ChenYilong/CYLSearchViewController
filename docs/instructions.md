@@ -16,3 +16,11 @@ repository and vault instructions.
   user's prompt (verbatim plus English translation); mark it
   `DONE (YYYY-MM-DD)` with the result when it ends (`AGENTS.md`, "Task log
   before every task").
+- Screenshots (local builds and runs, CI/CD) live in `assets/` next to the document that shows them, as clear
+  originals, each labeled with platform, environment, repository version or commit, and date and time
+  (`AGENTS.md`, "Screenshots of builds and CI/CD").
+- A project whose code we translate (for example in `android/`) gets an open-issues table in the related document:
+  issue link, description, fix status (`TODO` by default), and a score that is updated after every fix
+  (`AGENTS.md`, "Open pull requests and issues of projects we translate").
+- Animation examples (English rule, AGENTS.md "Animation examples: playback controls"): a page that shows animations
+  offers Play all (from progress 0), a speed slider and a loop switch, combined and applied live, on every platform.

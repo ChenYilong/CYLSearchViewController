@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "cyl_action_ok",
+      "value": "OK"
+    },
+    {
+      "name": "cyl_demo_port_default",
+      "value": "Προεπιλογή"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "Δεν υπάρχουν δεδομένα"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "Ακύρωση"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "Περισσότερα"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "Ακύρωση"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "Ανανέωση"
+    }
+  ]
+}

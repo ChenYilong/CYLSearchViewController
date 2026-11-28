@@ -1,0 +1,15 @@
+.screen { display: flex; flex-direction: column; height: 100vh; background: #fff; }
+.center { flex: 1; display: flex; align-items: center; justify-content: center; }
+.title2 { font-size: 22px; color: #000; text-align: center; }
+.sticky-list { flex: 1; min-height: 0; }
+.sticky-item { padding: 0 16px 22px; font-size: 17px; color: #000; }
+.sticky-item:first-child { padding-top: 8px; }
+.tabs-page { padding: 16px; }
+.segmented { display: flex; margin-bottom: 24px; padding: 2px; border-radius: 9px; background: rgba(118, 118, 128, 0.12); }
+.segment { flex: 1; height: 28px; line-height: 28px; border-radius: 7px; text-align: center; font-size: 13px; color: #000; }
+.segment-selected { background: #fff; font-weight: 600; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12); }
+@media (prefers-color-scheme: dark) {
+  .screen { background: #000; }
+  .title2, .sticky-item, .segment { color: #fff; }
+  .segment-selected { background: #636366; }
+}

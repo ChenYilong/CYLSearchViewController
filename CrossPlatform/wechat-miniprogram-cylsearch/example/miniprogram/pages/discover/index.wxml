@@ -1,0 +1,6 @@
+<view class="screen">
+  <!-- A first-level page: the whole reference-look bar (bordered capsule, camera and the Search button inside) in the
+       navigation bar, full width inside the safe area. A tap pushes the Discover page (pages/discoverSearch). -->
+  <cyl-demo-first-level-bar preset="navigationField" placeholder="{{placeholder}}" pushUrl="/pages/discoverSearch/index" withItems />
+  <view class="entry-title" role="heading">{{title}}</view>
+</view>

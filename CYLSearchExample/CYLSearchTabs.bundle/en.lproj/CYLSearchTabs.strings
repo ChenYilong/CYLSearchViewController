@@ -1,3 +1,17 @@
 "tab.search" = "Search";
 "tab.examples" = "Examples";
 "tab.searchBar" = "Search bar";
+"tab.tagStyle" = "Tag style";
+"tab.discover" = "Discover";
+
+/* SVGA demo above the Examples list (docs/CYLTabBarController-Integration.md, SVGA TODO rows 6-7). */
+"svga.demo" = "SVGA animation: tap to play again";
+"svga.source" = "Tab icons: %@";
+"svga.source.symbols" = "SF Symbols";
+"svga.source.keys" = "SVGA (initialization keys)";
+"svga.source.file" = "SVGA (configuration file)";
+"svga.demo.hint" = "Plays the SVGA animation again";
+"svga.source.hint" = "Switches the tab icons and rebuilds the tab bar";
+"svga.swiftui" = "SwiftUI host (SVGA tab bar)";
+"svga.swiftui.title" = "SwiftUI host";
+"svga.swiftui.close" = "Close";

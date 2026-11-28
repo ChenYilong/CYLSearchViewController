@@ -1,0 +1,2 @@
+@import "/utils/cyl_table.wxss";
+.group-header { text-transform: none; }

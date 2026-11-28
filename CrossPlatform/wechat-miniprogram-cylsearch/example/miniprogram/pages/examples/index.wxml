@@ -1,0 +1,14 @@
+<view class="screen gradient-screen">
+  <!-- A first-level page: the whole search bar (rounded preset) in the navigation bar; a tap pushes the search page. -->
+  <cyl-demo-first-level-bar preset="rounded" placeholder="{{placeholder}}" />
+  <!-- The SVGA demo (iOS CYLSVGADemoHeaderView, Android and HarmonyOS): CollectionViewClassifyMenu's cyl-tag-button with
+       an SVGA animationURL, played by the app's cyl-svga engine (CYLTabBarController's player, as the tab bar's). -->
+  <view class="svga-demo" role="button" aria-label="{{svgaTitle}}" bindtap="onSVGATap" id="CYLSVGADemoHeader">
+    <cyl-tag-button id="svga-demo-tag" title="{{svgaTitle}}" animationURL="{{svgaURL}}" tagStyle="{{svgaStyle}}" accessibilityLabel="{{svgaTitle}}"
+      generic:cyl-svga-view="cyl-svga" generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder"
+      generic:cyl-rive-view="cyl-animation-placeholder" />
+  </view>
+  <!-- The rows as ClassifyMenu's tag list (docs/instructions/example-demos.md): a titled section, glass board and glass tags over the gradient page,
+       wrapping titles, a 3-row fold whose control is the last tag (icon only), a tap opens the row, a long press shows the subtitle. -->
+  <cyl-tag-list class="demo-tags" configuration="{{tagConfiguration}}" bind:tagtap="onTag" />
+</view>

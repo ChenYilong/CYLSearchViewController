@@ -1,0 +1,6 @@
+.screen { min-height: 100vh; background: #fff; }
+.title { margin-top: 32px; text-align: center; font-size: 28px; font-weight: 700; }
+.name { display: block; margin: 36px 16px 0; }
+.tags-title { padding: 16px 16px 4px; font-size: 15px; color: rgba(60, 60, 67, 0.6); }
+.chevron { margin-left: 4px; color: rgba(60, 60, 67, 0.3); }
+.empty { padding: 16px; display: flex; justify-content: center; }

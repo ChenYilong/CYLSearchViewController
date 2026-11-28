@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "cyl_action_ok",
+      "value": "OK"
+    },
+    {
+      "name": "cyl_demo_port_default",
+      "value": "Mặc định"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "Không có dữ liệu"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "Hủy"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "Thêm"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "Hủy"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "Làm mới"
+    }
+  ]
+}

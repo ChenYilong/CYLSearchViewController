@@ -1,0 +1,13 @@
+<view class="screen">
+  <!-- The plus tab is a first-level page: the whole outlined bar in the navigation bar, a tap pushes the search page. -->
+  <cyl-demo-first-level-bar wx:if="{{inTabBar}}" preset="outlined" placeholder="{{placeholder}}" />
+  <cyl-demo-nav wx:else title="{{title}}" />
+  <cyl-search-bar wx:if="{{!inTabBar}}" generic:cyl-lottie-view="cyl-lottie" generic:cyl-pag-view="cyl-animation-placeholder" generic:cyl-rive-view="cyl-animation-placeholder" generic:cyl-svga-view="cyl-svga"
+    id="bar" placeholder="{{placeholder}}" showsCancelButton navigationFieldStyle focusesOnAppear
+    bind:textchange="onTextChange" bind:submit="onSubmit" bind:cancel="onCancel">
+    <view slot="trailing" class="camera" role="button" aria-label="{{cameraLabel}}">
+      <image class="camera-icon" src="/components/images/camera.svg" aria-hidden="true" />
+    </view>
+  </cyl-search-bar>
+  <view class="status" aria-live="polite">{{status}}</view>
+</view>

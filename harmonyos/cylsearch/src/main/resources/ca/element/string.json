@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "cyl_action_ok",
+      "value": "D’acord"
+    },
+    {
+      "name": "cyl_demo_port_default",
+      "value": "Per defecte"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "No hi ha dades"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "Cancel·la"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "Més"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "Cancel·la"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "Actualitza"
+    }
+  ]
+}

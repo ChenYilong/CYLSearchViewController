@@ -1,0 +1,364 @@
+{
+  "string": [
+    {
+      "name": "cyl_action_ok",
+      "value": "OK"
+    },
+    {
+      "name": "cyl_action_overlay",
+      "value": "Overlay"
+    },
+    {
+      "name": "cyl_controller_launch_label",
+      "value": "Recent searches: tap a search to see it"
+    },
+    {
+      "name": "cyl_controller_noResults",
+      "value": "No matching results"
+    },
+    {
+      "name": "cyl_controller_recent",
+      "value": "Recent searches"
+    },
+    {
+      "name": "cyl_demo_barInView",
+      "value": "Bar in a view"
+    },
+    {
+      "name": "cyl_demo_choose",
+      "value": "Image and message"
+    },
+    {
+      "name": "cyl_demo_collectionView",
+      "value": "Collection view"
+    },
+    {
+      "name": "cyl_demo_custom",
+      "value": "Custom image and message"
+    },
+    {
+      "name": "cyl_demo_custom_both",
+      "value": "Custom image and text"
+    },
+    {
+      "name": "cyl_demo_custom_imageOnly",
+      "value": "Custom image, built-in message"
+    },
+    {
+      "name": "cyl_demo_custom_text",
+      "value": "Your own image and message"
+    },
+    {
+      "name": "cyl_demo_custom_textOnly",
+      "value": "Built-in image, custom text"
+    },
+    {
+      "name": "cyl_demo_navigationItem",
+      "value": "Navigation item"
+    },
+    {
+      "name": "cyl_demo_port_default",
+      "value": "Default"
+    },
+    {
+      "name": "cyl_demo_port_events",
+      "value": "Events"
+    },
+    {
+      "name": "cyl_demo_port_inputType",
+      "value": "Input type"
+    },
+    {
+      "name": "cyl_demo_port_item",
+      "value": "Item %d"
+    },
+    {
+      "name": "cyl_demo_port_keyword",
+      "value": "Enter a keyword"
+    },
+    {
+      "name": "cyl_demo_port_listening",
+      "value": "Listening…"
+    },
+    {
+      "name": "cyl_demo_port_open",
+      "value": "Open search"
+    },
+    {
+      "name": "cyl_demo_port_page",
+      "value": "Page %d"
+    },
+    {
+      "name": "cyl_demo_port_query",
+      "value": "Query: %s"
+    },
+    {
+      "name": "cyl_demo_port_result",
+      "value": "Search result"
+    },
+    {
+      "name": "cyl_demo_port_searched",
+      "value": "Search content===%s"
+    },
+    {
+      "name": "cyl_demo_port_sticky",
+      "value": "Sticky"
+    },
+    {
+      "name": "cyl_demo_port_tab",
+      "value": "Tabs"
+    },
+    {
+      "name": "cyl_demo_port_themed",
+      "value": "Themed"
+    },
+    {
+      "name": "cyl_demo_port_voice",
+      "value": "Voice"
+    },
+    {
+      "name": "cyl_demo_port_voiceUnavailable",
+      "value": "Speech recognition is not available."
+    },
+    {
+      "name": "cyl_demo_ports",
+      "value": "Other libraries' examples"
+    },
+    {
+      "name": "cyl_demo_reproduction",
+      "value": "Search and refresh"
+    },
+    {
+      "name": "cyl_demo_searchBar",
+      "value": "Search bar"
+    },
+    {
+      "name": "cyl_demo_searchBarStyles",
+      "value": "Search bar styles"
+    },
+    {
+      "name": "cyl_demo_searchBar_camera",
+      "value": "Camera"
+    },
+    {
+      "name": "cyl_demo_searchBar_placeholder",
+      "value": "Streamer, room ID or song"
+    },
+    {
+      "name": "cyl_demo_searchBar_searched",
+      "value": "Searched: %s"
+    },
+    {
+      "name": "cyl_demo_searchBar_text",
+      "value": "Text: %s"
+    },
+    {
+      "name": "cyl_demo_searchController",
+      "value": "Search controller"
+    },
+    {
+      "name": "cyl_demo_shortList",
+      "value": "Short list"
+    },
+    {
+      "name": "cyl_demo_styles",
+      "value": "Placeholder styles"
+    },
+    {
+      "name": "cyl_demo_title",
+      "value": "Search examples"
+    },
+    {
+      "name": "cyl_issue_item",
+      "value": "Item %d"
+    },
+    {
+      "name": "cyl_issue_row",
+      "value": "Row %d"
+    },
+    {
+      "name": "cyl_multisearch_add",
+      "value": "New search"
+    },
+    {
+      "name": "cyl_multisearch_item",
+      "value": "Search %1$d of %2$d"
+    },
+    {
+      "name": "cyl_multisearch_remove",
+      "value": "Remove search"
+    },
+    {
+      "name": "cyl_navigationBar_back",
+      "value": "Back"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "No data"
+    },
+    {
+      "name": "cyl_placeholder_error",
+      "value": "Something went wrong"
+    },
+    {
+      "name": "cyl_placeholder_network",
+      "value": "Check your internet connection"
+    },
+    {
+      "name": "cyl_placeholder_search",
+      "value": "No matching results"
+    },
+    {
+      "name": "cyl_refresh_error",
+      "value": "Refresh Failed"
+    },
+    {
+      "name": "cyl_repro_off",
+      "value": "Repro: OFF"
+    },
+    {
+      "name": "cyl_repro_on",
+      "value": "Repro: ON"
+    },
+    {
+      "name": "cyl_sample_result",
+      "value": "Sample result %d"
+    },
+    {
+      "name": "cyl_search_back",
+      "value": "Back"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "Cancel"
+    },
+    {
+      "name": "cyl_search_clear",
+      "value": "Clear text"
+    },
+    {
+      "name": "cyl_search_clearRecent",
+      "value": "Clear recent searches"
+    },
+    {
+      "name": "cyl_search_button",
+      "value": "Search"
+    },
+    {
+      "name": "cyl_search_field",
+      "value": "Search"
+    },
+    {
+      "name": "cyl_search_foldLess",
+      "value": "Less"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "More"
+    },
+    {
+      "name": "cyl_search_placeholder",
+      "value": "Filter results"
+    },
+    {
+      "name": "cyl_search_recent",
+      "value": "Recent searches"
+    },
+    {
+      "name": "cyl_search_recentCleared",
+      "value": "Recent searches cleared"
+    },
+    {
+      "name": "cyl_search_showLess",
+      "value": "Show less"
+    },
+    {
+      "name": "cyl_search_showMore",
+      "value": "Show more"
+    },
+    {
+      "name": "cyl_search_submit",
+      "value": "Search"
+    },
+    {
+      "name": "cyl_search_suggestions",
+      "value": "Suggestions"
+    },
+    {
+      "name": "cyl_search_title",
+      "value": "Search"
+    },
+    {
+      "name": "cyl_search_voice",
+      "value": "Voice search"
+    },
+    {
+      "name": "cyl_styles_accessory_label",
+      "value": "Accessory view"
+    },
+    {
+      "name": "cyl_styles_adjustCancel",
+      "value": "Adjust Cancel while searching"
+    },
+    {
+      "name": "cyl_styles_adjustField",
+      "value": "Adjust the field at rest"
+    },
+    {
+      "name": "cyl_styles_animated",
+      "value": "Animated"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "Cancel"
+    },
+    {
+      "name": "cyl_styles_centerPlaceholder",
+      "value": "Center placeholder"
+    },
+    {
+      "name": "cyl_styles_changePlaceholder",
+      "value": "Change placeholder"
+    },
+    {
+      "name": "cyl_styles_hide",
+      "value": "Hide %s"
+    },
+    {
+      "name": "cyl_styles_leading",
+      "value": "leading accessory"
+    },
+    {
+      "name": "cyl_styles_longPlaceholder",
+      "value": "A very very very long placeholder"
+    },
+    {
+      "name": "cyl_styles_row_hint",
+      "value": "Changes the search bar above the list"
+    },
+    {
+      "name": "cyl_styles_section_accessory",
+      "value": "Accessory view"
+    },
+    {
+      "name": "cyl_styles_section_layout",
+      "value": "Layout"
+    },
+    {
+      "name": "cyl_styles_section_placeholder",
+      "value": "Placeholder"
+    },
+    {
+      "name": "cyl_styles_show",
+      "value": "Show %s"
+    },
+    {
+      "name": "cyl_styles_trailing",
+      "value": "trailing accessory"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "Refresh"
+    }
+  ]
+}

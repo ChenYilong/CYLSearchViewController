@@ -1,0 +1,32 @@
+{
+  "string": [
+    {
+      "name": "cyl_action_ok",
+      "value": "حسنًا"
+    },
+    {
+      "name": "cyl_demo_port_default",
+      "value": "الافتراضي"
+    },
+    {
+      "name": "cyl_placeholder_empty",
+      "value": "لا توجد بيانات"
+    },
+    {
+      "name": "cyl_search_cancel",
+      "value": "إلغاء"
+    },
+    {
+      "name": "cyl_search_foldMore",
+      "value": "المزيد"
+    },
+    {
+      "name": "cyl_styles_cancel",
+      "value": "إلغاء"
+    },
+    {
+      "name": "cyl_tagList_refresh",
+      "value": "تحديث"
+    }
+  ]
+}

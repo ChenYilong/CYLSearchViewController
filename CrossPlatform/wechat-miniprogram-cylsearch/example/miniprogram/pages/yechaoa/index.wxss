@@ -1,0 +1,5 @@
+.screen { display: flex; flex-direction: column; height: 100vh; background: #fff; }
+.toolbar-search { height: 44px; transition: width 0.3s; }
+.center { flex: 1; display: flex; align-items: center; justify-content: center; }
+.title2 { font-size: 22px; color: #000; }
+@media (prefers-color-scheme: dark) { .screen { background: #000; } .title2 { color: #fff; } }

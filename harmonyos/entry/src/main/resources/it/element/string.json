@@ -1,0 +1,20 @@
+{
+  "string": [
+    {
+      "name": "svga_swiftui_close",
+      "value": "Chiudi"
+    },
+    {
+      "name": "discover_ok",
+      "value": "OK"
+    },
+    {
+      "name": "contactTags_cancel",
+      "value": "Annulla"
+    },
+    {
+      "name": "contactTags_ok",
+      "value": "OK"
+    }
+  ]
+}

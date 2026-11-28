@@ -1,3 +1,17 @@
 "tab.search" = "搜尋";
 "tab.examples" = "範例";
 "tab.searchBar" = "搜尋列";
+"tab.tagStyle" = "標籤樣式";
+"tab.discover" = "發現";
+
+/* SVGA demo above the Examples list (docs/CYLTabBarController-Integration.md, SVGA TODO rows 6-7). */
+"svga.demo" = "SVGA 動畫：點按再次播放";
+"svga.source" = "Tab 圖示：%@";
+"svga.source.symbols" = "SF Symbols";
+"svga.source.keys" = "SVGA（初始化 Key）";
+"svga.source.file" = "SVGA（設定檔）";
+"svga.demo.hint" = "再次播放 SVGA 動畫";
+"svga.source.hint" = "切換 Tab 圖示並重建 TabBar";
+"svga.swiftui" = "SwiftUI 宿主（SVGA TabBar）";
+"svga.swiftui.title" = "SwiftUI 宿主";
+"svga.swiftui.close" = "關閉";
