@@ -53,7 +53,7 @@ begins and becomes `DONE` when it ends.
 - Status: #6 passed CI (6/6 jobs, run 43112176663) and was merged into
   `feat/search-bar-view` (merge commit `51a0e39`). #5 CI running.
 
-## TODO (2026-11-28): commit the unfinished `instructions.md` rewrite as work in progress
+## DONE (2026-11-29): commit the unfinished `instructions.md` rewrite as work in progress
 
 - Context: on `docs/agents-tag-format` (PR #18), `AGENTS.md` is already in the tag format (`65d3558`, `52c6bed`). The root
   `instructions.md` rewrite was started but not finished, and was left uncommitted.
@@ -69,10 +69,12 @@ begins and becomes `DONE` when it ends.
      instead of deleting it.
   4. Keep `instructions.md` under 200 lines (87 now).
 
-## TODO (2026-11-29): finish the WIP `instructions.md` rewrite
+## DONE (2026-11-29): finish the WIP `instructions.md` rewrite
 
 - Context: continues the entry of 2026-11-28 above, on `docs/agents-tag-format` (PR #18), from commit `2e3c1fa`.
 - Requirements: do the four remaining items of that entry; move missing rules into tag files instead of deleting them.
 - Prompt (verbatim): "finish the WIP"
 - Prompt (English): "finish the WIP"
-- Status: started.
+- Status: done in `0f72b62`. `instructions.md` uses the `AGENTS.md` layout with all 12 tags, links only in the final table,
+  104 lines. Rules dropped by the WIP rewrite were appended to six tag files. Checked by comparing the old
+  `instructions.md` (`2e3c1fa^`) with the tag files, and with `git diff --check`; no build run (documents only).
