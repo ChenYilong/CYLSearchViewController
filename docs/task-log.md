@@ -35,7 +35,7 @@ begins and becomes `DONE` when it ends.
   first (commit `eb0ce70`), as the rule requires. Branch
   `feat/search-bar-view`.
 
-## TODO (2026-11-12): merge PR #6, then PR #5, after CI
+## DONE (2026-11-29): merge PR #6, then PR #5, after CI (merged 2026-11-11 UTC)
 
 - Context: PR #6 (`docs/todo-sweep` → `feat/search-bar-view`) holds one
   commit, `29fdf24`: the scene life cycle (the example did not launch when
@@ -51,7 +51,8 @@ begins and becomes `DONE` when it ends.
   feat/search-bar-view → master, and #6 docs/todo-sweep →
   feat/search-bar-view."
 - Status: #6 passed CI (6/6 jobs, run 43112176663) and was merged into
-  `feat/search-bar-view` (merge commit `51a0e39`). #5 CI running.
+  `feat/search-bar-view` (merge commit `51a0e39`). #5 is merged too (`gh pr view` 2026-11-29: #6 merged
+  2026-11-11T22:58:08Z, #5 merged 2026-11-11T23:36:53Z).
 
 ## DONE (2026-11-29): commit the unfinished `instructions.md` rewrite as work in progress
 
