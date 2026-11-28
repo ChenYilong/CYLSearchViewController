@@ -2418,7 +2418,7 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
     in `d958f73`, published by this push) quotes a prompt containing one, and `.agents/skills/cyl-harmonyos-setup/SKILL.md` line 31
     was already public on several remote branches. Removing them from history would need a rewrite, which needs the owner's decision.
 
-## TODO (2026-11-29, `feat/harmonyos-parity`, Windows session): learn-codebase guide and the `memory` tag
+## DONE (2026-11-29, `feat/harmonyos-parity`, Windows session): learn-codebase guide and the `memory` tag
 
 - **Context**: the learn-codebase notes were published in `docs/learn-codebase/` (entry above). The next person or computer
   needs to know where to put the output, how claude-mem ingests it and how to clean it before committing.
@@ -2437,4 +2437,17 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
   the `memory` tag is in `AGENTS.md` and `instructions.md` with the relative link, with its tag file (`meta` rules), each file
   within 200 lines, links resolve; the guide stays within claude-mem's 64 KB limit; committed and pushed. **(60)**: guide and
   `AGENTS.md` tag written and pushed.
-- **Status**: started 2026-11-29.
+- **Status**: DONE (2026-11-29).
+- **Result**: [docs/learn-codebase/README.md](learn-codebase/README.md); the `memory` tag in `AGENTS.md` and `instructions.md`
+  with [docs/instructions/memory.md](instructions/memory.md); `memory` added to the tag list of the `cyl-docs` skill.
+- **Evidence** (Windows 11, claude-mem 17.0.2): the three Python scripts were taken out of the guide and run. The settings
+  script, on a copy of invented settings, changed only the watch-root key and changed nothing on a second run (the real
+  settings file was not modified). The scan caught 4 of 4 planted samples; on `docs/learn-codebase` its 2 blocking hits are
+  harmless (the guide's example short name `ABCDEF~1` and a compiler short file name quoted in a digest). The memory check
+  reported 55 of 55 files stored in their current version (the guide was edited before that check). Relative links of the
+  four edited or new Markdown files resolve; `AGENTS.md` and `instructions.md` have 179 lines; the guide is 14,951 bytes.
+- **TODO**:
+  - Untested: following the guide on a second computer, on macOS or Linux, and a new learn-codebase run with its prompt.
+  - PR #18 (`docs/agents-tag-format`) rewrites `AGENTS.md` and `instructions.md`: whichever merges second has to keep or
+    re-add the `memory` heading.
+  - Which claude-mem records cloud sync uploads was not checked.

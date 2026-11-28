@@ -169,3 +169,11 @@ The content is grouped by tag. Every category below has a short summary; its ful
   `docs/swift-coding-standard.md`. Public API comments are one three-line documentation block in the language's official
   form (`/*!` Objective-C, `/**` Swift, Kotlin, Java, TS, JS); `scripts/check-public-api-comments.sh`.
 - Details: [docs/instructions/code-style.md](docs/instructions/code-style.md) (Swift; Comments on public API; Naming).
+
+## Memory: read before learn-codebase (tag: `memory`)
+
+- **Before running claude-mem's learn-codebase, or exporting or committing its output, read
+  [docs/learn-codebase/README.md](docs/learn-codebase/README.md) in full.**
+- Output goes to `docs/learn-codebase/learn-codebase-<YYYY-MM-DD>/`. The repository is public: draft outside that folder,
+  remove private information and mark unverified claims before the files move in.
+- Details: [docs/instructions/memory.md](docs/instructions/memory.md).
