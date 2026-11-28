@@ -2417,3 +2417,24 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
   - Local paths remain outside the new notes and were not edited in this task: the 2026-11-27 entry of this file above (committed
     in `d958f73`, published by this push) quotes a prompt containing one, and `.agents/skills/cyl-harmonyos-setup/SKILL.md` line 31
     was already public on several remote branches. Removing them from history would need a rewrite, which needs the owner's decision.
+
+## TODO (2026-11-29, `feat/harmonyos-parity`, Windows session): learn-codebase guide and the `memory` tag
+
+- **Context**: the learn-codebase notes were published in `docs/learn-codebase/` (entry above). The next person or computer
+  needs to know where to put the output, how claude-mem ingests it and how to clean it before committing.
+- **Requirements**: a new English `docs/learn-codebase/README.md` recording, from this experience, how to set the output path
+  when running claude-mem's learn-codebase again (for example on another computer) and how to remove private information
+  before committing the output; a new `memory` tag in the agent files that requires reading that document, linked by relative
+  path, before learn-codebase runs; everything in English.
+- **Prompt (verbatim, local path replaced by `<local path>`)**: "在 该根目录下 \"<local path>\\docs\\learn-codebase\"   新建一个文档， README ， 该文档需要记录，以后换了电脑， 之后， 重新使用 claude-mem 的 learn-codebase 指令的时候， 应该如何指定交付物路劲， 以及交付物如何删除隐私信息后提交git，结合本次经验， 总结成文档， 并在agents文件中，新建tag ，叫做 memory ， 该新建文档中， 需要在 执行 learn-codebase 之前阅读，本次新建的文档，给出相对路径的文档地址。 以上指令全英文执行，文档全英文编写。"
+- **Prompt (English)**: "In <local path>/docs/learn-codebase create a document, README. It records how, later on another
+  computer, to specify the output path when using claude-mem's learn-codebase command again, and how to remove private
+  information from the output before committing it to git, summarized from this experience. Create a new tag named memory
+  in the agents file: this new document must be read before running learn-codebase; give its relative path. Carry all of this
+  out in English and write the documents in English."
+- **Acceptance (100)**: the guide covers output path, claude-mem watch setup on a new computer, privacy cleanup, commit and
+  verification; its commands were tried on this computer without changing real settings, and unverified points are marked;
+  the `memory` tag is in `AGENTS.md` and `instructions.md` with the relative link, with its tag file (`meta` rules), each file
+  within 200 lines, links resolve; the guide stays within claude-mem's 64 KB limit; committed and pushed. **(60)**: guide and
+  `AGENTS.md` tag written and pushed.
+- **Status**: started 2026-11-29.
