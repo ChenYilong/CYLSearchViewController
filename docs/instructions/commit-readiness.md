@@ -70,3 +70,4 @@
   `fix` bug fix, `perf` performance improvement, `refactor` neither a feature nor a fix, `style` markup or formatting
   only, `test` adding missing tests, `release` release commit (only for an intentional release).
 - Omit an unnecessary scope. Commit text stays English.
+- A TODO also states the current status or score, and any optimization opportunities.

@@ -16,5 +16,6 @@
 - The `CYL` prefix covers every new project-owned class, protocol, enum, type, function, and constant. Name a class
   file after its primary type.
 - Name UIKit category files `<SystemClass>+CYL<Feature>.h` and `.m`.
+- Import a dependency's public umbrella header only; do not access its private implementation.
 - Apply these rules to copied or newly introduced code. Remove unrelated third-party prefixes from new code and retain
   source attribution.
