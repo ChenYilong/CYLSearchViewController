@@ -2380,3 +2380,40 @@ TODO: compile HarmonyOS (hvigor), run Android/Flutter screenshots (light, dark) 
 - **TODO**: the Dart parameter (Windows session); the React Native iOS side waits for the TypeScript spec prop (codegen), then
   `CylsearchBarView.mm` reads it.
 
+## DONE (2026-11-29, `feat/harmonyos-parity`, Windows session): publish the learn-codebase notes in `docs/learn-codebase/`
+
+- **Context**: a learn-codebase pass over this repository (2026-11-29, HEAD `ad32984` plus uncommitted changes; static reading only)
+  produced notes in claude-mem's local deliverables folder. They were moved to
+  [docs/learn-codebase/learn-codebase-2026-11-29/](learn-codebase/learn-codebase-2026-11-29/README.md), which claude-mem watches
+  (Markdown files up to 64 KB, so five larger files are split into parts). This entry was written after that work, not before it.
+- **Requirements**: remove local paths and the local user name; check the suspected secret keywords; mark unverified conclusions;
+  update the task log; commit and push to this public repository; claude-mem keeps ingesting the folder.
+- **Prompts** (verbatim except that local paths are replaced by `<local path>`):
+  - "交付物 放到仓库 docs/learn-codebase/ 下， \"<local path>\" 按照文档，建议， 将 交付物\"<local path>\\{{git project name}}\" 移动到 docs/learn-codebase/ ，并更新 让 claude-mem 主动收录我们本次在本git仓库内新建的文件夹 project 对应 本项目的名字也就是 {{git project name}}。"
+  - "要把这些笔记提交到公开仓库！先清除本机路径和用户名，检查扫描出的两处疑似密钥关键词，把没复核的结论明确标出来，再更新 Task-Log 并推送。claude-mem 照常能收录。"
+- **Prompts (English)**: "Put the deliverables under docs/learn-codebase/ in the repository, following the suggestions of the referenced
+  document: move this project's deliverables folder there, and have claude-mem actively ingest the new folder under this project's
+  name." Then: "These notes are to be committed to the public repository. First remove local paths and the user name, check the two
+  suspected secret keywords the scan reported, clearly mark the conclusions that were not re-checked, then update the task log and
+  push. claude-mem must keep ingesting them."
+- **Acceptance (100)**: no local user path or local user name in the new files and this entry; every secret-keyword candidate
+  reviewed; every Markdown file carries an unverified notice and stays within 64 KB; links resolve; only these notes and this entry
+  are committed; pushed; claude-mem records the new revisions. **(60)**: cleaned, marked and pushed.
+- **Status**: DONE (2026-11-29).
+- **Result**:
+  - Left out of the repository: the raw claude-mem observation dumps and their index (`memory/`), which held almost all local paths.
+  - Reworded: one mention of a cloud-sync folder product and two of temporary session files. Kept on purpose: public identifiers
+    (the GitHub account, bundle and Maven ids, the copyright line) and generic or repository-documented paths
+    (`C:\cylbuild\harmonyos`, `C:/w/heavy.lock`, `%APPDATA%`, `C:\Program Files\...`).
+  - Secret keywords: the earlier scan of this pass (email addresses, common token formats, private key headers) reported no match, so
+    which two hits the prompt means is unknown. A wider keyword scan (password, secret, API key, credential, keystore, signing and
+    token formats) matched ordinary prose and API names such as `textPassword` and `safe-password`, mentions that a debug keystore
+    was not read, notes on unsigned builds, and, in a left-out dump, "Sonatype credentials still to be added". No secret value was found.
+  - Every Markdown file starts with an "UNVERIFIED" notice; first-read findings are labelled "R (not re-checked)".
+  - These were pattern scans, not a line-by-line review of the published text.
+- **TODO**:
+  - Nothing was built, run or tested: reproduce the findings (iOS needs a Mac; two HarmonyOS UI tests need an emulator).
+  - Re-check the subagent digests' claims and contradictions against the code.
+  - Local paths remain outside the new notes and were not edited in this task: the 2026-11-27 entry of this file above (committed
+    in `d958f73`, published by this push) quotes a prompt containing one, and `.agents/skills/cyl-harmonyos-setup/SKILL.md` line 31
+    was already public on several remote branches. Removing them from history would need a rewrite, which needs the owner's decision.

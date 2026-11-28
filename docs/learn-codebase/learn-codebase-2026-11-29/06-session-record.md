@@ -1,0 +1,13 @@
+> **UNVERIFIED / 未复核.** Static reading at `ad32984` plus uncommitted changes; nothing was built, run or tested. Summary of the read; treat conclusions as unverified unless 02-findings.md marks them S.
+
+# How this pass was done
+
+- **Request:** `/claude-mem:learn-codebase`: read every source file in full. Then: export what was learned to the claude-mem deliverables folder.
+- **State read:** branch `feat/harmonyos-parity`, HEAD `ad32984`, 2 commits ahead of origin. Uncommitted: `CrossPlatform/flutter_cylsearch/example/pubspec.lock`, `docs/harmonyos-api-alignment.md`, `harmonyos/cylsearch/src/main/ets/CYLSearchBarView.ets` (+86 lines), `scripts/harmonyos-api-alignment.py` (+2 lines), and 3 untracked comment-only `index.wxss` files. A stash holds superseded Android SVGA work. This can have changed since.
+- **Read:** 153 chunks, 595 files, 88595 lines (recorded line counts), in 15 groups. The read spanned context compactions.
+- **Skipped:** images and animation assets, string tables and values XML, lock files, `.pbxproj`, Gradle wrappers, license files, bundled yarn files, third-party Swift/UIKit skills, docs other than instruction files, and the generated `cyl_demo_resources.js` (its import script was read).
+- **Second pass (same day, "continue learn-codebase"):** repository state unchanged. Six subagents read 101 project documents, skills and READMEs; the main session compared the string files. It also read the main build config files, extracting selected settings from project, lock, scheme and storyboard files ([data/config.md](data/config.md)). Still unread: third-party skills, license texts, images and other binaries, animation data, the keystore and environment files, asset catalogs, Android drawable and theme XML, ignore files, and similar small config. Not every localization value was read: string files were compared by script. The "Skipped" line above describes the first pass.
+- **Moved into the repository and published (2026-11-29):** into `docs/learn-codebase/`. The "no edit in the repository" line below describes the learning passes. Five files over 64 KB were split into parts so claude-mem's folder watcher can read them. Before publication the raw claude-mem observation dumps and their index were left out, local user paths and machine-specific wording were removed, and an unverified-status notice was added to every Markdown file.
+- **Tool note:** a claude-mem hook blocks full reads of files it has observed; paged reads were used.
+- **Not done:** no build, run, test, edit or commit in the repository. One script check was attempted and did not start (Python stub in Git Bash).
+- **Rule conflict:** `AGENTS.md` wants `git pull` and a committed task-log entry; the task was read-only with no commit.
