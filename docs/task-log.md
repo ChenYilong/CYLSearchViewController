@@ -68,3 +68,11 @@ begins and becomes `DONE` when it ends.
      the Issue #1317 inset details, and the CYLTabBarController integration steps. Move anything missing into its tag file
      instead of deleting it.
   4. Keep `instructions.md` under 200 lines (87 now).
+
+## TODO (2026-11-29): finish the WIP `instructions.md` rewrite
+
+- Context: continues the entry of 2026-11-28 above, on `docs/agents-tag-format` (PR #18), from commit `2e3c1fa`.
+- Requirements: do the four remaining items of that entry; move missing rules into tag files instead of deleting them.
+- Prompt (verbatim): "finish the WIP"
+- Prompt (English): "finish the WIP"
+- Status: started.
